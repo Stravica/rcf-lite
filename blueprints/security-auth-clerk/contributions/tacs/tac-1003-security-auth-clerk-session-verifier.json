@@ -18,23 +18,23 @@
   "interfaces": [
     {
       "name": "clerkClient",
-      "kind": "read-api",
-      "description": "The Clerk server SDK's session-verification surface. The verifier's constructor takes a Clerk client instance; the module does not construct its own from environment variables."
+      "kind": "other",
+      "description": "The Clerk server SDK's session-verification surface. The verifier's constructor takes a Clerk client instance; the module does not construct its own from environment variables. (legacy kind: read-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with `{ outcome, reasonClass?, sessionIdPrefix, at }` on every verification attempt; never invoked with a cookie value or a full session id."
+      "kind": "other",
+      "description": "Structured-event sink invoked with `{ outcome, reasonClass?, sessionIdPrefix, at }` on every verification attempt; never invoked with a cookie value or a full session id. (legacy kind: callback)"
     },
     {
       "name": "clock",
-      "kind": "clock",
-      "description": "Injectable clock returning the current instant; used for revocation-window bounding and for the audit event's `at` field."
+      "kind": "other",
+      "description": "Injectable clock returning the current instant; used for revocation-window bounding and for the audit event's `at` field. (legacy kind: clock)"
     },
     {
       "name": "sessionInventory",
-      "kind": "query",
-      "description": "sessionInventory({ callerPrincipal }) -> { list() -> SessionRow[], revoke(sessionId) -> void, revokeAllExceptCurrent() -> number }. SessionRow shape: { sessionId, deviceLabel, lastActive (ISO-8601), currentSession }. The consumer contract in application-account-settings TAC-2604 reads this interface verbatim; do not restate the shape from another blueprint."
+      "kind": "other",
+      "description": "sessionInventory({ callerPrincipal }) -> { list() -> SessionRow[], revoke(sessionId) -> void, revokeAllExceptCurrent() -> number }. SessionRow shape: { sessionId, deviceLabel, lastActive (ISO-8601), currentSession }. The consumer contract in application-account-settings TAC-2604 reads this interface verbatim; do not restate the shape from another blueprint. (legacy kind: query)"
     }
   ],
   "dependencies": [],

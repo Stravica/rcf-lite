@@ -18,23 +18,23 @@
   "interfaces": [
     {
       "name": "discoveryClient",
-      "kind": "read-api",
-      "description": "TAC-1201's exported endpoint-record accessor for `introspection_endpoint`."
+      "kind": "other",
+      "description": "TAC-1201's exported endpoint-record accessor for `introspection_endpoint`. (legacy kind: read-api)"
     },
     {
       "name": "httpFetch",
-      "kind": "read-api",
-      "description": "Process HTTP-fetch port."
+      "kind": "other",
+      "description": "Process HTTP-fetch port. (legacy kind: read-api)"
     },
     {
       "name": "clock",
-      "kind": "read-api",
-      "description": "Injected time source."
+      "kind": "other",
+      "description": "Injected time source. (legacy kind: read-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink; never invoked with a token value."
+      "kind": "other",
+      "description": "Structured-event sink; never invoked with a token value. (legacy kind: callback)"
     }
   ],
   "dependencies": [

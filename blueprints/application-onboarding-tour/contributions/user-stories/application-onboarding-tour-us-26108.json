@@ -50,7 +50,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2703-application-onboarding-tour-completion-store",
-        "field": "interfaces.completionStore"
+        "field": "interfaces[completionStore]"
       }
     }
   ],

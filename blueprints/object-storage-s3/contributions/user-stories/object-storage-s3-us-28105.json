@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-2903-object-storage-s3-event-sink",
-        "field": "interfaces.onEvent"
+        "field": "interfaces[onEvent]"
       }
     },
     {
@@ -33,7 +33,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2903-object-storage-s3-event-sink",
-        "field": "interfaces.onEvent"
+        "field": "interfaces[onEvent]"
       },
       "disposition": "fixed"
     }

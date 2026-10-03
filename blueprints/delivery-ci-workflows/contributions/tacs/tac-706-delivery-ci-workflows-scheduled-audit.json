@@ -15,13 +15,13 @@
   "interfaces": [
     {
       "name": "runScheduledAudit",
-      "kind": "factory",
-      "description": "runScheduledAudit({ checkSet, reportPath }) -> Promise<{ verdict, exitCode, aggregateReportPath }>; the sole callable the entry point invokes."
+      "kind": "other",
+      "description": "runScheduledAudit({ checkSet, reportPath }) -> Promise<{ verdict, exitCode, aggregateReportPath }>; the sole callable the entry point invokes. (legacy kind: factory)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath> --check-set <checkSet> --report-path <path>` with the elicited check set as required argv and the report path as an optional override. Exit code is the aggregate exit code."
+      "kind": "other",
+      "description": "`node <entryPointPath> --check-set <checkSet> --report-path <path>` with the elicited check set as required argv and the report path as an optional override. Exit code is the aggregate exit code. (legacy kind: cli)"
     }
   ],
   "dependencies": [

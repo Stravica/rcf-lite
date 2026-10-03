@@ -17,7 +17,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2501-application-forms-wizard-task-list",
-        "field": "interfaces.statesEnum"
+        "field": "interfaces[statesEnum]"
       },
       "vendorCitation": {
         "url": "https://design-system.service.gov.uk/patterns/task-list-pages/",

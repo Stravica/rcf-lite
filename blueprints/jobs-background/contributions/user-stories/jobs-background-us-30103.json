@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3102-jobs-background-scheduler",
-        "field": "interfaces.scheduler.schedule"
+        "field": "interfaces[scheduler.schedule]"
       },
       "disposition": "template"
     },

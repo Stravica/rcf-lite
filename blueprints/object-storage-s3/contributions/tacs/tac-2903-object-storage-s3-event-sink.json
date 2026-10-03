@@ -18,8 +18,8 @@
   "interfaces": [
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "onEvent(record: {event: 'facadeReady' | 'objectPut' | 'objectDeleted' | 'presignedIssued', ts: number, [k: string]: any}) -> void. Consumers pass the callback to createObjectStore; the facade calls it synchronously at the moment of the event."
+      "kind": "other",
+      "description": "onEvent(record: {event: 'facadeReady' | 'objectPut' | 'objectDeleted' | 'presignedIssued', ts: number, [k: string]: any}) -> void. Consumers pass the callback to createObjectStore; the facade calls it synchronously at the moment of the event. (legacy kind: callback)"
     }
   ],
   "dependencies": [

@@ -17,12 +17,17 @@
   "interfaces": [
     {
       "name": "mappingTable",
-      "kind": "read-api",
-      "description": "Project-authored module exporting `{ [verb: string]: { roles: string[] } }`. A verb not present in the map evaluates to `false` on `can` and to throw on `assert`."
+      "kind": "other",
+      "description": "Project-authored module exporting `{ [verb: string]: { roles: string[] } }`. A verb not present in the map evaluates to `false` on `can` and to throw on `assert`. (legacy kind: read-api)"
     }
   ],
   "dependencies": [
-    { "name": "Clerk claims mapper", "kind": "tac", "tacId": "TAC-1004-security-auth-clerk-claims-mapper", "description": "The reduction from raw Clerk claims onto the Principal shape the adapter consumes." }
+    {
+      "name": "Clerk claims mapper",
+      "kind": "tac",
+      "tacId": "TAC-1004-security-auth-clerk-claims-mapper",
+      "description": "The reduction from raw Clerk claims onto the Principal shape the adapter consumes."
+    }
   ],
   "tradeoffs": "Fixing the adapter's decision shape (role-set intersection plus optional organisation scoping) leaves fine-grained resource-level authorisation (per-record ACLs, dynamic ownership predicates) as a project decision layered above it. The blueprint's floor is verb-plus-organisation because that is what Clerk's own claim vocabulary supports out of the box; a project that needs richer predicates authors them as a project-side extension that consumes this adapter's output rather than replaces it.",
   "createdAt": "2026-08-30T00:00:00Z",

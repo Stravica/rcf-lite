@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "createErrorRecordFactory",
-      "kind": "factory",
-      "description": "createErrorRecordFactory({ redactionBoundary, correlationContext }) -> { createErrorRecord({code, category, message, cause, context}) }. Constructed once at boot alongside the logger factory."
+      "kind": "other",
+      "description": "createErrorRecordFactory({ redactionBoundary, correlationContext }) -> { createErrorRecord({code, category, message, cause, context}) }. Constructed once at boot alongside the logger factory. (legacy kind: factory)"
     },
     {
       "name": "Record",
-      "kind": "interface",
-      "description": "Frozen object with fields code (string), category (string), message (string), correlationId (string or null), cause (Record | null), context (redacted object)."
+      "kind": "other",
+      "description": "Frozen object with fields code (string), category (string), message (string), correlationId (string or null), cause (Record | null), context (redacted object). (legacy kind: interface)"
     }
   ],
   "dependencies": [

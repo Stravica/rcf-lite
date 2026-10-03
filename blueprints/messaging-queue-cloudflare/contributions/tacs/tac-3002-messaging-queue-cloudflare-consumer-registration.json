@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "createConsumer",
-      "kind": "factory",
-      "description": "createConsumer({ handler, onEvent }) -> (batch, env, ctx) => Promise<void>. The exported queue handler the Worker registers under the [triggers] queue binding. The handler is invoked once per delivered message and returns a value used to classify success/retry/terminal."
+      "kind": "other",
+      "description": "createConsumer({ handler, onEvent }) -> (batch, env, ctx) => Promise<void>. The exported queue handler the Worker registers under the [triggers] queue binding. The handler is invoked once per delivered message and returns a value used to classify success/retry/terminal. (legacy kind: factory)"
     }
   ],
   "dependencies": [

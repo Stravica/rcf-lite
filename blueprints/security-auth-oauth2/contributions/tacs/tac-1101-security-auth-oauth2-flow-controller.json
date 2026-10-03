@@ -22,38 +22,48 @@
   "interfaces": [
     {
       "name": "providerAdapter",
-      "kind": "read-api",
-      "description": "The provider adapter (TAC-1102) resolving a provider record by id, returning `{ authorizeUrl, tokenUrl, userinfoUrl, issuer, jwksUri, clientId, clientSecret, scopes, redirectUri, providerKind, endSessionEndpoint?, providerLogout? }` and exposing a JWKS-fetching port for id_token verification."
+      "kind": "other",
+      "description": "The provider adapter (TAC-1102) resolving a provider record by id, returning `{ authorizeUrl, tokenUrl, userinfoUrl, issuer, jwksUri, clientId, clientSecret, scopes, redirectUri, providerKind, endSessionEndpoint?, providerLogout? }` and exposing a JWKS-fetching port for id_token verification. (legacy kind: read-api)"
     },
     {
       "name": "sessionBridge",
-      "kind": "read-write-api",
-      "description": "The session-bridge (TAC-1103) exposing `issue(principal, providerTokens) -> { handle, cookie }` and `verify(handle) -> { valid, principal?, refreshToken? }` and `invalidate(handle) -> void`."
+      "kind": "other",
+      "description": "The session-bridge (TAC-1103) exposing `issue(principal, providerTokens) -> { handle, cookie }` and `verify(handle) -> { valid, principal?, refreshToken? }` and `invalidate(handle) -> void`. (legacy kind: read-write-api)"
     },
     {
       "name": "pendingFlowStore",
-      "kind": "read-write-api",
-      "description": "Server-side one-time store keyed by state, exposing `put(state, record)`, `takeOnce(state) -> record | absent`, and TTL-based eviction. In-memory in the reference wiring; a project may inject a persistence-backed implementation."
+      "kind": "other",
+      "description": "Server-side one-time store keyed by state, exposing `put(state, record)`, `takeOnce(state) -> record | absent`, and TTL-based eviction. In-memory in the reference wiring; a project may inject a persistence-backed implementation. (legacy kind: read-write-api)"
     },
     {
       "name": "refreshTokenStore",
-      "kind": "read-write-api",
-      "description": "Server-side store keyed by session handle, exposing `put(handle, refreshToken)`, `rotate(handle, oldToken, newToken)`, `reuseDetect(handle, presentedToken) -> { reuse: boolean, chainRoot?: string }`, and `clearChain(chainRoot)`."
+      "kind": "other",
+      "description": "Server-side store keyed by session handle, exposing `put(handle, refreshToken)`, `rotate(handle, oldToken, newToken)`, `reuseDetect(handle, presentedToken) -> { reuse: boolean, chainRoot?: string }`, and `clearChain(chainRoot)`. (legacy kind: read-write-api)"
     },
     {
       "name": "clock",
-      "kind": "read-api",
-      "description": "Injected time source returning epoch seconds; the test harness substitutes a controllable clock for TTL and expiry-window checks."
+      "kind": "other",
+      "description": "Injected time source returning epoch seconds; the test harness substitutes a controllable clock for TTL and expiry-window checks. (legacy kind: read-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with `{ event, providerId, sessionHandleHash?, reasonClass?, at }`; never invoked with a token value or a cookie value."
+      "kind": "other",
+      "description": "Structured-event sink invoked with `{ event, providerId, sessionHandleHash?, reasonClass?, at }`; never invoked with a token value or a cookie value. (legacy kind: callback)"
     }
   ],
   "dependencies": [
-    { "name": "OAuth2 provider adapter", "kind": "tac", "tacId": "TAC-1102-security-auth-oauth2-provider-adapter", "description": "Provider record resolution and JWKS fetch." },
-    { "name": "OAuth2 session-bridge", "kind": "tac", "tacId": "TAC-1103-security-auth-oauth2-session-bridge", "description": "Session issue, verify, invalidate." }
+    {
+      "name": "OAuth2 provider adapter",
+      "kind": "tac",
+      "tacId": "TAC-1102-security-auth-oauth2-provider-adapter",
+      "description": "Provider record resolution and JWKS fetch."
+    },
+    {
+      "name": "OAuth2 session-bridge",
+      "kind": "tac",
+      "tacId": "TAC-1103-security-auth-oauth2-session-bridge",
+      "description": "Session issue, verify, invalidate."
+    }
   ],
   "tradeoffs": "Fixing the flow at the controller and pushing every provider variation onto the record shape costs the project a small piece of boot-time work (declaring the provider record fields for each vendor) and buys the project one code path across every vendor for the state machine. Storing the pending-flow and the refresh-token chain on server-side stores rather than a browser cookie costs the project a small piece of state per pending sign-in and per active session; it buys the project defence against a category of front-channel exfiltration attacks against the PKCE verifier and the refresh chain. Injecting the clock costs the project one line of wiring; it buys the test harness clean TTL-and-expiry testing without real sleeps.",
   "createdAt": "2026-08-30T00:00:00Z",

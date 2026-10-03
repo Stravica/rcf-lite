@@ -16,13 +16,15 @@
   "interfaces": [
     {
       "name": "rate-limit-rule.schema.json",
-      "kind": "schema",
-      "summary": "JSON Schema (draft-07) for one rate-limit rule manifest file."
+      "kind": "other",
+      "summary": "JSON Schema (draft-07) for one rate-limit rule manifest file.",
+      "description": "(legacy kind: schema)"
     },
     {
       "name": "cloudflare/rate-limits/",
-      "kind": "layout",
-      "summary": "Elicited manifest directory, one JSON file per rule."
+      "kind": "other",
+      "summary": "Elicited manifest directory, one JSON file per rule.",
+      "description": "(legacy kind: layout)"
     }
   ],
   "dependencies": [],

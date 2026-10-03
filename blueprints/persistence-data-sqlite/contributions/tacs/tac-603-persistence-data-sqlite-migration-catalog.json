@@ -15,13 +15,13 @@
   "interfaces": [
     {
       "name": "MIGRATIONS",
-      "kind": "constant",
-      "description": "The ordered array of { version, description, statements } entries, exported as a named module-level constant."
+      "kind": "other",
+      "description": "The ordered array of { version, description, statements } entries, exported as a named module-level constant. (legacy kind: constant)"
     },
     {
       "name": "CURRENT_VERSION",
-      "kind": "constant",
-      "description": "The max version integer across MIGRATIONS. Equals MIGRATIONS[MIGRATIONS.length - 1].version by construction."
+      "kind": "other",
+      "description": "The max version integer across MIGRATIONS. Equals MIGRATIONS[MIGRATIONS.length - 1].version by construction. (legacy kind: constant)"
     }
   ],
   "dependencies": [],

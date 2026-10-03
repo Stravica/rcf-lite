@@ -13,7 +13,12 @@
   ],
   "internalStructure": "The sink is a function reference (rec) => void injected into the dispatcher factory. In the local probes it is a spy that accumulates records; in a real project it is wired to the applied logging companion. The dispatcher module holds the whitelist knowledge; the sink is passive.",
   "interfaces": [
-    { "name": "eventSink parameter", "kind": "callback", "summary": "Injected into createDispatcher; the dispatcher constructs records and calls the sink with each." }
+    {
+      "name": "eventSink parameter",
+      "kind": "other",
+      "summary": "Injected into createDispatcher; the dispatcher constructs records and calls the sink with each.",
+      "description": "(legacy kind: callback)"
+    }
   ],
   "dependencies": [],
   "createdAt": "2026-09-07T12:35:00.000Z",

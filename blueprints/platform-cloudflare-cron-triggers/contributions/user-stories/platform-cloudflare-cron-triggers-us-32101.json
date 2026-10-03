@@ -38,7 +38,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       }
     },
     {
@@ -52,7 +52,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3303-platform-cloudflare-cron-triggers-event-sink",
-        "field": "interfaces.eventSink parameter"
+        "field": "interfaces[eventSink parameter]"
       }
     },
     {

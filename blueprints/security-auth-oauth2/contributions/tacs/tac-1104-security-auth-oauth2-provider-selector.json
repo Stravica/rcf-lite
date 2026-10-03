@@ -16,12 +16,17 @@
   "interfaces": [
     {
       "name": "providerConfig",
-      "kind": "read-api",
-      "description": "The provider-config module (same source as TAC-1102 reads); exposes `list() -> record[]` and the enabled flag."
+      "kind": "other",
+      "description": "The provider-config module (same source as TAC-1102 reads); exposes `list() -> record[]` and the enabled flag. (legacy kind: read-api)"
     }
   ],
   "dependencies": [
-    { "name": "OAuth2 provider adapter", "kind": "tac", "tacId": "TAC-1102-security-auth-oauth2-provider-adapter", "description": "Reads the same provider-config the adapter validates at boot." }
+    {
+      "name": "OAuth2 provider adapter",
+      "kind": "tac",
+      "tacId": "TAC-1102-security-auth-oauth2-provider-adapter",
+      "description": "Reads the same provider-config the adapter validates at boot."
+    }
   ],
   "tradeoffs": "A first-party selector surface makes the multi-provider posture visible without a project-side page implementation; the cost is one rendering path the blueprint owns and a small piece of style the project may want to override. Substituting a bespoke selector is a plain wire swap on the sign-in route; the query-parameter contract is the seam, not the rendering. Not owning the sign-in initiation logic (that belongs to the flow controller) keeps this TAC's surface small: it is a route that renders a list and links; the state machine is elsewhere.",
   "createdAt": "2026-08-30T00:00:00Z",

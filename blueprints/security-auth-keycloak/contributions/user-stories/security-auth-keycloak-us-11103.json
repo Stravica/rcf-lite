@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "interfaces.httpFetch.name"
+        "field": "interfaces[httpFetch.name]"
       },
       "disposition": "fixed"
     },
@@ -33,7 +33,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1201-security-auth-keycloak-discovery-client",
-        "field": "interfaces.httpFetch.name"
+        "field": "interfaces[httpFetch.name]"
       },
       "disposition": "fixed"
     }

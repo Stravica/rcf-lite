@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "realmConfig",
-      "kind": "read-api",
-      "description": "Same source TAC-1201 reads: the realm-config module."
+      "kind": "other",
+      "description": "Same source TAC-1201 reads: the realm-config module. (legacy kind: read-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink; carries realmSlug and reasonClass only."
+      "kind": "other",
+      "description": "Structured-event sink; carries realmSlug and reasonClass only. (legacy kind: callback)"
     }
   ],
   "dependencies": [],

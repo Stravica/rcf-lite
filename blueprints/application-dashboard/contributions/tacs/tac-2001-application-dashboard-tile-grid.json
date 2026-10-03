@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "renderDashboardShell",
-      "kind": "factory",
-      "description": "renderDashboardShell({ tiles, chartRegion, filters, timeframe, exportHandle, refreshInterval, asOf }) -> { mount(rootElement), unmount() }. The project supplies the tile inventory (elicited at apply per ADR-2001), the chart region declarations, the filter chrome, the timeframe picker (elicited from ADR-2002's presets), the export handle (elicited from ADR-2003's formats), and the optional refresh interval; the shell owns the CSS Grid DOM plumbing, the region wrapping, the aria-live announcers and the state routing."
+      "kind": "other",
+      "description": "renderDashboardShell({ tiles, chartRegion, filters, timeframe, exportHandle, refreshInterval, asOf }) -> { mount(rootElement), unmount() }. The project supplies the tile inventory (elicited at apply per ADR-2001), the chart region declarations, the filter chrome, the timeframe picker (elicited from ADR-2002's presets), the export handle (elicited from ADR-2003's formats), and the optional refresh interval; the shell owns the CSS Grid DOM plumbing, the region wrapping, the aria-live announcers and the state routing. (legacy kind: factory)"
     },
     {
       "name": "tileStateContract",
-      "kind": "shape",
-      "description": "A tile in each of four states carries `data-tile-state=\"loading|empty|error|populated\"` on its wrapping `role=\"region\"` element; the accessible name reads `<tile title>, <state>`; the state's visual cue is not colour-only."
+      "kind": "other",
+      "description": "A tile in each of four states carries `data-tile-state=\"loading|empty|error|populated\"` on its wrapping `role=\"region\"` element; the accessible name reads `<tile title>, <state>`; the state's visual cue is not colour-only. (legacy kind: shape)"
     }
   ],
   "dependencies": [

@@ -50,7 +50,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-804-observability-essentials-notification-outcome",
-        "field": "interfaces.createOutcomeSink"
+        "field": "interfaces[createOutcomeSink]"
       }
     },
     {
@@ -64,7 +64,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-804-observability-essentials-notification-outcome",
-        "field": "interfaces.recordOutcome"
+        "field": "interfaces[recordOutcome]"
       }
     }
   ],

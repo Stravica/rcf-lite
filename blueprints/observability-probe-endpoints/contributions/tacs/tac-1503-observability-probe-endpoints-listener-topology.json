@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "bindListenerTopology",
-      "kind": "factory",
-      "description": "bindListenerTopology({ profile, handlerSet, userTrafficListener, listenerFactory, exemptListInstaller }) -> { bound, exemptSet }. Called once at boot after TAC-1502 has built the handler set. The `userTrafficListener` is the project's HTTP router or server object; `listenerFactory(port)` is a project-supplied constructor for a fresh listener on the given port; `exemptListInstaller` is the project's auth-middleware exempt-list installer."
+      "kind": "other",
+      "description": "bindListenerTopology({ profile, handlerSet, userTrafficListener, listenerFactory, exemptListInstaller }) -> { bound, exemptSet }. Called once at boot after TAC-1502 has built the handler set. The `userTrafficListener` is the project's HTTP router or server object; `listenerFactory(port)` is a project-supplied constructor for a fresh listener on the given port; `exemptListInstaller` is the project's auth-middleware exempt-list installer. (legacy kind: factory)"
     },
     {
       "name": "listenerFactory",
-      "kind": "read-api",
-      "description": "Project-supplied `(port: number) -> Listener` factory. Called only when the separate-port topology is in effect. Returns a new HTTP listener bound to the given port with no middleware installed."
+      "kind": "other",
+      "description": "Project-supplied `(port: number) -> Listener` factory. Called only when the separate-port topology is in effect. Returns a new HTTP listener bound to the given port with no middleware installed. (legacy kind: read-api)"
     },
     {
       "name": "exemptListInstaller",
-      "kind": "write-api",
-      "description": "Project-supplied installer that receives a `{ listener, paths: string[], matcher: 'exact' }` record and registers the exempt set with the auth middleware on the named listener. Refuses on the topology component's side if the paths carry a wildcard or prefix marker."
+      "kind": "other",
+      "description": "Project-supplied installer that receives a `{ listener, paths: string[], matcher: 'exact' }` record and registers the exempt set with the auth middleware on the named listener. Refuses on the topology component's side if the paths carry a wildcard or prefix marker. (legacy kind: write-api)"
     }
   ],
   "dependencies": [

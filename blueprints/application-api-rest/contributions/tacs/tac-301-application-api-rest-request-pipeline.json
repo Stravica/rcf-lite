@@ -19,13 +19,13 @@
   "interfaces": [
     {
       "name": "endpoint metadata",
-      "kind": "configuration",
-      "description": "Per-endpoint declarations (auth class, rate-limit override, idempotency requirement) consumed to parameterise the shared pipeline; the same declarations the contract surface publishes."
+      "kind": "other",
+      "description": "Per-endpoint declarations (auth class, rate-limit override, idempotency requirement) consumed to parameterise the shared pipeline; the same declarations the contract surface publishes. (legacy kind: configuration)"
     },
     {
       "name": "error boundary",
-      "kind": "middleware",
-      "description": "Terminal handler converting any failure into a problem-details response with the request id in the instance field."
+      "kind": "other",
+      "description": "Terminal handler converting any failure into a problem-details response with the request id in the instance field. (legacy kind: middleware)"
     }
   ],
   "dependencies": [

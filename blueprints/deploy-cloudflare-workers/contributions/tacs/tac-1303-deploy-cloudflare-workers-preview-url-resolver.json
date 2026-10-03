@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "workerIdentity",
-      "kind": "read-api",
-      "description": "Reads the Worker name from the wrangler manifest. Reads the vendor account's workers.dev subdomain from the Deploy Adapter's `resolveSubdomain()` verb (which honours a `WORKERS_DEV_SUBDOMAIN` env-var pin ahead of calling the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint, because no wrangler CLI verb returns the subdomain). Returns both as strings the URL-assembly functions consume."
+      "kind": "other",
+      "description": "Reads the Worker name from the wrangler manifest. Reads the vendor account's workers.dev subdomain from the Deploy Adapter's `resolveSubdomain()` verb (which honours a `WORKERS_DEV_SUBDOMAIN` env-var pin ahead of calling the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint, because no wrangler CLI verb returns the subdomain). Returns both as strings the URL-assembly functions consume. (legacy kind: read-api)"
     },
     {
       "name": "aliasQuery",
-      "kind": "read-api",
-      "description": "Queries the vendor for the version id currently behind an alias by reading `wrangler versions list --json` and filtering on `annotations['workers/alias']`, returning the item with the greatest `metadata.created_on`; there is no direct CLI verb (`wrangler versions view` accepts a version UUID only). Returns the id or a stable `DEPLOY_ALIAS_UNKNOWN` error when no version carries the alias annotation."
+      "kind": "other",
+      "description": "Queries the vendor for the version id currently behind an alias by reading `wrangler versions list --json` and filtering on `annotations['workers/alias']`, returning the item with the greatest `metadata.created_on`; there is no direct CLI verb (`wrangler versions view` accepts a version UUID only). Returns the id or a stable `DEPLOY_ALIAS_UNKNOWN` error when no version carries the alias annotation. (legacy kind: read-api)"
     },
     {
       "name": "probeUrl",
-      "kind": "read-api",
-      "description": "Named-verb URL accessor for downstream consumers. `probeUrl('versionId', 'v-123')` returns the per-version URL; `probeUrl('alias', 'main')` returns the alias URL; `probeUrl('production', null)` returns the production URL from the manifest."
+      "kind": "other",
+      "description": "Named-verb URL accessor for downstream consumers. `probeUrl('versionId', 'v-123')` returns the per-version URL; `probeUrl('alias', 'main')` returns the alias URL; `probeUrl('production', null)` returns the production URL from the manifest. (legacy kind: read-api)"
     }
   ],
   "dependencies": [

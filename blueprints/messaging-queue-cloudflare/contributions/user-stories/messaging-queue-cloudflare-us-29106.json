@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3003-messaging-queue-cloudflare-event-sink",
-        "field": "interfaces.createSinkAdapter"
+        "field": "interfaces[createSinkAdapter]"
       }
     },
     {
@@ -33,7 +33,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3001-messaging-queue-cloudflare-producer-facade",
-        "field": "interfaces.onEvent"
+        "field": "interfaces[onEvent]"
       },
       "disposition": "fixed"
     }

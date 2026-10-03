@@ -15,18 +15,18 @@
   "interfaces": [
     {
       "name": "createRunLog",
-      "kind": "factory",
-      "description": "createRunLog({ upstream }) -> RunLog; upstream is the applied logger companion's event sink."
+      "kind": "other",
+      "description": "createRunLog({ upstream }) -> RunLog; upstream is the applied logger companion's event sink. (legacy kind: factory)"
     },
     {
       "name": "runLog.fire",
-      "kind": "method",
-      "description": "fire({ event, jobId, jobName, attempts, duration, timestamp, terminalErrorCode? }): validates the whitelist and forwards the record; unknown fields are dropped."
+      "kind": "other",
+      "description": "fire({ event, jobId, jobName, attempts, duration, timestamp, terminalErrorCode? }): validates the whitelist and forwards the record; unknown fields are dropped. (legacy kind: method)"
     },
     {
       "name": "eventEnvelope",
-      "kind": "shape",
-      "description": "The record shape: { event: 'jobScheduled' | 'jobStarted' | 'jobCompleted' | 'jobFailed', jobId: string, jobName: string, attempts: non-negative integer, duration: non-negative number, timestamp: ISO-8601 string, terminalErrorCode?: string (only on jobFailed) }."
+      "kind": "other",
+      "description": "The record shape: { event: 'jobScheduled' | 'jobStarted' | 'jobCompleted' | 'jobFailed', jobId: string, jobName: string, attempts: non-negative integer, duration: non-negative number, timestamp: ISO-8601 string, terminalErrorCode?: string (only on jobFailed) }. (legacy kind: shape)"
     }
   ],
   "dependencies": [

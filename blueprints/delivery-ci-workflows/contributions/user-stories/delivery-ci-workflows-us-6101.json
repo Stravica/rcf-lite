@@ -40,7 +40,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
-        "field": "interfaces.materialise"
+        "field": "interfaces[materialise]"
       }
     }
   ],

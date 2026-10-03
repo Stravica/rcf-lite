@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "renderLiveRegions",
-      "kind": "factory",
-      "description": "renderLiveRegions({ rootElement }) -> void. Mounts the two live-region wrappers into `rootElement` at first render if they are not already present. Idempotent across route changes: identity of the two wrappers is stable across the app lifetime (AC-20101-2)."
+      "kind": "other",
+      "description": "renderLiveRegions({ rootElement }) -> void. Mounts the two live-region wrappers into `rootElement` at first render if they are not already present. Idempotent across route changes: identity of the two wrappers is stable across the app lifetime (AC-20101-2). (legacy kind: factory)"
     },
     {
       "name": "renderToast",
-      "kind": "factory",
-      "description": "renderToast({ priority: 'info' | 'error', body: string, category: string, notificationId: string }) -> void. Mounts the toast DOM inside the wrapper the ADR-2101 mapping resolves to, records `data-shown-at`, schedules the ADR-2102-floored dismissal, and records `data-dismissed-at` on dismissal. Every toast surface event writes a delivery-log row through TAC-2102's `writeDeliveryRow`."
+      "kind": "other",
+      "description": "renderToast({ priority: 'info' | 'error', body: string, category: string, notificationId: string }) -> void. Mounts the toast DOM inside the wrapper the ADR-2101 mapping resolves to, records `data-shown-at`, schedules the ADR-2102-floored dismissal, and records `data-dismissed-at` on dismissal. Every toast surface event writes a delivery-log row through TAC-2102's `writeDeliveryRow`. (legacy kind: factory)"
     },
     {
       "name": "priorityToRoleContract",
-      "kind": "shape",
-      "description": "The ADR-2101 mapping: `info` maps to `{ wrapper: 'polite', role: 'status' }`; `error` maps to `{ wrapper: 'assertive', role: 'alert' }`. A priority outside the ADR-2101 enum is refused at project-side check."
+      "kind": "other",
+      "description": "The ADR-2101 mapping: `info` maps to `{ wrapper: 'polite', role: 'status' }`; `error` maps to `{ wrapper: 'assertive', role: 'alert' }`. A priority outside the ADR-2101 enum is refused at project-side check. (legacy kind: shape)"
     }
   ],
   "dependencies": [

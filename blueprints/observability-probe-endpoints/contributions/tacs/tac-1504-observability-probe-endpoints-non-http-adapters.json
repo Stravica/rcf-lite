@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "selectAdapter",
-      "kind": "factory",
-      "description": "selectAdapter({ profile, readinessPredicate, notifyImplementation, tcpFactory }) -> { adapter }. Returns the correct adapter object for the profile's transport. `notifyImplementation` is a project-supplied `(msg: string) -> void` wrapping the supervisor notify call for the runtime (systemd's `NOTIFY_SOCKET` on Linux, a stub in tests). `tcpFactory` is a project-supplied `(port) -> TcpListener`. Called once at boot when the profile transport is non-HTTP."
+      "kind": "other",
+      "description": "selectAdapter({ profile, readinessPredicate, notifyImplementation, tcpFactory }) -> { adapter }. Returns the correct adapter object for the profile's transport. `notifyImplementation` is a project-supplied `(msg: string) -> void` wrapping the supervisor notify call for the runtime (systemd's `NOTIFY_SOCKET` on Linux, a stub in tests). `tcpFactory` is a project-supplied `(port) -> TcpListener`. Called once at boot when the profile transport is non-HTTP. (legacy kind: factory)"
     },
     {
       "name": "notifyImplementation",
-      "kind": "write-api",
-      "description": "Project-supplied notify writer accepting a supervisor-format message string. For systemd, this writes to the `NOTIFY_SOCKET` datagram address. For tests, a stub accumulator. Injected so the blueprint holds no operating-system-specific dependency."
+      "kind": "other",
+      "description": "Project-supplied notify writer accepting a supervisor-format message string. For systemd, this writes to the `NOTIFY_SOCKET` datagram address. For tests, a stub accumulator. Injected so the blueprint holds no operating-system-specific dependency. (legacy kind: write-api)"
     }
   ],
   "dependencies": [

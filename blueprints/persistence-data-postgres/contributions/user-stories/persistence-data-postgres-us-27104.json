@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
-        "field": "interfaces.withTransaction"
+        "field": "interfaces[withTransaction]"
       },
       "disposition": "fixed"
     },
@@ -33,7 +33,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2803-persistence-data-postgres-transaction-helper",
-        "field": "interfaces.withTransaction"
+        "field": "interfaces[withTransaction]"
       },
       "disposition": "fixed"
     }

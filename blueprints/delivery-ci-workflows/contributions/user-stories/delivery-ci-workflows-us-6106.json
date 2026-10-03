@@ -40,7 +40,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
-        "field": "interfaces.writeAggregateReport"
+        "field": "interfaces[writeAggregateReport]"
       }
     }
   ],

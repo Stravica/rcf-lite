@@ -19,18 +19,18 @@
   "interfaces": [
     {
       "name": "runTokenAdherenceProbe",
-      "kind": "factory",
-      "description": "runTokenAdherenceProbe({ tokensPath, stylesheetGlob, reportDir }) -> Promise<{ verdict, reportPath, violations }>; the sole callable the entry point invokes. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code."
+      "kind": "other",
+      "description": "runTokenAdherenceProbe({ tokensPath, stylesheetGlob, reportDir }) -> Promise<{ verdict, reportPath, violations }>; the sole callable the entry point invokes. `verdict` is `'ok' | 'fail'`; the entry point translates `fail` to a non-zero exit code. (legacy kind: factory)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "`node <entryPointPath>` with optional flags `--tokens <path>`, `--stylesheet-glob <glob>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`."
+      "kind": "other",
+      "description": "`node <entryPointPath>` with optional flags `--tokens <path>`, `--stylesheet-glob <glob>`, `--report-dir <path>` that override configuration defaults. Exit code is 0 on `ok`, non-zero on `fail`. (legacy kind: cli)"
     },
     {
       "name": "token-adherence report",
-      "kind": "external",
-      "description": "`reports/token-adherence.json` under the configured report directory. Shape: `{ verdict, tokensFile, stylesheetsScanned: string[], rawLiteralViolations: [{ file, line, snippet, category }], parityViolations: [{ key, missingIn: 'light' | 'dark' }], generatedAt }`."
+      "kind": "other",
+      "description": "`reports/token-adherence.json` under the configured report directory. Shape: `{ verdict, tokensFile, stylesheetsScanned: string[], rawLiteralViolations: [{ file, line, snippet, category }], parityViolations: [{ key, missingIn: 'light' | 'dark' }], generatedAt }`. (legacy kind: external)"
     }
   ],
   "dependencies": [

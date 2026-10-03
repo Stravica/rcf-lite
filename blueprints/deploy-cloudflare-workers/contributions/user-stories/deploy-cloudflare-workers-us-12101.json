@@ -50,7 +50,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
-        "field": "interfaces.manifestFile"
+        "field": "interfaces[manifestFile]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/workers/static-assets/binding/",

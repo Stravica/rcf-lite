@@ -18,13 +18,13 @@
   "interfaces": [
     {
       "name": "class selection",
-      "kind": "configuration",
-      "description": "The endpoint's declared class, read from the same metadata the OpenAPI x-auth-class extension publishes."
+      "kind": "other",
+      "description": "The endpoint's declared class, read from the same metadata the OpenAPI x-auth-class extension publishes. (legacy kind: configuration)"
     },
     {
       "name": "resolved principal",
-      "kind": "request-context",
-      "description": "The identity (user or service principal) the slot resolves, exposed read-only to handlers and observability."
+      "kind": "other",
+      "description": "The identity (user or service principal) the slot resolves, exposed read-only to handlers and observability. (legacy kind: request-context)"
     }
   ],
   "dependencies": [

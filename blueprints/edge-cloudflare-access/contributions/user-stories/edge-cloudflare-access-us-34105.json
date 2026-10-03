@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3502-edge-cloudflare-access-application-declaration",
-        "field": "interfaces.applicationDeclaration"
+        "field": "interfaces[applicationDeclaration]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/cloudflare-one/policies/access/",

@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "default export",
-      "kind": "factory",
-      "summary": "Platform-cloudflare-kv event sink boundary factory exported from the applied fixture module."
+      "kind": "other",
+      "summary": "Platform-cloudflare-kv event sink boundary factory exported from the applied fixture module.",
+      "description": "(legacy kind: factory)"
     }
   ],
   "dependencies": [],

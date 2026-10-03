@@ -50,7 +50,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-802-observability-essentials-readiness-probe",
-        "field": "interfaces.dependencyRegistry"
+        "field": "interfaces[dependencyRegistry]"
       }
     },
     {
@@ -64,7 +64,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-802-observability-essentials-readiness-probe",
-        "field": "interfaces.dependencyRegistry"
+        "field": "interfaces[dependencyRegistry]"
       }
     },
     {
@@ -78,7 +78,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-802-observability-essentials-readiness-probe",
-        "field": "interfaces.dependencyRegistry"
+        "field": "interfaces[dependencyRegistry]"
       }
     }
   ],

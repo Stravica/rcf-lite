@@ -50,7 +50,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
-        "field": "interfaces.runRelease"
+        "field": "interfaces[runRelease]"
       }
     }
   ],

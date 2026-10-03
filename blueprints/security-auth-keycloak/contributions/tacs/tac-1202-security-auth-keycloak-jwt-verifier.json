@@ -19,23 +19,23 @@
   "interfaces": [
     {
       "name": "discoveryClient",
-      "kind": "read-api",
-      "description": "TAC-1201's exported endpoint-record accessor: `endpoints(realmSlug) -> { issuer, jwksUri, ... }`."
+      "kind": "other",
+      "description": "TAC-1201's exported endpoint-record accessor: `endpoints(realmSlug) -> { issuer, jwksUri, ... }`. (legacy kind: read-api)"
     },
     {
       "name": "httpFetch",
-      "kind": "read-api",
-      "description": "Process HTTP-fetch port; shared with the discovery client."
+      "kind": "other",
+      "description": "Process HTTP-fetch port; shared with the discovery client. (legacy kind: read-api)"
     },
     {
       "name": "clock",
-      "kind": "read-api",
-      "description": "Injected time source for TTL and expiry checks."
+      "kind": "other",
+      "description": "Injected time source for TTL and expiry checks. (legacy kind: read-api)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink; never invoked with a token value."
+      "kind": "other",
+      "description": "Structured-event sink; never invoked with a token value. (legacy kind: callback)"
     }
   ],
   "dependencies": [

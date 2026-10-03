@@ -15,13 +15,15 @@
   "interfaces": [
     {
       "name": "SingleCellObject",
-      "kind": "class",
-      "summary": "Single-cell DO class realising strongly consistent authoritative-state shape."
+      "kind": "other",
+      "summary": "Single-cell DO class realising strongly consistent authoritative-state shape.",
+      "description": "(legacy kind: class)"
     },
     {
       "name": "createSingleCell",
-      "kind": "factory",
-      "summary": "Test-friendly factory that returns a new SingleCellObject."
+      "kind": "other",
+      "summary": "Test-friendly factory that returns a new SingleCellObject.",
+      "description": "(legacy kind: factory)"
     }
   ],
   "dependencies": [],

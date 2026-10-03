@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2102-application-notifications-in-app-centre",
-        "field": "interfaces.deliveryRowShape"
+        "field": "interfaces[deliveryRowShape]"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2102-application-notifications-in-app-centre",
-        "field": "interfaces.writeDeliveryRow"
+        "field": "interfaces[writeDeliveryRow]"
       }
     },
     {
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2102-application-notifications-in-app-centre",
-        "field": "interfaces.deliveryRowShape"
+        "field": "interfaces[deliveryRowShape]"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2102-application-notifications-in-app-centre",
-        "field": "interfaces.writeDeliveryRow"
+        "field": "interfaces[writeDeliveryRow]"
       }
     }
   ],

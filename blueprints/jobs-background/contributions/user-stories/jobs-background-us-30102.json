@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "interfaces.jobModule.default"
+        "field": "interfaces[jobModule.default]"
       }
     },
     {
@@ -33,7 +33,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3101-jobs-background-job-definition",
-        "field": "interfaces.jobModule.default"
+        "field": "interfaces[jobModule.default]"
       },
       "disposition": "template"
     },

@@ -40,7 +40,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-706-delivery-ci-workflows-scheduled-audit",
-        "field": "interfaces.runScheduledAudit"
+        "field": "interfaces[runScheduledAudit]"
       }
     }
   ],

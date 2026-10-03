@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2801-persistence-data-postgres-facade",
-        "field": "interfaces.store.verbs"
+        "field": "interfaces[store.verbs]"
       },
       "disposition": "fixed"
     }

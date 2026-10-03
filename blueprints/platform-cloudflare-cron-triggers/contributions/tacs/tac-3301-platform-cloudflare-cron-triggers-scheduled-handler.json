@@ -14,7 +14,12 @@
   ],
   "internalStructure": "One module exporting createScheduledHandler({ dispatcher, eventSink }) returning { scheduled, ready } where scheduled(event, env, ctx) is the Cloudflare scheduled shape and ready() performs the boot ready-check. A thin index.mjs entry glues createScheduledHandler to the dispatcher and sink factories at apply time so wrangler dev picks up the default export.",
   "interfaces": [
-    { "name": "default export", "kind": "factory", "summary": "Platform-cloudflare-cron-triggers scheduled handler factory exported from the applied fixture module." }
+    {
+      "name": "default export",
+      "kind": "other",
+      "summary": "Platform-cloudflare-cron-triggers scheduled handler factory exported from the applied fixture module.",
+      "description": "(legacy kind: factory)"
+    }
   ],
   "dependencies": [],
   "createdAt": "2026-09-07T12:35:00.000Z",

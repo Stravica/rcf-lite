@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "readAppliedCapabilities",
-      "kind": "function",
-      "description": "readAppliedCapabilities(projectRoot) -> Promise<string[]>. Reads rcf/blueprints/application-account-settings.applied.json and returns appliedCapabilities[] or []. Never throws."
+      "kind": "other",
+      "description": "readAppliedCapabilities(projectRoot) -> Promise<string[]>. Reads rcf/blueprints/application-account-settings.applied.json and returns appliedCapabilities[] or []. Never throws. (legacy kind: function)"
     }
   ],
   "dependencies": [],

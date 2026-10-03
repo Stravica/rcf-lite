@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "createProducer",
-      "kind": "factory",
-      "description": "createProducer({ binding, queueName, adapter, onEvent }) -> Producer. The sole entry point every publisher calls. Opens against the binding; wires the sink; hands back a Producer whose methods are the named domain verbs."
+      "kind": "other",
+      "description": "createProducer({ binding, queueName, adapter, onEvent }) -> Producer. The sole entry point every publisher calls. Opens against the binding; wires the sink; hands back a Producer whose methods are the named domain verbs. (legacy kind: factory)"
     },
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with { event, ts, messageId, queueName, attempts } for producerReady, messagePublished, messageAcked, messageDeadLettered events. Never invoked with message body values, header values or consumer-context fields."
+      "kind": "other",
+      "description": "Structured-event sink invoked with { event, ts, messageId, queueName, attempts } for producerReady, messagePublished, messageAcked, messageDeadLettered events. Never invoked with message body values, header values or consumer-context fields. (legacy kind: callback)"
     },
     {
       "name": "producer.verbs",
-      "kind": "read-write-api",
-      "description": "The named domain verbs the facade exposes: publish(body, headers), publishBatch(messages)."
+      "kind": "other",
+      "description": "The named domain verbs the facade exposes: publish(body, headers), publishBatch(messages). (legacy kind: read-write-api)"
     }
   ],
   "dependencies": [

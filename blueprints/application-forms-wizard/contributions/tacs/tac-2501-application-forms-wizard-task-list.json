@@ -19,18 +19,18 @@
   "interfaces": [
     {
       "name": "renderTaskList",
-      "kind": "factory",
-      "description": "renderTaskList({ manifest, answers, nav }) -> void. Renders the shell and wires the row handlers."
+      "kind": "other",
+      "description": "renderTaskList({ manifest, answers, nav }) -> void. Renders the shell and wires the row handlers. (legacy kind: factory)"
     },
     {
       "name": "computeStepState",
-      "kind": "factory",
-      "description": "computeStepState({ step, answers }) -> stateString. Returns one of {Cannot start yet, Not started, In progress, Completed}."
+      "kind": "other",
+      "description": "computeStepState({ step, answers }) -> stateString. Returns one of {Cannot start yet, Not started, In progress, Completed}. (legacy kind: factory)"
     },
     {
       "name": "statesEnum",
-      "kind": "shape",
-      "description": "The four state strings are the closed enum {\"Cannot start yet\", \"Not started\", \"In progress\", \"Completed\"}. A fifth state is a v1.1.0 minor bump."
+      "kind": "other",
+      "description": "The four state strings are the closed enum {\"Cannot start yet\", \"Not started\", \"In progress\", \"Completed\"}. A fifth state is a v1.1.0 minor bump. (legacy kind: shape)"
     }
   ],
   "dependencies": [

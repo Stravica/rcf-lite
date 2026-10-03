@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
-        "field": "interfaces.HubObject"
+        "field": "interfaces[HubObject]"
       }
     },
     {
@@ -86,7 +86,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3404-platform-cloudflare-durable-objects-websocket-hub",
-        "field": "interfaces.HubObject"
+        "field": "interfaces[HubObject]"
       }
     }
   ],

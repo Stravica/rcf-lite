@@ -16,18 +16,18 @@
   "interfaces": [
     {
       "name": "discoverAppliedCapabilities",
-      "kind": "function",
-      "description": "Returns { union: string[], perSlug: Record<slug, string[]> }."
+      "kind": "other",
+      "description": "Returns { union: string[], perSlug: Record<slug, string[]> }. (legacy kind: function)"
     },
     {
       "name": "runElicitationPhase",
-      "kind": "function",
-      "description": "Applies each elicits[] entry against the discovered capability set and coerces answers per kind."
+      "kind": "other",
+      "description": "Applies each elicits[] entry against the discovered capability set and coerces answers per kind. (legacy kind: function)"
     },
     {
       "name": "writeSidecar",
-      "kind": "function",
-      "description": "Writes rcf/blueprints/${slug}.applied.json."
+      "kind": "other",
+      "description": "Writes rcf/blueprints/${slug}.applied.json. (legacy kind: function)"
     }
   ],
   "dependencies": [

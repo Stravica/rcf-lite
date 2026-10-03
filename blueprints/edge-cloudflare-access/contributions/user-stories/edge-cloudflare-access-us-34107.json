@@ -20,7 +20,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
-        "field": "interfaces.createAccessValidator"
+        "field": "interfaces[createAccessValidator]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/cloudflare-one/identity/service-tokens/",
@@ -38,7 +38,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
-        "field": "interfaces.createAccessValidator"
+        "field": "interfaces[createAccessValidator]"
       }
     },
     {
@@ -52,7 +52,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
-        "field": "interfaces.createAccessValidator"
+        "field": "interfaces[createAccessValidator]"
       }
     },
     {
@@ -66,7 +66,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
-        "field": "interfaces.createAccessValidator"
+        "field": "interfaces[createAccessValidator]"
       }
     },
     {
@@ -80,7 +80,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-3501-edge-cloudflare-access-jwt-validator",
-        "field": "interfaces.createAccessValidator"
+        "field": "interfaces[createAccessValidator]"
       }
     }
   ],

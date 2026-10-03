@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "backup",
-      "kind": "async-method",
-      "description": "store.backup(outputPath) -> Promise<{ artifactPath, completedAt }>; the sole backup entry point on the facade. Emits backupCheckpoint on completion via the store's event sink."
+      "kind": "other",
+      "description": "store.backup(outputPath) -> Promise<{ artifactPath, completedAt }>; the sole backup entry point on the facade. Emits backupCheckpoint on completion via the store's event sink. (legacy kind: async-method)"
     }
   ],
   "dependencies": [

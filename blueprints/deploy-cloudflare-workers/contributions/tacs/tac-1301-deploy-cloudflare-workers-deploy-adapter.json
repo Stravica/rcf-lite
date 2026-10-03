@@ -21,18 +21,18 @@
   "interfaces": [
     {
       "name": "vendorBinding",
-      "kind": "read-write-api",
-      "description": "Project-supplied vendor binding implementing `uploadArtefact({ configPath, previewAlias })`, `deployVersion({ versionId })`, `listVersions()`, `resolveAlias({ alias })`, `getSubdomain({ accountId })`. The default binding shells to `wrangler versions upload --preview-alias <alias>`, `wrangler versions deploy <versionId>`, and `wrangler versions list --json` respectively; `resolveAlias` filters the `versions list --json` output on `annotations['workers/alias']` and picks the newest by `metadata.created_on` because wrangler 4.x has no CLI verb that resolves an alias to a version id (`wrangler versions view` accepts a version UUID only); `getSubdomain` calls the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint because `wrangler whoami` does not return the subdomain."
+      "kind": "other",
+      "description": "Project-supplied vendor binding implementing `uploadArtefact({ configPath, previewAlias })`, `deployVersion({ versionId })`, `listVersions()`, `resolveAlias({ alias })`, `getSubdomain({ accountId })`. The default binding shells to `wrangler versions upload --preview-alias <alias>`, `wrangler versions deploy <versionId>`, and `wrangler versions list --json` respectively; `resolveAlias` filters the `versions list --json` output on `annotations['workers/alias']` and picks the newest by `metadata.created_on` because wrangler 4.x has no CLI verb that resolves an alias to a version id (`wrangler versions view` accepts a version UUID only); `getSubdomain` calls the vendor's `GET /accounts/<accountId>/workers/subdomain` REST endpoint because `wrangler whoami` does not return the subdomain. (legacy kind: read-write-api)"
     },
     {
       "name": "redactor",
-      "kind": "callback",
-      "description": "Log-line filter that replaces any bytes matching the vendor API token or account id with a fixed placeholder before emitting; runs on every stdout and stderr line the vendor CLI produces."
+      "kind": "other",
+      "description": "Log-line filter that replaces any bytes matching the vendor API token or account id with a fixed placeholder before emitting; runs on every stdout and stderr line the vendor CLI produces. (legacy kind: callback)"
     },
     {
       "name": "manifest",
-      "kind": "read-api",
-      "description": "The wrangler-manifest loader (TAC-1302) resolving the current Worker's config, the production route or custom-domain declaration, and the declared binding names."
+      "kind": "other",
+      "description": "The wrangler-manifest loader (TAC-1302) resolving the current Worker's config, the production route or custom-domain declaration, and the declared binding names. (legacy kind: read-api)"
     }
   ],
   "dependencies": [

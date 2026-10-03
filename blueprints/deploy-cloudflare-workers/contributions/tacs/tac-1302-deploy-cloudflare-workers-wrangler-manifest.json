@@ -22,23 +22,23 @@
   "interfaces": [
     {
       "name": "manifestFile",
-      "kind": "read-api",
-      "description": "Reads `wrangler.toml` or `wrangler.jsonc` at the repo root. The file's presence is required; the file's format is autodetected from the extension."
+      "kind": "other",
+      "description": "Reads `wrangler.toml` or `wrangler.jsonc` at the repo root. The file's presence is required; the file's format is autodetected from the extension. (legacy kind: read-api)"
     },
     {
       "name": "workerSourceScanner",
-      "kind": "read-api",
-      "description": "AST or regex scanner over the Worker source tree that emits every binding name referenced through env-accessor patterns (for the default JS/TS Worker, `env.<NAME>.<method>` and `process.env.<NAME>` are both matched)."
+      "kind": "other",
+      "description": "AST or regex scanner over the Worker source tree that emits every binding name referenced through env-accessor patterns (for the default JS/TS Worker, `env.<NAME>.<method>` and `process.env.<NAME>` are both matched). (legacy kind: read-api)"
     },
     {
       "name": "bindings",
-      "kind": "read-api",
-      "description": "Structured list of declared bindings emitted for downstream consumers. Each entry names the binding kind (KV, D1, R2, Durable Object, static assets, var, secret, service, queue) and the binding name."
+      "kind": "other",
+      "description": "Structured list of declared bindings emitted for downstream consumers. Each entry names the binding kind (KV, D1, R2, Durable Object, static assets, var, secret, service, queue) and the binding name. (legacy kind: read-api)"
     },
     {
       "name": "productionUrl",
-      "kind": "read-api",
-      "description": "Returns the production URL derived from the manifest. When multiple routes are declared, returns the ordered list; when `workers_dev = true`, returns the workers.dev host."
+      "kind": "other",
+      "description": "Returns the production URL derived from the manifest. When multiple routes are declared, returns the ordered list; when `workers_dev = true`, returns the workers.dev host. (legacy kind: read-api)"
     }
   ],
   "dependencies": [],

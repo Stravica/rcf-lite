@@ -16,13 +16,15 @@
   "interfaces": [
     {
       "name": "createAccessValidator",
-      "kind": "factory",
-      "summary": "Access JWT validator factory over env.ACCESS_JWKS_URL and env.ACCESS_AUDIENCE."
+      "kind": "other",
+      "summary": "Access JWT validator factory over env.ACCESS_JWKS_URL and env.ACCESS_AUDIENCE.",
+      "description": "(legacy kind: factory)"
     },
     {
       "name": "validator.middleware",
-      "kind": "method",
-      "summary": "Handler-shaped middleware that either returns a rejection Response or attaches request.auth and returns rejected:false."
+      "kind": "other",
+      "summary": "Handler-shaped middleware that either returns a rejection Response or attaches request.auth and returns rejected:false.",
+      "description": "(legacy kind: method)"
     }
   ],
   "dependencies": [],

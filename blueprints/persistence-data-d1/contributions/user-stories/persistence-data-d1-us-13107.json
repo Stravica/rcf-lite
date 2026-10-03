@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1401-persistence-data-d1-facade",
-        "field": "interfaces.onEvent"
+        "field": "interfaces[onEvent]"
       },
       "disposition": "fixed"
     },
@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1401-persistence-data-d1-facade",
-        "field": "interfaces.onEvent"
+        "field": "interfaces[onEvent]"
       },
       "disposition": "fixed"
     }

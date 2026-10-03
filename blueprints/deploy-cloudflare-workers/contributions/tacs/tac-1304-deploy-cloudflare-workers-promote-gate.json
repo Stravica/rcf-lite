@@ -18,23 +18,23 @@
   "interfaces": [
     {
       "name": "deployAdapter",
-      "kind": "read-write-api",
-      "description": "The Deploy Adapter port (TAC-1301). The promote gate calls `listVersions`, `resolveNewestOfMain`, and `promoteVersion` through this interface."
+      "kind": "other",
+      "description": "The Deploy Adapter port (TAC-1301). The promote gate calls `listVersions`, `resolveNewestOfMain`, and `promoteVersion` through this interface. (legacy kind: read-write-api)"
     },
     {
       "name": "verifier",
-      "kind": "read-api",
-      "description": "The Served-surface Verifier callable that runs the post-promote probes and returns pass or a `PROMOTE_VERIFY_FAILED` failure description."
+      "kind": "other",
+      "description": "The Served-surface Verifier callable that runs the post-promote probes and returns pass or a `PROMOTE_VERIFY_FAILED` failure description. (legacy kind: read-api)"
     },
     {
       "name": "deployLog",
-      "kind": "callback",
-      "description": "Append callback invoked with the promote record `{ promotedVersionId, versionSha, promotedBy, previousVersionId, promotedAt }` on every successful promote and on every verifier-failed promote."
+      "kind": "other",
+      "description": "Append callback invoked with the promote record `{ promotedVersionId, versionSha, promotedBy, previousVersionId, promotedAt }` on every successful promote and on every verifier-failed promote. (legacy kind: callback)"
     },
     {
       "name": "triggerContext",
-      "kind": "read-api",
-      "description": "Returns the platform's trigger information (event name, actor login). The gate refuses to proceed when the event name is not the platform's explicit-manual-trigger name (`workflow_dispatch` on GitHub Actions)."
+      "kind": "other",
+      "description": "Returns the platform's trigger information (event name, actor login). The gate refuses to proceed when the event name is not the platform's explicit-manual-trigger name (`workflow_dispatch` on GitHub Actions). (legacy kind: read-api)"
     }
   ],
   "dependencies": [

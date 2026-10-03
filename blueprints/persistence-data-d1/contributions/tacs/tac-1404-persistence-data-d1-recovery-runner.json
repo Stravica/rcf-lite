@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "recovery.timeTravelRestore",
-      "kind": "ops-command",
-      "description": "recovery.timeTravelRestore({ database, env, timestamp }) invokes `wrangler d1 time-travel restore` and emits the timeTravelRestored event."
+      "kind": "other",
+      "description": "recovery.timeTravelRestore({ database, env, timestamp }) invokes `wrangler d1 time-travel restore` and emits the timeTravelRestored event. (legacy kind: ops-command)"
     },
     {
       "name": "recovery.export",
-      "kind": "ops-command",
-      "description": "recovery.export({ database, env, outputPath }) invokes `wrangler d1 export` and emits the backupExported event."
+      "kind": "other",
+      "description": "recovery.export({ database, env, outputPath }) invokes `wrangler d1 export` and emits the backupExported event. (legacy kind: ops-command)"
     }
   ],
   "dependencies": [

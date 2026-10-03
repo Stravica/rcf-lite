@@ -22,23 +22,23 @@
   "interfaces": [
     {
       "name": "runCoreFlowE2eProbe",
-      "kind": "factory",
-      "description": "runCoreFlowE2eProbe({ manifestPath, bootServer, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. 'bootServer' is a factory returning '{ url, close }' for a server booted through the production entry-point path (same construction, same headers, same middleware). 'verdict' is 'ok' | 'deployed-with-defects'; the entry point translates 'deployed-with-defects' to a non-zero exit code."
+      "kind": "other",
+      "description": "runCoreFlowE2eProbe({ manifestPath, bootServer, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. 'bootServer' is a factory returning '{ url, close }' for a server booted through the production entry-point path (same construction, same headers, same middleware). 'verdict' is 'ok' | 'deployed-with-defects'; the entry point translates 'deployed-with-defects' to a non-zero exit code. (legacy kind: factory)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "'node <entryPointPath>' with optional flags '--manifest <path>', '--boot <module>', '--report-dir <path>' that override configuration defaults. Exit code is 0 on 'ok', non-zero on 'deployed-with-defects'."
+      "kind": "other",
+      "description": "'node <entryPointPath>' with optional flags '--manifest <path>', '--boot <module>', '--report-dir <path>' that override configuration defaults. Exit code is 0 on 'ok', non-zero on 'deployed-with-defects'. (legacy kind: cli)"
     },
     {
       "name": "reports/core-flow-e2e-adherence.json",
-      "kind": "artefact",
-      "description": "'reports/core-flow-e2e-adherence.json' under the configured report directory. Shape: '{ verdict, flows: [{ id, entryPointRoute, verdict, steps: [{ index, action, route, status, timingMs }], terminalAssertion: { kind, expected, actual }, providerEvidence?: { messageIds }, refusals: [...] }], generatedAt }'."
+      "kind": "fileFormat",
+      "description": "'reports/core-flow-e2e-adherence.json' under the configured report directory. Shape: '{ verdict, flows: [{ id, entryPointRoute, verdict, steps: [{ index, action, route, status, timingMs }], terminalAssertion: { kind, expected, actual }, providerEvidence?: { messageIds }, refusals: [...] }], generatedAt }'. (legacy kind: artefact)"
     },
     {
       "name": "core-flow manifest (project-owned)",
-      "kind": "artefact",
-      "description": "A project-owned JSON manifest the probe reads. Shape: '{ flows: [{ id, entryPointRoute, steps: [{ action, target?, input? }], terminalAssertion: { kind, expected } }] }'. Authentication must be enumerated when the application declares any application-spa-REQ-009 surface; otherwise the manifest scanner refuses ship."
+      "kind": "fileFormat",
+      "description": "A project-owned JSON manifest the probe reads. Shape: '{ flows: [{ id, entryPointRoute, steps: [{ action, target?, input? }], terminalAssertion: { kind, expected } }] }'. Authentication must be enumerated when the application declares any application-spa-REQ-009 surface; otherwise the manifest scanner refuses ship. (legacy kind: artefact)"
     }
   ],
   "dependencies": [

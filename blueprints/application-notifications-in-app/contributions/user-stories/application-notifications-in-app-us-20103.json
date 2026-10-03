@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2102-application-notifications-in-app-centre",
-        "field": "interfaces.renderCentre"
+        "field": "interfaces[renderCentre]"
       }
     },
     {
@@ -44,7 +44,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2102-application-notifications-in-app-centre",
-        "field": "interfaces.acknowledgeRoundTrip"
+        "field": "interfaces[acknowledgeRoundTrip]"
       }
     },
     {

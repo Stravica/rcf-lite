@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "store",
-      "kind": "read-write-api",
-      "description": "Project-supplied durable store implementing invalidatePriorMagicLinkTokens(email), insertMagicLinkToken({ token, email, expiresAt }), and consumeMagicLinkToken(token) returning the record or null."
+      "kind": "other",
+      "description": "Project-supplied durable store implementing invalidatePriorMagicLinkTokens(email), insertMagicLinkToken({ token, email, expiresAt }), and consumeMagicLinkToken(token) returning the record or null. (legacy kind: read-write-api)"
     },
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with { event, principalId, outcome, at, ... } for magicLinkMinted and magicLinkConsumed; never invoked with the token secret."
+      "kind": "other",
+      "description": "Structured-event sink invoked with { event, principalId, outcome, at, ... } for magicLinkMinted and magicLinkConsumed; never invoked with the token secret. (legacy kind: callback)"
     },
     {
       "name": "now",
-      "kind": "clock",
-      "description": "Injectable millisecond clock for expiry arithmetic (test surface)."
+      "kind": "other",
+      "description": "Injectable millisecond clock for expiry arithmetic (test surface). (legacy kind: clock)"
     }
   ],
   "dependencies": [

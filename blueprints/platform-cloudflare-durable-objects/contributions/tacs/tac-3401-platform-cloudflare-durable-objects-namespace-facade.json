@@ -16,13 +16,15 @@
   "interfaces": [
     {
       "name": "createDoFacade",
-      "kind": "factory",
-      "summary": "DO namespace facade factory over env.CELL and env.HUB."
+      "kind": "other",
+      "summary": "DO namespace facade factory over env.CELL and env.HUB.",
+      "description": "(legacy kind: factory)"
     },
     {
       "name": "createDoFacadeInProcess",
-      "kind": "factory",
-      "summary": "In-process DO facade factory over already-constructed class instances (probe variant)."
+      "kind": "other",
+      "summary": "In-process DO facade factory over already-constructed class instances (probe variant).",
+      "description": "(legacy kind: factory)"
     }
   ],
   "dependencies": [],

@@ -17,8 +17,9 @@
   "interfaces": [
     {
       "name": "default export",
-      "kind": "factory",
-      "summary": "Provisioner facade factory exported from the applied fixture module."
+      "kind": "other",
+      "summary": "Provisioner facade factory exported from the applied fixture module.",
+      "description": "(legacy kind: factory)"
     }
   ],
   "dependencies": [],

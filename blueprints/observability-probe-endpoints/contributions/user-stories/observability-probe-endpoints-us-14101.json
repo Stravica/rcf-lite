@@ -54,7 +54,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1501-observability-probe-endpoints-profile-resolver",
-        "field": "interfaces.contractValidator"
+        "field": "interfaces[contractValidator]"
       }
     }
   ],

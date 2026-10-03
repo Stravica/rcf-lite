@@ -18,23 +18,23 @@
   "interfaces": [
     {
       "name": "uploadFile",
-      "kind": "factory",
-      "description": "uploadFile({ file, endpoint, transport }) -> UploadSession. Returns a session the caller reads for per-chunk progress and completion."
+      "kind": "other",
+      "description": "uploadFile({ file, endpoint, transport }) -> UploadSession. Returns a session the caller reads for per-chunk progress and completion. (legacy kind: factory)"
     },
     {
       "name": "resumeSession",
-      "kind": "factory",
-      "description": "resumeSession(session) -> UploadSession. Resumes from the last acknowledged offset."
+      "kind": "other",
+      "description": "resumeSession(session) -> UploadSession. Resumes from the last acknowledged offset. (legacy kind: factory)"
     },
     {
       "name": "transportsEnum",
-      "kind": "shape",
-      "description": "The transport branches are the closed enum {multipart, tus, vendor-sdk}. multipart is the recommended default per ADR-2401."
+      "kind": "other",
+      "description": "The transport branches are the closed enum {multipart, tus, vendor-sdk}. multipart is the recommended default per ADR-2401. (legacy kind: shape)"
     },
     {
       "name": "removeFile",
-      "kind": "function",
-      "description": "removeFile(fileId) -> Promise<void>. Issues a DELETE against the applied endpoint on the multipart branch or aborts the tus PATCH session on the tus branch; refuses with REMOVE_FAILED and surfaces the failure through the per-file error region on non-2xx."
+      "kind": "other",
+      "description": "removeFile(fileId) -> Promise<void>. Issues a DELETE against the applied endpoint on the multipart branch or aborts the tus PATCH session on the tus branch; refuses with REMOVE_FAILED and surfaces the failure through the per-file error region on non-2xx. (legacy kind: function)"
     }
   ],
   "dependencies": [

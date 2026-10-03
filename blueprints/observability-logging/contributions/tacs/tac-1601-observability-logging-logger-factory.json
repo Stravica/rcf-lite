@@ -17,18 +17,18 @@
   "interfaces": [
     {
       "name": "createLoggerFactory",
-      "kind": "factory",
-      "description": "createLoggerFactory({ environment, serviceName, serviceVersion, minimumLevel, correlationHeader, redactionCategories, now, sink }) -> { getLogger(name), capturedLines() }. The factory is constructed exactly once at boot; getLogger returns a per-module logger with .trace/.debug/.info/.warn/.error/.fatal methods each taking (message, payload?)."
+      "kind": "other",
+      "description": "createLoggerFactory({ environment, serviceName, serviceVersion, minimumLevel, correlationHeader, redactionCategories, now, sink }) -> { getLogger(name), capturedLines() }. The factory is constructed exactly once at boot; getLogger returns a per-module logger with .trace/.debug/.info/.warn/.error/.fatal methods each taking (message, payload?). (legacy kind: factory)"
     },
     {
       "name": "Logger",
-      "kind": "interface",
-      "description": "One method per level; each takes (message: string, payload?: object). Emits one JSON line carrying message, level, timestamp, correlationId, environment, serviceName, serviceVersion, and every payload field folded onto the top level."
+      "kind": "other",
+      "description": "One method per level; each takes (message: string, payload?: object). Emits one JSON line carrying message, level, timestamp, correlationId, environment, serviceName, serviceVersion, and every payload field folded onto the top level. (legacy kind: interface)"
     },
     {
       "name": "correlationHeader",
-      "kind": "config",
-      "description": "Operator-elicited inbound header name governing the correlation identifier acceptance and outbound propagation; recommended default X-Correlation-Id per ADR-1602."
+      "kind": "other",
+      "description": "Operator-elicited inbound header name governing the correlation identifier acceptance and outbound propagation; recommended default X-Correlation-Id per ADR-1602. (legacy kind: config)"
     }
   ],
   "dependencies": [

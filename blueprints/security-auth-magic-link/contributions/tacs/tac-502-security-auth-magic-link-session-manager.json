@@ -18,18 +18,18 @@
   "interfaces": [
     {
       "name": "store",
-      "kind": "read-write-api",
-      "description": "Project-supplied durable store implementing insertSession(record), findSession(handle), refreshSession(handle, lastSeenAt), deleteSession(handle), and deleteSessionsForPrincipal(principalId)."
+      "kind": "other",
+      "description": "Project-supplied durable store implementing insertSession(record), findSession(handle), refreshSession(handle, lastSeenAt), deleteSession(handle), and deleteSessionsForPrincipal(principalId). (legacy kind: read-write-api)"
     },
     {
       "name": "onEvent",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with { event, principalId, outcome, at, ... } for the four session events; never invoked with the handle value."
+      "kind": "other",
+      "description": "Structured-event sink invoked with { event, principalId, outcome, at, ... } for the four session events; never invoked with the handle value. (legacy kind: callback)"
     },
     {
       "name": "now",
-      "kind": "clock",
-      "description": "Injectable millisecond clock for expiry arithmetic."
+      "kind": "other",
+      "description": "Injectable millisecond clock for expiry arithmetic. (legacy kind: clock)"
     }
   ],
   "dependencies": [

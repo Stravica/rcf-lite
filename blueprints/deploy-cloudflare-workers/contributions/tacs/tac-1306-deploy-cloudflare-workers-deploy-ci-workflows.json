@@ -19,23 +19,23 @@
   "interfaces": [
     {
       "name": "workflowRuntime",
-      "kind": "read-api",
-      "description": "The CI platform's runtime (event context, actor login, workflow inputs, run URL, summary sink, structured-output sink). Consumed by the orchestration scripts."
+      "kind": "other",
+      "description": "The CI platform's runtime (event context, actor login, workflow inputs, run URL, summary sink, structured-output sink). Consumed by the orchestration scripts. (legacy kind: read-api)"
     },
     {
       "name": "promoteGate",
-      "kind": "read-write-api",
-      "description": "The Promote Gate (TAC-1304) callable; the `promote` workflow invokes it with the resolved `versionId` and the `promotedBy` principal from the workflow runtime."
+      "kind": "other",
+      "description": "The Promote Gate (TAC-1304) callable; the `promote` workflow invokes it with the resolved `versionId` and the `promotedBy` principal from the workflow runtime. (legacy kind: read-write-api)"
     },
     {
       "name": "buildStep",
-      "kind": "read-api",
-      "description": "Project-authored build step invoked by `build-and-upload` before `uploadVersion` runs; must produce the artefact the wrangler manifest's `main` points at."
+      "kind": "other",
+      "description": "Project-authored build step invoked by `build-and-upload` before `uploadVersion` runs; must produce the artefact the wrangler manifest's `main` points at. (legacy kind: read-api)"
     },
     {
       "name": "secretBinding",
-      "kind": "read-api",
-      "description": "Named CI secrets the workflows read: `CLOUDFLARE_API_TOKEN` (or the operator-chosen vendor token name) and `CLOUDFLARE_ACCOUNT_ID` (or the operator-chosen account-id name); values populate the vendor CLI's environment via the platform's secret-injection primitive."
+      "kind": "other",
+      "description": "Named CI secrets the workflows read: `CLOUDFLARE_API_TOKEN` (or the operator-chosen vendor token name) and `CLOUDFLARE_ACCOUNT_ID` (or the operator-chosen account-id name); values populate the vendor CLI's environment via the platform's secret-injection primitive. (legacy kind: read-api)"
     }
   ],
   "dependencies": [

@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2804-persistence-data-postgres-recovery-runner",
-        "field": "interfaces.recoveryDrill"
+        "field": "interfaces[recoveryDrill]"
       },
       "disposition": "template"
     },

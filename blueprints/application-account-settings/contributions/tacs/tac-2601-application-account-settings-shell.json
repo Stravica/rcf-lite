@@ -21,13 +21,13 @@
   "interfaces": [
     {
       "name": "renderShell",
-      "kind": "factory",
-      "description": "renderShell({ capsSidecarUrl, surfaceRegistry, sessionGuard, themeAdapter, notificationsAdapter }) -> { mount(rootElement), unmount() }. The project supplies the capsSidecarUrl (where the sidecar is served from), the surfaceRegistry (maps a capability string to a surface component), the sessionGuard (returns whether the current principal has an authenticated session), the themeAdapter (persists the theme per the elicited persistence strategy) and the notificationsAdapter (reads and writes preferences through the applied notifications blueprint)."
+      "kind": "other",
+      "description": "renderShell({ capsSidecarUrl, surfaceRegistry, sessionGuard, themeAdapter, notificationsAdapter }) -> { mount(rootElement), unmount() }. The project supplies the capsSidecarUrl (where the sidecar is served from), the surfaceRegistry (maps a capability string to a surface component), the sessionGuard (returns whether the current principal has an authenticated session), the themeAdapter (persists the theme per the elicited persistence strategy) and the notificationsAdapter (reads and writes preferences through the applied notifications blueprint). (legacy kind: factory)"
     },
     {
       "name": "capabilitiesSidecar",
-      "kind": "shape",
-      "description": "{ slug, version, appliedAt, appliedCapabilities: string[], appliedElicitations: {}, allowNoAuthYet?: boolean, notes?: string }. Written by apply, read by the shell."
+      "kind": "other",
+      "description": "{ slug, version, appliedAt, appliedCapabilities: string[], appliedElicitations: {}, allowNoAuthYet?: boolean, notes?: string }. Written by apply, read by the shell. (legacy kind: shape)"
     }
   ],
   "dependencies": [

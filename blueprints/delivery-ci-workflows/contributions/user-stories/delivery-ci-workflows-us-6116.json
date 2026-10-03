@@ -30,7 +30,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-702-delivery-ci-workflows-gate-report",
-        "field": "interfaces.gate-report-schema"
+        "field": "interfaces[gate-report-schema]"
       }
     }
   ],

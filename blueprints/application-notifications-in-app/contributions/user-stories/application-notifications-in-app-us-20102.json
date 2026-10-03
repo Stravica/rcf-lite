@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-2101-application-notifications-in-app-live-region",
-        "field": "interfaces.renderToast"
+        "field": "interfaces[renderToast]"
       }
     },
     {

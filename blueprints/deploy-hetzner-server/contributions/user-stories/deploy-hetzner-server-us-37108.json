@@ -30,7 +30,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
-        "field": "interfaces.default"
+        "field": "interfaces[default]"
       },
       "disposition": "fixed",
       "vendorCitation": {
@@ -48,7 +48,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3801-deploy-hetzner-server-provisioner",
-        "field": "interfaces.default"
+        "field": "interfaces[default]"
       },
       "disposition": "fixed",
       "vendorCitation": {

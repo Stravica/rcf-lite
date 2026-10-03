@@ -60,7 +60,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1502-observability-probe-endpoints-handler-set",
-        "field": "interfaces.readinessPredicate"
+        "field": "interfaces[readinessPredicate]"
       }
     }
   ],

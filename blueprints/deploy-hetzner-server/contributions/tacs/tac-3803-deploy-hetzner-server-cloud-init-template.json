@@ -16,8 +16,9 @@
   "interfaces": [
     {
       "name": "cloud-init.yaml.tmpl",
-      "kind": "template",
-      "summary": "Cloud-init user-data template with the six baseline blocks and templated substitutions."
+      "kind": "other",
+      "summary": "Cloud-init user-data template with the six baseline blocks and templated substitutions.",
+      "description": "(legacy kind: template)"
     }
   ],
   "dependencies": [],

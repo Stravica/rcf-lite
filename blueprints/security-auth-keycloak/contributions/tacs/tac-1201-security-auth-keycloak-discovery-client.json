@@ -22,28 +22,28 @@
   "interfaces": [
     {
       "name": "realmConfig",
-      "kind": "read-api",
-      "description": "The project-authored realm-config module exposing `list() -> record[]`. Each record is a plain object with `{ realmSlug, issuerBaseUrl, realmName, clientId, clientSecret, verificationMode, roleClaimShape, scopes, redirectUri, providerLogout, sessionMode, bearerSource?, jwksCacheTtlSeconds?, introspectionCacheTtlSeconds?, bootPosture, deferredRetryCapSeconds?, discoveryRefreshSeconds? }`."
+      "kind": "other",
+      "description": "The project-authored realm-config module exposing `list() -> record[]`. Each record is a plain object with `{ realmSlug, issuerBaseUrl, realmName, clientId, clientSecret, verificationMode, roleClaimShape, scopes, redirectUri, providerLogout, sessionMode, bearerSource?, jwksCacheTtlSeconds?, introspectionCacheTtlSeconds?, bootPosture, deferredRetryCapSeconds?, discoveryRefreshSeconds? }`. (legacy kind: read-api)"
     },
     {
       "name": "httpFetch",
-      "kind": "read-api",
-      "description": "Process HTTP-fetch port used for discovery pulls; test harness substitutes an in-process mock or points at a local Keycloak container."
+      "kind": "other",
+      "description": "Process HTTP-fetch port used for discovery pulls; test harness substitutes an in-process mock or points at a local Keycloak container. (legacy kind: read-api)"
     },
     {
       "name": "clock",
-      "kind": "read-api",
-      "description": "Injected time source for TTL and refresh-cadence bookkeeping."
+      "kind": "other",
+      "description": "Injected time source for TTL and refresh-cadence bookkeeping. (legacy kind: read-api)"
     },
     {
       "name": "retryScheduler",
-      "kind": "callback",
-      "description": "Exponential-backoff scheduler used under bootPosture: deferred; caps the retry envelope at deferredRetryCapSeconds and reports success or exhaustion."
+      "kind": "other",
+      "description": "Exponential-backoff scheduler used under bootPosture: deferred; caps the retry envelope at deferredRetryCapSeconds and reports success or exhaustion. (legacy kind: callback)"
     },
     {
       "name": "auditSink",
-      "kind": "callback",
-      "description": "Structured-event sink invoked with `{ event, realmSlug, class?, at }`; never invoked with a clientSecret or a token value."
+      "kind": "other",
+      "description": "Structured-event sink invoked with `{ event, realmSlug, class?, at }`; never invoked with a clientSecret or a token value. (legacy kind: callback)"
     }
   ],
   "dependencies": [],

@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
-        "field": "interfaces.verifier.guard"
+        "field": "interfaces[verifier.guard]"
       }
     },
     {
@@ -34,7 +34,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
-        "field": "interfaces.verifier.guard"
+        "field": "interfaces[verifier.guard]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/turnstile/get-started/client-side-rendering/",

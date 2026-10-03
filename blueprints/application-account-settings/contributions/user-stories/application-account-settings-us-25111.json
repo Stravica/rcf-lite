@@ -28,7 +28,10 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
-      "ownerRef": { "tacId": "TAC-1003-security-auth-clerk-session-verifier", "field": "interfaces.sessionInventory" }
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces[sessionInventory]"
+      }
     },
     {
       "id": "AC-25111-3",
@@ -39,7 +42,10 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
-      "ownerRef": { "tacId": "TAC-1003-security-auth-clerk-session-verifier", "field": "interfaces.sessionInventory" }
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces[sessionInventory]"
+      }
     },
     {
       "id": "AC-25111-4",
@@ -60,7 +66,10 @@
       "testable": true,
       "scope": "runtime",
       "disposition": "fixed",
-      "ownerRef": { "tacId": "TAC-1003-security-auth-clerk-session-verifier", "field": "interfaces.sessionInventory" }
+      "ownerRef": {
+        "tacId": "TAC-1003-security-auth-clerk-session-verifier",
+        "field": "interfaces[sessionInventory]"
+      }
     }
   ],
   "tacIds": [

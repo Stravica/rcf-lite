@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "bufferWrite",
-      "kind": "factory",
-      "description": "bufferWrite({ payload, idempotencyToken }) -> { sequence }. Persists the write, returns the sequence assigned. The idempotency token is caller-supplied so the server-side dedupe key is stable across retries."
+      "kind": "other",
+      "description": "bufferWrite({ payload, idempotencyToken }) -> { sequence }. Persists the write, returns the sequence assigned. The idempotency token is caller-supplied so the server-side dedupe key is stable across retries. (legacy kind: factory)"
     },
     {
       "name": "flushBuffer",
-      "kind": "factory",
-      "description": "flushBuffer({ onSuccess, onFailure }) -> { flushed, retained }. Called on reconnection; iterates the buffer in sequence, calling onSuccess or onFailure per entry."
+      "kind": "other",
+      "description": "flushBuffer({ onSuccess, onFailure }) -> { flushed, retained }. Called on reconnection; iterates the buffer in sequence, calling onSuccess or onFailure per entry. (legacy kind: factory)"
     }
   ],
   "dependencies": [

@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-3103-jobs-background-run-log",
-        "field": "interfaces.runLog.fire"
+        "field": "interfaces[runLog.fire]"
       },
       "disposition": "template"
     }

@@ -22,23 +22,23 @@
   "interfaces": [
     {
       "name": "runExternalDependencyProvisioningProbe",
-      "kind": "factory",
-      "description": "runExternalDependencyProvisioningProbe({ manifestPath, bootServer, deferralsStorePath, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. 'bootServer' is a factory returning '{ url, close, env }' for a server booted through the production entry-point path with the runtime environment the shipped instance observes. 'verdict' is 'ok' | 'deployed-with-defects'; the entry point translates 'deployed-with-defects' to a non-zero exit code."
+      "kind": "other",
+      "description": "runExternalDependencyProvisioningProbe({ manifestPath, bootServer, deferralsStorePath, reportDir }) -> Promise<{ verdict, reportPath, refusals }>; the sole callable the entry point invokes. 'bootServer' is a factory returning '{ url, close, env }' for a server booted through the production entry-point path with the runtime environment the shipped instance observes. 'verdict' is 'ok' | 'deployed-with-defects'; the entry point translates 'deployed-with-defects' to a non-zero exit code. (legacy kind: factory)"
     },
     {
       "name": "entry-point CLI",
-      "kind": "cli",
-      "description": "'node <entryPointPath>' with optional flags '--manifest <path>', '--boot <module>', '--deferrals <path>', '--report-dir <path>' that override configuration defaults. Exit code is 0 on 'ok', non-zero on 'deployed-with-defects'."
+      "kind": "other",
+      "description": "'node <entryPointPath>' with optional flags '--manifest <path>', '--boot <module>', '--deferrals <path>', '--report-dir <path>' that override configuration defaults. Exit code is 0 on 'ok', non-zero on 'deployed-with-defects'. (legacy kind: cli)"
     },
     {
       "name": "reports/external-dependency-provisioning.json",
-      "kind": "artefact",
-      "description": "'reports/external-dependency-provisioning.json' under the configured report directory. Shape: '{ verdict, dependencies: [{ id, purpose, provider, credentialField, status, placeholderCheck: { verdict, matchedPattern? }, verifiedEvidence?: { providerMessageId?, providerStatus?, capturedAt }, deferralRecord?: { path, ackedBy, ackedAt, reason, resolutionRoute }, refusals: [...] }], generatedAt }'."
+      "kind": "fileFormat",
+      "description": "'reports/external-dependency-provisioning.json' under the configured report directory. Shape: '{ verdict, dependencies: [{ id, purpose, provider, credentialField, status, placeholderCheck: { verdict, matchedPattern? }, verifiedEvidence?: { providerMessageId?, providerStatus?, capturedAt }, deferralRecord?: { path, ackedBy, ackedAt, reason, resolutionRoute }, refusals: [...] }], generatedAt }'. (legacy kind: artefact)"
     },
     {
       "name": "external-service-dependency manifest (project-owned)",
-      "kind": "artefact",
-      "description": "A project-owned JSON manifest the probe reads. Shape: '{ dependencies: [{ id, purpose, provider, credentialField, status: \"verified\" | \"deferred\" }] }'. Named at ship time; the probe refuses when the manifest is missing or malformed."
+      "kind": "fileFormat",
+      "description": "A project-owned JSON manifest the probe reads. Shape: '{ dependencies: [{ id, purpose, provider, credentialField, status: \"verified\" | \"deferred\" }] }'. Named at ship time; the probe refuses when the manifest is missing or malformed. (legacy kind: artefact)"
     }
   ],
   "dependencies": [

@@ -16,13 +16,15 @@
   "interfaces": [
     {
       "name": "HubObject",
-      "kind": "class",
-      "summary": "Hub DO class realising hibernatable WebSocket coordination shape."
+      "kind": "other",
+      "summary": "Hub DO class realising hibernatable WebSocket coordination shape.",
+      "description": "(legacy kind: class)"
     },
     {
       "name": "createHub",
-      "kind": "factory",
-      "summary": "Test-friendly factory that returns a new HubObject."
+      "kind": "other",
+      "summary": "Test-friendly factory that returns a new HubObject.",
+      "description": "(legacy kind: factory)"
     }
   ],
   "dependencies": [],

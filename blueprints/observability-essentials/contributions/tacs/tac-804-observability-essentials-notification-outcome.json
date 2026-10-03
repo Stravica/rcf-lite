@@ -16,23 +16,23 @@
   "interfaces": [
     {
       "name": "createOutcomeSink",
-      "kind": "factory",
-      "description": "createOutcomeSink({ substrate, channelEnum, now }) -> { recordOutcome, queryByRecipient }. Returns the sink's write and read verbs bound to the project-owned substrate."
+      "kind": "other",
+      "description": "createOutcomeSink({ substrate, channelEnum, now }) -> { recordOutcome, queryByRecipient }. Returns the sink's write and read verbs bound to the project-owned substrate. (legacy kind: factory)"
     },
     {
       "name": "recordOutcome",
-      "kind": "write-api",
-      "description": "recordOutcome({ notificationId, channel, recipient, outcome, attemptedAt, errorCode? }) -> Promise<void>; refuses on unknown channel or unknown outcome with a stable error code."
+      "kind": "other",
+      "description": "recordOutcome({ notificationId, channel, recipient, outcome, attemptedAt, errorCode? }) -> Promise<void>; refuses on unknown channel or unknown outcome with a stable error code. (legacy kind: write-api)"
     },
     {
       "name": "queryByRecipient",
-      "kind": "read-api",
-      "description": "queryByRecipient(recipient, { from, to }) -> Promise<OutcomeRecord[]>; returns matching records; empty array on no match."
+      "kind": "other",
+      "description": "queryByRecipient(recipient, { from, to }) -> Promise<OutcomeRecord[]>; returns matching records; empty array on no match. (legacy kind: read-api)"
     },
     {
       "name": "substrate",
-      "kind": "callback",
-      "description": "Project-supplied durable writer: { append(record) -> Promise<void>, queryByRecipient(recipient, window) -> Promise<OutcomeRecord[]> }. When composing with the persistence-data-sqlite blueprint, this is a facade verb on that store."
+      "kind": "other",
+      "description": "Project-supplied durable writer: { append(record) -> Promise<void>, queryByRecipient(recipient, window) -> Promise<OutcomeRecord[]> }. When composing with the persistence-data-sqlite blueprint, this is a facade verb on that store. (legacy kind: callback)"
     }
   ],
   "dependencies": [],

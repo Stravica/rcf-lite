@@ -16,18 +16,21 @@
   "interfaces": [
     {
       "name": "createTurnstileVerifier",
-      "kind": "factory",
-      "summary": "Turnstile server-side verifier over env.TURNSTILE_SECRET."
+      "kind": "other",
+      "summary": "Turnstile server-side verifier over env.TURNSTILE_SECRET.",
+      "description": "(legacy kind: factory)"
     },
     {
       "name": "verifier.verify",
-      "kind": "method",
-      "summary": "POST {secret, response} to siteverify; returns {success, errorCodes}."
+      "kind": "other",
+      "summary": "POST {secret, response} to siteverify; returns {success, errorCodes}.",
+      "description": "(legacy kind: method)"
     },
     {
       "name": "verifier.guard",
-      "kind": "method",
-      "summary": "Middleware that reads cf-turnstile-response and rejects missing-token submits with 400."
+      "kind": "other",
+      "summary": "Middleware that reads cf-turnstile-response and rejects missing-token submits with 400.",
+      "description": "(legacy kind: method)"
     }
   ],
   "dependencies": [],

@@ -17,8 +17,8 @@
   "interfaces": [
     {
       "name": "renderRecovery",
-      "kind": "factory",
-      "description": "renderRecovery({ shape, config }) -> { element, dataRecoveryAttr, dataActionAttr }. shape is one of parent-surface, search, request-access, retry, create, clear-filters, no-recovery. config carries the FBS-declared paths and callbacks the router needs."
+      "kind": "other",
+      "description": "renderRecovery({ shape, config }) -> { element, dataRecoveryAttr, dataActionAttr }. shape is one of parent-surface, search, request-access, retry, create, clear-filters, no-recovery. config carries the FBS-declared paths and callbacks the router needs. (legacy kind: factory)"
     }
   ],
   "dependencies": [

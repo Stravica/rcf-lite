@@ -17,13 +17,13 @@
   "interfaces": [
     {
       "name": "renderTourRunner",
-      "kind": "factory",
-      "description": "renderTourRunner({ stepManifest, anchorResolver, dialogMount, focusLifecycle, completionStore }) -> { openAtStep(stepId), dismiss(), destroy() }. The project supplies the stepManifest (from the elicit), the anchorResolver (from a CSS selector to a live element), the dialogMount (an element or a factory), the focusLifecycle (open, walk, close hooks) and the completionStore (the resolved TAC-2703 backend)."
+      "kind": "other",
+      "description": "renderTourRunner({ stepManifest, anchorResolver, dialogMount, focusLifecycle, completionStore }) -> { openAtStep(stepId), dismiss(), destroy() }. The project supplies the stepManifest (from the elicit), the anchorResolver (from a CSS selector to a live element), the dialogMount (an element or a factory), the focusLifecycle (open, walk, close hooks) and the completionStore (the resolved TAC-2703 backend). (legacy kind: factory)"
     },
     {
       "name": "stepManifest",
-      "kind": "shape",
-      "description": "[{ id, anchorSelector, heading, body, order }]. Ordered list of 3 to 5 steps. Each step is opened by openAtStep(stepId) or advanced by the previous / next controls."
+      "kind": "other",
+      "description": "[{ id, anchorSelector, heading, body, order }]. Ordered list of 3 to 5 steps. Each step is opened by openAtStep(stepId) or advanced by the previous / next controls. (legacy kind: shape)"
     }
   ],
   "dependencies": [

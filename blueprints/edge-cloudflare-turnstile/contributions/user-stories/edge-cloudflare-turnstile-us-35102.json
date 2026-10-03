@@ -20,7 +20,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
-        "field": "interfaces.verifier.verify"
+        "field": "interfaces[verifier.verify]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/turnstile/troubleshooting/testing/",
@@ -38,7 +38,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3601-edge-cloudflare-turnstile-widget-mount",
-        "field": "interfaces.mountTurnstile"
+        "field": "interfaces[mountTurnstile]"
       }
     },
     {
@@ -52,7 +52,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
-        "field": "interfaces.createTurnstileVerifier"
+        "field": "interfaces[createTurnstileVerifier]"
       }
     },
     {
@@ -66,7 +66,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3602-edge-cloudflare-turnstile-server-verifier",
-        "field": "interfaces.createTurnstileVerifier"
+        "field": "interfaces[createTurnstileVerifier]"
       }
     }
   ],

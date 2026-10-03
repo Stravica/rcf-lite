@@ -19,7 +19,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-1302-deploy-cloudflare-workers-wrangler-manifest",
-        "field": "interfaces.productionUrl"
+        "field": "interfaces[productionUrl]"
       },
       "disposition": "template"
     },

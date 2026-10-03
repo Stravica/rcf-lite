@@ -29,7 +29,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
-        "field": "interfaces.applyAll"
+        "field": "interfaces[applyAll]"
       },
       "disposition": "template"
     },
@@ -43,7 +43,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
-        "field": "interfaces.applyAll"
+        "field": "interfaces[applyAll]"
       },
       "disposition": "template"
     },
@@ -99,7 +99,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
-        "field": "interfaces.applyAll"
+        "field": "interfaces[applyAll]"
       },
       "disposition": "template"
     },
@@ -113,7 +113,7 @@
       "scope": "runtime",
       "ownerRef": {
         "tacId": "TAC-2802-persistence-data-postgres-migration-runner",
-        "field": "interfaces.applyAll"
+        "field": "interfaces[applyAll]"
       },
       "disposition": "template"
     },

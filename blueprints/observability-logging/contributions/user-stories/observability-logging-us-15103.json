@@ -40,7 +40,7 @@
       "disposition": "template",
       "ownerRef": {
         "tacId": "TAC-1602-observability-logging-redaction-boundary",
-        "field": "interfaces.createRedactionBoundary"
+        "field": "interfaces[createRedactionBoundary]"
       }
     },
     {
@@ -54,7 +54,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-1602-observability-logging-redaction-boundary",
-        "field": "interfaces.createRedactionBoundary"
+        "field": "interfaces[createRedactionBoundary]"
       }
     }
   ],

@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "default export",
-      "kind": "facade",
-      "summary": "AUD-presence-check facade exported from the blueprint probe module."
+      "kind": "other",
+      "summary": "AUD-presence-check facade exported from the blueprint probe module.",
+      "description": "(legacy kind: facade)"
     }
   ],
   "dependencies": [],

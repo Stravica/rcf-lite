@@ -15,13 +15,13 @@
   "interfaces": [
     {
       "name": "migrations/",
-      "kind": "directory",
-      "description": "The source-tree directory named on `d1_databases[].migrations_dir`; holds one numbered `.sql` file per shipped migration."
+      "kind": "other",
+      "description": "The source-tree directory named on `d1_databases[].migrations_dir`; holds one numbered `.sql` file per shipped migration. (legacy kind: directory)"
     },
     {
       "name": "d1_migrations",
-      "kind": "table",
-      "description": "The D1-side bookkeeping table named on `d1_databases[].migrations_table`; wrangler writes one row per applied migration. Read via `wrangler d1 execute <database> --command \"SELECT * FROM <table>\"` for verification."
+      "kind": "other",
+      "description": "The D1-side bookkeeping table named on `d1_databases[].migrations_table`; wrangler writes one row per applied migration. Read via `wrangler d1 execute <database> --command \"SELECT * FROM <table>\"` for verification. (legacy kind: table)"
     }
   ],
   "dependencies": [],

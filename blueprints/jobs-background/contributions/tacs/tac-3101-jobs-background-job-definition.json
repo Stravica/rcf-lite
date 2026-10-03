@@ -16,13 +16,13 @@
   "interfaces": [
     {
       "name": "jobModule.default",
-      "kind": "shape",
-      "description": "The default export shape: { name: string, handler: async (input) => any, inputSchema: opaque, retryPolicy: { maxAttempts: positive integer, backoff: 'exponential' | 'constant' | 'linear' }, timeoutMs: positive integer }."
+      "kind": "other",
+      "description": "The default export shape: { name: string, handler: async (input) => any, inputSchema: opaque, retryPolicy: { maxAttempts: positive integer, backoff: 'exponential' | 'constant' | 'linear' }, timeoutMs: positive integer }. (legacy kind: shape)"
     },
     {
       "name": "registerJobs",
-      "kind": "factory",
-      "description": "The jobs runtime entry point: registerJobs({ jobsDir, queueConsumer, onEvent }) reads jobModule files, validates the shape, and registers dispatch handlers."
+      "kind": "other",
+      "description": "The jobs runtime entry point: registerJobs({ jobsDir, queueConsumer, onEvent }) reads jobModule files, validates the shape, and registers dispatch handlers. (legacy kind: factory)"
     }
   ],
   "dependencies": [

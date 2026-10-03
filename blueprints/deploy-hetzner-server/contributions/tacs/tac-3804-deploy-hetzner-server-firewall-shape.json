@@ -15,8 +15,9 @@
   "interfaces": [
     {
       "name": "firewallRules sub-schema",
-      "kind": "jsonSchemaFragment",
-      "summary": "Rule-shape invariants inside hetzner-server.schema.json."
+      "kind": "other",
+      "summary": "Rule-shape invariants inside hetzner-server.schema.json.",
+      "description": "(legacy kind: jsonSchemaFragment)"
     }
   ],
   "dependencies": [],

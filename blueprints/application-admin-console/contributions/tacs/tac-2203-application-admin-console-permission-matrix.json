@@ -15,8 +15,8 @@
   "interfaces": [
     {
       "name": "renderMatrix",
-      "kind": "factory",
-      "description": "renderMatrix({ roles: RoleSpec[], permissions: PermissionSpec[], matrix: Record<roleId, Record<permissionId, boolean>> }) -> { mount(rootElement), unmount() }."
+      "kind": "other",
+      "description": "renderMatrix({ roles: RoleSpec[], permissions: PermissionSpec[], matrix: Record<roleId, Record<permissionId, boolean>> }) -> { mount(rootElement), unmount() }. (legacy kind: factory)"
     }
   ],
   "dependencies": [

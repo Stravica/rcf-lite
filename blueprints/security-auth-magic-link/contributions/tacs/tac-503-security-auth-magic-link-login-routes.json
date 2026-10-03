@@ -20,28 +20,28 @@
   "interfaces": [
     {
       "name": "app",
-      "kind": "framework-instance",
-      "description": "The project's HTTP framework instance the routes are registered onto; the framework must expose a per-route rate-limit configuration surface."
+      "kind": "other",
+      "description": "The project's HTTP framework instance the routes are registered onto; the framework must expose a per-route rate-limit configuration surface. (legacy kind: framework-instance)"
     },
     {
       "name": "magicLinks",
-      "kind": "collaborator",
-      "description": "TAC-501 instance; the routes call mint and consume through it."
+      "kind": "other",
+      "description": "TAC-501 instance; the routes call mint and consume through it. (legacy kind: collaborator)"
     },
     {
       "name": "sessions",
-      "kind": "collaborator",
-      "description": "TAC-502 instance; the routes call issueSession, invalidateSession, and cookie helpers through it."
+      "kind": "other",
+      "description": "TAC-502 instance; the routes call issueSession, invalidateSession, and cookie helpers through it. (legacy kind: collaborator)"
     },
     {
       "name": "adapter",
-      "kind": "collaborator",
-      "description": "TAC-504 instance; the routes call adapter.send through it."
+      "kind": "other",
+      "description": "TAC-504 instance; the routes call adapter.send through it. (legacy kind: collaborator)"
     },
     {
       "name": "registry",
-      "kind": "collaborator",
-      "description": "TAC-505 instance; the routes call registry.isRegistered through it and consume only the boolean result."
+      "kind": "other",
+      "description": "TAC-505 instance; the routes call registry.isRegistered through it and consume only the boolean result. (legacy kind: collaborator)"
     }
   ],
   "dependencies": [

@@ -16,8 +16,8 @@
   "interfaces": [
     {
       "name": "createSelectionModel",
-      "kind": "factory",
-      "description": "createSelectionModel({ persistence: 'perPage' | 'crossPage' }) -> { toggle(rowId), togglePage(rowIds), selectedIds(): number[]|string[], size(): number, reset(), onChange((event) => void) }"
+      "kind": "other",
+      "description": "createSelectionModel({ persistence: 'perPage' | 'crossPage' }) -> { toggle(rowId), togglePage(rowIds), selectedIds(): number[]|string[], size(): number, reset(), onChange((event) => void) } (legacy kind: factory)"
     }
   ],
   "dependencies": [],

@@ -30,7 +30,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/workers/configuration/cron-triggers/",
@@ -48,7 +48,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       }
     },
     {
@@ -62,7 +62,7 @@
       "disposition": "fixed",
       "ownerRef": {
         "tacId": "TAC-3301-platform-cloudflare-cron-triggers-scheduled-handler",
-        "field": "interfaces.default export"
+        "field": "interfaces[default export]"
       },
       "vendorCitation": {
         "url": "https://developers.cloudflare.com/workers/platform/limits/",
