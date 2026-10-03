@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-03T09:30:00Z",
+  "updatedAt": "2026-10-03T09:30:00Z",
+  "purpose": "Cover US-18002 (the Readiness tab renders question cards grouped by source span): the questions block lists each group with its asks and every id is in the JSON (AC-18002-1), the empty questions set renders the intent-complete verdict line (AC-18002-2), and engineer blockers are never removed from the DOM in any register (AC-18002-3). Points at the three AC tests under test/view/readiness-po-layer.test.js.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18002-1",
+    "AC-18002-2",
+    "AC-18002-3"
+  ],
+  "id": "TS-227",
+  "usId": "US-18002",
+  "title": "Readiness PO question cards: groups and asks, intent-complete empty state, engineer DOM preserved across registers",
+  "testCases": [
+    {
+      "id": "TC-227-groups-and-asks",
+      "acId": "AC-18002-1",
+      "description": "renderReadinessPO is given a readiness object with questions[] non-empty; every group label, every ask and every question id appears in the panel, and data-rcf-source=\"readiness.questions\" is stamped so the source path is unambiguous.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-po-layer.test.js::PO layer: AC-18002-1 given questions[] non-empty, the block lists each group with its asks and every id is in the JSON"
+    },
+    {
+      "id": "TC-227-empty-questions-verdict",
+      "acId": "AC-18002-2",
+      "description": "renderReadinessPO is given a clean readiness object with both levels ok and no blockers; the panel renders the exact intent-complete verdict line (formatVerdictLines(result).intentComplete) inside the questions block and marks the section data-rcf-empty=\"yes\".",
+      "status": "pending",
+      "testPointer": "test/view/readiness-po-layer.test.js::PO layer: AC-18002-2 given questions[] empty, the block shows the intent-complete verdict line"
+    },
+    {
+      "id": "TC-227-engineer-dom-preserved",
+      "acId": "AC-18002-3",
+      "description": "renderReadinessPanel across every register (null / productOwner / engineer) keeps every engineer blocker id in the DOM, keeps every PO blocker id in the DOM and renders the CLI verdict strings verbatim inside the For-engineers DocRow; the For-engineers DocRow is closed under productOwner / unstated and open under engineer.",
+      "status": "pending",
+      "testPointer": "test/view/readiness-po-layer.test.js::PO layer: AC-18002-3 engineer blockers are not removed from the DOM in any register"
+    }
+  ],
+  "status": "draft"
+}

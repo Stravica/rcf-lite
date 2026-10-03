@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-746",
+  "path": "src/view/readiness/question-adapter.js",
+  "title": "Readiness PO question adapter: feature-detected questions source + source-span grouping",
+  "description": "`toQuestions(readiness)` is the pure projection the Readiness PO layer reads. `preferReadinessQuestions(readiness)` feature-detects the DEFINE step 3 PR 2 `computeQuestions` output on `readiness.questions`: when present, the adapter reads from there, using `groups[]` labels and the per-question `heading` / `ask` / `hint` with phrasebook fallback per field; the group label falls back to a conservative sourceSpan prose when no `sourceSpanLabel` is given. Otherwise the adapter reads `personas.productOwner.blockers`, groups by source span (brief:<n>, REQ-N, or a plain stage label) and fills asks from the phrasebook. One source of truth for the PO ask text; nothing is fabricated that is not on the tree (AC-18002-1).",
+  "implementsAcIds": [
+    "AC-18002-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:30:00Z",
+  "updatedAt": "2026-10-03T09:30:00Z"
+}

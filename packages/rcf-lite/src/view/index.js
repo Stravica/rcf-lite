@@ -10,6 +10,7 @@ import { readFile, stat } from 'node:fs/promises';
 
 import { resolveTestPointers, walkTree } from '#core/store';
 import { computeReadiness } from '../query/readiness.js';
+import { computeQuestions } from '../query/questions.js';
 import { loadFreezeRecord } from '../define/freeze-record.js';
 import { loadAllLedgers } from '../define/ledgers.js';
 import { renderContent, renderPage } from './html-page.js';
@@ -91,6 +92,31 @@ export async function renderModelToPage({ projectRoot }) {
     // A malformed tree should not block the viewer; the Readiness tab
     // renders its "could not be computed" placeholder in that case.
     readiness = null;
+  }
+
+  // Viewer UI refresh PR 8 (TAC-4133, ADR-4135, AC-18002-1): fold the
+  // DEFINE step 3 PR 2 `computeQuestions` output onto the readiness
+  // object before the view reads it, so the PO layer's question
+  // adapter feature-detects the real shape (`questions[]`, `groups[]`,
+  // `optional[]`, `engineer.blockers`) rather than falling back to the
+  // blockers path. Pure fold; `computeQuestions` is a composer over
+  // the same readiness object and writes nothing under rcf/.
+  if (readiness) {
+    try {
+      const q = computeQuestions(readiness, {
+        tree,
+        ledgers,
+        profileText,
+        persona: 'productOwner',
+      });
+      readiness.questions = q.questions;
+      readiness.questionGroups = q.groups;
+      readiness.questionOptional = q.optional;
+      readiness.questionEngineer = q.engineer ?? null;
+    } catch {
+      // Composition failure never blocks the viewer; the adapter falls
+      // back to the blockers path when `readiness.questions` is absent.
+    }
   }
 
   const model = buildTreeModel({ tree, errors });

@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-748",
+  "path": "src/view/readiness.js",
+  "title": "renderReadinessPanel wraps the PO layer around the engineer body and picks the register from profile.md",
+  "description": "`renderReadinessPanel(result, { profileText })` picks the register from `profile.md` (productOwner | engineer | unstated), renders the engineer body (the pre-PR-8 Readiness rendering: tree line, CLI verdict lines, next-action-per-persona, D1..D8 chips, PO + Engineer blocker groups, delta/diff) once, and hands it to `renderReadinessPO` as `engineerBody`. The engineer body is never removed from the DOM; `renderReadinessPO` is what folds it into the For-engineers DocRow and decides open/closed per register (AC-18002-3).",
+  "implementsAcIds": [
+    "AC-18002-3"
+  ],
+  "dependencies": [
+    "CN-747"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T09:30:00Z",
+  "updatedAt": "2026-10-03T09:30:00Z"
+}

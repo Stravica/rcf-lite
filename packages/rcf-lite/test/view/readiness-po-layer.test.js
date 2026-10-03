@@ -402,3 +402,48 @@ test('PO layer: Requirements that still need work tabulates REQs from stories:re
   assert.match(html, /class="rcf-po-reqwork__table"/);
   assert.ok(html.includes('#tab=requirements&amp;entity=REQ-012'));
 });
+
+test('question-adapter: AC-18002-1 real computeQuestions shape (itemId + context.sourceSpan) groups by span and renders asks', () => {
+  // The real `computeQuestions` output names the itemId on `.itemId`
+  // (the `.id` field is a `Q-...` question id), and names the source
+  // span via `.context.sourceSpan` (or nested `.context.statement.source`).
+  // The adapter must consume this shape so the view/index.js wiring
+  // (CN-749) feeds live questions to the PO layer rather than the
+  // blockers fallback.
+  const base = failingFixture();
+  const result = {
+    ...base,
+    questions: [
+      {
+        id: 'Q-D1-brief:kinds-brief:7',
+        stage: 'D1',
+        check: 'brief:kinds',
+        itemId: 'brief:7',
+        heading: 'Is this a capability, a constraint, an actor, or something else?',
+        ask: 'Statement 7 says a thing. Which kind?',
+        answerKinds: ['rekind'],
+        context: { statement: { id: 7, kind: null, text: 'a thing', source: 'brief:7' } },
+        blocks: 'intent',
+      },
+      {
+        id: 'Q-D4-stories:reqHasUs-REQ-012',
+        stage: 'D4',
+        check: 'stories:reqHasUs',
+        itemId: 'REQ-012',
+        heading: 'Who uses REQ-012?',
+        ask: 'Say it as: as a who, I want what, so that why.',
+        context: { sourceSpan: 'REQ-012' },
+        blocks: 'intent',
+      },
+    ],
+  };
+  assert.equal(preferReadinessQuestions(result), true);
+  const q = toQuestions(result);
+  const labels = q.groups.map((g) => g.label).sort();
+  assert.deepEqual(labels, ['Requirement REQ-012', 'Your document, statement 7']);
+  const briefGroup = q.groups.find((g) => g.label === 'Your document, statement 7');
+  assert.equal(briefGroup.items.length, 1);
+  assert.equal(briefGroup.items[0].checkId, 'D1/brief:kinds');
+  assert.equal(briefGroup.items[0].itemId, 'brief:7');
+  assert.equal(briefGroup.items[0].ask, 'Statement 7 says a thing. Which kind?');
+});
