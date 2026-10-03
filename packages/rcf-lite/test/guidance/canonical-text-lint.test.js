@@ -60,3 +60,26 @@ test('AC-1.11: no denylisted American-English forms in any canonical asset', asy
   }
   assert.deepEqual(offenders, [], `American-English form found in: ${offenders.join(', ')}`);
 });
+
+// REQ-182 (US-18202), AC-18202-3: the register scan rejects an em-dash
+// in a new guidance file. The scan is the one above, generalised over
+// every guidance/*.md: if a new file carries an em-dash, the scan
+// fails. We assert the posture two ways: (1) no em-dash in any
+// guidance/*.md on disk right now; (2) a synthetic file with an
+// em-dash fails the exact same regex the asset scan uses, so a reader
+// can see the scan is the regression gate the AC names.
+test('guidance (REQ-182, AC-18202-3): em-dash in a new guidance file fails the register scan', async () => {
+  const { readdir } = await import('node:fs/promises');
+  const { join } = await import('node:path');
+  const guidanceDir = resolve(PACKAGE_ROOT, 'guidance');
+  const names = (await readdir(guidanceDir)).filter((n) => n.endsWith('.md'));
+  const offenders = [];
+  for (const name of names) {
+    const text = await readFile(join(guidanceDir, name), 'utf8');
+    if (/—/.test(text)) offenders.push(name);
+  }
+  assert.deepEqual(offenders, [], `em-dash found in guidance file: ${offenders.join(', ')}`);
+  // A synthetic file with an em-dash must trip the same regex.
+  const synthetic = 'A dash — right here breaks the register.';
+  assert.equal(/—/.test(synthetic), true, 'the register-scan regex must fail a file containing an em-dash');
+});

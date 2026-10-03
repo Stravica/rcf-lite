@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-01T14:13:27Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
   "tacId": "TAC-4122-define-gates",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -21,7 +21,8 @@
     "src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a '## Surface' section carrying one of 'viewer' | 'runningApp' | 'prDiff' (default 'prDiff') so a fresh 'rcf init' project satisfies checkD1Brief's profile:surface marker without the operator editing profile.md first.",
     "ADR-4126 (0.29.0): own the per-check persona and question map; export `CHECK_PERSONA`, `CHECK_QUESTION`, `STAGE_FALLBACK_PERSONA`, `checkPersona(name)`, `checkQuestion(name)` and `parseInterfaceDraft(iface)`. Every entry in `stages[].checks[]` carries `persona` (productOwner | engineer) and a non-empty `question`; the `stage:<D>:scope` placeholder uses `STAGE_FALLBACK_PERSONA`.",
     "ADR-4126 (0.29.0): split `skeleton:reqFields` into `skeleton:reqIntent` (productOwner: description without TODO and domain, evaluated per REQ independently) and `skeleton:reqShape` (engineer: shapeClassification.shapes). Split `decisions:allAnswered` into `decisions:wellFormed` (productOwner: non-empty question + two or more options + a default naming one of them) and `decisions:allAnswered` (engineer: zero open).",
-    "ADR-4126 (0.29.0): new D3 check `shapes:draftSettled` fails any interface whose `description` starts with `[draft]` (whitespace tolerated), id `<tacId>:<name>`, over delta, total = interfaces on TACs in scope; `tacHasInterface` counts a draft as present; `kindVocabulary` applies to drafts."
+    "ADR-4126 (0.29.0): new D3 check `shapes:draftSettled` fails any interface whose `description` starts with `[draft]` (whitespace tolerated), id `<tacId>:<name>`, over delta, total = interfaces on TACs in scope; `tacHasInterface` counts a draft as present; `kindVocabulary` applies to drafts.",
+    "`shapes:draftSettled` reports `[draft]` on `TAC.purpose`, `coreEntities[].description` and `TAC.interfaces[].description` with ids `<tacId>`, `TAD.entity:<name>` and `<tacId>:<name>` respectively (REQ-188, 0.30.0): `parseInterfaceDraft` reads the marker on all three homes with the same whitespace-tolerant rule; the draft pass enumerates across the three homes; nothing in the draft pass can fail a product-owner check."
   ],
   "internalStructure": "Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: 'notApplicable' } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: 'passed' if every ok is true; 'failing' otherwise, unless the stage is D3/D5/D6 AND freeze.gates[<gate>].state === 'acknowledged' AND freeze.gates[<gate>].at.hash === currentTreeHash, in which case state is 'acknowledged'. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.",
   "interfaces": [

@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
+  "reqId": "REQ-182",
+  "prdId": "PRD-001",
+  "title": "DEFINE-stage guidance pack",
+  "description": "The DEFINE-stage guidance pack is served through `rcf guidance <slug>`, the `rcf://docs/<slug>` resources and the argument-free MCP prompts registered in guidance/manifest.json: define-intent and discovery-prototypes guidance, the elicitation-playbook restructure, two managed-block rules.",
+  "category": "functional",
+  "domain": "define",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-03T00:00:00Z",
+    "signals": []
+  },
+  "rationale": "Spec 2026-10-01 (DEFINE step 3) section 6 pins the DEFINE-stage guidance surface: argument-free prompts (served from markdown in guidance/), resource URIs under `rcf://docs/`, and two managed-block rules the harness picks up through `rcf doctor`. REQ-182 was reserved by the PR 2 chain for this pack but did not land on origin/main; this PR authors it minimally with the amended description from spec section 11.8 (that shift is recorded at the top of report.md) so US-18202 has an owning REQ and the pack has a single home across DEFINE step 3 PRs. The amendment keeps room for later PRs to append: step 3 PR 7 will add `rcf_define_litmus` under the same REQ.",
+  "tags": [
+    "capability:define-intent"
+  ]
+}

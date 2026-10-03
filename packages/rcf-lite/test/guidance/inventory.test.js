@@ -33,7 +33,8 @@ test('manifest parses with docs and prompts arrays of the specced shape', async 
   }
   // The locked inventories (§D3 / §D4, extended in 0.6.0 spec D-6 with
   // the managed/ sub-slug for the canonical CLAUDE.md/AGENTS.md block):
-  // five docs, two prompts.
+  // nine docs, four argument-free DEFINE / DISCOVERY prompts (REQ-182
+  // amended, REQ-188).
   assert.deepEqual(m.docs.map((d) => d.slug), [
     'overview',
     'document-model',
@@ -46,6 +47,9 @@ test('manifest parses with docs and prompts arrays of the specced shape', async 
     // define-intake guidance files (spec 2026-10-01 §6).
     'define-intent',
     'define-intake',
+    // REQ-188 (DEFINE step 3 PR 3) shipped the discovery-prototypes
+    // guidance file (spec 2026-10-01 §5).
+    'discovery-prototypes',
   ]);
   assert.deepEqual(
     m.prompts.map((p) => p.name),
@@ -55,7 +59,45 @@ test('manifest parses with docs and prompts arrays of the specced shape', async 
       // REQ-186 (DEFINE step 3 PR 2): two new argument-free prompts.
       'rcf_define_intent',
       'rcf_define_intake',
+      // REQ-188 (DEFINE step 3 PR 3): two new argument-free prompts
+      // (draft shapes for the engineer, discovery prototype).
+      // rcf_define_litmus arrives in PR 7.
+      'rcf_define_draft_shapes',
+      'rcf_discover_prototype',
     ],
+  );
+});
+
+// REQ-182 (US-18202), AC-18202-2: the manifest advertises the four
+// argument-free DEFINE / DISCOVERY prompts present on this PR;
+// rcf_define_litmus is intentionally absent and arrives in PR 7.
+test('guidance (REQ-182, AC-18202-2): four argument-free DEFINE prompts present, litmus pending PR 7', async () => {
+  const m = await manifest();
+  const defineAndDiscoveryPrompts = m.prompts.filter((p) =>
+    p.name === 'rcf_define_intent' ||
+    p.name === 'rcf_define_intake' ||
+    p.name === 'rcf_define_draft_shapes' ||
+    p.name === 'rcf_discover_prototype' ||
+    p.name === 'rcf_define_litmus',
+  );
+  const names = defineAndDiscoveryPrompts.map((p) => p.name).sort();
+  assert.deepEqual(
+    names,
+    ['rcf_define_draft_shapes', 'rcf_define_intake', 'rcf_define_intent', 'rcf_discover_prototype'],
+    'the four DEFINE / DISCOVERY prompts for this PR must be present',
+  );
+  // Every one is argument-free: the prompt is a static markdown file
+  // mapped to a slug in the manifest; the server plumbing serves the
+  // file byte-faithfully with no arguments (REQ-182 US-18202 AC-2).
+  for (const p of defineAndDiscoveryPrompts) {
+    assert.equal(typeof p.file, 'string', `${p.name} must map to a file`);
+    assert.match(p.file, /\.md$/, `${p.name}'s file must be markdown (argument-free)`);
+  }
+  // rcf_define_litmus is pending PR 7: not present now, by design.
+  assert.equal(
+    m.prompts.some((p) => p.name === 'rcf_define_litmus'),
+    false,
+    'rcf_define_litmus is pending PR 7 and must not appear on this PR',
   );
 });
 

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-02T18:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
   "acIds": [
     "AC-17302-1",
     "AC-17302-2",
@@ -37,15 +37,24 @@
     "AC-18603-2",
     "AC-18603-3",
     "AC-18603-4",
-    "AC-18603-5"
+    "AC-18603-5",
+    "AC-18801-1",
+    "AC-18801-2",
+    "AC-18801-3",
+    "AC-18801-4",
+    "AC-18801-5",
+    "AC-18202-1",
+    "AC-18202-2",
+    "AC-18202-3",
+    "AC-18202-4"
   ],
   "fbsId": "FBS-202",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 202,
   "executionStatus": "notStarted",
-  "title": "DEFINE step 3 PRs 1-2: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2)",
-  "summary": "Carry the ACs for PRs 1 and 2 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. Chain-first commits landed before the code in each PR. FBS stays notStarted until the CN axis mints Code Nodes against the 36 ACs across PRs 1 and 2 (PR 1 convention; CN axis is a dedicated follow-up). PR 1 tests ride TS-215; PR 2 tests ride TS-226.",
+  "title": "DEFINE step 3 PRs 1-3: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3)",
+  "summary": "Carry the ACs for PRs 1, 2 and 3 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. PR 3: parseInterfaceDraft extended to TAC.purpose and coreEntities[].description, shapes:draftSettled reports all three id forms (<tacId>:<name>, <tacId>, TAD.entity:<name>); the two new argument-free prompts rcf_define_draft_shapes and rcf_discover_prototype plus guidance/discovery-prototypes.md (REQ-188 + REQ-182 amended, ADR-4132). Chain-first commits landed before the code in each PR. FBS stays notStarted until the CN axis mints Code Nodes against the ACs across the PRs. PR 1 tests ride TS-215; PR 2 tests ride TS-226; PR 3 tests ride TS-228 (renumbered from the cloud build's TS-227 after viewer PR 8 claimed TS-227 for US-18002).",
   "dependsOnFbsIds": [
     "FBS-195",
     "FBS-201"
@@ -56,11 +65,13 @@
       "TAC-4121-define-ledgers",
       "TAC-4130-define-intake-brief",
       "TAC-4129-define-questions",
-      "TAC-4128-define-guidance"
+      "TAC-4128-define-guidance",
+      "TAC-4122-define-gates"
     ],
     "adrIds": [
       "ADR-4129-questions-harness-driven-loop",
-      "ADR-4130-intake-harness-split-tool-scanned"
+      "ADR-4130-intake-harness-split-tool-scanned",
+      "ADR-4132-prototypes-in-discovery-as-evidence"
     ]
   },
   "deliverables": [
@@ -84,7 +95,12 @@
     "test/mcp/define-questions.test.js: AC-18602-4 MCP parity (PR 2)",
     "test/query/questions-loop.test.js: AC-18603-1..5 scripted loop cases (PR 2)",
     "rcf/requirements/req-187.json, rcf/requirements/req-173.json (amended), rcf/user-stories/us-18701.json, us-18702.json, us-17302.json, rcf/tacs/tac-4121-define-ledgers.json (amended), tac-4130-define-intake-brief.json, rcf/test-suites/ts-215.json (extended), rcf/fbs/fbs-202.json: this file",
-    "rcf/requirements/req-186.json, rcf/user-stories/us-18601.json, us-18602.json, us-18603.json, rcf/tacs/tac-4129-define-questions.json, tac-4128-define-guidance.json, rcf/adrs/adr-4129-questions-harness-driven-loop.json, adr-4130-intake-harness-split-tool-scanned.json, rcf/test-suites/ts-226.json (PR 2 chain)"
+    "rcf/requirements/req-186.json, rcf/user-stories/us-18601.json, us-18602.json, us-18603.json, rcf/tacs/tac-4129-define-questions.json, tac-4128-define-guidance.json, rcf/adrs/adr-4129-questions-harness-driven-loop.json, adr-4130-intake-harness-split-tool-scanned.json, rcf/test-suites/ts-226.json (PR 2 chain)",
+    "rcf/requirements/req-188.json, rcf/requirements/req-182.json (new on this PR; see report.md shift note), rcf/user-stories/us-18801.json, us-18202.json, rcf/tacs/tac-4122-define-gates.json (amended), tac-4128-define-guidance.json (amended), rcf/adrs/adr-4132-prototypes-in-discovery-as-evidence.json, rcf/test-suites/ts-228.json, docs/capability-tags.md (capability:define-drafts) (PR 3 chain)",
+    "src/query/gates.js: parseInterfaceDraft extended to TAC.purpose and coreEntities[].description; checkD3Shapes shapes:draftSettled enumerates all three homes (PR 3)",
+    "guidance/define-draft-shapes.md, guidance/discover-prototype.md, guidance/discovery-prototypes.md and guidance/manifest.json entries for the two prompts and the two slugs (PR 3)",
+    "guidance/managed/agent-instructions-block.md: the prototype rule from ADR-4132 (PR 3)",
+    "test/query/gates.test.js: extended for the three draft homes; test/guidance/manifest.test.js and test/guidance/register-scan.test.js: new slugs and five prompts, em-dash scan (PR 3)"
   ],
   "riskLevel": "low",
   "domain": "defineLedgers",

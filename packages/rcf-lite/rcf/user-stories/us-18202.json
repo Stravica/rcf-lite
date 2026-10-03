@@ -1,0 +1,40 @@
+{
+  "usId": "US-18202",
+  "prdId": "PRD-001",
+  "reqId": "REQ-182",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the DEFINE-stage guidance pack",
+  "description": "User story under REQ-182. The guidance pack prints its slugs through `rcf guidance`, the MCP server advertises every argument-free DEFINE prompt, the register scan protects every new file from em-dashes, and the managed block regeneration never removes an existing rule.",
+  "asA": "harness",
+  "iWant": "the DEFINE-stage guidance pack served through one surface",
+  "soThat": "the loop reads one slug per topic and the register scans and managed-block rules apply everywhere",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18202-1",
+      "description": "[happy] given the pack, when rcf guidance define-intent and rcf guidance discovery-prototypes run, then each prints its file.",
+      "testable": true
+    },
+    {
+      "id": "AC-18202-2",
+      "description": "[happy] given the manifest, when the MCP server lists prompts, then rcf_define_intent, rcf_define_intake, rcf_define_draft_shapes, rcf_define_litmus and rcf_discover_prototype are present and argument-free.",
+      "testable": true
+    },
+    {
+      "id": "AC-18202-3",
+      "description": "[failure] given a new guidance file containing an em-dash, when the register scan runs, then it fails.",
+      "testable": true
+    },
+    {
+      "id": "AC-18202-4",
+      "description": "[must-not] given the managed block, when regenerated, then no existing rule is removed.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4128-define-guidance"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}

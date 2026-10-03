@@ -589,6 +589,9 @@ import {
   checkPersona,
   checkQuestion,
   parseInterfaceDraft,
+  parseTacPurposeDraft,
+  parseCoreEntityDraft,
+  hasDraftMarker,
 } from '../../src/query/gates.js';
 
 /** The 24 ADR-4126 check names (0.29.0). */
@@ -945,4 +948,138 @@ test('gates (REQ-173): a resolvedBy outside the grammar fails with "pointer does
   const check = stage.checks.find((c) => c.name === 'skeleton:resolvedBy');
   assert.ok(!check.ok);
   assert.ok(check.failing.some((f) => f.id === 'brief:1' && /pointer does not resolve/.test(f.why)));
+});
+
+// ---------------------------------------------------------------------------
+// REQ-188 (US-18801): the [draft] marker extends to TAC.purpose and
+// TAD.dataArchitecture.coreEntities[].description; shapes:draftSettled
+// enumerates all three homes with three id forms.
+// ---------------------------------------------------------------------------
+
+test('gates (REQ-188): hasDraftMarker, parseTacPurposeDraft and parseCoreEntityDraft respect leading whitespace', () => {
+  assert.equal(hasDraftMarker('[draft] a purpose'), true);
+  assert.equal(hasDraftMarker('   [draft] a purpose'), true);
+  assert.equal(hasDraftMarker('a bare one'), false);
+  assert.equal(hasDraftMarker('[happy] not a draft marker'), false);
+  assert.equal(hasDraftMarker(null), false);
+  assert.equal(parseTacPurposeDraft({ purpose: '[draft] a purpose' }), true);
+  assert.equal(parseTacPurposeDraft({ purpose: 'settled' }), false);
+  assert.equal(parseTacPurposeDraft(null), false);
+  assert.equal(parseCoreEntityDraft({ name: 'Note', description: '[draft] text from brief' }), true);
+  assert.equal(parseCoreEntityDraft({ name: 'Note', description: 'owned' }), false);
+  assert.equal(parseCoreEntityDraft(null), false);
+});
+
+test('gates (REQ-188, AC-18801-1): draft on coreEntity description fails draftSettled with TAD.entity:<name>', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tree = makeTree({
+    tad: { dataArchitecture: { coreEntities: [
+      { name: 'LoanAccount', description: '[draft] loans on hold accrue no late fees.' },
+      { name: 'Settled', description: 'an owned entity' },
+    ] } },
+  });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
+  assert.ok(draft, 'draftSettled check must be emitted when a core entity carries the marker');
+  assert.equal(draft.failing.length, 1);
+  assert.equal(draft.failing[0].id, 'TAD.entity:LoanAccount');
+  assert.match(draft.failing[0].why, /draft core entity/);
+});
+
+test('gates (REQ-188, AC-18801-2): draft on TAC.purpose fails draftSettled with <tacId>, tacHasInterface counts it present', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-D',
+    purpose: '[draft] serve the loans-on-hold surface',
+    interfaces: [{ name: 'ship', kind: 'httpRoute', description: 'settled' }],
+  };
+  const tree = makeTree({ tacs: [tac] });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-D']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
+  const iface = stage.checks.find((c) => c.name === 'shapes:tacHasInterface');
+  assert.ok(iface.ok, 'tacHasInterface should still pass a TAC with an interface, draft purpose or not');
+  assert.ok(draft.failing.some((f) => f.id === 'TAC-D'));
+  assert.match(draft.failing.find((f) => f.id === 'TAC-D').why, /draft TAC purpose/);
+});
+
+test('gates (REQ-188, AC-18801-3): three draft homes cleared, draftSettled passes', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-S',
+    purpose: 'serve the loans-on-hold surface',
+    interfaces: [{ name: 'ship', kind: 'httpRoute', description: 'settled description' }],
+  };
+  const tree = makeTree({
+    tacs: [tac],
+    tad: { dataArchitecture: { coreEntities: [{ name: 'LoanAccount', description: 'owned entity' }] } },
+  });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-S']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
+  assert.ok(draft.ok, 'draftSettled should pass when every marker is cleared');
+  assert.equal(draft.failing.length, 0);
+});
+
+test('gates (REQ-188, AC-18801-4 pending PR 5): draft recordShape without fields fails templateMarkers', () => {
+  // shapes:templateMarkers lands in PR 5. In 0.30.0 this PR, the test
+  // documents the posture (the AC is intentionally pending): a draft
+  // recordShape without the `fields:` template marker is to fail the
+  // same shapes:templateMarkers check as a settled one. The current
+  // D3 compute does not yet emit shapes:templateMarkers, so we assert
+  // that absence explicitly here so a reader of this file sees the
+  // seam. When PR 5 adds the check, this test is lifted and asserts
+  // the failing entry; the TC stays mapped to AC-18801-4.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-R',
+    interfaces: [{ name: 'noteRecord', kind: 'recordShape', description: '[draft] a note record' }],
+  };
+  const tree = makeTree({ tacs: [tac] });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-R']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const templateMarkers = stage.checks.find((c) => c.name === 'shapes:templateMarkers');
+  assert.equal(templateMarkers, undefined, 'shapes:templateMarkers lands in PR 5; this PR documents the seam');
+  // The draft marker itself is still reported.
+  const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
+  assert.ok(draft.failing.some((f) => f.id === 'TAC-R:noteRecord'));
+});
+
+test('gates (REQ-188, AC-18801-5): draft-only tree keeps every productOwner check ok (L1-neutral)', () => {
+  // A tree carrying only [draft] content across the three homes must
+  // not fail any productOwner check. Build a tree whose only shape
+  // material is drafts and whose other PO-owned stages are either
+  // notApplicable or passing; assert that none of the stage checks
+  // on it that CHECK_PERSONA maps to 'productOwner' fail.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-DO',
+    purpose: '[draft] draft purpose',
+    interfaces: [{ name: 'uiHome', kind: 'uiRoute', description: '[draft] a draft route' }],
+  };
+  const tree = makeTree({
+    tacs: [tac],
+    tad: { dataArchitecture: { coreEntities: [{ name: 'DraftOnly', description: '[draft] draft entity' }] } },
+  });
+  const stage = checkD3Shapes({
+    tree, ledgers: emptyLedgers, scope: new Set(['TAC-DO']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  // Only engineer checks may fail; no productOwner check reads draft content.
+  for (const check of stage.checks) {
+    if (check.ok) continue;
+    assert.notEqual(
+      check.persona, 'productOwner',
+      `draft-only tree should not fail a productOwner check; ${check.name} failed`,
+    );
+  }
 });
