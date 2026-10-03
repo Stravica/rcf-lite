@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-760",
+  "path": "src/query/readiness.js",
+  "title": "DEFINE step 3 PR 7: probeRunner seam, parseLitmusFlag and countLitmusReadersAtHash",
+  "description": "src/query/readiness.js accepts an injectable `probeRunner` ({ reqId, tree }) => findings[], default null; when set, computeReadiness calls it once per REQ in scope and merges the returned findings into ledgers.probes.probes[] as open probe entries so consistency:probeCount reports them. With no runner the result equals the 0.29.0 result on the same fixture (AC-17504-2). Also exports parseLitmusFlag (positive-integer validator) and countLitmusReadersAtHash (reads distinct <reader> ids from probe-ledger entries whose finding begins litmus:<reader>: and whose text includes the given hash). Pure.",
+  "implementsAcIds": [
+    "AC-17504-1",
+    "AC-17504-2",
+    "AC-17504-3",
+    "AC-17504-4"
+  ],
+  "dependencies": [
+    "CN-761"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z"
+}

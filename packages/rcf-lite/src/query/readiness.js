@@ -17,6 +17,7 @@ import { computeQueue } from '../build/queue.js';
 import { computeCoverage } from './coverage.js';
 import { computeDelta } from './delta.js';
 import { computeImpact } from './impact.js';
+import { isProbeRunner } from '../define/probe-runner.js';
 import {
   STAGE_GATES,
   STAGE_ORDER,
@@ -155,6 +156,12 @@ import {
  *   caller already resolved on disk; threaded into the stage context so
  *   `shapes:pathsResolve` can decide the D3 bite without I/O. Undefined
  *   means no paths are known-resolved.
+ * @param {import('../define/probe-runner.js').ProbeRunner | null | undefined} [args.probeRunner]  ADR-4131 extended
+ *   (0.30.0 PR 7, spec section 11.6): injectable `({ reqId, tree }) => findings[]`
+ *   seam called once per REQ in scope; returned findings are merged into
+ *   `ledgers.probes.probes[]` as open probe entries so `consistency:probeCount`
+ *   reports them. Default null: the result equals the 0.29.0 result on the
+ *   same fixture (AC-17504-2). No runner ships; the harness is the runner.
  * @returns {ReadinessResult}
  */
 export function computeReadiness(tree, args = {}) {
@@ -166,6 +173,7 @@ export function computeReadiness(tree, args = {}) {
     testPointers = undefined,
     validateErrors = [],
     resolvedPaths = undefined,
+    probeRunner = null,
   } = args;
 
   // 1. Delta.
@@ -212,6 +220,59 @@ export function computeReadiness(tree, args = {}) {
     ...impactedSeen,
   ]);
 
+  // 3b. Probe seam (ADR-4131 extended, 0.30.0 PR 7). Call the runner
+  // once per REQ in scope and merge the returned findings into the
+  // probe ledger the gate reads. With no runner (the default) nothing
+  // changes and the result equals the 0.29.0 result on the same
+  // fixture (AC-17504-2). The merge is additive and does not mutate
+  // the caller's ledgers object: a new object with a cloned
+  // probes.probes[] is passed down to the gates and surfaces on the
+  // final result through the same ledger consumer.
+  let activeLedgers = ledgers;
+  if (isProbeRunner(probeRunner)) {
+    const reqIdsInScope = [...scopeSet].filter((id) => id.startsWith('REQ-'));
+    /** @type {Array<Record<string, unknown>>} */
+    const injected = [];
+    const priorProbes = /** @type {any} */ (ledgers?.probes);
+    const priorList = Array.isArray(priorProbes?.probes) ? [...priorProbes.probes] : [];
+    const nextId = (() => {
+      let max = 0;
+      for (const entry of priorList) {
+        const n = Number(entry?.id);
+        if (Number.isFinite(n) && n > max) max = n;
+      }
+      return () => { max += 1; return max; };
+    })();
+    for (const reqId of reqIdsInScope) {
+      let findings;
+      try {
+        findings = probeRunner({ reqId, tree });
+      } catch {
+        continue;
+      }
+      if (!Array.isArray(findings)) continue;
+      for (const finding of findings) {
+        if (!finding || typeof finding !== 'object') continue;
+        const text = typeof finding.finding === 'string' ? finding.finding : null;
+        if (!text) continue;
+        injected.push({
+          id: nextId(),
+          reqId: typeof finding.reqId === 'string' ? finding.reqId : reqId,
+          finding: text,
+          severity: typeof finding.severity === 'string' ? finding.severity : 'medium',
+          status: typeof finding.status === 'string' ? finding.status : 'open',
+          addedAt: typeof finding.hash === 'string' ? finding.hash : delta.currentTreeHash,
+        });
+      }
+    }
+    if (injected.length > 0) {
+      activeLedgers = {
+        ...ledgers,
+        probes: { ...(priorProbes ?? {}), probes: [...priorList, ...injected] },
+      };
+    }
+  }
+
   // 4. Coverage: tree-wide plus per REQ ancestor of the delta.
   const coverageTree = computeCoverage(tree, { testPointers, strict: true });
   const deltaReqIds = collectDeltaReqAncestors(tree, pivotIds);
@@ -228,7 +289,7 @@ export function computeReadiness(tree, args = {}) {
   /** @type {import('./gates.js').StageContext} */
   const ctx = {
     tree,
-    ledgers,
+    ledgers: activeLedgers,
     delta,
     freeze,
     scope: scopeSet,
@@ -506,6 +567,52 @@ export function parsePersonaFlag(raw) {
   if (raw === undefined || raw === null) return null;
   if (raw === 'productOwner' || raw === 'engineer') return raw;
   throw new Error(`unknown --persona ${raw} (expected productOwner | engineer)`);
+}
+
+/**
+ * Parse a `--litmus <n>` flag value as a positive integer. Returns
+ * null when the flag is absent, the parsed integer otherwise, or
+ * throws a usage error for a non-integer or non-positive value
+ * (ADR-4131 extended, 0.30.0 PR 7).
+ *
+ * @param {string | undefined} raw
+ * @returns {number | null}
+ */
+export function parseLitmusFlag(raw) {
+  if (raw === undefined || raw === null) return null;
+  const n = Number(raw);
+  if (!Number.isInteger(n) || n < 1) {
+    throw new Error(`unknown --litmus ${raw} (expected a positive integer)`);
+  }
+  return n;
+}
+
+/**
+ * Count distinct litmus readers who have landed a probe-ledger entry
+ * at a given tree hash. A litmus reading is a probe-ledger entry
+ * whose `finding` begins `litmus:<reader>:` and whose text includes
+ * the given `hash`. Returns the set of reader ids (deduplicated) that
+ * attest at that hash (ADR-4131 extended, 0.30.0 PR 7). Pure.
+ *
+ * @param {object | undefined | null} ledgers
+ * @param {string | null | undefined} hash
+ * @returns {Set<string>}
+ */
+export function countLitmusReadersAtHash(ledgers, hash) {
+  const readers = new Set();
+  if (typeof hash !== 'string' || hash.length === 0) return readers;
+  const probes = /** @type {any} */ (ledgers?.probes);
+  const list = Array.isArray(probes?.probes) ? probes.probes : [];
+  for (const entry of list) {
+    const text = typeof entry?.finding === 'string' ? entry.finding : '';
+    if (!text.startsWith('litmus:')) continue;
+    const m = text.match(/^litmus:([^:]+):/);
+    if (!m) continue;
+    const combined = typeof entry.hash === 'string' ? `${text} ${entry.hash}` : text;
+    if (!combined.includes(hash)) continue;
+    readers.add(m[1]);
+  }
+  return readers;
 }
 
 /**

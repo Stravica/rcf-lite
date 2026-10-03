@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-761",
+  "path": "src/define/probe-runner.js",
+  "title": "DEFINE step 3 PR 7: probe-runner seam (no shipped runner)",
+  "description": "src/define/probe-runner.js is a seam only: it exports the ProbeRunner typedef, a NO_PROBE_RUNNER sentinel and an isProbeRunner guard. No runner ships. rcf-lite has no LLM at runtime and does not spawn processes or make network calls; the harness is the runner through `rcf define ledger probes add` or a test harness that passes a stub into computeReadiness. Keeps the extension point named rather than monkey-patched (ADR-4131 extended).",
+  "implementsAcIds": [
+    "AC-17504-1",
+    "AC-17504-2",
+    "AC-17504-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z"
+}

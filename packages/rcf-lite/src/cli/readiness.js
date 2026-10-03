@@ -35,9 +35,11 @@ import {
 } from '../query/gates.js';
 import {
   computeReadiness,
+  countLitmusReadersAtHash,
   formatTreeLine,
   formatVerdictLines,
   parseLevelFlag,
+  parseLitmusFlag,
   parsePersonaFlag,
 } from '../query/readiness.js';
 import { runWithAdmissibilityGate } from '../query/index.js';
@@ -47,6 +49,7 @@ const OPTION_SPEC = {
   check: { type: 'string' },
   level: { type: 'string' },
   persona: { type: 'string' },
+  litmus: { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -104,6 +107,17 @@ Options:
                             per-stage detail to matching-persona
                             checks. Never affects the exit code or
                             the JSON content.
+  --litmus <n>              Require n distinct litmus readings at the
+                            current tree hash before passing (0.30.0
+                            PR 7, ADR-4131 extended). A litmus reading
+                            is a probe-ledger entry whose finding
+                            begins litmus:<reader>: and whose text
+                            includes the current tree hash. Fewer
+                            than n distinct readers exits 4 naming
+                            the shortfall. No process is spawned and
+                            no network call is made; the harness
+                            lands the readings through
+                            rcf define ledger probes add.
   --help                    Print this help.
 `;
 
@@ -252,6 +266,15 @@ export async function main(argv, deps = {}) {
     return 2;
   }
 
+  /** @type {number | null} */
+  let litmus;
+  try {
+    litmus = parseLitmusFlag(flags.litmus);
+  } catch (err) {
+    stderr.write(`[error] usage readiness: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
+  }
+
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
@@ -312,13 +335,13 @@ export async function main(argv, deps = {}) {
     // `_meta.level` is null when the flag was absent (spec section
     // 3.3): consumers can tell "no --level given" from "--level
     // build" explicitly, which matters for the ticket artefact.
-    const envelope = { ...result, _meta: { wallMs, level } };
+    const envelope = { ...result, _meta: { wallMs, level, litmus } };
     stdout.write(`${JSON.stringify(envelope, null, 2)}\n`);
-    return decideExitCode(result, checkStage, level, stderr);
+    return decideExitCode(result, checkStage, level, litmus, ledgers, stderr);
   }
 
   renderText(stdout, stderr, result, wallMs, checkStage, level, persona, profileText);
-  return decideExitCode(result, checkStage, level, stderr);
+  return decideExitCode(result, checkStage, level, litmus, ledgers, stderr);
 }
 
 /**
@@ -471,13 +494,15 @@ function formatChipLine(result) {
 
 /**
  * Decide the exit code for an invocation (spec section 3.2 matrix):
- *   - No `--check` and no `--level`: always 0.
+ *   - No `--check`, no `--level`, no `--litmus`: always 0.
  *   - `--check` alone: today's stage policy (4 on blocking failure,
  *     0 with `[warn]` on warn-with-ack failure).
  *   - `--level intent`: 4 iff `levels.intentComplete.ok === false`.
  *   - `--level build`: 4 iff `levels.readyToBuild.ok === false`
  *     (stricter than `--check all`; the warn line still prints).
- *   - Both: 4 if either policy says 4.
+ *   - `--litmus <n>`: 4 iff fewer than n distinct litmus readings at
+ *     the current tree hash (spec section 11.6, ADR-4131 extended).
+ *   - Several: 4 if any policy says 4.
  *
  * Warn lines are emitted whenever a warn-with-ack stage is failing,
  * independent of exit code, so an operator always sees why.
@@ -485,24 +510,27 @@ function formatChipLine(result) {
  * @param {import('../query/readiness.js').ReadinessResult} result
  * @param {string | null} checkStage
  * @param {'intent' | 'build' | null} level
+ * @param {number | null} litmus
+ * @param {object} ledgers
  * @param {NodeJS.WritableStream} stderr
  * @returns {number}
  */
-function decideExitCode(result, checkStage, level, stderr) {
+function decideExitCode(result, checkStage, level, litmus, ledgers, stderr) {
   let exitCode = 0;
 
   // --check policy. ADR-4131 (0.30.0 PR 5): D3 bites, so a failing D3
   // without an acknowledgement at the current tree hash exits 4.
   // 0.30.0 PR 6 lifts the bite to D5 (crosscut:catalogue, the four new
   // D4/D2 engineer checks ride D5's ack because the --ack channel is
-  // per gate). D6 keeps the 0.29.0 warn-with-ack posture until PR 7
-  // bites it. The 'acknowledged' state is already folded by foldState()
-  // in gates.js when the freeze record acknowledges the gate at the
+  // per gate). 0.30.0 PR 7 lifts the bite to D6 (the four consistency
+  // scans; the --ack channel D3/D5/D6 already share stays unchanged).
+  // The 'acknowledged' state is already folded by foldState() in
+  // gates.js when the freeze record acknowledges the gate at the
   // current hash, so a failing-but-unacked bite stays failing here and
   // exit 4 is the right answer. `ackable(stage)` names the three gates
   // that accept an --ack override; a failing ackable stage that is not
   // acknowledged bites.
-  const BITING_STAGES = new Set(['D3', 'D5']);
+  const BITING_STAGES = new Set(['D3', 'D5', 'D6']);
   if (checkStage) {
     const stages = checkStage === 'all'
       ? result.stages
@@ -544,6 +572,20 @@ function decideExitCode(result, checkStage, level, stderr) {
         if (stagePolicy(s.stage) === 'blocking') continue;
         stderr.write(`[warn] readiness: ${s.stage} (${s.gate}) is failing without an acknowledgement at the current tree hash. Run \`rcf define freeze --ack ${s.gate} --reason "<text>"\` to acknowledge, or edit the tree to clear the failure.\n`);
       }
+    }
+  }
+
+  // --litmus policy (0.30.0 PR 7, ADR-4131 extended). Count distinct
+  // readers who have landed a probe-ledger entry at the current tree
+  // hash whose finding begins litmus:<reader>:; exit 4 when fewer
+  // than n have attested. The warn line is printed on stderr naming
+  // the shortfall so the harness can decide what to do.
+  if (typeof litmus === 'number' && litmus > 0) {
+    const hash = result.tree.currentTreeHash;
+    const readers = countLitmusReadersAtHash(ledgers, hash);
+    if (readers.size < litmus) {
+      stderr.write(`[warn] readiness: --litmus ${litmus} requires ${litmus} distinct litmus reading(s) at ${hash}; found ${readers.size}. Spawn ${litmus - readers.size} more fresh-context reader(s) and land their readings through \`rcf define ledger probes add --req <reqId> --finding "litmus:<reader>: ..." --severity low\` with the hash in the finding text.\n`);
+      exitCode = 4;
     }
   }
 

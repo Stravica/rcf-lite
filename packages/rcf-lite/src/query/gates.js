@@ -138,9 +138,13 @@ export const CHECK_PERSONA = /** @type {const} */ ({
   'crosscut:operationalConcerns': 'engineer',
   'crosscut:concernsResolved': 'engineer',
   'crosscut:catalogue': 'engineer',
-  // D6 Consistency: schema validity and probes are engineer.
+  // D6 Consistency: schema validity, probes and the four scans are engineer.
   'consistency:validateClean': 'engineer',
   'consistency:probeCount': 'engineer',
+  'consistency:contradictions': 'engineer',
+  'consistency:unsatisfiable': 'engineer',
+  'consistency:duplicates': 'engineer',
+  'consistency:orphanInterfaces': 'engineer',
   // D7 Decisions: enumeration is PO (the PO answers or lets the default stand);
   // zero-open is the engineer's hand-over condition.
   'decisions:wellFormed': 'productOwner',
@@ -186,6 +190,10 @@ export const CHECK_QUESTION = /** @type {const} */ ({
   'crosscut:catalogue': 'Every applicable crosscut concern for a REQ in scope has a concern-ledger entry applied or waived.',
   'consistency:validateClean': 'Validate is clean tree-wide.',
   'consistency:probeCount': 'Zero open probe-ledger entries.',
+  'consistency:contradictions': 'No two acceptance criteria on one story share a when clause with a negated then.',
+  'consistency:unsatisfiable': 'Every then names a field some recordShape defines.',
+  'consistency:duplicates': 'No two acceptance criteria across stories share an identical description.',
+  'consistency:orphanInterfaces': 'Every interface is reached by an AC ownerRef or a REQ deliveredBy.',
   'decisions:wellFormed': 'Every decision is enumerated (question, two or more options, a default).',
   'decisions:allAnswered': 'Zero decisions are open.',
   'freeze:priorGates': 'Every prior stage passed or is acknowledged at the current hash.',
@@ -1373,14 +1381,14 @@ export function checkD5Crosscut(ctx) {
 // ---------------------------------------------------------------------------
 
 /**
- * D6 -- Consistency and satisfiability probe. 0.29.0 runs only the
- * validate-clean tree-wide check and the probe-ledger open count.
- *
- * SEAM 0.30: contradiction-lite across criteria on one story and
- * across their TACs' ADRs; unsatisfiable-lite (a `then` naming
- * undefined state); duplicate scan; orphan-interface scan;
- * regeneration probe runner injectable like `mutationRunner` in
- * src/review/index.js.
+ * D6 -- Consistency and satisfiability probe. 0.29.0 ran the
+ * validate-clean tree-wide check and the probe-ledger open count;
+ * 0.30.0 PR 7 (ADR-4131 extended, spec section 4 row 'D6 scans and the
+ * injectable probe runner') adds the four mechanical scans
+ * consistency:contradictions, consistency:unsatisfiable,
+ * consistency:duplicates and consistency:orphanInterfaces. The probe
+ * runner lives on the readiness compute (TAC-4123); the gate reads the
+ * merged probes.probes[] it ends up with.
  *
  * @param {StageContext} ctx
  */
@@ -1424,10 +1432,348 @@ export function checkD6Consistency(ctx) {
   // uses a single representative entry regardless.
   checks.push(makeCheck('consistency:probeCount', 'tree', Math.max(effectiveOpen, 1), failing, effectiveOpen));
 
+  // ADR-4131 extended (0.30.0 PR 7): the four D6 scans.
+  const scope = asSet(ctx.scope);
+  const tree = ctx.tree;
+  const usInScope = (tree.userStories ?? []).filter((us) => scope.has(us.usId));
+
+  // Scan 1: consistency:contradictions (engineer, over delta). Two ACs
+  // on one story share a `when` clause and one of their `then` clauses
+  // is a negation of the other. The quoted-cue guard strips
+  // double-quoted substrings before the negation scan so prose that
+  // quotes a negation inside a `then` does not fire the check.
+  /** @type {Array<{ id: string, why: string }>} */
+  const contradictionFindings = [];
+  let totalStoriesScanned = 0;
+  for (const us of usInScope) {
+    const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+    if (acs.length < 2) continue;
+    totalStoriesScanned += 1;
+    const parsed = acs
+      .map((ac) => ({ ac, parts: parseWhenThen(ac?.description) }))
+      .filter((p) => p.parts !== null);
+    const reported = new Set();
+    for (let i = 0; i < parsed.length; i += 1) {
+      for (let j = i + 1; j < parsed.length; j += 1) {
+        const a = parsed[i];
+        const b = parsed[j];
+        if (normaliseClause(a.parts.when) !== normaliseClause(b.parts.when)) continue;
+        if (!thensNegateEachOther(a.parts.then, b.parts.then)) continue;
+        const pairKey = `${us.usId}:${a.ac.id ?? '?'}:${b.ac.id ?? '?'}`;
+        if (reported.has(pairKey)) continue;
+        reported.add(pairKey);
+        const idA = a.ac.id ?? us.usId;
+        const idB = b.ac.id ?? us.usId;
+        contradictionFindings.push({
+          id: us.usId,
+          why: `ACs ${idA} and ${idB} share a when clause with a negated then`,
+        });
+      }
+    }
+  }
+  checks.push(makeCheck(
+    'consistency:contradictions',
+    'delta',
+    Math.max(totalStoriesScanned, 1),
+    contradictionFindings,
+  ));
+
+  // Scan 2: consistency:unsatisfiable (engineer, over delta). A `then`
+  // naming a field that no recordShape anywhere in the tree defines
+  // fails the AC with id `<acId>:<field>`. A field defined in a
+  // `[draft]` recordShape counts as defined (the engineer owns the
+  // draft; its `fields:` list is honest about what the then may name).
+  const definedFields = collectRecordShapeFields(tree);
+  /** @type {Array<{ id: string, why: string }>} */
+  const unsatisfiableFindings = [];
+  let totalThenFieldChecks = 0;
+  for (const us of usInScope) {
+    const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+    for (const ac of acs) {
+      const parts = parseWhenThen(ac?.description);
+      if (!parts) continue;
+      const fields = extractThenFieldTokens(parts.then);
+      for (const field of fields) {
+        totalThenFieldChecks += 1;
+        if (definedFields.has(field)) continue;
+        unsatisfiableFindings.push({
+          id: `${ac.id ?? us.usId}:${field}`,
+          why: `then names field ${field} that no recordShape defines`,
+        });
+      }
+    }
+  }
+  checks.push(makeCheck(
+    'consistency:unsatisfiable',
+    'delta',
+    Math.max(totalThenFieldChecks, 1),
+    unsatisfiableFindings,
+  ));
+
+  // Scan 3: consistency:duplicates (engineer, over tree). Identical AC
+  // descriptions across stories fail both ACs. The comparison trims
+  // leading whitespace and the leading `[class]` marker.
+  /** @type {Map<string, Array<{ usId: string, acId: string }>>} */
+  const descBuckets = new Map();
+  const allUs = tree.userStories ?? [];
+  let totalDupAcs = 0;
+  for (const us of allUs) {
+    const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+    for (const ac of acs) {
+      const desc = typeof ac?.description === 'string' ? ac.description.trim() : '';
+      if (desc.length === 0) continue;
+      totalDupAcs += 1;
+      const normalised = desc.replace(AC_CLASS_RE, '').trim().toLowerCase();
+      if (normalised.length === 0) continue;
+      const bucket = descBuckets.get(normalised) ?? [];
+      bucket.push({ usId: us.usId, acId: ac.id ?? us.usId });
+      descBuckets.set(normalised, bucket);
+    }
+  }
+  /** @type {Array<{ id: string, why: string }>} */
+  const duplicateFindings = [];
+  for (const bucket of descBuckets.values()) {
+    if (bucket.length < 2) continue;
+    const stories = [...new Set(bucket.map((b) => b.usId))];
+    if (stories.length < 2) continue;
+    for (const entry of bucket) {
+      duplicateFindings.push({
+        id: entry.acId,
+        why: `duplicate description (also on ${bucket.filter((b) => b.acId !== entry.acId).map((b) => b.acId).join(', ')})`,
+      });
+    }
+  }
+  checks.push(makeCheck(
+    'consistency:duplicates',
+    'tree',
+    Math.max(totalDupAcs, 1),
+    duplicateFindings,
+  ));
+
+  // Scan 4: consistency:orphanInterfaces (engineer, over tree). An
+  // interface on any TAC that no AC `ownerRef` points at AND that no
+  // REQ `deliveredBy` reaches fails. Shares the `interfaces[<name>]`
+  // pointer grammar with D4 `stories:ownerRefResolves`. A REQ's
+  // `deliveredBy` reaches an interface when it names the owning TAC id
+  // (either as a `tacId` string or as a `TAC-nnnn:<name>` pointer).
+  const reachedInterfaces = collectReachedInterfaces(tree);
+  /** @type {Array<{ id: string, why: string }>} */
+  const orphanFindings = [];
+  let totalInterfacesScanned = 0;
+  for (const tac of tree.tacs ?? []) {
+    const list = Array.isArray(tac?.interfaces) ? tac.interfaces : [];
+    for (const iface of list) {
+      const name = typeof iface?.name === 'string' ? iface.name : null;
+      if (!name) continue;
+      totalInterfacesScanned += 1;
+      const key = `${tac.tacId}:${name}`;
+      if (reachedInterfaces.has(key)) continue;
+      orphanFindings.push({
+        id: key,
+        why: 'no AC ownerRef and no REQ deliveredBy reaches it',
+      });
+    }
+  }
+  checks.push(makeCheck(
+    'consistency:orphanInterfaces',
+    'tree',
+    Math.max(totalInterfacesScanned, 1),
+    orphanFindings,
+  ));
+
   return foldState('D6', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
     freezeGates: /** @type {any} */ (ctx.freeze?.gates),
   });
+}
+
+/**
+ * Parse an AC description into { when, then } clause strings. Accepts
+ * the common "given ... when ... then ..." shape used across the ACs
+ * of this codebase; returns null when the description does not carry
+ * both a `when` and a `then` segment. The leading `[class]` marker is
+ * stripped before the scan. The match is case-insensitive on the
+ * keywords only; the clause bodies keep their original casing.
+ *
+ * @param {unknown} desc
+ * @returns {{ when: string, then: string } | null}
+ */
+function parseWhenThen(desc) {
+  if (typeof desc !== 'string' || desc.length === 0) return null;
+  const stripped = desc.replace(AC_CLASS_RE, '').trim();
+  const re = /\bwhen\b([\s\S]*?)\bthen\b([\s\S]*)$/i;
+  const m = stripped.match(re);
+  if (!m) return null;
+  const when = m[1].trim();
+  const then = m[2].trim();
+  if (when.length === 0 || then.length === 0) return null;
+  return { when, then };
+}
+
+/**
+ * Normalise a clause for the contradictions scan: lower-case, trim,
+ * collapse whitespace. A clause is "the same" between two ACs when
+ * their normalised forms match.
+ *
+ * @param {string} clause
+ * @returns {string}
+ */
+function normaliseClause(clause) {
+  return clause.toLowerCase().replace(/\s+/g, ' ').trim();
+}
+
+/**
+ * Strip double-quoted substrings and then test whether one `then`
+ * clause is the negation of the other. "Negation" is a cheap test: one
+ * clause begins (or carries, after a verb) a `not`, `no`, `does not`,
+ * `is not`, `never`, `must not` token where the other clause does not;
+ * or the two clauses are the same body with one carrying such a token.
+ * The quoted-substring strip is the shared guard with D4.
+ *
+ * @param {string} a
+ * @param {string} b
+ * @returns {boolean}
+ */
+function thensNegateEachOther(a, b) {
+  const aPlain = normaliseClause(stripQuotedSubstrings(a));
+  const bPlain = normaliseClause(stripQuotedSubstrings(b));
+  if (aPlain === bPlain) return false;
+  const NEG_RE = /\b(?:not|no|never|does not|is not|must not|cannot|won't|will not)\b/;
+  const aNeg = NEG_RE.test(aPlain);
+  const bNeg = NEG_RE.test(bPlain);
+  if (aNeg === bNeg) return false;
+  // One side negates; test the negated body against the positive one.
+  const positive = aNeg ? bPlain : aPlain;
+  const negative = aNeg ? aPlain : bPlain;
+  const negativeStripped = negative.replace(NEG_RE, '').replace(/\s+/g, ' ').trim();
+  // A sufficiently similar body is "the same claim with a negation".
+  // We treat the shorter being a prefix / suffix / substring of the
+  // longer, or sharing 80% of its tokens, as "same body".
+  if (negativeStripped.length === 0) return false;
+  if (positive.includes(negativeStripped) || negativeStripped.includes(positive)) return true;
+  const posTokens = new Set(positive.split(/\s+/).filter((t) => t.length > 2));
+  const negTokens = negativeStripped.split(/\s+/).filter((t) => t.length > 2);
+  if (negTokens.length === 0) return false;
+  const shared = negTokens.filter((t) => posTokens.has(t)).length;
+  return shared / negTokens.length >= 0.6;
+}
+
+/**
+ * Collect every field name defined by any `recordShape` interface in
+ * the tree. A `fields:` marker in the interface description introduces
+ * a list of field names; each name is a token on a bullet, a line, or
+ * a comma-separated list. Draft recordShapes are included (the
+ * engineer owns the draft and its fields: list is honest).
+ *
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @returns {Set<string>}
+ */
+function collectRecordShapeFields(tree) {
+  const out = new Set();
+  for (const tac of tree.tacs ?? []) {
+    for (const iface of tac.interfaces ?? []) {
+      if (iface?.kind !== 'recordShape') continue;
+      const desc = typeof iface?.description === 'string' ? iface.description : '';
+      const stripped = stripDraftPrefix(desc);
+      // Find the `fields:` segment and read until the next `:` or end.
+      const match = stripped.match(/(^|\n)\s*(?:[-*]\s*)?fields\s*:\s*([\s\S]*?)(?=(?:\n\s*(?:[-*]\s*)?[a-zA-Z][a-zA-Z0-9_]*\s*:)|$)/);
+      if (!match) continue;
+      const body = match[2];
+      for (const token of body.split(/[\s,]+/)) {
+        const name = token.replace(/^[-*]/, '').replace(/[:(){}\[\]]/g, '').trim();
+        if (!name) continue;
+        if (/^[A-Za-z_][A-Za-z0-9_]*$/.test(name)) out.add(name);
+      }
+    }
+  }
+  return out;
+}
+
+/**
+ * Pull field tokens out of a `then` clause. A field token is a word
+ * that follows a verb like `set`, `write`, `include`, `return`,
+ * `contain`, `name` or appears as the direct object of a `then`'s
+ * verb phrase; a cheap approximation uses `then <subject> <verb>
+ * <field>` plus `field <name>`, `<name> field` and `field: <name>`
+ * patterns. The scan is deliberately conservative so a plain English
+ * sentence yields a small set.
+ *
+ * @param {string} thenClause
+ * @returns {string[]}
+ */
+function extractThenFieldTokens(thenClause) {
+  if (typeof thenClause !== 'string' || thenClause.length === 0) return [];
+  const text = stripQuotedSubstrings(thenClause);
+  /** @type {Set<string>} */
+  const tokens = new Set();
+  // Pattern 1: backticked identifier (`then `balance` is set`). The
+  // primary signal; prose that quotes a field name under backticks is
+  // the convention this check expects.
+  for (const m of text.matchAll(/`([A-Za-z_][A-Za-z0-9_]*)`/g)) {
+    if (m[1]) tokens.add(m[1]);
+  }
+  // Pattern 2: `<name> field` (adjective-form naming). An English
+  // "stop word" skip keeps "the field", "a field" and "its field" from
+  // tripping the check.
+  const STOP = new Set(['the', 'a', 'an', 'this', 'that', 'its', 'our', 'their', 'any', 'no', 'some', 'each', 'every', 'another']);
+  for (const m of text.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s+field\b/g)) {
+    const token = m[1];
+    if (!token) continue;
+    if (STOP.has(token.toLowerCase())) continue;
+    tokens.add(token);
+  }
+  // Pattern 3: `field: <name>` or `field = <name>` (schema-like
+  // notation inside a then clause).
+  for (const m of text.matchAll(/\bfield\s*[:=]\s*([A-Za-z_][A-Za-z0-9_]*)/g)) {
+    if (m[1]) tokens.add(m[1]);
+  }
+  return [...tokens];
+}
+
+/**
+ * Collect every interface the tree "reaches" from an AC `ownerRef` or
+ * a REQ `deliveredBy` (REQ-174 companion field). The result is a Set
+ * of `<tacId>:<name>` keys. A `deliveredBy` on a REQ can take two
+ * shapes: an array of `TAC-nnnn:<name>` pointer strings, or an array
+ * of plain TAC ids ("delivered by this TAC"); the second shape reaches
+ * every interface on the named TAC.
+ *
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @returns {Set<string>}
+ */
+function collectReachedInterfaces(tree) {
+  const out = new Set();
+  // AC ownerRefs.
+  for (const us of tree.userStories ?? []) {
+    const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
+    for (const ac of acs) {
+      if (!acHasOwnerRef(ac)) continue;
+      const ref = /** @type {any} */ (ac).ownerRef;
+      const name = parseOwnerRefInterfaceField(ref?.field);
+      if (!name || typeof ref?.tacId !== 'string') continue;
+      out.add(`${ref.tacId}:${name}`);
+    }
+  }
+  // REQ deliveredBy (optional field; shapes above).
+  for (const req of tree.requirements ?? []) {
+    const deliveredBy = /** @type {any} */ (req)?.deliveredBy;
+    if (!Array.isArray(deliveredBy)) continue;
+    for (const entry of deliveredBy) {
+      if (typeof entry !== 'string' || entry.length === 0) continue;
+      const m = entry.match(/^(TAC-[A-Za-z0-9-]+):(.+)$/);
+      if (m) {
+        out.add(`${m[1]}:${m[2]}`);
+        continue;
+      }
+      // Plain TAC id: every interface on that TAC is reached.
+      const tac = (tree.tacs ?? []).find((t) => t?.tacId === entry);
+      if (!tac) continue;
+      for (const iface of tac.interfaces ?? []) {
+        if (typeof iface?.name === 'string') out.add(`${tac.tacId}:${iface.name}`);
+      }
+    }
+  }
+  return out;
 }
 
 // ---------------------------------------------------------------------------
