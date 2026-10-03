@@ -361,7 +361,7 @@ function buildQuestionForItem(blocker, item, {
       context: { reqId: req.reqId, title: req.title },
       answerKinds: ['story'],
       writeBack: [
-        { when: 'story', command: `rcf define create us --parent ${req.reqId} --title "as a <who>, I want <what>, so that <why>"; rcf define update <US-id> --json --set story='{"asA":"<who>","iWant":"<what>","soThat":"<why>"}'; rcf define create ac --parent <US-id> --description "[happy] <criterion>"` },
+        { when: 'story', command: `rcf define create us --parent ${req.reqId} --title "as a <who>, I want <what>, so that <why>"; rcf define update <US-id> --set asA="<who>" --set iWant="<what>" --set soThat="<why>"; rcf define create ac --parent <US-id> --description "[happy] <criterion>"` },
       ],
       blocks,
     });
