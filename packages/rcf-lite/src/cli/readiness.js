@@ -299,34 +299,34 @@ export async function main(argv, deps = {}) {
     : null;
 
   // Readiness is a diagnostic: even a chain that refuses admissibility
-  // wants to know which stage gate blocks it. The wrap runs first so
-  // the ruleset toolScope guard is honoured (NV-BL-SR-03 addendum);
-  // on refuse the refusal envelope is threaded through as informational
-  // context and the compute still runs (ADR-4123).
+  // wants to know which stage gate blocks it (AC-17902-4). Compute
+  // readiness once up front, then run the admissibility wrap passing
+  // the computed stages and validate-errors so it can cite
+  // NV-DL-ADM-02 (D4 floor), NV-DL-ADM-03 (D3 bite) and NV-DL-ADM-04
+  // (validate findings) alongside the NV-BL rules (PR 9).
+  /** @type {import('../query/readiness.js').ReadinessResult} */
+  const result = computeReadiness(tree, {
+    freeze,
+    ledgers,
+    profile: undefined,
+    profileText,
+    testPointers,
+    validateErrors,
+    resolvedPaths,
+  });
   const gated = await runWithAdmissibilityGate({
     tree,
     chainRulesetVersion,
-    produce: () => computeReadiness(tree, {
-      freeze,
-      ledgers,
-      profile: undefined,
-      profileText,
-      testPointers,
-      validateErrors,
-      resolvedPaths,
-    }),
+    defineStages: result.stages,
+    defineValidateErrors: validateErrors,
+    produce: () => result,
   });
-
-  /** @type {import('../query/readiness.js').ReadinessResult} */
-  const result = gated.status === 'refused-admissibility'
-    ? computeReadiness(tree, {
-      freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors, resolvedPaths,
-    })
-    : gated.payload;
   const wallMs = Date.now() - startedAt;
 
   if (gated.status === 'refused-admissibility') {
     stderr.write(`[warn] readiness: chain admissibility refused (informational; the readiness compute still ran). ${gated.refusal}\n`);
+  } else if (Array.isArray(gated.defineRules) && gated.defineRules.length > 0) {
+    stderr.write(`[warn] readiness: DEFINE-stage admissibility rules bite (informational; the readiness compute still ran): [${gated.defineRules.join(', ')}]. Resolve the failing stages or record an --ack reason on freeze.gates to satisfy recordedInChain.\n`);
   }
 
   if (flags.json) {

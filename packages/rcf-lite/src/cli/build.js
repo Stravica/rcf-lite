@@ -18,6 +18,10 @@
 
 import { writeFile } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
+
+const execFileAsync = promisify(execFile);
 
 import { formatErrors, isRcfError, rcfError, writeUnexpectedFailure } from '#core/errors';
 import { updateDocument, walkTree } from '#core/store';
@@ -379,6 +383,56 @@ async function emitBundle({ tree, fbsId, format, strict, io }) {
 }
 
 /**
+ * 0.30.0 PR 9 (TAC-4125; AC-17702-6): resolve the author identity for
+ * `freeze.override.by`. Preference order (first non-empty wins):
+ *
+ *   1. `git config user.email` under `projectRoot` (the identity git
+ *      itself would attribute an override commit to; CI usually sets
+ *      this through its own git config step).
+ *   2. `GITHUB_ACTOR` (set by GitHub Actions on every run so a CI
+ *      override is attributed to the actor who triggered the workflow,
+ *      even when no git identity is configured).
+ *   3. `USER` or `USERNAME` (local shell identity on Unix / Windows).
+ *   4. The literal string `operator` (never-null fallback so the write
+ *      path cannot blow up on a stripped-down container).
+ *
+ * Pure of side effects beyond the one `git config` read; the git call
+ * is bounded to a short argv and never writes. Errors from `git
+ * config` (no `.git`, no git binary, missing key) fall through to the
+ * next arm silently; the resolution's shape is a single string.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @returns {Promise<string>}
+ */
+export async function resolveOverrideBy({ projectRoot }) {
+  // 1. git config user.email (bounded; refuses to log on failure).
+  try {
+    const { stdout } = await execFileAsync(
+      'git', ['config', '--get', 'user.email'],
+      { cwd: projectRoot, encoding: 'utf8', timeout: 2000 },
+    );
+    const email = stdout.trim();
+    if (email.length > 0) return email;
+  } catch {
+    // Fall through to the environment arms.
+  }
+  // 2. GITHUB_ACTOR (GitHub Actions).
+  if (typeof process.env.GITHUB_ACTOR === 'string' && process.env.GITHUB_ACTOR.length > 0) {
+    return process.env.GITHUB_ACTOR;
+  }
+  // 3. USER or USERNAME.
+  if (typeof process.env.USER === 'string' && process.env.USER.length > 0) {
+    return process.env.USER;
+  }
+  if (typeof process.env.USERNAME === 'string' && process.env.USERNAME.length > 0) {
+    return process.env.USERNAME;
+  }
+  // 4. Never-null fallback.
+  return 'operator';
+}
+
+/**
  * 0.30.0 PR 8 (REQ-177, TAC-4125): freeze gate for `bundle --next`.
  * Loads the freeze record and the computed delta, writes
  * freeze.override when --override "<reason>" is given, computes the
@@ -420,7 +474,7 @@ async function enforceBundleNextFreezeGate({ tree, projectRoot, overrideReason }
   let appliedOverride = null;
   if (overrideReason !== null) {
     const at = new Date().toISOString();
-    const by = process.env.USER || process.env.USERNAME || 'operator';
+    const by = await resolveOverrideBy({ projectRoot });
     const { record } = await applyOverrideToFreezeRecord({
       projectRoot,
       reason: overrideReason,

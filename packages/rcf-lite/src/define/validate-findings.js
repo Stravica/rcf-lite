@@ -25,7 +25,7 @@
 // marker would fail the dogfood tree and every legacy tree's CI; D4
 // reports absence as the floor already.
 
-import { INTERFACE_KINDS } from '../query/gates.js';
+import { INTERFACE_KINDS, resolveOwnerRefField } from '../query/gates.js';
 
 /** @typedef {{ kind: 'defineValidate', rule: string, documentId: string|null, filePath: string|null, field: string|null, message: string }} DefineValidateFinding */
 
@@ -34,8 +34,6 @@ const INTERFACE_KINDS_SET = new Set(INTERFACE_KINDS);
 const KNOWN_AC_CLASSES = new Set(['happy', 'edge', 'failure', 'must-not', 'non-functional']);
 /** Leading bracketed prefix on an AC description. */
 const BRACKET_PREFIX_RE = /^\[([^\]]+)\]/;
-/** `ownerRef.field` grammar matching the D4 helper: `interfaces[<name>]`. */
-const OWNER_REF_FIELD_RE = /^interfaces\[([^\]]+)\]$/;
 
 /**
  * Collect PR 8 define-validate findings from a walker tree model.
@@ -110,11 +108,21 @@ export function collectDefineValidateFindings(tree) {
     }
   }
 
-  // 4a. ownerRef on an AC that does not resolve to interfaces[<name>]
-  //     on the named TAC.
+  // 4a. ownerRef on an AC that does not resolve under R11 grammar on
+  //     the named TAC or ADR (spec section 17, 2026-10-03). The
+  //     `resolveOwnerRefField` helper accepts `interfaces[<name>]`,
+  //     `responsibilities[<n>]`, `dependencies[<name>]`,
+  //     `alternativesConsidered[<n>]` and bare schema fields
+  //     (`purpose`, `internalStructure`, `decision`, etc.). Dotted
+  //     forms are refused: the finding message names the field so
+  //     the author can rewrite to bracket grammar.
   const tacByIdLocal = new Map();
   for (const tac of tree.tacs ?? []) {
     if (tac?.tacId) tacByIdLocal.set(tac.tacId, tac);
+  }
+  const adrByIdLocal = new Map();
+  for (const adr of tree.adrs ?? []) {
+    if (adr?.adrId) adrByIdLocal.set(adr.adrId, adr);
   }
   for (const us of tree.userStories ?? []) {
     const acs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
@@ -122,63 +130,126 @@ export function collectDefineValidateFindings(tree) {
       const ref = ac?.ownerRef;
       if (!ref || typeof ref !== 'object') continue;
       const tacId = typeof ref.tacId === 'string' ? ref.tacId : null;
+      const adrId = typeof ref.adrId === 'string' ? ref.adrId : null;
       const field = typeof ref.field === 'string' ? ref.field : null;
-      if (!tacId || !field) continue;
-      const tac = tacByIdLocal.get(tacId);
-      if (!tac) {
-        findings.push({
-          kind: 'defineValidate',
-          rule: 'defineValidate:ownerRefResolves',
-          documentId: ac?.id ?? us?.usId ?? null,
-          filePath: null,
-          field: 'ownerRef',
-          message: `define validate: AC ${ac?.id ?? '(unknown)'} ownerRef names TAC ${JSON.stringify(tacId)} which is not on the tree`,
-        });
-        continue;
+      if ((!tacId && !adrId) || !field) continue;
+      let owner = null;
+      let ownerLabel = null;
+      if (tacId) {
+        owner = tacByIdLocal.get(tacId) ?? null;
+        ownerLabel = tacId;
+        if (!owner) {
+          findings.push({
+            kind: 'defineValidate',
+            rule: 'defineValidate:ownerRefResolves',
+            documentId: ac?.id ?? us?.usId ?? null,
+            filePath: null,
+            field: 'ownerRef',
+            message: `define validate: AC ${ac?.id ?? '(unknown)'} ownerRef names TAC ${JSON.stringify(tacId)} which is not on the tree`,
+          });
+          continue;
+        }
+      } else if (adrId) {
+        owner = adrByIdLocal.get(adrId) ?? null;
+        ownerLabel = adrId;
+        if (!owner) {
+          findings.push({
+            kind: 'defineValidate',
+            rule: 'defineValidate:ownerRefResolves',
+            documentId: ac?.id ?? us?.usId ?? null,
+            filePath: null,
+            field: 'ownerRef',
+            message: `define validate: AC ${ac?.id ?? '(unknown)'} ownerRef names ADR ${JSON.stringify(adrId)} which is not on the tree`,
+          });
+          continue;
+        }
       }
-      const m = field.match(OWNER_REF_FIELD_RE);
-      if (!m) {
+      if (!resolveOwnerRefField(owner, field)) {
         findings.push({
           kind: 'defineValidate',
           rule: 'defineValidate:ownerRefResolves',
           documentId: ac?.id ?? us?.usId ?? null,
           filePath: null,
           field: 'ownerRef',
-          message: `define validate: AC ${ac?.id ?? '(unknown)'} ownerRef.field ${JSON.stringify(field)} does not match the grammar interfaces[<name>]`,
-        });
-        continue;
-      }
-      const ifaceName = m[1];
-      const interfaces = Array.isArray(tac.interfaces) ? tac.interfaces : [];
-      const resolved = interfaces.some((i) => i?.name === ifaceName);
-      if (!resolved) {
-        findings.push({
-          kind: 'defineValidate',
-          rule: 'defineValidate:ownerRefResolves',
-          documentId: ac?.id ?? us?.usId ?? null,
-          filePath: null,
-          field: 'ownerRef',
-          message: `define validate: AC ${ac?.id ?? '(unknown)'} ownerRef interfaces[${ifaceName}] does not resolve on ${tacId}`,
+          message: `define validate: AC ${ac?.id ?? '(unknown)'} ownerRef.field ${JSON.stringify(field)} does not resolve on ${ownerLabel} under R11 grammar (bracket forms: interfaces[<name>], responsibilities[<n>], dependencies[<name>], alternativesConsidered[<n>]; or a bare schema field name)`,
         });
       }
     }
   }
 
-  // 4b. deliveredBy on a REQ (closed pointer: name any id in the tree).
-  //     The walker already schema-checks the shape; here we only
-  //     report an unresolving id.
+  // 4b. deliveredBy on a REQ. Two forms are accepted by the schema:
+  //     (i) a legacy string that must resolve to any id in the tree
+  //     (back-compat for pre-DEFINE REQs; the walker's own schema
+  //     check has long since been dropped so no production REQ should
+  //     carry a bare string, but this path remains defensive);
+  //     (ii) the object form `{ tacId | adrId, field }` which R11
+  //     resolves under the same grammar as `ownerRef`. The object
+  //     form was silently skipped before PR 9 (review 2026-10-03).
   for (const req of tree.requirements ?? []) {
     const d = req?.deliveredBy;
-    if (typeof d !== 'string' || d.length === 0) continue;
-    if (allIds.has(d)) continue;
-    findings.push({
-      kind: 'defineValidate',
-      rule: 'defineValidate:deliveredByResolves',
-      documentId: req.reqId ?? null,
-      filePath: null,
-      field: 'deliveredBy',
-      message: `define validate: REQ ${req.reqId ?? '(unknown)'} deliveredBy ${JSON.stringify(d)} does not resolve to any document on the tree`,
-    });
+    if (typeof d === 'string' && d.length > 0) {
+      if (!allIds.has(d)) {
+        findings.push({
+          kind: 'defineValidate',
+          rule: 'defineValidate:deliveredByResolves',
+          documentId: req.reqId ?? null,
+          filePath: null,
+          field: 'deliveredBy',
+          message: `define validate: REQ ${req.reqId ?? '(unknown)'} deliveredBy ${JSON.stringify(d)} does not resolve to any document on the tree`,
+        });
+      }
+      continue;
+    }
+    if (!d || typeof d !== 'object') continue;
+    const tacId = typeof d.tacId === 'string' ? d.tacId : null;
+    const adrId = typeof d.adrId === 'string' ? d.adrId : null;
+    const field = typeof d.field === 'string' ? d.field : null;
+    if (!tacId && !adrId) continue;
+    let owner = null;
+    let ownerLabel = null;
+    if (tacId) {
+      owner = tacByIdLocal.get(tacId) ?? null;
+      ownerLabel = tacId;
+      if (!owner) {
+        findings.push({
+          kind: 'defineValidate',
+          rule: 'defineValidate:deliveredByResolves',
+          documentId: req.reqId ?? null,
+          filePath: null,
+          field: 'deliveredBy',
+          message: `define validate: REQ ${req.reqId ?? '(unknown)'} deliveredBy names TAC ${JSON.stringify(tacId)} which is not on the tree`,
+        });
+        continue;
+      }
+    } else if (adrId) {
+      owner = adrByIdLocal.get(adrId) ?? null;
+      ownerLabel = adrId;
+      if (!owner) {
+        findings.push({
+          kind: 'defineValidate',
+          rule: 'defineValidate:deliveredByResolves',
+          documentId: req.reqId ?? null,
+          filePath: null,
+          field: 'deliveredBy',
+          message: `define validate: REQ ${req.reqId ?? '(unknown)'} deliveredBy names ADR ${JSON.stringify(adrId)} which is not on the tree`,
+        });
+        continue;
+      }
+    }
+    // `field` is schema-optional on deliveredBy; a REQ whose
+    // deliveredBy carries only a tacId/adrId with no field names the
+    // whole owner and resolves by presence of the owner alone.
+    if (!field) continue;
+    if (!resolveOwnerRefField(owner, field)) {
+      findings.push({
+        kind: 'defineValidate',
+        rule: 'defineValidate:deliveredByResolves',
+        documentId: req.reqId ?? null,
+        filePath: null,
+        field: 'deliveredBy',
+        message: `define validate: REQ ${req.reqId ?? '(unknown)'} deliveredBy.field ${JSON.stringify(field)} does not resolve on ${ownerLabel} under R11 grammar (bracket forms: interfaces[<name>], responsibilities[<n>], dependencies[<name>], alternativesConsidered[<n>]; or a bare schema field name)`,
+      });
+    }
   }
 
   return findings;

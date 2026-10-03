@@ -26,6 +26,7 @@ export {
   STAGE_FALLBACK_PERSONA,
   stagePolicy,
   parseAcClass,
+  resolveOwnerRefField,
   parseInterfaceDraft,
   parseTacPurposeDraft,
   parseCoreEntityDraft,
@@ -60,4 +61,8 @@ export { formatMermaid } from './formatters/mermaid.js';
 // 0.8.0 slug-train car 3: NV-BL-SR-03 addendum (ruling-sheet item 1)
 // -- traceability / query tools share the refuse-first posture that
 // gates rcf build. Callers wrap their query producer with this.
-export { runWithAdmissibilityGate, evaluateDefineAdmissibility } from './refuse-on-admissibility.js';
+export {
+  runWithAdmissibilityGate,
+  evaluateDefineAdmissibility,
+  evaluateDefineStageAdmissibility,
+} from './refuse-on-admissibility.js';

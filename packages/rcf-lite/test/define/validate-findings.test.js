@@ -122,3 +122,42 @@ test('validate findings (PR 8): tacIds, ownerRef and deliveredBy each produce a 
   assert.equal(byRule['defineValidate:deliveredByResolves'].length, 1);
   assert.equal(byRule['defineValidate:deliveredByResolves'][0].documentId, 'REQ-9100');
 });
+
+test('validate findings (PR 9, R11): ownerRef uses the widened grammar; deliveredBy object form is checked', () => {
+  const tree = makeTree({
+    tacs: [{
+      tacId: 'TAC-R11',
+      purpose: 'owns the surface',
+      responsibilities: ['do one thing', 'do another thing'],
+      interfaces: [{ name: 'loan', kind: 'recordShape', description: 'fields: id' }],
+    }],
+    userStories: [{
+      usId: 'US-R11',
+      tacIds: ['TAC-R11'],
+      acceptanceCriteria: [
+        // Bare purpose and responsibilities[0] now resolve (R11).
+        { id: 'AC-R11-A', description: '[happy] a', ownerRef: { tacId: 'TAC-R11', field: 'purpose' } },
+        { id: 'AC-R11-B', description: '[happy] b', ownerRef: { tacId: 'TAC-R11', field: 'responsibilities[0]' } },
+        { id: 'AC-R11-C', description: '[happy] c', ownerRef: { tacId: 'TAC-R11', field: 'interfaces[loan]' } },
+        // Dead name (no interface loansXXX): fails.
+        { id: 'AC-R11-D', description: '[happy] d', ownerRef: { tacId: 'TAC-R11', field: 'interfaces[missing]' } },
+      ],
+    }],
+    requirements: [
+      // Object-form deliveredBy with R11-valid bare field resolves.
+      { reqId: 'REQ-R11-A', deliveredBy: { tacId: 'TAC-R11', field: 'purpose' } },
+      // Object-form deliveredBy with dead bracket field: finding.
+      { reqId: 'REQ-R11-B', deliveredBy: { tacId: 'TAC-R11', field: 'interfaces[missing]' } },
+      // Object-form deliveredBy naming a TAC not on the tree: finding.
+      { reqId: 'REQ-R11-C', deliveredBy: { tacId: 'TAC-NOT-THERE', field: 'purpose' } },
+    ],
+  });
+  const findings = collectDefineValidateFindings(tree);
+  const owner = findings.filter((f) => f.rule === 'defineValidate:ownerRefResolves');
+  const delivered = findings.filter((f) => f.rule === 'defineValidate:deliveredByResolves');
+  assert.equal(owner.length, 1, 'exactly AC-R11-D fails R11 ownerRef resolution');
+  assert.equal(owner[0].documentId, 'AC-R11-D');
+  assert.equal(delivered.length, 2, 'object-form deliveredBy is checked (R11); two findings land');
+  const dIds = delivered.map((f) => f.documentId).sort();
+  assert.deepEqual(dIds, ['REQ-R11-B', 'REQ-R11-C']);
+});

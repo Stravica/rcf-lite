@@ -2345,6 +2345,14 @@ flowchart LR
   REQ-174 --> AC-17405-6
   TC-231-validate-no-missing-marker-finding["TC-231-validate-no-missing-marker-finding"]
   AC-17405-6 -.-> TC-231-validate-no-missing-marker-finding
+  AC-17405-7["AC-17405-7"]
+  REQ-174 --> AC-17405-7
+  TC-231-ownerref-r11-widened["TC-231-ownerref-r11-widened"]
+  AC-17405-7 -.-> TC-231-ownerref-r11-widened
+  AC-17405-8["AC-17405-8"]
+  REQ-174 --> AC-17405-8
+  TC-231-ownerref-dotted-refused["TC-231-ownerref-dotted-refused"]
+  AC-17405-8 -.-> TC-231-ownerref-dotted-refused
   AC-17406-1["AC-17406-1"]
   REQ-174 --> AC-17406-1
   TC-232-contradictions-same-when-negated-then["TC-232-contradictions-same-when-negated-then"]
@@ -2542,6 +2550,10 @@ flowchart LR
   REQ-177 --> AC-17702-5
   TC-233-bundle-empty-delta-unchanged["TC-233-bundle-empty-delta-unchanged"]
   AC-17702-5 -.-> TC-233-bundle-empty-delta-unchanged
+  AC-17702-6["AC-17702-6"]
+  REQ-177 --> AC-17702-6
+  TC-233-override-by-order["TC-233-override-by-order"]
+  AC-17702-6 -.-> TC-233-override-by-order
   REQ-178["REQ-178"]
   AC-17802-1["AC-17802-1"]
   REQ-178 --> AC-17802-1
@@ -2578,6 +2590,10 @@ flowchart LR
   REQ-179 --> AC-17902-4
   TC-235-readiness-compute-unchanged-under-refusal["TC-235-readiness-compute-unchanged-under-refusal"]
   AC-17902-4 -.-> TC-235-readiness-compute-unchanged-under-refusal
+  AC-17902-5["AC-17902-5"]
+  REQ-179 --> AC-17902-5
+  TC-235-wrap-cites-define-stages["TC-235-wrap-cites-define-stages"]
+  AC-17902-5 -.-> TC-235-wrap-cites-define-stages
   REQ-180["REQ-180"]
   AC-18001-1["AC-18001-1"]
   REQ-180 --> AC-18001-1
@@ -4019,6 +4035,10 @@ flowchart LR
   class TC-231-standards-cited-and-waived tc;
   class AC-17405-6 ac;
   class TC-231-validate-no-missing-marker-finding tc;
+  class AC-17405-7 ac;
+  class TC-231-ownerref-r11-widened tc;
+  class AC-17405-8 ac;
+  class TC-231-ownerref-dotted-refused tc;
   class AC-17406-1 ac;
   class TC-232-contradictions-same-when-negated-then tc;
   class AC-17406-2 ac;
@@ -4119,6 +4139,8 @@ flowchart LR
   class TC-233-bundle-all-impacted-refuses tc;
   class AC-17702-5 ac;
   class TC-233-bundle-empty-delta-unchanged tc;
+  class AC-17702-6 ac;
+  class TC-233-override-by-order tc;
   class REQ-178 req;
   class AC-17802-1 ac;
   class TC-234-validate-interface-kind-finding tc;
@@ -4138,6 +4160,8 @@ flowchart LR
   class TC-235-admissibility-wrap-accepts-with-override tc;
   class AC-17902-4 ac;
   class TC-235-readiness-compute-unchanged-under-refusal tc;
+  class AC-17902-5 ac;
+  class TC-235-wrap-cites-define-stages tc;
   class REQ-180 req;
   class AC-18001-1 ac;
   class TC-223-tab-order-and-rename tc;

@@ -4918,6 +4918,22 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-17405-7",
+          "covered": true,
+          "testCases": [
+            "TC-231-ownerref-r11-widened"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-8",
+          "covered": true,
+          "testCases": [
+            "TC-231-ownerref-dotted-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-17406-1",
           "covered": true,
           "testCases": [
@@ -5316,6 +5332,14 @@
             "TC-233-bundle-empty-delta-unchanged"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17702-6",
+          "covered": true,
+          "testCases": [
+            "TC-233-override-by-order"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -5393,6 +5417,14 @@
           "covered": true,
           "testCases": [
             "TC-235-readiness-compute-unchanged-under-refusal"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17902-5",
+          "covered": true,
+          "testCases": [
+            "TC-235-wrap-cites-define-stages"
           ],
           "unresolvedTestCases": []
         }
