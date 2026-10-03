@@ -7,9 +7,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ## [Unreleased]
 
 
-## Unreleased (0.30.0)
+## [0.30.0] - 2026-10-03
 
-0.30.0 lands the DEFINE step 3 gates bite and the Remi-path pilot cover (see spec section 10). The Remi path (PRs 1 to 3) landed in 0.29.0; this release carries the gates bite (PRs 5 to 7) and the bundle refuse / override / skip, validate findings and NV-DL ruleset flip (PR 8). Dave cuts 0.30.0 through the release runbook after PR 8 merges; this section is the running record.
+0.30.0 lands the DEFINE step 3 gates bite (see spec section 10). The Remi path (PRs 1 to 3) shipped in 0.29.0. This release carries the gates bite (PRs 5, 6, 7 = rcf-lite PRs 282, 284, 286), the bundle refuse / override / skip + validate findings + NV-DL ruleset flip (PR 8 = rcf-lite PR 288), and the R11 ownerRef / deliveredBy grammar + blueprint recount + NV-DL wrap + test tightening (PR 9 = rcf-lite PR 289). A follow-up fix on this branch lands ruling R12 (NV-DL-ADM-02 override channel is `freeze.override` only). The release is built and gated on Node 24.
+
+Spec note: the DEFINE step 3 spec (`projects/rcf-lite-wsd/specs/2026-10-01_define-step3-po-elicitation-spec.md` section 16 and prose) names certain D2 behaviours "0.30.0" that in fact shipped in 0.29.0 (the `skeleton:resolvedBy` closed-grammar tightening, the `rcf define ledger <name> update <id>` subverb, and the `resolvedBy` closed grammar). The spec will be amended on the next pass.
+
+Breaking under the pre-1.0 convention: `rcf define readiness --check`, `rcf build bundle --next` and `rcf define validate` all change exit behaviour on verbs consumers run in CI. See "For consumers (upgrading)" below for the exact flags, override channels and the migration table.
 
 ### Added
 
@@ -24,6 +28,30 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 - **Dogfood: 18 TAC files remapped off legacy interface kinds (DEFINE step 3 PR 8).** 64 interfaces across TAC-001..008, TAC-4101..4108, TAC-4129 and TAC-4134 carried pre-DEFINE-era kind labels (`function`, `command`, `mcpTool`, `type`, `prompt`, `artifact`, `constant`, `moduleApi`, `interface`) that pre-date the DEFINE spec section 5.2 closed vocabulary. The mapping (`function`/`mcpTool`/`prompt`/`constant`/`moduleApi`/`interface` -> `other`; `command` -> `cliCommand`; `type` -> `recordShape`; `artifact` -> `fileFormat`) is applied mechanically and the legacy label is preserved in the interface description for provenance. `rcf define validate` is now clean on the dogfood tree (AC-17802-3).
 
 - **Blueprints: 284 shipped contribution files remapped off legacy interface kinds and dotted ownerRef grammar (DEFINE step 3 PR 8).** 40 blueprints under `blueprints/` carried pre-DEFINE-era interface kinds (47 distinct labels across 330 interfaces) and 252 ownerRefs written in the `interfaces.<name>` form. The dogfood mapping table extends to this corpus (`function`/`mcpTool`/`prompt`/`constant`/`moduleApi`/`interface` -> `other`; `command` -> `cliCommand`; `type` -> `recordShape`; `artifact` / `artefact` -> `fileFormat`; everything else -> `other`); dotted ownerRefs rewrite to `interfaces[<name>]`; the legacy label is kept in the interface description. `rcf define validate` is now clean on the application-onboarding-tour blueprint applied to a fresh project (TC-057 passes without a skip).
+
+### Fixed
+
+- **NV-DL-ADM-02 override channel wording (ruling R12, 2026-10-03).** The PR 9 admissibility wrap, REQ-179 and the ruleset notes named `--ack <gate>=<reason>` as the override channel for NV-DL-ADM-02. ADM-02 maps to D4 (stories floor), and decision 9 keeps `ackable` to D3/D5/D6 only, so D4 cannot be masked by an ack. The only recordedInChain override channel for ADM-02 is `freeze.override` written by `rcf build bundle --next --override "<reason>"`; the normal path is to fix the failing D4 findings. ADM-03 (D3) keeps `--ack`; ADM-04 keeps the chain-document correction committed to git. `src/query/refuse-on-admissibility.js` refusal message rewritten; `src/ruleset/ruleset.json` NV-DL-ADM-02 notes rewritten; `rcf/requirements/req-179.json` PR 9 enforcement-locus paragraph split per rule; `test/query/refuse-on-admissibility-nvdl.test.js` asserts the R12 phrasing.
+
+### For consumers (upgrading)
+
+This release changes exit behaviour on three verbs that WSD, wespa and other consumers run in CI. Upgrade carefully.
+
+- **`rcf define readiness --check`** exits **4** on a failing D3, D5 or D6 at the current tree hash. Clear with `--ack <gate>=<reason>` recorded at the current hash on `freeze.gates` (D3/D5/D6 only; decision 9). Readiness itself (no `--check`) still prints and exits 0; the DEFINE-stage admissibility wrap writes a `[warn]` line naming any biting NV-DL rule.
+- **`rcf build bundle --next`** exits **4** on an unfrozen tree. Clear with `--override "<reason>"` which writes `freeze.override { reason, by, at }` and proceeds. `freeze.override.by` is resolved via `resolveOverrideBy({ projectRoot })` with the preference order `git config user.email` -> `GITHUB_ACTOR` -> `USER` -> `USERNAME` -> literal `operator`; set `USER` or a git identity in CI if you want something recognisable in the record. Impacted FBS are skipped with the reason on stderr; when every actionable FBS is impacted and no override is given the verb also exits 4.
+- **`rcf define validate`** exits **3** on four new finding kinds introduced in PR 8 (an interface kind outside the closed vocabulary, a bracketed AC class prefix outside the five known classes, a `tacIds` naming a non-TAC, and an unresolving `ownerRef` / `deliveredBy`), plus PR 9 extends the ownerRef / deliveredBy finding to the R11 bracket grammar on the full owner document AND checks the object form of `deliveredBy` (`{ tacId | adrId, field }`), which the pre-PR 9 code silently skipped. Dotted grammar is refused with the dotted field named so the author can rewrite. Absence of an AC class marker is NOT a finding (decision 10 kept; D4 reports absence as the floor).
+- **NV-DL-ADM-01..05 flip to `refuseByDefault: true`** with `overrideChannel: recordedInChain`. Per-rule enforcement locus and override channel (R12 split applied):
+  - NV-DL-ADM-01: `rcf build bundle --next` refuses without a freeze record. Override: `--override "<reason>"` writes `freeze.override`.
+  - NV-DL-ADM-02: D4 stories floor failing items are findings (closed sets, ownerRef). Surfaced through the admissibility wrap. Override: `freeze.override` only (D4 is NOT ackable); fix the D4 findings otherwise.
+  - NV-DL-ADM-03: D3 shapes bite failing items are findings (template markers, entity join, paths). Surfaced through the wrap. Override: `--ack <gate>=<reason>` on `freeze.gates` at the current tree hash (D3 is ackable).
+  - NV-DL-ADM-04: `rcf define validate` finding set refuses with exit 3. Surfaced through the wrap when callers pass `defineValidateErrors`. Override: a chain-document correction committed to git (not a gate ack).
+  - NV-DL-ADM-05: `rcf build bundle --next` skips re-execute FBS impacted by the delta with the reason on stderr; when every actionable FBS is impacted and no override is given, exit 4.
+- **Litmus flag (PR 7, R9).** `--litmus <n>` on `rcf define readiness` and `rcf define freeze` requires n distinct readers to have recorded a litmus reading at the current litmus hash. The litmus hash is `tree.litmusHash` -- the tree hash computed with the probes ledger EXCLUDED (R9 amendment 2026-10-03) -- and `readiness --json` prints it. The `rcf_define_litmus` prompt tells the harness to spawn n fresh-context readers and land their readings.
+- **probeRunner seam (PR 7).** `computeReadiness(tree, { probeRunner })` accepts an injectable runner; findings land as probe-ledger entries. No runner ships in 0.30.0; consumers (or harnesses) wire their own if they want D6 probes to execute.
+- **Node 24 is the build and gate floor.** `rcf-lite` requires `node >= 24` (`packages/rcf-lite/package.json#engines`) and is gated on Node 24. The sandbox default Node version is below the repo floor; use nvm, `~/.n`, or an equivalent in CI.
+- **Blueprint authors.** Tighten bare `interfaces` and `responsibilities` pointers to the bracket forms (`interfaces[<name>]`, `responsibilities[<n>]`) where you know the specific target; the bare field resolves under R11 while the owning doc carries a non-empty value under that key, but a bracketed form is the stricter and more useful record.
+- **Sweep script re-runnable in dry-run mode.** `packages/rcf-lite/scripts/blueprint-r11-sweep.mjs` can be run on a consumer's own tree with `--dry-run` to see what would change before any write; the script is idempotent either way (re-running it writes zero rewrites and reports zero findings once clean).
+- **Two blueprint REQs now resolve deliveredBy on owner presence alone.** PR 9's CI-fix pass restored `deliveredBy = { tacId }` entries on `application-spa` REQ-004 (points at `TAC-201-application-spa-app-shell`) and `application-api-rest` REQ-002 (points at `TAC-301-application-api-rest-request-pipeline`); `field` is schema-optional and R11 resolves on owner presence alone when it is absent.
 
 ### Known gaps and parked rulings
 
@@ -65,6 +93,8 @@ The AC class prefix check (`[happy]`, `[edge]`, `[failure]`, `[must-not]`, `[non
 - 493 dead-bracket collapses to the bare parent field, plus 12 ownerRef / deliveredBy drops where even the parent was empty, across the full shelf (phase 2).
 - 0 `rcf define validate` findings and 0 D4 `stories:ownerRefResolves` failures across all 39 blueprints after the sweep (direct contribution-tree recount; `applyBlueprint` paths with pre-existing walker defects, orthogonal to R11, are flagged separately by the sweep).
 - The sweep is idempotent: re-running it writes zero rewrites and reports zero findings.
+
+## [0.29.0] - 2026-10-03
 
 0.29.0 lands the viewer UI refresh train (nine PRs that rebuild the shell, add shared components, redesign the Requirements, Architecture, Build and Readiness tabs, ship a Build DAG sub-tab, add fast ID lookup, and prove the embedding contract with a same-origin test-host fixture), the DEFINE readiness persona split (two readiness levels, `--level` and `--persona` on `rcf define readiness`, a Readiness tab as tab 1), and the first three DEFINE step 3 PRs (document intake into the brief ledger with the closed `resolvedBy` grammar, a `rcf define questions` verb with three new MCP tools and two argument-free prompts for the harness loop, and the `[draft]` shapes gate across TAC purpose, interface and core-entity homes with a DISCOVERY prototypes doctrine). The brief said 0.29.0 was never tagged; it is tagged here, and the spec sections that referred to those D2 behaviours as "0.30.0" now read 0.29.0.
 
