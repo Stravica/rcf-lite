@@ -1,0 +1,51 @@
+{
+  "usId": "US-17406",
+  "prdId": "PRD-001",
+  "reqId": "REQ-174",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "D6 bites",
+  "description": "User story under REQ-174 for DEFINE step 3 PR 7 (spec section 4 row 'D6 scans and the injectable probe runner'). D6 gets the four mechanical consistency scans the spec section 11.5 names: consistency:contradictions (two ACs on one story sharing a when clause with a negated then), consistency:unsatisfiable (a then naming a field no recordShape defines; a field defined in a [draft] recordShape counts as defined), consistency:duplicates (identical descriptions across stories, both fail), consistency:orphanInterfaces (no AC ownerRef and no REQ deliveredBy reaches it). D6 is already ackable per PR 5; flipping D6 into the biting set in src/cli/readiness.js is this PR's one-line change. Named false-positive guards: a negation inside a double-quoted substring in a then does not fire contradictions; a field defined in a [draft] recordShape counts as defined for unsatisfiable.",
+  "asA": "an engineer",
+  "iWant": "D6 to run the four substantive consistency scans and --check consistency to honour the recorded override at the current hash",
+  "soThat": "two ACs on one story that contradict each other, a then that names an undefined field, duplicate descriptions across stories or an orphaned interface block the gate until the tree is fixed or the gate is acknowledged",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17406-1",
+      "description": "[failure] given two ACs on one story with the same when clause and a negated then, when D6 runs, then consistency:contradictions fails the story naming both ACs.",
+      "testable": true
+    },
+    {
+      "id": "AC-17406-2",
+      "description": "[failure] given a then naming a field no recordShape defines, when D6 runs, then consistency:unsatisfiable fails the AC.",
+      "testable": true
+    },
+    {
+      "id": "AC-17406-3",
+      "description": "[happy] given the field defined in a [draft] recordShape, when D6 runs, then consistency:unsatisfiable passes the AC.",
+      "testable": true
+    },
+    {
+      "id": "AC-17406-4",
+      "description": "[failure] given identical AC descriptions on two stories, when D6 runs, then consistency:duplicates fails both.",
+      "testable": true
+    },
+    {
+      "id": "AC-17406-5",
+      "description": "[failure] given an interface no ownerRef and no deliveredBy reaches, when D6 runs, then consistency:orphanInterfaces fails it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17406-6",
+      "description": "[must-not] given a negation inside a quoted string in a then, when D6 runs, then consistency:contradictions does not fail the story on it.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4122-define-gates",
+    "TAC-4123-define-readiness"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-03T16:10:00Z"
+}
