@@ -24,6 +24,8 @@ test('prompts/list: every manifest-registered prompt, argument-free', async () =
       // REQ-188 (DEFINE step 3 PR 3): two new argument-free prompts.
       'rcf_define_draft_shapes',
       'rcf_discover_prototype',
+      // REQ-175 (DEFINE step 3 PR 7): the litmus harness prompt.
+      'rcf_define_litmus',
     ],
   );
   for (const p of prompts) {
