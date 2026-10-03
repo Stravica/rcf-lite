@@ -223,11 +223,19 @@ test('readiness cli: AC-17503-5 --check all exits 4 on blocking failures (D3 bit
   const cwd = await scratchProject();
   const r = await run(['--check', 'all'], cwd);
   // Fresh init has D1/D2/D4/D8 blocking failing, so --check all
-  // exits 4. ADR-4131 (0.30.0 PR 5) also bites D3 under --check, so
-  // D3 no longer emits a warn line in --check all; it drives exit 4
-  // alongside the blocking stages. D5 and D6 still emit warns if they
-  // happen to fail (warn-with-ack posture kept until PRs 6 and 7).
+  // exits 4. ADR-4131 (0.30.0 PR 5) also bites D3 under --check: a
+  // failing-but-unacked D3 drives exit 4 alongside the blocking
+  // stages and no longer emits a [warn] line (the amended AC's
+  // distinction from 0.28.4; the old posture would have emitted
+  // `[warn] readiness: D3 (define.shapes) is failing without an
+  // acknowledgement`). D5 and D6 keep the warn-with-ack posture
+  // until PRs 6 and 7: when they fail unacked, --check all still
+  // prints their [warn] line (not asserted here because D5/D6 do not
+  // always fail on a fresh init; see
+  // `readiness cli: AC-17503-4 --level build exits 4 ... prints warn
+  // lines for unacked warn-with-ack stages` for the D5/D6 branch).
   assert.equal(r.code, 4);
+  assert.doesNotMatch(r.stderr, /\[warn\] readiness: D3 \(define\.shapes\)/, 'D3 must not emit a [warn] line under --check all after ADR-4131 (bites, not warns)');
 });
 
 test('readiness cli: AC-17503-6 --persona filters text and does not change exit', async () => {
