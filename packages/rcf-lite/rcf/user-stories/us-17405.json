@@ -1,0 +1,51 @@
+{
+  "usId": "US-17405",
+  "prdId": "PRD-001",
+  "reqId": "REQ-174",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "D4, D5 and D2 bite",
+  "description": "User story under REQ-174 for DEFINE step 3 PR 6 (spec section 4 rows for D4, D5 and standards citation). D4 reports closed-set and ownerRef resolution as findings (stories:closedSets, stories:ownerRefResolves). D5 ships the concern catalogue module and the crosscut:catalogue check that enumerates applicable (reqShape, concern) pairs per in-scope REQ against the concern ledger. D2 ships skeleton:standardsCited that fails any registered standards pack that is neither cited in a REQ rationale or an ADR nor waived by a concern-ledger entry with key standards:<pack>. D5 is ackable: --check crosscut rides the same --ack fold as D3, exits 4 on an unacknowledged D5 failure at the current hash and 0 when acked at the current hash. Validate adds no finding for a missing AC class marker (decision 10 kept; the validate finding rows land in PR 8).",
+  "asA": "an engineer",
+  "iWant": "D4 to flag enumeration cues without a closed set, D5 to drive the eight-concern catalogue against the concern ledger for every REQ in scope, D2 to insist every registered standards pack is cited or waived, and --check crosscut to honour the recorded override at the current hash",
+  "soThat": "an AC that invites unlisted values, an unresolved ownerRef, a REQ that forgot a crosscut concern or a registered standards pack that no document cites blocks the gate until the tree is fixed or the gate is acknowledged",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17405-1",
+      "description": "[failure] given an AC \"status is one of the following\" with no bracketed list and no ownerRef, when D4 runs, then stories:closedSets fails it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17405-2",
+      "description": "[happy] given an ownerRef { tacId, field: \"interfaces[loan]\" } resolving on that TAC, when D4 runs, then stories:ownerRefResolves passes; given interfaces[missing], then it fails with \"ownerRef does not resolve\".",
+      "testable": true
+    },
+    {
+      "id": "AC-17405-3",
+      "description": "[happy] given a persistence REQ with retention applied and timeAndTimezone waived with a reason, when D5 runs, then crosscut:catalogue passes it.",
+      "testable": true
+    },
+    {
+      "id": "AC-17405-4",
+      "description": "[failure] given an httpApi REQ with no errorEnvelope entry, when D5 runs, then crosscut:catalogue fails <REQ>:errorEnvelope.",
+      "testable": true
+    },
+    {
+      "id": "AC-17405-5",
+      "description": "[happy] given a registered standards pack cited in an ADR, when D2 runs, then skeleton:standardsCited passes; uncited and unwaived, it fails standards:<pack>.",
+      "testable": true
+    },
+    {
+      "id": "AC-17405-6",
+      "description": "[must-not] given a story with no class marker on any AC, when rcf define validate runs, then no finding is raised for the missing marker.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4122-define-gates",
+    "TAC-4121-define-ledgers"
+  ],
+  "tags": [],
+  "createdAt": "2026-10-03T13:30:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z"
+}

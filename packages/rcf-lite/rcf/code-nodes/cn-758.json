@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-758",
+  "path": "src/cli/readiness.js",
+  "title": "DEFINE step 3 PR 6: --check crosscut rides the D3 --ack fold with exit 4 unacked and 0 acked",
+  "description": "src/cli/readiness.js lifts the hard-coded D3-only bite branch so --check crosscut (and --check D5) honours the same --ack fold as --check shapes: an unacknowledged D5 failure exits 4; a D5 failure acknowledged at the current tree hash exits 0. The decision defers to gates.js's ackable(stage) rather than naming D5 inline, so a future bite on D6 is a one-line change. --check consistency keeps the 0.29.0 warn-with-ack posture until PR 7 bites D6; D1, D2, D4, D7, D8 keep exit 4 on a failure as blocking stages already do.",
+  "implementsAcIds": [
+    "AC-17405-3"
+  ],
+  "dependencies": [
+    "CN-754"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T13:30:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z"
+}

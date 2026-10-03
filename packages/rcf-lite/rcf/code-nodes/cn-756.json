@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-756",
+  "path": "src/define/concern-catalogue.js",
+  "title": "DEFINE step 3 PR 6: the eight-concern applicability map keyed by REQ shape",
+  "description": "src/define/concern-catalogue.js lands as a new pure module beside ledgers.js. Exports CONCERN_KEYS (the eight concern names in canonical order), CONCERN_APPLICABILITY (the map { concern -> [req-shapes] } that spec section 4 row 'D5 catalogue' pins), and applicableConcernsFor(reqShape) which returns the concern keys that apply to a REQ shape. No I/O, no state. Keys shared with the baseline catalogue where names coincide (auth; the rest are new because the baseline-AC catalog does not name per-concern crosscut keys). Read by crosscut:catalogue in src/query/gates.js (PR 6) to enumerate the applicable (reqShape, concern) pairs for every REQ in scope.",
+  "implementsAcIds": [
+    "AC-17405-3",
+    "AC-17405-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T13:30:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z"
+}
