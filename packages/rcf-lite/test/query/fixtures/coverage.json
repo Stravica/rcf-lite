@@ -5157,7 +5157,7 @@
           "id": "AC-18202-1",
           "covered": true,
           "testCases": [
-            "TC-227-guidance-prints"
+            "TC-228-guidance-prints"
           ],
           "unresolvedTestCases": []
         },
@@ -5165,7 +5165,7 @@
           "id": "AC-18202-2",
           "covered": true,
           "testCases": [
-            "TC-227-manifest-prompts"
+            "TC-228-manifest-prompts"
           ],
           "unresolvedTestCases": []
         },
@@ -5173,7 +5173,7 @@
           "id": "AC-18202-3",
           "covered": true,
           "testCases": [
-            "TC-227-register-scan-em-dash"
+            "TC-228-register-scan-em-dash"
           ],
           "unresolvedTestCases": []
         },
@@ -5181,7 +5181,7 @@
           "id": "AC-18202-4",
           "covered": true,
           "testCases": [
-            "TC-227-managed-block-preserves-rules"
+            "TC-228-managed-block-preserves-rules"
           ],
           "unresolvedTestCases": []
         }
@@ -5450,7 +5450,7 @@
           "id": "AC-18801-1",
           "covered": true,
           "testCases": [
-            "TC-227-draft-coreentity"
+            "TC-228-draft-coreentity"
           ],
           "unresolvedTestCases": []
         },
@@ -5458,7 +5458,7 @@
           "id": "AC-18801-2",
           "covered": true,
           "testCases": [
-            "TC-227-draft-tac-purpose"
+            "TC-228-draft-tac-purpose"
           ],
           "unresolvedTestCases": []
         },
@@ -5466,7 +5466,7 @@
           "id": "AC-18801-3",
           "covered": true,
           "testCases": [
-            "TC-227-draft-cleared"
+            "TC-228-draft-cleared"
           ],
           "unresolvedTestCases": []
         },
@@ -5474,7 +5474,7 @@
           "id": "AC-18801-4",
           "covered": true,
           "testCases": [
-            "TC-227-draft-template-markers"
+            "TC-228-draft-template-markers"
           ],
           "unresolvedTestCases": []
         },
@@ -5482,7 +5482,7 @@
           "id": "AC-18801-5",
           "covered": true,
           "testCases": [
-            "TC-227-draft-no-po-read"
+            "TC-228-draft-no-po-read"
           ],
           "unresolvedTestCases": []
         }
