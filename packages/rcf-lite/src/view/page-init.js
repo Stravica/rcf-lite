@@ -90,6 +90,17 @@
 
   // ---- hash parsing + preservation --------------------------------------
 
+  function flashLookupTarget(el) {
+    if (!el || !el.classList) return;
+    try {
+      el.classList.remove('is-rcf-lookup-flash');
+      // Force reflow so the animation restarts on repeat picks.
+      void el.offsetWidth;
+      el.classList.add('is-rcf-lookup-flash');
+      setTimeout(function () { try { el.classList.remove('is-rcf-lookup-flash'); } catch (e) {} }, 1400);
+    } catch (e) {}
+  }
+
   function parseHashParams(raw) {
     var out = {};
     if (!raw) return out;
@@ -536,6 +547,7 @@
             openAncestorDetails(ent);
             if (ent.tagName && ent.tagName.toLowerCase() === 'details') ent.open = true;
             try { ent.scrollIntoView({ block: 'start' }); } catch (e) { ent.scrollIntoView(); }
+            flashLookupTarget(ent);
           }
         }
         return;
@@ -549,6 +561,7 @@
     openAncestorDetails(target);
     if (target.tagName && target.tagName.toLowerCase() === 'details') target.open = true;
     try { target.scrollIntoView({ block: 'start' }); } catch (e) { target.scrollIntoView(); }
+    flashLookupTarget(target);
   }
 
   function onTabClick(ev) {
@@ -1665,9 +1678,447 @@
     for (var i = 0; i < selectors.length; i += 1) wireEntitySelector(selectors[i]);
   }
 
+  // ---- ID lookup (viewer UI refresh PR 7, TAC-4132) --------------------
+  //
+  // SearchButton + LookupModal + Cmd/Ctrl+F. The index at `./index.json`
+  // is fetched lazily on first open; the SSE tree-update broadcast sets
+  // __rcfLookupDirty so the next open refetches. Rank order (design
+  // doc section 6): a single character searches ids only; otherwise ids
+  // rank first (exact > prefix > contains), then every query word must
+  // match title or snippet, title above snippet; 20 results; matches
+  // marked. A pick writes `#tab=<tab>&entity=<id>` through writeHash so
+  // `?embed=` and `?theme=` survive (Dex contract, PR 1).
+
+  var lookupRows = null;
+  var lookupFetching = false;
+  var lookupLastQuery = null;
+  var lookupResults = [];
+  var lookupActiveIdx = -1;
+  var lookupPrevFocus = null;
+  var lookupLoadError = false;
+  var lookupKeybindWired = false;
+
+  function lookupModal() { return document.querySelector('[data-rcf-lookup]'); }
+  function lookupInput() { return document.querySelector('[data-rcf-lookup-input]'); }
+  function lookupResultsList() { return document.querySelector('[data-rcf-lookup-results]'); }
+  function lookupEmpty() { return document.querySelector('[data-rcf-lookup-empty]'); }
+  function lookupEmptyMsg() { return document.querySelector('[data-rcf-lookup-empty-msg]'); }
+  function lookupReload() { return document.querySelector('[data-rcf-lookup-reload]'); }
+  function lookupStatus() { return document.querySelector('[data-rcf-lookup-status]'); }
+
+  function lookupEscapeHtml(s) {
+    if (typeof s !== 'string') return '';
+    return s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  function lookupMarkMatches(text, needles) {
+    if (!text) return '';
+    var lower = text.toLowerCase();
+    var marks = [];
+    for (var i = 0; i < needles.length; i += 1) {
+      var n = needles[i];
+      if (!n) continue;
+      var from = 0;
+      while (from <= lower.length) {
+        var at = lower.indexOf(n, from);
+        if (at === -1) break;
+        marks.push([at, at + n.length]);
+        from = at + n.length;
+      }
+    }
+    if (marks.length === 0) return lookupEscapeHtml(text);
+    marks.sort(function (a, b) { return a[0] - b[0]; });
+    var merged = [];
+    for (var j = 0; j < marks.length; j += 1) {
+      var last = merged[merged.length - 1];
+      if (last && marks[j][0] <= last[1]) last[1] = Math.max(last[1], marks[j][1]);
+      else merged.push(marks[j].slice());
+    }
+    var out = '';
+    var cursor = 0;
+    for (var k = 0; k < merged.length; k += 1) {
+      var start = merged[k][0];
+      var end = merged[k][1];
+      if (cursor < start) out += lookupEscapeHtml(text.slice(cursor, start));
+      out += '<mark>' + lookupEscapeHtml(text.slice(start, end)) + '</mark>';
+      cursor = end;
+    }
+    if (cursor < text.length) out += lookupEscapeHtml(text.slice(cursor));
+    return out;
+  }
+
+  function lookupRank(query, rows) {
+    if (!query || !rows) return [];
+    var q = String(query).trim().toLowerCase();
+    if (!q) return [];
+    var scored = [];
+    // Single-character query: id-only match (design doc section 6).
+    if (q.length === 1) {
+      for (var i = 0; i < rows.length; i += 1) {
+        var r = rows[i];
+        var idLow = (r.id || '').toLowerCase();
+        if (idLow.indexOf(q) !== -1) {
+          var score = 0;
+          if (idLow === q) score = 1000;
+          else if (idLow.indexOf(q) === 0) score = 500;
+          else score = 100;
+          scored.push({ row: r, score: score, needles: [q] });
+        }
+      }
+    } else {
+      var words = q.split(/\s+/).filter(Boolean);
+      for (var i2 = 0; i2 < rows.length; i2 += 1) {
+        var r2 = rows[i2];
+        var idLow2 = (r2.id || '').toLowerCase();
+        var titleLow = (r2.title || '').toLowerCase();
+        var snipLow = (r2.snippet || '').toLowerCase();
+        var score2 = 0;
+        // Id first: exact / prefix / contains against the full query.
+        if (idLow2 === q) score2 = 10000;
+        else if (idLow2.indexOf(q) === 0) score2 = 5000;
+        else if (idLow2.indexOf(q) !== -1) score2 = 2500;
+        else {
+          // Word-match pass: every word must hit title or snippet.
+          var titleHits = 0;
+          var snipHits = 0;
+          var allHit = true;
+          for (var w = 0; w < words.length; w += 1) {
+            var word = words[w];
+            var inTitle = titleLow.indexOf(word) !== -1;
+            var inSnip = snipLow.indexOf(word) !== -1;
+            if (inTitle) titleHits += 1;
+            else if (inSnip) snipHits += 1;
+            else { allHit = false; break; }
+          }
+          if (!allHit) continue;
+          // Title above snippet: title hits weighted higher than snippet.
+          score2 = 1000 + titleHits * 50 + snipHits * 10;
+        }
+        if (score2 > 0) scored.push({ row: r2, score: score2, needles: words });
+      }
+    }
+    scored.sort(function (a, b) {
+      if (b.score !== a.score) return b.score - a.score;
+      return (a.row.id || '').localeCompare(b.row.id || '');
+    });
+    return scored.slice(0, 20);
+  }
+
+  function lookupKindLabel(kind) {
+    switch (kind) {
+      case 'prd': return 'PRD';
+      case 'req': return 'REQ';
+      case 'us': return 'US';
+      case 'ac': return 'AC';
+      case 'tad': return 'TAD';
+      case 'tac': return 'TAC';
+      case 'adr': return 'ADR';
+      case 'bs': return 'BS';
+      case 'fbs': return 'FBS';
+      case 'ts': return 'TS';
+      default: return kind || '';
+    }
+  }
+
+  function lookupRenderResults(results) {
+    var list = lookupResultsList();
+    var empty = lookupEmpty();
+    var emptyMsg = lookupEmptyMsg();
+    var reload = lookupReload();
+    var status = lookupStatus();
+    if (!list) return;
+    if (results.length === 0) {
+      list.innerHTML = '';
+      list.hidden = true;
+      var hasQuery = (lookupLastQuery || '').trim().length > 0;
+      if (empty) empty.hidden = !lookupLoadError && !hasQuery;
+      if (emptyMsg) emptyMsg.textContent = lookupLoadError ? 'The index could not be loaded.' : 'No matches.';
+      if (reload) reload.hidden = !lookupLoadError;
+      if (status) {
+        if (lookupLoadError) status.textContent = 'Index failed to load.';
+        else if (hasQuery) status.textContent = 'No matches.';
+        else status.textContent = (lookupRows ? 'Type an id or a few words.' : 'Loading index...');
+      }
+      return;
+    }
+    if (empty) empty.hidden = true;
+    if (reload) reload.hidden = true;
+    list.hidden = false;
+    var html = '';
+    for (var i = 0; i < results.length; i += 1) {
+      var scored = results[i];
+      var r = scored.row;
+      var needles = scored.needles || [];
+      var active = i === lookupActiveIdx ? ' is-active' : '';
+      var markedId = lookupMarkMatches(r.id || '', needles);
+      var markedTitle = lookupMarkMatches(r.title || '', needles);
+      var markedSnip = lookupMarkMatches(r.snippet || '', needles);
+      var parentHtml = r.parent ? ' <span class="rcf-lookup-parent">in ' + lookupEscapeHtml(r.parent) + '</span>' : '';
+      html += '<li class="rcf-lookup-row' + active + '" role="option"'
+        + (i === lookupActiveIdx ? ' aria-selected="true"' : '')
+        + ' data-rcf-lookup-row data-rcf-lookup-id="' + lookupEscapeHtml(r.id || '')
+        + '" data-rcf-lookup-tab="' + lookupEscapeHtml(r.tab || '')
+        + '" data-rcf-lookup-kind="' + lookupEscapeHtml(r.kind || '')
+        + '" data-rcf-lookup-parent="' + lookupEscapeHtml(r.parent || '') + '" data-rcf-lookup-idx="' + i + '">'
+        + '<span class="rcf-lookup-kind rcf-lookup-kind-' + lookupEscapeHtml(r.kind || '') + '">' + lookupKindLabel(r.kind) + '</span>'
+        + '<span class="rcf-lookup-id">' + markedId + '</span>'
+        + (r.title ? '<span class="rcf-lookup-title">' + markedTitle + '</span>' : '')
+        + parentHtml
+        + (r.snippet ? '<p class="rcf-lookup-snippet">' + markedSnip + '</p>' : '')
+        + '</li>';
+    }
+    list.innerHTML = html;
+    if (status) status.textContent = results.length + ' result' + (results.length === 1 ? '' : 's') + '.';
+  }
+
+  function lookupRun() {
+    var input = lookupInput();
+    if (!input) return;
+    var query = input.value || '';
+    lookupLastQuery = query;
+    if (!lookupRows) {
+      lookupResults = [];
+      lookupActiveIdx = -1;
+      var list = lookupResultsList();
+      if (list) { list.innerHTML = ''; list.hidden = true; }
+      var empty = lookupEmpty();
+      var emptyMsg = lookupEmptyMsg();
+      var reload = lookupReload();
+      if (empty) empty.hidden = false;
+      if (emptyMsg) emptyMsg.textContent = lookupLoadError ? 'The index could not be loaded.' : (lookupFetching ? 'Loading index...' : 'Index not loaded.');
+      if (reload) reload.hidden = !lookupLoadError;
+      return;
+    }
+    lookupResults = lookupRank(query, lookupRows);
+    lookupActiveIdx = lookupResults.length > 0 ? 0 : -1;
+    lookupRenderResults(lookupResults);
+  }
+
+  function lookupLoad(force) {
+    if (lookupFetching) return;
+    if (lookupRows && !force && !window.__rcfLookupDirty) { lookupRun(); return; }
+    lookupFetching = true;
+    lookupLoadError = false;
+    var status = lookupStatus();
+    if (status) status.textContent = 'Loading index...';
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', './index.json', true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+      lookupFetching = false;
+      var ok = xhr.status >= 200 && xhr.status < 300;
+      var parsed = null;
+      if (ok) {
+        try { parsed = JSON.parse(xhr.responseText); } catch (e) { parsed = null; }
+      }
+      if (!ok || !parsed || !Array.isArray(parsed.rows)) {
+        lookupLoadError = true;
+        lookupRows = null;
+        lookupRun();
+        return;
+      }
+      lookupLoadError = false;
+      lookupRows = parsed.rows;
+      window.__rcfLookupDirty = false;
+      lookupRun();
+    };
+    try { xhr.send(); } catch (e) { lookupFetching = false; lookupLoadError = true; lookupRun(); }
+  }
+
+  function lookupOpen() {
+    var modal = lookupModal();
+    if (!modal) return;
+    if (modal.hidden === false) return;
+    lookupPrevFocus = document.activeElement;
+    modal.hidden = false;
+    document.documentElement.setAttribute('data-rcf-lookup-open', '1');
+    var input = lookupInput();
+    if (input) {
+      input.value = '';
+      try { input.focus(); } catch (e) { /* soft */ }
+    }
+    lookupLastQuery = '';
+    lookupResults = [];
+    lookupActiveIdx = -1;
+    var list = lookupResultsList();
+    if (list) { list.innerHTML = ''; list.hidden = true; }
+    var empty = lookupEmpty();
+    if (empty) empty.hidden = true;
+    lookupLoad(false);
+  }
+
+  function lookupClose() {
+    var modal = lookupModal();
+    if (!modal || modal.hidden) return;
+    modal.hidden = true;
+    document.documentElement.removeAttribute('data-rcf-lookup-open');
+    if (lookupPrevFocus && typeof lookupPrevFocus.focus === 'function') {
+      try { lookupPrevFocus.focus(); } catch (e) { /* soft */ }
+    }
+    lookupPrevFocus = null;
+  }
+
+  function lookupMove(delta) {
+    if (lookupResults.length === 0) return;
+    var next = lookupActiveIdx + delta;
+    if (next < 0) next = lookupResults.length - 1;
+    else if (next >= lookupResults.length) next = 0;
+    lookupActiveIdx = next;
+    lookupRenderResults(lookupResults);
+    var row = document.querySelector('[data-rcf-lookup-row][data-rcf-lookup-idx="' + next + '"]');
+    if (row && typeof row.scrollIntoView === 'function') {
+      try { row.scrollIntoView({ block: 'nearest' }); } catch (e) { /* soft */ }
+    }
+  }
+
+  function lookupPick(row) {
+    if (!row) return;
+    var id = row.getAttribute('data-rcf-lookup-id');
+    var tab = row.getAttribute('data-rcf-lookup-tab');
+    if (!id || !tab) return;
+    // Design decision 6: test suites render inside their owning US (not
+    // a Build sub-tab). A TS pick re-routes to the US id so the Router
+    // opens the US and the TS card inside it (viewer stream carry).
+    var kind = row.getAttribute('data-rcf-lookup-kind');
+    var parentId = row.getAttribute('data-rcf-lookup-parent');
+    if (kind === 'ts' && parentId) { id = parentId; tab = 'requirements'; }
+    lookupClose();
+    // writeHash preserves ?embed=/?theme=/... (Dex contract, PR 1); the
+    // Router's hashchange listener then activates the tab and opens
+    // every ancestor DocRow (resolveHash).
+    writeHash('#tab=' + encodeURIComponent(tab) + '&entity=' + encodeURIComponent(id), false);
+    // If the hash was already the same (user picked the current entity
+    // again), writeHash is a no-op and no hashchange fires. Re-resolve
+    // to re-flash the target in that case.
+    resolveHash(window.location.hash);
+  }
+
+  function lookupOnKeydown(ev) {
+    if (ev.key === 'Escape') {
+      ev.preventDefault && ev.preventDefault();
+      lookupClose();
+      return;
+    }
+    if (ev.key === 'ArrowDown') {
+      ev.preventDefault && ev.preventDefault();
+      lookupMove(1);
+      return;
+    }
+    if (ev.key === 'ArrowUp') {
+      ev.preventDefault && ev.preventDefault();
+      lookupMove(-1);
+      return;
+    }
+    if (ev.key === 'Enter') {
+      ev.preventDefault && ev.preventDefault();
+      if (lookupActiveIdx < 0 || lookupActiveIdx >= lookupResults.length) return;
+      var row = document.querySelector('[data-rcf-lookup-row][data-rcf-lookup-idx="' + lookupActiveIdx + '"]');
+      lookupPick(row);
+    }
+  }
+
+  function lookupOnInput() {
+    lookupRun();
+  }
+
+  function wireLookup() {
+    var modal = lookupModal();
+    if (modal && !modal.__rcfLookupWired) {
+      modal.__rcfLookupWired = true;
+      var input = lookupInput();
+      if (input) {
+        input.addEventListener('input', lookupOnInput);
+        input.addEventListener('keydown', lookupOnKeydown);
+      }
+      var closeBtn = document.querySelector('[data-rcf-lookup-close]');
+      if (closeBtn) closeBtn.addEventListener('click', function (ev) { ev.preventDefault && ev.preventDefault(); lookupClose(); });
+      var backdrop = document.querySelector('[data-rcf-lookup-backdrop]');
+      if (backdrop) backdrop.addEventListener('click', function () { lookupClose(); });
+      var reload = lookupReload();
+      if (reload) reload.addEventListener('click', function (ev) { ev.preventDefault && ev.preventDefault(); lookupLoad(true); });
+      var list = lookupResultsList();
+      if (list) {
+        list.addEventListener('click', function (ev) {
+          var el = ev.target;
+          while (el && el !== list) {
+            if (el.getAttribute && el.getAttribute('data-rcf-lookup-row') !== null) {
+              ev.preventDefault && ev.preventDefault();
+              lookupPick(el);
+              return;
+            }
+            el = el.parentNode;
+          }
+        });
+        list.addEventListener('mousemove', function (ev) {
+          var el = ev.target;
+          while (el && el !== list) {
+            if (el.getAttribute && el.getAttribute('data-rcf-lookup-idx') !== null) {
+              var idx = Number(el.getAttribute('data-rcf-lookup-idx'));
+              if (!Number.isNaN(idx) && idx !== lookupActiveIdx) {
+                lookupActiveIdx = idx;
+                lookupRenderResults(lookupResults);
+              }
+              return;
+            }
+            el = el.parentNode;
+          }
+        });
+      }
+    }
+    var btn = document.querySelector('[data-rcf-search]');
+    if (btn && !btn.__rcfLookupWired) {
+      btn.__rcfLookupWired = true;
+      btn.addEventListener('click', function (ev) { ev.preventDefault && ev.preventDefault(); lookupOpen(); });
+    }
+    if (!lookupKeybindWired) {
+      lookupKeybindWired = true;
+      // Cmd/Ctrl+F opens the modal; Cmd/Ctrl+Shift+F stays the browser's
+      // in-page find (design doc section 11 recommendation 1).
+      document.addEventListener('keydown', function (ev) {
+        var mod = ev.ctrlKey || ev.metaKey;
+        if (!mod) return;
+        if (ev.shiftKey) return;
+        if ((ev.key === 'f' || ev.key === 'F')) {
+          ev.preventDefault && ev.preventDefault();
+          var modalEl = lookupModal();
+          if (modalEl && modalEl.hidden === false) {
+            var inp = lookupInput();
+            if (inp) try { inp.focus(); inp.select && inp.select(); } catch (e) { /* soft */ }
+          } else {
+            lookupOpen();
+          }
+        }
+      });
+    }
+  }
+
   var hashchangeWired = false;
+
+  // AC-205-5: a mount URL of `?tab=requirements&entity=US-304` lands on the
+  // same position at first paint. The hash-router owns tab + entity, so we
+  // promote the tab/sub/entity query params into the hash fragment at boot
+  // when no explicit hash is already set. embed/theme stay in the query so
+  // urlWithHash keeps the Dex contract.
+  function bootHashFromQuery() {
+    if (window.location.hash) return;
+    var q = parseQuery(window.location.search);
+    var parts = [];
+    if (q.tab) parts.push('tab=' + encodeURIComponent(q.tab));
+    if (q.sub) parts.push('sub=' + encodeURIComponent(q.sub));
+    if (q.entity) parts.push('entity=' + encodeURIComponent(q.entity));
+    if (parts.length === 0) return;
+    try {
+      if (window.history && typeof window.history.replaceState === 'function') {
+        window.history.replaceState(null, '', window.location.pathname + window.location.search + '#' + parts.join('&'));
+      } else {
+        window.location.hash = parts.join('&');
+      }
+    } catch (err) { /* best effort; resolveHash will no-op on empty hash */ }
+  }
+
   function onReady() {
     initShellFromQuery();
+    bootHashFromQuery();
     wireThemeMessages();
     initMermaid();
     wireTabs();
@@ -1677,6 +2128,7 @@
     wireBuildTab();
     wireEntitySelectors();
     wireFixturePage();
+    wireLookup();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
       hashchangeWired = true;

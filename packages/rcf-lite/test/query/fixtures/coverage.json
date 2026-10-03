@@ -189,6 +189,70 @@
             "TC-224-no-outbound-postmessage"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-1",
+          "covered": true,
+          "testCases": [
+            "TC-225-id-exact-prefix-first"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-2",
+          "covered": true,
+          "testCases": [
+            "TC-225-word-title-above-snippet"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-3",
+          "covered": true,
+          "testCases": [
+            "TC-225-single-char-ids-only"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-4",
+          "covered": true,
+          "testCases": [
+            "TC-225-pick-writes-hash"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-5",
+          "covered": true,
+          "testCases": [
+            "TC-225-mount-url-round-trip"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-6",
+          "covered": true,
+          "testCases": [
+            "TC-225-embed-theme-preserved"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-7",
+          "covered": true,
+          "testCases": [
+            "TC-225-empty-state-on-fetch-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-205-8",
+          "covered": true,
+          "testCases": [
+            "TC-225-no-outbound-side-effects"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

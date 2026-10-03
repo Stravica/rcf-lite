@@ -97,6 +97,11 @@ export async function startServer(args) {
           contentHtml: result.contentHtml,
           errors: result.errors,
           pmPartials: result.pmPartials,
+          // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup
+          // index is built once per rewalk and snapshotted on `state`
+          // so `GET /index.json` serves from memory and the SSE
+          // `tree-update` version lets the client invalidate its cache.
+          indexJson: result.indexJson,
         };
         sse.broadcast('tree-update', { version, contentHtml: result.contentHtml });
         if (result.errors && result.errors.length > 0) {

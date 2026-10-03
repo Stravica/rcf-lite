@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
+  "purpose": "Cover US-205 (engineer jumps to any document or AC by id): id-first ranking (exact / prefix / contains), word-match title above snippet, single-char ids-only, hash pick lands and expands the entity, mount URL round-trip, embed/theme preservation, empty-state on fetch failure, no outbound postMessage / storage / cookies. Points at the 22 new unit tests under test/view/id-lookup.test.js.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-205-1",
+    "AC-205-2",
+    "AC-205-3",
+    "AC-205-4",
+    "AC-205-5",
+    "AC-205-6",
+    "AC-205-7",
+    "AC-205-8"
+  ],
+  "id": "TS-225",
+  "usId": "US-205",
+  "title": "ID lookup: ranking, hash pick, embed/theme round-trip, empty state, no outbound side effects",
+  "testCases": [
+    {
+      "id": "TC-225-id-exact-prefix-first",
+      "acId": "AC-205-1",
+      "description": "rankLookupRows ranks an exact id match first, a prefix match second and a contains match third; the first ranked row is pre-highlighted in the LookupModal shell.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::rankLookupRows: exact id ranks first (AC-205-1)"
+    },
+    {
+      "id": "TC-225-word-title-above-snippet",
+      "acId": "AC-205-2",
+      "description": "rankLookupRows ranks a word match in the title above a word match in the snippet when the id does not match; every query word must match title or snippet.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::rankLookupRows: a title match ranks above a snippet-only match (AC-205-2)"
+    },
+    {
+      "id": "TC-225-single-char-ids-only",
+      "acId": "AC-205-3",
+      "description": "rankLookupRows with a one-character query returns only id matches; the title / snippet word-match pass is skipped.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::rankLookupRows: single-character queries search ids only (AC-205-3)"
+    },
+    {
+      "id": "TC-225-pick-writes-hash",
+      "acId": "AC-205-4",
+      "description": "wireLookup pick writes `#tab=<tab>&entity=<id>` through writeHash; the Router activates the tab, opens every ancestor DocRow and the entity, scrolls into view and flashes the target.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::page-init.js carries the wireLookup contract: Cmd/Ctrl+F binding, lazy fetch, up/down/Enter/Esc"
+    },
+    {
+      "id": "TC-225-mount-url-round-trip",
+      "acId": "AC-205-5",
+      "description": "A mount URL of `?tab=requirements&entity=US-304` lands on the same position at first paint via the Router (PR 1 contract), independent of the LookupModal.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::page-init.js urlWithHash preserves ?tab=&entity= + any other query at mount (AC-205-5)"
+    },
+    {
+      "id": "TC-225-embed-theme-preserved",
+      "acId": "AC-205-6",
+      "description": "A pick with `?embed=1&theme=dark` on the URL leaves both query params in place; only the hash fragment changes. Verified against writeHash + the hash-preservation helpers.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::page-init.js writeHash preserves ?embed= and ?theme= through every pick (AC-205-6)"
+    },
+    {
+      "id": "TC-225-empty-state-on-fetch-failure",
+      "acId": "AC-205-7",
+      "description": "A non-2xx / malformed `./index.json` response renders the empty state (The index could not be loaded.) with a visible Reload index button; no result rows show; the reload affordance re-fetches on click.",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::renderLookupModal carries the empty-state + reload affordance markers (AC-205-7)"
+    },
+    {
+      "id": "TC-225-no-outbound-side-effects",
+      "acId": "AC-205-8",
+      "description": "wireLookup never calls window.postMessage, never writes to localStorage / sessionStorage / document.cookie, and makes no outbound fetch other than `./index.json`; asserted by a source-level scan of page-init.js (no postMessage, no storage, no cookie writes in wireLookup).",
+      "status": "pending",
+      "testPointer": "test/view/id-lookup.test.js::page-init.js does not add outbound postMessage, localStorage, sessionStorage or cookies in the lookup wiring (AC-205-8)"
+    }
+  ],
+  "status": "draft"
+}

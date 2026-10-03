@@ -34,6 +34,12 @@
       "title": "An engineer sees the FBS DAG"
     },
     {
+      "id": "US-205",
+      "kind": "userStory",
+      "depth": 1,
+      "title": "An engineer jumps to any document or AC by id"
+    },
+    {
       "id": "TS-003",
       "kind": "testSuite",
       "depth": 2,
@@ -146,6 +152,60 @@
       "kind": "ac",
       "depth": 2,
       "title": "[must-not] Given the DAG canvas, when a node is clicked, filtered or inspected, then no `postMessage` is sent to the parent window and no outbound network request is made."
+    },
+    {
+      "id": "TS-225",
+      "kind": "testSuite",
+      "depth": 2,
+      "title": "ID lookup: ranking, hash pick, embed/theme round-trip, empty state, no outbound side effects"
+    },
+    {
+      "id": "AC-205-1",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the review surface, when the SearchButton is pressed or Cmd/Ctrl+F is typed from any tab, then the LookupModal opens; typing an exact id (`REQ-002`) or a prefix (`REQ-00`) ranks that id first and the first result row is pre-highlighted."
+    },
+    {
+      "id": "AC-205-2",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the LookupModal, when a word query matches a document's title and another document's snippet, then the title match ranks above the snippet match."
+    },
+    {
+      "id": "AC-205-3",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the LookupModal, when a query of exactly one character is typed, then only ids whose identifier contains that character rank, and the title / snippet word-match pass is skipped."
+    },
+    {
+      "id": "AC-205-4",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a pre-highlighted result for `US-304`, when Enter is pressed, then the hash becomes `#tab=requirements&entity=US-304`, the Router activates the Requirements tab, opens the REQ-003 ancestor DocRow and the US-304 row, scrolls the target into view and flashes it."
+    },
+    {
+      "id": "AC-205-5",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a mount URL `?tab=requirements&entity=US-304`, when the shell first paints, then the Router lands on the same position: Requirements tab active, REQ-003 and US-304 DocRows open, US-304 scrolled into view."
+    },
+    {
+      "id": "AC-205-6",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given `?embed=1&theme=dark` on the viewer URL, when a result is picked from the LookupModal, then the resulting URL still carries `embed=1` and `theme=dark` in the query string and the hash is `#tab=<tab>&entity=<id>`."
+    },
+    {
+      "id": "AC-205-7",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given a `./index.json` fetch that returns a non-2xx status or a malformed body, when the LookupModal is opened, then an empty state renders with a reload affordance that re-fetches the index, and no result rows show."
+    },
+    {
+      "id": "AC-205-8",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given the LookupModal, when the user types a query, picks a result or closes the modal, then no `postMessage` is sent to the parent window, no outbound network request beyond the `./index.json` fetch is made, and no search term is written to `localStorage` / `sessionStorage` / cookies."
     },
     {
       "id": "TC-003-diagram-emitted-as-source",
@@ -266,6 +326,54 @@
       "kind": "fbs",
       "depth": 3,
       "title": "Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204 and successor USs)"
+    },
+    {
+      "id": "TC-225-id-exact-prefix-first",
+      "kind": "tc",
+      "depth": 3,
+      "title": "rankLookupRows ranks an exact id match first, a prefix match second and a contains match third; the first ranked row is pre-highlighted in the LookupModal shell."
+    },
+    {
+      "id": "TC-225-word-title-above-snippet",
+      "kind": "tc",
+      "depth": 3,
+      "title": "rankLookupRows ranks a word match in the title above a word match in the snippet when the id does not match; every query word must match title or snippet."
+    },
+    {
+      "id": "TC-225-single-char-ids-only",
+      "kind": "tc",
+      "depth": 3,
+      "title": "rankLookupRows with a one-character query returns only id matches; the title / snippet word-match pass is skipped."
+    },
+    {
+      "id": "TC-225-pick-writes-hash",
+      "kind": "tc",
+      "depth": 3,
+      "title": "wireLookup pick writes `#tab=<tab>&entity=<id>` through writeHash; the Router activates the tab, opens every ancestor DocRow and the entity, scrolls into view and flashes the target."
+    },
+    {
+      "id": "TC-225-mount-url-round-trip",
+      "kind": "tc",
+      "depth": 3,
+      "title": "A mount URL of `?tab=requirements&entity=US-304` lands on the same position at first paint via the Router (PR 1 contract), independent of the LookupModal."
+    },
+    {
+      "id": "TC-225-embed-theme-preserved",
+      "kind": "tc",
+      "depth": 3,
+      "title": "A pick with `?embed=1&theme=dark` on the URL leaves both query params in place; only the hash fragment changes. Verified against writeHash + the hash-preservation helpers."
+    },
+    {
+      "id": "TC-225-empty-state-on-fetch-failure",
+      "kind": "tc",
+      "depth": 3,
+      "title": "A non-2xx / malformed `./index.json` response renders the empty state (The index could not be loaded.) with a visible Reload index button; no result rows show; the reload affordance re-fetches on click."
+    },
+    {
+      "id": "TC-225-no-outbound-side-effects",
+      "kind": "tc",
+      "depth": 3,
+      "title": "wireLookup never calls window.postMessage, never writes to localStorage / sessionStorage / document.cookie, and makes no outbound fetch other than `./index.json`; asserted by a source-level scan of page-init.js (no postMessage, no storage, no cookie writes in wireLookup)."
     }
   ],
   "edges": [
@@ -287,6 +395,11 @@
     {
       "from": "REQ-002",
       "to": "US-204",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-205",
       "kind": "parentChild"
     },
     {
@@ -385,6 +498,51 @@
       "kind": "parentChild"
     },
     {
+      "from": "US-205",
+      "to": "TS-225",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-4",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-5",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-6",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-7",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-205",
+      "to": "AC-205-8",
+      "kind": "parentChild"
+    },
+    {
       "from": "TS-003",
       "to": "TC-003-diagram-emitted-as-source",
       "kind": "parentChild"
@@ -686,6 +844,166 @@
     },
     {
       "from": "AC-204-7",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-id-exact-prefix-first",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-word-title-above-snippet",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-single-char-ids-only",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-pick-writes-hash",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-mount-url-round-trip",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-embed-theme-preserved",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-empty-state-on-fetch-failure",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-225",
+      "to": "TC-225-no-outbound-side-effects",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-205-1",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-1",
+      "to": "TC-225-id-exact-prefix-first",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-1",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-2",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-2",
+      "to": "TC-225-word-title-above-snippet",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-2",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-3",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-3",
+      "to": "TC-225-single-char-ids-only",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-3",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-4",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-4",
+      "to": "TC-225-pick-writes-hash",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-4",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-5",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-5",
+      "to": "TC-225-mount-url-round-trip",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-5",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-6",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-6",
+      "to": "TC-225-embed-theme-preserved",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-6",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-7",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-7",
+      "to": "TC-225-empty-state-on-fetch-failure",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-7",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-8",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-8",
+      "to": "TC-225-no-outbound-side-effects",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-8",
       "to": "FBS-203",
       "kind": "crossLink"
     }

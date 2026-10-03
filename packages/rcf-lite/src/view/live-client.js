@@ -445,6 +445,11 @@
       // grouping refetches instead of using the stale cache. See
       // hydrateLazyGroup in the inline script.
       win.__rcfPmDirty = true;
+      // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup
+      // index is a snapshot of the tree. A tree-update invalidates
+      // whichever rows the client last fetched; wireLookup refetches
+      // on the next modal open instead of staying stale.
+      win.__rcfLookupDirty = true;
       // Tab buttons live in the header (outside the swap wrapper) so
       // their click handlers survive. But the swap serves every panel
       // with the same `hidden` state Phase 3.6 renders (Overview

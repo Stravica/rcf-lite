@@ -1,0 +1,22 @@
+{
+  "cnId": "CN-744",
+  "path": "src/view/page-init.js",
+  "title": "wireLookup client (ID lookup wiring)",
+  "description": "`wireLookup` lazily XHR-fetches `./index.json` on first modal open, refetches once when `window.__rcfLookupDirty` is set by live-client (SSE tree-update), ranks via a mirror of `rankLookupRows`, cycles the active row with Up / Down, picks with Enter and closes with Esc. The Router's `resolveHash` honours `?tab=&entity=` at mount so a landed URL (`?tab=requirements&entity=US-304`) opens the same position at first paint without the LookupModal (AC-205-5). Pick writes `#tab=<tab>&entity=<id>` via `writeHash` so `?embed=` and `?theme=` survive (PR 1 contract); the Router's hashchange listener activates the tab, opens ancestor DocRows and flashes the target. Cmd/Ctrl+F opens the modal from any tab; Cmd/Ctrl+Shift+F is deliberately NOT intercepted so the browser find still works. Marks every id / title / snippet substring hit by a query word (`<mark>`, escaped). Empty state shows `The index could not be loaded.` + `Reload index` on fetch failure; never calls `postMessage`, never writes to localStorage / sessionStorage / document.cookie, and never makes an outbound fetch other than `./index.json` (AC-205-4, AC-205-6, AC-205-7, AC-205-8).",
+  "implementsAcIds": [
+    "AC-205-4",
+    "AC-205-5",
+    "AC-205-6",
+    "AC-205-7",
+    "AC-205-8"
+  ],
+  "dependencies": [
+    "CN-741",
+    "CN-742",
+    "CN-743"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}

@@ -4,6 +4,7 @@ flowchart LR
   US-202["US-202"]
   US-203["US-203"]
   US-204["US-204"]
+  US-205["US-205"]
   TS-003["TS-003"]
   AC-201-1["AC-201-1"]
   AC-201-2["AC-201-2"]
@@ -23,6 +24,15 @@ flowchart LR
   AC-204-5["AC-204-5"]
   AC-204-6["AC-204-6"]
   AC-204-7["AC-204-7"]
+  TS-225["TS-225"]
+  AC-205-1["AC-205-1"]
+  AC-205-2["AC-205-2"]
+  AC-205-3["AC-205-3"]
+  AC-205-4["AC-205-4"]
+  AC-205-5["AC-205-5"]
+  AC-205-6["AC-205-6"]
+  AC-205-7["AC-205-7"]
+  AC-205-8["AC-205-8"]
   TC-003-diagram-emitted-as-source["TC-003-diagram-emitted-as-source"]
   TC-003-per-req-subdiagram-chain-edges["TC-003-per-req-subdiagram-chain-edges"]
   TC-003-one-subdiagram-per-req["TC-003-one-subdiagram-per-req"]
@@ -43,10 +53,19 @@ flowchart LR
   TC-224-cycle-handling["TC-224-cycle-handling"]
   TC-224-no-outbound-postmessage["TC-224-no-outbound-postmessage"]
   FBS-203["FBS-203"]
+  TC-225-id-exact-prefix-first["TC-225-id-exact-prefix-first"]
+  TC-225-word-title-above-snippet["TC-225-word-title-above-snippet"]
+  TC-225-single-char-ids-only["TC-225-single-char-ids-only"]
+  TC-225-pick-writes-hash["TC-225-pick-writes-hash"]
+  TC-225-mount-url-round-trip["TC-225-mount-url-round-trip"]
+  TC-225-embed-theme-preserved["TC-225-embed-theme-preserved"]
+  TC-225-empty-state-on-fetch-failure["TC-225-empty-state-on-fetch-failure"]
+  TC-225-no-outbound-side-effects["TC-225-no-outbound-side-effects"]
   REQ-002 --> US-201
   REQ-002 --> US-202
   REQ-002 --> US-203
   REQ-002 --> US-204
+  REQ-002 --> US-205
   US-201 --> TS-003
   US-201 --> AC-201-1
   US-201 --> AC-201-2
@@ -66,6 +85,15 @@ flowchart LR
   US-204 --> AC-204-5
   US-204 --> AC-204-6
   US-204 --> AC-204-7
+  US-205 --> TS-225
+  US-205 --> AC-205-1
+  US-205 --> AC-205-2
+  US-205 --> AC-205-3
+  US-205 --> AC-205-4
+  US-205 --> AC-205-5
+  US-205 --> AC-205-6
+  US-205 --> AC-205-7
+  US-205 --> AC-205-8
   TS-003 --> TC-003-diagram-emitted-as-source
   TS-003 --> TC-003-per-req-subdiagram-chain-edges
   TS-003 --> TC-003-one-subdiagram-per-req
@@ -127,11 +155,44 @@ flowchart LR
   AC-204-7 -.-> TS-224
   AC-204-7 -.-> TC-224-no-outbound-postmessage
   AC-204-7 -.-> FBS-203
+  TS-225 --> TC-225-id-exact-prefix-first
+  TS-225 --> TC-225-word-title-above-snippet
+  TS-225 --> TC-225-single-char-ids-only
+  TS-225 --> TC-225-pick-writes-hash
+  TS-225 --> TC-225-mount-url-round-trip
+  TS-225 --> TC-225-embed-theme-preserved
+  TS-225 --> TC-225-empty-state-on-fetch-failure
+  TS-225 --> TC-225-no-outbound-side-effects
+  AC-205-1 -.-> TS-225
+  AC-205-1 -.-> TC-225-id-exact-prefix-first
+  AC-205-1 -.-> FBS-203
+  AC-205-2 -.-> TS-225
+  AC-205-2 -.-> TC-225-word-title-above-snippet
+  AC-205-2 -.-> FBS-203
+  AC-205-3 -.-> TS-225
+  AC-205-3 -.-> TC-225-single-char-ids-only
+  AC-205-3 -.-> FBS-203
+  AC-205-4 -.-> TS-225
+  AC-205-4 -.-> TC-225-pick-writes-hash
+  AC-205-4 -.-> FBS-203
+  AC-205-5 -.-> TS-225
+  AC-205-5 -.-> TC-225-mount-url-round-trip
+  AC-205-5 -.-> FBS-203
+  AC-205-6 -.-> TS-225
+  AC-205-6 -.-> TC-225-embed-theme-preserved
+  AC-205-6 -.-> FBS-203
+  AC-205-7 -.-> TS-225
+  AC-205-7 -.-> TC-225-empty-state-on-fetch-failure
+  AC-205-7 -.-> FBS-203
+  AC-205-8 -.-> TS-225
+  AC-205-8 -.-> TC-225-no-outbound-side-effects
+  AC-205-8 -.-> FBS-203
   class REQ-002 req;
   class US-201 us;
   class US-202 us;
   class US-203 us;
   class US-204 us;
+  class US-205 us;
   class TS-003 ts;
   class AC-201-1 ac;
   class AC-201-2 ac;
@@ -151,6 +212,15 @@ flowchart LR
   class AC-204-5 ac;
   class AC-204-6 ac;
   class AC-204-7 ac;
+  class TS-225 ts;
+  class AC-205-1 ac;
+  class AC-205-2 ac;
+  class AC-205-3 ac;
+  class AC-205-4 ac;
+  class AC-205-5 ac;
+  class AC-205-6 ac;
+  class AC-205-7 ac;
+  class AC-205-8 ac;
   class TC-003-diagram-emitted-as-source tc;
   class TC-003-per-req-subdiagram-chain-edges tc;
   class TC-003-one-subdiagram-per-req tc;
@@ -171,6 +241,14 @@ flowchart LR
   class TC-224-cycle-handling tc;
   class TC-224-no-outbound-postmessage tc;
   class FBS-203 fbs;
+  class TC-225-id-exact-prefix-first tc;
+  class TC-225-word-title-above-snippet tc;
+  class TC-225-single-char-ids-only tc;
+  class TC-225-pick-writes-hash tc;
+  class TC-225-mount-url-round-trip tc;
+  class TC-225-embed-theme-preserved tc;
+  class TC-225-empty-state-on-fetch-failure tc;
+  class TC-225-no-outbound-side-effects tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

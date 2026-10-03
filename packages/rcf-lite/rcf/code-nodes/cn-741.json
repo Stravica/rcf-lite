@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-741",
+  "path": "src/view/view-index.js",
+  "title": "ID lookup pure projection + rank helper",
+  "description": "`buildViewIndex(model)` projects a BuiltTreeModel into one row per PRD/REQ/US/TAD/TAC/ADR/BS/FBS/TS plus one row per AC under each US, each `{ id, kind, title, snippet, parent, tab }`; `snippet` is the kind-specific prose field whitespace-collapsed and capped at 110 chars; `tab` is the viewer tab that owns the id. `serialiseViewIndex(model)` returns the exact JSON string the server serves (so Content-Length matches). `rankLookupRows(query, rows)` implements the design doc section 6 ranking: single-char id-only, otherwise id first (exact / prefix / contains), then every word must match title or snippet, title weighted above snippet, stable on ties by id, 20-result cap. This is the pure projection the server renders into `./index.json` on every rewalk (AC-205-1 to AC-205-3).",
+  "implementsAcIds": [
+    "AC-205-1",
+    "AC-205-2",
+    "AC-205-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}

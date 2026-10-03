@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-745",
+  "path": "src/view/live-client.js",
+  "title": "SSE tree-update dirties the ID lookup cache",
+  "description": "On every SSE `tree-update` event, live-client sets `window.__rcfLookupDirty = true`. `wireLookup` reads this flag on the next modal open and refetches `./index.json` once, then clears it. This keeps the modal consistent with the live walker without polling (AC-205-4).",
+  "implementsAcIds": [
+    "AC-205-4"
+  ],
+  "dependencies": [
+    "CN-744"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T00:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z"
+}

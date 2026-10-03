@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-02T19:00:00Z",
+  "adrId": "ADR-4134-index-json-route",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "The ID lookup index is served as a new ./index.json route, built from BuiltTreeModel on every rewalk and fetched lazily on first open",
+  "context": "The viewer UI refresh (design doc section 6) adds a type-ahead ID lookup over every document id plus every AC. On the dogfood tree that is roughly 1,600 rows and well under 300 KB of JSON. The viewer is served through wespa's reverse proxy; new routes 404 until wespa's allow-list is extended (Dex, 2026-10-02; design section 9), so every new route must be named in the release notes alongside the version that introduces it. The viewer page is already live-updated through an SSE tree-update event, so an index that mirrors the tree needs to refresh on the same event. The alternatives considered were inlining the index into `./scope.json` or rebuilding the index in the browser; both have load-bearing downsides.",
+  "decision": "The index is a new `./index.json` route served from the viewer, built once per rewalk from BuiltTreeModel and returned as `{ rows: Array<{ id, kind, title, snippet, parent, tab }> }`. The route is fetched lazily on first LookupModal open and refreshed when the next SSE `tree-update` event lands (the client marks its cache dirty and refetches on the next open). The route is named in the release notes so wespa's proxy allow-list is extended before the version pin bump; it is the fourth or later such release-noted viewer route after PR 1's `./page-init.js`.",
+  "consequences": "The browser pays one small fetch on the first lookup and nothing on subsequent opens until the tree changes; the server owns the index projection once per rewalk, so the model-to-rows mapping cannot drift between the viewer's doc renderers and the lookup results. The release-notes contract means every new viewer route the embedding host must allow is discoverable from CHANGELOG. The index body is `{ rows }` rather than a bare array so a future field (version, generatedAt, counts) can be added without a breaking shape change.",
+  "alternativesConsidered": [
+    {
+      "name": "Inline the index into ./scope.json",
+      "summary": "Extend the existing deep-link scope endpoint to carry the lookup rows.",
+      "reasonNotChosen": "`./scope.json` is a hot path on every page load and is parsed by the deep-link client; bloating it with ~1,600 lookup rows pays the fetch cost even for sessions that never open the modal, and couples two independent features."
+    },
+    {
+      "name": "Rebuild the index in the browser from the rendered DOM",
+      "summary": "Walk the DOM after each SSE innerHTML swap to collect every data-doc-id and AC li.",
+      "reasonNotChosen": "Duplicates the BuiltTreeModel projection in the viewer client, misses the kind, parent and tab metadata the DOM does not carry in a canonical shape, and silently drifts when a renderer stops emitting a given document."
+    },
+    {
+      "name": "Inline the index into the shell HTML as a <script type=\"application/json\">",
+      "summary": "Server-render the rows directly inside the page so no second request is needed.",
+      "reasonNotChosen": "Grows every first paint by ~300 KB even when the lookup is never opened and leaks straight into the HTML stream the live client swaps on every SSE tree-update, so the cost is paid again per update. The modal is a cold path; the lazy fetch is cheaper."
+    },
+    {
+      "name": "Keep the index unversioned and refetch on a wall-clock timer",
+      "summary": "Have the client poll `./index.json` every N seconds instead of listening to the SSE event.",
+      "reasonNotChosen": "Breaks the viewer's live-swap discipline: the rest of the surface refreshes on `tree-update` with no polling anywhere, so an index that polls would be the only timer-driven feature and race the SSE swap during edits."
+    }
+  ]
+}

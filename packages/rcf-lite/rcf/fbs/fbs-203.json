@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T19:00:00Z",
-  "updatedAt": "2026-10-02T19:00:00Z",
+  "updatedAt": "2026-10-03T00:00:00Z",
   "acIds": [
     "AC-204-1",
     "AC-204-2",
@@ -8,7 +8,15 @@
     "AC-204-4",
     "AC-204-5",
     "AC-204-6",
-    "AC-204-7"
+    "AC-204-7",
+    "AC-205-1",
+    "AC-205-2",
+    "AC-205-3",
+    "AC-205-4",
+    "AC-205-5",
+    "AC-205-6",
+    "AC-205-7",
+    "AC-205-8"
   ],
   "fbsId": "FBS-203",
   "prdId": "PRD-001",
@@ -21,10 +29,12 @@
   "approach": "Build the DAG sub-tab (PR 6) under src/view/build-dag.js with buildDagLayout, renderBuildDag, renderDagInspector and buildDagInspectorPayload; wire html-page.js's renderBuildPanel to call the new renderer in place of the PR 5 placeholder; add wireBuildDag in page-init.js for click-to-highlight, filters, inspector fill from the data-* attribute payload and `#tab=build&sub=dag&entity=` deep links. Inspector payload rides on a `data-rcf-dag-inspector-data` attribute on the inspector shell per the PR 1 contract (no inline <script> body). `currentDagHashExtras` keeps Specs filter keys unknown on the DAG sub-tab so the decision 11 preservation contract holds. applyBuildHash auto-presses Show-unconnected on restoring an unconnected FBS. PR 7 to PR 9 extend the renderer, add their own sub-tab, filter and inspector pieces and append the new ACs to this FBS's `acIds` array; this file is the single owner of the AC coverage for the whole stream so the dogfood tree's `every AC covered by at least one FBS` check stays green at every merge.",
   "contextRequirements": {
     "tacIds": [
-      "TAC-4131-build-dag-view"
+      "TAC-4131-build-dag-view",
+      "TAC-4132-id-lookup"
     ],
     "adrIds": [
-      "ADR-4133-dag-dependency-depth-layout"
+      "ADR-4133-dag-dependency-depth-layout",
+      "ADR-4134-index-json-route"
     ]
   },
   "deliverables": [
@@ -36,7 +46,16 @@
     "packages/rcf-lite/test/view/fixtures/phase-3-6-static.html: baseline regenerated to include the DAG panel with the data-attr inspector payload shell",
     "packages/rcf-lite/rcf/requirements/req-002.json: description amended with the DAG sub-tab coverage",
     "packages/rcf-lite/rcf/user-stories/us-204.json: US-204 with AC-204-1..7",
-    "packages/rcf-lite/rcf/tacs/tac-4131-build-dag-view.json, packages/rcf-lite/rcf/adrs/adr-4133-dag-dependency-depth-layout.json: chain docs"
+    "packages/rcf-lite/rcf/tacs/tac-4131-build-dag-view.json, packages/rcf-lite/rcf/adrs/adr-4133-dag-dependency-depth-layout.json: chain docs",
+    "packages/rcf-lite/src/view/view-index.js: buildViewIndex, serialiseViewIndex, rankLookupRows (PR 7)",
+    "packages/rcf-lite/src/server/routes.js + packages/rcf-lite/src/server/index.js: GET /index.json route (PR 7)",
+    "packages/rcf-lite/src/view/html-page.js: renderSearchButton + renderLookupModal shell (PR 7)",
+    "packages/rcf-lite/src/view/page-init.js: wireLookup + rankLookupRows mirror (PR 7)",
+    "packages/rcf-lite/src/view/live-client.js: __rcfLookupDirty on SSE tree-update (PR 7)",
+    "packages/rcf-lite/test/view/id-lookup.test.js: 22 unit tests for ID lookup (PR 7)",
+    "packages/rcf-lite/rcf/user-stories/us-205.json, packages/rcf-lite/rcf/tacs/tac-4132-id-lookup.json, packages/rcf-lite/rcf/adrs/adr-4134-index-json-route.json: PR 7 chain docs",
+    "packages/rcf-lite/rcf/test-suites/ts-225.json: TS-225 covering AC-205-1..8 (PR 7)",
+    "packages/rcf-lite/rcf/code-nodes/cn-741..cn-745.json: CN entries mapping PR 7 code files to AC-205-* (PR 7)"
   ],
   "riskLevel": "low",
   "domain": "reviewSurface",

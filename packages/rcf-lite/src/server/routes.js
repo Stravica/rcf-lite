@@ -8,6 +8,10 @@
 //                      (Dex / wespa 2026-10-02 #263; release-noted so
 //                      the proxy's route allow-list is extended).
 // GET /scope.json    -> deep-link scope resolver (w-2026-08-30-dave-020)
+// GET /index.json    -> viewer UI refresh PR 7 ID lookup index built
+//                      from BuiltTreeModel on every rewalk; `{ rows }`
+//                      with one row per document id plus one per AC
+//                      (ADR-4134; release-noted).
 // GET /_fixtures/components -> viewer UI refresh PR 2 component
 //                      fixture page (release-noted). Static page, no
 //                      live-walk coupling, so it is always available
@@ -41,12 +45,13 @@ const MIME = {
   html: 'text/html; charset=utf-8',
   css: 'text/css; charset=utf-8',
   js: 'application/javascript; charset=utf-8',
+  json: 'application/json; charset=utf-8',
   txt: 'text/plain; charset=utf-8',
 };
 
 /**
  * @typedef {object} RouterDeps
- * @property {() => { fullPageHtml: string, contentHtml: string, version: number } | null} currentState
+ * @property {() => { fullPageHtml: string, contentHtml: string, version: number, indexJson?: string } | null} currentState
  * @property {ReturnType<typeof import('./sse.js').createSseHub>} sse
  * @property {string} stylePath
  * @property {string} mermaidPath
@@ -129,6 +134,26 @@ export function createRouter(deps) {
     if (path === '/_fixtures/components') {
       res.writeHead(200, { 'content-type': MIME.html, 'cache-control': 'no-store' });
       res.end(renderComponentsFixturePage());
+      return;
+    }
+    if (path === '/index.json') {
+      // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup
+      // index is built once per rewalk and lives on `state.indexJson`
+      // as a pre-stringified payload, so this handler never touches
+      // disk and content-length matches the exact bytes served.
+      const state = deps.currentState();
+      if (!state || typeof state.indexJson !== 'string') {
+        res.writeHead(503, { 'content-type': MIME.txt });
+        res.end('view server initialising\n');
+        return;
+      }
+      const body = state.indexJson;
+      res.writeHead(200, {
+        'content-type': MIME.json,
+        'content-length': String(Buffer.byteLength(body)),
+        'cache-control': 'no-store',
+      });
+      res.end(body);
       return;
     }
     if (path === '/scope.json') {
