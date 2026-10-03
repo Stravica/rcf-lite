@@ -427,6 +427,19 @@ loop and never block a freeze. If the owner asks for a visible
 prototype before intent-complete, say so (the method is finished the
 intent first) and offer to continue the intent loop; never produce a
 prototype that bypasses the readiness verdict.
+
+### Prototypes in DISCOVERY (ADR-4132)
+
+A statement sourced to `prototype:<name>:<observation>` is evidence,
+not implementation. A document that cites prototype code as its
+implementation is a D2 finding the engineer resolves by re-deriving:
+extract requirements from the prototype as evidence, run them through
+intake and the PO loop like any document, and rebuild from the tree.
+The prototype's code is burned (one brief statement, kind
+`constraint`); the build that follows starts from the tree, never
+from the prototype. "Grow the prototype" is rejected on provenance
+grounds. The full doctrine is in `rcf guidance discovery-prototypes`
+and the `rcf_discover_prototype` prompt.
 ```
 
 ## Customisation points

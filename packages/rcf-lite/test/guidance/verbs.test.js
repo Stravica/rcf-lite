@@ -81,3 +81,18 @@ test('every mark value shown in the pack is a valid lifecycle status', async () 
     }
   }
 });
+
+// REQ-182 (US-18202), AC-18202-1: the guidance verb prints the file
+// byte-faithfully for the two slugs this PR adds / amends.
+test('guidance (REQ-182, AC-18202-1): rcf guidance define-intent and discovery-prototypes each print their file', async () => {
+  const { execFile } = await import('node:child_process');
+  const { promisify } = await import('node:util');
+  const exec = promisify(execFile);
+  const bin = fileURLToPath(new URL('../../bin/rcf.js', import.meta.url));
+  const packageRoot = fileURLToPath(new URL('../..', import.meta.url));
+  for (const slug of ['define-intent', 'discovery-prototypes']) {
+    const expected = await readFile(join(guidanceDir, `${slug}.md`), 'utf8');
+    const { stdout } = await exec(process.execPath, [bin, 'guidance', slug], { cwd: packageRoot, encoding: 'utf8' });
+    assert.equal(stdout, expected, `rcf guidance ${slug} must print its file byte-faithfully`);
+  }
+});
