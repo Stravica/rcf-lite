@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T12:00:00Z",
-  "updatedAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z",
   "tacId": "TAC-4121-define-ledgers",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -16,7 +16,8 @@
     "parseBriefFromFile splits by non-empty lines, strips leading '- ', '* ' or '<n>. ' bullets, defaults kind to 'capability', and threads --source through to every draft.",
     "src/cli/ledger.js: `rcf define ledger <name> <verb>` argv parsing; verbs add / resolve / list; ledger-specific flags for each; renderDecisionsList formats the #241 numbered layout; list --json emits { ledger, <arrayKey>: [...] }.",
     "bin/rcf.js: register GROUPS.define.ledger; src/cli/help.js: import LEDGER_HELP and wire into HELP_MAP.define.ledger + DEFINE_HELP + top-level DEFINE listing so per-verb help stays single-sourced.",
-    "`update <id>` subverb patches named fields and re-runs full-body validation; `resolvedBy` is a closed pointer grammar (REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn, omitted:<reason>) validated by D2."
+    "`update <id>` subverb patches named fields and re-runs full-body validation; `resolvedBy` is a closed pointer grammar (REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn, omitted:<reason>) validated by D2.",
+    "concern ledger carries `applied`/`waived` entries keyed by `<REQ>:<concern>` (spec section 4 row 'D5 catalogue', 0.30.0 PR 6): `crosscut:catalogue` reads the concern-ledger body and matches each applicable `(reqShape, concern)` pair against an entry with that key. A `standards:<pack>` key names a waiver for `skeleton:standardsCited`. The ledger schema already carries `{ id, concern, reqId, disposition, reason?, addedAt, status, resolvedAt? }`; the `<REQ>:<concern>` key is composed by the gate from `concern` and `reqId` (no schema change)."
   ],
   "internalStructure": "The walker never reads under rcf/define/: subdirFor in src/core/store/loader.js returns null for anything that is not a known child kind (requirements, user-stories, tacs, adrs, fbs, test-suites, code-nodes, evals), so a ledger file sitting under rcf/define/ is never enumerated for schema validation. The walker-invisibility invariant is proved by a dedicated test that seeds the four ledger files plus a bug-bait req-shaped file under rcf/define/ and asserts zero walker error paths starting with rcf/define/ and no matching id in tree.byId. Validation is JSON-schema-shaped inline (no ajv, no @stravica-ai/rcf-schemas dependency) because the sidecars ride outside the shared schema until schemas 0.7 (ADR-4121).",
   "interfaces": [

@@ -1,0 +1,21 @@
+{
+  "cnId": "CN-757",
+  "path": "src/query/gates.js",
+  "title": "DEFINE step 3 PR 6: D4 closed-set and ownerRef findings, D5 catalogue, standards citation on the gates module",
+  "description": "src/query/gates.js grows four new engineer checks: stories:closedSets (over delta; AC description with an enumeration cue and no bracketed list or ownerRef fails, honouring the quoted-cue guard shared with D6); stories:ownerRefResolves (over delta plus tree for ownerRef targets; every ownerRef { tacId, field: interfaces[<name>] } on an AC resolves on that TAC, else fails with 'ownerRef does not resolve'); crosscut:catalogue (over tree; for every REQ in scope, every applicable (reqShape, concern) pair via src/define/concern-catalogue.js has a concern-ledger entry keyed <REQ>:<concern> with disposition applied or waived, else fails <REQ>:<concern>); skeleton:standardsCited (over tree; every manifest.standards[].slug is cited in a REQ rationale or an ADR, or waived by a concern-ledger entry keyed standards:<pack>, else fails standards:<pack> with 'uncited and unwaived'). The CHECK_PERSONA and CHECK_QUESTION maps grow in step. parseAcClass is already exported; closedSets re-uses the quoted-cue guard pattern.",
+  "implementsAcIds": [
+    "AC-17405-1",
+    "AC-17405-2",
+    "AC-17405-3",
+    "AC-17405-4",
+    "AC-17405-5"
+  ],
+  "dependencies": [
+    "CN-753",
+    "CN-756"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-03T13:30:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z"
+}

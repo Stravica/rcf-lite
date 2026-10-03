@@ -260,7 +260,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added US-17404 under
   // REQ-174 (D3 bites: shapes:templateMarkers, shapes:entityJoin,
   // shapes:pathsResolve, ackable(stage), --check shapes exit 4) (201 -> 202).
-  assert.equal(tree.userStories.length, 202);
+  // DEFINE step 3 PR 6 (w-2026-10-03-dave-009) added US-17405 under
+  // REQ-174 (D4 closed-set and ownerRef findings, D5 concern catalogue,
+  // standards citation; --check crosscut exit 4 policy) (202 -> 203).
+  assert.equal(tree.userStories.length, 203);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -511,7 +514,12 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added TS-230 (US-17404
   // D3 bites: 8 TCs on test/query/gates.test.js, test/cli/readiness.test.js
   // and test/cli/freeze.test.js) (170 -> 171).
-  assert.equal(tree.testSuites.length, 171);
+  // DEFINE step 3 PR 6 (w-2026-10-03-dave-009) added TS-231 (US-17405
+  // D4/D5/D2 bites: 10 TCs on test/query/gates.test.js,
+  // test/define/concern-catalogue.test.js, test/cli/readiness.test.js,
+  // test/cli/validate.test.js and test/query/questions-loop.test.js)
+  // (171 -> 172).
+  assert.equal(tree.testSuites.length, 172);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

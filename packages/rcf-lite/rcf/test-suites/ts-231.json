@@ -1,0 +1,90 @@
+{
+  "createdAt": "2026-10-03T13:30:00Z",
+  "updatedAt": "2026-10-03T13:30:00Z",
+  "purpose": "Cover US-17405 (D4/D5/D2 bites, PR 6): the four new checks stories:closedSets, stories:ownerRefResolves, crosscut:catalogue and skeleton:standardsCited each have pass, fail, notApplicable, id and why strings; the concern-catalogue applicability table is validated; --check crosscut exits 4 on an unacknowledged D5 failure and 0 when the freeze record acknowledges define.crosscut at the current tree hash; validate adds no finding for a missing AC class marker.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-17405-1",
+    "AC-17405-2",
+    "AC-17405-3",
+    "AC-17405-4",
+    "AC-17405-5",
+    "AC-17405-6"
+  ],
+  "id": "TS-231",
+  "usId": "US-17405",
+  "title": "DEFINE step 3 PR 6: D4 closed sets and ownerRef findings, D5 concern catalogue, standards citation",
+  "testCases": [
+    {
+      "id": "TC-231-closedsets-cue-without-list",
+      "acId": "AC-17405-1",
+      "description": "An AC description with an enumeration cue (status is one of the following) and no bracketed list or ownerRef fails stories:closedSets with the AC id and why 'enumeration cue without a closed set'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 6, AC-17405-1): closedSets fails an AC with an enumeration cue and no bracketed list or ownerRef"
+    },
+    {
+      "id": "TC-231-closedsets-quoted-cue-guard",
+      "acId": "AC-17405-1",
+      "description": "An AC description that quotes an enumeration cue (e.g. the user types \"status is\" into the search box) does not fail stories:closedSets.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 6, AC-17405-1): closedSets honours the quoted-cue guard shared with D6"
+    },
+    {
+      "id": "TC-231-ownerref-resolves-and-missing",
+      "acId": "AC-17405-2",
+      "description": "An ownerRef { tacId, field: interfaces[loan] } that resolves on that TAC passes stories:ownerRefResolves; interfaces[missing] fails with 'ownerRef does not resolve'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 6, AC-17405-2): ownerRefResolves passes a resolving pointer and fails a missing one"
+    },
+    {
+      "id": "TC-231-crosscut-catalogue-applied-and-waived",
+      "acId": "AC-17405-3",
+      "description": "A persistence REQ with retention applied and timeAndTimezone waived (with a reason) passes crosscut:catalogue; the pair totals cover the full applicability map.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 6, AC-17405-3): crosscut:catalogue passes a persistence REQ with retention applied and timeAndTimezone waived"
+    },
+    {
+      "id": "TC-231-crosscut-catalogue-missing-pair",
+      "acId": "AC-17405-4",
+      "description": "An httpApi REQ with no errorEnvelope entry fails crosscut:catalogue with id <REQ>:errorEnvelope and a why naming the missing pair.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 6, AC-17405-4): crosscut:catalogue fails <REQ>:errorEnvelope when the httpApi REQ has no concern-ledger entry"
+    },
+    {
+      "id": "TC-231-standards-cited-and-waived",
+      "acId": "AC-17405-5",
+      "description": "A registered standards pack cited in an ADR passes skeleton:standardsCited; uncited and unwaived, it fails standards:<pack> with 'uncited and unwaived'; waiver via a concern-ledger entry keyed standards:<pack> also passes.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 6, AC-17405-5): standardsCited passes when cited or waived; fails when neither"
+    },
+    {
+      "id": "TC-231-validate-no-missing-marker-finding",
+      "acId": "AC-17405-6",
+      "description": "rcf define validate (as it stands in this PR) raises no finding for a story whose ACs carry no class marker; decision 10 preserved.",
+      "status": "pending",
+      "testPointer": "test/cli/validate.test.js::validate cli (PR 6, AC-17405-6): no finding is raised for a missing AC class marker"
+    },
+    {
+      "id": "TC-231-cli-check-crosscut-exit-matrix",
+      "acId": "AC-17405-3",
+      "description": "rcf define readiness --check crosscut exits 4 on an unacknowledged D5 failure and 0 when the freeze record acknowledges define.crosscut at the current tree hash.",
+      "status": "pending",
+      "testPointer": "test/cli/readiness.test.js::readiness cli: AC-17405 --check crosscut exits 4 unacked and 0 acked at current hash"
+    },
+    {
+      "id": "TC-231-concern-catalogue-table",
+      "acId": "AC-17405-3",
+      "description": "applicableConcernsFor returns the exact spec section 4 D5 catalogue row: auth for auth/httpApi; errorEnvelope for httpApi/cliCommand; loggingAudit for every shape but other; retention for persistence; performance for httpApi/batch; secrets for auth/externalIntegration; timeAndTimezone for persistence/batch; concurrencyIdempotency for httpApi/persistence.",
+      "status": "pending",
+      "testPointer": "test/define/concern-catalogue.test.js::concern-catalogue (PR 6): applicability table matches spec section 4 D5"
+    },
+    {
+      "id": "TC-231-loop-convergence-engineer-no-po",
+      "acId": "AC-17405-1",
+      "description": "The engineer checks stories:closedSets, stories:ownerRefResolves, crosscut:catalogue and skeleton:standardsCited surface no product-owner failures on the loop fixture from PR 2.",
+      "status": "pending",
+      "testPointer": "test/query/questions-loop.test.js::PR 6 engineer checks surface no product-owner failures on the scripted fixture"
+    }
+  ],
+  "status": "draft"
+}
