@@ -200,15 +200,27 @@ test('AC-18601-7: computeQuestions is pure; every writeBack.command names a regi
   const defineVerbs = Object.keys(HELP_MAP.define);
   for (const entry of q.questions) {
     for (const wb of entry.writeBack) {
-      const m = /^rcf (\w+)(?:\s+(\w+))?/.exec(wb.command);
-      if (!m) continue;
-      // Only validate recognised verb shapes; the profile edit
-      // write-backs start with "edit rcf/.identity/profile.md" and are
-      // deliberately not a verb.
-      const group = m[1];
-      const verb = m[2];
-      if (group === 'define' && verb) {
-        assert.ok(defineVerbs.includes(verb), `writeBack command names unknown define verb: ${wb.command}`);
+      // Every carried command must be composable from one or more
+      // commands separated by '; '. Each piece is either a real rcf
+      // verb (rcf <group> <verb>, with <verb> on the help registry
+      // when <group> is 'define'), or the explicit profile-edit prose
+      // the brief:profile template emits. No piece may carry the bare
+      // literal '...' placeholder (spec §1.4 writeBacks must be
+      // runnable).
+      const pieces = wb.command.split(/;\s+/).map((p) => p.trim()).filter(Boolean);
+      for (const piece of pieces) {
+        assert.ok(
+          !/\b\.\.\.\s/.test(piece) && !/\s\.\.\.(?=;|$|\s--)/.test(piece),
+          `writeBack carries a bare "..." placeholder (not a runnable command): ${piece}`,
+        );
+        if (/^edit\s/.test(piece)) continue;
+        const m = /^rcf (\w+)(?:\s+(\w+))?/.exec(piece);
+        assert.ok(m, `writeBack piece does not start with 'rcf <group>': ${piece}`);
+        const group = m[1];
+        const verb = m[2];
+        if (group === 'define' && verb) {
+          assert.ok(defineVerbs.includes(verb), `writeBack piece names unknown define verb '${verb}': ${piece}`);
+        }
       }
     }
   }
@@ -218,4 +230,41 @@ test('AC-18601-7: computeQuestions is pure; every writeBack.command names a regi
 
 test('PERSONAS is the two accepted persona strings', () => {
   assert.deepEqual([...PERSONAS], ['productOwner', 'engineer']);
+});
+
+// --- Truncation regression (code-review ruling 2026-10-03): with >20
+// failing items in a single check, blocker.ids is capped at 20 by
+// readiness; computeQuestions must still return one question per
+// failing item by reading readiness.stages[].checks[].failing[].
+test('AC-18601-1 regression: a check with 25 failing items yields 25 questions, not 20', () => {
+  const blocker = {
+    stage: 'D2',
+    check: 'skeleton:resolvedBy',
+    persona: 'productOwner',
+    // The capped surface (what readiness exposes today).
+    ids: Array.from({ length: 20 }, (_, i) => `brief:${i + 1}`),
+    question: 'resolvedBy on every statement',
+  };
+  const r = {
+    tree: { currentTreeHash: 'hash' },
+    stages: [{
+      stage: 'D2',
+      state: 'failing',
+      checks: [{
+        name: 'skeleton:resolvedBy',
+        ok: false,
+        persona: 'productOwner',
+        // The full failing list that extractItems must now consult.
+        failing: Array.from({ length: 25 }, (_, i) => ({ id: `brief:${i + 1}` })),
+      }],
+    }],
+    levels: { intentComplete: { ok: false, blockedBy: [blocker] } },
+    personas: { engineer: { blockers: [], nextAction: null } },
+  };
+  const statements = Array.from({ length: 25 }, (_, i) => ({
+    id: i + 1, kind: 'capability', text: `stmt-${i + 1}`, source: `brief.md:${i + 1}`,
+  }));
+  const q = computeQuestions(r, { tree: {}, ledgers: { brief: { statements } }, persona: 'productOwner' });
+  const resolvedByQs = q.questions.filter((x) => x.check === 'skeleton:resolvedBy');
+  assert.equal(resolvedByQs.length, 25, `expected 25 questions, got ${resolvedByQs.length}`);
 });

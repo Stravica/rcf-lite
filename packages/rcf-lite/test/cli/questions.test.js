@@ -131,3 +131,18 @@ test('questions cli: --help prints the usage block', async () => {
   assert.match(r.stdout, /Usage: rcf define questions/);
   assert.match(r.stdout, /--persona <who>/);
 });
+
+// --- Termination regression (code-review ruling 2026-10-03): the text
+// renderer must only print the "Intent-complete: yes" verdict when
+// `result.ok` is true. --stage selecting a stage with zero remaining
+// questions while another stage still fails must stay in the
+// "not yet" branch (spec §1.4: the verdict is levels.intentComplete.ok).
+test('text mode under --stage with zero remaining in that stage but overall-fail must not print complete', async () => {
+  const cwd = await scratchProject();
+  // Fresh init: brief is empty (D1 brief:sinceFreeze fails), so the
+  // tree is not ok. Narrow --stage to one that currently has no
+  // failing items (D7 decisions: no decisions on a fresh tree).
+  const r = await run(['--stage', 'decisions'], cwd);
+  assert.equal(r.code, 0);
+  assert.doesNotMatch(r.stdout, /Intent-complete: yes/i, `false-positive verdict under --stage: ${r.stdout}`);
+});
