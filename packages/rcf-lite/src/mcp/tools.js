@@ -43,6 +43,14 @@ import {
 } from '../query/index.js';
 import { assembleBundle } from '../build/index.js';
 import { hasAgentMarker, SETUP_FUNNEL_INSTRUCTION } from '../setup/agent-setup.js';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
+import { computeReadiness } from '../query/readiness.js';
+import { computeQuestions, PERSONAS as QUESTIONS_PERSONAS } from '../query/questions.js';
+import { loadFreezeRecord } from '../define/freeze-record.js';
+import { loadAllLedgers, LedgerError } from '../define/ledgers.js';
+import { STAGE_ALIASES } from '../query/gates.js';
+import { main as ledgerCliMain } from '../cli/ledger.js';
 
 // ---------------------------------------------------------------------------
 // Shared output-schema fragments
@@ -448,6 +456,93 @@ const BUILD_OUTPUT_SCHEMA = {
   ],
 };
 
+// REQ-186 (spec 2026-10-01 §1.2, §6): the questions object is wide
+// and recursive in its context field. The output schema stays loose
+// (an object with no additionalProperties: false) so the per-question
+// context carries any of statement, suggestions, decision, reqId,
+// profileField without a schema break per template addition.
+const QUESTIONS_OUTPUT_SCHEMA = {
+  type: 'object',
+  properties: {
+    treeHash: { type: ['string', 'null'] },
+    persona: { type: 'string', enum: ['productOwner', 'engineer'] },
+    level: { type: 'string', enum: ['intent', 'build'] },
+    ok: { type: 'boolean' },
+    remaining: { type: 'integer' },
+    groups: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          key: { type: 'string' },
+          label: { type: 'string' },
+          questionIds: { type: 'array', items: { type: 'string' } },
+        },
+        required: ['key', 'label', 'questionIds'],
+      },
+    },
+    questions: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          stage: { type: 'string' },
+          check: { type: 'string' },
+          itemId: { type: 'string' },
+          heading: { type: 'string' },
+          ask: { type: 'string' },
+          context: { type: 'object' },
+          answerKinds: { type: 'array', items: { type: 'string' } },
+          writeBack: {
+            type: 'array',
+            items: {
+              type: 'object',
+              properties: {
+                when: { type: 'string' },
+                command: { type: 'string' },
+              },
+              required: ['when', 'command'],
+            },
+          },
+          blocks: { type: 'string', enum: ['intent', 'build'] },
+        },
+        required: ['id', 'stage', 'check', 'itemId', 'heading', 'ask', 'answerKinds', 'writeBack', 'blocks'],
+      },
+    },
+    optional: {
+      type: 'array',
+      items: {
+        type: 'object',
+        properties: {
+          id: { type: 'string' },
+          ask: { type: 'string' },
+          blocks: { type: 'string', enum: ['build'] },
+        },
+        required: ['id', 'ask', 'blocks'],
+      },
+    },
+    engineer: {
+      type: 'object',
+      properties: {
+        blockers: { type: 'integer' },
+        nextAction: { type: ['object', 'null'] },
+      },
+    },
+  },
+  required: ['treeHash', 'persona', 'level', 'ok', 'remaining', 'groups', 'questions', 'optional'],
+};
+
+// REQ-186: `rcf_define_readiness` returns the readiness envelope.
+// Kept loose so new fields on readiness do not force an output-schema
+// bump; the parity test over the verb's --json locks the actual shape.
+const READINESS_OUTPUT_SCHEMA = { type: 'object' };
+
+// REQ-186: `rcf_define_ledger` wraps the four-ledger handler.
+// Return shape depends on the verb, so stays loose and the handler
+// echoes the verb's own JSON envelope verbatim.
+const LEDGER_OUTPUT_SCHEMA = { type: 'object' };
+
 // ---------------------------------------------------------------------------
 // Tool definitions (D5-D7, D17)
 // ---------------------------------------------------------------------------
@@ -661,6 +756,67 @@ const DEFINITIONS = [
     outputSchema: withErrorPayload(BUILD_OUTPUT_SCHEMA),
     annotations: { readOnlyHint: true },
   },
+  {
+    name: 'rcf_define_questions',
+    title: 'Persona question set for the intent-complete loop',
+    description: 'Returns one plain question per failing product-owner (or engineer) check with its exact write-back command. The compute is pure: no file under rcf/ is created or modified. Answers land through the write-back the question carries, then readiness recomputes; the loop ends when levels.intentComplete.ok is true. Method: a product-owner session starts with rcf_define_questions {persona: "productOwner"} and ends at the empty question set.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        persona: { type: 'string', enum: ['productOwner', 'engineer'], description: 'Defaults to the register marker in rcf/.identity/profile.md, else productOwner.' },
+        stage: { type: 'string', description: 'Narrow to one stage (D1..D8 or short name).' },
+        limit: { type: 'integer', minimum: 0, description: 'Cap questions[] length; `remaining` still counts every matching item.' },
+      },
+      additionalProperties: false,
+    },
+    outputSchema: withErrorPayload(QUESTIONS_OUTPUT_SCHEMA),
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'rcf_define_readiness',
+    title: 'DEFINE stage-gate readiness view',
+    description: 'Returns the DEFINE readiness object: freezeable verdict, every stage/check state, levels (intentComplete, readyToBuild), personas (productOwner, engineer), delta, coverage and open decisions. The same object the Readiness tab consumes and the verb\'s --json prints. Writes nothing.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        level: { type: 'string', enum: ['intent', 'build'], description: 'Informational echo on the envelope _meta; does not filter the compute.' },
+        check: { type: 'string', description: 'Narrow the text summary to one stage (D1..D8 or short name). The structuredContent still carries every stage.' },
+      },
+      additionalProperties: false,
+    },
+    outputSchema: withErrorPayload(READINESS_OUTPUT_SCHEMA),
+    annotations: { readOnlyHint: true },
+  },
+  {
+    name: 'rcf_define_ledger',
+    title: 'Sidecar-ledger CRUD under rcf/define/',
+    description: 'Thin wrapper over the `rcf define ledger` handler. verb is one of add | update | resolve | list over one of the four ledgers (brief | decisions | concerns | probes). The command\'s JSON envelope is returned as structuredContent.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        name: { type: 'string', enum: ['brief', 'decisions', 'concerns', 'probes'] },
+        verb: { type: 'string', enum: ['add', 'update', 'resolve', 'list'] },
+        id: { type: 'integer', minimum: 1, description: 'Required for update and resolve: the statement id.' },
+        text: { type: 'string' },
+        kind: { type: 'string' },
+        source: { type: 'string' },
+        from: { type: 'string', description: 'Path to a statement file (brief add --from).' },
+        resolvedBy: { type: 'string', description: 'Closed-grammar pointer: REQ-nnn | TAD.entity:<name> | PRD.user:<name> | TAD.system:<name> | TAC-nnnn | omitted:<reason>.' },
+        answer: { type: 'string' },
+        question: { type: 'string' },
+        option: { type: 'array', items: { type: 'string' }, description: 'Letter-prefixed decision options, e.g. ["a:accept", "b:reject"].' },
+        default: { type: 'string', description: 'Decision default option letter.' },
+        blocks: { type: 'string', description: 'Decision blocks selector, e.g. "brief:7".' },
+        scan: { type: 'boolean' },
+        findings: { type: 'string' },
+        dryRun: { type: 'boolean' },
+      },
+      required: ['name', 'verb'],
+      additionalProperties: false,
+    },
+    outputSchema: withErrorPayload(LEDGER_OUTPUT_SCHEMA),
+    annotations: { destructiveHint: false },
+  },
 ];
 
 // ---------------------------------------------------------------------------
@@ -847,6 +1003,76 @@ function okResult(envelope) {
     content: [{ type: 'text', text: JSON.stringify(envelope, null, 2) }],
     structuredContent: envelope,
   };
+}
+
+/**
+ * Read `rcf/.identity/profile.md` for the questions / readiness
+ * handlers. Returns null on any error (absence is a finding, not a
+ * tool error).
+ */
+async function readProfileTextForMcp(projectRoot) {
+  try {
+    return await readFile(join(projectRoot, 'rcf', '.identity', 'profile.md'), 'utf8');
+  } catch {
+    return null;
+  }
+}
+
+/**
+ * Pick the first register marker that appears in the profile text.
+ */
+function pickRegisterForMcp(text) {
+  if (typeof text !== 'string' || text.length === 0) return 'unstated';
+  const markers = ['productOwner', 'engineer', 'unstated'];
+  let best = null;
+  let bestIdx = Infinity;
+  for (const m of markers) {
+    const idx = text.indexOf(m);
+    if (idx === -1) continue;
+    if (idx < bestIdx) { bestIdx = idx; best = m; }
+  }
+  return /** @type {any} */ (best) ?? 'unstated';
+}
+
+/**
+ * Translate the MCP tool arguments for `rcf_define_ledger` into an
+ * argv that `rcf define ledger` understands. Shared vocabulary and
+ * `--json` always appended so the handler can round-trip the envelope.
+ */
+function buildLedgerArgvFromMcp(args) {
+  const argv = [args.name, args.verb];
+  if (args.verb === 'update' || args.verb === 'resolve') {
+    argv.push(String(args.id ?? ''));
+  }
+  const pushFlag = (name, value) => {
+    if (value === undefined || value === null) return;
+    argv.push(`--${name}`);
+    argv.push(String(value));
+  };
+  const pushBool = (name, value) => {
+    if (value === true) argv.push(`--${name}`);
+    else if (value === false) argv.push(`--no-${name}`);
+  };
+  pushFlag('text', args.text);
+  pushFlag('kind', args.kind);
+  pushFlag('source', args.source);
+  pushFlag('from', args.from);
+  pushFlag('resolved-by', args.resolvedBy);
+  pushFlag('answer', args.answer);
+  pushFlag('question', args.question);
+  pushFlag('default', args.default);
+  pushFlag('blocks', args.blocks);
+  pushFlag('findings', args.findings);
+  if (Array.isArray(args.option)) {
+    for (const o of args.option) {
+      argv.push('--option');
+      argv.push(String(o));
+    }
+  }
+  if (args.scan !== undefined) pushBool('scan', args.scan);
+  if (args.dryRun) argv.push('--dry-run');
+  argv.push('--json');
+  return argv;
 }
 
 /**
@@ -1118,6 +1344,112 @@ export function createToolRegistry({ projectRoot, log }) {
       // strict gate here: blockedBy carries the fact as data
       // (reconciliation carry 2, OQ-P7-8 posture).
       return okResult({ ok: true, mode: 'bundle', ...bundle });
+    },
+
+    rcf_define_readiness: async (args) => {
+      const { tree, errors } = await walkTree({ projectRoot });
+      const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
+      const validateErrors = [...errors, ...staleErrors];
+      // Validate --check / --level inputs the same way the CLI does.
+      let checkStage = null;
+      if (typeof args.check === 'string') {
+        if (args.check === 'all') checkStage = 'all';
+        else if (STAGE_ALIASES[args.check]) checkStage = STAGE_ALIASES[args.check];
+        else return usageErrorResult(`readiness: unknown --check '${args.check}'`);
+      }
+      const [freeze, ledgers, testPointers, profileText] = await Promise.all([
+        loadFreezeRecord({ projectRoot }),
+        loadAllLedgers({ projectRoot }),
+        resolveTestPointers({ projectRoot, tree }),
+        readProfileTextForMcp(projectRoot),
+      ]);
+      const result = computeReadiness(tree, {
+        freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors,
+      });
+      const level = args.level ?? null;
+      return okResult({ ...result, _meta: { checkStage, level } });
+    },
+
+    rcf_define_questions: async (args) => {
+      const persona = args.persona;
+      if (persona !== undefined && !QUESTIONS_PERSONAS.includes(persona)) {
+        return usageErrorResult(`questions: unknown persona '${persona}' (expected one of ${QUESTIONS_PERSONAS.join(' | ')})`);
+      }
+      let stageFilter = null;
+      if (typeof args.stage === 'string') {
+        if (!STAGE_ALIASES[args.stage]) {
+          return usageErrorResult(`questions: unknown --stage '${args.stage}'`);
+        }
+        stageFilter = STAGE_ALIASES[args.stage];
+      }
+      const { tree, errors } = await walkTree({ projectRoot });
+      const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
+      const validateErrors = [...errors, ...staleErrors];
+      const [freeze, ledgers, testPointers, profileText] = await Promise.all([
+        loadFreezeRecord({ projectRoot }),
+        loadAllLedgers({ projectRoot }),
+        resolveTestPointers({ projectRoot, tree }),
+        readProfileTextForMcp(projectRoot),
+      ]);
+      let resolvedPersona = persona;
+      if (resolvedPersona === undefined) {
+        resolvedPersona = pickRegisterForMcp(profileText) === 'engineer' ? 'engineer' : 'productOwner';
+      }
+      const readiness = computeReadiness(tree, {
+        freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors,
+      });
+      const result = computeQuestions(readiness, {
+        tree, ledgers, profileText, persona: resolvedPersona,
+      });
+      let filtered = result.questions;
+      if (stageFilter) filtered = filtered.filter((q) => q.stage === stageFilter);
+      const remaining = filtered.length;
+      if (Number.isInteger(args.limit) && args.limit >= 0) {
+        filtered = filtered.slice(0, args.limit);
+      }
+      const groupMap = new Map();
+      for (const q of filtered) {
+        const key = q.context?.statement?.source ?? q.context?.sourceSpan ?? 'tree';
+        const existing = groupMap.get(key) ?? { key, label: result.groups.find((g) => g.key === key)?.label ?? key, questionIds: [] };
+        existing.questionIds.push(q.id);
+        groupMap.set(key, existing);
+      }
+      return okResult({
+        ...result,
+        questions: filtered,
+        groups: [...groupMap.values()],
+        remaining,
+      });
+    },
+
+    rcf_define_ledger: async (args) => {
+      const argv = buildLedgerArgvFromMcp(args);
+      // Capture the ledger CLI's stdout/stderr; the handler returns JSON
+      // via --json which we parse back for structuredContent.
+      let out = '';
+      let err = '';
+      const stdout = { write: (s) => { out += s; } };
+      const stderr = { write: (s) => { err += s; } };
+      let exitCode;
+      try {
+        exitCode = await ledgerCliMain(argv, { stdout, stderr, cwd: projectRoot });
+      } catch (e) {
+        return unexpectedFailureResult({ kind: 'ioFailure', message: /** @type {Error} */ (e).message, stack: /** @type {Error} */ (e).stack }, log);
+      }
+      if (exitCode === 2) {
+        return usageErrorResult(`ledger: ${err.trim() || 'usage error'}`);
+      }
+      if (exitCode !== 0) {
+        return errorResult([{ kind: 'ioFailure', message: `ledger ${args.verb} failed: ${err.trim() || out.trim()}`, documentId: null, field: null, rule: null }]);
+      }
+      // Try to parse JSON; if the verb printed text, pass the text back.
+      let envelope;
+      try {
+        envelope = JSON.parse(out);
+      } catch {
+        envelope = { ok: true, name: args.name, verb: args.verb, text: out };
+      }
+      return okResult(envelope);
     },
   };
 
