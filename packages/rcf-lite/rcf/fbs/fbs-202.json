@@ -43,9 +43,9 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 202,
-  "executionStatus": "inProgress",
+  "executionStatus": "notStarted",
   "title": "DEFINE step 3 PRs 1-2: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2)",
-  "summary": "Carry the ACs for PRs 1 and 2 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. Chain-first commits landed before the code in each PR. PR 1 tests ride TS-215; PR 2 tests ride TS-226.",
+  "summary": "Carry the ACs for PRs 1 and 2 of the DEFINE step 3 spec (2026-10-01). PR 1: statement-file markers in parseBriefFromFile ([kind] and (source: ...)), the brief add --scan / --no-scan / --findings / --dry-run / --json wiring, the new ledger <name> update <id> subverb, and the resolvedBy closed pointer grammar validated by D2 (title-hit fallback dropped). PR 2: computeQuestions pure compute over readiness per persona; `rcf define questions` verb; three MCP tools (rcf_define_questions, rcf_define_readiness, rcf_define_ledger); the define-intent guidance file and the rcf_define_intent + rcf_define_intake prompts; two new managed-block rules. Chain-first commits landed before the code in each PR. FBS stays notStarted until the CN axis mints Code Nodes against the 36 ACs across PRs 1 and 2 (PR 1 convention; CN axis is a dedicated follow-up). PR 1 tests ride TS-215; PR 2 tests ride TS-226.",
   "dependsOnFbsIds": [
     "FBS-195",
     "FBS-201"

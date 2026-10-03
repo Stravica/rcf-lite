@@ -32,126 +32,126 @@
       "acId": "AC-18601-1",
       "description": "On a fixture failing brief:openQuestions, skeleton:resolvedBy and stories:reqHasUs, computeQuestions(persona=productOwner) returns one entry per failing item with id, stage, check, itemId, heading, ask, answerKinds, writeBack and blocks intent.",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-1 one question per failing PO item"
+      "testPointer": "test/query/questions.test.js::AC-18601-1: openQuestions + resolvedBy + reqHasUs failing items each produce one question with the full shape"
     },
     {
       "id": "TC-226-q-deterministic",
       "acId": "AC-18601-2",
       "description": "Two consecutive computeQuestions runs on the same tree return deep-equal questions[] ordered D1, D2, D4, D7 then by source span.",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-2 ids deterministic and ordered"
+      "testPointer": "test/query/questions.test.js::AC-18601-2: two runs are deep-equal and ordered D1, D2, D4, D7 then by source span"
     },
     {
       "id": "TC-226-q-optional-decisions",
       "acId": "AC-18601-3",
       "description": "An open decision with two options and a default appears in optional[] with blocks build and not in questions[].",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-3 open decisions are optional, not blocking"
+      "testPointer": "test/query/questions.test.js::AC-18601-3: a two-option decision with a default appears in optional[], not questions[]"
     },
     {
       "id": "TC-226-q-empty-when-ok",
       "acId": "AC-18601-4",
       "description": "On a tree where levels.intentComplete.ok, computeQuestions(persona=productOwner) returns ok:true and empty questions[].",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-4 empty questions when intentComplete.ok"
+      "testPointer": "test/query/questions.test.js::AC-18601-4: ok tree returns ok:true and empty questions[]"
     },
     {
       "id": "TC-226-q-engineer-persona",
       "acId": "AC-18601-5",
       "description": "computeQuestions(persona=engineer) returns one entry per failing engineer item in failing stages with blocks build.",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-5 engineer persona"
+      "testPointer": "test/query/questions.test.js::AC-18601-5: persona engineer returns engineer blockers in failing stages, blocks: build"
     },
     {
       "id": "TC-226-q-usage-error",
       "acId": "AC-18601-6",
       "description": "computeQuestions throws a usage error naming productOwner and engineer when given any other persona value.",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-6 unknown persona throws"
+      "testPointer": "test/query/questions.test.js::AC-18601-6: unknown persona throws naming the accepted values"
     },
     {
       "id": "TC-226-q-writes-nothing",
       "acId": "AC-18601-7",
       "description": "computeQuestions never creates or modifies a file under rcf/ (mtime guard); every writeBack.command names a verb registered in the CLI help.",
       "status": "pending",
-      "testPointer": "test/query/questions.test.js::computeQuestions: AC-18601-7 writes nothing and writeBack verbs resolve"
+      "testPointer": "test/query/questions.test.js::AC-18601-7: computeQuestions is pure; every writeBack.command names a registered verb"
     },
     {
       "id": "TC-226-cli-json",
       "acId": "AC-18602-1",
       "description": "rcf define questions --json on a failing tree prints the computeQuestions object to stdout and exits 0.",
       "status": "pending",
-      "testPointer": "test/cli/questions.test.js::rcf define questions: AC-18602-1 --json shape and exit 0"
+      "testPointer": "test/cli/questions.test.js::AC-18602-1: --json on a failing tree prints the questions object and exits 0"
     },
     {
       "id": "TC-226-cli-persona-default",
       "acId": "AC-18602-2",
       "description": "Without --persona, the verb picks engineer on a profile whose register is engineer, else productOwner.",
       "status": "pending",
-      "testPointer": "test/cli/questions.test.js::rcf define questions: AC-18602-2 persona default from profile"
+      "testPointer": "test/cli/questions.test.js::AC-18602-2: persona defaults from profile register"
     },
     {
       "id": "TC-226-cli-stage-limit",
       "acId": "AC-18602-3",
       "description": "--stage skeleton --limit 2 caps questions[] to two D2 entries and reports remaining counting every D2 item.",
       "status": "pending",
-      "testPointer": "test/cli/questions.test.js::rcf define questions: AC-18602-3 --stage and --limit"
+      "testPointer": "test/cli/questions.test.js::AC-18602-3: --stage brief --limit 1 caps the output but keeps remaining honest"
     },
     {
       "id": "TC-226-mcp-parity",
       "acId": "AC-18602-4",
       "description": "MCP tool rcf_define_questions returns structuredContent deep-equal to the verb's --json output on the same tree.",
       "status": "pending",
-      "testPointer": "test/mcp/define-questions.test.js::rcf_define_questions: AC-18602-4 MCP parity with CLI"
+      "testPointer": "test/mcp/define-questions.test.js::AC-18602-4: rcf_define_questions structuredContent deep-equals the verb --json"
     },
     {
       "id": "TC-226-cli-usage-persona",
       "acId": "AC-18602-5",
       "description": "--persona architect exits 2 with the usage line naming productOwner and engineer.",
       "status": "pending",
-      "testPointer": "test/cli/questions.test.js::rcf define questions: AC-18602-5 unknown persona exits 2"
+      "testPointer": "test/cli/questions.test.js::AC-18602-5: --persona architect exits 2 naming productOwner and engineer"
     },
     {
       "id": "TC-226-cli-writes-nothing",
       "acId": "AC-18602-6",
       "description": "No file under rcf/ is created or modified during any invocation of rcf define questions.",
       "status": "pending",
-      "testPointer": "test/cli/questions.test.js::rcf define questions: AC-18602-6 writes nothing under rcf"
+      "testPointer": "test/cli/questions.test.js::AC-18602-6: questions writes nothing under rcf/"
     },
     {
       "id": "TC-226-loop-convergence",
       "acId": "AC-18603-1",
       "description": "Scripted loop fixture: applying each writeBack and recomputing drives questions count strictly down each turn and to zero.",
       "status": "pending",
-      "testPointer": "test/query/questions-loop.test.js::loop: AC-18603-1 convergence to zero"
+      "testPointer": "test/query/questions-loop.test.js::AC-18603-1: scripted loop converges strictly to zero within a bounded number of turns"
     },
     {
       "id": "TC-226-loop-new-req",
       "acId": "AC-18603-2",
       "description": "A statement resolved to a new REQ carrying description and domain passes skeleton:reqIntent and raises stories:reqHasUs once.",
       "status": "pending",
-      "testPointer": "test/query/questions-loop.test.js::loop: AC-18603-2 new REQ carries intent"
+      "testPointer": "test/query/questions-loop.test.js::AC-18603-2: a new REQ with description and domain passes reqIntent and asks reqHasUs once"
     },
     {
       "id": "TC-226-loop-l1-draft-stable",
       "acId": "AC-18603-3",
       "description": "At L1, adding [draft] entities, TAC stubs and interfaces leaves intentComplete.ok true and the PO question set empty.",
       "status": "pending",
-      "testPointer": "test/query/questions-loop.test.js::loop: AC-18603-3 L1 is stable under draft adds"
+      "testPointer": "test/query/questions-loop.test.js::AC-18603-3: at L1 adding engineer-only draft entities keeps the PO question set empty"
     },
     {
       "id": "TC-226-loop-decision-wellformed",
       "acId": "AC-18603-4",
       "description": "An openQuestion promoted to a decision with one option and no default makes decisions:wellFormed ask once and brief:openQuestions pass.",
       "status": "pending",
-      "testPointer": "test/query/questions-loop.test.js::loop: AC-18603-4 decision wellFormed subsumes openQuestion"
+      "testPointer": "test/query/questions-loop.test.js::AC-18603-4: an openQuestion promoted to a one-option decision asks decisions:wellFormed once"
     },
     {
       "id": "TC-226-loop-engineer-isolation",
       "acId": "AC-18603-5",
       "description": "No product-owner check changes from ok to failing after an engineer-only edit.",
       "status": "pending",
-      "testPointer": "test/query/questions-loop.test.js::loop: AC-18603-5 engineer edits do not re-open PO loop"
+      "testPointer": "test/query/questions-loop.test.js::AC-18603-5: an engineer-only edit never changes the PO question set"
     }
   ],
   "status": "draft"
