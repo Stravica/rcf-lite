@@ -1,80 +1,32 @@
 {
   "slug": "object-storage-s3",
   "probeName": "event-secrecy",
-  "runAt": "2026-09-11T13:14:28.067Z",
+  "runAt": "2026-09-06T18:42:15.801Z",
   "engine": {
     "kind": "s3",
-    "vendor": "minio",
-    "endpointHost": "localhost:47210",
-    "healthLive": {
-      "ok": true,
-      "httpStatus": 200,
-      "responseTimeMs": 13,
-      "endpoint": "http://localhost:47210/minio/health/live"
-    }
+    "image": "minio/minio",
+    "healthy": true
   },
   "results": [
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "every event carries only whitelisted fields (event,ts,key,size,contentType,ttl,endpointHost,bucketName)",
-      "evidence": {
-        "whitelist": [
-          "event",
-          "ts",
-          "key",
-          "size",
-          "contentType",
-          "ttl",
-          "endpointHost",
-          "bucketName"
-        ],
-        "nonWhitelistedFields": [],
-        "eventCount": 4
-      }
+      "detail": "every event carries only whitelisted fields (event,ts,key,size,contentType,ttl,endpointHost,bucketName)"
     },
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "no forbidden PII field name appeared on any event",
-      "evidence": {
-        "forbiddenFieldNames": [
-          "userId",
-          "ssn",
-          "dob",
-          "email",
-          "body",
-          "bodyBytes",
-          "bodyChecksum"
-        ],
-        "foundForbidden": [],
-        "eventCount": 4
-      }
+      "detail": "no forbidden PII field name appeared on any event"
     },
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "no event value contained the PII fixture text PII-FIXTURE-DO-NOT-LOG",
-      "evidence": {
-        "piiFixtureLiteral": "PII-FIXTURE-DO-NOT-LOG",
-        "leakSites": [],
-        "eventCount": 4
-      }
+      "detail": "no event value contained the PII fixture text PII-FIXTURE-DO-NOT-LOG"
     },
     {
       "anchorAcId": "AC-28105-1",
       "verdict": "pass",
-      "detail": "objectPut carried the key users/1234/passport.jpg as an opaque string; no userId extraction",
-      "evidence": {
-        "expectedKey": "users/1234/passport.jpg",
-        "objectPutEvent": {
-          "event": "objectPut",
-          "ts": 1789132468063,
-          "key": "users/1234/passport.jpg",
-          "size": 36,
-          "contentType": "image/jpeg"
-        }
-      }
+      "detail": "objectPut carried the key users/1234/passport.jpg as an opaque string; no userId extraction"
     }
   ],
   "aggregateVerdict": "pass"

@@ -1,120 +1,19 @@
 {
   "slug": "object-storage-s3",
   "probeName": "r2-real-account-smoke",
-  "runAt": "2026-09-11T13:18:46.089Z",
+  "runAt": "2026-09-06T18:42:15.875Z",
   "engine": {
     "kind": "s3",
-    "vendor": "cloudflare-r2",
-    "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com",
-    "listBuckets": {
-      "ok": true,
-      "httpStatus": 200,
-      "bucketCount": 0,
-      "responseTimeMs": 434
-    }
+    "image": "cloudflare-r2",
+    "healthy": true
   },
   "results": [
     {
       "anchorAcId": "AC-28108-1",
       "verdict": "pass",
-      "detail": "scratch bucket qa-e-s3-la6l2f present in ListBuckets after CreateBucket (positive inventory diff)",
-      "evidence": {
-        "scratchBucket": "qa-e-s3-la6l2f",
-        "seenAfterCreate": true,
-        "bucketCount": 1,
-        "createBucketHttpStatus": 200
-      }
-    },
-    {
-      "anchorAcId": "AC-28108-1",
-      "verdict": "pass",
-      "detail": "R2 round-trip byte-equal against the scratch bucket qa-e-s3-la6l2f through the shipped facade; putObject returned size=1024, getObject body length=1024",
-      "evidence": {
-        "scratchBucket": "qa-e-s3-la6l2f",
-        "key": "qa-e-s3/r2-smoke/1789132724366-zzd4xhc5",
-        "putReturnedSize": 1024,
-        "getSize": 1024,
-        "byteEqual": true,
-        "objectPutEvent": {
-          "event": "objectPut",
-          "ts": 1789132724725,
-          "key": "qa-e-s3/r2-smoke/1789132724366-zzd4xhc5",
-          "size": 1024,
-          "contentType": "application/octet-stream"
-        }
-      }
-    },
-    {
-      "anchorAcId": "AC-28108-1",
-      "verdict": "pass",
-      "detail": "object inventory diff proves create+delete: key present before delete, absent after (listObjects returned 1 then 0 keys)",
-      "evidence": {
-        "scratchBucket": "qa-e-s3-la6l2f",
-        "key": "qa-e-s3/r2-smoke/1789132724366-zzd4xhc5",
-        "seenBefore": true,
-        "seenAfter": false,
-        "keysBeforeCount": 1,
-        "keysAfterCount": 0
-      }
-    },
-    {
-      "anchorAcId": "AC-28108-1",
-      "verdict": "pass",
-      "detail": "scratch bucket qa-e-s3-la6l2f deleted and confirmed absent from post-run ListBuckets",
-      "evidence": {
-        "teardown": {
-          "deleteObject": {
-            "key": "qa-e-s3/r2-smoke/1789132724366-zzd4xhc5",
-            "ok": true
-          },
-          "deleteBucket": {
-            "bucket": "qa-e-s3-la6l2f",
-            "ok": true,
-            "httpStatus": 204
-          },
-          "bucketAbsentAfter": {
-            "ok": true,
-            "bucketCount": 0
-          }
-        }
-      }
+      "detail": "accountBound: skipped (no CI_HAS_CLOUDFLARE_ACCOUNT)",
+      "accountBoundSkipped": true
     }
   ],
-  "aggregateVerdict": "pass",
-  "extra": {
-    "evidence": {
-      "endpointHostRedacted": "[account-id].r2.cloudflarestorage.com",
-      "scratchBucket": "qa-e-s3-la6l2f",
-      "envDeclared": [
-        "CI_HAS_CLOUDFLARE_ACCOUNT",
-        "R2_ACCOUNT_ID",
-        "R2_BUCKET",
-        "S3_ACCESS_KEY_ID",
-        "S3_SECRET_ACCESS_KEY"
-      ],
-      "createBucketHttpStatus": 200
-    },
-    "envDeclared": [
-      "CI_HAS_CLOUDFLARE_ACCOUNT",
-      "R2_ACCOUNT_ID",
-      "R2_BUCKET",
-      "S3_ACCESS_KEY_ID",
-      "S3_SECRET_ACCESS_KEY"
-    ],
-    "teardown": {
-      "deleteObject": {
-        "key": "qa-e-s3/r2-smoke/1789132724366-zzd4xhc5",
-        "ok": true
-      },
-      "deleteBucket": {
-        "bucket": "qa-e-s3-la6l2f",
-        "ok": true,
-        "httpStatus": 204
-      },
-      "bucketAbsentAfter": {
-        "ok": true,
-        "bucketCount": 0
-      }
-    }
-  }
+  "aggregateVerdict": "pass"
 }
