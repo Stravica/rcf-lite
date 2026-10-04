@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-04T14:00:00Z",
+  "updatedAt": "2026-10-04T14:00:00Z",
+  "purpose": "Cover US-207 (every viewer text and control colour pair meets WCAG 2.1 AA in both themes): a static CSS-contrast audit parses `src/view/style.css`, resolves the `--sv-*` tokens for the light (`:root`) and dark (`:root[data-theme=\"dark\"]`) blocks, enumerates every rule that sets `color` paired with a reachable background, walks state variants (default, :hover, :focus, :focus-visible, :active, [aria-pressed=true], [aria-selected=true], .is-active, :disabled) and asserts the WCAG 2.1 AA thresholds (>= 4.5:1 for text, >= 3:1 for large text and non-text UI boundaries); the test exits non-zero on any failure, naming selector, state, theme, foreground, background, computed ratio and threshold. Points at test/view/contrast-aa.test.js and the BEFORE/AFTER report at ./output/contrast-report.md captured during the lane work (w-2026-10-04-dave-001).",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-207-1",
+    "AC-207-2"
+  ],
+  "id": "TS-236",
+  "usId": "US-207",
+  "title": "WCAG 2.1 AA contrast audit across the viewer stylesheet, both themes, every state",
+  "testCases": [
+    {
+      "id": "TC-236-aa-enumerates-all-pairs",
+      "acId": "AC-207-1",
+      "description": "The audit parses `src/view/style.css`, enumerates every selector that sets `color` with every reachable background (own rule, ancestor surface token, page background `--sv-paper`) in each state (default, :hover, :focus, :focus-visible, :active, [aria-pressed=true], [aria-selected=true], .is-active, :disabled) in both the light and dark token sets, computes the WCAG relative-luminance ratio and asserts >= 4.5:1 for normal text and >= 3:1 for large text and non-text UI boundaries (WCAG 1.4.3 and 1.4.11).",
+      "status": "pending",
+      "testPointer": "test/view/contrast-aa.test.js::enumerates every color/background pair and asserts WCAG 2.1 AA in both themes (AC-207-1)"
+    },
+    {
+      "id": "TC-236-aa-failure-message",
+      "acId": "AC-207-2",
+      "description": "When a contrast pair is below the threshold, the test failure message names the selector, state, theme, foreground colour, background colour, computed ratio and applied threshold; the test exits non-zero so the suite blocks a merge that drops below AA.",
+      "status": "pending",
+      "testPointer": "test/view/contrast-aa.test.js::failure message names selector/state/theme/fg/bg/ratio/threshold and exits non-zero (AC-207-2)"
+    }
+  ],
+  "status": "draft"
+}

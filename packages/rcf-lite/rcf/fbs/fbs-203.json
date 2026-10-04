@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T19:00:00Z",
-  "updatedAt": "2026-10-03T09:55:00Z",
+  "updatedAt": "2026-10-04T14:00:00Z",
   "acIds": [
     "AC-204-1",
     "AC-204-2",
@@ -25,7 +25,14 @@
     "AC-206-3",
     "AC-206-4",
     "AC-206-5",
-    "AC-206-6"
+    "AC-206-6",
+    "AC-206-7",
+    "AC-206-8",
+    "AC-206-9",
+    "AC-206-10",
+    "AC-205-9",
+    "AC-207-1",
+    "AC-207-2"
   ],
   "fbsId": "FBS-203",
   "prdId": "PRD-001",
@@ -45,7 +52,8 @@
     "adrIds": [
       "ADR-4133-dag-dependency-depth-layout",
       "ADR-4134-index-json-route",
-      "ADR-4136-embedding-host-fixture"
+      "ADR-4136-embedding-host-fixture",
+      "ADR-4137-standalone-theme-persistence"
     ]
   },
   "deliverables": [
@@ -96,5 +104,5 @@
   "riskLevel": "low",
   "domain": "reviewSurface",
   "estimatedSize": "large",
-  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extended the acIds list under this file as AC-205-*, AC-18002-* and AC-206-* arrived. Status stays `inProgress` after PR 9 lands because every TC on this stream's TS docs is still `pending` (not yet flipped to `passing`); flip to `verified` is a separate housekeeping pass once each TC's status is advanced to `passing` against the green suite."
+  "notes": "Single FBS for the whole viewer UI refresh build stream (ruling 2026-10-02): keeping one FBS avoids a sprawl of near-duplicate FBS entries for the same renderer family. PRs 7 to 9 extended the acIds list under this file as AC-205-*, AC-18002-* and AC-206-* arrived; the 2026-10-04 amendment (`w-2026-10-04-dave-001`) adds AC-205-9 (SearchButton hover/focus contrast), AC-206-7..10 (standalone theme control + storage ruling per ADR-4137) and AC-207-1..2 (WCAG 2.1 AA contrast audit) under this file. Status stays `inProgress` while the amendment ships. The amendment also adds `packages/rcf-lite/test/view/contrast-aa.test.js` (static WCAG AA audit over `src/view/style.css`), extends `renderPage` in `html-page.js` with `renderThemeControl()` right of the SearchButton (gated on `data-embed=\"1\"`), extends `page-init.js` with `wireThemeControl()` (persistence under `rcf-view:v1:theme`, embed-mode absent, boot precedence `?theme=` -> stored -> auto) and fixes the dark-mode SearchButton hover and focus states plus every AA failure the audit surfaces in `src/view/style.css`."
 }

@@ -5,10 +5,10 @@
   "version": "0.1.0",
   "status": "draft",
   "title": "wespa's embedding contract is proved by a CI host fixture",
-  "description": "A same-origin test-host fixture served by the viewer's dev server (route `/test-host.html` behind a `--test-host` flag or an env guard; off by default so wespa's proxy allow-list is unaffected) mimics the wespa shell: a 56px header, a resizable sidebar (64px collapsed, 200-400px expanded, user-resizable live via a drag handle), a content pane carrying an `<iframe src=\"./?embed=1&theme=light\">`. The host posts `{ type: \"rcf-view-theme\", theme: \"light\"|\"dark\" }` on a toggle control; it stores no theme itself so a passing run proves the iframe reads the message. The viewer sends no outbound postMessage. Three lints run in the test suite: (1) framing lint (`GET /` returns no `X-Frame-Options`, no CSP `frame-ancestors` that forbids same-origin, and the fixture loads the iframe without a browser error); (2) target lint (no `target=\"_top\"` string in the server-rendered HTML); (3) localStorage namespace lint (every `localStorage.{setItem,getItem,removeItem}` and shared `storage.*` call site in `src/view/**` uses a key starting with `rcf-view:v1:`). See viewer UI refresh design doc section 9 and Dex's wespa requirements of 2026-10-02.",
+  "description": "A same-origin test-host fixture served by the viewer's dev server (route `/test-host.html` behind a `--test-host` flag or an env guard; off by default so wespa's proxy allow-list is unaffected) mimics the wespa shell: a 56px header, a resizable sidebar (64px collapsed, 200-400px expanded, user-resizable live via a drag handle), a content pane carrying an `<iframe src=\"./?embed=1&theme=light\">`. The host posts `{ type: \"rcf-view-theme\", theme: \"light\"|\"dark\" }` on a toggle control; it stores no theme itself so a passing run proves the iframe reads the message. The viewer sends no outbound postMessage. Three lints run in the test suite: (1) framing lint (`GET /` returns no `X-Frame-Options`, no CSP `frame-ancestors` that forbids same-origin, and the fixture loads the iframe without a browser error); (2) target lint (no `target=\"_top\"` string in the server-rendered HTML); (3) localStorage namespace lint (every `localStorage.{setItem,getItem,removeItem}` and shared `storage.*` call site in `src/view/**` uses a key starting with `rcf-view:v1:`). Amended 2026-10-04 (w-2026-10-04-dave-001): the viewer's own three-state theme control (Light|Dark|Auto) sits right of the SearchButton in non-embed mode, is hidden entirely under `embed=1` and in non-embed mode persists its setting under `rcf-view:v1:theme` per ADR-4137 (Dave's storage ruling 2026-10-04). See viewer UI refresh design doc section 9 and section 11 recommendation 6, and Dex's wespa requirements of 2026-10-02.",
   "asA": "Dex integrating the rcf-lite viewer behind wespa's reverse proxy",
-  "iWant": "a CI host fixture that proves the viewer honours the embedding contract and three lints that keep framing, target='_top' and localStorage namespace in place over time",
-  "soThat": "regressions in the embedding contract are caught in the viewer's own suite before they reach wespa",
+  "iWant": "a CI host fixture that proves the viewer honours the embedding contract and three lints that keep framing, target='_top' and localStorage namespace in place over time; and a visible three-state theme control in the standalone viewer that is hidden under embed=1",
+  "soThat": "regressions in the embedding contract are caught in the viewer's own suite before they reach wespa, and standalone viewer users can switch theme without a URL edit",
   "acceptanceCriteria": [
     {
       "id": "AC-206-1",
@@ -39,6 +39,26 @@
       "id": "AC-206-6",
       "description": "[must-not] Given the test-host fixture and the viewer page, when either is loaded, then neither posts any outbound message beyond the host's `rcf-view-theme`; the viewer sends no `postMessage` of any shape, and the test-host adds no new postMessage shape.",
       "testable": true
+    },
+    {
+      "id": "AC-206-7",
+      "description": "[happy] Given the standalone viewer loaded without `embed=1`, when the shell paints, then a three-state theme control (`role=\"group\"`, three buttons Light|Dark|Auto with `aria-pressed`) renders in the header's `.tools` group right of the SearchButton; when a button is pressed, `<html data-theme>` is set to `light` or `dark` (or the attribute is removed for Auto so the `prefers-color-scheme` media query decides) live without a reload, and the pressed button's `aria-pressed` becomes `true` while the others become `false`.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-8",
+      "description": "[happy] Given the standalone (non-embed) viewer, when a theme button is pressed, then the chosen value (`light`, `dark` or `auto`) is written to `localStorage['rcf-view:v1:theme']`; on the next page load the stored value is reapplied; the boot precedence is `?theme=` wins first, then the stored value, then the default (`auto`); and the postMessage `rcf-view-theme` listener still applies live but writes nothing to the stored key.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-9",
+      "description": "[must-not] Given the viewer loaded with `?embed=1`, when the shell paints, then the three-state theme control is absent from the DOM entirely (no `[data-rcf-theme-control]` element rendered, not merely hidden by CSS), and no read or write of `localStorage['rcf-view:v1:theme']` happens on load, on a postMessage theme change, or on any user action inside the viewer.",
+      "testable": true
+    },
+    {
+      "id": "AC-206-10",
+      "description": "[happy] Given the standalone viewer with a stored value `rcf-view:v1:theme = dark`, when the URL carries `?theme=light`, then on load `<html data-theme>` is `light` (the explicit query wins) and the Light button is pressed; the stored value is left as `dark` and is reused on the next load without a `?theme=` query.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -47,8 +67,9 @@
   "tags": [
     "view",
     "embedding",
+    "theme",
     "lint"
   ],
   "createdAt": "2026-10-02T20:00:00Z",
-  "updatedAt": "2026-10-02T20:00:00Z"
+  "updatedAt": "2026-10-04T14:00:00Z"
 }
