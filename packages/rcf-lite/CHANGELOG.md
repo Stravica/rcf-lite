@@ -6,6 +6,25 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+Viewer UI refresh amendments (w-2026-10-04-dave-001) following Baz's
+2026-10-04 review of the shipped 0.30.0 viewer. Three gaps closed in
+one PR on top of origin/main.
+
+### Added
+
+- **Standalone three-state theme control (Light | Dark | Auto).** Server-rendered in the shell header's `.tools` group right of the SearchButton; keyboard-operable (`role="group"`, three `<button type="button">` with `aria-pressed`); applies the chosen theme live via `data-theme` on `<html>`. Non-embed boot precedence: an explicit `?theme=` query parameter wins; then (non-embed only) a stored value under `localStorage['rcf-view:v1:theme']`; then `auto` (the `prefers-color-scheme` media query decides). A `rcf-view-theme` postMessage from the embedding host still applies live in both modes and never writes the stored key. Design doc section 11 recommendation 6; `renderThemeControl()` in `src/view/view-index.js`; wired by `wireThemeControl()` in `src/view/page-init.js`.
+- **ADR-4137 (standalone-theme-persistence).** The one deliberate deviation from the design doc's "storing nothing" line is scoped to the standalone case: in non-embed mode the theme control writes `rcf-view:v1:theme` so the user's choice survives reloads; under `embed=1` the control is absent from the DOM entirely and the key is never read or written (the storage boundary branches on `document.documentElement.getAttribute('data-embed')`). The key sits under the shared `rcf-view:v1:` namespace so the PR 9 localStorage namespace lint stays green.
+- **WCAG 2.1 AA contrast audit test (US-207, TS-236).** A new static-analysis test (`test/view/contrast-aa.test.js`, helpers at `test/view/helpers/contrast.js`) parses `src/view/style.css`, resolves the `--sv-*` custom-property blocks for the light (`:root`) and dark (`:root[data-theme="dark"]`) token sets, enumerates every rule that sets `color` paired with every reachable `background` / `background-color` across state variants (default, `:hover`, `:focus`, `:focus-visible`, `:active`, `[aria-pressed="true"]`, `[aria-selected="true"]`, `.is-active`, `:disabled`), and asserts the WCAG 1.4.3 / 1.4.11 thresholds (`>= 4.5:1` text, `>= 3:1` large text and non-text UI boundaries) in both themes. Pairs that cannot be resolved statically (gradients, rgba over an unknown background) are composited against the three ancestor-surface candidates (`--sv-canvas`, `--sv-surface`, `--sv-raised`) and recorded as approximate. The suite blocks a merge that drops a pair below AA; the failure message names selector, state, theme, foreground, background, computed ratio and applied threshold.
+
+### Fixed
+
+- **FIND SearchButton hover and focus states in dark.** The pre-amendment `.rcf-search-btn:hover` fell back to a hard-coded light grey (`var(--sv-surface-hover, #f0f3f8)`) because `--sv-surface-hover` was never declared; in dark that painted dark ink on light grey and made the button unreadable. The hover + focus-visible + active states now use `--sv-active` with the `--sv-control` border and the `--sv-focus` outline so the pair stays above WCAG AA in both themes. The `.rcf-search-btn` baseline also drops the undeclared `--sv-text` reference in favour of `--sv-ink`.
+- **AA contrast across three stylesheet rules the new audit found below the 4.5:1 floor.** `footer.app-footer .sep`, `.pm-mini-superseded` and `.pm-blueprint-cap-count` all declared `color: var(--sv-control)` on `var(--sv-raised)` (3.51:1 light, 4.21:1 dark). Swapped to `color: var(--sv-muted)` (5.60:1 light, 7.78:1 dark). No new tokens added.
+
+### For embedders
+
+Under `embed=1` nothing changes and no new route is added. `renderPage({ embed: true })` omits the theme-control markup from the server-rendered HTML entirely; the production server does not pass `embed`, and `page-init.js` strips the `[data-rcf-theme-control]` element from the DOM on boot when `?embed=1` is on the URL. The `rcf-view:v1:theme` key is never read or written under embed. The `rcf-view-theme` postMessage contract is unchanged.
+
 
 ## [0.30.0] - 2026-10-03
 
