@@ -297,6 +297,15 @@ export async function main(argv, deps = {}) {
   if (isRcfError(result)) {
     return handleWriterError(result, stderr);
   }
+  // Ruling R1 extension 2026-10-05 (PR 292 follow-up, w-2026-10-05-dave-013):
+  // a same-id replay with identical content exits 0 with 'unchanged';
+  // the file is not rewritten. Mirrors `rcf define ledger add --id`.
+  if (result.status === 'unchanged') {
+    if (!flags.quiet) {
+      stdout.write(`${result.id}: unchanged (${result.filePath})\n`);
+    }
+    return 0;
+  }
   if (options.dryRun) {
     if (!flags.quiet) stdout.write(`[dry-run] would create ${result.id} at ${result.filePath}\n`);
     return 0;
@@ -358,6 +367,10 @@ const ERROR_KINDS = new Set([
   'parseFailure',
   'ioFailure',
   'usage',
+  // Ruling R1 extension 2026-10-05 (PR 292 follow-up): a same-id
+  // create whose would-be body differs from the existing doc refuses
+  // with `kind: 'conflict'` and exits 3 (never silently overwrites).
+  'conflict',
 ]);
 
 function isRcfError(value) {
@@ -412,6 +425,10 @@ function handleWriterError(err, stderr) {
   stderr.write(`[error] ${kind} ${err.message}\n`);
   if (kind === 'usage') return 2;
   if (kind === 'validation' || kind === 'brokenReference') return 3;
+  // Ruling R1 extension 2026-10-05 (PR 292 follow-up): a same-id
+  // create with different content refuses with exit 3; `update` is
+  // the verb for patching.
+  if (kind === 'conflict') return 3;
   if (kind === 'missingFile' || kind === 'parseFailure') return 2;
   return 1;
 }

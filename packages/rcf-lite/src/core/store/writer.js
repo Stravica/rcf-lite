@@ -52,6 +52,60 @@ function canonicalKind(kind) {
   return KIND_ALIASES[kind] ?? kind;
 }
 
+// Writer-owned timestamps are overwritten on every create (createdAt +
+// updatedAt are stamped by assembleBody / nowIso), so the R1-extension
+// idempotency compare ignores them. If every caller-supplied content
+// field matches the existing doc, the replay is a no-op.
+const REPLAY_IGNORE_FIELDS = new Set(['createdAt', 'updatedAt']);
+
+/**
+ * Deep-equality over JSON-shaped values. Pure. Mirrors
+ * `src/define/ledgers.js` `deepEqual` so the R1 extension to `rcf
+ * define create` compares content the same way the add path does.
+ */
+function deepEqual(a, b) {
+  if (Object.is(a, b)) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== typeof b) return false;
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i += 1) if (!deepEqual(a[i], b[i])) return false;
+    return true;
+  }
+  if (typeof a === 'object') {
+    if (typeof b !== 'object' || Array.isArray(b)) return false;
+    const ak = Object.keys(a);
+    const bk = Object.keys(b);
+    if (ak.length !== bk.length) return false;
+    for (const k of ak) if (!deepEqual(a[k], b[k])) return false;
+    return true;
+  }
+  return false;
+}
+
+/**
+ * Compare an on-disk doc body to a would-be create body and return
+ * the sorted list of differing field keys. Ignores writer-owned
+ * timestamps (`createdAt`, `updatedAt`): assembleBody stamps them on
+ * every create, so a byte-identical replay would otherwise show up
+ * as "updatedAt differs". A key present on only one side counts as
+ * differing. R1 extension 2026-10-05 (PR 292 follow-up).
+ *
+ * @param {Record<string, unknown>} existing
+ * @param {Record<string, unknown>} candidate
+ * @returns {string[]}
+ */
+function diffDocFields(existing, candidate) {
+  /** @type {Set<string>} */
+  const differing = new Set();
+  const keys = new Set([...Object.keys(existing ?? {}), ...Object.keys(candidate ?? {})]);
+  for (const key of keys) {
+    if (REPLAY_IGNORE_FIELDS.has(key)) continue;
+    if (!deepEqual(existing?.[key], candidate?.[key])) differing.add(key);
+  }
+  return [...differing];
+}
+
 // ---------------------------------------------------------------------------
 // B5: post-write validation gate
 // ---------------------------------------------------------------------------
@@ -496,16 +550,27 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
     });
   }
 
-  // Allocate id (or take the override).
+  // Allocate id (or take the override). Ruling R1 2026-10-05 extended
+  // under w-2026-10-05-dave-013 (PR 292 follow-up): a replayed turn
+  // that carries `--id <existing>` with identical content is a no-op
+  // that returns `{ status: 'unchanged', body: existing }`; different
+  // content refuses with `kind: 'conflict'` naming the differing
+  // field keys. An unloadable (schema-invalid) doc still refuses
+  // unconditionally -- we cannot compare content against a doc we
+  // failed to load.
   let id = options.id;
+  /** @type {object | null} */
+  let existingDocForReplay = null;
   if (id) {
-    // B5: an unloadable (schema-invalid) doc still occupies its id.
-    if (tree.byId.has(id) || tree.invalidDocs?.has(id)) {
+    if (tree.invalidDocs?.has(id)) {
       return rcfError({
         kind: 'usage',
-        message: `create ${kind}: id ${id} is already taken`,
+        message: `create ${kind}: id ${id} is already taken (file on disk failed to load; repair before replaying)`,
         documentId: id,
       });
+    }
+    if (tree.byId.has(id)) {
+      existingDocForReplay = tree.byId.get(id);
     }
   } else {
     try {
@@ -528,7 +593,7 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
       }
       providedOrder = maxOrder + 1;
     } else if (Number.isInteger(providedOrder)) {
-      const collision = siblings.find((sib) => sib.buildOrder === providedOrder);
+      const collision = siblings.find((sib) => sib.buildOrder === providedOrder && sib.fbsId !== id);
       if (collision) {
         return rcfError({
           kind: 'usage',
@@ -552,6 +617,24 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
     filePath: relPath,
   });
   if (validation) return { ...validation, documentId: id };
+
+  // Ruling R1 extension 2026-10-05 (PR 292 follow-up): if the id
+  // already exists on the loaded tree, compare the would-be body to
+  // the existing doc (ignoring writer-owned timestamps) and either
+  // return `{ status: 'unchanged' }` or refuse with
+  // `kind: 'conflict'` naming the differing field keys.
+  if (existingDocForReplay) {
+    const differing = diffDocFields(existingDocForReplay, finalBody);
+    if (differing.length === 0) {
+      return { id, filePath: relPath, body: existingDocForReplay, status: 'unchanged' };
+    }
+    return rcfError({
+      kind: 'conflict',
+      message: `create ${kind}: id ${id} already exists with different content; differing fields: ${differing.sort().join(', ')}. Use the update verb to patch.`,
+      documentId: id,
+      filePath: relPath,
+    });
+  }
 
   // Cross-link ACs must resolve to existing ACs for fbs / ts.
   if (canonical === 'fbs' || canonical === 'testSuite') {

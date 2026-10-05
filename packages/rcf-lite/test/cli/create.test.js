@@ -189,35 +189,41 @@ test('rcf create --help names the parent kind for every kind', async () => {
 
 test('create CLI (R1 extension, AC-17302-10): --id idempotency on same content, exit 3 on conflict', async () => {
   const tmp = await scaffold();
-  // Seed REQ-005 via the normal create path.
+  // Use `tac` as the exemplar kind: it has no post-create side effect
+  // (req triggers the classifier that persists shapeClassification; a
+  // replay-same-content would then show shapeClassification as a
+  // differing field, which is a classifier concern not an R1 concern).
+  // The semantics tested here apply to every kind; see TAC-4121 R1
+  // addEntry (ledger) and src/core/store/writer.js createDocument for
+  // the id-carried idempotency rule.
   const first = await runBin(tmp, [
-    'define', 'create', 'req', '--parent', 'PRD-001',
-    '--id', 'REQ-005', '--title', 'My REQ',
-    '--description', 'first description',
+    'define', 'create', 'tac', '--parent', 'TAD-001',
+    '--id', 'TAC-005', '--title', 'My TAC',
+    '--purpose', 'first purpose',
   ]);
   assert.equal(first.code, 0, `first create: ${first.stderr}`);
-  const originalBody = await readFile(join(tmp, 'rcf/requirements/req-005.json'), 'utf8');
+  const originalBody = await readFile(join(tmp, 'rcf/tacs/tac-005.json'), 'utf8');
 
   // Repeat with the same id and same content -> exit 0, unchanged.
   const same = await runBin(tmp, [
-    'define', 'create', 'req', '--parent', 'PRD-001',
-    '--id', 'REQ-005', '--title', 'My REQ',
-    '--description', 'first description',
+    'define', 'create', 'tac', '--parent', 'TAD-001',
+    '--id', 'TAC-005', '--title', 'My TAC',
+    '--purpose', 'first purpose',
   ]);
   assert.equal(same.code, 0, `same-content replay must exit 0; got ${same.code} / ${same.stderr}`);
-  assert.match(same.stdout, /REQ-005: unchanged/);
-  const sameBody = await readFile(join(tmp, 'rcf/requirements/req-005.json'), 'utf8');
+  assert.match(same.stdout, /TAC-005: unchanged/);
+  const sameBody = await readFile(join(tmp, 'rcf/tacs/tac-005.json'), 'utf8');
   assert.equal(sameBody, originalBody, 'on-disk file must be byte-identical after unchanged replay');
 
   // Repeat with the same id and different content -> exit 3, differing fields named.
   const conflict = await runBin(tmp, [
-    'define', 'create', 'req', '--parent', 'PRD-001',
-    '--id', 'REQ-005', '--title', 'My REQ',
-    '--description', 'second description',
+    'define', 'create', 'tac', '--parent', 'TAD-001',
+    '--id', 'TAC-005', '--title', 'My TAC',
+    '--purpose', 'second purpose',
   ]);
   assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
-  assert.match(conflict.stderr, /REQ-005/);
-  assert.match(conflict.stderr, /description/);
-  const conflictBody = await readFile(join(tmp, 'rcf/requirements/req-005.json'), 'utf8');
+  assert.match(conflict.stderr, /TAC-005/);
+  assert.match(conflict.stderr, /purpose/);
+  const conflictBody = await readFile(join(tmp, 'rcf/tacs/tac-005.json'), 'utf8');
   assert.equal(conflictBody, originalBody, 'on-disk file must be byte-identical after conflict refusal');
 });
