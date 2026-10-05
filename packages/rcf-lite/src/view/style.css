@@ -810,7 +810,10 @@ footer.app-footer a {
 
 footer.app-footer a:hover { text-decoration: underline; }
 
-footer.app-footer .sep { color: var(--sv-control); }
+/* Baz 2026-10-04 w-2026-10-04-dave-001: separator was `--sv-control`
+   which fell under 4.5:1 in both themes (3.51:1 light, 4.21:1 dark);
+   `--sv-muted` is the "muted text" token designed for this. */
+footer.app-footer .sep { color: var(--sv-muted); }
 
 footer.app-footer .live {
   margin-left: auto;
@@ -1151,7 +1154,10 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 .pm-mini-review { color: var(--sv-link); background: var(--sv-active); border-color: var(--sv-link); }
 .pm-mini-draft { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
 .pm-mini-needsRevision { color: var(--sv-danger); background: var(--sv-dangerbg); border-color: var(--sv-danger); }
-.pm-mini-superseded { color: var(--sv-control); background: var(--sv-raised); border-color: var(--sv-border); }
+/* Baz 2026-10-04 w-2026-10-04-dave-001: `--sv-control` on `--sv-raised`
+   was 3.51:1 light / 4.21:1 dark, below the 4.5:1 floor for small text.
+   `--sv-muted` is the matching muted-text token and clears AA in both. */
+.pm-mini-superseded { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
 
 .pm-bucket-body { padding: 0.75rem 1rem 1rem; }
 .pm-bucket-body .pm-tad-root { margin-bottom: 0.65rem; }
@@ -1225,7 +1231,9 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 }
 .pm-blueprint-cap-count {
   font-weight: 500;
-  color: var(--sv-control);
+  /* Baz 2026-10-04 w-2026-10-04-dave-001: `--sv-control` fell under
+     the 4.5:1 small-text floor; switched to `--sv-muted`. */
+  color: var(--sv-muted);
   margin-left: 0.25rem;
 }
 .pm-blueprint-cap-body { display: block; }
