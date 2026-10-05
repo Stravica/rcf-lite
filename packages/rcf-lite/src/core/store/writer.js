@@ -106,6 +106,39 @@ function diffDocFields(existing, candidate) {
   return [...differing];
 }
 
+/**
+ * Ruling R1 extension (PR 292 follow-up, amended on the PR 293 landing
+ * review): resolve a same-id create replay against the entry already on
+ * the tree. Returns null when the id is free; otherwise the
+ * `{ status: 'unchanged' }` result (identical content, nothing is
+ * written) or a `kind: 'conflict'` refusal naming the differing field
+ * keys (exit 3; never a silent overwrite). Shared by the document path
+ * (createDocument), the inline AC / TC paths and the CN path so every
+ * `rcf define create <kind> --id` follows one rule.
+ *
+ * @param {object} args
+ * @param {string} args.kind - the CLI kind, for the message
+ * @param {string} args.id
+ * @param {object | null | undefined} args.existing - the entry on the tree
+ * @param {object} args.candidate - the would-be entry
+ * @param {string} args.filePath - repo-relative file the entry lives in
+ * @param {object} [args.extra] - extra fields carried on the unchanged result
+ * @returns {object | null}
+ */
+function resolveReplay({ kind, id, existing, candidate, filePath, extra = {} }) {
+  if (!existing) return null;
+  const differing = diffDocFields(existing, candidate);
+  if (differing.length === 0) {
+    return { id, filePath, ...extra, body: existing, status: 'unchanged' };
+  }
+  return rcfError({
+    kind: 'conflict',
+    message: `create ${kind}: id ${id} already exists with different content; differing fields: ${differing.sort().join(', ')}. Use the update verb to patch.`,
+    documentId: id,
+    filePath,
+  });
+}
+
 // ---------------------------------------------------------------------------
 // B5: post-write validation gate
 // ---------------------------------------------------------------------------
@@ -623,18 +656,10 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
   // the existing doc (ignoring writer-owned timestamps) and either
   // return `{ status: 'unchanged' }` or refuse with
   // `kind: 'conflict'` naming the differing field keys.
-  if (existingDocForReplay) {
-    const differing = diffDocFields(existingDocForReplay, finalBody);
-    if (differing.length === 0) {
-      return { id, filePath: relPath, body: existingDocForReplay, status: 'unchanged' };
-    }
-    return rcfError({
-      kind: 'conflict',
-      message: `create ${kind}: id ${id} already exists with different content; differing fields: ${differing.sort().join(', ')}. Use the update verb to patch.`,
-      documentId: id,
-      filePath: relPath,
-    });
-  }
+  const replay = resolveReplay({
+    kind, id, existing: existingDocForReplay, candidate: finalBody, filePath: relPath,
+  });
+  if (replay) return replay;
 
   // Cross-link ACs must resolve to existing ACs for fbs / ts.
   if (canonical === 'fbs' || canonical === 'testSuite') {
@@ -727,10 +752,22 @@ async function createCn({ projectRoot, tree, options, body, walkErrors = [] }) {
     return rcfError({ kind: 'usage', message: 'create cn: --path is required' });
   }
 
+  // Ruling R1 extension (PR 293 landing review): a same-id replay is
+  // compared against the existing CN once the body is assembled below.
+  // An unloadable (schema-invalid) CN, or an id held by another kind,
+  // still refuses: there is no CN body to compare against.
   let id = options.id;
+  /** @type {object | null} */
+  let existingCnForReplay = null;
   if (id) {
-    if (tree.byId.has(id) || tree.invalidDocs?.has(id)) {
-      return rcfError({ kind: 'usage', message: `create cn: id ${id} is already taken`, documentId: id });
+    if (tree.invalidDocs?.has(id)) {
+      return rcfError({ kind: 'usage', message: `create cn: id ${id} is already taken (file on disk failed to load; repair before replaying)`, documentId: id });
+    }
+    if (tree.byId.has(id)) {
+      if (tree.kindById.get(id) !== 'codeNode') {
+        return rcfError({ kind: 'usage', message: `create cn: id ${id} is already taken`, documentId: id });
+      }
+      existingCnForReplay = tree.byId.get(id);
     }
   } else {
     id = nextIdForKind(tree, 'codeNode');
@@ -788,6 +825,11 @@ async function createCn({ projectRoot, tree, options, body, walkErrors = [] }) {
   const relPath = relativePathForChild('codeNode', id);
   const validation = validateDocument({ doc: finalBody, kind: 'codeNode', filePath: relPath });
   if (validation) return { ...validation, documentId: id };
+
+  const replay = resolveReplay({
+    kind: 'cn', id, existing: existingCnForReplay, candidate: finalBody, filePath: relPath,
+  });
+  if (replay) return replay;
 
   const absPath = pathForKindFile(projectRoot, 'codeNode', id);
   if (await fileExistsOnDisk(absPath)) {
@@ -1002,12 +1044,14 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
   const seedIndex = detectSeededPhantomAcIndex(currentAcs, parentUsId);
   const replacingPhantom = seedIndex !== -1 && !options.id;
 
+  // Ruling R1 extension (PR 293 landing review): an explicit --id that
+  // already names an AC on the parent US is a replay, resolved against
+  // that AC once the would-be entry is built below.
   let acId = options.id;
+  /** @type {object | null} */
+  let existingAcForReplay = null;
   if (acId) {
-    const existing = currentAcs.some((ac) => ac.id === acId);
-    if (existing) {
-      return rcfError({ kind: 'usage', message: `create ac: id ${acId} already exists on ${parentUsId}`, documentId: acId });
-    }
+    existingAcForReplay = currentAcs.find((ac) => ac.id === acId) ?? null;
   } else if (replacingPhantom) {
     // Reuse the seed's id (AC-<us>-1) so the operator's first AC is -1.
     acId = currentAcs[seedIndex].id;
@@ -1030,6 +1074,15 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     // consumer, so we only serialise when the CLI passed a value.
     ...(body?.determinism !== undefined ? { determinism: body.determinism } : {}),
   };
+  const acReplay = resolveReplay({
+    kind: 'ac',
+    id: acId,
+    existing: existingAcForReplay,
+    candidate: acEntry,
+    filePath: `rcf/user-stories/${parentUsId.toLowerCase()}.json`,
+    extra: { parentId: parentUsId },
+  });
+  if (acReplay) return acReplay;
   const nextAcs = replacingPhantom
     ? currentAcs.map((ac, i) => (i === seedIndex ? acEntry : ac))
     : [...currentAcs, acEntry];
@@ -1156,9 +1209,14 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
     return rcfError({ kind: 'usage', message: `create tc: parent ${parentTsId} has an unrecognised id shape` });
   }
   const tcId = options.id ?? `TC-${tsSuffix}-${slug}`;
-  // Slug collision fails explicitly (§D10 OQ-P4-R-1).
   const existing = (ts.testCases ?? []).find((tc) => tc.id === tcId);
-  if (existing) {
+  // Ruling R1 extension (PR 293 landing review): idempotency is
+  // id-carried. An explicit --id that already names a TC on the parent
+  // TS is a replay, resolved against that TC once the would-be entry is
+  // built below. A derived-slug collision (no --id) still refuses
+  // explicitly (§D10 OQ-P4-R-1).
+  const replayingTc = Boolean(options.id) && Boolean(existing);
+  if (existing && !replayingTc) {
     return rcfError({
       kind: 'usage',
       message: `create tc: slug collision on ${tcId}, supply --slug explicitly`,
@@ -1172,6 +1230,15 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
     status: body?.status ?? 'pending',
     testPointer,
   };
+  const tcReplay = resolveReplay({
+    kind: 'tc',
+    id: tcId,
+    existing: replayingTc ? existing : null,
+    candidate: tcEntry,
+    filePath: `rcf/test-suites/${parentTsId.toLowerCase()}.json`,
+    extra: { parentId: parentTsId },
+  });
+  if (tcReplay) return tcReplay;
   const nextTs = {
     ...ts,
     testCases: [...(ts.testCases ?? []), tcEntry],
