@@ -64,8 +64,11 @@ Options:
                             every non-root child carries a mandatory
                             parentId-style field). See the parent table
                             above for which id each kind expects.
-  --id <id>                 Override auto-assigned id (refuses on
-                            collision)
+  --id <id>                 Override auto-assigned id. Idempotent by id:
+                            an existing id with identical content is a
+                            no-op ('<id>: unchanged', exit 0); with
+                            different content it refuses (exit 3, names
+                            the differing fields). Use update to patch
   --title <string>          Required for req / us / tac / adr / fbs / ts
                             (ac / tc use --description)
   --description <string>    Body description; required for ac / tc

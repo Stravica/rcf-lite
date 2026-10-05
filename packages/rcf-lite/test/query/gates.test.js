@@ -1911,7 +1911,7 @@ test('gates (R2, AC-17403-9): draftSettled runs tree-wide under narrowed D3 scop
   assert.equal(stage.reason, undefined, `failing envelope must not carry a notApplicable reason; got ${JSON.stringify(stage.reason)}`);
 });
 
-test('gates (PR 292 follow-up, AC-17403-10): failing envelope carries no notApplicable reason text', () => {
+test('gates (PR 292 follow-up, AC-17403-10): failing envelope carries no notApplicable reason text', async () => {
   // Companion to the R2 rewrite above. A scope-empty D3 with a failing
   // tree-wide check must have `stage.reason === undefined` so the
   // readiness CLI print line reads 'D3 (define.shapes): failing'
@@ -1923,6 +1923,13 @@ test('gates (PR 292 follow-up, AC-17403-10): failing envelope carries no notAppl
   const stage = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
   assert.equal(stage.state, 'failing');
   assert.equal(stage.reason, undefined);
+  // The printed readiness line, through the CLI's own formatter.
+  const { formatStageLine } = await import('../../src/cli/readiness.js');
+  assert.equal(formatStageLine(stage), 'D3 (define.shapes): failing');
+  // Control: the notApplicable envelope still prints its reason trailer.
+  const clean = checkD3Shapes({ tree: makeTree({}), ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(clean.state, 'notApplicable');
+  assert.match(formatStageLine(clean), /^D3 \(define\.shapes\): notApplicable \(.+\)$/);
 });
 
 test('gates (PR 292 follow-up, AC-17404-9): treeWideFailureEnvelope helper semantics', () => {

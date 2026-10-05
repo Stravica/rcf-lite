@@ -639,7 +639,7 @@ const DEFINITIONS = [
       properties: {
         kind: { type: 'string', enum: KIND_ENUM, description: 'Document kind' },
         parent: { type: 'string', description: 'Parent document id; required for every kind except cn (which has no parent)' },
-        id: { type: 'string', description: 'Override the auto-assigned id (refuses on collision)' },
+        id: { type: 'string', description: 'Override the auto-assigned id. Idempotent by id: an existing id with identical content is a no-op; different content refuses as a conflict naming the differing fields (use rcf_update to patch)' },
         title: { type: 'string', description: 'Required for req / us / tac / adr / fbs / ts' },
         description: { type: 'string', description: 'Required for ac / tc' },
         purpose: { type: 'string', description: 'Required for ts' },

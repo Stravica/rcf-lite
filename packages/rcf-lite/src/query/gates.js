@@ -930,20 +930,6 @@ export function checkD1Brief(ctx) {
 const D2_RESOLVING_KINDS = new Set(['capability', 'constraint', 'entity', 'actor', 'externalSystem', 'surface']);
 
 /**
- * Compute the `skeleton:standardsCited` check (engineer, tree-wide).
- * Pure. Every standards pack registered through `rcf define standards`
- * (manifest.standards[].slug) is cited in a REQ `rationale` or an ADR,
- * or satisfied by a concern-ledger entry keyed `standards:<pack>` whose
- * disposition is `applied` or `waived`. Ruling R8 2026-10-05: both
- * `applied` and `waived` satisfy the check (an `applied` entry means the
- * pack was adopted, which is at least as strong as a citation). Ruling
- * R7 2026-10-05: the check runs tree-wide regardless of the D2 scope
- * early-return, through the shared ADR-4138 helper.
- *
- * @param {StageContext} ctx
- * @returns {ReturnType<typeof makeCheck>}
- */
-/**
  * Compute the `skeleton:deployAdr` check (engineer, tree-wide). Pure.
  * Ruling R13 2026-10-05 (ADR-4138 extended, PR 292 follow-up): exactly
  * one Deploy target or Deploy deferral ADR exists tree-wide (detected
@@ -967,6 +953,20 @@ function computeDeployAdrCheck(ctx) {
   return makeCheck('skeleton:deployAdr', 'tree', 1, deployFail);
 }
 
+/**
+ * Compute the `skeleton:standardsCited` check (engineer, tree-wide).
+ * Pure. Every standards pack registered through `rcf define standards`
+ * (manifest.standards[].slug) is cited in a REQ `rationale` or an ADR,
+ * or satisfied by a concern-ledger entry keyed `standards:<pack>` whose
+ * disposition is `applied` or `waived`. Ruling R8 2026-10-05: both
+ * `applied` and `waived` satisfy the check (an `applied` entry means the
+ * pack was adopted, which is at least as strong as a citation). Ruling
+ * R7 2026-10-05: the check runs tree-wide regardless of the D2 scope
+ * early-return, through the shared ADR-4138 helper.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
 function computeStandardsCitedCheck(ctx) {
   const tree = ctx.tree;
   const standardsList = Array.isArray(tree.manifest?.standards)
