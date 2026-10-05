@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-04T14:00:00Z",
+  "updatedAt": "2026-10-05T12:30:00Z",
+  "adrId": "ADR-4137-standalone-theme-persistence",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "The in-viewer theme control persists its setting under `rcf-view:v1:theme` in standalone mode only; under `embed=1` the control is absent and the key is never read or written",
+  "context": "The viewer UI refresh design (`2026-10-02_viewer-ui-refresh-design.md`) section 9 and section 11 recommendation 6 called for a three-state Light|Dark|Auto theme control hidden under `embed=1` that stores nothing. PR 1 (0.29.0) shipped the `?theme=` query param and the `rcf-view-theme` postMessage listener but omitted the visible control. Baz's 2026-10-04 review (`w-2026-10-04-dave-001`) found three gaps: (a) no visible control in the standalone viewer, (b) the FIND SearchButton hover and focus states are unreadable in dark, (c) no systematic WCAG AA pass across the stylesheet. On (a) the design decision 'storing nothing' was written for the embedded case: the viewer shares `localStorage` with the wespa SPA under `rcf-view:v1:`, so any key the viewer writes there is a key wespa sees too. In the standalone case there is no shared SPA; a theme control that resets to the system default on every reload is a worse product than the design intended.",
+  "decision": "In non-embed mode the three-state theme control writes the user's choice to `localStorage['rcf-view:v1:theme']` (one of `light`, `dark`, `auto`) and reads it back on boot. Under `embed=1` the control is absent from the DOM entirely (not merely hidden by CSS) and the key is never read or written on load, on a `rcf-view-theme` postMessage, or on any user action inside the viewer. Boot precedence: an explicit `?theme=` query parameter wins first; then (in non-embed mode only) the stored `rcf-view:v1:theme` value, provided it is one of `light`/`dark`/`auto`; then the default (`auto`, which maps to the `prefers-color-scheme` media query via `:root:not([data-theme])`). A live `rcf-view-theme` postMessage still applies in both modes and never writes to the key. The key sits under the shared `rcf-view:v1:` namespace so the PR 9 localStorage namespace lint stays green.",
+  "consequences": "Standalone viewer users (the Readiness / Build / Review audience Baz is coaching Remi through) get a theme control that remembers their choice between reloads, matching every other dev-facing viewer. Wespa (and any other embedder) see no behavioural change: `embed=1` is still a pure-render contract, the viewer still writes nothing on their behalf and reads nothing of theirs. The one deviation from the design doc's 'storing nothing' line is named here and in the CHANGELOG so a future reader can trace it. The embed check is at the storage boundary, not at the render boundary alone, so a future refactor cannot accidentally start writing the key under embed by re-rendering the control: the control's event handler reads `document.documentElement.getAttribute('data-embed') === '1'` and refuses the write in that branch. The PR 9 lint continues to protect the shared namespace. Known transient under embed: the production server renders one page for every client and does not see the request query, so the theme control is briefly painted under `embed=1` until `page-init.js` strips it on boot; the follow-up is for the server to pass `embed` from the request query into `renderPage` so the markup is never emitted (not implemented here). The boot theme is resolved and applied once; a `rcfPage.init()` re-run after an SSE swap never overrides a host postMessage or a control choice (PR 291 landing review F1). Verification: test/view/theme-control.test.js (TC-229-theme-control-renders-non-embed, TC-229-theme-control-persists, TC-229-theme-control-absent-embed, TC-229-theme-control-query-wins, and the F1 regressions TC-229-reinit-keeps-host-theme and TC-229-reinit-keeps-control-choice).",
+  "alternativesConsidered": [
+    {
+      "name": "Never persist anywhere (literal design doc reading)",
+      "summary": "Keep the theme control stateless in both modes: every reload resets to the default (`auto`), the control only remembers the current session.",
+      "reasonNotChosen": "A worse product in standalone mode and the only reason to refuse the write (shared localStorage with wespa) does not exist outside the embedded case. The design doc's 'storing nothing' line was written against the embed hazard; in standalone there is nothing to share with."
+    },
+    {
+      "name": "Persist in both modes",
+      "summary": "Write `rcf-view:v1:theme` under `embed=1` too; the shared-localStorage hazard is accepted and wespa can inspect the key if it wants.",
+      "reasonNotChosen": "Breaks Dex's wespa contract: wespa pins the embed-mode behaviour by exact version, and a new key under the shared namespace is a surface change that needs a release-note bump and a wespa-side change. The storage boundary is cheap to guard and keeps the embedded case byte-identical to pre-amendment."
+    },
+    {
+      "name": "Persist under a non-shared key",
+      "summary": "Write the theme to `sessionStorage` or a key outside the `rcf-view:v1:` namespace in standalone mode.",
+      "reasonNotChosen": "`sessionStorage` does not survive a browser restart (the standalone user still re-picks on every new window), and a key outside `rcf-view:v1:` would break the PR 9 localStorage namespace lint. The embed-boundary branch above is the smaller change that keeps both constraints green."
+    }
+  ]
+}

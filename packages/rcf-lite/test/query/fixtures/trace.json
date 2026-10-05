@@ -46,6 +46,12 @@
       "title": "wespa's embedding contract is proved by a CI host fixture"
     },
     {
+      "id": "US-207",
+      "kind": "userStory",
+      "depth": 1,
+      "title": "Every viewer text and control colour pair meets WCAG 2.1 AA in both themes"
+    },
+    {
       "id": "TS-003",
       "kind": "testSuite",
       "depth": 2,
@@ -214,6 +220,12 @@
       "title": "[must-not] Given the LookupModal, when the user types a query, picks a result or closes the modal, then no `postMessage` is sent to the parent window, no outbound network request beyond the `./index.json` fetch is made, and no search term is written to `localStorage` / `sessionStorage` / cookies."
     },
     {
+      "id": "AC-205-9",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the SearchButton (`.rcf-search-btn`) in the shell's `.tools` group, when it is rendered in either theme and in each of its states (default, `:hover`, `:focus-visible`, `:active`), then the computed foreground / background contrast ratio for the button text, the icon stroke against the background and the focus-ring colour against the adjacent surface meets WCAG 2.1 AA (>= 4.5:1 for the text, >= 3:1 for the icon and the focus-ring boundary) in both the light (`:root`) and dark (`:root[data-theme=\"dark\"]`) token sets."
+    },
+    {
       "id": "TS-229",
       "kind": "testSuite",
       "depth": 2,
@@ -254,6 +266,48 @@
       "kind": "ac",
       "depth": 2,
       "title": "[must-not] Given the test-host fixture and the viewer page, when either is loaded, then neither posts any outbound message beyond the host's `rcf-view-theme`; the viewer sends no `postMessage` of any shape, and the test-host adds no new postMessage shape."
+    },
+    {
+      "id": "AC-206-7",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the standalone viewer loaded without `embed=1`, when the shell paints, then a three-state theme control (`role=\"group\"`, three buttons Light|Dark|Auto with `aria-pressed`) renders in the header's `.tools` group right of the SearchButton; when a button is pressed, `<html data-theme>` is set to `light` or `dark` (or the attribute is removed for Auto so the `prefers-color-scheme` media query decides) live without a reload, and the pressed button's `aria-pressed` becomes `true` while the others become `false`."
+    },
+    {
+      "id": "AC-206-8",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the standalone (non-embed) viewer, when a theme button is pressed, then the chosen value (`light`, `dark` or `auto`) is written to `localStorage['rcf-view:v1:theme']`; on the next page load the stored value is reapplied; the boot precedence is `?theme=` wins first, then the stored value, then the default (`auto`); and the postMessage `rcf-view-theme` listener still applies live but writes nothing to the stored key."
+    },
+    {
+      "id": "AC-206-9",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given the viewer loaded with `?embed=1`, when the shell paints, then the three-state theme control is absent from the DOM entirely (no `[data-rcf-theme-control]` element rendered, not merely hidden by CSS), and no read or write of `localStorage['rcf-view:v1:theme']` happens on load, on a postMessage theme change, or on any user action inside the viewer."
+    },
+    {
+      "id": "AC-206-10",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the standalone viewer with a stored value `rcf-view:v1:theme = dark`, when the URL carries `?theme=light`, then on load `<html data-theme>` is `light` (the explicit query wins) and the Light button is pressed; the stored value is left as `dark` and is reused on the next load without a `?theme=` query."
+    },
+    {
+      "id": "TS-236",
+      "kind": "testSuite",
+      "depth": 2,
+      "title": "WCAG 2.1 AA contrast audit across the viewer stylesheet, both themes, every state"
+    },
+    {
+      "id": "AC-207-1",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the viewer stylesheet `src/view/style.css` and the two token blocks (`:root` and `:root[data-theme=\"dark\"]`), when the contrast test runs, then it enumerates every CSS rule that sets `color` (and every state rule merged over its base selector, so a state that changes only the background is paired with the inherited colour) paired with every reachable background (own rule, nearest ancestor surface token, page background `--sv-canvas`) and every state variant (default, `:hover`, `:focus`, `:focus-visible`, `:active`, `[aria-pressed=\"true\"]`, `[aria-selected=\"true\"]`, `.is-active`, `:disabled`), computes the WCAG relative-luminance contrast ratio for each, and asserts >= 4.5:1 for text, >= 3:1 for large text (>= 18.66px bold or >= 24px) and for non-text UI boundaries (control borders and outlines, focus rings against the adjacent colour, each enumerated as its own pair) per WCAG 1.4.3 and 1.4.11 in both the light and dark token sets."
+    },
+    {
+      "id": "AC-207-2",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given a contrast pair that falls below the applicable threshold, when the test runs, then the failure message names the selector, state, theme, foreground colour, background colour, computed ratio and the threshold applied, and the test exits non-zero so the suite blocks a merge that drops a pair below AA."
     },
     {
       "id": "TC-003-diagram-emitted-as-source",
@@ -424,6 +478,12 @@
       "title": "wireLookup never calls window.postMessage, never writes to localStorage / sessionStorage / document.cookie, and makes no outbound fetch other than `./index.json`; asserted by a source-level scan of page-init.js (no postMessage, no storage, no cookie writes in wireLookup)."
     },
     {
+      "id": "TC-225-search-button-contrast",
+      "kind": "tc",
+      "depth": 3,
+      "title": "The WCAG 2.1 AA contrast audit (test/view/contrast-aa.test.js) requires a `.rcf-search-btn` pair for each of hover, focus-visible and active (state rules merged over the base rule) in both the light and dark token sets and asserts >= 4.5:1 for the button text and >= 3:1 for the focus ring against the surface it sits on. A missing state pair fails the test (PR 291 landing review F3)."
+    },
+    {
       "id": "TC-229-fixture-shell",
       "kind": "tc",
       "depth": 3,
@@ -476,6 +536,66 @@
       "kind": "tc",
       "depth": 3,
       "title": "A grep over src/view/** (excluding test-host/embed-client.js, the sanctioned emitter) finds zero .postMessage( call sites; the embed-client itself posts exactly one shape, 'rcf-view-theme'."
+    },
+    {
+      "id": "TC-229-theme-control-renders-non-embed",
+      "kind": "tc",
+      "depth": 3,
+      "title": "renderPage renders a `[data-rcf-theme-control]` group with three buttons (Light, Dark, Auto; `aria-pressed`) right of the SearchButton in `.tools` when `data-embed` is absent; a click on a theme button sets `<html data-theme>` live and flips `aria-pressed` across the three."
+    },
+    {
+      "id": "TC-229-theme-control-persists",
+      "kind": "tc",
+      "depth": 3,
+      "title": "In non-embed mode, selecting a theme writes `rcf-view:v1:theme` as `light`/`dark`/`auto` and the stored value is reapplied on the next boot; a `rcf-view-theme` postMessage still applies live but does not write the stored key; the boot precedence is `?theme=` -> stored -> auto."
+    },
+    {
+      "id": "TC-229-theme-control-absent-embed",
+      "kind": "tc",
+      "depth": 3,
+      "title": "renderPage with `data-embed=\"1\"` does not emit any `[data-rcf-theme-control]` markup; wireThemeControl under embed never reads or writes `rcf-view:v1:theme` on load, on a postMessage, or on any user action; the key is zero-touched (localStorage spy sees no setItem/getItem call for the key under embed)."
+    },
+    {
+      "id": "TC-229-theme-control-query-wins",
+      "kind": "tc",
+      "depth": 3,
+      "title": "In non-embed mode with a stored value `dark`, when the URL carries `?theme=light`, boot resolves to `light` (explicit wins), the Light button is pressed and the stored value is NOT overwritten (next load without a query reuses `dark`)."
+    },
+    {
+      "id": "TC-229-reinit-keeps-host-theme",
+      "kind": "tc",
+      "depth": 3,
+      "title": "Boot `?embed=1` with no `?theme=`, post `{ type: \"rcf-view-theme\", theme: \"dark\" }`, then call `rcfPage.init()` (the live-client SSE re-run): `<html data-theme>` stays `dark` and no storage is touched."
+    },
+    {
+      "id": "TC-229-reinit-keeps-control-choice",
+      "kind": "tc",
+      "depth": 3,
+      "title": "Boot `?theme=light` in non-embed mode, click Dark, then call `rcfPage.init()`: `<html data-theme>` stays `dark` and the Dark button stays pressed."
+    },
+    {
+      "id": "TC-236-aa-enumerates-all-pairs",
+      "kind": "tc",
+      "depth": 3,
+      "title": "The audit parses `src/view/style.css`, enumerates every selector that sets `color` with every reachable background (own rule, ancestor surface token, page background `--sv-canvas`) in each state (default, :hover, :focus, :focus-visible, :active, [aria-pressed=true], [aria-selected=true], .is-active, :disabled) in both the light and dark token sets, computes the WCAG relative-luminance ratio and asserts >= 4.5:1 for normal text and >= 3:1 for large text and non-text UI boundaries (WCAG 1.4.3 and 1.4.11)."
+    },
+    {
+      "id": "TC-236-aa-failure-message",
+      "kind": "tc",
+      "depth": 3,
+      "title": "When a contrast pair is below the threshold, the test failure message names the selector, state, theme, foreground colour, background colour, computed ratio and applied threshold; the test exits non-zero so the suite blocks a merge that drops below AA."
+    },
+    {
+      "id": "TC-236-state-merge-and-boundaries",
+      "kind": "tc",
+      "depth": 3,
+      "title": "A state rule that changes only the background (the original `.rcf-search-btn:hover` defect) is merged over its base selector and paired with the inherited colour; `border` / `border-color` and `outline` / `outline-color` are enumerated against the adjacent surface at the 3:1 non-text threshold; run against the pre-amendment stylesheet the helper reports the dark `.rcf-search-btn:hover` failure."
+    },
+    {
+      "id": "TC-236-theme-btn-states",
+      "kind": "tc",
+      "depth": 3,
+      "title": "`.rcf-theme-btn` hover, focus-visible and active pairs exist and pass in both themes, and its focus ring clears 3:1 against the surface it sits on."
     }
   ],
   "edges": [
@@ -507,6 +627,11 @@
     {
       "from": "REQ-002",
       "to": "US-206",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-207",
       "kind": "parentChild"
     },
     {
@@ -650,6 +775,11 @@
       "kind": "parentChild"
     },
     {
+      "from": "US-205",
+      "to": "AC-205-9",
+      "kind": "parentChild"
+    },
+    {
       "from": "US-206",
       "to": "TS-229",
       "kind": "parentChild"
@@ -682,6 +812,41 @@
     {
       "from": "US-206",
       "to": "AC-206-6",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-7",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-8",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-9",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-206",
+      "to": "AC-206-10",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-207",
+      "to": "TS-236",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-207",
+      "to": "AC-207-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-207",
+      "to": "AC-207-2",
       "kind": "parentChild"
     },
     {
@@ -1030,6 +1195,11 @@
       "kind": "parentChild"
     },
     {
+      "from": "TS-225",
+      "to": "TC-225-search-button-contrast",
+      "kind": "parentChild"
+    },
+    {
       "from": "AC-205-1",
       "to": "TS-225",
       "kind": "crossLink"
@@ -1150,6 +1320,21 @@
       "kind": "crossLink"
     },
     {
+      "from": "AC-205-9",
+      "to": "TS-225",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-9",
+      "to": "TC-225-search-button-contrast",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-205-9",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
       "from": "TS-229",
       "to": "TC-229-fixture-shell",
       "kind": "parentChild"
@@ -1195,6 +1380,36 @@
       "kind": "parentChild"
     },
     {
+      "from": "TS-229",
+      "to": "TC-229-theme-control-renders-non-embed",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-theme-control-persists",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-theme-control-absent-embed",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-theme-control-query-wins",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-reinit-keeps-host-theme",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-229",
+      "to": "TC-229-reinit-keeps-control-choice",
+      "kind": "parentChild"
+    },
+    {
       "from": "AC-206-1",
       "to": "TS-229",
       "kind": "crossLink"
@@ -1222,6 +1437,11 @@
     {
       "from": "AC-206-2",
       "to": "TC-229-theme-postmessage-source",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-2",
+      "to": "TC-229-reinit-keeps-host-theme",
       "kind": "crossLink"
     },
     {
@@ -1296,6 +1516,131 @@
     },
     {
       "from": "AC-206-6",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-7",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-7",
+      "to": "TC-229-theme-control-renders-non-embed",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-7",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-8",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-8",
+      "to": "TC-229-theme-control-persists",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-8",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-9",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-9",
+      "to": "TC-229-theme-control-absent-embed",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-9",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-10",
+      "to": "TS-229",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-10",
+      "to": "TC-229-theme-control-query-wins",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-10",
+      "to": "TC-229-reinit-keeps-control-choice",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-206-10",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-236",
+      "to": "TC-236-aa-enumerates-all-pairs",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-236",
+      "to": "TC-236-aa-failure-message",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-236",
+      "to": "TC-236-state-merge-and-boundaries",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-236",
+      "to": "TC-236-theme-btn-states",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-207-1",
+      "to": "TS-236",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-1",
+      "to": "TC-236-aa-enumerates-all-pairs",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-1",
+      "to": "TC-236-state-merge-and-boundaries",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-1",
+      "to": "TC-236-theme-btn-states",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-1",
+      "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-2",
+      "to": "TS-236",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-2",
+      "to": "TC-236-aa-failure-message",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-207-2",
       "to": "FBS-203",
       "kind": "crossLink"
     }

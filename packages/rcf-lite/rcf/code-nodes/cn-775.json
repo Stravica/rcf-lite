@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-775",
+  "path": "test/view/helpers/contrast.js",
+  "title": "WCAG 2.1 AA contrast audit helpers (token resolver, pair enumerator, luminance math)",
+  "description": "Baz 2026-10-04 (w-2026-10-04-dave-001): the audit helper for US-207. `buildTokenMap(css, theme)` resolves the `--sv-*` custom-property blocks (light `:root` and dark `:root[data-theme=\"dark\"]`), chasing `var(--x)` aliases. `extractRules(css)` is a brace-balanced walker that handles `@media (prefers-color-scheme: dark)` scope. `resolveColour(value, tokens)` reduces a CSS colour expression to `{r,g,b,a}` and returns null for gradients/images. `composite()` composites a semi-transparent fg over a bg. `luminance()` + `contrastRatio()` implement the WCAG 2.1 relative-luminance ratio. `stateOf(selector)` tags state variants (default, hover, focus, focus-visible, active, aria-pressed, aria-selected, is-active, disabled). `thresholdFor(selector, decls)` picks 4.5:1 for text, 3:1 for large text or non-text UI boundaries. `enumeratePairs(css)` returns per-theme `PairRecord[]` with `{selector,state,theme,fg,bg,ratio,threshold,kind,pass,approximate,note}` so the test's failure line names selector, state, theme, fg, bg, ratio and threshold.",
+  "implementsAcIds": [
+    "AC-207-1",
+    "AC-207-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-05T09:59:33Z",
+  "updatedAt": "2026-10-05T09:59:33Z"
+}

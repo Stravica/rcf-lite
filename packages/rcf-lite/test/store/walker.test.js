@@ -274,7 +274,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // refuses and skips, 5 ACs), US-17802 (validate findings, 4 ACs) and
   // US-17902 (NV-DL enforced, 4 ACs) under REQ-177/178/179
   // (205 -> 208).
-  assert.equal(tree.userStories.length, 208);
+  // Viewer UI refresh amendments (w-2026-10-04-dave-001) added US-207
+  // under REQ-002 for the WCAG 2.1 AA contrast audit (208 -> 209).
+  assert.equal(tree.userStories.length, 209);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -345,10 +347,15 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added ADR-4131
   // (the gates bite with --ack as the recorded override for D3, D5, D6)
   // (59 -> 60).
+  // Viewer UI refresh amendments (w-2026-10-04-dave-001) added
+  // ADR-4137-standalone-theme-persistence (in-viewer theme control
+  // persists under rcf-view:v1:theme in standalone mode only;
+  // under embed=1 the control is absent and the key is never read
+  // or written) (60 -> 61).
   // DEFINE step 3 rulings R1 to R8 (w-2026-10-05-dave-001) added
   // ADR-4138 (tree-wide checks evaluate before any scope short-circuit;
-  // shared helper backing R2 + R5 + R7) (60 -> 61).
-  assert.equal(tree.adrs.length, 61);
+  // shared helper backing R2 + R5 + R7) (61 -> 62).
+  assert.equal(tree.adrs.length, 62);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -540,7 +547,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 8 (w-2026-10-03-dave-012) added TS-233 (US-17702
   // bundle refuse/override/skip), TS-234 (US-17802 validate findings)
   // and TS-235 (US-17902 NV-DL enforced) (173 -> 176).
-  assert.equal(tree.testSuites.length, 176);
+  // Viewer UI refresh amendments (w-2026-10-04-dave-001) added TS-236
+  // (US-207 WCAG 2.1 AA contrast audit, 2 TCs on
+  // test/view/contrast-aa.test.js) (176 -> 177).
+  assert.equal(tree.testSuites.length, 177);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-772",
+  "path": "src/view/view-index.js",
+  "title": "renderThemeControl() shell markup for the standalone three-state theme toggle",
+  "description": "Baz 2026-10-04 (w-2026-10-04-dave-001): renders the Light|Dark|Auto group (`role=\"group\"`, three `<button>`s with `aria-pressed` and `data-rcf-theme=\"light|dark|auto\"`) stamped with `[data-rcf-theme-control]`. The buttons start with `aria-pressed=\"false\"`; `page-init.js` boots them from the resolved theme choice (query -> stored -> auto) per ADR-4137. Keyboard-operable (`<button type=\"button\">`), screen-reader-labelled (`aria-label` + `title`), server-rendered. Also keeps the existing `renderSearchButton()` and `renderLookupModal()` exports.",
+  "implementsAcIds": [
+    "AC-206-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-05T09:59:33Z",
+  "updatedAt": "2026-10-05T09:59:33Z"
+}

@@ -321,3 +321,25 @@ export function renderSearchButton() {
   <span class="rcf-search-kbd" aria-hidden="true"><kbd>Ctrl</kbd>+<kbd>F</kbd></span>
 </button>`;
 }
+
+/**
+ * Three-state Light|Dark|Auto theme control for the standalone viewer
+ * shell (viewer UI refresh design section 11 recommendation 6, Baz's
+ * 2026-10-04 review `w-2026-10-04-dave-001`). The control is rendered
+ * server-side without an initial `aria-pressed=true` on any button; the
+ * boot path in `page-init.js` reads `?theme=`, then (non-embed only)
+ * `localStorage['rcf-view:v1:theme']` per ADR-4137, then defaults to
+ * Auto, and stamps the right button with `aria-pressed="true"` from
+ * that resolved value. Under `embed=1` `html-page.js` omits this call
+ * entirely so no element with `[data-rcf-theme-control]` reaches the
+ * DOM and the storage key is never read or written (ADR-4137).
+ *
+ * @returns {string}
+ */
+export function renderThemeControl() {
+  return `<div class="rcf-theme" data-rcf-theme-control role="group" aria-label="Theme">
+  <button type="button" class="rcf-theme-btn" data-rcf-theme="light" aria-pressed="false" title="Light theme" aria-label="Light theme">Light</button>
+  <button type="button" class="rcf-theme-btn" data-rcf-theme="dark" aria-pressed="false" title="Dark theme" aria-label="Dark theme">Dark</button>
+  <button type="button" class="rcf-theme-btn" data-rcf-theme="auto" aria-pressed="false" title="Follow system theme" aria-label="Follow system theme">Auto</button>
+</div>`;
+}

@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-03T09:55:00Z",
-  "updatedAt": "2026-10-03T10:00:00Z",
-  "purpose": "Cover US-206 (wespa's embedding contract is proved by a CI host fixture): the fixture renders a 56px header + resizable sidebar around an iframe pointed at ./?embed=1&theme=light with no inline script (AC-206-1), theme flips via postMessage without a reload (AC-206-2, source invariants + Playwright live proof in the lane evidence), embed and theme survive a hash-only in-iframe navigation (AC-206-3, source invariants + Playwright live proof), cross-origin messages are ignored by the viewer listener (AC-206-4), the three lints keep framing headers, target=_top and localStorage namespace in place (AC-206-5), and no new outbound postMessage shape is introduced by the viewer or the fixture (AC-206-6). All TCs resolve to node tests under test/view/wespa-host-fixture.test.js.",
+  "updatedAt": "2026-10-05T12:30:00Z",
+  "purpose": "Cover US-206 (wespa's embedding contract is proved by a CI host fixture): the fixture renders a 56px header + resizable sidebar around an iframe pointed at ./?embed=1&theme=light with no inline script (AC-206-1), theme flips via postMessage without a reload (AC-206-2, source invariants + Playwright live proof in the lane evidence), embed and theme survive a hash-only in-iframe navigation (AC-206-3, source invariants + Playwright live proof), cross-origin messages are ignored by the viewer listener (AC-206-4), the three lints keep framing headers, target=_top and localStorage namespace in place (AC-206-5), and no new outbound postMessage shape is introduced by the viewer or the fixture (AC-206-6). 2026-10-04 (w-2026-10-04-dave-001): extends coverage to the in-viewer three-state theme control (AC-206-7..10 under ADR-4137). All TCs resolve to node tests under test/view/wespa-host-fixture.test.js and test/view/theme-control.test.js. 2026-10-05 (PR 291 landing review F1): the boot theme is applied once; a `rcfPage.init()` re-run after an SSE swap never overrides a host postMessage theme or a theme-control choice.",
   "testLevel": "unit",
   "acIds": [
     "AC-206-1",
@@ -9,7 +9,11 @@
     "AC-206-3",
     "AC-206-4",
     "AC-206-5",
-    "AC-206-6"
+    "AC-206-6",
+    "AC-206-7",
+    "AC-206-8",
+    "AC-206-9",
+    "AC-206-10"
   ],
   "id": "TS-229",
   "usId": "US-206",
@@ -77,6 +81,48 @@
       "description": "A grep over src/view/** (excluding test-host/embed-client.js, the sanctioned emitter) finds zero .postMessage( call sites; the embed-client itself posts exactly one shape, 'rcf-view-theme'.",
       "status": "pending",
       "testPointer": "test/view/wespa-host-fixture.test.js::AC-206-6: no outbound postMessage shape beyond rcf-view-theme is introduced by the viewer or the fixture"
+    },
+    {
+      "id": "TC-229-theme-control-renders-non-embed",
+      "acId": "AC-206-7",
+      "description": "renderPage renders a `[data-rcf-theme-control]` group with three buttons (Light, Dark, Auto; `aria-pressed`) right of the SearchButton in `.tools` when `data-embed` is absent; a click on a theme button sets `<html data-theme>` live and flips `aria-pressed` across the three.",
+      "status": "pending",
+      "testPointer": "test/view/theme-control.test.js::AC-206-7: renderPage includes the three-state theme control in non-embed; applyThemeControl updates data-theme and aria-pressed on click"
+    },
+    {
+      "id": "TC-229-theme-control-persists",
+      "acId": "AC-206-8",
+      "description": "In non-embed mode, selecting a theme writes `rcf-view:v1:theme` as `light`/`dark`/`auto` and the stored value is reapplied on the next boot; a `rcf-view-theme` postMessage still applies live but does not write the stored key; the boot precedence is `?theme=` -> stored -> auto.",
+      "status": "pending",
+      "testPointer": "test/view/theme-control.test.js::AC-206-8: non-embed persistence under rcf-view:v1:theme; postMessage path writes nothing"
+    },
+    {
+      "id": "TC-229-theme-control-absent-embed",
+      "acId": "AC-206-9",
+      "description": "renderPage with `data-embed=\"1\"` does not emit any `[data-rcf-theme-control]` markup; wireThemeControl under embed never reads or writes `rcf-view:v1:theme` on load, on a postMessage, or on any user action; the key is zero-touched (localStorage spy sees no setItem/getItem call for the key under embed).",
+      "status": "pending",
+      "testPointer": "test/view/theme-control.test.js::AC-206-9: embed=1 omits the control markup and does not touch rcf-view:v1:theme"
+    },
+    {
+      "id": "TC-229-theme-control-query-wins",
+      "acId": "AC-206-10",
+      "description": "In non-embed mode with a stored value `dark`, when the URL carries `?theme=light`, boot resolves to `light` (explicit wins), the Light button is pressed and the stored value is NOT overwritten (next load without a query reuses `dark`).",
+      "status": "pending",
+      "testPointer": "test/view/theme-control.test.js::AC-206-10: explicit ?theme= beats the stored value and leaves the key as-is"
+    },
+    {
+      "id": "TC-229-reinit-keeps-host-theme",
+      "acId": "AC-206-2",
+      "description": "Boot `?embed=1` with no `?theme=`, post `{ type: \"rcf-view-theme\", theme: \"dark\" }`, then call `rcfPage.init()` (the live-client SSE re-run): `<html data-theme>` stays `dark` and no storage is touched.",
+      "status": "pending",
+      "testPointer": "test/view/theme-control.test.js::PR 291 F1 regression: embed=1 host theme survives an rcfPage.init() re-run"
+    },
+    {
+      "id": "TC-229-reinit-keeps-control-choice",
+      "acId": "AC-206-10",
+      "description": "Boot `?theme=light` in non-embed mode, click Dark, then call `rcfPage.init()`: `<html data-theme>` stays `dark` and the Dark button stays pressed.",
+      "status": "pending",
+      "testPointer": "test/view/theme-control.test.js::PR 291 F1 regression: standalone control choice survives an rcfPage.init() re-run with ?theme= in the URL"
     }
   ],
   "status": "draft"
