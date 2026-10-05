@@ -2,19 +2,24 @@
 
 This document is the content of the `rcf_define_draft_shapes` MCP
 prompt served argument-free by the server. The agent reads it once
-per session and runs the draft pass after L1 is green. The product
-owner is not in the room; the agent populates `[draft]`-marked
-entities, components and interfaces so the engineer walks into a tree
-whose shape is honest about what is still owed.
+per session and runs the draft pass alongside the PO loop. The
+product owner may or may not be in the room; the agent populates
+`[draft]`-marked entities, components and interfaces so the engineer
+walks into a tree whose shape is honest about what is still owed.
 
 ## When to run
 
-Run this pass once `rcf define readiness --level intent` prints
-`levels.intentComplete.ok === true` and the product owner has stepped
-back. Not before. The draft pass reads only the brief ledger, the
-decisions ledger and the current tree; it writes only `[draft]`-marked
-content. `shapes:draftSettled` then lists exactly what the engineer
-has yet to own.
+Run this pass in parallel with the product-owner intent loop and
+reconcile when Intent completes (ruling R3 2026-10-05 under
+w-2026-10-05-dave-001). Nothing in the draft pass changes the PO
+question set, so drafting shapes while the owner answers questions
+cannot destabilise the loop or create a question that was not there.
+The draft pass reads only the brief ledger, the decisions ledger and
+the current tree; it writes only `[draft]`-marked content.
+`shapes:draftSettled` then lists exactly what the engineer has yet to
+own. When Intent completes (`rcf define readiness --level intent`
+prints `levels.intentComplete.ok === true`), the drafts are already
+in place and the engineer walks into them.
 
 Nothing in the draft pass can fail a product-owner check. That is the
 property that keeps L1 and the draft pass independent. If an edit
