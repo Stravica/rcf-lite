@@ -317,3 +317,57 @@ test('ledger CLI (AC-17302-2): decisions update patches options and default', as
   assert.equal(body.decisions[0].options.length, 2);
   assert.equal(body.decisions[0].default, 'a');
 });
+
+// =============================================================================
+// DEFINE step 3 ruling R1 (w-2026-10-05-dave-001). Test skeletons at
+// chain-commit time; the implementation commit replaces the bodies with
+// substantive assertions. Each test's name matches the testPointer in the
+// chain so `audit coverage` resolves them.
+
+test('ledger CLI (R1, AC-17302-7): add --id on same-content is unchanged exit 0', async () => {
+  const cwd = await scratchProject();
+  const first = await run(['brief', 'add', '--id', '1', '--kind', 'capability', '--text', 'ship it'], cwd);
+  assert.equal(first.code, 0, first.stderr);
+  const bodyAfterFirst = await loadLedger({ projectRoot: cwd, name: 'brief' });
+  assert.equal(bodyAfterFirst.statements.length, 1);
+  assert.equal(bodyAfterFirst.statements[0].id, 1);
+  const addedAt = bodyAfterFirst.statements[0].addedAt;
+  // Replay with the SAME content: unchanged, exit 0, file not rewritten.
+  const replay = await run(['brief', 'add', '--id', '1', '--kind', 'capability', '--text', 'ship it'], cwd);
+  assert.equal(replay.code, 0, replay.stderr);
+  assert.match(replay.stdout, /brief-ledger: unchanged 1/);
+  const bodyAfterReplay = await loadLedger({ projectRoot: cwd, name: 'brief' });
+  assert.equal(bodyAfterReplay.statements.length, 1, 'no duplicate');
+  assert.equal(bodyAfterReplay.statements[0].addedAt, addedAt, 'addedAt preserved');
+  // --json emits status unchanged.
+  const replayJson = await run(['brief', 'add', '--id', '1', '--kind', 'capability', '--text', 'ship it', '--json'], cwd);
+  assert.equal(replayJson.code, 0);
+  const payload = JSON.parse(replayJson.stdout);
+  assert.equal(payload.status, 'unchanged');
+  assert.equal(payload.id, 1);
+});
+
+test('ledger CLI (R1, AC-17302-8): add --id on different-content exits 3 naming fields', async () => {
+  const cwd = await scratchProject();
+  const first = await run(['brief', 'add', '--id', '1', '--kind', 'capability', '--text', 'ship it'], cwd);
+  assert.equal(first.code, 0, first.stderr);
+  const bodyAfterFirst = await loadLedger({ projectRoot: cwd, name: 'brief' });
+  const original = bodyAfterFirst.statements[0];
+  // Same id, DIFFERENT text and kind: refuse with exit 3 naming the fields.
+  const conflict = await run(['brief', 'add', '--id', '1', '--kind', 'constraint', '--text', 'different sentence'], cwd);
+  assert.equal(conflict.code, 3, `expected exit 3; got ${conflict.code}; stderr=${conflict.stderr}`);
+  assert.match(conflict.stderr, /entry 1 already exists with different content/);
+  assert.match(conflict.stderr, /kind/);
+  assert.match(conflict.stderr, /text/);
+  const bodyAfterRefuse = await loadLedger({ projectRoot: cwd, name: 'brief' });
+  assert.deepEqual(bodyAfterRefuse.statements[0], original, 'file unchanged on conflict');
+});
+
+test('ledger CLI (R1, AC-17302-9): add without --id mints next id', async () => {
+  const cwd = await scratchProject();
+  const r = await run(['brief', 'add', '--kind', 'capability', '--text', 'ship it'], cwd);
+  assert.equal(r.code, 0, r.stderr);
+  const body = await loadLedger({ projectRoot: cwd, name: 'brief' });
+  assert.equal(body.statements.length, 1);
+  assert.equal(body.statements[0].id, 1);
+});

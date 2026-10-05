@@ -27,6 +27,7 @@ import { runIntakeScansOnDelta } from '../intake/orchestrator.js';
 import { findProjectRoot } from '../view/index.js';
 
 const OPTION_SPEC = {
+  id: { type: 'string' },
   kind: { type: 'string' },
   text: { type: 'string' },
   from: { type: 'string' },
@@ -74,6 +75,15 @@ Common flags:
   --help                    Print this help
 
 brief add flags:
+  --id <n>                  Optional positive integer. When set, the add
+                            is idempotent by id (ruling R1 2026-10-05):
+                            an entry at that id with identical content
+                            exits 0 printing 'unchanged' (--json emits
+                            {status:"unchanged",id:n}); different content
+                            at the same id exits 3 naming the differing
+                            fields; a free id is honoured as the override.
+                            The harness carries --id back when it replays
+                            a turn so the add is a no-op on replay.
   --kind <${BRIEF_KINDS.join('|')}>
                             Statement kind (default: capability)
   --text <text>             The statement text (mutually exclusive with --from)
@@ -193,6 +203,14 @@ export async function main(argv, deps = {}) {
     return await runResolve({ projectRoot, name, positionals, flags, stdout, stderr });
   } catch (err) {
     if (err instanceof LedgerError) {
+      // Ruling R1 2026-10-05: a same-id-different-content refusal
+      // exits 3 (not 1 and not 2) so a replaying harness can
+      // distinguish 'you tried to overwrite a prior answer' from a
+      // schema failure or a usage error. Update is the verb for that.
+      if (err.code === 'conflict') {
+        stderr.write(`[error] ledger: ${err.message}\n`);
+        return 3;
+      }
       stderr.write(`[error] ${err.code === 'usage' ? 'usage ' : ''}ledger: ${err.message}\n`);
       return err.code === 'usage' ? 2 : 1;
     }
@@ -285,6 +303,19 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
   const body = await loadLedger({ projectRoot, name });
   const now = new Date().toISOString();
 
+  // Ruling R1 2026-10-05: parse --id up front; a non-integer or negative
+  // value is a usage error BEFORE loading / scanning the ledger.
+  /** @type {number | undefined} */
+  let idOverride;
+  if (flags.id !== undefined) {
+    const parsed = Number(flags.id);
+    if (!Number.isInteger(parsed) || parsed < 1) {
+      stderr.write(`[error] usage ledger: --id must be a positive integer, got '${flags.id}'\n`);
+      return 2;
+    }
+    idOverride = parsed;
+  }
+
   if (name === 'brief') {
     const kind = /** @type {string} */ (flags.kind ?? 'capability');
     if (!BRIEF_KINDS.includes(/** @type {any} */ (kind))) {
@@ -297,6 +328,12 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
     }
     if (!flags.from && !flags.text) {
       stderr.write('[error] usage ledger: brief add requires --text <text> or --from <path>\n');
+      return 2;
+    }
+    if (idOverride !== undefined && flags.from) {
+      // R1 identity is per entry; --from mints N entries, so --id has no
+      // single target. Refuse the combination to keep the harness honest.
+      stderr.write('[error] usage ledger: brief add --id applies to --text only (--from mints one entry per line and has no single id)\n');
       return 2;
     }
     if (flags['no-scan'] && flags.findings) {
@@ -336,10 +373,32 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
     // Compute what WOULD be minted (for both the real path and dry-run).
     let cur = body;
     const added = [];
+    /** @type {'added' | 'unchanged'} */
+    let primaryStatus = 'added';
     for (const d of drafts) {
-      const step = addEntry({ name: 'brief', body: cur, entry: d, now });
+      // Only the single --text path reaches here with an idOverride (we
+      // refused --id with --from above); a per-call idOverride is passed
+      // on the first and only draft.
+      const step = addEntry({
+        name: 'brief', body: cur, entry: d, now,
+        ...(idOverride !== undefined ? { id: idOverride } : {}),
+      });
       cur = step.body;
       added.push(step.entry);
+      if (step.status === 'unchanged') primaryStatus = 'unchanged';
+    }
+
+    // Ruling R1 2026-10-05 short-circuit: when --id landed on an entry
+    // that already carried identical content, exit 0 with the unchanged
+    // signal before any scan / finding work. A replayed turn is a no-op.
+    if (primaryStatus === 'unchanged' && added.length === 1) {
+      const existing = added[0];
+      if (flags.json) {
+        stdout.write(`${JSON.stringify({ status: 'unchanged', id: existing.id, entry: existing }, null, 2)}\n`);
+      } else {
+        stdout.write(`brief-ledger: unchanged ${existing.id}\n`);
+      }
+      return 0;
     }
 
     // Convert operator-supplied --findings into openQuestion statements.
@@ -428,7 +487,18 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
       default: flags.default ? String(flags.default) : null,
     };
     if (flags.blocks) entry.blocks = String(flags.blocks);
-    const step = addEntry({ name: 'decisions', body, entry, now });
+    const step = addEntry({
+      name: 'decisions', body, entry, now,
+      ...(idOverride !== undefined ? { id: idOverride } : {}),
+    });
+    if (step.status === 'unchanged') {
+      if (flags.json) {
+        stdout.write(`${JSON.stringify({ status: 'unchanged', id: step.entry.id, entry: step.entry }, null, 2)}\n`);
+      } else {
+        stdout.write(`decisions-ledger: unchanged ${step.entry.id}\n`);
+      }
+      return 0;
+    }
     await saveLedger({ projectRoot, name: 'decisions', body: step.body });
     stdout.write(`decisions-ledger: added decision ${step.entry.id}\n`);
     return 0;
@@ -449,7 +519,18 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
       disposition: String(flags.disposition),
     };
     if (flags.reason) entry.reason = String(flags.reason);
-    const step = addEntry({ name: 'concerns', body, entry, now });
+    const step = addEntry({
+      name: 'concerns', body, entry, now,
+      ...(idOverride !== undefined ? { id: idOverride } : {}),
+    });
+    if (step.status === 'unchanged') {
+      if (flags.json) {
+        stdout.write(`${JSON.stringify({ status: 'unchanged', id: step.entry.id, entry: step.entry }, null, 2)}\n`);
+      } else {
+        stdout.write(`concern-ledger: unchanged ${step.entry.id}\n`);
+      }
+      return 0;
+    }
     await saveLedger({ projectRoot, name: 'concerns', body: step.body });
     stdout.write(`concern-ledger: added concern ${step.entry.id}\n`);
     return 0;
@@ -465,7 +546,18 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
     finding: String(flags.finding),
     severity: flags.severity ? String(flags.severity) : 'medium',
   };
-  const step = addEntry({ name: 'probes', body, entry, now });
+  const step = addEntry({
+    name: 'probes', body, entry, now,
+    ...(idOverride !== undefined ? { id: idOverride } : {}),
+  });
+  if (step.status === 'unchanged') {
+    if (flags.json) {
+      stdout.write(`${JSON.stringify({ status: 'unchanged', id: step.entry.id, entry: step.entry }, null, 2)}\n`);
+    } else {
+      stdout.write(`probe-ledger: unchanged ${step.entry.id}\n`);
+    }
+    return 0;
+  }
   await saveLedger({ projectRoot, name: 'probes', body: step.body });
   stdout.write(`probe-ledger: added probe ${step.entry.id}\n`);
   return 0;

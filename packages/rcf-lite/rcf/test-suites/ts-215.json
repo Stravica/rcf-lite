@@ -14,6 +14,9 @@
     "AC-17302-4",
     "AC-17302-5",
     "AC-17302-6",
+    "AC-17302-7",
+    "AC-17302-8",
+    "AC-17302-9",
     "AC-18701-1",
     "AC-18701-2",
     "AC-18701-3",
@@ -205,6 +208,27 @@
       "description": "brief add --text runs no scan and appends no openQuestion statement.",
       "status": "pending",
       "testPointer": "test/cli/ledger.test.js::ledger CLI (AC-18702-6): --text runs no scan and appends no openQuestion"
+    },
+    {
+      "id": "TC-215-r1-add-same-id-same-content-unchanged",
+      "acId": "AC-17302-7",
+      "description": "brief add --id 3 with identical content on a ledger whose entry 3 already matches exits 0 and prints 'unchanged'; --json emits {status:unchanged,id:3}; the ledger is not rewritten.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (R1, AC-17302-7): add --id on same-content is unchanged exit 0"
+    },
+    {
+      "id": "TC-215-r1-add-same-id-diff-content-exit-3",
+      "acId": "AC-17302-8",
+      "description": "brief add --id 3 with different content exits 3; stderr names the id and the differing fields; the ledger is not rewritten.",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (R1, AC-17302-8): add --id on different-content exits 3 naming fields"
+    },
+    {
+      "id": "TC-215-r1-add-no-id-mints-next",
+      "acId": "AC-17302-9",
+      "description": "brief add --text with no --id mints the next id (idempotency opt-in is id-carried; the harness threads --id back on replay).",
+      "status": "pending",
+      "testPointer": "test/cli/ledger.test.js::ledger CLI (R1, AC-17302-9): add without --id mints next id"
     }
   ],
   "status": "draft"

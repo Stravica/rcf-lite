@@ -6,6 +6,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import {
+  BARE_PATH_WHITELIST,
   INTERFACE_KINDS,
   STAGE_GATES,
   STAGE_ORDER,
@@ -1541,7 +1542,8 @@ test('gates (PR 6, AC-17405-5): standardsCited passes when cited or waived; fail
   assert.ok(check);
   assert.equal(check.failing.length, 1, `only personal-styles should fail; got ${JSON.stringify(check.failing)}`);
   assert.equal(check.failing[0].id, 'standards:personal-styles');
-  assert.equal(check.failing[0].why, 'uncited and unwaived');
+  // R8 2026-10-05: both 'applied' and 'waived' now satisfy the check alongside a citation; the why phrases all three.
+  assert.equal(check.failing[0].why, 'uncited, unapplied and unwaived');
 
   // Add a waiver on the concern ledger -> passes.
   const ledgersWithWaiver = {
@@ -1864,4 +1866,111 @@ test('gates (PR 9, AC-17405-2 R11): resolveOwnerRefField accepts the bracket for
   assert.ok(resolveOwnerRefField(adr, 'context'));
   assert.ok(resolveOwnerRefField(adr, 'alternativesConsidered[0]'));
   assert.ok(!resolveOwnerRefField(adr, 'alternativesConsidered[9]'));
+});
+
+// =============================================================================
+// DEFINE step 3 rulings R2, R5, R6, R7, R8 (w-2026-10-05-dave-001). The
+// shared tree-wide-before-scope helper (ADR-4138) backs R2 / R5 / R7; R6
+// touches extractInterfacePathTokens; R8 widens standardsCited to accept
+// `applied` alongside `waived` or a citation. Each test's name matches
+// the testPointer in TS-220 / TS-230 / TS-231 so audit coverage resolves
+// them.
+
+test('gates (R2, AC-17403-9): draftSettled runs tree-wide under narrowed D3 scope', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // No TAC in scope, no shaped REQ in scope. A [draft] core entity lives
+  // tree-wide; the pre-R2 code returned notApplicable here and silently
+  // dropped the finding.
+  const tad = { dataArchitecture: { coreEntities: [{ name: 'Loan', description: '[draft] a loan under servicing' }] } };
+  const tree = makeTree({ tad });
+  const stage = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
+  const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
+  assert.ok(draft, 'shapes:draftSettled check present');
+  const hit = draft.failing.find((f) => f.id === 'TAD.entity:Loan');
+  assert.ok(hit, `expected a TAD.entity:Loan finding; got ${JSON.stringify(draft.failing)}`);
+});
+
+test('gates (R5, AC-17404-7): entityJoin runs tree-wide under narrowed D3 scope', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // No TAC in scope. A coreEntity has no record shape anywhere tree-wide;
+  // the pre-R5 code returned notApplicable and silently dropped the finding.
+  const tad = { dataArchitecture: { coreEntities: [{ name: 'Loan', description: 'a loan under servicing' }] } };
+  const tree = makeTree({ tad });
+  const stage = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing');
+  const join = stage.checks.find((c) => c.name === 'shapes:entityJoin');
+  assert.ok(join, 'shapes:entityJoin check present');
+  const hit = join.failing.find((f) => f.id === 'TAD.entity:Loan');
+  assert.ok(hit, 'expected TAD.entity:Loan finding');
+  assert.equal(hit.why, 'no record shape');
+});
+
+test('gates (R6, AC-17404-8): bare path whitelist is checked by pathsResolve', () => {
+  // Direct check on the extractor plus a round-trip through checkD3Shapes.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // Dockerfile is in the whitelist, foo is not.
+  assert.deepEqual(extractInterfacePathTokens('path: Dockerfile'), ['Dockerfile']);
+  assert.deepEqual(extractInterfacePathTokens('path: foo'), []);
+  assert.deepEqual(extractInterfacePathTokens('path: Makefile'), ['Makefile']);
+  assert.deepEqual(extractInterfacePathTokens('path: LICENSE'), ['LICENSE']);
+  // The exported list is non-empty and includes the canonical names.
+  assert.ok(BARE_PATH_WHITELIST.includes('Dockerfile'));
+  assert.ok(BARE_PATH_WHITELIST.includes('Makefile'));
+  assert.ok(BARE_PATH_WHITELIST.includes('LICENSE'));
+  assert.ok(BARE_PATH_WHITELIST.includes('Procfile'));
+  // End-to-end: a bare Dockerfile reference fails pathsResolve when not resolved,
+  // and passes when resolvedPaths contains it.
+  const tac = { tacId: 'TAC-R6', interfaces: [{ name: 'image', kind: 'fileFormat', description: 'format: oci\npath: Dockerfile' }] };
+  const tree = makeTree({ tacs: [tac] });
+  const failing = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(['TAC-R6']), resolvedPaths: new Set(), currentTreeHash: 'sha256:aaa' });
+  const pathsFail = failing.checks.find((c) => c.name === 'shapes:pathsResolve');
+  assert.ok(pathsFail);
+  assert.equal(pathsFail.ok, false, `expected pathsResolve to fail Dockerfile; got ${JSON.stringify(pathsFail.failing)}`);
+  const passing = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(['TAC-R6']), resolvedPaths: new Set(['Dockerfile']), currentTreeHash: 'sha256:aaa' });
+  const pathsPass = passing.checks.find((c) => c.name === 'shapes:pathsResolve');
+  assert.ok(pathsPass);
+  assert.equal(pathsPass.ok, true, `expected pathsResolve to pass Dockerfile when resolved; got ${JSON.stringify(pathsPass.failing)}`);
+});
+
+test('gates (R7, AC-17405-9): standardsCited runs tree-wide under narrowed D2 scope', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // No REQ, PRD, TAD or brief statement in scope. A registered standards
+  // pack is neither cited nor applied/waived tree-wide; the pre-R7 code
+  // returned notApplicable and silently dropped the finding.
+  const manifest = { standards: [{ slug: 'company-security', provenance: 'corporate' }] };
+  const tree = makeTree({ manifest });
+  const stage = checkD2Skeleton({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
+  const check = stage.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.ok(check);
+  assert.equal(check.failing.length, 1);
+  assert.equal(check.failing[0].id, 'standards:company-security');
+});
+
+test('gates (R8, AC-17405-5): applied disposition satisfies standardsCited alongside waived and citation', () => {
+  const manifest = { standards: [{ slug: 'company-security', provenance: 'corporate' }] };
+  const req = { reqId: 'REQ-1', description: 'ok', domain: 'ops', shapeClassification: { shapes: ['other'] }, rationale: 'noop' };
+  const tree = makeTree({ manifest, requirements: [req] });
+  const base = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // applied -> passes.
+  const appliedLedgers = { ...base, concerns: { concerns: [
+    { id: 1, reqId: 'REQ-1', concern: 'standards:company-security', disposition: 'applied', status: 'resolved', addedAt: '2026-10-05T10:00:00Z', resolvedAt: '2026-10-05T10:00:00Z' },
+  ] } };
+  const appliedStage = checkD2Skeleton({ tree, ledgers: appliedLedgers, scope: new Set(['REQ-1']), currentTreeHash: 'sha256:aaa' });
+  const appliedCheck = appliedStage.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.equal(appliedCheck.ok, true, `applied should satisfy; got failing=${JSON.stringify(appliedCheck.failing)}`);
+  // waived -> passes.
+  const waivedLedgers = { ...base, concerns: { concerns: [
+    { id: 1, reqId: 'REQ-1', concern: 'standards:company-security', disposition: 'waived', reason: 'advisory only', status: 'resolved', addedAt: '2026-10-05T10:00:00Z', resolvedAt: '2026-10-05T10:00:00Z' },
+  ] } };
+  const waivedStage = checkD2Skeleton({ tree, ledgers: waivedLedgers, scope: new Set(['REQ-1']), currentTreeHash: 'sha256:aaa' });
+  const waivedCheck = waivedStage.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.equal(waivedCheck.ok, true, 'waived should satisfy');
+  // No concern-ledger entry and no citation -> fails with the R8-reworded why.
+  const unsatisfiedStage = checkD2Skeleton({ tree, ledgers: base, scope: new Set(['REQ-1']), currentTreeHash: 'sha256:aaa' });
+  const unsatisfiedCheck = unsatisfiedStage.checks.find((c) => c.name === 'skeleton:standardsCited');
+  assert.equal(unsatisfiedCheck.ok, false);
+  assert.equal(unsatisfiedCheck.failing[0].id, 'standards:company-security');
+  assert.equal(unsatisfiedCheck.failing[0].why, 'uncited, unapplied and unwaived');
 });

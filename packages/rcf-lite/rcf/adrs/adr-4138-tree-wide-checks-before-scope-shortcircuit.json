@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-05T12:00:00Z",
+  "updatedAt": "2026-10-05T12:00:00Z",
+  "adrId": "ADR-4138-tree-wide-checks-before-scope-shortcircuit",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Tree-wide checks evaluate before any scope short-circuit",
+  "context": "DEFINE step 3 rulings R5 (entityJoin unconditional) and R7 (standardsCited tree-wide) landed on the same shape: a stage whose scope narrows to nothing (D3 with no TAC and no shaped REQ, D2 with no resolving brief statement and no REQ/PRD/TAD) returns a `notApplicable` envelope before any check runs, which silently hides tree-wide findings. The hidden findings are real: a drafted TAD core entity is unjoined to any recordShape (R5) or a registered standards pack is uncited (R7) even when the delta touched nothing in the stage's scope. D4 (`stories:closedSets`, `stories:ownerRefResolves` under their own `notApplicable` arm) and D6 (every check is tree-wide anyway, but the probe-ledger scan sits outside the scope early-return already) inherited the same ordering shape in rcf-lite PRs 6 and 7, so the fix is one shared helper the gates module applies at every stage with a tree-wide check.",
+  "decision": "A stage with a tree-wide check evaluates those checks before any scope-driven `notApplicable` early-return. `src/query/gates.js` grows one shared helper (`evaluateTreeWideChecks(stage, gate, ctx, scopeIsEmpty)`) that returns either a passing `checks[]` (every tree-wide check ok) or a `failing` envelope carrying only the tree-wide check findings. The stage function calls the helper first; when the stage's own scope is empty AND every tree-wide check passes, the stage still returns the `notApplicable` envelope the ADR-4122 fold expects (the placeholder `stage:<D>:scope` check keeps the ratio honest). When the scope is empty AND a tree-wide check fails, the stage returns a `failing` envelope whose `checks[]` carries the failing tree-wide check(s) plus the `stage:<D>:scope` placeholder so the fold reads correctly. When the scope is non-empty the stage runs its full checks list as today, with the tree-wide check(s) interleaved in the same slot in `checks[]` so the viewer and the text report render the same shape. The helper governs: `shapes:draftSettled` (R2, tree-wide by definition; the three draft homes span the whole tree), `shapes:entityJoin` (R5, every coreEntity across the tree), `skeleton:standardsCited` (R7, every registered standards pack across the tree). It does NOT govern delta-only checks: `shapes:templateMarkers`, `shapes:pathsResolve`, `stories:closedSets`, `stories:ownerRefResolves` keep running against the stage scope and continue to short-circuit on an empty scope. The persona and `over` labels of each tree-wide check are unchanged; only the ordering of the short-circuit moves.",
+  "consequences": "A narrowed D2 scope that excludes every REQ/PRD/TAD/brief statement still reports an uncited standards pack through `skeleton:standardsCited`. A narrowed D3 scope that excludes every TAC and shaped REQ still reports a `[draft]` core entity through `shapes:draftSettled` and an unjoined entity through `shapes:entityJoin`. The readiness compute stays pure (the helper is a function of the context, same shape as the stage functions). The `notApplicable` fold the viewer and CLI pills already read is unchanged in effect when nothing tree-wide fails. The CHECK_PERSONA, CHECK_QUESTION and `over` fields stay fixed to their spec section 4 values. Tests pin the ordering: a scope that excludes every item in the stage's local scope AND a tree-wide failure returns a `failing` envelope, not a `notApplicable` one.",
+  "alternativesConsidered": [
+    {
+      "name": "Keep the scope early-return and route tree-wide findings through D8 only",
+      "summary": "Let narrowed D2/D3/etc scopes return `notApplicable` and surface the tree-wide failures only when D8 runs validate clean.",
+      "reasonNotChosen": "D8 is the freeze gate; a narrowed scope at D2/D3 is used to triage work in flight, not to freeze. Making the engineer wait until the freeze pass to see an unjoined entity or an uncited standards pack hides the finding during the loop that should surface it. Spec section 4 names `shapes:entityJoin` and `skeleton:standardsCited` as tree-wide; the current ordering contradicts that."
+    },
+    {
+      "name": "Lift every tree-wide check to a new top-level pass before the stage dispatch",
+      "summary": "Add a `runTreeWideChecks(ctx)` compute at the readiness level that runs before every stage function and prepends its findings to the first failing stage.",
+      "reasonNotChosen": "Changes the readiness result shape and the viewer / CLI consumers that key off the per-stage `checks[]` array. The shared helper keeps every tree-wide check in its canonical stage so `stages[D2].checks[].name === 'skeleton:standardsCited'` still holds."
+    },
+    {
+      "name": "Duplicate the tree-wide check into D8",
+      "summary": "Mirror `shapes:entityJoin` and `skeleton:standardsCited` into D8's checks so a narrowed D2/D3 scope's miss still gets caught at freeze.",
+      "reasonNotChosen": "A failing D2 at freeze fails the freeze gate anyway (D8 `freeze:priorGates`). The duplication adds a second ownership for the same check and the viewer would need to pick which name wins. The helper preserves one owning stage per tree-wide check."
+    }
+  ]
+}

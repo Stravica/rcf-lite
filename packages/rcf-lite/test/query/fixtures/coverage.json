@@ -4667,6 +4667,30 @@
             "TC-215-d2-title-hit-dropped"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-7",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-add-same-id-same-content-unchanged"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-8",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-add-same-id-diff-content-exit-3"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-9",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-add-no-id-mints-next"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -4876,6 +4900,14 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-17403-9",
+          "covered": true,
+          "testCases": [
+            "TC-220-r2-draft-tree-wide-under-narrowed-scope"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-17404-1",
           "covered": true,
           "testCases": [
@@ -4926,6 +4958,22 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-17404-7",
+          "covered": true,
+          "testCases": [
+            "TC-230-r5-entityjoin-under-narrowed-scope"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-8",
+          "covered": true,
+          "testCases": [
+            "TC-230-r6-bare-paths-whitelist"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-17405-1",
           "covered": true,
           "testCases": [
@@ -4965,6 +5013,7 @@
           "id": "AC-17405-5",
           "covered": true,
           "testCases": [
+            "TC-231-r8-standards-applied-waived-or-cited",
             "TC-231-standards-cited-and-waived"
           ],
           "unresolvedTestCases": []
@@ -4990,6 +5039,14 @@
           "covered": true,
           "testCases": [
             "TC-231-ownerref-dotted-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17405-9",
+          "covered": true,
+          "testCases": [
+            "TC-231-r7-standards-under-narrowed-d2-scope"
           ],
           "unresolvedTestCases": []
         },

@@ -352,7 +352,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // persists under rcf-view:v1:theme in standalone mode only;
   // under embed=1 the control is absent and the key is never read
   // or written) (60 -> 61).
-  assert.equal(tree.adrs.length, 61);
+  // DEFINE step 3 rulings R1 to R8 (w-2026-10-05-dave-001) added
+  // ADR-4138 (tree-wide checks evaluate before any scope short-circuit;
+  // shared helper backing R2 + R5 + R7) (61 -> 62).
+  assert.equal(tree.adrs.length, 62);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core

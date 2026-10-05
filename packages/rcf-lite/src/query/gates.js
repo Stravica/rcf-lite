@@ -173,7 +173,7 @@ export const CHECK_QUESTION = /** @type {const} */ ({
   'skeleton:reqShape': 'Every requirement in scope carries a shape classification.',
   'skeleton:tadPersistence': 'TAD data architecture lists dataStores and coreEntities for persistence REQs.',
   'skeleton:deployAdr': 'Exactly one Deploy target or Deploy deferral ADR exists.',
-  'skeleton:standardsCited': 'Every registered standards pack is cited in a REQ rationale or an ADR, or waived by a concern-ledger entry.',
+  'skeleton:standardsCited': 'Every registered standards pack is cited, applied or waived.',
   'shapes:tacHasInterface': 'Every TAC in scope has at least one interface.',
   'shapes:kindVocabulary': 'Every interface kind is in the closed vocabulary.',
   'shapes:draftSettled': 'Every draft interface has been settled (the [draft] marker is removed).',
@@ -379,15 +379,38 @@ export function parseInterfaceTemplate(iface) {
 }
 
 /**
+ * Known bare repo filenames the slash-or-extension rule would otherwise
+ * silently skip (ruling R6 2026-10-05). A `path: Dockerfile` on an
+ * interface description names a real file at the repo root, so the
+ * `shapes:pathsResolve` check should see it. Exported so the tests can
+ * assert the list verbatim; a bare word outside this set still fails
+ * the slash-or-extension rule as before.
+ */
+export const BARE_PATH_WHITELIST = /** @type {const} */ ([
+  'Dockerfile',
+  'Containerfile',
+  'Makefile',
+  'LICENSE',
+  'Procfile',
+  'Justfile',
+  'Rakefile',
+  'Gemfile',
+  'CODEOWNERS',
+]);
+const BARE_PATH_WHITELIST_SET = new Set(BARE_PATH_WHITELIST);
+
+/**
  * Rough `path:` token scanner for an interface description. Returns
  * every candidate path token the description names so the CLI can
  * resolve them on disk and the gate can decide `shapes:pathsResolve`
  * against the resolved map (ADR-4131). A candidate is any text that
  * follows a `path:` or `path =` marker and looks like a repo-relative
- * path (contains a `/` or ends with a file extension, no scheme). The
- * scanner is deliberately conservative: an http URL, a bare word, a
- * glob or a template placeholder is not a candidate. Exported for the
- * CLI's resolve-on-disk pass.
+ * path (contains a `/` or ends with a file extension, or is one of the
+ * known bare repo names in BARE_PATH_WHITELIST per ruling R6
+ * 2026-10-05, no scheme). The scanner is deliberately conservative: an
+ * http URL, a bare word outside the whitelist, a glob or a template
+ * placeholder is not a candidate. Exported for the CLI's resolve-on-disk
+ * pass.
  *
  * @param {string} description
  * @returns {string[]}
@@ -409,6 +432,11 @@ export function extractInterfacePathTokens(description) {
     // `src/x.js` or `packages/rcf-lite/CHANGELOG.md`; those don't
     // start with `/`.
     if (token.startsWith('/') && !/\.[a-zA-Z0-9]+$/.test(token)) continue;
+    // Ruling R6 2026-10-05: whitelist the usual bare repo names.
+    if (BARE_PATH_WHITELIST_SET.has(token)) {
+      out.push(token);
+      continue;
+    }
     if (!/\//.test(token) && !/\.[a-zA-Z0-9]+$/.test(token)) continue;
     out.push(token);
   }
@@ -753,6 +781,45 @@ function asSet(scope) {
   return scope instanceof Set ? scope : new Set(scope ?? []);
 }
 
+/**
+ * ADR-4138 (DEFINE step 3 rulings R2, R5, R7 2026-10-05): run every
+ * tree-wide check for a stage and either return a `failing` envelope
+ * carrying only the tree-wide findings (plus the scope placeholder) or
+ * null when every tree-wide check passed, letting the stage proceed to
+ * its own scope early-return or full checks list.
+ *
+ * The helper governs the three checks the rulings name as tree-wide:
+ * `shapes:draftSettled` (R2), `shapes:entityJoin` (R5) and
+ * `skeleton:standardsCited` (R7). Delta-only checks (templateMarkers,
+ * pathsResolve, closedSets, ownerRefResolves) are untouched: they stay
+ * on the stage's own full-checks path.
+ *
+ * @param {string} stage
+ * @param {string} gate
+ * @param {Array<{name: string, check: object}>} treeWideChecks
+ * @param {string} notApplicableReason - the message the notApplicable
+ *   envelope would carry; used only to label a failing envelope's
+ *   placeholder when the scope is empty.
+ * @param {object} freezeCtx
+ * @returns {{ stage: string, gate: string, state: 'failing', checks: object[], reason: string } | null}
+ */
+function treeWideFailureEnvelope(stage, gate, treeWideChecks, notApplicableReason, freezeCtx) {
+  const anyFailing = treeWideChecks.some(({ check }) => !check.ok);
+  if (!anyFailing) return null;
+  const checks = [makeCheck(`stage:${stage}:scope`, 'delta', 0, [])];
+  for (const { check } of treeWideChecks) checks.push(check);
+  const envelope = { stage, gate, state: /** @type {const} */ ('failing'), checks, reason: notApplicableReason };
+  if (WARN_WITH_ACK.has(stage)) {
+    const gates = freezeCtx.freezeGates ?? {};
+    const record = gates[gate];
+    const ackedAtHash = record?.state === 'acknowledged'
+      && typeof record?.at?.hash === 'string'
+      && record.at.hash === freezeCtx.currentTreeHash;
+    if (ackedAtHash) return { ...envelope, state: /** @type {const} */ ('acknowledged') };
+  }
+  return envelope;
+}
+
 // ---------------------------------------------------------------------------
 // D1 -- Brief intake and ledger (blocking in 0.29.0).
 // ---------------------------------------------------------------------------
@@ -863,6 +930,57 @@ export function checkD1Brief(ctx) {
 const D2_RESOLVING_KINDS = new Set(['capability', 'constraint', 'entity', 'actor', 'externalSystem', 'surface']);
 
 /**
+ * Compute the `skeleton:standardsCited` check (engineer, tree-wide).
+ * Pure. Every standards pack registered through `rcf define standards`
+ * (manifest.standards[].slug) is cited in a REQ `rationale` or an ADR,
+ * or satisfied by a concern-ledger entry keyed `standards:<pack>` whose
+ * disposition is `applied` or `waived`. Ruling R8 2026-10-05: both
+ * `applied` and `waived` satisfy the check (an `applied` entry means the
+ * pack was adopted, which is at least as strong as a citation). Ruling
+ * R7 2026-10-05: the check runs tree-wide regardless of the D2 scope
+ * early-return, through the shared ADR-4138 helper.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
+function computeStandardsCitedCheck(ctx) {
+  const tree = ctx.tree;
+  const standardsList = Array.isArray(tree.manifest?.standards)
+    ? /** @type {any[]} */ (tree.manifest.standards)
+    : [];
+  /** @type {Array<{ id: string, why: string }>} */
+  const standardsFail = [];
+  if (standardsList.length > 0) {
+    const reqRationales = (tree.requirements ?? [])
+      .map((r) => (typeof r?.rationale === 'string' ? r.rationale : ''))
+      .join('\n');
+    const adrDocs = (tree.adrs ?? []).map((a) => {
+      try { return JSON.stringify(a); } catch { return ''; }
+    }).join('\n');
+    const concernsBody = /** @type {any} */ (ctx.ledgers?.concerns);
+    const concernList = Array.isArray(concernsBody?.concerns) ? concernsBody.concerns : [];
+    const satisfierSlugs = new Set();
+    for (const entry of concernList) {
+      if (!entry || typeof entry.concern !== 'string') continue;
+      const disposition = typeof entry.disposition === 'string' ? entry.disposition : null;
+      // Ruling R8 2026-10-05: both applied and waived satisfy standardsCited.
+      if (disposition !== 'applied' && disposition !== 'waived') continue;
+      const m = entry.concern.match(/^standards:(.+)$/);
+      if (m) satisfierSlugs.add(m[1]);
+    }
+    for (const pack of standardsList) {
+      const slug = typeof pack?.slug === 'string' ? pack.slug : null;
+      if (!slug) continue;
+      if (satisfierSlugs.has(slug)) continue;
+      if (reqRationales.includes(slug)) continue;
+      if (adrDocs.includes(slug)) continue;
+      standardsFail.push({ id: `standards:${slug}`, why: 'uncited, unapplied and unwaived' });
+    }
+  }
+  return makeCheck('skeleton:standardsCited', 'tree', Math.max(standardsList.length, 1), standardsFail);
+}
+
+/**
  * D2 -- Requirements and architecture skeleton.
  *
  * @param {StageContext} ctx
@@ -880,7 +998,20 @@ export function checkD2Skeleton(ctx) {
   const prdInScope = tree.prd && scope.has(tree.prd.prdId ?? '');
   const tadInScope = tree.tad && scope.has(tree.tad.tadId ?? '');
 
+  // Ruling R7 2026-10-05 (ADR-4138): skeleton:standardsCited is a
+  // tree-wide check; evaluate it before any scope early-return so a
+  // narrowed D2 scope that excludes every REQ/PRD/TAD/brief statement
+  // still reports an uncited pack.
+  const standardsCheck = computeStandardsCitedCheck(ctx);
+
   if (resolvingStmts.length === 0 && reqInScope.length === 0 && !prdInScope && !tadInScope) {
+    const treeWideFailure = treeWideFailureEnvelope(
+      'D2', gate,
+      [{ name: 'skeleton:standardsCited', check: standardsCheck }],
+      'no resolving brief statements and no REQ / PRD / TAD in scope',
+      { currentTreeHash: ctx.currentTreeHash ?? null, freezeGates: /** @type {any} */ (ctx.freeze?.gates) },
+    );
+    if (treeWideFailure) return treeWideFailure;
     return notApplicable('D2', gate, 'no resolving brief statements and no REQ / PRD / TAD in scope');
   }
 
@@ -962,49 +1093,11 @@ export function checkD2Skeleton(ctx) {
   else if (deployAdrs.length > 1) deployFail.push({ id: 'ADR:deploy', why: `${deployAdrs.length} Deploy ADRs found; expected exactly one` });
   checks.push(makeCheck('skeleton:deployAdr', 'tree', 1, deployFail));
 
-  // Check 5 (0.30.0 PR 6): skeleton:standardsCited (engineer, over
-  // tree). Every standards pack registered through `rcf define
-  // standards` (manifest.standards[].slug) is cited in a REQ
-  // `rationale` or an ADR, or waived by a concern-ledger entry keyed
-  // `standards:<pack>`. Fail ids `standards:<pack>` with 'uncited and
-  // unwaived'. Citation is a case-sensitive substring match of the
-  // slug against each REQ.rationale and each ADR document (the ADR
-  // may name a pack in its title, context, decision or consequences;
-  // the serialised document is scanned once per ADR to cover every
-  // field). A waiver entry on the concern ledger reads `concern:
-  // 'standards:<pack>'` with disposition 'applied' or 'waived'.
-  const standardsList = Array.isArray(tree.manifest?.standards)
-    ? /** @type {any[]} */ (tree.manifest.standards)
-    : [];
-  /** @type {Array<{ id: string, why: string }>} */
-  const standardsFail = [];
-  if (standardsList.length > 0) {
-    const reqRationales = (tree.requirements ?? [])
-      .map((r) => (typeof r?.rationale === 'string' ? r.rationale : ''))
-      .join('\n');
-    const adrDocs = (tree.adrs ?? []).map((a) => {
-      try { return JSON.stringify(a); } catch { return ''; }
-    }).join('\n');
-    const concernsBody = /** @type {any} */ (ctx.ledgers?.concerns);
-    const concernList = Array.isArray(concernsBody?.concerns) ? concernsBody.concerns : [];
-    const waiverSlugs = new Set();
-    for (const entry of concernList) {
-      if (!entry || typeof entry.concern !== 'string') continue;
-      const disposition = typeof entry.disposition === 'string' ? entry.disposition : null;
-      if (disposition !== 'applied' && disposition !== 'waived') continue;
-      const m = entry.concern.match(/^standards:(.+)$/);
-      if (m) waiverSlugs.add(m[1]);
-    }
-    for (const pack of standardsList) {
-      const slug = typeof pack?.slug === 'string' ? pack.slug : null;
-      if (!slug) continue;
-      if (waiverSlugs.has(slug)) continue;
-      if (reqRationales.includes(slug)) continue;
-      if (adrDocs.includes(slug)) continue;
-      standardsFail.push({ id: `standards:${slug}`, why: 'uncited and unwaived' });
-    }
-  }
-  checks.push(makeCheck('skeleton:standardsCited', 'tree', Math.max(standardsList.length, 1), standardsFail));
+  // Check 5 (0.30.0 PR 6, ruling R7+R8 2026-10-05): skeleton:standardsCited
+  // (engineer, over tree). Computed by `computeStandardsCitedCheck` so the
+  // same check runs ahead of the scope early-return (R7) and so the R8
+  // behaviour (applied | waived | cited all satisfy) lives in one place.
+  checks.push(standardsCheck);
 
   return foldState('D2', gate, checks, {
     currentTreeHash: ctx.currentTreeHash ?? null,
@@ -1018,6 +1111,98 @@ export function checkD2Skeleton(ctx) {
 
 /** Set form of INTERFACE_KINDS for O(1) checks. */
 const INTERFACE_KINDS_SET = new Set(INTERFACE_KINDS);
+
+/**
+ * Compute the `shapes:draftSettled` check (engineer, tree-wide). Pure.
+ * Ruling R2 2026-10-05 (ADR-4138): a `[draft]` marker on any TAC
+ * purpose, any interface description or any coreEntities[].description
+ * fails the check regardless of the D3 scope's own early-return. The
+ * three id forms are `<tacId>`, `<tacId>:<name>` and `TAD.entity:<name>`.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
+function computeDraftSettledCheck(ctx) {
+  const tree = ctx.tree;
+  const tacs = tree.tacs ?? [];
+  const coreEntities = Array.isArray(tree.tad?.dataArchitecture?.coreEntities)
+    ? /** @type {any[]} */ (tree.tad.dataArchitecture.coreEntities)
+    : [];
+  /** @type {Array<{ id: string, why: string }>} */
+  const draftFindings = [];
+  let totalInterfaces = 0;
+  for (const tac of tacs) {
+    if (parseTacPurposeDraft(tac)) {
+      draftFindings.push({ id: tac.tacId, why: 'draft TAC purpose pre-populated at L1, not yet settled' });
+    }
+    for (const iface of tac.interfaces ?? []) {
+      totalInterfaces += 1;
+      if (parseInterfaceDraft(iface)) {
+        draftFindings.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: 'draft interface pre-populated at L1, not yet settled' });
+      }
+    }
+  }
+  for (const entity of coreEntities) {
+    if (parseCoreEntityDraft(entity)) {
+      draftFindings.push({ id: `TAD.entity:${entity?.name ?? '(unnamed)'}`, why: 'draft core entity pre-populated at L1, not yet settled' });
+    }
+  }
+  const totalDraftHomes = tacs.length + totalInterfaces + coreEntities.length;
+  return makeCheck('shapes:draftSettled', 'tree', Math.max(totalDraftHomes, 1), draftFindings);
+}
+
+/**
+ * Compute the `shapes:entityJoin` check (engineer, tree-wide). Pure.
+ * Ruling R5 2026-10-05 (ADR-4138): every entry in
+ * `TAD.dataArchitecture.coreEntities` must be named by exactly one
+ * `recordShape` across the whole tree (matching on the recordShape's
+ * `name` field or an `entity:` line in its description, with a
+ * `[draft]` prefix stripped before the scan). The check runs ahead of
+ * the D3 scope early-return so a narrowed scope that excludes every
+ * recordShape still reports an unjoined entity.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
+function computeEntityJoinCheck(ctx) {
+  const tree = ctx.tree;
+  const coreEntities = Array.isArray(tree.tad?.dataArchitecture?.coreEntities)
+    ? /** @type {any[]} */ (tree.tad.dataArchitecture.coreEntities)
+    : [];
+  /** @type {Array<{ id: string, why: string }>} */
+  const joinFindings = [];
+  const recordShapesByEntity = new Map();
+  for (const tac of tree.tacs ?? []) {
+    for (const iface of tac.interfaces ?? []) {
+      if (iface?.kind !== 'recordShape') continue;
+      const ownerLabel = `${tac.tacId}:${iface?.name ?? '(unnamed)'}`;
+      const names = new Set();
+      if (typeof iface?.name === 'string') names.add(iface.name);
+      const desc = typeof iface?.description === 'string' ? stripDraftPrefix(iface.description) : '';
+      const entityRe = /(^|\n)\s*(?:[-*]\s*)?entity\s*[:=]\s*["'`]?([A-Za-z_][A-Za-z0-9_]*)/g;
+      let em;
+      while ((em = entityRe.exec(desc)) !== null) {
+        if (em[2]) names.add(em[2]);
+      }
+      for (const name of names) {
+        const owners = recordShapesByEntity.get(name) ?? [];
+        owners.push(ownerLabel);
+        recordShapesByEntity.set(name, owners);
+      }
+    }
+  }
+  for (const entity of coreEntities) {
+    const name = typeof entity?.name === 'string' ? entity.name : null;
+    if (!name) continue;
+    const owners = recordShapesByEntity.get(name) ?? [];
+    if (owners.length === 0) {
+      joinFindings.push({ id: `TAD.entity:${name}`, why: 'no record shape' });
+    } else if (owners.length > 1) {
+      joinFindings.push({ id: `TAD.entity:${name}`, why: `${owners.length} record shapes` });
+    }
+  }
+  return makeCheck('shapes:entityJoin', 'tree', coreEntities.length, joinFindings);
+}
 
 /**
  * D3 -- Interface contracts and shapes. 0.29.0 runs the cheap
@@ -1055,9 +1240,26 @@ export function checkD3Shapes(ctx) {
   const coreEntities = Array.isArray(tree.tad?.dataArchitecture?.coreEntities)
     ? /** @type {any[]} */ (tree.tad.dataArchitecture.coreEntities)
     : [];
-  const draftEntities = coreEntities.filter(parseCoreEntityDraft);
 
-  if (tacsInScope.length === 0 && shapedReqInScope.length === 0 && draftEntities.length === 0) {
+  // Ruling R2+R5 2026-10-05 (ADR-4138): shapes:draftSettled and
+  // shapes:entityJoin are tree-wide checks; evaluate them before any
+  // scope early-return so a narrowed D3 scope that excludes every TAC
+  // and shaped REQ still reports a [draft] anywhere in the tree and an
+  // unjoined core entity.
+  const draftCheck = computeDraftSettledCheck(ctx);
+  const entityJoinCheck = computeEntityJoinCheck(ctx);
+
+  if (tacsInScope.length === 0 && shapedReqInScope.length === 0) {
+    const treeWideFailure = treeWideFailureEnvelope(
+      'D3', gate,
+      [
+        { name: 'shapes:draftSettled', check: draftCheck },
+        { name: 'shapes:entityJoin', check: entityJoinCheck },
+      ],
+      'no TAC, no shaped REQ (httpApi/persistence/auth) and no [draft] core entity in scope',
+      { currentTreeHash: ctx.currentTreeHash ?? null, freezeGates: /** @type {any} */ (ctx.freeze?.gates) },
+    );
+    if (treeWideFailure) return treeWideFailure;
     return notApplicable('D3', gate, 'no TAC, no shaped REQ (httpApi/persistence/auth) and no [draft] core entity in scope');
   }
 
@@ -1072,40 +1274,26 @@ export function checkD3Shapes(ctx) {
     noIfaceTacs.map((t) => ({ id: t.tacId, why: 'no interfaces authored' })),
   ));
 
-  // Check 2: every interface kind is in the closed vocabulary.
-  // Check 3: no description across the three draft homes still
-  // carries the `[draft]` marker. A draft shape is entry material
-  // the agent pre-populates after L1; the engineer removes the
-  // marker when the shape is settled. `tacHasInterface` and
-  // `kindVocabulary` apply equally to drafts.
+  // Check 2: every interface kind is in the closed vocabulary (over
+  // delta; drafts included).
   let totalInterfaces = 0;
   const badKinds = [];
-  const draftFindings = [];
   for (const tac of tacsInScope) {
-    if (parseTacPurposeDraft(tac)) {
-      draftFindings.push({ id: tac.tacId, why: 'draft TAC purpose pre-populated at L1, not yet settled' });
-    }
     for (const iface of tac.interfaces ?? []) {
       totalInterfaces += 1;
       const kind = iface?.kind;
       if (typeof kind !== 'string' || !INTERFACE_KINDS_SET.has(kind)) {
         badKinds.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: `unknown interface kind ${JSON.stringify(kind)}` });
       }
-      if (parseInterfaceDraft(iface)) {
-        draftFindings.push({ id: `${tac.tacId}:${iface?.name ?? '(unnamed)'}`, why: 'draft interface pre-populated at L1, not yet settled' });
-      }
     }
   }
-  for (const entity of draftEntities) {
-    draftFindings.push({ id: `TAD.entity:${entity?.name ?? '(unnamed)'}`, why: 'draft core entity pre-populated at L1, not yet settled' });
-  }
-  // Total for the draft check is every draft home that could carry
-  // the marker on an in-scope TAC plus every core entity (tree-wide):
-  // the TAC itself (its purpose) + every interface on it, plus the
-  // coreEntities list.
-  const totalDraftHomes = tacsInScope.length + totalInterfaces + coreEntities.length;
   checks.push(makeCheck('shapes:kindVocabulary', 'delta', totalInterfaces, badKinds));
-  checks.push(makeCheck('shapes:draftSettled', 'delta', totalDraftHomes, draftFindings));
+
+  // Check 3: shapes:draftSettled. Ruling R2 2026-10-05: tree-wide (a
+  // [draft] anywhere is unfinished work). Computed by
+  // computeDraftSettledCheck so the same check is reused ahead of the
+  // scope early-return.
+  checks.push(draftCheck);
 
   // ADR-4131 (0.30.0 PR 5): three D3 bite checks follow.
   // Check 4: shapes:templateMarkers (engineer, over delta). For every
@@ -1132,46 +1320,10 @@ export function checkD3Shapes(ctx) {
   }
   checks.push(makeCheck('shapes:templateMarkers', 'delta', totalInterfaces, templateFindings));
 
-  // Check 5: shapes:entityJoin (engineer, over tree). Every entry in
-  // TAD.dataArchitecture.coreEntities must be named by exactly one
-  // recordShape across the whole tree (not just the delta scope),
-  // matching on the recordShape's `name` field or on an `entity:` line
-  // in its description. A `[draft]` prefix is stripped before the
-  // entity-line scan so a draft recordShape still joins.
-  /** @type {Array<{ id: string, why: string }>} */
-  const joinFindings = [];
-  const treeTacs = tree.tacs ?? [];
-  const recordShapesByEntity = new Map();
-  for (const tac of treeTacs) {
-    for (const iface of tac.interfaces ?? []) {
-      if (iface?.kind !== 'recordShape') continue;
-      const ownerLabel = `${tac.tacId}:${iface?.name ?? '(unnamed)'}`;
-      const names = new Set();
-      if (typeof iface?.name === 'string') names.add(iface.name);
-      const desc = typeof iface?.description === 'string' ? stripDraftPrefix(iface.description) : '';
-      const entityRe = /(^|\n)\s*(?:[-*]\s*)?entity\s*[:=]\s*["'`]?([A-Za-z_][A-Za-z0-9_]*)/g;
-      let em;
-      while ((em = entityRe.exec(desc)) !== null) {
-        if (em[2]) names.add(em[2]);
-      }
-      for (const name of names) {
-        const owners = recordShapesByEntity.get(name) ?? [];
-        owners.push(ownerLabel);
-        recordShapesByEntity.set(name, owners);
-      }
-    }
-  }
-  for (const entity of coreEntities) {
-    const name = typeof entity?.name === 'string' ? entity.name : null;
-    if (!name) continue;
-    const owners = recordShapesByEntity.get(name) ?? [];
-    if (owners.length === 0) {
-      joinFindings.push({ id: `TAD.entity:${name}`, why: 'no record shape' });
-    } else if (owners.length > 1) {
-      joinFindings.push({ id: `TAD.entity:${name}`, why: `${owners.length} record shapes` });
-    }
-  }
-  checks.push(makeCheck('shapes:entityJoin', 'tree', coreEntities.length, joinFindings));
+  // Check 5: shapes:entityJoin. Ruling R5 2026-10-05: tree-wide by
+  // definition. Computed by computeEntityJoinCheck so the same check
+  // is reused ahead of the scope early-return (ADR-4138).
+  checks.push(entityJoinCheck);
 
   // Check 6: shapes:pathsResolve (engineer, over delta). Any path:
   // token on an in-scope interface description must either resolve

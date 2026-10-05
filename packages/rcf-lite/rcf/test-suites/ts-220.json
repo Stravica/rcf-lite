@@ -11,7 +11,8 @@
     "AC-17403-5",
     "AC-17403-6",
     "AC-17403-7",
-    "AC-17403-8"
+    "AC-17403-8",
+    "AC-17403-9"
   ],
   "id": "TS-220",
   "usId": "US-17403",
@@ -72,6 +73,13 @@
       "description": "No check named skeleton:reqFields is emitted; the stage envelope shape (stage, gate, state, checks) is unchanged.",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17403-8): no check named skeleton:reqFields is emitted"
+    },
+    {
+      "id": "TC-220-r2-draft-tree-wide-under-narrowed-scope",
+      "acId": "AC-17403-9",
+      "description": "A D3 scope that excludes every TAC and shaped REQ still reports a [draft] core entity through shapes:draftSettled (stage state failing, not notApplicable) via the ADR-4138 shared tree-wide-before-scope helper.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R2, AC-17403-9): draftSettled runs tree-wide under narrowed D3 scope"
     }
   ],
   "status": "draft"

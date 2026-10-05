@@ -49,6 +49,11 @@
       "id": "AC-17403-8",
       "description": "[must-not] Given any tree, when D2 or D7 runs, then no check named skeleton:reqFields is emitted and the stage envelope shape (stage, gate, state, checks) is unchanged.",
       "testable": true
+    },
+    {
+      "id": "AC-17403-9",
+      "description": "[happy] (R2 2026-10-05) given a D3 scope that excludes every TAC and shaped REQ (no TAC, no httpApi/persistence/auth REQ, no [draft] core entity in scope) but a [draft] core entity exists tree-wide, when D3 runs, then shapes:draftSettled still fails TAD.entity:<name> and the stage state is failing (not notApplicable) through the shared tree-wide-before-scope helper (ADR-4138).",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -56,5 +61,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-01T14:30:00Z",
-  "updatedAt": "2026-10-01T14:30:00Z"
+  "updatedAt": "2026-10-05T12:00:00Z"
 }

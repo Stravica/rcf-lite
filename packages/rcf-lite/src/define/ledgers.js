@@ -102,7 +102,7 @@ export class LedgerError extends Error {
    * @param {string} message
    * @param {object} [opts]
    * @param {string} [opts.filePath]
-   * @param {'parseFailure' | 'schemaFailure' | 'ioFailure' | 'usage'} [opts.code]
+   * @param {'parseFailure' | 'schemaFailure' | 'ioFailure' | 'usage' | 'conflict'} [opts.code]
    * @param {string} [opts.field]
    */
   constructor(message, opts = {}) {
@@ -390,26 +390,105 @@ export function nextIdFor(name, body) {
  * updated body. Pure over its inputs (does not write to disk); the
  * CLI calls `saveLedger` with the result.
  *
+ * Ruling R1 2026-10-05 (w-2026-10-05-dave-001): `add` is idempotent by
+ * id. When `args.id` is set (the harness carries it on a replayed
+ * turn):
+ *   - no entry with that id exists: honour the override and add the
+ *     entry at that id (any gaps in the id sequence are legal; the
+ *     per-ledger validator enforces uniqueness, not contiguity);
+ *   - entry with that id exists and the content matches: return
+ *     `{ status: 'unchanged', body, entry }`, no new write;
+ *   - entry with that id exists and the content differs: throw a
+ *     `LedgerError` (code 'conflict') naming the id and the differing
+ *     field keys so the CLI exits 3. Update is a separate verb.
+ * When `args.id` is omitted the next id is minted as before (the
+ * pre-R1 behaviour; a replayed turn without a carried id still works
+ * but duplicates the entry at a new id, which is why the harness is
+ * responsible for threading --id back).
+ *
  * @param {object} args
  * @param {LedgerName} args.name
  * @param {Record<string, unknown[]>} args.body
  * @param {Record<string, unknown>} args.entry - fields other than id / addedAt / status
+ * @param {number} [args.id] - optional id override (R1)
  * @param {string} [args.now] - ISO timestamp; defaults to Date.now()
- * @returns {{ body: Record<string, unknown[]>, entry: Record<string, unknown> }}
+ * @returns {{ body: Record<string, unknown[]>, entry: Record<string, unknown>, status?: 'added' | 'unchanged' }}
  */
-export function addEntry({ name, body, entry, now }) {
+export function addEntry({ name, body, entry, id, now }) {
   const cfg = LEDGER_CONFIG[name];
   if (!cfg) throw new LedgerError(`Unknown ledger '${name}'.`, { code: 'usage' });
-  const id = nextIdFor(name, body);
+  const list = /** @type {any[]} */ (body[cfg.arrayKey] ?? []);
+  let resolvedId;
+  if (id !== undefined) {
+    if (!Number.isInteger(id) || id < 1) {
+      throw new LedgerError(`${name} add --id must be a positive integer, got ${id}.`, {
+        filePath: ledgerRelPath(name), field: 'id', code: 'usage',
+      });
+    }
+    const existing = list.find((e) => Number(e?.id) === Number(id));
+    if (existing) {
+      // R1 idempotency check: compare caller-supplied fields against the
+      // existing entry. `addedAt` and `status` default on first add, so
+      // they are compared only when the caller explicitly supplied them.
+      const differing = [];
+      for (const [key, value] of Object.entries(entry)) {
+        if (value === undefined) continue;
+        if (key === 'id') continue;
+        if (key === 'addedAt' || key === 'status') {
+          // Default values auto-populated on first add; skip unless the
+          // caller passed them explicitly AND they differ.
+          if (existing[key] !== value) differing.push(key);
+          continue;
+        }
+        if (!deepEqual(existing[key], value)) differing.push(key);
+      }
+      if (differing.length === 0) {
+        return { body, entry: existing, status: 'unchanged' };
+      }
+      throw new LedgerError(
+        `${name} ledger entry ${id} already exists with different content; differing fields: ${differing.sort().join(', ')}. Use the update verb to patch.`,
+        { filePath: ledgerRelPath(name), field: `id ${id}`, code: 'conflict' },
+      );
+    }
+    resolvedId = id;
+  } else {
+    resolvedId = nextIdFor(name, body);
+  }
   const full = {
-    id,
+    id: resolvedId,
     ...entry,
     addedAt: entry.addedAt ?? now ?? new Date().toISOString(),
     status: entry.status ?? 'open',
   };
-  const nextBody = { ...body, [cfg.arrayKey]: [...(body[cfg.arrayKey] ?? []), full] };
+  const nextBody = { ...body, [cfg.arrayKey]: [...list, full] };
   validateLedger(name, nextBody, ledgerRelPath(name));
-  return { body: nextBody, entry: full };
+  return { body: nextBody, entry: full, status: 'added' };
+}
+
+/**
+ * Deep-equality over JSON-shaped values. Used by R1's idempotency
+ * check to compare a caller-supplied field against the existing entry.
+ * Arrays and plain objects are compared structurally; primitives via
+ * Object.is. Pure.
+ */
+function deepEqual(a, b) {
+  if (Object.is(a, b)) return true;
+  if (a === null || b === null) return false;
+  if (typeof a !== typeof b) return false;
+  if (Array.isArray(a)) {
+    if (!Array.isArray(b) || a.length !== b.length) return false;
+    for (let i = 0; i < a.length; i += 1) if (!deepEqual(a[i], b[i])) return false;
+    return true;
+  }
+  if (typeof a === 'object') {
+    if (typeof b !== 'object' || Array.isArray(b)) return false;
+    const ak = Object.keys(a);
+    const bk = Object.keys(b);
+    if (ak.length !== bk.length) return false;
+    for (const k of ak) if (!deepEqual(a[k], b[k])) return false;
+    return true;
+  }
+  return false;
 }
 
 /**

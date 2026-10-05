@@ -39,6 +39,21 @@
       "id": "AC-17302-6",
       "description": "[must-not] given a statement whose text contains an existing REQ title and no resolvedBy, when D2 runs in 0.30.0, then skeleton:resolvedBy does not pass it on the title hit.",
       "testable": true
+    },
+    {
+      "id": "AC-17302-7",
+      "description": "[happy] (R1 2026-10-05) given rcf define ledger brief add --id 3 --text \"foo\" --kind capability on a ledger whose entry 3 already carries kind capability and text foo, when the verb runs, then it exits 0 and stdout reads 'brief-ledger: unchanged 3' (with --json, {\"status\":\"unchanged\",\"id\":3}); the file is not rewritten.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-8",
+      "description": "[failure] (R1 2026-10-05) given rcf define ledger brief add --id 3 --text \"bar\" --kind constraint on a ledger whose entry 3 carries kind capability and text foo, when the verb runs, then it exits 3 and stderr names the id and the differing fields (text, kind); the file is not rewritten.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-9",
+      "description": "[happy] (R1 2026-10-05) given rcf define ledger brief add --text \"foo\" with no --id on an empty ledger, when the verb runs, then it mints id 1 as before (idempotency opt-in is id-carried; the harness threads --id back on replay).",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -46,5 +61,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-02T16:40:00Z"
+  "updatedAt": "2026-10-05T12:00:00Z"
 }
