@@ -482,7 +482,10 @@ REQ-173      yes      AC-17301-1   yes         TC-215-brief-add-text, TC-215-bri
                       AC-17302-7   yes         TC-215-r1-add-same-id-same-content-unchanged
                       AC-17302-8   yes         TC-215-r1-add-same-id-diff-content-exit-3
                       AC-17302-9   yes         TC-215-r1-add-no-id-mints-next
-                      AC-17302-10  yes         TC-215-r1-create-id-unchanged-and-conflict
+                      AC-17302-10  yes         TC-215-r1-create-ac-id-unchanged-and-conflict
+                      AC-17302-11  yes         TC-215-r1-create-tc-id-unchanged-and-conflict
+                      AC-17302-12  yes         TC-215-r1-create-cn-id-unchanged-and-conflict
+                      AC-17302-13  yes         TC-215-r1-create-req-verbatim-replay-unchanged, TC-215-r1...
 REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17401-2   yes         TC-216-blocking-vs-warn
                       AC-17401-3   yes         TC-216-not-applicable

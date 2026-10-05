@@ -2234,8 +2234,22 @@ flowchart LR
   AC-17302-9 -.-> TC-215-r1-add-no-id-mints-next
   AC-17302-10["AC-17302-10"]
   REQ-173 --> AC-17302-10
-  TC-215-r1-create-id-unchanged-and-conflict["TC-215-r1-create-id-unchanged-and-conflict"]
-  AC-17302-10 -.-> TC-215-r1-create-id-unchanged-and-conflict
+  TC-215-r1-create-ac-id-unchanged-and-conflict["TC-215-r1-create-ac-id-unchanged-and-conflict"]
+  AC-17302-10 -.-> TC-215-r1-create-ac-id-unchanged-and-conflict
+  AC-17302-11["AC-17302-11"]
+  REQ-173 --> AC-17302-11
+  TC-215-r1-create-tc-id-unchanged-and-conflict["TC-215-r1-create-tc-id-unchanged-and-conflict"]
+  AC-17302-11 -.-> TC-215-r1-create-tc-id-unchanged-and-conflict
+  AC-17302-12["AC-17302-12"]
+  REQ-173 --> AC-17302-12
+  TC-215-r1-create-cn-id-unchanged-and-conflict["TC-215-r1-create-cn-id-unchanged-and-conflict"]
+  AC-17302-12 -.-> TC-215-r1-create-cn-id-unchanged-and-conflict
+  AC-17302-13["AC-17302-13"]
+  REQ-173 --> AC-17302-13
+  TC-215-r1-create-req-verbatim-replay-unchanged["TC-215-r1-create-req-verbatim-replay-unchanged"]
+  AC-17302-13 -.-> TC-215-r1-create-req-verbatim-replay-unchanged
+  TC-215-r1-create-tac-id-unchanged-and-conflict["TC-215-r1-create-tac-id-unchanged-and-conflict"]
+  AC-17302-13 -.-> TC-215-r1-create-tac-id-unchanged-and-conflict
   REQ-174["REQ-174"]
   AC-17401-1["AC-17401-1"]
   REQ-174 --> AC-17401-1
@@ -4069,7 +4083,14 @@ flowchart LR
   class AC-17302-9 ac;
   class TC-215-r1-add-no-id-mints-next tc;
   class AC-17302-10 ac;
-  class TC-215-r1-create-id-unchanged-and-conflict tc;
+  class TC-215-r1-create-ac-id-unchanged-and-conflict tc;
+  class AC-17302-11 ac;
+  class TC-215-r1-create-tc-id-unchanged-and-conflict tc;
+  class AC-17302-12 ac;
+  class TC-215-r1-create-cn-id-unchanged-and-conflict tc;
+  class AC-17302-13 ac;
+  class TC-215-r1-create-req-verbatim-replay-unchanged tc;
+  class TC-215-r1-create-tac-id-unchanged-and-conflict tc;
   class REQ-174 req;
   class AC-17401-1 ac;
   class TC-216-shape tc;

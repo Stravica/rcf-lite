@@ -4696,7 +4696,32 @@
           "id": "AC-17302-10",
           "covered": true,
           "testCases": [
-            "TC-215-r1-create-id-unchanged-and-conflict"
+            "TC-215-r1-create-ac-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-11",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-tc-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-12",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-cn-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-13",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-req-verbatim-replay-unchanged",
+            "TC-215-r1-create-tac-id-unchanged-and-conflict"
           ],
           "unresolvedTestCases": []
         }
