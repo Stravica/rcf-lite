@@ -345,7 +345,10 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 5 (w-2026-10-03-dave-004) added ADR-4131
   // (the gates bite with --ack as the recorded override for D3, D5, D6)
   // (59 -> 60).
-  assert.equal(tree.adrs.length, 60);
+  // DEFINE step 3 rulings R1 to R8 (w-2026-10-05-dave-001) added
+  // ADR-4138 (tree-wide checks evaluate before any scope short-circuit;
+  // shared helper backing R2 + R5 + R7) (60 -> 61).
+  assert.equal(tree.adrs.length, 61);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
