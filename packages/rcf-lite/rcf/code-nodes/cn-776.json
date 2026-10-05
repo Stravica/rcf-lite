@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-776",
+  "path": "test/view/contrast-aa.test.js",
+  "title": "WCAG 2.1 AA contrast audit test; exits non-zero on any failing pair with selector/state/theme/fg/bg/ratio/threshold named",
+  "description": "Baz 2026-10-04 (w-2026-10-04-dave-001): the test entry point for US-207 (AC-207-1, AC-207-2). Reads `src/view/style.css`, calls `enumeratePairs(css)` from the helper, asserts zero failing pairs across both themes, and when `RCF_WRITE_CONTRAST_REPORT=1` is set writes a BEFORE/AFTER Markdown table to `./output/contrast-report.md` for the lane evidence. On any failure the message names each pair's selector, state, theme, foreground, background, computed ratio and applied threshold (AC-207-2). A second test asserts the pair-record shape so a future refactor cannot drop the structured fields the failure message reads from.",
+  "implementsAcIds": [
+    "AC-207-1",
+    "AC-207-2"
+  ],
+  "dependencies": [
+    "CN-775"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-05T09:59:33Z",
+  "updatedAt": "2026-10-05T09:59:33Z"
+}

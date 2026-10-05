@@ -32,12 +32,19 @@ REQ-002      yes      AC-201-1     yes         TC-003-one-subdiagram-per-req, TC
                       AC-205-6     yes         TC-225-embed-theme-preserved
                       AC-205-7     yes         TC-225-empty-state-on-fetch-failure
                       AC-205-8     yes         TC-225-no-outbound-side-effects
+                      AC-205-9     yes         TC-225-search-button-contrast
                       AC-206-1     yes         TC-229-fixture-shell, TC-229-test-host-http-roundtrip
-                      AC-206-2     yes         TC-229-theme-postmessage-source
+                      AC-206-2     yes         TC-229-reinit-keeps-host-theme, TC-229-theme-postmessage-...
                       AC-206-3     yes         TC-229-hash-nav-embed-preserved
                       AC-206-4     yes         TC-229-cross-origin-ignored
                       AC-206-5     yes         TC-229-lint-framing, TC-229-lint-localstorage-namespace, ...
                       AC-206-6     yes         TC-229-no-new-outbound-postmessage-shape
+                      AC-206-7     yes         TC-229-theme-control-renders-non-embed
+                      AC-206-8     yes         TC-229-theme-control-persists
+                      AC-206-9     yes         TC-229-theme-control-absent-embed
+                      AC-206-10    yes         TC-229-reinit-keeps-control-choice, TC-229-theme-control-...
+                      AC-207-1     yes         TC-236-aa-enumerates-all-pairs, TC-236-state-merge-and-bo...
+                      AC-207-2     yes         TC-236-aa-failure-message
 REQ-003      yes      AC-301-1     yes         TC-006-read-reports-valid
                       AC-301-2     yes         TC-006-read-unknown-id-not-found
                       AC-301-3     yes         TC-006-read-invalid-content-plus-errors

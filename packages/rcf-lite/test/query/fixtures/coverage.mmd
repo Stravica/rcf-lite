@@ -121,6 +121,10 @@ flowchart LR
   REQ-002 --> AC-205-8
   TC-225-no-outbound-side-effects["TC-225-no-outbound-side-effects"]
   AC-205-8 -.-> TC-225-no-outbound-side-effects
+  AC-205-9["AC-205-9"]
+  REQ-002 --> AC-205-9
+  TC-225-search-button-contrast["TC-225-search-button-contrast"]
+  AC-205-9 -.-> TC-225-search-button-contrast
   AC-206-1["AC-206-1"]
   REQ-002 --> AC-206-1
   TC-229-fixture-shell["TC-229-fixture-shell"]
@@ -129,6 +133,8 @@ flowchart LR
   AC-206-1 -.-> TC-229-test-host-http-roundtrip
   AC-206-2["AC-206-2"]
   REQ-002 --> AC-206-2
+  TC-229-reinit-keeps-host-theme["TC-229-reinit-keeps-host-theme"]
+  AC-206-2 -.-> TC-229-reinit-keeps-host-theme
   TC-229-theme-postmessage-source["TC-229-theme-postmessage-source"]
   AC-206-2 -.-> TC-229-theme-postmessage-source
   AC-206-3["AC-206-3"]
@@ -151,6 +157,36 @@ flowchart LR
   REQ-002 --> AC-206-6
   TC-229-no-new-outbound-postmessage-shape["TC-229-no-new-outbound-postmessage-shape"]
   AC-206-6 -.-> TC-229-no-new-outbound-postmessage-shape
+  AC-206-7["AC-206-7"]
+  REQ-002 --> AC-206-7
+  TC-229-theme-control-renders-non-embed["TC-229-theme-control-renders-non-embed"]
+  AC-206-7 -.-> TC-229-theme-control-renders-non-embed
+  AC-206-8["AC-206-8"]
+  REQ-002 --> AC-206-8
+  TC-229-theme-control-persists["TC-229-theme-control-persists"]
+  AC-206-8 -.-> TC-229-theme-control-persists
+  AC-206-9["AC-206-9"]
+  REQ-002 --> AC-206-9
+  TC-229-theme-control-absent-embed["TC-229-theme-control-absent-embed"]
+  AC-206-9 -.-> TC-229-theme-control-absent-embed
+  AC-206-10["AC-206-10"]
+  REQ-002 --> AC-206-10
+  TC-229-reinit-keeps-control-choice["TC-229-reinit-keeps-control-choice"]
+  AC-206-10 -.-> TC-229-reinit-keeps-control-choice
+  TC-229-theme-control-query-wins["TC-229-theme-control-query-wins"]
+  AC-206-10 -.-> TC-229-theme-control-query-wins
+  AC-207-1["AC-207-1"]
+  REQ-002 --> AC-207-1
+  TC-236-aa-enumerates-all-pairs["TC-236-aa-enumerates-all-pairs"]
+  AC-207-1 -.-> TC-236-aa-enumerates-all-pairs
+  TC-236-state-merge-and-boundaries["TC-236-state-merge-and-boundaries"]
+  AC-207-1 -.-> TC-236-state-merge-and-boundaries
+  TC-236-theme-btn-states["TC-236-theme-btn-states"]
+  AC-207-1 -.-> TC-236-theme-btn-states
+  AC-207-2["AC-207-2"]
+  REQ-002 --> AC-207-2
+  TC-236-aa-failure-message["TC-236-aa-failure-message"]
+  AC-207-2 -.-> TC-236-aa-failure-message
   REQ-003["REQ-003"]
   AC-301-1["AC-301-1"]
   REQ-003 --> AC-301-1
@@ -2870,10 +2906,13 @@ flowchart LR
   class TC-225-empty-state-on-fetch-failure tc;
   class AC-205-8 ac;
   class TC-225-no-outbound-side-effects tc;
+  class AC-205-9 ac;
+  class TC-225-search-button-contrast tc;
   class AC-206-1 ac;
   class TC-229-fixture-shell tc;
   class TC-229-test-host-http-roundtrip tc;
   class AC-206-2 ac;
+  class TC-229-reinit-keeps-host-theme tc;
   class TC-229-theme-postmessage-source tc;
   class AC-206-3 ac;
   class TC-229-hash-nav-embed-preserved tc;
@@ -2885,6 +2924,21 @@ flowchart LR
   class TC-229-lint-no-target-top tc;
   class AC-206-6 ac;
   class TC-229-no-new-outbound-postmessage-shape tc;
+  class AC-206-7 ac;
+  class TC-229-theme-control-renders-non-embed tc;
+  class AC-206-8 ac;
+  class TC-229-theme-control-persists tc;
+  class AC-206-9 ac;
+  class TC-229-theme-control-absent-embed tc;
+  class AC-206-10 ac;
+  class TC-229-reinit-keeps-control-choice tc;
+  class TC-229-theme-control-query-wins tc;
+  class AC-207-1 ac;
+  class TC-236-aa-enumerates-all-pairs tc;
+  class TC-236-state-merge-and-boundaries tc;
+  class TC-236-theme-btn-states tc;
+  class AC-207-2 ac;
+  class TC-236-aa-failure-message tc;
   class REQ-003 req;
   class AC-301-1 ac;
   class TC-006-read-reports-valid tc;

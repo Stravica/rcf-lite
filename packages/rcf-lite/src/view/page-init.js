@@ -62,15 +62,151 @@
     else root.removeAttribute('data-embed');
   }
 
+  // Theme provenance (PR 291 landing review F1). live-client re-runs
+  // rcfPage.init() after every SSE swap, so the boot theme must be
+  // resolved and applied ONCE. The state lives on <html> (which
+  // survives every swap and any re-evaluation of this script), like
+  // the __rcf*Wired sentinels elsewhere in this file. `source` is the
+  // last thing that set the theme: 'query' (?theme=), 'stored'
+  // (rcf-view:v1:theme), 'default' (auto), 'host' (rcf-view-theme
+  // postMessage) or 'control' (a click on the theme control). A
+  // re-init never overrides 'host' or 'control'.
+  function themeState() {
+    var root = document.documentElement;
+    if (!root.__rcfThemeState) root.__rcfThemeState = { booted: false, source: null, choice: 'auto' };
+    return root.__rcfThemeState;
+  }
+
+  function setTheme(mode, source) {
+    applyTheme(mode === 'auto' ? null : mode);
+    var st = themeState();
+    st.source = source;
+    st.choice = mode;
+  }
+
+  // Three-state theme control (ADR-4137 standalone-theme-persistence,
+  // Baz 2026-10-04 w-2026-10-04-dave-001). The control writes
+  // `rcf-view:v1:theme` in non-embed mode only; under embed the control
+  // is removed from the DOM entirely and the key is never read or
+  // written. The key sits under the shared `rcf-view:v1:` namespace so
+  // the PR 9 localStorage namespace lint stays green.
+  var THEME_STORAGE_KEY = 'rcf-view:v1:theme';
+
+  function isEmbedActive() {
+    try { return document.documentElement.getAttribute('data-embed') === '1'; }
+    catch (e) { return false; }
+  }
+
+  function safeStorage() {
+    try {
+      if (typeof window === 'undefined' || !window.localStorage) return null;
+      return window.localStorage;
+    } catch (e) {
+      // localStorage can throw on strict privacy modes; treat as absent.
+      return null;
+    }
+  }
+
+  function readStoredTheme() {
+    // The storage boundary (ADR-4137 consequences): under embed we
+    // never read the shared key, so a future re-render of the control
+    // under embed cannot accidentally pick up a value either.
+    if (isEmbedActive()) return null;
+    var s = safeStorage();
+    if (!s) return null;
+    try {
+      var v = s.getItem(THEME_STORAGE_KEY);
+      if (v === 'light' || v === 'dark' || v === 'auto') return v;
+      return null;
+    } catch (e) { return null; }
+  }
+
+  function writeStoredTheme(v) {
+    if (isEmbedActive()) return; // never write under embed (ADR-4137)
+    if (v !== 'light' && v !== 'dark' && v !== 'auto') return;
+    var s = safeStorage();
+    if (!s) return;
+    try { s.setItem(THEME_STORAGE_KEY, v); } catch (e) { /* quota or disabled */ }
+  }
+
+  // Reflect the current effective theme choice (light|dark|auto) on
+  // the control's three buttons. Idempotent across live swaps so the
+  // Router re-run after an SSE innerHTML swap of `#rcf-live-content`
+  // re-syncs (the control itself sits outside the swap wrapper so it
+  // survives, but a fresh page-init call still re-wires guards).
+  function reflectThemeChoice(mode) {
+    var buttons = document.querySelectorAll('[data-rcf-theme-control] [data-rcf-theme]');
+    for (var i = 0; i < buttons.length; i += 1) {
+      var b = buttons[i];
+      var isTarget = b.getAttribute('data-rcf-theme') === mode;
+      b.setAttribute('aria-pressed', isTarget ? 'true' : 'false');
+    }
+  }
+
+  function wireThemeControl() {
+    if (isEmbedActive()) {
+      // ADR-4137: control is absent from the DOM entirely under embed,
+      // not merely hidden by CSS. renderPage({ embed: true }) already
+      // omits the markup; this strip-on-boot is the client-side layer
+      // for the production path where the server renders one page for
+      // every client regardless of the client's query.
+      var ctl = document.querySelector('[data-rcf-theme-control]');
+      if (ctl && ctl.parentNode) ctl.parentNode.removeChild(ctl);
+      return;
+    }
+    var buttons = document.querySelectorAll('[data-rcf-theme-control] [data-rcf-theme]');
+    for (var i = 0; i < buttons.length; i += 1) {
+      var btn = buttons[i];
+      if (btn.__rcfThemeWired) continue;
+      btn.__rcfThemeWired = true;
+      btn.addEventListener('click', function (ev) {
+        var mode = ev.currentTarget.getAttribute('data-rcf-theme');
+        if (mode !== 'light' && mode !== 'dark' && mode !== 'auto') return;
+        setTheme(mode, 'control');
+        writeStoredTheme(mode);
+        reflectThemeChoice(mode);
+      });
+    }
+  }
+
+  // Resolve the effective theme choice for boot, in the precedence
+  // ADR-4137 pins: explicit ?theme= wins first; then (non-embed only)
+  // the stored value; then auto. The stored value is NEVER consulted
+  // under embed. Returns { mode: 'light'|'dark'|'auto', source:
+  // 'query'|'stored'|'default' }.
+  function resolveBootTheme(query) {
+    var q = query && (query.theme === 'light' || query.theme === 'dark' || query.theme === 'auto')
+      ? query.theme : null;
+    if (q) return { mode: q, source: 'query' };
+    var stored = readStoredTheme();
+    if (stored === 'light' || stored === 'dark' || stored === 'auto') return { mode: stored, source: 'stored' };
+    return { mode: 'auto', source: 'default' };
+  }
+
   function initShellFromQuery() {
     var q = parseQuery(window.location.search);
-    // theme: explicit light|dark wins, auto falls through to the
-    // :root:not([data-theme]) + @media prefers-color-scheme block in
-    // style.css. Absent stays light (the base :root tokens).
-    var theme = q.theme;
-    if (theme === 'light' || theme === 'dark' || theme === 'auto') applyTheme(theme === 'auto' ? null : theme);
-    // embed: any value other than exactly "1" is ignored.
+    // embed first so isEmbedActive() reads the right boundary when
+    // the theme precedence check consults storage.
     applyEmbed(q.embed === '1');
+    var st = themeState();
+    var qTheme = (q.theme === 'light' || q.theme === 'dark' || q.theme === 'auto') ? q.theme : null;
+    if (!st.booted) {
+      // First init: resolve the boot theme in ADR-4137 precedence and
+      // apply it once.
+      st.booted = true;
+      var boot = resolveBootTheme(q);
+      setTheme(boot.mode, boot.source);
+    } else if (qTheme && st.source === 'query') {
+      // Re-init (SSE swap): re-assert ?theme= only while it is still
+      // the last thing that set the theme. A host postMessage or a
+      // control click since boot wins and is never overridden; with no
+      // ?theme= a re-init applies nothing (embed host themes survive).
+      setTheme(qTheme, 'query');
+    }
+    // Strip or wire the control after embed has been stamped; the
+    // helper reads data-embed to pick the branch.
+    wireThemeControl();
+    reflectThemeChoice(st.choice);
   }
 
   var messageListenerWired = false;
@@ -84,7 +220,12 @@
       if (!ev || ev.origin !== window.location.origin) return;
       var data = ev.data || {};
       if (data.type !== 'rcf-view-theme') return;
-      if (data.theme === 'light' || data.theme === 'dark') applyTheme(data.theme);
+      if (data.theme === 'light' || data.theme === 'dark') {
+        setTheme(data.theme, 'host');
+        // Live postMessage never writes the stored key (ADR-4137):
+        // the host-driven swap is a session-only override.
+        reflectThemeChoice(data.theme);
+      }
     });
   }
 
@@ -632,7 +773,7 @@
       btn.__rcfFixtureThemeWired = true;
       btn.addEventListener('click', function (ev) {
         var mode = ev.currentTarget.getAttribute('data-rcf-fixture-theme');
-        applyTheme(mode === 'auto' ? null : mode);
+        setTheme(mode === 'light' || mode === 'dark' ? mode : 'auto', 'control');
         var buttons = document.querySelectorAll('[data-rcf-fixture-theme]');
         for (var j = 0; j < buttons.length; j += 1) {
           var b = buttons[j];

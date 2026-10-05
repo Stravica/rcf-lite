@@ -810,7 +810,10 @@ footer.app-footer a {
 
 footer.app-footer a:hover { text-decoration: underline; }
 
-footer.app-footer .sep { color: var(--sv-control); }
+/* Baz 2026-10-04 w-2026-10-04-dave-001: separator was `--sv-control`
+   which fell under 4.5:1 in both themes (3.51:1 light, 4.21:1 dark);
+   `--sv-muted` is the "muted text" token designed for this. */
+footer.app-footer .sep { color: var(--sv-muted); }
 
 footer.app-footer .live {
   margin-left: auto;
@@ -955,7 +958,7 @@ html[data-embed="1"] .pm-controls { top: 3rem; }
   color: var(--sv-ink);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
-  border-color: var(--sv-border);
+  border-color: var(--sv-control);
 }
 
 .pm-status-filter {
@@ -1151,7 +1154,10 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 .pm-mini-review { color: var(--sv-link); background: var(--sv-active); border-color: var(--sv-link); }
 .pm-mini-draft { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
 .pm-mini-needsRevision { color: var(--sv-danger); background: var(--sv-dangerbg); border-color: var(--sv-danger); }
-.pm-mini-superseded { color: var(--sv-control); background: var(--sv-raised); border-color: var(--sv-border); }
+/* Baz 2026-10-04 w-2026-10-04-dave-001: `--sv-control` on `--sv-raised`
+   was 3.51:1 light / 4.21:1 dark, below the 4.5:1 floor for small text.
+   `--sv-muted` is the matching muted-text token and clears AA in both. */
+.pm-mini-superseded { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
 
 .pm-bucket-body { padding: 0.75rem 1rem 1rem; }
 .pm-bucket-body .pm-tad-root { margin-bottom: 0.65rem; }
@@ -1225,7 +1231,9 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 }
 .pm-blueprint-cap-count {
   font-weight: 500;
-  color: var(--sv-control);
+  /* Baz 2026-10-04 w-2026-10-04-dave-001: `--sv-control` fell under
+     the 4.5:1 small-text floor; switched to `--sv-muted`. */
+  color: var(--sv-muted);
   margin-left: 0.25rem;
 }
 .pm-blueprint-cap-body { display: block; }
@@ -2260,19 +2268,38 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   align-items: center;
   gap: 0.35rem;
   padding: 0.3rem 0.6rem;
-  background: var(--sv-surface, #ffffff);
-  color: var(--sv-text, inherit);
-  border: 1px solid var(--sv-border, #d6dbe3);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
+  border: 1px solid var(--sv-border);
   border-radius: 999px;
   font: inherit;
   font-size: 0.85rem;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.1s ease-out, border-color 0.1s ease-out;
+  transition: background-color 0.1s ease-out, border-color 0.1s ease-out, color 0.1s ease-out;
 }
-.rcf-search-btn:hover { background: var(--sv-surface-hover, #f0f3f8); }
+/* Baz 2026-10-04 w-2026-10-04-dave-001: hover previously fell back to
+   a hard-coded light grey (`#f0f3f8`) because `--sv-surface-hover` was
+   never declared; in dark that painted dark ink on a light grey and
+   made the FIND button unreadable. The hover now uses `--sv-active`
+   (the Stravica brand "selected / hovered surface" token, defined in
+   both the `:root` and `:root[data-theme="dark"]` blocks) with the
+   control-strength border so the boundary stays >= 3:1 against the
+   header surface in both themes. The focus-visible outline uses
+   `--sv-focus` (brand focus token) at 3px with 2px offset. */
+.rcf-search-btn:hover,
+.rcf-search-btn:focus-visible {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+  border-color: var(--sv-control);
+}
+.rcf-search-btn:active {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+  border-color: var(--sv-focus);
+}
 .rcf-search-btn:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 2px; }
-.rcf-search-btn .rcf-search-icon { flex-shrink: 0; opacity: 0.75; }
+.rcf-search-btn .rcf-search-icon { flex-shrink: 0; opacity: 0.85; color: var(--sv-ink); }
 .rcf-search-btn .rcf-search-kbd {
   display: inline-flex;
   gap: 0.1rem;
@@ -2282,15 +2309,67 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
 }
 .rcf-search-btn .rcf-search-kbd kbd {
   padding: 0 0.25rem;
-  border: 1px solid var(--sv-border, #d6dbe3);
+  border: 1px solid var(--sv-border);
   border-radius: 3px;
-  background: var(--sv-surface, #ffffff);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
   font-family: inherit;
 }
 
 @media (max-width: 640px) {
   .rcf-search-btn .rcf-search-kbd { display: none; }
 }
+
+/* --------------------------------------------------------------------
+ * Three-state theme control (ADR-4137, Baz 2026-10-04).
+ *
+ * Sits in `.tools` right of the SearchButton in non-embed mode; absent
+ * from the DOM entirely under `data-embed="1"` (page-init.js removes
+ * the element, renderPage({ embed: true }) also skips the markup).
+ * The group buttons use the same ink/active/control tokens as the
+ * SearchButton so hover and focus states stay above WCAG AA in both
+ * themes.
+ * -------------------------------------------------------------------- */
+
+.rcf-theme {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--sv-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--sv-surface);
+}
+.rcf-theme-btn {
+  appearance: none;
+  background: transparent;
+  color: var(--sv-ink);
+  border: 0;
+  padding: 0.3rem 0.55rem;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+}
+.rcf-theme-btn + .rcf-theme-btn { border-left: 1px solid var(--sv-border); }
+.rcf-theme-btn:hover {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+}
+.rcf-theme-btn:focus-visible {
+  outline: 3px solid var(--sv-focus);
+  outline-offset: -3px;
+  background: var(--sv-active);
+}
+.rcf-theme-btn:active {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+}
+.rcf-theme-btn[aria-pressed="true"] {
+  background: var(--sv-button);
+  color: var(--sv-onbutton);
+}
+html[data-embed="1"] .rcf-theme { display: none; }
 
 .rcf-lookup[hidden] { display: none !important; }
 .rcf-lookup {
@@ -2346,7 +2425,7 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   border-radius: 4px;
   cursor: pointer;
 }
-.rcf-lookup-close:hover { color: var(--sv-text); border-color: var(--sv-border); }
+.rcf-lookup-close:hover { color: var(--sv-text); border-color: var(--sv-control); }
 .rcf-lookup-close:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 1px; }
 
 .rcf-lookup-field { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -2360,9 +2439,9 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   padding: 0.55rem 0.75rem;
   font: inherit;
   font-size: 0.95rem;
-  border: 1px solid var(--sv-border, #d6dbe3);
+  border: 1px solid var(--sv-control);
   border-radius: 6px;
-  background: var(--sv-surface-sub, #fbfcfe);
+  background: var(--sv-surface);
   color: var(--sv-text);
 }
 .rcf-lookup-input:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 1px; border-color: var(--sv-link, #3a5bb5); }
@@ -2389,9 +2468,9 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   cursor: pointer;
   border: 1px solid transparent;
 }
-.rcf-lookup-row:hover { background: var(--sv-surface-hover, #f0f3f8); }
+.rcf-lookup-row:hover { background: var(--sv-active); }
 .rcf-lookup-row.is-active {
-  background: var(--sv-surface-hover, #f0f3f8);
+  background: var(--sv-active);
   border-color: var(--sv-link, #3a5bb5);
 }
 .rcf-lookup-row mark {
@@ -2467,7 +2546,7 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   font: inherit;
   font-size: 0.85rem;
 }
-.rcf-lookup-reload:hover { background: var(--sv-surface-hover, #f0f3f8); }
+.rcf-lookup-reload:hover { background: var(--sv-active); }
 .rcf-lookup-reload:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 1px; }
 
 html[data-theme="dark"] .rcf-lookup-backdrop { background: rgba(0, 0, 0, 0.55); }

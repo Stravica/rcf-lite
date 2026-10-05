@@ -49,6 +49,11 @@
       "id": "AC-205-8",
       "description": "[must-not] Given the LookupModal, when the user types a query, picks a result or closes the modal, then no `postMessage` is sent to the parent window, no outbound network request beyond the `./index.json` fetch is made, and no search term is written to `localStorage` / `sessionStorage` / cookies.",
       "testable": true
+    },
+    {
+      "id": "AC-205-9",
+      "description": "[happy] Given the SearchButton (`.rcf-search-btn`) in the shell's `.tools` group, when it is rendered in either theme and in each of its states (default, `:hover`, `:focus-visible`, `:active`), then the computed foreground / background contrast ratio for the button text, the icon stroke against the background and the focus-ring colour against the adjacent surface meets WCAG 2.1 AA (>= 4.5:1 for the text, >= 3:1 for the icon and the focus-ring boundary) in both the light (`:root`) and dark (`:root[data-theme=\"dark\"]`) token sets.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -60,5 +65,5 @@
     "navigation"
   ],
   "createdAt": "2026-10-02T19:00:00Z",
-  "updatedAt": "2026-10-02T19:00:00Z"
+  "updatedAt": "2026-10-04T14:00:00Z"
 }

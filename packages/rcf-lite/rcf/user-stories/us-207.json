@@ -1,0 +1,36 @@
+{
+  "usId": "US-207",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Every viewer text and control colour pair meets WCAG 2.1 AA in both themes",
+  "description": "A static CSS-contrast audit test parses `packages/rcf-lite/src/view/style.css`, resolves the `--sv-*` custom properties for the light (`:root`) and dark (`:root[data-theme=\"dark\"]`) token blocks, and enumerates every rule that sets `color` together with a reachable `background` / `background-color` (own rule, then the nearest ancestor surface token, default `--sv-canvas` page background). Each pair is enumerated in both themes and across every reachable state variant: default, `:hover`, `:focus`, `:focus-visible`, `:active`, `[aria-pressed=\"true\"]`, `[aria-selected=\"true\"]`, `.is-active`, `:disabled`. For each pair the WCAG relative-luminance contrast ratio is computed and asserted against the WCAG 2.1 AA thresholds (>= 4.5:1 for normal text, >= 3:1 for large text and non-text UI boundaries per WCAG 1.4.3 and 1.4.11). Pairs that cannot be resolved statically (gradients, rgba over an unknown background) are computed against the two most likely surfaces (`--sv-canvas` and the ancestor surface token) and recorded as approximate rather than skipped. The test emits a BEFORE/AFTER table under `./output/contrast-report.md` and refuses the suite on any failing pair. Scope covers the whole viewer shell, every tab, components, SearchButton and LookupModal, Readiness, Requirements, Architecture, Build (Specs and DAG), ID lookup; Mermaid and Product Map themed palettes are audited on a best-effort basis and anything bound to a third-party default is listed as a known gap with its ratio. See viewer UI refresh design doc section 9 (theme) and Baz's 2026-10-04 review (`w-2026-10-04-dave-001`).",
+  "asA": "an engineer or reviewer looking at the review surface in either theme",
+  "iWant": "every text and control colour pair in the viewer to meet WCAG 2.1 AA in both themes, pinned by a test that fails the suite when a new rule breaks the floor",
+  "soThat": "the review surface stays readable in both themes and nobody has to re-do the audit by hand on every CSS change",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-207-1",
+      "description": "[happy] Given the viewer stylesheet `src/view/style.css` and the two token blocks (`:root` and `:root[data-theme=\"dark\"]`), when the contrast test runs, then it enumerates every CSS rule that sets `color` (and every state rule merged over its base selector, so a state that changes only the background is paired with the inherited colour) paired with every reachable background (own rule, nearest ancestor surface token, page background `--sv-canvas`) and every state variant (default, `:hover`, `:focus`, `:focus-visible`, `:active`, `[aria-pressed=\"true\"]`, `[aria-selected=\"true\"]`, `.is-active`, `:disabled`), computes the WCAG relative-luminance contrast ratio for each, and asserts >= 4.5:1 for text, >= 3:1 for large text (>= 18.66px bold or >= 24px) and for non-text UI boundaries (control borders and outlines, focus rings against the adjacent colour, each enumerated as its own pair) per WCAG 1.4.3 and 1.4.11 in both the light and dark token sets.",
+      "testable": true
+    },
+    {
+      "id": "AC-207-2",
+      "description": "[failure] Given a contrast pair that falls below the applicable threshold, when the test runs, then the failure message names the selector, state, theme, foreground colour, background colour, computed ratio and the threshold applied, and the test exits non-zero so the suite blocks a merge that drops a pair below AA.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4134-wespa-host-fixture"
+  ],
+  "tags": [
+    "view",
+    "contrast",
+    "accessibility",
+    "a11y",
+    "theme"
+  ],
+  "createdAt": "2026-10-04T14:00:00Z",
+  "updatedAt": "2026-10-05T12:30:00Z"
+}

@@ -59,7 +59,7 @@ import { renderEntitySelector } from './components/entity-selector.js';
 import { renderSubTabStrip } from './components/sub-tab-strip.js';
 import { buildDagLayout, buildDagInspectorPayload, renderBuildDag } from './build-dag.js';
 import { computeReqNeedsWorkIds, needsWorkReasonFor } from './needs-work.js';
-import { renderLookupModal, renderSearchButton } from './view-index.js';
+import { renderLookupModal, renderSearchButton, renderThemeControl } from './view-index.js';
 
 // Umbrella version stamped at module load (same pattern as src/ruleset/index.js).
 // Used by the shell footer so the muted "RCF Lite X.Y.Z" line tracks the
@@ -81,10 +81,21 @@ const LIVE_WRAPPER_CLOSE = '</div>';
  * Render the complete index.html string. Phase 3.8: always includes the
  * live-content wrapper and the live-client script tag.
  *
+ * `opts.embed = true` strips the three-state theme control from the
+ * emitted HTML entirely (ADR-4137 server-side layer). The production
+ * server path at `renderModelToPage` serves one page to every client,
+ * so it never passes `embed`; the client-side layer in `page-init.js`
+ * removes `[data-rcf-theme-control]` from the DOM when `?embed=1` is
+ * on the URL. The option is here so `renderPage({ embed: true })` is
+ * a one-call proof that the control markup can be absent (used by
+ * `test/view/theme-control.test.js` for AC-206-9).
+ *
  * @param {import('./tree-model.js').BuiltTreeModel} model
+ * @param {{ embed?: boolean }} [opts]
  * @returns {string}
  */
-export function renderPage(model) {
+export function renderPage(model, opts) {
+  const embed = Boolean(opts && opts.embed);
   const header = resolveProductHeader(model);
   const projectName = header.projectName ?? 'RCF project';
   const contentHtml = renderContent(model);
@@ -124,6 +135,7 @@ export function renderPage(model) {
       </nav>
       <div class="tools" aria-label="Viewer tools">
         ${renderSearchButton()}
+        ${embed ? '' : renderThemeControl()}
       </div>
     </div>
   </header>
