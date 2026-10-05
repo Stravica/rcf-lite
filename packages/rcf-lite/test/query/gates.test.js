@@ -204,7 +204,11 @@ test('gates: warn-with-ack fold honours freeze.gates acknowledgement at the curr
 
 test('gates: notApplicable decision per stage', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
-  const tree = makeTree();
+  // Ruling R13 2026-10-05 (ADR-4138 extended): D2 skeleton:deployAdr
+  // runs tree-wide ahead of the scope early-return. A fixture that
+  // exercises the notApplicable path must satisfy every tree-wide
+  // check first; seed one Deploy ADR so skeleton:deployAdr passes.
+  const tree = makeTree({ adrs: [{ adrId: 'ADR-D', title: 'Deploy target: fly.io' }] });
   const baseCtx = {
     tree,
     ledgers: emptyLedgers,
@@ -667,7 +671,11 @@ test('gates (ADR-4126, AC-17402-1): every check carries persona + question', () 
 
 test('gates (ADR-4126, AC-17402-7): notApplicable placeholder carries stage fallback persona and ok true', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
-  const tree = makeTree();
+  // Ruling R13 2026-10-05 (ADR-4138 extended): D2 skeleton:deployAdr
+  // runs tree-wide ahead of the scope early-return. Seed a Deploy ADR
+  // so the tree-wide check passes and the stage reaches the real
+  // notApplicable envelope the test exercises.
+  const tree = makeTree({ adrs: [{ adrId: 'ADR-D', title: 'Deploy target: fly.io' }] });
   // D2 goes notApplicable with no resolving statements and no REQ/PRD/TAD in scope.
   const stage = checkD2Skeleton({
     tree, ledgers: emptyLedgers, scope: new Set(),
