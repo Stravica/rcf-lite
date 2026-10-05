@@ -2184,6 +2184,18 @@ flowchart LR
   REQ-173 --> AC-17302-6
   TC-215-d2-title-hit-dropped["TC-215-d2-title-hit-dropped"]
   AC-17302-6 -.-> TC-215-d2-title-hit-dropped
+  AC-17302-7["AC-17302-7"]
+  REQ-173 --> AC-17302-7
+  TC-215-r1-add-same-id-same-content-unchanged["TC-215-r1-add-same-id-same-content-unchanged"]
+  AC-17302-7 -.-> TC-215-r1-add-same-id-same-content-unchanged
+  AC-17302-8["AC-17302-8"]
+  REQ-173 --> AC-17302-8
+  TC-215-r1-add-same-id-diff-content-exit-3["TC-215-r1-add-same-id-diff-content-exit-3"]
+  AC-17302-8 -.-> TC-215-r1-add-same-id-diff-content-exit-3
+  AC-17302-9["AC-17302-9"]
+  REQ-173 --> AC-17302-9
+  TC-215-r1-add-no-id-mints-next["TC-215-r1-add-no-id-mints-next"]
+  AC-17302-9 -.-> TC-215-r1-add-no-id-mints-next
   REQ-174["REQ-174"]
   AC-17401-1["AC-17401-1"]
   REQ-174 --> AC-17401-1
@@ -2285,6 +2297,10 @@ flowchart LR
   REQ-174 --> AC-17403-8
   TC-220-no-req-fields-emitted["TC-220-no-req-fields-emitted"]
   AC-17403-8 -.-> TC-220-no-req-fields-emitted
+  AC-17403-9["AC-17403-9"]
+  REQ-174 --> AC-17403-9
+  TC-220-r2-draft-tree-wide-under-narrowed-scope["TC-220-r2-draft-tree-wide-under-narrowed-scope"]
+  AC-17403-9 -.-> TC-220-r2-draft-tree-wide-under-narrowed-scope
   AC-17404-1["AC-17404-1"]
   REQ-174 --> AC-17404-1
   TC-230-templatemarkers-draft-recordshape["TC-230-templatemarkers-draft-recordshape"]
@@ -2313,6 +2329,14 @@ flowchart LR
   REQ-174 --> AC-17404-6
   TC-230-freeze-ack-blocking-stages-exit-2["TC-230-freeze-ack-blocking-stages-exit-2"]
   AC-17404-6 -.-> TC-230-freeze-ack-blocking-stages-exit-2
+  AC-17404-7["AC-17404-7"]
+  REQ-174 --> AC-17404-7
+  TC-230-r5-entityjoin-under-narrowed-scope["TC-230-r5-entityjoin-under-narrowed-scope"]
+  AC-17404-7 -.-> TC-230-r5-entityjoin-under-narrowed-scope
+  AC-17404-8["AC-17404-8"]
+  REQ-174 --> AC-17404-8
+  TC-230-r6-bare-paths-whitelist["TC-230-r6-bare-paths-whitelist"]
+  AC-17404-8 -.-> TC-230-r6-bare-paths-whitelist
   AC-17405-1["AC-17405-1"]
   REQ-174 --> AC-17405-1
   TC-231-closedsets-cue-without-list["TC-231-closedsets-cue-without-list"]
@@ -2339,6 +2363,8 @@ flowchart LR
   AC-17405-4 -.-> TC-231-crosscut-catalogue-missing-pair
   AC-17405-5["AC-17405-5"]
   REQ-174 --> AC-17405-5
+  TC-231-r8-standards-applied-waived-or-cited["TC-231-r8-standards-applied-waived-or-cited"]
+  AC-17405-5 -.-> TC-231-r8-standards-applied-waived-or-cited
   TC-231-standards-cited-and-waived["TC-231-standards-cited-and-waived"]
   AC-17405-5 -.-> TC-231-standards-cited-and-waived
   AC-17405-6["AC-17405-6"]
@@ -2353,6 +2379,10 @@ flowchart LR
   REQ-174 --> AC-17405-8
   TC-231-ownerref-dotted-refused["TC-231-ownerref-dotted-refused"]
   AC-17405-8 -.-> TC-231-ownerref-dotted-refused
+  AC-17405-9["AC-17405-9"]
+  REQ-174 --> AC-17405-9
+  TC-231-r7-standards-under-narrowed-d2-scope["TC-231-r7-standards-under-narrowed-d2-scope"]
+  AC-17405-9 -.-> TC-231-r7-standards-under-narrowed-d2-scope
   AC-17406-1["AC-17406-1"]
   REQ-174 --> AC-17406-1
   TC-232-contradictions-same-when-negated-then["TC-232-contradictions-same-when-negated-then"]
@@ -3954,6 +3984,12 @@ flowchart LR
   class TC-215-d2-dangling-pointer-fails tc;
   class AC-17302-6 ac;
   class TC-215-d2-title-hit-dropped tc;
+  class AC-17302-7 ac;
+  class TC-215-r1-add-same-id-same-content-unchanged tc;
+  class AC-17302-8 ac;
+  class TC-215-r1-add-same-id-diff-content-exit-3 tc;
+  class AC-17302-9 ac;
+  class TC-215-r1-add-no-id-mints-next tc;
   class REQ-174 req;
   class AC-17401-1 ac;
   class TC-216-shape tc;
@@ -4005,6 +4041,8 @@ flowchart LR
   class TC-220-one-option-no-default-fails-well-formed tc;
   class AC-17403-8 ac;
   class TC-220-no-req-fields-emitted tc;
+  class AC-17403-9 ac;
+  class TC-220-r2-draft-tree-wide-under-narrowed-scope tc;
   class AC-17404-1 ac;
   class TC-230-templatemarkers-draft-recordshape tc;
   class TC-230-templatemarkers-happy tc;
@@ -4019,6 +4057,10 @@ flowchart LR
   class TC-230-cli-check-shapes-exit-matrix tc;
   class AC-17404-6 ac;
   class TC-230-freeze-ack-blocking-stages-exit-2 tc;
+  class AC-17404-7 ac;
+  class TC-230-r5-entityjoin-under-narrowed-scope tc;
+  class AC-17404-8 ac;
+  class TC-230-r6-bare-paths-whitelist tc;
   class AC-17405-1 ac;
   class TC-231-closedsets-cue-without-list tc;
   class TC-231-closedsets-quoted-cue-guard tc;
@@ -4032,6 +4074,7 @@ flowchart LR
   class AC-17405-4 ac;
   class TC-231-crosscut-catalogue-missing-pair tc;
   class AC-17405-5 ac;
+  class TC-231-r8-standards-applied-waived-or-cited tc;
   class TC-231-standards-cited-and-waived tc;
   class AC-17405-6 ac;
   class TC-231-validate-no-missing-marker-finding tc;
@@ -4039,6 +4082,8 @@ flowchart LR
   class TC-231-ownerref-r11-widened tc;
   class AC-17405-8 ac;
   class TC-231-ownerref-dotted-refused tc;
+  class AC-17405-9 ac;
+  class TC-231-r7-standards-under-narrowed-d2-scope tc;
   class AC-17406-1 ac;
   class TC-232-contradictions-same-when-negated-then tc;
   class AC-17406-2 ac;
