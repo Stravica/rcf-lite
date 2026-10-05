@@ -9,10 +9,13 @@
 //
 // Deliberately lightweight: no full CSS parser, no cascade resolver,
 // no DOM. The audit walks declared pairs in-place (same rule block
-// declares `color` and `background[-color]`), and for colour-only rules
-// computes the ratio against two reachable surfaces (the page canvas
-// `--sv-canvas` and the shell surface `--sv-surface`) marking the pair
-// as `approximate`. That matches the US-207 brief: approximate pairs
+// declares `color` and `background[-color]`; state rules merged over
+// their base rule first), and for colour-only rules computes the ratio
+// against three reachable surfaces (the page canvas `--sv-canvas`, the
+// shell surface `--sv-surface` and the raised surface `--sv-raised`),
+// asserting the worst case and marking the pair as `approximate`.
+// Border and outline colours are paired against the adjacent surface
+// at the 3:1 non-text threshold. That matches the US-207 brief: approximate pairs
 // are reported, not skipped, and the test asserts the worst-case ratio.
 //
 // Only the colour tokens the viewer actually uses are resolved; non-
@@ -105,11 +108,27 @@ function walkBlock(src, start, end, context, out) {
     } else {
       const body = src.slice(bodyStart, bodyEnd);
       const decls = parseDeclarations(body);
-      const selectors = prelude.split(',').map((s) => s.trim()).filter(Boolean);
+      const selectors = splitSelectorList(prelude);
       out.push({ selectors, decls, context, raw: body.trim() });
     }
     i = k;
   }
+}
+
+// Split a selector list on top-level commas only, so
+// `:where(a, button, input):focus-visible` stays one selector.
+function splitSelectorList(prelude) {
+  const out = [];
+  let depth = 0;
+  let cur = '';
+  for (const c of prelude) {
+    if (c === '(' || c === '[') depth += 1;
+    else if (c === ')' || c === ']') depth = Math.max(0, depth - 1);
+    if (c === ',' && depth === 0) { if (cur.trim()) out.push(cur.trim()); cur = ''; continue; }
+    cur += c;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
 }
 
 function parseDeclarations(body) {
@@ -209,6 +228,9 @@ export function resolveColour(value, tokens) {
   if (/\s/.test(v) && !/^(rgb|rgba|hsl|hsla)\(/i.test(v)) {
     // Example: `0 0 1px rgba(0,0,0,0.1), linear-gradient(...)` or `#fff url(x)`
     const parts = splitBackgroundValue(v);
+    // A single part equal to the input (e.g. `color-mix(in srgb, ...)`)
+    // cannot be reduced further; recursing would never terminate.
+    if (parts.length === 1 && parts[0] === v) return null;
     for (const p of parts) {
       const r = resolveColour(p, tokens);
       if (r) return r;
@@ -452,10 +474,36 @@ export function isDecorative(selector) {
 
 /**
  * Enumerate every (fg, bg, state, theme) pair the stylesheet asks the
- * browser to paint. For each rule block that declares `color`, pair it
- * with the block's own `background` / `background-color`; if neither is
- * declared, record two approximate pairs: against `--sv-canvas` (the
- * page background) and against `--sv-surface` (the shell surface).
+ * browser to paint, plus every border and outline colour against the
+ * surface it sits on.
+ *
+ * Text pairs. A default-state rule that declares `color` is paired with
+ * its own `background` / `background-color`; if neither is declared (or
+ * it is transparent / unresolvable) the pair is computed against the
+ * three ancestor-surface candidates and marked `approximate`. A state
+ * rule (hover, focus, focus-visible, active, aria-pressed, aria-
+ * selected, is-active, disabled) is first MERGED over its base
+ * selector's declarations (PR 291 landing review F2): a state that only
+ * changes the background is paired with the colour the base declares
+ * (the original `.rcf-search-btn:hover` defect). A colour of `inherit`,
+ * `currentColor` or an unresolvable `var(..., inherit)` falls back to
+ * the page ink declared on `body`, marked approximate.
+ *
+ * Boundary pairs. Every `border` / `border-*` / `border-color` and
+ * `outline` / `outline-color` colour is paired at the 3:1 non-text
+ * threshold (WCAG 1.4.11) against the adjacent surface: outside the
+ * element (ancestor candidates, worst case) for borders and for
+ * outlines with a non-negative offset; the element's own merged
+ * background for an outline drawn inside (negative `outline-offset`).
+ * Boundary pairs carry `asserted`: focus indicators (outlines), state-
+ * rule borders and form-field borders are asserted; a default-state
+ * border on any other element is a decorative hairline or a component
+ * whose identity is carried by its text or fill, which WCAG 1.4.11 does
+ * not require to reach 3:1, so it is reported with `asserted: false`
+ * (advisory) and listed in the report rather than dropped.
+ *
+ * State rules whose base cannot be found are merged over nothing,
+ * marked approximate, and listed in `unresolvedBases`.
  *
  * @param {string} css
  * @returns {{
@@ -463,68 +511,318 @@ export function isDecorative(selector) {
  *   dark: Array<PairRecord>,
  *   lightTokens: Map<string,string>,
  *   darkTokens: Map<string,string>,
+ *   unresolvedBases: string[],
+ *   approximateBases: Array<{ selector: string, base: string }>,
  * }}
  *
  * @typedef {object} PairRecord
  * @property {string} selector
  * @property {string} state
  * @property {string} theme
+ * @property {'text' | 'border' | 'outline'} pairType
  * @property {string} fg
  * @property {string} bg
  * @property {number | null} ratio
  * @property {number} threshold
  * @property {'text' | 'large-text' | 'ui-boundary'} kind
  * @property {boolean} pass
+ * @property {boolean} asserted
  * @property {boolean} approximate
+ * @property {string | null} baseSelector
  * @property {string | null} note
  */
 export function enumeratePairs(css) {
   const lightTokens = buildTokenMap(css, 'light');
   const darkTokens = buildTokenMap(css, 'dark');
   const rules = extractRules(css);
+  const index = buildSelectorIndex(rules);
+  const bodyDecls = mergedDecls(index, 'body', null) || {};
+  const inkExpr = bodyDecls['color'] || 'var(--sv-ink)';
   const light = [];
   const dark = [];
+  const unresolvedBases = [];
+  const approximateBases = [];
   for (const rule of rules) {
-    const hasColor = rule.decls['color'] != null;
-    if (!hasColor) continue;
-    const bgOwn = rule.decls['background-color'] || rule.decls['background'];
     for (const selector of rule.selectors) {
       if (isDecorative(selector)) continue;
-      // Skip rules only inside the token blocks (they declare colour
-      // tokens, not paint real elements).
+      // Skip the token blocks (they declare colour tokens, not paint
+      // real elements).
       if (selector === ':root' || /^:root\b/.test(selector)) continue;
-      const scope = themeScopeOf(selector);
+      const own = rule.decls;
       const state = stateOf(selector);
-      const th = thresholdFor(selector, rule.decls);
+      const ownTouchesText = own['color'] != null || own['background'] != null || own['background-color'] != null;
+      const ownBoundaries = boundaryDeclsOf(own);
+      if (!ownTouchesText && ownBoundaries.length === 0) continue;
+      let effective = own;
+      let baseSelector = null;
+      let baseApprox = false;
+      if (state !== 'default') {
+        const found = findBase(index, selector, rule.context);
+        if (found) {
+          baseSelector = found.base;
+          baseApprox = found.approximate;
+          effective = { ...found.decls, ...own };
+          if (found.approximate) approximateBases.push({ selector, base: found.base });
+        } else {
+          baseApprox = true;
+          unresolvedBases.push(selector);
+        }
+      }
+      const scope = themeScopeOf(selector);
+      const thText = thresholdFor(selector, effective);
       const themesToVisit = [];
       if (scope === 'light' || scope === 'any') themesToVisit.push(['light', lightTokens, light]);
       if (scope === 'dark' || scope === 'any') themesToVisit.push(['dark', darkTokens, dark]);
+      const ctx = { selector, state, baseSelector };
       for (const [themeName, tokens, bucket] of themesToVisit) {
-        const fg = resolveColour(rule.decls['color'], tokens);
-        if (!fg || (fg.a != null && fg.a === 0)) continue;
-        let bgResolved = null;
-        if (bgOwn) bgResolved = resolveColour(bgOwn, tokens);
-        const bgIsTransparent = bgResolved && bgResolved.a === 0;
-        if (bgOwn && bgResolved && !bgIsTransparent && bgResolved.a === 1) {
-          pushPair(bucket, selector, state, themeName, rule.decls['color'], bgOwn, fg, bgResolved, th, false, null, tokens);
-        } else if (bgOwn && bgResolved && bgResolved.a > 0 && bgResolved.a < 1) {
-          // Semi-transparent background: composite it onto the two most
-          // likely ancestor surfaces and record the worst case as
-          // approximate.
-          pushApproxOverCandidates(bucket, selector, state, themeName, rule.decls['color'], bgOwn, fg, bgResolved, th, tokens, 'bg semi-transparent');
-        } else {
-          // Either no background declared, background=transparent, or
-          // the value could not be resolved (gradient / url / unknown
-          // token). Fall through to the ancestor-surface candidates.
-          const note = !bgOwn ? 'bg inherited'
-            : bgIsTransparent ? 'bg transparent -> inherited'
-            : 'bg unresolved';
-          pushApprox(bucket, selector, state, themeName, rule.decls['color'], bgOwn ?? '(inherited)', fg, th, tokens, note);
+        const before = bucket.length;
+        // ---- text pair ----
+        // A state rule always yields the merged text pair it paints in
+        // that state, even when it only changes a border or an outline,
+        // so every declared state is audited.
+        const wantsText = state === 'default' ? own['color'] != null : true;
+        if (wantsText) {
+          let fgExpr = effective['color'];
+          let fg = fgExpr != null ? resolveColour(fgExpr, tokens) : null;
+          let fgNote = null;
+          if (!fg) {
+            // inherit / currentColor / var(--undeclared, inherit) / not
+            // declared: the element paints the inherited page ink.
+            fgNote = fgExpr == null ? 'fg inherited' : `fg ${fgExpr} -> inherited`;
+            fgExpr = inkExpr;
+            fg = resolveColour(inkExpr, tokens);
+          }
+          if (fg && !(fg.a != null && fg.a === 0)) {
+            const bgOwn = effective['background-color'] || effective['background'];
+            let bgResolved = null;
+            if (bgOwn) bgResolved = resolveColour(bgOwn, tokens);
+            const bgIsTransparent = bgResolved && bgResolved.a === 0;
+            const approx = baseApprox || fgNote != null;
+            const noteJoin = (n) => [fgNote, n].filter(Boolean).join('; ') || null;
+            if (bgOwn && bgResolved && !bgIsTransparent && bgResolved.a === 1) {
+              pushPair(bucket, selector, state, themeName, fgExpr, bgOwn, fg, bgResolved, thText, approx, noteJoin(null), tokens);
+            } else if (bgOwn && bgResolved && bgResolved.a > 0 && bgResolved.a < 1) {
+              pushApproxOverCandidates(bucket, selector, state, themeName, fgExpr, bgOwn, fg, bgResolved, thText, tokens, noteJoin('bg semi-transparent'));
+            } else {
+              const note = !bgOwn ? 'bg inherited'
+                : bgIsTransparent ? 'bg transparent -> inherited'
+                : 'bg unresolved';
+              pushApprox(bucket, selector, state, themeName, fgExpr, bgOwn ?? '(inherited)', fg, thText, tokens, noteJoin(note));
+            }
+          }
+        }
+        // ---- boundary pairs (borders, outlines) ----
+        for (const b of ownBoundaries) {
+          pushBoundary(bucket, ctx, themeName, tokens, effective, b, baseApprox);
+        }
+        for (let i = before; i < bucket.length; i += 1) {
+          const p = bucket[i];
+          if (p.pairType == null) p.pairType = 'text';
+          if (p.asserted == null) p.asserted = true;
+          if (p.baseSelector === undefined) p.baseSelector = baseSelector;
         }
       }
     }
   }
-  return { light, dark, lightTokens, darkTokens };
+  return { light, dark, lightTokens, darkTokens, unresolvedBases, approximateBases };
+}
+
+const STATE_TOKEN_SRC = ':focus-visible|:focus-within|:focus|:active|:hover|:disabled|\\[aria-pressed="true"\\]|\\[aria-selected="true"\\]|\\[aria-disabled="true"\\]|\\.is-active\\b';
+
+/**
+ * Remove every state pseudo-class / attribute / class from a selector,
+ * including `:not(<state>)` wrappers, leaving the base element selector.
+ * @param {string} selector
+ * @returns {string}
+ */
+export function stripStates(selector) {
+  return normaliseSelector(selector
+    .replace(new RegExp(`:not\\((?:${STATE_TOKEN_SRC})\\)`, 'g'), '')
+    .replace(new RegExp(STATE_TOKEN_SRC, 'g'), ''));
+}
+
+function normaliseSelector(s) {
+  return s.replace(/\s*([>+~])\s*/g, ' $1 ').replace(/\s+/g, ' ').trim();
+}
+
+function buildSelectorIndex(rules) {
+  const index = new Map();
+  rules.forEach((r, order) => {
+    for (const s of r.selectors) {
+      const key = normaliseSelector(s);
+      if (!index.has(key)) index.set(key, []);
+      index.get(key).push({ decls: r.decls, context: r.context, order });
+    }
+  });
+  return index;
+}
+
+function mergedDecls(index, key, context) {
+  const entries = index.get(key);
+  if (!entries) return null;
+  const usable = entries.filter((e) => e.context == null || e.context === context);
+  if (usable.length === 0) return null;
+  const out = {};
+  for (const e of usable) Object.assign(out, e.decls);
+  return out;
+}
+
+// Split a selector into its compound parts at top-level combinators.
+function compoundsOf(selector) {
+  const out = [];
+  let depth = 0;
+  let cur = '';
+  for (const c of selector) {
+    if (c === '(' || c === '[') depth += 1;
+    else if (c === ')' || c === ']') depth = Math.max(0, depth - 1);
+    if (depth === 0 && (c === ' ' || c === '>' || c === '+' || c === '~')) {
+      if (cur.trim()) out.push(cur.trim());
+      cur = '';
+      continue;
+    }
+    cur += c;
+  }
+  if (cur.trim()) out.push(cur.trim());
+  return out;
+}
+
+/**
+ * Find the base rule for a state selector. Order: the exact selector
+ * with the states stripped; then the same with leading ancestor
+ * compounds dropped one at a time (`.tools .x:hover` -> `.x`); then the
+ * nearest ancestor-qualified rule in the stylesheet whose last compound
+ * matches (`.x:hover` -> `.tools .x`). Steps two and three are marked
+ * approximate.
+ */
+function findBase(index, selector, context) {
+  const stripped = stripStates(selector);
+  if (!stripped) return null;
+  const exact = mergedDecls(index, stripped, context);
+  if (exact && stripped !== normaliseSelector(selector)) return { base: stripped, decls: exact, approximate: false };
+  const parts = compoundsOf(stripped);
+  for (let i = 1; i < parts.length; i += 1) {
+    const key = normaliseSelector(parts.slice(i).join(' '));
+    const d = mergedDecls(index, key, context);
+    if (d) return { base: key, decls: d, approximate: true };
+  }
+  const last = parts[parts.length - 1];
+  if (!last) return null;
+  let best = null;
+  for (const [key, entries] of index.entries()) {
+    if (key === normaliseSelector(selector)) continue;
+    if (stateOf(key) !== 'default') continue;
+    const kParts = compoundsOf(key);
+    if (kParts[kParts.length - 1] !== last) continue;
+    const order = entries[entries.length - 1].order;
+    if (!best || order > best.order) best = { key, order };
+  }
+  if (best) return { base: best.key, decls: mergedDecls(index, best.key, context) || {}, approximate: true };
+  return null;
+}
+
+const BORDER_PROPS = [
+  'border', 'border-color',
+  'border-top', 'border-right', 'border-bottom', 'border-left',
+  'border-top-color', 'border-right-color', 'border-bottom-color', 'border-left-color',
+  'border-block', 'border-inline', 'border-block-start', 'border-block-end', 'border-inline-start', 'border-inline-end',
+];
+const OUTLINE_PROPS = ['outline', 'outline-color'];
+// Form fields: the element names, or a class ending in -input / -select
+// / -textarea (`.rcf-lookup-input`, `.pm-status-select`), but not
+// `-selector`.
+const FORM_FIELD_RE = /(^|[\s>+~(,])(input|select|textarea)(?![\w-])|-(input|select|textarea)(?![\w-])/;
+
+function boundaryDeclsOf(decls) {
+  const out = [];
+  for (const prop of [...BORDER_PROPS, ...OUTLINE_PROPS]) {
+    const v = decls[prop];
+    if (v == null) continue;
+    out.push({ prop, value: v, type: OUTLINE_PROPS.includes(prop) ? 'outline' : 'border' });
+  }
+  return out;
+}
+
+// Pick the colour out of a border / outline value. Returns null for
+// `none` / `hidden` / zero-width / no colour (currentColor is resolved
+// by the caller against the element's colour).
+function boundaryColourExpr(value) {
+  const parts = splitBackgroundValue(value.replace(/\s*!important\s*$/, ''));
+  if (parts.some((p) => p === 'none' || p === 'hidden')) return null;
+  if (parts.length > 0 && parts.every((p) => /^0(px|rem|em)?$/.test(p))) return null;
+  if (parts.some((p) => /^0(px|rem|em)?$/.test(p)) && parts.length > 1) return null;
+  for (const p of parts) {
+    if (/^(solid|dashed|dotted|double|groove|ridge|inset|outset|thin|medium|thick|auto)$/.test(p)) continue;
+    if (/^-?\d/.test(p)) continue;
+    if (p === 'currentColor' || p === 'currentcolor') return 'currentColor';
+    return p;
+  }
+  return null;
+}
+
+function pushBoundary(bucket, ctx, theme, tokens, effective, b, baseApprox) {
+  const { selector, state, baseSelector } = ctx;
+  let expr = boundaryColourExpr(b.value);
+  if (!expr) return;
+  if (expr === 'currentColor') expr = effective['color'] || 'var(--sv-ink)';
+  const colour = resolveColour(expr, tokens);
+  if (!colour || colour.a === 0) return;
+  const lower = selector.toLowerCase();
+  const isFormField = FORM_FIELD_RE.test(lower);
+  const asserted = b.type === 'outline' || state !== 'default' || isFormField;
+  const th = { ratio: 3, kind: 'ui-boundary' };
+  // Outline drawn inside the element (negative offset) sits on the
+  // element's own background; everything else sits on the surface
+  // outside the element.
+  const offset = effective['outline-offset'];
+  const inside = b.type === 'outline' && offset != null && /^-/.test(offset.trim());
+  const ownBgExpr = effective['background-color'] || effective['background'];
+  const ownBg = ownBgExpr ? resolveColour(ownBgExpr, tokens) : null;
+  let rec;
+  if (inside && ownBg && ownBg.a === 1) {
+    const flat = composite(colour, ownBg);
+    const ratio = contrastRatio(flat, ownBg);
+    rec = { bg: ownBgExpr, fgResolved: toHex(flat), bgResolved: toHex(ownBg), ratio, approximate: baseApprox };
+  } else {
+    const worst = worstOverCandidates(colour, tokens);
+    if (!worst) return;
+    rec = { bg: `(adjacent) ~ ${worst.c.bgExpr}`, fgResolved: toHex(worst.flat), bgResolved: toHex(worst.c.bg), ratio: worst.ratio, approximate: true };
+  }
+  bucket.push({
+    selector,
+    state,
+    theme,
+    pairType: b.type,
+    fg: `${b.prop}: ${b.value}`,
+    bg: rec.bg,
+    fgResolved: rec.fgResolved,
+    bgResolved: rec.bgResolved,
+    ratio: rec.ratio,
+    threshold: th.ratio,
+    kind: th.kind,
+    pass: rec.ratio >= th.ratio - 1e-6,
+    asserted,
+    approximate: rec.approximate,
+    baseSelector,
+    note: asserted ? null : 'advisory: default-state border, not required by WCAG 1.4.11',
+  });
+}
+
+function surfaceCandidates(tokens) {
+  return [
+    { name: 'canvas', bgExpr: 'var(--sv-canvas)', bg: resolveColour('var(--sv-canvas)', tokens) },
+    { name: 'surface', bgExpr: 'var(--sv-surface)', bg: resolveColour('var(--sv-surface)', tokens) },
+    { name: 'raised', bgExpr: 'var(--sv-raised)', bg: resolveColour('var(--sv-raised)', tokens) },
+  ].filter((c) => c.bg);
+}
+
+function worstOverCandidates(fg, tokens) {
+  let worst = null;
+  for (const c of surfaceCandidates(tokens)) {
+    const flat = composite(fg, c.bg);
+    const r = contrastRatio(flat, c.bg);
+    if (worst == null || r < worst.ratio) worst = { ratio: r, c, flat };
+  }
+  return worst;
 }
 
 /**
