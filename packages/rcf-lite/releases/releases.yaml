@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.30.0"
+latest: "0.31.0"
 releases:
+  - version: "0.31.0"
+    date: "2026-10-05"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.31.0 gives the viewer a Light, Dark and Auto theme control in standalone mode and brings its text and control colours up to WCAG AA contrast in both themes, with a test that blocks any regression. Under embed=1 the control is absent, nothing is stored and the rcf-view-theme message contract is unchanged."
+      - "DEFINE step 3 rulings R1 to R13 land: tree-wide readiness checks now run before any scope short-circuit, so a narrowed scope still reports a draft marker, an unjoined core entity, an uncited standards pack, a missing Deploy ADR or an empty security or operational section anywhere in the tree. A stage whose scope is empty but whose tree-wide check fails now reads failing rather than not applicable, and the draft-settled check is tree-wide."
+      - "Write-backs that carry an id are idempotent: rcf define create <kind> --id and rcf define ledger <name> add --id exit 0 and write nothing when the same id is replayed with the same content, and exit 3 naming the differing fields when the content differs."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.30.0"
     date: "2026-10-03"
     breaking: true

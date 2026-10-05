@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.31.0] - 2026-10-05
+
+0.31.0 ships three themes from rcf-lite PRs 291, 292 and 293. The viewer gains a standalone Light | Dark | Auto theme control (ADR-4137), readable FIND and LookupModal hover and focus states in dark, and a WCAG 2.1 AA contrast audit test that blocks a merge dropping any colour pair below the floor in either theme. DEFINE step 3 rulings R1 to R8 and R13 land, with every tree-wide readiness check evaluated before any scope short-circuit through one shared helper (ADR-4138). And `--id` write-backs are idempotent: `rcf define ledger <name> add --id` and `rcf define create <kind> --id` treat a same-id replay with identical content as a no-op. Breaking under the pre-1.0 convention for three reasons: `rcf define create <kind> --id` and `rcf define ledger <name> add --id` now exit 3 on same-id-different-content; the readiness envelope for a scope-empty stage with a failing tree-wide check is `failing` (or `acknowledged` when acked at the current hash on a warn-with-ack stage), not `notApplicable`; and `shapes:draftSettled` is tree-wide, so a `[draft]` marker outside the D3 scope now fails the check. The managed agent-instructions block did not change, so no agent re-init is needed (minAgentAction null).
+
 DEFINE step 3 rulings R1 to R8 (Baz ratified Dave's recommendations 2026-10-05 under w-2026-10-05-dave-001; the full ruling set is spec section 18). R9 to R12 already shipped in 0.30.0 and were confirmed on the same pass. PR 292 follow-ups and ruling R13 (w-2026-10-05-dave-013, Baz confirmed 2026-10-05): six items from the independent review of PR 292 plus the tree-wide-before-scope principle extended to every tree-wide check (D5 crosscut:securityArchitecture, D5 crosscut:operationalConcerns, D2 skeleton:deployAdr); R1 extended to `rcf define create`.
 
 Viewer UI refresh amendments (w-2026-10-04-dave-001) following Baz's
@@ -48,7 +52,6 @@ one PR on top of origin/main.
 ### For embedders
 
 Under `embed=1` nothing changes and no new route is added. `renderPage({ embed: true })` omits the theme-control markup from the server-rendered HTML entirely; the production server does not pass `embed`, and `page-init.js` strips the `[data-rcf-theme-control]` element from the DOM on boot when `?embed=1` is on the URL. The `rcf-view:v1:theme` key is never read or written under embed. The `rcf-view-theme` postMessage contract is unchanged.
-
 
 ## [0.30.0] - 2026-10-03
 
