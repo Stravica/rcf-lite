@@ -317,3 +317,44 @@ test('AC-206-10: explicit ?theme= beats the stored value and leaves the key as-i
   const dom2 = await bootPageInit({ search: '', storedTheme: 'dark' });
   assert.equal(dom2.html.getAttribute('data-theme'), 'dark');
 });
+
+// -----------------------------------------------------------------
+// PR 291 landing review F1 regressions. live-client re-invokes
+// rcfPage.init() after every SSE innerHTML swap; the boot theme must
+// be applied once, and a re-init must never override a host
+// postMessage theme or a control choice.
+// -----------------------------------------------------------------
+
+test('PR 291 F1 regression: embed=1 host theme survives an rcfPage.init() re-run', async () => {
+  const dom = await bootPageInit({ search: '?embed=1' });
+  assert.equal(dom.html.getAttribute('data-theme'), null, 'embed boot with no ?theme= leaves auto');
+  dom.window.postMessage({ type: 'rcf-view-theme', theme: 'dark' }, 'http://localhost');
+  assert.equal(dom.html.getAttribute('data-theme'), 'dark');
+  // The SSE swap path: live-client calls window.rcfPage.init().
+  dom.window.rcfPage.init();
+  assert.equal(dom.html.getAttribute('data-theme'), 'dark', 're-init must not wipe the host theme');
+  dom.window.rcfPage.init();
+  assert.equal(dom.html.getAttribute('data-theme'), 'dark', 'a second re-init must not wipe the host theme');
+  const touched = [...dom.storage._reads, ...dom.storage._writes.map(([k]) => k)].filter((k) => k === 'rcf-view:v1:theme');
+  assert.equal(touched.length, 0, 'embed must never touch rcf-view:v1:theme');
+});
+
+test('PR 291 F1 regression: standalone control choice survives an rcfPage.init() re-run with ?theme= in the URL', async () => {
+  const dom = await bootPageInit({ search: '?theme=light' });
+  assert.equal(dom.html.getAttribute('data-theme'), 'light');
+  dom.buttons.dark.click();
+  assert.equal(dom.html.getAttribute('data-theme'), 'dark');
+  dom.window.rcfPage.init();
+  assert.equal(dom.html.getAttribute('data-theme'), 'dark', 're-init must not revert a control choice to ?theme=');
+  assert.equal(dom.buttons.dark.getAttribute('aria-pressed'), 'true');
+  assert.equal(dom.buttons.light.getAttribute('aria-pressed'), 'false');
+});
+
+test('PR 291 F1: re-init with ?theme= and no later choice keeps the query theme; a host message then wins', async () => {
+  const dom = await bootPageInit({ search: '?theme=light&embed=1' });
+  dom.window.rcfPage.init();
+  assert.equal(dom.html.getAttribute('data-theme'), 'light');
+  dom.window.postMessage({ type: 'rcf-view-theme', theme: 'dark' }, 'http://localhost');
+  dom.window.rcfPage.init();
+  assert.equal(dom.html.getAttribute('data-theme'), 'dark', 're-init must not override a host message with ?theme=');
+});
