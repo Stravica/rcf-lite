@@ -15,7 +15,7 @@
       "acId": "AC-302-2",
       "description": "create with a conflicting id returns a clear conflict error and writes nothing",
       "status": "pending",
-      "testPointer": "test/core/store/writer.test.js::createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)"
+      "testPointer": "test/core/store/writer.test.js::createDocument refuses on id collision with different content (exit 3 conflict) and writes nothing (AC-302-2 / R1 extension 2026-10-05)"
     },
     {
       "id": "TC-007-create-writes-validating-child",
