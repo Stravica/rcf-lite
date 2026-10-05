@@ -9,7 +9,9 @@
     "AC-17404-3",
     "AC-17404-4",
     "AC-17404-5",
-    "AC-17404-6"
+    "AC-17404-6",
+    "AC-17404-7",
+    "AC-17404-8"
   ],
   "id": "TS-230",
   "usId": "US-17404",
@@ -70,6 +72,20 @@
       "description": "A [draft] recordShape without fields: fails shapes:templateMarkers exactly as a settled one; this completes AC-18801-4 from PR 3.",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates (REQ-188, AC-18801-4): draft recordShape without fields fails templateMarkers (lifted by PR 5 ADR-4131)"
+    },
+    {
+      "id": "TC-230-r5-entityjoin-under-narrowed-scope",
+      "acId": "AC-17404-7",
+      "description": "A D3 scope narrowed so no TAC and no shaped REQ is in scope but a coreEntity has no record shape anywhere tree-wide still fails shapes:entityJoin (stage state failing, not notApplicable) via the ADR-4138 helper.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R5, AC-17404-7): entityJoin runs tree-wide under narrowed D3 scope"
+    },
+    {
+      "id": "TC-230-r6-bare-paths-whitelist",
+      "acId": "AC-17404-8",
+      "description": "extractInterfacePathTokens treats Dockerfile, Makefile, LICENSE, Procfile, Containerfile, Justfile, Rakefile, Gemfile and CODEOWNERS as candidate tokens; shapes:pathsResolve fails a path: Dockerfile when not in resolvedPaths and passes when resolved. The exported BARE_PATH_WHITELIST drives both.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R6, AC-17404-8): bare path whitelist is checked by pathsResolve"
     }
   ],
   "status": "draft"

@@ -9,7 +9,8 @@
     "AC-17405-3",
     "AC-17405-4",
     "AC-17405-5",
-    "AC-17405-6"
+    "AC-17405-6",
+    "AC-17405-9"
   ],
   "id": "TS-231",
   "usId": "US-17405",
@@ -98,6 +99,20 @@
       "description": "R11 refuses dotted grammar; rcf define validate reports the finding naming the dotted field.",
       "status": "passing",
       "testPointer": "test/define/validate-findings.test.js::validate findings (PR 9, R11): ownerRef uses the widened grammar; deliveredBy object form is checked"
+    },
+    {
+      "id": "TC-231-r8-standards-applied-waived-or-cited",
+      "acId": "AC-17405-5",
+      "description": "A concern-ledger entry concern 'standards:<pack>' with disposition 'applied' satisfies skeleton:standardsCited (R8 2026-10-05); 'waived' also satisfies it; neither nor cited, the pack fails standards:<pack>.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R8, AC-17405-5): applied disposition satisfies standardsCited alongside waived and citation"
+    },
+    {
+      "id": "TC-231-r7-standards-under-narrowed-d2-scope",
+      "acId": "AC-17405-9",
+      "description": "A D2 scope narrowed so no REQ, PRD, TAD or brief statement is in scope but a registered standards pack is neither cited nor waived tree-wide still fails skeleton:standardsCited (stage state failing, not notApplicable) via the ADR-4138 helper.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R7, AC-17405-9): standardsCited runs tree-wide under narrowed D2 scope"
     }
   ],
   "status": "draft"

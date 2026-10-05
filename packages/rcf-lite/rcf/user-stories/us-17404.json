@@ -39,6 +39,16 @@
       "id": "AC-17404-6",
       "description": "[must-not] given --ack on D1, D2, D4, D7 or D8, when freeze runs, then it exits 2 unchanged from 0.29.0.",
       "testable": true
+    },
+    {
+      "id": "AC-17404-7",
+      "description": "[happy] (R5 2026-10-05) given a D3 scope narrowed so no recordShape is in scope but a coreEntity has no record shape anywhere tree-wide, when D3 runs, then shapes:entityJoin fails TAD.entity:<name> and the stage state is failing (not notApplicable); the shared tree-wide-before-scope helper (ADR-4138) governs the ordering.",
+      "testable": true
+    },
+    {
+      "id": "AC-17404-8",
+      "description": "[happy] (R6 2026-10-05) given an interface description with path: Dockerfile and no entry for Dockerfile in resolvedPaths, when D3 runs, then shapes:pathsResolve fails it; given resolvedPaths contains Dockerfile, then it passes. The whitelist exported from gates.js names Dockerfile, Makefile, LICENSE, Procfile, Containerfile, Justfile, Rakefile, Gemfile and CODEOWNERS; a bare word outside the list (foo) still skips as before.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -47,5 +57,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-03T10:50:00Z",
-  "updatedAt": "2026-10-03T10:50:00Z"
+  "updatedAt": "2026-10-05T12:00:00Z"
 }

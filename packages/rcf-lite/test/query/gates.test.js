@@ -1865,3 +1865,40 @@ test('gates (PR 9, AC-17405-2 R11): resolveOwnerRefField accepts the bracket for
   assert.ok(resolveOwnerRefField(adr, 'alternativesConsidered[0]'));
   assert.ok(!resolveOwnerRefField(adr, 'alternativesConsidered[9]'));
 });
+
+// =============================================================================
+// DEFINE step 3 rulings R1 to R8 (w-2026-10-05-dave-001). Test skeletons at
+// chain-commit time; the implementation commits replace the bodies with
+// substantive assertions. Each test's name matches the testPointer in the
+// chain so `audit coverage` resolves them. The TODO lines are swapped for
+// real asserts in the ruling's implementation commit.
+
+test('gates (R2, AC-17403-9): draftSettled runs tree-wide under narrowed D3 scope', () => {
+  // TODO (R2 implementation commit): assert checkD3Shapes with empty scope
+  // but a [draft] coreEntity returns stage.state === 'failing' with a
+  // shapes:draftSettled finding naming TAD.entity:<name>.
+});
+
+test('gates (R5, AC-17404-7): entityJoin runs tree-wide under narrowed D3 scope', () => {
+  // TODO (R5 implementation commit): assert checkD3Shapes with empty scope
+  // but a coreEntity having no record shape returns stage.state === 'failing'
+  // with a shapes:entityJoin finding.
+});
+
+test('gates (R6, AC-17404-8): bare path whitelist is checked by pathsResolve', () => {
+  // TODO (R6 implementation commit): assert extractInterfacePathTokens
+  // returns Dockerfile for a `path: Dockerfile` description and that
+  // shapes:pathsResolve fails/passes it against resolvedPaths accordingly.
+});
+
+test('gates (R7, AC-17405-9): standardsCited runs tree-wide under narrowed D2 scope', () => {
+  // TODO (R7 implementation commit): assert checkD2Skeleton with no REQ,
+  // PRD, TAD or brief statement in scope but a registered uncited pack
+  // returns stage.state === 'failing' with skeleton:standardsCited finding.
+});
+
+test('gates (R8, AC-17405-5): applied disposition satisfies standardsCited alongside waived and citation', () => {
+  // TODO (R8 implementation commit): assert a concern-ledger entry concern
+  // 'standards:<pack>' with disposition 'applied' satisfies the check
+  // alongside 'waived' and a citation.
+});

@@ -317,3 +317,28 @@ test('ledger CLI (AC-17302-2): decisions update patches options and default', as
   assert.equal(body.decisions[0].options.length, 2);
   assert.equal(body.decisions[0].default, 'a');
 });
+
+// =============================================================================
+// DEFINE step 3 ruling R1 (w-2026-10-05-dave-001). Test skeletons at
+// chain-commit time; the implementation commit replaces the bodies with
+// substantive assertions. Each test's name matches the testPointer in the
+// chain so `audit coverage` resolves them.
+
+test('ledger CLI (R1, AC-17302-7): add --id on same-content is unchanged exit 0', () => {
+  // TODO (R1 implementation commit): seed brief ledger with id 1 kind
+  // capability text foo; run `brief add --id 1 --text foo --kind capability`
+  // and assert exit 0, stdout 'brief-ledger: unchanged 1' and file mtime
+  // unchanged.
+});
+
+test('ledger CLI (R1, AC-17302-8): add --id on different-content exits 3 naming fields', () => {
+  // TODO (R1 implementation commit): seed brief ledger with id 1 kind
+  // capability text foo; run `brief add --id 1 --text bar --kind constraint`
+  // and assert exit 3, stderr names id 1 and the differing fields (text,
+  // kind) and file is unchanged.
+});
+
+test('ledger CLI (R1, AC-17302-9): add without --id mints next id', () => {
+  // TODO (R1 implementation commit): on empty brief ledger run
+  // `brief add --text foo` and assert id === 1.
+});
