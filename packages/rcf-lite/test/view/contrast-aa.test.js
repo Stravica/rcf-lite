@@ -28,7 +28,7 @@ import { enumeratePairs, renderReportSection } from './helpers/contrast.js';
 const here = dirname(fileURLToPath(import.meta.url));
 const stylePath = resolve(here, '..', '..', 'src', 'view', 'style.css');
 
-test('WCAG AA contrast audit: every declared color/background pair meets AA in both themes (AC-207-1)', async () => {
+test('enumerates every color/background pair and asserts WCAG 2.1 AA in both themes (AC-207-1)', async () => {
   const css = await readFile(stylePath, 'utf8');
   const { light, dark } = enumeratePairs(css);
 
@@ -72,7 +72,28 @@ test('WCAG AA contrast audit: every declared color/background pair meets AA in b
   }
 });
 
-test('WCAG AA contrast audit: failure message shape names selector/state/theme/fg/bg/ratio/threshold (AC-207-2)', async () => {
+test('.rcf-search-btn passes WCAG 2.1 AA in both themes across every state (AC-205-9)', async () => {
+  const css = await readFile(stylePath, 'utf8');
+  const { light, dark } = enumeratePairs(css);
+  const states = ['default', 'hover', 'focus', 'focus-visible', 'active'];
+  for (const theme of ['light', 'dark']) {
+    const bucket = theme === 'light' ? light : dark;
+    const btnPairs = bucket.filter((p) => p.selector.includes('.rcf-search-btn'));
+    assert.ok(btnPairs.length > 0, `expected at least one .rcf-search-btn pair in ${theme}`);
+    for (const state of states) {
+      const match = btnPairs.filter((p) => p.state === state);
+      // Not every state has an own rule — hover / focus-visible / active
+      // are the ones Baz's review called out. Default is always present.
+      if (match.length === 0 && state !== 'default') continue;
+      for (const p of match) {
+        assert.equal(p.pass, true,
+          `[${theme}] .rcf-search-btn ${state}: color=${p.fg} (${p.fgResolved}) over background=${p.bg} (${p.bgResolved}) ratio=${p.ratio.toFixed(2)}:1 threshold=${p.threshold}:1`);
+      }
+    }
+  }
+});
+
+test('failure message names selector/state/theme/fg/bg/ratio/threshold and exits non-zero (AC-207-2)', async () => {
   // Build a tiny stylesheet with one deliberate failure and confirm
   // the pipeline enumerates it and produces the structured record the
   // real test uses to format the failure message.

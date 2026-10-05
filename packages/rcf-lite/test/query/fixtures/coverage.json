@@ -255,6 +255,14 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-205-9",
+          "covered": true,
+          "testCases": [
+            "TC-225-search-button-contrast"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-206-1",
           "covered": true,
           "testCases": [
@@ -302,6 +310,54 @@
           "covered": true,
           "testCases": [
             "TC-229-no-new-outbound-postmessage-shape"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-7",
+          "covered": true,
+          "testCases": [
+            "TC-229-theme-control-renders-non-embed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-8",
+          "covered": true,
+          "testCases": [
+            "TC-229-theme-control-persists"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-9",
+          "covered": true,
+          "testCases": [
+            "TC-229-theme-control-absent-embed"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-206-10",
+          "covered": true,
+          "testCases": [
+            "TC-229-theme-control-query-wins"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-207-1",
+          "covered": true,
+          "testCases": [
+            "TC-236-aa-enumerates-all-pairs"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-207-2",
+          "covered": true,
+          "testCases": [
+            "TC-236-aa-failure-message"
           ],
           "unresolvedTestCases": []
         }

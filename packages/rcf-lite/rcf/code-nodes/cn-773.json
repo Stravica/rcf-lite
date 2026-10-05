@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-773",
+  "path": "src/view/html-page.js",
+  "title": "renderPage({ embed }) wires renderThemeControl() into the shell header .tools group; embed path strips the control",
+  "description": "Baz 2026-10-04 (w-2026-10-04-dave-001): `renderPage(model, { embed })` renders the three-state theme control from `renderThemeControl()` immediately after the SearchButton inside `<div class=\"tools\">`. When `embed` is true the markup is skipped entirely (ADR-4137 server-side layer) so no `[data-rcf-theme-control]` element is emitted; the production server path never passes `embed`, and the client-side layer in `page-init.js` strips the element on boot when `?embed=1` is present.",
+  "implementsAcIds": [
+    "AC-206-9"
+  ],
+  "dependencies": [
+    "CN-772"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-05T09:59:33Z",
+  "updatedAt": "2026-10-05T09:59:33Z"
+}
