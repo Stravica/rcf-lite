@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-01T13:12:16Z",
+  "updatedAt": "2026-10-05T18:00:00Z",
   "purpose": "Cover the DEFINE stage-gate check functions D1..D8 (AC-17401-1..8) with unit tests over hand-built TreeModel and ledger fixtures.",
   "testLevel": "unit",
   "acIds": [
@@ -13,7 +13,9 @@
     "AC-17401-7",
     "AC-17401-8",
     "AC-17401-9",
-    "AC-17401-10"
+    "AC-17401-10",
+    "AC-17401-11",
+    "AC-17401-12"
   ],
   "id": "TS-216",
   "usId": "US-17401",
@@ -88,6 +90,20 @@
       "description": "IDENTITY_TEMPLATE carries a '## Surface' section between '## Register' and '## Project-scoped notes' naming viewer/runningApp/prDiff and seeded to 'prDiff'; writeIdentityTemplate on a fresh dir seeds a profile that satisfies checkD1Brief surface markers; an existing profile.md is left byte-identical (slice-1 'kept' contract).",
       "status": "pending",
       "testPointer": "test/setup/identity-register.test.js::IDENTITY_TEMPLATE carries a ## Surface heading between ## Register and ## Project-scoped notes"
+    },
+    {
+      "id": "TC-216-r13-crosscut-security-tree-wide",
+      "acId": "AC-17401-11",
+      "description": "A D5 scope narrowed so no REQ is in scope but the tree carries an auth or httpApi REQ with TAD.securityArchitecture empty still fails crosscut:securityArchitecture; stage state is failing (not notApplicable) via the ADR-4138 shared helper.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R13, AC-17401-11): crosscut:securityArchitecture runs tree-wide under narrowed D5 scope"
+    },
+    {
+      "id": "TC-216-r13-crosscut-operational-tree-wide",
+      "acId": "AC-17401-12",
+      "description": "A D5 scope narrowed so no REQ is in scope but the tree carries an AC with the '[deployed]' marker and TAD.operationalConcerns empty still fails crosscut:operationalConcerns; stage state is failing (not notApplicable) via the ADR-4138 shared helper.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R13, AC-17401-12): crosscut:operationalConcerns runs tree-wide under narrowed D5 scope"
     }
   ],
   "status": "draft"

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T12:00:00Z",
-  "updatedAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-05T18:00:00Z",
   "purpose": "Cover the four sidecar ledgers, the rcf define ledger CLI (add / resolve / list with --json) and the walker-invisibility invariant on rcf/define/ (AC-17301-1..4 on US-17301), the update subverb and the closed resolvedBy pointer grammar (AC-17302-1..6 on US-17302), the statement-file markers (AC-18701-1..6 on US-18701) and the scan wiring (AC-18702-1..6 on US-18702).",
   "testLevel": "integration",
   "acIds": [
@@ -17,6 +17,7 @@
     "AC-17302-7",
     "AC-17302-8",
     "AC-17302-9",
+    "AC-17302-10",
     "AC-18701-1",
     "AC-18701-2",
     "AC-18701-3",
@@ -229,6 +230,13 @@
       "description": "brief add --text with no --id mints the next id (idempotency opt-in is id-carried; the harness threads --id back on replay).",
       "status": "pending",
       "testPointer": "test/cli/ledger.test.js::ledger CLI (R1, AC-17302-9): add without --id mints next id"
+    },
+    {
+      "id": "TC-215-r1-create-id-unchanged-and-conflict",
+      "acId": "AC-17302-10",
+      "description": "rcf define create <kind> --id <id> on an existing id with identical content exits 0 printing 'unchanged' (--json emits {status:unchanged,id,filePath}); the on-disk file is unchanged. The same verb with different content exits 3 and stderr names the id and the differing fields; the on-disk file is unchanged.",
+      "status": "pending",
+      "testPointer": "test/cli/create.test.js::create CLI (R1 extension, AC-17302-10): --id idempotency on same content, exit 3 on conflict"
     }
   ],
   "status": "draft"

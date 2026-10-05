@@ -52,7 +52,12 @@
     },
     {
       "id": "AC-17403-9",
-      "description": "[happy] (R2 2026-10-05) given a D3 scope that excludes every TAC and shaped REQ (no TAC, no httpApi/persistence/auth REQ, no [draft] core entity in scope) but a [draft] core entity exists tree-wide, when D3 runs, then shapes:draftSettled still fails TAD.entity:<name> and the stage state is failing (not notApplicable) through the shared tree-wide-before-scope helper (ADR-4138).",
+      "description": "[happy] (R2 2026-10-05) given a D3 scope that excludes every TAC and shaped REQ (no TAC, no httpApi/persistence/auth REQ in scope) but a [draft] marker exists on a TAC OUTSIDE the narrowed scope, when D3 runs, then shapes:draftSettled still fails the <tacId>:<name> finding and the stage state is failing (not notApplicable) through the shared tree-wide-before-scope helper (ADR-4138); the same test asserted against pre-R2 gates.js (origin/main d8adedff^) returns notApplicable instead.",
+      "testable": true
+    },
+    {
+      "id": "AC-17403-10",
+      "description": "[happy] (PR 292 follow-up 2026-10-05) given a scope-empty D3 with a failing shapes:draftSettled tree-wide, when the failing envelope the ADR-4138 helper returns is rendered by src/cli/readiness.js, then the printed D3 line reads 'D3 (define.shapes): failing' without the pre-R13 '(no TAC ... in scope)' notApplicable reason trailer; the envelope omits the reason field (foldState delegation inside the helper carries no reason text).",
       "testable": true
     }
   ],
@@ -61,5 +66,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-01T14:30:00Z",
-  "updatedAt": "2026-10-05T12:00:00Z"
+  "updatedAt": "2026-10-05T18:00:00Z"
 }

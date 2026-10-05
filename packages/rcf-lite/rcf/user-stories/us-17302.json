@@ -54,6 +54,11 @@
       "id": "AC-17302-9",
       "description": "[happy] (R1 2026-10-05) given rcf define ledger brief add --text \"foo\" with no --id on an empty ledger, when the verb runs, then it mints id 1 as before (idempotency opt-in is id-carried; the harness threads --id back on replay).",
       "testable": true
+    },
+    {
+      "id": "AC-17302-10",
+      "description": "[happy] (R1 create extension 2026-10-05, PR 292 follow-up) given rcf define create ac --parent US-1 --id AC-1-1 --description \"foo\" on a tree where AC-1-1 already carries description \"foo\" with its parent US-1, when the verb runs, then it exits 0 and stdout reads 'AC-1-1: unchanged' (with --json emitting {\"status\":\"unchanged\",\"id\":\"AC-1-1\",\"filePath\":\"rcf/.../ac/ac-1-1.json\"}); the file is not rewritten; and given the same verb with --description \"bar\" instead, it exits 3 and stderr names the id and the differing fields (description); the file is not rewritten.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -61,5 +66,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-05T12:00:00Z"
+  "updatedAt": "2026-10-05T18:00:00Z"
 }

@@ -462,11 +462,13 @@ export function stagePolicy(stage) {
 
 /**
  * ADR-4131 (0.30.0 PR 5): the three gates that accept a recorded
- * `--ack` override. `stagePolicy` keeps returning `blocking` for every
- * stage so the readyToBuild fold stays untouched; `ackable(stage)` is
- * the companion signal the readiness and freeze CLIs read to decide
- * whether a failing stage honours an acknowledgement at the current
- * hash. True for D3, D5 and D6; false for everything else.
+ * `--ack` override. `stagePolicy(stage)` returns `warnWithAck` for
+ * D3/D5/D6 and `blocking` for everything else (ruling R4 2026-10-05
+ * retired the pre-R4 wording that said `stagePolicy` kept returning
+ * `blocking` for every stage); `ackable(stage)` is the companion
+ * signal the readiness and freeze CLIs read to decide whether a
+ * failing stage honours an acknowledgement at the current hash. True
+ * for D3, D5 and D6; false for everything else.
  *
  * @param {string} stage
  * @returns {boolean}

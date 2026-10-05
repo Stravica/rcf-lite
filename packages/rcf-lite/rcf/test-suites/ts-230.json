@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-03T10:50:00Z",
-  "updatedAt": "2026-10-03T10:50:00Z",
+  "updatedAt": "2026-10-05T18:00:00Z",
   "purpose": "Cover US-17404 (D3 bites): the three D3 bite checks shapes:templateMarkers, shapes:entityJoin and shapes:pathsResolve each have pass, fail, notApplicable, id and why strings; drafts are included in templateMarkers; the readiness CLI --check shapes exits 4 on an unacknowledged D3 failure and 0 when acked at the current hash; ackable() is exactly D3, D5, D6; --ack on D1, D2, D4, D7 or D8 exits 2 unchanged.",
   "testLevel": "unit",
   "acIds": [
@@ -11,7 +11,8 @@
     "AC-17404-5",
     "AC-17404-6",
     "AC-17404-7",
-    "AC-17404-8"
+    "AC-17404-8",
+    "AC-17404-9"
   ],
   "id": "TS-230",
   "usId": "US-17404",
@@ -86,6 +87,13 @@
       "description": "extractInterfacePathTokens treats Dockerfile, Makefile, LICENSE, Procfile, Containerfile, Justfile, Rakefile, Gemfile and CODEOWNERS as candidate tokens; shapes:pathsResolve fails a path: Dockerfile when not in resolvedPaths and passes when resolved. The exported BARE_PATH_WHITELIST drives both.",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates (R6, AC-17404-8): bare path whitelist is checked by pathsResolve"
+    },
+    {
+      "id": "TC-230-r13-helper-foldstate-delegation",
+      "acId": "AC-17404-9",
+      "description": "treeWideFailureEnvelope returns null when every tree-wide check passes under a scope-empty stage; on D3 with a failing tree-wide check and a freeze.gates ack at the currentTreeHash it folds through foldState to state 'acknowledged'; on D2 (blocking) with a failing tree-wide check it stays 'failing'.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 292 follow-up, AC-17404-9): treeWideFailureEnvelope helper semantics"
     }
   ],
   "status": "draft"

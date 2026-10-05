@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T14:30:00Z",
-  "updatedAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-05T18:00:00Z",
   "purpose": "Cover US-17403: the skeleton:reqFields split into reqIntent + reqShape, the decisions:allAnswered split into wellFormed + allAnswered, and the new D3 shapes:draftSettled check for interface descriptions carrying the [draft] marker (ADR-4126).",
   "testLevel": "unit",
   "acIds": [
@@ -12,7 +12,8 @@
     "AC-17403-6",
     "AC-17403-7",
     "AC-17403-8",
-    "AC-17403-9"
+    "AC-17403-9",
+    "AC-17403-10"
   ],
   "id": "TS-220",
   "usId": "US-17403",
@@ -77,9 +78,16 @@
     {
       "id": "TC-220-r2-draft-tree-wide-under-narrowed-scope",
       "acId": "AC-17403-9",
-      "description": "A D3 scope that excludes every TAC and shaped REQ still reports a [draft] core entity through shapes:draftSettled (stage state failing, not notApplicable) via the ADR-4138 shared tree-wide-before-scope helper.",
+      "description": "A D3 scope that excludes every TAC and shaped REQ still reports a [draft] marker on a TAC OUTSIDE the narrowed scope through shapes:draftSettled (stage state failing, not notApplicable) via the ADR-4138 shared tree-wide-before-scope helper; the same test asserted against pre-R2 gates.js (origin/main d8adedff^) returns notApplicable instead.",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates (R2, AC-17403-9): draftSettled runs tree-wide under narrowed D3 scope"
+    },
+    {
+      "id": "TC-220-r13-failing-envelope-reason-drops",
+      "acId": "AC-17403-10",
+      "description": "The ADR-4138 helper returns a failing envelope with no reason field; the readiness CLI prints 'D3 (define.shapes): failing' without a '(no TAC ... in scope)' trailer when a tree-wide check fails under a scope-empty stage.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (PR 292 follow-up, AC-17403-10): failing envelope carries no notApplicable reason text"
     }
   ],
   "status": "draft"

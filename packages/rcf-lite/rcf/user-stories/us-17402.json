@@ -44,6 +44,11 @@
       "id": "AC-17402-7",
       "description": "[failure] Given a notApplicable stage, when readiness is computed, then its stage:<D>:scope placeholder check carries the stage's STAGE_FALLBACK_PERSONA and ok true.",
       "testable": true
+    },
+    {
+      "id": "AC-17402-8",
+      "description": "[happy] (R13 2026-10-05) given a D2 scope narrowed so no REQ, PRD, TAD or resolving brief statement is in scope but the tree has zero Deploy target or Deploy deferral ADRs (or two or more), when D2 runs, then skeleton:deployAdr still fails ADR:deploy and the stage state is failing (not notApplicable) through the shared tree-wide-before-scope helper (ADR-4138 extended).",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -51,5 +56,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-01T14:30:00Z",
-  "updatedAt": "2026-10-01T14:30:00Z"
+  "updatedAt": "2026-10-05T18:00:00Z"
 }

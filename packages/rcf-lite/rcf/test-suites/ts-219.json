@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T14:30:00Z",
-  "updatedAt": "2026-10-01T14:30:00Z",
+  "updatedAt": "2026-10-05T18:00:00Z",
   "purpose": "Cover US-17402: every entry in stages[].checks[] carries persona (productOwner | engineer) and a non-empty question string; CHECK_PERSONA / CHECK_QUESTION / STAGE_FALLBACK_PERSONA maps are total; the notApplicable placeholder uses the stage fallback (ADR-4126).",
   "testLevel": "unit",
   "acIds": [
@@ -10,7 +10,8 @@
     "AC-17402-4",
     "AC-17402-5",
     "AC-17402-6",
-    "AC-17402-7"
+    "AC-17402-7",
+    "AC-17402-8"
   ],
   "id": "TS-219",
   "usId": "US-17402",
@@ -64,6 +65,13 @@
       "description": "A notApplicable stage emits one stage:<D>:scope placeholder check with ok true and persona equal to STAGE_FALLBACK_PERSONA[D].",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates (ADR-4126, AC-17402-7): notApplicable placeholder carries stage fallback persona and ok true"
+    },
+    {
+      "id": "TC-219-r13-deploy-adr-tree-wide",
+      "acId": "AC-17402-8",
+      "description": "A D2 scope narrowed so no REQ, PRD, TAD or resolving brief statement is in scope but no Deploy ADR exists tree-wide still fails skeleton:deployAdr; stage state is failing (not notApplicable) via the ADR-4138 shared helper.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates (R13, AC-17402-8): skeleton:deployAdr runs tree-wide under narrowed D2 scope"
     }
   ],
   "status": "draft"

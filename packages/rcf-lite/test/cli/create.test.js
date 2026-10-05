@@ -178,3 +178,46 @@ test('rcf create --help names the parent kind for every kind', async () => {
   assert.match(stdout, /tc\s+-> TS id/);
   assert.match(stdout, /cn\s+-> no --parent/);
 });
+
+// =============================================================================
+// R1 extension to `rcf define create` (DEFINE step 3 ruling R1, PR 292
+// follow-up 2026-10-05, w-2026-10-05-dave-013). Mirrors `rcf define
+// ledger <name> add --id` behaviour: a repeat whose id already exists
+// with identical content exits 0 and reports `unchanged`; a repeat
+// whose id already exists with different content refuses with exit 3
+// and a message naming the id and the differing field keys.
+
+test('create CLI (R1 extension, AC-17302-10): --id idempotency on same content, exit 3 on conflict', async () => {
+  const tmp = await scaffold();
+  // Seed REQ-005 via the normal create path.
+  const first = await runBin(tmp, [
+    'define', 'create', 'req', '--parent', 'PRD-001',
+    '--id', 'REQ-005', '--title', 'My REQ',
+    '--description', 'first description',
+  ]);
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  const originalBody = await readFile(join(tmp, 'rcf/requirements/req-005.json'), 'utf8');
+
+  // Repeat with the same id and same content -> exit 0, unchanged.
+  const same = await runBin(tmp, [
+    'define', 'create', 'req', '--parent', 'PRD-001',
+    '--id', 'REQ-005', '--title', 'My REQ',
+    '--description', 'first description',
+  ]);
+  assert.equal(same.code, 0, `same-content replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.match(same.stdout, /REQ-005: unchanged/);
+  const sameBody = await readFile(join(tmp, 'rcf/requirements/req-005.json'), 'utf8');
+  assert.equal(sameBody, originalBody, 'on-disk file must be byte-identical after unchanged replay');
+
+  // Repeat with the same id and different content -> exit 3, differing fields named.
+  const conflict = await runBin(tmp, [
+    'define', 'create', 'req', '--parent', 'PRD-001',
+    '--id', 'REQ-005', '--title', 'My REQ',
+    '--description', 'second description',
+  ]);
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /REQ-005/);
+  assert.match(conflict.stderr, /description/);
+  const conflictBody = await readFile(join(tmp, 'rcf/requirements/req-005.json'), 'utf8');
+  assert.equal(conflictBody, originalBody, 'on-disk file must be byte-identical after conflict refusal');
+});

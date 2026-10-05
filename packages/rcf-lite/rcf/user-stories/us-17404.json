@@ -49,6 +49,11 @@
       "id": "AC-17404-8",
       "description": "[happy] (R6 2026-10-05) given an interface description with path: Dockerfile and no entry for Dockerfile in resolvedPaths, when D3 runs, then shapes:pathsResolve fails it; given resolvedPaths contains Dockerfile, then it passes. The whitelist exported from gates.js names Dockerfile, Makefile, LICENSE, Procfile, Containerfile, Justfile, Rakefile, Gemfile and CODEOWNERS; a bare word outside the list (foo) still skips as before.",
       "testable": true
+    },
+    {
+      "id": "AC-17404-9",
+      "description": "[happy] (PR 292 follow-up 2026-10-05) given treeWideFailureEnvelope invoked on a scope-empty stage with every tree-wide check passing, when the helper runs, then it returns null (the stage proceeds to its own notApplicable envelope); given at least one failing tree-wide check on an ackable stage (D3) with a freeze.gates acknowledgement whose at.hash equals the currentTreeHash, then the helper returns an envelope with state 'acknowledged' through foldState delegation (the helper does not re-implement ack-at-current-hash); given the same shape on D2 (blocking), then the helper never folds to acknowledged.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -57,5 +62,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-03T10:50:00Z",
-  "updatedAt": "2026-10-05T12:00:00Z"
+  "updatedAt": "2026-10-05T18:00:00Z"
 }
