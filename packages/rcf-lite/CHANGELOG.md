@@ -6,6 +6,26 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+DEFINE step 3 rulings R1 to R8 (Baz ratified Dave's recommendations 2026-10-05 under w-2026-10-05-dave-001; the full ruling set is spec section 18 and `./output/spec-section-18-addendum.md` on the lane). R9 to R12 already shipped in 0.30.0 and were confirmed on the same pass.
+
+### Changed
+
+- **R1: ledger `add` is idempotent by id.** `rcf define ledger <name> add` (brief / decisions / concerns / probes) grows an optional `--id <n>` the harness carries on a replayed turn. A repeat whose id already exists with identical content exits 0 and prints `<ledger>-ledger: unchanged <id>` (with `--json`, `{"status":"unchanged","id":<n>,"entry":{...}}`); a repeat whose id already exists with different content refuses with exit 3 and a message naming the id and the differing field keys. Identity is id-carried: a replayed turn without `--id` still mints the next id as before, so the harness is responsible for threading `--id` back. `brief add --id` with `--from` is refused as a usage error because `--from` mints N entries. `src/define/ledgers.js` `addEntry` and `src/cli/ledger.js`; AC-17302-7/8/9. See "For consumers (upgrading)" below.
+- **R2: `shapes:draftSettled` is tree-wide.** A `[draft]` marker on any `TAC.purpose`, any interface description or any `TAD.dataArchitecture.coreEntities[].description` fails the check regardless of the D3 scope. The check's `over` label flips from `delta` to `tree` to match the ruling; it runs ahead of the D3 `notApplicable` short-circuit via the ADR-4138 helper. `src/query/gates.js` `computeDraftSettledCheck`; AC-17403-9.
+- **R5 and R7: tree-wide checks evaluate before any scope short-circuit (new ADR-4138).** `src/query/gates.js` grows one shared helper (`treeWideFailureEnvelope`) that governs `shapes:draftSettled` (R2), `shapes:entityJoin` (R5) and `skeleton:standardsCited` (R7). A narrowed D3 scope that excludes every TAC and shaped REQ still reports an unjoined `coreEntity` or an unsettled `[draft]`; a narrowed D2 scope that excludes every REQ/PRD/TAD/brief statement still reports an uncited standards pack. The `notApplicable` fold the viewer and CLI pills already read is unchanged when nothing tree-wide fails. Delta-only checks (`shapes:templateMarkers`, `shapes:pathsResolve`, `stories:closedSets`, `stories:ownerRefResolves`) are unaffected. AC-17403-9, AC-17404-7, AC-17405-9.
+- **R6: `extractInterfacePathTokens` whitelists the usual bare repo names.** `shapes:pathsResolve` now checks a `path: Dockerfile` token against `resolvedPaths`. The whitelist is exported as `BARE_PATH_WHITELIST` from `src/query/gates.js` and names `Dockerfile`, `Containerfile`, `Makefile`, `LICENSE`, `Procfile`, `Justfile`, `Rakefile`, `Gemfile` and `CODEOWNERS`. The slash-or-extension rule stays for everything else. AC-17404-8.
+- **R8: `applied` satisfies `skeleton:standardsCited` alongside `waived` and a citation.** A `standards:<pack>` concern-ledger entry with disposition `applied` or `waived` satisfies the check (an `applied` pack was adopted, which is at least as strong as a citation). The CHECK_QUESTION heading reads `Every registered standards pack is cited, applied or waived`; the failing `why` reads `uncited, unapplied and unwaived`. AC-17405-5 wording amended to match.
+
+### Fixed
+
+- **R4: ADR-4131 prose matches the code.** `stagePolicy()` returning `warnWithAck` for D3/D5/D6 is canon; the pre-R4 wording in the ADR that said `stagePolicy keeps returning blocking for every stage` with a separate `ackable()` is retired. The viewer pill vocabulary and the CLI text report both read `stagePolicy` directly. Code is unchanged; ADR prose only.
+- **R3: `rcf_define_draft_shapes` prompt wording.** `guidance/define-draft-shapes.md` says the engineer drafts shapes in parallel with the PO loop and reconciles when Intent completes. The wait-for-Intent-complete wording is removed. The independence invariant (no engineer edit changes the PO question set) is already pinned by AC-18603-3. Wording change only; the managed agent-instructions block hash did not move.
+
+### For consumers (upgrading)
+
+- **R1 exit 3 on same-id-different-content is a behaviour change for harnesses that re-run turns.** Pre-R1, `rcf define ledger brief add --text "x"` would always mint a new entry; a replayed turn minted a duplicate. Post-R1 the harness carries `--id <n>` back on replay so a replay is a no-op; a harness that re-runs the EXACT prior invocation without `--id` still mints a duplicate as before (that path is unchanged). A harness that writes a different value at a known id is a NEW failure mode (exit 3, not exit 1 and not a silent overwrite). CI that depends on `brief add` always exiting 0 should either carry `--id` or treat exit 3 as a hard refusal. `update` remains the verb to patch content at an existing id.
+- The managed agent-instructions block hash did not move under R3 (`pnpm run build:managed` wrote nothing).
+
 
 ## [0.30.0] - 2026-10-03
 
