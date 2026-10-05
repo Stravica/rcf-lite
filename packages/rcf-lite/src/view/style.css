@@ -2260,19 +2260,38 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   align-items: center;
   gap: 0.35rem;
   padding: 0.3rem 0.6rem;
-  background: var(--sv-surface, #ffffff);
-  color: var(--sv-text, inherit);
-  border: 1px solid var(--sv-border, #d6dbe3);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
+  border: 1px solid var(--sv-border);
   border-radius: 999px;
   font: inherit;
   font-size: 0.85rem;
   line-height: 1;
   cursor: pointer;
-  transition: background-color 0.1s ease-out, border-color 0.1s ease-out;
+  transition: background-color 0.1s ease-out, border-color 0.1s ease-out, color 0.1s ease-out;
 }
-.rcf-search-btn:hover { background: var(--sv-surface-hover, #f0f3f8); }
+/* Baz 2026-10-04 w-2026-10-04-dave-001: hover previously fell back to
+   a hard-coded light grey (`#f0f3f8`) because `--sv-surface-hover` was
+   never declared; in dark that painted dark ink on a light grey and
+   made the FIND button unreadable. The hover now uses `--sv-active`
+   (the Stravica brand "selected / hovered surface" token, defined in
+   both the `:root` and `:root[data-theme="dark"]` blocks) with the
+   control-strength border so the boundary stays >= 3:1 against the
+   header surface in both themes. The focus-visible outline uses
+   `--sv-focus` (brand focus token) at 3px with 2px offset. */
+.rcf-search-btn:hover,
+.rcf-search-btn:focus-visible {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+  border-color: var(--sv-control);
+}
+.rcf-search-btn:active {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+  border-color: var(--sv-focus);
+}
 .rcf-search-btn:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 2px; }
-.rcf-search-btn .rcf-search-icon { flex-shrink: 0; opacity: 0.75; }
+.rcf-search-btn .rcf-search-icon { flex-shrink: 0; opacity: 0.85; color: var(--sv-ink); }
 .rcf-search-btn .rcf-search-kbd {
   display: inline-flex;
   gap: 0.1rem;
@@ -2282,15 +2301,63 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
 }
 .rcf-search-btn .rcf-search-kbd kbd {
   padding: 0 0.25rem;
-  border: 1px solid var(--sv-border, #d6dbe3);
+  border: 1px solid var(--sv-border);
   border-radius: 3px;
-  background: var(--sv-surface, #ffffff);
+  background: var(--sv-surface);
+  color: var(--sv-ink);
   font-family: inherit;
 }
 
 @media (max-width: 640px) {
   .rcf-search-btn .rcf-search-kbd { display: none; }
 }
+
+/* --------------------------------------------------------------------
+ * Three-state theme control (ADR-4137, Baz 2026-10-04).
+ *
+ * Sits in `.tools` right of the SearchButton in non-embed mode; absent
+ * from the DOM entirely under `data-embed="1"` (page-init.js removes
+ * the element, renderPage({ embed: true }) also skips the markup).
+ * The group buttons use the same ink/active/control tokens as the
+ * SearchButton so hover and focus states stay above WCAG AA in both
+ * themes.
+ * -------------------------------------------------------------------- */
+
+.rcf-theme {
+  display: inline-flex;
+  align-items: stretch;
+  border: 1px solid var(--sv-border);
+  border-radius: 999px;
+  overflow: hidden;
+  background: var(--sv-surface);
+}
+.rcf-theme-btn {
+  appearance: none;
+  background: transparent;
+  color: var(--sv-ink);
+  border: 0;
+  padding: 0.3rem 0.55rem;
+  font: inherit;
+  font-size: 0.75rem;
+  line-height: 1;
+  cursor: pointer;
+  transition: background-color 0.1s ease-out, color 0.1s ease-out;
+}
+.rcf-theme-btn + .rcf-theme-btn { border-left: 1px solid var(--sv-border); }
+.rcf-theme-btn:hover {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+}
+.rcf-theme-btn:focus-visible {
+  outline: 3px solid var(--sv-focus);
+  outline-offset: -3px;
+  background: var(--sv-active);
+}
+.rcf-theme-btn[aria-pressed="true"] {
+  background: var(--sv-button);
+  color: var(--sv-onbutton);
+}
+html[data-embed="1"] .rcf-theme { display: none; }
 
 .rcf-lookup[hidden] { display: none !important; }
 .rcf-lookup {
