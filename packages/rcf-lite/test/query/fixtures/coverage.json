@@ -275,6 +275,7 @@
           "id": "AC-206-2",
           "covered": true,
           "testCases": [
+            "TC-229-reinit-keeps-host-theme",
             "TC-229-theme-postmessage-source"
           ],
           "unresolvedTestCases": []
@@ -341,6 +342,7 @@
           "id": "AC-206-10",
           "covered": true,
           "testCases": [
+            "TC-229-reinit-keeps-control-choice",
             "TC-229-theme-control-query-wins"
           ],
           "unresolvedTestCases": []
@@ -349,7 +351,9 @@
           "id": "AC-207-1",
           "covered": true,
           "testCases": [
-            "TC-236-aa-enumerates-all-pairs"
+            "TC-236-aa-enumerates-all-pairs",
+            "TC-236-state-merge-and-boundaries",
+            "TC-236-theme-btn-states"
           ],
           "unresolvedTestCases": []
         },

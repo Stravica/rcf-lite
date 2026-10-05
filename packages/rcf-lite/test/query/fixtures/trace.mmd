@@ -92,8 +92,12 @@ flowchart LR
   TC-229-theme-control-persists["TC-229-theme-control-persists"]
   TC-229-theme-control-absent-embed["TC-229-theme-control-absent-embed"]
   TC-229-theme-control-query-wins["TC-229-theme-control-query-wins"]
+  TC-229-reinit-keeps-host-theme["TC-229-reinit-keeps-host-theme"]
+  TC-229-reinit-keeps-control-choice["TC-229-reinit-keeps-control-choice"]
   TC-236-aa-enumerates-all-pairs["TC-236-aa-enumerates-all-pairs"]
   TC-236-aa-failure-message["TC-236-aa-failure-message"]
+  TC-236-state-merge-and-boundaries["TC-236-state-merge-and-boundaries"]
+  TC-236-theme-btn-states["TC-236-theme-btn-states"]
   REQ-002 --> US-201
   REQ-002 --> US-202
   REQ-002 --> US-203
@@ -254,12 +258,15 @@ flowchart LR
   TS-229 --> TC-229-theme-control-persists
   TS-229 --> TC-229-theme-control-absent-embed
   TS-229 --> TC-229-theme-control-query-wins
+  TS-229 --> TC-229-reinit-keeps-host-theme
+  TS-229 --> TC-229-reinit-keeps-control-choice
   AC-206-1 -.-> TS-229
   AC-206-1 -.-> TC-229-fixture-shell
   AC-206-1 -.-> TC-229-test-host-http-roundtrip
   AC-206-1 -.-> FBS-203
   AC-206-2 -.-> TS-229
   AC-206-2 -.-> TC-229-theme-postmessage-source
+  AC-206-2 -.-> TC-229-reinit-keeps-host-theme
   AC-206-2 -.-> FBS-203
   AC-206-3 -.-> TS-229
   AC-206-3 -.-> TC-229-hash-nav-embed-preserved
@@ -286,11 +293,16 @@ flowchart LR
   AC-206-9 -.-> FBS-203
   AC-206-10 -.-> TS-229
   AC-206-10 -.-> TC-229-theme-control-query-wins
+  AC-206-10 -.-> TC-229-reinit-keeps-control-choice
   AC-206-10 -.-> FBS-203
   TS-236 --> TC-236-aa-enumerates-all-pairs
   TS-236 --> TC-236-aa-failure-message
+  TS-236 --> TC-236-state-merge-and-boundaries
+  TS-236 --> TC-236-theme-btn-states
   AC-207-1 -.-> TS-236
   AC-207-1 -.-> TC-236-aa-enumerates-all-pairs
+  AC-207-1 -.-> TC-236-state-merge-and-boundaries
+  AC-207-1 -.-> TC-236-theme-btn-states
   AC-207-1 -.-> FBS-203
   AC-207-2 -.-> TS-236
   AC-207-2 -.-> TC-236-aa-failure-message
@@ -388,8 +400,12 @@ flowchart LR
   class TC-229-theme-control-persists tc;
   class TC-229-theme-control-absent-embed tc;
   class TC-229-theme-control-query-wins tc;
+  class TC-229-reinit-keeps-host-theme tc;
+  class TC-229-reinit-keeps-control-choice tc;
   class TC-236-aa-enumerates-all-pairs tc;
   class TC-236-aa-failure-message tc;
+  class TC-236-state-merge-and-boundaries tc;
+  class TC-236-theme-btn-states tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
