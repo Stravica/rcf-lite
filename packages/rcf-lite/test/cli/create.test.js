@@ -315,3 +315,34 @@ test('create CLI (R1 extension, AC-17302-12): create cn --id replay is unchanged
   assert.match(conflict.stderr, /differing fields: path\./);
   assert.equal(await readFile(cnPath, 'utf8'), originalBody, 'CN file must be byte-identical after conflict refusal');
 });
+
+test('create CLI (R1 extension, AC-17302-13): create req --id verbatim replay is unchanged despite classifier stamp', async () => {
+  const tmp = await scaffold();
+  const reqPath = join(tmp, 'rcf/requirements/req-050.json');
+  const reqArgs = (description) => [
+    'define', 'create', 'req', '--parent', 'PRD-001',
+    '--id', 'REQ-050', '--title', 'T', '--description', description,
+  ];
+  const first = await runBin(tmp, reqArgs('D'));
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  const originalBody = await readFile(reqPath, 'utf8');
+  // The post-create classifier persisted its block: the on-disk REQ now
+  // carries a field the replay body never supplies.
+  assert.ok(JSON.parse(originalBody).shapeClassification, 'classifier must have stamped shapeClassification on the first create');
+
+  const same = await runBin(tmp, reqArgs('D'));
+  assert.equal(same.code, 0, `verbatim replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.equal(same.stdout, 'REQ-050: unchanged (rcf/requirements/req-050.json)\n');
+  assert.equal(await readFile(reqPath, 'utf8'), originalBody, 'REQ file must be byte-identical after unchanged replay');
+
+  const conflict = await runBin(tmp, reqArgs('E'));
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /REQ-050 already exists with different content; differing fields: description\./);
+  assert.equal(await readFile(reqPath, 'utf8'), originalBody, 'REQ file must be byte-identical after conflict refusal');
+});
+
+test('REPLAY_IGNORE_FIELDS names every writer- and classifier-owned stamp', async () => {
+  const { REPLAY_IGNORE_FIELDS } = await import('#core/store/writer.js');
+  assert.deepEqual([...REPLAY_IGNORE_FIELDS].sort(), ['createdAt', 'shapeClassification', 'updatedAt']);
+  assert.ok(Object.isFrozen(REPLAY_IGNORE_FIELDS));
+});

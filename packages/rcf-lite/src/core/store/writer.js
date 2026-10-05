@@ -52,11 +52,29 @@ function canonicalKind(kind) {
   return KIND_ALIASES[kind] ?? kind;
 }
 
-// Writer-owned timestamps are overwritten on every create (createdAt +
-// updatedAt are stamped by assembleBody / nowIso), so the R1-extension
-// idempotency compare ignores them. If every caller-supplied content
-// field matches the existing doc, the replay is a no-op.
-const REPLAY_IGNORE_FIELDS = new Set(['createdAt', 'updatedAt']);
+/**
+ * Fields the R1 create-replay compare ignores: every field the writer or
+ * a post-create side effect stamps on its own, never from the caller's
+ * input. A verbatim replay of a create must compare equal even after
+ * those stamps landed; every other field is deep-compared. Add a field
+ * here whenever a writer path or a post-create hook starts stamping one.
+ * Ruling R1 extension (PR 292 follow-up; list made exhaustive on the
+ * PR 293 landing review, d-2026-10-05-015 finding 2).
+ */
+export const REPLAY_IGNORE_FIELDS = Object.freeze([
+  // Writer clock: assembleBody / createCn stamp it on every create and
+  // strip any caller-supplied value (B1 fix).
+  'createdAt',
+  // Writer clock: stamped on every create and bumped by every update,
+  // including the classifier's own write-back below.
+  'updatedAt',
+  // REQ shape classifier (src/req-detection/persist.js
+  // classifyAndPersistReq): src/cli/create.js runs it after every
+  // `create req` and persists the block through updateDocument, so the
+  // first create leaves a field the replay body never carries.
+  'shapeClassification',
+]);
+const REPLAY_IGNORE_SET = new Set(REPLAY_IGNORE_FIELDS);
 
 /**
  * Deep-equality over JSON-shaped values. Pure. Mirrors
@@ -85,10 +103,10 @@ function deepEqual(a, b) {
 
 /**
  * Compare an on-disk doc body to a would-be create body and return
- * the sorted list of differing field keys. Ignores writer-owned
- * timestamps (`createdAt`, `updatedAt`): assembleBody stamps them on
- * every create, so a byte-identical replay would otherwise show up
- * as "updatedAt differs". A key present on only one side counts as
+ * the sorted list of differing field keys. Ignores every field in
+ * REPLAY_IGNORE_FIELDS (writer- and classifier-owned stamps), so a
+ * verbatim replay does not show up as "updatedAt differs" or
+ * "shapeClassification differs". A key present on only one side counts as
  * differing. R1 extension 2026-10-05 (PR 292 follow-up).
  *
  * @param {Record<string, unknown>} existing
@@ -100,7 +118,7 @@ function diffDocFields(existing, candidate) {
   const differing = new Set();
   const keys = new Set([...Object.keys(existing ?? {}), ...Object.keys(candidate ?? {})]);
   for (const key of keys) {
-    if (REPLAY_IGNORE_FIELDS.has(key)) continue;
+    if (REPLAY_IGNORE_SET.has(key)) continue;
     if (!deepEqual(existing?.[key], candidate?.[key])) differing.add(key);
   }
   return [...differing];
