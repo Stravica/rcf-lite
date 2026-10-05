@@ -204,7 +204,11 @@ test('gates: warn-with-ack fold honours freeze.gates acknowledgement at the curr
 
 test('gates: notApplicable decision per stage', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
-  const tree = makeTree();
+  // Ruling R13 2026-10-05 (ADR-4138 extended): D2 skeleton:deployAdr
+  // runs tree-wide ahead of the scope early-return. A fixture that
+  // exercises the notApplicable path must satisfy every tree-wide
+  // check first; seed one Deploy ADR so skeleton:deployAdr passes.
+  const tree = makeTree({ adrs: [{ adrId: 'ADR-D', title: 'Deploy target: fly.io' }] });
   const baseCtx = {
     tree,
     ledgers: emptyLedgers,
@@ -667,7 +671,11 @@ test('gates (ADR-4126, AC-17402-1): every check carries persona + question', () 
 
 test('gates (ADR-4126, AC-17402-7): notApplicable placeholder carries stage fallback persona and ok true', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
-  const tree = makeTree();
+  // Ruling R13 2026-10-05 (ADR-4138 extended): D2 skeleton:deployAdr
+  // runs tree-wide ahead of the scope early-return. Seed a Deploy ADR
+  // so the tree-wide check passes and the stage reaches the real
+  // notApplicable envelope the test exercises.
+  const tree = makeTree({ adrs: [{ adrId: 'ADR-D', title: 'Deploy target: fly.io' }] });
   // D2 goes notApplicable with no resolving statements and no REQ/PRD/TAD in scope.
   const stage = checkD2Skeleton({
     tree, ledgers: emptyLedgers, scope: new Set(),
@@ -1878,17 +1886,137 @@ test('gates (PR 9, AC-17405-2 R11): resolveOwnerRefField accepts the bracket for
 
 test('gates (R2, AC-17403-9): draftSettled runs tree-wide under narrowed D3 scope', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
-  // No TAC in scope, no shaped REQ in scope. A [draft] core entity lives
-  // tree-wide; the pre-R2 code returned notApplicable here and silently
-  // dropped the finding.
-  const tad = { dataArchitecture: { coreEntities: [{ name: 'Loan', description: '[draft] a loan under servicing' }] } };
-  const tree = makeTree({ tad });
+  // The reviewer flagged the first-pass test as vacuous: a `[draft]` on
+  // TAD.entity:Loan already made the pre-R2 D3 early-return applicable
+  // (coreEntities with [draft] bypassed the notApplicable), so the test
+  // passed against pre-R2 gates.js too. Rewrite: put the `[draft]` on a
+  // TAC OUTSIDE the narrowed scope -- a TAC's purpose. Pre-R2 counted
+  // only draft core entities, not TAC purpose drafts, in the
+  // applicability check, so the pre-R2 code returns notApplicable here
+  // (the pre-ruling proof under ./output/r2-pre-ruling-proof.txt
+  // records the pre-R2 result for the record). Post-R2 ADR-4138's
+  // treeWideFailureEnvelope reports the finding regardless of scope.
+  const tacOutOfScope = { tacId: 'TAC-OUT', purpose: '[draft] purpose authored at L1', interfaces: [] };
+  const tree = makeTree({ tacs: [tacOutOfScope] });
   const stage = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
   assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
   const draft = stage.checks.find((c) => c.name === 'shapes:draftSettled');
   assert.ok(draft, 'shapes:draftSettled check present');
-  const hit = draft.failing.find((f) => f.id === 'TAD.entity:Loan');
-  assert.ok(hit, `expected a TAD.entity:Loan finding; got ${JSON.stringify(draft.failing)}`);
+  const hit = draft.failing.find((f) => f.id === 'TAC-OUT');
+  assert.ok(hit, `expected a TAC-OUT finding; got ${JSON.stringify(draft.failing)}`);
+  // The failing envelope the helper returns carries no `reason` text
+  // (item 4): the pre-R13 trailer 'failing (no TAC ... in scope)' was
+  // the notApplicable reason copied through; it is misleading in the
+  // readiness CLI print line and is dropped.
+  assert.equal(stage.reason, undefined, `failing envelope must not carry a notApplicable reason; got ${JSON.stringify(stage.reason)}`);
+});
+
+test('gates (PR 292 follow-up, AC-17403-10): failing envelope carries no notApplicable reason text', async () => {
+  // Companion to the R2 rewrite above. A scope-empty D3 with a failing
+  // tree-wide check must have `stage.reason === undefined` so the
+  // readiness CLI print line reads 'D3 (define.shapes): failing'
+  // without a '(no TAC ... in scope)' trailer that reads as a
+  // notApplicable reason (ADR-4138 consequences 2026-10-05).
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tacOutOfScope = { tacId: 'TAC-OUT', purpose: '[draft] purpose', interfaces: [] };
+  const tree = makeTree({ tacs: [tacOutOfScope] });
+  const stage = checkD3Shapes({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing');
+  assert.equal(stage.reason, undefined);
+  // The printed readiness line, through the CLI's own formatter.
+  const { formatStageLine } = await import('../../src/cli/readiness.js');
+  assert.equal(formatStageLine(stage), 'D3 (define.shapes): failing');
+  // Control: the notApplicable envelope still prints its reason trailer.
+  const clean = checkD3Shapes({ tree: makeTree({}), ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(clean.state, 'notApplicable');
+  assert.match(formatStageLine(clean), /^D3 \(define\.shapes\): notApplicable \(.+\)$/);
+});
+
+test('gates (PR 292 follow-up, AC-17404-9): treeWideFailureEnvelope helper semantics', () => {
+  // Three cases, pinning the helper's contract (ADR-4138 extended):
+  // 1) scope-empty stage, every tree-wide check passes -> notApplicable.
+  // 2) scope-empty D3, failing tree-wide check with an ack-at-current
+  //    -hash freeze.gates record -> state 'acknowledged' (foldState
+  //    delegation; the helper does not re-implement the ack rule).
+  // 3) scope-empty D2 (blocking), failing tree-wide check -> 'failing'
+  //    even with a matching ack record (D2 is not ackable).
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // Case 1: clean tree + scope empty -> notApplicable on D3 and D2.
+  const cleanTree = makeTree({});
+  const d3Clean = checkD3Shapes({ tree: cleanTree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(d3Clean.state, 'notApplicable', `D3 clean: ${JSON.stringify(d3Clean)}`);
+  const d2Clean = checkD2Skeleton({ tree: cleanTree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  // D2 fails deployAdr tree-wide (R13) when there is no Deploy ADR; put
+  // a Deploy ADR on the clean tree so every tree-wide check passes.
+  const cleanWithDeploy = makeTree({ adrs: [{ adrId: 'ADR-1', title: 'Deploy target: cloud' }] });
+  const d2CleanDeploy = checkD2Skeleton({ tree: cleanWithDeploy, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(d2CleanDeploy.state, 'notApplicable', `D2 clean with deploy ADR: ${JSON.stringify(d2CleanDeploy)}`);
+  // Case 2: D3 scope-empty + failing tree-wide + matching ack -> acknowledged.
+  const draftTac = { tacId: 'TAC-OUT', purpose: '[draft]', interfaces: [] };
+  const draftTree = makeTree({ tacs: [draftTac] });
+  const freezeAcked = { gates: { 'define.shapes': { state: 'acknowledged', at: { hash: 'sha256:aaa' } } } };
+  const d3Acked = checkD3Shapes({ tree: draftTree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa', freeze: freezeAcked });
+  assert.equal(d3Acked.state, 'acknowledged', `D3 ack-at-current-hash: ${JSON.stringify(d3Acked)}`);
+  // Case 3: D2 scope-empty + failing tree-wide (no Deploy ADR) + a
+  // matching ack record -> stays failing (D2 is blocking).
+  const d2FreezeAcked = { gates: { 'define.skeleton': { state: 'acknowledged', at: { hash: 'sha256:aaa' } } } };
+  const d2NoDeploy = checkD2Skeleton({ tree: makeTree({}), ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa', freeze: d2FreezeAcked });
+  assert.equal(d2NoDeploy.state, 'failing', `D2 blocking must not fold to acknowledged: ${JSON.stringify(d2NoDeploy)}`);
+});
+
+test('gates (R13, AC-17402-8): skeleton:deployAdr runs tree-wide under narrowed D2 scope', () => {
+  // No REQ, PRD, TAD or brief statement in scope; no Deploy ADR
+  // tree-wide. Pre-R13 code returned notApplicable; post-R13 the
+  // helper fails skeleton:deployAdr.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tree = makeTree({ adrs: [] });
+  const stage = checkD2Skeleton({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
+  const deploy = stage.checks.find((c) => c.name === 'skeleton:deployAdr');
+  assert.ok(deploy, 'skeleton:deployAdr check present');
+  const hit = deploy.failing.find((f) => f.id === 'ADR:deploy');
+  assert.ok(hit, `expected ADR:deploy finding; got ${JSON.stringify(deploy.failing)}`);
+  // Two Deploy ADRs also fails.
+  const twoAdrs = makeTree({ adrs: [
+    { adrId: 'ADR-1', title: 'Deploy target: cloud' },
+    { adrId: 'ADR-2', title: 'Deploy target: edge' },
+  ] });
+  const stageTwo = checkD2Skeleton({ tree: twoAdrs, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stageTwo.state, 'failing', `expected failing on two Deploy ADRs; got ${stageTwo.state}`);
+  const deployTwo = stageTwo.checks.find((c) => c.name === 'skeleton:deployAdr');
+  assert.ok(deployTwo.failing.some((f) => /2 Deploy ADRs/.test(f.why)));
+});
+
+test('gates (R13, AC-17401-11): crosscut:securityArchitecture runs tree-wide under narrowed D5 scope', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // No REQ in scope but one tree-wide REQ with shape 'auth' and TAD
+  // with empty securityArchitecture. Pre-R13 the stage returned
+  // notApplicable; post-R13 crosscut:securityArchitecture fails.
+  const req = { reqId: 'REQ-1', description: 'auth', domain: 'auth', shapeClassification: { shapes: ['auth'] } };
+  const tad = { securityArchitecture: {} };
+  const tree = makeTree({ requirements: [req], tad, adrs: [{ adrId: 'ADR-1', title: 'Deploy target: cloud' }] });
+  const stage = checkD5Crosscut({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
+  const sec = stage.checks.find((c) => c.name === 'crosscut:securityArchitecture');
+  assert.ok(sec, 'crosscut:securityArchitecture check present');
+  assert.ok(sec.failing.some((f) => f.id === 'TAD.securityArchitecture'));
+});
+
+test('gates (R13, AC-17401-12): crosscut:operationalConcerns runs tree-wide under narrowed D5 scope', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // No REQ in scope but a US tree-wide carries a '[deployed]' AC and
+  // TAD.operationalConcerns is empty. Pre-R13 notApplicable; post-R13
+  // crosscut:operationalConcerns fails.
+  const us = { usId: 'US-1', reqId: 'REQ-1', acceptanceCriteria: [
+    { id: 'AC-1-1', description: '[deployed] endpoint responds 2xx', testable: true },
+  ] };
+  const tad = { operationalConcerns: null };
+  const tree = makeTree({ userStories: [us], tad });
+  const stage = checkD5Crosscut({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
+  const op = stage.checks.find((c) => c.name === 'crosscut:operationalConcerns');
+  assert.ok(op, 'crosscut:operationalConcerns check present');
+  assert.ok(op.failing.some((f) => f.id === 'TAD.operationalConcerns'));
 });
 
 test('gates (R5, AC-17404-7): entityJoin runs tree-wide under narrowed D3 scope', () => {

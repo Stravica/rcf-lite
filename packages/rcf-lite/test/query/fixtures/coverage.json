@@ -4691,6 +4691,39 @@
             "TC-215-r1-add-no-id-mints-next"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-10",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-ac-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-11",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-tc-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-12",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-cn-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-13",
+          "covered": true,
+          "testCases": [
+            "TC-215-r1-create-req-verbatim-replay-unchanged",
+            "TC-215-r1-create-tac-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -4780,6 +4813,22 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-17401-11",
+          "covered": true,
+          "testCases": [
+            "TC-216-r13-crosscut-security-tree-wide"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17401-12",
+          "covered": true,
+          "testCases": [
+            "TC-216-r13-crosscut-operational-tree-wide"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-17402-1",
           "covered": true,
           "testCases": [
@@ -4832,6 +4881,14 @@
           "covered": true,
           "testCases": [
             "TC-219-not-applicable-placeholder-persona"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17402-8",
+          "covered": true,
+          "testCases": [
+            "TC-219-r13-deploy-adr-tree-wide"
           ],
           "unresolvedTestCases": []
         },
@@ -4908,6 +4965,14 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-17403-10",
+          "covered": true,
+          "testCases": [
+            "TC-220-r13-failing-envelope-reason-drops"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-17404-1",
           "covered": true,
           "testCases": [
@@ -4970,6 +5035,14 @@
           "covered": true,
           "testCases": [
             "TC-230-r6-bare-paths-whitelist"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17404-9",
+          "covered": true,
+          "testCases": [
+            "TC-230-r13-helper-foldstate-delegation"
           ],
           "unresolvedTestCases": []
         },

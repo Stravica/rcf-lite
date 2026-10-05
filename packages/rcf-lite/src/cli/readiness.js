@@ -390,7 +390,7 @@ function renderText(stdout, stderr, result, wallMs, checkStage, level, persona, 
 
   for (const stage of result.stages) {
     if (checkStage && checkStage !== 'all' && stage.stage !== checkStage) continue;
-    stdout.write(`\n${stage.stage} (${stage.gate}): ${STATE_LABEL[stage.state] ?? stage.state}${stage.reason ? ` (${stage.reason})` : ''}\n`);
+    stdout.write(`\n${formatStageLine(stage)}\n`);
     for (const c of stage.checks) {
       if (persona && c.persona !== persona) continue;
       const mark = c.ok ? 'ok' : 'FAIL';
@@ -403,6 +403,20 @@ function renderText(stdout, stderr, result, wallMs, checkStage, level, persona, 
       }
     }
   }
+}
+
+/**
+ * Format the per-stage header line the text report prints, e.g.
+ * `D3 (define.shapes): failing`. A `reason` trailer is appended only
+ * when the envelope carries one (the `notApplicable` envelopes do; the
+ * ADR-4138 tree-wide failing envelope does not). Exported so the
+ * printed line is testable without driving the whole CLI.
+ *
+ * @param {{ stage: string, gate: string, state: string, reason?: string }} stage
+ * @returns {string}
+ */
+export function formatStageLine(stage) {
+  return `${stage.stage} (${stage.gate}): ${STATE_LABEL[stage.state] ?? stage.state}${stage.reason ? ` (${stage.reason})` : ''}`;
 }
 
 /**

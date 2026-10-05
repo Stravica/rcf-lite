@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T12:00:00Z",
-  "updatedAt": "2026-10-02T16:40:00Z",
+  "updatedAt": "2026-10-05T19:00:00Z",
   "purpose": "Cover the four sidecar ledgers, the rcf define ledger CLI (add / resolve / list with --json) and the walker-invisibility invariant on rcf/define/ (AC-17301-1..4 on US-17301), the update subverb and the closed resolvedBy pointer grammar (AC-17302-1..6 on US-17302), the statement-file markers (AC-18701-1..6 on US-18701) and the scan wiring (AC-18702-1..6 on US-18702).",
   "testLevel": "integration",
   "acIds": [
@@ -17,6 +17,10 @@
     "AC-17302-7",
     "AC-17302-8",
     "AC-17302-9",
+    "AC-17302-10",
+    "AC-17302-11",
+    "AC-17302-12",
+    "AC-17302-13",
     "AC-18701-1",
     "AC-18701-2",
     "AC-18701-3",
@@ -229,6 +233,41 @@
       "description": "brief add --text with no --id mints the next id (idempotency opt-in is id-carried; the harness threads --id back on replay).",
       "status": "pending",
       "testPointer": "test/cli/ledger.test.js::ledger CLI (R1, AC-17302-9): add without --id mints next id"
+    },
+    {
+      "id": "TC-215-r1-create-ac-id-unchanged-and-conflict",
+      "acId": "AC-17302-10",
+      "description": "rcf define create ac --parent US-101 --id AC-101-1 replayed with identical content exits 0 printing 'AC-101-1: unchanged (rcf/user-stories/us-101.json)' and leaves the US file byte-identical; the same verb with a different --description exits 3 naming AC-101-1 and description and leaves the file byte-identical.",
+      "status": "pending",
+      "testPointer": "test/cli/create.test.js::create CLI (R1 extension, AC-17302-10): create ac --id replay is unchanged exit 0, different content exits 3"
+    },
+    {
+      "id": "TC-215-r1-create-tc-id-unchanged-and-conflict",
+      "acId": "AC-17302-11",
+      "description": "rcf define create tc --id replayed with identical content exits 0 printing the unchanged line and leaves the TS file byte-identical; a different --description exits 3 naming description; a derived-slug collision without --id still exits 2.",
+      "status": "pending",
+      "testPointer": "test/cli/create.test.js::create CLI (R1 extension, AC-17302-11): create tc --id replay is unchanged exit 0, different content exits 3"
+    },
+    {
+      "id": "TC-215-r1-create-cn-id-unchanged-and-conflict",
+      "acId": "AC-17302-12",
+      "description": "rcf define create cn --id replayed with identical content exits 0 printing the unchanged line and leaves the CN file byte-identical; a different --path exits 3 naming path.",
+      "status": "pending",
+      "testPointer": "test/cli/create.test.js::create CLI (R1 extension, AC-17302-12): create cn --id replay is unchanged exit 0, different content exits 3"
+    },
+    {
+      "id": "TC-215-r1-create-req-verbatim-replay-unchanged",
+      "acId": "AC-17302-13",
+      "description": "rcf define create req --id REQ-050 replayed verbatim after the classifier stamped shapeClassification exits 0 printing the unchanged line; a different --description exits 3 naming description.",
+      "status": "pending",
+      "testPointer": "test/cli/create.test.js::create CLI (R1 extension, AC-17302-13): create req --id verbatim replay is unchanged despite classifier stamp"
+    },
+    {
+      "id": "TC-215-r1-create-tac-id-unchanged-and-conflict",
+      "acId": "AC-17302-13",
+      "description": "rcf define create tac --id replayed with identical content exits 0 printing the unchanged line; a different --purpose exits 3 naming purpose (document-kind path, no post-create side effect).",
+      "status": "pending",
+      "testPointer": "test/cli/create.test.js::create CLI (R1 extension, AC-17302-13): create tac --id replay is unchanged exit 0, different content exits 3"
     }
   ],
   "status": "draft"

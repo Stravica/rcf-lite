@@ -178,3 +178,171 @@ test('rcf create --help names the parent kind for every kind', async () => {
   assert.match(stdout, /tc\s+-> TS id/);
   assert.match(stdout, /cn\s+-> no --parent/);
 });
+
+// =============================================================================
+// R1 extension to `rcf define create` (DEFINE step 3 ruling R1, PR 292
+// follow-up 2026-10-05, w-2026-10-05-dave-013). Mirrors `rcf define
+// ledger <name> add --id` behaviour: a repeat whose id already exists
+// with identical content exits 0 and reports `unchanged`; a repeat
+// whose id already exists with different content refuses with exit 3
+// and a message naming the id and the differing field keys.
+
+test('create CLI (R1 extension, AC-17302-13): create tac --id replay is unchanged exit 0, different content exits 3', async () => {
+  const tmp = await scaffold();
+  // Use `tac` as the exemplar kind: it has no post-create side effect
+  // (req triggers the classifier that persists shapeClassification; a
+  // replay-same-content would then show shapeClassification as a
+  // differing field, which is a classifier concern not an R1 concern).
+  // The semantics tested here apply to every kind; see TAC-4121 R1
+  // addEntry (ledger) and src/core/store/writer.js createDocument for
+  // the id-carried idempotency rule.
+  const first = await runBin(tmp, [
+    'define', 'create', 'tac', '--parent', 'TAD-001',
+    '--id', 'TAC-005', '--title', 'My TAC',
+    '--purpose', 'first purpose',
+  ]);
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  const originalBody = await readFile(join(tmp, 'rcf/tacs/tac-005.json'), 'utf8');
+
+  // Repeat with the same id and same content -> exit 0, unchanged.
+  const same = await runBin(tmp, [
+    'define', 'create', 'tac', '--parent', 'TAD-001',
+    '--id', 'TAC-005', '--title', 'My TAC',
+    '--purpose', 'first purpose',
+  ]);
+  assert.equal(same.code, 0, `same-content replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.match(same.stdout, /TAC-005: unchanged/);
+  const sameBody = await readFile(join(tmp, 'rcf/tacs/tac-005.json'), 'utf8');
+  assert.equal(sameBody, originalBody, 'on-disk file must be byte-identical after unchanged replay');
+
+  // Repeat with the same id and different content -> exit 3, differing fields named.
+  const conflict = await runBin(tmp, [
+    'define', 'create', 'tac', '--parent', 'TAD-001',
+    '--id', 'TAC-005', '--title', 'My TAC',
+    '--purpose', 'second purpose',
+  ]);
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /TAC-005/);
+  assert.match(conflict.stderr, /purpose/);
+  const conflictBody = await readFile(join(tmp, 'rcf/tacs/tac-005.json'), 'utf8');
+  assert.equal(conflictBody, originalBody, 'on-disk file must be byte-identical after conflict refusal');
+});
+
+test('create CLI (R1 extension, AC-17302-10): create ac --id replay is unchanged exit 0, different content exits 3', async () => {
+  const tmp = await scaffold();
+  const usPath = join(tmp, 'rcf/user-stories/us-101.json');
+  // First real AC replaces the seeded phantom at AC-101-1.
+  const first = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--description', 'foo']);
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  assert.match(first.stdout, /AC-101-1 created/);
+  const originalBody = await readFile(usPath, 'utf8');
+
+  // Replay with --id and identical content -> exit 0, unchanged, US file untouched.
+  const same = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--id', 'AC-101-1', '--description', 'foo']);
+  assert.equal(same.code, 0, `same-content replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.equal(same.stdout, 'AC-101-1: unchanged (rcf/user-stories/us-101.json)\n');
+  assert.equal(await readFile(usPath, 'utf8'), originalBody, 'US file must be byte-identical after unchanged replay');
+
+  // --quiet suppresses the unchanged line (the line is the whole output; there is no --json).
+  const quiet = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--id', 'AC-101-1', '--description', 'foo', '--quiet']);
+  assert.equal(quiet.code, 0);
+  assert.equal(quiet.stdout, '');
+
+  // Replay with different content -> exit 3 naming the id and the differing field.
+  const conflict = await runBin(tmp, ['define', 'create', 'ac', '--parent', 'US-101', '--id', 'AC-101-1', '--description', 'bar']);
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /conflict create ac: id AC-101-1 already exists with different content; differing fields: description\./);
+  assert.equal(await readFile(usPath, 'utf8'), originalBody, 'US file must be byte-identical after conflict refusal');
+});
+
+test('create CLI (R1 extension, AC-17302-11): create tc --id replay is unchanged exit 0, different content exits 3', async () => {
+  const tmp = await scaffold();
+  const ts = await runBin(tmp, [
+    'define', 'create', 'ts', '--parent', 'US-101',
+    '--title', 'S', '--purpose', 'p',
+    '--test-level', 'unit', '--acs', 'AC-101-1',
+  ]);
+  assert.equal(ts.code, 0, ts.stderr);
+  const tsPath = join(tmp, 'rcf/test-suites/ts-001.json');
+  const tcArgs = (description) => [
+    'define', 'create', 'tc', '--parent', 'TS-001', '--id', 'TC-001-foo',
+    '--ac', 'AC-101-1', '--description', description,
+    '--test-pointer', 't.test.js::foo',
+  ];
+  const first = await runBin(tmp, tcArgs('foo'));
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  assert.match(first.stdout, /TC-001-foo created/);
+  const originalBody = await readFile(tsPath, 'utf8');
+
+  const same = await runBin(tmp, tcArgs('foo'));
+  assert.equal(same.code, 0, `same-content replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.equal(same.stdout, 'TC-001-foo: unchanged (rcf/test-suites/ts-001.json)\n');
+  assert.equal(await readFile(tsPath, 'utf8'), originalBody, 'TS file must be byte-identical after unchanged replay');
+
+  const conflict = await runBin(tmp, tcArgs('bar'));
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /TC-001-foo/);
+  assert.match(conflict.stderr, /differing fields: description\./);
+  assert.equal(await readFile(tsPath, 'utf8'), originalBody, 'TS file must be byte-identical after conflict refusal');
+
+  // Idempotency is id-carried: without --id a derived-slug collision still exits 2.
+  const slugCollision = await runBin(tmp, [
+    'define', 'create', 'tc', '--parent', 'TS-001',
+    '--ac', 'AC-101-1', '--description', 'foo',
+    '--test-pointer', 't.test.js::foo',
+  ]);
+  assert.equal(slugCollision.code, 2, `derived-slug collision must exit 2; got ${slugCollision.code} / ${slugCollision.stderr}`);
+  assert.match(slugCollision.stderr, /slug collision on TC-001-foo, supply --slug explicitly/);
+});
+
+test('create CLI (R1 extension, AC-17302-12): create cn --id replay is unchanged exit 0, different content exits 3', async () => {
+  const tmp = await scaffold();
+  const cnArgs = (path) => ['define', 'create', 'cn', '--id', 'CN-001', '--path', path, '--acs', 'AC-101-1'];
+  const first = await runBin(tmp, cnArgs('src/a.js'));
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  assert.match(first.stdout, /CN-001 created/);
+  const cnPath = join(tmp, 'rcf/code-nodes/cn-001.json');
+  const originalBody = await readFile(cnPath, 'utf8');
+
+  const same = await runBin(tmp, cnArgs('src/a.js'));
+  assert.equal(same.code, 0, `same-content replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.equal(same.stdout, 'CN-001: unchanged (rcf/code-nodes/cn-001.json)\n');
+  assert.equal(await readFile(cnPath, 'utf8'), originalBody, 'CN file must be byte-identical after unchanged replay');
+
+  const conflict = await runBin(tmp, cnArgs('src/b.js'));
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /CN-001/);
+  assert.match(conflict.stderr, /differing fields: path\./);
+  assert.equal(await readFile(cnPath, 'utf8'), originalBody, 'CN file must be byte-identical after conflict refusal');
+});
+
+test('create CLI (R1 extension, AC-17302-13): create req --id verbatim replay is unchanged despite classifier stamp', async () => {
+  const tmp = await scaffold();
+  const reqPath = join(tmp, 'rcf/requirements/req-050.json');
+  const reqArgs = (description) => [
+    'define', 'create', 'req', '--parent', 'PRD-001',
+    '--id', 'REQ-050', '--title', 'T', '--description', description,
+  ];
+  const first = await runBin(tmp, reqArgs('D'));
+  assert.equal(first.code, 0, `first create: ${first.stderr}`);
+  const originalBody = await readFile(reqPath, 'utf8');
+  // The post-create classifier persisted its block: the on-disk REQ now
+  // carries a field the replay body never supplies.
+  assert.ok(JSON.parse(originalBody).shapeClassification, 'classifier must have stamped shapeClassification on the first create');
+
+  const same = await runBin(tmp, reqArgs('D'));
+  assert.equal(same.code, 0, `verbatim replay must exit 0; got ${same.code} / ${same.stderr}`);
+  assert.equal(same.stdout, 'REQ-050: unchanged (rcf/requirements/req-050.json)\n');
+  assert.equal(await readFile(reqPath, 'utf8'), originalBody, 'REQ file must be byte-identical after unchanged replay');
+
+  const conflict = await runBin(tmp, reqArgs('E'));
+  assert.equal(conflict.code, 3, `different-content replay must exit 3; got ${conflict.code} / ${conflict.stderr}`);
+  assert.match(conflict.stderr, /REQ-050 already exists with different content; differing fields: description\./);
+  assert.equal(await readFile(reqPath, 'utf8'), originalBody, 'REQ file must be byte-identical after conflict refusal');
+});
+
+test('REPLAY_IGNORE_FIELDS names every writer- and classifier-owned stamp', async () => {
+  const { REPLAY_IGNORE_FIELDS } = await import('#core/store/writer.js');
+  assert.deepEqual([...REPLAY_IGNORE_FIELDS].sort(), ['createdAt', 'shapeClassification', 'updatedAt']);
+  assert.ok(Object.isFrozen(REPLAY_IGNORE_FIELDS));
+});

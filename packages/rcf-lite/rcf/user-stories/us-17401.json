@@ -59,6 +59,16 @@
       "id": "AC-17401-10",
       "description": "src/setup/identity-seed.js IDENTITY_TEMPLATE seeds a '## Surface' section containing one line that is one of 'viewer' | 'runningApp' | 'prDiff' (default 'prDiff' with explanatory text matching the Register section's style) so that a project immediately after 'rcf init' passes checkD1Brief's profile:surface check without further operator action. The seed stays idempotent (an existing profile.md is left byte-identical, per the slice-1 'kept' contract).",
       "testable": true
+    },
+    {
+      "id": "AC-17401-11",
+      "description": "[happy] (R13 2026-10-05) given a D5 scope narrowed so no REQ is in scope but the tree has an auth or httpApi REQ and TAD.securityArchitecture is empty, when D5 runs, then crosscut:securityArchitecture still fails TAD.securityArchitecture and the stage state is failing (not notApplicable) through the shared tree-wide-before-scope helper (ADR-4138 extended).",
+      "testable": true
+    },
+    {
+      "id": "AC-17401-12",
+      "description": "[happy] (R13 2026-10-05) given a D5 scope narrowed so no REQ is in scope but the tree carries a US with an AC description that contains the '[deployed]' marker and TAD.operationalConcerns is empty, when D5 runs, then crosscut:operationalConcerns still fails TAD.operationalConcerns and the stage state is failing (not notApplicable) through the shared tree-wide-before-scope helper (ADR-4138 extended).",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -66,5 +76,5 @@
   ],
   "tags": [],
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-01T13:03:38Z"
+  "updatedAt": "2026-10-05T18:00:00Z"
 }

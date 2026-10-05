@@ -462,11 +462,13 @@ export function stagePolicy(stage) {
 
 /**
  * ADR-4131 (0.30.0 PR 5): the three gates that accept a recorded
- * `--ack` override. `stagePolicy` keeps returning `blocking` for every
- * stage so the readyToBuild fold stays untouched; `ackable(stage)` is
- * the companion signal the readiness and freeze CLIs read to decide
- * whether a failing stage honours an acknowledgement at the current
- * hash. True for D3, D5 and D6; false for everything else.
+ * `--ack` override. `stagePolicy(stage)` returns `warnWithAck` for
+ * D3/D5/D6 and `blocking` for everything else (ruling R4 2026-10-05
+ * retired the pre-R4 wording that said `stagePolicy` kept returning
+ * `blocking` for every stage); `ackable(stage)` is the companion
+ * signal the readiness and freeze CLIs read to decide whether a
+ * failing stage honours an acknowledgement at the current hash. True
+ * for D3, D5 and D6; false for everything else.
  *
  * @param {string} stage
  * @returns {boolean}
@@ -782,42 +784,40 @@ function asSet(scope) {
 }
 
 /**
- * ADR-4138 (DEFINE step 3 rulings R2, R5, R7 2026-10-05): run every
- * tree-wide check for a stage and either return a `failing` envelope
- * carrying only the tree-wide findings (plus the scope placeholder) or
+ * ADR-4138 (DEFINE step 3 rulings R2, R5, R7 2026-10-05 and ruling R13
+ * 2026-10-05 PR 292 follow-up): run every tree-wide check for a stage
+ * and either return a stage envelope carrying only the tree-wide
+ * findings (plus the scope placeholder) folded through `foldState`, or
  * null when every tree-wide check passed, letting the stage proceed to
  * its own scope early-return or full checks list.
  *
- * The helper governs the three checks the rulings name as tree-wide:
- * `shapes:draftSettled` (R2), `shapes:entityJoin` (R5) and
- * `skeleton:standardsCited` (R7). Delta-only checks (templateMarkers,
- * pathsResolve, closedSets, ownerRefResolves) are untouched: they stay
- * on the stage's own full-checks path.
+ * The helper governs every tree-wide check: `shapes:draftSettled`
+ * (R2), `shapes:entityJoin` (R5), `skeleton:standardsCited` (R7),
+ * `skeleton:deployAdr` (R13), `crosscut:securityArchitecture` (R13)
+ * and `crosscut:operationalConcerns` (R13). Delta-only checks
+ * (templateMarkers, pathsResolve, closedSets, ownerRefResolves) are
+ * untouched: they stay on the stage's own full-checks path. The
+ * ack-at-current-hash fold is delegated to `foldState` so one
+ * implementation owns the acknowledgement rule and the failing
+ * envelope carries no stale `notApplicable` reason text (the pre-R13
+ * copy of the stage's notApplicable message misled the readiness CLI
+ * print line, which reads `stage.reason` on every state).
  *
  * @param {string} stage
  * @param {string} gate
  * @param {Array<{name: string, check: object}>} treeWideChecks
- * @param {string} notApplicableReason - the message the notApplicable
- *   envelope would carry; used only to label a failing envelope's
- *   placeholder when the scope is empty.
  * @param {object} freezeCtx
- * @returns {{ stage: string, gate: string, state: 'failing', checks: object[], reason: string } | null}
+ * @returns {{ stage: string, gate: string, state: 'failing' | 'acknowledged', checks: object[] } | null}
  */
-function treeWideFailureEnvelope(stage, gate, treeWideChecks, notApplicableReason, freezeCtx) {
+function treeWideFailureEnvelope(stage, gate, treeWideChecks, freezeCtx) {
   const anyFailing = treeWideChecks.some(({ check }) => !check.ok);
   if (!anyFailing) return null;
   const checks = [makeCheck(`stage:${stage}:scope`, 'delta', 0, [])];
   for (const { check } of treeWideChecks) checks.push(check);
-  const envelope = { stage, gate, state: /** @type {const} */ ('failing'), checks, reason: notApplicableReason };
-  if (WARN_WITH_ACK.has(stage)) {
-    const gates = freezeCtx.freezeGates ?? {};
-    const record = gates[gate];
-    const ackedAtHash = record?.state === 'acknowledged'
-      && typeof record?.at?.hash === 'string'
-      && record.at.hash === freezeCtx.currentTreeHash;
-    if (ackedAtHash) return { ...envelope, state: /** @type {const} */ ('acknowledged') };
-  }
-  return envelope;
+  // Delegate to foldState: it owns the warn-with-ack fold rule
+  // (ADR-4122). The returned envelope carries { state: 'failing' } or
+  // { state: 'acknowledged' } and no reason field.
+  return foldState(stage, gate, checks, freezeCtx);
 }
 
 // ---------------------------------------------------------------------------
@@ -930,6 +930,30 @@ export function checkD1Brief(ctx) {
 const D2_RESOLVING_KINDS = new Set(['capability', 'constraint', 'entity', 'actor', 'externalSystem', 'surface']);
 
 /**
+ * Compute the `skeleton:deployAdr` check (engineer, tree-wide). Pure.
+ * Ruling R13 2026-10-05 (ADR-4138 extended, PR 292 follow-up): exactly
+ * one Deploy target or Deploy deferral ADR exists tree-wide (detected
+ * by title prefix per proposal section 11). The check runs ahead of
+ * the D2 scope early-return so a narrowed scope that excludes every
+ * REQ / PRD / TAD / brief statement still reports a missing (or
+ * doubled) Deploy ADR.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
+function computeDeployAdrCheck(ctx) {
+  const tree = ctx.tree;
+  const deployAdrs = (tree.adrs ?? []).filter((a) => {
+    const t = typeof a?.title === 'string' ? a.title : '';
+    return t.startsWith('Deploy target:') || t.startsWith('Deploy deferral:');
+  });
+  const deployFail = [];
+  if (deployAdrs.length === 0) deployFail.push({ id: 'ADR:deploy', why: 'no Deploy target or Deploy deferral ADR found (title-prefix scan)' });
+  else if (deployAdrs.length > 1) deployFail.push({ id: 'ADR:deploy', why: `${deployAdrs.length} Deploy ADRs found; expected exactly one` });
+  return makeCheck('skeleton:deployAdr', 'tree', 1, deployFail);
+}
+
+/**
  * Compute the `skeleton:standardsCited` check (engineer, tree-wide).
  * Pure. Every standards pack registered through `rcf define standards`
  * (manifest.standards[].slug) is cited in a REQ `rationale` or an ADR,
@@ -998,17 +1022,22 @@ export function checkD2Skeleton(ctx) {
   const prdInScope = tree.prd && scope.has(tree.prd.prdId ?? '');
   const tadInScope = tree.tad && scope.has(tree.tad.tadId ?? '');
 
-  // Ruling R7 2026-10-05 (ADR-4138): skeleton:standardsCited is a
-  // tree-wide check; evaluate it before any scope early-return so a
-  // narrowed D2 scope that excludes every REQ/PRD/TAD/brief statement
-  // still reports an uncited pack.
+  // Ruling R7 2026-10-05 (ADR-4138) and R13 2026-10-05 (ADR-4138
+  // extended, PR 292 follow-up): skeleton:standardsCited and
+  // skeleton:deployAdr are tree-wide checks; evaluate them before any
+  // scope early-return so a narrowed D2 scope that excludes every
+  // REQ/PRD/TAD/brief statement still reports an uncited pack or a
+  // missing Deploy ADR.
   const standardsCheck = computeStandardsCitedCheck(ctx);
+  const deployAdrCheck = computeDeployAdrCheck(ctx);
 
   if (resolvingStmts.length === 0 && reqInScope.length === 0 && !prdInScope && !tadInScope) {
     const treeWideFailure = treeWideFailureEnvelope(
       'D2', gate,
-      [{ name: 'skeleton:standardsCited', check: standardsCheck }],
-      'no resolving brief statements and no REQ / PRD / TAD in scope',
+      [
+        { name: 'skeleton:standardsCited', check: standardsCheck },
+        { name: 'skeleton:deployAdr', check: deployAdrCheck },
+      ],
       { currentTreeHash: ctx.currentTreeHash ?? null, freezeGates: /** @type {any} */ (ctx.freeze?.gates) },
     );
     if (treeWideFailure) return treeWideFailure;
@@ -1083,15 +1112,11 @@ export function checkD2Skeleton(ctx) {
   checks.push(makeCheck('skeleton:tadPersistence', 'tree', persistenceReq ? 2 : 0, tadFail));
 
   // Check 4: exactly one deploy or deferral ADR tree-wide. Cheap
-  // detection by title prefix (proposal §11 assumption).
-  const deployAdrs = (tree.adrs ?? []).filter((a) => {
-    const t = typeof a?.title === 'string' ? a.title : '';
-    return t.startsWith('Deploy target:') || t.startsWith('Deploy deferral:');
-  });
-  const deployFail = [];
-  if (deployAdrs.length === 0) deployFail.push({ id: 'ADR:deploy', why: 'no Deploy target or Deploy deferral ADR found (title-prefix scan)' });
-  else if (deployAdrs.length > 1) deployFail.push({ id: 'ADR:deploy', why: `${deployAdrs.length} Deploy ADRs found; expected exactly one` });
-  checks.push(makeCheck('skeleton:deployAdr', 'tree', 1, deployFail));
+  // detection by title prefix (proposal §11 assumption). Ruling R13
+  // 2026-10-05: tree-wide by definition; computed by
+  // computeDeployAdrCheck so the same check is reused ahead of the
+  // scope early-return (ADR-4138 extended).
+  checks.push(deployAdrCheck);
 
   // Check 5 (0.30.0 PR 6, ruling R7+R8 2026-10-05): skeleton:standardsCited
   // (engineer, over tree). Computed by `computeStandardsCitedCheck` so the
@@ -1256,11 +1281,14 @@ export function checkD3Shapes(ctx) {
         { name: 'shapes:draftSettled', check: draftCheck },
         { name: 'shapes:entityJoin', check: entityJoinCheck },
       ],
-      'no TAC, no shaped REQ (httpApi/persistence/auth) and no [draft] core entity in scope',
       { currentTreeHash: ctx.currentTreeHash ?? null, freezeGates: /** @type {any} */ (ctx.freeze?.gates) },
     );
     if (treeWideFailure) return treeWideFailure;
-    return notApplicable('D3', gate, 'no TAC, no shaped REQ (httpApi/persistence/auth) and no [draft] core entity in scope');
+    // Ruling R2 2026-10-05: `[draft]` is tree-wide (not a D3 scope
+    // input), so the pre-R2 reason trailer "and no [draft] core entity
+    // in scope" was stale -- the applicability condition is just the
+    // two local-scope sets.
+    return notApplicable('D3', gate, 'no TAC and no shaped REQ (httpApi/persistence/auth) in scope');
   }
 
   const checks = [];
@@ -1515,6 +1543,57 @@ export function checkD4Stories(ctx) {
 // ---------------------------------------------------------------------------
 
 /**
+ * Compute the `crosscut:securityArchitecture` check (engineer,
+ * tree-wide). Pure. Ruling R13 2026-10-05 (ADR-4138 extended): if the
+ * tree carries any REQ with shape `auth` or `httpApi`, TAD.securityArchitecture
+ * must be non-empty. Runs ahead of the D5 scope early-return so a
+ * narrowed scope that excludes the auth REQ still reports the finding.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
+function computeSecurityArchitectureCheck(ctx) {
+  const tree = ctx.tree;
+  const authApi = (tree.requirements ?? []).some((r) => {
+    const s = r.shapeClassification?.shapes ?? [];
+    return s.includes('auth') || s.includes('httpApi');
+  });
+  const tad = /** @type {any} */ (tree.tad ?? {});
+  const secFail = [];
+  if (authApi) {
+    const sa = tad.securityArchitecture;
+    if (!sa || (typeof sa === 'string' ? sa.length === 0 : Object.keys(sa).length === 0)) {
+      secFail.push({ id: 'TAD.securityArchitecture', why: 'empty while auth or httpApi REQ exists' });
+    }
+  }
+  return makeCheck('crosscut:securityArchitecture', 'tree', authApi ? 1 : 0, secFail);
+}
+
+/**
+ * Compute the `crosscut:operationalConcerns` check (engineer,
+ * tree-wide). Pure. Ruling R13 2026-10-05 (ADR-4138 extended): if any
+ * AC description tree-wide carries the `[deployed]` marker, then
+ * TAD.operationalConcerns must be non-empty. Runs ahead of the D5
+ * scope early-return.
+ *
+ * @param {StageContext} ctx
+ * @returns {ReturnType<typeof makeCheck>}
+ */
+function computeOperationalConcernsCheck(ctx) {
+  const tree = ctx.tree;
+  const tad = /** @type {any} */ (tree.tad ?? {});
+  const hasDeployedAc = (tree.userStories ?? []).some((us) => (us.acceptanceCriteria ?? []).some((ac) => typeof ac?.description === 'string' && ac.description.includes('[deployed]')));
+  const opFail = [];
+  if (hasDeployedAc) {
+    const oc = tad.operationalConcerns;
+    if (!oc || (typeof oc === 'string' ? oc.length === 0 : Object.keys(oc).length === 0)) {
+      opFail.push({ id: 'TAD.operationalConcerns', why: 'empty while deployed-scope AC exists' });
+    }
+  }
+  return makeCheck('crosscut:operationalConcerns', 'tree', hasDeployedAc ? 1 : 0, opFail);
+}
+
+/**
  * D5 -- Cross-cutting weave. 0.29.0 runs cheap presence checks.
  *
  * SEAM 0.30: full concern catalogue with per-shape applicability;
@@ -1529,39 +1608,41 @@ export function checkD5Crosscut(ctx) {
   const tree = ctx.tree;
   const reqInScope = (tree.requirements ?? []).filter((r) => scope.has(r.reqId));
 
+  // Ruling R13 2026-10-05 (ADR-4138 extended, PR 292 follow-up):
+  // crosscut:securityArchitecture and crosscut:operationalConcerns are
+  // tree-wide checks; evaluate them before any scope early-return so a
+  // narrowed D5 scope that excludes the triggering REQ or AC still
+  // reports an empty TAD.securityArchitecture / TAD.operationalConcerns.
+  const securityCheck = computeSecurityArchitectureCheck(ctx);
+  const operationalCheck = computeOperationalConcernsCheck(ctx);
+
   if (reqInScope.length === 0) {
+    const treeWideFailure = treeWideFailureEnvelope(
+      'D5', gate,
+      [
+        { name: 'crosscut:securityArchitecture', check: securityCheck },
+        { name: 'crosscut:operationalConcerns', check: operationalCheck },
+      ],
+      { currentTreeHash: ctx.currentTreeHash ?? null, freezeGates: /** @type {any} */ (ctx.freeze?.gates) },
+    );
+    if (treeWideFailure) return treeWideFailure;
     return notApplicable('D5', gate, 'no REQ in scope');
   }
 
   const checks = [];
 
-  // Check 1: TAD.securityArchitecture non-empty when any REQ carries shape 'auth' or 'httpApi'.
-  const authApi = (tree.requirements ?? []).some((r) => {
-    const s = r.shapeClassification?.shapes ?? [];
-    return s.includes('auth') || s.includes('httpApi');
-  });
-  const tad = /** @type {any} */ (tree.tad ?? {});
-  const secFail = [];
-  if (authApi) {
-    const sa = tad.securityArchitecture;
-    if (!sa || (typeof sa === 'string' ? sa.length === 0 : Object.keys(sa).length === 0)) {
-      secFail.push({ id: 'TAD.securityArchitecture', why: 'empty while auth or httpApi REQ exists' });
-    }
-  }
-  checks.push(makeCheck('crosscut:securityArchitecture', 'tree', authApi ? 1 : 0, secFail));
+  // Check 1: TAD.securityArchitecture non-empty when any REQ carries
+  // shape 'auth' or 'httpApi'. Ruling R13 2026-10-05: tree-wide;
+  // computed by computeSecurityArchitectureCheck so the same check is
+  // reused ahead of the scope early-return (ADR-4138 extended).
+  checks.push(securityCheck);
 
   // Check 2: TAD.operationalConcerns non-empty when any AC description
   // carries the '[deployed]' marker (a cheap presence signal that
-  // proposal §3.2 D5 lists as 'deployed-scope AC').
-  const hasDeployedAc = (tree.userStories ?? []).some((us) => (us.acceptanceCriteria ?? []).some((ac) => typeof ac?.description === 'string' && ac.description.includes('[deployed]')));
-  const opFail = [];
-  if (hasDeployedAc) {
-    const oc = tad.operationalConcerns;
-    if (!oc || (typeof oc === 'string' ? oc.length === 0 : Object.keys(oc).length === 0)) {
-      opFail.push({ id: 'TAD.operationalConcerns', why: 'empty while deployed-scope AC exists' });
-    }
-  }
-  checks.push(makeCheck('crosscut:operationalConcerns', 'tree', hasDeployedAc ? 1 : 0, opFail));
+  // proposal §3.2 D5 lists as 'deployed-scope AC'). Ruling R13
+  // 2026-10-05: tree-wide; computed by computeOperationalConcernsCheck
+  // so the same check is reused ahead of the scope early-return.
+  checks.push(operationalCheck);
 
   // Check 3: no open concern-ledger entry on a REQ in scope.
   const concerns = /** @type {any} */ (ctx.ledgers?.concerns);

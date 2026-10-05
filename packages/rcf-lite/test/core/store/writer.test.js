@@ -275,7 +275,7 @@ test('createDocument refuses on unknown parent (brokenReference, exit 3)', async
   assert.equal(res.kind, 'brokenReference');
 });
 
-test('createDocument refuses on id collision (exit 2) and writes nothing (AC-302-2)', async () => {
+test('createDocument refuses on id collision with different content (exit 3 conflict) and writes nothing (AC-302-2 / R1 extension 2026-10-05)', async () => {
   const { projectRoot, tree } = await scaffold();
   const filesBefore = await readdir(join(projectRoot, 'rcf/requirements'));
   const existingBefore = await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8');
@@ -284,12 +284,47 @@ test('createDocument refuses on id collision (exit 2) and writes nothing (AC-302
     body: { title: 'REQ-001 collision' },
     options: { parentId: 'PRD-001', id: 'REQ-001' },
   });
-  assert.equal(res.kind, 'usage');
-  assert.match(res.message, /already taken/);
+  // Ruling R1 extension 2026-10-05 (PR 292 follow-up): a same-id
+  // override with different content refuses with kind: 'conflict'
+  // (CLI maps to exit 3) and names the differing field keys. Pre-
+  // follow-up this was kind: 'usage' with "already taken".
+  assert.equal(res.kind, 'conflict');
+  assert.match(res.message, /REQ-001/);
+  assert.match(res.message, /differing fields/);
   // No file is written: the directory holds the same set of files and the
   // colliding document's file is byte-identical.
   const filesAfter = await readdir(join(projectRoot, 'rcf/requirements'));
   assert.deepEqual(filesAfter.sort(), filesBefore.sort());
+  const existingAfter = await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8');
+  assert.equal(existingAfter, existingBefore);
+});
+
+test('createDocument returns status unchanged on a byte-identical same-id replay (R1 extension 2026-10-05)', async () => {
+  const { projectRoot, tree } = await scaffold();
+  // Build a request whose would-be body equals the on-disk REQ-001
+  // modulo writer-owned timestamps (createdAt/updatedAt). The seeded
+  // tree carries REQ-001 with title "First requirement" from
+  // src/core/store/init.js; replay with the same shape.
+  const existing = JSON.parse(await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8'));
+  const existingBefore = await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8');
+  const res = await createDocument({
+    projectRoot, tree, kind: 'req',
+    body: {
+      title: existing.title,
+      description: existing.description,
+      category: existing.category,
+      domain: existing.domain,
+      priority: existing.priority,
+      version: existing.version,
+      status: existing.status,
+    },
+    options: { parentId: 'PRD-001', id: 'REQ-001' },
+  });
+  // Writer returns the unchanged result: no error.
+  assert.equal(typeof res.kind, 'undefined', `expected no error kind; got ${JSON.stringify(res)}`);
+  assert.equal(res.status, 'unchanged');
+  assert.equal(res.id, 'REQ-001');
+  // File is byte-identical.
   const existingAfter = await readFile(join(projectRoot, 'rcf/requirements/req-001.json'), 'utf8');
   assert.equal(existingAfter, existingBefore);
 });

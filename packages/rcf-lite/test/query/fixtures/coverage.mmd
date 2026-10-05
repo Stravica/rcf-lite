@@ -2232,6 +2232,24 @@ flowchart LR
   REQ-173 --> AC-17302-9
   TC-215-r1-add-no-id-mints-next["TC-215-r1-add-no-id-mints-next"]
   AC-17302-9 -.-> TC-215-r1-add-no-id-mints-next
+  AC-17302-10["AC-17302-10"]
+  REQ-173 --> AC-17302-10
+  TC-215-r1-create-ac-id-unchanged-and-conflict["TC-215-r1-create-ac-id-unchanged-and-conflict"]
+  AC-17302-10 -.-> TC-215-r1-create-ac-id-unchanged-and-conflict
+  AC-17302-11["AC-17302-11"]
+  REQ-173 --> AC-17302-11
+  TC-215-r1-create-tc-id-unchanged-and-conflict["TC-215-r1-create-tc-id-unchanged-and-conflict"]
+  AC-17302-11 -.-> TC-215-r1-create-tc-id-unchanged-and-conflict
+  AC-17302-12["AC-17302-12"]
+  REQ-173 --> AC-17302-12
+  TC-215-r1-create-cn-id-unchanged-and-conflict["TC-215-r1-create-cn-id-unchanged-and-conflict"]
+  AC-17302-12 -.-> TC-215-r1-create-cn-id-unchanged-and-conflict
+  AC-17302-13["AC-17302-13"]
+  REQ-173 --> AC-17302-13
+  TC-215-r1-create-req-verbatim-replay-unchanged["TC-215-r1-create-req-verbatim-replay-unchanged"]
+  AC-17302-13 -.-> TC-215-r1-create-req-verbatim-replay-unchanged
+  TC-215-r1-create-tac-id-unchanged-and-conflict["TC-215-r1-create-tac-id-unchanged-and-conflict"]
+  AC-17302-13 -.-> TC-215-r1-create-tac-id-unchanged-and-conflict
   REQ-174["REQ-174"]
   AC-17401-1["AC-17401-1"]
   REQ-174 --> AC-17401-1
@@ -2273,6 +2291,14 @@ flowchart LR
   REQ-174 --> AC-17401-10
   TC-216-identity-seed-surface["TC-216-identity-seed-surface"]
   AC-17401-10 -.-> TC-216-identity-seed-surface
+  AC-17401-11["AC-17401-11"]
+  REQ-174 --> AC-17401-11
+  TC-216-r13-crosscut-security-tree-wide["TC-216-r13-crosscut-security-tree-wide"]
+  AC-17401-11 -.-> TC-216-r13-crosscut-security-tree-wide
+  AC-17401-12["AC-17401-12"]
+  REQ-174 --> AC-17401-12
+  TC-216-r13-crosscut-operational-tree-wide["TC-216-r13-crosscut-operational-tree-wide"]
+  AC-17401-12 -.-> TC-216-r13-crosscut-operational-tree-wide
   AC-17402-1["AC-17402-1"]
   REQ-174 --> AC-17402-1
   TC-219-every-check-has-persona-and-question["TC-219-every-check-has-persona-and-question"]
@@ -2301,6 +2327,10 @@ flowchart LR
   REQ-174 --> AC-17402-7
   TC-219-not-applicable-placeholder-persona["TC-219-not-applicable-placeholder-persona"]
   AC-17402-7 -.-> TC-219-not-applicable-placeholder-persona
+  AC-17402-8["AC-17402-8"]
+  REQ-174 --> AC-17402-8
+  TC-219-r13-deploy-adr-tree-wide["TC-219-r13-deploy-adr-tree-wide"]
+  AC-17402-8 -.-> TC-219-r13-deploy-adr-tree-wide
   AC-17403-1["AC-17403-1"]
   REQ-174 --> AC-17403-1
   TC-220-todo-no-shapes-fails-both["TC-220-todo-no-shapes-fails-both"]
@@ -2337,6 +2367,10 @@ flowchart LR
   REQ-174 --> AC-17403-9
   TC-220-r2-draft-tree-wide-under-narrowed-scope["TC-220-r2-draft-tree-wide-under-narrowed-scope"]
   AC-17403-9 -.-> TC-220-r2-draft-tree-wide-under-narrowed-scope
+  AC-17403-10["AC-17403-10"]
+  REQ-174 --> AC-17403-10
+  TC-220-r13-failing-envelope-reason-drops["TC-220-r13-failing-envelope-reason-drops"]
+  AC-17403-10 -.-> TC-220-r13-failing-envelope-reason-drops
   AC-17404-1["AC-17404-1"]
   REQ-174 --> AC-17404-1
   TC-230-templatemarkers-draft-recordshape["TC-230-templatemarkers-draft-recordshape"]
@@ -2373,6 +2407,10 @@ flowchart LR
   REQ-174 --> AC-17404-8
   TC-230-r6-bare-paths-whitelist["TC-230-r6-bare-paths-whitelist"]
   AC-17404-8 -.-> TC-230-r6-bare-paths-whitelist
+  AC-17404-9["AC-17404-9"]
+  REQ-174 --> AC-17404-9
+  TC-230-r13-helper-foldstate-delegation["TC-230-r13-helper-foldstate-delegation"]
+  AC-17404-9 -.-> TC-230-r13-helper-foldstate-delegation
   AC-17405-1["AC-17405-1"]
   REQ-174 --> AC-17405-1
   TC-231-closedsets-cue-without-list["TC-231-closedsets-cue-without-list"]
@@ -4044,6 +4082,15 @@ flowchart LR
   class TC-215-r1-add-same-id-diff-content-exit-3 tc;
   class AC-17302-9 ac;
   class TC-215-r1-add-no-id-mints-next tc;
+  class AC-17302-10 ac;
+  class TC-215-r1-create-ac-id-unchanged-and-conflict tc;
+  class AC-17302-11 ac;
+  class TC-215-r1-create-tc-id-unchanged-and-conflict tc;
+  class AC-17302-12 ac;
+  class TC-215-r1-create-cn-id-unchanged-and-conflict tc;
+  class AC-17302-13 ac;
+  class TC-215-r1-create-req-verbatim-replay-unchanged tc;
+  class TC-215-r1-create-tac-id-unchanged-and-conflict tc;
   class REQ-174 req;
   class AC-17401-1 ac;
   class TC-216-shape tc;
@@ -4065,6 +4112,10 @@ flowchart LR
   class TC-216-d2-data-architecture tc;
   class AC-17401-10 ac;
   class TC-216-identity-seed-surface tc;
+  class AC-17401-11 ac;
+  class TC-216-r13-crosscut-security-tree-wide tc;
+  class AC-17401-12 ac;
+  class TC-216-r13-crosscut-operational-tree-wide tc;
   class AC-17402-1 ac;
   class TC-219-every-check-has-persona-and-question tc;
   class AC-17402-2 ac;
@@ -4079,6 +4130,8 @@ flowchart LR
   class TC-219-persona-vocabulary-closed tc;
   class AC-17402-7 ac;
   class TC-219-not-applicable-placeholder-persona tc;
+  class AC-17402-8 ac;
+  class TC-219-r13-deploy-adr-tree-wide tc;
   class AC-17403-1 ac;
   class TC-220-todo-no-shapes-fails-both tc;
   class AC-17403-2 ac;
@@ -4097,6 +4150,8 @@ flowchart LR
   class TC-220-no-req-fields-emitted tc;
   class AC-17403-9 ac;
   class TC-220-r2-draft-tree-wide-under-narrowed-scope tc;
+  class AC-17403-10 ac;
+  class TC-220-r13-failing-envelope-reason-drops tc;
   class AC-17404-1 ac;
   class TC-230-templatemarkers-draft-recordshape tc;
   class TC-230-templatemarkers-happy tc;
@@ -4115,6 +4170,8 @@ flowchart LR
   class TC-230-r5-entityjoin-under-narrowed-scope tc;
   class AC-17404-8 ac;
   class TC-230-r6-bare-paths-whitelist tc;
+  class AC-17404-9 ac;
+  class TC-230-r13-helper-foldstate-delegation tc;
   class AC-17405-1 ac;
   class TC-231-closedsets-cue-without-list tc;
   class TC-231-closedsets-quoted-cue-guard tc;

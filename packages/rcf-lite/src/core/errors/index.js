@@ -7,7 +7,7 @@
 // renders them inline in the page so an owner can see what is broken.
 
 /**
- * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode'|'missingCodeNodes'|'duplicateId')} ErrorKind
+ * @typedef {('validation'|'missingFile'|'brokenReference'|'parseFailure'|'ioFailure'|'usage'|'staleCode'|'missingCodeNodes'|'duplicateId'|'conflict')} ErrorKind
  */
 
 /**
@@ -49,6 +49,12 @@ const VALID_KINDS = new Set([
   // with the spec-verbatim refusal message; the CLI translates it to
   // exit 3 (not exit 2) with the message printed as-is on stderr.
   'requiresAppliedCapabilities',
+  // Ruling R1 extension 2026-10-05 (DEFINE step 3, PR 292 follow-up):
+  // a same-id `rcf define create` replay whose would-be body differs
+  // from the on-disk entry refuses with `kind: 'conflict'`; the CLI
+  // translates it to exit 3 with the id and the differing field keys
+  // named in the message. Mirrors `src/define/ledgers.js` R1 add path.
+  'conflict',
 ]);
 
 /**

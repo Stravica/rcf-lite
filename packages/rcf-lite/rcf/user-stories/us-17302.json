@@ -54,6 +54,26 @@
       "id": "AC-17302-9",
       "description": "[happy] (R1 2026-10-05) given rcf define ledger brief add --text \"foo\" with no --id on an empty ledger, when the verb runs, then it mints id 1 as before (idempotency opt-in is id-carried; the harness threads --id back on replay).",
       "testable": true
+    },
+    {
+      "id": "AC-17302-10",
+      "description": "[happy] (R1 create extension 2026-10-05, PR 292 follow-up; amended on the PR 293 landing review) given rcf define create ac --parent US-1 --id AC-1-1 --description \"foo\" on a tree where US-1 already carries AC-1-1 with description foo and testable true and no other fields, when the verb runs, then it exits 0 and stdout reads 'AC-1-1: unchanged (rcf/user-stories/us-1.json)'; the parent US file is not rewritten; and given the same verb with --description \"bar\" instead, it exits 3, stderr names the id and the differing field (description), and the file is not rewritten. rcf define create has no --json flag; the stdout line is the whole output (suppressed by --quiet).",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-11",
+      "description": "[happy] (R1 create extension, PR 293 landing review) given rcf define create tc --parent TS-1 --id TC-1-foo --ac AC-1-1 --description \"foo\" --test-pointer t.test.js::foo on a tree where TS-1 already carries TC-1-foo with the same acId, description, testPointer and status pending, when the verb runs, then it exits 0 and stdout reads 'TC-1-foo: unchanged (rcf/test-suites/ts-1.json)' and the file is not rewritten; given the same verb with --description \"bar\", it exits 3 naming the id and the differing field (description) and the file is not rewritten. Idempotency is id-carried: without --id, a derived-slug collision still refuses with exit 2 and the 'supply --slug explicitly' message.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-12",
+      "description": "[happy] (R1 create extension, PR 293 landing review) given rcf define create cn --id CN-1 --path src/a.js --acs AC-1-1 on a tree where CN-1 already carries path src/a.js, implementsAcIds [AC-1-1], dependencies [], version 0.1.0 and status draft, when the verb runs, then it exits 0 and stdout reads 'CN-1: unchanged (rcf/code-nodes/cn-1.json)' and the file is not rewritten; given the same verb with --path src/b.js, it exits 3 naming the id and the differing field (path) and the file is not rewritten.",
+      "testable": true
+    },
+    {
+      "id": "AC-17302-13",
+      "description": "[happy] (R1 create extension, PR 293 landing review) given rcf define create req --parent PRD-001 --id REQ-050 --title T --description D whose first run persisted a classifier-owned shapeClassification block, when the identical command is replayed, then it exits 0 and stdout reads 'REQ-050: unchanged (rcf/requirements/req-050.json)' and the file is not rewritten: the replay compare ignores every writer- and classifier-owned field (createdAt, updatedAt, shapeClassification; one exported REPLAY_IGNORE_FIELDS list in src/core/store/writer.js); given the same verb with a different --description, it exits 3 naming description and the file is not rewritten.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -61,5 +81,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-05T12:00:00Z"
+  "updatedAt": "2026-10-05T19:00:00Z"
 }
