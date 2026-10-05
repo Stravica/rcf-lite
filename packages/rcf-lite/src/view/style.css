@@ -958,7 +958,7 @@ html[data-embed="1"] .pm-controls { top: 3rem; }
   color: var(--sv-ink);
   font-weight: 600;
   box-shadow: var(--shadow-sm);
-  border-color: var(--sv-border);
+  border-color: var(--sv-control);
 }
 
 .pm-status-filter {
@@ -2361,6 +2361,10 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   outline-offset: -3px;
   background: var(--sv-active);
 }
+.rcf-theme-btn:active {
+  background: var(--sv-active);
+  color: var(--sv-ink);
+}
 .rcf-theme-btn[aria-pressed="true"] {
   background: var(--sv-button);
   color: var(--sv-onbutton);
@@ -2421,7 +2425,7 @@ html[data-embed="1"] .rcf-theme { display: none; }
   border-radius: 4px;
   cursor: pointer;
 }
-.rcf-lookup-close:hover { color: var(--sv-text); border-color: var(--sv-border); }
+.rcf-lookup-close:hover { color: var(--sv-text); border-color: var(--sv-control); }
 .rcf-lookup-close:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 1px; }
 
 .rcf-lookup-field { display: flex; flex-direction: column; gap: 0.25rem; }
@@ -2435,9 +2439,9 @@ html[data-embed="1"] .rcf-theme { display: none; }
   padding: 0.55rem 0.75rem;
   font: inherit;
   font-size: 0.95rem;
-  border: 1px solid var(--sv-border, #d6dbe3);
+  border: 1px solid var(--sv-control);
   border-radius: 6px;
-  background: var(--sv-surface-sub, #fbfcfe);
+  background: var(--sv-surface);
   color: var(--sv-text);
 }
 .rcf-lookup-input:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 1px; border-color: var(--sv-link, #3a5bb5); }
@@ -2464,9 +2468,9 @@ html[data-embed="1"] .rcf-theme { display: none; }
   cursor: pointer;
   border: 1px solid transparent;
 }
-.rcf-lookup-row:hover { background: var(--sv-surface-hover, #f0f3f8); }
+.rcf-lookup-row:hover { background: var(--sv-active); }
 .rcf-lookup-row.is-active {
-  background: var(--sv-surface-hover, #f0f3f8);
+  background: var(--sv-active);
   border-color: var(--sv-link, #3a5bb5);
 }
 .rcf-lookup-row mark {
@@ -2542,7 +2546,7 @@ html[data-embed="1"] .rcf-theme { display: none; }
   font: inherit;
   font-size: 0.85rem;
 }
-.rcf-lookup-reload:hover { background: var(--sv-surface-hover, #f0f3f8); }
+.rcf-lookup-reload:hover { background: var(--sv-active); }
 .rcf-lookup-reload:focus-visible { outline: 3px solid var(--sv-focus); outline-offset: 1px; }
 
 html[data-theme="dark"] .rcf-lookup-backdrop { background: rgba(0, 0, 0, 0.55); }
