@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-03T00:00:00Z",
-  "updatedAt": "2026-10-04T14:00:00Z",
+  "updatedAt": "2026-10-05T12:30:00Z",
   "purpose": "Cover US-205 (engineer jumps to any document or AC by id): id-first ranking (exact / prefix / contains), word-match title above snippet, single-char ids-only, hash pick lands and expands the entity, mount URL round-trip, embed/theme preservation, empty-state on fetch failure, no outbound postMessage / storage / cookies. Points at the 22 new unit tests under test/view/id-lookup.test.js.",
   "testLevel": "unit",
   "acIds": [
@@ -77,7 +77,7 @@
     {
       "id": "TC-225-search-button-contrast",
       "acId": "AC-205-9",
-      "description": "The WCAG 2.1 AA contrast audit (test/view/contrast-aa.test.js) resolves `.rcf-search-btn` in each state (default, hover, focus-visible, active) against both the light and dark token sets and asserts >= 4.5:1 for the button text, >= 3:1 for the icon stroke and the focus-ring boundary.",
+      "description": "The WCAG 2.1 AA contrast audit (test/view/contrast-aa.test.js) requires a `.rcf-search-btn` pair for each of hover, focus-visible and active (state rules merged over the base rule) in both the light and dark token sets and asserts >= 4.5:1 for the button text and >= 3:1 for the focus ring against the surface it sits on. A missing state pair fails the test (PR 291 landing review F3).",
       "status": "pending",
       "testPointer": "test/view/contrast-aa.test.js::.rcf-search-btn passes WCAG 2.1 AA in both themes across every state (AC-205-9)"
     }
