@@ -112,6 +112,7 @@ concerns add flags:
   --disposition applied|waived
                             Disposition (required)
   --reason <text>           Reason (mandatory when disposition=waived)
+  --dry-run                 Preview the minted entry; write nothing
 
 probes add flags:
   --req <req-id>            REQ the probe finding sits on (required)
@@ -523,6 +524,20 @@ async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
       name: 'concerns', body, entry, now,
       ...(idOverride !== undefined ? { id: idOverride } : {}),
     });
+    // Issue 310 (0.32.2): --dry-run on concerns add previews the
+    // minted entry without writing the ledger. Prior behaviour
+    // accepted the flag and created `rcf/define/concern-ledger.json`
+    // anyway, mutating viewer clones on rehearsal runs.
+    if (flags['dry-run']) {
+      if (flags.json) {
+        stdout.write(`${JSON.stringify({ dryRun: true, status: step.status, id: step.entry.id, entry: step.entry }, null, 2)}\n`);
+      } else if (step.status === 'unchanged') {
+        stdout.write(`[dry-run] concern-ledger: would be unchanged ${step.entry.id}\n`);
+      } else {
+        stdout.write(`[dry-run] concern-ledger: would add concern ${step.entry.id}\n`);
+      }
+      return 0;
+    }
     if (step.status === 'unchanged') {
       if (flags.json) {
         stdout.write(`${JSON.stringify({ status: 'unchanged', id: step.entry.id, entry: step.entry }, null, 2)}\n`);

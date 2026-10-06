@@ -60,12 +60,14 @@ Verbs:
                              (silence-refuses-build queue) without
                              prompting.
 
-  opt-out --req <id> --key <baselineKey> --reason "..." [--scope req|project]
+  opt-out --req <id> --key <baselineKey> --reason "..." [--scope req|project] [--dry-run]
                              Record an operator ruling that removes a
                              baseline AC from the REQ (or the whole
                              project) and inherit the ruling on future
                              sweeps. Reason is at least 20 characters
-                             (schema-enforced).
+                             (schema-enforced). --dry-run prints the
+                             opt-out that would be written and leaves
+                             the manifest untouched.
 
   opt-out --remove --req <id> --key <baselineKey>
                              Delete an existing opt-out; the next sweep
@@ -251,6 +253,18 @@ export async function main(argv, deps = {}) {
   if (!['req', 'project'].includes(scope)) {
     stderr.write(`[error] usage req-baseline opt-out: --scope must be req or project (got ${scope})\n`);
     return 2;
+  }
+  // Issue 310 (0.32.2): --dry-run on opt-out previews the opt-out
+  // record without writing to the manifest. Prior behaviour accepted
+  // the flag and wrote anyway, mutating viewer clones on rehearsal
+  // runs.
+  if (flags['dry-run']) {
+    if (flags.json) {
+      stdout.write(`${JSON.stringify({ dryRun: true, reqId: flags.req, baselineKey: flags.key, scope, reason: flags.reason }, null, 2)}\n`);
+    } else {
+      stdout.write(`[dry-run] would opt-out ${flags.req} ${flags.key} (scope=${scope})\n`);
+    }
+    return 0;
   }
   const result = await writeOptOut({
     projectRoot,
