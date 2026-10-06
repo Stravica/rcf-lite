@@ -1582,7 +1582,15 @@ function computeSecurityArchitectureCheck(ctx) {
 function computeOperationalConcernsCheck(ctx) {
   const tree = ctx.tree;
   const tad = /** @type {any} */ (tree.tad ?? {});
-  const hasDeployedAc = (tree.userStories ?? []).some((us) => (us.acceptanceCriteria ?? []).some((ac) => typeof ac?.description === 'string' && ac.description.includes('[deployed]')));
+  // Issue 306 (2026-10-06): schemas carry AC scope as the structured
+  // field `scope: "deployed"`; the legacy `[deployed]` description
+  // marker (R13 2026-10-05) is kept so older trees still trigger. A
+  // deployed-scope AC on either form must find a non-empty
+  // TAD.operationalConcerns.
+  const hasDeployedAc = (tree.userStories ?? []).some((us) => (us.acceptanceCriteria ?? []).some((ac) => {
+    if (ac?.scope === 'deployed') return true;
+    return typeof ac?.description === 'string' && ac.description.includes('[deployed]');
+  }));
   const opFail = [];
   if (hasDeployedAc) {
     const oc = tad.operationalConcerns;
