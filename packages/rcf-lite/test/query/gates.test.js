@@ -2115,6 +2115,41 @@ test('gates (R13, AC-17401-12): crosscut:operationalConcerns runs tree-wide unde
   assert.ok(op.failing.some((f) => f.id === 'TAD.operationalConcerns'));
 });
 
+test('gates (issue 306): crosscut:operationalConcerns fires on ac.scope === "deployed" (structured scope field) when TAD.operationalConcerns is empty', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // ai-baseline shape: AC carries structured scope: "deployed", no
+  // [deployed] marker in description, TAD.operationalConcerns absent.
+  // Pre-306 the trigger missed and the check reported 0/0 ok.
+  const us = { usId: 'US-1', reqId: 'REQ-1', acceptanceCriteria: [
+    { id: 'AC-1-1', description: 'endpoint responds 2xx', scope: 'deployed', testable: true },
+  ] };
+  const tree = makeTree({ userStories: [us], tad: {} });
+  const stage = checkD5Crosscut({ tree, ledgers: emptyLedgers, scope: new Set(), currentTreeHash: 'sha256:aaa' });
+  assert.equal(stage.state, 'failing', `expected failing, got ${stage.state} with checks ${JSON.stringify(stage.checks)}`);
+  const op = stage.checks.find((c) => c.name === 'crosscut:operationalConcerns');
+  assert.ok(op, 'crosscut:operationalConcerns check present');
+  assert.ok(op.failing.some((f) => f.id === 'TAD.operationalConcerns'), 'TAD.operationalConcerns finding present');
+});
+
+test('gates (issue 306): crosscut:operationalConcerns stays ok when no deployed-scope AC exists (negative control)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  // Include one REQ in scope so D5 lists its tree-wide checks (rather
+  // than short-circuiting to notApplicable), then assert the
+  // operationalConcerns check is present and passing because no AC
+  // carries scope: "deployed" or the `[deployed]` marker.
+  const req = { reqId: 'REQ-1', description: 'ship widgets', domain: 'ops', shapeClassification: { shapes: ['httpApi'] } };
+  const us = { usId: 'US-1', reqId: 'REQ-1', acceptanceCriteria: [
+    { id: 'AC-1-1', description: 'endpoint responds 2xx', scope: 'runtime', testable: true },
+  ] };
+  const tree = makeTree({ requirements: [req], userStories: [us], tad: {} });
+  const stage = checkD5Crosscut({ tree, ledgers: emptyLedgers, scope: new Set(['REQ-1']), currentTreeHash: 'sha256:aaa' });
+  const op = stage.checks.find((c) => c.name === 'crosscut:operationalConcerns');
+  assert.ok(op, 'crosscut:operationalConcerns check present');
+  assert.equal(op.total, 0, 'no deployed-scope AC => total 0');
+  assert.equal(op.failing.length, 0, 'no deployed-scope AC => no failing entries');
+  assert.equal(op.ok, true, 'no deployed-scope AC => check ok');
+});
+
 test('gates (R5, AC-17404-7): entityJoin runs tree-wide under narrowed D3 scope', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   // No TAC in scope. A coreEntity has no record shape anywhere tree-wide;

@@ -12,6 +12,7 @@ import { resolveTestPointers, walkTree } from '#core/store';
 import { computeReadiness } from '../query/readiness.js';
 import { computeQuestions } from '../query/questions.js';
 import { loadFreezeRecord } from '../define/freeze-record.js';
+import { resolveInterfacePaths } from '../define/interface-paths.js';
 import { loadAllLedgers } from '../define/ledgers.js';
 import { renderContent, renderPage } from './html-page.js';
 import { renderProductMapGrouping } from './product-map.js';
@@ -77,11 +78,18 @@ export async function renderModelToPage({ projectRoot }) {
   // Load the readiness inputs once per rewalk; the viewer is pure
   // (never recomputes readiness). Failures load as `null` so the tab
   // still renders when a tree is partial.
-  const [freezeRecord, ledgers, testPointers, profileText] = await Promise.all([
+  const [freezeRecord, ledgers, testPointers, profileText, resolvedPaths] = await Promise.all([
     loadFreezeRecord({ projectRoot }).catch(() => null),
     loadAllLedgers({ projectRoot }).catch(() => ({})),
     resolveTestPointers({ projectRoot, tree }).catch(() => undefined),
     readProfileText(projectRoot),
+    // Issue 307 (2026-10-06): run the same TAC-interface path
+    // resolver the CLI and freeze run so the viewer's D3
+    // `shapes:pathsResolve` check reads the resolved set from the
+    // same seam. Before this, the viewer called computeReadiness
+    // without `resolvedPaths`, D3 false-failed on paths that resolve
+    // on disk, and the Readiness tab disagreed with the CLI.
+    resolveInterfacePaths(projectRoot, tree).catch(() => undefined),
   ]);
 
   let readiness = null;
@@ -93,6 +101,7 @@ export async function renderModelToPage({ projectRoot }) {
       profileText,
       testPointers,
       validateErrors: errors,
+      resolvedPaths,
     });
   } catch (err) {
     // A malformed tree should not block the viewer; the Readiness tab
@@ -149,7 +158,12 @@ export async function renderModelToPage({ projectRoot }) {
   // list is extended before the version pin bump). One row per doc id
   // plus one row per AC under each US.
   const indexJson = serialiseViewIndex(model);
-  return { fullPageHtml, contentHtml, errors, tree, pmPartials, indexJson };
+  // Issue 307 (2026-10-06): expose the computed readiness alongside
+  // the rendered HTML so tests can assert the viewer's D3
+  // shapes:pathsResolve agrees with the CLI without parsing HTML. The
+  // viewer HTML is still the operator-facing surface; this field is
+  // additive and consumed by test code only.
+  return { fullPageHtml, contentHtml, errors, tree, pmPartials, indexJson, readiness };
 }
 
 /**
