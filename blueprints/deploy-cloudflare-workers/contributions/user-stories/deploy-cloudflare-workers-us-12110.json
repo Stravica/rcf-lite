@@ -17,7 +17,11 @@
       "then": "at least one HTTP request to the production URL's `/healthz` completes within the sixty-second window; the request carries no `Authorization` header that would bypass a production auth layer; the retry count for any single probe does not exceed six",
       "testable": true,
       "scope": "deployed",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+        "field": "interfaces[probeUrl]"
+      }
     },
     {
       "id": "AC-12110-2",

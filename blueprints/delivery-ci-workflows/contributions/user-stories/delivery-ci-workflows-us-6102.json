@@ -17,7 +17,11 @@
       "then": "the aggregate report's `runner.entryPoint` field records a project-relative path to a `.js` or `.mjs` file that exists at that path in the tree",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces[entry-point CLI]"
+      }
     },
     {
       "id": "AC-6102-2",

@@ -17,7 +17,11 @@
       "then": "the scan returns exactly one module and that module is the adapter module",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-401-email-smtp-resend-send-adapter",
+        "field": "interfaces[smtpClient]"
+      }
     },
     {
       "id": "AC-4106-2",

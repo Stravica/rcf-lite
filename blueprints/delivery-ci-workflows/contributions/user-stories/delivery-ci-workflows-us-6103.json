@@ -17,7 +17,11 @@
       "then": "the file exists, its `gate` field is `validate`, its `command` field names the `rcf define validate` invocation, its `exitCode` field records the underlying process exit code, and its `stdout` and `stderr` fields carry the captured streams",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-701-delivery-ci-workflows-gate-runner",
+        "field": "interfaces[gate-descriptor]"
+      }
     },
     {
       "id": "AC-6103-2",

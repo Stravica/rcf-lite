@@ -17,7 +17,11 @@
       "then": "both responses carry the `versionSha` field of V's build provenance in the health-probe body, and the two responses agree on that field",
       "testable": true,
       "scope": "deployed",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1303-deploy-cloudflare-workers-preview-url-resolver",
+        "field": "interfaces[workerIdentity]"
+      }
     },
     {
       "id": "AC-12103-2",
