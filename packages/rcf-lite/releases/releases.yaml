@@ -40,8 +40,16 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.32.1"
+latest: "0.32.2"
 releases:
+  - version: "0.32.2"
+    date: "2026-10-06"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.32.2 ships two Dex-lane fixes on top of 0.32.1. D6 consistency:unsatisfiable now context-gates backticked identifiers in AC then-clauses so enum values, query-string parameter names, sort and filter literals, env-var names and config knobs stop being read as record-shape field names (issue 311; expected drop on WESPA 345 unsatisfiable findings, 187 true positives remain, AC-12113-2 class unchanged), and `rcf discover req-baseline opt-out` and `rcf define ledger concerns add` honour `--dry-run` by writing nothing (issue 310)."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.32.1"
     date: "2026-10-06"
     breaking: false
