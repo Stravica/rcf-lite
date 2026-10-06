@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-01T18:00:00Z",
-  "purpose": "Cover US-18001 (Readiness as tab 1 and the PRD rename) and US-18101 (shared pill, findings-list and diff components). Shares the readiness fixture builders with TS-222 so the tab and the CLI assertions ride the same shapes.",
+  "updatedAt": "2026-10-06T12:00:00Z",
+  "purpose": "Cover US-18001 (Readiness as tab 1 and the PRD rename, plus the live-client resync SSOT guard added for issue 297) and US-18101 (shared pill, findings-list and diff components). Shares the readiness fixture builders with TS-222 so the tab and the CLI assertions ride the same shapes.",
   "testLevel": "unit",
   "acIds": [
     "AC-18001-1",
@@ -11,6 +11,7 @@
     "AC-18001-5",
     "AC-18001-6",
     "AC-18001-7",
+    "AC-18001-8",
     "AC-18101-1",
     "AC-18101-2",
     "AC-18101-3"
@@ -88,6 +89,27 @@
       "description": "No existing Product Map or Requirements test expectation changes; only the Readiness-specific additions land.",
       "status": "pending",
       "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18101-3 existing Product Map and Requirements tests retain their expectations"
+    },
+    {
+      "id": "TC-223-swap-preserves-readiness",
+      "acId": "AC-18001-8",
+      "description": "resyncTabsAfterSwap keeps tab-readiness as the sole visible panel when Readiness is aria-selected and the swap left tab-overview visible (the Phase 3.6 server default). Pins issue 297: before the fix, the hard-coded TABS list in live-client.js omitted 'readiness', indexOf returned -1, selected fell back to overview, and both tab-readiness and tab-overview went visible.",
+      "status": "passing",
+      "testPointer": "test/view/live-client.test.js::AC-18001-8 resyncTabsAfterSwap keeps Readiness visible on the embed-no-hash default (issue 297)"
+    },
+    {
+      "id": "TC-223-swap-ssot-every-tab",
+      "acId": "AC-18001-8",
+      "description": "resyncTabsAfterSwap honours every nav.tabs [role=tab][data-tab] the server rendered as the SSOT for the tab list. Iterating the six main tabs with each as aria-selected and the swap-default visible panel set to tab-overview, exactly the aria-selected tab's panel is visible after resync. Guards against future drift: a seventh tab added to the renderer survives a swap without an edit on live-client.",
+      "status": "passing",
+      "testPointer": "test/view/live-client.test.js::AC-18001-8 resyncTabsAfterSwap preserves every tab the DOM renders (SSOT invariant)"
+    },
+    {
+      "id": "TC-223-swap-product-map-regression",
+      "acId": "AC-18001-8",
+      "description": "resyncTabsAfterSwap preserves product-map as the sole visible panel through a swap. Guards the one tab that the pre-issue-297 TABS list did include, so the SSOT rewrite does not regress the behaviour it previously had right.",
+      "status": "passing",
+      "testPointer": "test/view/live-client.test.js::AC-18001-8 resyncTabsAfterSwap preserves Product Map through a swap (regression guard)"
     }
   ],
   "status": "draft"

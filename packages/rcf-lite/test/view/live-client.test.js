@@ -200,3 +200,145 @@ test('live-client loadOpenSet ignores non-string entries defensively', () => {
     ['REQ-001', 'US-201'].sort(),
   );
 });
+
+// ---- resyncTabsAfterSwap (AC-18001-8, w-2026-10-06-dave-003) ---------
+//
+// After an SSE innerHTML swap of `#rcf-live-content`, the newly-inserted
+// panels carry the Phase 3.6 server-rendered default (Readiness visible,
+// others hidden). The tab bar sits outside the swap wrapper so its
+// aria-selected button survives. resyncTabsAfterSwap must align every
+// panel to the active button for every tab the server rendered -
+// Readiness included (it is tab 1 since US-18001). Deriving the list
+// from the DOM makes drift impossible: there is no second array to keep
+// in sync with the renderer.
+
+function makeTabDoc({ tabs, selected, visiblePanels }) {
+  // tabs: array of data-tab names in nav.tabs order (as rendered).
+  // selected: which data-tab the surviving header shows aria-selected.
+  // visiblePanels: array of tab-<name> ids currently visible (not
+  //   hidden) just after the SSE swap. The rest are hidden.
+  const buttons = tabs.map((name) => {
+    const attrs = { 'data-tab': name, role: 'tab' };
+    if (name === selected) attrs['aria-selected'] = 'true';
+    else attrs['aria-selected'] = 'false';
+    return {
+      _name: name,
+      getAttribute(k) { return k in attrs ? attrs[k] : null; },
+    };
+  });
+  const panels = {};
+  for (const name of tabs) {
+    const hidden = !visiblePanels.includes('tab-' + name);
+    panels[name] = {
+      _name: name,
+      _hidden: hidden,
+      hasAttribute(k) { return k === 'hidden' ? this._hidden : false; },
+      setAttribute(k, _v) { if (k === 'hidden') this._hidden = true; },
+      removeAttribute(k) { if (k === 'hidden') this._hidden = false; },
+      querySelectorAll() { return []; },
+    };
+  }
+  return {
+    _buttons: buttons,
+    _panels: panels,
+    querySelector(sel) {
+      if (sel === 'nav.tabs [role="tab"][aria-selected="true"]') {
+        return buttons.find((b) => b.getAttribute('aria-selected') === 'true') || null;
+      }
+      return null;
+    },
+    querySelectorAll(sel) {
+      if (sel === 'nav.tabs [role="tab"][data-tab]') return buttons;
+      return [];
+    },
+    getElementById(id) {
+      const m = id.match(/^tab-(.+)$/);
+      if (!m) return null;
+      return panels[m[1]] || null;
+    },
+  };
+}
+
+test('AC-18001-8 resyncTabsAfterSwap keeps Readiness visible when it is the active tab (issue 297)', () => {
+  const lc = loadClient();
+  // Six tabs as US-18001 ships: Readiness tab 1, Overview second, then
+  // the Phase 3.8/3.9 four. Readiness is aria-selected. After the SSE
+  // innerHTML swap only tab-readiness is visible from the server render
+  // (the fresh content inherits the hidden-default scheme).
+  const doc = makeTabDoc({
+    tabs: ['readiness', 'overview', 'requirements', 'architecture', 'build', 'product-map'],
+    selected: 'readiness',
+    visiblePanels: ['tab-readiness'],
+  });
+  lc.resyncTabsAfterSwap(doc, {});
+  // Only the Readiness panel is visible; no other panel is.
+  const visible = Object.values(doc._panels).filter((p) => !p._hidden).map((p) => p._name);
+  assert.deepStrictEqual(visible, ['readiness'],
+    'exactly tab-readiness should be visible after the swap; got: ' + JSON.stringify(visible));
+});
+
+test('AC-18001-8 resyncTabsAfterSwap keeps Readiness visible on the embed-no-hash default (issue 297)', () => {
+  const lc = loadClient();
+  // Embed mount with no hash: rcfPage.init() routed to Readiness on
+  // first paint. After an SSE swap the panels carry the Overview-first
+  // server default (visiblePanels is tab-overview, not tab-readiness,
+  // because the swap serves the Phase 3.6 default). The resync must
+  // bring the panels back in line with the aria-selected button.
+  const doc = makeTabDoc({
+    tabs: ['readiness', 'overview', 'requirements', 'architecture', 'build', 'product-map'],
+    selected: 'readiness',
+    visiblePanels: ['tab-overview'],
+  });
+  lc.resyncTabsAfterSwap(doc, {});
+  const visible = Object.values(doc._panels).filter((p) => !p._hidden).map((p) => p._name);
+  assert.deepStrictEqual(visible, ['readiness'],
+    'tab-readiness should be the only visible panel after the swap; got: ' + JSON.stringify(visible));
+});
+
+test('AC-18001-8 resyncTabsAfterSwap preserves Product Map through a swap (regression guard)', () => {
+  const lc = loadClient();
+  const doc = makeTabDoc({
+    tabs: ['readiness', 'overview', 'requirements', 'architecture', 'build', 'product-map'],
+    selected: 'product-map',
+    visiblePanels: ['tab-readiness'],
+  });
+  lc.resyncTabsAfterSwap(doc, {});
+  const visible = Object.values(doc._panels).filter((p) => !p._hidden).map((p) => p._name);
+  assert.deepStrictEqual(visible, ['product-map']);
+});
+
+test('AC-18001-8 resyncTabsAfterSwap preserves every tab the DOM renders (SSOT invariant)', () => {
+  // The invariant: the tab list is the server-rendered nav.tabs. For
+  // every data-tab the DOM renders, if that tab is aria-selected the
+  // resync keeps its #tab-<name> panel visible and hides the rest.
+  // No parallel array in live-client.js can veto a tab the renderer
+  // emitted.
+  const lc = loadClient();
+  const tabs = ['readiness', 'overview', 'requirements', 'architecture', 'build', 'product-map'];
+  for (const tab of tabs) {
+    const doc = makeTabDoc({
+      tabs,
+      selected: tab,
+      visiblePanels: ['tab-overview'],
+    });
+    lc.resyncTabsAfterSwap(doc, {});
+    const visible = Object.values(doc._panels).filter((p) => !p._hidden).map((p) => p._name);
+    assert.deepStrictEqual(
+      visible,
+      [tab],
+      'tab ' + tab + ' should be the sole visible panel after swap; got: ' + JSON.stringify(visible),
+    );
+  }
+});
+
+test('AC-18001-8 resyncTabsAfterSwap falls back to overview on no aria-selected button', () => {
+  const lc = loadClient();
+  const doc = makeTabDoc({
+    tabs: ['readiness', 'overview', 'requirements'],
+    selected: '__none__',
+    visiblePanels: ['tab-requirements'],
+  });
+  lc.resyncTabsAfterSwap(doc, {});
+  const visible = Object.values(doc._panels).filter((p) => !p._hidden).map((p) => p._name);
+  assert.deepStrictEqual(visible, ['overview']);
+});
