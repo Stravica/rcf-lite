@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-12113-2",
-      "description": "Given the operator answers run-worker-first with true alongside a non-empty assets-directory, when the manifest is generated, then the [assets] block carries run_worker_first = true. Given the operator answers run-worker-first with false or leaves it unanswered, when the manifest is generated, then the [assets] block does NOT carry a run_worker_first key (Cloudflare's runtime treats the absent field as the default asset-lookup-first shape). Anchored to TAC-1302; probed by assets-manifest-scan.mjs with anchorAcId AC-12113-1 (the same module surfaces both facets of the shape).",
+      "description": "Given the operator answers run-worker-first with true alongside a non-empty assets-directory, when the manifest is generated, then the [assets] block carries run_worker_first = true. Given the operator answers run-worker-first with false or leaves it unanswered, when the manifest is generated, then the [assets] block does NOT carry a run_worker_first key (Cloudflare's runtime treats a missing run_worker_first as the default asset-lookup-first shape). Anchored to TAC-1302; probed by assets-manifest-scan.mjs with anchorAcId AC-12113-1 (the same module surfaces both facets of the shape).",
       "given": "an applied fixture whose operator answered assets-directory = ./dist and run-worker-first = true",
       "when": "the probe module parses the fixture wrangler.toml",
       "then": "the parsed [assets] table carries run_worker_first equal to true; when the fixture is switched with SIMULATE_EMPTY_ASSETS=true the run_worker_first field is absent (the whole [assets] block is absent) and the probe still returns verdict pass because the bare-Worker shape is legal",
