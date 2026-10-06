@@ -46,6 +46,12 @@ test('renderModelToPage never writes to disk (Phase 3.8 regression)', async () =
 });
 
 test('renderModelToPage picks up manifest changes between calls (re-walk is fresh)', async () => {
+  // w-2026-10-06-dave-001 (issue 295): with the AC-202-6 precedence flip
+  // the header prefers prd.productName over manifest.projectName. The
+  // freshness assertion this test owns moves onto prd.productName: a
+  // rename lands in the second render and the first render's name is
+  // gone from the title. manifest.projectName is updated in lockstep so
+  // the fall-through does not mask the change.
   const root = await mkdtemp(join(tmpdir(), 'rcf-render-fresh-'));
   await initProject({ projectRoot: root, projectName: 'First' });
   const first = await renderModelToPage({ projectRoot: root });
@@ -53,6 +59,10 @@ test('renderModelToPage picks up manifest changes between calls (re-walk is fres
   const manifest = JSON.parse(await readFile(manifestPath, 'utf8'));
   manifest.projectName = 'Second';
   await writeFile(manifestPath, JSON.stringify(manifest), 'utf8');
+  const prdPath = join(root, 'rcf', 'prd.json');
+  const prd = JSON.parse(await readFile(prdPath, 'utf8'));
+  prd.productName = 'Second';
+  await writeFile(prdPath, JSON.stringify(prd), 'utf8');
   const second = await renderModelToPage({ projectRoot: root });
   assert.match(first.fullPageHtml, /First/);
   assert.match(second.fullPageHtml, /Second/);

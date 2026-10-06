@@ -100,6 +100,24 @@
       "title": "Inter-document links navigate between sections"
     },
     {
+      "id": "AC-202-4",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] The audit view header keeps every main tab visible and the .tools group right of them at any viewport the chrome supports: the tablist and .tools cannot shrink below their intrinsic width (flex-shrink: 0) and .product carries the shrink budget via min-width: 0 (both on the flex item and on .product .name) so the project name ellipsizes first."
+    },
+    {
+      "id": "AC-202-5",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] The .product .name span carries a title=\"<full name>\" attribute so hovering reveals the whole name when the ellipsis has clipped it; the title is HTML-escaped on the same path as the inner text, and when the product block collapses (no project name on the tree) no title attribute is emitted."
+    },
+    {
+      "id": "AC-202-6",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] The header display name prefers prd.productName, then manifest.projectName, then prd.productTitle. A rename via `rcf define update PRD-001 --set productName=...` therefore reaches the audit chrome without touching manifest.projectName (which the chain keeps for ids and paths)."
+    },
+    {
       "id": "TS-005",
       "kind": "testSuite",
       "depth": 2,
@@ -362,6 +380,72 @@
       "kind": "tc",
       "depth": 3,
       "title": "the view serves from a local server process and never writes files to disk"
+    },
+    {
+      "id": "TC-004-tabs-cannot-shrink",
+      "kind": "tc",
+      "depth": 3,
+      "title": "style.css nav.tabs has flex-shrink: 0 and no min-width: 0, so the tablist never clips the Build tab under a long project name"
+    },
+    {
+      "id": "TC-004-tools-cannot-shrink",
+      "kind": "tc",
+      "depth": 3,
+      "title": "style.css .tools has flex-shrink: 0 so the Find button and theme control never shrink into the tablist"
+    },
+    {
+      "id": "TC-004-product-yields-first",
+      "kind": "tc",
+      "depth": 3,
+      "title": "style.css .product has min-width: 0 so it yields to the tablist and tools before clipping anything"
+    },
+    {
+      "id": "TC-004-name-min-width-zero",
+      "kind": "tc",
+      "depth": 3,
+      "title": "style.css .product .name has min-width: 0 so text-overflow: ellipsis triggers inside the flex .product"
+    },
+    {
+      "id": "TC-004-name-title-attribute",
+      "kind": "tc",
+      "depth": 3,
+      "title": "renderPage emits a title=\"<full name>\" attribute on .product .name so hover reveals the whole name under ellipsis"
+    },
+    {
+      "id": "TC-004-name-title-escaped",
+      "kind": "tc",
+      "depth": 3,
+      "title": "the title attribute shares the escapeHtml path with the inner text so a projectName of \"<script>\" renders as title=\"&lt;script&gt;\""
+    },
+    {
+      "id": "TC-004-name-title-absent-on-collapse",
+      "kind": "tc",
+      "depth": 3,
+      "title": "no title attribute is emitted when the product block collapses (no projectName)"
+    },
+    {
+      "id": "TC-004-prd-productname-wins",
+      "kind": "tc",
+      "depth": 3,
+      "title": "resolveProductHeader prefers prd.productName over manifest.projectName when both are set"
+    },
+    {
+      "id": "TC-004-manifest-fallback",
+      "kind": "tc",
+      "depth": 3,
+      "title": "resolveProductHeader falls back to manifest.projectName when the PRD carries no productName"
+    },
+    {
+      "id": "TC-004-prd-producttitle-fallback",
+      "kind": "tc",
+      "depth": 3,
+      "title": "resolveProductHeader falls back to prd.productTitle when neither productName nor manifest is set"
+    },
+    {
+      "id": "TC-004-render-reflects-precedence",
+      "kind": "tc",
+      "depth": 3,
+      "title": "the renderPage DOM reflects the flipped precedence; the manifest value does not reach the header slice when prd.productName is set"
     },
     {
       "id": "FBS-004",
@@ -675,6 +759,21 @@
       "kind": "parentChild"
     },
     {
+      "from": "US-202",
+      "to": "AC-202-4",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-202",
+      "to": "AC-202-5",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-202",
+      "to": "AC-202-6",
+      "kind": "parentChild"
+    },
+    {
       "from": "US-203",
       "to": "TS-005",
       "kind": "parentChild"
@@ -930,6 +1029,61 @@
       "kind": "parentChild"
     },
     {
+      "from": "TS-004",
+      "to": "TC-004-tabs-cannot-shrink",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-tools-cannot-shrink",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-product-yields-first",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-name-min-width-zero",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-name-title-attribute",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-name-title-escaped",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-name-title-absent-on-collapse",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-prd-productname-wins",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-manifest-fallback",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-prd-producttitle-fallback",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-004",
+      "to": "TC-004-render-reflects-precedence",
+      "kind": "parentChild"
+    },
+    {
       "from": "AC-202-1",
       "to": "TC-004-valid-html5-page",
       "kind": "crossLink"
@@ -971,6 +1125,91 @@
     },
     {
       "from": "AC-202-3",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-4",
+      "to": "TS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-4",
+      "to": "TC-004-tabs-cannot-shrink",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-4",
+      "to": "TC-004-tools-cannot-shrink",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-4",
+      "to": "TC-004-product-yields-first",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-4",
+      "to": "TC-004-name-min-width-zero",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-4",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-5",
+      "to": "TS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-5",
+      "to": "TC-004-name-title-attribute",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-5",
+      "to": "TC-004-name-title-escaped",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-5",
+      "to": "TC-004-name-title-absent-on-collapse",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-5",
+      "to": "FBS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-6",
+      "to": "TS-004",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-6",
+      "to": "TC-004-prd-productname-wins",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-6",
+      "to": "TC-004-manifest-fallback",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-6",
+      "to": "TC-004-prd-producttitle-fallback",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-6",
+      "to": "TC-004-render-reflects-precedence",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-202-6",
       "to": "FBS-004",
       "kind": "crossLink"
     },

@@ -15,6 +15,9 @@ flowchart LR
   AC-202-1["AC-202-1"]
   AC-202-2["AC-202-2"]
   AC-202-3["AC-202-3"]
+  AC-202-4["AC-202-4"]
+  AC-202-5["AC-202-5"]
+  AC-202-6["AC-202-6"]
   TS-005["TS-005"]
   AC-203-1["AC-203-1"]
   AC-203-2["AC-203-2"]
@@ -59,6 +62,17 @@ flowchart LR
   TC-004-doc-links-navigate-to-sections["TC-004-doc-links-navigate-to-sections"]
   TC-004-valid-html5-page["TC-004-valid-html5-page"]
   TC-004-served-live-no-files-written["TC-004-served-live-no-files-written"]
+  TC-004-tabs-cannot-shrink["TC-004-tabs-cannot-shrink"]
+  TC-004-tools-cannot-shrink["TC-004-tools-cannot-shrink"]
+  TC-004-product-yields-first["TC-004-product-yields-first"]
+  TC-004-name-min-width-zero["TC-004-name-min-width-zero"]
+  TC-004-name-title-attribute["TC-004-name-title-attribute"]
+  TC-004-name-title-escaped["TC-004-name-title-escaped"]
+  TC-004-name-title-absent-on-collapse["TC-004-name-title-absent-on-collapse"]
+  TC-004-prd-productname-wins["TC-004-prd-productname-wins"]
+  TC-004-manifest-fallback["TC-004-manifest-fallback"]
+  TC-004-prd-producttitle-fallback["TC-004-prd-producttitle-fallback"]
+  TC-004-render-reflects-precedence["TC-004-render-reflects-precedence"]
   FBS-004["FBS-004"]
   TC-005-edit-present-after-regenerate["TC-005-edit-present-after-regenerate"]
   TC-005-no-cached-prior-state["TC-005-no-cached-prior-state"]
@@ -113,6 +127,9 @@ flowchart LR
   US-202 --> AC-202-1
   US-202 --> AC-202-2
   US-202 --> AC-202-3
+  US-202 --> AC-202-4
+  US-202 --> AC-202-5
+  US-202 --> AC-202-6
   US-203 --> TS-005
   US-203 --> AC-203-1
   US-203 --> AC-203-2
@@ -164,6 +181,17 @@ flowchart LR
   TS-004 --> TC-004-doc-links-navigate-to-sections
   TS-004 --> TC-004-valid-html5-page
   TS-004 --> TC-004-served-live-no-files-written
+  TS-004 --> TC-004-tabs-cannot-shrink
+  TS-004 --> TC-004-tools-cannot-shrink
+  TS-004 --> TC-004-product-yields-first
+  TS-004 --> TC-004-name-min-width-zero
+  TS-004 --> TC-004-name-title-attribute
+  TS-004 --> TC-004-name-title-escaped
+  TS-004 --> TC-004-name-title-absent-on-collapse
+  TS-004 --> TC-004-prd-productname-wins
+  TS-004 --> TC-004-manifest-fallback
+  TS-004 --> TC-004-prd-producttitle-fallback
+  TS-004 --> TC-004-render-reflects-precedence
   AC-202-1 -.-> TC-004-valid-html5-page
   AC-202-1 -.-> TC-004-served-live-no-files-written
   AC-202-1 -.-> FBS-004
@@ -173,6 +201,23 @@ flowchart LR
   AC-202-3 -.-> TS-004
   AC-202-3 -.-> TC-004-doc-links-navigate-to-sections
   AC-202-3 -.-> FBS-004
+  AC-202-4 -.-> TS-004
+  AC-202-4 -.-> TC-004-tabs-cannot-shrink
+  AC-202-4 -.-> TC-004-tools-cannot-shrink
+  AC-202-4 -.-> TC-004-product-yields-first
+  AC-202-4 -.-> TC-004-name-min-width-zero
+  AC-202-4 -.-> FBS-004
+  AC-202-5 -.-> TS-004
+  AC-202-5 -.-> TC-004-name-title-attribute
+  AC-202-5 -.-> TC-004-name-title-escaped
+  AC-202-5 -.-> TC-004-name-title-absent-on-collapse
+  AC-202-5 -.-> FBS-004
+  AC-202-6 -.-> TS-004
+  AC-202-6 -.-> TC-004-prd-productname-wins
+  AC-202-6 -.-> TC-004-manifest-fallback
+  AC-202-6 -.-> TC-004-prd-producttitle-fallback
+  AC-202-6 -.-> TC-004-render-reflects-precedence
+  AC-202-6 -.-> FBS-004
   TS-005 --> TC-005-edit-present-after-regenerate
   TS-005 --> TC-005-no-cached-prior-state
   AC-203-1 -.-> TS-005
@@ -323,6 +368,9 @@ flowchart LR
   class AC-202-1 ac;
   class AC-202-2 ac;
   class AC-202-3 ac;
+  class AC-202-4 ac;
+  class AC-202-5 ac;
+  class AC-202-6 ac;
   class TS-005 ts;
   class AC-203-1 ac;
   class AC-203-2 ac;
@@ -367,6 +415,17 @@ flowchart LR
   class TC-004-doc-links-navigate-to-sections tc;
   class TC-004-valid-html5-page tc;
   class TC-004-served-live-no-files-written tc;
+  class TC-004-tabs-cannot-shrink tc;
+  class TC-004-tools-cannot-shrink tc;
+  class TC-004-product-yields-first tc;
+  class TC-004-name-min-width-zero tc;
+  class TC-004-name-title-attribute tc;
+  class TC-004-name-title-escaped tc;
+  class TC-004-name-title-absent-on-collapse tc;
+  class TC-004-prd-productname-wins tc;
+  class TC-004-manifest-fallback tc;
+  class TC-004-prd-producttitle-fallback tc;
+  class TC-004-render-reflects-precedence tc;
   class FBS-004 fbs;
   class TC-005-edit-present-after-regenerate tc;
   class TC-005-no-cached-prior-state tc;

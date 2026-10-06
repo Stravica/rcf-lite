@@ -119,6 +119,38 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-202-4",
+          "covered": true,
+          "testCases": [
+            "TC-004-name-min-width-zero",
+            "TC-004-product-yields-first",
+            "TC-004-tabs-cannot-shrink",
+            "TC-004-tools-cannot-shrink"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-202-5",
+          "covered": true,
+          "testCases": [
+            "TC-004-name-title-absent-on-collapse",
+            "TC-004-name-title-attribute",
+            "TC-004-name-title-escaped"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-202-6",
+          "covered": true,
+          "testCases": [
+            "TC-004-manifest-fallback",
+            "TC-004-prd-productname-wins",
+            "TC-004-prd-producttitle-fallback",
+            "TC-004-render-reflects-precedence"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-203-1",
           "covered": true,
           "testCases": [

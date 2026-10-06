@@ -1,11 +1,14 @@
 {
   "createdAt": "2026-07-29T12:57:18.038Z",
-  "updatedAt": "2026-07-29T13:35:14.688Z",
+  "updatedAt": "2026-10-06T10:12:36.226Z",
   "purpose": "Verify documents render as readable curated fields with working inter-document links. AC-202-1 is pending: its static-files-no-server clause predates the Phase 3.8 server-only view (see test-suites/PENDING.md).",
   "testLevel": "unit",
   "acIds": [
     "AC-202-2",
-    "AC-202-3"
+    "AC-202-3",
+    "AC-202-4",
+    "AC-202-5",
+    "AC-202-6"
   ],
   "id": "TS-004",
   "usId": "US-202",
@@ -38,6 +41,83 @@
       "description": "the view serves from a local server process and never writes files to disk",
       "status": "pending",
       "testPointer": "test/view/cli.test.js::rcf audit view never writes any files to disk (regression against static mode)"
+    },
+    {
+      "id": "TC-004-tabs-cannot-shrink",
+      "acId": "AC-202-4",
+      "description": "style.css nav.tabs has flex-shrink: 0 and no min-width: 0, so the tablist never clips the Build tab under a long project name",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-4: nav.tabs cannot shrink below its intrinsic width"
+    },
+    {
+      "id": "TC-004-tools-cannot-shrink",
+      "acId": "AC-202-4",
+      "description": "style.css .tools has flex-shrink: 0 so the Find button and theme control never shrink into the tablist",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-4: .tools cannot shrink below its intrinsic width"
+    },
+    {
+      "id": "TC-004-product-yields-first",
+      "acId": "AC-202-4",
+      "description": "style.css .product has min-width: 0 so it yields to the tablist and tools before clipping anything",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-4: .product yields first via min-width:0"
+    },
+    {
+      "id": "TC-004-name-min-width-zero",
+      "acId": "AC-202-4",
+      "description": "style.css .product .name has min-width: 0 so text-overflow: ellipsis triggers inside the flex .product",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-4: .product .name has min-width:0 so the ellipsis triggers"
+    },
+    {
+      "id": "TC-004-name-title-attribute",
+      "acId": "AC-202-5",
+      "description": "renderPage emits a title=\"<full name>\" attribute on .product .name so hover reveals the whole name under ellipsis",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-5: renderPage emits title=\"<full name>\" on .product .name"
+    },
+    {
+      "id": "TC-004-name-title-escaped",
+      "acId": "AC-202-5",
+      "description": "the title attribute shares the escapeHtml path with the inner text so a projectName of \"<script>\" renders as title=\"&lt;script&gt;\"",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-5: the title attribute is HTML-escaped alongside the body"
+    },
+    {
+      "id": "TC-004-name-title-absent-on-collapse",
+      "acId": "AC-202-5",
+      "description": "no title attribute is emitted when the product block collapses (no projectName)",
+      "status": "passing",
+      "testPointer": "test/view/shell-header-layout.test.js::AC-202-5: no title attribute when the product block collapses"
+    },
+    {
+      "id": "TC-004-prd-productname-wins",
+      "acId": "AC-202-6",
+      "description": "resolveProductHeader prefers prd.productName over manifest.projectName when both are set",
+      "status": "passing",
+      "testPointer": "test/view/product-name-precedence.test.js::AC-202-6: prd.productName wins over manifest.projectName when both are set"
+    },
+    {
+      "id": "TC-004-manifest-fallback",
+      "acId": "AC-202-6",
+      "description": "resolveProductHeader falls back to manifest.projectName when the PRD carries no productName",
+      "status": "passing",
+      "testPointer": "test/view/product-name-precedence.test.js::AC-202-6: manifest.projectName is the first fallback when PRD has no productName"
+    },
+    {
+      "id": "TC-004-prd-producttitle-fallback",
+      "acId": "AC-202-6",
+      "description": "resolveProductHeader falls back to prd.productTitle when neither productName nor manifest is set",
+      "status": "passing",
+      "testPointer": "test/view/product-name-precedence.test.js::AC-202-6: prd.productTitle is the last fallback (brief-stage trees without productName or manifest)"
+    },
+    {
+      "id": "TC-004-render-reflects-precedence",
+      "acId": "AC-202-6",
+      "description": "the renderPage DOM reflects the flipped precedence; the manifest value does not reach the header slice when prd.productName is set",
+      "status": "passing",
+      "testPointer": "test/view/product-name-precedence.test.js::AC-202-6: renderPage reflects the flipped precedence in the DOM"
     }
   ],
   "status": "draft"

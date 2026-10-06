@@ -1,8 +1,13 @@
 // Shell header polish (viewer UI refresh PR 2, decision 17 + Baz
-// 2026-10-02 ruling): project name sourced from manifest.projectName,
-// then prd.productName, then prd.productTitle. Project name only -
+// 2026-10-02 ruling), with the issue-295 flip (w-2026-10-06-dave-001):
+// project name sourced from prd.productName first (the human-readable
+// name a project owner can edit via `rcf define update PRD-001 --set
+// productName=...`), then manifest.projectName (the init-time value
+// kept for ids / paths), then prd.productTitle. Project name only -
 // no technology chip (decision 17 verbatim). When no name is set the
 // product block collapses silently (CSS .product:empty { display:none }).
+// The flipped-precedence contract has its own binder in
+// product-name-precedence.test.js (AC-202-6).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -46,19 +51,25 @@ function emptyModel(over = {}) {
 // resolveProductHeader
 // ---------------------------------------------------------------------
 
-test('resolveProductHeader: manifest.projectName wins', () => {
+test('resolveProductHeader: prd.productName wins when the PRD carries one', () => {
+  // w-2026-10-06-dave-001 (issue 295): the header prefers the
+  // human-readable prd.productName so a rename via `rcf define update
+  // PRD-001 --set productName=...` lands in the audit chrome without
+  // a hand edit of manifest.json. manifest.projectName is kept for
+  // ids and paths.
   const header = resolveProductHeader(emptyModel({
-    manifest: { projectName: 'WESPA' },
-    prd: { productName: 'Should not win', productTitle: 'Nor this' },
+    manifest: { projectName: 'manifest-slug' },
+    prd: { productName: 'WESPA', productTitle: 'Nor this' },
   }));
   assert.equal(header.projectName, 'WESPA');
 });
 
-test('resolveProductHeader: prd.productName is the first fallback', () => {
+test('resolveProductHeader: manifest.projectName is the first fallback when the PRD has none', () => {
   const header = resolveProductHeader(emptyModel({
-    prd: { productName: 'From PRD', productTitle: 'From title' },
+    manifest: { projectName: 'From the manifest' },
+    prd: { productTitle: 'From title' },
   }));
-  assert.equal(header.projectName, 'From PRD');
+  assert.equal(header.projectName, 'From the manifest');
 });
 
 test('resolveProductHeader: prd.productTitle is the last fallback', () => {
@@ -83,19 +94,19 @@ test('resolveProductHeader: no stack field is emitted (decision 17, no technolog
 // ---------------------------------------------------------------------
 
 test('renderPage: project name is the prominent text, review surface muted beside it', () => {
-  const html = renderPage(emptyModel({ manifest: { projectName: 'WESPA' } }));
+  const html = renderPage(emptyModel({ prd: { productName: 'WESPA' } }));
   assert.match(
     html,
-    /<div class="product"><span class="name">WESPA<\/span>\s*<span class="sub">review surface<\/span><\/div>/,
+    /<div class="product"><span class="name" title="WESPA">WESPA<\/span>\s*<span class="sub">review surface<\/span><\/div>/,
   );
 });
 
 test('renderPage: no stack chip is rendered even when the TAD names a stack (decision 17)', () => {
   const html = renderPage(emptyModel({
-    manifest: { projectName: 'WESPA' },
+    prd: { productName: 'WESPA' },
     tad: { stack: 'Node 24 ESM' },
   }));
-  assert.match(html, /<span class="name">WESPA<\/span>/);
+  assert.match(html, /<span class="name" title="WESPA">WESPA<\/span>/);
   // No chip of any shape in the header; the raw-JSON dump on the
   // Architecture tab will still echo tad.stack as data, which is fine.
   assert.doesNotMatch(html, /class="stack"/);
@@ -108,16 +119,17 @@ test('renderPage: no stack chip is rendered even when the TAD names a stack (dec
 test('renderPage: product block collapses to an empty div when there is no project name', () => {
   const html = renderPage(emptyModel());
   // Neither name nor sub rendered.
-  assert.doesNotMatch(html, /<span class="name">/);
+  assert.doesNotMatch(html, /<span class="name"/);
   assert.doesNotMatch(html, /<span class="sub">/);
   // CSS targets .product:empty for the silent collapse.
   assert.match(html, /<div class="product"><\/div>/);
 });
 
-test('renderPage: project name is HTML-escaped', () => {
-  const html = renderPage(emptyModel({ manifest: { projectName: '<script>' } }));
-  assert.match(html, /<span class="name">&lt;script&gt;<\/span>/);
+test('renderPage: project name is HTML-escaped in both the body and the title attribute', () => {
+  const html = renderPage(emptyModel({ prd: { productName: '<script>' } }));
+  assert.match(html, /<span class="name" title="&lt;script&gt;">&lt;script&gt;<\/span>/);
   assert.doesNotMatch(html, /<span class="name"><script><\/span>/);
+  assert.doesNotMatch(html, /title="<script>"/);
 });
 
 test('renderPage: Toast container is mounted exactly once in the shell', () => {
