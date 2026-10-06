@@ -40,8 +40,16 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.32.0"
+latest: "0.32.1"
 releases:
+  - version: "0.32.1"
+    date: "2026-10-06"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.32.1 fixes two readiness gates that false-paired under schema-canonical content on top of 0.32.0. The viewer's Readiness tab D3 shapes:pathsResolve now agrees with the CLI by pre-resolving TAC interface path tokens through the same resolveInterfacePaths seam (issue 307), and the D5 crosscut:operationalConcerns trigger reads the structured ac.scope field in addition to the legacy '[deployed]' marker so trees that carry scope as a schema field no longer silently pass 0/0 (issue 306)."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.32.0"
     date: "2026-10-06"
     breaking: false
