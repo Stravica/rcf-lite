@@ -15,6 +15,9 @@ REQ-002      yes      AC-201-1     yes         TC-003-one-subdiagram-per-req, TC
                       AC-202-1     yes         TC-004-served-live-no-files-written, TC-004-valid-html5-page
                       AC-202-2     yes         TC-004-curated-fields-not-raw-json
                       AC-202-3     yes         TC-004-doc-links-navigate-to-sections
+                      AC-202-4     yes         TC-004-name-min-width-zero, TC-004-product-yields-first, ...
+                      AC-202-5     yes         TC-004-name-title-absent-on-collapse, TC-004-name-title-a...
+                      AC-202-6     yes         TC-004-manifest-fallback, TC-004-prd-productname-wins, TC...
                       AC-203-1     yes         TC-005-edit-present-after-regenerate
                       AC-203-2     yes         TC-005-no-cached-prior-state
                       AC-204-1     yes         TC-224-depth-columns
