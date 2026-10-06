@@ -16,7 +16,7 @@
 // every other query verb has.
 
 import { parseArgs } from 'node:util';
-import { readFile, stat } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { resolveTestPointers, walkTree } from '#core/store';
@@ -30,9 +30,9 @@ import {
   STAGE_ORDER,
   STAGE_SHORT_NAMES,
   ackable,
-  extractInterfacePathTokens,
   stagePolicy,
 } from '../query/gates.js';
+import { resolveInterfacePaths } from '../define/interface-paths.js';
 import {
   computeReadiness,
   countLitmusReadersAtHash,
@@ -128,42 +128,6 @@ const STATE_LABEL = {
   acknowledged: 'acknowledged',
   notApplicable: 'notApplicable',
 };
-
-/**
- * ADR-4131 (0.30.0 PR 5): walk the tree's TAC interfaces, extract the
- * `path:` tokens the engineer named, resolve each one against
- * `projectRoot` on disk, and return the set of tokens that resolve.
- * `shapes:pathsResolve` reads the set from the stage context and
- * decides the D3 bite without I/O. The compute is pure; this helper is
- * the one place I/O happens for the check.
- *
- * @param {string} projectRoot
- * @param {import('#core/store/walker.js').TreeModel} tree
- * @returns {Promise<Set<string>>}
- */
-async function resolveInterfacePaths(projectRoot, tree) {
-  const resolved = new Set();
-  /** @type {Set<string>} */
-  const candidates = new Set();
-  for (const tac of tree.tacs ?? []) {
-    for (const iface of tac.interfaces ?? []) {
-      const desc = typeof iface?.description === 'string' ? iface.description : '';
-      for (const token of extractInterfacePathTokens(desc)) {
-        candidates.add(token);
-      }
-    }
-  }
-  await Promise.all([...candidates].map(async (token) => {
-    try {
-      await stat(join(projectRoot, token));
-      resolved.add(token);
-    } catch {
-      // Missing path stays out of the set; the gate decides whether
-      // `authoredAt: D3` lets it through.
-    }
-  }));
-  return resolved;
-}
 
 /**
  * Read `rcf/.identity/profile.md` when it exists; return null on

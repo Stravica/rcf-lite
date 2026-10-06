@@ -35,6 +35,7 @@ import { checkCodeNodeResolution } from '#core/store';
 import { findProjectRoot } from '../view/index.js';
 import { loadFreezeRecord, saveFreezeRecord } from '../define/freeze-record.js';
 import { loadAllLedgers } from '../define/ledgers.js';
+import { resolveInterfacePaths } from '../define/interface-paths.js';
 import {
   STAGE_ALIASES,
   STAGE_GATES,
@@ -368,6 +369,12 @@ async function runFreeze({
   // freezeableAfterAck check below is the real gate (freeze still
   // exits 4 on an unfrozen tree); the wrap's refusal is informational
   // here as it is on readiness.
+  // Issue 302 (2026-10-06): freeze now pre-resolves the TAC
+  // interface `path:` tokens the way readiness does, so the D3
+  // `shapes:pathsResolve` check inside freeze agrees with the
+  // readiness verdict instead of defaulting to an empty set and
+  // false-failing resolvable paths.
+  const resolvedPaths = await resolveInterfacePaths(projectRoot, tree);
   /** @type {import('../query/readiness.js').ReadinessResult} */
   const readiness = computeReadiness(tree, {
     freeze: freezeForCompute,
@@ -375,6 +382,7 @@ async function runFreeze({
     profileText,
     testPointers,
     validateErrors,
+    resolvedPaths,
   });
   const gated = await runWithAdmissibilityGate({
     tree,
