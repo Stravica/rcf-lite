@@ -236,6 +236,10 @@ header.app-header .bar {
   color: var(--sv-ink);
   overflow: hidden;
   text-overflow: ellipsis;
+  /* w-2026-10-06-dave-001 (issue 295): .product is a flex container; the
+     ellipsis only triggers when its child is itself free to shrink below
+     intrinsic. min-width:0 unlocks that. */
+  min-width: 0;
 }
 
 .product .sub {
@@ -248,8 +252,12 @@ nav.tabs {
   display: flex;
   gap: 0.25rem;
   margin-left: 1rem;
-  flex: 1 1 auto;
-  min-width: 0;
+  /* w-2026-10-06-dave-001 (issue 295): the tablist grows to fill the
+     bar but never shrinks below its intrinsic width (flex-shrink:0),
+     so every main tab stays visible and the Find button in .tools
+     never sits on top of a clipped tab. .product carries the shrink
+     budget via its own min-width:0 and the ellipsis on .product .name. */
+  flex: 1 0 auto;
   overflow-x: auto;
   -webkit-overflow-scrolling: touch;
 }

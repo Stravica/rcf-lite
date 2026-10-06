@@ -843,21 +843,33 @@ function buildSpecFilterText(fbs) {
 }
 
 /**
- * Viewer UI refresh PR 2 (shell polish, Baz 2026-10-02; decision 17):
- * the one-bar header carries the project name only. The project name
- * is sourced from `manifest.projectName`, then `prd.productName`,
- * then `prd.productTitle` (the PRD title the brief names). Decision 17
- * is explicit: project name prominent after the icon mark, tool name
- * out of the bar, no technology chip. When the tree exposes no
- * project name, the whole product block collapses and the brand icon
- * stands on its own (silent empty state; CSS `.product:empty { display:none; }`).
+ * Viewer UI refresh PR 2 (shell polish, Baz 2026-10-02; decision 17)
+ * with the issue-295 flip (w-2026-10-06-dave-001): the one-bar header
+ * carries the project name only, sourced from `prd.productName` first
+ * (the human-readable name an owner edits via `rcf define update
+ * PRD-001 --set productName=...`), then `manifest.projectName` (the
+ * init-time value kept for ids / paths), then `prd.productTitle` (the
+ * PRD title the brief names). Decision 17 remains: project name
+ * prominent after the icon mark, tool name out of the bar, no
+ * technology chip. When the tree exposes no project name, the whole
+ * product block collapses and the brand icon stands on its own
+ * (silent empty state; CSS `.product:empty { display:none; }`).
+ *
+ * The precedence flip is a lite-native cut (US-202, Part 2 cut b):
+ * `rcf define update MANIFEST` is not addressable in the current CLI,
+ * so before this change manifest.projectName was a one-shot init value
+ * and the only way to rename the audit surface was a hand edit of
+ * manifest.json. prd.productName is already updatable via `rcf define
+ * update PRD-001 --set productName=...`; preferring it in the header
+ * means the display name is lite-native without touching the manifest
+ * (ids and paths are untouched).
  *
  * @param {import('./tree-model.js').BuiltTreeModel} model
  * @returns {{ projectName: string | null }}
  */
 export function resolveProductHeader(model) {
-  const projectName = model.manifest?.projectName
-    ?? model.prd?.productName
+  const projectName = model.prd?.productName
+    ?? model.manifest?.projectName
     ?? model.prd?.productTitle
     ?? null;
   return { projectName };
@@ -870,7 +882,13 @@ function renderProductBlock(header) {
     // empty state (brief) survives screen-reader output too.
     return '<div class="product"></div>';
   }
-  return `<div class="product"><span class="name">${escapeHtml(header.projectName)}</span>
+  // w-2026-10-06-dave-001 (issue 295): .product .name clips its text
+  // with text-overflow:ellipsis so a long project name yields rather
+  // than pushing the tablist off the bar; the title attribute carries
+  // the full name so hover reveals it. Both the title and the body go
+  // through escapeHtml so the attribute is safe against injection.
+  const safe = escapeHtml(header.projectName);
+  return `<div class="product"><span class="name" title="${safe}">${safe}</span>
         <span class="sub">review surface</span></div>`;
 }
 

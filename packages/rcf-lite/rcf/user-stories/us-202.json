@@ -33,8 +33,32 @@
       "when": "a document links to another",
       "then": "the link navigates to that document's section",
       "testable": true
+    },
+    {
+      "id": "AC-202-4",
+      "description": "[happy] The audit view header keeps every main tab visible and the .tools group right of them at any viewport the chrome supports: the tablist and .tools cannot shrink below their intrinsic width (flex-shrink: 0) and .product carries the shrink budget via min-width: 0 (both on the flex item and on .product .name) so the project name ellipsizes first.",
+      "given": "the viewer rendered in the standalone (non-embed) shell",
+      "when": "any viewport >= 721px the chrome supports (above the responsive @media that re-rows the tabs under 720px)",
+      "then": "the six main tabs are fully visible and the .tools group sits right of them; .product .name ellipsizes when the project name is longer than its slot and nothing in .tools overlaps a clipped tab",
+      "testable": true
+    },
+    {
+      "id": "AC-202-5",
+      "description": "[happy] The .product .name span carries a title=\"<full name>\" attribute so hovering reveals the whole name when the ellipsis has clipped it; the title is HTML-escaped on the same path as the inner text, and when the product block collapses (no project name on the tree) no title attribute is emitted.",
+      "given": "a project tree with a projectName",
+      "when": "the viewer renders the header",
+      "then": "the .name span has title=\"<the full projectName>\" with the same HTML-escaping as the inner text",
+      "testable": true
+    },
+    {
+      "id": "AC-202-6",
+      "description": "[happy] The header display name prefers prd.productName, then manifest.projectName, then prd.productTitle. A rename via `rcf define update PRD-001 --set productName=...` therefore reaches the audit chrome without touching manifest.projectName (which the chain keeps for ids and paths).",
+      "given": "a tree where both manifest.projectName and prd.productName are set",
+      "when": "resolveProductHeader runs",
+      "then": "the header projectName is prd.productName; when the PRD carries no productName the fallback is manifest.projectName, then prd.productTitle",
+      "testable": true
     }
   ],
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-29T13:34:38.914Z"
+  "updatedAt": "2026-10-06T10:12:07.288Z"
 }
