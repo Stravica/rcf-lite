@@ -507,19 +507,27 @@
   // the panels back in line with the aria-selected button and re-run
   // Mermaid in the visible one.
   function resyncTabsAfterSwap(doc, win) {
-    // Phase 3.8 tabs; Phase 3.9 added product-map. Product Map MUST be
-    // in this list so an SSE swap while it is the active tab keeps the
-    // panel visible; without it, resolveActiveTab falls back to
-    // overview and the freshly-swapped pm listeners have already been
-    // rewired by the rcfPage.init() call below.
-    var TABS = ['overview', 'requirements', 'architecture', 'build', 'product-map'];
-    // Scope to the top-level nav.tabs to avoid matching pm-group-btn
+    // Issue 297 (w-2026-10-06-dave-003, AC-18001-8): the authoritative
+    // tab list is the server-rendered nav.tabs itself, not a parallel
+    // array that can drift. Earlier the list was hand-copied here and
+    // omitted 'readiness' (added as tab 1 in US-18001); a Readiness
+    // SSE swap fell back to Overview and both panels went visible.
+    // Deriving from the DOM means a future tab cannot be forgotten
+    // the same way. Scope to nav.tabs to avoid matching pm-group-btn
     // nodes (they also carry role="tab").
+    var buttons = doc.querySelectorAll('nav.tabs [role="tab"][data-tab]');
+    var names = [];
+    for (var b = 0; b < buttons.length; b += 1) {
+      var n = buttons[b].getAttribute ? buttons[b].getAttribute('data-tab') : null;
+      if (n) names.push(n);
+    }
     var selectedBtn = doc.querySelector('nav.tabs [role="tab"][aria-selected="true"]');
     var selected = selectedBtn && selectedBtn.getAttribute ? selectedBtn.getAttribute('data-tab') : null;
-    if (!selected || TABS.indexOf(selected) === -1) selected = 'overview';
-    for (var i = 0; i < TABS.length; i += 1) {
-      var name = TABS[i];
+    if (!selected || names.indexOf(selected) === -1) {
+      selected = names.indexOf('overview') !== -1 ? 'overview' : (names[0] || 'overview');
+    }
+    for (var i = 0; i < names.length; i += 1) {
+      var name = names[i];
       var panel = doc.getElementById('tab-' + name);
       if (!panel) continue;
       if (name === selected) panel.removeAttribute('hidden');

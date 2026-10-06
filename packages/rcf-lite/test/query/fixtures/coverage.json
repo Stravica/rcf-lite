@@ -5714,6 +5714,16 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-18001-8",
+          "covered": true,
+          "testCases": [
+            "TC-223-swap-preserves-readiness",
+            "TC-223-swap-product-map-regression",
+            "TC-223-swap-ssot-every-tab"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-18002-1",
           "covered": true,
           "testCases": [

@@ -2755,6 +2755,14 @@ flowchart LR
   REQ-180 --> AC-18001-7
   TC-223-ids-on-tab-match-cli-json["TC-223-ids-on-tab-match-cli-json"]
   AC-18001-7 -.-> TC-223-ids-on-tab-match-cli-json
+  AC-18001-8["AC-18001-8"]
+  REQ-180 --> AC-18001-8
+  TC-223-swap-preserves-readiness["TC-223-swap-preserves-readiness"]
+  AC-18001-8 -.-> TC-223-swap-preserves-readiness
+  TC-223-swap-product-map-regression["TC-223-swap-product-map-regression"]
+  AC-18001-8 -.-> TC-223-swap-product-map-regression
+  TC-223-swap-ssot-every-tab["TC-223-swap-ssot-every-tab"]
+  AC-18001-8 -.-> TC-223-swap-ssot-every-tab
   AC-18002-1["AC-18002-1"]
   REQ-180 --> AC-18002-1
   TC-227-groups-and-asks["TC-227-groups-and-asks"]
@@ -4375,6 +4383,10 @@ flowchart LR
   class TC-223-freeze-now-disabled tc;
   class AC-18001-7 ac;
   class TC-223-ids-on-tab-match-cli-json tc;
+  class AC-18001-8 ac;
+  class TC-223-swap-preserves-readiness tc;
+  class TC-223-swap-product-map-regression tc;
+  class TC-223-swap-ssot-every-tab tc;
   class AC-18002-1 ac;
   class TC-227-groups-and-asks tc;
   class AC-18002-2 ac;

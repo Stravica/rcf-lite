@@ -44,6 +44,11 @@
       "id": "AC-18001-7",
       "description": "[happy] Given the tab and the CLI --json output for the same tree hash, when compared, then every id rendered on the tab appears in the JSON for that hash.",
       "testable": true
+    },
+    {
+      "id": "AC-18001-8",
+      "description": "[must-not] Given any main tab (readiness, overview, requirements, architecture, build, product-map) is the active tab, when an SSE tree-update swaps #rcf-live-content innerHTML and resyncTabsAfterSwap runs, then exactly one tabpanel is visible and it is the active tab's panel. The live-client derives the tab list from the server-rendered nav.tabs rather than carrying a parallel array that can drift from page-init: every nav.tabs [role=tab][data-tab] present at swap time is honoured. Readiness is covered as issue 297's regression.",
+      "testable": true
     }
   ],
   "tacIds": [
@@ -51,5 +56,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-01T18:00:00Z"
+  "updatedAt": "2026-10-06T12:00:00Z"
 }

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-778",
+  "path": "src/view/live-client.js#resyncTabsAfterSwap",
+  "title": "SSE tree-update tab resync derives the tab list from the rendered nav.tabs (SSOT)",
+  "description": "After the SSE tree-update swaps `#rcf-live-content` innerHTML, the newly-inserted panels carry the Phase 3.6 server-rendered default (one visible, the rest hidden). resyncTabsAfterSwap reads every [role=\"tab\"][data-tab] under the surviving `nav.tabs`, finds the aria-selected button, and aligns `#tab-<name>` visibility so exactly the active tab is visible. The tab list is derived from the DOM rather than a parallel array in this file: before issue 297 the parallel array omitted 'readiness' and a swap while Readiness was active fell back to Overview with both panels visible. The overview fallback is kept only for a genuinely unknown or missing selection. Pairs with CN-744 and CN-745 (which this file also hosts) and with page-init.js's activateTab for the non-swap routing path (AC-18001-8).",
+  "implementsAcIds": [
+    "AC-18001-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-06T12:00:00Z",
+  "updatedAt": "2026-10-06T12:00:00Z"
+}

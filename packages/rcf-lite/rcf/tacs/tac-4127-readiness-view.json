@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-01T18:00:00Z",
+  "updatedAt": "2026-10-06T12:00:00Z",
   "tacId": "TAC-4127-readiness-view",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -15,7 +15,8 @@
     "src/view/components/findings-list.js: findingsList({ heading, count, items }) returns `<div class=\"rcf-findings-list\"><h4>{heading} <span class=\"rcf-findings-list__count\">{count}</span></h4><ul>...<li><a href={anchor}>{id}</a>: {why}</li>...</ul></div>` with ids capped at 20 and a `... N more suppressed` line beyond.",
     "src/view/components/diff.js: diff(before, after) returns a two-column rendering of two document bodies for the delta list; criterion-level before-and-after is deferred per ADR-4127.",
     "src/view/html-page.js: Readiness button and tabpanel are the first entries; the former Overview button and panel are relabelled PRD; the data-tab=overview and id=tab-overview identifiers are preserved so existing hash anchors still resolve; the inline-script TABS array gains 'readiness' as the first entry (default active tab) and keeps the existing four entries in order.",
-    "src/view/index.js: renderModelToPage loads the freeze record, ledgers, test pointers and profile text once, invokes computeReadiness via the pure src/query/ seam, and threads the result into the model so renderPage and renderContent carry one computed object; the SSE tree-update broadcast rewalks and recomputes on every change under rcf/."
+    "src/view/index.js: renderModelToPage loads the freeze record, ledgers, test pointers and profile text once, invokes computeReadiness via the pure src/query/ seam, and threads the result into the model so renderPage and renderContent carry one computed object; the SSE tree-update broadcast rewalks and recomputes on every change under rcf/.",
+    "src/view/live-client.js: resyncTabsAfterSwap derives the list of tabs from the server-rendered nav.tabs (every [role=tab][data-tab] under it) rather than carrying a parallel array. The SSE swap re-emits every panel with the Phase 3.6 hidden-by-default layout; the resync reads the aria-selected button from the surviving header and makes exactly that panel visible for every tab the server rendered, Readiness included (AC-18001-8). The overview fallback stays for the genuinely-unknown-or-missing selection case."
   ],
   "internalStructure": "readiness.js is a sequence of eleven small block builders calling the three shared components; each block consumes exactly one top-level field of the readiness result so a wire-level JSON diff ties to a visible block. The register ordering is picked once at the top via pickRegister (same helper the CLI uses) and threaded down. Hash anchors are built with the same `#<docId>` convention the existing tabs use so blocker-id links open the right tab and expand the right <details> through the existing resolveHash routine.",
   "interfaces": [
