@@ -53,6 +53,34 @@ flowchart LR
   REQ-002 --> AC-202-3
   TC-004-doc-links-navigate-to-sections["TC-004-doc-links-navigate-to-sections"]
   AC-202-3 -.-> TC-004-doc-links-navigate-to-sections
+  AC-202-4["AC-202-4"]
+  REQ-002 --> AC-202-4
+  TC-004-name-min-width-zero["TC-004-name-min-width-zero"]
+  AC-202-4 -.-> TC-004-name-min-width-zero
+  TC-004-product-yields-first["TC-004-product-yields-first"]
+  AC-202-4 -.-> TC-004-product-yields-first
+  TC-004-tabs-cannot-shrink["TC-004-tabs-cannot-shrink"]
+  AC-202-4 -.-> TC-004-tabs-cannot-shrink
+  TC-004-tools-cannot-shrink["TC-004-tools-cannot-shrink"]
+  AC-202-4 -.-> TC-004-tools-cannot-shrink
+  AC-202-5["AC-202-5"]
+  REQ-002 --> AC-202-5
+  TC-004-name-title-absent-on-collapse["TC-004-name-title-absent-on-collapse"]
+  AC-202-5 -.-> TC-004-name-title-absent-on-collapse
+  TC-004-name-title-attribute["TC-004-name-title-attribute"]
+  AC-202-5 -.-> TC-004-name-title-attribute
+  TC-004-name-title-escaped["TC-004-name-title-escaped"]
+  AC-202-5 -.-> TC-004-name-title-escaped
+  AC-202-6["AC-202-6"]
+  REQ-002 --> AC-202-6
+  TC-004-manifest-fallback["TC-004-manifest-fallback"]
+  AC-202-6 -.-> TC-004-manifest-fallback
+  TC-004-prd-productname-wins["TC-004-prd-productname-wins"]
+  AC-202-6 -.-> TC-004-prd-productname-wins
+  TC-004-prd-producttitle-fallback["TC-004-prd-producttitle-fallback"]
+  AC-202-6 -.-> TC-004-prd-producttitle-fallback
+  TC-004-render-reflects-precedence["TC-004-render-reflects-precedence"]
+  AC-202-6 -.-> TC-004-render-reflects-precedence
   AC-203-1["AC-203-1"]
   REQ-002 --> AC-203-1
   TC-005-edit-present-after-regenerate["TC-005-edit-present-after-regenerate"]
@@ -2940,6 +2968,20 @@ flowchart LR
   class TC-004-curated-fields-not-raw-json tc;
   class AC-202-3 ac;
   class TC-004-doc-links-navigate-to-sections tc;
+  class AC-202-4 ac;
+  class TC-004-name-min-width-zero tc;
+  class TC-004-product-yields-first tc;
+  class TC-004-tabs-cannot-shrink tc;
+  class TC-004-tools-cannot-shrink tc;
+  class AC-202-5 ac;
+  class TC-004-name-title-absent-on-collapse tc;
+  class TC-004-name-title-attribute tc;
+  class TC-004-name-title-escaped tc;
+  class AC-202-6 ac;
+  class TC-004-manifest-fallback tc;
+  class TC-004-prd-productname-wins tc;
+  class TC-004-prd-producttitle-fallback tc;
+  class TC-004-render-reflects-precedence tc;
   class AC-203-1 ac;
   class TC-005-edit-present-after-regenerate tc;
   class AC-203-2 ac;
