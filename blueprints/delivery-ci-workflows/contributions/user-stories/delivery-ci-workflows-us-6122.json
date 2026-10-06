@@ -17,7 +17,11 @@
       "then": "the release workflow dispatches the promote workflow with `versionId` set to the just-published version identifier and waits on the promote workflow's outcome",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-705-delivery-ci-workflows-release-workflow",
+        "field": "interfaces[entry-point CLI]"
+      }
     },
     {
       "id": "AC-6122-2",

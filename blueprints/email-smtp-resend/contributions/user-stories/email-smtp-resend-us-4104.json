@@ -27,7 +27,11 @@
       "then": "the response status is 401, the response body is empty, the handler invocation counter is unchanged, and the audit sink observes exactly one `webhookVerificationFailed` event",
       "testable": true,
       "scope": "runtime",
-      "disposition": "fixed"
+      "disposition": "fixed",
+      "ownerRef": {
+        "tacId": "TAC-402-email-smtp-resend-webhook-verifier",
+        "field": "interfaces[auditSink]"
+      }
     },
     {
       "id": "AC-4104-3",

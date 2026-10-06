@@ -17,7 +17,11 @@
       "then": "a `scheduled-audit` workflow file lands at the provider's workflow path, its trigger set names a cron schedule, and its command line invokes the Node gate-runner entry point with the required check set writing to the distinct report path",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-706-delivery-ci-workflows-scheduled-audit",
+        "field": "interfaces[entry-point CLI]"
+      }
     },
     {
       "id": "AC-6123-2",

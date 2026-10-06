@@ -17,7 +17,11 @@
       "then": "a GET against `/live` on port 9091 returns 200, a GET against `/live` on the user-traffic port returns 404 (or the project's default not-found response), and a GET against `/ready` on the user-traffic port returns 404",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-1503-observability-probe-endpoints-listener-topology",
+        "field": "interfaces[listenerFactory]"
+      }
     },
     {
       "id": "AC-14104-2",

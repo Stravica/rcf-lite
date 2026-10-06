@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- adds ownerRef on AC-12103-1 (interfaces[workerIdentity]) and AC-12110-1 (interfaces[probeUrl]) so the preview URL resolver's workerIdentity and probeUrl interfaces have delivering AC owners (D6 consistency:orphanInterfaces).
+
+
 ## 1.3.2 (register patch, 2026-09-10)
 
 - Register: neutral wording on the ADR-1306 consequences field (closes F-1); no capability change.

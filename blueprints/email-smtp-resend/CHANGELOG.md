@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- adds ownerRef on AC-4106-1 (interfaces[smtpClient]), AC-4104-2 (interfaces[auditSink]) and AC-4105-1 (interfaces[verifierClock]) so TAC-401 smtpClient and TAC-402 auditSink and verifierClock have delivering AC owners (D6 consistency:orphanInterfaces).
+
+
 ## 1.1.7 - 2026-09-11
 
 unverified-sender-refusal AC-4102-1 and AC-4102-2 rows are de-claimed to conformanceOnly. The refusal is driven by the local catch-all SMTP fixture (fixture-as-engine) and carries no Resend-returned message id, so the identifier half of the strict-evidence contract is not satisfied here. The live real-account-resend-send row (AC-4101-2) is unchanged.

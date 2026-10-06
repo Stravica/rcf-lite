@@ -17,7 +17,11 @@
       "then": "the aggregate report's `gates[]` array contains a `coverage-strict` entry with `outcome: missing`, its `reason` field carries a non-empty string, and the aggregate `verdict` is `failed`",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-703-delivery-ci-workflows-aggregate-report",
+        "field": "interfaces[aggregate-report-schema]"
+      }
     },
     {
       "id": "AC-6108-2",

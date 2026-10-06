@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- adds ownerRef on AC-6102-1 (interfaces[entry-point CLI]), AC-6103-1 (interfaces[gate-descriptor]), AC-6108-1 (interfaces[aggregate-report-schema]), AC-6111-1 (interfaces[entry-point CLI]), AC-6111-2 (interfaces[workflow-shape]), AC-6121-2 (interfaces[release-mode]), AC-6122-1 (interfaces[entry-point CLI]) and AC-6123-1 (interfaces[entry-point CLI]) so TAC-701 gate-descriptor and entry-point CLI, TAC-703 aggregate-report-schema, TAC-704 workflow-shape and entry-point CLI, TAC-705 release-mode and entry-point CLI, and TAC-706 entry-point CLI have delivering AC owners (D6 consistency:orphanInterfaces).
+
+
 ## 2.3.5 - 2026-09-11
 
 probe-utils.writeReport no longer promotes an all-accountBoundSkipped row set to PASS via a separate override; aggregate() already returns PASS for a pure-skip set on its own and returns WARN when any WARN row is present, so an all-skipped array carrying a WARN row is no longer silently promoted. Anatomy suite tracks the strengthened shared helper.

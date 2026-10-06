@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- adds ownerRef on AC-14104-1 (interfaces[listenerFactory]) so the listener-topology's listenerFactory interface has a delivering AC owner (D6 consistency:orphanInterfaces).
+
+
 ## 1.2.5 - 2026-09-11
 
 Anatomy suite tracks the strengthened shared helper (WARN-only shortcut removed, log objects and content lists no longer identifiers, retained anchor existence check). No probe changes required.

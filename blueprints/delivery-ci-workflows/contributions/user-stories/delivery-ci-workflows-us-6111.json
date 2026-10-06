@@ -17,7 +17,11 @@
       "then": "the materialiser reads the file at the documented path and treats its `workflowShape` as authoritative",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces[entry-point CLI]"
+      }
     },
     {
       "id": "AC-6111-2",
@@ -27,7 +31,11 @@
       "then": "the materialiser processes the recognised fields (including the substitution-surface trio) and ignores the unknown fields without failing the boot-check",
       "testable": true,
       "scope": "runtime",
-      "disposition": "template"
+      "disposition": "template",
+      "ownerRef": {
+        "tacId": "TAC-704-delivery-ci-workflows-workflow-materialiser",
+        "field": "interfaces[workflow-shape]"
+      }
     },
     {
       "id": "AC-6111-3",
