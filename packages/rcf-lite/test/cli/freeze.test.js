@@ -452,3 +452,79 @@ test("freeze cli: readiness stage header and CHANGELOG no longer use ' -- '", as
   assert.match(changelog, /The regex is now `\/\\bTODO:\/`: case-sensitive/);
   assert.doesNotMatch(changelog, /The regex is now `\/\\bTODO:\/` -- /);
 });
+
+test('freeze cli (issue 302): freeze pre-resolves TAC interface path: tokens so D3 shapes:pathsResolve agrees with readiness', async () => {
+  // On a tree whose TAD interface description names a repo-relative
+  // `path:` token that exists on disk, `rcf define readiness --check
+  // shapes` passes 4/4 (readiness pre-resolves the token) and before
+  // this fix `rcf define freeze` false-failed D3 because it did not
+  // run the same pre-resolve. Freeze must now agree.
+  const cwd = await scratchProject('freeze-302-');
+  await seedFreezeableTree(cwd);
+
+  // Create a real file on disk the TAD interface will point at.
+  await mkdir(join(cwd, 'docs'), { recursive: true });
+  await writeFile(join(cwd, 'docs', 'ship-interface.md'), '# ship\n', 'utf8');
+
+  // Rewrite the TAC so its httpRoute interface description carries
+  // a `path:` token that resolves on disk (next to the existing
+  // method/route). The resolve walk reads `tree.tacs[].interfaces[]`.
+  await writeJson(join(cwd, 'rcf', 'tacs', 'tac-001.json'), {
+    tacId: 'TAC-001',
+    prdId: 'PRD-001',
+    tadId: 'TAD-001',
+    version: '0.1.0',
+    status: 'draft',
+    name: 'widget shipper',
+    purpose: 'Ships the widget over http.',
+    responsibilities: ['Accept a POST', 'Return 201 with the widget id'],
+    interfaces: [
+      {
+        name: 'ship',
+        kind: 'httpRoute',
+        description: 'method: POST\npath: /widgets\nrequest: { widget }\nresponse: { id }\nerrors: [422]\ndoc path: docs/ship-interface.md',
+      },
+    ],
+    createdAt: '2026-09-24T16:00:00Z',
+    updatedAt: '2026-09-24T16:00:00Z',
+  });
+
+  const r = await run([], cwd);
+  // The seeded tree is freezeable. With the pre-resolve the freeze
+  // succeeds. Without it (pre-fix), freeze would exit 4 citing D3
+  // shapes:pathsResolve on the on-disk token.
+  assert.equal(r.code, 0, `freeze refused unexpectedly:\nSTDOUT:\n${r.stdout}\nSTDERR:\n${r.stderr}`);
+  assert.doesNotMatch(r.stderr, /shapes:pathsResolve/i, 'shapes:pathsResolve must not appear in a successful freeze stderr');
+
+  // A missing path still false-fails (the pre-resolve returns an
+  // empty set for that token), proving the pre-resolve is doing real
+  // I/O on disk.
+  const cwdBad = await scratchProject('freeze-302-bad-');
+  await seedFreezeableTree(cwdBad);
+  await writeJson(join(cwdBad, 'rcf', 'tacs', 'tac-001.json'), {
+    tacId: 'TAC-001',
+    prdId: 'PRD-001',
+    tadId: 'TAD-001',
+    version: '0.1.0',
+    status: 'draft',
+    name: 'widget shipper',
+    purpose: 'Ships the widget over http.',
+    responsibilities: ['Accept a POST', 'Return 201 with the widget id'],
+    interfaces: [
+      {
+        name: 'ship',
+        kind: 'httpRoute',
+        description: 'method: POST\npath: /widgets\nrequest: { widget }\nresponse: { id }\nerrors: [422]\ndoc path: docs/does-not-exist.md',
+      },
+    ],
+    createdAt: '2026-09-24T16:00:00Z',
+    updatedAt: '2026-09-24T16:00:00Z',
+  });
+
+  const bad = await run([], cwdBad);
+  // Missing file: D3 shapes:pathsResolve bites. Freeze is warn-with-ack
+  // on D3 (ADR-4122) but without an --ack it refuses.
+  assert.equal(bad.code, 4, `freeze on missing path should refuse with exit 4:\nSTDOUT:\n${bad.stdout}\nSTDERR:\n${bad.stderr}`);
+  assert.match(bad.stderr, /pathsResolve/i, 'missing on-disk path must surface as a shapes:pathsResolve finding on freeze');
+});
+

@@ -1780,6 +1780,102 @@ test('gates (PR 7, AC-17406-5): orphanInterfaces fails an interface no ownerRef 
   assert.ok(!failingIds.includes('TAC-O:reached'));
 });
 
+test('gates (issue 301): orphanInterfaces accepts schema-canonical object-shape REQ.deliveredBy with interfaces[<name>] field', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-301',
+    interfaces: [
+      { name: 'reached', kind: 'event', description: 'payload: { id }' },
+      { name: 'alsoOrphan', kind: 'event', description: 'payload: { id }' },
+    ],
+  };
+  // Schema-canonical object form from rcf-schemas 0.6.3 $defs.deliveredBy.
+  const req = {
+    reqId: 'REQ-301',
+    deliveredBy: { tacId: 'TAC-301', field: 'interfaces[reached]' },
+  };
+  const us = {
+    usId: 'US-301',
+    reqId: 'REQ-301',
+    tacIds: ['TAC-301'],
+    acceptanceCriteria: [
+      { id: 'AC-301-1', testable: true, description: '[happy] given a message, when the server emits, then it carries an id' },
+    ],
+  };
+  const tree = makeTree({ requirements: [req], userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-301']),
+    validateErrors: [], currentTreeHash: 'sha256:bbb',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:orphanInterfaces');
+  assert.equal(check.ok, false, 'alsoOrphan still orphans so the check fails on that one');
+  const failingIds = check.failing.map((f) => f.id);
+  assert.ok(!failingIds.includes('TAC-301:reached'), 'object-shape deliveredBy with interfaces[reached] must reach TAC-301:reached');
+  assert.ok(failingIds.includes('TAC-301:alsoOrphan'), 'alsoOrphan is unreferenced and remains orphan');
+});
+
+test('gates (issue 301): orphanInterfaces reaches every interface on the TAC when object-shape deliveredBy omits field', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-301B',
+    interfaces: [
+      { name: 'a', kind: 'event', description: 'payload: { id }' },
+      { name: 'b', kind: 'event', description: 'payload: { id }' },
+    ],
+  };
+  const req = {
+    reqId: 'REQ-301B',
+    deliveredBy: { tacId: 'TAC-301B' },
+  };
+  const us = {
+    usId: 'US-301B',
+    reqId: 'REQ-301B',
+    tacIds: ['TAC-301B'],
+    acceptanceCriteria: [
+      { id: 'AC-301B-1', testable: true, description: '[happy] given a message, when the server emits, then it carries an id' },
+    ],
+  };
+  const tree = makeTree({ requirements: [req], userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-301B']),
+    validateErrors: [], currentTreeHash: 'sha256:ccc',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:orphanInterfaces');
+  const failingIds = check.failing.map((f) => f.id);
+  assert.ok(!failingIds.includes('TAC-301B:a'), 'bare-tacId object deliveredBy reaches every interface on the TAC');
+  assert.ok(!failingIds.includes('TAC-301B:b'), 'bare-tacId object deliveredBy reaches every interface on the TAC');
+});
+
+test('gates (issue 301): orphanInterfaces still accepts legacy array-shape deliveredBy pointers', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-301C',
+    interfaces: [
+      { name: 'legacy', kind: 'event', description: 'payload: { id }' },
+    ],
+  };
+  const req = {
+    reqId: 'REQ-301C',
+    deliveredBy: ['TAC-301C:legacy'],
+  };
+  const us = {
+    usId: 'US-301C',
+    reqId: 'REQ-301C',
+    tacIds: ['TAC-301C'],
+    acceptanceCriteria: [
+      { id: 'AC-301C-1', testable: true, description: '[happy] given a message, when the server emits, then it carries an id' },
+    ],
+  };
+  const tree = makeTree({ requirements: [req], userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-301C']),
+    validateErrors: [], currentTreeHash: 'sha256:ddd',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:orphanInterfaces');
+  const failingIds = check.failing.map((f) => f.id);
+  assert.ok(!failingIds.includes('TAC-301C:legacy'), 'array-shape deliveredBy must still reach');
+});
+
 test('gates (PR 7): the four new D6 checks respect the section 2.4 shape (persona, question, ok, over, pass, total, failing)', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   const tree = makeTree();

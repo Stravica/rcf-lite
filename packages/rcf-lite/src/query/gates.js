@@ -2064,10 +2064,24 @@ function extractThenFieldTokens(thenClause) {
 /**
  * Collect every interface the tree "reaches" from an AC `ownerRef` or
  * a REQ `deliveredBy` (REQ-174 companion field). The result is a Set
- * of `<tacId>:<name>` keys. A `deliveredBy` on a REQ can take two
- * shapes: an array of `TAC-nnnn:<name>` pointer strings, or an array
- * of plain TAC ids ("delivered by this TAC"); the second shape reaches
- * every interface on the named TAC.
+ * of `<tacId>:<name>` keys.
+ *
+ * REQ `deliveredBy` takes two canonical shapes, both accepted here:
+ *   1. The schema-canonical object form `{tacId, adrId?, field?}`
+ *      (`@stravica-ai/rcf-schemas` 0.6.3 `$defs.deliveredBy`). When
+ *      `tacId` is present:
+ *        - `field: interfaces[<name>]` reaches `{tacId}:{name}` (one
+ *          interface), via `parseOwnerRefInterfaceField`.
+ *        - any other `field`, or no `field`, reaches every interface
+ *          on the named TAC (the "delivered by this TAC" meaning).
+ *      An `adrId`-only deliveredBy does not reach any TAC interface.
+ *   2. A legacy array of pointer strings: `TAC-nnnn:<name>` reaches
+ *      one interface, a bare `TAC-nnnn` reaches every interface on
+ *      that TAC.
+ *
+ * Issue 301 (2026-10-06): the array-only guard dropped every
+ * schema-canonical object deliveredBy and false-positived every
+ * blueprint TAC interface.
  *
  * @param {import('#core/store/walker.js').TreeModel} tree
  * @returns {Set<string>}
@@ -2085,19 +2099,40 @@ function collectReachedInterfaces(tree) {
       out.add(`${ref.tacId}:${name}`);
     }
   }
-  // REQ deliveredBy (optional field; shapes above).
+  // REQ deliveredBy. Both shapes documented above.
   for (const req of tree.requirements ?? []) {
     const deliveredBy = /** @type {any} */ (req)?.deliveredBy;
-    if (!Array.isArray(deliveredBy)) continue;
-    for (const entry of deliveredBy) {
-      if (typeof entry !== 'string' || entry.length === 0) continue;
-      const m = entry.match(/^(TAC-[A-Za-z0-9-]+):(.+)$/);
-      if (m) {
-        out.add(`${m[1]}:${m[2]}`);
+    if (deliveredBy == null) continue;
+    if (Array.isArray(deliveredBy)) {
+      for (const entry of deliveredBy) {
+        if (typeof entry !== 'string' || entry.length === 0) continue;
+        const m = entry.match(/^(TAC-[A-Za-z0-9-]+):(.+)$/);
+        if (m) {
+          out.add(`${m[1]}:${m[2]}`);
+          continue;
+        }
+        // Plain TAC id: every interface on that TAC is reached.
+        const tac = (tree.tacs ?? []).find((t) => t?.tacId === entry);
+        if (!tac) continue;
+        for (const iface of tac.interfaces ?? []) {
+          if (typeof iface?.name === 'string') out.add(`${tac.tacId}:${iface.name}`);
+        }
+      }
+      continue;
+    }
+    if (typeof deliveredBy === 'object') {
+      const tacId = /** @type {any} */ (deliveredBy).tacId;
+      if (typeof tacId !== 'string' || tacId.length === 0) continue;
+      const field = /** @type {any} */ (deliveredBy).field;
+      const name = parseOwnerRefInterfaceField(field);
+      if (name) {
+        out.add(`${tacId}:${name}`);
         continue;
       }
-      // Plain TAC id: every interface on that TAC is reached.
-      const tac = (tree.tacs ?? []).find((t) => t?.tacId === entry);
+      // No field, or a field that does not name an interface: reach
+      // every interface on the named TAC (the "delivered by this TAC"
+      // meaning carried over from the array-shape bare TAC pointer).
+      const tac = (tree.tacs ?? []).find((t) => t?.tacId === tacId);
       if (!tac) continue;
       for (const iface of tac.interfaces ?? []) {
         if (typeof iface?.name === 'string') out.add(`${tac.tacId}:${iface.name}`);
