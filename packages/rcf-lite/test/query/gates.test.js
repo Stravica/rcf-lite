@@ -1722,6 +1722,218 @@ test('gates (PR 7, AC-17406-3): unsatisfiable passes when the field lives in a [
   assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
 });
 
+// -- Issue 311 fixtures ---------------------------------------------------
+//
+// Backticked identifiers in a then-clause that are NOT record-shape
+// fields: HTTP error-envelope enum values, pagination query params,
+// sort-order and filter-mode literals, env-var and config-knob names.
+// Each AC must leave `consistency:unsatisfiable` green with every
+// recordShape genuinely defined (fixture-wide). A single negative
+// control AC keeps the AC-12113-2 class red when a real missing field
+// is named.
+//
+// Baseline (0.32.1): 345/532 unsatisfiable findings on WESPA were of
+// this shape; expected drop on 0.32.2 is 345 WESPA findings removed.
+
+test('gates (issue 311): error-envelope enum values and `code` field do not fire unsatisfiable', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-E',
+    interfaces: [
+      { name: 'WsdErrorEnvelope', kind: 'recordShape', description: 'fields: code, message, requestId' },
+    ],
+  };
+  const us = {
+    usId: 'US-E',
+    reqId: 'REQ-E',
+    tacIds: ['TAC-E'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-E-1',
+        testable: true,
+        description: '[sad] given a bad input, when the handler runs, then the response body is a WsdErrorEnvelope with `code` equal to `VALIDATION_ERROR` and `message` set',
+        ownerRef: { tacId: 'TAC-E', field: 'interfaces[WsdErrorEnvelope]' },
+      },
+      {
+        id: 'AC-E-2',
+        testable: true,
+        description: '[sad] given an expired token, when the handler runs, then the response envelope `code` is `AUTH_TOKEN_INVALID_SIGNATURE` and the handler returns 401',
+        ownerRef: { tacId: 'TAC-E', field: 'interfaces[WsdErrorEnvelope]' },
+      },
+      {
+        id: 'AC-E-3',
+        testable: true,
+        description: '[sad] given a rate-limited caller, when the handler runs, then the `code` field is `RATE_LIMITED` and `RESOURCE_NOT_FOUND` is never emitted',
+        ownerRef: { tacId: 'TAC-E', field: 'interfaces[WsdErrorEnvelope]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-E']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 311): pagination query-string params and sort-order literals do not fire unsatisfiable', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-P',
+    interfaces: [
+      { name: 'OffsetPaginationEnvelope', kind: 'recordShape', description: 'fields: total, limit, items' },
+      { name: 'CursorPaginationEnvelope', kind: 'recordShape', description: 'fields: items, next, prev' },
+    ],
+  };
+  const us = {
+    usId: 'US-P',
+    reqId: 'REQ-P',
+    tacIds: ['TAC-P'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-P-1',
+        testable: true,
+        description: '[happy] given a client, when it calls /items, then the request accepts `pageSize` and `offset` as query parameters and sort order `asc` or `desc`',
+        ownerRef: { tacId: 'TAC-P', field: 'interfaces[OffsetPaginationEnvelope]' },
+      },
+      {
+        id: 'AC-P-2',
+        testable: true,
+        description: '[happy] given a cursor caller, when it calls /items, then the request accepts `cursors` and `next` query-string keys and sort by `method` is rejected',
+        ownerRef: { tacId: 'TAC-P', field: 'interfaces[CursorPaginationEnvelope]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-P']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 311): filter/match-mode enum literals do not fire unsatisfiable', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-F',
+    interfaces: [
+      { name: 'FilterSpec', kind: 'recordShape', description: 'fields: mode, value' },
+    ],
+  };
+  const us = {
+    usId: 'US-F',
+    reqId: 'REQ-F',
+    tacIds: ['TAC-F'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-F-1',
+        testable: true,
+        description: '[happy] given a filter, when the search runs, then match mode `query`, `exact`, or `in` are accepted and any other `mode` is rejected',
+        ownerRef: { tacId: 'TAC-F', field: 'interfaces[FilterSpec]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-F']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 311): build-metadata and env-var literals do not fire unsatisfiable', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-B',
+    interfaces: [
+      { name: 'BuildInfo', kind: 'recordShape', description: 'fields: commitShort, builtAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-B',
+    reqId: 'REQ-B',
+    tacIds: ['TAC-B'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-B-1',
+        testable: true,
+        description: '[happy] given a build pipeline, when the worker boots, then it reads `BUILD_GIT_COMMIT_SHORT` from the environment variable and the admin user is `workerAdminUser`',
+        ownerRef: { tacId: 'TAC-B', field: 'interfaces[BuildInfo]' },
+      },
+      {
+        id: 'AC-B-2',
+        testable: true,
+        description: '[happy] given a Playwright run, when the suite starts, then config knob `maxDiffPixelRatio` and `fullPath` are honoured',
+        ownerRef: { tacId: 'TAC-B', field: 'interfaces[BuildInfo]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-B']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 311): dot-notation `<Shape>.<field>` picks up a real missing field (negative control, structural)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-D',
+    interfaces: [
+      { name: 'Session', kind: 'recordShape', description: 'fields: userId, startedAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-D',
+    reqId: 'REQ-D',
+    tacIds: ['TAC-D'],
+    acceptanceCriteria: [
+      { id: 'AC-D-1', testable: true, description: '[happy] given a login, when auth succeeds, then `Session.lastSeenAt` is written' },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-D']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, false);
+  assert.ok(check.failing.some((f) => f.id === 'AC-D-1:lastSeenAt'), `expected lastSeenAt in failing, got ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 311, negative control): a real missing field named in a then clause still fails', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-N',
+    interfaces: [
+      { name: 'User', kind: 'recordShape', description: 'fields: id, email' },
+    ],
+  };
+  const us = {
+    usId: 'US-N',
+    reqId: 'REQ-N',
+    tacIds: ['TAC-N'],
+    acceptanceCriteria: [
+      { id: 'AC-N-1', testable: true, description: '[happy] given a user, when sign-up runs, then the record `balance` is set to zero and the response includes a `nickname` field' },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-N']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, false);
+  const ids = check.failing.map((f) => f.id).sort();
+  assert.ok(ids.includes('AC-N-1:balance'), `expected balance in failing, got ${JSON.stringify(ids)}`);
+  assert.ok(ids.includes('AC-N-1:nickname'), `expected nickname in failing, got ${JSON.stringify(ids)}`);
+});
+
 test('gates (PR 7, AC-17406-4): duplicates fails identical AC descriptions across stories', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   const usA = {

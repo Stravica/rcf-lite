@@ -2033,9 +2033,23 @@ function collectRecordShapeFields(tree) {
  * that follows a verb like `set`, `write`, `include`, `return`,
  * `contain`, `name` or appears as the direct object of a `then`'s
  * verb phrase; a cheap approximation uses `then <subject> <verb>
- * <field>` plus `field <name>`, `<name> field` and `field: <name>`
- * patterns. The scan is deliberately conservative so a plain English
- * sentence yields a small set.
+ * <field>` plus `field <name>`, `<name> field`, `field: <name>` and
+ * `<Shape>.<name>` patterns. The scan is deliberately conservative so
+ * a plain English sentence yields a small set.
+ *
+ * Issue 311 (0.32.2): a bare backticked identifier (pattern 1) was
+ * reading error-enum values, pagination query-string keys, sort and
+ * filter-mode literals, env-var and config-knob names as record-shape
+ * fields and false-positiving 345 of 532 ACs on WESPA. Pattern 1 is
+ * now context-gated: ALL_CAPS tokens (enum values, env vars,
+ * constants) are skipped unconditionally; other backticked tokens
+ * count only when a field-signalling word sits within a short
+ * neighbourhood AND no explicit non-field context (query parameter,
+ * sort order, filter/match mode, env var, config knob, header name,
+ * cli flag) overlaps the same neighbourhood. The AC-12113-2 class is
+ * preserved: a then-clause that names a real missing field via
+ * `<name> field`, `field: <name>` or an emit-verb context still fails
+ * the check.
  *
  * @param {string} thenClause
  * @returns {string[]}
@@ -2045,26 +2059,59 @@ function extractThenFieldTokens(thenClause) {
   const text = stripQuotedSubstrings(thenClause);
   /** @type {Set<string>} */
   const tokens = new Set();
-  // Pattern 1: backticked identifier (`then `balance` is set`). The
-  // primary signal; prose that quotes a field name under backticks is
-  // the convention this check expects.
-  for (const m of text.matchAll(/`([A-Za-z_][A-Za-z0-9_]*)`/g)) {
-    if (m[1]) tokens.add(m[1]);
-  }
-  // Pattern 2: `<name> field` (adjective-form naming). An English
-  // "stop word" skip keeps "the field", "a field" and "its field" from
-  // tripping the check.
   const STOP = new Set(['the', 'a', 'an', 'this', 'that', 'its', 'our', 'their', 'any', 'no', 'some', 'each', 'every', 'another']);
-  for (const m of text.matchAll(/\b([A-Za-z_][A-Za-z0-9_]*)\s+field\b/g)) {
+
+  // Pattern 2 (preserved): `<name> field` (adjective-form naming). The
+  // backtick around the name is optional; the stop-word skip keeps
+  // "the field", "a field" and "its field" from tripping the check.
+  for (const m of text.matchAll(/`?\b([A-Za-z_][A-Za-z0-9_]*)`?\s+field\b/g)) {
     const token = m[1];
     if (!token) continue;
     if (STOP.has(token.toLowerCase())) continue;
     tokens.add(token);
   }
-  // Pattern 3: `field: <name>` or `field = <name>` (schema-like
-  // notation inside a then clause).
-  for (const m of text.matchAll(/\bfield\s*[:=]\s*([A-Za-z_][A-Za-z0-9_]*)/g)) {
+  // Pattern 3 (preserved): `field: <name>` or `field = <name>`
+  // (schema-like notation inside a then clause). The name's backtick
+  // is optional.
+  for (const m of text.matchAll(/\bfields?\s*[:=]\s*`?([A-Za-z_][A-Za-z0-9_]*)`?/g)) {
     if (m[1]) tokens.add(m[1]);
+  }
+  // Pattern 4 (new, issue 311): `<ShapeName>.<fieldName>` dot
+  // notation. Shape names are PascalCase; the field name after the
+  // dot is the candidate.
+  for (const m of text.matchAll(/\b[A-Z][A-Za-z0-9_]*\.([a-z_][A-Za-z0-9_]*)\b/g)) {
+    if (m[1]) tokens.add(m[1]);
+  }
+  // Pattern 1 (narrowed, issue 311): backticked identifier WITH
+  // explicit field evidence in its immediate neighbourhood AND no
+  // overlapping non-field context. ALL_CAPS tokens (enum values, env
+  // vars, constants) are skipped unconditionally; record-shape field
+  // names in the WSD AI tree and the rcf-schemas canon are camelCase
+  // or lower snake_case.
+  const WINDOW = 36;
+  const POS_BEFORE = /(?:\bsets?|\bsetting|\bwrites?|\bwriting|\bincludes?|\bincluding|\breturns?|\breturning|\bcontains?|\bcontaining|\bnames?|\bnaming|\bemits?|\bemitting|\bholds?|\bholding|\bcarries|\bcarrying|\badds?|\badding|\bhas|\bhave|\bhad|\bwith\s+(?:a|an|the))\s*$/i;
+  const POS_AFTER = /^\s*(?:\bis\s+(?:set|written|included|returned|named|populated|present|absent|missing|required|optional|null|non-null|empty)|\bare\s+(?:set|written|included|returned|named|populated|present|absent|missing|required|optional)|\bequals?|\bholds?|\bcontains?|\bof\s+type|\bfields?\b)/i;
+  const POS_CTX = /\bfields?\b|\brecord\s+shape\b|\brecord\s+body\b|\bresponse\s+body\b|\brequest\s+body\b|\bevent\s+body\b|\bpayload\b|\bevent\s+payload\b|\benvelope\b/i;
+  const NEG_CTX = /\bquery\s+param(?:eter)?s?\b|\bquery[- ]?string\b|\bsort\s+(?:order|direction|by|key)\b|\bfilter\s+mode\b|\bmatch\s+mode\b|\benum\s+(?:value|member|variant|literal)s?\b|\benv(?:ironment)?\s*var(?:iable)?s?\b|\benvironment\s+variable\b|\bconfig(?:uration)?\s+(?:knob|key|option|value|setting|field|file)\b|\bheader\s+(?:name|value|key)\b|\b(?:cli|flag|option|argument|parameter)\s+name\b|\bconstant\b|\badmin\s+user\b|\bbuild\s+(?:info|metadata)\b|\broute\b|\bendpoint\b|\boperator\b|\bdirection\b/i;
+
+  for (const m of text.matchAll(/`([A-Za-z_][A-Za-z0-9_]*)`/g)) {
+    const token = m[1];
+    if (!token) continue;
+    // Skip ALL_CAPS enum values, env vars, constants.
+    if (/^[A-Z][A-Z0-9_]*$/.test(token) && token.length >= 2) continue;
+    const start = m.index ?? 0;
+    const end = start + m[0].length;
+    const before = text.slice(Math.max(0, start - WINDOW), start);
+    const after = text.slice(end, Math.min(text.length, end + WINDOW));
+    if (NEG_CTX.test(before) || NEG_CTX.test(after)) continue;
+    if (
+      POS_BEFORE.test(before)
+      || POS_AFTER.test(after)
+      || POS_CTX.test(before)
+      || POS_CTX.test(after)
+    ) {
+      tokens.add(token);
+    }
   }
   return [...tokens];
 }

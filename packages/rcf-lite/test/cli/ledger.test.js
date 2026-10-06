@@ -371,3 +371,99 @@ test('ledger CLI (R1, AC-17302-9): add without --id mints next id', async () => 
   assert.equal(body.statements.length, 1);
   assert.equal(body.statements[0].id, 1);
 });
+
+// -- Issue 310 regression -------------------------------------------------
+//
+// `--dry-run` on `rcf define ledger concerns add` must leave the tree
+// untouched: on 0.31.0 the flag was accepted but the ledger file was
+// created and the entry appended. The byte-equal assertion covers
+// both the "file does not exist beforehand" case (create skipped) and
+// the "file exists and is already populated" case (contents
+// preserved).
+import { stat } from 'node:fs/promises';
+
+async function treeBytes(cwd) {
+  const relPaths = [
+    'rcf/manifest.json',
+    'rcf/define/brief-ledger.json',
+    'rcf/define/decisions-ledger.json',
+    'rcf/define/concern-ledger.json',
+    'rcf/define/probes-ledger.json',
+  ];
+  const parts = [];
+  for (const rel of relPaths) {
+    const abs = join(cwd, rel);
+    let exists = true;
+    try { await stat(abs); } catch { exists = false; }
+    if (!exists) { parts.push(`${rel}:ABSENT`); continue; }
+    const bytes = await readFile(abs);
+    parts.push(`${rel}:${bytes.length}:${bytes.toString('hex')}`);
+  }
+  return parts.join('\n');
+}
+
+test('ledger CLI (issue 310): concerns add --dry-run writes nothing when the ledger does not yet exist', async () => {
+  const cwd = await scratchProject('ledger-dry-run-concerns-fresh-');
+  const before = await treeBytes(cwd);
+  const r = await run([
+    'concerns', 'add',
+    '--req', 'REQ-001',
+    '--concern', 'auth',
+    '--disposition', 'applied',
+    '--reason', 'test rehearsal only',
+    '--dry-run',
+  ], cwd);
+  assert.equal(r.code, 0, r.stderr);
+  assert.match(r.stdout, /\[dry-run\] concern-ledger: would add concern/);
+  const after = await treeBytes(cwd);
+  assert.equal(after, before, 'tree bytes unchanged after dry-run');
+  // Also assert the concern-ledger file was NOT created at all.
+  let created = false;
+  try { await stat(join(cwd, 'rcf', 'define', 'concern-ledger.json')); created = true; } catch { created = false; }
+  assert.equal(created, false, 'concern-ledger.json must not be created on --dry-run');
+});
+
+test('ledger CLI (issue 310): concerns add --dry-run writes nothing when the ledger is already populated', async () => {
+  const cwd = await scratchProject('ledger-dry-run-concerns-pop-');
+  // Prime the ledger with a real entry so a dry-run has existing content to not touch.
+  const prime = await run([
+    'concerns', 'add',
+    '--req', 'REQ-999',
+    '--concern', 'retention',
+    '--disposition', 'waived',
+    '--reason', 'historical lane, kept for audit',
+  ], cwd);
+  assert.equal(prime.code, 0, prime.stderr);
+  const before = await treeBytes(cwd);
+  const r = await run([
+    'concerns', 'add',
+    '--req', 'REQ-001',
+    '--concern', 'auth',
+    '--disposition', 'applied',
+    '--reason', 'rehearsal only, do not persist',
+    '--dry-run',
+  ], cwd);
+  assert.equal(r.code, 0, r.stderr);
+  const after = await treeBytes(cwd);
+  assert.equal(after, before, 'tree bytes unchanged after dry-run');
+});
+
+test('ledger CLI (issue 310): concerns add --dry-run --json emits dryRun:true and writes nothing', async () => {
+  const cwd = await scratchProject('ledger-dry-run-concerns-json-');
+  const before = await treeBytes(cwd);
+  const r = await run([
+    'concerns', 'add',
+    '--req', 'REQ-001',
+    '--concern', 'auth',
+    '--disposition', 'applied',
+    '--reason', 'rehearsal only, do not persist',
+    '--dry-run',
+    '--json',
+  ], cwd);
+  assert.equal(r.code, 0, r.stderr);
+  const payload = JSON.parse(r.stdout);
+  assert.equal(payload.dryRun, true);
+  assert.equal(payload.entry.concern, 'auth');
+  const after = await treeBytes(cwd);
+  assert.equal(after, before, 'tree bytes unchanged after dry-run');
+});
