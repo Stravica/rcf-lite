@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.31.0"
+latest: "0.32.0"
 releases:
+  - version: "0.32.0"
+    date: "2026-10-06"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.32.0 fixes two readiness and freeze gates that false-tripped under schema-canonical content: D6 consistency:orphanInterfaces now accepts the object-shape REQ.deliveredBy (issue 301), and D3 shapes:pathsResolve inside rcf define freeze pre-resolves TAC interface path tokens the way readiness does (issue 302). The deploy-cloudflare-workers blueprint reworded AC-12113-2 so D6 consistency:unsatisfiable stops reading 'absent' as a field name (PR 300)."
+      - "Viewer fixes: SSE tree-update resync preserves the active tab for every main tab including Readiness (issue 297), and the audit view header keeps the six tabs visible under long project names and prefers prd.productName (issue 295)."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.31.0"
     date: "2026-10-05"
     breaking: true

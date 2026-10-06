@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.32.0] - 2026-10-06
+
+0.32.0 ships four readiness and viewer fixes merged since 0.31.0 (merge ec9464db) as one release. D6 consistency:orphanInterfaces now accepts the schema-canonical object-shape REQ.deliveredBy (issue 301), D3 shapes:pathsResolve inside rcf define freeze pre-resolves TAC interface path tokens the way readiness does (issue 302), the deploy-cloudflare-workers blueprint reworded AC-12113-2 so D6 consistency:unsatisfiable stops reading "absent" as a field name (PR 300), the viewer's SSE tree-update resync preserves the active tab for every main tab including Readiness (issue 297), and the audit view header keeps the tabs visible under long project names and prefers prd.productName (issue 295). minAgentAction: null; the managed agent-instructions block hash did not move.
+
+
 ### Fixed
 
 - **D6 consistency:orphanInterfaces now accepts the schema-canonical object-shape REQ.deliveredBy (issue 301, w-2026-10-06-dave-020).** `collectReachedInterfaces` in `src/query/gates.js` previously accepted only array-shape `deliveredBy` and dropped the `{tacId, adrId?, field?}` object form that `@stravica-ai/rcf-schemas` 0.6.3 defines as canonical. Every schema-conforming REQ (including every blueprint-contributed REQ) therefore had its `deliveredBy` silently skipped by the orphanInterfaces reach-walk, and interfaces on blueprint TACs with no AC ownerRef read as orphans. Hit on ai-baseline define/kickoff (115/173 failing on nine applied blueprints). Fix: the walk now also handles the object form, routing `field: interfaces[<name>]` to a single interface via `parseOwnerRefInterfaceField` and a bare `tacId` to every interface on the named TAC (the "delivered by this TAC" meaning carried over from the array-shape bare pointer). Legacy array-shape pointers are unchanged. Regression fixtures in `test/query/gates.test.js` cover the object-shape interface pointer, the bare-tacId object form, and the legacy array shape.
