@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.32.4] - 2026-10-07
+
+0.32.4 is the stop-word follow-up to 0.32.3 after Dex's second-consumer check of PR 318 on WESPA main 34ebceba (2026-10-07T10:38Z, issue 319). 0.32.3 moved the English stop-word skip onto the pattern 4 (dot-notation) branch but left patterns 2 and 3 (prose `<name> field` and `fields: <name>`) with no stop-word filter at all; the AC-130-1 then-clause `declares NO join-shaped fields: the earlier jurisdiction ...` fed the word `the` to the extractor and false-failed D6 on WESPA (Ready-to-build no on 0.32.3 against yes on 0.31.0). breaking: false; the 0.32.1, 0.32.2 and 0.32.3 fixes carry forward unchanged. minAgentAction: null.
+
+### Fixed
+
+- **D6 consistency:unsatisfiable stops reading English stop words out of prose `fields:` lists and `<name> field` phrases (issue 319, w-2026-10-07-dave-003).** `extractThenFieldTokens` in `src/query/gates.js` now shares a broader English stop-word set (`STOP_PATTERN_23`: the, a, an, and, or, of, to, in, on, for, with, by, from, at, as, is, are, be, this, that, these, those, it, its, not, no, all, any, each, per, via, into, than, then, when, which, who, whom, where, while) across patterns 2 and 3, and reuses pattern 4's file-extension skip (md, json, jsonl, ...) and two-character path-context lookbehind on both branches. Pattern 3 additionally walks a comma-separated identifier list after `fields:` so a prose field list such as `required fields: userID, email, createdAt` yields every token it names (one for each missing field), not only the first after the colon. The AC-130-1 WESPA then-clause (sentence-ending `fields: the ...`) is silent on the gate; the AC-060-3 shape (`required fields: userID, email`) is retained and now surfaces every real missing field, not only the first. Pattern 1 is untouched; pattern 4 keeps its 0.32.3 behaviour; the issue 311 and issue 315 fixtures stay green. Regression fixtures in `test/query/gates.test.js` cover a negative control on the AC-130-1 shape, a positive control that both `userID` and `createdAt` fire, and a pattern 2 file-extension / path-context control.
+
 ## [0.32.3] - 2026-10-07
 
 0.32.3 is a hotfix for the 0.32.2 D6 consistency:unsatisfiable regression discovered by Barry on ai-on-record (define/kickoff, head 974b4c1) and second-sourced by Dex on WESPA (26 green-to-red findings in three classes, 2026-10-06 20:05Z). The regression came from pattern 4 of `extractThenFieldTokens` in `src/query/gates.js`, added in PR 313 as part of the issue 311 fix. breaking: false; the 0.32.1 and 0.32.2 fixes carry forward unchanged. minAgentAction: null.

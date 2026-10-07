@@ -40,8 +40,16 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.32.3"
+latest: "0.32.4"
 releases:
+  - version: "0.32.4"
+    date: "2026-10-07"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.32.4 is the stop-word follow-up to 0.32.3 after Dex's second-consumer check of PR 318 on WESPA (issue 319). Patterns 2 and 3 of extractThenFieldTokens (prose `<name> field` and `fields: <name>`) now share a broader English stop-word set and reuse pattern 4's file-extension and path-context skips, so the AC-130-1 WESPA then-clause `declares NO join-shaped fields: the earlier jurisdiction ...` stops reading `the` as a record field. Pattern 3 additionally walks a comma-separated list after `fields:` so a real prose field list such as `required fields: userID, email, createdAt` yields every token it names. The 0.32.1, 0.32.2 and 0.32.3 fixes carry forward unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.32.3"
     date: "2026-10-07"
     breaking: false
