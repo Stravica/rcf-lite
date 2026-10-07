@@ -1,0 +1,31 @@
+{
+  "statements": [
+    {
+      "id": 1,
+      "text": "The Readiness tab is the command page: every question and every blocking item is a table row with a count and a link that opens the item where it lives, and the exact write-back that settles it is shown beside it.",
+      "kind": "capability",
+      "source": "discovery:viewer-command-page",
+      "addedAt": "2026-10-07T11:22:58.551Z",
+      "status": "open",
+      "resolvedBy": "REQ-180"
+    },
+    {
+      "id": 2,
+      "text": "The viewer exposes trace, impact and coverage for a selected node through GET routes computed from the current tree, and renders a coverage summary and a trace matrix, so a reader sees how far the chain reaches without the CLI.",
+      "kind": "capability",
+      "source": "discovery:viewer-command-page",
+      "addedAt": "2026-10-07T11:23:03.966Z",
+      "status": "open",
+      "resolvedBy": "REQ-002"
+    },
+    {
+      "id": 3,
+      "text": "The command page works for a human with no agent in the loop, stays embed-safe under embed=1 and both themes, adds no dependency, never writes to rcf/manifest.json, and leaves the computeReadiness signature unchanged.",
+      "kind": "constraint",
+      "source": "discovery:viewer-command-page",
+      "addedAt": "2026-10-07T11:23:08.852Z",
+      "status": "open",
+      "resolvedBy": "REQ-180"
+    }
+  ]
+}

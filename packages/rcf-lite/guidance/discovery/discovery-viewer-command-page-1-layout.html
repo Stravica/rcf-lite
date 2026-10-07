@@ -1,0 +1,191 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discovery sketch: 1-layout</title>
+  <style>
+    <!-- F7-note: these --sv-* hex tokens are the LIGHT-mode palette only; the dark-mode block lives in src/view/style.css under html[data-theme="dark"] (and its auto variant) and is covered pair-by-pair by test/view/contrast-aa.test.js. The sketches set color-scheme: light to keep OS dark-mode from re-inking them; the viewer runtime switches tokens by data-theme, not by color-scheme. -->
+    :root {
+      --sv-canvas: #F6F8FC;
+      --sv-surface: #FFFFFF;
+      --sv-raised: #EEF2F8;
+      --sv-ink: #111927;
+      --sv-muted: #536176;
+      --sv-border: #D8DFEA;
+      --sv-control: #738198;
+      --sv-link: #2447EB;
+      --sv-hover: #1737C7;
+      --sv-active: #E9EEFF;
+      --sv-button: #2447EB;
+      --sv-onbutton: #FFFFFF;
+      --sv-code: #EEF2F8;
+      --sv-success: #116B4D;
+      --sv-successbg: #E7F4ED;
+      --sv-warning: #895000;
+      --sv-warningbg: #FFF3DC;
+      --sv-danger: #B4233B;
+      --sv-dangerbg: #FDECF0;
+      --sv-focus: #2447EB;
+      --sv-font: Arial, Helvetica, sans-serif;
+      --sv-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body { background: var(--sv-canvas); color: var(--sv-ink); font-family: var(--sv-font); margin: 0; }
+    main { max-width: 1100px; margin: 0 auto; padding: 30px 16px 22px; }
+    p { margin: 0; }
+    a { color: var(--sv-link); text-decoration: none; }
+    a:hover { color: var(--sv-hover); text-decoration: underline; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--sv-focus); outline-offset: 4px; }
+    .intro { max-width: 980px; margin-bottom: 24px; font-size: 16px; line-height: 1.6; }
+    .verdicts { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; margin-bottom: 22px; }
+    .card { background: var(--sv-surface); border: 1px solid var(--sv-border); border-radius: 8px; }
+    .verdict { padding: 22px 24px; }
+    .verdict-heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 18px; }
+    h1, h2 { margin: 0; }
+    .verdict h2 { font-size: 19px; line-height: 1.3; font-weight: 600; }
+    .verdict > a { font-size: 14px; line-height: 1.5; }
+    .pill { display: inline-block; padding: 5px 10px; border-radius: 20px; font-size: 12px; line-height: 1.25; font-weight: 600; }
+    .success { color: var(--sv-success); background: var(--sv-successbg); }
+    .warning { color: var(--sv-warning); background: var(--sv-warningbg); }
+    .verdict .pill { font-size: 13px; white-space: nowrap; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 6px; padding: 0 0 12px; border-bottom: 1px solid var(--sv-border); margin-bottom: 24px; }
+    .tabs a { padding: 10px 16px; border-radius: 6px; font-size: 14px; font-weight: 600; }
+    .tabs a[aria-current="page"] { background: var(--sv-active); color: var(--sv-link); }
+    .section-heading { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    h1 { font-size: 21px; line-height: 1.3; letter-spacing: -0.4px; }
+    .eyebrow { color: var(--sv-muted); font-size: 11px; font-weight: 600; letter-spacing: 1.2px; text-transform: uppercase; }
+    .grid-card { padding: 0 20px 8px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; text-align: left; font-size: 14px; }
+    caption { color: var(--sv-muted); padding: 16px 0; text-align: left; font-size: 12px; }
+    col.stage { width: 9%; }
+    col.name { width: 22%; }
+    col.count { width: 15%; }
+    col.state { width: 24%; }
+    col.items { width: 15%; }
+    th, td { padding: 12px 10px; border-bottom: 1px solid var(--sv-border); vertical-align: middle; overflow-wrap: anywhere; }
+    thead th { background: var(--sv-raised); color: var(--sv-muted); font-size: 11px; letter-spacing: 0.7px; text-transform: uppercase; font-weight: 600; }
+    tbody th { font-family: var(--sv-mono); font-size: 13px; font-weight: 500; }
+    tbody tr:last-child > * { border-bottom: 0; }
+    .mono, code { font-family: var(--sv-mono); }
+    .mono { font-size: 13px; }
+    .muted { color: var(--sv-muted); }
+    .item-link { font-size: 13px; font-weight: 600; }
+    .tiles { display: grid; grid-template-columns: 1fr 1.25fr 0.75fr; gap: 14px; margin-top: 16px; }
+    .tile { display: flex; flex-direction: column; align-items: flex-start; gap: 12px; min-width: 0; padding: 20px; color: var(--sv-ink); }
+    .tile:hover { color: var(--sv-ink); text-decoration: none; border-color: var(--sv-control); }
+    .tile-label { font-size: 12px; font-weight: 600; color: var(--sv-muted); }
+    .tile-value { font-size: 15px; line-height: 1.5; }
+    .tile-value strong { font-weight: 600; }
+    .coverage-number { color: var(--sv-warning); }
+    .zero { font-size: 26px; line-height: 1.2; }
+    .show { color: var(--sv-link); font-size: 12px; margin-top: auto; }
+    .tile:hover .show { color: var(--sv-hover); text-decoration: underline; }
+    .next-action { display: flex; align-items: baseline; gap: 10px; margin: 20px 0 0; color: var(--sv-muted); font-size: 12px; line-height: 1.8; }
+    .next-action p { min-width: 0; }
+    code { background: var(--sv-code); padding: 3px 4px; border-radius: 3px; font-size: 11px; overflow-wrap: anywhere; }
+    button { font-family: var(--sv-font); font-size: 11px; color: var(--sv-muted); border: 1px solid var(--sv-border); background: var(--sv-surface); border-radius: 4px; padding: 5px 9px; }
+    .source { color: var(--sv-muted); margin-top: 28px; font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+    footer { margin-top: 20px; padding-top: 16px; border-top: 1px solid var(--sv-border); color: var(--sv-muted); font-size: 11px; line-height: 1.6; }
+    @media (max-width: 719px) {
+      main { padding-top: 20px; }
+      .verdicts, .tiles { grid-template-columns: 1fr; }
+      .verdict { padding: 20px; }
+      .tabs { gap: 2px; }
+      .tabs a { padding: 10px; font-size: 12px; }
+      .section-heading { align-items: flex-start; }
+      .grid-card { padding: 0 6px 6px; }
+      table { font-size: 12px; }
+      caption { padding: 14px 5px; }
+      th, td { padding: 12px 4px; }
+      thead th { font-size: 9px; letter-spacing: 0; }
+      .mono, tbody th, .item-link { font-size: 11px; }
+      .pill { padding: 4px 5px; font-size: 10px; max-width: 100%; }
+      .next-action { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="intro">The rcf-lite viewer's Readiness tab currently mixes two verdict cards with a long scratchpad; this sketch shows the full rebuilt tab as linked tables and tiles that explain whether work can begin.</p>
+
+    <section aria-label="Readiness command page">
+      <div class="verdicts">
+        <section class="card verdict" aria-labelledby="engineers-heading">
+          <div class="verdict-heading">
+            <h2 id="engineers-heading">Ready for engineers</h2>
+            <span class="pill success">Yes</span>
+          </div>
+          <a href="#" title="#tab=readiness&amp;surface=questions">0 questions waiting for you</a>
+        </section>
+        <section class="card verdict" aria-labelledby="build-heading">
+          <div class="verdict-heading">
+            <h2 id="build-heading">Ready to build</h2>
+            <span class="pill warning">Not yet</span>
+          </div>
+          <a href="#" title="#tab=readiness&amp;surface=blocking">2 items for engineers, none for you</a>
+        </section>
+      </div>
+
+      <nav class="tabs" aria-label="Readiness sub-tabs">
+        <a href="#" title="#tab=readiness&amp;surface=overview" aria-current="page">Overview</a>
+        <a href="#" title="#tab=readiness&amp;surface=questions">Questions</a>
+        <a href="#" title="#tab=readiness&amp;surface=blocking">Blocking</a>
+        <a href="#" title="#tab=readiness&amp;surface=coverage">Coverage</a>
+        <a href="#" title="#tab=readiness&amp;surface=trace">Trace</a>
+      </nav>
+
+      <section aria-labelledby="grid-heading">
+        <div class="section-heading">
+          <h1 id="grid-heading">Readiness verdicts</h1>
+          <span class="eyebrow">Overview</span>
+        </div>
+        <div class="card grid-card">
+          <table>
+            <caption>D1 to D8 verdict grid, 8 rows</caption>
+            <colgroup><col class="stage"><col class="name"><col class="count"><col class="count"><col class="state"><col class="items"></colgroup>
+            <thead>
+              <tr><th scope="col">Stage</th><th scope="col">Name</th><th scope="col">Tree</th><th scope="col">Delta</th><th scope="col">State</th><th scope="col">Items</th></tr>
+            </thead>
+            <tbody>
+              <tr><th scope="row">D1</th><td>Brief</td><td class="mono">4/4</td><td class="mono">4/4</td><td><span class="pill success">pass</span></td><td class="muted">0</td></tr>
+              <tr><th scope="row">D2</th><td>Skeleton</td><td class="mono">6/6</td><td class="mono">6/6</td><td><span class="pill success">pass</span></td><td class="muted">0</td></tr>
+              <tr><th scope="row">D3</th><td>Shapes</td><td class="mono">8/8</td><td class="mono">8/8</td><td><span class="pill success">pass</span></td><td class="muted">0</td></tr>
+              <tr><th scope="row">D4</th><td>Stories</td><td class="mono">7/7</td><td class="mono">7/7</td><td><span class="pill success">pass</span></td><td class="muted">0</td></tr>
+              <tr><th scope="row">D5</th><td>Crosscut</td><td class="mono">5/5</td><td class="mono">5/5</td><td><span class="pill success">pass</span></td><td class="muted">0</td></tr>
+              <tr><th scope="row">D6</th><td>Consistency</td><td class="mono">9/9</td><td class="mono">7/9</td><td><span class="pill warning">unsatisfiable</span></td><td><a class="item-link" href="#" title="#tab=readiness&amp;surface=blocking&amp;stage=D6&amp;over=delta">2 <span class="muted">Delta</span></a></td></tr>
+              <tr><th scope="row">D7</th><td>Decisions</td><td class="mono">3/3</td><td class="mono">3/3</td><td><span class="pill success">pass</span></td><td class="muted">0</td></tr>
+              <tr><th scope="row">D8</th><td>Freeze</td><td class="mono">2/3</td><td class="mono">3/3</td><td><span class="pill warning">priorGates</span></td><td><a class="item-link" href="#" title="#tab=readiness&amp;surface=blocking&amp;stage=D8&amp;over=tree">1 <span class="muted">Tree</span></a></td></tr>
+            </tbody>
+          </table>
+        </div>
+
+        <div class="tiles">
+          <a class="card tile" href="#" title="#tab=readiness&amp;surface=overview&amp;section=delta">
+            <span class="tile-label">Delta</span>
+            <span class="tile-value"><strong>616 added</strong>, 0 changed, 0 removed</span>
+            <span class="show">show</span>
+          </a>
+          <a class="card tile" href="#" title="#tab=readiness&amp;surface=coverage">
+            <span class="tile-label">Coverage</span>
+            <span class="tile-value"><strong class="coverage-number">15 of 55 requirements covered (27 percent)</strong></span>
+          </a>
+          <a class="card tile" href="#" title="#tab=readiness&amp;surface=questions&amp;kind=decision">
+            <span class="tile-label">Open decisions</span>
+            <span class="tile-value zero">0</span>
+          </a>
+        </div>
+
+        <div class="next-action">
+          <p>Next action (engineer): D6 consistency:unsatisfiable, 2 items, re-check with <code>rcf define readiness --check consistency</code></p>
+          <button type="button" title="copies the re-check command">Copy</button>
+        </div>
+      </section>
+    </section>
+
+    <p class="source">Data: readiness.levels, readiness.stages[].checks[] grouped by over, readiness.delta, readiness.coverage.tree.totals. The For-engineers row no longer exists on the page; its content now lives on the Blocking and Coverage sub-tabs.</p>
+    <footer>Static sketch for the rcf-lite discovery document; mocked data, light theme.</footer>
+  </main>
+</body>
+</html>
