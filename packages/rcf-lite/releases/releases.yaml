@@ -40,8 +40,16 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.32.4"
+latest: "0.32.5"
 releases:
+  - version: "0.32.5"
+    date: "2026-10-07"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.32.5 ships two chain-shape fixes surfaced by Dex on the discovery-viewer-command-page branch (reporter). The dogfood walker in test/rcf-tree.test.js now mirrors the sidecar-ledger carve-out from src/define/ledgers.js by importing the new DEFINE_RELATIVE_DIR constant and ignoring rcf/define/, so the first `pnpm rcf define ledger brief add` on a fresh tree no longer blows up three dogfood assertions (issue 321). A new guidance/discovery/ (and companion docs/discovery/) subdir gives project discovery artefacts a predictable home outside the three locked methodology inventories; a first-time contributor can now land a discovery brief without touching the methodology lock or the pack manifest (issue 322). The 0.32.1 through 0.32.4 fixes carry forward unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.32.4"
     date: "2026-10-07"
     breaking: false
