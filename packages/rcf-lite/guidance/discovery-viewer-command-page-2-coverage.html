@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discovery sketch: 2-coverage</title>
+  <style>
+    :root {
+      --sv-canvas: #F6F8FC; --sv-surface: #FFFFFF; --sv-raised: #EEF2F8; --sv-ink: #111927;
+      --sv-muted: #536176; --sv-border: #D8DFEA; --sv-control: #738198; --sv-link: #2447EB;
+      --sv-hover: #1737C7; --sv-active: #E9EEFF; --sv-button: #2447EB; --sv-onbutton: #FFFFFF;
+      --sv-code: #EEF2F8; --sv-success: #116B4D; --sv-successbg: #E7F4ED; --sv-warning: #895000;
+      --sv-warningbg: #FFF3DC; --sv-danger: #B4233B; --sv-dangerbg: #FDECF0; --sv-focus: #2447EB;
+      --sv-font: Arial, Helvetica, sans-serif;
+      --sv-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { background: var(--sv-canvas); color: var(--sv-ink); font-family: var(--sv-font); margin: 0; }
+    main { max-width: 1100px; padding: 28px 16px 20px; margin: 0 auto; }
+    p { line-height: 1.55; }
+    .intro { max-width: 850px; font-size: 17px; margin: 0 0 22px; }
+    .panel, .stat { background: var(--sv-surface); border: 1px solid var(--sv-border); border-radius: 8px; }
+    .panel { padding: 24px; }
+    .heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 20px; }
+    h1 { font-size: 25px; letter-spacing: -.6px; margin: 0; }
+    .eyebrow { color: var(--sv-muted); font-size: 11px; font-weight: 700; letter-spacing: 1.2px; text-transform: uppercase; margin: 0 0 7px; }
+    .mock { font-size: 11px; color: var(--sv-muted); padding: 6px 9px; border: 1px solid var(--sv-border); border-radius: 4px; white-space: nowrap; }
+    .stats { display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px; }
+    .stat { padding: 16px 12px; min-width: 0; }
+    .number { display: block; color: var(--sv-ink); font-size: clamp(24px, 3vw, 32px); font-weight: 700; letter-spacing: -1px; font-variant-numeric: tabular-nums; }
+    .label { display: block; color: var(--sv-muted); font-size: 12px; margin-top: 6px; }
+    .secondary { display: block; font-size: 11px; line-height: 1.4; margin-top: 9px; color: var(--sv-warning); }
+    .coverage { display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 32px; align-items: center; margin: 28px 0 30px; }
+    h2 { font-size: 16px; margin: 0 0 7px; }
+    .summary { font-size: 13px; color: var(--sv-muted); margin: 0 0 13px; }
+    .summary strong { color: var(--sv-warning); }
+    .bar { display: flex; height: 36px; overflow: hidden; border-radius: 5px; }
+    .segment { display: flex; align-items: center; justify-content: center; color: var(--sv-onbutton); font-size: 13px; font-weight: 700; }
+    .covered-segment { flex-basis: 27.272727%; background: var(--sv-success); }
+    .unresolved-segment { flex-basis: 21.818182%; background: var(--sv-warning); }
+    .uncovered-segment { flex-basis: 50.909091%; background: var(--sv-danger); }
+    .legend { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 8px; }
+    .legend li { display: flex; align-items: baseline; gap: 8px; color: var(--sv-muted); font-size: 12px; line-height: 1.4; }
+    .legend strong { color: var(--sv-ink); font-weight: 600; }
+    .swatch { width: 9px; height: 9px; flex: 0 0 9px; border-radius: 2px; }
+    .swatch.success { background: var(--sv-success); }
+    .swatch.warning { background: var(--sv-warning); }
+    .swatch.danger { background: var(--sv-danger); }
+    figure { margin: 0; text-align: center; }
+    .donut { display: block; width: 120px; height: 120px; margin: 0 auto; }
+    .donut circle { fill: none; stroke-width: 20; }
+    .arc-success { stroke: var(--sv-success); }
+    .arc-warning { stroke: var(--sv-warning); }
+    .arc-danger { stroke: var(--sv-danger); }
+    .donut-percent { fill: var(--sv-warning); font-family: var(--sv-font); font-size: 23px; font-weight: 700; }
+    .donut-label { fill: var(--sv-muted); font-family: var(--sv-font); font-size: 10px; }
+    figcaption { color: var(--sv-muted); font-size: 11px; margin-top: 12px; }
+    table { border-collapse: separate; border-spacing: 0; width: 100%; table-layout: fixed; font-size: 12px; }
+    caption { text-align: left; color: var(--sv-ink); font-size: 16px; font-weight: 700; padding-bottom: 13px; line-height: 1.5; }
+    caption span { color: var(--sv-muted); font-size: 11px; font-weight: 400; }
+    th, td { padding: 12px 8px; border-bottom: 1px solid var(--sv-border); text-align: left; vertical-align: middle; overflow-wrap: anywhere; }
+    thead th { color: var(--sv-muted); background: var(--sv-raised); font-size: 10px; font-weight: 700; }
+    thead th:first-child { border-radius: 5px 0 0 0; }
+    thead th:last-child { border-radius: 0 5px 0 0; }
+    tbody th { font-weight: 400; }
+    .mono, code { font-family: var(--sv-mono); font-size: 11px; }
+    .numeric { text-align: right; font-variant-numeric: tabular-nums; }
+    .pill { display: inline-block; border-radius: 20px; padding: 4px 7px; font-size: 10px; font-weight: 700; white-space: nowrap; }
+    .pill.covered { color: var(--sv-success); background: var(--sv-successbg); }
+    .pill.unresolved { color: var(--sv-warning); background: var(--sv-warningbg); }
+    .pill.uncovered { color: var(--sv-danger); background: var(--sv-dangerbg); }
+    a { color: var(--sv-link); text-decoration: none; }
+    a:hover { color: var(--sv-hover); text-decoration: underline; }
+    a:focus-visible { outline: 2px solid var(--sv-focus); outline-offset: 3px; border-radius: 2px; }
+    .pointers { margin-top: 30px; }
+    .pointers td:last-child { color: var(--sv-warning); }
+    .continuation { font-size: 12px; color: var(--sv-muted); margin: 12px 0 0; }
+    code { background: var(--sv-code); border-radius: 3px; padding: 2px 4px; overflow-wrap: anywhere; }
+    .source { font-size: 12px; color: var(--sv-muted); margin: 18px 0; overflow-wrap: anywhere; }
+    footer { border-top: 1px solid var(--sv-border); padding-top: 13px; color: var(--sv-muted); font-size: 11px; line-height: 1.5; }
+    @media (min-width: 720px) and (max-width: 900px) {
+      .panel { padding: 16px; }
+      .stat { padding: 14px 8px; }
+      th, td { padding: 11px 4px; }
+      .pill { padding: 4px 5px; font-size: 9px; }
+      .mono { font-size: 10px; }
+    }
+    @media (max-width: 719px) {
+      main { padding-top: 20px; }
+      .panel { padding: 16px; }
+      .intro { font-size: 16px; }
+      .stats { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .coverage { grid-template-columns: minmax(0, 1fr); gap: 22px; }
+      .heading { align-items: flex-start; }
+      h1 { font-size: 22px; }
+      table, caption, tbody, tr, td, tbody th { display: block; width: 100%; }
+      thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      tbody { display: grid; gap: 12px; }
+      tbody tr { border: 1px solid var(--sv-border); border-radius: 6px; overflow: hidden; }
+      tbody th, tbody td { display: grid; grid-template-columns: 92px minmax(0, 1fr); gap: 8px; text-align: left; padding: 9px 10px; align-items: center; }
+      tbody th { background: var(--sv-raised); }
+      tbody td:last-child { border-bottom: 0; }
+      tbody th::before, tbody td::before { content: attr(data-label); font-family: var(--sv-font); font-size: 11px; color: var(--sv-muted); font-weight: 400; }
+      .pill { justify-self: start; }
+    }
+    @media (max-width: 380px) {
+      .stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .heading { flex-wrap: wrap; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="intro">The Coverage sub-tab turns raw test coverage counts and unresolved test references into a chart-and-table report.</p>
+    <section class="panel" aria-labelledby="page-title">
+      <header class="heading">
+        <div><p class="eyebrow">Discovery / Coverage</p><h1 id="page-title">Coverage summary</h1></div>
+        <span class="mock">Static mock</span>
+      </header>
+      <div class="stats" aria-label="Tree totals">
+        <div class="stat"><span class="number">55</span><span class="label">Requirements</span><span class="secondary">27 percent covered</span></div>
+        <div class="stat"><span class="number">165</span><span class="label">Stories</span></div>
+        <div class="stat"><span class="number">1,121</span><span class="label">Criteria</span></div>
+        <div class="stat"><span class="number">188</span><span class="label">Test suites</span></div>
+        <div class="stat"><span class="number">1,314</span><span class="label">Test cases</span></div>
+        <div class="stat"><span class="number">128</span><span class="label">Build specs</span></div>
+      </div>
+      <section class="coverage" aria-labelledby="distribution-title">
+        <div>
+          <h2 id="distribution-title">Requirement coverage</h2>
+          <p class="summary"><strong>15 of 55</strong> requirements covered</p>
+          <div class="bar" role="img" aria-label="55 requirements: 15 covered, 12 covered-unresolved, 28 uncovered">
+            <div class="segment covered-segment" title="15 covered">15</div>
+            <div class="segment unresolved-segment" title="12 covered-unresolved">12</div>
+            <div class="segment uncovered-segment" title="28 uncovered">28</div>
+          </div>
+          <ul class="legend">
+            <li><span class="swatch success" aria-hidden="true"></span><span><strong>covered:</strong> every criterion has a test that resolves on disk</span></li>
+            <li><span class="swatch warning" aria-hidden="true"></span><span><strong>unresolved:</strong> a test is named but its pointer does not resolve</span></li>
+            <li><span class="swatch danger" aria-hidden="true"></span><span><strong>uncovered:</strong> at least one criterion has no test</span></li>
+          </ul>
+        </div>
+        <figure>
+          <svg class="donut" viewBox="0 0 120 120" role="img" aria-labelledby="donut-title donut-desc">
+            <title id="donut-title">27% covered</title>
+            <desc id="donut-desc">15 covered, 12 unresolved and 28 uncovered requirements, out of 55.</desc>
+            <g transform="rotate(-90 60 60)">
+              <circle class="arc-success" cx="60" cy="60" r="50" stroke-dasharray="85.679800 228.479465" />
+              <circle class="arc-warning" cx="60" cy="60" r="50" stroke-dasharray="68.543840 245.615425" stroke-dashoffset="-85.679800" />
+              <circle class="arc-danger" cx="60" cy="60" r="50" stroke-dasharray="159.935625 154.223640" stroke-dashoffset="-154.223640" />
+            </g>
+            <text class="donut-percent" x="60" y="60" text-anchor="middle">27%</text>
+            <text class="donut-label" x="60" y="76" text-anchor="middle">covered</text>
+          </svg>
+          <figcaption>Share of 55 requirements</figcaption>
+        </figure>
+      </section>
+      <table aria-label="Requirements by coverage class">
+        <caption>Requirements by coverage class<span>, 8 rows (truncated from 55)</span></caption>
+        <colgroup><col style="width:12%"><col style="width:25%"><col style="width:8%"><col style="width:8%"><col style="width:9%"><col style="width:16%"><col style="width:11%"><col style="width:11%"></colgroup>
+        <thead><tr><th scope="col">Requirement</th><th scope="col">Title</th><th scope="col" class="numeric">Stories</th><th scope="col" class="numeric">Criteria</th><th scope="col" class="numeric">Covered</th><th scope="col">Class</th><th scope="col">Open</th><th scope="col">Trace</th></tr></thead>
+        <tbody>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-022</th><td data-label="Title">Natural language query</td><td data-label="Stories" class="numeric">2</td><td data-label="Criteria" class="numeric">18</td><td data-label="Covered" class="numeric">0</td><td data-label="Class"><span class="pill uncovered">uncovered</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-022">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-022">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-031</th><td data-label="Title">Audit export</td><td data-label="Stories" class="numeric">3</td><td data-label="Criteria" class="numeric">22</td><td data-label="Covered" class="numeric">0</td><td data-label="Class"><span class="pill uncovered">uncovered</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-031">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-031">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-004</th><td data-label="Title">Freeze workflow</td><td data-label="Stories" class="numeric">1</td><td data-label="Criteria" class="numeric">7</td><td data-label="Covered" class="numeric">0</td><td data-label="Class"><span class="pill uncovered">uncovered</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-004">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-004">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-018</th><td data-label="Title">Delta rendering</td><td data-label="Stories" class="numeric">2</td><td data-label="Criteria" class="numeric">14</td><td data-label="Covered" class="numeric">9</td><td data-label="Class"><span class="pill unresolved">unresolved</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-018">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-018">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-007</th><td data-label="Title">Consistency checks</td><td data-label="Stories" class="numeric">3</td><td data-label="Criteria" class="numeric">24</td><td data-label="Covered" class="numeric">17</td><td data-label="Class"><span class="pill unresolved">unresolved</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-007">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-007">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-012</th><td data-label="Title">Coverage render</td><td data-label="Stories" class="numeric">2</td><td data-label="Criteria" class="numeric">15</td><td data-label="Covered" class="numeric">15</td><td data-label="Class"><span class="pill covered">covered</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-012">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-012">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-001</th><td data-label="Title">Readiness verdict</td><td data-label="Stories" class="numeric">2</td><td data-label="Criteria" class="numeric">11</td><td data-label="Covered" class="numeric">11</td><td data-label="Class"><span class="pill covered">covered</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-001">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-001">Trace</a></td></tr>
+          <tr><th scope="row" data-label="Requirement" class="mono">REQ-015</th><td data-label="Title">Trace matrix</td><td data-label="Stories" class="numeric">1</td><td data-label="Criteria" class="numeric">9</td><td data-label="Covered" class="numeric">9</td><td data-label="Class"><span class="pill covered">covered</span></td><td data-label="Open"><a href="#" title="#tab=requirements&amp;entity=REQ-015">Open</a></td><td data-label="Trace"><a href="#" title="#tab=trace&amp;id=REQ-015">Trace</a></td></tr>
+        </tbody>
+      </table>
+      <table class="pointers" aria-label="Unresolved test pointers">
+        <caption>Unresolved test pointers<span>, 6 of 94 shown</span></caption>
+        <colgroup><col style="width:16%"><col style="width:20%"><col style="width:46%"><col style="width:18%"></colgroup>
+        <thead><tr><th scope="col">Suite</th><th scope="col">Case</th><th scope="col">Pointer</th><th scope="col">Reason</th></tr></thead>
+        <tbody>
+          <tr><th scope="row" data-label="Suite" class="mono">TS-018-a</th><td data-label="Case" class="mono">TC-018-a-04</td><td data-label="Pointer" class="mono">tests/rcf/foo.spec.mjs::case</td><td data-label="Reason" class="mono">test-missing</td></tr>
+          <tr><th scope="row" data-label="Suite" class="mono">TS-018-a</th><td data-label="Case" class="mono">TC-018-a-05</td><td data-label="Pointer" class="mono">tests/rcf/foo.spec.mjs::case</td><td data-label="Reason" class="mono">test-missing</td></tr>
+          <tr><th scope="row" data-label="Suite" class="mono">TS-022-b</th><td data-label="Case" class="mono">TC-022-b-01</td><td data-label="Pointer" class="mono">tests/rcf/query.spec.mjs::nlq</td><td data-label="Reason" class="mono">file-missing</td></tr>
+          <tr><th scope="row" data-label="Suite" class="mono">TS-031-a</th><td data-label="Case" class="mono">TC-031-a-02</td><td data-label="Pointer" class="mono">tests/rcf/export.spec.mjs::audit</td><td data-label="Reason" class="mono">test-missing</td></tr>
+          <tr><th scope="row" data-label="Suite" class="mono">TS-007-c</th><td data-label="Case" class="mono">TC-007-c-03</td><td data-label="Pointer" class="mono">tests/rcf/consistency.spec.mjs::shape</td><td data-label="Reason" class="mono">test-missing</td></tr>
+          <tr><th scope="row" data-label="Suite" class="mono">TS-018-b</th><td data-label="Case" class="mono">TC-018-b-01</td><td data-label="Pointer" class="mono">tests/rcf/delta.spec.mjs::row</td><td data-label="Reason" class="mono">file-missing</td></tr>
+        </tbody>
+      </table>
+      <p class="continuation">List continues; the full set is available from <code>rcf audit coverage --json</code>.</p>
+    </section>
+    <p class="source">Data: coverage.tree.totals, coverage.tree.requirements[].coverageClass, coverage.tree.unresolvedTestPointers[], family counts from the tree model. Today the Coverage block prints a blank where this page prints 15 of 55.</p>
+    <footer>Static sketch for the rcf-lite discovery document; mocked data, light theme.</footer>
+  </main>
+</body>
+</html>

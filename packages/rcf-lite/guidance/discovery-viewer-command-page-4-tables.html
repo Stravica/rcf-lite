@@ -1,0 +1,195 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discovery sketch: 4-tables</title>
+  <style>
+    :root {
+      --sv-canvas: #F6F8FC;
+      --sv-surface: #FFFFFF;
+      --sv-raised: #EEF2F8;
+      --sv-ink: #111927;
+      --sv-muted: #536176;
+      --sv-border: #D8DFEA;
+      --sv-control: #738198;
+      --sv-link: #2447EB;
+      --sv-hover: #1737C7;
+      --sv-active: #E9EEFF;
+      --sv-button: #2447EB;
+      --sv-onbutton: #FFFFFF;
+      --sv-code: #EEF2F8;
+      --sv-success: #116B4D;
+      --sv-successbg: #E7F4ED;
+      --sv-warning: #895000;
+      --sv-warningbg: #FFF3DC;
+      --sv-danger: #B4233B;
+      --sv-dangerbg: #FDECF0;
+      --sv-focus: #2447EB;
+      --sv-font: Arial, Helvetica, sans-serif;
+      --sv-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { background: var(--sv-canvas); color: var(--sv-ink); font-family: var(--sv-font); margin: 0; }
+    main { max-width: 1100px; margin: 0 auto; padding: 36px 16px 24px; }
+    .intro { max-width: 890px; margin: 0 0 26px; font-size: 19px; line-height: 1.55; }
+    .panel { margin-bottom: 24px; border: 1px solid var(--sv-border); border-radius: 8px; background: var(--sv-surface); overflow: hidden; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 18px 20px; border-bottom: 1px solid var(--sv-border); }
+    .section-title { display: flex; align-items: center; gap: 12px; }
+    .section-number { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 6px; background: var(--sv-active); color: var(--sv-link); font: 12px var(--sv-mono); }
+    h1, h2 { margin: 0; font-size: 20px; line-height: 1.3; }
+    .subtab-label { color: var(--sv-muted); font-size: 12px; }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; line-height: 1.55; }
+    caption { padding: 16px 20px 12px; color: var(--sv-muted); text-align: left; font-size: 12px; }
+    th, td { padding: 14px 10px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    thead th { padding-top: 10px; padding-bottom: 10px; background: var(--sv-raised); color: var(--sv-muted); font-size: 11px; font-weight: 700; border-top: 1px solid var(--sv-border); border-bottom: 1px solid var(--sv-border); }
+    tbody tr + tr > * { border-top: 1px solid var(--sv-border); }
+    tbody th { font-weight: 400; }
+    .question { font-weight: 700; line-height: 1.5; }
+    .questions col:nth-child(1) { width: 5%; }
+    .questions col:nth-child(2) { width: 19%; }
+    .questions col:nth-child(3) { width: 14%; }
+    .questions col:nth-child(4) { width: 20%; }
+    .questions col:nth-child(5) { width: 34%; }
+    .questions col:nth-child(6) { width: 8%; }
+    .blocking col:nth-child(1) { width: 7%; }
+    .blocking col:nth-child(2) { width: 19%; }
+    .blocking col:nth-child(3) { width: 12%; }
+    .blocking col:nth-child(4) { width: 27%; }
+    .blocking col:nth-child(5) { width: 27%; }
+    .blocking col:nth-child(6) { width: 8%; }
+    a { color: var(--sv-link); text-decoration: none; }
+    a:hover { color: var(--sv-hover); text-decoration: underline; }
+    a:focus-visible, button:focus-visible { outline: 2px solid var(--sv-focus); outline-offset: 3px; }
+    code, .mono { font-family: var(--sv-mono); font-size: 12px; }
+    .command { display: flex; align-items: flex-start; gap: 6px; }
+    .command code { min-width: 0; flex: 1; }
+    .code-chip { display: block; padding: 7px 8px; background: var(--sv-code); border-radius: 5px; line-height: 1.6; overflow-wrap: anywhere; }
+    .copy { flex: none; padding: 7px 8px; border: 1px solid var(--sv-control); border-radius: 5px; background: var(--sv-surface); color: var(--sv-muted); font: 11px var(--sv-font); line-height: 1.6; }
+    .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; color: var(--sv-warning); background: var(--sv-warningbg); font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .muted { color: var(--sv-muted); }
+    .helper { margin: 0; padding: 15px 20px; border-top: 1px solid var(--sv-border); color: var(--sv-muted); font-size: 12px; line-height: 1.6; }
+    .rcf-filterbar { display: flex; align-items: flex-end; gap: 12px; padding: 16px 20px; background: var(--sv-surface); border-bottom: 1px solid var(--sv-border); }
+    .filter-field { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+    .filter-field:first-child { flex: 1; max-width: 290px; }
+    label { color: var(--sv-muted); font-size: 11px; font-weight: 700; }
+    input, select { width: 100%; min-width: 130px; height: 35px; padding: 7px 10px; border: 1px solid var(--sv-control); border-radius: 5px; background: var(--sv-surface); color: var(--sv-ink); font: 13px var(--sv-font); opacity: 1; }
+    input::placeholder { color: var(--sv-muted); opacity: 1; }
+    .visible-count { margin: 0 0 9px auto; color: var(--sv-muted); font-size: 12px; white-space: nowrap; }
+    .item-fragment { display: block; margin-top: 4px; color: var(--sv-muted); }
+    .source { margin: 4px 0 24px; color: var(--sv-muted); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+    footer { border-top: 1px solid var(--sv-border); padding-top: 16px; color: var(--sv-muted); font-size: 11px; line-height: 1.6; }
+    @media (max-width: 719px) {
+      main { padding-top: 24px; }
+      .intro { font-size: 17px; }
+      .panel-header { padding: 16px; }
+      .rcf-filterbar { display: grid; grid-template-columns: 1fr; padding: 16px; }
+      .filter-field:first-child { max-width: none; }
+      .visible-count { margin: 0; }
+      table, tbody { display: block; width: 100%; }
+      colgroup { display: none; }
+      caption { display: block; padding: 14px 16px; }
+      thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+      tbody tr { display: grid; grid-template-columns: 1fr; padding: 12px 16px; border-top: 1px solid var(--sv-border); }
+      tbody tr + tr > * { border-top: 0; }
+      tbody th, tbody td { display: grid; grid-template-columns: 94px minmax(0, 1fr); align-items: start; gap: 10px; padding: 7px 0; }
+      tbody th::before, tbody td::before { content: attr(data-label); color: var(--sv-muted); font: 11px/1.6 var(--sv-font); font-weight: 700; }
+      .pill { justify-self: start; }
+      .command { flex-wrap: wrap; }
+      .command code { flex-basis: 100%; }
+      .helper { padding: 14px 16px; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="intro">Questions and Blocking currently show cards; these two tabs turn them into tables with links to each item and exact commands to save answers or re-check blockers.</p>
+
+    <section class="panel" aria-labelledby="questions-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">01</span><h1 id="questions-heading">Questions</h1></div>
+        <span class="subtab-label">Readiness sub-tab</span>
+      </header>
+      <table class="questions">
+        <caption>Questions for you, 3 rows</caption>
+        <colgroup><col><col><col><col><col><col></colgroup>
+        <thead><tr><th scope="col">#</th><th scope="col">Question</th><th scope="col">Where it lives</th><th scope="col">What settles it</th><th scope="col">Write-back</th><th scope="col">State</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="#"><span class="mono muted">1</span></td>
+            <th scope="row" data-label="Question"><span class="question">What is this project for?</span></th>
+            <td data-label="Where it lives"><a href="#" title="#brief-ledger">brief ledger</a></td>
+            <td data-label="What settles it"><span>A one-sentence statement; a few short bullets.</span></td>
+            <td data-label="Write-back"><div class="command"><code class="code-chip">rcf define ledger brief add --text &quot;&lt;text&gt;&quot;</code><button class="copy" type="button" title="copies the brief ledger write-back command (static mock)" aria-disabled="true">Copy</button></div></td>
+            <td data-label="State"><span class="pill">open</span></td>
+          </tr>
+          <tr>
+            <td data-label="#"><span class="mono muted">2</span></td>
+            <th scope="row" data-label="Question"><span class="question">Where will you look at what we produce?</span></th>
+            <td data-label="Where it lives"><a href="#" title="#profile:surface">profile: review surface</a></td>
+            <td data-label="What settles it"><span>Pick one: viewer, agent, pdf export, slide deck.</span></td>
+            <td data-label="Write-back"><div class="command"><code class="code-chip">rcf define profile set reviewSurface --value viewer</code><button class="copy" type="button" title="copies the review surface write-back command (static mock)" aria-disabled="true">Copy</button></div></td>
+            <td data-label="State"><span class="pill">open</span></td>
+          </tr>
+          <tr>
+            <td data-label="#"><span class="mono muted">3</span></td>
+            <th scope="row" data-label="Question"><span class="question">Who is writing this?</span></th>
+            <td data-label="Where it lives"><a class="mono" href="#" title="#tab=requirements&amp;entity=REQ-012">REQ-012</a></td>
+            <td data-label="What settles it"><span>Name the author or team.</span></td>
+            <td data-label="Write-back"><div class="command"><code class="code-chip">rcf define story set --us US-012-1 --author &quot;&lt;name&gt;&quot;</code><button class="copy" type="button" title="copies the story author write-back command (static mock)" aria-disabled="true">Copy</button></div></td>
+            <td data-label="State"><span class="pill">open</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="helper">Answer in your agent session or run the write-back; this page updates on its own.</p>
+    </section>
+
+    <section class="panel" aria-labelledby="blocking-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">02</span><h2 id="blocking-heading">Blocking</h2></div>
+        <span class="subtab-label">Readiness sub-tab</span>
+      </header>
+      <div class="rcf-filterbar" aria-label="Blocking filters (static mock)">
+        <div class="filter-field"><label for="filter">Search</label><input id="filter" type="text" placeholder="Filter" disabled title="would filter blocking items"></div>
+        <div class="filter-field"><label for="stage">Stage</label><select id="stage" disabled title="would filter by stage"><option selected>All stages</option><option>D1</option><option>D2</option><option>D3</option><option>D4</option><option>D5</option><option>D6</option><option>D7</option><option>D8</option></select></div>
+        <div class="filter-field"><label for="persona">Persona</label><select id="persona" disabled title="would filter by persona"><option>All</option><option>Operator</option><option selected>Engineer</option><option>Agent</option></select></div>
+        <p class="visible-count">3 of 3 visible</p>
+      </div>
+      <table class="blocking">
+        <caption>Blocking items for engineers, 3 rows</caption>
+        <colgroup><col><col><col><col><col><col></colgroup>
+        <thead><tr><th scope="col">Stage</th><th scope="col">Check</th><th scope="col">Item</th><th scope="col">Why</th><th scope="col">Re-check</th><th scope="col">Trace</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="Stage"><span class="mono">D6</span></td>
+            <td data-label="Check"><code>consistency:unsatisfiable</code></td>
+            <th scope="row" data-label="Item"><span><a class="mono" href="#" title="#tab=requirements&amp;entity=AC-060-3">AC-060-3</a><span class="item-fragment mono">userID</span></span></th>
+            <td data-label="Why"><span>then names field userID that no recordShape defines</span></td>
+            <td data-label="Re-check"><code class="code-chip">rcf define readiness --check consistency</code></td>
+            <td data-label="Trace"><a href="#" title="#tab=trace&amp;id=AC-060-3">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D6</span></td>
+            <td data-label="Check"><code>consistency:unsatisfiable</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#" title="#tab=requirements&amp;entity=AC-074-1">AC-074-1</a></th>
+            <td data-label="Why"><span>and expects a response field name that no recordShape defines</span></td>
+            <td data-label="Re-check"><code class="code-chip">rcf define readiness --check consistency</code></td>
+            <td data-label="Trace"><a href="#" title="#tab=trace&amp;id=AC-074-1">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D8</span></td>
+            <td data-label="Check"><code>freeze:priorGates</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#" title="#stage=D6">D6</a></th>
+            <td data-label="Why"><span>freeze cannot run because D6 has unresolved items</span></td>
+            <td data-label="Re-check"><code class="code-chip">rcf define readiness --check freeze</code></td>
+            <td data-label="Trace"><a href="#" title="#tab=trace&amp;stage=D6">Trace</a></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <p class="source">Data: readiness.questions[] with writeBack[].command and itemId; readiness.stages[].checks[].failing[].{id, why} and readiness.personas.engineer.blockers[]. Today these render as cards with no links, no table and a 20-id cap.</p>
+    <footer>Static sketch for the rcf-lite discovery document; mocked data, light theme.</footer>
+  </main>
+</body>
+</html>

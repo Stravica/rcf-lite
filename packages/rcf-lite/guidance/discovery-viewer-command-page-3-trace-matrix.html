@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Discovery sketch: 3-trace-matrix</title>
+<style>
+:root {
+  --sv-canvas: #F6F8FC; --sv-surface: #FFFFFF; --sv-raised: #EEF2F8; --sv-ink: #111927;
+  --sv-muted: #536176; --sv-border: #D8DFEA; --sv-control: #738198; --sv-link: #2447EB;
+  --sv-hover: #1737C7; --sv-active: #E9EEFF; --sv-button: #2447EB; --sv-onbutton: #FFFFFF;
+  --sv-code: #EEF2F8; --sv-success: #116B4D; --sv-successbg: #E7F4ED; --sv-warning: #895000;
+  --sv-warningbg: #FFF3DC; --sv-danger: #B4233B; --sv-dangerbg: #FDECF0; --sv-focus: #2447EB;
+  --sv-font: Arial, Helvetica, sans-serif;
+  --sv-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+}
+* { box-sizing: border-box; }
+body { background: var(--sv-canvas); color: var(--sv-ink); font-family: var(--sv-font); margin: 0; }
+main { max-width: 1100px; margin: 0 auto; padding: 36px 16px 24px; }
+.intro { font-size: 18px; line-height: 1.55; max-width: 960px; margin: 0 0 24px; }
+a { color: var(--sv-link); text-decoration: none; }
+a:hover { color: var(--sv-hover); text-decoration: underline; }
+a:focus-visible, button:focus-visible { outline: 2px solid var(--sv-focus); outline-offset: 3px; }
+.panel { background: var(--sv-surface); border: 1px solid var(--sv-border); border-radius: 8px; overflow: hidden; }
+.pivot { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; padding: 22px 24px; border-bottom: 1px solid var(--sv-border); }
+.pivot-title { margin: 0; font-size: 19px; font-weight: 600; }
+.chip { background: var(--sv-code); border: 1px solid var(--sv-border); border-radius: 5px; padding: 8px 10px; font: 600 13px var(--sv-mono); }
+.actions { margin-left: auto; display: flex; gap: 8px; flex-wrap: wrap; }
+button { font: 600 12px var(--sv-font); padding: 9px 13px; border: 1px solid var(--sv-control); border-radius: 5px; color: var(--sv-ink); background: var(--sv-surface); cursor: default; }
+button.primary { background: var(--sv-button); border-color: var(--sv-button); color: var(--sv-onbutton); }
+.matrix-wrap { padding: 0 20px; }
+table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 12px; }
+caption { caption-side: top; text-align: left; padding: 22px 0 16px; font-size: 13px; color: var(--sv-muted); }
+col.node-col { width: 14%; }
+col.label-col { width: 19%; }
+col.trace-col { width: 5.8%; }
+col.note-col { width: 14.8%; }
+th, td { border-bottom: 1px solid var(--sv-border); }
+thead th { color: var(--sv-muted); font-weight: 600; }
+thead tr.groups th { text-align: center; padding: 11px 3px; background: var(--sv-raised); font-size: 11px; border-right: 1px solid var(--sv-border); }
+thead tr.groups th:first-child, thead tr.groups th:nth-child(2), thead tr.groups th:last-child { text-align: left; padding-left: 8px; }
+thead tr.columns th { height: 128px; padding: 12px 0; vertical-align: bottom; }
+.column-id { display: inline-block; writing-mode: vertical-rl; transform: rotate(180deg); font: 11px var(--sv-mono); letter-spacing: .02em; }
+tbody th, tbody td { padding: 12px 3px; vertical-align: middle; }
+tbody td[data-column] { text-align: center; }
+.node { text-align: left; padding-left: 7px; font: 11px var(--sv-mono); overflow-wrap: anywhere; }
+.criterion .node { padding-left: 17px; }
+.label { line-height: 1.45; padding-right: 10px; }
+.story { background: var(--sv-active); }
+.story .label { font-weight: 600; }
+.story .node { font-weight: 700; }
+.note { font-size: 11px; line-height: 1.45; padding-left: 9px; overflow-wrap: anywhere; }
+.danger { color: var(--sv-danger); }
+.warning { color: var(--sv-warning); }
+.mark { display: inline-block; width: 20px; height: 20px; vertical-align: middle; border-radius: 3px; position: relative; }
+.resolved { background: var(--sv-success); }
+.resolved::after { content: ""; position: absolute; width: 8px; height: 4px; border-left: 2px solid var(--sv-onbutton); border-bottom: 2px solid var(--sv-onbutton); transform: rotate(-45deg); left: 5px; top: 6px; }
+.unresolved { background: var(--sv-warning); }
+.unresolved::after { content: "!"; color: var(--sv-onbutton); font: bold 15px var(--sv-font); position: absolute; inset: 1px 0 0; text-align: center; }
+.reached { background: var(--sv-raised); border: 1px solid var(--sv-border); }
+.legend { display: flex; flex-wrap: wrap; gap: 14px 24px; list-style: none; margin: 0; padding: 20px 24px; border-bottom: 1px solid var(--sv-border); color: var(--sv-muted); font-size: 12px; }
+.legend li { display: flex; gap: 8px; align-items: center; }
+.legend .empty { border: 1px dashed var(--sv-border); }
+.explanation { padding: 20px 24px 23px; }
+.explanation h2 { margin: 0 0 9px; font-size: 14px; }
+.explanation p { margin: 0; color: var(--sv-muted); font-size: 13px; line-height: 1.65; max-width: 860px; }
+.data { margin: 18px 2px 0; font-size: 12px; color: var(--sv-muted); line-height: 1.7; overflow-wrap: anywhere; }
+code { font-family: var(--sv-mono); font-size: .95em; }
+footer { margin-top: 24px; padding-top: 16px; border-top: 1px solid var(--sv-border); color: var(--sv-muted); font-size: 11px; line-height: 1.6; }
+.sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+@media (max-width: 719px) {
+  main { padding-top: 24px; }
+  .intro { font-size: 16px; }
+  .pivot { padding: 18px 16px; }
+  .pivot-title { font-size: 17px; }
+  .actions { width: 100%; margin-left: 0; }
+  .matrix-wrap { padding: 0 12px; }
+  table, tbody { display: block; }
+  colgroup { display: none; }
+  caption { display: block; line-height: 1.5; padding: 18px 3px 12px; }
+  thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
+  tbody tr { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); padding: 12px 5px; border-bottom: 1px solid var(--sv-border); gap: 10px 3px; }
+  tbody th, tbody td { border: 0; padding: 0; }
+  .node, .criterion .node { grid-column: 1 / -1; padding: 0; font-size: 12px; }
+  .criterion .node::before { content: "↳ "; color: var(--sv-muted); }
+  .label { grid-column: 1 / -1; padding: 0 0 3px; }
+  tbody td[data-column] { display: flex; flex-direction: column; align-items: center; gap: 5px; padding: 4px 0; }
+  tbody td[data-column]::before { content: attr(data-column); font: 9px var(--sv-mono); color: var(--sv-muted); }
+  .note { grid-column: 1 / -1; padding: 0; }
+  .note:has(.sr-only) { display: none; }
+  .legend { display: grid; grid-template-columns: 1fr; padding: 18px 16px; }
+  .explanation { padding: 18px 16px; }
+}
+</style>
+</head>
+<body>
+<main>
+<p class="intro">The Trace tab follows one requirement through its stories and checks to tests, build plans and components, showing which links reach a test that can be found.</p>
+<section class="panel" aria-label="Trace matrix for requirement REQ-001">
+<div class="pivot">
+<span class="chip">REQ-001</span>
+<h1 class="pivot-title">Readiness verdict</h1>
+<button type="button" title="Opens the lookup modal to change the pivot">Change pivot</button>
+<div class="actions" aria-label="Mock trace actions">
+<button class="primary" type="button" title="#tab=trace&amp;id=REQ-001&amp;direction=forward">Trace</button>
+<button type="button" title="#tab=trace&amp;id=REQ-001&amp;direction=reverse">Impact</button>
+</div>
+</div>
+<div class="matrix-wrap">
+<table aria-describedby="matrix-legend">
+<caption>Forward trace from REQ-001, 10 rows (2 stories and 8 criteria)</caption>
+<colgroup><col class="node-col"><col class="label-col"><col class="trace-col" span="9"><col class="note-col"></colgroup>
+<thead>
+<tr class="groups"><th rowspan="2" scope="col">Node id</th><th rowspan="2" scope="col">Short label</th><th colspan="5" scope="colgroup">Test suites and cases</th><th colspan="2" scope="colgroup">Build specs</th><th colspan="2" scope="colgroup">Components</th><th rowspan="2" scope="col">Notes</th></tr>
+<tr class="columns"><th scope="col" id="col-TS-001-a"><span class="column-id">TS-001-a</span></th><th scope="col" id="col-TC-001-a-1"><span class="column-id">TC-001-a-1</span></th><th scope="col" id="col-TC-001-a-2"><span class="column-id">TC-001-a-2</span></th><th scope="col" id="col-TC-001-a-3"><span class="column-id">TC-001-a-3</span></th><th scope="col" id="col-TC-001-a-4"><span class="column-id">TC-001-a-4</span></th><th scope="col" id="col-BS-001-a"><span class="column-id">BS-001-a</span></th><th scope="col" id="col-BS-001-b"><span class="column-id">BS-001-b</span></th><th scope="col" id="col-TAC-4001"><span class="column-id">TAC-4001</span></th><th scope="col" id="col-TAC-4012"><span class="column-id">TAC-4012</span></th></tr>
+</thead>
+<tbody><tr class="story">
+<th scope="row" id="row-US-001-1" class="node"><a href="#" title="#tab=requirements&amp;entity=US-001-1">US-001-1</a></th>
+<td class="label">Operator sees readiness</td>
+<td headers="row-US-001-1 col-TS-001-a" data-column="TS-001-a" title="US-001-1 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-1 col-TC-001-a-1" data-column="TC-001-a-1" title="US-001-1 / TC-001-a-1: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-1 col-TC-001-a-2" data-column="TC-001-a-2" title="US-001-1 / TC-001-a-2: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-1 col-TC-001-a-3" data-column="TC-001-a-3" title="US-001-1 / TC-001-a-3: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-1 col-TC-001-a-4" data-column="TC-001-a-4" title="US-001-1 / TC-001-a-4: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-1 col-BS-001-a" data-column="BS-001-a" title="US-001-1 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-US-001-1 col-BS-001-b" data-column="BS-001-b" title="US-001-1 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-US-001-1 col-TAC-4001" data-column="TAC-4001" title="US-001-1 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-US-001-1 col-TAC-4012" data-column="TAC-4012" title="US-001-1 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-1-1" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-1-1">AC-001-1-1</a></th>
+<td class="label">Show the verdict</td>
+<td headers="row-AC-001-1-1 col-TS-001-a" data-column="TS-001-a" title="AC-001-1-1 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-1 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-1-1 / TC-001-a-1: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-1 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-1-1 / TC-001-a-2: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-1 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-1-1 / TC-001-a-3: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-1 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-1-1 / TC-001-a-4: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-1 col-BS-001-a" data-column="BS-001-a" title="AC-001-1-1 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-1 col-BS-001-b" data-column="BS-001-b" title="AC-001-1-1 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-1 col-TAC-4001" data-column="TAC-4001" title="AC-001-1-1 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-1 col-TAC-4012" data-column="TAC-4012" title="AC-001-1-1 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-1-2" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-1-2">AC-001-1-2</a></th>
+<td class="label">Count open questions</td>
+<td headers="row-AC-001-1-2 col-TS-001-a" data-column="TS-001-a" title="AC-001-1-2 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-2 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-1-2 / TC-001-a-1: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-2 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-1-2 / TC-001-a-2: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-2 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-1-2 / TC-001-a-3: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-2 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-1-2 / TC-001-a-4: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-2 col-BS-001-a" data-column="BS-001-a" title="AC-001-1-2 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-2 col-BS-001-b" data-column="BS-001-b" title="AC-001-1-2 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-2 col-TAC-4001" data-column="TAC-4001" title="AC-001-1-2 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-2 col-TAC-4012" data-column="TAC-4012" title="AC-001-1-2 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-1-3" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-1-3">AC-001-1-3</a></th>
+<td class="label">Link to questions</td>
+<td headers="row-AC-001-1-3 col-TS-001-a" data-column="TS-001-a" title="AC-001-1-3 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-3 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-1-3 / TC-001-a-1: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-3 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-1-3 / TC-001-a-2: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-3 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-1-3 / TC-001-a-3: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-3 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-1-3 / TC-001-a-4: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-3 col-BS-001-a" data-column="BS-001-a" title="AC-001-1-3 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-3 col-BS-001-b" data-column="BS-001-b" title="AC-001-1-3 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-3 col-TAC-4001" data-column="TAC-4001" title="AC-001-1-3 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-3 col-TAC-4012" data-column="TAC-4012" title="AC-001-1-3 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-1-4" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-1-4">AC-001-1-4</a></th>
+<td class="label">Name the next step</td>
+<td headers="row-AC-001-1-4 col-TS-001-a" data-column="TS-001-a" title="AC-001-1-4 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-4 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-1-4 / TC-001-a-1: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-4 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-1-4 / TC-001-a-2: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-4 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-1-4 / TC-001-a-3: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-1-4 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-1-4 / TC-001-a-4: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-1-4 col-BS-001-a" data-column="BS-001-a" title="AC-001-1-4 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-4 col-BS-001-b" data-column="BS-001-b" title="AC-001-1-4 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-4 col-TAC-4001" data-column="TAC-4001" title="AC-001-1-4 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-1-4 col-TAC-4012" data-column="TAC-4012" title="AC-001-1-4 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="story">
+<th scope="row" id="row-US-001-2" class="node"><a href="#" title="#tab=requirements&amp;entity=US-001-2">US-001-2</a></th>
+<td class="label">Engineer sees blocking items</td>
+<td headers="row-US-001-2 col-TS-001-a" data-column="TS-001-a" title="US-001-2 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-2 col-TC-001-a-1" data-column="TC-001-a-1" title="US-001-2 / TC-001-a-1: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-2 col-TC-001-a-2" data-column="TC-001-a-2" title="US-001-2 / TC-001-a-2: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-US-001-2 col-TC-001-a-3" data-column="TC-001-a-3" title="US-001-2 / TC-001-a-3: Test reached; pointer unresolved"><span class="mark unresolved" role="img" aria-label="Test reached; pointer unresolved"></span></td><td headers="row-US-001-2 col-TC-001-a-4" data-column="TC-001-a-4" title="US-001-2 / TC-001-a-4: Test reached; pointer unresolved"><span class="mark unresolved" role="img" aria-label="Test reached; pointer unresolved"></span></td><td headers="row-US-001-2 col-BS-001-a" data-column="BS-001-a" title="US-001-2 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-US-001-2 col-BS-001-b" data-column="BS-001-b" title="US-001-2 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-US-001-2 col-TAC-4001" data-column="TAC-4001" title="US-001-2 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-US-001-2 col-TAC-4012" data-column="TAC-4012" title="US-001-2 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-2-1" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-2-1">AC-001-2-1</a></th>
+<td class="label">List blocking items</td>
+<td headers="row-AC-001-2-1 col-TS-001-a" data-column="TS-001-a" title="AC-001-2-1 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-2-1 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-2-1 / TC-001-a-1: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-2-1 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-2-1 / TC-001-a-2: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-1 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-2-1 / TC-001-a-3: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-1 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-2-1 / TC-001-a-4: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-1 col-BS-001-a" data-column="BS-001-a" title="AC-001-2-1 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-1 col-BS-001-b" data-column="BS-001-b" title="AC-001-2-1 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-1 col-TAC-4001" data-column="TAC-4001" title="AC-001-2-1 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-1 col-TAC-4012" data-column="TAC-4012" title="AC-001-2-1 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-2-2" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-2-2">AC-001-2-2</a></th>
+<td class="label">Show the failed check</td>
+<td headers="row-AC-001-2-2 col-TS-001-a" data-column="TS-001-a" title="AC-001-2-2 / TS-001-a: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-2-2 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-2-2 / TC-001-a-1: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-2 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-2-2 / TC-001-a-2: Resolving test reached"><span class="mark resolved" role="img" aria-label="Resolving test reached"></span></td><td headers="row-AC-001-2-2 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-2-2 / TC-001-a-3: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-2 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-2-2 / TC-001-a-4: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-2 col-BS-001-a" data-column="BS-001-a" title="AC-001-2-2 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-2 col-BS-001-b" data-column="BS-001-b" title="AC-001-2-2 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-2 col-TAC-4001" data-column="TAC-4001" title="AC-001-2-2 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-2 col-TAC-4012" data-column="TAC-4012" title="AC-001-2-2 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note "><span class="sr-only">No issue noted</span></td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-2-3" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-2-3">AC-001-2-3</a></th>
+<td class="label">Link to the source</td>
+<td headers="row-AC-001-2-3 col-TS-001-a" data-column="TS-001-a" title="AC-001-2-3 / TS-001-a: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-3 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-2-3 / TC-001-a-1: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-3 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-2-3 / TC-001-a-2: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-3 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-2-3 / TC-001-a-3: Test reached; pointer unresolved"><span class="mark unresolved" role="img" aria-label="Test reached; pointer unresolved"></span></td><td headers="row-AC-001-2-3 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-2-3 / TC-001-a-4: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-3 col-BS-001-a" data-column="BS-001-a" title="AC-001-2-3 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-3 col-BS-001-b" data-column="BS-001-b" title="AC-001-2-3 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-3 col-TAC-4001" data-column="TAC-4001" title="AC-001-2-3 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-3 col-TAC-4012" data-column="TAC-4012" title="AC-001-2-3 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note danger">no resolving test</td>
+</tr>
+<tr class="criterion">
+<th scope="row" id="row-AC-001-2-4" class="node"><a href="#" title="#tab=requirements&amp;entity=AC-001-2-4">AC-001-2-4</a></th>
+<td class="label">Show the re-check</td>
+<td headers="row-AC-001-2-4 col-TS-001-a" data-column="TS-001-a" title="AC-001-2-4 / TS-001-a: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-4 col-TC-001-a-1" data-column="TC-001-a-1" title="AC-001-2-4 / TC-001-a-1: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-4 col-TC-001-a-2" data-column="TC-001-a-2" title="AC-001-2-4 / TC-001-a-2: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-4 col-TC-001-a-3" data-column="TC-001-a-3" title="AC-001-2-4 / TC-001-a-3: Not reached"><span class="mark empty" role="img" aria-label="Not reached"></span></td><td headers="row-AC-001-2-4 col-TC-001-a-4" data-column="TC-001-a-4" title="AC-001-2-4 / TC-001-a-4: Test reached; pointer unresolved"><span class="mark unresolved" role="img" aria-label="Test reached; pointer unresolved"></span></td><td headers="row-AC-001-2-4 col-BS-001-a" data-column="BS-001-a" title="AC-001-2-4 / BS-001-a: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-4 col-BS-001-b" data-column="BS-001-b" title="AC-001-2-4 / BS-001-b: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-4 col-TAC-4001" data-column="TAC-4001" title="AC-001-2-4 / TAC-4001: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td><td headers="row-AC-001-2-4 col-TAC-4012" data-column="TAC-4012" title="AC-001-2-4 / TAC-4012: Reached without test semantics"><span class="mark reached" role="img" aria-label="Reached without test semantics"></span></td>
+<td class="note warning">pointer test-missing</td>
+</tr></tbody>
+</table>
+</div>
+<ul class="legend" id="matrix-legend" aria-label="Cell states">
+<li><span class="mark resolved" aria-hidden="true"></span>Resolving test reached</li>
+<li><span class="mark unresolved" aria-hidden="true"></span>Test pointer unresolved</li>
+<li><span class="mark reached" aria-hidden="true"></span>Reached without test semantics</li>
+<li><span class="mark empty" aria-hidden="true"></span>Empty: not reached</li>
+</ul>
+<div class="explanation">
+<h2>Why a matrix and not a sunburst</h2>
+<p>A sunburst of this chain draws 2,972 arcs and still cannot show reached-but-unresolved. A matrix reads left to right in chain order and filters by row.</p>
+</div>
+</section>
+<p class="data">Data: <code>./trace.json?id=REQ-001&amp;direction=forward</code> (nodes and edges from <code>computeTrace</code>), component column from the story <code>tacIds</code>, cell colour from <code>coverage.acs[]</code>.</p>
+<footer>Static sketch for the rcf-lite discovery document; mocked data, light theme.</footer>
+</main>
+</body>
+</html>
