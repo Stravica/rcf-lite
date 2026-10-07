@@ -40,8 +40,16 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.32.2"
+latest: "0.32.3"
 releases:
+  - version: "0.32.3"
+    date: "2026-10-07"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.32.3 is a hotfix for the 0.32.2 D6 consistency:unsatisfiable regression on filename stems and non-shape dot phrases (issue 315). Pattern 4 of extractThenFieldTokens now emits a field token only when the head to the left of the dot is a declared recordShape name in the tree, so AC then-clauses that mention report.json, CLAUDE.md, scripts/seeds/README.md, Math.random, TEST_USERS.admin, ToolExecutionContext.pushLlmCall and sentence-ending dots like Foo.the stop reading as record-field references; file-extension, path-context and English-stop-word skips stay as belt and braces. The 0.32.1 and 0.32.2 fixes carry forward unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.32.2"
     date: "2026-10-06"
     breaking: false

@@ -1934,6 +1934,195 @@ test('gates (issue 311, negative control): a real missing field named in a then 
   assert.ok(ids.includes('AC-N-1:nickname'), `expected nickname in failing, got ${JSON.stringify(ids)}`);
 });
 
+// -- Issue 315 fixtures ---------------------------------------------------
+//
+// 0.32.2 pattern 4 (`<Head>.<field>` dot-notation) over-read on three
+// classes that leave `consistency:unsatisfiable` red on real trees:
+//   (1) file-extension stems with a filename head (CLAUDE.md, *.js,
+//       component.vue, report.json, corpus-V.json);
+//   (2) PascalCase heads that are NOT recordShape names in the tree
+//       (Math.random, TEST_USERS.admin, ToolExecutionContext.pushLlmCall,
+//       LoadedFilterSchema.distinctLiveSourceTables, backticked
+//       dot-phrases like `Something.listModelInfo`);
+//   (3) a sentence-ending dot inside a dot-separated phrase that
+//       feeds an English stop word in as the field (e.g. `Foo.the`
+//       from AC-130-1 in WESPA).
+//
+// Negative controls (must leave the gate green). Positive controls:
+// `Session.lastSeenAt` where Session is a declared shape without
+// `lastSeenAt` (preserved from issue 311), and the ai-on-record ACs
+// quoted verbatim at 974b4c1 (AC-1501-9, AC-2201-1, AC-2201-5,
+// AC-2201-8) must stay silent now that the extension stems are not
+// read as fields.
+
+test('gates (issue 315 class 1): file-extension stems in a filename do not fire unsatisfiable', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-315A',
+    interfaces: [
+      { name: 'PackSummary', kind: 'recordShape', description: 'fields: version, builtAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-315A',
+    reqId: 'REQ-315A',
+    tacIds: ['TAC-315A'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-315A-1',
+        testable: true,
+        description: '[happy] given a Node.js project with files like server.js and component.vue, when the renderer runs, then it reads scripts/seeds/README.md and emits rcf/evals/corpus-V.json alongside index.html',
+        ownerRef: { tacId: 'TAC-315A', field: 'interfaces[PackSummary]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-315A']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 315 class 2): PascalCase heads that are not recordShape names do not fire unsatisfiable', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-315B',
+    interfaces: [
+      { name: 'ToolRun', kind: 'recordShape', description: 'fields: id, startedAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-315B',
+    reqId: 'REQ-315B',
+    tacIds: ['TAC-315B'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-315B-1',
+        testable: true,
+        description: '[happy] given a tool run, when the harness fires, then Math.random seeds the shuffle, TEST_USERS.admin signs in, ToolExecutionContext.pushLlmCall logs each call and LoadedFilterSchema.distinctLiveSourceTables is queried; `Something.listModelInfo` and `Something.userID` are also logged',
+        ownerRef: { tacId: 'TAC-315B', field: 'interfaces[ToolRun]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-315B']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 315 class 3): sentence-ending dot inside a dotted phrase does not feed a stop word as a field', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-315C',
+    interfaces: [
+      { name: 'Session', kind: 'recordShape', description: 'fields: userId, startedAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-315C',
+    reqId: 'REQ-315C',
+    tacIds: ['TAC-315C'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-315C-1',
+        testable: true,
+        description: '[happy] given a run of Foo.the harness, when the dotted phrase Session.the and Bar.the are seen in prose, then nothing fires on the gate',
+        ownerRef: { tacId: 'TAC-315C', field: 'interfaces[Session]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-315C']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 315, positive control): Session.lastSeenAt still fires when Session is a declared shape without lastSeenAt', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-315P',
+    interfaces: [
+      { name: 'Session', kind: 'recordShape', description: 'fields: userId, startedAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-315P',
+    reqId: 'REQ-315P',
+    tacIds: ['TAC-315P'],
+    acceptanceCriteria: [
+      { id: 'AC-315P-1', testable: true, description: '[happy] given a login, when auth succeeds, then Session.lastSeenAt is written' },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-315P']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, false);
+  assert.ok(check.failing.some((f) => f.id === 'AC-315P-1:lastSeenAt'), `expected lastSeenAt in failing, got ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 315): ai-on-record 974b4c1 then clauses are silent on the gate (verbatim fixtures)', () => {
+  // Verbatim then-clauses from the four ai-on-record ACs listed in
+  // issue 315 at head 974b4c1 (define/kickoff). These went green on
+  // 0.32.1, red on 0.32.2, and must be green again.
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-315AOR',
+    interfaces: [
+      { name: 'GroundingCorpusRecord', kind: 'recordShape', description: 'fields: sourceRegisterRowId, generatorFamily, generatorModelId, shipped' },
+      { name: 'PackRenderer', kind: 'recordShape', description: 'fields: renderedAt, source' },
+    ],
+  };
+  const us = {
+    usId: 'US-315AOR',
+    reqId: 'REQ-315AOR',
+    tacIds: ['TAC-315AOR'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-1501-9',
+        testable: true,
+        description: '[must-not] given the attribution-deny-list-config at config/attribution-deny-list.json whose allowPaths exempts package-lock.json, CLAUDE.md and AGENTS.md from the scan, when the pack renderer runs, then it refuses to read any file in allowPaths at render time; the exemption is only an in-repo scan convenience and never a renderer input, so a prose copy-paste from CLAUDE.md into a pack source cannot land a connected-party string in a rendered artefact.',
+        ownerRef: { tacId: 'TAC-315AOR', field: 'interfaces[PackRenderer]' },
+      },
+      {
+        id: 'AC-2201-1',
+        testable: true,
+        description: '[happy] given a pack version V, the source register, and a frontier generator configured with (frontierProvider, frontierModelId), when corpus-generate-run runs for V, then rcf/evals/corpus-V.json is written containing one GroundingCorpusRecord per generated fragment; every record has a non-null sourceRegisterRowId that resolves to a row in rcf/requirements/req-002 (sourceRegister), and generatorFamily plus generatorModelId are recorded.',
+        ownerRef: { tacId: 'TAC-315AOR', field: 'interfaces[GroundingCorpusRecord]' },
+      },
+      {
+        id: 'AC-2201-5',
+        testable: true,
+        description: '[happy] given a shipped corpus for pack version V, when goldenTranscriptBuilder runs, then rcf/evals/golden-transcripts-V.json is written drawing only from shipped=true records; the TAC-008 goldenTranscripts set used by REQ-010 is sourced from this file.',
+        ownerRef: { tacId: 'TAC-315AOR', field: 'interfaces[GroundingCorpusRecord]' },
+      },
+      {
+        id: 'AC-2201-8',
+        testable: true,
+        description: '[failure] given a corpus bundle where any emitted record has a null or unresolved sourceRegisterRowId, when the bundle is written, then the write is refused and the CLI exits non-zero; no corpus-V.json is produced.',
+        ownerRef: { tacId: 'TAC-315AOR', field: 'interfaces[GroundingCorpusRecord]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-315AOR']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
 test('gates (PR 7, AC-17406-4): duplicates fails identical AC descriptions across stories', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   const usA = {
