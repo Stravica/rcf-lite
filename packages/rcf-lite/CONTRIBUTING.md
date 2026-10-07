@@ -42,6 +42,8 @@ RCF Lite is developed using the methodology it implements. The umbrella package'
 
 Pure refactors, test-only changes and documentation fixes do not need artefact updates; the pull request template asks you to say so explicitly.
 
+**Project discovery artefacts live in `guidance/discovery/<slug>.md` and `docs/discovery/`, never in the methodology inventories.** The top-level `guidance/` and `docs/` directories carry the locked methodology pack and the locked umbrella docs set; new additions there require a coordinated test-code change in the same pull request (issue 322). A DISCOVERY-stage brief, prototype note, or companion write-up lands under the `discovery/` subdir of whichever home fits (methodology-pack side under `guidance/discovery/`, engineer-facing side under `docs/discovery/`). The guidance lints that still apply there (no em-dash, no non-canonical external URLs, filename stem is a well-formed slug) keep running over the subdir.
+
 ## Pull requests
 
 - Branch from `main`, using a short descriptive branch name (for example `fix-view-empty-tree` or `feat-query-json-output`).
