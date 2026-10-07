@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-07T13:46:54.539Z",
+  "updatedAt": "2026-10-07T13:46:54.539Z",
+  "description": "User story under REQ-002 for the traceability view (discovery sections 4 rank 8, 9 and 12, section 6.5; FBS-208; TAC-4136, ADR-4140). The Readiness tab's Trace sub-tab renders a matrix for a pivot read from entity= in the hash: rows are the stories and criteria under the pivot, columns are suites, cases, build specs and components, cells are filled where the chain reaches and coloured by resolution from coverage. Every id in the readiness tables carries a Trace action and the lookup modal's readiness hits land on the same hash. The client caches per state.version in memory and re-renders after an SSE swap. The per-requirement Mermaid slice on the Requirements tab is retired in the same change; no Mermaid is user-facing on these surfaces.",
+  "asA": "a product owner showing traceability or an engineer checking a requirement's reach",
+  "iWant": "a matrix from the chosen requirement down to its tests, with the unresolved cells visible, reachable from any id on the page",
+  "soThat": "the viewer demonstrates the traceability the method sells without a terminal",
+  "tacIds": [
+    "TAC-4136-view-query-routes"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-209-1",
+      "description": "[happy] Given the Trace sub-tab and a pivot id in the hash, when the client fetches \"./trace.json\" for it, then a matrix renders with one TraceMatrixRow per story and criterion under the pivot and columns for suites, cases, build specs and components, each TraceMatrixCell.reached true where the forward trace reaches the column from the row's criterion.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[renderTraceMatrix]"
+      }
+    },
+    {
+      "id": "AC-209-2",
+      "description": "[happy] Given coverage data for the pivot's criteria, when a cell renders, then TraceMatrixCell.resolution is \"resolving\" on the --sv-success token, \"unresolved\" on the --sv-warning token or \"none\" on the --sv-muted token, with no new colour token introduced.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[TraceMatrixCell]"
+      }
+    },
+    {
+      "id": "AC-209-3",
+      "description": "[happy] Given any id rendered in the questions, blocking, thin-requirements or coverage tables, when the row renders, then it carries a \"Trace\" action linking to \"#tab=readiness&sub=trace&entity=<id>\", and a lookup modal hit on a readiness row navigates to the same hash preserving embed and theme.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[wireTraceMatrix]"
+      }
+    },
+    {
+      "id": "AC-209-4",
+      "description": "[edge] Given an SSE tree-update that swaps #rcf-live-content while the Trace sub-tab shows a matrix, when the swap lands, then the matrix is re-rendered from the client cache keyed by state.version and marked stale until the next fetch completes, never dropped.",
+      "testable": true
+    },
+    {
+      "id": "AC-209-5",
+      "description": "[must-not] Given the Requirements tab, when a requirement renders, then no Mermaid slice diagram is rendered for it (the per-requirement slice and its details element are gone) and no Mermaid is rendered anywhere on the Readiness tab.",
+      "testable": true
+    },
+    {
+      "id": "AC-209-6",
+      "description": "[failure] Given a pivot the route reports with found false, when the Trace sub-tab renders, then an empty state names the id and offers the lookup modal, and no partial matrix is drawn.",
+      "testable": true
+    },
+    {
+      "id": "AC-209-7",
+      "description": "[edge] Given a pivot whose forward trace yields more than 200 TraceMatrixRow entries, when the matrix renders, then a row filter by story id or criterion id is shown, the full TraceMatrixRow.cells set is retained in memory and nothing is truncated silently.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[TraceMatrixRow]"
+      }
+    }
+  ],
+  "usId": "US-209",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the viewer renders a trace matrix for a selected node and offers Trace on every id, retiring the Mermaid slice"
+}

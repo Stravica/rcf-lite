@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-07T13:47:06.367Z",
+  "updatedAt": "2026-10-07T13:47:06.367Z",
+  "purpose": "Cover every acceptance criterion of US-208 with one node:test case each in test/view/query-routes.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-207) removes the flags as it makes them pass.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-208-1",
+    "AC-208-2",
+    "AC-208-3",
+    "AC-208-4",
+    "AC-208-5",
+    "AC-208-6",
+    "AC-208-7"
+  ],
+  "testCases": [
+    {
+      "id": "TC-240-208-1-happy",
+      "acId": "AC-208-1",
+      "description": "AC-208-1 happy: a running viewer and a known id",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-1 happy: a running viewer and a known id"
+    },
+    {
+      "id": "TC-240-208-2-happy",
+      "acId": "AC-208-2",
+      "description": "AC-208-2 happy: a running viewer and a known id",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-2 happy: a running viewer and a known id"
+    },
+    {
+      "id": "TC-240-208-3-happy",
+      "acId": "AC-208-3",
+      "description": "AC-208-3 happy: a running viewer",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-3 happy: a running viewer"
+    },
+    {
+      "id": "TC-240-208-4-failure",
+      "acId": "AC-208-4",
+      "description": "AC-208-4 failure: an unknown id",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-4 failure: an unknown id"
+    },
+    {
+      "id": "TC-240-208-5-mustnot",
+      "acId": "AC-208-5",
+      "description": "AC-208-5 must-not: any request to the three routes",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-5 must-not: any request to the three routes"
+    },
+    {
+      "id": "TC-240-208-6-edge",
+      "acId": "AC-208-6",
+      "description": "AC-208-6 edge: a rewalk that publishes a new stateversion",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-6 edge: a rewalk that publishes a new stateversion"
+    },
+    {
+      "id": "TC-240-208-7-failure",
+      "acId": "AC-208-7",
+      "description": "AC-208-7 failure: the server before the first walk completes",
+      "status": "pending",
+      "testPointer": "test/view/query-routes.test.js::AC-208-7 failure: the server before the first walk completes"
+    }
+  ],
+  "id": "TS-240",
+  "usId": "US-208",
+  "title": "US-208 command page suite (query-routes)",
+  "status": "draft"
+}

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-06T12:00:00Z",
+  "updatedAt": "2026-10-07T13:46:37.736Z",
   "tacId": "TAC-4127-readiness-view",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -46,5 +46,5 @@
       "description": "[draft] Decide persona ordering from profile.md text; same contract as the CLI helper (productOwner | engineer | unstated)."
     }
   ],
-  "notes": "The 0.29.0 scope keeps the diff component document-level only; criterion-level before-and-after is deferred to the UX review per ADR-4127. The pill component is additive and never changes the Product Map `pm-mini` or Requirements `status-chip` markup in this PR; those swaps are follow-ups once a mechanical mapping is established."
+  "notes": "The 0.29.0 scope keeps the diff component document-level only; criterion-level before-and-after is deferred to the UX review per ADR-4127. The pill component is additive and never changes the Product Map `pm-mini` or Requirements `status-chip` markup in this PR; those swaps are follow-ups once a mechanical mapping is established. Amended by DEFINE 2026-10-07 (TAC-4135-readiness-command-page, ADR-4139): the Freeze now control is removed (Q4: the freeze block shows the state and what resolves it, no button, no command text), the first-paint per-document delta list becomes counts with an on-demand list (Q2), the blocker cards and their 20-id cap become the blocking table, and renderCoverage is replaced by renderCoverageSummary reading coverage.tree.totals."
 }

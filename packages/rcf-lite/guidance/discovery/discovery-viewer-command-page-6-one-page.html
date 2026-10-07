@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Discovery sketch: 6-one-page</title>
+  <style>
+    <!-- F7-note: these --sv-* hex tokens are the LIGHT-mode palette only; the dark-mode block lives in src/view/style.css under html[data-theme="dark"] (and its auto variant) and is covered pair-by-pair by test/view/contrast-aa.test.js. The sketches set color-scheme: light to keep OS dark-mode from re-inking them; the viewer runtime switches tokens by data-theme, not by color-scheme. -->
+    :root {
+      --sv-canvas: #F6F8FC;
+      --sv-surface: #FFFFFF;
+      --sv-raised: #EEF2F8;
+      --sv-ink: #111927;
+      --sv-muted: #536176;
+      --sv-border: #D8DFEA;
+      --sv-control: #738198;
+      --sv-link: #2447EB;
+      --sv-hover: #1737C7;
+      --sv-active: #E9EEFF;
+      --sv-code: #EEF2F8;
+      --sv-success: #116B4D;
+      --sv-successbg: #E7F4ED;
+      --sv-warning: #895000;
+      --sv-warningbg: #FFF3DC;
+      --sv-danger: #B4233B;
+      --sv-dangerbg: #FDECF0;
+      --sv-focus: #2447EB;
+      --sv-font: Arial, Helvetica, sans-serif;
+      --sv-mono: ui-monospace, SFMono-Regular, Consolas, "Liberation Mono", monospace;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body { background: var(--sv-canvas); color: var(--sv-ink); font-family: var(--sv-font); margin: 0; }
+    main { max-width: 1100px; margin: 0 auto; padding: 28px 16px 24px; }
+    .intro { max-width: 890px; margin: 0 0 20px; font-size: 18px; line-height: 1.55; }
+    .anchorstrip { position: sticky; top: 0; z-index: 2; background: var(--sv-canvas); border-bottom: 1px solid var(--sv-border); padding: 10px 2px; margin: 0 0 20px; display: flex; gap: 8px; overflow-x: auto; }
+    .anchorstrip a { padding: 6px 12px; border-radius: 999px; background: var(--sv-surface); border: 1px solid var(--sv-border); color: var(--sv-muted); font-size: 12px; font-weight: 700; }
+    .anchorstrip a:hover { color: var(--sv-link); border-color: var(--sv-link); text-decoration: none; }
+    .panel { margin-bottom: 24px; border: 1px solid var(--sv-border); border-radius: 8px; background: var(--sv-surface); overflow: hidden; scroll-margin-top: 60px; }
+    .panel-header { display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 16px 20px; border-bottom: 1px solid var(--sv-border); }
+    .section-title { display: flex; align-items: center; gap: 12px; }
+    .section-number { display: grid; place-items: center; width: 28px; height: 28px; border-radius: 6px; background: var(--sv-active); color: var(--sv-link); font: 12px var(--sv-mono); }
+    h1, h2 { margin: 0; font-size: 19px; line-height: 1.3; }
+    .verdict-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; padding: 16px 20px; }
+    .verdict-card { border: 1px solid var(--sv-border); border-radius: 8px; padding: 14px 16px; background: var(--sv-raised); }
+    .verdict-card .label { color: var(--sv-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .verdict-card .value { margin-top: 6px; font-size: 24px; font-weight: 700; }
+    .verdict-card .value a { color: var(--sv-link); text-decoration: none; }
+    .verdict-card .value a:hover { text-decoration: underline; color: var(--sv-hover); }
+    .verdict-card .state { margin-top: 4px; font-size: 13px; color: var(--sv-muted); }
+    .verdict-card.ok .state { color: var(--sv-success); }
+    .verdict-card.block .state { color: var(--sv-warning); }
+    .stage-grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 8px; padding: 16px 20px; }
+    .stage-cell { border: 1px solid var(--sv-border); border-radius: 6px; padding: 10px 8px; background: var(--sv-surface); text-align: center; }
+    .stage-cell .stage { font: 700 12px var(--sv-mono); color: var(--sv-muted); }
+    .stage-cell .count { margin-top: 4px; font-size: 15px; font-weight: 700; }
+    .stage-cell.ok { background: var(--sv-successbg); border-color: var(--sv-success); }
+    .stage-cell.ok .count { color: var(--sv-success); }
+    .stage-cell.block { background: var(--sv-warningbg); border-color: var(--sv-warning); }
+    .stage-cell.block .count { color: var(--sv-warning); }
+    .delta { padding: 16px 20px; }
+    .delta summary { cursor: default; font-size: 13px; color: var(--sv-muted); font-weight: 700; }
+    .delta ul { margin: 8px 0 0; padding: 0; list-style: none; display: grid; grid-template-columns: repeat(6, 1fr); gap: 6px; }
+    .delta li { font: 12px var(--sv-font); color: var(--sv-muted); padding: 6px 8px; background: var(--sv-raised); border-radius: 4px; }
+    .delta li .n { color: var(--sv-ink); font-weight: 700; }
+    .freeze-state { padding: 14px 20px; border-top: 1px solid var(--sv-border); color: var(--sv-muted); font-size: 13px; line-height: 1.55; }
+    .freeze-state b { color: var(--sv-ink); }
+    table { width: 100%; border-collapse: collapse; table-layout: fixed; font-size: 13px; line-height: 1.55; }
+    caption { padding: 14px 20px 10px; color: var(--sv-muted); text-align: left; font-size: 12px; }
+    th, td { padding: 12px 10px; text-align: left; vertical-align: top; overflow-wrap: anywhere; }
+    thead th { padding-top: 10px; padding-bottom: 10px; background: var(--sv-raised); color: var(--sv-muted); font-size: 11px; font-weight: 700; border-top: 1px solid var(--sv-border); border-bottom: 1px solid var(--sv-border); }
+    tbody tr + tr > * { border-top: 1px solid var(--sv-border); }
+    tbody th { font-weight: 400; }
+    .question { font-weight: 700; line-height: 1.5; }
+    a { color: var(--sv-link); text-decoration: none; }
+    a:hover { color: var(--sv-hover); text-decoration: underline; }
+    a:focus-visible { outline: 2px solid var(--sv-focus); outline-offset: 3px; }
+    code, .mono { font-family: var(--sv-mono); font-size: 12px; }
+    .pill { display: inline-block; padding: 3px 8px; border-radius: 999px; color: var(--sv-warning); background: var(--sv-warningbg); font-size: 11px; font-weight: 700; white-space: nowrap; }
+    .copy-handle { display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border: 1px dashed var(--sv-control); border-radius: 4px; background: var(--sv-surface); color: var(--sv-muted); font: 11px var(--sv-mono); margin-left: 6px; }
+    .item-fragment { display: block; margin-top: 4px; color: var(--sv-muted); }
+    .coverage-row { display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 12px; padding: 16px 20px; }
+    .stat { border: 1px solid var(--sv-border); border-radius: 6px; padding: 12px; background: var(--sv-surface); }
+    .stat .label { color: var(--sv-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; }
+    .stat .value { margin-top: 4px; font-size: 22px; font-weight: 700; color: var(--sv-ink); }
+    .bar { margin: 12px 20px 16px; height: 10px; background: var(--sv-raised); border-radius: 5px; overflow: hidden; }
+    .bar > span { display: block; height: 100%; background: var(--sv-success); width: 100%; }
+    .source { margin: 4px 0 24px; color: var(--sv-muted); font-size: 12px; line-height: 1.7; overflow-wrap: anywhere; }
+    footer { border-top: 1px solid var(--sv-border); padding-top: 16px; color: var(--sv-muted); font-size: 11px; line-height: 1.6; }
+    .thin-rows { padding: 0; }
+    .alt-note { font-size: 12px; color: var(--sv-muted); padding: 10px 20px 14px; }
+    @media (max-width: 719px) {
+      .verdict-row, .stage-grid, .delta ul, .coverage-row { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <p class="intro">Q5 render sketch, option b: one long page. The Readiness panel is five blocks stacked top to bottom; an anchor strip sticks to the top as the alternative to sub-tabs. No CLI command text, no freeze button.</p>
+
+    <nav class="anchorstrip" aria-label="Readiness anchors">
+      <a href="#overview">Overview</a>
+      <a href="#questions">Questions (3)</a>
+      <a href="#blocking">Blocking (13)</a>
+      <a href="#coverage">Coverage (119/119)</a>
+      <a href="#trace">Trace</a>
+    </nav>
+
+    <section class="panel" id="overview" aria-labelledby="overview-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">01</span><h1 id="overview-heading">Overview</h1></div>
+        <span class="mono" style="color: var(--sv-muted); font-size: 11px;">tree 0.32.5 - sha b298353f</span>
+      </header>
+      <div class="verdict-row">
+        <div class="verdict-card block"><div class="label">On me</div><div class="value"><a href="#questions">1</a></div><div class="state">one product-owner question open</div></div>
+        <div class="verdict-card block"><div class="label">On engineers</div><div class="value"><a href="#blocking">13</a></div><div class="state">13 engineer checks blocking</div></div>
+      </div>
+      <div class="stage-grid" aria-label="Stage grid: D1 to D8, by tree and delta">
+        <div class="stage-cell block"><div class="stage">D1</div><div class="count">2</div></div>
+        <div class="stage-cell block"><div class="stage">D2</div><div class="count">3</div></div>
+        <div class="stage-cell block"><div class="stage">D3</div><div class="count">3</div></div>
+        <div class="stage-cell block"><div class="stage">D4</div><div class="count">2</div></div>
+        <div class="stage-cell block"><div class="stage">D5</div><div class="count">2</div></div>
+        <div class="stage-cell block"><div class="stage">D6</div><div class="count">2</div></div>
+        <div class="stage-cell ok"><div class="stage">D7</div><div class="count">0</div></div>
+        <div class="stage-cell block"><div class="stage">D8</div><div class="count">1</div></div>
+      </div>
+      <details class="delta">
+        <summary>Delta since last freeze (counts only, expand to list)</summary>
+        <ul>
+          <li>changed <span class="n">0</span></li>
+          <li>added <span class="n">1076</span></li>
+          <li>removed <span class="n">0</span></li>
+          <li>briefSince <span class="n">0</span></li>
+          <li>impacted <span class="n">0</span></li>
+          <li>impactedFbs <span class="n">0</span></li>
+        </ul>
+      </details>
+      <div class="freeze-state">Freeze state: <b>unfrozen</b>. 14 checks must settle before freeze is possible: one product-owner question (D1 brief:profile - profile:surface and profile:register) and 13 engineer checks across D1 to D6 and D8. Decisions outstanding: <b>0</b> (5 of 5 resolved).</div>
+    </section>
+
+    <section class="panel" id="questions" aria-labelledby="questions-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">02</span><h2 id="questions-heading">Questions</h2></div>
+        <span style="font-size: 12px; color: var(--sv-muted);">3 of 3 shown</span>
+      </header>
+      <table>
+        <caption>Questions for you - what each needs, no command text</caption>
+        <colgroup><col style="width:12%"><col style="width:28%"><col style="width:20%"><col style="width:32%"><col style="width:8%"></colgroup>
+        <thead><tr><th scope="col">Id</th><th scope="col">Ask</th><th scope="col">Where it lives</th><th scope="col">What resolves it</th><th scope="col">State</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="Id"><code>profile:surface</code></td>
+            <th scope="row" data-label="Ask"><span class="question">Where will you look at what we produce?</span><span class="copy-handle" title="Copy id plus ask for your agent (static mock)">profile:surface: Where will you look...</span></th>
+            <td data-label="Where it lives"><a href="#brief:profile">brief ledger - profile</a></td>
+            <td data-label="What resolves it">A review surface named: viewer, agent, pdf export or slide deck.</td>
+            <td data-label="State"><span class="pill">open</span></td>
+          </tr>
+          <tr>
+            <td data-label="Id"><code>profile:register</code></td>
+            <th scope="row" data-label="Ask"><span class="question">Who are you writing for?</span><span class="copy-handle" title="Copy id plus ask for your agent (static mock)">profile:register: Who are you writing...</span></th>
+            <td data-label="Where it lives"><a href="#brief:profile">brief ledger - profile</a></td>
+            <td data-label="What resolves it">A register: operator, engineer or mixed.</td>
+            <td data-label="State"><span class="pill">open</span></td>
+          </tr>
+          <tr>
+            <td data-label="Id"><code>brief-ledger</code></td>
+            <th scope="row" data-label="Ask"><span class="question">What has changed, or what is this project for?</span><span class="copy-handle" title="Copy id plus ask for your agent (static mock)">brief-ledger: What has changed...</span></th>
+            <td data-label="Where it lives"><a href="#brief:sinceFreeze">brief ledger - since last freeze</a></td>
+            <td data-label="What resolves it">A statement in the brief ledger describing what has changed.</td>
+            <td data-label="State"><span class="pill">open</span></td>
+          </tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" id="blocking" aria-labelledby="blocking-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">03</span><h2 id="blocking-heading">Blocking</h2></div>
+        <span style="font-size: 12px; color: var(--sv-muted);">13 engineer checks</span>
+      </header>
+      <table>
+        <caption>Blocking items for engineers - composite ids split (such as TAC-4122-define-gates:CHECK_PERSONA), no command text</caption>
+        <colgroup><col style="width:8%"><col style="width:20%"><col style="width:22%"><col style="width:42%"><col style="width:8%"></colgroup>
+        <thead><tr><th scope="col">Stage</th><th scope="col">Check</th><th scope="col">Item</th><th scope="col">What resolves it</th><th scope="col">Trace</th></tr></thead>
+        <tbody>
+          <tr>
+            <td data-label="Stage"><span class="mono">D1</span></td><td data-label="Check"><code>brief:sinceFreeze</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#brief-ledger">brief-ledger</a></th>
+            <td data-label="What resolves it">A brief-ledger statement describing what has changed since the last freeze.</td>
+            <td data-label="Trace"><a href="#trace&amp;id=brief-ledger">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D2</span></td><td data-label="Check"><code>skeleton:reqShape</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#tab=requirements&amp;entity=REQ-001">REQ-001</a> and 35 more</th>
+            <td data-label="What resolves it">Each listed REQ reaches the shape floor (title plus intent plus one US).</td>
+            <td data-label="Trace"><a href="#trace&amp;id=REQ-001">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D2</span></td><td data-label="Check"><code>skeleton:tadPersistence</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#tab=architecture&amp;entity=TAD-001">TAD-001</a><span class="item-fragment mono">persistence</span></th>
+            <td data-label="What resolves it">A persistence choice is recorded on TAD-001.</td>
+            <td data-label="Trace"><a href="#trace&amp;id=TAD-001">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D3</span></td><td data-label="Check"><code>shapes:draftSettled</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#tab=requirements&amp;entity=TAC-4122-define-gates">TAC-4122-define-gates</a><span class="item-fragment mono">CHECK_PERSONA</span></th>
+            <td data-label="What resolves it">Settle the CHECK_PERSONA draft field on TAC-4122-define-gates.</td>
+            <td data-label="Trace"><a href="#trace&amp;id=TAC-4122-define-gates">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D4</span></td><td data-label="Check"><code>stories:usFloors</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#tab=requirements&amp;entity=US-17401">US-17401</a> and 497 more</th>
+            <td data-label="What resolves it">Each listed US reaches the AC floor fields the story currently leaves on scaffold.</td>
+            <td data-label="Trace"><a href="#trace&amp;id=US-17401">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D5</span></td><td data-label="Check"><code>crosscut:securityArchitecture</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#tab=architecture&amp;entity=TAD-001">TAD-001</a><span class="item-fragment mono">security</span></th>
+            <td data-label="What resolves it">A security architecture choice is recorded on TAD-001.</td>
+            <td data-label="Trace"><a href="#trace&amp;id=TAD-001">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D6</span></td><td data-label="Check"><code>consistency:unsatisfiable</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#tab=requirements&amp;entity=AC-060-3">AC-060-3</a><span class="item-fragment mono">userID</span></th>
+            <td data-label="What resolves it">AC-060-3 then-clause field userID is defined on some recordShape head.</td>
+            <td data-label="Trace"><a href="#trace&amp;id=AC-060-3">Trace</a></td>
+          </tr>
+          <tr>
+            <td data-label="Stage"><span class="mono">D8</span></td><td data-label="Check"><code>freeze:priorGates</code></td>
+            <th scope="row" data-label="Item"><a class="mono" href="#stage=D6">D6</a> and the 5 others above</th>
+            <td data-label="What resolves it">Each prior stage settles its checks.</td>
+            <td data-label="Trace"><a href="#trace&amp;stage=D6">Trace</a></td>
+          </tr>
+        </tbody>
+      </table>
+      <p class="alt-note">Rows truncated: 8 of 13 shown; the full list expands on open-tab in the viewer.</p>
+    </section>
+
+    <section class="panel" id="coverage" aria-labelledby="coverage-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">04</span><h2 id="coverage-heading">Coverage</h2></div>
+        <span style="font-size: 12px; color: var(--sv-muted);">strict (per-AC)</span>
+      </header>
+      <div class="coverage-row">
+        <div class="stat"><div class="label">Requirements</div><div class="value">119 / 119</div></div>
+        <div class="stat"><div class="label">Covered ACs</div><div class="value">681 / 681</div></div>
+        <div class="stat"><div class="label">Unresolved pointers</div><div class="value">0</div></div>
+        <div class="stat"><div class="label">Thin requirements</div><div class="value">7</div></div>
+      </div>
+      <div class="bar" aria-label="119 of 119 covered"><span></span></div>
+      <table>
+        <caption>Thin requirements - every flavour feeds this table (zero criteria, unresolved tests, D4 floor failures)</caption>
+        <colgroup><col style="width:16%"><col style="width:24%"><col style="width:60%"></colgroup>
+        <thead><tr><th scope="col">Req</th><th scope="col">Flavour</th><th scope="col">Why</th></tr></thead>
+        <tbody>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-040">REQ-040</a></td><td><span class="pill">D4 floor</span></td><td>Stories under REQ-040 miss the AC floor fields.</td></tr>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-052">REQ-052</a></td><td><span class="pill">D4 floor</span></td><td>Stories under REQ-052 miss the AC floor fields.</td></tr>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-061">REQ-061</a></td><td><span class="pill">zero criteria</span></td><td>No acceptance criteria defined.</td></tr>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-074">REQ-074</a></td><td><span class="pill">unresolved tests</span></td><td>Test pointers do not resolve to a declaration.</td></tr>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-088">REQ-088</a></td><td><span class="pill">no story</span></td><td>No US links to this REQ.</td></tr>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-099">REQ-099</a></td><td><span class="pill">no description</span></td><td>REQ carries no plain description.</td></tr>
+          <tr><td><a class="mono" href="#tab=requirements&amp;entity=REQ-111">REQ-111</a></td><td><span class="pill">D4 floor</span></td><td>Stories under REQ-111 miss the AC floor fields.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section class="panel" id="trace" aria-labelledby="trace-heading">
+      <header class="panel-header">
+        <div class="section-title"><span class="section-number" aria-hidden="true">05</span><h2 id="trace-heading">Trace</h2></div>
+        <span style="font-size: 12px; color: var(--sv-muted);">matrix per pivot</span>
+      </header>
+      <p class="alt-note">A Trace action is offered on every id rendered in Questions, Blocking and Thin requirements. The pivot opens as a matrix (REQ x US x AC x TS x TC x FBS), not a Mermaid diagram. The matrix uses the same GET route the viewer serves at ./trace.json.</p>
+    </section>
+
+    <p class="source">Data: readiness.levels.{intentComplete,readyToBuild}, readiness.questions[], readiness.stages[].checks[], readiness.coverage.{tree,unresolvedTestPointers}, readiness.decisions, readiness.freezeable. Rendered read-only; no CLI command text, no freeze button.</p>
+    <footer>Static sketch for the rcf-lite discovery document; mocked data from rcf-lite's own tree at sha b298353f; light theme; recommended shape is sketch 5 (sub-tabs).</footer>
+  </main>
+</body>
+</html>

@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 93,
-    "notStarted": 48,
+    "items": 98,
+    "notStarted": 53,
     "inProgress": 2,
     "complete": 28,
     "verified": 15,
-    "actionable": 38,
-    "blocked": 10
+    "actionable": 40,
+    "blocked": 13
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -66,7 +66,9 @@
         "FBS-190",
         "FBS-192",
         "FBS-194",
-        "FBS-203"
+        "FBS-203",
+        "FBS-204",
+        "FBS-207"
       ]
     },
     {
@@ -81,7 +83,8 @@
         "FBS-181",
         "FBS-191",
         "FBS-193",
-        "FBS-195"
+        "FBS-195",
+        "FBS-205"
       ]
     },
     {
@@ -94,7 +97,8 @@
         "FBS-026",
         "FBS-043",
         "FBS-182",
-        "FBS-196"
+        "FBS-196",
+        "FBS-206"
       ]
     },
     {
@@ -107,7 +111,8 @@
         "FBS-060",
         "FBS-044",
         "FBS-183",
-        "FBS-197"
+        "FBS-197",
+        "FBS-208"
       ]
     },
     {
@@ -1216,6 +1221,72 @@
       "dependsOnFbsIds": [],
       "state": "inProgress",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-204",
+      "buildOrder": 204,
+      "tier": 0,
+      "title": "Readiness tables: questions and blocking items, read-only, no command text",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-205",
+      "buildOrder": 205,
+      "tier": 1,
+      "title": "Coverage summary and thin requirements",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-204"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-204"
+      ]
+    },
+    {
+      "fbsId": "FBS-206",
+      "buildOrder": 206,
+      "tier": 2,
+      "title": "Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-204",
+        "FBS-205"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-204",
+        "FBS-205"
+      ]
+    },
+    {
+      "fbsId": "FBS-207",
+      "buildOrder": 207,
+      "tier": 0,
+      "title": "Query routes: trace, impact and coverage as JSON",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-208",
+      "buildOrder": 208,
+      "tier": 3,
+      "title": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-206",
+        "FBS-207"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-206",
+        "FBS-207"
+      ]
     }
   ]
 }

@@ -52,6 +52,18 @@
       "title": "Every viewer text and control colour pair meets WCAG 2.1 AA in both themes"
     },
     {
+      "id": "US-208",
+      "kind": "userStory",
+      "depth": 1,
+      "title": "the viewer serves trace, impact and coverage for a selected node as JSON routes computed from the current tree"
+    },
+    {
+      "id": "US-209",
+      "kind": "userStory",
+      "depth": 1,
+      "title": "the viewer renders a trace matrix for a selected node and offers Trace on every id, retiring the Mermaid slice"
+    },
+    {
       "id": "TS-003",
       "kind": "testSuite",
       "depth": 2,
@@ -326,6 +338,102 @@
       "kind": "ac",
       "depth": 2,
       "title": "[failure] Given a contrast pair that falls below the applicable threshold, when the test runs, then the failure message names the selector, state, theme, foreground colour, background colour, computed ratio and the threshold applied, and the test exits non-zero so the suite blocks a merge that drops a pair below AA."
+    },
+    {
+      "id": "TS-240",
+      "kind": "testSuite",
+      "depth": 2,
+      "title": "US-208 command page suite (query-routes)"
+    },
+    {
+      "id": "AC-208-1",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a running viewer and a known id, when GET \"./trace.json?id=<id>&direction=forward\" is requested, then the response is application/json carrying the computeTrace result for that pivot (pivot, direction, found, nodes, edges), computed from the current state and served with \"cache-control: no-store\" relative to the viewer mount."
+    },
+    {
+      "id": "AC-208-2",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a running viewer and a known id, when GET \"./impact.json?id=<id>\" is requested, then the response is application/json carrying the computeImpact result (pivot, found, nodes with actionNeeded per node, edges) with \"cache-control: no-store\"."
+    },
+    {
+      "id": "AC-208-3",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given a running viewer, when GET \"./coverage.json\" is requested with no scope, then the response is application/json carrying the strict computeCoverage result for the whole tree (totals, requirements, unresolvedTestPointers); given \"?scope=<id>\" naming a PRD, REQ or US, the result is narrowed to that subtree as the CLI positional narrows it."
+    },
+    {
+      "id": "AC-208-4",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given an unknown id, when trace or impact is requested, then the response is 404 application/json with QueryRouteError.error \"unknown-id\" and QueryRouteError.id echoing the request; given a direction outside forward, back and both, the response is 400 with QueryRouteError.error \"bad-direction\"; given a below-AC or unknown scope on coverage, the response is 400 with QueryRouteError.error \"bad-scope\"."
+    },
+    {
+      "id": "AC-208-5",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given any request to the three routes, when the server handles it, then runWithAdmissibilityGate is not called (the routes bypass the gate the way src/cli/coverage.js and src/cli/impact.js do) and nothing under rcf/ is written."
+    },
+    {
+      "id": "AC-208-6",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[edge] Given a rewalk that publishes a new state.version, when a route is requested, then the served result reflects the new tree and the memo entries of the previous version are discarded; within one version a repeated request for the same pivot and direction is served from the memo without recomputing."
+    },
+    {
+      "id": "AC-208-7",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given the server before the first walk completes, when a trace, impact or coverage request arrives, then the response is 503 text \"view server initialising\", as ./index.json answers today."
+    },
+    {
+      "id": "TS-241",
+      "kind": "testSuite",
+      "depth": 2,
+      "title": "US-209 command page suite (trace-matrix)"
+    },
+    {
+      "id": "AC-209-1",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given the Trace sub-tab and a pivot id in the hash, when the client fetches \"./trace.json\" for it, then a matrix renders with one TraceMatrixRow per story and criterion under the pivot and columns for suites, cases, build specs and components, each TraceMatrixCell.reached true where the forward trace reaches the column from the row's criterion."
+    },
+    {
+      "id": "AC-209-2",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given coverage data for the pivot's criteria, when a cell renders, then TraceMatrixCell.resolution is \"resolving\" on the --sv-success token, \"unresolved\" on the --sv-warning token or \"none\" on the --sv-muted token, with no new colour token introduced."
+    },
+    {
+      "id": "AC-209-3",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[happy] Given any id rendered in the questions, blocking, thin-requirements or coverage tables, when the row renders, then it carries a \"Trace\" action linking to \"#tab=readiness&sub=trace&entity=<id>\", and a lookup modal hit on a readiness row navigates to the same hash preserving embed and theme."
+    },
+    {
+      "id": "AC-209-4",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[edge] Given an SSE tree-update that swaps #rcf-live-content while the Trace sub-tab shows a matrix, when the swap lands, then the matrix is re-rendered from the client cache keyed by state.version and marked stale until the next fetch completes, never dropped."
+    },
+    {
+      "id": "AC-209-5",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[must-not] Given the Requirements tab, when a requirement renders, then no Mermaid slice diagram is rendered for it (the per-requirement slice and its details element are gone) and no Mermaid is rendered anywhere on the Readiness tab."
+    },
+    {
+      "id": "AC-209-6",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[failure] Given a pivot the route reports with found false, when the Trace sub-tab renders, then an empty state names the id and offers the lookup modal, and no partial matrix is drawn."
+    },
+    {
+      "id": "AC-209-7",
+      "kind": "ac",
+      "depth": 2,
+      "title": "[edge] Given a pivot whose forward trace yields more than 200 TraceMatrixRow entries, when the matrix renders, then a row filter by story id or criterion id is shown, the full TraceMatrixRow.cells set is retained in memory and nothing is truncated silently."
     },
     {
       "id": "TC-003-diagram-emitted-as-source",
@@ -680,6 +788,102 @@
       "kind": "tc",
       "depth": 3,
       "title": "`.rcf-theme-btn` hover, focus-visible and active pairs exist and pass in both themes, and its focus ring clears 3:1 against the surface it sits on."
+    },
+    {
+      "id": "TC-240-208-1-happy",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-1 happy: a running viewer and a known id"
+    },
+    {
+      "id": "TC-240-208-2-happy",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-2 happy: a running viewer and a known id"
+    },
+    {
+      "id": "TC-240-208-3-happy",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-3 happy: a running viewer"
+    },
+    {
+      "id": "TC-240-208-4-failure",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-4 failure: an unknown id"
+    },
+    {
+      "id": "TC-240-208-5-mustnot",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-5 must-not: any request to the three routes"
+    },
+    {
+      "id": "TC-240-208-6-edge",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-6 edge: a rewalk that publishes a new stateversion"
+    },
+    {
+      "id": "TC-240-208-7-failure",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-208-7 failure: the server before the first walk completes"
+    },
+    {
+      "id": "FBS-207",
+      "kind": "fbs",
+      "depth": 3,
+      "title": "Query routes: trace, impact and coverage as JSON"
+    },
+    {
+      "id": "TC-241-209-1-happy",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-1 happy: the trace subtab and a pivot id in the hash"
+    },
+    {
+      "id": "TC-241-209-2-happy",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-2 happy: coverage data for the pivots criteria"
+    },
+    {
+      "id": "TC-241-209-3-happy",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-3 happy: any id rendered in the questions blocking thinre"
+    },
+    {
+      "id": "TC-241-209-4-edge",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-4 edge: an sse treeupdate that swaps rcflivecontent whil"
+    },
+    {
+      "id": "TC-241-209-5-mustnot",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-5 must-not: the requirements tab"
+    },
+    {
+      "id": "TC-241-209-6-failure",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-6 failure: a pivot the route reports with found false"
+    },
+    {
+      "id": "TC-241-209-7-edge",
+      "kind": "tc",
+      "depth": 3,
+      "title": "AC-209-7 edge: a pivot whose forward trace yields more than 200"
+    },
+    {
+      "id": "FBS-208",
+      "kind": "fbs",
+      "depth": 3,
+      "title": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired"
     }
   ],
   "edges": [
@@ -716,6 +920,16 @@
     {
       "from": "REQ-002",
       "to": "US-207",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-208",
+      "kind": "parentChild"
+    },
+    {
+      "from": "REQ-002",
+      "to": "US-209",
       "kind": "parentChild"
     },
     {
@@ -949,6 +1163,86 @@
       "kind": "parentChild"
     },
     {
+      "from": "US-208",
+      "to": "TS-240",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-4",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-5",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-6",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-208",
+      "to": "AC-208-7",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "TS-241",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-1",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-2",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-3",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-4",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-5",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-6",
+      "kind": "parentChild"
+    },
+    {
+      "from": "US-209",
+      "to": "AC-209-7",
+      "kind": "parentChild"
+    },
+    {
       "from": "TS-003",
       "to": "TC-003-diagram-emitted-as-source",
       "kind": "parentChild"
@@ -1881,6 +2175,286 @@
     {
       "from": "AC-207-2",
       "to": "FBS-203",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-1-happy",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-2-happy",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-3-happy",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-4-failure",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-5-mustnot",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-6-edge",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-240",
+      "to": "TC-240-208-7-failure",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-208-1",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-1",
+      "to": "TC-240-208-1-happy",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-1",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-2",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-2",
+      "to": "TC-240-208-2-happy",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-2",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-3",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-3",
+      "to": "TC-240-208-3-happy",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-3",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-4",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-4",
+      "to": "TC-240-208-4-failure",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-4",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-5",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-5",
+      "to": "TC-240-208-5-mustnot",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-5",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-6",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-6",
+      "to": "TC-240-208-6-edge",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-6",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-7",
+      "to": "TS-240",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-7",
+      "to": "TC-240-208-7-failure",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-208-7",
+      "to": "FBS-207",
+      "kind": "crossLink"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-1-happy",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-2-happy",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-3-happy",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-4-edge",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-5-mustnot",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-6-failure",
+      "kind": "parentChild"
+    },
+    {
+      "from": "TS-241",
+      "to": "TC-241-209-7-edge",
+      "kind": "parentChild"
+    },
+    {
+      "from": "AC-209-1",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-1",
+      "to": "TC-241-209-1-happy",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-1",
+      "to": "FBS-208",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-2",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-2",
+      "to": "TC-241-209-2-happy",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-2",
+      "to": "FBS-208",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-3",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-3",
+      "to": "TC-241-209-3-happy",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-3",
+      "to": "FBS-208",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-4",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-4",
+      "to": "TC-241-209-4-edge",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-4",
+      "to": "FBS-208",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-5",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-5",
+      "to": "TC-241-209-5-mustnot",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-5",
+      "to": "FBS-208",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-6",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-6",
+      "to": "TC-241-209-6-failure",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-6",
+      "to": "FBS-208",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-7",
+      "to": "TS-241",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-7",
+      "to": "TC-241-209-7-edge",
+      "kind": "crossLink"
+    },
+    {
+      "from": "AC-209-7",
+      "to": "FBS-208",
       "kind": "crossLink"
     }
   ]

@@ -1,0 +1,113 @@
+{
+  "decisions": [
+    {
+      "id": 1,
+      "question": "Q1 resolve-in-place: does each row show the exact CLI command (or a POST write route), or only what a human needs to brief their agent?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "show the exact CLI command per row"
+        },
+        {
+          "letter": "b",
+          "text": "viewer read-only, no CLI command text; rows carry id, plain-English ask or finding, chain location, link to full context and what resolved looks like; a one-line copy handle (id plus ask) is a design candidate shown in the wireframe"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18003",
+      "addedAt": "2026-10-07T13:47:39.017Z",
+      "status": "resolved",
+      "answer": "b. Product owner ruling 2026-10-07: the viewer stays read-only and shows no CLI commands. Quote: I meant provide the info they need to resolve with their agent. Keep the commands out of the view. The user operates their agent which uses these commands; showing them here is little value. Rows carry id, ask or finding, chain location, link, resolved state; the copy handle is a candidate ruled on the render.",
+      "answeredAt": "2026-10-07T13:47:39.441Z",
+      "resolvedAt": "2026-10-07T13:47:39.441Z"
+    },
+    {
+      "id": 2,
+      "question": "Q2 delta on an unfrozen tree: render every document row on first paint, or counts only with on-demand expand?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "every document row on first paint"
+        },
+        {
+          "letter": "b",
+          "text": "counts only with on-demand expand"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18005",
+      "addedAt": "2026-10-07T13:47:39.879Z",
+      "status": "resolved",
+      "answer": "b. Ruling 2026-10-07: counts only, on-demand expand.",
+      "answeredAt": "2026-10-07T13:47:40.360Z",
+      "resolvedAt": "2026-10-07T13:47:40.360Z"
+    },
+    {
+      "id": 3,
+      "question": "Q3 thin requirements table: which flavours feed it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the three product-owner checks only (as today)"
+        },
+        {
+          "letter": "b",
+          "text": "all three flavours: zero criteria, unresolved tests, D4 floor failures (plus no story and no plain description)"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18004",
+      "addedAt": "2026-10-07T13:47:40.778Z",
+      "status": "resolved",
+      "answer": "b. Ruling 2026-10-07: all three flavours, zero criteria, unresolved tests, D4 floor failures.",
+      "answeredAt": "2026-10-07T13:47:41.273Z",
+      "resolvedAt": "2026-10-07T13:47:41.273Z"
+    },
+    {
+      "id": 4,
+      "question": "Q4 freeze-now: keep a button, show only the command text, or show the state and what resolves it with no button and no command text?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "keep the button"
+        },
+        {
+          "letter": "b",
+          "text": "command text only"
+        },
+        {
+          "letter": "c",
+          "text": "no freeze button, no command text; show the state and what resolves it"
+        }
+      ],
+      "default": "c",
+      "blocks": "US-18005",
+      "addedAt": "2026-10-07T13:47:41.768Z",
+      "status": "resolved",
+      "answer": "c. Ruling 2026-10-07: no freeze button, no command text; show the state and what resolves it.",
+      "answeredAt": "2026-10-07T13:47:42.231Z",
+      "resolvedAt": "2026-10-07T13:47:42.231Z"
+    },
+    {
+      "id": 5,
+      "question": "Q5 Readiness layout: sub-tabs (Overview, Questions, Blocking, Coverage, Trace) or one long page with anchor navigation?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "sub-tabs"
+        },
+        {
+          "letter": "b",
+          "text": "one long page"
+        }
+      ],
+      "default": "a",
+      "blocks": "US-18005",
+      "addedAt": "2026-10-07T13:47:42.659Z",
+      "status": "resolved",
+      "answer": "Ruling 2026-10-07: decided on the render, not in prose. Two sketches with the same data in both shapes land in guidance/discovery/ (discovery-viewer-command-page-5-subtabs.html, discovery-viewer-command-page-6-one-page.html); the product owner rules on the rendered pages. DEFINE designs to the recommendation (a, sub-tabs) and names b as the alternative in TAC-4135; if the render ruling picks b, this entry is updated and TAC-4135 readinessSubTabs becomes an anchor strip with sub= dropped.",
+      "answeredAt": "2026-10-07T13:47:43.137Z",
+      "resolvedAt": "2026-10-07T13:47:43.137Z"
+    }
+  ]
+}

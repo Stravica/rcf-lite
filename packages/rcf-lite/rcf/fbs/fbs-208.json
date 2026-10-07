@@ -1,0 +1,47 @@
+{
+  "createdAt": "2026-10-07T13:47:20.198Z",
+  "updatedAt": "2026-10-07T13:47:20.198Z",
+  "summary": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired (US-209). Delivers AC-209-1 to AC-209-7. Estimated new node:test cases: 10. Order in the command page build: 5 of 5.",
+  "approach": "Add renderTraceMatrix and the client wireTraceMatrix (fetch, page-lifetime cache keyed by state.version, re-render after SSE swap, stale marking, row filter past 200 rows, empty state for an unknown pivot), add the Trace action to every id in the readiness tables, route lookup hits for readiness rows to sub=trace, and remove the per-requirement Mermaid slice from html-page.js and mermaid-diagram.js.",
+  "deliverables": [
+    "src/view/readiness/trace-matrix.js (new): renderTraceMatrix",
+    "src/view/page-init.js: wireTraceMatrix, Trace actions, lookup routing",
+    "src/view/html-page.js and src/view/mermaid-diagram.js: per-requirement slice removed",
+    "src/view/style.css: matrix cells on existing tokens",
+    "test/view/trace-matrix.test.js: not-yet-built flags removed, bodies land (10 cases)",
+    "test/view/id-lookup.test.js and wespa-host-fixture.test.js: extended for the new hash and routes"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-206",
+    "FBS-207"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4136-view-query-routes",
+      "TAC-4132-id-lookup",
+      "TAC-4134-wespa-host-fixture"
+    ],
+    "adrIds": [
+      "ADR-4140-view-query-routes-per-pivot-matrix-no-mermaid"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "medium",
+  "notes": "Sized for one PR (DEFINE 2026-10-07). Test estimate 10 new node:test cases in the suite named by the TS bound to US-209; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
+  "acIds": [
+    "AC-209-1",
+    "AC-209-2",
+    "AC-209-3",
+    "AC-209-4",
+    "AC-209-5",
+    "AC-209-6",
+    "AC-209-7"
+  ],
+  "fbsId": "FBS-208",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 208,
+  "executionStatus": "notStarted",
+  "title": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired"
+}

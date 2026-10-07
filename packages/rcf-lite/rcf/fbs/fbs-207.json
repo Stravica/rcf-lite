@@ -1,0 +1,43 @@
+{
+  "createdAt": "2026-10-07T13:47:19.420Z",
+  "updatedAt": "2026-10-07T13:47:19.420Z",
+  "summary": "Query routes: trace, impact and coverage as JSON (US-208). Delivers AC-208-1 to AC-208-7. Estimated new node:test cases: 8. Order in the command page build: 4 of 5.",
+  "approach": "Add the three GET handlers to src/server/routes.js after /index.json, keep the walked tree and testPointers on the state returned by renderModelToPage (additive), add the per-version memo on the server closure, answer 503 before the first walk, 404 unknown-id, 400 bad-direction and bad-scope with the QueryRouteError body, never call runWithAdmissibilityGate, and release-note the three routes for host proxy allow-lists.",
+  "deliverables": [
+    "src/server/routes.js: GET /trace.json, /impact.json, /coverage.json",
+    "src/server/index.js: memo wiring and state plumbing",
+    "src/view/index.js: tree and testPointers kept on the state (additive)",
+    "CHANGELOG.md: routes release-noted for allow-lists",
+    "test/view/query-routes.test.js: not-yet-built flags removed, bodies land (8 cases)"
+  ],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4136-view-query-routes",
+      "TAC-4132-id-lookup",
+      "TAC-4134-wespa-host-fixture"
+    ],
+    "adrIds": [
+      "ADR-4140-view-query-routes-per-pivot-matrix-no-mermaid"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "small",
+  "notes": "Sized for one PR (DEFINE 2026-10-07). Test estimate 8 new node:test cases in the suite named by the TS bound to US-208; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
+  "acIds": [
+    "AC-208-1",
+    "AC-208-2",
+    "AC-208-3",
+    "AC-208-4",
+    "AC-208-5",
+    "AC-208-6",
+    "AC-208-7"
+  ],
+  "fbsId": "FBS-207",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 207,
+  "executionStatus": "notStarted",
+  "title": "Query routes: trace, impact and coverage as JSON"
+}
