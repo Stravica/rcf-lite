@@ -2065,6 +2065,26 @@ const PATTERN_4_FILE_EXTENSION_SKIP = new Set([
   'mp4', 'mov', 'log',
 ]);
 
+// English stop-word skip for patterns 2 and 3 (prose field lists).
+// Issue 319 (0.32.4): 0.32.3 moved pattern 4's stop-word skip onto the
+// dot-notation branch but left the pattern 2/3 regex (`<name> field`
+// and `field: <name>` prose) with no stop-word filter at all, so a
+// then-clause like `declares NO join-shaped fields: the earlier
+// jurisdiction ...` fed `the` to the extractor as a field name. The
+// list below is the superset the issue brief named: subject/object
+// stop words, articles, prepositions, demonstratives, auxiliaries and
+// WH-words that have ever been observed sitting next to `field` or
+// after `fields:` in a plain English sentence. Patterns 2 and 3 skip a
+// token drawn from this set unconditionally; pattern 4 keeps its own
+// small stop-word guard as belt-and-braces behind the shape-name gate.
+const STOP_PATTERN_23 = new Set([
+  'the', 'a', 'an', 'and', 'or', 'of', 'to', 'in', 'on', 'for', 'with',
+  'by', 'from', 'at', 'as', 'is', 'are', 'be', 'this', 'that', 'these',
+  'those', 'it', 'its', 'not', 'no', 'all', 'any', 'each', 'per', 'via',
+  'into', 'than', 'then', 'when', 'which', 'who', 'whom', 'where',
+  'while',
+]);
+
 /**
  * Pull field tokens out of a `then` clause. A field token is a word
  * that follows a verb like `set`, `write`, `include`, `return`,
@@ -2099,22 +2119,56 @@ function extractThenFieldTokens(thenClause, shapeNames = new Set()) {
   const text = stripQuotedSubstrings(thenClause);
   /** @type {Set<string>} */
   const tokens = new Set();
+  // Pattern 4's local stop set is the small guard it has carried since
+  // 0.32.3; the broader pattern 2/3 list lives at module scope as
+  // STOP_PATTERN_23 (issue 319).
   const STOP = new Set(['the', 'a', 'an', 'this', 'that', 'its', 'our', 'their', 'any', 'no', 'some', 'each', 'every', 'another']);
 
-  // Pattern 2 (preserved): `<name> field` (adjective-form naming). The
-  // backtick around the name is optional; the stop-word skip keeps
-  // "the field", "a field" and "its field" from tripping the check.
+  // Pattern 2 (narrowed, issue 319): `<name> field` (adjective-form
+  // naming). The backtick around the name is optional. 0.32.3 and
+  // earlier only skipped a short set of articles and demonstratives,
+  // and never skipped file-extension tokens or path-context contexts
+  // on this branch. Pattern 2 now shares the broader STOP_PATTERN_23
+  // list and reuses pattern 4's file-extension and path-context
+  // skips so a prose phrase like `report.json field` or `/path/x
+  // field` does not read a filename stem or path fragment as a
+  // record field.
   for (const m of text.matchAll(/`?\b([A-Za-z_][A-Za-z0-9_]*)`?\s+field\b/g)) {
     const token = m[1];
     if (!token) continue;
-    if (STOP.has(token.toLowerCase())) continue;
+    if (STOP_PATTERN_23.has(token.toLowerCase())) continue;
+    if (PATTERN_4_FILE_EXTENSION_SKIP.has(token.toLowerCase())) continue;
+    const start = m.index ?? 0;
+    const beforeHead = text.slice(Math.max(0, start - 2), start);
+    if (/\//.test(beforeHead)) continue;
     tokens.add(token);
   }
-  // Pattern 3 (preserved): `field: <name>` or `field = <name>`
-  // (schema-like notation inside a then clause). The name's backtick
-  // is optional.
-  for (const m of text.matchAll(/\bfields?\s*[:=]\s*`?([A-Za-z_][A-Za-z0-9_]*)`?/g)) {
-    if (m[1]) tokens.add(m[1]);
+  // Pattern 3 (narrowed, issue 319): `fields: <name>` or `fields =
+  // <name>` (schema-like notation inside a then clause). Walks a
+  // comma-separated list after the colon so prose like `required
+  // fields: userID, email, createdAt` yields all three candidates,
+  // not just the first. Three skips apply to every candidate:
+  //   - STOP_PATTERN_23 (English stop words such as `the` from
+  //     `declares NO join-shaped fields: the earlier jurisdiction
+  //     ...`, the AC-130-1 WESPA shape in issue 319);
+  //   - PATTERN_4_FILE_EXTENSION_SKIP (file-extension tokens such
+  //     as `md`, `json`, `yaml`);
+  //   - path context (two characters before `fields:` contain `/`),
+  //     mirroring pattern 4's path-context guard so a prose line
+  //     inside a path reference does not read as a field list.
+  for (const m of text.matchAll(/\bfields?\s*[:=]\s*(`?[A-Za-z_][A-Za-z0-9_]*`?(?:\s*,\s*`?[A-Za-z_][A-Za-z0-9_]*`?)*)/g)) {
+    const start = m.index ?? 0;
+    const beforeHead = text.slice(Math.max(0, start - 2), start);
+    if (/\//.test(beforeHead)) continue;
+    const list = m[1];
+    if (!list) continue;
+    for (const raw of list.split(/\s*,\s*/)) {
+      const name = raw.replace(/^`/, '').replace(/`$/, '');
+      if (!name) continue;
+      if (STOP_PATTERN_23.has(name.toLowerCase())) continue;
+      if (PATTERN_4_FILE_EXTENSION_SKIP.has(name.toLowerCase())) continue;
+      tokens.add(name);
+    }
   }
   // Pattern 4 (narrowed, issue 315): `<ShapeName>.<fieldName>` dot
   // notation. Shape names are PascalCase. 0.32.2 emitted a field
