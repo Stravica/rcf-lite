@@ -1823,6 +1823,7 @@ export function checkD6Consistency(ctx) {
   // `[draft]` recordShape counts as defined (the engineer owns the
   // draft; its `fields:` list is honest about what the then may name).
   const definedFields = collectRecordShapeFields(tree);
+  const definedShapes = collectRecordShapeNames(tree);
   /** @type {Array<{ id: string, why: string }>} */
   const unsatisfiableFindings = [];
   let totalThenFieldChecks = 0;
@@ -1831,7 +1832,7 @@ export function checkD6Consistency(ctx) {
     for (const ac of acs) {
       const parts = parseWhenThen(ac?.description);
       if (!parts) continue;
-      const fields = extractThenFieldTokens(parts.then);
+      const fields = extractThenFieldTokens(parts.then, definedShapes);
       for (const field of fields) {
         totalThenFieldChecks += 1;
         if (definedFields.has(field)) continue;
@@ -2029,6 +2030,42 @@ function collectRecordShapeFields(tree) {
 }
 
 /**
+ * Collect every recordShape interface name declared anywhere in the
+ * tree. Pattern 4 of `extractThenFieldTokens` (dot-notation
+ * `<Head>.<field>`) uses this set to gate: a Head that is not a
+ * declared shape name is not read as a record-field reference. This
+ * closes the 0.32.2 class in issue 315 where filename stems, non-shape
+ * PascalCase heads (Math.random, TEST_USERS.admin,
+ * ToolExecutionContext.pushLlmCall) and sentence-ending dots (Foo.the)
+ * were being read as record-field references.
+ *
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @returns {Set<string>}
+ */
+function collectRecordShapeNames(tree) {
+  const out = new Set();
+  for (const tac of tree.tacs ?? []) {
+    for (const iface of tac.interfaces ?? []) {
+      if (iface?.kind !== 'recordShape') continue;
+      const name = iface?.name;
+      if (typeof name !== 'string' || name.length === 0) continue;
+      out.add(name);
+    }
+  }
+  return out;
+}
+
+// Closed list of file-extension tokens; pattern 4 (dot notation) never
+// emits a field token drawn from this set. Belt and braces behind the
+// shape-name gate: a tree with a recordShape literally named `Json` or
+// `Md` would still not read `foo.json`/`CLAUDE.md` as a field.
+const PATTERN_4_FILE_EXTENSION_SKIP = new Set([
+  'md', 'json', 'jsonl', 'html', 'css', 'js', 'mjs', 'cjs', 'ts', 'vue',
+  'yaml', 'yml', 'txt', 'csv', 'pdf', 'png', 'jpg', 'svg', 'zip', 'wav',
+  'mp4', 'mov', 'log',
+]);
+
+/**
  * Pull field tokens out of a `then` clause. A field token is a word
  * that follows a verb like `set`, `write`, `include`, `return`,
  * `contain`, `name` or appears as the direct object of a `then`'s
@@ -2052,9 +2089,12 @@ function collectRecordShapeFields(tree) {
  * the check.
  *
  * @param {string} thenClause
+ * @param {Set<string>} [shapeNames] - recordShape names declared in
+ *   the tree. Pattern 4 (`<Head>.<field>` dot notation) emits a field
+ *   token only when the head is a member of this set (issue 315).
  * @returns {string[]}
  */
-function extractThenFieldTokens(thenClause) {
+function extractThenFieldTokens(thenClause, shapeNames = new Set()) {
   if (typeof thenClause !== 'string' || thenClause.length === 0) return [];
   const text = stripQuotedSubstrings(thenClause);
   /** @type {Set<string>} */
@@ -2076,11 +2116,33 @@ function extractThenFieldTokens(thenClause) {
   for (const m of text.matchAll(/\bfields?\s*[:=]\s*`?([A-Za-z_][A-Za-z0-9_]*)`?/g)) {
     if (m[1]) tokens.add(m[1]);
   }
-  // Pattern 4 (new, issue 311): `<ShapeName>.<fieldName>` dot
-  // notation. Shape names are PascalCase; the field name after the
-  // dot is the candidate.
-  for (const m of text.matchAll(/\b[A-Z][A-Za-z0-9_]*\.([a-z_][A-Za-z0-9_]*)\b/g)) {
-    if (m[1]) tokens.add(m[1]);
+  // Pattern 4 (narrowed, issue 315): `<ShapeName>.<fieldName>` dot
+  // notation. Shape names are PascalCase. 0.32.2 emitted a field
+  // token whenever a PascalCase-ish head sat next to a lowercase dot
+  // tail, which read filename stems (`CLAUDE.md`, `*.json`,
+  // `report.json`), non-shape PascalCase heads (`Math.random`,
+  // `ToolExecutionContext.pushLlmCall`), bare-letter version tags
+  // (`corpus-V.json`) and sentence-ending dots inside a dotted
+  // phrase (`Foo.the`) as record fields. Narrowing: emit ONLY when
+  // the head resolves to a recordShape name declared somewhere in
+  // the tree. Three belt-and-braces guards remain regardless of the
+  // shape-name set so a hostile shape-name collision cannot
+  // reintroduce the class: the field is not an English stop word
+  // (sentence-dot), not a known file extension (filename stems),
+  // and the match does not sit inside a path context (preceded by
+  // `/` or `./`, which also catches backticked paths like
+  // `rcf/evals/corpus-V.json`).
+  for (const m of text.matchAll(/\b([A-Z][A-Za-z0-9_]*)\.([a-z_][A-Za-z0-9_]*)\b/g)) {
+    const head = m[1];
+    const field = m[2];
+    if (!head || !field) continue;
+    if (!shapeNames.has(head)) continue;
+    if (STOP.has(field.toLowerCase())) continue;
+    if (PATTERN_4_FILE_EXTENSION_SKIP.has(field.toLowerCase())) continue;
+    const start = m.index ?? 0;
+    const beforeHead = text.slice(Math.max(0, start - 2), start);
+    if (/[\/]/.test(beforeHead)) continue;
+    tokens.add(field);
   }
   // Pattern 1 (narrowed, issue 311): backticked identifier WITH
   // explicit field evidence in its immediate neighbourhood AND no
