@@ -10,7 +10,7 @@ Thesis: the Readiness tab already has the right numbers and the wrong shape. The
 
 The question cards carry no link and no write-back, and the one real table reads three of thirty-six checks. The "For engineers" row holds the whole engineer rendering, which on an unfrozen tree is dominated by a delta list that prints every document in the tree (616 rows on WESPA, 1,055 on rcf-lite's own chain) with a diff widget each. Beside it sit a Coverage block that prints blanks because it reads fields the coverage result does not carry, dead links on every composite id, and a Freeze button wired to nothing.
 
-The command page is the same readiness object re-expressed as linked tables (questions, blocking items, thin requirements, coverage) with counts that are themselves links, plus three on-demand JSON routes that expose the pure trace, impact and coverage functions the CLI already calls, rendered as a coverage summary chart and a trace matrix for a chosen node. All of it stays server-rendered, GET-only, embed-safe and theme-tokened. The one thing the viewer cannot do today is write, so "resolve in place" means "open it and show the exact command" now, and a write route only if Baz wants one.
+The command page is the same readiness object re-expressed as linked tables (questions, blocking items, thin requirements, coverage) with counts that are themselves links, plus three on-demand JSON routes that expose the pure trace, impact and coverage functions the CLI already calls, rendered as a coverage summary chart and a trace matrix for a chosen node. All of it stays server-rendered, GET-only, embed-safe and theme-tokened. The viewer is read-only: it never renders CLI commands, and it never writes. "Resolve in place" means "open the item in full context and surface what settles it in human terms", so every row carries the id, the plain-English ask or finding, where it lives on the chain, a link to the item in full context, and what a resolved state would look like.
 
 Infographic sketches (static mocked pages, light theme, no external assets) sit beside this file:
 
@@ -46,7 +46,7 @@ The command page in this project is the Readiness tab: the one screen where a pr
 | 9 | Engineer | How much of the tree is covered by resolving tests? | Coverage block: tree column, delta column, re-verify and re-execute counts | Prints `pass / ` (blank) and "No per-REQ delta coverage" on every tree; the CLI line says `15/55 covered (strict)` for WESPA |
 | 10 | Engineer | Which test pointers do not resolve? | Not on the tab; Product Map "Trace coverage" counts structure only | 12 WESPA requirements show Complete on the map while `rcf audit coverage` reports every chain under them unresolved (covered 15, covered-unresolved 12, uncovered 28) |
 | 11 | Engineer | If REQ-001 changes, what has to be re-run or re-approved? | Nothing in the viewer; `rcf audit impact` in the CLI only (74 nodes, 138 edges for REQ-001 on WESPA) | Not exposed |
-| 12 | Engineer, agent | Show me the chain from this requirement down to its tests | Per-requirement Mermaid slice under Requirements (REQ, US, AC, FBS); `rcf audit trace` in the CLI | Test suites, test cases and components are absent from the slice; no node picker; no matrix |
+| 12 | Engineer, agent | Show me the chain from this requirement down to its tests |  (retiring) Per-requirement Mermaid slice under Requirements (REQ, US, AC, FBS); `rcf audit trace` in the CLI; the trace-matrix FBS in Section 9 retires this slice| Test suites, test cases and components are absent from the slice; no node picker; no matrix |
 | 13 | Agent | What exact command answers each question? | `rcf define questions --json` carries `writeBack[].command` per question | Computed and folded onto the readiness object in `src/view/index.js`, never rendered |
 | 14 | Operator inside WESPA | The same answers inside the admin SPA iframe | `?embed=1`, `?theme=`, relative asset URLs, SSE tab resync (0.32.0) all in place | Every new route must be added to the host's proxy allow-list (WESPA added `page-init.js` by hand for 0.29.0) |
 | 15 | Engineer | Can I freeze now? | "Freeze now" button plus the `rcf define freeze` command text | The button has no handler anywhere in `page-init.js` and the server answers 405 to anything but GET and HEAD (`src/server/routes.js`) |
@@ -69,7 +69,7 @@ Method: the Readiness panel was rendered for both trees with the shipped code pa
 - Counts: A has 3 questions in 1 group (151 words, 10 paragraphs, 3 details, 0 tables, 0 links); B has 0 questions (30 words, 0 links).
 - Kinds of information: question text, hint, stage and check id in the detail.
 - Items needing a resolve link: all 3 on A; each already carries `writeBack[].command` in the readiness object (for example `rcf define ledger brief add --text "<text>"`) and `itemId` (profile:surface, brief-ledger), neither rendered.
-- Baz's rule: this becomes a table: number, question, where it lives (link), what settles it, the exact write-back, state.
+- Baz's rule: this becomes a table: number, question, where it lives (link), what settles it, the ask in brief-your-agent form (id plus one-line ask, copyable), state. No CLI command rendered on the page.
 
 ### 3.3 What happens next (renderNextStep)
 
@@ -132,8 +132,8 @@ Rank 1 is highest. Baz value is scored on reader clarity (C), operator action (A
 
 | Rank | Capability | C | A | T | Cost | Evidence and notes |
 |---|---|---|---|---|---|---|
-| 1 | Questions for you as a sortable table: number, question, where it lives (link), what settles it, exact write-back (copyable), state | H | H | L | M | `readiness.questions[]` already carries `itemId`, `context.sourceSpan`, `answerKinds`, `writeBack[].command` (`src/query/questions.js`); nothing new to compute |
-| 2 | Blocking items table for engineers: one row per failing item (stage, check, id as a link, why, re-check command), filterable by stage and persona, no 20-row cap | H | H | M | M | `stages[].checks[].failing[]` has `{id, why}`; composite ids split on the first colon to a real document id plus a fragment |
+| 1 | Questions for you as a sortable table: number, question, where it lives (link), what settles it, a copyable brief-your-agent handle (id plus one-line ask), state. No CLI command rendered on the page (Q1 ruling, Section 7). | H | H | L | M | `readiness.questions[]` already carries `itemId`, `context.sourceSpan`, `answerKinds`, `writeBack[].command` (`src/query/questions.js`); the brief handle is composed from `itemId` and the question ask, not from `writeBack[].command` |
+| 2 | Blocking items table for engineers: one row per failing item (stage, check, id as a link, plain-English why, what resolved looks like), filterable by stage and persona, no 20-row cap. No command rendered on the page (Q1 ruling, Section 7). | H | H | M | M | `stages[].checks[].failing[]` has `{id, why}`; composite ids split on the first colon to a real document id plus a fragment |
 | 3 | Coverage block fixed and promoted to a coverage summary: totals, per-requirement rows (covered / unresolved / uncovered), unresolved pointers with reason | H | M | H | S | `coverage.tree.totals`, `requirements[].coverageClass`, `unresolvedTestPointers[]` are already on the readiness object (`src/query/coverage.js`) |
 | 4 | Thin requirements table widened: stories with zero criteria, criteria with no resolving test, D4 floor failures, each with a reason and an Open link | H | H | M | M | Map US ids to REQ via `reqId`; reuse `groupByTraceCoverage` buckets from `src/view/product-map.js` |
 | 5 | Delta as counts with an on-demand list, never 616 rows on first paint | H | L | L | S | `delta.{changed, added, removed, briefSince, impacted, impactedFbs}` are counts already |
@@ -147,7 +147,7 @@ Rank 1 is highest. Baz value is scored on reader clarity (C), operator action (A
 | 13 | Keyboard shortcuts beyond the existing Cmd or Ctrl+F lookup (row navigation, t for trace) | L | L | L | S | Defer; no evidence anyone asked |
 | 14 | For engineers rewritten as named engineer items (missing coverage, failing checks by id, orphan interfaces, unresolved pointers) and the DocRow wrapper removed | H | H | M | included in 2, 3, 5, 6 | The content survives; the dump does not |
 | 15 | Resolve in place as a write route (POST to a verb such as `rcf define update`) | H | H | L | L, decision first | Server is GET and HEAD only; the host's auth would gate it in WESPA; see question 1 |
-| 16 | Freeze now: remove the button, keep the command text | M | L | L | S | A dead control on the command page costs trust |
+| 16 | Freeze now: remove the dead button; show the state and what resolves it in human terms. No command text on the page (Q4 ruling, Section 7). | M | L | L | S | A dead control on the command page costs trust |
 | 17 | Readiness state timeline (optional) | L | L | M | defer | Needs a persisted snapshot per rewalk; none exists |
 
 ## 5. Data already available vs needs computing
@@ -186,12 +186,12 @@ D8 Freeze     6/7   1 fail    -               failing   [1 item]
 
 ### 6.2 Questions table (sketch 4)
 
-What it shows: one row per question: number, the plain question, where it lives (a link to the statement, profile field or requirement), what settles it (the hint), the exact write-back as a copyable command, and a state column (open; answered appears after the next rewalk). Data: `readiness.questions[]` and `questionGroups[]`; the group label becomes a sortable column, not a heading. Shape: sortable by number, stage, group.
+What it shows: one row per question: number, the plain question, where it lives (a link to the statement, profile field or requirement), what settles it (the hint), a copyable brief-your-agent handle (id plus one-line ask, no command string), and a state column (open; answered appears after the next rewalk). Data: `readiness.questions[]` and `questionGroups[]`; the group label becomes a sortable column, not a heading. Shape: sortable by number, stage, group. Q1 ruling: no CLI command is rendered on the page.
 
 ```
-#  Question                                   Where            Settles it            Write-back                          State
-1  What is this project for?                  brief ledger     a document or text    rcf define ledger brief add ...     open
-2  Where will you look at what we produce?    profile:surface  pick one              edit rcf/.identity/profile.md       open
+#  Question                                   Where            Settles it            Brief for your agent (copy)       State
+1  What is this project for?                  brief ledger     a document or text    brief-ledger: project purpose     open
+2  Where will you look at what we produce?    profile:surface  pick one              profile:surface: viewing surface  open
 ```
 
 ### 6.3 Thin requirements table, including insufficient criteria (sketch 4)
@@ -241,6 +241,23 @@ US-002  AC-002-1    x        x(unres)   .           x         x      <- pointer 
 
 ## 7. Risks
 
+Decisions received since the brief are listed first; mitigations and open-risks follow.
+
+### 7.1 Decisions received
+
+- **Q1 ruled by Barry, 2026-10-07** (relay 9d3dd0a3-e7e5-4c6a-985e-c3962be38d4c, verbatim quote): "I meant provide the info they need to resolve with their agent. Keep the commands out of the view - the user isnt typing those commands - remember - the user operates their agent which uses these commands. Showing them here is little value." The viewer stays read-only, no CLI commands rendered on the page, no write route. Every row carries the item id, the plain-English ask or finding, the chain location (which REQ, US, AC, which gate), a link that opens the item in full context, and what resolved would look like. A per-row brief-your-agent handle (id plus plain-English ask, one line, copyable) is in scope as a design candidate for the wireframe at DEFINE; Barry rules on the render.
+- **Q2 ruled** (delta on an unfrozen tree): counts only, on-demand expand.
+- **Q3 ruled** (thin requirements table): list all three flavours (zero criteria, unresolved tests, D4 floor failures).
+- **Q4 ruled** (freeze-now): no freeze button, no command text on the page; show the state and what resolves it in human terms.
+- **Q5 ruled at DEFINE** (sub-tabs versus one long page): decided on the render; two HTML sketches (same data, both shapes) land in `guidance/discovery/` at DEFINE and Barry rules.
+- **Admissibility note (F2)**: the proposed viewer trace, impact and coverage routes skip `runWithAdmissibilityGate` the same way `src/cli/coverage.js` and `src/cli/impact.js` do (issue 316 and 317 context), so the BUILD worker does not re-apply the gate and refuse on WESPA. The DEFINE TAC states the admissibility statement explicitly.
+- **No Mermaid user-facing**: the per-requirement Mermaid trace slice (Section 2 row 12) is retired by the Trace-matrix FBS in Section 9. No new Mermaid lands on the viewer.
+- **Full traceability scan (ex-Q6, F1 mitigation)**: on an unfrozen tree the scan is on-demand per pivot with the result cached client-side keyed by `state.version`; a whole-tree re-walk per rewalk would be 1.5 MB of JSON every 30 seconds on WESPA and is out of scope. Barry's framing already covers it ("full traceability scan on-demand").
+
+### 7.2 Open risks
+
+
+
 - Embed-mode layout: the page cannot assume the title block, footer or theme control exist (`html[data-embed="1"]` hides them), and tables wider than the WESPA iframe will scroll the page horizontally, which the shell forbids. Mitigation: tables use the existing `.rcf-filterbar` sticky pattern, collapse to stacked rows under 720px, and the sub-tab strip stays inside the panel.
 - Dark-theme contrast: `test/view/contrast-aa.test.js` enumerates every colour pair in both themes and fails the suite below 4.5:1 for text and 3:1 for boundaries, so any new chart colour that is not an existing `--sv-*` token on a known surface breaks the build. Mitigation: no new tokens in the first pass; bars and cells use `--sv-success`, `--sv-warning`, `--sv-danger` on `--sv-surface`.
 - SSE resync (the issue 297 class): every `tree-update` replaces the whole of `#rcf-live-content`, so an on-demand scan rendered inside it is wiped on the next swap, which arrives about every 30 seconds while the heartbeat writes `rcf/manifest.json`. Mitigation: cache the scan result client-side keyed by `state.version` (the Product Map partial cache is the precedent), re-render after `rcfPage.init()`, and mark the result stale rather than dropping it.
@@ -254,16 +271,10 @@ US-002  AC-002-1    x        x(unres)   .           x         x      <- pointer 
 
 ## 8. Open questions for Baz
 
-1. Resolve in place: today the viewer cannot write (the server accepts GET and HEAD only). Should the command page (a) show the exact command next to each row and link to the item, or (b) also get a write route that runs the CLI verb? Recommendation: (a) now, (b) as its own DEFINE decision; caveat: (b) turns the viewer into a mutating surface behind WESPA's proxy and inherits the host's auth.
-2. "For engineers" row: the DocRow wrapper is retired and its content becomes the blocking items table, the verdict grid, the delta counts and the coverage summary. Yes to retiring the wrapper, or keep a collapsed row? Recommendation: retire it; caveat: AC-18002-3 says engineer blockers are never removed from the DOM, which the tables satisfy.
-3. Delta: on an unfrozen tree the delta is the whole tree. Counts only with an on-demand list (recommended), or keep rows with a cap? Caveat: the on-demand list needs a route or a client-side expand over data already on the page.
-4. Insufficient criteria, the definition: a story with zero criteria, a criterion with no resolving test, or a story failing the D4 floors. All three in the thin requirements table (recommended), or only the first? Caveat: the third repeats engineer findings in a product-owner table; the reason column keeps them distinguishable.
-5. Trace visual: matrix (recommended) or sunburst? Caveat: a sunburst can be added as an overview later; a matrix is the working view.
-6. Full traceability scan: on demand per pivot with a cached result (recommended), or computed on every rewalk for the whole tree? Caveat: whole-tree on every rewalk is 1.5 MB per 30 seconds on WESPA.
-7. Freeze now: remove the dead button and keep the command (recommended), or wire it as the first write route? Caveat: wiring it is question 1 (b) in disguise.
-8. Readiness sub-tabs (Overview, Questions, Blocking, Coverage, Trace) with the hash carrying `sub=` (recommended), or one long page? Caveat: the embed gets a second row of controls under the tab nav.
-9. Readiness timeline: defer (recommended) or include a minimal snapshot log under `.rcf/`? Caveat: it is the only item that persists anything.
-10. First-paint audience: keep the profile register ordering (product owner first unless the profile says engineer), which is what WESPA relies on. Yes (recommended), or always product owner first? Caveat: WESPA's register is engineer, so Baz's own view opens on the engineer tables.
+Rulings landed between discovery and DEFINE are recorded in Section 7 (decisions received). Open items follow.
+
+1. "For engineers" row: the DocRow wrapper is retired and its content becomes the blocking items table, the verdict grid, the delta counts and the coverage summary. Yes to retiring the wrapper, or keep a collapsed row? Recommendation: retire it; caveat: AC-18002-3 (in `packages/rcf-lite/rcf/user-stories/us-18002.json`) says engineer blockers are never removed from the DOM, which the tables satisfy.
+2. Readiness timeline: defer (recommended) or include a minimal snapshot log under `.rcf/`? Caveat: it is the only item that persists anything.
 
 ## 9. Proposed DEFINE scope split into FBS-sized pieces
 
@@ -271,13 +282,21 @@ Order is the build order. Chain ids are proposals; the DEFINE stage mints them. 
 
 | FBS title | One-line goal | Capabilities (section 4) | `src/view/` and `src/query/` files | Chain nodes added or edited | Est. tests | Order |
 |---|---|---|---|---|---|---|
-| Readiness tables: questions and blocking items | Replace the question cards and the blocker cards with two linked tables, composite ids resolved, no row cap | 1, 2, 16 | `view/readiness.js`, `view/readiness/po-layer.js`, `view/readiness/question-adapter.js`, new `view/readiness/tables.js`, `view/style.css` | US under REQ-180 settled from the discovery draft statement, with criteria; TAC-4133 interfaces; new ADR "tables over prose, composite ids split on the first colon" | +12 in `test/view/readiness-tab.test.js` and `readiness-po-layer.test.js` | 1 |
+| Readiness tables: questions and blocking items | Replace the question cards and the blocker cards with two linked tables, composite ids resolved, no row cap, no CLI command rendered on the page (Q1); first-paint audience preserves the `profile.register` ordering WESPA relies on (product owner first unless the profile says engineer; folded from ex-Q10 per WESPA precedent) | 1, 2, 16 | `view/readiness.js`, `view/readiness/po-layer.js`, `view/readiness/question-adapter.js`, new `view/readiness/tables.js`, `view/style.css` | US under REQ-180 settled from the discovery draft statement, with criteria; TAC-4133 interfaces; new ADR "tables over prose, composite ids split on the first colon" | +12 in `test/view/readiness-tab.test.js` and `readiness-po-layer.test.js` | 1 |
 | Coverage summary and thin requirements | Fix the blank Coverage block and promote it to the coverage summary; widen the thin requirements feed; align the Product Map trace bucket with resolution-gated coverage | 3, 4, 14 | `view/readiness.js` (renderCoverage), new `view/readiness/coverage-summary.js`, new `view/readiness/thin-reqs.js`, `view/product-map.js`, `view/style.css` | New US under REQ-180; TAC-4127 edit; new ADR "the viewer counts coverage the way the CLI does" | +10 in `test/view/readiness-tab.test.js` and `product-map.test.js` | 2 |
 | Readiness layout: verdict grid, sub-tabs, delta counts, For-engineers retired | Grid above the fold, sub-tab strip with `sub=` in the hash, delta as counts, DocRow removed | 5, 6, 11, 14 | `view/readiness.js`, `view/components/sub-tab-strip.js` (use), `view/page-init.js` (readiness `sub=`), `view/style.css` | US under REQ-180; TAC-4133 edit; ADR-4127 edit (register orders, never hides) | +10 in `tabs.test.js`, `layout-regression.test.js`, `readiness-tab.test.js` | 3 |
 | Query routes: trace, impact, coverage as JSON | Three GET routes computed from the current state and cached by version, relative paths, release-noted for proxy allow-lists | 7 (server half) | `src/server/routes.js`, `src/view/index.js` (state), `src/query/` unchanged | New US under REQ-002 (Visual review surface); new TAC "view query routes" or TAC-003 edit; new ADR "query routes are GET, per pivot, cached by version" | +8 in `test/view/cli.test.js` and `integration.test.js` | 4 |
-| Trace matrix, trace actions, lookup integration | Matrix sub-view for a selected node, a Trace action on every id, lookup hits land on readiness rows | 8, 9, 12 | `view/page-init.js`, new `view/readiness/trace-matrix.js`, `view/components/entity-selector.js`, `view/style.css` | New US under REQ-180 or REQ-002; TAC-4132 edit; new ADR "matrix, not sunburst" | +10 in `readiness-tab.test.js`, `id-lookup.test.js`, `wespa-host-fixture.test.js` | 5 |
+| Trace matrix, trace actions, lookup integration (retires the per-requirement Mermaid slice) | Matrix sub-view for a selected node, a Trace action on every id, lookup hits land on readiness rows; the per-requirement Mermaid trace slice (Section 2 row 12) is removed in the same change | 8, 9, 12 | `view/page-init.js`, new `view/readiness/trace-matrix.js`, `view/components/entity-selector.js`, `view/style.css`, remove the per-REQ Mermaid render path in `view/requirements.js` | New US under REQ-180 or REQ-002; TAC-4132 edit; new ADR "matrix, not sunburst; no Mermaid user-facing" | +10 in `readiness-tab.test.js`, `id-lookup.test.js`, `wespa-host-fixture.test.js` | 5 |
 | Impact view and keyboard shortcuts | Impact sub-view with action labels; row navigation keys | 10, 13 | `view/page-init.js`, new `view/readiness/impact-view.js` | New US; ADR as needed | +6 | defer |
-| Resolve in place write route | A POST route that runs one CLI verb per question write-back | 15 | `src/server/routes.js`, new `src/server/write.js` | New REQ; TAD security section; new ADR | +10 | defer, pending question 1 |
 | Readiness timeline | Snapshot per rewalk under `.rcf/`, small chart | 17 | `src/server/`, `view/readiness/` | New US; ADR on persistence | +6 | defer, pending question 9 |
 
 Chain-first note for this PR: the discovery artefacts that fit the chain today are brief-ledger statements under `rcf/define/` (none exist on this tree yet; the ledger is created by the CLI on first add). A `[draft]` story was rehearsed and rejected for this PR: `rcf define create us` always writes one placeholder criterion (the schema requires at least one), and CI runs `rcf audit coverage` in strict mode, so a draft story with no resolving test turns REQ-180 uncovered and fails the build. The stories above are minted at DEFINE with their criteria and suites in the same change.
+
+### 9.1 Query modules named in the brief but not in the DEFINE plan (F8)
+
+- **gates**: folded. The admissibility gate stays as it is in the CLI (`src/cli/coverage.js`, `src/cli/impact.js`); the viewer routes bypass it the same way (Section 7.1 F2). No gates-specific FBS.
+- **attestation**: deferred. Attestation is a separate build-cycle lane and does not touch the Readiness tab or the three viewer query routes; no FBS in this window.
+- **eval-coverage**: deferred. Readiness coverage counts (Section 6.4) and the trace matrix (Section 6.5) cover the operator's and engineer's needs here; eval-coverage is a separate programme and does not land as its own FBS in this scope.
+- **delta**: folded. On an unfrozen tree the delta is counts only with on-demand expand (Section 7.1 Q2), rendered as part of the Readiness layout FBS (order 3), not its own FBS.
+- **questions**: folded. The computeQuestions path already exists (`src/query/questions.js`); the Readiness tables FBS (order 1) renders it as a table with the brief-your-agent handle. No new query module for questions.
+

@@ -8,8 +8,7 @@
     {"slug": "persona-programme", "file": "persona-programme.md", "title": "Persona programme: tail-interview template"},
     {"slug": "define-intent", "file": "define-intent.md", "title": "The product-owner intent loop (DEFINE step 3)"},
     {"slug": "define-intake", "file": "define-intake.md", "title": "Document intake into the brief ledger (DEFINE step 3)"},
-    {"slug": "discovery-prototypes", "file": "discovery-prototypes.md", "title": "DISCOVERY home for prototypes (DEFINE step 3)"},
-    {"slug": "discovery-viewer-command-page", "file": "discovery-viewer-command-page.md", "title": "Discovery: the viewer Readiness tab as the command page"}
+    {"slug": "discovery-prototypes", "file": "discovery-prototypes.md", "title": "DISCOVERY home for prototypes (DEFINE step 3)"}
   ],
   "prompts": [
     {"name": "rcf_execute_build_cycle", "file": "build-cycle-playbook.md", "description": "How to execute the RCF 5-stage build cycle well: per-stage guidance, referee commands, failure modes, escalation rules. Fetch once per session, then drive rcf build bundle --next."},

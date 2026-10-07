@@ -5,6 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Discovery sketch: 3-trace-matrix</title>
 <style>
+    <!-- F7-note: these --sv-* hex tokens are the LIGHT-mode palette only; the dark-mode block lives in src/view/style.css under html[data-theme="dark"] (and its auto variant) and is covered pair-by-pair by test/view/contrast-aa.test.js. The sketches set color-scheme: light to keep OS dark-mode from re-inking them; the viewer runtime switches tokens by data-theme, not by color-scheme. -->
 :root {
   --sv-canvas: #F6F8FC; --sv-surface: #FFFFFF; --sv-raised: #EEF2F8; --sv-ink: #111927;
   --sv-muted: #536176; --sv-border: #D8DFEA; --sv-control: #738198; --sv-link: #2447EB;
