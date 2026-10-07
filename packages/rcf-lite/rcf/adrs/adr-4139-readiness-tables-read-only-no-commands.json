@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-07T13:46:28.982Z",
+  "updatedAt": "2026-10-07T13:46:28.982Z",
+  "context": "Discovery (guidance/discovery/discovery-viewer-command-page.md, sections 3 and 7) measured the Readiness tab on two real trees: 22,184 words and one table on rcf-lite's own chain, 1,417 links of which 206 are dead, a 1,055-row delta list on first paint, blocker cards capped at 20 ids, a Coverage block that prints blanks, and a Freeze now button with no handler on a GET-only server. The product owner's rule for the page is lists, tables, counts and links, and the page is to serve as the command page. The product owner ruled Q1 on 2026-10-07: the viewer stays read-only and shows no CLI commands; the user operates an agent which runs the commands, so a command string on the page is of little value; each row carries what a human needs to brief their agent. Q4 ruled the same way for the freeze control.",
+  "decision": "The Readiness tab is rebuilt as linked tables over the readiness object the viewer already has, and the viewer stays read-only with no command text anywhere on the page. Every question and every failing item is a table row carrying the item id, the plain-English ask or finding, the chain location, a link that opens the item in full context, and what resolved looks like; the questions table adds a one-line copy handle holding the id and the ask (no command). Composite finding ids split on the first colon so every link resolves to a real document. There is no freeze button and no write route; the freeze block shows the state and what resolves it in words. The delta on an unfrozen tree is counts only with an on-demand list. Counts on the verdict cards are links into the tables they count.",
+  "consequences": "The For-engineers DocRow, the question cards, the blocker cards, the first-paint delta list and the Freeze now control are removed; their content survives in named tables and blocks, so AC-18002-3 (engineer blockers never removed from the DOM) still holds. readiness.questions[].writeBack[].command stays on the object for the CLI and the agent and is never rendered. A row that names an item an agent must act on is briefed through the copy handle, not through a command. The render stays pure and server-side; the CLI and the tab cannot disagree on the same tree hash.",
+  "alternativesConsidered": [
+    {
+      "name": "Show the exact CLI command per row",
+      "summary": "Render readiness.questions[].writeBack[].command beside each question and a re-check command beside each blocker.",
+      "reasonNotChosen": "Ruled out by the product owner on 2026-10-07 (Q1): the operator does not type those commands, the agent does; showing them on the page is little value and invites a human to paste commands by hand."
+    },
+    {
+      "name": "A POST write route that resolves in place",
+      "summary": "Add a write route that runs the CLI verb for a row and re-renders.",
+      "reasonNotChosen": "The server is GET and HEAD only by design; a write route races the heartbeat's manifest write (issue 236) and would be gated by the host's auth inside an embedding shell. Ruled out with Q1."
+    },
+    {
+      "name": "Keep the cards and add links",
+      "summary": "Keep the question cards and blocker cards, add a link per card.",
+      "reasonNotChosen": "Cards do not sort, filter or count; the 20-id cap and the per-card prose are the shape the product owner called scrappy. Tables give counts for free."
+    }
+  ],
+  "adrId": "ADR-4139-readiness-tables-read-only-no-commands",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "The Readiness tab is linked tables over the readiness object; the viewer stays read-only and renders no CLI command text"
+}

@@ -1,0 +1,68 @@
+{
+  "createdAt": "2026-10-07T13:46:28.216Z",
+  "updatedAt": "2026-10-07T13:46:28.216Z",
+  "purpose": "Expose the pure trace, impact and coverage computes the CLI already calls as three GET JSON routes on the viewer server, computed from the current walked state and cached per state.version, and render a trace matrix for a selected node on the Readiness tab's Trace sub-tab with a Trace action on every id. Admissibility statement: the three routes do NOT call runWithAdmissibilityGate; they bypass the gate exactly as src/cli/coverage.js, src/cli/impact.js and src/cli/trace.js do (issues 316 and 317 context), so a tree that fails admissibility still answers trace, impact and coverage in the viewer; only readiness and freeze consult the gate. The routes are read-only, GET and HEAD only like every other route, and never write under rcf/.",
+  "responsibilities": [
+    "src/server/routes.js: three handlers after /index.json, each reading deps.currentState(), answering 503 view server initialising before the first walk, 404 unknown-id for an unknown pivot, 400 bad-direction for a bad direction, and application/json with cache-control: no-store otherwise. Relative to the viewer mount so a reverse proxy sees ./trace.json under the mount point; release-noted so host allow-lists (the WESPA proxy added ./page-init.js by hand for 0.29.0) are extended before a version pin bump.",
+    "src/view/index.js: renderModelToPage keeps the walked tree on the returned state (additive) so the routes compute per request from the same tree the page was rendered from; a per-version memo (queryCache) keyed by state.version and the pivot plus direction holds each computed result so a repeated request is served from memory and a rewalk discards the previous version's entries.",
+    "src/query/: unchanged. computeTrace(tree, { id, direction }), computeImpact(tree, { id }) and computeCoverage(tree, { testPointers, mode }) are imported as they are; no new query module.",
+    "src/view/readiness/trace-matrix.js: renderTraceMatrix(trace, coverage, model) builds the matrix from a forward trace: rows are the stories and criteria under the pivot, columns are suites, cases, build specs and components (component via usByTacId), cells coloured by resolution from coverage acs[]; a row filter appears past 200 rows; the empty state names an unknown pivot.",
+    "src/view/page-init.js: wireTraceMatrix fetches ./trace.json and ./coverage.json for the pivot from the hash (entity= on sub=trace), caches the result in memory keyed by state.version, re-renders after an SSE swap and marks the result stale until the next fetch; every table row's Trace action and the lookup modal's readiness hits write #tab=readiness&sub=trace&entity=<id>.",
+    "src/view/html-page.js and src/view/mermaid-diagram.js: the per-requirement Mermaid slice (allRequirementSubdiagrams and the rcf-req-slice details) is removed; no Mermaid is rendered user-facing by this capability."
+  ],
+  "internalStructure": "Server half: route handlers in src/server/routes.js that call the pure query functions on the state's tree and memoise by (version, pivot, direction) in a Map held on the server closure; the memo is replaced wholesale on every rewalk. Client half: wireTraceMatrix in page-init.js (fetch, cache, render, stale marking) and the pure renderer in src/view/readiness/trace-matrix.js. No inline script; no new dependency; no new localStorage key (the cache is a page-lifetime Map); theme by --sv-* tokens only.",
+  "interfaces": [
+    {
+      "name": "GET /trace.json",
+      "kind": "httpRoute",
+      "description": "method: GET\npath: /trace.json?id=<id>&direction=<forward|back|both>\nrequest: query id (a document id or inline AC or TC id), direction defaulting to forward\nresponse: application/json, the computeTrace result verbatim (pivot, direction, found, nodes[], edges[] or ancestors[] and descendants[] for both); cache-control: no-store\nerrors: 503 text before the first walk; 404 QueryRouteError unknown-id; 400 QueryRouteError bad-direction; 405 for any method other than GET or HEAD"
+    },
+    {
+      "name": "GET /impact.json",
+      "kind": "httpRoute",
+      "description": "method: GET\npath: /impact.json?id=<id>\nrequest: query id\nresponse: application/json, the computeImpact result verbatim (pivot, found, nodes[] with actionNeeded, edges[]); cache-control: no-store\nerrors: 503 text before the first walk; 404 QueryRouteError unknown-id; 405 for any method other than GET or HEAD"
+    },
+    {
+      "name": "GET /coverage.json",
+      "kind": "httpRoute",
+      "description": "method: GET\npath: /coverage.json?scope=<id>\nrequest: optional query scope narrowing to a PRD, REQ or US subtree as the CLI positional does; omitted means the whole tree; strict per-AC mode always\nresponse: application/json, the computeCoverage result verbatim (totals, requirements[] with acs[], unresolvedTestPointers[]); cache-control: no-store\nerrors: 503 text before the first walk; 400 QueryRouteError bad-scope for a below-AC or unknown scope id; 405 for any method other than GET or HEAD"
+    },
+    {
+      "name": "queryCache",
+      "kind": "other",
+      "description": "Server-side memo keyed by state.version plus pivot plus direction (or scope). One compute per key per version; replaced wholesale when the walker publishes a new version. Never persisted; never written under rcf/."
+    },
+    {
+      "name": "renderTraceMatrix",
+      "kind": "other",
+      "description": "renderTraceMatrix(trace, coverage, model) returns the matrix HTML for a forward trace: TraceMatrixRow per story and criterion, columns for suites, cases, build specs and components, TraceMatrixCell per intersection coloured by resolution; empty state when trace.found is false; row filter when rows exceed 200."
+    },
+    {
+      "name": "wireTraceMatrix",
+      "kind": "other",
+      "description": "Client wiring in page-init.js: reads entity= under sub=trace, fetches ./trace.json and ./coverage.json relative to the mount, caches by state.version in a page-lifetime Map, renders through renderTraceMatrix's client mirror, re-renders after an SSE innerHTML swap and marks stale; also decorates every id in the readiness tables with the Trace action and routes lookup hits for readiness rows."
+    },
+    {
+      "name": "TraceMatrixRow",
+      "kind": "recordShape",
+      "description": "One row of the matrix.\nfields: usId, acId, title, cells\nnotes: usId and acId identify the story and criterion; title is the criterion text; cells is the TraceMatrixCell list in column order."
+    },
+    {
+      "name": "TraceMatrixCell",
+      "kind": "recordShape",
+      "description": "One cell of the matrix.\nfields: columnId, columnKind, reached, resolution\nnotes: columnKind is ts, tc, fbs or tac; reached is true when the trace reaches the column from the row's criterion; resolution is resolving, unresolved or none, read from coverage acs[] for tc columns and none otherwise."
+    },
+    {
+      "name": "QueryRouteError",
+      "kind": "recordShape",
+      "description": "The JSON error body the three routes return on 400 and 404.\nfields: error, id, direction, scope\nnotes: error is unknown-id, bad-direction or bad-scope; id, direction and scope echo the request values that were present."
+    }
+  ],
+  "notes": "Decision taken (ADR-4140): GET per pivot, cached by version, no whole-tree dump (PRD-001 forward on the largest consumer tree is 2,972 nodes and 1.5 MB of JSON), matrix not sunburst, no Mermaid user-facing, and the admissibility bypass stated above. Embed and theme contract (issues 263 and 264): the three routes are relative to the mount and release-noted for proxy allow-lists; the client cache is a page-lifetime Map, not localStorage; the matrix uses only --sv-success, --sv-warning, --sv-danger and --sv-muted on --sv-surface so test/view/contrast-aa.test.js is unaffected. Deferred and named: an impact sub-view with action labels per row and keyboard row navigation (discovery capabilities 10 and 13), a readiness timeline (17), and the Product Map trace bucket realignment to resolution-gated coverage; none of them is in the five FBS of this DEFINE.",
+  "tacId": "TAC-4136-view-query-routes",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "View query routes: trace, impact and coverage as JSON, the trace matrix and Trace actions"
+}

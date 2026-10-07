@@ -48,6 +48,20 @@ REQ-002      yes      AC-201-1     yes         TC-003-one-subdiagram-per-req, TC
                       AC-206-10    yes         TC-229-reinit-keeps-control-choice, TC-229-theme-control-...
                       AC-207-1     yes         TC-236-aa-enumerates-all-pairs, TC-236-state-merge-and-bo...
                       AC-207-2     yes         TC-236-aa-failure-message
+                      AC-208-1     yes         TC-240-208-1-happy
+                      AC-208-2     yes         TC-240-208-2-happy
+                      AC-208-3     yes         TC-240-208-3-happy
+                      AC-208-4     yes         TC-240-208-4-failure
+                      AC-208-5     yes         TC-240-208-5-mustnot
+                      AC-208-6     yes         TC-240-208-6-edge
+                      AC-208-7     yes         TC-240-208-7-failure
+                      AC-209-1     yes         TC-241-209-1-happy
+                      AC-209-2     yes         TC-241-209-2-happy
+                      AC-209-3     yes         TC-241-209-3-happy
+                      AC-209-4     yes         TC-241-209-4-edge
+                      AC-209-5     yes         TC-241-209-5-mustnot
+                      AC-209-6     yes         TC-241-209-6-failure
+                      AC-209-7     yes         TC-241-209-7-edge
 REQ-003      yes      AC-301-1     yes         TC-006-read-reports-valid
                       AC-301-2     yes         TC-006-read-unknown-id-not-found
                       AC-301-3     yes         TC-006-read-invalid-content-plus-errors
@@ -605,6 +619,29 @@ REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
                       AC-18002-1   yes         TC-227-groups-and-asks
                       AC-18002-2   yes         TC-227-empty-questions-verdict
                       AC-18002-3   yes         TC-227-engineer-dom-preserved
+                      AC-18003-1   yes         TC-237-18003-1-happy
+                      AC-18003-2   yes         TC-237-18003-2-edge
+                      AC-18003-3   yes         TC-237-18003-3-happy
+                      AC-18003-4   yes         TC-237-18003-4-edge
+                      AC-18003-5   yes         TC-237-18003-5-happy
+                      AC-18003-6   yes         TC-237-18003-6-failure
+                      AC-18003-7   yes         TC-237-18003-7-mustnot
+                      AC-18003-8   yes         TC-237-18003-8-happy
+                      AC-18004-1   yes         TC-238-18004-1-happy
+                      AC-18004-2   yes         TC-238-18004-2-happy
+                      AC-18004-3   yes         TC-238-18004-3-happy
+                      AC-18004-4   yes         TC-238-18004-4-happy
+                      AC-18004-5   yes         TC-238-18004-5-happy
+                      AC-18004-6   yes         TC-238-18004-6-failure
+                      AC-18004-7   yes         TC-238-18004-7-mustnot
+                      AC-18005-1   yes         TC-239-18005-1-happy
+                      AC-18005-2   yes         TC-239-18005-2-happy
+                      AC-18005-3   yes         TC-239-18005-3-happy
+                      AC-18005-4   yes         TC-239-18005-4-happy
+                      AC-18005-5   yes         TC-239-18005-5-happy
+                      AC-18005-6   yes         TC-239-18005-6-edge
+                      AC-18005-7   yes         TC-239-18005-7-mustnot
+                      AC-18005-8   yes         TC-239-18005-8-failure
 REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
                       AC-18101-2   yes         TC-223-findings-list-markup
                       AC-18101-3   yes         TC-223-no-existing-tab-tests-change

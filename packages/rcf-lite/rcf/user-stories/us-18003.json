@@ -1,0 +1,79 @@
+{
+  "createdAt": "2026-10-07T13:46:47.389Z",
+  "updatedAt": "2026-10-07T13:46:47.389Z",
+  "description": "User story under REQ-180 for the command page (discovery-viewer-command-page sections 4 rank 1, 2 and 16; FBS-204). The question cards and the blocker cards become two tables over readiness.questions[] and stages[].checks[].failing[]: every row carries the item id, the plain-English ask or finding, where it lives on the chain, a link that opens the item in full context, and what resolved looks like. Composite finding ids split on the first colon so every link resolves. No row cap. The questions table carries a one-line copy handle (id plus ask) for briefing an agent; no CLI command is rendered anywhere on the page and the Freeze now button is gone (Q1 and Q4 rulings, ADR-4139). First paint keeps the profile register ordering (product owner first unless the profile says engineer).",
+  "asA": "a product owner or an engineer opening the Readiness tab",
+  "iWant": "every question waiting on me and every blocking item as a table row I can sort, count and open where it lives",
+  "soThat": "I can brief my agent from the row without reading prose or a terminal",
+  "tacIds": [
+    "TAC-4135-readiness-command-page"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18003-1",
+      "description": "[happy] Given readiness.questions is non-empty, when the questions sub-view renders, then it is one table with one QuestionRow per question carrying QuestionRow.number, QuestionRow.ask, QuestionRow.location as a link that opens the item in full context, QuestionRow.settles in plain words and QuestionRow.state, and the group label is a sortable column rather than a heading.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[renderQuestionsTable]"
+      }
+    },
+    {
+      "id": "AC-18003-2",
+      "description": "[edge] Given a question whose itemId is not a document id (a brief statement such as \"brief-ledger\" or a profile field such as \"profile:surface\"), when the row renders, then QuestionRow.locationHref is \"#tab=readiness&sub=questions&entity=<itemId>\" and the router lands on that row, so the page never emits a dead anchor.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[QuestionRow]"
+      }
+    },
+    {
+      "id": "AC-18003-3",
+      "description": "[happy] Given every failing check across stages, when the blocking sub-view renders, then it is one table with one BlockingRow per failing item carrying BlockingRow.stage, BlockingRow.check, BlockingRow.docId as a link, BlockingRow.why from the gate and BlockingRow.resolved in plain words, with no cap on the number of rows and a FilterBar by stage and persona.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[renderBlockingTable]"
+      }
+    },
+    {
+      "id": "AC-18003-4",
+      "description": "[edge] Given a composite failing id such as \"AC-060-3:userID\" or \"TAC-4122-define-gates:checkPersona\", when its row renders, then BlockingRow.docId is the text before the first colon, BlockingRow.fragment is the remainder and BlockingRow.href targets the document id so the link resolves through findByDocId.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[splitCompositeId]"
+      }
+    },
+    {
+      "id": "AC-18003-5",
+      "description": "[happy] Given a question row, when the copy control renders, then QuestionRow.briefHandle is one line holding the item id and the plain-English ask, the control is labelled \"Copy for your agent\" and copies that line through the existing toast feedback, and the line holds no command text.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[BlockingRow]"
+      }
+    },
+    {
+      "id": "AC-18003-6",
+      "description": "[failure] Given readiness could not be computed (the readiness object is null), when the Readiness tab renders, then the existing \"could not be computed\" placeholder is shown and no table is rendered.",
+      "testable": true
+    },
+    {
+      "id": "AC-18003-7",
+      "description": "[must-not] Given any register and any tree, when the panel renders for the command page, then the panel contains no shell command text (no \"pnpm rcf\", no \"rcf define\", no \"rcf audit\"), no write control and no \"Freeze now\" button.",
+      "testable": true
+    },
+    {
+      "id": "AC-18003-8",
+      "description": "[happy] Given the profile register is \"engineer\", when the tab first paints, then the blocking table precedes the questions table; given \"productOwner\" or no profile, the questions table precedes the blocking table; in both cases both tables are present in the DOM.",
+      "testable": true
+    }
+  ],
+  "usId": "US-18003",
+  "prdId": "PRD-001",
+  "reqId": "REQ-180",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the Readiness tab lists questions and blocking items as linked tables, read-only, with no command text"
+}

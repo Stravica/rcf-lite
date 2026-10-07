@@ -1,0 +1,74 @@
+{
+  "createdAt": "2026-10-07T13:46:52.774Z",
+  "updatedAt": "2026-10-07T13:46:52.774Z",
+  "description": "User story under REQ-002 for the query routes (discovery section 4 rank 7, server half; FBS-207; TAC-4136, ADR-4140). Three GET routes on the viewer server expose computeTrace, computeImpact and computeCoverage per pivot from the current walked state, memoised by state.version, relative to the mount and release-noted so host proxies allow-list them as they did ./index.json and ./page-init.js. The routes bypass runWithAdmissibilityGate exactly as the CLI coverage, impact and trace verbs do (issues 316 and 317). GET and HEAD only; nothing is written under rcf/.",
+  "asA": "an engineer or an embedding host using the viewer",
+  "iWant": "trace, impact and coverage for any id as JSON from the running viewer, computed from the same tree the page shows",
+  "soThat": "the viewer can render traceability on demand and an agent or host can read the same numbers without a terminal",
+  "tacIds": [
+    "TAC-4136-view-query-routes"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-208-1",
+      "description": "[happy] Given a running viewer and a known id, when GET \"./trace.json?id=<id>&direction=forward\" is requested, then the response is application/json carrying the computeTrace result for that pivot (pivot, direction, found, nodes, edges), computed from the current state and served with \"cache-control: no-store\" relative to the viewer mount.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[GET /trace.json]"
+      }
+    },
+    {
+      "id": "AC-208-2",
+      "description": "[happy] Given a running viewer and a known id, when GET \"./impact.json?id=<id>\" is requested, then the response is application/json carrying the computeImpact result (pivot, found, nodes with actionNeeded per node, edges) with \"cache-control: no-store\".",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[GET /impact.json]"
+      }
+    },
+    {
+      "id": "AC-208-3",
+      "description": "[happy] Given a running viewer, when GET \"./coverage.json\" is requested with no scope, then the response is application/json carrying the strict computeCoverage result for the whole tree (totals, requirements, unresolvedTestPointers); given \"?scope=<id>\" naming a PRD, REQ or US, the result is narrowed to that subtree as the CLI positional narrows it.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[GET /coverage.json]"
+      }
+    },
+    {
+      "id": "AC-208-4",
+      "description": "[failure] Given an unknown id, when trace or impact is requested, then the response is 404 application/json with QueryRouteError.error \"unknown-id\" and QueryRouteError.id echoing the request; given a direction outside forward, back and both, the response is 400 with QueryRouteError.error \"bad-direction\"; given a below-AC or unknown scope on coverage, the response is 400 with QueryRouteError.error \"bad-scope\".",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[QueryRouteError]"
+      }
+    },
+    {
+      "id": "AC-208-5",
+      "description": "[must-not] Given any request to the three routes, when the server handles it, then runWithAdmissibilityGate is not called (the routes bypass the gate the way src/cli/coverage.js and src/cli/impact.js do) and nothing under rcf/ is written.",
+      "testable": true
+    },
+    {
+      "id": "AC-208-6",
+      "description": "[edge] Given a rewalk that publishes a new state.version, when a route is requested, then the served result reflects the new tree and the memo entries of the previous version are discarded; within one version a repeated request for the same pivot and direction is served from the memo without recomputing.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4136-view-query-routes",
+        "field": "interfaces[queryCache]"
+      }
+    },
+    {
+      "id": "AC-208-7",
+      "description": "[failure] Given the server before the first walk completes, when a trace, impact or coverage request arrives, then the response is 503 text \"view server initialising\", as ./index.json answers today.",
+      "testable": true
+    }
+  ],
+  "usId": "US-208",
+  "prdId": "PRD-001",
+  "reqId": "REQ-002",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the viewer serves trace, impact and coverage for a selected node as JSON routes computed from the current tree"
+}

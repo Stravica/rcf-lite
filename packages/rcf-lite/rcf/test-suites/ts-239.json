@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-07T13:47:05.533Z",
+  "updatedAt": "2026-10-07T13:47:05.533Z",
+  "purpose": "Cover every acceptance criterion of US-18005 with one node:test case each in test/view/readiness-layout.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-206) removes the flags as it makes them pass.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18005-1",
+    "AC-18005-2",
+    "AC-18005-3",
+    "AC-18005-4",
+    "AC-18005-5",
+    "AC-18005-6",
+    "AC-18005-7",
+    "AC-18005-8"
+  ],
+  "testCases": [
+    {
+      "id": "TC-239-18005-1-happy",
+      "acId": "AC-18005-1",
+      "description": "AC-18005-1 happy: readinessstages",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-1 happy: readinessstages"
+    },
+    {
+      "id": "TC-239-18005-2-happy",
+      "acId": "AC-18005-2",
+      "description": "AC-18005-2 happy: the readiness tab",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-2 happy: the readiness tab"
+    },
+    {
+      "id": "TC-239-18005-3-happy",
+      "acId": "AC-18005-3",
+      "description": "AC-18005-3 happy: an unfrozen tree",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-3 happy: an unfrozen tree"
+    },
+    {
+      "id": "TC-239-18005-4-happy",
+      "acId": "AC-18005-4",
+      "description": "AC-18005-4 happy: the profile register is engineer",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-4 happy: the profile register is engineer"
+    },
+    {
+      "id": "TC-239-18005-5-happy",
+      "acId": "AC-18005-5",
+      "description": "AC-18005-5 happy: readytobuild is no",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-5 happy: readytobuild is no"
+    },
+    {
+      "id": "TC-239-18005-6-edge",
+      "acId": "AC-18005-6",
+      "description": "AC-18005-6 edge: a stage acknowledged at the current tree hash",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-6 edge: a stage acknowledged at the current tree hash"
+    },
+    {
+      "id": "TC-239-18005-7-mustnot",
+      "acId": "AC-18005-7",
+      "description": "AC-18005-7 must-not: embed mode dataembed1 and a viewport narrower th",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-7 must-not: embed mode dataembed1 and a viewport narrower th"
+    },
+    {
+      "id": "TC-239-18005-8-failure",
+      "acId": "AC-18005-8",
+      "description": "AC-18005-8 failure: a hash whose sub value is not a known readiness",
+      "status": "pending",
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-8 failure: a hash whose sub value is not a known readiness"
+    }
+  ],
+  "id": "TS-239",
+  "usId": "US-18005",
+  "title": "US-18005 command page suite (readiness-layout)",
+  "status": "draft"
+}

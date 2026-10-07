@@ -1,0 +1,94 @@
+{
+  "createdAt": "2026-10-07T13:46:20.782Z",
+  "updatedAt": "2026-10-07T13:46:20.782Z",
+  "purpose": "Render the Readiness tab as the command page: every question and every blocking item is a row in a linked table, counts are links into the tables they count, the delta is counts with an on-demand list, coverage is a summary with real numbers, thin requirements are fed by every signal that names one, and the panel is split into sub-tabs (Overview, Questions, Blocking, Coverage, Trace) whose key rides in the hash as sub=. The page is read-only: it never renders a shell command, never offers a write control and never writes under rcf/. Each row carries what a human needs to brief their agent: the item id, the plain-English ask or finding, the chain location, a link that opens the item in full context, and what resolved looks like; the questions table adds a one-line copy handle (id plus ask, no command text). Sub-tabs are the designed shape; one long page with anchor navigation is the named alternative (decision Q5 is ruled on the rendered sketches, see notes).",
+  "responsibilities": [
+    "src/view/readiness/tables.js: renderQuestionsTable(readiness) and renderBlockingTable(readiness, opts) emit one HTML table each from readiness.questions[] and stages[].checks[].failing[]; no row cap; composite ids split through splitCompositeId; every href is a hash route the page-init router resolves.",
+    "src/view/readiness/coverage-summary.js: renderCoverageSummary(readiness, model) reads coverage.tree.totals, requirements[].coverageClass and unresolvedTestPointers[] plus family counts from the tree model; prints numbers or the words coverage unavailable, never a blank.",
+    "src/view/readiness/thin-reqs.js: buildThinReqRows(readiness, model) joins D4 stories:usFloors failing US ids to their REQ via us.reqId, stories with zero criteria, criteria with no resolving test from coverage acs[].covered, D2 skeleton:reqIntent and stories:reqHasUs; renderThinReqsTable renders the rows the two verdict cards link to.",
+    "src/view/readiness/grid.js: renderVerdictGrid(readiness) groups stages[].checks[] by stage and over (tree, delta), prints pass/total per cell and links the failing count into the blocking table filtered to that stage; the acknowledged state and its reason come from stages[].state and one reason helper, never from freezeRecord.gates directly.",
+    "src/view/readiness.js: renderReadinessPanel keeps its signature; it now composes the sub-tab strip (SubTabStrip with hashKey readiness) and the five sub-views; the For-engineers DocRow wrapper, the Freeze now control, the per-document delta list on first paint and the blocker cards are removed, their content living in the named tables and blocks; the CLI verdict strings still render so parity with rcf define readiness --json is unchanged.",
+    "src/view/page-init.js: the router reads sub= for the readiness tab the way it does for build, restores it after an SSE swap, drops an unknown value back to overview, and wires the Copy for your agent control through the existing toast component.",
+    "src/view/style.css: new .rcf-cmd-* rules use only existing --sv-* tokens on known surfaces so test/view/contrast-aa.test.js stays green in both themes; tables collapse to stacked rows under 720px and never force horizontal page scroll under data-embed=1."
+  ],
+  "internalStructure": "Pure server-rendered HTML string builders under src/view/readiness/ (tables.js, coverage-summary.js, thin-reqs.js, grid.js, composite-id.js), one composition site in src/view/readiness.js, and client wiring in page-init.js for the sub-tab strip and the copy handle. No new query module: every number is read from the computeReadiness result that src/view/index.js already folds (readiness.questions, stages, delta, coverage, levels, personas) and from BuiltTreeModel lengths. computeReadiness keeps its signature; renderModelToPage keeps its return additive. No inline script; no new localStorage key; no new dependency.",
+  "interfaces": [
+    {
+      "name": "renderQuestionsTable",
+      "kind": "other",
+      "description": "renderQuestionsTable(readiness) returns the questions table HTML: one QuestionRow per readiness.questions[] entry, group label as a sortable column, the location link, what settles it in plain words, the copy handle, the state. Empty questions[] renders the intent-complete verdict line (AC-18002-2 preserved)."
+    },
+    {
+      "name": "renderBlockingTable",
+      "kind": "other",
+      "description": "renderBlockingTable(readiness, { stage, persona }) returns the blocking table HTML: one BlockingRow per failing item across stages[].checks[].failing[], filterable by stage and persona through the existing FilterBar, no row cap, every id a resolving link."
+    },
+    {
+      "name": "splitCompositeId",
+      "kind": "other",
+      "description": "splitCompositeId(id) returns { docId, fragment } by splitting on the first colon; a plain document id returns fragment null. Used for every href the tables emit so a composite finding id such as AC-060-3:userID links to AC-060-3."
+    },
+    {
+      "name": "renderCoverageSummary",
+      "kind": "other",
+      "description": "renderCoverageSummary(readiness, model) returns the coverage block HTML: family stat tiles, one stacked bar from the three class totals, the percentage covered and the unresolved-pointers table; prints coverage unavailable when totals are absent."
+    },
+    {
+      "name": "renderThinReqsTable",
+      "kind": "other",
+      "description": "renderThinReqsTable(rows) returns the thin-requirements table HTML from ThinReqRow[]; sortable, filterable by reason; the row count is the number the verdict card links to."
+    },
+    {
+      "name": "renderVerdictGrid",
+      "kind": "other",
+      "description": "renderVerdictGrid(readiness) returns the stage grid HTML: eight stage rows, tree and delta columns, pass/total per VerdictGridCell, failing count linked into the blocking table filtered to that stage; replaces the chip row and the stage detail on the Overview sub-tab."
+    },
+    {
+      "name": "renderDeltaCounts",
+      "kind": "other",
+      "description": "renderDeltaCounts(readiness, freezeRecord) returns the delta block HTML as six counts (DeltaCounts) with a details element that renders the per-document list and diff only when the reader expands it; the first paint never carries the per-document rows."
+    },
+    {
+      "name": "readinessSubTabs",
+      "kind": "other",
+      "description": "The readiness tab's SubTabStrip (hashKey readiness) with keys overview, questions, blocking, coverage and trace. The router writes and reads sub= for readiness exactly as it does for build, restores it after an SSE innerHTML swap and resolves an unknown key to overview."
+    },
+    {
+      "name": "QuestionRow",
+      "kind": "recordShape",
+      "description": "One row of the questions table.\nfields: number, id, ask, location, locationHref, settles, briefHandle, state\nnotes: number is the display ordinal; id is the readiness question id; location is the chain location in words (statement n, profile field, requirement id); locationHref is the hash route that opens the item in full context; settles is the plain-English resolved state; briefHandle is the one-line id-plus-ask copy text; state is open or answered."
+    },
+    {
+      "name": "BlockingRow",
+      "kind": "recordShape",
+      "description": "One row of the blocking table.\nfields: stage, check, id, docId, fragment, href, why, resolved\nnotes: stage is D1 to D8; check is the check id; id is the finding id as the gate emitted it; docId and fragment are the splitCompositeId halves; href is the resolving hash route; why is the gate's finding text; resolved is what the resolved state looks like in plain words."
+    },
+    {
+      "name": "ThinReqRow",
+      "kind": "recordShape",
+      "description": "One row of the thin-requirements table.\nfields: reqId, stories, criteria, covered, thinReason, openHref, traceHref\nnotes: stories and criteria are counts; covered is the count of criteria with a resolving test; thinReason is the thin reason in words; openHref opens the requirement; traceHref opens the Trace sub-tab pivoted on it."
+    },
+    {
+      "name": "CoverageSummary",
+      "kind": "recordShape",
+      "description": "The coverage block's data.\nfields: families, totals, percentCovered, unresolvedPointers\nnotes: families is the per-family document count (requirements, stories, criteria, suites, cases, buildSpecs); totals is coverage.tree.totals verbatim; percentCovered is covered over requirements; unresolvedPointers is coverage.tree.unresolvedTestPointers verbatim."
+    },
+    {
+      "name": "VerdictGridCell",
+      "kind": "recordShape",
+      "description": "One cell of the stage grid.\nfields: stage, over, pass, total, failing, state, href\nnotes: over is tree or delta; pass and total are summed over the stage's checks in that scope; failing is the count of failing items; state is the stage state (passed, failing, acknowledged, notApplicable); href links into the blocking table filtered to the stage."
+    },
+    {
+      "name": "DeltaCounts",
+      "kind": "recordShape",
+      "description": "The delta block's data on first paint.\nfields: changed, added, removed, briefSince, impacted, impactedFbs, expanded\nnotes: the six counts are readiness.delta lengths; expanded is false on first paint and true only after the reader opens the per-document list."
+    }
+  ],
+  "notes": "Supersedes the layout pinned by REQ-180's earlier description and the question-card and For-engineers DocRow blocks of TAC-4133-readiness-po-layer (renderReadinessPO keeps its name and now composes the tables; toQuestions is unchanged); amends TAC-4127-readiness-view by removing the Freeze now control and the first-paint delta list. Rulings carried: Q1 (viewer read-only, no CLI command text anywhere on the page, rows carry id, ask or finding, chain location, link, resolved state; the copy handle is a design candidate shown in the wireframe); Q2 (delta on an unfrozen tree is counts only with on-demand expand); Q3 (thin requirements table lists all three flavours: zero criteria, unresolved tests, D4 floor failures); Q4 (no freeze button, no command text; show the state and what resolves it). Q5 alternative: one long page with anchor navigation instead of sub-tabs; the two sketches discovery-viewer-command-page-5-subtabs.html and discovery-viewer-command-page-6-one-page.html under guidance/discovery/ carry the same data in both shapes and the product owner rules on the render; if the one-page shape is chosen, readinessSubTabs becomes an anchor strip and sub= is dropped, nothing else in this TAC changes. Embed and theme contract (issues 263 and 264): every href is relative or a hash route, no new route is added by this TAC, no new localStorage key, the control row stays inside the panel under data-embed=1, and every colour is an existing --sv-* token on a known surface. On-me vocabulary: the Overview sub-tab names what waits on the product owner as On me and what waits on engineers as On engineers. No Mermaid anywhere on the tab.",
+  "tacId": "TAC-4135-readiness-command-page",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Readiness command page: linked tables, verdict grid, delta counts, coverage summary, thin requirements, sub-tabs"
+}

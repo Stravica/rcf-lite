@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-07T13:47:03.889Z",
+  "updatedAt": "2026-10-07T13:47:03.889Z",
+  "purpose": "Cover every acceptance criterion of US-18003 with one node:test case each in test/view/readiness-tables.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-204) removes the flags as it makes them pass.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18003-1",
+    "AC-18003-2",
+    "AC-18003-3",
+    "AC-18003-4",
+    "AC-18003-5",
+    "AC-18003-6",
+    "AC-18003-7",
+    "AC-18003-8"
+  ],
+  "testCases": [
+    {
+      "id": "TC-237-18003-1-happy",
+      "acId": "AC-18003-1",
+      "description": "AC-18003-1 happy: readinessquestions is nonempty",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-1 happy: readinessquestions is nonempty"
+    },
+    {
+      "id": "TC-237-18003-2-edge",
+      "acId": "AC-18003-2",
+      "description": "AC-18003-2 edge: a question whose itemid is not a document id a b",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-2 edge: a question whose itemid is not a document id a b"
+    },
+    {
+      "id": "TC-237-18003-3-happy",
+      "acId": "AC-18003-3",
+      "description": "AC-18003-3 happy: every failing check across stages",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-3 happy: every failing check across stages"
+    },
+    {
+      "id": "TC-237-18003-4-edge",
+      "acId": "AC-18003-4",
+      "description": "AC-18003-4 edge: a composite failing id such as ac0603userid or t",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-4 edge: a composite failing id such as ac0603userid or t"
+    },
+    {
+      "id": "TC-237-18003-5-happy",
+      "acId": "AC-18003-5",
+      "description": "AC-18003-5 happy: a question row",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-5 happy: a question row"
+    },
+    {
+      "id": "TC-237-18003-6-failure",
+      "acId": "AC-18003-6",
+      "description": "AC-18003-6 failure: readiness could not be computed the readiness ob",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-6 failure: readiness could not be computed the readiness ob"
+    },
+    {
+      "id": "TC-237-18003-7-mustnot",
+      "acId": "AC-18003-7",
+      "description": "AC-18003-7 must-not: any register and any tree",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-7 must-not: any register and any tree"
+    },
+    {
+      "id": "TC-237-18003-8-happy",
+      "acId": "AC-18003-8",
+      "description": "AC-18003-8 happy: the profile register is engineer",
+      "status": "pending",
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-8 happy: the profile register is engineer"
+    }
+  ],
+  "id": "TS-237",
+  "usId": "US-18003",
+  "title": "US-18003 command page suite (readiness-tables)",
+  "status": "draft"
+}

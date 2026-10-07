@@ -7,6 +7,8 @@ flowchart LR
   US-205["US-205"]
   US-206["US-206"]
   US-207["US-207"]
+  US-208["US-208"]
+  US-209["US-209"]
   TS-003["TS-003"]
   AC-201-1["AC-201-1"]
   AC-201-2["AC-201-2"]
@@ -53,6 +55,22 @@ flowchart LR
   TS-236["TS-236"]
   AC-207-1["AC-207-1"]
   AC-207-2["AC-207-2"]
+  TS-240["TS-240"]
+  AC-208-1["AC-208-1"]
+  AC-208-2["AC-208-2"]
+  AC-208-3["AC-208-3"]
+  AC-208-4["AC-208-4"]
+  AC-208-5["AC-208-5"]
+  AC-208-6["AC-208-6"]
+  AC-208-7["AC-208-7"]
+  TS-241["TS-241"]
+  AC-209-1["AC-209-1"]
+  AC-209-2["AC-209-2"]
+  AC-209-3["AC-209-3"]
+  AC-209-4["AC-209-4"]
+  AC-209-5["AC-209-5"]
+  AC-209-6["AC-209-6"]
+  AC-209-7["AC-209-7"]
   TC-003-diagram-emitted-as-source["TC-003-diagram-emitted-as-source"]
   TC-003-per-req-subdiagram-chain-edges["TC-003-per-req-subdiagram-chain-edges"]
   TC-003-one-subdiagram-per-req["TC-003-one-subdiagram-per-req"]
@@ -112,6 +130,22 @@ flowchart LR
   TC-236-aa-failure-message["TC-236-aa-failure-message"]
   TC-236-state-merge-and-boundaries["TC-236-state-merge-and-boundaries"]
   TC-236-theme-btn-states["TC-236-theme-btn-states"]
+  TC-240-208-1-happy["TC-240-208-1-happy"]
+  TC-240-208-2-happy["TC-240-208-2-happy"]
+  TC-240-208-3-happy["TC-240-208-3-happy"]
+  TC-240-208-4-failure["TC-240-208-4-failure"]
+  TC-240-208-5-mustnot["TC-240-208-5-mustnot"]
+  TC-240-208-6-edge["TC-240-208-6-edge"]
+  TC-240-208-7-failure["TC-240-208-7-failure"]
+  FBS-207["FBS-207"]
+  TC-241-209-1-happy["TC-241-209-1-happy"]
+  TC-241-209-2-happy["TC-241-209-2-happy"]
+  TC-241-209-3-happy["TC-241-209-3-happy"]
+  TC-241-209-4-edge["TC-241-209-4-edge"]
+  TC-241-209-5-mustnot["TC-241-209-5-mustnot"]
+  TC-241-209-6-failure["TC-241-209-6-failure"]
+  TC-241-209-7-edge["TC-241-209-7-edge"]
+  FBS-208["FBS-208"]
   REQ-002 --> US-201
   REQ-002 --> US-202
   REQ-002 --> US-203
@@ -119,6 +153,8 @@ flowchart LR
   REQ-002 --> US-205
   REQ-002 --> US-206
   REQ-002 --> US-207
+  REQ-002 --> US-208
+  REQ-002 --> US-209
   US-201 --> TS-003
   US-201 --> AC-201-1
   US-201 --> AC-201-2
@@ -165,6 +201,22 @@ flowchart LR
   US-207 --> TS-236
   US-207 --> AC-207-1
   US-207 --> AC-207-2
+  US-208 --> TS-240
+  US-208 --> AC-208-1
+  US-208 --> AC-208-2
+  US-208 --> AC-208-3
+  US-208 --> AC-208-4
+  US-208 --> AC-208-5
+  US-208 --> AC-208-6
+  US-208 --> AC-208-7
+  US-209 --> TS-241
+  US-209 --> AC-209-1
+  US-209 --> AC-209-2
+  US-209 --> AC-209-3
+  US-209 --> AC-209-4
+  US-209 --> AC-209-5
+  US-209 --> AC-209-6
+  US-209 --> AC-209-7
   TS-003 --> TC-003-diagram-emitted-as-source
   TS-003 --> TC-003-per-req-subdiagram-chain-edges
   TS-003 --> TC-003-one-subdiagram-per-req
@@ -352,6 +404,62 @@ flowchart LR
   AC-207-2 -.-> TS-236
   AC-207-2 -.-> TC-236-aa-failure-message
   AC-207-2 -.-> FBS-203
+  TS-240 --> TC-240-208-1-happy
+  TS-240 --> TC-240-208-2-happy
+  TS-240 --> TC-240-208-3-happy
+  TS-240 --> TC-240-208-4-failure
+  TS-240 --> TC-240-208-5-mustnot
+  TS-240 --> TC-240-208-6-edge
+  TS-240 --> TC-240-208-7-failure
+  AC-208-1 -.-> TS-240
+  AC-208-1 -.-> TC-240-208-1-happy
+  AC-208-1 -.-> FBS-207
+  AC-208-2 -.-> TS-240
+  AC-208-2 -.-> TC-240-208-2-happy
+  AC-208-2 -.-> FBS-207
+  AC-208-3 -.-> TS-240
+  AC-208-3 -.-> TC-240-208-3-happy
+  AC-208-3 -.-> FBS-207
+  AC-208-4 -.-> TS-240
+  AC-208-4 -.-> TC-240-208-4-failure
+  AC-208-4 -.-> FBS-207
+  AC-208-5 -.-> TS-240
+  AC-208-5 -.-> TC-240-208-5-mustnot
+  AC-208-5 -.-> FBS-207
+  AC-208-6 -.-> TS-240
+  AC-208-6 -.-> TC-240-208-6-edge
+  AC-208-6 -.-> FBS-207
+  AC-208-7 -.-> TS-240
+  AC-208-7 -.-> TC-240-208-7-failure
+  AC-208-7 -.-> FBS-207
+  TS-241 --> TC-241-209-1-happy
+  TS-241 --> TC-241-209-2-happy
+  TS-241 --> TC-241-209-3-happy
+  TS-241 --> TC-241-209-4-edge
+  TS-241 --> TC-241-209-5-mustnot
+  TS-241 --> TC-241-209-6-failure
+  TS-241 --> TC-241-209-7-edge
+  AC-209-1 -.-> TS-241
+  AC-209-1 -.-> TC-241-209-1-happy
+  AC-209-1 -.-> FBS-208
+  AC-209-2 -.-> TS-241
+  AC-209-2 -.-> TC-241-209-2-happy
+  AC-209-2 -.-> FBS-208
+  AC-209-3 -.-> TS-241
+  AC-209-3 -.-> TC-241-209-3-happy
+  AC-209-3 -.-> FBS-208
+  AC-209-4 -.-> TS-241
+  AC-209-4 -.-> TC-241-209-4-edge
+  AC-209-4 -.-> FBS-208
+  AC-209-5 -.-> TS-241
+  AC-209-5 -.-> TC-241-209-5-mustnot
+  AC-209-5 -.-> FBS-208
+  AC-209-6 -.-> TS-241
+  AC-209-6 -.-> TC-241-209-6-failure
+  AC-209-6 -.-> FBS-208
+  AC-209-7 -.-> TS-241
+  AC-209-7 -.-> TC-241-209-7-edge
+  AC-209-7 -.-> FBS-208
   class REQ-002 req;
   class US-201 us;
   class US-202 us;
@@ -360,6 +468,8 @@ flowchart LR
   class US-205 us;
   class US-206 us;
   class US-207 us;
+  class US-208 us;
+  class US-209 us;
   class TS-003 ts;
   class AC-201-1 ac;
   class AC-201-2 ac;
@@ -406,6 +516,22 @@ flowchart LR
   class TS-236 ts;
   class AC-207-1 ac;
   class AC-207-2 ac;
+  class TS-240 ts;
+  class AC-208-1 ac;
+  class AC-208-2 ac;
+  class AC-208-3 ac;
+  class AC-208-4 ac;
+  class AC-208-5 ac;
+  class AC-208-6 ac;
+  class AC-208-7 ac;
+  class TS-241 ts;
+  class AC-209-1 ac;
+  class AC-209-2 ac;
+  class AC-209-3 ac;
+  class AC-209-4 ac;
+  class AC-209-5 ac;
+  class AC-209-6 ac;
+  class AC-209-7 ac;
   class TC-003-diagram-emitted-as-source tc;
   class TC-003-per-req-subdiagram-chain-edges tc;
   class TC-003-one-subdiagram-per-req tc;
@@ -465,6 +591,22 @@ flowchart LR
   class TC-236-aa-failure-message tc;
   class TC-236-state-merge-and-boundaries tc;
   class TC-236-theme-btn-states tc;
+  class TC-240-208-1-happy tc;
+  class TC-240-208-2-happy tc;
+  class TC-240-208-3-happy tc;
+  class TC-240-208-4-failure tc;
+  class TC-240-208-5-mustnot tc;
+  class TC-240-208-6-edge tc;
+  class TC-240-208-7-failure tc;
+  class FBS-207 fbs;
+  class TC-241-209-1-happy tc;
+  class TC-241-209-2-happy tc;
+  class TC-241-209-3-happy tc;
+  class TC-241-209-4-edge tc;
+  class TC-241-209-5-mustnot tc;
+  class TC-241-209-6-failure tc;
+  class TC-241-209-7-edge tc;
+  class FBS-208 fbs;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

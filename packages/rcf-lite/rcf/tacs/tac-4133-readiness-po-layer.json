@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-02T19:30:00Z",
-  "updatedAt": "2026-10-02T19:30:00Z",
+  "updatedAt": "2026-10-07T13:46:36.966Z",
   "tacId": "TAC-4133-readiness-po-layer",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -33,5 +33,5 @@
       "description": "[draft] renderStageLegend(stages) returns the StageLegend dialog HTML (D1..D8 by name, one-line meaning, posture)."
     }
   ],
-  "notes": "Depends on PR 2's DocRow component, PR 1's AppShell and relative-script policy, and PR 2's SubTabStrip (not used here but shared vocabulary). Amends TAC-4127-readiness-view: the old engineer rendering is kept but is now the body of the For-engineers DocRow at the foot of the panel; nothing is removed from the engineer-level DOM (AC-18002-3). The phrasebook ships now (design doc section 11 recommendation 4); when DEFINE step 3 PR 2 lands `readiness.questions`, the adapter switches source with a one-line feature detect and the call site is unchanged. No em-dash is ever written in the phrasebook strings."
+  "notes": "Depends on PR 2's DocRow component, PR 1's AppShell and relative-script policy, and PR 2's SubTabStrip (not used here but shared vocabulary). Amends TAC-4127-readiness-view: the old engineer rendering is kept but is now the body of the For-engineers DocRow at the foot of the panel; nothing is removed from the engineer-level DOM (AC-18002-3). The phrasebook ships now (design doc section 11 recommendation 4); when DEFINE step 3 PR 2 lands `readiness.questions`, the adapter switches source with a one-line feature detect and the call site is unchanged. No em-dash is ever written in the phrasebook strings. Amended by DEFINE 2026-10-07 (TAC-4135-readiness-command-page, ADR-4139): the question cards and the For-engineers DocRow are superseded by the questions table and the blocking table; renderReadinessPO keeps its name and composes the tables; toQuestions and the phrasebook are unchanged; AC-18002-3 is satisfied by the blocking table (nothing engineer-level leaves the DOM)."
 }

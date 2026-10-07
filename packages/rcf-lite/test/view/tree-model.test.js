@@ -23,8 +23,11 @@ test('buildTreeModel produces storiesByReqId for the live tree', async () => {
   // + three embedding lints).
   // US-207 landed under REQ-002 in viewer UI refresh amendments
   // w-2026-10-04-dave-001 (WCAG 2.1 AA contrast audit).
-  assert.equal(req2Stories.length, 7);
-  assert.deepEqual(req2Stories.map((u) => u.usId), ['US-201', 'US-202', 'US-203', 'US-204', 'US-205', 'US-206', 'US-207']);
+  // US-208 and US-209 landed under REQ-002 in DEFINE viewer-command-page
+  // (dex 2026-10-07): trace, impact and coverage JSON routes (US-208) and
+  // the trace matrix with Trace actions retiring the Mermaid slice (US-209).
+  assert.equal(req2Stories.length, 9);
+  assert.deepEqual(req2Stories.map((u) => u.usId), ['US-201', 'US-202', 'US-203', 'US-204', 'US-205', 'US-206', 'US-207', 'US-208', 'US-209']);
 });
 
 test('buildTreeModel produces fbsByAcId pointing to delivering FBSs', async () => {

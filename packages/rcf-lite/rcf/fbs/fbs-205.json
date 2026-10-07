@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-07T13:47:17.726Z",
+  "updatedAt": "2026-10-07T13:47:17.726Z",
+  "summary": "Coverage summary and thin requirements (US-18004). Delivers AC-18004-1 to AC-18004-7. Estimated new node:test cases: 10. Order in the command page build: 2 of 5.",
+  "approach": "Replace renderCoverage with renderCoverageSummary reading coverage.tree.totals, requirements[].coverageClass and unresolvedTestPointers[] plus family counts from BuiltTreeModel; widen buildReqWorkRows into buildThinReqRows joining D4 stories:usFloors failing US ids to REQ via us.reqId, zero-criteria stories, criteria with acs[].covered false, D2 skeleton:reqIntent and stories:reqHasUs; make the verdict card counts links and fold What happens next into the cards.",
+  "deliverables": [
+    "src/view/readiness/coverage-summary.js (new): renderCoverageSummary",
+    "src/view/readiness/thin-reqs.js (new): buildThinReqRows, renderThinReqsTable",
+    "src/view/readiness/po-layer.js: verdict card links; renderNextStep folded",
+    "src/view/readiness.js: renderCoverage removed",
+    "src/view/style.css: stat tiles and stacked bar on existing tokens",
+    "test/view/readiness-coverage-summary.test.js: not-yet-built flags removed, bodies land (10 cases)"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-204"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4135-readiness-command-page",
+      "TAC-4133-readiness-po-layer",
+      "TAC-4127-readiness-view"
+    ],
+    "adrIds": [
+      "ADR-4139-readiness-tables-read-only-no-commands"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "reviewSurface",
+  "estimatedSize": "medium",
+  "notes": "Sized for one PR (DEFINE 2026-10-07). Test estimate 10 new node:test cases in the suite named by the TS bound to US-18004; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
+  "acIds": [
+    "AC-18004-1",
+    "AC-18004-2",
+    "AC-18004-3",
+    "AC-18004-4",
+    "AC-18004-5",
+    "AC-18004-6",
+    "AC-18004-7"
+  ],
+  "fbsId": "FBS-205",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 205,
+  "executionStatus": "notStarted",
+  "title": "Coverage summary and thin requirements"
+}

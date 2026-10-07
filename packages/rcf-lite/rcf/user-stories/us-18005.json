@@ -1,0 +1,79 @@
+{
+  "createdAt": "2026-10-07T13:46:51.015Z",
+  "updatedAt": "2026-10-07T13:46:51.015Z",
+  "description": "User story under REQ-180 for the command page (discovery sections 4 rank 5, 6, 11 and 14; FBS-206). The chip row and the stage detail become one stage grid above the fold (D1 to D8 by tree and delta scope, pass/total per cell, failing count linked into the blocking table). The panel is split into five sub-tabs through the shared SubTabStrip with sub= in the hash, restored after an SSE swap. The delta on an unfrozen tree is counts with an on-demand per-document list (Q2). The For-engineers DocRow wrapper is removed and every engineer item survives in a named table or block. The freeze block shows the state and what resolves it in words (Q4). Sub-tabs are the designed shape; one long page with anchor navigation is the named alternative ruled on the rendered sketches (Q5).",
+  "asA": "an engineer opening the Readiness tab on a large unfrozen tree",
+  "iWant": "the stage states as a grid above the fold, the page split into sub-views, and the delta as counts rather than every document in the tree",
+  "soThat": "the command page loads light, reads top-down and never buries the failing ids under a thousand delta rows",
+  "tacIds": [
+    "TAC-4135-readiness-command-page"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18005-1",
+      "description": "[happy] Given readiness.stages, when the overview sub-view renders, then a stage grid shows each stage as a row and the scopes \"tree\" and \"delta\" as columns, each VerdictGridCell carrying VerdictGridCell.pass, VerdictGridCell.total and VerdictGridCell.state, with VerdictGridCell.failing rendered as a link into the blocking table filtered to that stage.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[renderVerdictGrid]"
+      }
+    },
+    {
+      "id": "AC-18005-2",
+      "description": "[happy] Given the Readiness tab, when it renders, then a SubTabStrip offers \"Overview\", \"Questions\", \"Blocking\", \"Coverage\" and \"Trace\", the active key is written into the hash as sub=, and the router restores it on load and after an SSE innerHTML swap of #rcf-live-content.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[readinessSubTabs]"
+      }
+    },
+    {
+      "id": "AC-18005-3",
+      "description": "[happy] Given an unfrozen tree, when the delta block renders, then DeltaCounts.changed, DeltaCounts.added, DeltaCounts.removed, DeltaCounts.briefSince, DeltaCounts.impacted and DeltaCounts.impactedFbs render as numbers and the per-document list with its diff widgets renders only after the reader expands the details element (DeltaCounts.expanded true).",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[renderDeltaCounts]"
+      }
+    },
+    {
+      "id": "AC-18005-4",
+      "description": "[happy] Given the profile register is \"engineer\", when the tab renders, then the For-engineers DocRow wrapper is absent and every engineer item (failing ids with why, next action, stage states, coverage counts, decisions outstanding, freeze state) is present in a named table or block of the sub-views.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[VerdictGridCell]"
+      }
+    },
+    {
+      "id": "AC-18005-5",
+      "description": "[happy] Given ready-to-build is \"no\", when the freeze block renders, then it names each failing gate in plain words with what resolves it, with no button and no command text; given ready-to-build is \"yes\", it states that the tree can be frozen and what a freeze would record.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4135-readiness-command-page",
+        "field": "interfaces[DeltaCounts]"
+      }
+    },
+    {
+      "id": "AC-18005-6",
+      "description": "[edge] Given a stage acknowledged at the current tree hash, when the grid renders, then VerdictGridCell.state is \"acknowledged\" and the reason shows on hover, read from stages[].state and one reason helper rather than from freezeRecord.gates directly.",
+      "testable": true
+    },
+    {
+      "id": "AC-18005-7",
+      "description": "[must-not] Given embed mode (data-embed=\"1\") and a viewport narrower than 720px, when the Readiness tab renders, then no table forces horizontal page scroll: tables collapse to stacked rows and the SubTabStrip stays inside the panel.",
+      "testable": true
+    },
+    {
+      "id": "AC-18005-8",
+      "description": "[failure] Given a hash whose sub= value is not a known readiness sub-tab key, when the router runs, then the overview sub-view is activated and the unknown value is dropped from the hash.",
+      "testable": true
+    }
+  ],
+  "usId": "US-18005",
+  "prdId": "PRD-001",
+  "reqId": "REQ-180",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the Readiness tab is laid out as a stage grid with sub-tabs and delta counts, the For-engineers row retired"
+}
