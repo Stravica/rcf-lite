@@ -2123,6 +2123,114 @@ test('gates (issue 315): ai-on-record 974b4c1 then clauses are silent on the gat
   assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
 });
 
+// -- Issue 319 fixtures ---------------------------------------------------
+//
+// 0.32.3 narrowed pattern 4 (dot-notation) but left patterns 2 and 3
+// (prose `<name> field` and `fields: <name>`) with no English
+// stop-word filter and no reuse of the pattern-4 file-extension or
+// path-context skips. The AC-130-1 then-clause on WESPA
+// (`declares NO join-shaped fields: the earlier jurisdiction ...`)
+// fed `the` to the extractor and false-failed the gate. 0.32.4 shares
+// STOP_PATTERN_23 across patterns 2 and 3, reuses the pattern 4
+// file-extension and path-context skips, and walks a comma-separated
+// list after `fields:` so a real prose field list yields every token
+// it names.
+
+test('gates (issue 319, negative control): AC-130-1 then-clause does not read `the` as a field (pattern 3 stop-word)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-319N',
+    interfaces: [
+      { name: 'Play', kind: 'recordShape', description: 'fields: id, scoredAt' },
+    ],
+  };
+  const us = {
+    usId: 'US-319N',
+    reqId: 'REQ-319N',
+    tacIds: ['TAC-319N'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-130-1',
+        testable: true,
+        description: '[happy] given a WESPA play on an older jurisdiction, when the gate renders, then AC-130-1 declares NO join-shaped fields: the earlier jurisdiction MAY be referenced by a later AC but no join shape appears',
+        ownerRef: { tacId: 'TAC-319N', field: 'interfaces[Play]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-319N']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
+test('gates (issue 319, positive control): `required fields: userID, email, createdAt` still yields every real missing field token', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-319P',
+    interfaces: [
+      // Shape names only `email`; both `userID` and `createdAt` are
+      // missing. Pattern 3 must emit both so the gate fires for each.
+      { name: 'User', kind: 'recordShape', description: 'fields: email' },
+    ],
+  };
+  const us = {
+    usId: 'US-319P',
+    reqId: 'REQ-319P',
+    tacIds: ['TAC-319P'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-060-3',
+        testable: true,
+        description: '[happy] given a signup, when the handler runs, then the User record is written with required fields: userID, email, createdAt',
+        ownerRef: { tacId: 'TAC-319P', field: 'interfaces[User]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-319P']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, false);
+  const ids = (check.failing || []).map((f) => f.id);
+  assert.ok(ids.includes('AC-060-3:userID'), `expected userID in failing, got ${JSON.stringify(ids)}`);
+  assert.ok(ids.includes('AC-060-3:createdAt'), `expected createdAt in failing, got ${JSON.stringify(ids)}`);
+});
+
+test('gates (issue 319): file-extension and path-context skips reach pattern 2 (`<name> field` prose)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tac = {
+    tacId: 'TAC-319E',
+    interfaces: [
+      { name: 'Pack', kind: 'recordShape', description: 'fields: id' },
+    ],
+  };
+  const us = {
+    usId: 'US-319E',
+    reqId: 'REQ-319E',
+    tacIds: ['TAC-319E'],
+    acceptanceCriteria: [
+      {
+        id: 'AC-319E-1',
+        testable: true,
+        description: '[happy] given a bundle, when the renderer runs, then the json field is skipped as a file extension and the scripts/seeds field is skipped as a path fragment',
+        ownerRef: { tacId: 'TAC-319E', field: 'interfaces[Pack]' },
+      },
+    ],
+  };
+  const tree = makeTree({ userStories: [us], tacs: [tac] });
+  const stage = checkD6Consistency({
+    tree, ledgers: emptyLedgers, scope: new Set(['US-319E']),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+  });
+  const check = stage.checks.find((c) => c.name === 'consistency:unsatisfiable');
+  assert.equal(check.ok, true, `unexpected unsatisfiable failures: ${JSON.stringify(check.failing)}`);
+});
+
 test('gates (PR 7, AC-17406-4): duplicates fails identical AC descriptions across stories', () => {
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
   const usA = {
