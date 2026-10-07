@@ -23,6 +23,12 @@ import { dirname, join, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { knownKinds, validateDocument } from '#core/store';
+// Issue 321: mirror the sidecar-ledger carve-out from the single source of
+// truth. The dogfood walker must ignore `rcf/define/` the exact same way
+// `src/define/ledgers.js` does when writing to it; a second hard-coded
+// copy of the directory name would drift the moment the ledger module
+// moved. Importing the constant keeps the two sides mechanically agreed.
+import { DEFINE_RELATIVE_DIR } from '../src/define/ledgers.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
@@ -46,19 +52,30 @@ function classify(relPath) {
   return null;
 }
 
-function walk(dir, acc = []) {
+// Issue 321: the dogfood walker never descends into the ledger-sidecar
+// directory. The directory name is sourced from `src/define/ledgers.js`
+// (single source of truth), expressed project-root-relative, so the
+// skip works regardless of where the caller rooted the walk.
+function walk(dir, acc = [], projectRootForSkip = repoRoot) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
-    if (statSync(full).isDirectory()) walk(full, acc);
-    else if (entry.endsWith('.json')) acc.push(full);
+    const relFromProjectRoot = relative(projectRootForSkip, full).split('\\').join('/');
+    if (statSync(full).isDirectory()) {
+      if (relFromProjectRoot === DEFINE_RELATIVE_DIR) continue;
+      walk(full, acc, projectRootForSkip);
+    } else if (entry.endsWith('.json')) {
+      acc.push(full);
+    }
   }
   return acc;
 }
 
-function loadAll() {
-  const files = walk(rcfRoot).sort();
+function loadAll(rootOverride) {
+  const projectRoot = rootOverride ?? repoRoot;
+  const rcfDir = resolve(projectRoot, 'rcf');
+  const files = walk(rcfDir, [], projectRoot).sort();
   return files.map((full) => {
-    const rel = relative(rcfRoot, full).split('\\').join('/');
+    const rel = relative(rcfDir, full).split('\\').join('/');
     const kind = classify(rel);
     const json = JSON.parse(readFileSync(full, 'utf8'));
     return { full, rel, kind, json };
@@ -727,4 +744,63 @@ test('the REQ-007 validation chain (13 nodes) is present with the PoC-proven imp
   const createDocumentCn = byPath.get('src/core/store/writer.js#createDocument');
   const rcfErrorCn = byPath.get('src/core/errors/index.js#rcfError');
   assert.ok(createDocumentCn.dependencies.includes(rcfErrorCn.cnId));
+});
+
+// Issue 321: fixture-driven proof that the dogfood walker never
+// surfaces the four sidecar ledgers (plus the freeze record) under
+// `rcf/define/`, while still returning chain documents from the same
+// scratch tree. Mirrors the real tree shape just enough to exercise
+// walk + classify + loadAll end to end.
+import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { tmpdir } from 'node:os';
+
+test('dogfood walker (issue 321): the four rcf/define/ ledgers are invisible, chain docs still load', () => {
+  const scratch = mkdtempSync(join(tmpdir(), 'rcf-tree-321-'));
+  try {
+    const rcfDir = join(scratch, 'rcf');
+    const defineDir = join(rcfDir, 'define');
+    const reqDir = join(rcfDir, 'requirements');
+    mkdirSync(defineDir, { recursive: true });
+    mkdirSync(reqDir, { recursive: true });
+
+    // The four sidecar ledgers + the freeze record, each with the
+    // body shape the ledger loader + freeze writer actually produce.
+    writeFileSync(join(defineDir, 'brief-ledger.json'),
+      JSON.stringify({ statements: [] }, null, 2));
+    writeFileSync(join(defineDir, 'decisions-ledger.json'),
+      JSON.stringify({ decisions: [] }, null, 2));
+    writeFileSync(join(defineDir, 'concern-ledger.json'),
+      JSON.stringify({ concerns: [] }, null, 2));
+    writeFileSync(join(defineDir, 'probe-ledger.json'),
+      JSON.stringify({ probes: [] }, null, 2));
+    writeFileSync(join(defineDir, 'freeze.json'),
+      JSON.stringify({ frozenAt: '2026-10-07T00:00:00Z', treeHash: 'sha256:x', docHashes: {}, briefStatements: 0 }, null, 2));
+    // Bug-bait: a REQ-shaped file inside rcf/define/. A walker that
+    // enumerated the carve-out would try to classify + validate it.
+    writeFileSync(join(defineDir, 'req-999.json'),
+      JSON.stringify({ reqId: 'REQ-999', prdId: 'PRD-001', title: 'should never load' }, null, 2));
+
+    // One real chain document under the walked tree, to prove the
+    // walker still returns everything outside the carve-out.
+    writeFileSync(join(reqDir, 'req-001.json'),
+      JSON.stringify({ reqId: 'REQ-001', prdId: 'PRD-001', title: 'placeholder' }, null, 2));
+
+    const docs = loadAll(scratch);
+    const rels = docs.map((d) => d.rel).sort();
+
+    // Nothing under define/ surfaces.
+    for (const rel of rels) {
+      assert.equal(rel.startsWith('define/'), false,
+        `walker surfaced a rcf/define/ file: ${rel}`);
+    }
+
+    // The chain document outside the carve-out does surface and
+    // classifies to a known kind.
+    const req = docs.find((d) => d.rel === 'requirements/req-001.json');
+    assert.ok(req, 'expected rcf/requirements/req-001.json to be walked');
+    assert.equal(req.kind, 'req');
+    assert.equal(req.json.reqId, 'REQ-001');
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
 });

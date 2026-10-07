@@ -55,7 +55,15 @@ export const LEDGER_NAMES = /** @type {const} */ (['brief', 'decisions', 'concer
 
 /** @typedef {(typeof LEDGER_NAMES)[number]} LedgerName */
 
-const RELATIVE_DIR = 'rcf/define';
+/**
+ * Project-root-relative directory the ledgers (and the freeze record) live in.
+ * Exported so any walker that enumerates `rcf/` can mirror the carve-out
+ * without a second hard-coded copy (issue 321).
+ */
+export const DEFINE_RELATIVE_DIR = 'rcf/define';
+
+// Legacy alias kept until all internal references migrate.
+const RELATIVE_DIR = DEFINE_RELATIVE_DIR;
 
 /** Per-ledger config: filename, array key on the body, entry schema. */
 const LEDGER_CONFIG = /** @type {const} */ ({
