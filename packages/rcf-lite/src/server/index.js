@@ -4,7 +4,7 @@
 // (D11); EADDRINUSE is a hard failure (D10).
 //
 // Public surface:
-//   startServer({ projectRoot, port, host, log, heartbeatMs, watchImpl })
+//   startServer({ projectRoot, port, host, log, logError, heartbeatMs, watchImpl, renderImpl })
 //     -> Promise<{ url, port, close, hub, currentState }>
 // close() drains SSE with a `shutdown` event and releases the port. The
 // caller (bin/rcf-view.js) is responsible for the 2s force-exit budget
@@ -27,8 +27,16 @@ import { createSseHub } from './sse.js';
  * @property {string} [host='127.0.0.1']
  * @property {number} [heartbeatMs=30000]
  * @property {number} [debounceMs=50]
- * @property {(line: string) => void} [log] - stderr sink
+ * @property {(line: string) => void} [log] - verbose-gated chatty sink;
+ *   defaults to a noop so a caller that does not want chatter can omit it.
+ * @property {(line: string) => void} [logError] - fatal-error sink that is
+ *   always written to, independent of `log`. Issue #333 item 2: the CLI
+ *   wires this to stderr unconditionally so a host that spawned
+ *   `rcf audit view` without --verbose still sees a dead watcher or a
+ *   failed walker. Defaults to `log` for back-compat.
  * @property {typeof defaultWatch} [watchImpl] - injectable watch primitive for tests
+ * @property {typeof renderModelToPage} [renderImpl] - injectable walker
+ *   for tests; defaults to the real `renderModelToPage`.
  * @property {boolean} [testHost=false] - viewer UI refresh PR 9 (TAC-4134,
  *   ADR-4136): when true, mount the wespa host fixture at /test-host.html
  *   plus its embed-client script at /test-host.js. Off by default so
@@ -73,54 +81,77 @@ export async function startServer(args) {
   const heartbeatMs = typeof args.heartbeatMs === 'number' ? args.heartbeatMs : 30000;
   const debounceMs = typeof args.debounceMs === 'number' ? args.debounceMs : 50;
   const log = typeof args.log === 'function' ? args.log : () => {};
+  // Issue #333 item 2: fatal watcher/walker exceptions always surface to
+  // stderr regardless of --verbose; chatty per-event lines stay gated on
+  // `log`. Callers that pass only `log` keep the pre-fix behaviour (one
+  // sink for both chatty and fatal), which the back-compat test asserts.
+  const logError = typeof args.logError === 'function' ? args.logError : log;
   const watchImpl = typeof args.watchImpl === 'function' ? args.watchImpl : defaultWatch;
+  // Issue #333 item 1: tests inject a controllable render promise to
+  // observe the trailing-rewalk coalescing without racing a real walk.
+  const renderImpl = typeof args.renderImpl === 'function' ? args.renderImpl : renderModelToPage;
   const testHost = args.testHost === true;
 
   /** @type {{ version: number, fullPageHtml: string, contentHtml: string, errors: import('#core/errors').RcfError[] } | null} */
   let state = null;
   let version = 0;
   let rewalkInFlight = null;
+  // Issue #333 item 1: a change that arrives while a walk is in flight
+  // queues exactly one trailing walk so the post-in-flight on-disk state
+  // is picked up; any number of changes during the in-flight walk collapse
+  // onto that single trailing walk (never dropped, never re-run per call).
+  let rewalkTrailing = false;
   let closed = false;
 
   const sse = createSseHub({ heartbeatMs, log });
 
-  async function rewalk() {
-    if (closed) return;
-    if (rewalkInFlight) {
-      // Coalesce concurrent walks. The trailing one will pick up the
-      // final on-disk state; a middle one adds nothing.
-      return rewalkInFlight;
-    }
-    rewalkInFlight = (async () => {
-      try {
-        const result = await renderModelToPage({ projectRoot });
-        if (closed) return;
-        version += 1;
-        state = {
-          version,
-          fullPageHtml: result.fullPageHtml,
-          contentHtml: result.contentHtml,
-          errors: result.errors,
-          pmPartials: result.pmPartials,
-          // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup
-          // index is built once per rewalk and snapshotted on `state`
-          // so `GET /index.json` serves from memory and the SSE
-          // `tree-update` version lets the client invalidate its cache.
-          indexJson: result.indexJson,
-        };
-        sse.broadcast('tree-update', { version, contentHtml: result.contentHtml });
-        if (result.errors && result.errors.length > 0) {
-          sse.broadcast('walker-error', { errors: result.errors });
-        }
-      } catch (err) {
-        log(`[server] walker failed: ${/** @type {Error} */ (err).message}`);
-        sse.broadcast('walker-error', {
-          errors: [{ kind: 'ioFailure', message: /** @type {Error} */ (err).message }],
-        });
-      } finally {
-        rewalkInFlight = null;
+  async function runWalk() {
+    try {
+      const result = await renderImpl({ projectRoot });
+      if (closed) return;
+      version += 1;
+      state = {
+        version,
+        fullPageHtml: result.fullPageHtml,
+        contentHtml: result.contentHtml,
+        errors: result.errors,
+        pmPartials: result.pmPartials,
+        // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup
+        // index is built once per rewalk and snapshotted on `state`
+        // so `GET /index.json` serves from memory and the SSE
+        // `tree-update` version lets the client invalidate its cache.
+        indexJson: result.indexJson,
+      };
+      sse.broadcast('tree-update', { version, contentHtml: result.contentHtml });
+      if (result.errors && result.errors.length > 0) {
+        sse.broadcast('walker-error', { errors: result.errors });
       }
-    })();
+    } catch (err) {
+      // Fatal walker exception: always to stderr via `logError` so a
+      // host spawning `rcf audit view` without --verbose still sees it
+      // (issue #333 item 2).
+      logError(`[server] walker failed: ${/** @type {Error} */ (err).message}`);
+      sse.broadcast('walker-error', {
+        errors: [{ kind: 'ioFailure', message: /** @type {Error} */ (err).message }],
+      });
+    } finally {
+      const trailing = rewalkTrailing;
+      rewalkTrailing = false;
+      rewalkInFlight = trailing && !closed ? runWalk() : null;
+    }
+  }
+
+  function rewalk() {
+    if (closed) return Promise.resolve();
+    if (rewalkInFlight) {
+      // A walk is already running. Flag that a trailing walk is wanted
+      // and return a promise that resolves when the trailing walk (not
+      // the in-flight one) has completed. Any concurrent callers coalesce
+      // onto the same trailing walk - the final on-disk state wins.
+      rewalkTrailing = true;
+      return rewalkInFlight.then(() => rewalkInFlight ?? undefined);
+    }
+    rewalkInFlight = runWalk();
     return rewalkInFlight;
   }
 
@@ -175,7 +206,7 @@ export async function startServer(args) {
     paths: [watchDir],
     onChange: () => { rewalk().catch(() => {}); },
     debounceMs,
-    onError: (err) => { log(`[watch] ${err.message}`); },
+    onError: (err) => { logError(`[watch] ${err.message}`); },
   });
 
   // Bind. EADDRINUSE surfaces as a rejected Promise so the caller can
