@@ -15,7 +15,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
-import { mkdtemp, readFile, readdir, stat, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, readdir, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 
@@ -129,43 +129,168 @@ test('AC-208-2 happy: a running viewer and a known id', async () => {
 });
 
 test('AC-208-3 happy: a running viewer', async () => {
+  // Bind scope narrowing and testPointers plumbing by seeding a tree
+  // with two REQs: REQ-001 holds a TC whose pointer FAILS to resolve
+  // (file-missing); REQ-002 holds a TC whose pointer RESOLVES against
+  // a real test file written into the project root. The two
+  // observables that break if the server drops either knob:
+  //   - scope=REQ-002 is a narrower set than whole-tree (totals and
+  //     requirement ids differ), so ignoring scopeId is caught.
+  //   - REQ-002 reports coverageClass 'covered' whereas REQ-001
+  //     reports 'covered-unresolved'; a server that stopped passing
+  //     state.testPointers would mark both as 'covered-unresolved',
+  //     so dropping the testPointers plumbing is caught.
   const root = await makeCleanProject();
+  const ts = '2026-10-08T00:00:00Z';
+  await writeFile(join(root, 'rcf/requirements/req-002.json'), `${JSON.stringify({
+    reqId: 'REQ-002',
+    prdId: 'PRD-001',
+    title: 'FBS-207 cover-bind REQ',
+    description: 'FBS-207 cover-bind REQ',
+    category: 'functional',
+    domain: 'todo',
+    priority: 'must',
+    version: '0.1.0',
+    status: 'draft',
+    createdAt: ts,
+    updatedAt: ts,
+  }, null, 2)}\n`, 'utf8');
+  await writeFile(join(root, 'rcf/user-stories/us-201.json'), `${JSON.stringify({
+    usId: 'US-201',
+    prdId: 'PRD-001',
+    reqId: 'REQ-002',
+    version: '0.1.0',
+    status: 'draft',
+    title: 'FBS-207 cover-bind US',
+    asA: '-',
+    iWant: '-',
+    soThat: '-',
+    acceptanceCriteria: [{ id: 'AC-201-1', description: 'resolving ac', testable: true }],
+    createdAt: ts,
+    updatedAt: ts,
+  }, null, 2)}\n`, 'utf8');
+  // Real test file so TS-002's pointer resolves via the anchor regex
+  // on the working tree inside the temp project root.
+  const resolvingTestFile = 'test/fbs-207-cover-bind.test.js';
+  await mkdir(join(root, 'test'), { recursive: true });
+  await writeFile(join(root, resolvingTestFile),
+    "import { test } from 'node:test';\ntest('resolves', () => {});\n", 'utf8');
+  await writeFile(join(root, 'rcf/test-suites/ts-002.json'), `${JSON.stringify({
+    id: 'TS-002',
+    usId: 'US-201',
+    title: 'cover-bind suite',
+    purpose: 'cover-bind',
+    testLevel: 'unit',
+    acIds: ['AC-201-1'],
+    testCases: [{
+      id: 'TC-002-resolves',
+      acId: 'AC-201-1',
+      description: 'resolves',
+      status: 'pending',
+      testPointer: `${resolvingTestFile}::resolves`,
+    }],
+    status: 'draft',
+    createdAt: ts,
+    updatedAt: ts,
+  }, null, 2)}\n`, 'utf8');
+  // Pointer that fails to resolve: file does not exist in the temp
+  // project root, so coverage classes REQ-001 as covered-unresolved
+  // and lists the TC in unresolvedTestPointers.
+  await writeFile(join(root, 'rcf/test-suites/ts-001.json'), `${JSON.stringify({
+    id: 'TS-001',
+    usId: 'US-101',
+    title: 'missing-pointer suite',
+    purpose: 'missing',
+    testLevel: 'unit',
+    acIds: ['AC-101-1'],
+    testCases: [{
+      id: 'TC-001-missing',
+      acId: 'AC-101-1',
+      description: 'missing',
+      status: 'pending',
+      testPointer: 'test/does-not-exist.test.js::missing',
+    }],
+    status: 'draft',
+    createdAt: ts,
+    updatedAt: ts,
+  }, null, 2)}\n`, 'utf8');
+
   const srv = await startServer({ projectRoot: root, port: await freePort() });
   try {
-    // No scope: strict per-AC coverage over the whole tree.
+    // Whole-tree: strict per-AC coverage over both REQs.
     const whole = await fetch(`${srv.url}coverage.json`);
     assert.equal(whole.status, 200);
     assert.match(whole.headers.get('content-type') ?? '', /application\/json/);
     assert.equal(whole.headers.get('cache-control'), 'no-store');
     const wholeBody = await whole.json();
     assert.equal(wholeBody.strict, true);
-    assert.ok(wholeBody.totals && typeof wholeBody.totals.requirements === 'number');
-    assert.ok(Array.isArray(wholeBody.requirements));
-    assert.ok(Array.isArray(wholeBody.unresolvedTestPointers));
+    assert.equal(wholeBody.totals.requirements, 2,
+      'whole-tree sees both seeded requirements');
+    const wholeReqIds = wholeBody.requirements.map((r) => r.id).sort();
+    assert.deepEqual(wholeReqIds, ['REQ-001', 'REQ-002']);
+
+    // testPointers plumbing: REQ-002 covered via a resolving TC;
+    // REQ-001 covered-unresolved via a missing-file TC. If the
+    // server dropped state.testPointers the resolving entry would be
+    // missing and REQ-002 would also be covered-unresolved.
+    const req1 = wholeBody.requirements.find((r) => r.id === 'REQ-001');
+    const req2 = wholeBody.requirements.find((r) => r.id === 'REQ-002');
+    assert.equal(req2.coverageClass, 'covered',
+      'REQ-002 covered via resolving TC (testPointers plumbing)');
+    assert.equal(req1.coverageClass, 'covered-unresolved',
+      'REQ-001 unresolved via missing-file TC');
+    assert.ok(
+      wholeBody.unresolvedTestPointers.some((e) => e.tcId === 'TC-001-missing'),
+      'unresolved pointer entry present for TC-001-missing',
+    );
+
+    // Scope narrowing (REQ): the subtree selection reuses
+    // classifyCoverageScope the way the CLI positional does. Scoping
+    // to REQ-002 drops REQ-001 - ids and totals differ from whole-
+    // tree, so ignoring scopeId would be caught here.
+    const scopedReq = await fetch(`${srv.url}coverage.json?scope=REQ-002`);
+    assert.equal(scopedReq.status, 200);
+    const scopedReqBody = await scopedReq.json();
+    assert.equal(scopedReqBody.totals.requirements, 1,
+      'REQ scope narrows to one requirement');
+    assert.deepEqual(scopedReqBody.requirements.map((r) => r.id), ['REQ-002']);
+    assert.notDeepEqual(scopedReqBody.requirements, wholeBody.requirements,
+      'REQ-scoped result differs from whole-tree');
+
+    // Scope narrowing (US): a US scope narrows to the parent REQ.
+    const scopedUs = await fetch(`${srv.url}coverage.json?scope=US-101`);
+    assert.equal(scopedUs.status, 200);
+    const scopedUsBody = await scopedUs.json();
+    assert.equal(scopedUsBody.totals.requirements, 1,
+      'US scope narrows to its parent REQ');
+    assert.deepEqual(scopedUsBody.requirements.map((r) => r.id), ['REQ-001']);
+
+    // Oracle parity against the same pure compute; the fixtures above
+    // keep this check non-tautological (whole-tree and scoped bodies
+    // are observably different, and testPointers changes
+    // coverageClass).
     const state = srv.currentState();
-    const expectedWhole = computeCoverage(state.tree, {
+    assert.deepEqual(wholeBody, computeCoverage(state.tree, {
       strict: true,
       scopeId: null,
       testPointers: state.testPointers,
-    });
-    assert.deepEqual(wholeBody, expectedWhole);
-
-    // With scope: the subtree selection reuses classifyCoverageScope
-    // the way the CLI positional does. A fresh init tree has no REQ,
-    // so prove the narrowing semantics by scoping to the PRD and
-    // asserting the result matches the same compute with scopeId set.
-    const scoped = await fetch(`${srv.url}coverage.json?scope=PRD-001`);
-    assert.equal(scoped.status, 200);
-    const scopedBody = await scoped.json();
-    const expectedScoped = computeCoverage(state.tree, {
+    }));
+    assert.deepEqual(scopedReqBody, computeCoverage(state.tree, {
       strict: true,
-      scopeId: 'PRD-001',
+      scopeId: 'REQ-002',
       testPointers: state.testPointers,
-    });
-    assert.deepEqual(scopedBody, expectedScoped);
-    // Sanity: classifyCoverageScope accepts PRD / REQ / US (the
-    // handler trusts this classifier exactly as the CLI does).
+    }));
+    assert.deepEqual(scopedUsBody, computeCoverage(state.tree, {
+      strict: true,
+      scopeId: 'US-101',
+      testPointers: state.testPointers,
+    }));
+
+    // classifyCoverageScope accepts PRD / REQ / US; the handler
+    // trusts this classifier exactly as the CLI does.
     assert.equal(classifyCoverageScope(state.tree, 'PRD-001'), 'valid');
+    assert.equal(classifyCoverageScope(state.tree, 'REQ-002'), 'valid');
+    assert.equal(classifyCoverageScope(state.tree, 'US-101'), 'valid');
   } finally {
     await srv.close();
   }
@@ -268,58 +393,81 @@ test('AC-208-5 must-not: any request to the three routes', async () => {
 });
 
 test('AC-208-6 edge: a rewalk that publishes a new stateversion', async () => {
-  // Router-level test with an injected currentState + queryCache so
-  // both halves of the behaviour (same version memoised, new version
-  // drops previous entries) are observable without racing against the
-  // real walker. The tree is a real walked tree (makeCleanProject +
-  // renderModelToPage) so computeTrace runs its real walker.
+  // Bind the full TAC-4136 queryCache contract against a live server:
+  // (1) within one version, two identical requests write exactly one
+  //     memo entry (observed via srv.queryCacheSize()).
+  // (2) a real rewalk triggered by srv.rewalk() bumps state.version,
+  //     SWAPS the queryCache wholesale (not just version-prefixes new
+  //     keys), and the next request on the new version is a fresh
+  //     write.
+  // (3) the same request after rewalk reflects the mutated tree, so
+  //     the memo is not serving stale bytes.
+  // A regression that stopped swapping the cache (e.g. removing
+  // `queryCache = new Map()` from src/server/index.js) would leave
+  // the previous-version entry resident after step (2) and the size
+  // probe would read 2 before the new query lands.
+  // The watcher is stubbed so the test's explicit srv.rewalk() does
+  // not race with a filesystem-event-triggered walk.
   const root = await makeCleanProject();
-  const rendered = await renderModelToPage({ projectRoot: root });
-  const cacheMap = new Map();
-  let setCalls = 0;
-  const cache = {
-    get: (k) => cacheMap.get(k),
-    set: (k, v) => { cacheMap.set(k, v); setCalls += 1; },
-    has: (k) => cacheMap.has(k),
-    size: () => cacheMap.size,
-  };
-  const state = {
-    fullPageHtml: rendered.fullPageHtml,
-    contentHtml: rendered.contentHtml,
-    version: 1,
-    tree: rendered.tree,
-    testPointers: rendered.testPointers,
-  };
-  const router = createRouter({
-    currentState: () => state,
-    sse: { handle: () => {} },
-    queryCache: cache,
+  const srv = await startServer({
+    projectRoot: root,
+    port: await freePort(),
+    watchImpl: () => ({ close() {} }),
   });
-  const server = createServer(router);
-  const port = await freePort();
-  await new Promise((r) => server.listen(port, '127.0.0.1', r));
-  const url = `http://127.0.0.1:${port}/`;
   try {
-    // Within one version a repeated request writes exactly one entry
-    // and the serial two calls both return the same bytes.
-    const a = await (await fetch(`${url}trace.json?id=PRD-001&direction=forward`)).text();
-    const b = await (await fetch(`${url}trace.json?id=PRD-001&direction=forward`)).text();
-    assert.equal(a, b, 'same version, same key, same bytes');
-    assert.equal(cacheMap.size, 1, 'one entry for one (version,pivot,direction) key');
-    assert.equal(setCalls, 1, 'the second request served from the memo');
+    const traceUrl = `${srv.url}trace.json?id=PRD-001&direction=forward`;
+    const vBefore = srv.currentState().version;
 
-    // Simulate a rewalk: the server drops the cache wholesale and
-    // state.version increments. The next request on the new version
-    // writes a fresh entry under the new key, and the previous
-    // version's key is no longer present.
-    cacheMap.clear();
-    state.version = 2;
-    await fetch(`${url}trace.json?id=PRD-001&direction=forward`);
-    assert.equal(cacheMap.size, 1, 'new version writes a fresh entry');
-    const [onlyKey] = [...cacheMap.keys()];
-    assert.ok(onlyKey.startsWith('2:trace:PRD-001:'), `key carries the new version: ${onlyKey}`);
+    const r1 = await (await fetch(traceUrl)).json();
+    const r2 = await (await fetch(traceUrl)).json();
+    assert.deepEqual(r2, r1, 'same version, same key, same bytes');
+    assert.equal(srv.queryCacheSize(), 1,
+      'one entry for one (version,pivot,direction) key');
+
+    // Mutate the tree on disk: add US-102 under REQ-001 with its own
+    // AC. srv.rewalk() rewalks synchronously, bumps version, and
+    // SWAPS queryCache for a fresh Map.
+    const us = JSON.parse(await readFile(
+      join(root, 'rcf/user-stories/us-101.json'),
+      'utf8',
+    ));
+    const twin = {
+      ...us,
+      usId: 'US-102',
+      title: 'FBS-207 rewalk twin',
+      acceptanceCriteria: [
+        { id: 'AC-102-1', description: 'rewalk-added ac', testable: true },
+      ],
+      updatedAt: '2026-10-08T00:00:00Z',
+    };
+    await writeFile(
+      join(root, 'rcf/user-stories/us-102.json'),
+      `${JSON.stringify(twin, null, 2)}\n`,
+      'utf8',
+    );
+
+    await srv.rewalk();
+    const vAfter = srv.currentState().version;
+    assert.equal(vAfter, vBefore + 1, 'rewalk bumps state.version');
+    // The cache was swapped wholesale: previous-version entries are
+    // gone. If the server stopped swapping, size would read 1 here.
+    assert.equal(srv.queryCacheSize(), 0,
+      'rewalk clears the memo wholesale');
+
+    // Same URL, new version: content reflects the mutated tree
+    // (US-102 appears under PRD-001 in the forward trace).
+    const r3 = await (await fetch(traceUrl)).json();
+    assert.notDeepEqual(r3, r1,
+      'served response reflects the mutated tree, not the memo');
+    const r3HasUs102 = (r3.nodes ?? []).some((n) => n.id === 'US-102');
+    assert.ok(r3HasUs102,
+      'US-102 appears in the forward trace after rewalk');
+
+    // One fresh entry on the new version.
+    assert.equal(srv.queryCacheSize(), 1,
+      'new version writes exactly one entry');
   } finally {
-    await new Promise((r) => server.close(r));
+    await srv.close();
   }
 });
 

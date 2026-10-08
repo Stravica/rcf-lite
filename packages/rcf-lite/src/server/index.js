@@ -296,5 +296,10 @@ export async function startServer(args) {
     currentState: () => state,
     sse,
     rewalk,
+    // FBS-207 (TAC-4136, AC-208-6 test seam): read-only probe on the
+    // page-lifetime memo. Lets the AC-208-6 integration test prove the
+    // rewalk cache SWAP (not just a version-prefixed key change) by
+    // observing size before and after an explicit `rewalk()`.
+    queryCacheSize: () => queryCache.size,
   };
 }
