@@ -35,6 +35,15 @@ import { readFile, stat } from 'node:fs/promises';
 
 import { renderComponentsFixturePage } from '../view/components-fixture.js';
 import { renderTestHostPage } from '../view/test-host/fixture.js';
+// FBS-207 (TAC-4136, ADR-4140): the viewer's three JSON query routes
+// call the same pure composers the CLI calls, from the walked tree
+// kept on `state`. Admissibility bypass: these routes do NOT call
+// `runWithAdmissibilityGate` (the CLI coverage, impact and trace
+// verbs do not either; issues 316 and 317). Only readiness and
+// freeze consult that gate.
+import { classifyCoverageScope, computeCoverage } from '../query/coverage.js';
+import { computeImpact } from '../query/impact.js';
+import { computeTrace, kindOf } from '../query/trace.js';
 
 // Issue #248 (0.28.3): the shipped static assets (style.css,
 // mermaid.min.js, live-client.js) MUST be resolved once at server
@@ -180,6 +189,18 @@ export function createRouter(deps) {
       res.end(body);
       return;
     }
+    if (path === '/trace.json') {
+      handleQueryRoute(req, res, deps, url, 'trace');
+      return;
+    }
+    if (path === '/impact.json') {
+      handleQueryRoute(req, res, deps, url, 'impact');
+      return;
+    }
+    if (path === '/coverage.json') {
+      handleQueryRoute(req, res, deps, url, 'coverage');
+      return;
+    }
     if (path === '/scope.json') {
       if (typeof deps.scope !== 'function') {
         res.writeHead(404, { 'content-type': MIME.txt });
@@ -250,4 +271,148 @@ function fail(res, err) {
     res.writeHead(500, { 'content-type': MIME.txt });
     res.end(`internal error: ${err && err.message ? err.message : 'unknown'}\n`);
   } catch { /* swallow */ }
+}
+
+/**
+ * FBS-207 (TAC-4136 interfaces[GET /trace.json], [GET /impact.json],
+ * [GET /coverage.json], [QueryRouteError]): one handler per route that
+ * reads deps.currentState(), returns 503 before the first walk, 404 or
+ * 400 QueryRouteError on known failures, and application/json with
+ * cache-control: no-store on success. The three routes NEVER call
+ * runWithAdmissibilityGate (admissibility bypass stated in TAC-4136:
+ * the CLI coverage, impact and trace verbs do not either, so a tree
+ * that fails admissibility still answers these three). Nothing is
+ * written under rcf/.
+ *
+ * Memoised per (version, route, pivot, direction|scope) in deps.query
+ * Cache, which the server replaces wholesale on every rewalk. The
+ * cached entry is the response body string so a repeated request
+ * writes bytes without recomputing or re-stringifying.
+ *
+ * @param {import('node:http').IncomingMessage} req
+ * @param {import('node:http').ServerResponse} res
+ * @param {RouterDeps & { queryCache?: {
+ *   get(key: string): string | undefined,
+ *   set(key: string, value: string): void,
+ *   has(key: string): boolean,
+ *   size(): number,
+ * }}} deps
+ * @param {URL} url
+ * @param {'trace' | 'impact' | 'coverage'} route
+ */
+function handleQueryRoute(req, res, deps, url, route) {
+  const state = deps.currentState();
+  // AC-208-7: 503 "view server initialising" before the first walk
+  // completes, exactly as /index.json answers today.
+  if (!state || !state.tree) {
+    res.writeHead(503, { 'content-type': MIME.txt });
+    res.end('view server initialising\n');
+    return;
+  }
+
+  // AC-208-1: for /trace.json the query id and direction come from
+  // the URL. Default direction is forward (matches the CLI default).
+  const id = url.searchParams.get('id');
+  const direction = url.searchParams.get('direction') ?? 'forward';
+  const scope = url.searchParams.get('scope');
+
+  if (route === 'trace' || route === 'impact') {
+    // AC-208-4 unknown-id: an id missing or not found in the tree is
+    // 404 with QueryRouteError.error "unknown-id" and the request id
+    // echoed back (missing is echoed as null).
+    if (!id) {
+      sendQueryError(res, 404, { error: 'unknown-id', id: null });
+      return;
+    }
+    if (!kindOf(state.tree, id)) {
+      sendQueryError(res, 404, { error: 'unknown-id', id });
+      return;
+    }
+  }
+  if (route === 'trace') {
+    // AC-208-4 bad-direction: anything outside forward | back | both
+    // is 400 with QueryRouteError.error "bad-direction".
+    if (direction !== 'forward' && direction !== 'back' && direction !== 'both') {
+      sendQueryError(res, 400, { error: 'bad-direction', id, direction });
+      return;
+    }
+  }
+  if (route === 'coverage' && scope !== null) {
+    // AC-208-4 bad-scope: a scope positional that is below AC or
+    // unknown is 400 with QueryRouteError.error "bad-scope". Reuses
+    // the exact classifier the CLI uses (src/cli/coverage.js).
+    const classification = classifyCoverageScope(state.tree, scope);
+    if (classification !== 'valid') {
+      sendQueryError(res, 400, { error: 'bad-scope', scope });
+      return;
+    }
+  }
+
+  // AC-208-6: memo key covers the state version and the route-shaped
+  // request params so each (version, pivot, direction|scope) computes
+  // once and serves from the memo thereafter. The cache is replaced
+  // wholesale on each rewalk, so a new version never serves a prior
+  // version's bytes.
+  const key = route === 'trace'
+    ? `${state.version}:trace:${id}:${direction}`
+    : route === 'impact'
+      ? `${state.version}:impact:${id}:-`
+      : `${state.version}:coverage:-:${scope ?? ''}`;
+
+  const cache = deps.queryCache;
+  let body = cache && cache.has(key) ? cache.get(key) : null;
+  if (body === null || body === undefined) {
+    let result;
+    try {
+      if (route === 'trace') {
+        result = computeTrace(state.tree, { id, direction });
+      } else if (route === 'impact') {
+        result = computeImpact(state.tree, { id });
+      } else {
+        // AC-208-3: strict per-AC coverage, with the CLI's optional
+        // scope narrowing. testPointers are the resolved map the
+        // walker produced (fail-closed when missing per
+        // computeCoverage's doc).
+        result = computeCoverage(state.tree, {
+          strict: true,
+          scopeId: scope,
+          testPointers: state.testPointers,
+        });
+      }
+    } catch (err) {
+      fail(res, err);
+      return;
+    }
+    body = JSON.stringify(result);
+    if (cache) cache.set(key, body);
+  }
+
+  // AC-208-1 / -2 / -3: application/json with cache-control: no-store,
+  // computed from the current state and served relative to the mount.
+  res.writeHead(200, {
+    'content-type': MIME.json,
+    'content-length': String(Buffer.byteLength(body)),
+    'cache-control': 'no-store',
+  });
+  res.end(body);
+}
+
+/**
+ * FBS-207 (TAC-4136 QueryRouteError): the three routes share one JSON
+ * error body `{error, id?, direction?, scope?}`, with request echo for
+ * only the fields that were present. 404 for unknown-id, 400 for the
+ * two usage errors.
+ *
+ * @param {import('node:http').ServerResponse} res
+ * @param {404 | 400} status
+ * @param {{error: 'unknown-id' | 'bad-direction' | 'bad-scope', id?: string | null, direction?: string, scope?: string}} payload
+ */
+function sendQueryError(res, status, payload) {
+  const body = JSON.stringify(payload);
+  res.writeHead(status, {
+    'content-type': MIME.json,
+    'content-length': String(Buffer.byteLength(body)),
+    'cache-control': 'no-store',
+  });
+  res.end(body);
 }

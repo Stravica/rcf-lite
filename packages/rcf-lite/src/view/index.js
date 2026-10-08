@@ -163,7 +163,13 @@ export async function renderModelToPage({ projectRoot }) {
   // shapes:pathsResolve agrees with the CLI without parsing HTML. The
   // viewer HTML is still the operator-facing surface; this field is
   // additive and consumed by test code only.
-  return { fullPageHtml, contentHtml, errors, tree, pmPartials, indexJson, readiness };
+  // FBS-207 (TAC-4136, AC-208-6): the walked `tree` and the resolved
+  // `testPointers` map are kept on the returned state so the server's
+  // query routes (/trace.json, /impact.json, /coverage.json) compute
+  // per request from the same tree the page was rendered from, and
+  // the server's queryCache invalidates on `state.version`. Additive;
+  // nothing else reads these fields on the view-layer path.
+  return { fullPageHtml, contentHtml, errors, tree, testPointers, pmPartials, indexJson, readiness };
 }
 
 /**
