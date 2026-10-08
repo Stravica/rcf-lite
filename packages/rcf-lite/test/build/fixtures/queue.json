@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 99,
-    "notStarted": 53,
+    "notStarted": 52,
     "inProgress": 2,
-    "complete": 29,
+    "complete": 30,
     "verified": 15,
-    "actionable": 41,
+    "actionable": 40,
     "blocked": 12
   },
   "nextActionable": "FBS-013",
@@ -1265,9 +1265,9 @@
       "buildOrder": 207,
       "tier": 0,
       "title": "Query routes: trace, impact and coverage as JSON",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1282,8 +1282,7 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-206",
-        "FBS-207"
+        "FBS-206"
       ]
     },
     {

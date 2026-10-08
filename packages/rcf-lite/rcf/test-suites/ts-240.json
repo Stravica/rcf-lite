@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:06.367Z",
-  "updatedAt": "2026-10-07T13:47:06.367Z",
+  "updatedAt": "2026-10-08T18:05:44.868Z",
   "purpose": "Cover every acceptance criterion of US-208 with one node:test case each in test/view/query-routes.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-207) removes the flags as it makes them pass.",
   "testLevel": "integration",
   "acIds": [
@@ -16,49 +16,49 @@
     {
       "id": "TC-240-208-1-happy",
       "acId": "AC-208-1",
-      "description": "AC-208-1 happy: a running viewer and a known id",
+      "description": "[happy] Given a running viewer and a known id, when GET \"./trace.json?id=<id>&direction=forward\" is requested, then the response is application/json carrying the computeTrace result for that pivot (pivot, direction, found, nodes, edges), computed from the current state and served with \"cache-control: no-store\" relative to the viewer mount.",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-1 happy: a running viewer and a known id"
     },
     {
       "id": "TC-240-208-2-happy",
       "acId": "AC-208-2",
-      "description": "AC-208-2 happy: a running viewer and a known id",
+      "description": "[happy] Given a running viewer and a known id, when GET \"./impact.json?id=<id>\" is requested, then the response is application/json carrying the computeImpact result (pivot, found, nodes with actionNeeded per node, edges) with \"cache-control: no-store\".",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-2 happy: a running viewer and a known id"
     },
     {
       "id": "TC-240-208-3-happy",
       "acId": "AC-208-3",
-      "description": "AC-208-3 happy: a running viewer",
+      "description": "[happy] Given a running viewer, when GET \"./coverage.json\" is requested with no scope, then the response is application/json carrying the strict computeCoverage result for the whole tree (totals, requirements, unresolvedTestPointers); given \"?scope=<id>\" naming a PRD, REQ or US, the result is narrowed to that subtree as the CLI positional narrows it.",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-3 happy: a running viewer"
     },
     {
       "id": "TC-240-208-4-failure",
       "acId": "AC-208-4",
-      "description": "AC-208-4 failure: an unknown id",
+      "description": "[failure] Given an unknown id, when trace or impact is requested, then the response is 404 application/json with QueryRouteError.error \"unknown-id\" and QueryRouteError.id echoing the request; given a direction outside forward, back and both, the response is 400 with QueryRouteError.error \"bad-direction\"; given a below-AC or unknown scope on coverage, the response is 400 with QueryRouteError.error \"bad-scope\".",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-4 failure: an unknown id"
     },
     {
       "id": "TC-240-208-5-mustnot",
       "acId": "AC-208-5",
-      "description": "AC-208-5 must-not: any request to the three routes",
+      "description": "[must-not] Given any request to the three routes, when the server handles it, then runWithAdmissibilityGate is not called (the routes bypass the gate the way src/cli/coverage.js and src/cli/impact.js do) and nothing under rcf/ is written.",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-5 must-not: any request to the three routes"
     },
     {
       "id": "TC-240-208-6-edge",
       "acId": "AC-208-6",
-      "description": "AC-208-6 edge: a rewalk that publishes a new stateversion",
+      "description": "[edge] Given a rewalk that publishes a new state.version, when a route is requested, then the served result reflects the new tree and the memo entries of the previous version are discarded; within one version a repeated request for the same pivot and direction is served from the memo without recomputing.",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-6 edge: a rewalk that publishes a new stateversion"
     },
     {
       "id": "TC-240-208-7-failure",
       "acId": "AC-208-7",
-      "description": "AC-208-7 failure: the server before the first walk completes",
+      "description": "[failure] Given the server before the first walk completes, when a trace, impact or coverage request arrives, then the response is 503 text \"view server initialising\", as ./index.json answers today.",
       "status": "pending",
       "testPointer": "test/view/query-routes.test.js::AC-208-7 failure: the server before the first walk completes"
     }

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-786",
+  "path": "src/view/index.js#renderModelToPage",
+  "title": "testPointers kept on the view state (TAC-4136)",
+  "description": "renderModelToPage additively returns the resolved testPointers map alongside the walked tree so the server state carries it and GET /coverage.json composes computeCoverage(tree, { strict: true, scopeId, testPointers: state.testPointers }) (AC-208-3). The CLI resolves pointers the same way via resolveTestPointers; the viewer and CLI share one map per walk.",
+  "implementsAcIds": [
+    "AC-208-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T18:39:07.285Z",
+  "updatedAt": "2026-10-08T18:39:07.285Z"
+}

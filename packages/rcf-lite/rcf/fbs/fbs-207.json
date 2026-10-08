@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:19.420Z",
-  "updatedAt": "2026-10-08T15:30:49.450Z",
+  "updatedAt": "2026-10-08T18:09:42.783Z",
   "summary": "Query routes: trace, impact and coverage as JSON (US-208). Delivers AC-208-1 to AC-208-7. Estimated new node:test cases: 7. Order in the command page build: 4 of 5.",
   "approach": "Add the three GET handlers to src/server/routes.js after /index.json, keep the walked tree and testPointers on the state returned by renderModelToPage (additive), add the per-version memo on the server closure, answer 503 before the first walk, 404 unknown-id, 400 bad-direction and bad-scope with the QueryRouteError body, never call runWithAdmissibilityGate, and release-note the three routes for host proxy allow-lists.",
   "deliverables": [
@@ -38,6 +38,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 207,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Query routes: trace, impact and coverage as JSON"
 }

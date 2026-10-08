@@ -92,7 +92,7 @@ export async function startServer(args) {
   const renderImpl = typeof args.renderImpl === 'function' ? args.renderImpl : renderModelToPage;
   const testHost = args.testHost === true;
 
-  /** @type {{ version: number, fullPageHtml: string, contentHtml: string, errors: import('#core/errors').RcfError[] } | null} */
+  /** @type {{ version: number, fullPageHtml: string, contentHtml: string, errors: import('#core/errors').RcfError[], tree?: import('#core/store/walker.js').TreeModel, testPointers?: Map<string, import('#core/store/tp-resolve.js').TestPointerResolution> } | null} */
   let state = null;
   let version = 0;
   let rewalkInFlight = null;
@@ -104,6 +104,15 @@ export async function startServer(args) {
   let closed = false;
 
   const sse = createSseHub({ heartbeatMs, log });
+
+  // FBS-207 (TAC-4136 queryCache + AC-208-6): per-version memo for the
+  // three JSON query routes keyed by `${version}:${route}:${pivot}:${d
+  // irection|scope}`. Replaced wholesale on every rewalk so a new tree
+  // never serves stale compute. One compute per key per version; never
+  // persisted; never written under rcf/. Page-lifetime: a reconnected
+  // client sees a fresh cache.
+  /** @type {Map<string, string>} */
+  let queryCache = new Map();
 
   async function runWalk() {
     try {
@@ -121,7 +130,17 @@ export async function startServer(args) {
         // so `GET /index.json` serves from memory and the SSE
         // `tree-update` version lets the client invalidate its cache.
         indexJson: result.indexJson,
+        // FBS-207 (TAC-4136, AC-208-6): the walked tree and resolved
+        // test-pointer map snapshotted on state so /trace.json,
+        // /impact.json and /coverage.json compute from the same tree
+        // the page was rendered from. `tree` was already produced by
+        // renderModelToPage; the server now carries it onto state.
+        tree: result.tree,
+        testPointers: result.testPointers,
       };
+      // FBS-207 (AC-208-6): a new version drops every previous
+      // version's compute entries wholesale, as TAC-4136 specifies.
+      queryCache = new Map();
       sse.broadcast('tree-update', { version, contentHtml: result.contentHtml });
       if (result.errors && result.errors.length > 0) {
         sse.broadcast('walker-error', { errors: result.errors });
@@ -180,6 +199,16 @@ export async function startServer(args) {
   const router = createRouter({
     currentState: () => state,
     sse,
+    // FBS-207 (TAC-4136): the three JSON query routes share one page-
+    // lifetime memo held on the server closure; the router reads and
+    // writes it through this handle. Replaced wholesale on each
+    // rewalk, above.
+    queryCache: {
+      get: (key) => queryCache.get(key),
+      set: (key, value) => { queryCache.set(key, value); },
+      has: (key) => queryCache.has(key),
+      size: () => queryCache.size,
+    },
     // Snapshotted assets take precedence; the legacy path props are
     // still passed so tests that mount the router directly with a
     // path (no asset load) keep working.
@@ -267,5 +296,10 @@ export async function startServer(args) {
     currentState: () => state,
     sse,
     rewalk,
+    // FBS-207 (TAC-4136, AC-208-6 test seam): read-only probe on the
+    // page-lifetime memo. Lets the AC-208-6 integration test prove the
+    // rewalk cache SWAP (not just a version-prefixed key change) by
+    // observing size before and after an explicit `rewalk()`.
+    queryCacheSize: () => queryCache.size,
   };
 }
