@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 99,
-    "notStarted": 54,
+    "items": 98,
+    "notStarted": 52,
     "inProgress": 2,
-    "complete": 28,
+    "complete": 29,
     "verified": 15,
-    "actionable": 41,
-    "blocked": 13
+    "actionable": 40,
+    "blocked": 12
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -68,8 +68,7 @@
         "FBS-194",
         "FBS-203",
         "FBS-204",
-        "FBS-207",
-        "FBS-209"
+        "FBS-207"
       ]
     },
     {
@@ -1228,9 +1227,9 @@
       "buildOrder": 204,
       "tier": 0,
       "title": "Readiness tables: questions and blocking items, read-only, no command text",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1242,10 +1241,8 @@
       "dependsOnFbsIds": [
         "FBS-204"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-204"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-206",
@@ -1259,7 +1256,6 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-204",
         "FBS-205"
       ]
     },
@@ -1288,16 +1284,6 @@
         "FBS-206",
         "FBS-207"
       ]
-    },
-    {
-      "fbsId": "FBS-209",
-      "buildOrder": 209,
-      "tier": 0,
-      "title": "FBS-209 verify modes: --mode flag, deterministic engine, preseed partial report",
-      "executionStatus": "notStarted",
-      "dependsOnFbsIds": [],
-      "state": "actionable",
-      "blockedBy": []
     }
   ]
 }
