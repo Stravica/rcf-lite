@@ -2178,6 +2178,22 @@ flowchart LR
   REQ-165 --> AC-16502-3
   TC-203-merge-state-refusal-and-opt-out["TC-203-merge-state-refusal-and-opt-out"]
   AC-16502-3 -.-> TC-203-merge-state-refusal-and-opt-out
+  AC-16503-1["AC-16503-1"]
+  REQ-165 --> AC-16503-1
+  TC-242-16503-1-happy["TC-242-16503-1-happy"]
+  AC-16503-1 -.-> TC-242-16503-1-happy
+  AC-16503-2["AC-16503-2"]
+  REQ-165 --> AC-16503-2
+  TC-242-16503-2-refuse["TC-242-16503-2-refuse"]
+  AC-16503-2 -.-> TC-242-16503-2-refuse
+  AC-16503-3["AC-16503-3"]
+  REQ-165 --> AC-16503-3
+  TC-242-16503-3-abort["TC-242-16503-3-abort"]
+  AC-16503-3 -.-> TC-242-16503-3-abort
+  AC-16503-4["AC-16503-4"]
+  REQ-165 --> AC-16503-4
+  TC-242-16503-4-usage["TC-242-16503-4-usage"]
+  AC-16503-4 -.-> TC-242-16503-4-usage
   REQ-170["REQ-170"]
   AC-17001-1["AC-17001-1"]
   REQ-170 --> AC-17001-1
@@ -4237,6 +4253,14 @@ flowchart LR
   class TC-203-writer-accepts-with-override tc;
   class AC-16502-3 ac;
   class TC-203-merge-state-refusal-and-opt-out tc;
+  class AC-16503-1 ac;
+  class TC-242-16503-1-happy tc;
+  class AC-16503-2 ac;
+  class TC-242-16503-2-refuse tc;
+  class AC-16503-3 ac;
+  class TC-242-16503-3-abort tc;
+  class AC-16503-4 ac;
+  class TC-242-16503-4-usage tc;
   class REQ-170 req;
   class AC-17001-1 ac;
   class TC-204-shape-buckets-present tc;

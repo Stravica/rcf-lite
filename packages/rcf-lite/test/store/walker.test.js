@@ -276,7 +276,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (205 -> 208).
   // Viewer UI refresh amendments (w-2026-10-04-dave-001) added US-207
   // under REQ-002 for the WCAG 2.1 AA contrast audit (208 -> 209).
-  assert.equal(tree.userStories.length, 214);
+  assert.equal(tree.userStories.length, 215);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -309,7 +309,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // TAC-4125-build-bundle-refuse-override-skip and
   // TAC-4126-define-validate-findings under REQ-177 and REQ-178
   // (55 -> 57).
-  assert.equal(tree.tacs.length, 59);
+  assert.equal(tree.tacs.length, 60);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -355,7 +355,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 rulings R1 to R8 (w-2026-10-05-dave-001) added
   // ADR-4138 (tree-wide checks evaluate before any scope short-circuit;
   // shared helper backing R2 + R5 + R7) (61 -> 62).
-  assert.equal(tree.adrs.length, 64);
+  assert.equal(tree.adrs.length, 65);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -428,7 +428,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // DEFINE step 3 PR 1 (w-2026-10-02-dave-042) added FBS-202 (status
   // notStarted; carries ACs for REQ-187 and the REQ-173 amendment)
   // (91 -> 92).
-  assert.equal(tree.fbsItems.length, 98);
+  assert.equal(tree.fbsItems.length, 99);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -550,7 +550,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Viewer UI refresh amendments (w-2026-10-04-dave-001) added TS-236
   // (US-207 WCAG 2.1 AA contrast audit, 2 TCs on
   // test/view/contrast-aa.test.js) (176 -> 177).
-  assert.equal(tree.testSuites.length, 182);
+  assert.equal(tree.testSuites.length, 183);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

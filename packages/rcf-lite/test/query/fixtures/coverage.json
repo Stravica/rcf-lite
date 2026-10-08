@@ -4572,6 +4572,38 @@
             "TC-203-merge-state-refusal-and-opt-out"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16503-1",
+          "covered": true,
+          "testCases": [
+            "TC-242-16503-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16503-2",
+          "covered": true,
+          "testCases": [
+            "TC-242-16503-2-refuse"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16503-3",
+          "covered": true,
+          "testCases": [
+            "TC-242-16503-3-abort"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16503-4",
+          "covered": true,
+          "testCases": [
+            "TC-242-16503-4-usage"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
