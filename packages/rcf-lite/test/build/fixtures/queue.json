@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 98,
-    "notStarted": 52,
+    "items": 99,
+    "notStarted": 53,
     "inProgress": 2,
     "complete": 29,
     "verified": 15,
-    "actionable": 40,
+    "actionable": 41,
     "blocked": 12
   },
   "nextActionable": "FBS-013",
@@ -68,7 +68,8 @@
         "FBS-194",
         "FBS-203",
         "FBS-204",
-        "FBS-207"
+        "FBS-207",
+        "FBS-209"
       ]
     },
     {
@@ -1284,6 +1285,16 @@
         "FBS-206",
         "FBS-207"
       ]
+    },
+    {
+      "fbsId": "FBS-209",
+      "buildOrder": 209,
+      "tier": 0,
+      "title": "FBS-209 verify modes: --mode flag, deterministic engine, preseed partial report",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
     }
   ]
 }
