@@ -19,6 +19,11 @@ import { readChain as defaultReadChain } from '../chain/index.js';
 import { runProvisioning, cleanup as defaultCleanup } from '../provision/index.js';
 import { composeBrief } from './brief.js';
 import { PLAYWRIGHT_MCP_VERSION, playwrightMcpConfig, resolveLauncher } from './launcher.js';
+import {
+  DEFAULT_VERIFY_MODE,
+  isVerifyMode,
+  runDeterministic,
+} from './deterministic.js';
 import { aggregateVerdict, derivePerAcVerdicts, validateFinding } from '../verdict/index.js';
 import { buildReport } from '../report/index.js';
 
@@ -63,6 +68,10 @@ export async function runVerification(opts = {}, deps = {}) {
   const now = deps.now ?? (() => new Date().toISOString());
   const readChain = deps.readChain ?? defaultReadChain;
   const startedAt = now();
+  // Issue 330: verify mode selects the launcher below (step 6). Resolved
+  // early so every report (NOT-DEPLOYED, LAUNCH-FAILURE, normal) stamps
+  // runStats.mode and finalise can key its refusal line off it.
+  const mode = isVerifyMode(opts.mode) ? opts.mode : DEFAULT_VERIFY_MODE;
 
   // 1. Resolve + validate the runtime declaration (§4).
   const resolved = resolveProfile({ profile: opts.profile, url: opts.url, parityEnv: opts.parityEnv });
@@ -100,6 +109,7 @@ export async function runVerification(opts = {}, deps = {}) {
         verdict: 'NOT-DEPLOYED', verdictAuthority,
         findings: [], blockedAcs: [], provisioning: null,
         perAcVerdicts,
+        runStats: { mode },
       });
       return { report };
     }
@@ -139,11 +149,23 @@ export async function runVerification(opts = {}, deps = {}) {
     ? playwrightMcpConfig(playwrightMcpVersion)
     : undefined;
 
-  // 6. Launch the isolated verifier agent (§7.3 isolation env, §9 fresh session).
+  // 6. Launch the isolated verifier agent (§7.3 isolation env, §9 fresh session),
+  //    OR, in deterministic mode (issue 330), run the in-process model-free
+  //    pass so a dispatched worker can finalise without spawning `claude`.
+  //    Deterministic mode's blockedAcs merge into the provisioning-side list
+  //    so the aggregate verdict is BLOCKED by construction while the honest
+  //    counts (verified/failed/skipped) are stamped on `runStats` for the
+  //    finalise refusal line (ADR-4112 verified invariant).
   let launchResult;
   try {
-    const launchAgent = await resolveLauncher(deps);
-    launchResult = await launchAgent({ brief, url, profile, mcpConfig: mcpConfigForPin });
+    if (mode === 'deterministic') {
+      const detResult = await runDeterministic({ url, acs: chain.acs, deps });
+      launchResult = { findings: detResult.findings, runStats: detResult.runStats };
+      for (const b of detResult.blockedAcs ?? []) blockedAcs.push(b);
+    } else {
+      const launchAgent = await resolveLauncher(deps);
+      launchResult = await launchAgent({ brief, url, profile, mcpConfig: mcpConfigForPin });
+    }
   } catch (err) {
     // A verifier agent that could not run — or whose output could not be
     // ingested — is NEVER a fabricated PASS (§9). But the report is still
@@ -159,7 +181,7 @@ export async function runVerification(opts = {}, deps = {}) {
       findings: [], blockedAcs, provisioning,
       launchFailure: { message: err.message, rawOutputPath: err.rawOutputPath ?? null },
       perAcVerdicts,
-      runStats: { playwrightMcpVersion },
+      runStats: { playwrightMcpVersion, mode },
     });
     return { report };
   }
@@ -190,6 +212,7 @@ export async function runVerification(opts = {}, deps = {}) {
   };
   const runStatsForReport = {
     ...(launchResult?.runStats ?? {}),
+    mode,
     playwrightMcpVersion,
     evalCoverage,
   };

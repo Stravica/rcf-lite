@@ -102,11 +102,12 @@ Generation strategy: dependencyFirst
 | 206 | 2 | FBS-206 | Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired | notStarted | blocked | FBS-204, FBS-205 |
 | 207 | 0 | FBS-207 | Query routes: trace, impact and coverage as JSON | notStarted | actionable |  |
 | 208 | 3 | FBS-208 | Trace matrix, Trace actions, lookup integration; Mermaid slice retired | notStarted | blocked | FBS-206, FBS-207 |
+| 209 | 0 | FBS-209 | FBS-209 verify modes: --mode flag, deterministic engine, preseed partial report | notStarted | actionable |  |
 
-Totals: items 98 | notStarted 53 | inProgress 2 | complete 28 | verified 15 | actionable 40 | blocked 13
+Totals: items 99 | notStarted 54 | inProgress 2 | complete 28 | verified 15 | actionable 41 | blocked 13
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197, FBS-208

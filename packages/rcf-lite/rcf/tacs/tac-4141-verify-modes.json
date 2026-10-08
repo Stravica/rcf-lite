@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-08T15:39:45.639Z",
+  "updatedAt": "2026-10-08T15:39:45.639Z",
+  "purpose": "Implement the ADR-4141 decision: `rcf verify run` gains a `--mode <agentScreenshotCritique|deterministic>` flag (default agentScreenshotCritique); the deterministic engine runs in-process (`src/verify/engine/deterministic.js`) with a reachability HTTP probe on runStats and a per-AC skip ledger recorded on blockedAcs[] as critique-only, so the aggregate verdict is BLOCKED. The CLI stamps runStats.mode and runStats.counts on the report. `rcf build finalise` gains the same `--mode` flag, threads it through to the fresh verify subprocess via buildVerifyArgs, preseeds the --out path with a `{ status: pending, launchFailure.reason: preseed }` stub BEFORE the spawn, overwrites that stub with a `{ status: aborted }` record if verify exits non-zero without writing (so ingest never surfaces ENOENT), and refuses promotion with the counts line when a deterministic run skipped any AC (ADR-4112 verified invariant). The HOLD-authority branch treats a preseed-only report as unreadable (NIT-3 'unreadable is not a pass').",
+  "responsibilities": [
+    "Add src/verify/engine/deterministic.js with VERIFY_MODES, DEFAULT_VERIFY_MODE, isVerifyMode, probeHttpReachability, and runDeterministic. The last returns { findings: [], blockedAcs: [{acId, reason: 'critique-only...', mode: 'deterministic'}], runStats: { mode, httpProbe, counts, startedAtMs, finishedAtMs } }.",
+    "Branch the engine's launcher step on opts.mode === 'deterministic': call runDeterministic in-process, merge its blockedAcs into the provisioning-side list, and skip the agent CLI launcher entirely.",
+    "Stamp runStats.mode on every report path (normal, NOT-DEPLOYED, LAUNCH-FAILURE).",
+    "Add `--mode` to src/verify/cli/run.js and src/cli/finalise.js with an isVerifyMode guard (unknown value exits 2).",
+    "Thread `--mode` through src/finalise/spawn.js buildVerifyArgs.",
+    "Preseed the --out path in finalise before spawn with `{ verdict: 'LAUNCH-FAILURE', verdictAuthority: null, launchFailure: { status: 'aborted', reason: 'preseed' } }`.",
+    "On a non-zero spawn exit whose report is still the preseed, overwrite with a real `{ status: 'aborted', reason: 'rcf verify exited <code> without writing a report', exitCode }` record.",
+    "In the HOLD-authority branch, detect a preseed-only report and surface it as unreadable (never a silent promotion).",
+    "Add the deterministic refusal line: if runStats.mode === 'deterministic' and (counts.skipped > 0 OR counts.verified < counts.total), refuse promotion with the counts line and reference ADR-4112."
+  ],
+  "internalStructure": "Branch at step 6 of runVerification. Deterministic is a straight-line reducer over chain.acs; agent mode is unchanged. The CLI changes are a flag + a one-line thread-through. Finalise's preseed is an upfront writeFile; the overwrite is in the gate-NOT-passed branch, guarded by `report?.launchFailure?.reason === 'preseed'` so a legitimate verify-authored launch-failure report is not clobbered.",
+  "interfaces": [],
+  "notes": "Behavioural addition, not a change: agent-mode runs are unchanged. Deterministic mode's BLOCKED verdict already trips the existing gate (verify exit 5 -> finalise exit 4); the new refusal line is UX for the operator so they see the counts and the ADR reference immediately. No rcf-schemas bump: runStats and launchFailure both accept additional fields today.",
+  "tacId": "TAC-4141-verify-modes",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "verify modes CLI + deterministic engine + preseed partial report"
+}

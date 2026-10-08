@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-08T15:41:18.421Z",
+  "updatedAt": "2026-10-08T15:41:29.883Z",
+  "riskLevel": "low",
+  "domain": "verify",
+  "estimatedSize": "small",
+  "notes": "Issue 330 (2026-10-08). Behavioural addition, not a change: default agent-mode runs are unchanged.",
+  "acIds": [
+    "AC-16503-1",
+    "AC-16503-2",
+    "AC-16503-3",
+    "AC-16503-4"
+  ],
+  "fbsId": "FBS-209",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 209,
+  "executionStatus": "notStarted",
+  "title": "FBS-209 verify modes: --mode flag, deterministic engine, preseed partial report",
+  "summary": "Issue 330: --mode <agentScreenshotCritique|deterministic> on rcf verify run + rcf build finalise; deterministic engine runs in-process, records a critique-only blockedAcs ledger; finalise preseeds the --out report and overwrites it with a status: aborted record if verify exits without writing; deterministic-mode promotion is refused with a counts line (ADR-4112).",
+  "dependsOnFbsIds": []
+}

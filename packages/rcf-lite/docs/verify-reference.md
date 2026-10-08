@@ -66,6 +66,80 @@ Playwright MCP: OVERRIDE @playwright/mcp@<override> (pinned default: <pin>)
 
 A non-semver value refuses with exit 2 and the message `--playwright-mcp-version expects a semver string, got '<value>'`. The report artefact always records the effective pin (default or overridden) as `run.runStats.playwrightMcpVersion` so a later `rcf verify report <path>` re-render tells the operator exactly which browser tooling this pass ran against.
 
+## Verify modes
+
+```sh
+rcf verify run --mode <agentScreenshotCritique|deterministic> ...
+rcf build finalise <fbs-id> --url <url> --mode <mode> ...
+```
+
+The default is `agentScreenshotCritique` and runs the adversarial verifier agent inside Claude Code. **This mode is a parent-session mode**: it spawns the agent CLI as a subagent with Playwright MCP and will only work from a session that may invoke that CLI. A dispatched worker (a tool call that is itself inside a Claude Code session) is forbidden from spawning the agent CLI by the surrounding harness, which terminates any such child. Attempting `agentScreenshotCritique` from a worker surfaces as a launch failure.
+
+`deterministic` is the sister mode a dispatched worker CAN run. It is model-free and in-process: no child process, no MCP, no Playwright, no agent CLI. It records a diagnostic HTTP reachability probe on `run.runStats.httpProbe` and records every testable AC on `blockedAcs[]` with reason `critique-only`. The aggregate verdict is `BLOCKED` by construction, so the finalise gate refuses to promote. The report carries the honest counts on `run.runStats.counts = { verified, failed, skipped, total }`; today, with no chain-level per-AC probe shape, every AC lands in `skipped` (critique-only). A later train car can extend the deterministic engine to run per-AC HTTP/DOM probes (status, headers, body substring, selector) when the chain carries them; the report schema and the finalise refusals are already stable across that extension.
+
+The finalise gate refuses promotion on any deterministic run where `counts.skipped > 0` or `counts.verified < counts.total` with a counts line referencing ADR-4112 (the verified invariant), so a deterministic run never silently promotes an FBS to `verified`. The parent-session `agentScreenshotCritique` mode is unchanged.
+
+The finalise gate also preseeds the `--out` report path with a stub BEFORE spawning the fresh `rcf verify run` subprocess. If verify exits non-zero without replacing the stub (killed by the harness, failed to start, errored before the write), finalise overwrites it with a `{ run.runStats.status: 'aborted', run.runStats.exitCode: <code>, launchFailure.status: 'aborted' }` record naming the mode. Ingest never surfaces `ENOENT`.
+
+An unknown `--mode` value refuses with exit 2 and the message `--mode must be one of agentScreenshotCritique | deterministic (got "...")`.
+
+### Making an AC checkable in deterministic mode
+
+The deterministic engine today records every testable AC as `critique-only` on `blockedAcs[]` because the chain carries no per-AC runtime probe shape. A follow-up train car wires the deterministic engine to read probes from one of three places; this section is the forward contract so a project (for example `ai-on-record/docs/runtime-verify-catalog.md`) can produce machine-readable rows ready to be consumed as soon as the engine lands them.
+
+Resolution order (first match wins), each entry maps `acId -> probe[]`:
+
+1. **Project catalog file**, at `rcf/runtime-verify-catalog.json` relative to the chain root. The top-level is `{ "<acId>": [<probe>...] }`; a project may also ship the same content in `docs/runtime-verify-catalog.md` as a JSON fenced block the engine reads verbatim.
+2. **TC-level probe**, declared on an existing TC bound to the AC: a `runtimeProbe` object alongside `testPointer`. Preserves the one-TC-per-AC-scope rule.
+3. **AC-level probe**, declared directly on the AC as a `runtimeProbe` object (a schema addition; not landed in rcf-schemas yet, so this is the future-proof slot).
+
+The probe object has two shapes today, both resolved against the live `--url`:
+
+```json
+{
+  "kind": "http",
+  "method": "GET",
+  "path": "/health",
+  "expect": {
+    "status": 200,
+    "headers": { "content-type": "^application/json" },
+    "bodyIncludes": ["\"ok\":true"]
+  }
+}
+```
+
+```json
+{
+  "kind": "dom",
+  "path": "/",
+  "selector": "nav a[href='/sign-in']",
+  "expect": { "exists": true, "textIncludes": "Sign in" }
+}
+```
+
+Worked example for `AC-801-1` on `ai-on-record` (the sign-in link on the deployed landing page), as a `rcf/runtime-verify-catalog.json` entry:
+
+```json
+{
+  "AC-801-1": [
+    {
+      "kind": "http",
+      "method": "GET",
+      "path": "/",
+      "expect": { "status": 200, "bodyIncludes": ["<title>AI on Record"] }
+    },
+    {
+      "kind": "dom",
+      "path": "/",
+      "selector": "a[href='/sign-in']",
+      "expect": { "exists": true, "textIncludes": "Sign in" }
+    }
+  ]
+}
+```
+
+When the deterministic engine consumes those rows, it will emit per-AC findings (one per probe, with severity PASS on success and BROKEN on failure, evidence carrying `status`, `headers`, `bodyHead`, or `selector + domSnippet`), and the AC lands under `counts.verified` rather than `counts.skipped`. Any AC with no probe row stays `critique-only` and keeps the finalise refusal honest (ADR-4112). An HTTP-reachability-only fallback for an AC is NEVER acceptable: a reachable URL does not verify anything on the contract.
+
 ## Runtime profiles and verdict authority
 
 Every verdict is stamped with the runtime profile it ran against. Authority is capped by profile: a lower profile can never claim the authority of `deployed`.

@@ -471,6 +471,10 @@ REQ-165      yes      AC-16501-1   yes         TC-202-ui-baseline-unmet-refusal
                       AC-16502-1   yes         TC-203-writer-refuses-manual-verified
                       AC-16502-2   yes         TC-203-writer-accepts-with-override
                       AC-16502-3   yes         TC-203-merge-state-refusal-and-opt-out
+                      AC-16503-1   yes         TC-242-16503-1-happy
+                      AC-16503-2   yes         TC-242-16503-2-refuse
+                      AC-16503-3   yes         TC-242-16503-3-abort
+                      AC-16503-4   yes         TC-242-16503-4-usage
 REQ-170      yes      AC-17001-1   yes         TC-204-shape-buckets-present
                       AC-17001-2   yes         TC-204-shape-drill-req-us-ac
                       AC-17002-1   yes         TC-205-status-filter-control

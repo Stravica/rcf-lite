@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-08T15:39:24.012Z",
+  "updatedAt": "2026-10-08T15:39:24.012Z",
+  "context": "Issue 330 (2026-10-08). `rcf build finalise` invokes `rcf verify run`, which in the default mode `agentScreenshotCritique` spawns the agent CLI (`claude --print ...`) as a subagent with Playwright MCP. An estate rule forbids a dispatched worker from spawning an agent CLI from a tool call; the surrounding harness terminates any such child, so the current CLI is unusable from a worker. The AI on Record project ran straight into this on FBS-004 through FBS-011: every ship gate was recorded blocked because the worker could not run the finalise gate. The report path was unhelpful too: a verify run that exited before writing a report left finalise reading ENOENT with no mode or reason named.",
+  "decision": "Add an explicit `--mode <mode>` flag to `rcf verify run` and `rcf build finalise`, with `agentScreenshotCritique` as the default (the current, model-driven, parent-session path) and `deterministic` as the sister (model-free, in-process, worker-safe). Deterministic mode records diagnostic HTTP reachability on runStats.httpProbe and records every testable AC on blockedAcs[] with reason `critique-only`, so the aggregate verdict is BLOCKED by construction and the finalise gate refuses to promote. The report schema is unchanged; a new runStats.mode + runStats.counts stamp names what the mode did. The finalise gate also writes a `preseed` partial report before launching verify and overwrites it with a `status: aborted` record if verify exits non-zero without replacing it, so finalise never surfaces ENOENT. The ADR-4112 verified invariant is reinforced by a specific finalise refusal line: a deterministic-mode run that skipped any AC refuses promotion with the exact counts (verified/total/skipped) and names the invariant.",
+  "consequences": "A dispatched worker can run the finalise gate end-to-end: BLOCKED on today's chain is the HONEST outcome (no AC carries a probe shape yet), and the operator sees the counts rather than ENOENT. Future work can wire chain-level per-AC probe shapes (status, path, header, body substring, selector) and the deterministic mode will consume them without any further CLI change. Agent-mode runs from a parent session are unchanged. No release in this PR; the fix rides the next minor.",
+  "alternativesConsidered": [
+    {
+      "name": "Expose a lower-level `rcf verify browser` for the worker path",
+      "summary": "Repurpose the pre-flight browser-verify runner as the worker-safe verify.",
+      "reasonNotChosen": "That runner writes a browserVerification record on the manifest and is a REVIEW-time pre-flight, not a ship-gate verifier. Reusing it for finalise would conflate two chain roles and break the §9 independence contract (verify's report is the only input finalise reads)."
+    },
+    {
+      "name": "Keep agentScreenshotCritique as the only mode and run `claude` from inside a tool call",
+      "summary": "Document the harness rule and let the operator add an escape hatch.",
+      "reasonNotChosen": "The harness rule is a hard estate boundary (nested agent sessions boot a full PA session in the worker's cwd) and will not be relaxed. The gate must have a path that works without spawning an agent CLI."
+    }
+  ],
+  "adrId": "ADR-4141-verify-modes",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "verify modes: parent-session agentScreenshotCritique, worker-safe deterministic"
+}

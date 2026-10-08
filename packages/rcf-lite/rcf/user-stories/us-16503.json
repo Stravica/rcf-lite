@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-08T15:39:52.219Z",
+  "updatedAt": "2026-10-08T15:40:58.645Z",
+  "asA": "operator running `rcf build finalise` from a dispatched worker that may not spawn the agent CLI",
+  "iWant": "a `--mode deterministic` option on `rcf verify run` and `rcf build finalise` that runs the gate in-process with a per-AC skip ledger, and a partial-report fallback that names the mode and the reason when verify exits without writing a report",
+  "soThat": "the finalise gate always surfaces a readable report, deterministic runs never silently promote to verified (ADR-4112), and the parent-session `agentScreenshotCritique` mode is unchanged for operators who can spawn the agent CLI",
+  "usId": "US-16503",
+  "prdId": "PRD-001",
+  "reqId": "REQ-165",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "US-16503: a dispatched worker can run the finalise gate without spawning the agent CLI",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16503-1",
+      "description": "rcf verify run --mode deterministic produces a BLOCKED report with runStats.mode='deterministic' and a per-AC critique-only blockedAcs ledger when every AC in the chain requires critique.",
+      "testable": true,
+      "given": "a scaffolded RCF chain whose user stories carry acceptance criteria but no per-AC deterministic probe shape",
+      "when": "rcf verify run --repo <chain> --profile ci --url http://localhost:3000 --out <path> --mode deterministic --provision-mode skip is invoked",
+      "then": "the exit code is 5 (BLOCKED trips the default severity gate), the written report has verdict 'BLOCKED', run.runStats.mode='deterministic', run.runStats.counts.total matches the number of testable ACs with counts.verified=0 and counts.skipped=counts.total, and every entry in blockedAcs carries reason matching /critique-only/ and mode='deterministic'",
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16503-2",
+      "description": "placeholder",
+      "testable": true,
+      "given": "an FBS at status 'complete' and a verify report whose run.runStats.mode='deterministic' and counts.skipped>0",
+      "when": "rcf build finalise <fbsId> --url ... is invoked",
+      "then": "the exit code is 4, the FBS stays at 'complete', and stderr matches /deterministic mode verified \\d+ of \\d+ ACs/ and /ADR-4112/"
+    },
+    {
+      "id": "AC-16503-3",
+      "description": "placeholder",
+      "testable": true,
+      "given": "an FBS at status 'complete' and a spawnVerify seam that returns exit code 1 WITHOUT writing to --out",
+      "when": "rcf build finalise <fbsId> --url ... --mode deterministic is invoked",
+      "then": "the exit code is non-zero, the --out file is readable, run.runStats.mode='deterministic', run.runStats.status='aborted', run.runStats.exitCode=1, launchFailure.status='aborted', and the FBS stays at 'complete'"
+    },
+    {
+      "id": "AC-16503-4",
+      "description": "placeholder",
+      "testable": true,
+      "given": "any scaffold",
+      "when": "rcf verify run --mode foo or rcf build finalise <fbsId> --url ... --mode foo is invoked",
+      "then": "the exit code is 2 and stderr matches /--mode must be one of/"
+    }
+  ],
+  "tacIds": [
+    "TAC-4141-verify-modes"
+  ]
+}
