@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:46:47.389Z",
-  "updatedAt": "2026-10-07T13:46:47.389Z",
+  "updatedAt": "2026-10-08T16:43:22.541Z",
   "description": "User story under REQ-180 for the command page (discovery-viewer-command-page sections 4 rank 1, 2 and 16; FBS-204). The question cards and the blocker cards become two tables over readiness.questions[] and stages[].checks[].failing[]: every row carries the item id, the plain-English ask or finding, where it lives on the chain, a link that opens the item in full context, and what resolved looks like. Composite finding ids split on the first colon so every link resolves. No row cap. The questions table carries a one-line copy handle (id plus ask) for briefing an agent; no CLI command is rendered anywhere on the page and the Freeze now button is gone (Q1 and Q4 rulings, ADR-4139). First paint keeps the profile register ordering (product owner first unless the profile says engineer).",
   "asA": "a product owner or an engineer opening the Readiness tab",
   "iWant": "every question waiting on me and every blocking item as a table row I can sort, count and open where it lives",
@@ -61,7 +61,7 @@
     },
     {
       "id": "AC-18003-7",
-      "description": "[must-not] Given any register and any tree, when the panel renders for the command page, then the panel contains no shell command text (no \"pnpm rcf\", no \"rcf define\", no \"rcf audit\"), no write control and no \"Freeze now\" button.",
+      "description": "[must-not] Given any register and any tree, when the panel renders for the command page, then the viewer emits no shell command text: no code element carries a command, no Run or Freeze-now affordance exists; chain ids are content, rendered as a prefix link with a plain-English label from the chain, and the full composite id stays in the DOM in a data attribute.",
       "testable": true
     },
     {

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-08T15:51:19.192Z",
+  "updatedAt": "2026-10-08T16:43:35.128Z",
   "purpose": "Cover US-18001 (Readiness as tab 1 and the PRD rename, plus the live-client resync SSOT guard added for issue 297) and US-18101 (shared pill, findings-list and diff components). Shares the readiness fixture builders with TS-222 so the tab and the CLI assertions ride the same shapes.",
   "testLevel": "unit",
   "acIds": [
@@ -44,7 +44,7 @@
     {
       "id": "TC-223-register-orders-persona-groups",
       "acId": "AC-18001-4",
-      "description": "With a profile register of productOwner, the questions table precedes the blocking table and both carry every blocker id.",
+      "description": "With a profile register of productOwner, the questions table precedes the blocking table.",
       "status": "pending",
       "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-4 register orders the questions and blocking tables"
     },

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:03.889Z",
-  "updatedAt": "2026-10-08T15:54:18.933Z",
+  "updatedAt": "2026-10-08T17:03:01.078Z",
   "purpose": "Cover every acceptance criterion of US-18003 with one node:test case each in test/view/readiness-tables.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-204) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -59,9 +59,9 @@
     {
       "id": "TC-237-18003-7-mustnot",
       "acId": "AC-18003-7",
-      "description": "[must-not] Given any register and any tree, when the panel renders for the command page, then the panel contains no shell command text (no \"pnpm rcf\", no \"rcf define\", no \"rcf audit\"), no write control and no \"Freeze now\" button.",
+      "description": "[must-not] Given any register and any tree, when the panel renders for the command page, then the viewer emits no shell command text: no code element carries a command, no Run or Freeze-now affordance exists; chain ids are content, rendered as a prefix link with a plain-English label from the chain, and the full composite id stays in the DOM in a data attribute.",
       "status": "pending",
-      "testPointer": "test/view/readiness-tables.test.js::AC-18003-7 must-not: any register and any tree"
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-7 must-not: no shell command text, chain ids as prefix link with full id in data attribute"
     },
     {
       "id": "TC-237-18003-8-happy",
