@@ -30,11 +30,18 @@ import { resolve as resolvePath } from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 
+import { writeFile } from 'node:fs/promises';
+
 import { isRcfError, rcfError, writeUnexpectedFailure } from '#core/errors';
 import { updateDocument, walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';
+import {
+  DEFAULT_VERIFY_MODE,
+  VERIFY_MODES,
+  isVerifyMode,
+} from '../verify/engine/deterministic.js';
 import {
   buildVerifyArgs,
   composeShipWithoutVerifiedRecord,
@@ -111,6 +118,12 @@ const OPTION_SPEC = {
   // deploy), the check is skipped and a warn line records that
   // finalise could not resolve the branch state.
   'allow-pre-merge': { type: 'boolean' },
+  // Issue 330 (2026-10-08): verify mode passed through to the fresh
+  // `rcf verify run` subprocess. Default is agentScreenshotCritique (the
+  // parent-session mode). A dispatched worker runs --mode deterministic
+  // because the harness refuses to let a worker spawn `claude` as a
+  // subagent, which agentScreenshotCritique requires.
+  mode: { type: 'string' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -176,6 +189,18 @@ Options:
                             dev-loop dry runs; the decision is logged
                             on stdout. Absent a git checkout the check
                             degrades to a warn line.
+  --mode <mode>             Verify mode (default: agentScreenshotCritique):
+                              agentScreenshotCritique  parent-session mode
+                                 (spawns the agent CLI as a subagent); only
+                                 runs from a session that may invoke the
+                                 agent CLI.
+                              deterministic  model-free, in-process mode a
+                                 dispatched worker can run. Produces the
+                                 same report schema with a per-AC skip
+                                 ledger; the finalise gate refuses
+                                 promotion on a deterministic run that
+                                 skipped any AC (ADR-4112 verified
+                                 invariant).
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -292,6 +317,14 @@ export async function main(argv, deps = {}) {
   if (typeof flags.provision === 'string' && flags.provision.startsWith('-')) {
     return usage('--provision takes a file path, not a flag or inline value (credentials are never accepted inline)');
   }
+  // Issue 330: resolve --mode. Unknown value refuses exit 2 so a typo
+  // ("--mode determinstic") does not silently fall through to the
+  // default agent mode a dispatched worker cannot run.
+  const modeFlag = flags.mode;
+  if (modeFlag !== undefined && !isVerifyMode(modeFlag)) {
+    return usage(`--mode must be one of ${VERIFY_MODES.join(' | ')} (got "${modeFlag}")`);
+  }
+  const mode = modeFlag ?? DEFAULT_VERIFY_MODE;
 
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
@@ -361,10 +394,48 @@ export async function main(argv, deps = {}) {
     provision: flags.provision,
     chain: flags.chain,
     persona: flags.persona,
+    mode,
   });
 
+  // Issue 330 partial-report preseed. Verify is a fresh subprocess and
+  // may fail to start (ENOENT, blocked by harness), be killed, or exit
+  // non-zero before it has had the chance to write its own report. In
+  // every one of those cases the ingest step below would otherwise read
+  // ENOENT and finalise would print "could not read the verify report"
+  // with no clue about what the mode or the reason was. Preseeding the
+  // report path with a `{ status: "aborted" }` stub guarantees ingest
+  // always has something to read; a successful verify run overwrites
+  // the stub with its real report in the same path.
+  const finaliseStartedAt = new Date().toISOString();
+  const partialStub = {
+    schemaVersion: '1',
+    verdict: 'LAUNCH-FAILURE',
+    verdictAuthority: null,
+    run: {
+      profile,
+      url: flags.url,
+      startedAt: finaliseStartedAt,
+      finishedAt: null,
+      runStats: { mode, status: 'pending', reason: 'verify not yet started' },
+    },
+    findings: [],
+    blockedAcs: [],
+    launchFailure: {
+      message: 'rcf verify did not write a report (process was killed, errored before write, or did not start)',
+      status: 'aborted',
+      reason: 'preseed',
+    },
+  };
+  const writer = deps.writeFile ?? writeFile;
+  try {
+    await writer(outPath, `${JSON.stringify(partialStub, null, 2)}\n`, 'utf8');
+  } catch (err) {
+    stderr.write(`[finalise] could not preseed partial report at ${outPath}: ${err.message}\n`);
+    return 1;
+  }
+
   if (!quiet) {
-    stdout.write(`[finalise] launching rcf verify run (fresh subprocess) against ${flags.url} [profile=${profile}]...\n`);
+    stdout.write(`[finalise] launching rcf verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}]...\n`);
   }
 
   let spawnResult;
@@ -398,7 +469,13 @@ export async function main(argv, deps = {}) {
     // §9 independence guarantee). An unreadable report on a pass is treated as a
     // HOLD, never a silent promotion (mirrors ingest's "unreadable is not a pass").
     const passLoaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
-    const authority = passLoaded.ok ? passLoaded.report.verdictAuthority : undefined;
+    // Issue 330: a passing exit code with ONLY the preseed stub on disk
+    // means verify exited 0 without writing its own report; treat
+    // that as unreadable (never a silent promotion). Mirrors the
+    // "unreadable is not a pass" NIT-3 contract.
+    const passPreseedOnly = passLoaded.ok
+      && passLoaded.report?.launchFailure?.reason === 'preseed';
+    const authority = (passLoaded.ok && !passPreseedOnly) ? passLoaded.report.verdictAuthority : undefined;
     if (authority !== 'ship') {
       stderr.write(`[finalise] HOLD: rcf verify passed but this run carries '${authority ?? 'unknown'}' authority, `
         + `not 'ship'; ${fbsId} left '${currentStatus}'.\n`);
@@ -406,7 +483,31 @@ export async function main(argv, deps = {}) {
         + 'runtime is edge-identical to prod - carries ship authority and can promote to verified. '
         + `Report: ${outPath}\n`);
       if (!passLoaded.ok) stderr.write(`[finalise] (the verify report could not be read: ${passLoaded.reason})\n`);
+      else if (passPreseedOnly) stderr.write('[finalise] (the verify report could not be read: verify exited 0 without replacing the preseed stub)\n');
       return 4;
+    }
+    // Issue 330 (2026-10-08) deterministic-mode refusal, keyed off the
+    // ADR-4112 verified invariant. A deterministic-mode run never
+    // actively exercises a critique-only AC (every testable AC is
+    // recorded on blockedAcs[] with reason `critique-only`). Promoting
+    // to `verified` off such a run would quietly contradict the ADR
+    // promise. Refuse with a clear counts line; the operator either
+    // re-runs the gate under agentScreenshotCritique from a parent
+    // session, or extends the chain with a per-AC probe shape the
+    // deterministic mode can judge.
+    if (passLoaded.ok) {
+      const runStats = passLoaded.report?.run?.runStats
+        ?? passLoaded.report?.runStats
+        ?? null;
+      if (runStats && runStats.mode === 'deterministic') {
+        const counts = runStats.counts ?? { verified: 0, failed: 0, skipped: 0, total: 0 };
+        if ((counts.skipped ?? 0) > 0 || (counts.verified ?? 0) < (counts.total ?? 0)) {
+          stderr.write(`[finalise] gate NOT promoted: deterministic mode verified ${counts.verified ?? 0} of ${counts.total ?? 0} ACs (skipped ${counts.skipped ?? 0} critique-only); critique mode required to promote ${fbsId} to 'verified'. ADR-4112 verified invariant.\n`);
+          stderr.write("Re-run from a parent session that may spawn the agent CLI ('rcf build finalise ... --mode agentScreenshotCritique'), or extend the chain so every AC carries a deterministic probe shape.\n");
+          stderr.write(`Report: ${outPath}\n`);
+          return 4;
+        }
+      }
     }
     // 0.7.0 verification-integrity §5.2: the finalise gate reads the
     // verify report's per-AC verdicts and refuses to promote to
@@ -583,9 +684,47 @@ export async function main(argv, deps = {}) {
   // Gate NOT passed. The FBS stays put; surface the findings from the report
   // (the §5.4 verify -> fix -> re-verify seam), then fail non-zero.
   stderr.write(`[finalise] gate NOT passed (rcf verify exit ${spawnResult.code}); ${fbsId} left '${currentStatus}'.\n`);
+  // Issue 330: if the subprocess exited without replacing the preseed
+  // partial-report stub, overwrite it with an `aborted` record naming
+  // the mode and the exit code so a reader sees why there is no
+  // verdict, not an ENOENT.
   const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
+  const finishedAtAborted = new Date().toISOString();
+  if (loaded.ok && loaded.report?.launchFailure?.reason === 'preseed') {
+    const abortedReport = {
+      ...loaded.report,
+      verdict: 'LAUNCH-FAILURE',
+      verdictAuthority: null,
+      run: {
+        ...(loaded.report.run ?? {}),
+        finishedAt: finishedAtAborted,
+        runStats: {
+          ...((loaded.report.run && loaded.report.run.runStats) || {}),
+          mode,
+          status: 'aborted',
+          reason: `rcf verify exited ${spawnResult.code} without writing a report`,
+          exitCode: spawnResult.code,
+        },
+      },
+      launchFailure: {
+        message: `rcf verify exited ${spawnResult.code} without writing a report (mode=${mode})`,
+        status: 'aborted',
+        reason: `rcf verify exited ${spawnResult.code} without writing a report`,
+      },
+    };
+    try {
+      await writer(outPath, `${JSON.stringify(abortedReport, null, 2)}\n`, 'utf8');
+      loaded.report = abortedReport;
+    } catch (err) {
+      stderr.write(`[finalise] could not overwrite preseed stub at ${outPath}: ${err.message}\n`);
+    }
+  }
   if (loaded.ok) {
     stderr.write(summariseReport(loaded.report));
+    const abortStats = loaded.report?.run?.runStats ?? loaded.report?.runStats ?? null;
+    if (abortStats && abortStats.status === 'aborted') {
+      stderr.write(`[finalise] mode=${abortStats.mode ?? mode}: ${abortStats.reason ?? 'verify produced no report'}\n`);
+    }
     stderr.write(`Full report (build-lite ingestible, chain-node-addressed): ${outPath}\n`);
   } else {
     stderr.write(`[finalise] could not read the verify report: ${loaded.reason}\n`);

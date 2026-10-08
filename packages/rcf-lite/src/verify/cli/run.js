@@ -12,6 +12,11 @@ import { parseArgs } from 'node:util';
 import { formatError, isRcfError } from '#core/errors';
 
 import { runVerification } from '../engine/index.js';
+import {
+  DEFAULT_VERIFY_MODE,
+  VERIFY_MODES,
+  isVerifyMode,
+} from '../engine/deterministic.js';
 import { isSemverString, PLAYWRIGHT_MCP_VERSION } from '../engine/launcher.js';
 import { serialiseReport } from '../report/index.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
@@ -28,6 +33,10 @@ const OPTION_SPEC = {
   'provision-mode': { type: 'string' },
   persona: { type: 'string' },
   'playwright-mcp-version': { type: 'string' },
+  // Issue 330 (2026-10-08): the verify mode. agentScreenshotCritique is
+  // the parent-session default; deterministic is the model-free, in-
+  // process mode a dispatched worker can run (never spawns `claude`).
+  mode: { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -59,6 +68,22 @@ Optional:
                             fires and the report records the overridden pin
                             as runStats.playwrightMcpVersion). Must be an
                             exact semver X.Y.Z.
+  --mode <mode>             Verify mode (default: agentScreenshotCritique):
+                              agentScreenshotCritique  parent-session mode;
+                                 spawns the agent CLI as a subagent with
+                                 Playwright MCP, drives the live app with a
+                                 model, and emits per-AC findings. Only run
+                                 from a parent session that may spawn the
+                                 agent CLI.
+                              deterministic  model-free, in-process mode a
+                                 dispatched worker can run; records a per-AC
+                                 skip ledger as blockedAcs[] with reason
+                                 'critique-only' and stamps
+                                 runStats.counts = { verified, failed,
+                                 skipped, total }. The finalise gate refuses
+                                 promotion on a deterministic run that
+                                 skipped any AC (ADR-4112 verified
+                                 invariant).
   --help                    Print this help
 
 Exit codes:
@@ -146,6 +171,20 @@ export async function main(argv, deps = {}) {
     stderr.write(`Playwright MCP: pinned to @playwright/mcp@${PLAYWRIGHT_MCP_VERSION}\n`);
   }
 
+  // Issue 330: resolve --mode. Unknown value refuses exit 2 so a typo
+  // does not silently fall through to the default agent mode (a
+  // dispatched worker that typed --mode=determinstic would otherwise
+  // spawn `claude` and be killed by the harness).
+  const modeFlag = flags.mode;
+  if (modeFlag !== undefined && !isVerifyMode(modeFlag)) {
+    stderr.write(`[error] usage --mode must be one of ${VERIFY_MODES.join(' | ')} (got "${modeFlag}")\n`);
+    return 2;
+  }
+  const mode = modeFlag ?? DEFAULT_VERIFY_MODE;
+  if (mode === 'deterministic') {
+    stderr.write('Verify mode: deterministic (model-free, in-process; a dispatched worker can run this)\n');
+  }
+
   const result = await runVerification({
     repo: flags.repo,
     chainRef: flags.chain,
@@ -157,6 +196,7 @@ export async function main(argv, deps = {}) {
     persona: flags.persona,
     severityGate: gate,
     playwrightMcpVersion: overrideRaw,
+    mode,
   }, deps);
 
   if (isRcfError(result)) {

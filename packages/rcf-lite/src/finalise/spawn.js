@@ -31,6 +31,7 @@ import { isolationEnv } from '#core/isolation';
  * @param {string} [opts.provision] - provisioning FILE path
  * @param {string} [opts.chain] - PRD/chain ref
  * @param {string} [opts.persona]
+ * @param {string} [opts.mode] - verify mode (issue 330): agentScreenshotCritique | deterministic
  * @returns {string[]}
  */
 export function buildVerifyArgs(opts) {
@@ -47,6 +48,7 @@ export function buildVerifyArgs(opts) {
   if (opts.parityEnv) args.push('--parity-env');
   if (opts.provision) args.push('--provision', opts.provision);
   if (opts.persona) args.push('--persona', opts.persona);
+  if (opts.mode) args.push('--mode', opts.mode);
   return args;
 }
 
