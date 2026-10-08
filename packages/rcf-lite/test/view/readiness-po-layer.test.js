@@ -253,22 +253,21 @@ test('PO layer: AC-18002-1 given questions[] non-empty, the block lists each gro
   assert.ok(html.includes('Requirement REQ-012'), 'group label 2 missing');
   assert.ok(html.includes('Your document names a hold. Which part does it belong to?'), 'ask 1 missing');
   assert.ok(html.includes('Say it as: as a who, I want what, so that why.'), 'ask 2 missing');
-  // Every id in the JSON appears somewhere in the panel: the engineer
-  // body carries them via the engineer-blocker DOM AND the rendered
-  // HTML carries the per-question `data-rcf-check` tuple built from
-  // `stage/check` (so an id like `brief:7` surfaces through the
-  // question-card markup) and the inner `data-rcf-stage-ref` chip.
-  // Strengthened over the input-stringify tautology Codex flagged:
-  // these asserts are grounded in the output HTML, not the fixture.
+  // FBS-204 (ADR-4139): the surface is a table now, not question
+  // cards. The group column carries the label, each row's data-rcf-entity
+  // carries the itemId, and the copy-text attribute carries the
+  // briefHandle (itemId: ask). Every id in the input appears somewhere
+  // in the rendered HTML (data-rcf-entity, in the location-column
+  // anchor, and in the copy-text attribute).
   for (const q of result.questions) {
-    const checkTuple = `${q.stage}/${q.checkId}`;
+    const itemId = q.itemId ?? q.id;
     assert.ok(
-      html.includes(`data-rcf-check="${checkTuple}"`),
-      `data-rcf-check tuple ${checkTuple} missing in output HTML`,
+      html.includes(`data-rcf-entity="${itemId}"`),
+      `data-rcf-entity row attr for ${itemId} missing in output HTML`,
     );
     assert.ok(
-      html.includes(`data-rcf-stage-ref="${q.stage}"`),
-      `data-rcf-stage-ref chip for stage ${q.stage} missing in output HTML`,
+      html.includes(`data-rcf-group="${q.sourceSpanLabel}"`),
+      `data-rcf-group attr for ${q.sourceSpanLabel} missing in output HTML`,
     );
   }
   // Source attribute marks the questions path was taken.

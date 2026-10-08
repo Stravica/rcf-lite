@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:16.856Z",
-  "updatedAt": "2026-10-08T15:30:48.039Z",
+  "updatedAt": "2026-10-08T15:53:04.859Z",
   "summary": "Readiness tables: questions and blocking items, read-only, no command text (US-18003). Delivers AC-18003-1 to AC-18003-8. Estimated new node:test cases: 8. Order in the command page build: 1 of 5.",
   "approach": "Replace the question cards and the blocker cards with the questions table and the blocking table (TAC-4135 renderQuestionsTable, renderBlockingTable, splitCompositeId), remove the Freeze now control and every command string from the panel, add the Copy for your agent handle wired through the toast component, keep the register-ordered first paint. The register ordering and AC-18002-3 are preserved by construction: nothing engineer-level leaves the DOM.",
   "deliverables": [
@@ -41,6 +41,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 204,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Readiness tables: questions and blocking items, read-only, no command text"
 }

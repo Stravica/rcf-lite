@@ -71,17 +71,25 @@ export function renderReadinessPanel(result, opts = {}) {
   const freezeRecord = opts.freezeRecord ?? null;
   const verdictLines = formatVerdictLines(result);
 
+  // FBS-204 (ADR-4139): the engineer body no longer carries the blocker
+  // cards (the top-level blocking table owns them) or renderFreezeNow
+  // (a write control the GET-only server never wired). The next-action
+  // block drops its CLI command text, and the freeze state is rendered
+  // in plain words via renderFreezeState so the panel contains no shell
+  // command text anywhere. renderStageDetail stays as the per-stage
+  // breakdown, which keeps AC-18002-3 (no blocker id leaves the DOM)
+  // true across the operator surface (the blocking table) and the
+  // engineer surface (stage detail).
   const engineerBody = [
     renderTreeLine(result),
     renderVerdicts(result, verdictLines),
     renderNextActions(result, register),
     renderStageChips(result, freezeRecord),
-    renderBlockersByPersona(result, register),
     renderDelta(result, freezeRecord),
     renderStageDetail(result),
     renderCoverage(result),
     renderDecisions(result),
-    renderFreezeNow(result),
+    renderFreezeState(result),
     renderFreezeRecord(freezeRecord),
   ].join('\n');
 
@@ -139,13 +147,15 @@ function renderNextActionLine(label, action, persona) {
       + `<strong>Next action (${escapeHtml(label)}):</strong> none.`
       + `</p>`;
   }
-  const ids = action.ids && action.ids.length > 0 ? ` ids: ${action.ids.join(', ')}` : '';
+  const ids = action.ids && action.ids.length > 0 ? ` on ${action.ids.join(', ')}` : '';
   const anchor = `#rcf-readiness-check-${encodeURIComponent(`${action.stage}:${action.check}`)}`;
+  // FBS-204 (AC-18003-7, ADR-4139): no `Run <cmd>` line any more. The
+  // owner acts in their agent session; the panel points at the chain
+  // location and names what resolves the row in the blocking table.
   return `<p class="rcf-readiness-next-action rcf-readiness-next-action--${persona}">`
     + `<strong>Next action (${escapeHtml(label)}):</strong> `
     + `<a href="${escapeHtml(anchor)}">${escapeHtml(action.stage)} / ${escapeHtml(action.check)}</a>`
-    + `${escapeHtml(ids)}. `
-    + `Run <code>${escapeHtml(action.command)}</code> after editing.`
+    + `${escapeHtml(ids)}.`
     + `</p>`;
 }
 
@@ -187,103 +197,14 @@ function chipStateClass(state) {
   }
 }
 
-// --- Block 5: blockers by persona --------------------------------------
-
-export function renderBlockersByPersona(result, register) {
-  const po = result.personas.productOwner.blockers;
-  const eng = result.personas.engineer.blockers;
-  const stages = Array.isArray(result.stages) ? result.stages : [];
-  const poBlock = renderPersonaGroup('productOwner', 'Product owner', 'question', po, register, 'open', stages);
-  const engBlock = renderPersonaGroup('engineer', 'Engineer', 'check blocking', eng, register, 'closed', stages);
-  // When the register is engineer, the engineer group opens first and
-  // the PO group collapses; `unstated` and `productOwner` keep PO open.
-  const [first, second] = register === 'engineer'
-    ? [renderPersonaGroup('engineer', 'Engineer', 'check blocking', eng, register, 'open', stages),
-       renderPersonaGroup('productOwner', 'Product owner', 'question', po, register, 'closed', stages)]
-    : [poBlock, engBlock];
-  return `<section class="rcf-readiness-blockers-by-persona" data-rcf-register="${register}">`
-    + first + second
-    + `</section>`;
-}
-
-/**
- * @param {'productOwner'|'engineer'} persona
- * @param {string} heading
- * @param {string} singular - 'question' | 'check blocking'
- * @param {Blocker[]} blockers
- * @param {'productOwner'|'engineer'|'unstated'} register
- * @param {'open'|'closed'} state
- * @param {StageResult[]} stages - threaded so each blocker's ids can
- *   carry the matching failing `why` from `stages[].checks[].failing[]`
- *   (spec section 5 block 5).
- */
-function renderPersonaGroup(persona, heading, singular, blockers, register, state, stages) {
-  const plural = singular === 'question' ? 'questions' : 'checks blocking';
-  const count = blockers.length;
-  const noun = count === 1 ? singular : plural;
-  const summary = `${heading}: ${count} ${noun}`;
-  const openAttr = state === 'open' ? ' open' : '';
-  if (count === 0) {
-    return `<details class="rcf-readiness-persona rcf-readiness-persona--${persona}" data-rcf-persona-state="${state}"${openAttr}>`
-      + `<summary><strong>${escapeHtml(heading)}:</strong> 0 ${plural}.</summary>`
-      + `</details>`;
-  }
-  const items = blockers.map((b) => renderBlockerCard(b, stages)).join('');
-  return `<details class="rcf-readiness-persona rcf-readiness-persona--${persona}" data-rcf-persona-state="${state}"${openAttr}>`
-    + `<summary><strong>${escapeHtml(summary)}</strong></summary>`
-    + items
-    + `</details>`;
-}
-
-/**
- * Build an id→why map for a blocker by looking up the matching
- * `stages[].checks[].failing[]` entries. Ids missing a `why` map to
- * the empty string so the findings-list renders the id alone.
- *
- * @param {Blocker} b
- * @param {StageResult[]} stages
- * @returns {Record<string, string>}
- */
-function buildIdWhyMap(b, stages) {
-  /** @type {Record<string, string>} */
-  const map = {};
-  const stage = Array.isArray(stages) ? stages.find((s) => s && s.stage === b.stage) : null;
-  if (!stage || !Array.isArray(stage.checks)) return map;
-  const check = stage.checks.find((c) => c && c.name === b.check);
-  if (!check || !Array.isArray(check.failing)) return map;
-  for (const f of check.failing) {
-    if (!f || typeof f !== 'object') continue;
-    const id = typeof f.id === 'string' ? f.id : null;
-    if (!id) continue;
-    map[id] = typeof f.why === 'string' ? f.why : '';
-  }
-  return map;
-}
-
-/**
- * @param {Blocker} b
- * @param {StageResult[]} stages
- */
-function renderBlockerCard(b, stages) {
-  // Each id is a document id; the hash routing in html-page.js resolves
-  // `#<id>` to the right tab. The `why` per id lives on the matching
-  // `stages[].checks[].failing[]` entry — spec section 5 block 5.
-  const whyById = buildIdWhyMap(b, stages);
-  const items = (b.ids ?? []).slice(0, 20).map((id) => ({
-    id,
-    why: whyById[id] ?? '',
-    href: `#${id}`,
-  }));
-  return `<div class="rcf-readiness-blocker" data-rcf-stage="${escapeHtml(b.stage)}" data-rcf-check="${escapeHtml(b.check)}" data-rcf-persona="${escapeHtml(b.persona)}">`
-    + `<div class="rcf-readiness-blocker__meta">`
-    + `<span class="rcf-readiness-blocker__stage">${escapeHtml(b.stage)}</span> `
-    + `<span class="rcf-readiness-blocker__check">${escapeHtml(b.check)}</span> `
-    + pill({ value: b.persona === 'productOwner' ? 'PO' : 'eng', variant: 'persona', title: b.persona })
-    + ` <span class="rcf-readiness-blocker__over">over ${escapeHtml(b.over)}</span>`
-    + `</div>`
-    + findingsList({ heading: b.question, count: b.failingCount, items })
-    + `</div>`;
-}
+// --- Block 5 retired (FBS-204, ADR-4139): renderBlockersByPersona and
+// its helpers (renderPersonaGroup, renderBlockerCard, buildIdWhyMap)
+// are gone. The read-only blocking table in src/view/readiness/tables.js
+// owns the per-item blocker surface for the operator, and the engineer
+// surface is still carried below by renderStageDetail + the per-check
+// findings-list. AC-18002-3 (no blocker id ever leaves the DOM) is
+// preserved by that pair: every failing id in stages[].checks[].failing[]
+// still appears in both tables.
 
 // --- Block 6: delta list -----------------------------------------------
 
@@ -451,27 +372,40 @@ function renderDecisions(result) {
   return `<section class="rcf-readiness-decisions"><h3>Decisions outstanding</h3><ol>${list}</ol></section>`;
 }
 
-// --- Block 10: freeze now ----------------------------------------------
+// --- Block 10: freeze state --------------------------------------------
+//
+// Replaces renderFreezeNow (FBS-204, AC-18001-6 amended, AC-18003-7,
+// ADR-4139). The viewer is read-only: no freeze control, no CLI
+// command text. When readyToBuild is false the block names the
+// failing gates from `levels.readyToBuild.blockedBy` in plain words
+// so a reader can see which stages still need work. When
+// readyToBuild is true the block names what a freeze would record
+// (hash, timestamp, counts, acknowledged gates), without proposing
+// to run anything from the page.
 
-function renderFreezeNow(result) {
+function renderFreezeState(result) {
   const ok = result.levels.readyToBuild.ok;
-  const disabledAttr = ok ? '' : ' disabled';
-  const failingGates = ok
-    ? []
-    : [...new Set(result.levels.readyToBuild.blockedBy.map((b) => b.gate))].sort();
-  const failingList = failingGates.length > 0
-    ? ` <span class="rcf-readiness-freeze-now__failing">Failing gates: ${failingGates.map((g) => escapeHtml(g)).join(', ')}</span>`
-    : '';
-  const cmd = `rcf define freeze`;
-  const willRecord = ok
-    ? `<p>Will record: tree hash <code>${escapeHtml(shortHash(result.tree.currentTreeHash))}</code>, timestamp, note, counts and acknowledged gates with reasons.</p>`
-    : '';
-  return `<section class="rcf-readiness-freeze-now" data-rcf-freezeable="${ok ? 'yes' : 'no'}">`
-    + `<h3>Freeze now</h3>`
-    + `<button type="button" class="rcf-readiness-freeze-now__btn"${disabledAttr}>Freeze</button>`
-    + ` <code>${escapeHtml(cmd)}</code>`
-    + failingList
-    + willRecord
+  const freezeableAttr = ok ? 'yes' : 'no';
+  if (ok) {
+    const shortCurrent = escapeHtml(shortHash(result.tree.currentTreeHash));
+    return `<section class="rcf-readiness-freeze-state" data-rcf-freezeable="${freezeableAttr}">`
+      + `<h3>Freeze state</h3>`
+      + `<p>Ready to freeze. A freeze would record the current tree hash <code>${shortCurrent}</code>, the timestamp, the note, the counts and the acknowledged gates with their reasons.</p>`
+      + `</section>`;
+  }
+  const gates = [...new Set(result.levels.readyToBuild.blockedBy.map((b) => b.gate).filter(Boolean))].sort();
+  if (gates.length === 0) {
+    return `<section class="rcf-readiness-freeze-state" data-rcf-freezeable="${freezeableAttr}">`
+      + `<h3>Freeze state</h3>`
+      + `<p>Not ready to freeze.</p>`
+      + `</section>`;
+  }
+  const words = gates.length === 1
+    ? `the <code>${escapeHtml(gates[0])}</code> gate`
+    : `${gates.length} gates: ${gates.map((g) => `<code>${escapeHtml(g)}</code>`).join(', ')}`;
+  return `<section class="rcf-readiness-freeze-state" data-rcf-freezeable="${freezeableAttr}">`
+    + `<h3>Freeze state</h3>`
+    + `<p>Not ready to freeze. The build is held by ${words}. The blocking table above names what resolves each failing item.</p>`
     + `</section>`;
 }
 

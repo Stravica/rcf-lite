@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-06T12:00:00Z",
+  "updatedAt": "2026-10-08T15:51:19.192Z",
   "purpose": "Cover US-18001 (Readiness as tab 1 and the PRD rename, plus the live-client resync SSOT guard added for issue 297) and US-18101 (shared pill, findings-list and diff components). Shares the readiness fixture builders with TS-222 so the tab and the CLI assertions ride the same shapes.",
   "testLevel": "unit",
   "acIds": [
@@ -37,16 +37,16 @@
     {
       "id": "TC-223-po-blockers-as-findings-list",
       "acId": "AC-18001-3",
-      "description": "Each PO blocker renders as a findings list headed by its question with its ids as anchor links into the document tabs.",
+      "description": "Each PO blocker id appears in the questions table under its question group with the id as an anchor link into the document tabs.",
       "status": "pending",
-      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-3 PO blockers render as findings lists with id anchors"
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-3 PO blocker ids appear in the questions table"
     },
     {
       "id": "TC-223-register-orders-persona-groups",
       "acId": "AC-18001-4",
-      "description": "With a profile register of productOwner, the PO group is expanded first and the engineer group collapses with its count visible.",
+      "description": "With a profile register of productOwner, the questions table precedes the blocking table and both carry every blocker id.",
       "status": "pending",
-      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-4 register orders the pair and collapses the opposite"
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-4 register orders the questions and blocking tables"
     },
     {
       "id": "TC-223-no-blocker-id-omitted",
@@ -58,9 +58,9 @@
     {
       "id": "TC-223-freeze-now-disabled",
       "acId": "AC-18001-6",
-      "description": "When levels.readyToBuild.ok is false the Freeze now control is disabled and names the failing gates from levels.readyToBuild.blockedBy.",
+      "description": "When levels.readyToBuild.ok is false the freeze state block names the failing gates from levels.readyToBuild.blockedBy in plain words and no freeze control is rendered.",
       "status": "pending",
-      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-6 Freeze now is disabled and names the failing gates"
+      "testPointer": "test/view/readiness-tab.test.js::readiness tab: AC-18001-6 freeze state names failing gates in plain words, no freeze control"
     },
     {
       "id": "TC-223-ids-on-tab-match-cli-json",

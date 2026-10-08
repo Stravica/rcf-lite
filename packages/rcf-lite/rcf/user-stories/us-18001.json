@@ -27,7 +27,7 @@
     },
     {
       "id": "AC-18001-4",
-      "description": "[happy] Given a profile register of productOwner, when the tab renders, then the product-owner group is expanded first and the engineer group is collapsed with its count visible.",
+      "description": "[happy] Given a profile register of productOwner, when the tab first renders, then the questions table precedes the blocking table and both carry every blocker id.",
       "testable": true
     },
     {
@@ -56,5 +56,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-01T18:00:00Z",
-  "updatedAt": "2026-10-06T12:00:00Z"
+  "updatedAt": "2026-10-08T15:43:07.425Z"
 }
