@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-782",
+  "path": "src/view/readiness.js",
+  "title": "Readiness panel: renderFreezeNow retired, next-action command text removed",
+  "description": "renderFreezeNow is replaced by renderFreezeState (plain words naming the failing gates from levels.readyToBuild.blockedBy when readyToBuild.ok is false; names what a freeze would record when ok). renderNextActionLine drops the Run <code>command</code> phrase. renderBlockersByPersona and its helpers (renderPersonaGroup, renderBlockerCard, buildIdWhyMap) are retired - the blocking table owns the blocker surface, the engineer DocRow body still carries renderStageDetail with per-check findings-lists so no id leaves the DOM. The null-readiness branch renders only the could-not-be-computed placeholder (AC-18003-6). The composed panel contains no shell command text or Freeze now control (AC-18003-7).",
+  "implementsAcIds": [
+    "AC-18003-6",
+    "AC-18003-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T16:10:52.125Z",
+  "updatedAt": "2026-10-08T16:10:52.125Z"
+}

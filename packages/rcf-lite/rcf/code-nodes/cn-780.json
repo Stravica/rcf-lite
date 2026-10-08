@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-780",
+  "path": "src/view/readiness/composite-id.js",
+  "title": "splitCompositeId: first-colon split for composite failing ids",
+  "description": "Pure splitter. Given a composite failing id (AC-060-3:userID or TAC-4122-define-gates:checkPersona) returns {docId, fragment} splitting on the FIRST colon so the fragment can keep its own colons. Null and empty inputs are defensive (both fields empty).",
+  "implementsAcIds": [
+    "AC-18003-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T16:10:51.180Z",
+  "updatedAt": "2026-10-08T16:10:51.180Z"
+}

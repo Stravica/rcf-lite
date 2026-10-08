@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-783",
+  "path": "src/view/page-init.js",
+  "title": "Readiness copy handles, blocking FilterBar wire, entity resolver",
+  "description": "wireReadinessCopyHandles copies data-rcf-copy-text through the shared toast (navigator.clipboard with a textarea fallback) - no command text in copy strings (AC-18003-5). wireReadinessBlockingFilterBar applies the stage/persona hiddens on data-rcf-stage / data-rcf-persona rows (AC-18003-3 filter). findByReadinessEntity resolves #tab=readiness&...&entity=<itemId> onto a non-document row carrying data-rcf-entity (AC-18003-2).",
+  "implementsAcIds": [
+    "AC-18003-2",
+    "AC-18003-3",
+    "AC-18003-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T16:10:52.604Z",
+  "updatedAt": "2026-10-08T16:10:52.604Z"
+}

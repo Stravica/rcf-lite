@@ -205,36 +205,55 @@ test('readiness tab: AC-18001-2 verdict pill labels equal formatVerdictLines', (
   assert.match(html, /class="rcf-pill rcf-pill--level-verdict-build/);
 });
 
-// ---- AC-18001-3 PO blockers render as findings lists with id anchors ---
-
-test('readiness tab: AC-18001-3 PO blockers render as findings lists with id anchors', () => {
+// ---- AC-18001-3 PO blocker ids appear in the questions table ---------
+//
+// Amended 2026-10-08 under FBS-204 (ADR-4139). The former blocker
+// cards + findings-list wrapper are gone; the questions table owns
+// the PO surface and each PO blocker id appears as a row (data-rcf-entity
+// matching the itemId) with the id as an anchor link into the document
+// tabs (`<a href="#tab=readiness&sub=questions&entity=<itemId>">`).
+test('readiness tab: AC-18001-3 PO blocker ids appear in the questions table', () => {
   const result = failingFixture();
   const html = renderReadinessPanel(result, { profile: null });
-  // Heading is the question.
-  assert.ok(html.includes('Has the product owner captured what changed since the last freeze?'));
-  // Each id is an anchor to #<id>.
-  assert.match(html, /<a href="#brief:ledger">brief:ledger<\/a>/);
-  // The blocker card is wrapped in the shared findings-list markup.
-  assert.match(html, /<div class="rcf-findings-list">/);
+  // Each PO blocker id has a row carrying data-rcf-entity.
+  for (const b of result.personas.productOwner.blockers) {
+    for (const id of b.ids) {
+      assert.ok(
+        html.includes(`data-rcf-entity="${id}"`),
+        `questions table missing a row for PO blocker id ${id}`,
+      );
+      // The id also appears as an anchor link into the document tabs
+      // (the location column renders an <a href="#tab=readiness..."
+      // ...>itemId</a>).
+      const anchorPattern = new RegExp(`<a href="#tab=readiness[^"]*entity=[^"]*"[^>]*>${id.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\$&')}</a>`);
+      assert.match(html, anchorPattern, `no anchor link for PO blocker id ${id} in the questions table`);
+    }
+  }
+  // The retired card markers are gone from the PO surface (the engineer
+  // body still carries the per-stage findings-list under renderStageDetail;
+  // the PO layer stops using findings-list for blockers specifically).
+  assert.doesNotMatch(html, /class="rcf-readiness-blocker"/);
 });
 
-// ---- AC-18001-4 register orders the pair and collapses the opposite ----
-
-test('readiness tab: AC-18001-4 register orders the pair and collapses the opposite', () => {
+// ---- AC-18001-4 register orders the pair of tables ---------------------
+//
+// Amended 2026-10-08 under FBS-204 (ADR-4139; Dave ruling). The
+// persona-group details markup is retired; the register orders the
+// pair of command-page tables. With a profile register of
+// productOwner, the questions table precedes the blocking table.
+// (The "both carry every blocker id" claim is AC-18001-5's job and
+// is tested there; the questions table is PO-only by design.)
+test('readiness tab: AC-18001-4 register orders the questions and blocking tables', () => {
   const result = failingFixture();
   const htmlPo = renderReadinessPanel(result, { profile: 'register: productOwner' });
-  // PO group open, engineer group closed.
-  const poIdx = htmlPo.indexOf('rcf-readiness-persona--productOwner');
-  const engIdx = htmlPo.indexOf('rcf-readiness-persona--engineer');
-  assert.ok(poIdx > 0 && engIdx > poIdx, 'PO group must come before engineer group');
-  assert.match(htmlPo, /data-rcf-persona-state="open"[^>]*>[\s\S]*?Product owner/);
-  assert.match(htmlPo, /data-rcf-persona-state="closed"[^>]*>[\s\S]*?Engineer/);
+  const qIdxPo = htmlPo.indexOf('data-rcf-table="questions"');
+  const bIdxPo = htmlPo.indexOf('data-rcf-table="blocking"');
+  assert.ok(qIdxPo !== -1 && bIdxPo !== -1, 'both tables present on productOwner render');
+  assert.ok(qIdxPo < bIdxPo, 'productOwner: questions table before blocking table');
 
-  // Register engineer flips the order and opens engineer.
-  const htmlEng = renderReadinessPanel(result, { profile: 'register: engineer' });
-  const poIdx2 = htmlEng.indexOf('rcf-readiness-persona--productOwner');
-  const engIdx2 = htmlEng.indexOf('rcf-readiness-persona--engineer');
-  assert.ok(engIdx2 > 0 && poIdx2 > engIdx2, 'engineer group must come before PO group');
+  // The engineer register's reverse order is AC-18003-8's claim; the
+  // test for it lives in test/view/readiness-tables.test.js. This test
+  // owns only the productOwner-register ordering.
 });
 
 // ---- AC-18001-5 no blocker id is omitted from the DOM -------------------
@@ -256,17 +275,41 @@ test('readiness tab: AC-18001-5 no blocker id is omitted from the DOM', () => {
   }
 });
 
-// ---- AC-18001-6 Freeze now is disabled and names the failing gates -----
-
-test('readiness tab: AC-18001-6 Freeze now is disabled and names the failing gates', () => {
+// ---- AC-18001-6 freeze state in plain words, no freeze control --------
+//
+// Amended 2026-10-08 under FBS-204 (ADR-4139, AC-18003-7). The viewer
+// is read-only now: no "Freeze now" button, no CLI command text. The
+// freeze state block names the failing gates from
+// `levels.readyToBuild.blockedBy` in plain words.
+test('readiness tab: AC-18001-6 freeze state names failing gates in plain words, no freeze control', () => {
   const result = failingFixture();
   const html = renderReadinessPanel(result, { profile: null });
-  // Freeze now section carries data-rcf-freezeable="no" and a disabled button.
-  assert.match(html, /class="rcf-readiness-freeze-now" data-rcf-freezeable="no"/);
-  assert.match(html, /<button type="button" class="rcf-readiness-freeze-now__btn" disabled>/);
-  // Failing gates listed; both unique gates from the fixture.
-  assert.match(html, /Failing gates:.*define\.brief/);
-  assert.match(html, /Failing gates:.*define\.crosscut/);
+  // The replacement block.
+  assert.match(html, /class="rcf-readiness-freeze-state" data-rcf-freezeable="no"/);
+  // Plain-words framing.
+  assert.match(html, /Not ready to freeze/);
+  // Scope the gate-name check to the freeze-state block (P2-#9): the
+  // broader panel also carries chain ids whose rendering already
+  // asserts other ACs. The claim here is specifically that THIS
+  // block names the failing gates.
+  const freezeStart = html.indexOf('class="rcf-readiness-freeze-state"');
+  assert.ok(freezeStart !== -1, 'freeze-state block present');
+  const afterOpen = html.indexOf('>', freezeStart) + 1;
+  // Find the matching </section> that closes the freeze-state block.
+  // The block is a self-contained section without nested sections; a
+  // conservative close is the next </section> after the opening tag.
+  const freezeEnd = html.indexOf('</section>', afterOpen);
+  assert.ok(freezeEnd > afterOpen, 'freeze-state block closes cleanly');
+  const freezeBlock = html.slice(freezeStart, freezeEnd);
+  // Both unique failing gates named verbatim within the freeze-state
+  // block, in `<code>` for scanability.
+  assert.ok(freezeBlock.includes('<code>define.brief</code>'), 'define.brief gate not named inside freeze-state');
+  assert.ok(freezeBlock.includes('<code>define.crosscut</code>'), 'define.crosscut gate not named inside freeze-state');
+  // No freeze control, no "Freeze now" surface, no command text,
+  // panel-wide (ADR-4139, AC-18003-7).
+  assert.doesNotMatch(html, /class="rcf-readiness-freeze-now__btn"/);
+  assert.doesNotMatch(html, /Freeze now/);
+  assert.doesNotMatch(html, /rcf define freeze/);
 });
 
 // ---- AC-18001-7 every id on the tab appears in the --json for the same tree
@@ -302,12 +345,28 @@ test('readiness tab: AC-18001-7 every id on the tab appears in the CLI --json fo
     .replace(/&quot;/g, '"')
     .replace(/&#39;/g, "'")
     .replace(/&amp;/g, '&');
-  const ids = anchors.map((a) => a.startsWith('rcf-readiness-') ? a : decodeURIComponent(htmlDecode(a)));
+  // FBS-204: the questions table link scheme is
+  // `#tab=readiness&sub=questions&entity=<itemId>` and the blocking
+  // table link scheme is `#<docId>` (plus `#<entityDomId>` for a
+  // composite row with no doc counterpart). Pull the itemId out of a
+  // readiness route and keep bare anchors as-is; the internal section
+  // anchors (`rcf-readiness-*`) still pass through.
+  const extractEntity = (a) => {
+    const decoded = decodeURIComponent(htmlDecode(a));
+    if (decoded.startsWith('rcf-readiness-')) return decoded;
+    if (decoded.startsWith('tab=')) {
+      const m = decoded.match(/[&?]entity=([^&]+)/);
+      return m ? m[1] : null; // tab-switch anchor with no entity: skip
+    }
+    return decoded;
+  };
+  const ids = anchors.map(extractEntity).filter((x) => x != null);
   // Flatten the JSON into a stringified haystack; every id must appear.
   const haystack = JSON.stringify(result);
   for (const id of ids) {
     if (id.startsWith('rcf-readiness-')) continue; // internal section anchor
     if (id.startsWith('rcf-readiness-check-')) continue;
+    if (id.startsWith('rcf-readiness-row-')) continue; // FBS-204 row DOM id
     assert.ok(haystack.includes(id), `id ${id} on the tab is absent from the --json`);
   }
 });

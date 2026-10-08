@@ -349,6 +349,20 @@
     return document.querySelector('[data-doc-id="' + id.replace(/"/g, '\\\\"') + '"]');
   }
 
+  // FBS-204 (TAC-4135, AC-18003-2): the Readiness command page carries
+  // rows whose itemId is not a document id (brief:ledger,
+  // profile:surface, open-decision:5). findByDocId cannot resolve
+  // these; findByReadinessEntity reads the row's [data-rcf-entity]
+  // attribute which the tables renderer stamps on every row. Called
+  // from the hash router when #tab=readiness carries an &entity= whose
+  // value does not land on a doc.
+  function findByReadinessEntity(itemId) {
+    if (!itemId) return null;
+    try {
+      return document.querySelector('[data-rcf-entity="' + String(itemId).replace(/"/g, '\\"') + '"]');
+    } catch (e) { return null; }
+  }
+
   // ---- product map ------------------------------------------------------
 
   function pmGroupPanel(name) {
@@ -638,7 +652,7 @@
     if (raw.indexOf('=') !== -1 && raw.indexOf('tab=') === -1) {
       var kv = parseHashParams(raw);
       if (kv.entity) {
-        var entTarget = findByDocId(kv.entity);
+        var entTarget = findByDocId(kv.entity) || findByReadinessEntity(kv.entity);
         if (entTarget) {
           var entTab = tabForNode(entTarget);
           if (entTab) activateTab(entTab);
@@ -682,9 +696,23 @@
           applyBuildHash(params);
         }
         // #tab=requirements&entity=REQ-002 opens the entity in place.
+        // FBS-204 (AC-18003-2): #tab=readiness&sub=questions&entity=<itemId>
+        // lands on a readiness-row element when the itemId is not a
+        // document (brief:ledger, profile:surface, open-decision:5).
         if (params.entity) {
           var ent = findByDocId(params.entity);
+          if (!ent && tab === 'readiness') ent = findByReadinessEntity(params.entity);
           if (ent) {
+            // FBS-204 (AC-18003-1): "opens the item in full context".
+            // When the entity resolves to a document that lives on a
+            // different tab from the one in the hash (for example
+            // #tab=readiness&sub=questions&entity=REQ-012 and REQ-012
+            // sits in the Requirements tab), switch to that tab so the
+            // target becomes visible rather than opening hidden.
+            var entTabName = tabForNode(ent);
+            if (entTabName && entTabName !== tab && TABS.indexOf(entTabName) !== -1) {
+              activateTab(entTabName);
+            }
             openAncestorDetails(ent);
             if (ent.tagName && ent.tagName.toLowerCase() === 'details') ent.open = true;
             try { ent.scrollIntoView({ block: 'start' }); } catch (e) { ent.scrollIntoView(); }
@@ -2294,6 +2322,120 @@
     } catch (err) { /* best effort; resolveHash will no-op on empty hash */ }
   }
 
+  // FBS-204 (TAC-4135 AC-18003-5): Copy for your agent handles.
+  //
+  // Each questions-table row carries one `[data-rcf-copy-for]` button
+  // and a `data-rcf-copy-text` attribute holding one line: `<itemId>:
+  // <ask>` (no command text; AC-18003-7). The button copies that line
+  // to the clipboard and fires the shared toast helper. The handler is
+  // idempotent across SSE swaps via the __rcfCopyWired sentinel.
+  function wireReadinessCopyHandles() {
+    var buttons = document.querySelectorAll('[data-rcf-copy-for]');
+    for (var i = 0; i < buttons.length; i += 1) {
+      var btn = buttons[i];
+      if (btn.__rcfCopyWired) continue;
+      btn.__rcfCopyWired = true;
+      btn.addEventListener('click', function (ev) {
+        var target = ev.currentTarget;
+        var text = target.getAttribute('data-rcf-copy-text') || '';
+        copyToClipboardOrFallback(text, function (ok) {
+          var msg = ok ? 'Copied for your agent.' : 'Could not copy; the text stays on the page.';
+          try { showToast(msg); } catch (e) { /* no toast node */ }
+        });
+      });
+    }
+  }
+
+  // FBS-204 (TAC-4135 AC-18003-1): sortable columns on the questions
+  // table. Every header with `data-rcf-sortable="yes"` becomes a
+  // keyboard-reachable button that sorts the table's tbody rows by
+  // the matching `data-rcf-col` cell. Toggles ascending / descending;
+  // clears the other headers' aria-sort. Idempotent across SSE swaps
+  // via a __rcfSortWired sentinel. No external deps, no CSS beyond
+  // aria-sort which the stylesheet already respects.
+  function wireReadinessSortableHeaders() {
+    var headers = document.querySelectorAll('table.rcf-cmd-table__table th[data-rcf-sortable="yes"]');
+    for (var i = 0; i < headers.length; i += 1) {
+      var th = headers[i];
+      if (th.__rcfSortWired) continue;
+      th.__rcfSortWired = true;
+      th.setAttribute('role', 'button');
+      if (!th.hasAttribute('tabindex')) th.setAttribute('tabindex', '0');
+      th.addEventListener('click', function (ev) { sortTableByHeader(ev.currentTarget); });
+      th.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          sortTableByHeader(ev.currentTarget);
+        }
+      });
+    }
+  }
+
+  function sortTableByHeader(th) {
+    var table = th && th.closest ? th.closest('table.rcf-cmd-table__table') : null;
+    if (!table) return;
+    var col = th.getAttribute('data-rcf-col');
+    if (!col) return;
+    var current = th.getAttribute('aria-sort');
+    var dir = current === 'ascending' ? 'descending' : 'ascending';
+    var peers = table.querySelectorAll('th[data-rcf-sortable="yes"]');
+    for (var i = 0; i < peers.length; i += 1) peers[i].removeAttribute('aria-sort');
+    th.setAttribute('aria-sort', dir);
+    var tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    var rows = [];
+    for (var r = 0; r < tbody.children.length; r += 1) {
+      if (tbody.children[r].tagName && tbody.children[r].tagName.toLowerCase() === 'tr') {
+        rows.push(tbody.children[r]);
+      }
+    }
+    var isNumeric = col === 'number';
+    rows.sort(function (a, b) {
+      var ac = a.querySelector('td[data-rcf-col="' + col + '"]');
+      var bc = b.querySelector('td[data-rcf-col="' + col + '"]');
+      var av = ac ? (ac.textContent || '').trim() : '';
+      var bv = bc ? (bc.textContent || '').trim() : '';
+      if (isNumeric) {
+        var an = Number(av); var bn = Number(bv);
+        return dir === 'ascending' ? (an - bn) : (bn - an);
+      }
+      return dir === 'ascending' ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    for (var j = 0; j < rows.length; j += 1) tbody.appendChild(rows[j]);
+  }
+
+  // Copy helper that prefers navigator.clipboard and falls back to a
+  // transient textarea + document.execCommand for older browsers and
+  // embedded contexts without the Permissions API grant.
+  function copyToClipboardOrFallback(text, cb) {
+    var done = typeof cb === 'function' ? cb : function () {};
+    var val = text == null ? '' : String(text);
+    try {
+      if (typeof navigator !== 'undefined' && navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+        navigator.clipboard.writeText(val).then(function () { done(true); }, function () { done(fallbackCopy(val)); });
+        return;
+      }
+    } catch (e) { /* fall through to the textarea path */ }
+    done(fallbackCopy(val));
+  }
+
+  function fallbackCopy(val) {
+    try {
+      var ta = document.createElement('textarea');
+      ta.value = val;
+      ta.setAttribute('readonly', '');
+      ta.style.position = 'fixed';
+      ta.style.top = '-1000px';
+      ta.style.left = '-1000px';
+      document.body.appendChild(ta);
+      ta.select();
+      var ok = false;
+      try { ok = document.execCommand && document.execCommand('copy'); } catch (e) { ok = false; }
+      document.body.removeChild(ta);
+      return Boolean(ok);
+    } catch (e) { return false; }
+  }
+
   function onReady() {
     initShellFromQuery();
     bootHashFromQuery();
@@ -2308,12 +2450,55 @@
     wireFixturePage();
     wireLookup();
     wireStageLegend();
+    wireReadinessCopyHandles();
+    wireReadinessSortableHeaders();
+    wireReadinessBlockingFilterBar();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
       hashchangeWired = true;
       window.addEventListener('hashchange', function () {
         resolveHash(window.location.hash);
       });
+    }
+  }
+
+  // FBS-204 (TAC-4135 AC-18003-3): the blocking table's FilterBar
+  // (`data-rcf-filterbar="readiness-blocking"`) carries two <select>s
+  // (stage, persona). Changing either hides rows that do not match.
+  // Rows carry [data-rcf-stage] and [data-rcf-persona]; the renderer
+  // persists the initial selection as a `selected` option so the
+  // hash-driven first paint survives.
+  function wireReadinessBlockingFilterBar() {
+    var bars = document.querySelectorAll('[data-rcf-filterbar="readiness-blocking"]');
+    for (var i = 0; i < bars.length; i += 1) {
+      var bar = bars[i];
+      if (bar.__rcfBlockingBarWired) continue;
+      bar.__rcfBlockingBarWired = true;
+      bar.addEventListener('change', function (ev) {
+        var b = ev.currentTarget;
+        var table = b.parentNode;
+        if (!table) return;
+        applyReadinessBlockingFilter(table);
+      });
+      applyReadinessBlockingFilter(bar.parentNode);
+    }
+  }
+
+  function applyReadinessBlockingFilter(table) {
+    if (!table) return;
+    var bar = table.querySelector('[data-rcf-filterbar="readiness-blocking"]');
+    if (!bar) return;
+    var stageSel = bar.querySelector('[data-filter-key="stage"]');
+    var personaSel = bar.querySelector('[data-filter-key="persona"]');
+    var stage = stageSel ? stageSel.value : '';
+    var persona = personaSel ? personaSel.value : '';
+    var rows = table.querySelectorAll('tbody tr[data-rcf-stage], tbody tr[data-rcf-persona]');
+    for (var i = 0; i < rows.length; i += 1) {
+      var r = rows[i];
+      var okStage = !stage || r.getAttribute('data-rcf-stage') === stage;
+      var okPersona = !persona || r.getAttribute('data-rcf-persona') === persona;
+      if (okStage && okPersona) r.removeAttribute('hidden');
+      else r.setAttribute('hidden', '');
     }
   }
 

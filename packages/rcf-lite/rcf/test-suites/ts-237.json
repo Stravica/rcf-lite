@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:03.889Z",
-  "updatedAt": "2026-10-07T13:47:03.889Z",
+  "updatedAt": "2026-10-08T17:03:01.078Z",
   "purpose": "Cover every acceptance criterion of US-18003 with one node:test case each in test/view/readiness-tables.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-204) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -17,56 +17,56 @@
     {
       "id": "TC-237-18003-1-happy",
       "acId": "AC-18003-1",
-      "description": "AC-18003-1 happy: readinessquestions is nonempty",
+      "description": "[happy] Given readiness.questions is non-empty, when the questions sub-view renders, then it is one table with one QuestionRow per question carrying QuestionRow.number, QuestionRow.ask, QuestionRow.location as a link that opens the item in full context, QuestionRow.settles in plain words and QuestionRow.state, and the group label is a sortable column rather than a heading.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-1 happy: readinessquestions is nonempty"
     },
     {
       "id": "TC-237-18003-2-edge",
       "acId": "AC-18003-2",
-      "description": "AC-18003-2 edge: a question whose itemid is not a document id a b",
+      "description": "[edge] Given a question whose itemId is not a document id (a brief statement such as \"brief-ledger\" or a profile field such as \"profile:surface\"), when the row renders, then QuestionRow.locationHref is \"#tab=readiness&sub=questions&entity=<itemId>\" and the router lands on that row, so the page never emits a dead anchor.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-2 edge: a question whose itemid is not a document id a b"
     },
     {
       "id": "TC-237-18003-3-happy",
       "acId": "AC-18003-3",
-      "description": "AC-18003-3 happy: every failing check across stages",
+      "description": "[happy] Given every failing check across stages, when the blocking sub-view renders, then it is one table with one BlockingRow per failing item carrying BlockingRow.stage, BlockingRow.check, BlockingRow.docId as a link, BlockingRow.why from the gate and BlockingRow.resolved in plain words, with no cap on the number of rows and a FilterBar by stage and persona.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-3 happy: every failing check across stages"
     },
     {
       "id": "TC-237-18003-4-edge",
       "acId": "AC-18003-4",
-      "description": "AC-18003-4 edge: a composite failing id such as ac0603userid or t",
+      "description": "[edge] Given a composite failing id such as \"AC-060-3:userID\" or \"TAC-4122-define-gates:checkPersona\", when its row renders, then BlockingRow.docId is the text before the first colon, BlockingRow.fragment is the remainder and BlockingRow.href targets the document id so the link resolves through findByDocId.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-4 edge: a composite failing id such as ac0603userid or t"
     },
     {
       "id": "TC-237-18003-5-happy",
       "acId": "AC-18003-5",
-      "description": "AC-18003-5 happy: a question row",
+      "description": "[happy] Given a question row, when the copy control renders, then QuestionRow.briefHandle is one line holding the item id and the plain-English ask, the control is labelled \"Copy for your agent\" and copies that line through the existing toast feedback, and the line holds no command text.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-5 happy: a question row"
     },
     {
       "id": "TC-237-18003-6-failure",
       "acId": "AC-18003-6",
-      "description": "AC-18003-6 failure: readiness could not be computed the readiness ob",
+      "description": "[failure] Given readiness could not be computed (the readiness object is null), when the Readiness tab renders, then the existing \"could not be computed\" placeholder is shown and no table is rendered.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-6 failure: readiness could not be computed the readiness ob"
     },
     {
       "id": "TC-237-18003-7-mustnot",
       "acId": "AC-18003-7",
-      "description": "AC-18003-7 must-not: any register and any tree",
+      "description": "[must-not] Given any register and any tree, when the panel renders for the command page, then the viewer emits no shell command text: no code element carries a command, no Run or Freeze-now affordance exists; chain ids are content, rendered as a prefix link with a plain-English label from the chain, and the full composite id stays in the DOM in a data attribute.",
       "status": "pending",
-      "testPointer": "test/view/readiness-tables.test.js::AC-18003-7 must-not: any register and any tree"
+      "testPointer": "test/view/readiness-tables.test.js::AC-18003-7 must-not: no shell command text, chain ids as prefix link with full id in data attribute"
     },
     {
       "id": "TC-237-18003-8-happy",
       "acId": "AC-18003-8",
-      "description": "AC-18003-8 happy: the profile register is engineer",
+      "description": "[happy] Given the profile register is \"engineer\", when the tab first paints, then the blocking table precedes the questions table; given \"productOwner\" or no profile, the questions table precedes the blocking table; in both cases both tables are present in the DOM.",
       "status": "pending",
       "testPointer": "test/view/readiness-tables.test.js::AC-18003-8 happy: the profile register is engineer"
     }

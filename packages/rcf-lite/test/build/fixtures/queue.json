@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 99,
-    "notStarted": 54,
+    "notStarted": 53,
     "inProgress": 2,
-    "complete": 28,
+    "complete": 29,
     "verified": 15,
     "actionable": 41,
-    "blocked": 13
+    "blocked": 12
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1228,9 +1228,9 @@
       "buildOrder": 204,
       "tier": 0,
       "title": "Readiness tables: questions and blocking items, read-only, no command text",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1242,10 +1242,8 @@
       "dependsOnFbsIds": [
         "FBS-204"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-204"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-206",
@@ -1259,7 +1257,6 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-204",
         "FBS-205"
       ]
     },

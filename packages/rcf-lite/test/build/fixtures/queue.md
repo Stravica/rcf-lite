@@ -97,14 +97,14 @@ Generation strategy: dependencyFirst
 | 201 | 6 | FBS-201 | DEFINE step 2 (0.29.0) PR C: Readiness tab as tab 1, Overview-to-PRD rename, shared pill, findings-list and diff components (REQ-180, REQ-181, TAC-4127, ADR-4127) | complete | complete |  |
 | 202 | 7 | FBS-202 | DEFINE step 3 PRs 1-3, PR 5, PR 6, PR 7 and PR 8: intake markers, ledger update, resolvedBy grammar (PR 1); computeQuestions, questions verb and MCP tools (PR 2); draft-shape marker extension, DISCOVERY prototypes guidance and prompts (PR 3); D3 bite checks, ackable, --check exit 4 policy (PR 5); D4 closed-set and ownerRef findings, D5 concern catalogue, standards citation (PR 6); D6 consistency scans, probe seam, --litmus and rcf_define_litmus (PR 7); bundle refuse/override/skip, validate findings and NV-DL enforced (PR 8) | notStarted | actionable |  |
 | 203 | 0 | FBS-203 | Viewer UI refresh build stream: Build/DAG sub-tab, filters, inspector and later tab deltas (US-204, US-205, US-18002 and successor USs) | inProgress | inProgress |  |
-| 204 | 0 | FBS-204 | Readiness tables: questions and blocking items, read-only, no command text | notStarted | actionable |  |
-| 205 | 1 | FBS-205 | Coverage summary and thin requirements | notStarted | blocked | FBS-204 |
-| 206 | 2 | FBS-206 | Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired | notStarted | blocked | FBS-204, FBS-205 |
+| 204 | 0 | FBS-204 | Readiness tables: questions and blocking items, read-only, no command text | complete | complete |  |
+| 205 | 1 | FBS-205 | Coverage summary and thin requirements | notStarted | actionable |  |
+| 206 | 2 | FBS-206 | Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired | notStarted | blocked | FBS-205 |
 | 207 | 0 | FBS-207 | Query routes: trace, impact and coverage as JSON | notStarted | actionable |  |
 | 208 | 3 | FBS-208 | Trace matrix, Trace actions, lookup integration; Mermaid slice retired | notStarted | blocked | FBS-206, FBS-207 |
 | 209 | 0 | FBS-209 | FBS-209 verify modes: --mode flag, deterministic engine, preseed partial report | notStarted | actionable |  |
 
-Totals: items 99 | notStarted 54 | inProgress 2 | complete 28 | verified 15 | actionable 41 | blocked 13
+Totals: items 99 | notStarted 53 | inProgress 2 | complete 29 | verified 15 | actionable 41 | blocked 12
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209

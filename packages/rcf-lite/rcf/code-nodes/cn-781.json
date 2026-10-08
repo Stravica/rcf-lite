@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-781",
+  "path": "src/view/readiness/po-layer.js",
+  "title": "renderReadinessPO composes the register-ordered tables",
+  "description": "Composes the two command-page tables into the readiness panel. The register controls paint order (engineer: blocking first; productOwner or null: questions first), both tables carry every blocker id (AC-18003-8, AC-18002-3). Fold readiness.questionOptional into the questions-table synthetic rows via the question-adapter so open decisions reach a row even when readiness.questions is empty.",
+  "implementsAcIds": [
+    "AC-18003-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T16:10:51.652Z",
+  "updatedAt": "2026-10-08T16:10:51.652Z"
+}

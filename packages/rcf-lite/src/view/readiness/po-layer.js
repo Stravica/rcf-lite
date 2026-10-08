@@ -16,6 +16,7 @@ import { formatVerdictLines } from '../../query/readiness.js';
 import { renderDocRow } from '../components/doc-row.js';
 import { toQuestions, preferReadinessQuestions } from './question-adapter.js';
 import { stageTitle } from './stage-legend.js';
+import { renderQuestionsTable, renderBlockingTable, buildQuestionRows, buildBlockingRows } from './tables.js';
 
 /**
  * @typedef {import('../../query/readiness.js').ReadinessResult} ReadinessResult
@@ -41,13 +42,72 @@ export function renderReadinessPO(readiness, opts) {
   const questionsSource = preferReadinessQuestions(readiness) ? 'readiness.questions' : 'blockers';
   const q = toQuestions(readiness);
 
+  // FBS-204: the question cards and blocker cards are replaced by two
+  // read-only command-page tables (TAC-4135 renderQuestionsTable /
+  // renderBlockingTable, ADR-4139). Both tables are rendered on every
+  // register and both carry every id (AC-18003-8, AC-18002-3: no id
+  // leaves the DOM) - the register only controls the painting order so
+  // the engineer lands on the blocking table first and the product
+  // owner lands on the questions table first.
+  const questionRows = buildQuestionRowsForTable(readiness, q);
+  const blockingRows = buildBlockingRows(Array.isArray(readiness.stages) ? readiness.stages : []);
+  const questionsTable = renderQuestionsTable({ rows: questionRows });
+  const blockingTable = renderBlockingTable({ rows: blockingRows });
+  const paintOrder = persona === 'engineer'
+    ? [blockingTable, questionsTable]
+    : [questionsTable, blockingTable];
+  const tablesSection = `<div class="rcf-cmd-tables" data-rcf-register="${escapeHtml(persona)}" data-rcf-source="${escapeHtml(questionsSource)}">${paintOrder.join('\n')}</div>`;
+
   return [
     renderVerdictCards(readiness, verdictLines),
-    renderQuestionCards(readiness, q, questionsSource),
+    tablesSection,
     renderNextStep(readiness, q),
     renderReqWorkTable(readiness),
     renderForEngineers(readiness, engineerBody, persona),
   ].join('\n');
+}
+
+/**
+ * Shape the question source into rows the table renderer expects.
+ *
+ * The question-adapter (`toQuestions`) already handles both the real
+ * `readiness.questions` shape and the blockers fallback, and folds
+ * `readiness.questionOptional` (open decisions with a default) into
+ * the dashed optional group. The table surface walks that folded
+ * output so an open decision reaches a row even when
+ * `readiness.questions` itself is empty.
+ */
+function buildQuestionRowsForTable(_readiness, adapterResult) {
+  const groups = Array.isArray(adapterResult?.groups) ? adapterResult.groups : [];
+  const optional = adapterResult?.optional ?? null;
+  /** @type {Array<object>} */
+  const synthetic = [];
+  for (const g of groups) {
+    const items = Array.isArray(g?.items) ? g.items : [];
+    for (const it of items) {
+      synthetic.push({
+        itemId: it.itemId ?? it.id ?? '',
+        ask: it.ask,
+        hint: it.hint,
+        sourceSpanLabel: g.label,
+        checkId: it.checkId,
+        optional: Boolean(it.optional),
+      });
+    }
+  }
+  if (optional && Array.isArray(optional.items)) {
+    for (const it of optional.items) {
+      synthetic.push({
+        itemId: it.itemId ?? '',
+        ask: it.ask,
+        hint: it.hint,
+        sourceSpanLabel: optional.label,
+        checkId: it.checkId,
+        optional: true,
+      });
+    }
+  }
+  return buildQuestionRows(synthetic);
 }
 
 // ---- block 1: two VerdictCards (equal height, chain term muted) --------
@@ -87,93 +147,15 @@ function renderVerdictCards(readiness, verdictLines) {
 </section>`;
 }
 
-// ---- block 2: QuestionCards grouped by source span --------------------
-
-function renderQuestionCards(readiness, q, source) {
-  const l = readiness.levels;
-  const groups = Array.isArray(q.groups) ? q.groups : [];
-  const total = groups.reduce((sum, g) => sum + (g.items?.length ?? 0), 0);
-
-  if (total === 0) {
-    const verdictLines = formatVerdictLines(readiness);
-    // AC-18002-2: when the question set is empty, the block renders
-    // the intent-complete verdict line (verbatim from the readiness
-    // compute). Honours the defensive !ok branch by still rendering
-    // the live verdict line so engineers and PO see the same words
-    // the CLI prints; a stub fallback would drift from `rcf define
-    // readiness --json`.
-    const line = verdictLines.intentComplete;
-    const optionalHtml = q.optional
-      ? renderOptionalGroup(q.optional)
-      : '';
-    return `<section class="rcf-po-questions" data-rcf-source="${escapeHtml(source)}" data-rcf-empty="yes">
-  <header class="rcf-po-questions__head"><h2>Questions for you</h2> <span class="rcf-badge rcf-badge--count">0</span></header>
-  <p class="muted small">Nothing on this tree needs your answer right now; this page updates on its own as the tree changes.</p>
-  <p class="rcf-po-questions__verdict"><code>${escapeHtml(line)}</code></p>
-  ${optionalHtml}
-</section>`;
-  }
-
-  let n = 0;
-  const groupHtml = groups.map((g) => {
-    const items = (g.items ?? []).map((it) => {
-      n += 1;
-      return renderQuestionItem(it, n);
-    }).join('');
-    return `<article class="rcf-po-question-group" data-rcf-group-label="${escapeHtml(g.label)}">
-  <header class="rcf-po-question-group__head"><h3>${escapeHtml(g.label)}</h3></header>
-  ${items}
-</article>`;
-  }).join('\n');
-
-  const optionalHtml = q.optional
-    ? renderOptionalGroup(q.optional)
-    : '';
-
-  return `<section class="rcf-po-questions" data-rcf-source="${escapeHtml(source)}">
-  <header class="rcf-po-questions__head"><h2>Questions for you</h2> <span class="rcf-badge rcf-badge--count">${total}</span></header>
-  <p class="muted small">Answer these in your agent session; this page updates on its own. Nothing here needs an id or a command.</p>
-  ${groupHtml}
-  ${optionalHtml}
-</section>`;
-}
-
-function renderQuestionItem(it, n) {
-  const detailAttrs = buildStageAttrs(it.checkId);
-  return `<div class="rcf-po-question" data-rcf-check="${escapeHtml(it.checkId)}">
-  <div class="rcf-po-question__head"><span class="rcf-badge rcf-badge--q">Q${n}</span><h4 class="rcf-po-question__heading">${escapeHtml(it.heading)}</h4></div>
-  <p class="rcf-po-question__ask">${escapeHtml(it.ask)}</p>
-  <p class="rcf-po-question__hint muted small">${escapeHtml(it.hint)}</p>
-  <details class="rcf-po-question__detail"><summary class="small muted">Show the detail (engineer view)</summary><p class="mono small"${detailAttrs}>${escapeHtml(it.detail)}</p></details>
-</div>`;
-}
-
-function renderOptionalGroup(group) {
-  const items = (group.items ?? []).map((it) => {
-    return `<div class="rcf-po-question rcf-po-question--optional" data-rcf-check="${escapeHtml(it.checkId)}">
-  <h4 class="rcf-po-question__heading">${escapeHtml(it.heading)}</h4>
-  <p class="rcf-po-question__ask">${escapeHtml(it.ask)}</p>
-  <p class="rcf-po-question__hint muted small">${escapeHtml(it.hint)}</p>
-</div>`;
-  }).join('');
-  return `<article class="rcf-po-question-group rcf-po-question-group--optional">
-  <header class="rcf-po-question-group__head"><h3>${escapeHtml(group.label)}</h3></header>
-  ${items}
-</article>`;
-}
-
-/**
- * Build the `data-rcf-stage-attrs` and `title` attribute pair for a
- * check id of the form `D1/brief:sinceFreeze` so the D-ref hover
- * title and the open-on-click wiring (page-init.js wireStageLegend)
- * both work.
- */
-function buildStageAttrs(checkId) {
-  const match = /^D([1-8])/.exec(checkId ?? '');
-  if (!match) return '';
-  const stage = `D${match[1]}`;
-  return ` data-rcf-stage-ref="${stage}" title="${escapeHtml(stageTitle(stage))}"`;
-}
+// FBS-204 note: block 2 (QuestionCards grouped by source span) and the
+// per-item renderers were retired on 2026-10-08 when ADR-4139 landed:
+// the Readiness tab is read-only linked tables now (TAC-4135). The
+// questions table lives in `./tables.js` and the composition in
+// renderReadinessPO above swaps it in; AC-18002-1/2/3 and the empty
+// state (intent-complete verdict line) hold through the table shape.
+// `stageTitle` import is kept because renderNextStep and the engineer
+// section still carry stage-legend hints into the tooltip layer.
+void stageTitle;
 
 // ---- block 3: What happens next ---------------------------------------
 
