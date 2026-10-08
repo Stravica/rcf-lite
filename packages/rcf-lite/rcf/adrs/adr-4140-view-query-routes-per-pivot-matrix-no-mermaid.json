@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:46:29.804Z",
-  "updatedAt": "2026-10-07T13:46:29.804Z",
+  "updatedAt": "2026-10-08T15:30:04.233Z",
   "context": "The CLI already computes trace, impact and coverage from pure functions in src/query/ (computeTrace, computeImpact, computeCoverage) that the readiness compute and the CLI verbs share. The viewer exposes none of them: the only user-facing trace is a per-requirement Mermaid slice that omits suites, cases and components, and the Product Map counts structure, not resolution. The product owner asked for key query tools exposed in the viewer and a full traceability scan on demand with a chart and a table. On the largest consumer tree a whole-tree forward trace from the PRD is 2,972 nodes, 6,337 edges and 1.5 MB of JSON, and the viewer re-walks about every 30 seconds. The CLI coverage, impact and trace verbs do not call runWithAdmissibilityGate; readiness and freeze do (issues 316 and 317).",
   "decision": "Three GET JSON routes on the viewer server (./trace.json, ./impact.json, ./coverage.json) serve the pure query results per pivot, computed from the current walked state and memoised by state.version; there is no whole-tree dump route. The routes bypass runWithAdmissibilityGate exactly as the CLI coverage, impact and trace verbs do, so the viewer answers on a tree that fails admissibility. The user-facing traceability view is a matrix (rows: stories and criteria under the pivot; columns: suites, cases, build specs, components; cells coloured by resolution), not a sunburst and not Mermaid; the per-requirement Mermaid slice is retired in the same change. The client caches per version in memory and re-renders after an SSE swap rather than dropping the result.",
   "consequences": "Three new release-noted routes that embedding hosts must allow-list, as ./index.json and ./page-init.js were. No new query module and no change to computeReadiness. A sunburst can be added later as a decorative overview; it is not the working view. A tree that fails admissibility shows trace, impact and coverage in the viewer while readiness still reports the refusal, which matches the CLI today. Removing the Mermaid slice drops the last user-facing Mermaid from the Requirements tab; the vendored runtime stays for the diagram tab until a separate decision retires it.",
@@ -25,6 +25,6 @@
   "prdId": "PRD-001",
   "tadId": "TAD-001",
   "version": "0.1.0",
-  "status": "proposed",
+  "status": "accepted",
   "title": "Trace, impact and coverage are GET routes per pivot cached by version that bypass the admissibility gate as the CLI verbs do; the traceability view is a matrix, not a sunburst, and no Mermaid is user-facing"
 }

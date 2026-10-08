@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-07T13:47:18.579Z",
-  "updatedAt": "2026-10-07T13:47:18.579Z",
-  "summary": "Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired (US-18005). Delivers AC-18005-1 to AC-18005-8. Estimated new node:test cases: 10. Order in the command page build: 3 of 5.",
+  "updatedAt": "2026-10-08T15:30:48.969Z",
+  "summary": "Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired (US-18005). Delivers AC-18005-1 to AC-18005-8. Estimated new node:test cases: 8. Order in the command page build: 3 of 5.",
   "approach": "Add renderVerdictGrid and renderDeltaCounts, split renderReadinessPanel into the five sub-views behind a SubTabStrip with hashKey readiness, extend the page-init router to read and restore sub= for readiness and to drop unknown keys to overview, remove the For-engineers DocRow wrapper and the stage chips plus stage detail, render the freeze state in words. Responsive rules keep tables inside the panel under 720px and under data-embed=1.",
   "deliverables": [
     "src/view/readiness/grid.js (new): renderVerdictGrid",
@@ -9,7 +9,7 @@
     "src/view/readiness.js: sub-view composition; For-engineers DocRow, chips, stage detail removed",
     "src/view/page-init.js: readiness sub= routing and SSE restore",
     "src/view/style.css: grid and stacked-row rules",
-    "test/view/readiness-layout.test.js: not-yet-built flags removed, bodies land (10 cases)",
+    "test/view/readiness-layout.test.js: not-yet-built flags removed, bodies land (8 cases)",
     "test/view/fixtures/phase-3-6-static.html: baseline regenerated"
   ],
   "dependsOnFbsIds": [
@@ -29,7 +29,7 @@
   "riskLevel": "low",
   "domain": "reviewSurface",
   "estimatedSize": "medium",
-  "notes": "Sized for one PR (DEFINE 2026-10-07). Test estimate 10 new node:test cases in the suite named by the TS bound to US-18005; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
+  "notes": "Sized for one PR (DEFINE 2026-10-07; test estimate reconciled to TS case count 2026-10-08). Test estimate 8 new node:test cases in the suite named by the TS bound to US-18005; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
   "acIds": [
     "AC-18005-1",
     "AC-18005-2",

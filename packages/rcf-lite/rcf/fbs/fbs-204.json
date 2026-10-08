@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-07T13:47:16.856Z",
-  "updatedAt": "2026-10-07T13:47:16.856Z",
-  "summary": "Readiness tables: questions and blocking items, read-only, no command text (US-18003). Delivers AC-18003-1 to AC-18003-8. Estimated new node:test cases: 12. Order in the command page build: 1 of 5.",
+  "updatedAt": "2026-10-08T15:30:48.039Z",
+  "summary": "Readiness tables: questions and blocking items, read-only, no command text (US-18003). Delivers AC-18003-1 to AC-18003-8. Estimated new node:test cases: 8. Order in the command page build: 1 of 5.",
   "approach": "Replace the question cards and the blocker cards with the questions table and the blocking table (TAC-4135 renderQuestionsTable, renderBlockingTable, splitCompositeId), remove the Freeze now control and every command string from the panel, add the Copy for your agent handle wired through the toast component, keep the register-ordered first paint. The register ordering and AC-18002-3 are preserved by construction: nothing engineer-level leaves the DOM.",
   "deliverables": [
     "src/view/readiness/tables.js (new): renderQuestionsTable, renderBlockingTable",
@@ -10,7 +10,7 @@
     "src/view/readiness.js: blocker cards, next-action command text and Freeze now removed",
     "src/view/page-init.js: copy handle wiring",
     "src/view/style.css: .rcf-cmd-table rules on existing tokens",
-    "test/view/readiness-tables.test.js: not-yet-built flags removed, bodies land (12 cases)"
+    "test/view/readiness-tables.test.js: not-yet-built flags removed, bodies land (8 cases)"
   ],
   "dependsOnFbsIds": [],
   "contextRequirements": {
@@ -26,7 +26,7 @@
   "riskLevel": "low",
   "domain": "reviewSurface",
   "estimatedSize": "medium",
-  "notes": "Sized for one PR (DEFINE 2026-10-07). Test estimate 12 new node:test cases in the suite named by the TS bound to US-18003; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
+  "notes": "Sized for one PR (DEFINE 2026-10-07; test estimate reconciled to TS case count 2026-10-08). Test estimate 8 new node:test cases in the suite named by the TS bound to US-18003; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Cut from the discovery plan and not in any FBS here: impact sub-view and keyboard shortcuts (capabilities 10 and 13), readiness timeline (17), Product Map trace-bucket realignment.",
   "acIds": [
     "AC-18003-1",
     "AC-18003-2",
