@@ -272,6 +272,10 @@ export async function main(argv, deps = {}) {
   const stdout = deps.stdout ?? process.stdout;
   const stderr = deps.stderr ?? process.stderr;
   const onSignal = deps.onSignal ?? ((sig, handler) => process.on(sig, handler));
+  // Issue #333 item 2: tests inject a `startServerImpl` to observe the
+  // sinks the CLI wires without racing a real walker; the default is
+  // the real `startServer`.
+  const startServerImpl = deps.startServerImpl ?? startServer;
 
   // Track C+D §9: subverb routing. When the first argv token is
   // `start | status | stop | logs`, dispatch to the lifecycle handler
@@ -315,13 +319,21 @@ export async function main(argv, deps = {}) {
   }
 
   const logSink = opts.verbose ? (line) => stderr.write(`${line}\n`) : () => {};
+  // Issue #333 item 2: a host that spawns `rcf audit view` as a
+  // supervised child without --verbose still needs to see fatal watcher
+  // and walker exceptions, otherwise the viewer looks alive while
+  // live-updates have silently stopped. `logError` is unconditional;
+  // the chatty per-event lines keep flowing through `log` only when
+  // --verbose is on.
+  const logErrorSink = (line) => stderr.write(`${line}\n`);
 
   let server;
   try {
-    server = await startServer({
+    server = await startServerImpl({
       projectRoot,
       port: resolvedPort,
       log: logSink,
+      logError: logErrorSink,
       testHost: resolveTestHost(opts.testHost, env),
     });
   } catch (err) {

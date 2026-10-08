@@ -26,6 +26,14 @@
       "addedAt": "2026-10-07T11:23:08.852Z",
       "status": "open",
       "resolvedBy": "REQ-180"
+    },
+    {
+      "id": 4,
+      "text": "Issue 333 items 1 and 2 (reporter WESPA de-flake pass AI-2007, filed 2026-10-08 against 0.32.4): the live-view server watcher now queues exactly one trailing rewalk when a change arrives mid-rewalk (coalesce, never drop) and fatal watcher and walker exceptions surface to stderr regardless of --verbose. Build amendment under src/server/index.js (startServer carries a new logError sink and an injectable renderImpl seam for tests) and src/cli/view.js (wires logError unconditionally). Chatty per-event lines (sse write failures) remain gated on --verbose. Item 3 (diffed tree updates) scheduled for 0.33.0.",
+      "kind": "amendment",
+      "source": "issue:333",
+      "addedAt": "2026-10-08T19:17:07.851Z",
+      "status": "open"
     }
   ]
 }
