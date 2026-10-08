@@ -703,6 +703,16 @@
           var ent = findByDocId(params.entity);
           if (!ent && tab === 'readiness') ent = findByReadinessEntity(params.entity);
           if (ent) {
+            // FBS-204 (AC-18003-1): "opens the item in full context".
+            // When the entity resolves to a document that lives on a
+            // different tab from the one in the hash (for example
+            // #tab=readiness&sub=questions&entity=REQ-012 and REQ-012
+            // sits in the Requirements tab), switch to that tab so the
+            // target becomes visible rather than opening hidden.
+            var entTabName = tabForNode(ent);
+            if (entTabName && entTabName !== tab && TABS.indexOf(entTabName) !== -1) {
+              activateTab(entTabName);
+            }
             openAncestorDetails(ent);
             if (ent.tagName && ent.tagName.toLowerCase() === 'details') ent.open = true;
             try { ent.scrollIntoView({ block: 'start' }); } catch (e) { ent.scrollIntoView(); }
@@ -2336,6 +2346,64 @@
     }
   }
 
+  // FBS-204 (TAC-4135 AC-18003-1): sortable columns on the questions
+  // table. Every header with `data-rcf-sortable="yes"` becomes a
+  // keyboard-reachable button that sorts the table's tbody rows by
+  // the matching `data-rcf-col` cell. Toggles ascending / descending;
+  // clears the other headers' aria-sort. Idempotent across SSE swaps
+  // via a __rcfSortWired sentinel. No external deps, no CSS beyond
+  // aria-sort which the stylesheet already respects.
+  function wireReadinessSortableHeaders() {
+    var headers = document.querySelectorAll('table.rcf-cmd-table__table th[data-rcf-sortable="yes"]');
+    for (var i = 0; i < headers.length; i += 1) {
+      var th = headers[i];
+      if (th.__rcfSortWired) continue;
+      th.__rcfSortWired = true;
+      th.setAttribute('role', 'button');
+      if (!th.hasAttribute('tabindex')) th.setAttribute('tabindex', '0');
+      th.addEventListener('click', function (ev) { sortTableByHeader(ev.currentTarget); });
+      th.addEventListener('keydown', function (ev) {
+        if (ev.key === 'Enter' || ev.key === ' ') {
+          ev.preventDefault();
+          sortTableByHeader(ev.currentTarget);
+        }
+      });
+    }
+  }
+
+  function sortTableByHeader(th) {
+    var table = th && th.closest ? th.closest('table.rcf-cmd-table__table') : null;
+    if (!table) return;
+    var col = th.getAttribute('data-rcf-col');
+    if (!col) return;
+    var current = th.getAttribute('aria-sort');
+    var dir = current === 'ascending' ? 'descending' : 'ascending';
+    var peers = table.querySelectorAll('th[data-rcf-sortable="yes"]');
+    for (var i = 0; i < peers.length; i += 1) peers[i].removeAttribute('aria-sort');
+    th.setAttribute('aria-sort', dir);
+    var tbody = table.querySelector('tbody');
+    if (!tbody) return;
+    var rows = [];
+    for (var r = 0; r < tbody.children.length; r += 1) {
+      if (tbody.children[r].tagName && tbody.children[r].tagName.toLowerCase() === 'tr') {
+        rows.push(tbody.children[r]);
+      }
+    }
+    var isNumeric = col === 'number';
+    rows.sort(function (a, b) {
+      var ac = a.querySelector('td[data-rcf-col="' + col + '"]');
+      var bc = b.querySelector('td[data-rcf-col="' + col + '"]');
+      var av = ac ? (ac.textContent || '').trim() : '';
+      var bv = bc ? (bc.textContent || '').trim() : '';
+      if (isNumeric) {
+        var an = Number(av); var bn = Number(bv);
+        return dir === 'ascending' ? (an - bn) : (bn - an);
+      }
+      return dir === 'ascending' ? av.localeCompare(bv) : bv.localeCompare(av);
+    });
+    for (var j = 0; j < rows.length; j += 1) tbody.appendChild(rows[j]);
+  }
+
   // Copy helper that prefers navigator.clipboard and falls back to a
   // transient textarea + document.execCommand for older browsers and
   // embedded contexts without the Permissions API grant.
@@ -2383,6 +2451,7 @@
     wireLookup();
     wireStageLegend();
     wireReadinessCopyHandles();
+    wireReadinessSortableHeaders();
     wireReadinessBlockingFilterBar();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {

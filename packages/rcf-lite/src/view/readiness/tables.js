@@ -66,6 +66,33 @@ export function entityDomId(itemId) {
   return `rcf-readiness-row-${s.replace(/[^A-Za-z0-9-]/g, '_')}`;
 }
 
+// Document-id prefixes the viewer's hash router can resolve to a
+// rendered node via findByDocId. Non-document prefixes (profile, ADR,
+// D1..D8, TAD.*) render as plain text in the blocking table because
+// their anchor would be dead. Dave ruling 2026-10-08: chain ids are
+// content, rendered as a prefix link (when the prefix is a resolvable
+// doc id) with the full composite id in a data attribute, never as a
+// visible shell command fragment.
+const RESOLVABLE_DOC_PREFIX = /^(REQ|AC|US|TAC|TS|TC|FBS|ADR|TAD|CN|PRD)-/;
+function isResolvableDocId(id) {
+  return typeof id === 'string' && RESOLVABLE_DOC_PREFIX.test(id);
+}
+export { isResolvableDocId };
+
+// Document-id itemId used in question rows. Reaches the "opens the
+// item in full context" clause of AC-18003-1: the bare hash resolves
+// to the item's own tab (see page-init.js resolveHash fast path).
+// Non-document itemIds (brief:ledger, profile:surface, open-decision:5)
+// stay on the readiness tab with the questions sub-view, since that
+// is where the row lives.
+function pickLocationHref(itemId) {
+  if (typeof itemId !== 'string' || itemId.length === 0) {
+    return '#tab=readiness&sub=questions';
+  }
+  if (isResolvableDocId(itemId)) return `#${itemId}`;
+  return `#tab=readiness&sub=questions&entity=${encodeURIComponent(itemId)}`;
+}
+
 const SETTLES_FALLBACK = 'Answer the ask or record a decision; the row clears when the chain updates.';
 const RESOLVED_FALLBACK = 'The gate passes when the named failing items clear on the chain.';
 
@@ -209,7 +236,7 @@ export function buildQuestionRows(questions) {
       ask,
       settles,
       state: pickState(q),
-      locationHref: `#tab=readiness&sub=questions&entity=${encodeURIComponent(itemId)}`,
+      locationHref: pickLocationHref(itemId),
       locationLabel: itemId || `${stage}/${checkId}`,
       briefHandle: buildBriefHandle(itemId, ask),
       checkId: stage && checkId ? `${stage}/${checkId}` : (checkId || stage),
@@ -282,9 +309,27 @@ export function renderQuestionsTable(args = {}) {
   const total = rows.length;
   const headerCount = `<span class="rcf-badge rcf-badge--count">${total}</span>`;
   if (total === 0) {
+    // AC-18003-8: both tables must be present. Render the <table>
+    // skeleton with the thead so the "both tables present" check is
+    // literally true, and surface the empty-state caption in-table.
     return `<section class="rcf-cmd-table rcf-cmd-table--questions" data-rcf-table="questions" data-rcf-empty="yes" aria-labelledby="rcf-readiness-questions-heading">
   <header class="rcf-cmd-table__head"><h3 id="rcf-readiness-questions-heading">Questions for you</h3> ${headerCount}</header>
   <p class="muted small">Nothing on this tree needs your answer right now; this page updates on its own as the tree changes.</p>
+  <table class="rcf-cmd-table__table" aria-describedby="rcf-readiness-questions-heading">
+    <caption class="rcf-sr-only">On me: no items</caption>
+    <thead>
+      <tr>
+        <th scope="col" data-rcf-col="number" data-rcf-sortable="yes">#</th>
+        <th scope="col" data-rcf-col="group" data-rcf-sortable="yes">Group</th>
+        <th scope="col" data-rcf-col="ask">Ask</th>
+        <th scope="col" data-rcf-col="location" data-rcf-sortable="yes">Chain location</th>
+        <th scope="col" data-rcf-col="settles">What resolves it</th>
+        <th scope="col" data-rcf-col="state" data-rcf-sortable="yes">State</th>
+        <th scope="col" data-rcf-col="copy"><span class="rcf-sr-only">Copy for your agent</span></th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </section>`;
   }
   const body = rows.map(renderQuestionRow).join('');
@@ -343,9 +388,26 @@ export function renderBlockingTable(args = {}) {
   const filter = args.filter ?? {};
   const headerCount = `<span class="rcf-badge rcf-badge--count">${total}</span>`;
   if (total === 0) {
+    // AC-18003-8: both tables must be present even when there is
+    // nothing to list. Render the <table> skeleton with the thead so
+    // the "both tables present" check is literally true.
     return `<section class="rcf-cmd-table rcf-cmd-table--blocking" data-rcf-table="blocking" data-rcf-empty="yes" aria-labelledby="rcf-readiness-blocking-heading">
   <header class="rcf-cmd-table__head"><h3 id="rcf-readiness-blocking-heading">Blocking items</h3> ${headerCount}</header>
   <p class="muted small">No failing items; every check passed on the current tree.</p>
+  <table class="rcf-cmd-table__table" aria-describedby="rcf-readiness-blocking-heading">
+    <caption class="rcf-sr-only">On engineers: no items</caption>
+    <thead>
+      <tr>
+        <th scope="col" data-rcf-col="stage">Stage</th>
+        <th scope="col" data-rcf-col="check">Check</th>
+        <th scope="col" data-rcf-col="docId">Item</th>
+        <th scope="col" data-rcf-col="why">Why it is failing</th>
+        <th scope="col" data-rcf-col="resolved">What resolves it</th>
+        <th scope="col" data-rcf-col="persona">On</th>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
 </section>`;
   }
   const stageOptions = Array.from(new Set(rows.map((r) => r.stage).filter(Boolean))).sort();
@@ -391,14 +453,23 @@ function renderBlockingRow(r, { stageSel, personaSel }) {
   const hidden = (stageSel && stageSel !== r.stage) || (personaSel && personaSel !== r.persona);
   const hiddenAttr = hidden ? ' hidden' : '';
   const title = r.question ? ` title="${escapeHtml(r.question)}"` : '';
-  const link = r.docId
-    ? `<a href="${escapeHtml(r.href)}">${escapeHtml(r.docId)}</a>${r.fragment ? `<span class="rcf-cmd-table__fragment"> :${escapeHtml(r.fragment)}</span>` : ''}`
-    : `<a href="${escapeHtml(r.href)}">${escapeHtml(r.rawId)}</a>`;
+  // Dave ruling 2026-10-08 (AC-18003-7 amended): no shell command text
+  // visible; chain ids render as a prefix link with a plain-English
+  // label (the row's check/why/resolved cells carry that label),
+  // and the full composite id stays in the DOM in a data attribute
+  // (data-rcf-raw-id below). Fragments like "rcf define freeze" or
+  // "surface" that live after the first colon are NOT rendered as
+  // visible text. A non-document prefix (profile, ADR, D1..D8) renders
+  // as a plain <span> rather than a dead anchor.
+  const docId = r.docId || r.rawId;
+  const link = isResolvableDocId(docId)
+    ? `<a href="${escapeHtml(r.href)}" data-rcf-prefix-link="yes">${escapeHtml(docId)}</a>`
+    : `<span class="rcf-cmd-table__prefix" data-rcf-prefix-text="yes">${escapeHtml(docId)}</span>`;
   const personaWord = r.persona === 'productOwner' ? 'On me' : 'On engineers';
   const stageAttr = r.stage ? ` data-rcf-stage="${escapeHtml(r.stage)}"` : '';
   const personaAttr = r.persona ? ` data-rcf-persona="${escapeHtml(r.persona)}"` : '';
   const stageText = r.stage ? `${stageLabel(r.stage)} (${r.stage})` : '';
-  return `<tr${stageAttr}${personaAttr} data-rcf-raw-id="${escapeHtml(r.rawId)}" data-rcf-doc-id="${escapeHtml(r.docId)}"${hiddenAttr}${title}>
+  return `<tr${stageAttr}${personaAttr} data-rcf-raw-id="${escapeHtml(r.rawId)}" data-rcf-doc-id="${escapeHtml(r.docId)}" data-rcf-fragment="${escapeHtml(r.fragment)}"${hiddenAttr}${title}>
   <td data-rcf-col="stage">${escapeHtml(stageText)}</td>
   <td data-rcf-col="check">${escapeHtml(r.check)}</td>
   <td data-rcf-col="docId">${link}</td>
