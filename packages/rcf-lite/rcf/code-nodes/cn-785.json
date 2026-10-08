@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-785",
+  "path": "src/server/index.js#queryCache",
+  "title": "Per-version queryCache lifecycle (TAC-4136)",
+  "description": "The server closure holds queryCache as a Map keyed by state.version + route + pivot + direction|scope and replaces it wholesale on every rewalk right after state is updated, so a new state.version never serves a previous version's bytes (AC-208-6). The cache is exposed to createRouter through deps.queryCache.{get, set, has, size}; writes stay inside the closure, never persisted and never written under rcf/.",
+  "implementsAcIds": [
+    "AC-208-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T18:39:02.274Z",
+  "updatedAt": "2026-10-08T18:39:02.274Z"
+}

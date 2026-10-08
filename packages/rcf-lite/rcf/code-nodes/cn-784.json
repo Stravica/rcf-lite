@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-784",
+  "path": "src/server/routes.js#handleQueryRoute",
+  "title": "Query route handler for trace, impact and coverage (TAC-4136)",
+  "description": "handleQueryRoute(req, res, deps, url, route) is the shared handler for GET /trace.json, /impact.json and /coverage.json. Returns 503 before the first walk (AC-208-7), 404 QueryRouteError for an unknown id (AC-208-4), 400 for a bad-direction or bad-scope (AC-208-4), 200 application/json with cache-control: no-store on success (AC-208-1, -2, -3). The handler never imports runWithAdmissibilityGate and never writes under rcf/ (AC-208-5). Serves memoised entries from deps.queryCache keyed by state.version + route + pivot + direction|scope (AC-208-6). Co-sited with createRouter in src/server/routes.js.",
+  "implementsAcIds": [
+    "AC-208-1",
+    "AC-208-2",
+    "AC-208-3",
+    "AC-208-4",
+    "AC-208-5",
+    "AC-208-6",
+    "AC-208-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T18:39:01.755Z",
+  "updatedAt": "2026-10-08T18:39:01.755Z"
+}
