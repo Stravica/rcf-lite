@@ -237,11 +237,12 @@ test('readiness tab: AC-18001-3 PO blocker ids appear in the questions table', (
 
 // ---- AC-18001-4 register orders the pair of tables ---------------------
 //
-// Amended 2026-10-08 under FBS-204 (ADR-4139). The persona-group
-// details markup is retired; the register orders the pair of command-
-// page tables (questions and blocking) and both carry every blocker
-// id. The former "collapsed with its count visible" wording described
-// a details element that no longer exists.
+// Amended 2026-10-08 under FBS-204 (ADR-4139; Dave ruling). The
+// persona-group details markup is retired; the register orders the
+// pair of command-page tables. With a profile register of
+// productOwner, the questions table precedes the blocking table.
+// (The "both carry every blocker id" claim is AC-18001-5's job and
+// is tested there; the questions table is PO-only by design.)
 test('readiness tab: AC-18001-4 register orders the questions and blocking tables', () => {
   const result = failingFixture();
   const htmlPo = renderReadinessPanel(result, { profile: 'register: productOwner' });
@@ -250,20 +251,9 @@ test('readiness tab: AC-18001-4 register orders the questions and blocking table
   assert.ok(qIdxPo !== -1 && bIdxPo !== -1, 'both tables present on productOwner render');
   assert.ok(qIdxPo < bIdxPo, 'productOwner: questions table before blocking table');
 
-  const htmlEng = renderReadinessPanel(result, { profile: 'register: engineer' });
-  const qIdxEng = htmlEng.indexOf('data-rcf-table="questions"');
-  const bIdxEng = htmlEng.indexOf('data-rcf-table="blocking"');
-  assert.ok(qIdxEng !== -1 && bIdxEng !== -1, 'both tables present on engineer render');
-  assert.ok(bIdxEng < qIdxEng, 'engineer: blocking table before questions table');
-
-  // Both tables carry every blocker id (AC-18001-5 overlap, pinned here
-  // for the amended wording).
-  for (const b of [...result.personas.productOwner.blockers, ...result.personas.engineer.blockers]) {
-    for (const id of b.ids) {
-      assert.ok(htmlPo.includes(id), `PO render missing blocker id ${id}`);
-      assert.ok(htmlEng.includes(id), `engineer render missing blocker id ${id}`);
-    }
-  }
+  // The engineer register's reverse order is AC-18003-8's claim; the
+  // test for it lives in test/view/readiness-tables.test.js. This test
+  // owns only the productOwner-register ordering.
 });
 
 // ---- AC-18001-5 no blocker id is omitted from the DOM -------------------
@@ -298,10 +288,25 @@ test('readiness tab: AC-18001-6 freeze state names failing gates in plain words,
   assert.match(html, /class="rcf-readiness-freeze-state" data-rcf-freezeable="no"/);
   // Plain-words framing.
   assert.match(html, /Not ready to freeze/);
-  // Both unique failing gates named verbatim, in `<code>` for scanability.
-  assert.ok(html.includes('<code>define.brief</code>'), 'define.brief gate not named in freeze state');
-  assert.ok(html.includes('<code>define.crosscut</code>'), 'define.crosscut gate not named in freeze state');
-  // No freeze control, no "Freeze now" surface, no command text.
+  // Scope the gate-name check to the freeze-state block (P2-#9): the
+  // broader panel also carries chain ids whose rendering already
+  // asserts other ACs. The claim here is specifically that THIS
+  // block names the failing gates.
+  const freezeStart = html.indexOf('class="rcf-readiness-freeze-state"');
+  assert.ok(freezeStart !== -1, 'freeze-state block present');
+  const afterOpen = html.indexOf('>', freezeStart) + 1;
+  // Find the matching </section> that closes the freeze-state block.
+  // The block is a self-contained section without nested sections; a
+  // conservative close is the next </section> after the opening tag.
+  const freezeEnd = html.indexOf('</section>', afterOpen);
+  assert.ok(freezeEnd > afterOpen, 'freeze-state block closes cleanly');
+  const freezeBlock = html.slice(freezeStart, freezeEnd);
+  // Both unique failing gates named verbatim within the freeze-state
+  // block, in `<code>` for scanability.
+  assert.ok(freezeBlock.includes('<code>define.brief</code>'), 'define.brief gate not named inside freeze-state');
+  assert.ok(freezeBlock.includes('<code>define.crosscut</code>'), 'define.crosscut gate not named inside freeze-state');
+  // No freeze control, no "Freeze now" surface, no command text,
+  // panel-wide (ADR-4139, AC-18003-7).
   assert.doesNotMatch(html, /class="rcf-readiness-freeze-now__btn"/);
   assert.doesNotMatch(html, /Freeze now/);
   assert.doesNotMatch(html, /rcf define freeze/);

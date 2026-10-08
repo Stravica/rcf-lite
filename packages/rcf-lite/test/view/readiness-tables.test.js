@@ -146,7 +146,15 @@ test('AC-18003-1 happy: readinessquestions is nonempty', () => {
   for (const r of rows) {
     assert.equal(typeof r.ask, 'string');
     assert.ok(r.ask.length > 0, 'ask must be non-empty');
-    assert.ok(r.locationHref.startsWith('#tab=readiness&sub=questions&entity='));
+    // AC-18003-1 "opens the item in full context": document itemIds
+    // use the bare-hash form so the router switches to the owning
+    // tab; non-document itemIds use the readiness sub=questions form.
+    if (/^(REQ|AC|US|TAC|TS|TC|FBS|ADR|TAD|CN|PRD)-/.test(r.itemId)) {
+      assert.equal(r.locationHref, `#${r.itemId}`, `document itemId expects bare hash: ${r.itemId}`);
+    } else {
+      assert.ok(r.locationHref.startsWith('#tab=readiness&sub=questions&entity='),
+        `non-doc itemId expects readiness hash: got ${r.locationHref}`);
+    }
     assert.equal(typeof r.settles, 'string');
     assert.ok(r.settles.length > 0);
     assert.equal(r.state, 'open');
@@ -169,9 +177,17 @@ test('AC-18003-1 happy: readinessquestions is nonempty', () => {
 // AC-18003-2 ----------------------------------------------------------
 test('AC-18003-2 edge: a question whose itemid is not a document id a b', () => {
   const rows = buildQuestionRows(sampleQuestions());
+  // AC-18003-2 constrains the href only for non-document itemIds.
+  // AC-18003-1's "opens the item in full context" is satisfied for
+  // document itemIds (REQ-012) by a bare-hash href (#REQ-012) which
+  // resolveHash's bare-hash path uses to switch to the owning tab.
   for (const r of rows) {
-    const expected = `#tab=readiness&sub=questions&entity=${encodeURIComponent(r.itemId)}`;
-    assert.equal(r.locationHref, expected, `locationHref mismatch for itemId=${r.itemId}`);
+    if (/^(REQ|AC|US|TAC|TS|TC|FBS|ADR|TAD|CN|PRD)-/.test(r.itemId)) {
+      assert.equal(r.locationHref, `#${r.itemId}`, `document itemId expects bare hash: ${r.itemId}`);
+    } else {
+      const expected = `#tab=readiness&sub=questions&entity=${encodeURIComponent(r.itemId)}`;
+      assert.equal(r.locationHref, expected, `non-doc itemId locationHref mismatch: ${r.itemId}`);
+    }
   }
   const html = renderQuestionsTable({ rows });
   // Non-document itemIds (brief:ledger, profile:surface) carry a
@@ -182,10 +198,19 @@ test('AC-18003-2 edge: a question whose itemid is not a document id a b', () => 
   // land on when the entity holds characters invalid in a DOM id.
   assert.ok(html.includes(`id="${entityDomId('brief:ledger')}"`));
   assert.ok(html.includes(`id="${entityDomId('profile:surface')}"`));
-  // The href never contains a raw colon unescaped so no dead anchor.
-  for (const m of html.matchAll(/href="#tab=readiness&sub=questions&entity=([^"]+)"/g)) {
+  // AC-18003-2 non-doc hrefs: escapeHtml renders `&` as `&amp;` in the
+  // HTML, so the regex must match the entity-encoded form. The loop
+  // asserts the anchor carries a non-empty entity and never emits a
+  // raw colon that would break the hash.
+  const nonDocAnchors = [...html.matchAll(/href="#tab=readiness&amp;sub=questions&amp;entity=([^"]+)"/g)];
+  assert.ok(nonDocAnchors.length >= 2, 'expected at least two non-doc hrefs (brief:ledger, profile:surface)');
+  for (const m of nonDocAnchors) {
     assert.doesNotMatch(m[1], /^$/, 'empty entity in anchor');
+    assert.doesNotMatch(m[1], /:/, 'raw colon in encoded entity');
   }
+  // Document itemIds (REQ-012) emit a bare-hash href that resolveHash
+  // routes to the Requirements tab.
+  assert.match(html, /href="#REQ-012"/);
 });
 
 // AC-18003-3 ----------------------------------------------------------
@@ -235,7 +260,17 @@ test('AC-18003-4 edge: a composite failing id such as ac0603userid or t', () => 
   assert.equal(row.fragment, 'userID');
   assert.equal(row.href, '#AC-060-3');
   const html = renderBlockingTable({ rows });
-  assert.match(html, /<a href="#AC-060-3">AC-060-3<\/a>/);
+  // Dave ruling 2026-10-08: composite ids render as a prefix link
+  // (resolvable doc id) with the full composite in data-rcf-raw-id.
+  // The fragment is NOT visible text.
+  assert.match(html, /<a href="#AC-060-3"[^>]*>AC-060-3<\/a>/);
+  assert.match(html, /data-rcf-raw-id="AC-060-3:userID"/);
+  assert.match(html, /data-rcf-raw-id="TAC-4122-define-gates:checkPersona"/);
+  // The suffix fragment "userID" and "checkPersona" are NOT rendered
+  // as visible text; they only live in data-rcf-raw-id / data-rcf-fragment.
+  const visibleHtml = html.replace(/\s[a-z0-9-]+="[^"]*"/gi, '');
+  assert.doesNotMatch(visibleHtml, /:userID/);
+  assert.doesNotMatch(visibleHtml, /:checkPersona/);
 });
 
 // AC-18003-5 ----------------------------------------------------------
@@ -269,8 +304,9 @@ test('AC-18003-6 failure: readiness could not be computed the readiness ob', () 
 });
 
 // AC-18003-7 ----------------------------------------------------------
-test('AC-18003-7 must-not: any register and any tree', async () => {
-  // Synthetic failing tree: panel has no command text, no Freeze now.
+test('AC-18003-7 must-not: no shell command text, chain ids as prefix link with full id in data attribute', async () => {
+  // Synthetic failing tree: panel has no shell command text and no
+  // Run / Freeze-now affordance (Dave ruling 2026-10-08 amended AC).
   const synthetic = failingReadiness(sampleStages(), sampleQuestions());
   for (const profile of [null, 'register: productOwner', 'register: engineer']) {
     const html = renderReadinessPanel(synthetic, { profile, freezeRecord: null });
@@ -278,28 +314,67 @@ test('AC-18003-7 must-not: any register and any tree', async () => {
     assert.doesNotMatch(html, /rcf define/, `rcf define present under profile=${profile}`);
     assert.doesNotMatch(html, /rcf audit/, `rcf audit present under profile=${profile}`);
     assert.doesNotMatch(html, /Freeze now/, `Freeze now present under profile=${profile}`);
+    assert.doesNotMatch(html, /Run <code>/, `Run <code> present under profile=${profile}`);
     // No write control: no un-disabled form, no POST reference.
     assert.doesNotMatch(html, /method="post"/i);
   }
-  // Live rcf-lite tree: run the real renderer and check the same.
-  // AC-18003-7 bans command text EMITTED BY THE VIEWER. The chain
-  // itself carries interface names like
-  // `TAC-4121-define-ledgers:rcf define ledger <name> update <id>`
-  // which the blocking table shows as a failing id (that is chain
-  // data; AC-18002-3 says no id leaves the DOM). The viewer-emitted
-  // command signature is a `<code>` element whose text leads with
-  // `pnpm rcf` / `rcf define` / `rcf audit`, or a "Run " verb
-  // introducing a code block, or the "Freeze now" write control.
+  // Live rcf-lite tree: run the real renderer and apply Dave's amended
+  // AC-18003-7 strictly. The AC scopes to "the panel renders for the
+  // command page" - the command-page surface is the two tables
+  // (TAC-4135). The legacy For-engineers stage-detail block retires in
+  // FBS-206; this test deliberately scopes to the command-page tables.
   const built = await renderModelToPage({ projectRoot: repoRoot });
-  const start = built.contentHtml.indexOf('id="tab-readiness"');
-  const end = built.contentHtml.indexOf('id="tab-overview"');
-  assert.ok(start !== -1 && end > start, 'readiness and overview tabpanels found in order');
-  const panel = built.contentHtml.slice(start, end);
+  const panelStart = built.contentHtml.indexOf('id="tab-readiness"');
+  const panelEnd = built.contentHtml.indexOf('id="tab-overview"');
+  assert.ok(panelStart !== -1 && panelEnd > panelStart, 'readiness and overview tabpanels found in order');
+  const panel = built.contentHtml.slice(panelStart, panelEnd);
+  // Command-page tables section (TAC-4135; AC-18003-7 scope).
+  const cmdStart = panel.indexOf('class="rcf-cmd-tables"');
+  assert.ok(cmdStart !== -1, 'rcf-cmd-tables section present in the readiness panel');
+  // The command-page tables div is the renderQuestionsTable +
+  // renderBlockingTable sibling pair under one wrapper <div>; find its
+  // closing </div> by sibling-depth counting.
+  function cmdEnd(start) {
+    let depth = 0;
+    let i = start;
+    const openRe = /<div\b/g;
+    const closeRe = /<\/div>/g;
+    // Scan forward tracking balance from the <div class="rcf-cmd-tables">.
+    openRe.lastIndex = i;
+    closeRe.lastIndex = i;
+    while (i < panel.length) {
+      const nextOpen = panel.indexOf('<div', i + 1);
+      const nextClose = panel.indexOf('</div>', i + 1);
+      if (nextClose === -1) return panel.length;
+      if (nextOpen !== -1 && nextOpen < nextClose) { depth += 1; i = nextOpen; continue; }
+      if (depth === 0) return nextClose + '</div>'.length;
+      depth -= 1; i = nextClose;
+    }
+    return panel.length;
+  }
+  // Start from the opening <div class="rcf-cmd-tables"> tag.
+  const openIdx = panel.lastIndexOf('<div', cmdStart);
+  assert.ok(openIdx !== -1, 'opening <div> of rcf-cmd-tables found');
+  const closeIdx = cmdEnd(openIdx);
+  const cmdSection = panel.slice(openIdx, closeIdx);
+  // Strip HTML attribute values (data-* carry chain ids verbatim as
+  // Dave's ruling requires) so the visible-text scan does not count
+  // text that only lives in attributes.
+  const visibleCmd = cmdSection.replace(/\s[a-z0-9-]+="[^"]*"/gi, '');
+  assert.doesNotMatch(visibleCmd, /pnpm rcf/, 'visible pnpm rcf text leaked into the command-page tables');
+  assert.doesNotMatch(visibleCmd, /rcf define/, 'visible rcf define text leaked into the command-page tables');
+  assert.doesNotMatch(visibleCmd, /rcf audit/, 'visible rcf audit text leaked into the command-page tables');
+  assert.doesNotMatch(visibleCmd, /Freeze now/, 'Freeze now leaked into the command-page tables');
+  assert.doesNotMatch(visibleCmd, /Run <code>/, 'viewer prints a Run <code> line');
+  // No <code> element in the panel at large carries a shell command
+  // (Dave's ruling text; this test is panel-wide for the <code> ban).
   const codeCmdPattern = /<code[^>]*>\s*(?:pnpm rcf|rcf define|rcf audit)[^<]*<\/code>/;
   assert.doesNotMatch(panel, codeCmdPattern, 'viewer emits a shell command in a <code> element');
-  assert.doesNotMatch(panel, /Run <code>/, 'viewer prints a Run <code> line');
-  assert.doesNotMatch(panel, /Freeze now/, 'Freeze now leaked into the live Readiness panel');
   assert.doesNotMatch(panel, /class="rcf-readiness-freeze-now__btn"/, 'Freeze now button leaked');
+  // Full composite ids remain in the DOM via data-rcf-raw-id so
+  // AC-18002-3 ("no id leaves the DOM") still holds. For the rcf-lite
+  // tree at least one composite id is present as a raw-id attribute.
+  assert.match(cmdSection, /data-rcf-raw-id="[^"]*:[^"]*"/, 'at least one composite id present in data-rcf-raw-id');
 });
 
 // AC-18003-8 ----------------------------------------------------------
