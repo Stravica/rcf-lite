@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-779",
+  "path": "src/view/readiness/tables.js",
+  "title": "Readiness command page tables (TAC-4135)",
+  "description": "Pure HTML-string renderers (renderQuestionsTable, renderBlockingTable, buildQuestionRows, buildBlockingRows, entityDomId). The questions table has one row per question with number, group as a sortable column, ask, chain location, settles, state, and a Copy for your agent control (AC-18003-1, -2, -5, -8). The blocking table carries every failing item across every failing check across every stage, uncapped, with a FilterBar by stage and persona and composite id splitting via splitCompositeId (AC-18003-3).",
+  "implementsAcIds": [
+    "AC-18003-1",
+    "AC-18003-2",
+    "AC-18003-3",
+    "AC-18003-5",
+    "AC-18003-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-08T16:10:50.697Z",
+  "updatedAt": "2026-10-08T16:10:50.697Z"
+}
