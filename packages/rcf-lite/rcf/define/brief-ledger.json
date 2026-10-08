@@ -34,6 +34,14 @@
       "source": "issue:333",
       "addedAt": "2026-10-08T19:17:07.851Z",
       "status": "open"
+    },
+    {
+      "id": 5,
+      "text": "Issue 336 (reporter Dex, filed 2026-10-08 against 0.32.5): the live-view server watcher goes blind to a file after a rename-save on Linux (recursive fs.watch reports the first rename, then never again for that path). Fix: on a rename event the watch primitive now re-arms the affected base (close and reopen the fs.watch handle), one re-arm per debounce window. src/watch/index.js carries a new fsWatchImpl seam for deterministic cross-platform tests; no dependency added; no AC under the viewer stories binds the rename-blind behaviour so this is recorded as a build amendment. Rides 0.33.0.",
+      "kind": "amendment",
+      "source": "issue:336",
+      "addedAt": "2026-10-08T20:07:08.464Z",
+      "status": "open"
     }
   ]
 }

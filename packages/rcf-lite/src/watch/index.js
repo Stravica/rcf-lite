@@ -8,8 +8,17 @@
 // D8: Node built-in `fs.watch` recursive - no `chokidar` dep. If dogfood
 // surfaces a failure mode the built-in cannot handle, the swap-in is
 // banked (same module interface, no caller changes).
+//
+// Issue #336 (reporter Dex, 2026-10-08): on Linux the recursive fs.watch
+// reports the first rename over a file, then goes permanently blind to
+// that path (next rename or write never fires). Editors that save by
+// write-temp-then-rename (vim backupcopy=no, JetBrains safe-write) hit
+// this on every save. Fix: on any `rename` event under a watched base,
+// re-arm that base (close the stale handle, open a new one). The re-arm
+// coalesces onto the debounce window, so a burst of renames yields one
+// re-arm per flush. No dependency added.
 
-import { watch as fsWatch } from 'node:fs';
+import { watch as defaultFsWatch } from 'node:fs';
 import { access, constants } from 'node:fs/promises';
 import { isAbsolute, join } from 'node:path';
 
@@ -31,6 +40,10 @@ const DEFAULT_DEBOUNCE_MS = 50;
  *   globals. Exists as a determinism seam for tests: a manual timer lets a
  *   test decide exactly when the debounce window closes instead of racing
  *   real fs-event delivery latency. Production callers never pass this.
+ * @param {typeof defaultFsWatch} [args.fsWatchImpl] - injectable fs.watch
+ *   implementation. Issue #336 seam: a test substitutes a fake that
+ *   drives the Linux rename-blind delivery pattern deterministically
+ *   on any host. Production callers never pass this.
  * @returns {{ close: () => void }}
  */
 export function watch({
@@ -41,6 +54,7 @@ export function watch({
   onError,
   filter,
   timers,
+  fsWatchImpl,
 } = {}) {
   if (!Array.isArray(paths) || paths.length === 0) {
     throw new TypeError('watch: paths must be a non-empty array of absolute paths');
@@ -50,7 +64,9 @@ export function watch({
   }
   const accept = typeof filter === 'function' ? filter : defaultFilter;
   const timerHost = { setTimeout, clearTimeout, ...timers };
-  const watchers = [];
+  const fsWatchFn = typeof fsWatchImpl === 'function' ? fsWatchImpl : defaultFsWatch;
+  /** @type {{ base: string, handle: ReturnType<typeof defaultFsWatch> | null, needsRearm: boolean }[]} */
+  const baseWatchers = [];
   const pending = new Map();
   let timer = null;
   let closed = false;
@@ -59,6 +75,13 @@ export function watch({
     if (typeof onError === 'function') {
       try { onError(err); } catch { /* swallow onError faults */ }
     }
+  }
+
+  function ensureFlushScheduled() {
+    if (closed) return;
+    if (timer) return;
+    timer = timerHost.setTimeout(flush, debounceMs);
+    if (timer && typeof timer.unref === 'function') timer.unref();
   }
 
   function flush() {
@@ -73,6 +96,18 @@ export function watch({
         reportError(err);
       }
     }
+    // Issue #336: re-arm any base that saw a rename in this window.
+    // Closing and reopening the fs.watch handle re-registers inotify
+    // watches against current inodes, so a path that was replaced by
+    // rename starts firing again. One re-arm per flush collapses a
+    // burst of renames onto a single swap.
+    for (const rec of baseWatchers) {
+      if (!rec.needsRearm) continue;
+      rec.needsRearm = false;
+      if (closed) continue;
+      try { rec.handle?.close(); } catch { /* swallow */ }
+      rec.handle = openBaseHandle(rec.base);
+    }
   }
 
   function schedule(path, type) {
@@ -81,6 +116,16 @@ export function watch({
     if (timer) timerHost.clearTimeout(timer);
     timer = timerHost.setTimeout(flush, debounceMs);
     if (timer && typeof timer.unref === 'function') timer.unref();
+  }
+
+  function markRearm(base) {
+    const rec = baseWatchers.find((r) => r.base === base);
+    if (!rec) return;
+    rec.needsRearm = true;
+    // Even if no path survived the filter, a rename event means the
+    // handle may be about to go blind: make sure flush fires so the
+    // re-arm actually happens.
+    ensureFlushScheduled();
   }
 
   async function classify(fullPath, eventType) {
@@ -93,14 +138,16 @@ export function watch({
     }
   }
 
-  for (const base of paths) {
-    if (typeof base !== 'string' || !isAbsolute(base)) {
-      throw new TypeError(`watch: paths must be absolute, got ${String(base)}`);
-    }
+  function openBaseHandle(base) {
     let w;
     try {
-      w = fsWatch(base, { recursive: true }, (eventType, filename) => {
+      w = fsWatchFn(base, { recursive: true }, (eventType, filename) => {
         if (closed) return;
+        // Issue #336: a rename anywhere under `base` can invalidate
+        // the handle's descriptors for the renamed path. Mark the base
+        // for re-arm regardless of whether the specific filename is
+        // one we would otherwise report (filtered paths still count).
+        if (eventType === 'rename') markRearm(base);
         if (!filename) return;
         const full = join(base, filename);
         if (!accept(full)) return;
@@ -112,14 +159,24 @@ export function watch({
       });
     } catch (err) {
       reportError(err);
-      continue;
+      return null;
     }
-    w.on('error', (err) => {
-      // Silently drop ENOENT (watched path deleted mid-run); surface the rest.
-      if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') return;
-      reportError(err);
-    });
-    watchers.push(w);
+    if (typeof w.on === 'function') {
+      w.on('error', (err) => {
+        // Silently drop ENOENT (watched path deleted mid-run); surface the rest.
+        if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') return;
+        reportError(err);
+      });
+    }
+    return w;
+  }
+
+  for (const base of paths) {
+    if (typeof base !== 'string' || !isAbsolute(base)) {
+      throw new TypeError(`watch: paths must be absolute, got ${String(base)}`);
+    }
+    const handle = openBaseHandle(base);
+    if (handle) baseWatchers.push({ base, handle, needsRearm: false });
   }
 
   function close() {
@@ -130,10 +187,11 @@ export function watch({
       timer = null;
     }
     pending.clear();
-    for (const w of watchers) {
-      try { w.close(); } catch { /* swallow */ }
+    for (const rec of baseWatchers) {
+      try { rec.handle?.close(); } catch { /* swallow */ }
+      rec.handle = null;
     }
-    watchers.length = 0;
+    baseWatchers.length = 0;
     if (signal && typeof signal.removeEventListener === 'function') {
       try { signal.removeEventListener('abort', close); } catch { /* swallow */ }
     }
