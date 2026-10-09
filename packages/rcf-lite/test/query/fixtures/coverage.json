@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 119,
-    "covered": 119,
+    "requirements": 120,
+    "covered": 120,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -6443,6 +6443,333 @@
           "covered": true,
           "testCases": [
             "TC-228-draft-no-po-read"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-189",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-18901-1",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18901-2",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-2-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18901-3",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-3-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18901-4",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-4-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18901-5",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-5-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18901-6",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-6-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18901-7",
+          "covered": true,
+          "testCases": [
+            "TC-243-18901-7-mustnot"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-1",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-2",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-2-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-3",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-3-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-4",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-4-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-5",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-5-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-6",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-6-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18902-7",
+          "covered": true,
+          "testCases": [
+            "TC-244-18902-7-mustnot"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-1",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-2",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-2-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-3",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-3-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-4",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-4-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-5",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-5-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-6",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-6-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18903-7",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-7-mustnot"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18904-1",
+          "covered": true,
+          "testCases": [
+            "TC-246-18904-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18904-2",
+          "covered": true,
+          "testCases": [
+            "TC-246-18904-2-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18904-3",
+          "covered": true,
+          "testCases": [
+            "TC-246-18904-3-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18904-4",
+          "covered": true,
+          "testCases": [
+            "TC-246-18904-4-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18904-5",
+          "covered": true,
+          "testCases": [
+            "TC-246-18904-5-mustnot"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-1",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-2",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-2-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-3",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-3-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-4",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-4-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-5",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-5-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-6",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-6-mustnot"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-7",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-7-mustnot"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-8",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-8-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18906-1",
+          "covered": true,
+          "testCases": [
+            "TC-248-18906-1-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18906-2",
+          "covered": true,
+          "testCases": [
+            "TC-248-18906-2-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18906-3",
+          "covered": true,
+          "testCases": [
+            "TC-248-18906-3-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18906-4",
+          "covered": true,
+          "testCases": [
+            "TC-248-18906-4-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18906-5",
+          "covered": true,
+          "testCases": [
+            "TC-248-18906-5-edge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18906-6",
+          "covered": true,
+          "testCases": [
+            "TC-248-18906-6-mustnot"
           ],
           "unresolvedTestCases": []
         }
