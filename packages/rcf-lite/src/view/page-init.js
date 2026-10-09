@@ -2531,11 +2531,45 @@
     return '';
   }
 
+  // FBS-208 FINALISE (P2-5): the matrix pivots on upstream nodes
+  // (REQ/US/AC). A downstream pivot (TS/TC/FBS/CN/TAC/ADR) returns
+  // zero rows and would show a silent empty table; render an
+  // explanatory state and offer the lookup instead.
+  function isDownstreamPivot(pivot) {
+    if (typeof pivot !== 'string') return false;
+    return /^(TS-|TC-|FBS-|CN-|TAC-|ADR-)/.test(pivot);
+  }
+
+  // FBS-208 FINALISE (P1-1): on a tree-version swap the new cache key
+  // misses; look up the most recent prior-version entry for the same
+  // pivot so the previous render stays visible with the stale banner
+  // while the fetch runs. The cache keys are `${version}:${pivot}`.
+  function findPriorCachedEntry(pivot, currentVersion) {
+    var best = null;
+    var bestVersion = -1;
+    for (var k in TRACE_CACHE) {
+      if (!Object.prototype.hasOwnProperty.call(TRACE_CACHE, k)) continue;
+      var idx = k.indexOf(':');
+      if (idx === -1) continue;
+      var ver = Number(k.slice(0, idx));
+      var piv = k.slice(idx + 1);
+      if (piv !== pivot) continue;
+      if (!Number.isFinite(ver)) continue;
+      if (ver >= currentVersion) continue;
+      if (ver > bestVersion) { bestVersion = ver; best = TRACE_CACHE[k]; }
+    }
+    return best;
+  }
+
   function renderTraceRoot(pivot, trace, coverage, opts) {
     var root = traceRoot();
     if (!root) return;
     opts = opts || {};
-    var kind = (trace && trace.found === false) ? 'unknown' : (trace ? 'ok' : 'shell');
+    var kind;
+    if (opts.unavailable) kind = 'unavailable';
+    else if (trace && trace.found === false) kind = 'unknown';
+    else if (trace) kind = 'ok';
+    else kind = 'shell';
     var staleAttr = opts.stale ? ' data-rcf-trace-stale="yes"' : '';
     var pivotLabel = pivot ? escapeAttr(pivot) : '';
     if (!pivot) {
@@ -2550,10 +2584,29 @@
       TRACE_STALE = false;
       return;
     }
+    if (kind === 'unavailable') {
+      // FBS-208 FINALISE (P2-6): a 5xx or network error is NOT the
+      // same as 'unknown-pivot'; the chain may still carry the id.
+      // Render a trace-unavailable state and keep the pivot visible.
+      root.innerHTML = '<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="unavailable" data-rcf-trace-reason="fetch-error" data-rcf-pivot="' + pivotLabel + '" aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace unavailable for ' + pivotLabel + '</h3></header><p>The trace service did not respond. Try again or pick another id.</p><p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p></section>';
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_STALE = false;
+      return;
+    }
     if (kind === 'shell') {
       root.innerHTML = '<section class="rcf-trace-matrix" data-rcf-trace-matrix="shell" data-rcf-pivot="' + pivotLabel + '"' + staleAttr + ' aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace matrix for ' + pivotLabel + '</h3></header><p class="muted">Loading trace for ' + pivotLabel + '...</p></section>';
       TRACE_RENDERED_PIVOT = pivot;
       TRACE_LAST_RENDER_VERSION = traceVersion();
+      return;
+    }
+    // FBS-208 FINALISE (P2-5): a TS/TC/FBS/CN/TAC/ADR pivot has no
+    // upstream US/AC rows, so the matrix would be silently empty.
+    // Render an explanatory state instead and offer the lookup.
+    if (isDownstreamPivot(pivot)) {
+      root.innerHTML = '<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="downstream" data-rcf-trace-reason="downstream-pivot" data-rcf-pivot="' + pivotLabel + '" aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">No upstream rows for ' + pivotLabel + '</h3></header><p>The matrix pivots on a requirement, story or criterion. Pick an upstream id that reaches <code>' + pivotLabel + '</code>.</p><p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p></section>';
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_LAST_RENDER_VERSION = traceVersion();
+      TRACE_STALE = false;
       return;
     }
     // Full render from the client build helper.
@@ -2603,11 +2656,18 @@
       outFromId[e.from].push(e.to);
     }
     function reachFrom(id) {
+      // FBS-208 FINALISE (P2-4): an AC's Cases column must list only
+      // the AC's OWN test cases, not every sibling TC the AC's TS also
+      // contains. Stop traversal at a TS boundary: TS is recorded in
+      // the bucket but we do not descend into its children. TC still
+      // reaches via the AC's direct testPointer edges (AC->TC).
       var bucket = { ts: [], tc: [], fbs: [], cn: [] };
       var seen = {}; seen[id] = true;
       var stack = [id];
       while (stack.length > 0) {
         var cur = stack.pop();
+        var curKind = byId[cur] && byId[cur].kind;
+        if (curKind === 'ts' || curKind === 'testSuite') continue;
         var kids = outFromId[cur] || [];
         for (var k = 0; k < kids.length; k += 1) {
           var to = kids[k];
@@ -2753,16 +2813,36 @@
     }
     if (TRACE_INFLIGHT[key]) return;
     TRACE_INFLIGHT[key] = true;
-    // Show a shell while fetching, keeping any previous render visible
-    // with the stale banner when a version swap triggered this fetch.
-    var hadRender = TRACE_RENDERED_PIVOT === pivot && cached && cached.trace;
-    if (!hadRender) renderTraceRoot(pivot, null, null, { stale: TRACE_STALE });
+    // FBS-208 FINALISE (P1-1): on a tree-version swap the cache for
+    // the new version misses. Look up a prior-version entry for the
+    // same pivot and render it as stale while we fetch; the user sees
+    // the previous matrix with a stale banner, not an empty shell.
+    var prior = findPriorCachedEntry(pivot, v);
+    if (prior && prior.trace) {
+      renderTraceRoot(pivot, prior.trace, prior.coverage || null, { stale: true });
+    } else {
+      renderTraceRoot(pivot, null, null, { stale: TRACE_STALE });
+    }
     var traceUrl = './trace.json?id=' + encodeURIComponent(pivot) + '&direction=forward&includeCode=1';
-    fetchJson(traceUrl, function (ok, parsed) {
+    fetchJson(traceUrl, function (ok, parsed, status) {
+      // FBS-208 FINALISE (P2-6, stale-response guard): a hash change
+      // since the fetch started means another pivot owns the view;
+      // drop this callback's render.
+      if (traceEntityFromHash() !== pivot) {
+        TRACE_INFLIGHT[key] = false;
+        return;
+      }
       if (!ok || !parsed) {
         TRACE_INFLIGHT[key] = false;
-        // 404 unknown-id -> render empty-state unknown-pivot
-        renderTraceRoot(pivot, { found: false, pivot: pivot }, null, {});
+        // FBS-208 FINALISE (P2-6): distinguish a 404 (unknown-pivot,
+        // the id is not in the tree) from any other failure (service
+        // unavailable, parse error, network). Only a 404 renders the
+        // 'id not in current tree' empty-state.
+        if (status === 404) {
+          renderTraceRoot(pivot, { found: false, pivot: pivot }, null, {});
+        } else {
+          renderTraceRoot(pivot, null, null, { unavailable: true });
+        }
         return;
       }
       if (parsed.found === false) {
@@ -2775,6 +2855,8 @@
       var covUrl = './coverage.json' + (scope ? '?scope=' + encodeURIComponent(scope) : '');
       fetchJson(covUrl, function (okCov, parsedCov) {
         TRACE_INFLIGHT[key] = false;
+        // Stale-response guard again on the inner fetch.
+        if (traceEntityFromHash() !== pivot) return;
         TRACE_CACHE[key] = { trace: parsed, coverage: okCov ? parsedCov : null };
         renderTraceRoot(pivot, parsed, okCov ? parsedCov : null, { stale: false });
       });
@@ -3070,6 +3152,20 @@
   // acknowledgement.
   window.rcfView = window.rcfView || {};
   window.rcfView.showToast = showToast;
+  // FBS-208 FINALISE: client-path internals exposed for behavioural
+  // tests. The server-side `src/view/readiness/trace-matrix.js`
+  // module is a spec-by-example; the shipped behaviour is this IIFE's
+  // inline implementation. Tests use these to prove the two paths
+  // match (parity) and to probe cache / downstream-pivot behaviour.
+  // No production code paths read these; they are a test seam only.
+  window.rcfTraceInternals = {
+    buildMatrixRowsFromPayload: buildMatrixRowsFromPayload,
+    renderMatrixHtml: renderMatrixHtml,
+    isDownstreamPivot: isDownstreamPivot,
+    findPriorCachedEntry: findPriorCachedEntry,
+    traceCacheKey: traceCacheKey,
+    cache: TRACE_CACHE,
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', onReady);

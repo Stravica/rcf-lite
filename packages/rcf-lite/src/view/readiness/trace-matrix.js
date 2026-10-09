@@ -76,12 +76,19 @@ export function buildTraceMatrixRows({ trace, coverage }) {
     outFromId.get(e.from).push(e.to);
   }
   // Flatten AC's downstream reach into kind buckets.
+  // FBS-208 FINALISE (P2-4): stop traversal at a TS boundary so an
+  // AC's Cases column only lists the AC's OWN testPointer-reached TCs,
+  // not every sibling TC its TS also contains. TS is still recorded
+  // in the bucket when a TS edge reaches it; we just do not descend
+  // into TS->TC containment from an AC row.
   function reachFrom(id) {
     const bucket = { ts: [], tc: [], fbs: [], cn: [] };
     const seen = new Set([id]);
     const stack = [id];
     while (stack.length > 0) {
       const cur = stack.pop();
+      const curKind = byId.get(cur)?.kind;
+      if (curKind === 'ts' || curKind === 'testSuite') continue;
       for (const to of outFromId.get(cur) ?? []) {
         if (seen.has(to)) continue;
         seen.add(to);
@@ -260,6 +267,12 @@ export function renderTraceMatrix(args) {
     // Shell before client fetch; renders on first paint.
     return renderShell({ pivot, stale });
   }
+  // FBS-208 FINALISE (P2-5): downstream pivots (TS/TC/FBS/CN/TAC/ADR)
+  // produce no US/AC rows. Render an explanatory state instead of a
+  // silent empty table.
+  if (/^(TS-|TC-|FBS-|CN-|TAC-|ADR-)/.test(pivot)) {
+    return renderDownstreamState({ pivot });
+  }
 
   const rows = buildTraceMatrixRows({ trace, coverage });
   const needsFilter = rows.length > ROW_FILTER_THRESHOLD;
@@ -344,6 +357,18 @@ function renderLoadingState({ pivot }) {
   return `<section class="rcf-trace-matrix" data-rcf-trace-matrix="loading" data-rcf-pivot="${escapeHtml(pivot)}" aria-labelledby="rcf-readiness-trace-heading">
   <header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace matrix for ${escapeHtml(pivot)}</h3></header>
   <p class="muted">Loading trace...</p>
+</section>`;
+}
+
+function renderDownstreamState({ pivot }) {
+  // FBS-208 FINALISE (P2-5): the matrix pivots on upstream nodes
+  // (REQ/US/AC); a downstream pivot (TS/TC/FBS/CN/TAC/ADR) has no
+  // upstream US/AC rows so the body would be empty.
+  const safePivot = escapeHtml(pivot);
+  return `<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="downstream" data-rcf-trace-reason="downstream-pivot" data-rcf-pivot="${safePivot}" aria-labelledby="rcf-readiness-trace-heading">
+  <header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">No upstream rows for ${safePivot}</h3></header>
+  <p>The matrix pivots on a requirement, story or criterion. Pick an upstream id that reaches <code>${safePivot}</code>.</p>
+  <p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p>
 </section>`;
 }
 
