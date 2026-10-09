@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-798",
+  "path": "src/view/html-page.js",
+  "title": "Mermaid slice retired from Requirements and Readiness (FBS-208)",
+  "description": "renderPage no longer renders the per-REQ sliceDetails Mermaid block on Requirements rows; the diagram call is removed from renderRequirementRow. The Readiness tab carries no Mermaid at all. mermaid-diagram.js keeps its generator exports for AC-201-1 (architecture diagram) only.",
+  "implementsAcIds": [
+    "AC-209-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T14:52:42.986Z",
+  "updatedAt": "2026-10-09T14:52:42.986Z"
+}

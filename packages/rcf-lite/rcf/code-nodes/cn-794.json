@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-794",
+  "path": "src/view/page-init.js#wireTraceMatrix",
+  "title": "Trace sub-view client (FBS-208, TAC-4136, ADR-4140)",
+  "description": "page-init.js IIFE Trace matrix section: wireTraceMatrix + fetchAndRenderTrace + renderTraceRoot + buildMatrixRowsFromPayload + renderMatrixHtml. Fetches ./trace.json?id=<pivot>&includeCode=1 and ./coverage.json?scope=<REQ>, caches by (version, pivot), falls back to prior-version render stale on an SSE tree-update (AC-209-4), distinguishes 404 unknown-pivot from 5xx fetch-error, guards callbacks against hash-pivot change, routes readiness-tab lookup picks to the Trace sub-tab.",
+  "implementsAcIds": [
+    "AC-209-1",
+    "AC-209-3",
+    "AC-209-4",
+    "AC-209-6",
+    "AC-209-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T14:52:39.653Z",
+  "updatedAt": "2026-10-09T14:52:39.653Z"
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-797",
+  "path": "src/view/readiness/coverage-summary.js#renderUnresolvedPointers",
+  "title": "Trace action on coverage unresolved pointers (FBS-208)",
+  "description": "The unresolved-pointers table in the coverage summary carries a Trace cell per row that routes to the Trace sub-tab for the suite id (TS). The downstream-pivot explanatory state handles the TS pivot in the matrix renderer.",
+  "implementsAcIds": [
+    "AC-209-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T14:52:42.156Z",
+  "updatedAt": "2026-10-09T14:52:42.156Z"
+}
