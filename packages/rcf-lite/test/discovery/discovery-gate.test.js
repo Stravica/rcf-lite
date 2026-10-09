@@ -13,7 +13,7 @@ test('AC-18905-2 happy: a declared central product', { todo: 'built by FBS-214 (
   assert.fail('DEFINE declaration: not built yet');
 });
 
-test('AC-18905-3 edge: a declared none product', { todo: 'built by FBS-214 (US-18905)' }, () => {
+test('AC-18905-3 edge: a declared none product or a tree with no journe', { todo: 'built by FBS-214 (US-18905)' }, () => {
   assert.fail('DEFINE declaration: not built yet');
 });
 
@@ -34,5 +34,9 @@ test('AC-18905-7 must-not: a product whose d0 fails', { todo: 'built by FBS-214 
 });
 
 test('AC-18905-8 happy: rcf define questions persona productowner on a f', { todo: 'built by FBS-214 (US-18905)' }, () => {
+  assert.fail('DEFINE declaration: not built yet');
+});
+
+test('AC-18905-9 failure: a record whose journeyrecordui is null the recor', { todo: 'built by FBS-214 (US-18905)' }, () => {
   assert.fail('DEFINE declaration: not built yet');
 });

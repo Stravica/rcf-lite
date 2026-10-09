@@ -9,7 +9,7 @@ test('AC-18901-1 happy: an intake run carrying ui with a value from none', { tod
   assert.fail('DEFINE declaration: not built yet');
 });
 
-test('AC-18901-2 happy: an existing journeyjson', { todo: 'built by FBS-211 (US-18901)' }, () => {
+test('AC-18901-2 happy: a tree with or without an existing journeyjson', { todo: 'built by FBS-211 (US-18901)' }, () => {
   assert.fail('DEFINE declaration: not built yet');
 });
 

@@ -32,3 +32,7 @@ test('AC-18903-6 edge: a journey with a nonexit step that has no next a', { todo
 test('AC-18903-7 must-not: a declared none product or a tree with no journe', { todo: 'built by FBS-212 (US-18903)' }, () => {
   assert.fail('DEFINE declaration: not built yet');
 });
+
+test('AC-18903-8 failure: a screenwireframe whose extension is outside md ', { todo: 'built by FBS-212 (US-18903)' }, () => {
+  assert.fail('DEFINE declaration: not built yet');
+});
