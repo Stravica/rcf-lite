@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 99,
-    "notStarted": 50,
+    "notStarted": 49,
     "inProgress": 2,
-    "complete": 32,
+    "complete": 33,
     "verified": 15,
-    "actionable": 40,
+    "actionable": 39,
     "blocked": 10
   },
   "nextActionable": "FBS-013",
@@ -1273,12 +1273,12 @@
       "buildOrder": 208,
       "tier": 3,
       "title": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-206",
         "FBS-207"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
