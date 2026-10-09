@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-09T16:28:26.668Z",
-  "updatedAt": "2026-10-09T16:28:26.668Z",
-  "description": "User story under REQ-189 for the declaration (FBS-211). The declaration is three-valued and lives on the journey record the tool writes; intake takes it as --ui (or a ui field in --input), the declare verb sets or changes it, the classifier only proposes. A tree with no record is grandfathered; rcf init writes the record with ui null so a new project must declare; rcf doctor advises, never drifts.",
+  "updatedAt": "2026-10-09T17:02:38.123Z",
+  "description": "User story under REQ-189 for the declaration (FBS-211). The declaration is three-valued and lives on the journey record the tool writes; intake takes it as --ui (or a ui field in --input) and never completes without it, the declare verb sets or changes it and can mark the record as-built for a product drawn after the fact, the classifier only proposes. A tree with no record is grandfathered (readJourneyRecord returns null); rcf init writes the record with ui null so a new project must declare; rcf doctor advises, never drifts. What D0 and the door make of null and of an absent record is specified under US-18905.",
   "asA": "a product owner running intake on a new or re-intaken product",
   "iWant": "to say once whether the product has no UI, a light UI or a UI that is front and centre, with the tool proposing from the brief and never deciding for me",
   "soThat": "a product with no UI pays nothing, a light product is asked only the journey questions, and the trees that already exist are left as they are",
@@ -20,7 +20,7 @@
     },
     {
       "id": "AC-18901-2",
-      "description": "[happy] Given an existing journey.json, when the operator runs the journey declare verb with --ui and a new value, then JourneyRecord.ui is replaced and JourneyRecord.declaredVia equals \"declare\", and lowering the value (central to light, or light or central to none) without --reason is refused with exit 2 naming the flag while the same call with --reason records the reason on the record.",
+      "description": "[happy] Given a tree with or without an existing journey.json, when the operator runs the journey declare verb with --ui and a value from [none | light | central], then journey.json exists with JourneyRecord.ui equal to the value and JourneyRecord.declaredVia equal to \"declare\", --as-built sets JourneyRecord.asBuilt true and its absence leaves the field as it was (false on a record intake or init wrote), and lowering the value (central to light, or light or central to none) without --reason is refused with exit 2 naming the flag while the same call with --reason records the reason on the record.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",
@@ -29,7 +29,7 @@
     },
     {
       "id": "AC-18901-3",
-      "description": "[happy] Given an interactive intake run with no --ui flag, when the artefact text carries UI signals from the shared matcher, then intake prints the signals and the proposed value and asks for the declaration, and the value written is the one the operator typed, never the proposal.",
+      "description": "[happy] Given an interactive intake run with no --ui flag, when intake reaches the declaration, then it prints the shared matcher's UI signals over the artefact text (an empty list when none match) and the proposed value (none when no signal matched), asks for the declaration, and the value written is the one the operator typed, never the proposal.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",
@@ -38,7 +38,7 @@
     },
     {
       "id": "AC-18901-4",
-      "description": "[failure] Given a non-interactive intake run through --input with no ui field, when the artefact text carries UI signals from the shared matcher, then intake exits 2 naming the ui field and writes neither the intakeClassification nor journey.json.",
+      "description": "[failure] Given a non-interactive intake run through --input with no ui field, when it runs, with or without UI signals in the artefact text, then intake exits 2 naming the ui field and writes neither the intakeClassification nor journey.json, so no intake on this version completes without a declaration.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",
@@ -47,7 +47,7 @@
     },
     {
       "id": "AC-18901-5",
-      "description": "[edge] Given a tree with no rcf/discovery/journey.json, when readiness computes D0, then D0 reports notApplicable with the reason \"no discovery declaration (existing tree)\", the door check passes, and no verb writes journey.json on the tree's behalf.",
+      "description": "[edge] Given a tree with no rcf/discovery/journey.json, when readJourneyRecord reads it, then it returns null (the grandfathered state every later reader folds to notApplicable), and rcf discover intake --dry-run and rcf discover journey declare --dry-run on that tree print the record they would write and leave rcf/discovery/ absent.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",
@@ -56,7 +56,7 @@
     },
     {
       "id": "AC-18901-6",
-      "description": "[edge] Given rcf init on this version, when the tree is created, then rcf/discovery/journey.json is written with JourneyRecord.ui null and JourneyRecord.declaredVia \"init\", and D0 reports failing on discovery:declared until a declaration is made.",
+      "description": "[edge] Given rcf init on this version, when the tree is created, then rcf/discovery/journey.json is written with JourneyRecord.ui null, JourneyRecord.declaredVia \"init\" and JourneyRecord.asBuilt false, and readJourneyRecord returns that record rather than null, so a new project is never read as a grandfathered tree.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",

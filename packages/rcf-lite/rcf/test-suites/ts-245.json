@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:29:39.905Z",
-  "updatedAt": "2026-10-09T16:29:51.229Z",
+  "updatedAt": "2026-10-09T17:03:06.066Z",
   "purpose": "Cover every acceptance criterion of US-18903 with one node:test case each in test/discovery/journey-check.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-212) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -10,7 +10,8 @@
     "AC-18903-4",
     "AC-18903-5",
     "AC-18903-6",
-    "AC-18903-7"
+    "AC-18903-7",
+    "AC-18903-8"
   ],
   "id": "TS-245",
   "usId": "US-18903",
@@ -26,7 +27,7 @@
     {
       "id": "TC-245-18903-2-happy",
       "acId": "AC-18903-2",
-      "description": "[happy] Given the interruption catalogue [lostEmail | closedTab | deadBattery | expiredLink | switchedDevice | lostSignal], when discovery:interruptions evaluates a journey, then each catalogue entry is either mapped to an interruption step of that journey or ruled out as notApplicable with a reason of at least 20 characters, and an entry that is neither fails the check with an id naming the journey and the entry.",
+      "description": "[happy] Given the interruption catalogue [lostEmail | closedTab | deadBattery | expiredLink | switchedDevice | lostSignal], when discovery:interruptions evaluates a journey, then each catalogue entry is either covered by a step of that journey, of any kind, or ruled out as notApplicable with a reason of at least 20 characters, and an entry that is neither fails the check with an id naming the journey and the entry.",
       "status": "pending",
       "testPointer": "test/discovery/journey-check.test.js::AC-18903-2 happy: the interruption catalogue lostemail closedtab d"
     },
@@ -40,14 +41,14 @@
     {
       "id": "TC-245-18903-4-happy",
       "acId": "AC-18903-4",
-      "description": "[happy] Given a wireframe file, when the check reads it, then a .md or .png file is accepted as-is, an .html file is accepted when it carries no href or src whose value starts http:, https: or //, and the file's bytes are hashed with sha256 without any inspection of its headings or sections.",
+      "description": "[happy] Given a wireframe file, when the check reads it, then a .md file is accepted as-is, an .html file is accepted when no href, src or srcset attribute value and no CSS url() or @import target (in a style element or a style attribute) starts http:, https: or //, a .png file is accepted only when JourneyRecord.asBuilt is true, and the file's bytes are hashed with sha256 without any inspection of its headings or sections.",
       "status": "pending",
       "testPointer": "test/discovery/journey-check.test.js::AC-18903-4 happy: a wireframe file"
     },
     {
       "id": "TC-245-18903-5-failure",
       "acId": "AC-18903-5",
-      "description": "[failure] Given an .html wireframe carrying an external stylesheet, script, image or font URL, when the journey check verb runs, then discovery:wireframeSelfContained fails naming the file and the first offending URL and the verb exits 4.",
+      "description": "[failure] Given an .html wireframe carrying an external stylesheet, script, image or font URL through any of href, src, srcset, CSS url() or @import, when the journey check verb runs, then discovery:wireframeSelfContained fails naming the file and the first offending URL and the verb exits 4.",
       "status": "pending",
       "testPointer": "test/discovery/journey-check.test.js::AC-18903-5 failure: an html wireframe carrying an external styleshee"
     },
@@ -64,6 +65,13 @@
       "description": "[must-not] Given a declared none product or a tree with no journey.json, when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.",
       "status": "pending",
       "testPointer": "test/discovery/journey-check.test.js::AC-18903-7 must-not: a declared none product or a tree with no journe"
+    },
+    {
+      "id": "TC-245-18903-8-failure",
+      "acId": "AC-18903-8",
+      "description": "[failure] Given a Screen.wireframe whose extension is outside .md, .html and .png, or a .png on a record whose JourneyRecord.asBuilt is false, when the journey check verb runs, then discovery:wireframeFormat fails naming the file and the rule it breaks and the verb exits 4, on a light product as on a central one.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-check.test.js::AC-18903-8 failure: a screenwireframe whose extension is outside md "
     }
   ],
   "status": "draft"

@@ -1,11 +1,11 @@
 {
   "createdAt": "2026-10-09T16:30:01.633Z",
-  "updatedAt": "2026-10-09T16:30:01.633Z",
+  "updatedAt": "2026-10-09T17:02:41.940Z",
   "summary": "Three-valued UI declaration at intake, declare verb, init and doctor, grandfathering (US-18901). Delivers AC-18901-1 to AC-18901-7. Estimated new node:test cases: 7. Order in the UX intake gate build: 2 of 6.",
   "approach": "Add --ui to rcf discover intake and a ui field to --input, writing the declaration onto journey.json beside the intakeClassification write; the declare verb with the lowering rule; interactive proposal from matchUiSignals and the non-interactive exit 2; rcf init writes the record with ui null; rcf doctor adds a notice, never drift; readJourneyRecord returning null is the grandfathered state the later stage reads.",
   "deliverables": [
-    "src/cli/intake.js and src/intake/orchestrator.js: --ui and input.ui, proposal and ask, exit 2 in --input mode",
-    "src/cli/journey.js: declare verb with --reason on lowering",
+    "src/cli/intake.js and src/intake/orchestrator.js: --ui and input.ui, proposal and ask (none when nothing matched), exit 2 in --input mode whenever ui is absent",
+    "src/cli/journey.js: declare verb with --as-built and with --reason on lowering, creating the record on a tree that has none",
     "src/cli/init.js: journey.json with ui null and declaredVia init",
     "src/cli/doctor.js: discovery notice under notices",
     "test/discovery/journey-declare.test.js: not-yet-built flags removed, bodies land (7 cases)"

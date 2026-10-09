@@ -1,15 +1,15 @@
 {
   "createdAt": "2026-10-09T16:30:03.119Z",
-  "updatedAt": "2026-10-09T16:30:03.119Z",
-  "summary": "Readiness stage D0 and the DEFINE door on the three chain-write verbs (US-18905). Delivers AC-18905-1 to AC-18905-8. Estimated new node:test cases: 8. Order in the UX intake gate build: 5 of 6.",
-  "approach": "Prepend D0 (define.discovery, discovery) to STAGE_ORDER as blocking and never ackable with productOwner on every check and a question template per check; checkD0Discovery wraps checkDiscovery with the tree context; brief add, create and blueprint add call it before writing and refuse with exit 4 in the refused define message family; --ack discovery is a usage error; questions surface D0 first; the Readiness tab renders the new stage with no schema change.",
+  "updatedAt": "2026-10-09T17:02:42.881Z",
+  "summary": "Readiness stage D0 and the DEFINE door on the three chain-write verbs (US-18905). Delivers AC-18905-1 to AC-18905-9. Estimated new node:test cases: 9. Order in the UX intake gate build: 5 of 6.",
+  "approach": "Prepend D0 (define.discovery, discovery) to STAGE_ORDER as blocking and never ackable with productOwner on every check and a question template per check; checkD0Discovery wraps checkDiscovery with the tree context (notApplicable for none and for an absent record, failing on discovery:declared for the ui null record init writes, wireframePerStep and reviewed notApplicable for light); brief add, create and blueprint add call it before writing and refuse with exit 4 in the refused define message family; --ack discovery is a usage error; questions surface D0 first; the Readiness tab renders the new stage with no schema change.",
   "deliverables": [
     "src/query/gates.js: STAGE_ORDER, STAGE_GATES, STAGE_SHORT_NAMES, CHECK_PERSONA, CHECK_QUESTIONS, checkD0Discovery",
     "src/cli/ledger.js, src/cli/create.js, src/cli/blueprint.js: the door check before any write",
     "src/cli/readiness.js: --check discovery; --ack discovery refused as usage",
     "src/query/questions.js: D0 templates and write-backs",
     "test/query/gates.test.js and test/query/readiness.test.js: D0 fixtures on the existing patterns",
-    "test/discovery/discovery-gate.test.js: not-yet-built flags removed, bodies land (8 cases)"
+    "test/discovery/discovery-gate.test.js: not-yet-built flags removed, bodies land (9 cases)"
   ],
   "dependsOnFbsIds": [
     "FBS-211",
@@ -29,7 +29,7 @@
   "domain": "defineDetection",
   "estimatedSize": "medium",
   "executionStatus": "notStarted",
-  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 8 new node:test cases in the suite named by the TS bound to US-18905; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs.",
+  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 9 new node:test cases in the suite named by the TS bound to US-18905; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs.",
   "acIds": [
     "AC-18905-1",
     "AC-18905-2",
@@ -38,7 +38,8 @@
     "AC-18905-5",
     "AC-18905-6",
     "AC-18905-7",
-    "AC-18905-8"
+    "AC-18905-8",
+    "AC-18905-9"
   ],
   "fbsId": "FBS-214",
   "prdId": "PRD-001",

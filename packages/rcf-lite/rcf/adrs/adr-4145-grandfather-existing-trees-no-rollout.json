@@ -1,9 +1,9 @@
 {
   "createdAt": "2026-10-09T16:28:06.601Z",
-  "updatedAt": "2026-10-09T16:28:06.601Z",
+  "updatedAt": "2026-10-09T17:02:40.989Z",
   "context": "Every tree today has no rcf/discovery/. The proposal offered a warn-for-one-release-then-bite rollout with a named retirement commit. The product owner ruled that old projects land safely as they already exist: no cliff, no warn window. The gate applies to intake that happens after the release lands and to any tree that re-runs intake.",
   "decision": "A tree with no rcf/discovery/journey.json is grandfathered: D0 reports notApplicable with the reason no discovery declaration (existing tree), the door check passes, and nothing is written on the tree's behalf. The record appears only through an intake run or the declare verb on the new version, which is what grandfathering by intake date means in practice. rcf init on the new version writes journey.json with ui null so a new project can never be mistaken for a grandfathered one and must declare before DEFINE opens. rcf doctor reports a missing record under notices (advice), never under drift, and never writes it with --fix. There is no retirement release and no warn window.",
-  "consequences": "WESPA and the component libraries are untouched until someone re-runs intake or declares, at which point the full gate for the declared value applies at the next readiness and at the door. A product declaring central after the fact draws the journey as-built with PNG captures accepted (ADR-4144). The cost is that an old UI project can keep adding chain writes without a journey until it declares; the ruling accepts that cost in exchange for no breaking change on release day.",
+  "consequences": "WESPA and the component libraries are untouched until someone re-runs intake or declares, at which point the full gate for the declared value applies at the next readiness and at the door. A product declaring central after the fact draws the journey as-built and marks the record so with rcf discover journey declare --as-built, which is what admits PNG captures as wireframes (ADR-4144). The cost is that an old UI project can keep adding chain writes without a journey until it declares; the ruling accepts that cost in exchange for no breaking change on release day.",
   "alternativesConsidered": [
     {
       "name": "Warn for one release, then bite",

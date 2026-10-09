@@ -238,6 +238,27 @@
       "answer": "b. DEFINE 2026-10-09: the accepted proposal states no new hard gate at BUILD and the product owner posture is not tight; the binding is visibility (queue, show, bundle, review finding), the DEFINE door is the only refusal. Deviation from the proposal's mark-complete line, flagged for the reviewer.",
       "answeredAt": "2026-10-09T16:30:05.197Z",
       "resolvedAt": "2026-10-09T16:30:05.197Z"
+    },
+    {
+      "id": 12,
+      "question": "Q7 drawing requirements from journey steps: does this release carry the brief-statement source span journey:<stepId> and a D1 check brief:journeySteps (every step of a light or central product has at least one brief statement sourced to it), or does it carry only the record, the gate and the FBS binding, with the D1 check in the next DEFINE?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "this release: journey:<stepId> source spans and the brief:journeySteps D1 check under REQ-189"
+        },
+        {
+          "letter": "b",
+          "text": "next DEFINE: this release ships the record, the D0 gate and the FBS binding; the D1 check gets its own requirement once a tree has drawn requirements from a journey and the shape of a step-sourced statement is known"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18905",
+      "addedAt": "2026-10-09T17:03:11.736Z",
+      "status": "resolved",
+      "answer": "b. DEFINE FINALISE 2026-10-09: this release ships the record, the D0 gate and the FBS binding (REQ-189). Drawing requirements from steps (journey:<stepId> source spans, a brief:journeySteps D1 check) is carried to the next DEFINE as its own requirement; the verdict is silent on it and the shape of a step-sourced statement is best set once a tree has drawn requirements from a real journey. Named as a carried item in the PR body.",
+      "answeredAt": "2026-10-09T17:03:43.631Z",
+      "resolvedAt": "2026-10-09T17:03:43.631Z"
     }
   ]
 }

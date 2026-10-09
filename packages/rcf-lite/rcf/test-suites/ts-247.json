@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:29:40.864Z",
-  "updatedAt": "2026-10-09T16:29:57.519Z",
+  "updatedAt": "2026-10-09T17:03:06.528Z",
   "purpose": "Cover every acceptance criterion of US-18905 with one node:test case each in test/discovery/discovery-gate.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-214) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -11,7 +11,8 @@
     "AC-18905-5",
     "AC-18905-6",
     "AC-18905-7",
-    "AC-18905-8"
+    "AC-18905-8",
+    "AC-18905-9"
   ],
   "id": "TS-247",
   "usId": "US-18905",
@@ -27,16 +28,16 @@
     {
       "id": "TC-247-18905-2-happy",
       "acId": "AC-18905-2",
-      "description": "[happy] Given a declared central product, when D0 evaluates, then it runs discovery:declared, discovery:journeyPresent, discovery:stepsNameScreens, discovery:reachable, discovery:interruptions, discovery:wireframePerStep, discovery:wireframeSelfContained and discovery:reviewed, and given a declared light product the same set runs with discovery:wireframePerStep notApplicable.",
+      "description": "[happy] Given a declared central product, when D0 evaluates, then it runs discovery:declared, discovery:journeyPresent, discovery:stepsNameScreens, discovery:reachable, discovery:interruptions, discovery:wireframePerStep, discovery:wireframeFormat, discovery:wireframeSelfContained and discovery:reviewed, and given a declared light product the same set runs with discovery:wireframePerStep and discovery:reviewed notApplicable, so a light product is never refused for a missing wireframe or a missing review.",
       "status": "pending",
       "testPointer": "test/discovery/discovery-gate.test.js::AC-18905-2 happy: a declared central product"
     },
     {
       "id": "TC-247-18905-3-edge",
       "acId": "AC-18905-3",
-      "description": "[edge] Given a declared none product, when D0 evaluates, then it reports notApplicable with the reason \"product declared not UI-bearing\", no file under rcf/discovery/ other than journey.json is read, and the door check returns before any file read.",
+      "description": "[edge] Given a declared none product or a tree with no journey.json, when D0 evaluates, then it reports notApplicable with the reason \"product declared not UI-bearing\" or \"no discovery declaration (existing tree)\", journey.json is the only file under rcf/discovery/ read, and the door check passes without reading any other file.",
       "status": "pending",
-      "testPointer": "test/discovery/discovery-gate.test.js::AC-18905-3 edge: a declared none product"
+      "testPointer": "test/discovery/discovery-gate.test.js::AC-18905-3 edge: a declared none product or a tree with no journe"
     },
     {
       "id": "TC-247-18905-4-failure",
@@ -48,7 +49,7 @@
     {
       "id": "TC-247-18905-5-happy",
       "acId": "AC-18905-5",
-      "description": "[happy] Given a central product reviewed at the current hash, or a light product whose journey answers the catalogue, when rcf define ledger brief add, rcf define create or rcf define blueprint add runs, then the door check passes and the write lands as it did before this requirement.",
+      "description": "[happy] Given a central product reviewed at the current hash, or a light product whose journey answers the catalogue whether or not it has been reviewed, when rcf define ledger brief add, rcf define create or rcf define blueprint add runs, then the door check passes and the write lands as it did before this requirement.",
       "status": "pending",
       "testPointer": "test/discovery/discovery-gate.test.js::AC-18905-5 happy: a central product reviewed at the current hash o"
     },
@@ -72,6 +73,13 @@
       "description": "[happy] Given rcf define questions --persona productOwner on a failing D0, when it runs, then the D0 items come first, each with a plain question template and a write-back naming the journey verb that resolves it, and a none product or a grandfathered tree contributes no D0 question.",
       "status": "pending",
       "testPointer": "test/discovery/discovery-gate.test.js::AC-18905-8 happy: rcf define questions persona productowner on a f"
+    },
+    {
+      "id": "TC-247-18905-9-failure",
+      "acId": "AC-18905-9",
+      "description": "[failure] Given a record whose JourneyRecord.ui is null (the record rcf init writes), when D0 evaluates, then discovery:declared fails with a why naming the declare verb and the three values, D0 is failing, and the door check refuses as it does for any failing D0 until a declaration is made.",
+      "status": "pending",
+      "testPointer": "test/discovery/discovery-gate.test.js::AC-18905-9 failure: a record whose journeyrecordui is null the recor"
     }
   ],
   "status": "draft"
