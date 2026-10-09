@@ -514,39 +514,31 @@ test('readiness tab: fix-round P1 document-level diff renders frozen and current
 
 // ---- Fix-round P2: delta coverage filters empty rows -------------------
 
-test('readiness tab: fix-round P2 delta coverage filters empty rows', () => {
+test('readiness tab: AC-18004-7 old pass/total shim is rendered as "coverage unavailable", never as blank markup', () => {
+  // The pre-FBS-205 engineer-side renderCoverage block read
+  // `coverage.tree.pass` and `coverage.tree.total` and iterated
+  // `coverage.delta` with `cv.reqId`, `cv.pass`, `cv.total`. The old
+  // compute never produced those fields, so blank markup leaked
+  // through on every live tree. FBS-205 retires that block entirely
+  // and the coverage-summary sub-view reads `coverage.tree.totals`.
+  // The old shim therefore has no numeric totals: the sub-view must
+  // show the word "coverage unavailable" and never a blank
+  // placeholder like "delta: / " or `<li>: </li>`.
   const base = failingFixture();
-  // Replace delta coverage with a mix of empty and meaningful rows.
   const result = {
     ...base,
     coverage: {
       tree: { pass: 10, total: 10 },
       delta: [
-        { reqId: 'REQ-001', pass: 2, total: 2 },  // meaningful
-        { reqId: null, scope: null, pass: null, total: null },  // empty
-        { reqId: '', pass: '', total: '' },  // empty
+        { reqId: 'REQ-001', pass: 2, total: 2 },
+        { reqId: null, scope: null, pass: null, total: null },
+        { reqId: '', pass: '', total: '' },
       ],
     },
   };
   const html = renderReadinessPanel(result, { profile: null });
-  // Meaningful row present.
-  assert.ok(html.includes('REQ-001: 2 / 2'), 'meaningful delta coverage row missing');
-  // Empty "delta: / " row suppressed.
-  assert.ok(!html.includes('delta: / '), 'empty delta coverage row leaked through');
-  assert.ok(!html.includes('<li>: </li>'), 'blank li should not render');
-
-  // When no meaningful row survives at all, fall back to the empty
-  // placeholder "No per-REQ delta coverage.".
-  const resultAllEmpty = {
-    ...base,
-    coverage: {
-      tree: { pass: 10, total: 10 },
-      delta: [
-        { reqId: null, pass: null, total: null },
-        { reqId: '', pass: null, total: null },
-      ],
-    },
-  };
-  const htmlAllEmpty = renderReadinessPanel(resultAllEmpty, { profile: null });
-  assert.match(htmlAllEmpty, /No per-REQ delta coverage\./);
+  assert.ok(html.includes('coverage unavailable'), 'unavailable text present');
+  assert.ok(!html.includes('delta: / '), 'no blank "delta: / " markup');
+  assert.ok(!html.includes('<li>: </li>'), 'no blank li');
+  assert.ok(!html.includes('REQ-001: 2 / 2'), 'legacy delta li is retired');
 });
