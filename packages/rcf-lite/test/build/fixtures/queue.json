@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 99,
-    "notStarted": 52,
+    "notStarted": 51,
     "inProgress": 2,
-    "complete": 30,
+    "complete": 31,
     "verified": 15,
     "actionable": 40,
-    "blocked": 12
+    "blocked": 11
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1238,11 +1238,11 @@
       "buildOrder": 205,
       "tier": 1,
       "title": "Coverage summary and thin requirements",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-204"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1255,10 +1255,8 @@
         "FBS-204",
         "FBS-205"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-205"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-207",
