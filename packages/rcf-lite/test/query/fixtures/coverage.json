@@ -6622,6 +6622,14 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-18903-8",
+          "covered": true,
+          "testCases": [
+            "TC-245-18903-8-failure"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-18904-1",
           "covered": true,
           "testCases": [
@@ -6722,6 +6730,14 @@
           "covered": true,
           "testCases": [
             "TC-247-18905-8-happy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-18905-9",
+          "covered": true,
+          "testCases": [
+            "TC-247-18905-9-failure"
           ],
           "unresolvedTestCases": []
         },

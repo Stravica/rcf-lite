@@ -3197,6 +3197,10 @@ flowchart LR
   REQ-189 --> AC-18903-7
   TC-245-18903-7-mustnot["TC-245-18903-7-mustnot"]
   AC-18903-7 -.-> TC-245-18903-7-mustnot
+  AC-18903-8["AC-18903-8"]
+  REQ-189 --> AC-18903-8
+  TC-245-18903-8-failure["TC-245-18903-8-failure"]
+  AC-18903-8 -.-> TC-245-18903-8-failure
   AC-18904-1["AC-18904-1"]
   REQ-189 --> AC-18904-1
   TC-246-18904-1-happy["TC-246-18904-1-happy"]
@@ -3249,6 +3253,10 @@ flowchart LR
   REQ-189 --> AC-18905-8
   TC-247-18905-8-happy["TC-247-18905-8-happy"]
   AC-18905-8 -.-> TC-247-18905-8-happy
+  AC-18905-9["AC-18905-9"]
+  REQ-189 --> AC-18905-9
+  TC-247-18905-9-failure["TC-247-18905-9-failure"]
+  AC-18905-9 -.-> TC-247-18905-9-failure
   AC-18906-1["AC-18906-1"]
   REQ-189 --> AC-18906-1
   TC-248-18906-1-happy["TC-248-18906-1-happy"]
@@ -4932,6 +4940,8 @@ flowchart LR
   class TC-245-18903-6-edge tc;
   class AC-18903-7 ac;
   class TC-245-18903-7-mustnot tc;
+  class AC-18903-8 ac;
+  class TC-245-18903-8-failure tc;
   class AC-18904-1 ac;
   class TC-246-18904-1-happy tc;
   class AC-18904-2 ac;
@@ -4958,6 +4968,8 @@ flowchart LR
   class TC-247-18905-7-mustnot tc;
   class AC-18905-8 ac;
   class TC-247-18905-8-happy tc;
+  class AC-18905-9 ac;
+  class TC-247-18905-9-failure tc;
   class AC-18906-1 ac;
   class TC-248-18906-1-happy tc;
   class AC-18906-2 ac;

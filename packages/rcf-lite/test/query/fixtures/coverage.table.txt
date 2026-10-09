@@ -709,6 +709,7 @@ REQ-189      yes      AC-18901-1   yes         TC-243-18901-1-happy
                       AC-18903-5   yes         TC-245-18903-5-failure
                       AC-18903-6   yes         TC-245-18903-6-edge
                       AC-18903-7   yes         TC-245-18903-7-mustnot
+                      AC-18903-8   yes         TC-245-18903-8-failure
                       AC-18904-1   yes         TC-246-18904-1-happy
                       AC-18904-2   yes         TC-246-18904-2-happy
                       AC-18904-3   yes         TC-246-18904-3-failure
@@ -722,6 +723,7 @@ REQ-189      yes      AC-18901-1   yes         TC-243-18901-1-happy
                       AC-18905-6   yes         TC-247-18905-6-mustnot
                       AC-18905-7   yes         TC-247-18905-7-mustnot
                       AC-18905-8   yes         TC-247-18905-8-happy
+                      AC-18905-9   yes         TC-247-18905-9-failure
                       AC-18906-1   yes         TC-248-18906-1-happy
                       AC-18906-2   yes         TC-248-18906-2-happy
                       AC-18906-3   yes         TC-248-18906-3-happy
