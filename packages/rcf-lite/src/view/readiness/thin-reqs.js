@@ -18,11 +18,29 @@ import { escapeHtml } from '../doc-renderers/helpers.js';
 
 const REASONS = {
   reqHasUs: 'no story yet: who uses this, and what do they do with it',
-  usFloors: 'a story under this requirement is missing a [failure] class or an opt-out',
+  // src/query/gates.js stories:usFloors fires on four floor failures
+  // (missing [failure] class / opt-out, missing TAC refs, testability
+  // floor, outstanding TODO on an AC): the reason text names them in
+  // plain words rather than hard-coding only "[failure] class", which
+  // mis-describes the other three floors.
+  usFloors: 'a story under this requirement is failing a definition floor (missing a [failure] class or opt-out, missing TAC refs, failing the testability floor, or an outstanding TODO on an acceptance criterion)',
   reqIntent: 'needs a plain description: what must the product do here, and which part does it belong to',
   resolvedBy: 'a statement from the document may belong here; confirm it in the questions table',
   zeroCriteria: 'a story under this requirement has no acceptance criteria',
   uncoveredAc: 'at least one criterion under this requirement has no resolving test case',
+};
+
+// Each reason's "resolved" condition: a plain-English statement of
+// what has to change in the chain for the row to clear. digest-review rule
+// (digest-review): every thin row carries id + plain-English ask +
+// chain location + link + what resolved looks like.
+const RESOLVED = {
+  reqHasUs: 'resolved by: add a user story under this requirement in the chain',
+  usFloors: 'resolved by: fix the story so every acceptance criterion carries a [failure] class or an opt-out, carries its TAC refs, clears the testability floor and has no outstanding TODO',
+  reqIntent: 'resolved by: write a plain description on this requirement that names what the product does and which part it belongs to',
+  resolvedBy: 'resolved by: confirm or remove the resolvedBy pointer on the matching question in the questions table',
+  zeroCriteria: 'resolved by: write at least one acceptance criterion under the story',
+  uncoveredAc: 'resolved by: add a test case under a suite whose testPointer resolves the uncovered acceptance criterion',
 };
 
 /**
@@ -133,7 +151,13 @@ function reqIdForUs(id, tree) {
   const base = id ? id.split(':')[0] : '';
   if (!/^US-/.test(base)) return null;
   if (!tree || !Array.isArray(tree.userStories)) return null;
-  const us = tree.userStories.find((u) => u && u.id === base);
+  // Walker tree model: `tree.userStories[].usId` is the id field
+  // (src/core/store/walker.js uses sortById on 'usId'). An older
+  // handcrafted fixture that only carries `.id` is accepted as a
+  // fallback so the sub-view never breaks on a partial shape, but
+  // the primary match is on `usId` because that is what the live
+  // tree produces.
+  const us = tree.userStories.find((u) => u && (u.usId === base || u.id === base));
   if (us && typeof us.reqId === 'string') return us.reqId;
   return null;
 }
@@ -183,6 +207,7 @@ export function renderThinReqsTable(args) {
   }
   const body = rows.map((r) => {
     const reasonText = r.thinReason.map((k) => REASONS[k] || k).join('; ');
+    const resolvedText = r.thinReason.map((k) => RESOLVED[k] || `resolved by: fix ${k}`).join('; ');
     const coveredLabel = r.covered ? 'yes' : 'no';
     return `<tr data-rcf-req="${escapeHtml(r.reqId)}" data-rcf-covered="${coveredLabel}">
   <td><code class="rcf-thin-reqs__id">${escapeHtml(r.reqId)}</code></td>
@@ -190,17 +215,23 @@ export function renderThinReqsTable(args) {
   <td>${escapeHtml(String(r.criteria))}</td>
   <td>${escapeHtml(coveredLabel)}</td>
   <td>${escapeHtml(reasonText)}</td>
+  <td class="rcf-thin-reqs__resolved">${escapeHtml(resolvedText)}</td>
   <td><a href="${escapeHtml(r.openHref)}">Open</a> <a href="${escapeHtml(r.traceHref)}" class="rcf-thin-reqs__trace">Trace</a></td>
 </tr>`;
   }).join('');
   return `<section class="rcf-thin-reqs" aria-labelledby="rcf-readiness-thin-heading">
   <header class="rcf-thin-reqs__head"><h3 id="rcf-readiness-thin-heading">Requirements that still need work</h3> <span class="rcf-badge rcf-badge--count">${rows.length}</span></header>
-  <p class="rcf-thin-reqs__hint muted small">Each row names the reasons in plain words. Open opens the requirement; Trace lands on its chain.</p>
+  <p class="rcf-thin-reqs__hint muted small">Each row names the reasons in plain words and what resolves them in the chain. Open opens the requirement; Trace lands on its chain.</p>
   <table class="rcf-thin-reqs__table">
-    <thead><tr><th>Requirement</th><th>Stories</th><th>Criteria</th><th>Covered</th><th>Reasons</th><th></th></tr></thead>
+    <thead><tr><th>Requirement</th><th>Stories</th><th>Criteria</th><th>Covered</th><th>Reasons</th><th>What resolves it</th><th></th></tr></thead>
     <tbody>${body}</tbody>
   </table>
 </section>`;
 }
+
+// Exposed for the test and for other sub-views that want to render
+// the "resolved" phrase alongside their own reason text (unresolved-
+// pointers table in coverage-summary.js uses the same style).
+export const THIN_RESOLVED = RESOLVED;
 
 export const THIN_REASONS = REASONS;

@@ -86,18 +86,25 @@ function treeFixture() {
 test('AC-18004-1 happy: readinesscoveragetree carries totals', () => {
   const summary = computeCoverageSummary({ totals: { requirements: 10, covered: 7, coveredUnresolved: 2, uncovered: 1 } });
   assert.equal(summary.available, true);
-  for (const slot of ['requirements', 'covered', 'coveredUnresolved', 'uncovered']) {
-    assert.equal(typeof summary.totals[slot], 'number', `${slot} is a number`);
-    assert.ok(String(summary.totals[slot]).length > 0, `${slot} not blank`);
-  }
-  assert.match(summary.percentCovered, /^\d+%$/, 'percentCovered is a percentage');
+  // Bind each slot to its exact numeric value, not just "a number".
+  // Review P1 #3: /^\d+%$/ and "is a number" assertions passed when
+  // the slot was 0 or when percent was constant, so the shape test
+  // could regress silently. Pin the values so Math.round(7/10*100)
+  // = 70 and each totals slot carries its input.
+  assert.equal(summary.totals.requirements, 10);
+  assert.equal(summary.totals.covered, 7);
+  assert.equal(summary.totals.coveredUnresolved, 2);
+  assert.equal(summary.totals.uncovered, 1);
+  assert.equal(summary.percentCovered, '70%');
   const html = renderCoverageSummary({ coverage: { tree: { totals: { requirements: 10, covered: 7, coveredUnresolved: 2, uncovered: 1 } } }, tree: {} });
   // Every slot is rendered with a number and no empty <strong>
   assert.match(html, /data-rcf-slot="requirements"[^>]*>Requirements: <strong>10<\/strong>/);
   assert.match(html, /data-rcf-slot="covered"[^>]*>Covered: <strong>7<\/strong>/);
   assert.match(html, /data-rcf-slot="coveredUnresolved"[^>]*>Covered-unresolved: <strong>2<\/strong>/);
   assert.match(html, /data-rcf-slot="uncovered"[^>]*>Uncovered: <strong>1<\/strong>/);
-  assert.match(html, /data-rcf-slot="percentCovered"[^>]*>\d+%<\/span>/);
+  // Percent slot renders the exact 70% figure (not just any \d+%),
+  // so a regression that always printed 0% or the sentinel is caught.
+  assert.match(html, /data-rcf-slot="percentCovered"[^>]*>70%<\/span>/);
   assert.doesNotMatch(html, /<strong>\s*<\/strong>/, 'no empty strong tags');
 });
 
@@ -125,18 +132,23 @@ test('AC-18004-2 happy: the tree model', async () => {
 
   const readiness = readinessWithRealCoverage({ requirements: 10, covered: 6, coveredUnresolved: 3, uncovered: 1 });
   const html = renderCoverageSummary({ coverage: readiness.coverage, tree });
-  // Tiles: six rendered with their family label.
-  assert.match(html, /data-rcf-family="requirements"/);
-  assert.match(html, /data-rcf-family="stories"/);
-  assert.match(html, /data-rcf-family="criteria"/);
-  assert.match(html, /data-rcf-family="suites"/);
-  assert.match(html, /data-rcf-family="cases"/);
-  assert.match(html, /data-rcf-family="buildSpecs"/);
-  // Stacked bar: three segments.
-  assert.match(html, /rcf-cov-summary__bar-seg--covered/);
-  assert.match(html, /rcf-cov-summary__bar-seg--unresolved/);
-  assert.match(html, /rcf-cov-summary__bar-seg--uncovered/);
-  // Widths: percentages that sum close to 100.
+  // Tiles: six rendered with their family label and the exact family
+  // count (not just the key). Review P1 #3: binding the tile numbers
+  // so the walker tree model is actually read.
+  assert.match(html, /data-rcf-family="requirements"[^>]*>\s*<span class="rcf-cov-summary__tile-count">5<\/span>/);
+  assert.match(html, /data-rcf-family="stories"[^>]*>\s*<span class="rcf-cov-summary__tile-count">3<\/span>/);
+  assert.match(html, /data-rcf-family="criteria"[^>]*>\s*<span class="rcf-cov-summary__tile-count">3<\/span>/);
+  assert.match(html, /data-rcf-family="suites"[^>]*>\s*<span class="rcf-cov-summary__tile-count">2<\/span>/);
+  assert.match(html, /data-rcf-family="cases"[^>]*>\s*<span class="rcf-cov-summary__tile-count">3<\/span>/);
+  assert.match(html, /data-rcf-family="buildSpecs"[^>]*>\s*<span class="rcf-cov-summary__tile-count">2<\/span>/);
+  // Stacked bar: three segments bound to exact widths derived from
+  // the three class totals (6/3/1 of 10 = 60.00/30.00/10.00). The
+  // sum-to-100 shim passed for a [100,0,0] bar; this binds the real
+  // shape of the compute (AC-18004-2: "three widths are the three
+  // class totals").
+  assert.match(html, /rcf-cov-summary__bar-seg--covered[^>]+width:\s*60\.00%/);
+  assert.match(html, /rcf-cov-summary__bar-seg--unresolved[^>]+width:\s*30\.00%/);
+  assert.match(html, /rcf-cov-summary__bar-seg--uncovered[^>]+width:\s*10\.00%/);
   const widths = [...html.matchAll(/rcf-cov-summary__bar-seg[^>]+width:\s*([\d.]+)%/g)].map((m) => Number(m[1]));
   assert.equal(widths.length, 3);
   const sum = widths.reduce((a, b) => a + b, 0);
@@ -178,9 +190,14 @@ test('AC-18004-3 happy: coveragetreeunresolvedtestpointers is nonempty', () => {
   const readiness = readinessWithRealCoverage({ unresolved });
   const html = renderCoverageSummary({ coverage: readiness.coverage, tree: {} });
   assert.match(html, /rcf-cov-summary__unresolved/);
-  // Each suite id a link
-  assert.match(html, /<a href="#tab=testing&amp;entity=TS-200" data-rcf-ts="TS-200">TS-200<\/a>/);
-  assert.match(html, /<a href="#tab=testing&amp;entity=TS-201" data-rcf-ts="TS-201">TS-201<\/a>/);
+  // Each suite id a link via the bare #entity= hash (page-init.js
+  // resolveHash resolves it through findByDocId -> tabForNode so it
+  // activates the owning tab and scrolls). The former #tab=testing
+  // href pointed at a tab that does not exist.
+  assert.match(html, /<a href="#entity=TS-200" data-rcf-ts="TS-200">TS-200<\/a>/);
+  assert.match(html, /<a href="#entity=TS-201" data-rcf-ts="TS-201">TS-201<\/a>/);
+  // The href must never target the non-existent #tab=testing path.
+  assert.doesNotMatch(html, /href="#tab=testing/, 'no #tab=testing hrefs (that tab does not exist)');
   // Case id in a code cell
   assert.match(html, /<code>TC-200-happy<\/code>/);
   assert.match(html, /<code>TC-201-edge<\/code>/);
@@ -190,6 +207,11 @@ test('AC-18004-3 happy: coveragetreeunresolvedtestpointers is nonempty', () => {
   // Reason word matches what the CLI prints
   assert.ok(html.includes('test-missing'));
   assert.ok(html.includes('file-missing'));
+  // Each unresolved row carries a plain-English "resolved by:" phrase
+  // (digest-review rule: id + ask + chain location + link + what resolved
+  // looks like). The reason word maps through UNRESOLVED_RESOLVED.
+  assert.ok(html.includes('resolved by: add a test case in the pointer file'), 'test-missing resolved phrase');
+  assert.ok(html.includes('resolved by: create the test file at the pointer path'), 'file-missing resolved phrase');
 });
 
 // -----------------------------------------------------------------------
@@ -203,16 +225,20 @@ test('AC-18004-3 happy: coveragetreeunresolvedtestpointers is nonempty', () => {
 //   ThinReqRow.openHref and ThinReqRow.traceHref.
 // -----------------------------------------------------------------------
 test('AC-18004-4 happy: a requirement that fails at least one thin reaso', () => {
+  // Walker tree model: user stories carry `usId` (src/core/store/walker.js
+  // sortById('usId')). The fixture drops the `id` alias so the
+  // usFloors join is proved to bind on `u.usId` and would fail if a
+  // regression went back to `u.id`.
   const tree = {
     userStories: [
       // REQ-900 has a story with zero criteria -> triggers zeroCriteria
-      { id: 'US-900', usId: 'US-900', reqId: 'REQ-900', acceptanceCriteria: [] },
+      { usId: 'US-900', reqId: 'REQ-900', acceptanceCriteria: [] },
       // REQ-901 has one story with ACs; a floors failure sits on US-901
-      { id: 'US-901', usId: 'US-901', reqId: 'REQ-901', acceptanceCriteria: [{ id: 'AC-901-1' }] },
+      { usId: 'US-901', reqId: 'REQ-901', acceptanceCriteria: [{ id: 'AC-901-1' }] },
       // REQ-902 has a story with ACs; coverage.tree reports an uncovered AC
-      { id: 'US-902', usId: 'US-902', reqId: 'REQ-902', acceptanceCriteria: [{ id: 'AC-902-1' }] },
+      { usId: 'US-902', reqId: 'REQ-902', acceptanceCriteria: [{ id: 'AC-902-1' }] },
       // REQ-903 fires skeleton:reqIntent (no plain description)
-      { id: 'US-903', usId: 'US-903', reqId: 'REQ-903', acceptanceCriteria: [{ id: 'AC-903-1' }] },
+      { usId: 'US-903', reqId: 'REQ-903', acceptanceCriteria: [{ id: 'AC-903-1' }] },
       // REQ-904 has no stories at all -> reqHasUs
     ],
   };
@@ -407,4 +433,22 @@ test('AC-18004-7 must-not: any tree', async () => {
   // THIN_REASONS keys are stable: the five reasons from AC-18004-4 plus
   // the retained resolvedBy signal.
   assert.deepEqual(Object.keys(THIN_REASONS).sort(), ['reqHasUs', 'reqIntent', 'resolvedBy', 'uncoveredAc', 'usFloors', 'zeroCriteria'].sort());
+
+  // Non-finite / NaN slot values must render as "coverage unavailable",
+  // never a blank or the literal "NaN". Review P1 #3: the AC-18004-7
+  // must-not previously accepted a renderer that leaked NaN as a
+  // string. computeCoverageSummary.numOrUnavail guards finite numbers
+  // specifically; this case locks that in.
+  const nanSummary = computeCoverageSummary({ totals: { requirements: 10, covered: Number.NaN, coveredUnresolved: Infinity, uncovered: -Infinity } });
+  assert.equal(nanSummary.totals.requirements, 10);
+  assert.equal(nanSummary.totals.covered, COVERAGE_UNAVAILABLE_TEXT);
+  assert.equal(nanSummary.totals.coveredUnresolved, COVERAGE_UNAVAILABLE_TEXT);
+  assert.equal(nanSummary.totals.uncovered, COVERAGE_UNAVAILABLE_TEXT);
+  assert.equal(nanSummary.percentCovered, COVERAGE_UNAVAILABLE_TEXT);
+  assert.equal(nanSummary.available, false);
+  const nanHtml = renderCoverageSummary({ coverage: { tree: { totals: { requirements: 10, covered: Number.NaN, coveredUnresolved: Infinity, uncovered: -Infinity } } }, tree: treeFixture() });
+  assert.doesNotMatch(nanHtml, /<strong>NaN<\/strong>/, 'NaN never leaks as a number slot');
+  assert.doesNotMatch(nanHtml, /<strong>Infinity<\/strong>/, 'Infinity never leaks as a number slot');
+  assert.doesNotMatch(nanHtml, /<strong>\s*<\/strong>/, 'no empty strong tags');
+  assert.ok(nanHtml.includes('coverage unavailable'), 'NaN totals render as "coverage unavailable"');
 });

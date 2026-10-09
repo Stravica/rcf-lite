@@ -226,6 +226,23 @@ function renderTiles(tiles) {
   return `<ul class="rcf-cov-summary__tiles" aria-label="Document counts per family">${cells}</ul>`;
 }
 
+// Each reason word the compute emits for an unresolved pointer has a
+// plain-English resolution: what has to change in the test tree to
+// clear the row. digest-review rule: rows carry id + plain-
+// English ask + chain location + link + what resolved looks like.
+const UNRESOLVED_RESOLVED = {
+  'test-missing': 'resolved by: add a test case in the pointer file whose name matches the testPointer slot',
+  'file-missing': 'resolved by: create the test file at the pointer path and add the matching test case',
+  'pointer-malformed': 'resolved by: fix the testPointer on the TC so it names a file and a case name',
+  'ambiguous': 'resolved by: narrow the testPointer so one and only one test case matches it',
+};
+
+function resolvedForUnresolved(reason) {
+  if (!reason) return 'resolved by: add a resolving test case for this pointer';
+  if (UNRESOLVED_RESOLVED[reason]) return UNRESOLVED_RESOLVED[reason];
+  return `resolved by: fix the pointer so the "${reason}" condition clears`;
+}
+
 function renderUnresolvedPointers(treeCov) {
   const items = treeCov && Array.isArray(treeCov.unresolvedTestPointers) ? treeCov.unresolvedTestPointers : [];
   if (items.length === 0) {
@@ -236,8 +253,16 @@ function renderUnresolvedPointers(treeCov) {
     const tcId = typeof p.tcId === 'string' ? p.tcId : '';
     const pointer = typeof p.testPointer === 'string' && p.testPointer.length > 0 ? p.testPointer : UNAVAILABLE;
     const reason = typeof p.reason === 'string' && p.reason.length > 0 ? p.reason : UNAVAILABLE;
+    const resolved = resolvedForUnresolved(typeof p.reason === 'string' ? p.reason : '');
+    // `#entity=<TS-id>` without a tab key resolves through the viewer's
+    // bare-entity path (page-init.js resolveHash): it finds the TS node,
+    // activates its owning tab (Architecture) and scrolls to it. The
+    // former `#tab=testing&entity=...` href pointed at a tab that does
+    // not exist (TABS: readiness, overview, requirements, architecture,
+    // build, product-map) and fell through to Readiness, so clicking a
+    // row did not land on its suite.
     const tsCell = tsId
-      ? `<a href="#tab=testing&amp;entity=${escapeHtml(tsId)}" data-rcf-ts="${escapeHtml(tsId)}">${escapeHtml(tsId)}</a>`
+      ? `<a href="#entity=${escapeHtml(tsId)}" data-rcf-ts="${escapeHtml(tsId)}">${escapeHtml(tsId)}</a>`
       : `<em>${escapeHtml(UNAVAILABLE)}</em>`;
     const tcCell = tcId ? `<code>${escapeHtml(tcId)}</code>` : `<em>${escapeHtml(UNAVAILABLE)}</em>`;
     return `<tr>
@@ -245,15 +270,18 @@ function renderUnresolvedPointers(treeCov) {
   <td>${tcCell}</td>
   <td><code>${escapeHtml(pointer)}</code></td>
   <td>${escapeHtml(reason)}</td>
+  <td class="rcf-cov-summary__unresolved-resolved">${escapeHtml(resolved)}</td>
 </tr>`;
   }).join('');
   return `<section class="rcf-cov-summary__unresolved" aria-labelledby="rcf-readiness-coverage-unresolved-heading">
   <h4 id="rcf-readiness-coverage-unresolved-heading">Unresolved test pointers <span class="rcf-badge rcf-badge--count">${items.length}</span></h4>
   <table class="rcf-cov-summary__unresolved-table">
-    <thead><tr><th>Suite</th><th>Case</th><th>Pointer</th><th>Reason</th></tr></thead>
+    <thead><tr><th>Suite</th><th>Case</th><th>Pointer</th><th>Reason</th><th>What resolves it</th></tr></thead>
     <tbody>${rows}</tbody>
   </table>
 </section>`;
 }
+
+export const UNRESOLVED_POINTER_RESOLVED = UNRESOLVED_RESOLVED;
 
 export const COVERAGE_UNAVAILABLE_TEXT = UNAVAILABLE;

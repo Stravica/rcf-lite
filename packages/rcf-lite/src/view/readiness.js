@@ -242,10 +242,36 @@ function renderDelta(result, freezeRecord) {
       + `</ul>`
       + `</section>`
     : '';
-  if (!briefBlock && !changedBlock) {
+  // FBS-205: the former renderCoverage block carried the re-verify
+  // (delta.impacted) and re-execute (delta.impactedFbs) counts. The
+  // sub-view that replaced renderCoverage reads coverage.tree.totals;
+  // it does not surface the delta list. Pending FBS-206 taking
+  // ownership of the delta sub-view, keep the counts visible on the
+  // engineer surface so the engineer still sees which ACs and FBS
+  // items a since-freeze change has invalidated.
+  const impacted = Array.isArray(d.impacted) ? d.impacted : [];
+  const impactedFbs = Array.isArray(d.impactedFbs) ? d.impactedFbs : [];
+  const impactedBlock = (impacted.length > 0 || impactedFbs.length > 0)
+    ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--impacted" data-rcf-impacted-ac="${impacted.length}" data-rcf-impacted-fbs="${impactedFbs.length}">`
+      + `<h4>Impacted by delta <span class="rcf-readiness-delta__count">${impacted.length} AC, ${impactedFbs.length} FBS</span></h4>`
+      + (impacted.length > 0
+        ? `<p class="rcf-readiness-delta__impacted-label muted small">To re-verify (${impacted.length}):</p>`
+          + `<ul class="rcf-readiness-delta__impacted-ac">`
+          + impacted.map((id) => `<li><a href="#${escapeHtml(String(id))}">${escapeHtml(String(id))}</a></li>`).join('')
+          + `</ul>`
+        : '')
+      + (impactedFbs.length > 0
+        ? `<p class="rcf-readiness-delta__impacted-label muted small">To re-execute (${impactedFbs.length}):</p>`
+          + `<ul class="rcf-readiness-delta__impacted-fbs">`
+          + impactedFbs.map((id) => `<li><a href="#${escapeHtml(String(id))}">${escapeHtml(String(id))}</a></li>`).join('')
+          + `</ul>`
+        : '')
+      + `</section>`
+    : '';
+  if (!briefBlock && !changedBlock && !impactedBlock) {
     return `<section class="rcf-readiness-delta"><p><em>No delta since the last freeze.</em></p></section>`;
   }
-  return `<section class="rcf-readiness-delta">${briefBlock}${changedBlock}</section>`;
+  return `<section class="rcf-readiness-delta">${briefBlock}${changedBlock}${impactedBlock}</section>`;
 }
 
 /**
