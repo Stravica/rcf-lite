@@ -49,7 +49,16 @@ test('rendered live-tree HTML carries a hash anchor for every well-known documen
   }
 });
 
-test('rendered per-REQ subdiagrams contain AC -> FBS delivered-by edges', async () => {
+test('rendered page carries no per-REQ Mermaid slice on the user-facing surface (AC-209-5)', async () => {
+  // FBS-208 (AC-209-5) retires the per-REQ Mermaid slice on the
+  // Requirements and Readiness tabs. The chain's generator still
+  // produces the "AC -> FBS delivered-by" edge for AC-201-1 under
+  // test/view/mermaid-diagram.test.js (AC-201-1), but no user-facing
+  // tabpanel renders it any more.
   const { fullPageHtml: html } = await renderModelToPage({ projectRoot: repoRoot });
-  assert.match(html, /AC-201-1 -\.-&gt;\|delivered by\| FBS-003/);
+  const reqStart = html.indexOf('id="tab-requirements"');
+  const archStart = html.indexOf('id="tab-architecture"', reqStart);
+  const requirements = reqStart >= 0 && archStart > reqStart ? html.slice(reqStart, archStart) : '';
+  assert.doesNotMatch(requirements, /AC-201-1 -\.-&gt;\|delivered by\| FBS-003/);
+  assert.doesNotMatch(requirements, /<pre class="mermaid">/);
 });

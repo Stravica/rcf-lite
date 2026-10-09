@@ -306,14 +306,22 @@ function renderCoverageSub({ result, tree, thinRows, active }) {
     + `</div>`;
 }
 
-// ---- Trace sub-view (shell; filled by FBS-208) ---------------------------
+// ---- Trace sub-view (FBS-208, US-209, TAC-4136, ADR-4140) ----------------
 
 function renderTraceSub({ active }) {
   const hidden = active ? '' : ' hidden';
+  // Initial markup: the empty-state renderer (no pivot yet). The
+  // page-init.js `wireTraceMatrix` fetches `./trace.json` and
+  // `./coverage.json` and re-renders the inner `[data-rcf-trace-root]`
+  // when the hash carries `#tab=readiness&sub=trace&entity=<id>`.
   return `<div class="rcf-readiness-subpanel rcf-readiness-sub-trace" id="rcf-readiness-sub-trace" data-rcf-subpanel="trace" role="tabpanel"${hidden}>`
-    + `<section class="rcf-readiness-trace rcf-readiness-trace--shell">`
-    + `<p><em>Trace matrix will land here with FBS-208 (US-209).</em></p>`
+    + `<div data-rcf-trace-root="yes">`
+    + `<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="empty" data-rcf-trace-reason="no-pivot" aria-labelledby="rcf-readiness-trace-heading">`
+    + `<header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Pick an id to trace</h3></header>`
+    + `<p>Pick a requirement, story or criterion through the Trace action on any readiness row, or open the lookup to search by id.</p>`
+    + `<p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p>`
     + `</section>`
+    + `</div>`
     + `</div>`;
 }
 

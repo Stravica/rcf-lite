@@ -311,3 +311,31 @@ test('AC-206-6: no outbound postMessage shape beyond rcf-view-theme is introduce
   const posts = [...embed.matchAll(/postMessage\(\s*\{[^}]*type:\s*['"]([a-z0-9-]+)['"]/g)].map((m) => m[1]);
   assert.deepEqual([...new Set(posts)], ['rcf-view-theme'], 'embed-client must post only the rcf-view-theme shape');
 });
+
+test('src/view carries the Trace sub-tab hash shape (FBS-208, AC-209-3)', async () => {
+  // The Trace sub-view is reachable via `#tab=readiness&sub=trace&entity=<id>`.
+  // Any renderer that offers a Trace action must emit that exact shape
+  // (preserving ?embed=/?theme= via the Dex writeHash contract on the
+  // client side). This is a static grep: the shape appears in the
+  // readiness tables, the thin-reqs table, the coverage summary and the
+  // page-init wiring.
+  const tables = await readSrc('src/view/readiness/tables.js');
+  const thin = await readSrc('src/view/readiness/thin-reqs.js');
+  const cov = await readSrc('src/view/readiness/coverage-summary.js');
+  const pageInit = await readSrc('src/view/page-init.js');
+  const re = /#tab=readiness(?:&|&amp;|&amp\;)sub=trace(?:&|&amp;|&amp\;)entity=/;
+  assert.match(tables, re);
+  assert.match(thin, re);
+  assert.match(cov, re);
+  // page-init.js carries the writeHash fragment too.
+  assert.match(pageInit, /#tab=readiness&sub=trace&entity=/);
+});
+
+test('src/view/server/routes.js reads includeCode=1 on the trace route (FBS-208 extension)', async () => {
+  // The trace route gained an opt-in CodeNode layer so the Trace matrix
+  // Components column reflects the chain's CN linkage. Default behaviour
+  // for existing callers is unchanged.
+  const routes = await readSrc('src/server/routes.js');
+  assert.match(routes, /includeCode/);
+  assert.match(routes, /computeTrace\([^)]*includeCode/);
+});

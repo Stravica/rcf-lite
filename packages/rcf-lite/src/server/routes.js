@@ -315,6 +315,10 @@ function handleQueryRoute(req, res, deps, url, route) {
   const id = url.searchParams.get('id');
   const direction = url.searchParams.get('direction') ?? 'forward';
   const scope = url.searchParams.get('scope');
+  // FBS-208: opt-in CN layer for the Trace matrix - without it, the
+  // trace response excludes codeNode cross-links (back-compat with
+  // every pre-FBS-208 caller).
+  const includeCode = url.searchParams.get('includeCode') === '1';
 
   if (route === 'trace' || route === 'impact') {
     // AC-208-4 unknown-id: an id missing or not found in the tree is
@@ -354,7 +358,7 @@ function handleQueryRoute(req, res, deps, url, route) {
   // wholesale on each rewalk, so a new version never serves a prior
   // version's bytes.
   const key = route === 'trace'
-    ? `${state.version}:trace:${id}:${direction}`
+    ? `${state.version}:trace:${id}:${direction}:${includeCode ? 'c1' : 'c0'}`
     : route === 'impact'
       ? `${state.version}:impact:${id}:-`
       : `${state.version}:coverage:-:${scope ?? ''}`;
@@ -365,7 +369,7 @@ function handleQueryRoute(req, res, deps, url, route) {
     let result;
     try {
       if (route === 'trace') {
-        result = computeTrace(state.tree, { id, direction });
+        result = computeTrace(state.tree, { id, direction, includeCode });
       } else if (route === 'impact') {
         result = computeImpact(state.tree, { id });
       } else {

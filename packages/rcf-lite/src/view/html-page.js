@@ -46,7 +46,10 @@ import {
 } from './doc-renderers/index.js';
 import { detailsWrap, escapeHtml } from './doc-renderers/helpers.js';
 import { computeQueue } from '../build/queue.js';
-import { allRequirementSubdiagrams } from './mermaid-diagram.js';
+// FBS-208 (AC-209-5): the per-REQ Mermaid slice is retired on the
+// user-facing surfaces. The generator in `./mermaid-diagram.js` is
+// retained while AC-201-1 still binds its unit tests; it is no longer
+// invoked from any renderer here.
 import { renderProductMapPanel } from './product-map.js';
 import { renderReadinessPanel } from './readiness.js';
 import { renderToastContainer } from './components/toast.js';
@@ -177,7 +180,7 @@ export function renderPage(model, opts) {
  * @returns {string}
  */
 export function renderContent(model) {
-  const subdiagrams = allRequirementSubdiagrams(model);
+  // FBS-208 (AC-209-5): per-REQ Mermaid slice retired on the surface.
   const needsWorkIds = computeReqNeedsWorkIds(model.readiness);
 
   const prdSection = model.prd
@@ -191,7 +194,7 @@ export function renderContent(model) {
     : '<p><em>No PRD on disk.</em></p>';
 
   const prdSelector = renderPrdRequirementSelector(model);
-  const requirementsPanel = renderRequirementsPanel(model, subdiagrams, needsWorkIds);
+  const requirementsPanel = renderRequirementsPanel(model, needsWorkIds);
   const architecturePanel = renderArchitecturePanel(model);
   const buildPanel = renderBuildPanel(model);
   const productMapPanel = renderProductMapPanel(model);
@@ -249,10 +252,10 @@ export function renderContent(model) {
  * is the one the current router already walks (decision 11, PR 1).
  *
  * @param {import('./tree-model.js').BuiltTreeModel} model
- * @param {Map<string, string>} subdiagrams - REQ id -> Mermaid source
+ *   (FBS-208: the per-REQ Mermaid slice is retired; this param slot is gone)
  * @param {Set<string>} needsWorkIds - REQ ids still needing PO work
  */
-function renderRequirementsPanel(model, subdiagrams, needsWorkIds) {
+function renderRequirementsPanel(model, needsWorkIds) {
   if (model.requirements.length === 0 && model.userStories.length === 0) {
     return renderEmptyState({
       title: 'No requirements on disk',
@@ -290,7 +293,7 @@ function renderRequirementsPanel(model, subdiagrams, needsWorkIds) {
     showExpandAll: true,
   });
 
-  const reqRows = model.requirements.map((r) => renderRequirementRow(r, model, subdiagrams, needsWorkIds)).join('\n');
+  const reqRows = model.requirements.map((r) => renderRequirementRow(r, model, needsWorkIds)).join('\n');
 
   const orphanUs = model.userStories.filter((u) => !u.reqId || !model.requirements.some((r) => r.reqId === u.reqId));
   const orphanBlock = orphanUs.length > 0
@@ -314,7 +317,7 @@ ${reqRows}
 ${orphanBlock}`;
 }
 
-function renderRequirementRow(req, model, subdiagrams, needsWorkIds) {
+function renderRequirementRow(req, model, needsWorkIds) {
   const stories = model.storiesByReqId.get(req.reqId) ?? [];
   const acCount = stories.reduce((n, u) => n + (u.acceptanceCriteria?.length ?? 0), 0);
   const area = normaliseFacet(req.domain);
@@ -349,10 +352,10 @@ function renderRequirementRow(req, model, subdiagrams, needsWorkIds) {
     ? `<p class="rcf-req-needswork"><strong>Needs work:</strong> ${escapeHtml(needsWorkReason)}</p>`
     : '';
 
-  const subdiagram = subdiagrams.get(req.reqId);
-  const sliceDetails = subdiagram
-    ? `<details class="rcf-req-slice"><summary>Slice diagram <span class="muted small">(REQ, stories, criteria and the FBS that deliver them)</span></summary><div class="rcf-req-slice-body"><pre class="mermaid">${escapeHtml(subdiagram)}</pre></div></details>`
-    : '';
+  // FBS-208 (AC-209-5): per-REQ Mermaid slice retired. The chain's own
+  // `requirementSubdiagram` generator stays in `./mermaid-diagram.js`
+  // for AC-201-1, but no user-facing surface renders it any more.
+  const sliceDetails = '';
 
   const rawJson = model.rawById.get(req.reqId) ?? JSON.stringify(req, null, 2);
   const rawDetails = `<details class="rcf-req-raw raw-json" data-doc-id="${escapeHtml(req.reqId)}::raw"><summary class="muted small">Raw JSON</summary><pre>${escapeHtml(rawJson)}</pre></details>`;

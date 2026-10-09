@@ -265,18 +265,24 @@ function renderUnresolvedPointers(treeCov) {
       ? `<a href="#entity=${escapeHtml(tsId)}" data-rcf-ts="${escapeHtml(tsId)}">${escapeHtml(tsId)}</a>`
       : `<em>${escapeHtml(UNAVAILABLE)}</em>`;
     const tcCell = tcId ? `<code>${escapeHtml(tcId)}</code>` : `<em>${escapeHtml(UNAVAILABLE)}</em>`;
+    // FBS-208 (AC-209-3): the suite id in the row carries a Trace
+    // action that lands on the Trace sub-tab for the id.
+    const traceCell = tsId
+      ? `<a class="rcf-trace-action" data-rcf-trace-for="${escapeHtml(tsId)}" href="#tab=readiness&amp;sub=trace&amp;entity=${encodeURIComponent(tsId)}">Trace</a>`
+      : `<span class="rcf-trace-action rcf-trace-action--na" data-rcf-trace="no" aria-label="No trace available for this item">-</span>`;
     return `<tr>
   <td>${tsCell}</td>
   <td>${tcCell}</td>
   <td><code>${escapeHtml(pointer)}</code></td>
   <td>${escapeHtml(reason)}</td>
   <td class="rcf-cov-summary__unresolved-resolved">${escapeHtml(resolved)}</td>
+  <td>${traceCell}</td>
 </tr>`;
   }).join('');
   return `<section class="rcf-cov-summary__unresolved" aria-labelledby="rcf-readiness-coverage-unresolved-heading">
   <h4 id="rcf-readiness-coverage-unresolved-heading">Unresolved test pointers <span class="rcf-badge rcf-badge--count">${items.length}</span></h4>
   <table class="rcf-cov-summary__unresolved-table">
-    <thead><tr><th>Suite</th><th>Case</th><th>Pointer</th><th>Reason</th><th>What resolves it</th></tr></thead>
+    <thead><tr><th>Suite</th><th>Case</th><th>Pointer</th><th>Reason</th><th>What resolves it</th><th><span class="rcf-sr-only">Trace this id</span></th></tr></thead>
     <tbody>${rows}</tbody>
   </table>
 </section>`;

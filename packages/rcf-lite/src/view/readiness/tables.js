@@ -325,6 +325,7 @@ export function renderQuestionsTable(args = {}) {
         <th scope="col" data-rcf-col="location" data-rcf-sortable="yes">Chain location</th>
         <th scope="col" data-rcf-col="settles">What resolves it</th>
         <th scope="col" data-rcf-col="state" data-rcf-sortable="yes">State</th>
+        <th scope="col" data-rcf-col="trace"><span class="rcf-sr-only">Trace this id</span></th>
         <th scope="col" data-rcf-col="copy"><span class="rcf-sr-only">Copy for your agent</span></th>
       </tr>
     </thead>
@@ -335,7 +336,7 @@ export function renderQuestionsTable(args = {}) {
   const body = rows.map(renderQuestionRow).join('');
   return `<section class="rcf-cmd-table rcf-cmd-table--questions" data-rcf-table="questions" aria-labelledby="rcf-readiness-questions-heading">
   <header class="rcf-cmd-table__head"><h3 id="rcf-readiness-questions-heading">Questions for you</h3> ${headerCount}</header>
-  <p class="muted small">Each row names an item the owner answers; the copy button hands your agent the id and the ask with no command text.</p>
+  <p class="muted small">Each row names an item the owner answers; the copy button hands your agent the id and the ask with no command text. The Trace action opens the matrix for the item.</p>
   <table class="rcf-cmd-table__table" aria-describedby="rcf-readiness-questions-heading">
     <thead>
       <tr>
@@ -345,12 +346,27 @@ export function renderQuestionsTable(args = {}) {
         <th scope="col" data-rcf-col="location" data-rcf-sortable="yes">Chain location</th>
         <th scope="col" data-rcf-col="settles">What resolves it</th>
         <th scope="col" data-rcf-col="state" data-rcf-sortable="yes">State</th>
+        <th scope="col" data-rcf-col="trace"><span class="rcf-sr-only">Trace this id</span></th>
         <th scope="col" data-rcf-col="copy"><span class="rcf-sr-only">Copy for your agent</span></th>
       </tr>
     </thead>
     <tbody>${body}</tbody>
   </table>
 </section>`;
+}
+
+// FBS-208 (AC-209-3): the Trace action links to the Trace sub-tab for
+// the row's id. Non-document ids (brief:ledger, profile:surface, ...)
+// have no chain pivot and emit a disabled span instead of a dead link.
+function traceActionFor(id) {
+  if (typeof id !== 'string' || id.length === 0) {
+    return `<span class="rcf-trace-action rcf-trace-action--na" data-rcf-trace="no" aria-label="No trace available for this item">-</span>`;
+  }
+  if (!isResolvableDocId(id)) {
+    return `<span class="rcf-trace-action rcf-trace-action--na" data-rcf-trace="no" aria-label="No trace available for this item">-</span>`;
+  }
+  const href = `#tab=readiness&sub=trace&entity=${encodeURIComponent(id)}`;
+  return `<a class="rcf-trace-action" data-rcf-trace-for="${escapeHtml(id)}" href="${escapeHtml(href)}">Trace</a>`;
 }
 
 function renderQuestionRow(r) {
@@ -364,6 +380,7 @@ function renderQuestionRow(r) {
   <td data-rcf-col="location">${locationLink}</td>
   <td data-rcf-col="settles">${escapeHtml(r.settles)}</td>
   <td data-rcf-col="state">${escapeHtml(r.state)}</td>
+  <td data-rcf-col="trace">${traceActionFor(r.itemId)}</td>
   <td data-rcf-col="copy"><button type="button" class="rcf-cmd-copy" data-rcf-copy-for="${escapeHtml(r.itemId)}" data-rcf-copy-text="${escapeHtml(r.briefHandle)}" title="${escapeHtml(copyLabel)}">${escapeHtml(copyLabel)}</button></td>
 </tr>`;
 }
@@ -404,6 +421,7 @@ export function renderBlockingTable(args = {}) {
         <th scope="col" data-rcf-col="why">Why it is failing</th>
         <th scope="col" data-rcf-col="resolved">What resolves it</th>
         <th scope="col" data-rcf-col="persona">On</th>
+        <th scope="col" data-rcf-col="trace"><span class="rcf-sr-only">Trace this id</span></th>
       </tr>
     </thead>
     <tbody></tbody>
@@ -442,6 +460,7 @@ export function renderBlockingTable(args = {}) {
         <th scope="col" data-rcf-col="why">Why it is failing</th>
         <th scope="col" data-rcf-col="resolved">What resolves it</th>
         <th scope="col" data-rcf-col="persona">On</th>
+        <th scope="col" data-rcf-col="trace"><span class="rcf-sr-only">Trace this id</span></th>
       </tr>
     </thead>
     <tbody>${body}</tbody>
@@ -476,5 +495,6 @@ function renderBlockingRow(r, { stageSel, personaSel }) {
   <td data-rcf-col="why">${escapeHtml(r.why)}</td>
   <td data-rcf-col="resolved">${escapeHtml(r.resolved)}</td>
   <td data-rcf-col="persona">${escapeHtml(personaWord)}</td>
+  <td data-rcf-col="trace">${traceActionFor(r.docId || r.rawId)}</td>
 </tr>`;
 }

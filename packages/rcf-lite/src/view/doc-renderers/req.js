@@ -1,7 +1,8 @@
-// REQ renderer. Carries an optional per-REQ Mermaid subdiagram block when
-// the caller passes one (the html-page module decides whether to include it).
-// Child user stories are NOT rendered as inline links because the Phase 3.2
-// layout nests them as `<details>` under the REQ's own `<details>` wrapper.
+// REQ renderer. FBS-208 (AC-209-5): the per-REQ Mermaid slice is retired on
+// the user-facing surface; this renderer no longer emits a slice block even
+// when a caller still passes `ctx.subdiagram`. Child user stories are NOT
+// rendered as inline links because the Phase 3.2 layout nests them as
+// `<details>` under the REQ's own `<details>` wrapper.
 
 import {
   anchorIdFor,
@@ -17,7 +18,9 @@ import {
  * @param {object} ctx
  * @param {string|undefined} ctx.raw
  * @param {import('#core/errors').RcfError[]} [ctx.errors]
- * @param {string|undefined} [ctx.subdiagram]
+ * @param {string|undefined} [ctx.subdiagram] - accepted for back-compat;
+ *   FBS-208 retires rendering of the per-REQ Mermaid slice, so this value
+ *   is ignored.
  * @param {string|undefined} [ctx.idPrefix] - prefix prepended to every emitted
  *   id/anchor so the same REQ can be rendered under multiple Product Map
  *   buckets without duplicating ids. Empty when rendered from the
@@ -32,9 +35,9 @@ export function renderReq(req, ctx) {
   const prefix = ctx.idPrefix ?? '';
   const anchor = `${prefix}${anchorIdFor(req.reqId ?? 'REQ')}`;
   const broken = ctx.errors?.length ? brokenBanner(ctx.errors) : '';
-  const subdiagram = ctx.subdiagram
-    ? `<section class="subdiagram"><h4>Slice diagram</h4><pre class="mermaid">${escapeHtml(ctx.subdiagram)}</pre></section>`
-    : '';
+  // FBS-208 (AC-209-5): the Mermaid slice block is not emitted even when
+  // `ctx.subdiagram` is passed. The ctx key stays accepted so Product Map
+  // callers continue to compile.
   return `
 <article id="${anchor}" class="doc doc-req">
   <h3>${escapeHtml(req.reqId ?? 'REQ')} - ${escapeHtml(req.title ?? '')}</h3>
@@ -45,7 +48,6 @@ export function renderReq(req, ctx) {
   ${fieldPara('Priority', req.priority)}
   ${fieldPara('Rationale', req.rationale)}
   ${fieldList('Tags', req.tags)}
-  ${subdiagram}
   ${ctx.suppressRawJson ? '' : rawJsonDisclosure(ctx.raw, req, req.reqId, prefix)}
 </article>`.trim();
 }

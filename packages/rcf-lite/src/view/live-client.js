@@ -439,6 +439,10 @@
         host.innerHTML = payload.contentHtml;
       }
       currentVersion = payload.version;
+      // FBS-208 (AC-209-4): publish the latest tree version so the
+      // Trace matrix wiring can cache per state.version and detect a
+      // swap. Previous caches stay for the stale-banner readback.
+      try { win.__rcfTreeVersion = payload.version; } catch (e) { /* soft */ }
       // The Product Map panel keeps a client-side partial cache
       // (window.__rcfPmPartialCache is opaque to us). A tree-update
       // invalidates every partial: the next activatePmGroup on a lazy

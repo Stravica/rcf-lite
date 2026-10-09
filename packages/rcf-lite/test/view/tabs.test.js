@@ -126,11 +126,17 @@ test('page-init.js lazy-renders Mermaid on tab activation (D3, hidden-tab NaN fi
   assert.match(pageInit, /window\.mermaid\.run\(\{ nodes:/);
 });
 
-test('per-REQ subdiagrams carry click bindings whose hrefs use raw doc ids', async () => {
+test('no per-REQ Mermaid subdiagram click bindings on the user-facing surface (AC-209-5)', async () => {
+  // FBS-208 (AC-209-5) retires the per-REQ Mermaid slice on the
+  // Requirements and Readiness tabs. The generator in mermaid-diagram.js
+  // still runs (AC-201-1), but no HTML surfaces its click bindings any
+  // more.
   const { html } = await renderLive();
-  // With the top-of-overview diagram dropped in Phase 3.6, per-REQ subdiagrams
-  // are where click bindings now live. REQ-002's subdiagram covers US-201 and AC-201-1.
-  assert.match(html, /click REQ-002 &quot;#REQ-002&quot;/);
-  assert.match(html, /click US-201 &quot;#US-201&quot;/);
-  assert.match(html, /click AC-201-1 &quot;#AC-201-1&quot;/);
+  // The Requirements tabpanel carries no mermaid click bindings for REQ-002's slice.
+  const reqStart = html.indexOf('id="tab-requirements"');
+  const archStart = html.indexOf('id="tab-architecture"', reqStart);
+  const requirements = reqStart >= 0 && archStart > reqStart ? html.slice(reqStart, archStart) : '';
+  assert.doesNotMatch(requirements, /click REQ-002 &quot;#REQ-002&quot;/);
+  assert.doesNotMatch(requirements, /click US-201 &quot;#US-201&quot;/);
+  assert.doesNotMatch(requirements, /click AC-201-1 &quot;#AC-201-1&quot;/);
 });
