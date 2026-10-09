@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:04.672Z",
-  "updatedAt": "2026-10-07T13:47:04.672Z",
+  "updatedAt": "2026-10-09T10:01:25.009Z",
   "purpose": "Cover every acceptance criterion of US-18004 with one node:test case each in test/view/readiness-coverage-summary.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-205) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -16,49 +16,49 @@
     {
       "id": "TC-238-18004-1-happy",
       "acId": "AC-18004-1",
-      "description": "AC-18004-1 happy: readinesscoveragetree carries totals",
+      "description": "[happy] Given readiness.coverage.tree carries totals, when the coverage sub-view renders, then CoverageSummary.totals shows requirements, covered, coveredUnresolved and uncovered as numbers and CoverageSummary.percentCovered as a percentage, never a blank value.",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-1 happy: readinesscoveragetree carries totals"
     },
     {
       "id": "TC-238-18004-2-happy",
       "acId": "AC-18004-2",
-      "description": "AC-18004-2 happy: the tree model",
+      "description": "[happy] Given the tree model, when the coverage sub-view renders, then CoverageSummary.families lists the document counts per family (requirements, stories, criteria, suites, cases, build specs) as stat tiles and one stacked bar whose three widths are the three class totals, using only the --sv-success, --sv-warning and --sv-danger tokens on --sv-surface.",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-2 happy: the tree model"
     },
     {
       "id": "TC-238-18004-3-happy",
       "acId": "AC-18004-3",
-      "description": "AC-18004-3 happy: coveragetreeunresolvedtestpointers is nonempty",
+      "description": "[happy] Given coverage.tree.unresolvedTestPointers is non-empty, when the coverage sub-view renders, then an unresolved-pointers table lists each pointer with its suite id as a link, its case id, the pointer text and the reason word the CLI prints (for example \"test-missing\" or \"file-missing\").",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-3 happy: coveragetreeunresolvedtestpointers is nonempty"
     },
     {
       "id": "TC-238-18004-4-happy",
       "acId": "AC-18004-4",
-      "description": "AC-18004-4 happy: a requirement that fails at least one thin reaso",
+      "description": "[happy] Given a requirement that fails at least one thin reason from the list [no story | zero criteria on a story | a criterion with no resolving test | a story failing the D4 floors | no plain description], when the thin-requirements table renders, then it carries one ThinReqRow for that requirement with ThinReqRow.stories, ThinReqRow.criteria, ThinReqRow.covered, ThinReqRow.thinReason, ThinReqRow.openHref and ThinReqRow.traceHref.",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-4 happy: a requirement that fails at least one thin reaso"
     },
     {
       "id": "TC-238-18004-5-happy",
       "acId": "AC-18004-5",
-      "description": "AC-18004-5 happy: the two verdict cards",
+      "description": "[happy] Given the two verdict cards, when the overview sub-view renders, then the question count on the Ready for engineers card is a link to the questions table, the engineer item count on the Ready to build card is a link to the blocking table, and the former What happens next paragraph is folded into the cards as one sentence each.",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-5 happy: the two verdict cards"
     },
     {
       "id": "TC-238-18004-6-failure",
       "acId": "AC-18004-6",
-      "description": "AC-18004-6 failure: a coverage result with no totals a partial tree",
+      "description": "[failure] Given a coverage result with no totals (a partial tree or an older compute), when the coverage sub-view renders, then it shows the words \"coverage unavailable\" and the rest of the panel still renders.",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-6 failure: a coverage result with no totals a partial tree"
     },
     {
       "id": "TC-238-18004-7-mustnot",
       "acId": "AC-18004-7",
-      "description": "AC-18004-7 must-not: any tree",
+      "description": "[must-not] Given any tree, when the coverage sub-view renders, then it never prints an empty number: a value the coverage result does not carry renders as \"coverage unavailable\", not as a blank.",
       "status": "pending",
       "testPointer": "test/view/readiness-coverage-summary.test.js::AC-18004-7 must-not: any tree"
     }

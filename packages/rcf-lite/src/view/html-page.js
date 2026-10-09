@@ -198,6 +198,7 @@ export function renderContent(model) {
   const readinessPanel = renderReadinessPanel(model.readiness ?? null, {
     profile: model.profileText ?? null,
     freezeRecord: model.freezeRecord ?? null,
+    tree: model,
   });
 
   const errorBanner = renderErrorBanner(model.errors ?? []);

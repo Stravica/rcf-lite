@@ -3027,3 +3027,181 @@ html[data-rcf-lookup-open] { overflow: hidden; }
     margin-right: 0.3rem;
   }
 }
+
+/* FBS-205 (ADR-4139): coverage sub-view and the thin-requirements table.
+   The sub-view reads totals + unresolvedTestPointers from
+   `coverage.tree` and renders them as a stat line, one stacked bar and
+   family tiles. The bar uses --sv-success, --sv-warning and --sv-danger
+   over --sv-surface so the contrast audit (AC-207-1/2) stays green;
+   no new tokens are introduced. */
+.rcf-cov-summary {
+  margin-top: 1.25rem;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+.rcf-cov-summary__head { margin: 0 0 0.5rem; }
+.rcf-cov-summary__head h3 { margin: 0; font-size: 1.05rem; }
+.rcf-cov-summary__totals {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin: 0 0 0.5rem;
+  color: var(--sv-ink);
+  font-size: 0.95rem;
+}
+.rcf-cov-summary__totals--unavailable { color: var(--sv-muted); }
+.rcf-cov-summary__slot { white-space: nowrap; }
+.rcf-cov-summary__slot[data-rcf-slot="percentCovered"] {
+  margin-left: auto;
+  color: var(--sv-muted);
+}
+.rcf-cov-summary__bar {
+  display: flex;
+  width: 100%;
+  height: 0.9rem;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: 999px;
+  overflow: hidden;
+  margin: 0 0 0.6rem;
+}
+.rcf-cov-summary__bar[data-rcf-bar-empty="yes"] {
+  background: var(--sv-raised);
+}
+.rcf-cov-summary__bar-seg { display: block; height: 100%; }
+.rcf-cov-summary__bar-seg--covered { background: var(--sv-success); }
+.rcf-cov-summary__bar-seg--unresolved { background: var(--sv-warning); }
+.rcf-cov-summary__bar-seg--uncovered { background: var(--sv-danger); }
+.rcf-cov-summary__tiles {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 0.5rem;
+}
+.rcf-cov-summary__tile {
+  background: var(--sv-raised);
+  border: 1px solid var(--sv-border);
+  border-radius: 8px;
+  padding: 0.5rem 0.6rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+.rcf-cov-summary__tile[data-rcf-unavailable="yes"] { color: var(--sv-muted); }
+.rcf-cov-summary__tile-count {
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: var(--sv-ink);
+}
+.rcf-cov-summary__tile-label {
+  font-size: 0.75rem;
+  color: var(--sv-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+.rcf-cov-summary__unresolved { margin-top: 0.8rem; }
+.rcf-cov-summary__unresolved h4 {
+  margin: 0 0 0.3rem;
+  font-size: 0.95rem;
+}
+.rcf-cov-summary__unresolved-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.rcf-cov-summary__unresolved-table th,
+.rcf-cov-summary__unresolved-table td {
+  text-align: left;
+  padding: 0.4rem 0.5rem;
+  border-bottom: 1px solid var(--sv-border);
+  vertical-align: top;
+}
+.rcf-cov-summary__unresolved-table th {
+  color: var(--sv-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.rcf-thin-reqs {
+  margin-top: 1.25rem;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: 10px;
+  padding: 0.9rem 1rem;
+}
+.rcf-thin-reqs__head {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+  margin-bottom: 0.3rem;
+}
+.rcf-thin-reqs__head h3 { margin: 0; font-size: 1.05rem; }
+.rcf-thin-reqs__hint { margin: 0 0 0.4rem; }
+.rcf-thin-reqs__table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+  margin-top: 0.3rem;
+}
+.rcf-thin-reqs__table th,
+.rcf-thin-reqs__table td {
+  text-align: left;
+  padding: 0.45rem 0.5rem;
+  border-bottom: 1px solid var(--sv-border);
+  vertical-align: top;
+}
+.rcf-thin-reqs__table th {
+  color: var(--sv-muted);
+  font-weight: 700;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.rcf-thin-reqs__id {
+  color: var(--sv-link);
+  font-family: var(--sv-mono);
+}
+.rcf-thin-reqs__trace { margin-left: 0.4rem; }
+.rcf-thin-reqs__empty {
+  padding: 1rem;
+  border: 1px dashed var(--sv-control);
+  border-radius: 0.5rem;
+  color: var(--sv-muted);
+  text-align: center;
+  margin: 0.3rem 0 0;
+}
+
+.rcf-po-verdict__count-link {
+  color: var(--sv-link);
+  text-decoration: underline;
+}
+.rcf-po-verdict__count-link:hover,
+.rcf-po-verdict__count-link:focus { color: var(--sv-hover); }
+.rcf-po-verdict__next { margin: 0.3rem 0 0; color: var(--sv-ink); }
+
+@media (max-width: 720px) {
+  .rcf-cov-summary__totals { gap: 0.5rem; }
+  .rcf-cov-summary__slot[data-rcf-slot="percentCovered"] { margin-left: 0; }
+  .rcf-cov-summary__tiles { grid-template-columns: repeat(2, 1fr); }
+  .rcf-cov-summary__unresolved-table thead { display: none; }
+  .rcf-cov-summary__unresolved-table tr {
+    display: block;
+    border-bottom: 1px solid var(--sv-border);
+    padding: 0.3rem 0;
+  }
+  .rcf-cov-summary__unresolved-table td { display: block; padding: 0.15rem 0; }
+  .rcf-thin-reqs__table thead { display: none; }
+  .rcf-thin-reqs__table tr {
+    display: block;
+    border-bottom: 1px solid var(--sv-border);
+    padding: 0.3rem 0;
+  }
+  .rcf-thin-reqs__table td { display: block; padding: 0.15rem 0; }
+}
+[data-embed="1"] .rcf-cov-summary__tiles { grid-template-columns: repeat(2, 1fr); }

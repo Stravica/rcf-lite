@@ -371,16 +371,20 @@ test('Phrasebook: no em-dash in any phrasebook entry (brief rule and chain regis
   }
 });
 
-// ---- Requirements that still need work ---------------------------------
+// ---- Requirements that still need work (FBS-205 thin-requirements) ------
+//
+// FBS-205 widens the former buildReqWorkRows to buildThinReqRows under
+// AC-18004-4, with the five thin reasons. These two tests move to the
+// widened row shape; the assertions below are the new contract.
 
-test('PO layer: Requirements that still need work renders an empty state when no PO check names a REQ', () => {
+test('PO layer: thin-requirements renders an empty state when no PO check names a REQ', () => {
   const result = cleanFixture();
-  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '' });
-  assert.match(html, /class="rcf-po-reqwork"[^>]*data-rcf-empty="yes"/);
-  assert.ok(html.includes('All requirements have a plain description'));
+  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '', tree: null });
+  assert.match(html, /class="rcf-thin-reqs"[^>]*data-rcf-empty="yes"/);
+  assert.ok(html.includes('Nothing is thin here.'));
 });
 
-test('PO layer: Requirements that still need work tabulates REQs from stories:reqHasUs / skeleton:reqIntent / skeleton:resolvedBy', () => {
+test('PO layer: thin-requirements tabulates REQs from stories:reqHasUs / skeleton:reqIntent / skeleton:resolvedBy', () => {
   const base = failingFixture();
   const result = {
     ...base,
@@ -408,11 +412,13 @@ test('PO layer: Requirements that still need work tabulates REQs from stories:re
       },
     ],
   };
-  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '' });
+  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '', tree: null });
   assert.ok(html.includes('REQ-012'));
   assert.ok(html.includes('REQ-013'));
-  assert.match(html, /class="rcf-po-reqwork__table"/);
+  assert.match(html, /class="rcf-thin-reqs__table"/);
   assert.ok(html.includes('#tab=requirements&amp;entity=REQ-012'));
+  // The widened table carries each row's thin reasons in plain words.
+  assert.ok(html.includes('no story yet'));
 });
 
 test('question-adapter: AC-18002-1 real computeQuestions shape (itemId + context.sourceSpan) groups by span and renders asks', () => {

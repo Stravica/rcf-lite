@@ -9,8 +9,9 @@
 // Layout follows DEFINE step 2 spec section 5, top to bottom:
 //   1 tree line; 2 verdict pills; 3 next-action per persona;
 //   4 D1..D8 state chips; 5 blockers by persona; 6 delta list;
-//   7 per-stage check detail; 8 coverage tree-vs-delta;
-//   9 decisions outstanding; 10 freeze-now control; 11 freeze record.
+//   7 per-stage check detail; 8 retired (coverage sub-view, FBS-205);
+//   9 decisions outstanding; 10 freeze state (plain words, FBS-204);
+//  11 freeze record.
 
 import { escapeHtml } from './doc-renderers/helpers.js';
 import { formatTreeLine, formatVerdictLines, shortHash } from '../query/readiness.js';
@@ -69,6 +70,7 @@ export function renderReadinessPanel(result, opts = {}) {
   }
   const register = pickRegister(opts.profile ?? null);
   const freezeRecord = opts.freezeRecord ?? null;
+  const tree = opts.tree ?? null;
   const verdictLines = formatVerdictLines(result);
 
   // FBS-204 (ADR-4139): the engineer body no longer carries the blocker
@@ -80,6 +82,13 @@ export function renderReadinessPanel(result, opts = {}) {
   // breakdown, which keeps AC-18002-3 (no blocker id leaves the DOM)
   // true across the operator surface (the blocking table) and the
   // engineer surface (stage detail).
+  //
+  // FBS-205 (ADR-4139, AC-18004-*): the engineer body no longer carries
+  // the standalone coverage block either; coverage is rendered by the
+  // PO layer as the coverage sub-view (renderCoverageSummary) via the
+  // numbers the compute actually produces (totals, unresolvedTest-
+  // Pointers, requirements[].coverageClass), not the blank pass/total
+  // the old renderCoverage read.
   const engineerBody = [
     renderTreeLine(result),
     renderVerdicts(result, verdictLines),
@@ -87,13 +96,12 @@ export function renderReadinessPanel(result, opts = {}) {
     renderStageChips(result, freezeRecord),
     renderDelta(result, freezeRecord),
     renderStageDetail(result),
-    renderCoverage(result),
     renderDecisions(result),
     renderFreezeState(result),
     renderFreezeRecord(freezeRecord),
   ].join('\n');
 
-  const poLayer = renderReadinessPO(result, { persona: register, engineerBody });
+  const poLayer = renderReadinessPO(result, { persona: register, engineerBody, tree });
   const legend = renderStageLegend();
   return `${poLayer}\n${legend}`;
 }
@@ -234,10 +242,36 @@ function renderDelta(result, freezeRecord) {
       + `</ul>`
       + `</section>`
     : '';
-  if (!briefBlock && !changedBlock) {
+  // FBS-205: the former renderCoverage block carried the re-verify
+  // (delta.impacted) and re-execute (delta.impactedFbs) counts. The
+  // sub-view that replaced renderCoverage reads coverage.tree.totals;
+  // it does not surface the delta list. Pending FBS-206 taking
+  // ownership of the delta sub-view, keep the counts visible on the
+  // engineer surface so the engineer still sees which ACs and FBS
+  // items a since-freeze change has invalidated.
+  const impacted = Array.isArray(d.impacted) ? d.impacted : [];
+  const impactedFbs = Array.isArray(d.impactedFbs) ? d.impactedFbs : [];
+  const impactedBlock = (impacted.length > 0 || impactedFbs.length > 0)
+    ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--impacted" data-rcf-impacted-ac="${impacted.length}" data-rcf-impacted-fbs="${impactedFbs.length}">`
+      + `<h4>Impacted by delta <span class="rcf-readiness-delta__count">${impacted.length} AC, ${impactedFbs.length} FBS</span></h4>`
+      + (impacted.length > 0
+        ? `<p class="rcf-readiness-delta__impacted-label muted small">To re-verify (${impacted.length}):</p>`
+          + `<ul class="rcf-readiness-delta__impacted-ac">`
+          + impacted.map((id) => `<li><a href="#${escapeHtml(String(id))}">${escapeHtml(String(id))}</a></li>`).join('')
+          + `</ul>`
+        : '')
+      + (impactedFbs.length > 0
+        ? `<p class="rcf-readiness-delta__impacted-label muted small">To re-execute (${impactedFbs.length}):</p>`
+          + `<ul class="rcf-readiness-delta__impacted-fbs">`
+          + impactedFbs.map((id) => `<li><a href="#${escapeHtml(String(id))}">${escapeHtml(String(id))}</a></li>`).join('')
+          + `</ul>`
+        : '')
+      + `</section>`
+    : '';
+  if (!briefBlock && !changedBlock && !impactedBlock) {
     return `<section class="rcf-readiness-delta"><p><em>No delta since the last freeze.</em></p></section>`;
   }
-  return `<section class="rcf-readiness-delta">${briefBlock}${changedBlock}</section>`;
+  return `<section class="rcf-readiness-delta">${briefBlock}${changedBlock}${impactedBlock}</section>`;
 }
 
 /**
@@ -315,43 +349,16 @@ function renderCheck(s, c) {
     + `</div>`;
 }
 
-// --- Block 8: coverage tree-vs-delta -----------------------------------
-
-function renderCoverage(result) {
-  const t = result.coverage?.tree ?? null;
-  const d = result.coverage?.delta ?? [];
-  const impactedCount = result.delta?.impacted?.length ?? 0;
-  const impactedFbsCount = result.delta?.impactedFbs?.length ?? 0;
-  const treeCol = t
-    ? `<pre class="rcf-readiness-coverage__tree">pass ${escapeHtml(String(t.pass ?? ''))} / ${escapeHtml(String(t.total ?? ''))}</pre>`
-    : `<p><em>No tree-wide coverage result.</em></p>`;
-  // Filter rows where every meaningful field is nullish / empty — a
-  // coverage shim with no reqId/scope and no pass/total totals produces
-  // "delta: / " markup otherwise (P2 polish; spec §5 block 8).
-  const liveDelta = Array.isArray(d) ? d.filter(isMeaningfulCoverageRow) : [];
-  const deltaRows = liveDelta.length > 0
-    ? `<ul>${liveDelta.map((cv) => `<li>${escapeHtml(cv.reqId ?? cv.scope ?? 'delta')}: ${escapeHtml(String(cv.pass ?? ''))} / ${escapeHtml(String(cv.total ?? ''))}</li>`).join('')}</ul>`
-    : `<p><em>No per-REQ delta coverage.</em></p>`;
-  return `<section class="rcf-readiness-coverage">`
-    + `<h3>Coverage</h3>`
-    + `<div class="rcf-readiness-coverage__cols">`
-    + `<div class="rcf-readiness-coverage__col rcf-readiness-coverage__col--tree"><h4>Tree</h4>${treeCol}</div>`
-    + `<div class="rcf-readiness-coverage__col rcf-readiness-coverage__col--delta"><h4>Delta</h4>${deltaRows}</div>`
-    + `</div>`
-    + `<p class="rcf-readiness-coverage__counts">`
-    + `re-verify: ${impactedCount} &middot; re-execute: ${impactedFbsCount}`
-    + `</p>`
-    + `</section>`;
-}
-
-function isMeaningfulCoverageRow(cv) {
-  if (!cv || typeof cv !== 'object') return false;
-  const hasLabel = (typeof cv.reqId === 'string' && cv.reqId.length > 0)
-    || (typeof cv.scope === 'string' && cv.scope.length > 0);
-  const passSet = cv.pass !== null && cv.pass !== undefined && cv.pass !== '';
-  const totalSet = cv.total !== null && cv.total !== undefined && cv.total !== '';
-  return hasLabel || passSet || totalSet;
-}
+// --- Block 8 retired (FBS-205) ----------------------------------------
+//
+// The former renderCoverage block read `coverage.tree.pass` and
+// `coverage.tree.total`, which do not exist on the real compute
+// (coverage.tree carries `totals.{...}` and
+// `requirements[].coverageClass`). The result rendered as "pass /"
+// blanks on every live tree. The PO layer now owns the coverage
+// sub-view via renderCoverageSummary, which reads the fields
+// coverage actually produces and never prints a blank number
+// (AC-18004-1, AC-18004-6, AC-18004-7).
 
 // --- Block 9: decisions outstanding ------------------------------------
 

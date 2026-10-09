@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-787",
+  "path": "src/view/readiness/coverage-summary.js",
+  "title": "Readiness coverage summary sub-view (FBS-205, TAC-4135)",
+  "description": "renderCoverageSummary + computeCoverageSummary + familyCounts. Reads coverage.tree.totals.{requirements,covered,coveredUnresolved,uncovered} and unresolvedTestPointers[] plus the tree model to render stat line, stacked bar on --sv-success/--sv-warning/--sv-danger over --sv-surface, six family stat tiles, and an unresolved-pointers table. Every slot renders a number or the words 'coverage unavailable' - never a blank. Replaces the retired renderCoverage block that printed pass/total blanks.",
+  "implementsAcIds": [
+    "AC-18004-1",
+    "AC-18004-2",
+    "AC-18004-3",
+    "AC-18004-6",
+    "AC-18004-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T10:26:51.046Z",
+  "updatedAt": "2026-10-09T10:26:51.046Z"
+}
