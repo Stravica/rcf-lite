@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 99,
-    "notStarted": 51,
+    "notStarted": 50,
     "inProgress": 2,
-    "complete": 31,
+    "complete": 32,
     "verified": 15,
     "actionable": 40,
-    "blocked": 11
+    "blocked": 10
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1250,12 +1250,12 @@
       "buildOrder": 206,
       "tier": 2,
       "title": "Readiness layout: stage grid, sub-tabs, delta counts, For-engineers retired",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-204",
         "FBS-205"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1278,10 +1278,8 @@
         "FBS-206",
         "FBS-207"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-206"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-209",
