@@ -7,7 +7,7 @@
 // FBS-206 reshape: the panel is a SubTabStrip (Overview, Questions,
 // Blocking, Coverage, Trace) with five sub-panels; one is visible at
 // a time. For-engineers DocRow, stage chips and stage-detail retired
-// (Barry rulings 2026-10-07 / Dave's binding 2026-10-08 ruling 1-4).
+// (viewer-read-only ADR-4139 and Dave's FBS-204/206 binding ruling).
 // "On me" / "On engineers" vocabulary replaces persona pills in the
 // user-facing text. The freeze state renders in plain words with
 // what resolves each failing gate. The Trace sub-view is an empty
@@ -166,6 +166,7 @@ function renderOverviewSub({ result, verdictLines, q, freezeRecord, register, ac
   const grid = renderVerdictGrid({ stages: result.stages, freezeRecord });
   const deltaCounts = renderDeltaCounts({ delta: result.delta, freezeRecord, expanded: false });
   const decisions = renderDecisions(result);
+  const nextActions = renderNextActionBlock(result, register);
   const freezeState = renderFreezeState(result, register);
   const freezeRec = renderFreezeRecord(freezeRecord);
   const verdictParity = renderCliVerdictLines(verdictLines);
@@ -177,9 +178,52 @@ function renderOverviewSub({ result, verdictLines, q, freezeRecord, register, ac
     + grid
     + deltaCounts
     + decisions
+    + nextActions
     + freezeState
     + freezeRec
     + `</div>`;
+}
+
+// ---- Next actions (AC-18005-4: engineer surface carries a named
+// next-action block) ------------------------------------------------
+//
+// Renders personas.productOwner.nextAction and personas.engineer.nextAction
+// as plain words: "resolve the <plainLabel> failing items in the
+// blocking table" with the id list named inline. No command text, no
+// Run button; the chain fragment (stage/check) rides in data- attributes
+// so the engineer or product owner reads what the row says and acts in
+// their own agent session.
+
+function renderNextActionBlock(result, register) {
+  const po = result.personas && result.personas.productOwner ? result.personas.productOwner.nextAction : null;
+  const eng = result.personas && result.personas.engineer ? result.personas.engineer.nextAction : null;
+  const poLine = renderNextActionLine('product owner', po, 'productOwner');
+  const engLine = renderNextActionLine('engineer', eng, 'engineer');
+  const order = register === 'engineer' ? [engLine, poLine] : [poLine, engLine];
+  return `<section class="rcf-readiness-next-actions" data-rcf-register="${escapeHtml(register)}">`
+    + `<h3>Next action</h3>`
+    + order.join('')
+    + `</section>`;
+}
+
+function renderNextActionLine(label, action, persona) {
+  const ownerLabel = persona === 'engineer' ? 'engineer' : 'product owner';
+  if (!action) {
+    return `<p class="rcf-readiness-next-action rcf-readiness-next-action--${escapeHtml(persona)}" data-rcf-persona="${escapeHtml(persona)}">`
+      + `<strong>${escapeHtml(ownerLabel)}:</strong> none.`
+      + `</p>`;
+  }
+  const stage = typeof action.stage === 'string' ? action.stage : '';
+  const check = typeof action.check === 'string' ? action.check : '';
+  const plain = checkToPlainLabel(check);
+  const ids = Array.isArray(action.ids) ? action.ids.filter((x) => typeof x === 'string') : [];
+  const idText = ids.length > 0 ? ` on ${ids.join(', ')}` : '';
+  const resolver = plain
+    ? `resolve the ${plain} failing items in the blocking table`
+    : `resolve the failing items named in the blocking table`;
+  return `<p class="rcf-readiness-next-action rcf-readiness-next-action--${escapeHtml(persona)}" data-rcf-persona="${escapeHtml(persona)}" data-rcf-stage="${escapeHtml(stage)}" data-rcf-check="${escapeHtml(check)}">`
+    + `<strong>${escapeHtml(ownerLabel)}:</strong> ${escapeHtml(resolver)}${escapeHtml(idText)}.`
+    + `</p>`;
 }
 
 function renderTreeLine(result) {
@@ -320,13 +364,24 @@ function renderFreezeState(result, register) {
   const items = grouped.map((g) => {
     const owner = g.ownerLabel;
     const resolver = resolverSentence(g.gate, g.checks);
+    const stageWord = gateToPlainStage(g.gate);
+    const lead = stageWord
+      ? `the ${stageWord} stage is held`
+      : 'this stage is held';
+    // Each item leads with a plain-English sentence naming the stage
+    // and what resolves it (AC-18005-5). The chain gate id follows
+    // in <code> so an engineer scanning the block can jump into the
+    // chain (AC-18001-6 pins this locator).
     return `<li data-rcf-gate="${escapeHtml(g.gate)}" data-rcf-owner="${escapeHtml(g.owner)}">`
-      + `<code>${escapeHtml(g.gate)}</code> <span class="muted small">(${escapeHtml(owner)})</span>: ${escapeHtml(resolver)}`
+      + `<span class="muted small">(${escapeHtml(owner)})</span> ${escapeHtml(lead)}: ${escapeHtml(resolver)} `
+      + `<code>${escapeHtml(g.gate)}</code>`
       + `</li>`;
   }).join('');
-  const lead = (register === 'engineer')
-    ? 'The build is held by these gates. "On me" means engineers, "On engineers" means the product owner has handed it over.'
-    : 'The build is held by these gates. "On me" means the product owner, "On engineers" means the engineers.';
+  // The gate labels are fixed: 'On me' names the product owner's
+  // own gates, 'On engineers' names the gates handed over. The lead
+  // sentence states that invariant verbatim for both registers so
+  // the vocabulary never flips when the engineer surface renders.
+  const lead = 'The build is held by these gates. "On me" names the product owner\'s own gates, "On engineers" names the ones handed over.';
   return `<section class="rcf-readiness-freeze-state" data-rcf-freezeable="${freezeableAttr}">`
     + `<h3>Freeze state</h3>`
     + `<p>Not ready to freeze. ${escapeHtml(lead)}</p>`
@@ -385,6 +440,17 @@ function checkToPlainLabel(check) {
   return idx === -1 ? check : check.slice(0, idx);
 }
 
+// Map a gate id ("define.brief", "define.stories", "define.crosscut",
+// "define.probe", "define.freeze", ...) to a short plain-English stage
+// word for the freeze-state items. Returns the second segment lowercased
+// (or the full id when there is no separator) so the user-facing text
+// reads "the brief stage is held" rather than citing a chain id.
+function gateToPlainStage(gate) {
+  if (typeof gate !== 'string' || gate.length === 0) return '';
+  const idx = gate.indexOf('.');
+  return idx === -1 ? gate : gate.slice(idx + 1);
+}
+
 // ---- Freeze record -------------------------------------------------------
 
 function renderFreezeRecord(freezeRecord) {
@@ -401,7 +467,12 @@ function renderFreezeRecord(freezeRecord) {
     : '';
   const gates = freezeRecord.gates && typeof freezeRecord.gates === 'object'
     ? Object.entries(freezeRecord.gates)
-      .map(([k, v]) => `<li><code>${escapeHtml(k)}</code>: ${escapeHtml(v && typeof v === 'object' && typeof v.reason === 'string' ? v.reason : String(v ?? ''))}</li>`)
+      .map(([k, v]) => {
+        const atReason = v && typeof v === 'object' && v.at && typeof v.at === 'object' && typeof v.at.reason === 'string' ? v.at.reason : null;
+        const flatReason = v && typeof v === 'object' && typeof v.reason === 'string' ? v.reason : null;
+        const reason = atReason !== null && atReason.length > 0 ? atReason : (flatReason !== null && flatReason.length > 0 ? flatReason : String(v ?? ''));
+        return `<li><code>${escapeHtml(k)}</code>: ${escapeHtml(reason)}</li>`;
+      })
       .join('')
     : '';
   return `<section class="rcf-readiness-freeze-record">`

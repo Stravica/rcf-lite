@@ -13,9 +13,9 @@
 //     wrapper; the sub-view structure in readiness.js owns the
 //     engineer surface now).
 //
-// Barry viewer-read-only ruling and ADR-4139: no CLI command text,
-// no write affordance. Dave constraint F2 and F4: no "Baz" / "Barry"
-// in src/test/fixtures.
+// Viewer read-only (ADR-4139): no CLI command text, no write
+// affordance. Dave constraints F2 and F4 keep operator names out of
+// src/tests/fixtures.
 
 import { escapeHtml } from '../doc-renderers/helpers.js';
 import { formatVerdictLines } from '../../query/readiness.js';

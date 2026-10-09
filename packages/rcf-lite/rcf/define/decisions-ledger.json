@@ -105,9 +105,9 @@
       "blocks": "US-18005",
       "addedAt": "2026-10-07T13:47:42.659Z",
       "status": "resolved",
-      "answer": "Ruling 2026-10-07: decided on the render, not in prose. Two sketches with the same data in both shapes land in guidance/discovery/ (discovery-viewer-command-page-5-subtabs.html, discovery-viewer-command-page-6-one-page.html); the product owner rules on the rendered pages. DEFINE designs to the recommendation (a, sub-tabs) and names b as the alternative in TAC-4135; if the render ruling picks b, this entry is updated and TAC-4135 readinessSubTabs becomes an anchor strip with sub= dropped.",
-      "answeredAt": "2026-10-07T13:47:43.137Z",
-      "resolvedAt": "2026-10-07T13:47:43.137Z"
+      "answer": "a. Product owner render ruling 2026-10-07: sub-tabs (Overview, Questions, Blocking, Coverage, Trace); the one long page alternative is retired.",
+      "answeredAt": "2026-10-09T13:18:33.262Z",
+      "resolvedAt": "2026-10-09T13:18:33.262Z"
     }
   ]
 }

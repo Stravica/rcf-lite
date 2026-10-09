@@ -2372,8 +2372,15 @@
   }
 
   function applyReadinessHash(params) {
-    var raw = params && params.sub ? decodeURIComponent(params.sub) : 'overview';
-    var known = READINESS_SUBS.indexOf(raw) !== -1;
+    // decodeURIComponent throws URIError on malformed input such as a
+    // bare '%' or an incomplete escape. Treat that as unknown so the
+    // overview fallback and hash-drop still fire (AC-18005-8).
+    var raw = 'overview';
+    var decodeFailed = false;
+    if (params && params.sub) {
+      try { raw = decodeURIComponent(params.sub); } catch (e) { decodeFailed = true; raw = params.sub; }
+    }
+    var known = !decodeFailed && READINESS_SUBS.indexOf(raw) !== -1;
     var sub = known ? raw : 'overview';
     activateReadinessSub(sub);
     // AC-18005-8: unknown sub= is dropped from the hash and the overview
@@ -2391,8 +2398,10 @@
     // and apply so a verdict-grid failing-count link lands on a filtered
     // view. The persona= param is accepted on the same shape.
     if (sub === 'blocking') {
-      var stage = params && params.stage ? decodeURIComponent(params.stage) : '';
-      var persona = params && params.persona ? decodeURIComponent(params.persona) : '';
+      var stage = '';
+      var persona = '';
+      try { if (params && params.stage) stage = decodeURIComponent(params.stage); } catch (e) { stage = ''; }
+      try { if (params && params.persona) persona = decodeURIComponent(params.persona); } catch (e) { persona = ''; }
       var bar = document.querySelector('[data-rcf-filterbar="readiness-blocking"]');
       if (bar) {
         var stageSel = bar.querySelector('[data-filter-key="stage"]');

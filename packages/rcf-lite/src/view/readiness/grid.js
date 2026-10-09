@@ -4,8 +4,8 @@
 // pass/total/state and a failing-count link into the blocking table
 // filtered to that stage.
 //
-// Dave constraint F7 and Barry viewer-read-only ruling: no command
-// text, no write affordance. The failing count is a hash link
+// Viewer read-only (Dave constraint F7, ADR-4139): no command text,
+// no write affordance. The failing count is a hash link
 // (#tab=readiness&sub=blocking&stage=<D>) picked up by the blocking
 // FilterBar wire (page-init.js).
 //
@@ -72,8 +72,13 @@ export function buildCell(s, scope, freezeRecord) {
  */
 function cellStateFromStage(s, scopeChecks) {
   if (scopeChecks.length === 0) return 'notApplicable';
-  if (scopeChecks.some((c) => !c.ok)) return 'failing';
+  // Stage-level acknowledgement wins over scope-specific failures:
+  // foldState only sets state='acknowledged' when there is a failing
+  // check and the gate is acked at the current tree hash, so the
+  // acknowledged envelope is the authoritative verdict for both the
+  // tree and delta columns.
   if (s.state === 'acknowledged') return 'acknowledged';
+  if (scopeChecks.some((c) => !c.ok)) return 'failing';
   if (s.state === 'notApplicable') return 'notApplicable';
   return 'passed';
 }
@@ -97,6 +102,13 @@ export function reasonForCell(s, state, freezeRecord) {
   if (state === 'acknowledged') {
     const gates = freezeRecord && typeof freezeRecord === 'object' ? freezeRecord.gates : null;
     const ack = gates && typeof gates === 'object' ? gates[s.gate] : null;
+    // The freeze record writes the reason at gates[g].at.reason (see
+    // src/cli/freeze.js buildGatesEntry / mergeAckedGates); the legacy
+    // flat gates[g].reason is accepted as a fallback for older files.
+    const at = ack && typeof ack === 'object' ? ack.at : null;
+    if (at && typeof at === 'object' && typeof at.reason === 'string' && at.reason.length > 0) {
+      return at.reason;
+    }
     if (ack && typeof ack === 'object' && typeof ack.reason === 'string' && ack.reason.length > 0) {
       return ack.reason;
     }
