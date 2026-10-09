@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:05.533Z",
-  "updatedAt": "2026-10-07T13:47:05.533Z",
+  "updatedAt": "2026-10-09T12:09:27.300Z",
   "purpose": "Cover every acceptance criterion of US-18005 with one node:test case each in test/view/readiness-layout.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-206) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -17,58 +17,58 @@
     {
       "id": "TC-239-18005-1-happy",
       "acId": "AC-18005-1",
-      "description": "AC-18005-1 happy: readinessstages",
+      "description": "[happy] Given readiness.stages, when the overview sub-view renders, then a stage grid shows each stage as a row and the scopes \"tree\" and \"delta\" as columns, each VerdictGridCell carrying VerdictGridCell.pass, VerdictGridCell.total and VerdictGridCell.state, with VerdictGridCell.failing rendered as a link into the blocking table filtered to that stage.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-1 happy: readinessstages"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-1 happy: stage grid renders rows x (tree, delta) with pass/total/state and failing-count link"
     },
     {
       "id": "TC-239-18005-2-happy",
       "acId": "AC-18005-2",
-      "description": "AC-18005-2 happy: the readiness tab",
+      "description": "[happy] Given the Readiness tab, when it renders, then a SubTabStrip offers \"Overview\", \"Questions\", \"Blocking\", \"Coverage\" and \"Trace\", the active key is written into the hash as sub=, and the router restores it on load and after an SSE innerHTML swap of #rcf-live-content.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-2 happy: the readiness tab"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-2 happy: the SubTabStrip offers five keys, activeSub is reflected, and the router restores sub= on load and after an SSE swap"
     },
     {
       "id": "TC-239-18005-3-happy",
       "acId": "AC-18005-3",
-      "description": "AC-18005-3 happy: an unfrozen tree",
+      "description": "[happy] Given an unfrozen tree, when the delta block renders, then DeltaCounts.changed, DeltaCounts.added, DeltaCounts.removed, DeltaCounts.briefSince, DeltaCounts.impacted and DeltaCounts.impactedFbs render as numbers and the per-document list with its diff widgets renders only after the reader expands the details element (DeltaCounts.expanded true).",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-3 happy: an unfrozen tree"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-3 happy: delta counts render six numbers; per-document list only after expand"
     },
     {
       "id": "TC-239-18005-4-happy",
       "acId": "AC-18005-4",
-      "description": "AC-18005-4 happy: the profile register is engineer",
+      "description": "[happy] Given the profile register is \"engineer\", when the tab renders, then the For-engineers DocRow wrapper is absent and every engineer item (failing ids with why, next action, stage states, coverage counts, decisions outstanding, freeze state) is present in a named table or block of the sub-views.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-4 happy: the profile register is engineer"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-4 happy: engineer register has no For-engineers DocRow wrapper and every engineer item is present in a named block"
     },
     {
       "id": "TC-239-18005-5-happy",
       "acId": "AC-18005-5",
-      "description": "AC-18005-5 happy: readytobuild is no",
+      "description": "[happy] Given ready-to-build is \"no\", when the freeze block renders, then it names each failing gate in plain words with what resolves it, with no button and no command text; given ready-to-build is \"yes\", it states that the tree can be frozen and what a freeze would record.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-5 happy: readytobuild is no"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-5 happy: freeze state words - names failing gates when not ready; names what a freeze records when ready"
     },
     {
       "id": "TC-239-18005-6-edge",
       "acId": "AC-18005-6",
-      "description": "AC-18005-6 edge: a stage acknowledged at the current tree hash",
+      "description": "[edge] Given a stage acknowledged at the current tree hash, when the grid renders, then VerdictGridCell.state is \"acknowledged\" and the reason shows on hover, read from stages[].state and one reason helper rather than from freezeRecord.gates directly.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-6 edge: a stage acknowledged at the current tree hash"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-6 edge: acknowledged cell state comes from stages[].state and the ack reason via one helper"
     },
     {
       "id": "TC-239-18005-7-mustnot",
       "acId": "AC-18005-7",
-      "description": "AC-18005-7 must-not: embed mode dataembed1 and a viewport narrower th",
+      "description": "[must-not] Given embed mode (data-embed=\"1\") and a viewport narrower than 720px, when the Readiness tab renders, then no table forces horizontal page scroll: tables collapse to stacked rows and the SubTabStrip stays inside the panel.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-7 must-not: embed mode dataembed1 and a viewport narrower th"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-7 must-not: embed + <720px keeps tables stacked and SubTabStrip inside the panel"
     },
     {
       "id": "TC-239-18005-8-failure",
       "acId": "AC-18005-8",
-      "description": "AC-18005-8 failure: a hash whose sub value is not a known readiness",
+      "description": "[failure] Given a hash whose sub= value is not a known readiness sub-tab key, when the router runs, then the overview sub-view is activated and the unknown value is dropped from the hash.",
       "status": "pending",
-      "testPointer": "test/view/readiness-layout.test.js::AC-18005-8 failure: a hash whose sub value is not a known readiness"
+      "testPointer": "test/view/readiness-layout.test.js::AC-18005-8 failure: unknown sub= drops to overview and is removed from the hash"
     }
   ],
   "id": "TS-239",

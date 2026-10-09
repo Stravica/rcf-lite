@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-792",
+  "path": "src/view/readiness.js",
+  "title": "Readiness panel composition with sub-tabs (FBS-206, TAC-4135)",
+  "description": "Renders the SubTabStrip (Overview, Questions, Blocking, Coverage, Trace) and five sub-panels; composes the Overview sub-view (tree line, verdict cards, verdict grid, delta counts, decisions, freeze state, freeze record), the Questions / Blocking / Coverage sub-views by composing the FBS-204 / 205 tables and the Trace shell for FBS-208. Removes the For-engineers DocRow wrapper and the stage-chips / stage-detail blocks; renders the freeze state in plain words with the On me / On engineers vocabulary and names what resolves each failing gate (AC-18005-2, -4, -5, -8).",
+  "implementsAcIds": [
+    "AC-18005-2",
+    "AC-18005-4",
+    "AC-18005-5",
+    "AC-18005-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T12:34:41.414Z",
+  "updatedAt": "2026-10-09T12:34:41.414Z"
+}

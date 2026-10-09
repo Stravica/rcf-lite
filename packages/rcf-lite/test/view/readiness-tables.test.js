@@ -319,62 +319,39 @@ test('AC-18003-7 must-not: no shell command text, chain ids as prefix link with 
     assert.doesNotMatch(html, /method="post"/i);
   }
   // Live rcf-lite tree: run the real renderer and apply Dave's amended
-  // AC-18003-7 strictly. The AC scopes to "the panel renders for the
-  // command page" - the command-page surface is the two tables
-  // (TAC-4135). The legacy For-engineers stage-detail block retires in
-  // FBS-206; this test deliberately scopes to the command-page tables.
+  // AC-18003-7 strictly. The P3 carry-in from the FBS-204 gate re-
+  // widens the scope to the WHOLE readiness panel in FBS-206 - the
+  // For-engineers DocRow and stage-detail block are gone (AC-18005-4),
+  // so there is no legacy surface to carve out. The command-page
+  // surface IS the whole panel now.
   const built = await renderModelToPage({ projectRoot: repoRoot });
   const panelStart = built.contentHtml.indexOf('id="tab-readiness"');
   const panelEnd = built.contentHtml.indexOf('id="tab-overview"');
   assert.ok(panelStart !== -1 && panelEnd > panelStart, 'readiness and overview tabpanels found in order');
   const panel = built.contentHtml.slice(panelStart, panelEnd);
-  // Command-page tables section (TAC-4135; AC-18003-7 scope).
-  const cmdStart = panel.indexOf('class="rcf-cmd-tables"');
-  assert.ok(cmdStart !== -1, 'rcf-cmd-tables section present in the readiness panel');
-  // The command-page tables div is the renderQuestionsTable +
-  // renderBlockingTable sibling pair under one wrapper <div>; find its
-  // closing </div> by sibling-depth counting.
-  function cmdEnd(start) {
-    let depth = 0;
-    let i = start;
-    const openRe = /<div\b/g;
-    const closeRe = /<\/div>/g;
-    // Scan forward tracking balance from the <div class="rcf-cmd-tables">.
-    openRe.lastIndex = i;
-    closeRe.lastIndex = i;
-    while (i < panel.length) {
-      const nextOpen = panel.indexOf('<div', i + 1);
-      const nextClose = panel.indexOf('</div>', i + 1);
-      if (nextClose === -1) return panel.length;
-      if (nextOpen !== -1 && nextOpen < nextClose) { depth += 1; i = nextOpen; continue; }
-      if (depth === 0) return nextClose + '</div>'.length;
-      depth -= 1; i = nextClose;
-    }
-    return panel.length;
-  }
-  // Start from the opening <div class="rcf-cmd-tables"> tag.
-  const openIdx = panel.lastIndexOf('<div', cmdStart);
-  assert.ok(openIdx !== -1, 'opening <div> of rcf-cmd-tables found');
-  const closeIdx = cmdEnd(openIdx);
-  const cmdSection = panel.slice(openIdx, closeIdx);
-  // Strip HTML attribute values (data-* carry chain ids verbatim as
-  // Dave's ruling requires) so the visible-text scan does not count
-  // text that only lives in attributes.
-  const visibleCmd = cmdSection.replace(/\s[a-z0-9-]+="[^"]*"/gi, '');
-  assert.doesNotMatch(visibleCmd, /pnpm rcf/, 'visible pnpm rcf text leaked into the command-page tables');
-  assert.doesNotMatch(visibleCmd, /rcf define/, 'visible rcf define text leaked into the command-page tables');
-  assert.doesNotMatch(visibleCmd, /rcf audit/, 'visible rcf audit text leaked into the command-page tables');
-  assert.doesNotMatch(visibleCmd, /Freeze now/, 'Freeze now leaked into the command-page tables');
-  assert.doesNotMatch(visibleCmd, /Run <code>/, 'viewer prints a Run <code> line');
-  // No <code> element in the panel at large carries a shell command
-  // (Dave's ruling text; this test is panel-wide for the <code> ban).
+  // Panel wrapper is present (FBS-206 renderReadinessPanel emits a
+  // <div class="rcf-readiness-panel"> around the strip + sub-panels).
+  assert.match(panel, /class="rcf-readiness-panel"/, 'rcf-readiness-panel wrapper present');
+  // Strip HTML attribute values so the visible-text scan does not
+  // count text that only lives in attributes (data-* carries chain ids
+  // verbatim as Dave's ruling requires).
+  const visiblePanel = panel.replace(/\s[a-z0-9-]+="[^"]*"/gi, '');
+  assert.doesNotMatch(visiblePanel, /pnpm rcf/, 'visible pnpm rcf text leaked into the panel');
+  assert.doesNotMatch(visiblePanel, /rcf define/, 'visible rcf define text leaked into the panel');
+  assert.doesNotMatch(visiblePanel, /rcf audit/, 'visible rcf audit text leaked into the panel');
+  assert.doesNotMatch(visiblePanel, /Freeze now/, 'Freeze now leaked into the panel');
+  assert.doesNotMatch(visiblePanel, /Run <code>/, 'viewer prints a Run <code> line');
+  // No <code> element in the whole panel carries a shell command
+  // (Dave's ruling text; panel-wide for the <code> ban).
   const codeCmdPattern = /<code[^>]*>\s*(?:pnpm rcf|rcf define|rcf audit)[^<]*<\/code>/;
   assert.doesNotMatch(panel, codeCmdPattern, 'viewer emits a shell command in a <code> element');
   assert.doesNotMatch(panel, /class="rcf-readiness-freeze-now__btn"/, 'Freeze now button leaked');
   // Full composite ids remain in the DOM via data-rcf-raw-id so
-  // AC-18002-3 ("no id leaves the DOM") still holds. For the rcf-lite
-  // tree at least one composite id is present as a raw-id attribute.
-  assert.match(cmdSection, /data-rcf-raw-id="[^"]*:[^"]*"/, 'at least one composite id present in data-rcf-raw-id');
+  // AC-18002-3 ("no id leaves the DOM") still holds. The whole panel
+  // carries at least one composite id as a raw-id attribute (the
+  // live rcf-lite tree has composite blocker ids like
+  // `brief:ledger` and chain-id entity keys).
+  assert.match(panel, /data-rcf-raw-id="[^"]*:[^"]*"/, 'at least one composite id present in data-rcf-raw-id across the panel');
 });
 
 // AC-18003-8 ----------------------------------------------------------

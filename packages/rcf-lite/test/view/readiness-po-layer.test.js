@@ -320,23 +320,36 @@ test('PO layer: both VerdictCards sit in a grid that stretches equal height and 
   assert.match(html, /Ready to build:[\s\S]*?<span class="rcf-chain-term"[^>]*>ready-to-build<\/span>/);
 });
 
-// ---- For engineers DocRow: open state driven by the register ------------
+// ---- For engineers DocRow retired (FBS-206) -----------------------------
+//
+// AC-18005-4 pins the new contract: the For-engineers DocRow wrapper
+// is gone; every engineer item (failing ids with why, next action,
+// stage states, coverage counts, decisions outstanding, freeze state)
+// is present in a named table or block of the sub-views. The register
+// no longer drives an open/closed flip - the Overview sub-view is the
+// first landing and the hash restores sub= per AC-18005-2.
 
-test('PO layer: For engineers DocRow is closed in productOwner / unstated and open in engineer', () => {
+test('PO layer: For-engineers DocRow is retired; engineer items live in named sub-view blocks', () => {
   const result = failingFixture();
   const htmlPo = renderReadinessPanel(result, { profile: 'register: productOwner' });
   const htmlEng = renderReadinessPanel(result, { profile: 'register: engineer' });
   const htmlUn = renderReadinessPanel(result, { profile: null });
-  const engRow = /<details class="rcf-row doc-row rcf-po-engineer"[^>]*data-doc-id="rcf-readiness-engineer"([^>]*)>/;
-  const matchPo = htmlPo.match(engRow);
-  const matchEng = htmlEng.match(engRow);
-  const matchUn = htmlUn.match(engRow);
-  assert.ok(matchPo, 'For-engineers row absent in productOwner render');
-  assert.ok(matchEng, 'For-engineers row absent in engineer render');
-  assert.ok(matchUn, 'For-engineers row absent in unstated render');
-  assert.ok(!matchPo[1].includes(' open'), 'productOwner should keep For-engineers closed');
-  assert.ok(matchEng[1].includes(' open'), 'engineer should open For-engineers');
-  assert.ok(!matchUn[1].includes(' open'), 'unstated should keep For-engineers closed');
+  const engRow = /<details class="rcf-row doc-row rcf-po-engineer"[^>]*data-doc-id="rcf-readiness-engineer"/;
+  for (const [label, html] of [['productOwner', htmlPo], ['engineer', htmlEng], ['unstated', htmlUn]]) {
+    assert.doesNotMatch(html, engRow, `For-engineers DocRow still rendered under ${label}`);
+    // Named sub-view blocks that collectively carry the engineer surface.
+    assert.match(html, /data-rcf-table="verdict-grid"/, `${label}: stage grid missing (stage states)`);
+    assert.match(html, /data-rcf-subpanel="blocking"/, `${label}: blocking sub-panel missing (failing ids with why)`);
+    assert.match(html, /data-rcf-subpanel="coverage"/, `${label}: coverage sub-panel missing (coverage counts)`);
+    assert.match(html, /class="rcf-readiness-decisions"/, `${label}: decisions block missing`);
+    assert.match(html, /class="rcf-readiness-freeze-state"/, `${label}: freeze state block missing`);
+    // Every engineer id (readyToBuild blockedBy) is in the DOM.
+    for (const b of result.personas.engineer.blockers) {
+      for (const id of b.ids) {
+        assert.ok(html.includes(id), `${label}: engineer id ${id} present in panel`);
+      }
+    }
+  }
 });
 
 // ---- StageLegend --------------------------------------------------------
@@ -377,9 +390,15 @@ test('Phrasebook: no em-dash in any phrasebook entry (brief rule and chain regis
 // AC-18004-4, with the five thin reasons. These two tests move to the
 // widened row shape; the assertions below are the new contract.
 
+// FBS-206: thin-requirements now sits in the Coverage sub-view
+// composed by renderReadinessPanel; the pure po-layer helper no
+// longer emits the table (its scope shrank to verdict cards +
+// questions / blocking tables). These two tests are rewritten
+// against the full panel so the thin-reqs contract still binds.
+
 test('PO layer: thin-requirements renders an empty state when no PO check names a REQ', () => {
   const result = cleanFixture();
-  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '', tree: null });
+  const html = renderReadinessPanel(result, { profile: 'register: productOwner', freezeRecord: null, tree: null });
   assert.match(html, /class="rcf-thin-reqs"[^>]*data-rcf-empty="yes"/);
   assert.ok(html.includes('Nothing is thin here.'));
 });
@@ -412,7 +431,7 @@ test('PO layer: thin-requirements tabulates REQs from stories:reqHasUs / skeleto
       },
     ],
   };
-  const html = renderReadinessPO(result, { persona: 'productOwner', engineerBody: '', tree: null });
+  const html = renderReadinessPanel(result, { profile: 'register: productOwner', freezeRecord: null, tree: null });
   assert.ok(html.includes('REQ-012'));
   assert.ok(html.includes('REQ-013'));
   assert.match(html, /class="rcf-thin-reqs__table"/);

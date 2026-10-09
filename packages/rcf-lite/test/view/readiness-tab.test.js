@@ -195,14 +195,23 @@ test('readiness tab: AC-18001-2 verdict pill labels equal formatVerdictLines', (
   const result = failingFixture();
   const expected = formatVerdictLines(result);
   const html = renderReadinessPanel(result, { profile: null, freezeRecord: null });
-  // The two labels appear inside the pill spans.
+  // The two labels appear in the panel (PO verdict cards + the CLI
+  // parity line in the Overview carry them verbatim; AC-18001-7 keeps
+  // this doubly-anchored). AC-18001-2 scopes to equality with the CLI
+  // formatVerdictLines strings; the pill shape is `rcf-pill rcf-pill--
+  // {ok|warn}` on each VerdictCard since FBS-205 (the legacy
+  // level-verdict-intent/build variants retired with the chips block
+  // in FBS-206). Two verdict pills are present on the two cards.
   assert.ok(html.includes(expected.intentComplete),
     `verdict intent label missing: ${expected.intentComplete}`);
   assert.ok(html.includes(expected.readyToBuild),
     `verdict build label missing: ${expected.readyToBuild}`);
-  // Both verdict pills share the shared pill shape.
-  assert.match(html, /class="rcf-pill rcf-pill--level-verdict-intent/);
-  assert.match(html, /class="rcf-pill rcf-pill--level-verdict-build/);
+  // The two VerdictCards each carry one pill (ok or warn depending on
+  // the fixture; the failing fixture is both warn).
+  const pillCount = (html.match(/class="rcf-pill rcf-pill--(ok|warn)"/g) || []).length;
+  assert.ok(pillCount >= 2, `expected at least two verdict pills, got ${pillCount}`);
+  assert.match(html, /class="rcf-po-verdict rcf-po-verdict--intent"/);
+  assert.match(html, /class="rcf-po-verdict rcf-po-verdict--build"/);
 });
 
 // ---- AC-18001-3 PO blocker ids appear in the questions table ---------
@@ -425,24 +434,26 @@ test('readiness tab: AC-18101-3 existing Product Map and Requirements tests reta
   assert.equal(pickRegister(null), 'unstated');
 });
 
-// ---- Fix-round P1: blocker findings list carries the `why` per id -----
+// ---- Fix-round P1: blocker id -> why pairing survives in the blocking table
 
-test('readiness tab: fix-round P1 blocker findingsList carries the why per id', () => {
+test('readiness tab: fix-round P1 blocker id -> why pairing surfaces in the blocking table', () => {
+  // The stage-detail findings-list block retired in FBS-206
+  // (AC-18005-4). The blocking table in the Blocking sub-panel is
+  // the new home for the id -> why pairing: a row per failing id
+  // with its `why` text, filterable by stage and persona.
   const result = failingFixture();
   const html = renderReadinessPanel(result, { profile: 'register: productOwner' });
-  // The PO blocker's single id `brief:ledger` has the matching
-  // `why: 'brief ledger holds no statements'` on stages[].checks[].failing[].
-  // Spec §5 block 5: the findings list carries id -> why pairs.
+  // PO blocker row: id in data-rcf-raw-id, why in the why cell.
   assert.match(
     html,
-    /<a href="#brief:ledger">brief:ledger<\/a>: brief ledger holds no statements<\/li>/,
-    'PO blocker findings list is missing the matching why',
+    /<tr[^>]*data-rcf-raw-id="brief:ledger"[\s\S]*?<td data-rcf-col="why">brief ledger holds no statements<\/td>/,
+    'PO blocker row is missing the matching why',
   );
-  // Engineer blocker id -> why.
+  // Engineer blocker row: same shape.
   assert.match(
     html,
-    /<a href="#TAD-001:security">TAD-001:security<\/a>: security architecture missing<\/li>/,
-    'engineer blocker findings list is missing the matching why',
+    /<tr[^>]*data-rcf-raw-id="TAD-001:security"[\s\S]*?<td data-rcf-col="why">security architecture missing<\/td>/,
+    'engineer blocker row is missing the matching why',
   );
 });
 

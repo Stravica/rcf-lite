@@ -5,11 +5,12 @@
   "description": "Baz 2026-10-04 (w-2026-10-04-dave-001): the FIND SearchButton hover previously fell back to a hard-coded light grey (`var(--sv-surface-hover, #f0f3f8)`) because `--sv-surface-hover` was never declared, which painted dark ink on a light grey in dark mode. The hover + focus-visible + active states now use `--sv-active` with the `--sv-control` border and the `--sv-focus` outline so the pair stays above WCAG AA in both themes (AC-205-9). The three-state theme control (`.rcf-theme`, `.rcf-theme-btn`) sits right of the SearchButton in `.tools`; `aria-pressed=\"true\"` uses `--sv-button` / `--sv-onbutton`, hover and focus-visible use `--sv-active`, and the group is hidden under `html[data-embed=\"1\"]`.",
   "implementsAcIds": [
     "AC-202-4",
-    "AC-205-9"
+    "AC-205-9",
+    "AC-18005-7"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-05T09:59:33Z",
-  "updatedAt": "2026-10-06T10:24:19.675Z"
+  "updatedAt": "2026-10-09T12:35:00.856Z"
 }
