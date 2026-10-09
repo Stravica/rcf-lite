@@ -1,0 +1,82 @@
+{
+  "createdAt": "2026-10-09T16:28:27.288Z",
+  "updatedAt": "2026-10-09T16:28:27.288Z",
+  "description": "User story under REQ-189 for the record and the authoring verbs (FBS-210). Two parsers feed one draft shape; the minter keeps numbers stable by slug and never reuses a retired number; show prints the record; dry-run writes nothing; the walker never sees the directory.",
+  "asA": "a product owner or a ux designer with a journey map in markdown",
+  "iWant": "to hand the tool my journey source, in the line grammar or in the prose shape the ux-designer role already writes, and get a record with stable ids and a readable printout back",
+  "soThat": "the path between screens is a record the tool can check, not a paragraph nobody reads, and I never edit JSON",
+  "tacIds": [
+    "TAC-4142-discovery-journey-gate"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18902-1",
+      "description": "[happy] Given a journey source file in the line grammar, when the journey add verb runs with --from, then journey.json gains one Journey whose JourneyStep entries carry JNY-nnn-nnn ids in file order, each step kind from [entry | step | exit | interruption], each step screen resolved by slug to a Screen minted as SCR-nnn on first sight, and Journey.source equal to the file path.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey add]"
+      }
+    },
+    {
+      "id": "AC-18902-2",
+      "description": "[happy] Given a journey already minted, when its source is edited and the journey add verb runs again with --from, then every step whose slug is unchanged keeps its JourneyStep.id, a new slug mints the next number, and a removed slug's number is never reused by a later mint.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[JourneyStep]"
+      }
+    },
+    {
+      "id": "AC-18902-3",
+      "description": "[happy] Given a journey-map document in the prose shape (an H2 heading per step, a Screen: wf-NN-slug line and zero or more Goes to: wf-NN-slug lines), when the journey import verb runs with --from, then the record minted is the one the line grammar would produce for the same journey, with the first heading as the entry, a heading with no Goes to line as an exit, and each wf-NN-slug resolved to a Screen whose Screen.wireframe is the file of the same stem beside the source when it exists.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey import]"
+      }
+    },
+    {
+      "id": "AC-18902-4",
+      "description": "[happy] Given a minted record, when the journey show verb runs, then it prints each journey's steps in order with id, kind, screen slug, label, next and returnsTo, the interruption answers and the review state, and with --json emits the JourneyRecord verbatim.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey show]"
+      }
+    },
+    {
+      "id": "AC-18902-5",
+      "description": "[failure] Given a source line outside the grammar (a missing kind, a missing @screen-slug, or an interruption with no returns target), when the journey add verb runs with --from, then it exits 3 naming the file, the line number and the rule, and journey.json is not written.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[journey line grammar]"
+      }
+    },
+    {
+      "id": "AC-18902-6",
+      "description": "[edge] Given --dry-run on the journey add or import verb, when it runs, then the planned mints are printed, the same local schema pass the write path runs is applied, and journey.json is byte-identical before and after.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey add]"
+      }
+    },
+    {
+      "id": "AC-18902-7",
+      "description": "[must-not] Given any journey verb, when it writes journey.json, then it never accepts a hand-supplied JNY or SCR id, never records a Figma or Confluence link as Screen.wireframe, and the walker's document count is unchanged by the file (rcf/discovery/ is invisible to the loader).",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[JourneyRecord]"
+      }
+    }
+  ],
+  "usId": "US-18902",
+  "prdId": "PRD-001",
+  "reqId": "REQ-189",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the journey is authored as markdown and minted as a record only the tool writes"
+}

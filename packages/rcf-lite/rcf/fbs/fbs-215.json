@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-09T16:30:03.622Z",
+  "updatedAt": "2026-10-09T16:30:03.622Z",
+  "summary": "Journey-step binding: journeyStepIds on the FBS, step state in queue, show, bundle and review (US-18906). Delivers AC-18906-1 to AC-18906-6. Estimated new node:test cases: 6. Order in the UX intake gate build: 6 of 6.",
+  "approach": "Read the optional journeyStepIds[] on the FBS once rcf-schemas 0.7 admits it: validation resolves every id or reports brokenReference; stepStates derives the least advanced bound status per step; the queue markdown and JSON gain a journeySteps block; the bundle prints the bound steps with screen slug and wireframe path; build review emits otherDeclared findings with a journeyStub: detail for unbound steps and unbound UI-bearing build specs; coverage, trace and impact are untouched.",
+  "deliverables": [
+    "EXTERNAL DEPENDENCY: @stravica-ai/rcf-schemas 0.7 with journeyStepIds (string[], optional) on fbs.schema.json; this build unit does not start until that release is installed, and the dedicated journeyStub review kind is proposed for the same release",
+    "src/discovery/state.js (new): stepStates",
+    "src/core/store validation: journeyStepIds resolve or brokenReference",
+    "src/build/queue.js, src/build/bundle.js, src/build/formatters/*.js: journeySteps block and bound steps in the bundle",
+    "src/review/index.js: journeyStub findings as otherDeclared with anchorId",
+    "src/cli/journey.js: show prints the derived state and broken bindings",
+    "test/discovery/journey-binding.test.js: not-yet-built flags removed, bodies land (6 cases)"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-210",
+    "FBS-214"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4142-discovery-journey-gate",
+      "TAC-4130-define-intake-brief"
+    ],
+    "adrIds": [
+      "ADR-4142-journey-record-rcf-lite-local"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "executionStatus": "notStarted",
+  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 6 new node:test cases in the suite named by the TS bound to US-18906; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs. This unit waits on rcf-schemas 0.7 (journeyStepIds); every other unit ships without it.",
+  "acIds": [
+    "AC-18906-1",
+    "AC-18906-2",
+    "AC-18906-3",
+    "AC-18906-4",
+    "AC-18906-5",
+    "AC-18906-6"
+  ],
+  "fbsId": "FBS-215",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 215,
+  "title": "Journey-step binding: journeyStepIds on the FBS, step state in queue, show, bundle and review"
+}

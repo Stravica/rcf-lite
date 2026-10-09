@@ -1,0 +1,109 @@
+{
+  "createdAt": "2026-10-09T16:28:03.938Z",
+  "updatedAt": "2026-10-09T16:29:38.368Z",
+  "description": "A product declares at intake how much of it is user interface: none, light or central (rcf discover intake --ui, or rcf discover journey declare). The declaration is written by the tool onto rcf/discovery/journey.json, a sidecar the walker never reads (the rcf/define/ ledger pattern, ADR-4121). For a light or central product the discovery pack carries a journey record: every entry, exit, interruption and return path as steps, each step naming the screen it lands on. The record is JSON written only by the tool; the person authors markdown (the line grammar through rcf discover journey add --from, or the ux-designer journey-map prose shape through rcf discover journey import --from) and the tool mints JNY and SCR ids that stay stable by slug across re-mints. rcf discover journey show prints the record with a derived state per step. rcf discover journey check evaluates structure (a journey with an entry and an exit, every step naming a screen that resolves, every step reachable with no dead end), the interruption catalogue v1 (lostEmail, closedTab, deadBattery, expiredLink, switchedDevice, lostSignal: each answered by an interruption step or ruled out as notApplicable with a reason of at least 20 characters; the check is answered, not drawn) and, for a central product only, one wireframe file per journey step. Wireframes are files in the pack under rcf/discovery/wireframes/: markdown by default, self-contained HTML accepted (no external stylesheet, script, image or font URL), PNG for as-built migration; the gate hashes bytes and never inspects headings; links never satisfy the gate. rcf discover journey review --by seals the record with a sha256 content hash over the canonical record and every wireframe file, refuses on any structural failure, and goes stale on any edit; one reviewer in this release. Readiness gains stage D0 (gate define.discovery, short name discovery) ahead of D1: blocking, never ackable, productOwner on every check, notApplicable for a none product and for a grandfathered tree (no journey.json; existing trees land as they are, with no rollout mechanism, and rcf doctor reports the missing declaration as advice only). The DEFINE door is the three chain-write verbs (rcf define ledger brief add, rcf define create, rcf define blueprint add): on a light or central product whose D0 fails they refuse with exit 4 before any write, in the message family the other gates use; repair verbs stay ungated; a light product is never refused for a missing wireframe. Build units bind to journey steps through an optional FBS journeyStepIds[] (the one field that needs rcf-schemas 0.7); rcf build queue and journey show derive a state per step (unbound, queued, inProgress, built, verified), rcf build bundle prints the bound steps to the executor, and rcf build review reports unbound steps and unbound UI-bearing build specs as findings with no new hard gate at BUILD. Journey steps are discovery evidence: never a node in PRD to REQ to US to AC to TS to TC, never walked by coverage, trace or impact.",
+  "category": "functional",
+  "domain": "defineDetection",
+  "priority": "must",
+  "rationale": "The operator ruling (relayed 2026-10-09): UX design is part of DISCOVERY; DEFINE draws requirements from it; a UI app with no UX, design or wireframing work is rejected at DEFINE. The incident behind it: a product built with rcf-lite had every screen designed per build unit but nobody drew the path between them; wireframes were a per-component sub-task inside DEFINE, never per journey, never owner-reviewed; the result was a 40-question wall with no way back for a lost email or an abandoned session. The product owner posture that shapes the gate (DISCOVERY verdict, same day): the gate is not tight; three values rather than a boolean; the interruption questions matter more than any specific set of wireframes, so wireframe richness is better discovery input and never mandated input; only a central product is ever refused for a missing wireframe; existing trees land safely as they are.",
+  "tags": [
+    "capability:discovery-gate",
+    "capability:define-detection"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4142-discovery-journey-gate"
+  },
+  "reqId": "REQ-189",
+  "prdId": "PRD-001",
+  "title": "UX intake gate: journey record, three-valued UI declaration, D0 discovery stage and the DEFINE door",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-09T16:28:04.126Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "screen"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "show"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "screen"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "HTML"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "style"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "migration"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "show"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "screen"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "component"
+      },
+      {
+        "source": "rationale",
+        "shape": "notifications",
+        "match": "email"
+      },
+      {
+        "source": "rationale",
+        "shape": "auth",
+        "match": "session"
+      },
+      {
+        "source": "rationale",
+        "shape": "httpApi",
+        "match": "post"
+      }
+    ],
+    "operatorOverride": {
+      "originalShapes": [
+        "webUi",
+        "httpApi",
+        "auth",
+        "persistence",
+        "notifications"
+      ],
+      "newShapes": [
+        "none"
+      ],
+      "reason": "DEFINE 2026-10-09: this requirement is CLI verbs, a readiness stage and a tool-written sidecar file; the screen, wireframe, email, session and HTML words describe the product under intake, not a surface this requirement exposes. No HTTP route, no auth, no notification, no web UI, no data store; the same posture REQ-186 and REQ-188 carry (none). Keyword scan is the prompt, not the authority.",
+      "ackAt": "2026-10-09T16:35:00Z"
+    }
+  }
+}

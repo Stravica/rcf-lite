@@ -1,0 +1,82 @@
+{
+  "createdAt": "2026-10-09T16:28:26.668Z",
+  "updatedAt": "2026-10-09T16:28:26.668Z",
+  "description": "User story under REQ-189 for the declaration (FBS-211). The declaration is three-valued and lives on the journey record the tool writes; intake takes it as --ui (or a ui field in --input), the declare verb sets or changes it, the classifier only proposes. A tree with no record is grandfathered; rcf init writes the record with ui null so a new project must declare; rcf doctor advises, never drifts.",
+  "asA": "a product owner running intake on a new or re-intaken product",
+  "iWant": "to say once whether the product has no UI, a light UI or a UI that is front and centre, with the tool proposing from the brief and never deciding for me",
+  "soThat": "a product with no UI pays nothing, a light product is asked only the journey questions, and the trees that already exist are left as they are",
+  "tacIds": [
+    "TAC-4142-discovery-journey-gate"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18901-1",
+      "description": "[happy] Given an intake run carrying --ui with a value from [none | light | central], when intake writes the intakeClassification, then rcf/discovery/journey.json exists with JourneyRecord.ui equal to the declared value, JourneyRecord.declaredVia equal to \"intake\" and JourneyRecord.declaredAt equal to the run time.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover intake --ui]"
+      }
+    },
+    {
+      "id": "AC-18901-2",
+      "description": "[happy] Given an existing journey.json, when the operator runs the journey declare verb with --ui and a new value, then JourneyRecord.ui is replaced and JourneyRecord.declaredVia equals \"declare\", and lowering the value (central to light, or light or central to none) without --reason is refused with exit 2 naming the flag while the same call with --reason records the reason on the record.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey declare]"
+      }
+    },
+    {
+      "id": "AC-18901-3",
+      "description": "[happy] Given an interactive intake run with no --ui flag, when the artefact text carries UI signals from the shared matcher, then intake prints the signals and the proposed value and asks for the declaration, and the value written is the one the operator typed, never the proposal.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover intake --ui]"
+      }
+    },
+    {
+      "id": "AC-18901-4",
+      "description": "[failure] Given a non-interactive intake run through --input with no ui field, when the artefact text carries UI signals from the shared matcher, then intake exits 2 naming the ui field and writes neither the intakeClassification nor journey.json.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover intake --ui]"
+      }
+    },
+    {
+      "id": "AC-18901-5",
+      "description": "[edge] Given a tree with no rcf/discovery/journey.json, when readiness computes D0, then D0 reports notApplicable with the reason \"no discovery declaration (existing tree)\", the door check passes, and no verb writes journey.json on the tree's behalf.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    },
+    {
+      "id": "AC-18901-6",
+      "description": "[edge] Given rcf init on this version, when the tree is created, then rcf/discovery/journey.json is written with JourneyRecord.ui null and JourneyRecord.declaredVia \"init\", and D0 reports failing on discovery:declared until a declaration is made.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[JourneyRecord]"
+      }
+    },
+    {
+      "id": "AC-18901-7",
+      "description": "[must-not] Given a tree with no journey.json, when rcf doctor runs with or without --fix, then the missing declaration appears under notices as advice and never under drift, the exit code is unchanged by it, and --fix never writes the record.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    }
+  ],
+  "usId": "US-18901",
+  "prdId": "PRD-001",
+  "reqId": "REQ-189",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "a product declares at intake how much of it is UI, and existing trees are grandfathered"
+}

@@ -42,6 +42,24 @@
       "source": "issue:336",
       "addedAt": "2026-10-08T20:07:08.464Z",
       "status": "open"
+    },
+    {
+      "id": 6,
+      "text": "A product declares at intake whether its UI is none, light or central; a light or central product carries a tool-minted journey record (every entry, exit, interruption and return path, each step naming its screen) answering the interruption catalogue, a central product adds a wireframe file per step reviewed under a content hash, and DEFINE refuses to open on a light or central product whose discovery is not complete.",
+      "kind": "capability",
+      "source": "discovery:ux-intake-gate",
+      "addedAt": "2026-10-09T16:30:05.321Z",
+      "status": "open",
+      "resolvedBy": "REQ-189"
+    },
+    {
+      "id": 7,
+      "text": "The gate is not tight: wireframe richness is better discovery input and never mandated input, only a central product is refused for a missing wireframe, the interruption check is answered rather than drawn, existing trees are grandfathered with no rollout mechanism, D0 is never acknowledgeable, journey steps are never a traceability node, and the record is written only by the tool.",
+      "kind": "constraint",
+      "source": "discovery:ux-intake-gate",
+      "addedAt": "2026-10-09T16:30:05.435Z",
+      "status": "open",
+      "resolvedBy": "REQ-189"
     }
   ]
 }

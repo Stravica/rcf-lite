@@ -1,0 +1,82 @@
+{
+  "createdAt": "2026-10-09T16:28:27.988Z",
+  "updatedAt": "2026-10-09T16:28:27.988Z",
+  "description": "User story under REQ-189 for the pure check (FBS-212). Structural checks, the six-entry interruption catalogue answered or ruled out with a reason, wireframe file rules (markdown, self-contained HTML, PNG; bytes hashed, headings ignored), wireframePerStep for central only, notApplicable for none and for a grandfathered tree.",
+  "asA": "a product owner about to open DEFINE",
+  "iWant": "one check that tells me whether the journey has a way in, a way out, no dead ends, an answer for every way a person gets interrupted, and, only when the UI is central, a wireframe per step",
+  "soThat": "the questions are answered before requirements are drawn, without being asked for drawings a light product does not need",
+  "tacIds": [
+    "TAC-4142-discovery-journey-gate"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18903-1",
+      "description": "[happy] Given a declared light or central product with a journey, when the journey check verb runs, then it evaluates discovery:journeyPresent (at least one journey with an entry and an exit), discovery:stepsNameScreens (every JourneyStep.screenId resolves), discovery:reachable (every step reachable from an entry and every non-exit step with a next or a returnsTo) and discovery:interruptions, prints one line per check, and exits 0 when every check passes.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[checkDiscovery]"
+      }
+    },
+    {
+      "id": "AC-18903-2",
+      "description": "[happy] Given the interruption catalogue [lostEmail | closedTab | deadBattery | expiredLink | switchedDevice | lostSignal], when discovery:interruptions evaluates a journey, then each catalogue entry is either mapped to an interruption step of that journey or ruled out as notApplicable with a reason of at least 20 characters, and an entry that is neither fails the check with an id naming the journey and the entry.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[checkDiscovery]"
+      }
+    },
+    {
+      "id": "AC-18903-3",
+      "description": "[happy] Given a central product, when discovery:wireframePerStep evaluates, then it fails for every step whose Screen.wireframe is null or does not resolve on disk, and given a light product the same check reports notApplicable and never fails for a missing wireframe.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[wireframe file]"
+      }
+    },
+    {
+      "id": "AC-18903-4",
+      "description": "[happy] Given a wireframe file, when the check reads it, then a .md or .png file is accepted as-is, an .html file is accepted when it carries no href or src whose value starts http:, https: or //, and the file's bytes are hashed with sha256 without any inspection of its headings or sections.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[wireframe file]"
+      }
+    },
+    {
+      "id": "AC-18903-5",
+      "description": "[failure] Given an .html wireframe carrying an external stylesheet, script, image or font URL, when the journey check verb runs, then discovery:wireframeSelfContained fails naming the file and the first offending URL and the verb exits 4.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[wireframe file]"
+      }
+    },
+    {
+      "id": "AC-18903-6",
+      "description": "[edge] Given a journey with a non-exit step that has no next and no returnsTo, when discovery:reachable evaluates, then it fails naming that step as a dead end, distinct from the why it gives a step no entry reaches.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[checkDiscovery]"
+      }
+    },
+    {
+      "id": "AC-18903-7",
+      "description": "[must-not] Given a declared none product or a tree with no journey.json, when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[checkDiscovery]"
+      }
+    }
+  ],
+  "usId": "US-18903",
+  "prdId": "PRD-001",
+  "reqId": "REQ-189",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the journey is checked for structure, interruption answers and wireframe files in proportion to the declaration"
+}

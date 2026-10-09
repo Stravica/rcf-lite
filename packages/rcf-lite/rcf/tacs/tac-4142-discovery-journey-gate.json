@@ -1,0 +1,135 @@
+{
+  "createdAt": "2026-10-09T16:28:04.587Z",
+  "updatedAt": "2026-10-09T16:28:04.587Z",
+  "purpose": "One new module, src/discovery/, owns the journey record (rcf/discovery/journey.json, local schema, tool as sole writer), the two authoring parsers (line grammar and journey-map prose), id minting stable by slug, the pure discovery check with its interruption catalogue and wireframe file rules, the content hash and review stamp, and the per-step state derivation. src/query/gates.js gains stage D0 (define.discovery) ahead of D1 running the same pure check; the three chain-write verbs call it as a door check before writing. src/intake gains the three-valued --ui declaration; src/build/queue.js, bundle.js and src/review gain the journey-step binding readers. The product owner never edits JSON: markdown in, record out, hash sealed.",
+  "responsibilities": [
+    "src/discovery/record.js: DISCOVERY_RELATIVE_DIR (rcf/discovery), JOURNEY_FILE (rcf/discovery/journey.json), WIREFRAMES_DIR (rcf/discovery/wireframes), the local JSON schema for JourneyRecord, readJourneyRecord(projectRoot) returning null when the file is absent (the grandfathered state), writeJourneyRecord through the canonical-JSON writer (ADR-4120); no other module writes the file.",
+    "src/discovery/grammar.js: parseJourneyLines(text) for the line grammar (kind, step slug, @screen-slug, label, -> returns <slug> on interruptions; a trailing interruptions: line mapping catalogue entries to step slugs or notApplicable:<reason>) and parseJourneyMap(text, dir) for the ux-designer prose shape (an H2 heading per step, a Screen: wf-NN-slug line, zero or more Goes to: wf-NN-slug lines, a wireframe file of the same stem beside the source when present); both return the same JourneyDraft; a grammar failure names file, line and rule.",
+    "src/discovery/mint.js: mintJourney(record, draft) assigns JNY-nnn to a journey by slug and JNY-nnn-nnn to steps by slug, mints SCR-nnn for a screen slug on first sight, keeps every existing number, never reuses a retired number (the ledger discipline), and never accepts a hand-supplied id.",
+    "src/discovery/check.js: checkDiscovery({ record, fs, ui }) is pure over the record and the wireframe bytes it is handed: discovery:declared, discovery:journeyPresent, discovery:stepsNameScreens, discovery:reachable, discovery:interruptions, discovery:wireframePerStep (central only), discovery:wireframeSelfContained, discovery:reviewed; the catalogue constant INTERRUPTION_CATALOGUE_V1 lists exactly lostEmail, closedTab, deadBattery, expiredLink, switchedDevice and lostSignal; a none product or an absent record folds to notApplicable with a reason before any file is read.",
+    "src/discovery/hash.js: discoveryHash(record, wireframeBytes) is sha256 over the canonical JSON of the record with review removed concatenated with the sorted (path, sha256) pairs of every wireframe file; wireframe files are hashed as bytes with no heading inspection; an .html wireframe is scanned for external URLs (href or src starting http:, https: or //) and refused when one is found.",
+    "src/discovery/state.js: stepStates(record, fbsItems) derives StepState per step from the FBS items whose journeyStepIds name it, taking the least advanced bound executionStatus in the order notStarted, inProgress, complete, verified and mapping it to queued, inProgress, built, verified; a step no FBS names is unbound.",
+    "src/cli/journey.js: rcf discover journey declare | add | import | show | check | review, exit codes in the family (0 ok, 1 io, 2 usage, 3 validation, 4 refused); --dry-run runs the same local schema pass the write path runs and writes nothing; --json on show emits the record verbatim.",
+    "src/cli/intake.js and src/intake/orchestrator.js: --ui <none|light|central> on rcf discover intake (and a ui field on --input) writes the declaration onto journey.json with declaredVia intake; with no flag, interactive mode prints the matchUiSignals verdict as a proposal and asks; non-interactive mode with a ui verdict and no declaration exits 2 naming the field and writes nothing.",
+    "src/cli/init.js: rcf init writes rcf/discovery/journey.json with ui null so a new project is never mistaken for a grandfathered tree; src/cli/doctor.js reports a missing journey.json under notices (advice), never under drift.",
+    "src/query/gates.js: STAGE_ORDER gains D0 first; STAGE_GATES.D0 is define.discovery and STAGE_SHORT_NAMES.D0 is discovery; D0 is blocking and absent from WARN_WITH_ACK; every discovery:* check carries the productOwner persona and a plain question template; checkD0Discovery(ctx) wraps checkDiscovery with the tree context; rcf define readiness --check discovery and rcf define questions read it like any stage.",
+    "src/cli/ledger.js (brief add), src/cli/create.js and src/cli/blueprint.js (add): call checkD0Discovery before any write and refuse with exit 4 and the [error] refused define: message naming the failing check, ids and the readiness check to run; every other define verb is untouched.",
+    "src/build/queue.js, src/build/bundle.js, src/build/formatters: a journeySteps block (StepState per step) in the queue markdown and JSON, and the bound steps with screen slug and wireframe path in the FBS bundle; src/review: one finding per unbound step and per uiBearing FBS with no journeyStepIds, kind otherDeclared anchored on the step or FBS id, detail prefixed journeyStub:, never changing the exit code; src/core/store validation resolves every journeyStepIds entry to a step or reports brokenReference.",
+    "src/setup/managed-block.js: the managed agent-instructions block gains one rule beside the ADR-4132 prototype rule: the harness never runs rcf discover journey review on its own."
+  ],
+  "internalStructure": "Pure functions over an in-memory record plus a thin CLI. src/discovery/ has no dependency on src/query or src/build; gates.js and the build readers import from it. The record file is read through readJourneyRecord only, so the grandfathered state (file absent) is one null at one seam. The door check and the D0 stage are the same function with the same findings, so readiness and the refusal can never disagree on the same tree. The walker never reads rcf/discovery/ (loader subdirFor returns null for it) and the walker-invisibility invariant test covers the new directory. No new dependency; Node built-ins only; sha256 from node:crypto. The one external coupling is fbs.schema.json (additionalProperties false): journeyStepIds lands in rcf-schemas 0.7 and the binding build unit names that as its dependency.",
+  "interfaces": [
+    {
+      "name": "rcf discover journey declare",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover journey declare --ui <none|light|central> [--reason <text>] [--dry-run] [--json]\nWrites JourneyRecord.ui with declaredVia declare and declaredAt now. Lowering the value (central to light, or light or central to none) requires --reason and records it. Exit 0 written, 2 usage, 3 validation."
+    },
+    {
+      "name": "rcf discover journey add",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover journey add --from <path> [--dry-run] [--json]\nParses one journey source in the line grammar, mints or re-mints the journey by slug, writes journey.json. Exit 0 written, 2 usage, 3 grammar or validation failure naming file, line and rule, 1 io."
+    },
+    {
+      "name": "rcf discover journey import",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover journey import --from <path> [--dry-run] [--json]\nParses one journey-map document in the ux-designer prose shape (H2 heading per step, Screen: wf-NN-slug, Goes to: wf-NN-slug) into the same JourneyDraft the line grammar produces and mints it the same way; a wireframe file whose stem matches wf-NN-slug beside the source becomes the screen wireframe. Exit codes as add."
+    },
+    {
+      "name": "rcf discover journey show",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover journey show [--json]\nPrints every journey with its steps in order (id, kind, screen slug, label, next, returnsTo), the interruption answers, the review state and a derived StepState per step; --json emits the JourneyRecord verbatim plus the derived states. Exit 0; exit 0 with a notApplicable line on a none product or an absent record."
+    },
+    {
+      "name": "rcf discover journey check",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover journey check [--json]\nRuns checkDiscovery and prints one line per check with its failing ids and why. Exit 0 when every check passes or is notApplicable, 4 when any check fails."
+    },
+    {
+      "name": "rcf discover journey review",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover journey review --by <name> [--note <text>] [--dry-run]\nRuns the structural checks first and refuses with exit 4 on any failure; on success prints the one-line summary (journeys, steps, screens, interruptions mapped) and writes ReviewStamp with the current discoveryHash. One reviewer; no second-reader flag in this release."
+    },
+    {
+      "name": "rcf discover intake --ui",
+      "kind": "cliCommand",
+      "description": "usage: rcf discover intake --artefact <path> --ui <none|light|central> | --input <config.json with ui>\nWrites the declaration onto journey.json with declaredVia intake beside the intakeClassification write. No flag: interactive mode prints the matchUiSignals proposal and asks; --input mode with a ui verdict and no ui field exits 2 naming the field and writes nothing."
+    },
+    {
+      "name": "JourneyRecord",
+      "kind": "recordShape",
+      "description": "The whole of rcf/discovery/journey.json.\nfields: version, ui, declaredAt, declaredBy, declaredVia, screens, journeys, review\nnotes: ui is null, none, light or central; declaredVia is intake, declare or init; screens is Screen[]; journeys is Journey[]; review is ReviewStamp or null. Written only by writeJourneyRecord."
+    },
+    {
+      "name": "Journey",
+      "kind": "recordShape",
+      "description": "One journey in the record.\nfields: id, slug, actor, goal, source, steps, interruptions\nnotes: id is JNY-nnn; source is the authored markdown path; steps is JourneyStep[] in file order; interruptions maps every catalogue entry to a step id or to notApplicable:<reason>."
+    },
+    {
+      "name": "JourneyStep",
+      "kind": "recordShape",
+      "description": "One step of a journey.\nfields: id, slug, kind, screenId, label, next, returnsTo\nnotes: id is JNY-nnn-nnn; kind is entry, step, exit or interruption; screenId resolves to a Screen; next lists step ids; returnsTo is the step id an interruption comes back to, null otherwise."
+    },
+    {
+      "name": "Screen",
+      "kind": "recordShape",
+      "description": "One screen shared across journeys.\nfields: id, slug, title, wireframe, references\nnotes: id is SCR-nnn minted on first sight of the slug; wireframe is the repo-relative file under rcf/discovery/wireframes or null; references are links for the mid-fi layer and never satisfy any check."
+    },
+    {
+      "name": "ReviewStamp",
+      "kind": "recordShape",
+      "description": "The review block on the record.\nfields: state, by, note, at, wireframeHashes\nnotes: state is reviewed; at carries time and hash (the discoveryHash at review); wireframeHashes is one sha256 per screen id with a wireframe. discovery:reviewed passes only when at.hash equals the hash recomputed now."
+    },
+    {
+      "name": "StepState",
+      "kind": "recordShape",
+      "description": "The derived build state of one journey step.\nfields: stepId, state, fbsIds\nnotes: state is unbound, queued, inProgress, built or verified, taken from the least advanced bound executionStatus; fbsIds lists the build specs whose journeyStepIds name the step."
+    },
+    {
+      "name": "journey line grammar",
+      "kind": "fileFormat",
+      "description": "format: markdown; one step per line: `- <entry|step|exit|interruption> <step-slug> @<screen-slug> <label>`, an interruption line ending `-> returns <step-slug>`, a `# Journey: <title>` heading, `actor:` and `goal:` lines, and one `interruptions:` line of `<entry>=<step-slug>` or `<entry>=notApplicable:<reason>` pairs over the six catalogue entries."
+    },
+    {
+      "name": "journey-map prose shape",
+      "kind": "fileFormat",
+      "description": "format: markdown as the ux-designer role writes it; one H2 heading per step, a `Screen: wf-NN-slug` line, zero or more `Goes to: wf-NN-slug` lines; the first heading is the entry, a heading with no Goes to line is an exit, an `Interruptions:` list of `<entry>: <wf-NN-slug or notApplicable, reason>` lines answers the catalogue; wf-NN-slug.html or .md beside the source is the screen wireframe."
+    },
+    {
+      "name": "wireframe file",
+      "kind": "fileFormat",
+      "description": "format: a file under rcf/discovery/wireframes/<screen-slug>.(md|html|png); markdown by default, HTML accepted only when self-contained (no external stylesheet, script, image or font URL), PNG for as-built migration only; hashed as bytes; headings never inspected; a link is never a wireframe."
+    },
+    {
+      "name": "checkDiscovery",
+      "kind": "other",
+      "description": "checkDiscovery({ record, ui, wireframes }) returns the D0 check list (discovery:declared, journeyPresent, stepsNameScreens, reachable, interruptions, wireframePerStep, wireframeSelfContained, reviewed) with failing ids and why, folding to notApplicable with a reason for a none product or an absent record; pure, no io; the same call serves the D0 stage, the door check and the check verb."
+    },
+    {
+      "name": "discoveryHash",
+      "kind": "other",
+      "description": "discoveryHash(record, wireframeBytes) is the sha256 over the canonical JSON of the record with review removed concatenated with the sorted (path, sha256) pairs of every wireframe file; the value the review stamps and the reviewed check recomputes."
+    },
+    {
+      "name": "D0 define.discovery",
+      "kind": "other",
+      "description": "Readiness stage D0, gate define.discovery, short name discovery, first in STAGE_ORDER, policy blocking, not in WARN_WITH_ACK, every check productOwner; notApplicable with reason for a none product (product declared not UI-bearing) and for a grandfathered tree (no discovery declaration; existing tree); rcf define readiness --check discovery exits 4 on failure."
+    },
+    {
+      "name": "define door check",
+      "kind": "other",
+      "description": "The guard rcf define ledger brief add, rcf define create and rcf define blueprint add run before writing: checkD0Discovery over the current tree; on failure the verb exits 4 with the message `[error] refused define: this product is declared <light|central> but DISCOVERY is not complete.` followed by the D0 line, the failing ids and why, and the readiness check to run; every other define verb is ungated."
+    },
+    {
+      "name": "journey binding readers",
+      "kind": "other",
+      "description": "journeyStepIds[] on an FBS (optional, rcf-schemas 0.7) resolved by validation; rcf build queue carries a journeySteps block of StepState in markdown and JSON; rcf build bundle prints the bound steps with screen slug and wireframe path; rcf build review emits one otherDeclared finding per unbound step and per uiBearing FBS with no journeyStepIds, detail prefixed journeyStub:, anchorId the step or FBS id, exit code unchanged."
+    }
+  ],
+  "notes": "Carries the DISCOVERY verdict of 2026-10-09 as binding: three-valued declaration (none untouched; light needs the journey record answering the catalogue, wireframes optional; central needs one wireframe per step, reviewed); the catalogue is the six entries from the ux-designer role; no rollout mechanism (grandfather by absence of the record, which is what an intake run before this release leaves behind); the prose import so the journey maps already written by that role pass the gate they caused; HTML wireframes self-contained; hash bytes never headings; no ack on D0 ever; single reviewer until the first missed dead end. Chain posture: a journey step is evidence like a prototype (ADR-4132); requirements are drawn from it through brief statements sourced journey:<stepId> and the ledger loop; coverage, trace and impact never walk journey edges. Not in this release: a Journey tab in the viewer, a brief:journeySteps D1 check, a dedicated journeyStub review kind (proposed for rcf-schemas 0.7 beside journeyStepIds), a mark-complete refusal for unbound build specs (visibility, not a gate, per the proposal and the not-tight ruling).",
+  "tacId": "TAC-4142-discovery-journey-gate",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Discovery journey record, proportional check, sealed review, D0 stage and the DEFINE door"
+}

@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-09T16:28:07.111Z",
+  "updatedAt": "2026-10-09T16:28:07.111Z",
+  "context": "rcf-lite has no single open-DEFINE verb; DEFINE opens with the first chain write. The warn-with-ack channel (D3, D5, D6; ADR-4124, ADR-4131) exists for judgement calls an engineer records a reason against. The ruling says rejected, not warned. The verdict agreed: no ack on D0 ever; the three-verb door plus the D0 stage running the same pure check; single reviewer in v1, a second reader only after the first missed dead end.",
+  "decision": "D0 (define.discovery) is prepended to STAGE_ORDER with policy blocking and is never in WARN_WITH_ACK; rcf define readiness --ack discovery is a usage error. The same pure check guards rcf define ledger brief add, rcf define create and rcf define blueprint add before they write; on failure the verb exits 4 with the refused define message in the family the build and freeze gates use. Repair verbs (update, delete, link, unlink, design, standards, the other ledgers, readiness, questions, freeze) are not gated; freeze refuses through its failing block as it does for any stage. rcf discover journey review takes one reviewer and refuses on any structural failure so a review cannot bless a broken journey; the managed agent-instructions block says the harness never runs it on its own.",
+  "consequences": "A product owner who has not reviewed the journey cannot be talked past by a reason string, which is the incident the ruling answers. The door is three call sites, not a new verb, so the harness workflow is unchanged for a none product and for a grandfathered tree. A second reader is a later addition with its own evidence.",
+  "alternativesConsidered": [
+    {
+      "name": "D0 as warn-with-ack",
+      "summary": "Let an engineer acknowledge a failing D0 with a reason, like D3, D5 and D6.",
+      "reasonNotChosen": "Recreates the incident with a reason attached; the ruling says rejected."
+    },
+    {
+      "name": "A new rcf define open verb as the gate",
+      "summary": "Open DEFINE explicitly and refuse there.",
+      "reasonNotChosen": "Adds a ceremony every product pays and a state the tree does not have; the three chain-write verbs are where DEFINE actually opens today."
+    }
+  ],
+  "adrId": "ADR-4146-d0-blocking-no-ack-three-verb-door-single-reviewer",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "D0 is blocking with no acknowledgement path; the DEFINE door is the three chain-write verbs; one reviewer in this release"
+}
