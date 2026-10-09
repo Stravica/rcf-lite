@@ -1,25 +1,33 @@
-// Readiness tab renderer (REQ-180, TAC-4127-readiness-view, ADR-4127).
-// Pure HTML string builder: takes the ReadinessResult (as produced by
-// `computeReadiness` in `src/query/readiness.js`) and the operator
-// profile text, emits the tabpanel body. Never recomputes readiness
-// and never touches disk; the server loads the inputs once per
-// rewalk (see `renderModelToPage`) so the Readiness tab and
-// `rcf define readiness --json` cannot disagree for the same tree.
+// Readiness tab renderer (REQ-180, TAC-4135-readiness-command-page,
+// TAC-4133, TAC-4127, ADR-4139). Pure HTML string builder; takes the
+// ReadinessResult (as produced by `computeReadiness` in
+// `src/query/readiness.js`) plus the operator profile text and the
+// walker tree model, emits the tabpanel body.
 //
-// Layout follows DEFINE step 2 spec section 5, top to bottom:
-//   1 tree line; 2 verdict pills; 3 next-action per persona;
-//   4 D1..D8 state chips; 5 blockers by persona; 6 delta list;
-//   7 per-stage check detail; 8 retired (coverage sub-view, FBS-205);
-//   9 decisions outstanding; 10 freeze state (plain words, FBS-204);
-//  11 freeze record.
+// FBS-206 reshape: the panel is a SubTabStrip (Overview, Questions,
+// Blocking, Coverage, Trace) with five sub-panels; one is visible at
+// a time. For-engineers DocRow, stage chips and stage-detail retired
+// (Barry rulings 2026-10-07 / Dave's binding 2026-10-08 ruling 1-4).
+// "On me" / "On engineers" vocabulary replaces persona pills in the
+// user-facing text. The freeze state renders in plain words with
+// what resolves each failing gate. The Trace sub-view is an empty
+// shell here; FBS-208 fills it.
+//
+// Every id (passing or failing) still lives in the DOM in some
+// sub-panel so AC-18001-5 and AC-18002-3 ("no id leaves the DOM")
+// stay true: a hidden sub-panel is `[hidden]`, not removed.
 
 import { escapeHtml } from './doc-renderers/helpers.js';
 import { formatTreeLine, formatVerdictLines, shortHash } from '../query/readiness.js';
-import { pill } from './components/pill.js';
-import { findingsList } from './components/findings-list.js';
-import { diff } from './components/diff.js';
-import { renderReadinessPO } from './readiness/po-layer.js';
-import { renderStageLegend, stageTitle } from './readiness/stage-legend.js';
+import { renderSubTabStrip } from './components/sub-tab-strip.js';
+import { renderVerdictCards } from './readiness/po-layer.js';
+import { renderQuestionsTable, renderBlockingTable, buildQuestionRows, buildBlockingRows } from './readiness/tables.js';
+import { renderCoverageSummary } from './readiness/coverage-summary.js';
+import { buildThinReqRows, renderThinReqsTable } from './readiness/thin-reqs.js';
+import { renderVerdictGrid } from './readiness/grid.js';
+import { renderDeltaCounts } from './readiness/delta-counts.js';
+import { renderStageLegend } from './readiness/stage-legend.js';
+import { toQuestions, preferReadinessQuestions } from './readiness/question-adapter.js';
 
 /**
  * @typedef {import('../query/readiness.js').ReadinessResult} ReadinessResult
@@ -28,11 +36,15 @@ import { renderStageLegend, stageTitle } from './readiness/stage-legend.js';
  * @typedef {import('../query/readiness.js').Blocker} Blocker
  */
 
+/** Sub-tab keys in authoring order (first = default). */
+export const READINESS_SUBS = ['overview', 'questions', 'blocking', 'coverage', 'trace'];
+
 /**
  * Decide the register ordering from `profile.md` text. Same contract
- * as the CLI's `pickRegister` helper: first marker in the text wins;
- * absent / unrecognised yields `unstated`, which the tab orders as
- * productOwner-first (spec section 5).
+ * as the CLI's `pickRegister` helper. The register no longer flips
+ * the layout: the Overview is the default landing and the sub-tab
+ * router restores sub= from the hash. The register is still a
+ * content hint (text uses "On me" / "On engineers" based on it).
  *
  * @param {string | null | undefined} text
  * @returns {'productOwner'|'engineer'|'unstated'}
@@ -56,12 +68,14 @@ export function pickRegister(text) {
 /**
  * Build the full Readiness tabpanel inner HTML.
  *
- * @param {ReadinessResult | null} result - the computed readiness
- *   object, or null when the tree could not be computed
+ * @param {ReadinessResult | null} result
  * @param {object} [opts]
- * @param {string | null} [opts.profile] - profile.md text (register)
- * @param {object | null} [opts.freezeRecord] - loaded freeze record,
- *   for the Freeze record block (section 11)
+ * @param {string | null} [opts.profile]
+ * @param {object | null} [opts.freezeRecord]
+ * @param {object | null} [opts.tree]
+ * @param {string} [opts.activeSub]   sub-tab key the server should mark active
+ *                                    (defaults to 'overview'; the client router
+ *                                    takes over after load)
  * @returns {string}
  */
 export function renderReadinessPanel(result, opts = {}) {
@@ -71,296 +85,195 @@ export function renderReadinessPanel(result, opts = {}) {
   const register = pickRegister(opts.profile ?? null);
   const freezeRecord = opts.freezeRecord ?? null;
   const tree = opts.tree ?? null;
+  const activeSub = READINESS_SUBS.includes(opts.activeSub) ? opts.activeSub : 'overview';
+
+  const subTabs = renderSubTabStrip({
+    hashKey: 'readiness',
+    items: [
+      { key: 'overview', label: 'Overview', controls: 'rcf-readiness-sub-overview' },
+      { key: 'questions', label: 'Questions', controls: 'rcf-readiness-sub-questions' },
+      { key: 'blocking', label: 'Blocking', controls: 'rcf-readiness-sub-blocking' },
+      { key: 'coverage', label: 'Coverage', controls: 'rcf-readiness-sub-coverage' },
+      { key: 'trace', label: 'Trace', controls: 'rcf-readiness-sub-trace' },
+    ],
+    active: activeSub,
+  });
+
   const verdictLines = formatVerdictLines(result);
+  const q = toQuestions(result);
+  const questionsSource = preferReadinessQuestions(result) ? 'readiness.questions' : 'blockers';
+  const questionRows = buildQuestionRowsForTable(q);
+  const blockingRows = buildBlockingRows(Array.isArray(result.stages) ? result.stages : []);
+  const thinRows = buildThinReqRows(result, tree);
 
-  // FBS-204 (ADR-4139): the engineer body no longer carries the blocker
-  // cards (the top-level blocking table owns them) or renderFreezeNow
-  // (a write control the GET-only server never wired). The next-action
-  // block drops its CLI command text, and the freeze state is rendered
-  // in plain words via renderFreezeState so the panel contains no shell
-  // command text anywhere. renderStageDetail stays as the per-stage
-  // breakdown, which keeps AC-18002-3 (no blocker id leaves the DOM)
-  // true across the operator surface (the blocking table) and the
-  // engineer surface (stage detail).
-  //
-  // FBS-205 (ADR-4139, AC-18004-*): the engineer body no longer carries
-  // the standalone coverage block either; coverage is rendered by the
-  // PO layer as the coverage sub-view (renderCoverageSummary) via the
-  // numbers the compute actually produces (totals, unresolvedTest-
-  // Pointers, requirements[].coverageClass), not the blank pass/total
-  // the old renderCoverage read.
-  const engineerBody = [
-    renderTreeLine(result),
-    renderVerdicts(result, verdictLines),
-    renderNextActions(result, register),
-    renderStageChips(result, freezeRecord),
-    renderDelta(result, freezeRecord),
-    renderStageDetail(result),
-    renderDecisions(result),
-    renderFreezeState(result),
-    renderFreezeRecord(freezeRecord),
-  ].join('\n');
+  const overview = renderOverviewSub({
+    result,
+    verdictLines,
+    q,
+    freezeRecord,
+    register,
+    active: activeSub === 'overview',
+  });
+  const questions = renderQuestionsSub({
+    questionRows,
+    questionsSource,
+    active: activeSub === 'questions',
+  });
+  const blocking = renderBlockingSub({
+    blockingRows,
+    active: activeSub === 'blocking',
+  });
+  const coverage = renderCoverageSub({
+    result,
+    tree,
+    thinRows,
+    active: activeSub === 'coverage',
+  });
+  const trace = renderTraceSub({ active: activeSub === 'trace' });
 
-  const poLayer = renderReadinessPO(result, { persona: register, engineerBody, tree });
+  // AC-18003-8: engineer register renders the Blocking sub-panel
+  // before the Questions sub-panel in the DOM so the engineer surface
+  // takes DOM precedence. Product owner and the default keep Questions
+  // first (matches AC-18001-4). The SubTabStrip's visible labels keep
+  // their authoring order; the ARIA aria-controls links each tab to
+  // its panel by id, so swapping panel order does not break the strip
+  // or the router.
+  const paintOrder = register === 'engineer'
+    ? [overview, blocking, questions, coverage, trace]
+    : [overview, questions, blocking, coverage, trace];
+
   const legend = renderStageLegend();
-  return `${poLayer}\n${legend}`;
+  return `<div class="rcf-readiness-panel" data-rcf-register="${escapeHtml(register)}" data-rcf-source="${escapeHtml(questionsSource)}">`
+    + subTabs
+    + paintOrder.join('')
+    + legend
+    + `</div>`;
 }
 
-// --- Block 1: tree line ------------------------------------------------
+// ---- Overview sub-view ---------------------------------------------------
+//
+// Carries: tree line, two VerdictCards (count-links into Questions /
+// Blocking sub-tabs), the stage verdict grid, the delta counts (per-
+// document list behind a collapsed <details>), decisions outstanding,
+// freeze state (plain words), freeze record. The CLI verdictLines
+// render inside the Overview too so AC-18002-3 ("every id in the DOM")
+// stays true across sub-views and the --json parity test
+// (AC-18001-7) keeps passing.
+
+function renderOverviewSub({ result, verdictLines, q, freezeRecord, register, active }) {
+  const cards = renderVerdictCards(result, verdictLines, q);
+  const treeLine = renderTreeLine(result);
+  const grid = renderVerdictGrid({ stages: result.stages, freezeRecord });
+  const deltaCounts = renderDeltaCounts({ delta: result.delta, freezeRecord, expanded: false });
+  const decisions = renderDecisions(result);
+  const freezeState = renderFreezeState(result, register);
+  const freezeRec = renderFreezeRecord(freezeRecord);
+  const verdictParity = renderCliVerdictLines(verdictLines);
+  const hidden = active ? '' : ' hidden';
+  return `<div class="rcf-readiness-subpanel rcf-readiness-sub-overview" id="rcf-readiness-sub-overview" data-rcf-subpanel="overview" role="tabpanel"${hidden}>`
+    + treeLine
+    + cards
+    + verdictParity
+    + grid
+    + deltaCounts
+    + decisions
+    + freezeState
+    + freezeRec
+    + `</div>`;
+}
 
 function renderTreeLine(result) {
   return `<div class="rcf-readiness-tree"><p>${escapeHtml(formatTreeLine(result))}</p></div>`;
 }
 
-// --- Block 2: verdict pills --------------------------------------------
+// The CLI verdict strings render as a muted parity block inside
+// Overview. AC-18001-7 (every id on the tab appears in the --json for
+// the same tree) and AC-18002-3 (engineer ids never leave the DOM)
+// both rely on these strings being present in the rendered HTML.
 
-function renderVerdicts(result, verdictLines) {
-  const l = result.levels;
-  const intentValue = l.intentComplete.ok ? 'yes' : 'no';
-  const buildValue = l.readyToBuild.ok ? 'yes' : 'no';
-  const intentPill = pill({
-    value: verdictLines.intentComplete,
-    variant: 'level-verdict-intent',
-    title: `Intent complete: ${intentValue} (${l.intentComplete.blockedBy.length} blocker${l.intentComplete.blockedBy.length === 1 ? '' : 's'})`,
-  });
-  const buildPill = pill({
-    value: verdictLines.readyToBuild,
-    variant: 'level-verdict-build',
-    title: `Ready to build: ${buildValue} (${l.readyToBuild.blockedBy.length} blocker${l.readyToBuild.blockedBy.length === 1 ? '' : 's'})`,
-  });
-  return `<div class="rcf-readiness-verdicts" data-rcf-intent-ok="${intentValue}" data-rcf-build-ok="${buildValue}">`
-    + `<div class="rcf-readiness-verdict rcf-readiness-verdict--intent">${intentPill}`
-    + ` <span class="rcf-readiness-verdict__count">${l.intentComplete.blockedBy.length}</span></div>`
-    + `<div class="rcf-readiness-verdict rcf-readiness-verdict--build">${buildPill}`
-    + ` <span class="rcf-readiness-verdict__count">${l.readyToBuild.blockedBy.length}</span></div>`
-    + `</div>`;
-}
-
-// --- Block 3: next action per persona ----------------------------------
-
-function renderNextActions(result, register) {
-  const po = result.personas.productOwner.nextAction;
-  const eng = result.personas.engineer.nextAction;
-  const po_line = renderNextActionLine('product owner', po, 'productOwner');
-  const eng_line = renderNextActionLine('engineer', eng, 'engineer');
-  const order = register === 'engineer' ? [eng_line, po_line] : [po_line, eng_line];
-  return `<div class="rcf-readiness-next-actions" data-rcf-register="${register}">`
-    + order.join('')
-    + `</div>`;
-}
-
-function renderNextActionLine(label, action, persona) {
-  if (!action) {
-    return `<p class="rcf-readiness-next-action rcf-readiness-next-action--${persona}">`
-      + `<strong>Next action (${escapeHtml(label)}):</strong> none.`
-      + `</p>`;
-  }
-  const ids = action.ids && action.ids.length > 0 ? ` on ${action.ids.join(', ')}` : '';
-  const anchor = `#rcf-readiness-check-${encodeURIComponent(`${action.stage}:${action.check}`)}`;
-  // FBS-204 (AC-18003-7, ADR-4139): no `Run <cmd>` line any more. The
-  // owner acts in their agent session; the panel points at the chain
-  // location and names what resolves the row in the blocking table.
-  return `<p class="rcf-readiness-next-action rcf-readiness-next-action--${persona}">`
-    + `<strong>Next action (${escapeHtml(label)}):</strong> `
-    + `<a href="${escapeHtml(anchor)}">${escapeHtml(action.stage)} / ${escapeHtml(action.check)}</a>`
-    + `${escapeHtml(ids)}.`
+function renderCliVerdictLines(verdictLines) {
+  return `<p class="rcf-readiness-cli-verdict muted small" data-rcf-verdict="parity">`
+    + `<code>${escapeHtml(verdictLines.intentComplete)}</code> `
+    + `<code>${escapeHtml(verdictLines.readyToBuild)}</code>`
     + `</p>`;
 }
 
-// --- Block 4: stage chips D1..D8 ---------------------------------------
+// ---- Questions sub-view --------------------------------------------------
 
-function renderStageChips(result, freezeRecord) {
-  const chips = result.stages.map((s) => {
-    const stateClass = chipStateClass(s.state);
-    const legendTitle = stageTitle(s.stage);
-    let title = `${s.stage} ${s.gate}: ${s.state}`;
-    if (legendTitle && legendTitle !== s.stage) title = `${legendTitle} (${s.state})`;
-    if (s.state === 'notApplicable' && s.reason) title = `${title} - ${s.reason}`;
-    if (s.state === 'acknowledged' && freezeRecord && freezeRecord.gates && freezeRecord.gates[s.gate]) {
-      const ack = freezeRecord.gates[s.gate];
-      if (ack && typeof ack.reason === 'string' && ack.reason.length > 0) {
-        title = `${title} - ${ack.reason}`;
-      }
-    }
-    const label = `${s.stage}: ${s.state}`;
-    return `<li class="rcf-readiness-chip rcf-readiness-chip--${stateClass}" data-rcf-stage-ref="${s.stage}">`
-      + pill({ value: label, variant: 'gate-state', title })
-      + `</li>`;
-  }).join('');
-  return `<ul class="rcf-readiness-chips">${chips}</ul>`;
-}
-
-function chipStateClass(state) {
-  switch (state) {
-    case 'passed':
-      return 'green';
-    case 'failing':
-      return 'red';
-    case 'acknowledged':
-      return 'amber';
-    case 'notApplicable':
-      return 'grey';
-    default:
-      return 'grey';
-  }
-}
-
-// --- Block 5 retired (FBS-204, ADR-4139): renderBlockersByPersona and
-// its helpers (renderPersonaGroup, renderBlockerCard, buildIdWhyMap)
-// are gone. The read-only blocking table in src/view/readiness/tables.js
-// owns the per-item blocker surface for the operator, and the engineer
-// surface is still carried below by renderStageDetail + the per-check
-// findings-list. AC-18002-3 (no blocker id ever leaves the DOM) is
-// preserved by that pair: every failing id in stages[].checks[].failing[]
-// still appears in both tables.
-
-// --- Block 6: delta list -----------------------------------------------
-
-function renderDelta(result, freezeRecord) {
-  const d = result.delta;
-  const briefCount = Array.isArray(d.briefSince) ? d.briefSince.length : 0;
-  const changedCount = (d.changed?.length ?? 0) + (d.added?.length ?? 0) + (d.removed?.length ?? 0);
-  const frozenHashes = (freezeRecord && typeof freezeRecord === 'object' && freezeRecord.docHashes && typeof freezeRecord.docHashes === 'object')
-    ? freezeRecord.docHashes
-    : {};
-  const currentHashes = (d && typeof d.currentDocHashes === 'object' && d.currentDocHashes !== null)
-    ? d.currentDocHashes
-    : {};
-  const briefBlock = briefCount > 0
-    ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--brief">`
-      + `<h4>Brief statements since freeze <span class="rcf-readiness-delta__count">${briefCount}</span></h4>`
-      + `<ul>${d.briefSince.map((n) => `<li>#${escapeHtml(String(n))}</li>`).join('')}</ul>`
-      + `</section>`
-    : '';
-  const changedBlock = changedCount > 0
-    ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--documents">`
-      + `<h4>Documents changed <span class="rcf-readiness-delta__count">${changedCount}</span></h4>`
-      + `<ul>`
-      + (d.added ?? []).map((id) => `<li><a href="#${escapeHtml(id)}">${escapeHtml(id)}</a> <em>added</em>${renderDocDiff(id, frozenHashes, currentHashes, 'added')}</li>`).join('')
-      + (d.changed ?? []).map((id) => `<li><a href="#${escapeHtml(id)}">${escapeHtml(id)}</a> <em>changed</em>${renderDocDiff(id, frozenHashes, currentHashes, 'changed')}</li>`).join('')
-      + (d.removed ?? []).map((id) => `<li>${escapeHtml(id)} <em>removed</em>${renderDocDiff(id, frozenHashes, currentHashes, 'removed')}</li>`).join('')
-      + `</ul>`
-      + `</section>`
-    : '';
-  // FBS-205: the former renderCoverage block carried the re-verify
-  // (delta.impacted) and re-execute (delta.impactedFbs) counts. The
-  // sub-view that replaced renderCoverage reads coverage.tree.totals;
-  // it does not surface the delta list. Pending FBS-206 taking
-  // ownership of the delta sub-view, keep the counts visible on the
-  // engineer surface so the engineer still sees which ACs and FBS
-  // items a since-freeze change has invalidated.
-  const impacted = Array.isArray(d.impacted) ? d.impacted : [];
-  const impactedFbs = Array.isArray(d.impactedFbs) ? d.impactedFbs : [];
-  const impactedBlock = (impacted.length > 0 || impactedFbs.length > 0)
-    ? `<section class="rcf-readiness-delta__group rcf-readiness-delta__group--impacted" data-rcf-impacted-ac="${impacted.length}" data-rcf-impacted-fbs="${impactedFbs.length}">`
-      + `<h4>Impacted by delta <span class="rcf-readiness-delta__count">${impacted.length} AC, ${impactedFbs.length} FBS</span></h4>`
-      + (impacted.length > 0
-        ? `<p class="rcf-readiness-delta__impacted-label muted small">To re-verify (${impacted.length}):</p>`
-          + `<ul class="rcf-readiness-delta__impacted-ac">`
-          + impacted.map((id) => `<li><a href="#${escapeHtml(String(id))}">${escapeHtml(String(id))}</a></li>`).join('')
-          + `</ul>`
-        : '')
-      + (impactedFbs.length > 0
-        ? `<p class="rcf-readiness-delta__impacted-label muted small">To re-execute (${impactedFbs.length}):</p>`
-          + `<ul class="rcf-readiness-delta__impacted-fbs">`
-          + impactedFbs.map((id) => `<li><a href="#${escapeHtml(String(id))}">${escapeHtml(String(id))}</a></li>`).join('')
-          + `</ul>`
-        : '')
-      + `</section>`
-    : '';
-  if (!briefBlock && !changedBlock && !impactedBlock) {
-    return `<section class="rcf-readiness-delta"><p><em>No delta since the last freeze.</em></p></section>`;
-  }
-  return `<section class="rcf-readiness-delta">${briefBlock}${changedBlock}${impactedBlock}</section>`;
-}
-
-/**
- * Document-level hash diff for one changed / added / removed id.
- * Spec section 5 block 6 pins a real `diff` component here; section 10
- * decision 1 scopes 0.29.0 to document-level only (criterion-level
- * deferred). The freeze record does not persist document bodies in
- * 0.29.0 (freeze-record.js schema: `docHashes` only — no `docs` /
- * `snapshot` section), so this ships the hash-only variant: both
- * columns show the short-hash subtitle and the frozen side carries
- * a muted note stating the body was not captured. NOTES in the brief.
- */
-function renderDocDiff(id, frozenHashes, currentHashes, kind) {
-  const frozenHash = typeof frozenHashes?.[id] === 'string' ? frozenHashes[id] : null;
-  const currentHash = typeof currentHashes?.[id] === 'string' ? currentHashes[id] : null;
-  const beforeNote = 'frozen body not captured in freeze record 0.29.0';
-  const before = kind === 'added'
-    ? { note: 'not in the frozen tree' }
-    : { hash: frozenHash ?? '', note: beforeNote };
-  const after = kind === 'removed'
-    ? { note: 'removed from the live tree' }
-    : { hash: currentHash ?? '', note: 'current body available on the document tab' };
-  return ` ${diff(before, after)}`;
-}
-
-// --- Block 7: per-stage check detail -----------------------------------
-
-function renderStageDetail(result) {
-  const stageBlocks = result.stages.map((s) => renderStage(s)).join('');
-  return `<section class="rcf-readiness-stage-detail">`
-    + `<h3>Stage detail</h3>`
-    + stageBlocks
-    + `</section>`;
-}
-
-/**
- * @param {StageResult} s
- */
-function renderStage(s) {
-  const chip = pill({ value: s.state, variant: 'gate-state', title: `${s.stage} ${s.gate}` });
-  const checks = s.checks.map((c) => renderCheck(s, c)).join('');
-  return `<section class="rcf-readiness-stage" id="rcf-readiness-stage-${escapeHtml(s.stage)}">`
-    + `<h4>${escapeHtml(s.stage)} <code>${escapeHtml(s.gate)}</code> ${chip}</h4>`
-    + checks
-    + `</section>`;
-}
-
-/**
- * @param {StageResult} s
- * @param {CheckResult} c
- */
-function renderCheck(s, c) {
-  const checkId = `rcf-readiness-check-${encodeURIComponent(`${s.stage}:${c.name}`)}`;
-  const personaPill = pill({
-    value: c.persona === 'productOwner' ? 'PO' : 'eng',
-    variant: 'persona',
-    title: c.persona,
-  });
-  const statusLabel = c.ok ? 'ok' : 'fail';
-  const items = c.ok
-    ? ''
-    : findingsList({
-      heading: c.question,
-      count: c.failing.length,
-      items: c.failing.map((f) => ({ id: f.id, why: f.why, href: `#${f.id}` })),
-    });
-  return `<div class="rcf-readiness-check" id="${escapeHtml(checkId)}" data-rcf-check-ok="${c.ok ? 'yes' : 'no'}">`
-    + `<div class="rcf-readiness-check__meta">`
-    + `<strong>${escapeHtml(c.name)}</strong> ${personaPill} `
-    + `<span class="rcf-readiness-check__over">over ${escapeHtml(c.over)}</span> `
-    + `<span class="rcf-readiness-check__counts">${c.pass}/${c.total}</span> `
-    + `<span class="rcf-readiness-check__status rcf-readiness-check__status--${statusLabel}">${statusLabel}</span>`
-    + `</div>`
-    + items
+function renderQuestionsSub({ questionRows, questionsSource, active }) {
+  const hidden = active ? '' : ' hidden';
+  const table = renderQuestionsTable({ rows: questionRows });
+  return `<div class="rcf-readiness-subpanel rcf-readiness-sub-questions" id="rcf-readiness-sub-questions" data-rcf-subpanel="questions" data-rcf-source="${escapeHtml(questionsSource)}" role="tabpanel"${hidden}>`
+    + table
     + `</div>`;
 }
 
-// --- Block 8 retired (FBS-205) ----------------------------------------
-//
-// The former renderCoverage block read `coverage.tree.pass` and
-// `coverage.tree.total`, which do not exist on the real compute
-// (coverage.tree carries `totals.{...}` and
-// `requirements[].coverageClass`). The result rendered as "pass /"
-// blanks on every live tree. The PO layer now owns the coverage
-// sub-view via renderCoverageSummary, which reads the fields
-// coverage actually produces and never prints a blank number
-// (AC-18004-1, AC-18004-6, AC-18004-7).
+function buildQuestionRowsForTable(adapterResult) {
+  const groups = Array.isArray(adapterResult?.groups) ? adapterResult.groups : [];
+  const optional = adapterResult?.optional ?? null;
+  const synthetic = [];
+  for (const g of groups) {
+    const items = Array.isArray(g?.items) ? g.items : [];
+    for (const it of items) {
+      synthetic.push({
+        itemId: it.itemId ?? it.id ?? '',
+        ask: it.ask,
+        hint: it.hint,
+        sourceSpanLabel: g.label,
+        checkId: it.checkId,
+        optional: Boolean(it.optional),
+      });
+    }
+  }
+  if (optional && Array.isArray(optional.items)) {
+    for (const it of optional.items) {
+      synthetic.push({
+        itemId: it.itemId ?? '',
+        ask: it.ask,
+        hint: it.hint,
+        sourceSpanLabel: optional.label,
+        checkId: it.checkId,
+        optional: true,
+      });
+    }
+  }
+  return buildQuestionRows(synthetic);
+}
 
-// --- Block 9: decisions outstanding ------------------------------------
+// ---- Blocking sub-view ---------------------------------------------------
+
+function renderBlockingSub({ blockingRows, active }) {
+  const hidden = active ? '' : ' hidden';
+  const table = renderBlockingTable({ rows: blockingRows });
+  return `<div class="rcf-readiness-subpanel rcf-readiness-sub-blocking" id="rcf-readiness-sub-blocking" data-rcf-subpanel="blocking" role="tabpanel"${hidden}>`
+    + table
+    + `</div>`;
+}
+
+// ---- Coverage sub-view ---------------------------------------------------
+
+function renderCoverageSub({ result, tree, thinRows, active }) {
+  const hidden = active ? '' : ' hidden';
+  const summary = renderCoverageSummary({ coverage: result.coverage, tree });
+  const thin = renderThinReqsTable({ rows: thinRows });
+  return `<div class="rcf-readiness-subpanel rcf-readiness-sub-coverage" id="rcf-readiness-sub-coverage" data-rcf-subpanel="coverage" role="tabpanel"${hidden}>`
+    + summary
+    + thin
+    + `</div>`;
+}
+
+// ---- Trace sub-view (shell; filled by FBS-208) ---------------------------
+
+function renderTraceSub({ active }) {
+  const hidden = active ? '' : ' hidden';
+  return `<div class="rcf-readiness-subpanel rcf-readiness-sub-trace" id="rcf-readiness-sub-trace" data-rcf-subpanel="trace" role="tabpanel"${hidden}>`
+    + `<section class="rcf-readiness-trace rcf-readiness-trace--shell">`
+    + `<p><em>Trace matrix will land here with FBS-208 (US-209).</em></p>`
+    + `</section>`
+    + `</div>`;
+}
+
+// ---- Decisions outstanding -----------------------------------------------
 
 function renderDecisions(result) {
   const items = Array.isArray(result.decisions) ? result.decisions : [];
@@ -379,18 +292,14 @@ function renderDecisions(result) {
   return `<section class="rcf-readiness-decisions"><h3>Decisions outstanding</h3><ol>${list}</ol></section>`;
 }
 
-// --- Block 10: freeze state --------------------------------------------
+// ---- Freeze state (plain words, no command, no control) -----------------
 //
-// Replaces renderFreezeNow (FBS-204, AC-18001-6 amended, AC-18003-7,
-// ADR-4139). The viewer is read-only: no freeze control, no CLI
-// command text. When readyToBuild is false the block names the
-// failing gates from `levels.readyToBuild.blockedBy` in plain words
-// so a reader can see which stages still need work. When
-// readyToBuild is true the block names what a freeze would record
-// (hash, timestamp, counts, acknowledged gates), without proposing
-// to run anything from the page.
+// AC-18005-5: readyToBuild=no names each failing gate with what
+// resolves it; readyToBuild=yes states that the tree can be frozen
+// and what a freeze would record. "On me" / "On engineers" vocab
+// replaces persona pills.
 
-function renderFreezeState(result) {
+function renderFreezeState(result, register) {
   const ok = result.levels.readyToBuild.ok;
   const freezeableAttr = ok ? 'yes' : 'no';
   if (ok) {
@@ -400,23 +309,83 @@ function renderFreezeState(result) {
       + `<p>Ready to freeze. A freeze would record the current tree hash <code>${shortCurrent}</code>, the timestamp, the note, the counts and the acknowledged gates with their reasons.</p>`
       + `</section>`;
   }
-  const gates = [...new Set(result.levels.readyToBuild.blockedBy.map((b) => b.gate).filter(Boolean))].sort();
-  if (gates.length === 0) {
+  const blockers = Array.isArray(result.levels.readyToBuild.blockedBy) ? result.levels.readyToBuild.blockedBy : [];
+  const grouped = groupBlockersByGate(blockers);
+  if (grouped.length === 0) {
     return `<section class="rcf-readiness-freeze-state" data-rcf-freezeable="${freezeableAttr}">`
       + `<h3>Freeze state</h3>`
       + `<p>Not ready to freeze.</p>`
       + `</section>`;
   }
-  const words = gates.length === 1
-    ? `the <code>${escapeHtml(gates[0])}</code> gate`
-    : `${gates.length} gates: ${gates.map((g) => `<code>${escapeHtml(g)}</code>`).join(', ')}`;
+  const items = grouped.map((g) => {
+    const owner = g.ownerLabel;
+    const resolver = resolverSentence(g.gate, g.checks);
+    return `<li data-rcf-gate="${escapeHtml(g.gate)}" data-rcf-owner="${escapeHtml(g.owner)}">`
+      + `<code>${escapeHtml(g.gate)}</code> <span class="muted small">(${escapeHtml(owner)})</span>: ${escapeHtml(resolver)}`
+      + `</li>`;
+  }).join('');
+  const lead = (register === 'engineer')
+    ? 'The build is held by these gates. "On me" means engineers, "On engineers" means the product owner has handed it over.'
+    : 'The build is held by these gates. "On me" means the product owner, "On engineers" means the engineers.';
   return `<section class="rcf-readiness-freeze-state" data-rcf-freezeable="${freezeableAttr}">`
     + `<h3>Freeze state</h3>`
-    + `<p>Not ready to freeze. The build is held by ${words}. The blocking table above names what resolves each failing item.</p>`
+    + `<p>Not ready to freeze. ${escapeHtml(lead)}</p>`
+    + `<ul class="rcf-readiness-freeze-state__gates">${items}</ul>`
     + `</section>`;
 }
 
-// --- Block 11: freeze record -------------------------------------------
+/** Group blockers by gate, folding owner (persona) to the shared label. */
+function groupBlockersByGate(blockers) {
+  const byGate = new Map();
+  for (const b of blockers) {
+    if (!b || typeof b !== 'object') continue;
+    const gate = typeof b.gate === 'string' ? b.gate : '';
+    if (!gate) continue;
+    const slot = byGate.get(gate) || { gate, owners: new Set(), checks: new Set() };
+    if (b.persona === 'productOwner' || b.persona === 'engineer') slot.owners.add(b.persona);
+    if (typeof b.check === 'string') slot.checks.add(b.check);
+    byGate.set(gate, slot);
+  }
+  const rows = [];
+  for (const slot of byGate.values()) {
+    const owners = Array.from(slot.owners);
+    const owner = owners.length === 1 ? owners[0] : (owners.includes('productOwner') ? 'productOwner' : 'engineer');
+    rows.push({
+      gate: slot.gate,
+      owner,
+      ownerLabel: owner === 'productOwner' ? 'On me' : 'On engineers',
+      checks: Array.from(slot.checks).sort(),
+    });
+  }
+  rows.sort((a, b) => a.gate.localeCompare(b.gate));
+  return rows;
+}
+
+/**
+ * Plain-English sentence naming what resolves the gate, derived from
+ * its failing checks. Keeps the viewer command-free: the engineer or
+ * product owner reads what the row says and acts in their own agent
+ * session.
+ */
+function resolverSentence(gate, checks) {
+  if (checks.length === 0) return `the ${gate} gate still has failing items in the blocking table.`;
+  const labels = checks.map(checkToPlainLabel).filter(Boolean);
+  const uniq = Array.from(new Set(labels));
+  if (uniq.length === 0) return `resolve the failing items for ${gate} named in the blocking table.`;
+  if (uniq.length === 1) return `resolve the ${uniq[0]} failing items in the blocking table.`;
+  const last = uniq.pop();
+  return `resolve the ${uniq.join(', ')} and ${last} failing items in the blocking table.`;
+}
+
+function checkToPlainLabel(check) {
+  if (typeof check !== 'string' || check.length === 0) return '';
+  // e.g. "brief:sinceFreeze" -> "brief", "stories:usFloors" -> "stories",
+  // "crosscut:securityArchitecture" -> "crosscut".
+  const idx = check.indexOf(':');
+  return idx === -1 ? check : check.slice(0, idx);
+}
+
+// ---- Freeze record -------------------------------------------------------
 
 function renderFreezeRecord(freezeRecord) {
   if (!freezeRecord) {

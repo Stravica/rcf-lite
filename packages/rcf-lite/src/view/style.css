@@ -3205,3 +3205,150 @@ html[data-rcf-lookup-open] { overflow: hidden; }
   .rcf-thin-reqs__table td { display: block; padding: 0.15rem 0; }
 }
 [data-embed="1"] .rcf-cov-summary__tiles { grid-template-columns: repeat(2, 1fr); }
+
+/* --------------------------------------------------------------------
+ * Readiness SubTabStrip, stage grid, delta counts (FBS-206, TAC-4135)
+ * -------------------------------------------------------------------- */
+
+.rcf-readiness-panel { display: block; }
+.rcf-readiness-subpanel { display: block; margin-top: 0.6rem; }
+.rcf-readiness-subpanel[hidden] { display: none; }
+
+.rcf-readiness-grid {
+  margin: 1rem 0;
+}
+.rcf-readiness-grid__table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: 0.4rem;
+  overflow: hidden;
+}
+.rcf-readiness-grid__table th,
+.rcf-readiness-grid__table td {
+  padding: 0.4rem 0.7rem;
+  text-align: left;
+  border-bottom: 1px solid var(--sv-border);
+}
+.rcf-readiness-grid__table th { font-weight: 600; }
+.rcf-readiness-grid__table tr:last-child th,
+.rcf-readiness-grid__table tr:last-child td { border-bottom: none; }
+.rcf-readiness-grid__stage-id { font-weight: 600; }
+.rcf-readiness-grid__cell--passed { color: var(--sv-success); }
+.rcf-readiness-grid__cell--failing { color: var(--sv-danger); }
+.rcf-readiness-grid__cell--acknowledged { color: var(--sv-warning); }
+.rcf-readiness-grid__cell--notApplicable { color: var(--sv-muted); }
+.rcf-readiness-grid__counts { font-variant-numeric: tabular-nums; }
+.rcf-readiness-grid__failing {
+  margin-left: 0.4rem;
+  color: var(--sv-danger);
+  text-decoration: underline;
+}
+.rcf-readiness-grid__failing:hover,
+.rcf-readiness-grid__failing:focus { color: var(--sv-hover); }
+
+.rcf-readiness-delta-counts {
+  margin: 1rem 0;
+}
+.rcf-readiness-delta-counts__tiles {
+  display: grid;
+  grid-template-columns: repeat(6, minmax(0, 1fr));
+  gap: 0.5rem;
+  margin: 0.4rem 0 0.6rem;
+}
+.rcf-readiness-delta-counts__tile {
+  background: var(--sv-surface);
+  border: 1px solid var(--sv-border);
+  border-radius: 0.4rem;
+  padding: 0.5rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  align-items: start;
+  min-width: 0;
+}
+.rcf-readiness-delta-counts__tile--empty { opacity: 0.6; }
+.rcf-readiness-delta-counts__n {
+  font-size: 1.4rem;
+  font-weight: 600;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.1;
+}
+.rcf-readiness-delta-counts__label {
+  font-size: 0.82rem;
+  color: var(--sv-muted);
+  margin-top: 0.15rem;
+}
+.rcf-readiness-delta-counts__details {
+  margin-top: 0.3rem;
+  border: 1px solid var(--sv-border);
+  border-radius: 0.4rem;
+  padding: 0.4rem 0.7rem;
+  background: var(--sv-surface);
+}
+.rcf-readiness-delta-counts__details > summary {
+  cursor: pointer;
+  color: var(--sv-link);
+}
+
+.rcf-readiness-freeze-state__gates {
+  margin: 0.3rem 0 0;
+  padding-left: 1.1rem;
+}
+.rcf-readiness-freeze-state__gates li { margin: 0.15rem 0; }
+
+@media (max-width: 720px) {
+  .rcf-readiness-delta-counts__tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .rcf-readiness-grid__table thead { display: none; }
+  .rcf-readiness-grid__table tr {
+    display: block;
+    border-bottom: 1px solid var(--sv-border);
+    padding: 0.3rem 0;
+  }
+  .rcf-readiness-grid__table th[scope="row"],
+  .rcf-readiness-grid__table td {
+    display: block;
+    padding: 0.15rem 0.7rem;
+  }
+  .rcf-readiness-grid__table td::before {
+    content: attr(data-rcf-cell-scope) ": ";
+    color: var(--sv-muted);
+    margin-right: 0.3rem;
+    text-transform: capitalize;
+  }
+  /* Keep the SubTabStrip inside the readiness panel at narrow widths
+   * (AC-18005-7): a horizontal scroll on the strip only, not on the
+   * page. The .rcf-subtabs block already wraps buttons; we add
+   * overflow-x: auto so a long strip scrolls on its own. */
+  #tab-readiness .rcf-subtabs {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+  }
+}
+
+[data-embed="1"] .rcf-readiness-delta-counts__tiles {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+}
+[data-embed="1"] #tab-readiness .rcf-subtabs {
+  overflow-x: auto;
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+[data-embed="1"] .rcf-readiness-grid__table thead { display: none; }
+[data-embed="1"] .rcf-readiness-grid__table tr {
+  display: block;
+  border-bottom: 1px solid var(--sv-border);
+  padding: 0.3rem 0;
+}
+[data-embed="1"] .rcf-readiness-grid__table th[scope="row"],
+[data-embed="1"] .rcf-readiness-grid__table td {
+  display: block;
+  padding: 0.15rem 0.7rem;
+}
+[data-embed="1"] .rcf-readiness-grid__table td::before {
+  content: attr(data-rcf-cell-scope) ": ";
+  color: var(--sv-muted);
+  margin-right: 0.3rem;
+  text-transform: capitalize;
+}

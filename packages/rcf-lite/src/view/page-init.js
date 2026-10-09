@@ -695,6 +695,13 @@
         if (tab === 'build') {
           applyBuildHash(params);
         }
+        // Readiness tab (FBS-206, AC-18005-2 and -8): activate the right
+        // sub-tab, drop an unknown sub= from the hash, and apply any
+        // blocking FilterBar params the Overview verdict grid links
+        // carry (stage=, persona=).
+        if (tab === 'readiness' && readinessSubTabStrip()) {
+          applyReadinessHash(params);
+        }
         // #tab=requirements&entity=REQ-002 opens the entity in place.
         // FBS-204 (AC-18003-2): #tab=readiness&sub=questions&entity=<itemId>
         // lands on a readiness-row element when the itemId is not a
@@ -748,6 +755,12 @@
     // written while DAG remained visible).
     if (name === 'build' && buildSubTabStrip()) {
       writeHash(buildHashFragment(), true);
+      return;
+    }
+    // Readiness tab (FBS-206): mirror the sub-tab state into the hash
+    // so a tab click from elsewhere lands on the current sub.
+    if (name === 'readiness' && readinessSubTabStrip()) {
+      writeHash(readinessHashFragment(), true);
       return;
     }
     // Hash write preserves ?embed=/?theme=/... (Dex contract, PR 1).
@@ -2300,6 +2313,114 @@
 
   var hashchangeWired = false;
 
+  // ---- Readiness SubTabStrip (FBS-206, TAC-4135, AC-18005-2 and -8) ----
+  //
+  // The Readiness tab carries a SubTabStrip with five sub-views
+  // (overview, questions, blocking, coverage, trace). The strip and
+  // the sub-panels live inside #tab-readiness, so they survive an
+  // SSE innerHTML swap of #rcf-live-content (the swap re-runs
+  // onReady, which calls wireReadinessSubTabStrip and resolveHash;
+  // the latter calls applyReadinessHash to restore sub= from the URL
+  // when the hash has it). Unknown sub= drops to overview and is
+  // removed from the hash.
+
+  var READINESS_SUBS = ['overview', 'questions', 'blocking', 'coverage', 'trace'];
+
+  function readinessSubTabStrip() {
+    return document.querySelector('[data-rcf-subtabstrip="readiness"]');
+  }
+
+  function readinessSubPanel(sub) {
+    return document.querySelector('[data-rcf-subpanel="' + sub + '"]');
+  }
+
+  function activateReadinessSub(sub) {
+    if (READINESS_SUBS.indexOf(sub) === -1) sub = 'overview';
+    var strip = readinessSubTabStrip();
+    if (strip) {
+      var btns = strip.querySelectorAll('[role="tab"]');
+      for (var i = 0; i < btns.length; i += 1) {
+        var isTarget = btns[i].getAttribute('data-sub') === sub;
+        btns[i].setAttribute('aria-selected', isTarget ? 'true' : 'false');
+      }
+    }
+    for (var j = 0; j < READINESS_SUBS.length; j += 1) {
+      var p = readinessSubPanel(READINESS_SUBS[j]);
+      if (!p) continue;
+      if (READINESS_SUBS[j] === sub) p.removeAttribute('hidden');
+      else p.setAttribute('hidden', '');
+    }
+    return sub;
+  }
+
+  function currentReadinessSub() {
+    var strip = readinessSubTabStrip();
+    if (!strip) return 'overview';
+    var active = strip.querySelector('[role="tab"][aria-selected="true"]');
+    return (active && active.getAttribute('data-sub')) || 'overview';
+  }
+
+  function readinessHashFragment() {
+    var parts = ['tab=readiness'];
+    var sub = currentReadinessSub();
+    if (sub && sub !== 'overview') parts.push('sub=' + encodeURIComponent(sub));
+    return '#' + parts.join('&');
+  }
+
+  function writeReadinessHash() {
+    writeHash(readinessHashFragment(), true);
+  }
+
+  function applyReadinessHash(params) {
+    var raw = params && params.sub ? decodeURIComponent(params.sub) : 'overview';
+    var known = READINESS_SUBS.indexOf(raw) !== -1;
+    var sub = known ? raw : 'overview';
+    activateReadinessSub(sub);
+    // AC-18005-8: unknown sub= is dropped from the hash and the overview
+    // is activated. Rewrite the hash in place without pushing a new entry.
+    if (!known && params && params.sub) {
+      try {
+        if (window.history && typeof window.history.replaceState === 'function') {
+          window.history.replaceState(null, '', window.location.pathname + window.location.search + readinessHashFragment());
+        } else {
+          window.location.hash = readinessHashFragment().slice(1);
+        }
+      } catch (err) { /* best effort */ }
+    }
+    // Blocking sub-tab filter: carry the stage= param into the FilterBar
+    // and apply so a verdict-grid failing-count link lands on a filtered
+    // view. The persona= param is accepted on the same shape.
+    if (sub === 'blocking') {
+      var stage = params && params.stage ? decodeURIComponent(params.stage) : '';
+      var persona = params && params.persona ? decodeURIComponent(params.persona) : '';
+      var bar = document.querySelector('[data-rcf-filterbar="readiness-blocking"]');
+      if (bar) {
+        var stageSel = bar.querySelector('[data-filter-key="stage"]');
+        var personaSel = bar.querySelector('[data-filter-key="persona"]');
+        if (stageSel) stageSel.value = stage;
+        if (personaSel) personaSel.value = persona;
+        applyReadinessBlockingFilter(bar.parentNode);
+      }
+    }
+  }
+
+  function wireReadinessSubTabStrip() {
+    var strip = readinessSubTabStrip();
+    if (!strip || strip.__rcfReadinessSubWired) return;
+    strip.__rcfReadinessSubWired = true;
+    var btns = strip.querySelectorAll('[role="tab"]');
+    for (var i = 0; i < btns.length; i += 1) {
+      btns[i].addEventListener('click', function (ev) {
+        ev.preventDefault && ev.preventDefault();
+        var sub = ev.currentTarget.getAttribute('data-sub');
+        if (!sub) return;
+        activateReadinessSub(sub);
+        writeReadinessHash();
+      });
+    }
+  }
+
+
   // AC-205-5: a mount URL of `?tab=requirements&entity=US-304` lands on the
   // same position at first paint. The hash-router owns tab + entity, so we
   // promote the tab/sub/entity query params into the hash fragment at boot
@@ -2453,6 +2574,7 @@
     wireReadinessCopyHandles();
     wireReadinessSortableHeaders();
     wireReadinessBlockingFilterBar();
+    wireReadinessSubTabStrip();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
       hashchangeWired = true;
