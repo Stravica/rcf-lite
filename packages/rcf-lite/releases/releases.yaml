@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.32.5"
+latest: "0.33.0"
 releases:
+  - version: "0.33.0"
+    date: "2026-10-09"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.33.0 makes the viewer's Readiness tab the command page: questions, blocking items, a coverage summary, a stage grid with sub-tabs, delta counts and a trace matrix, backed by three new trace, impact and coverage JSON routes with a per-version memo on the viewer server. `rcf verify run` and `rcf build finalise` gain a deterministic mode so a dispatched worker that cannot spawn the agent CLI can still produce a report and refuse promotion honestly. The live viewer survives write-temp-then-rename saves (vim backupcopy=no, JetBrains safe-write) and never silently drops a change that lands mid-rewalk. The @stravica-ai/rcf-schemas 0.6.3 pin is unchanged."
+      - "For embedders: three new viewer routes (/trace.json, /impact.json, /coverage.json) must be added to the reverse-proxy allow-list for /rcf-viewer/* before the version pin bump. The embed contract and the rcf-view-theme postMessage are unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.32.5"
     date: "2026-10-07"
     breaking: false
