@@ -20,13 +20,24 @@ test('renderPage emits a valid HTML5 document (AC-202-1)', async () => {
   assert.match(html, /<\/html>\s*$/);
 });
 
-test('renderPage includes one Mermaid block per requirement (per-REQ subdiagrams)', async () => {
+test('renderPage emits no Mermaid blocks on the Requirements or Readiness tabs (AC-209-5)', async () => {
+  // FBS-208 (AC-209-5) retires the per-REQ Mermaid slice on the
+  // user-facing surfaces: no `<pre class="mermaid">` inside the
+  // Requirements or Readiness tabpanels. The Product Map tab keeps
+  // its own Mermaid rendering outside this scope.
   const result = await walkTree({ projectRoot: repoRoot });
   const model = buildTreeModel(result);
   const html = renderPage(model);
-  // Phase 3.6 dropped the top-of-overview diagram; only per-REQ subdiagrams remain.
-  const blocks = html.match(/class="mermaid[^"]*"/g) ?? [];
-  assert.equal(blocks.length, model.requirements.length);
+  const reqPanelStart = html.indexOf('id="tab-requirements"');
+  const nextTab = html.indexOf('id="tab-architecture"', reqPanelStart);
+  assert.ok(reqPanelStart > 0 && nextTab > reqPanelStart);
+  const reqPanel = html.slice(reqPanelStart, nextTab);
+  assert.doesNotMatch(reqPanel, /class="mermaid"/);
+  assert.doesNotMatch(reqPanel, /class="rcf-req-slice"/);
+  const readyStart = html.indexOf('id="tab-readiness"');
+  const readyEnd = html.indexOf('id="tab-overview"', readyStart);
+  const readyPanel = readyStart >= 0 && readyEnd > readyStart ? html.slice(readyStart, readyEnd) : '';
+  assert.doesNotMatch(readyPanel, /class="mermaid"/);
 });
 
 test('renderPage carries an anchor per document via data-doc-id or id', async () => {

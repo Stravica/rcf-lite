@@ -2165,6 +2165,17 @@
     var parentId = row.getAttribute('data-rcf-lookup-parent');
     if (kind === 'ts' && parentId) { id = parentId; tab = 'requirements'; }
     lookupClose();
+    // FBS-208 (AC-209-3): a lookup hit while the Readiness tab is
+    // active lands on the Trace sub-tab for the chosen id (preserves
+    // embed/theme via the writeHash contract). The chain pivots the
+    // Trace matrix supports are PRD/REQ/US/AC/TS/TC/FBS/CN/TAC/ADR.
+    var activeTabBtn = document.querySelector('.tabs [role="tab"][aria-selected="true"]');
+    var active = activeTabBtn ? activeTabBtn.getAttribute('data-tab') : '';
+    if (active === 'readiness' && /^(PRD|REQ|US|AC|TS|TC|FBS|CN|TAC|ADR)-/.test(id)) {
+      writeHash('#tab=readiness&sub=trace&entity=' + encodeURIComponent(id), false);
+      resolveHash(window.location.hash);
+      return;
+    }
     // writeHash preserves ?embed=/?theme=/... (Dex contract, PR 1); the
     // Router's hashchange listener then activates the tab and opens
     // every ancestor DocRow (resolveHash).
@@ -2394,6 +2405,11 @@
         }
       } catch (err) { /* best effort */ }
     }
+    // Trace sub-tab (FBS-208, AC-209-1/-3/-6): the active entity is the
+    // pivot; fetch + render when the sub activates.
+    if (sub === 'trace') {
+      activateTraceSubView();
+    }
     // Blocking sub-tab filter: carry the stage= param into the FilterBar
     // and apply so a verdict-grid failing-count link lands on a filtered
     // view. The persona= param is accepted on the same shape.
@@ -2429,6 +2445,500 @@
     }
   }
 
+
+  // ---- Trace matrix (FBS-208, TAC-4136, ADR-4140, AC-209-1..7) --------
+  //
+  // The Readiness Trace sub-view fetches `./trace.json?id=<pivot>` and
+  // `./coverage.json?scope=<reqId>` and renders the matrix into
+  // `[data-rcf-trace-root]`. Results are kept in a page-lifetime Map
+  // keyed by `${version}:${pivot}` (AC-209-4): a tree-update swap
+  // invalidates nothing in the cache but marks the current render as
+  // stale until the next fetch completes. The empty state offers the
+  // lookup modal (AC-209-6). On >200 rows a client-side row filter
+  // appears (AC-209-7); the full row set is retained in memory.
+
+  var TRACE_CACHE = Object.create(null);
+  var TRACE_INFLIGHT = Object.create(null);
+  var TRACE_RENDERED_PIVOT = null;
+  var TRACE_LAST_RENDER_VERSION = 0;
+  var TRACE_STALE = false;
+
+  function traceRoot() {
+    return document.querySelector('[data-rcf-trace-root]');
+  }
+
+  function traceVersion() {
+    // live-client publishes the current version on window.__rcfTreeVersion
+    // after every tree-update; before the first SSE event the first-paint
+    // version is treated as 1.
+    var v = window.__rcfTreeVersion;
+    if (typeof v === 'number' && Number.isFinite(v) && v > 0) return v;
+    return 1;
+  }
+
+  function traceCacheKey(version, pivot) {
+    return version + ':' + pivot;
+  }
+
+  function traceEntityFromHash() {
+    try {
+      var h = (window.location.hash || '').replace(/^#/, '');
+      var params = parseHashParams(h);
+      if (!params) return '';
+      if (params.tab !== 'readiness' || params.sub !== 'trace') return '';
+      return params.entity ? decodeURIComponent(params.entity) : '';
+    } catch (e) { return ''; }
+  }
+
+  function parseHashParams(raw) {
+    if (!raw) return null;
+    var out = {};
+    var parts = raw.split('&');
+    for (var i = 0; i < parts.length; i += 1) {
+      var p = parts[i];
+      var eq = p.indexOf('=');
+      if (eq === -1) { out[p] = ''; continue; }
+      out[p.slice(0, eq)] = p.slice(eq + 1);
+    }
+    return out;
+  }
+
+  function fetchJson(url, cb) {
+    var xhr = new XMLHttpRequest();
+    xhr.open('GET', url, true);
+    xhr.onreadystatechange = function () {
+      if (xhr.readyState !== 4) return;
+      var ok = xhr.status >= 200 && xhr.status < 300;
+      var parsed = null;
+      if (ok) {
+        try { parsed = JSON.parse(xhr.responseText); } catch (e) { parsed = null; }
+      }
+      cb(ok, parsed, xhr.status);
+    };
+    try { xhr.send(); } catch (e) { cb(false, null, 0); }
+  }
+
+  function reqOwnerOf(pivot) {
+    // The Coverage route takes an optional scope that must be a PRD /
+    // REQ / US. For an AC pivot the row's REQ is the valid narrow
+    // scope; for a US pivot the US is valid. For a REQ pivot the REQ
+    // itself. For other kinds (TS/TC/FBS/CN/TAC/ADR) we omit scope
+    // (tree-wide coverage). Only the AC+US+REQ prefix check is run
+    // here, which keeps the compute small on a REQ-scoped pivot.
+    if (typeof pivot !== 'string') return '';
+    if (/^REQ-/.test(pivot)) return pivot;
+    if (/^US-/.test(pivot) || /^AC-/.test(pivot)) return '';
+    return '';
+  }
+
+  // FBS-208 FINALISE (P2-5): the matrix pivots on upstream nodes
+  // (REQ/US/AC). A downstream pivot (TS/TC/FBS/CN/TAC/ADR) returns
+  // zero rows and would show a silent empty table; render an
+  // explanatory state and offer the lookup instead.
+  function isDownstreamPivot(pivot) {
+    if (typeof pivot !== 'string') return false;
+    return /^(TS-|TC-|FBS-|CN-|TAC-|ADR-)/.test(pivot);
+  }
+
+  // FBS-208 FINALISE (P1-1): on a tree-version swap the new cache key
+  // misses; look up the most recent prior-version entry for the same
+  // pivot so the previous render stays visible with the stale banner
+  // while the fetch runs. The cache keys are `${version}:${pivot}`.
+  function findPriorCachedEntry(pivot, currentVersion) {
+    var best = null;
+    var bestVersion = -1;
+    for (var k in TRACE_CACHE) {
+      if (!Object.prototype.hasOwnProperty.call(TRACE_CACHE, k)) continue;
+      var idx = k.indexOf(':');
+      if (idx === -1) continue;
+      var ver = Number(k.slice(0, idx));
+      var piv = k.slice(idx + 1);
+      if (piv !== pivot) continue;
+      if (!Number.isFinite(ver)) continue;
+      if (ver >= currentVersion) continue;
+      if (ver > bestVersion) { bestVersion = ver; best = TRACE_CACHE[k]; }
+    }
+    return best;
+  }
+
+  function renderTraceRoot(pivot, trace, coverage, opts) {
+    var root = traceRoot();
+    if (!root) return;
+    opts = opts || {};
+    var kind;
+    if (opts.unavailable) kind = 'unavailable';
+    else if (trace && trace.found === false) kind = 'unknown';
+    else if (trace) kind = 'ok';
+    else kind = 'shell';
+    var staleAttr = opts.stale ? ' data-rcf-trace-stale="yes"' : '';
+    var pivotLabel = pivot ? escapeAttr(pivot) : '';
+    if (!pivot) {
+      root.innerHTML = emptyStateHtml({ reason: 'no-pivot' });
+      TRACE_RENDERED_PIVOT = '';
+      TRACE_STALE = false;
+      return;
+    }
+    if (kind === 'unknown') {
+      root.innerHTML = emptyStateHtml({ reason: 'unknown-pivot', pivot: pivotLabel });
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_STALE = false;
+      return;
+    }
+    if (kind === 'unavailable') {
+      // FBS-208 FINALISE (P2-6): a 5xx or network error is NOT the
+      // same as 'unknown-pivot'; the chain may still carry the id.
+      // Render a trace-unavailable state and keep the pivot visible.
+      root.innerHTML = '<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="unavailable" data-rcf-trace-reason="fetch-error" data-rcf-pivot="' + pivotLabel + '" aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace unavailable for ' + pivotLabel + '</h3></header><p>The trace service did not respond. Try again or pick another id.</p><p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p></section>';
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_STALE = false;
+      return;
+    }
+    if (kind === 'shell') {
+      root.innerHTML = '<section class="rcf-trace-matrix" data-rcf-trace-matrix="shell" data-rcf-pivot="' + pivotLabel + '"' + staleAttr + ' aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace matrix for ' + pivotLabel + '</h3></header><p class="muted">Loading trace for ' + pivotLabel + '...</p></section>';
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_LAST_RENDER_VERSION = traceVersion();
+      return;
+    }
+    // FBS-208 FINALISE (P2-5): a TS/TC/FBS/CN/TAC/ADR pivot has no
+    // upstream US/AC rows, so the matrix would be silently empty.
+    // Render an explanatory state instead and offer the lookup.
+    if (isDownstreamPivot(pivot)) {
+      root.innerHTML = '<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="downstream" data-rcf-trace-reason="downstream-pivot" data-rcf-pivot="' + pivotLabel + '" aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">No upstream rows for ' + pivotLabel + '</h3></header><p>The matrix pivots on a requirement, story or criterion. Pick an upstream id that reaches <code>' + pivotLabel + '</code>.</p><p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p></section>';
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_LAST_RENDER_VERSION = traceVersion();
+      TRACE_STALE = false;
+      return;
+    }
+    // Full render from the client build helper.
+    try {
+      var rows = buildMatrixRowsFromPayload(trace, coverage);
+      root.innerHTML = renderMatrixHtml(pivot, rows, opts.stale);
+      TRACE_RENDERED_PIVOT = pivot;
+      TRACE_LAST_RENDER_VERSION = traceVersion();
+      TRACE_STALE = Boolean(opts.stale);
+    } catch (e) {
+      root.innerHTML = '<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="error" aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace unavailable</h3></header><p>The trace response could not be rendered. Try again or pick another id.</p></section>';
+    }
+  }
+
+  function emptyStateHtml(args) {
+    var reason = args.reason;
+    var pivot = args.pivot || '';
+    var heading = reason === 'unknown-pivot' && pivot
+      ? 'No trace for ' + pivot
+      : 'Pick an id to trace';
+    var body = reason === 'unknown-pivot'
+      ? '<p>The id <code>' + pivot + '</code> is not in the current tree.</p>'
+        + '<p>Pick another id below.</p>'
+        + '<p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p>'
+      : '<p>Pick a requirement, story or criterion through the Trace action on any readiness row, or open the lookup to search by id.</p>'
+        + '<p><button type="button" class="rcf-trace-matrix__lookup" data-rcf-trace-open-lookup="yes">Open the lookup</button></p>';
+    var pivotAttr = pivot ? ' data-rcf-pivot="' + pivot + '"' : '';
+    return '<section class="rcf-trace-matrix rcf-trace-matrix--empty" data-rcf-trace-matrix="empty" data-rcf-trace-reason="' + reason + '"' + pivotAttr + ' aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">' + heading + '</h3></header>' + body + '</section>';
+  }
+
+  var TRACE_COL_LABEL = { ts: 'Suites', tc: 'Cases', fbs: 'Build specs', cn: 'Components' };
+
+  function buildMatrixRowsFromPayload(trace, coverage) {
+    if (!trace || !trace.found || !Array.isArray(trace.nodes) || !Array.isArray(trace.edges)) return [];
+    var nodes = trace.nodes;
+    var edges = trace.edges;
+    var byId = {};
+    for (var i = 0; i < nodes.length; i += 1) {
+      var n = nodes[i];
+      if (n && typeof n.id === 'string' && typeof n.kind === 'string') byId[n.id] = n;
+    }
+    var outFromId = {};
+    for (var j = 0; j < edges.length; j += 1) {
+      var e = edges[j];
+      if (!e || typeof e.from !== 'string' || typeof e.to !== 'string') continue;
+      if (!outFromId[e.from]) outFromId[e.from] = [];
+      outFromId[e.from].push(e.to);
+    }
+    function reachFrom(id) {
+      // FBS-208 FINALISE (P2-4): an AC's Cases column must list only
+      // the AC's OWN test cases, not every sibling TC the AC's TS also
+      // contains. Stop traversal at a TS boundary: TS is recorded in
+      // the bucket but we do not descend into its children. TC still
+      // reaches via the AC's direct testPointer edges (AC->TC).
+      var bucket = { ts: [], tc: [], fbs: [], cn: [] };
+      var seen = {}; seen[id] = true;
+      var stack = [id];
+      while (stack.length > 0) {
+        var cur = stack.pop();
+        var curKind = byId[cur] && byId[cur].kind;
+        if (curKind === 'ts' || curKind === 'testSuite') continue;
+        var kids = outFromId[cur] || [];
+        for (var k = 0; k < kids.length; k += 1) {
+          var to = kids[k];
+          if (seen[to]) continue; seen[to] = true;
+          var kind = byId[to] && byId[to].kind;
+          if (kind === 'ts' || kind === 'testSuite') bucket.ts.push(to);
+          else if (kind === 'tc' || kind === 'testCase') bucket.tc.push(to);
+          else if (kind === 'fbs') bucket.fbs.push(to);
+          else if (kind === 'cn' || kind === 'codeNode') bucket.cn.push(to);
+          stack.push(to);
+        }
+      }
+      for (var kk in bucket) {
+        if (!Object.prototype.hasOwnProperty.call(bucket, kk)) continue;
+        bucket[kk] = Array.from(new Set(bucket[kk])).sort();
+      }
+      return bucket;
+    }
+    var acCov = {};
+    if (coverage && Array.isArray(coverage.requirements)) {
+      for (var ri = 0; ri < coverage.requirements.length; ri += 1) {
+        var req = coverage.requirements[ri];
+        var acs = (req && req.acs) || [];
+        for (var ai = 0; ai < acs.length; ai += 1) {
+          var ac = acs[ai];
+          if (ac && typeof ac.id === 'string') acCov[ac.id] = ac;
+        }
+      }
+    }
+    var usRows = [];
+    var acsByUs = {};
+    var standaloneAcs = [];
+    for (var ni = 0; ni < nodes.length; ni += 1) {
+      var nn = nodes[ni];
+      if (nn.kind === 'userStory' || nn.kind === 'us') { usRows.push(nn); acsByUs[nn.id] = []; }
+    }
+    for (var ni2 = 0; ni2 < nodes.length; ni2 += 1) {
+      var mm = nodes[ni2]; if (mm.kind !== 'ac') continue;
+      var parentUs = null;
+      for (var ei = 0; ei < edges.length; ei += 1) {
+        var ee = edges[ei];
+        if (ee.to === mm.id && ee.kind === 'parentChild') {
+          var pp = byId[ee.from];
+          if (pp && (pp.kind === 'userStory' || pp.kind === 'us')) { parentUs = pp.id; break; }
+        }
+      }
+      if (parentUs && acsByUs[parentUs]) acsByUs[parentUs].push(mm);
+      else standaloneAcs.push(mm);
+    }
+    function resolutionFor(acId, kindKey, ids) {
+      if (!ids || ids.length === 0) return 'none';
+      if (kindKey !== 'tc') return 'resolving';
+      var cov = acCov[acId];
+      if (!cov) return 'unresolved';
+      var resolvedSet = {}; (cov.testCases || []).forEach(function (x) { resolvedSet[x] = true; });
+      var unresolvedSet = {}; (cov.unresolvedTestCases || []).forEach(function (x) { unresolvedSet[x] = true; });
+      var hasUnres = false, hasRes = false;
+      for (var ii = 0; ii < ids.length; ii += 1) {
+        var id = ids[ii];
+        if (unresolvedSet[id]) hasUnres = true;
+        else if (resolvedSet[id]) hasRes = true;
+      }
+      if (hasUnres) return 'unresolved';
+      if (hasRes) return 'resolving';
+      return 'none';
+    }
+    function acRow(ac, parentUsId) {
+      var r = reachFrom(ac.id);
+      return {
+        id: ac.id, kind: 'ac', title: ac.title || '', parent: parentUsId || '',
+        cells: ['ts', 'tc', 'fbs', 'cn'].map(function (k) {
+          return { kind: k, reached: r[k].length > 0, resolution: resolutionFor(ac.id, k, r[k]), ids: r[k] };
+        }),
+      };
+    }
+    function usRow(us, acsUnder) {
+      var u = { ts: {}, tc: {}, fbs: {}, cn: {} };
+      acsUnder.forEach(function (a) {
+        var r = reachFrom(a.id);
+        ['ts', 'tc', 'fbs', 'cn'].forEach(function (k) { r[k].forEach(function (v) { u[k][v] = true; }); });
+      });
+      var bucket = { ts: Object.keys(u.ts).sort(), tc: Object.keys(u.tc).sort(), fbs: Object.keys(u.fbs).sort(), cn: Object.keys(u.cn).sort() };
+      var anyAcUnres = acsUnder.some(function (a) { var c = acCov[a.id]; return c ? c.covered !== true : bucket.tc.length > 0; });
+      return {
+        id: us.id, kind: 'us', title: us.title || '', parent: '',
+        cells: ['ts', 'tc', 'fbs', 'cn'].map(function (k) {
+          var res = k === 'tc' ? (bucket.tc.length === 0 ? 'none' : (anyAcUnres ? 'unresolved' : 'resolving')) : (bucket[k].length === 0 ? 'none' : 'resolving');
+          return { kind: k, reached: bucket[k].length > 0, resolution: res, ids: bucket[k] };
+        }),
+      };
+    }
+    var rows = [];
+    for (var ui = 0; ui < usRows.length; ui += 1) {
+      var u2 = usRows[ui]; var ks = acsByUs[u2.id] || [];
+      rows.push(usRow(u2, ks));
+      for (var k2 = 0; k2 < ks.length; k2 += 1) rows.push(acRow(ks[k2], u2.id));
+    }
+    for (var s = 0; s < standaloneAcs.length; s += 1) rows.push(acRow(standaloneAcs[s], ''));
+    return rows;
+  }
+
+  function escapeAttr(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;')
+      .replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;')
+      .replace(/"/g, '&quot;')
+      .replace(/'/g, '&#39;');
+  }
+
+  function renderMatrixHtml(pivot, rows, stale) {
+    var filterBar = rows.length > 200
+      ? '<div class="rcf-trace-matrix__filter" data-rcf-filterbar="trace-matrix" role="search"><label><span>Filter rows (story id or criterion id)</span><input type="search" data-rcf-filter-key="rowId" placeholder="e.g. US-209 or AC-209-3"></label></div>'
+      : '';
+    var staleBanner = stale
+      ? '<p class="rcf-trace-matrix__stale muted small" data-rcf-trace-stale="yes">Tree changed. The matrix below reflects the previous version; a fresh trace is being fetched.</p>'
+      : '';
+    var head = '<thead><tr><th scope="col" data-rcf-col="row">Story / criterion</th><th scope="col" data-rcf-col="ts" data-rcf-trace-col="ts">Suites</th><th scope="col" data-rcf-col="tc" data-rcf-trace-col="tc">Cases</th><th scope="col" data-rcf-col="fbs" data-rcf-trace-col="fbs">Build specs</th><th scope="col" data-rcf-col="cn" data-rcf-trace-col="cn">Components</th></tr></thead>';
+    var body = rows.map(function (r) {
+      var kindAttr = r.kind === 'us' ? 'us' : 'ac';
+      var parentAttr = r.parent ? ' data-rcf-parent="' + escapeAttr(r.parent) + '"' : '';
+      var titleLabel = r.title ? ' <span class="rcf-trace-matrix__row-title muted small">' + escapeAttr(r.title) + '</span>' : '';
+      var idLink = '<a href="#' + escapeAttr(r.id) + '" data-rcf-trace-row-id="' + escapeAttr(r.id) + '">' + escapeAttr(r.id) + '</a>';
+      var cells = r.cells.map(function (c) {
+        var label = c.ids.length === 0
+          ? '<span class="rcf-sr-only">' + (c.reached ? 'reached' : 'not reached') + '</span>'
+          : '<span class="rcf-trace-matrix__cell-ids" data-rcf-cell-ids="' + escapeAttr(c.ids.join(',')) + '">' + escapeAttr(c.ids.length === 1 ? c.ids[0] : c.ids.length + ' ids') + '</span>';
+        return '<td data-rcf-col="' + c.kind + '" data-rcf-trace-col="' + c.kind + '" data-rcf-cell-reach="' + (c.reached ? 'yes' : 'no') + '" data-rcf-cell-resolution="' + c.resolution + '" title="' + escapeAttr((TRACE_COL_LABEL[c.kind] || c.kind) + ': ' + (c.reached ? 'reached' : 'not reached') + ', resolution ' + c.resolution) + '">' + label + '</td>';
+      }).join('');
+      return '<tr data-rcf-row-id="' + escapeAttr(r.id) + '" data-rcf-row-kind="' + kindAttr + '"' + parentAttr + '><th scope="row" data-rcf-col="row">' + idLink + titleLabel + '</th>' + cells + '</tr>';
+    }).join('');
+    return '<section class="rcf-trace-matrix" data-rcf-trace-matrix="yes" data-rcf-pivot="' + escapeAttr(pivot) + '" aria-labelledby="rcf-readiness-trace-heading"><header class="rcf-trace-matrix__head"><h3 id="rcf-readiness-trace-heading">Trace matrix for ' + escapeAttr(pivot) + '</h3> <span class="rcf-badge rcf-badge--count">' + rows.length + '</span></header>' + staleBanner + filterBar + '<table class="rcf-trace-matrix__table" aria-describedby="rcf-readiness-trace-heading">' + head + '<tbody>' + body + '</tbody></table></section>';
+  }
+
+  function fetchAndRenderTrace(pivot) {
+    if (!pivot) { renderTraceRoot('', null, null, {}); return; }
+    var v = traceVersion();
+    var key = traceCacheKey(v, pivot);
+    var cached = TRACE_CACHE[key];
+    if (cached && cached.trace) {
+      renderTraceRoot(pivot, cached.trace, cached.coverage || null, { stale: false });
+      return;
+    }
+    if (TRACE_INFLIGHT[key]) return;
+    TRACE_INFLIGHT[key] = true;
+    // FBS-208 FINALISE (P1-1): on a tree-version swap the cache for
+    // the new version misses. Look up a prior-version entry for the
+    // same pivot and render it as stale while we fetch; the user sees
+    // the previous matrix with a stale banner, not an empty shell.
+    var prior = findPriorCachedEntry(pivot, v);
+    if (prior && prior.trace) {
+      renderTraceRoot(pivot, prior.trace, prior.coverage || null, { stale: true });
+    } else {
+      renderTraceRoot(pivot, null, null, { stale: TRACE_STALE });
+    }
+    var traceUrl = './trace.json?id=' + encodeURIComponent(pivot) + '&direction=forward&includeCode=1';
+    fetchJson(traceUrl, function (ok, parsed, status) {
+      // FBS-208 FINALISE (P2-6, stale-response guard): a hash change
+      // since the fetch started means another pivot owns the view;
+      // drop this callback's render.
+      if (traceEntityFromHash() !== pivot) {
+        TRACE_INFLIGHT[key] = false;
+        return;
+      }
+      if (!ok || !parsed) {
+        TRACE_INFLIGHT[key] = false;
+        // FBS-208 FINALISE (P2-6): distinguish a 404 (unknown-pivot,
+        // the id is not in the tree) from any other failure (service
+        // unavailable, parse error, network). Only a 404 renders the
+        // 'id not in current tree' empty-state.
+        if (status === 404) {
+          renderTraceRoot(pivot, { found: false, pivot: pivot }, null, {});
+        } else {
+          renderTraceRoot(pivot, null, null, { unavailable: true });
+        }
+        return;
+      }
+      if (parsed.found === false) {
+        TRACE_INFLIGHT[key] = false;
+        TRACE_CACHE[key] = { trace: parsed, coverage: null };
+        renderTraceRoot(pivot, parsed, null, {});
+        return;
+      }
+      var scope = reqOwnerOf(pivot);
+      var covUrl = './coverage.json' + (scope ? '?scope=' + encodeURIComponent(scope) : '');
+      fetchJson(covUrl, function (okCov, parsedCov) {
+        TRACE_INFLIGHT[key] = false;
+        // Stale-response guard again on the inner fetch.
+        if (traceEntityFromHash() !== pivot) return;
+        TRACE_CACHE[key] = { trace: parsed, coverage: okCov ? parsedCov : null };
+        renderTraceRoot(pivot, parsed, okCov ? parsedCov : null, { stale: false });
+      });
+    });
+  }
+
+  // Called from applyReadinessHash when sub=trace activates, and after an
+  // SSE swap when the Trace sub-tab is already active.
+  function activateTraceSubView() {
+    var pivot = traceEntityFromHash();
+    fetchAndRenderTrace(pivot);
+  }
+
+  // AC-209-4: on an SSE swap `rcfPage.init()` is invoked. We mark the
+  // current render stale when the version changed and refetch; the
+  // previous render stays visible with the stale banner until the new
+  // bytes arrive.
+  function maybeRefetchTraceAfterSse() {
+    if (TRACE_RENDERED_PIVOT === null) return;
+    var v = traceVersion();
+    if (v === TRACE_LAST_RENDER_VERSION) return;
+    TRACE_STALE = true;
+    var root = traceRoot();
+    if (root) {
+      // Prepend the stale banner to the existing render.
+      var head = root.querySelector('.rcf-trace-matrix__head');
+      if (head && !root.querySelector('[data-rcf-trace-stale]')) {
+        var p = document.createElement('p');
+        p.className = 'rcf-trace-matrix__stale muted small';
+        p.setAttribute('data-rcf-trace-stale', 'yes');
+        p.textContent = 'Tree changed. The matrix below reflects the previous version; a fresh trace is being fetched.';
+        head.parentNode.insertBefore(p, head.nextSibling);
+      }
+    }
+    var pivot = TRACE_RENDERED_PIVOT;
+    if (pivot) fetchAndRenderTrace(pivot);
+  }
+
+  function wireTraceMatrix() {
+    var root = traceRoot();
+    if (!root) return;
+    if (root.__rcfTraceWired) {
+      // Still re-check: an SSE swap re-invokes onReady, which should
+      // re-fetch when the version has changed (AC-209-4).
+      maybeRefetchTraceAfterSse();
+      // Also render if the sub-tab is currently active and the hash
+      // changed to a new entity while we were already wired.
+      var panel = readinessSubPanel('trace');
+      if (panel && !panel.hasAttribute('hidden')) activateTraceSubView();
+      return;
+    }
+    root.__rcfTraceWired = true;
+    // Click delegation for "Open the lookup" buttons in the empty state.
+    root.addEventListener('click', function (ev) {
+      var el = ev.target;
+      while (el && el !== root) {
+        if (el.getAttribute && el.getAttribute('data-rcf-trace-open-lookup') === 'yes') {
+          ev.preventDefault && ev.preventDefault();
+          try { lookupOpen(); } catch (e) { /* soft */ }
+          return;
+        }
+        el = el.parentNode;
+      }
+    });
+    // Row filter (AC-209-7).
+    root.addEventListener('input', function (ev) {
+      var input = ev.target;
+      if (!input || !input.getAttribute) return;
+      if (input.getAttribute('data-rcf-filter-key') !== 'rowId') return;
+      var q = (input.value || '').trim().toLowerCase();
+      var rows = root.querySelectorAll('tr[data-rcf-row-id]');
+      for (var i = 0; i < rows.length; i += 1) {
+        var r = rows[i];
+        var id = (r.getAttribute('data-rcf-row-id') || '').toLowerCase();
+        var parent = (r.getAttribute('data-rcf-parent') || '').toLowerCase();
+        var match = q === '' || id.indexOf(q) !== -1 || parent.indexOf(q) !== -1;
+        if (match) r.removeAttribute('hidden');
+        else r.setAttribute('hidden', '');
+      }
+    });
+    activateTraceSubView();
+  }
 
   // AC-205-5: a mount URL of `?tab=requirements&entity=US-304` lands on the
   // same position at first paint. The hash-router owns tab + entity, so we
@@ -2583,6 +3093,7 @@
     wireReadinessCopyHandles();
     wireReadinessSortableHeaders();
     wireReadinessBlockingFilterBar();
+    wireTraceMatrix();
     wireReadinessSubTabStrip();
     resolveHash(window.location.hash);
     if (!hashchangeWired) {
@@ -2641,6 +3152,20 @@
   // acknowledgement.
   window.rcfView = window.rcfView || {};
   window.rcfView.showToast = showToast;
+  // FBS-208 FINALISE: client-path internals exposed for behavioural
+  // tests. The server-side `src/view/readiness/trace-matrix.js`
+  // module is a spec-by-example; the shipped behaviour is this IIFE's
+  // inline implementation. Tests use these to prove the two paths
+  // match (parity) and to probe cache / downstream-pivot behaviour.
+  // No production code paths read these; they are a test seam only.
+  window.rcfTraceInternals = {
+    buildMatrixRowsFromPayload: buildMatrixRowsFromPayload,
+    renderMatrixHtml: renderMatrixHtml,
+    isDownstreamPivot: isDownstreamPivot,
+    findPriorCachedEntry: findPriorCachedEntry,
+    traceCacheKey: traceCacheKey,
+    cache: TRACE_CACHE,
+  };
 
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', onReady);

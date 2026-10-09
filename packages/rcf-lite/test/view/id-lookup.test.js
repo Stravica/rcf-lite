@@ -422,3 +422,15 @@ test('wireLookup row markup carries data-rcf-lookup-kind + data-rcf-lookup-paren
   assert.match(script, /data-rcf-lookup-kind="/);
   assert.match(script, /data-rcf-lookup-parent="/);
 });
+
+test('page-init.js lookupPick on a readiness-tab hit routes to the Trace sub-tab (FBS-208, AC-209-3)', () => {
+  const script = readFileSync(resolve(repoRoot, 'src/view/page-init.js'), 'utf8');
+  const start = script.indexOf('function lookupPick');
+  const end = script.indexOf('\n  }\n', start);
+  const body = script.slice(start, end);
+  // The branch fires only when the Readiness tab is active and the id
+  // is a chain id the matrix can pivot on.
+  assert.match(body, /aria-selected="true"/);
+  assert.match(body, /#tab=readiness&sub=trace&entity=/);
+  assert.match(body, /PRD\|REQ\|US\|AC\|TS\|TC\|FBS\|CN\|TAC\|ADR/);
+});

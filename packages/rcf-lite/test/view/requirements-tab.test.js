@@ -84,13 +84,14 @@ test('Requirements rows nest user stories as inner DocRows carrying their own da
   assert.match(panel, /<details [^>]*class="[^"]*rcf-row--inner[^"]*"[^>]*data-doc-id="US-304"/);
 });
 
-test('Requirements rows carry the slice diagram and raw JSON as collapsed inner details', async () => {
+test('Requirements rows carry no Mermaid slice; raw JSON is a collapsed inner details (AC-209-5)', async () => {
+  // FBS-208 (AC-209-5) retired the per-REQ Mermaid slice on the
+  // Requirements tab: no `rcf-req-slice` block, no `<pre class="mermaid">`
+  // in the panel. The raw-JSON inner details is unchanged.
   const { html } = await renderLive();
   const panel = sliceRequirementsTab(html);
-  // The slice-diagram <details> is collapsed by default; the mermaid
-  // block lives inside it (no `open` attribute on the enclosing
-  // details).
-  assert.match(panel, /<details class="rcf-req-slice"><summary>Slice diagram/);
+  assert.doesNotMatch(panel, /<details class="rcf-req-slice"/);
+  assert.doesNotMatch(panel, /<pre class="mermaid">/);
   assert.match(panel, /<details class="rcf-req-raw raw-json" data-doc-id="REQ-003::raw"/);
 });
 

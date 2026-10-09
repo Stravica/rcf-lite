@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-796",
+  "path": "src/view/readiness/tables.js#traceActionFor",
+  "title": "Trace action on readiness tables (FBS-208)",
+  "description": "traceActionFor renders a Trace link on every Questions row and Blocking row that routes to the Trace sub-tab for the row's id. Non-document ids (brief:*, profile:*, open-decision:*) emit a disabled hint instead of a dead anchor.",
+  "implementsAcIds": [
+    "AC-209-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T14:52:41.372Z",
+  "updatedAt": "2026-10-09T14:52:41.372Z"
+}

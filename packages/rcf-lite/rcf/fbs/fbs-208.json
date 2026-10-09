@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:20.198Z",
-  "updatedAt": "2026-10-08T15:30:49.922Z",
+  "updatedAt": "2026-10-09T14:16:27.065Z",
   "summary": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired (US-209). Delivers AC-209-1 to AC-209-7. Estimated new node:test cases: 7. Order in the command page build: 5 of 5.",
   "approach": "Add renderTraceMatrix and the client wireTraceMatrix (fetch, page-lifetime cache keyed by state.version, re-render after SSE swap, stale marking, row filter past 200 rows, empty state for an unknown pivot), add the Trace action to every id in the readiness tables, route lookup hits for readiness rows to sub=trace, and remove the per-requirement Mermaid slice from html-page.js and mermaid-diagram.js.",
   "deliverables": [
@@ -42,6 +42,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 208,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Trace matrix, Trace actions, lookup integration; Mermaid slice retired"
 }

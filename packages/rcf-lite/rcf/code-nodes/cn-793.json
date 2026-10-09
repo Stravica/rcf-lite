@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-793",
+  "path": "src/view/readiness/trace-matrix.js",
+  "title": "Readiness Trace matrix renderer (FBS-208, TAC-4136, ADR-4140)",
+  "description": "Pure HTML-string renderer: buildTraceMatrixRows + renderTraceMatrix emit the matrix for a REQ/US/AC pivot (rows: US + AC under the pivot; cols: TS / TC / FBS / CN; cells: reached + resolution from coverage). Empty states for no-pivot, unknown-pivot and downstream-pivot (TS/TC/FBS/CN/TAC/ADR) all offer the lookup. >200 rows renders a client-side filter bar.",
+  "implementsAcIds": [
+    "AC-209-1",
+    "AC-209-2",
+    "AC-209-6",
+    "AC-209-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T14:52:23.253Z",
+  "updatedAt": "2026-10-09T14:52:23.253Z"
+}

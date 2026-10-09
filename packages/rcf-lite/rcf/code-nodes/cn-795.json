@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-795",
+  "path": "src/view/readiness.js#renderTraceSub",
+  "title": "Trace sub-view shell (FBS-208)",
+  "description": "renderTraceSub emits the Trace sub-tab panel in the Readiness tab with the [data-rcf-trace-root] mount point and the no-pivot empty state. The sub-view is one of four Readiness sub-tabs (overview, questions, blocking, trace).",
+  "implementsAcIds": [
+    "AC-209-1",
+    "AC-209-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T14:52:40.474Z",
+  "updatedAt": "2026-10-09T14:52:40.474Z"
+}

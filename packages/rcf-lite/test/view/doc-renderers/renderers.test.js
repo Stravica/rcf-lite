@@ -37,7 +37,11 @@ test('renderPrd emits a doc-prd article with the prd anchor and computed child l
   assert.match(html, /Show raw JSON/);
 });
 
-test('renderReq embeds subdiagram when supplied and does not list user stories inline', () => {
+test('renderReq ignores subdiagram ctx (AC-209-5) and does not list user stories inline', () => {
+  // FBS-208 (AC-209-5) retires the per-REQ Mermaid slice on the
+  // user-facing surface. renderReq no longer emits a Mermaid block
+  // even when a caller still passes `ctx.subdiagram`; the key stays
+  // accepted so existing callers compile.
   const html = renderReq(
     {
       reqId: 'REQ-002',
@@ -53,8 +57,8 @@ test('renderReq embeds subdiagram when supplied and does not list user stories i
     },
   );
   assert.match(html, /id="REQ-002"/);
-  assert.match(html, /<pre class="mermaid">/);
-  assert.match(html, /flowchart LR/);
+  assert.doesNotMatch(html, /<pre class="mermaid">/);
+  assert.doesNotMatch(html, /flowchart LR/);
   // User stories are NOT listed by the REQ renderer in Phase 3.2 - they are
   // nested as separate `<details>` in html-page.
   assert.doesNotMatch(html, /User stories/);

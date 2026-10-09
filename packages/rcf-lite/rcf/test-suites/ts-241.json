@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-07T13:47:07.194Z",
-  "updatedAt": "2026-10-07T13:47:07.194Z",
+  "updatedAt": "2026-10-09T13:40:25.258Z",
   "purpose": "Cover every acceptance criterion of US-209 with one node:test case each in test/view/trace-matrix.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-208) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -16,49 +16,49 @@
     {
       "id": "TC-241-209-1-happy",
       "acId": "AC-209-1",
-      "description": "AC-209-1 happy: the trace subtab and a pivot id in the hash",
+      "description": "[happy] Given the Trace sub-tab and a pivot id in the hash, when the client fetches \"./trace.json\" for it, then a matrix renders with one TraceMatrixRow per story and criterion under the pivot and columns for suites, cases, build specs and components, each TraceMatrixCell.reached true where the forward trace reaches the column from the row's criterion.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-1 happy: the trace subtab and a pivot id in the hash"
     },
     {
       "id": "TC-241-209-2-happy",
       "acId": "AC-209-2",
-      "description": "AC-209-2 happy: coverage data for the pivots criteria",
+      "description": "[happy] Given coverage data for the pivot's criteria, when a cell renders, then TraceMatrixCell.resolution is \"resolving\" on the --sv-success token, \"unresolved\" on the --sv-warning token or \"none\" on the --sv-muted token, with no new colour token introduced.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-2 happy: coverage data for the pivots criteria"
     },
     {
       "id": "TC-241-209-3-happy",
       "acId": "AC-209-3",
-      "description": "AC-209-3 happy: any id rendered in the questions blocking thinre",
+      "description": "[happy] Given any id rendered in the questions, blocking, thin-requirements or coverage tables, when the row renders, then it carries a \"Trace\" action linking to \"#tab=readiness&sub=trace&entity=<id>\", and a lookup modal hit on a readiness row navigates to the same hash preserving embed and theme.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-3 happy: any id rendered in the questions blocking thinre"
     },
     {
       "id": "TC-241-209-4-edge",
       "acId": "AC-209-4",
-      "description": "AC-209-4 edge: an sse treeupdate that swaps rcflivecontent whil",
+      "description": "[edge] Given an SSE tree-update that swaps #rcf-live-content while the Trace sub-tab shows a matrix, when the swap lands, then the matrix is re-rendered from the client cache keyed by state.version and marked stale until the next fetch completes, never dropped.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-4 edge: an sse treeupdate that swaps rcflivecontent whil"
     },
     {
       "id": "TC-241-209-5-mustnot",
       "acId": "AC-209-5",
-      "description": "AC-209-5 must-not: the requirements tab",
+      "description": "[must-not] Given the Requirements tab, when a requirement renders, then no Mermaid slice diagram is rendered for it (the per-requirement slice and its details element are gone) and no Mermaid is rendered anywhere on the Readiness tab.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-5 must-not: the requirements tab"
     },
     {
       "id": "TC-241-209-6-failure",
       "acId": "AC-209-6",
-      "description": "AC-209-6 failure: a pivot the route reports with found false",
+      "description": "[failure] Given a pivot the route reports with found false, when the Trace sub-tab renders, then an empty state names the id and offers the lookup modal, and no partial matrix is drawn.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-6 failure: a pivot the route reports with found false"
     },
     {
       "id": "TC-241-209-7-edge",
       "acId": "AC-209-7",
-      "description": "AC-209-7 edge: a pivot whose forward trace yields more than 200",
+      "description": "[edge] Given a pivot whose forward trace yields more than 200 TraceMatrixRow entries, when the matrix renders, then a row filter by story id or criterion id is shown, the full TraceMatrixRow.cells set is retained in memory and nothing is truncated silently.",
       "status": "pending",
       "testPointer": "test/view/trace-matrix.test.js::AC-209-7 edge: a pivot whose forward trace yields more than 200"
     }
