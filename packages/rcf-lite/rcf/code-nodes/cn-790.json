@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-790",
+  "path": "src/view/readiness/grid.js",
+  "title": "Readiness stage grid (FBS-206, TAC-4135)",
+  "description": "Pure HTML string renderers (renderVerdictGrid, buildCell, reasonForCell) emitting the two-column stage grid (tree, delta) in the Overview sub-view: each VerdictGridCell carries pass, total, state and a failing-count link that targets the Blocking sub-tab filtered to the stage (AC-18005-1, -6). Acknowledged state and reason are read from stages[].state and the one reason helper so freezeRecord.gates is not read from the row renderer.",
+  "implementsAcIds": [
+    "AC-18005-1",
+    "AC-18005-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T12:34:40.496Z",
+  "updatedAt": "2026-10-09T12:34:40.496Z"
+}

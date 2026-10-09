@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-791",
+  "path": "src/view/readiness/delta-counts.js",
+  "title": "Readiness delta counts (FBS-206, TAC-4135)",
+  "description": "Pure HTML string renderer (renderDeltaCounts, foldCounts) emitting six count tiles (changed, added, removed, briefSince, impacted, impactedFbs) in the Overview sub-view with the per-document list and its diff widgets inside a collapsed <details> element; expanded only when the reader opens it (AC-18005-3).",
+  "implementsAcIds": [
+    "AC-18005-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T12:34:40.951Z",
+  "updatedAt": "2026-10-09T12:34:40.951Z"
+}
