@@ -17,6 +17,8 @@ import { renderDocRow } from '../components/doc-row.js';
 import { toQuestions, preferReadinessQuestions } from './question-adapter.js';
 import { stageTitle } from './stage-legend.js';
 import { renderQuestionsTable, renderBlockingTable, buildQuestionRows, buildBlockingRows } from './tables.js';
+import { renderCoverageSummary } from './coverage-summary.js';
+import { buildThinReqRows, renderThinReqsTable } from './thin-reqs.js';
 
 /**
  * @typedef {import('../../query/readiness.js').ReadinessResult} ReadinessResult
@@ -30,6 +32,7 @@ import { renderQuestionsTable, renderBlockingTable, buildQuestionRows, buildBloc
  * @param {object} [opts]
  * @param {'productOwner'|'engineer'|'unstated'} [opts.persona='productOwner']
  * @param {string} opts.engineerBody - rendered engineer-level HTML (the former renderReadinessPanel body)
+ * @param {object | null} [opts.tree] - the walker tree model, for coverage tiles and thin rows (FBS-205)
  * @returns {string}
  */
 export function renderReadinessPO(readiness, opts) {
@@ -38,6 +41,7 @@ export function renderReadinessPO(readiness, opts) {
   }
   const persona = opts?.persona ?? 'productOwner';
   const engineerBody = typeof opts?.engineerBody === 'string' ? opts.engineerBody : '';
+  const tree = opts && opts.tree ? opts.tree : null;
   const verdictLines = formatVerdictLines(readiness);
   const questionsSource = preferReadinessQuestions(readiness) ? 'readiness.questions' : 'blockers';
   const q = toQuestions(readiness);
@@ -58,11 +62,17 @@ export function renderReadinessPO(readiness, opts) {
     : [questionsTable, blockingTable];
   const tablesSection = `<div class="rcf-cmd-tables" data-rcf-register="${escapeHtml(persona)}" data-rcf-source="${escapeHtml(questionsSource)}">${paintOrder.join('\n')}</div>`;
 
+  // FBS-205 (US-18004): the "What happens next" block folds into the
+  // verdict cards (one sentence per card), renderCoverage is replaced
+  // by renderCoverageSummary, and the Requirements-that-still-need-work
+  // table widens to the thin-requirements table with the five reasons
+  // bound by AC-18004-4.
+  const thinRows = buildThinReqRows(readiness, tree);
   return [
-    renderVerdictCards(readiness, verdictLines),
+    renderVerdictCards(readiness, verdictLines, q),
     tablesSection,
-    renderNextStep(readiness, q),
-    renderReqWorkTable(readiness),
+    renderCoverageSummary({ coverage: readiness.coverage, tree }),
+    renderThinReqsTable({ rows: thinRows }),
     renderForEngineers(readiness, engineerBody, persona),
   ].join('\n');
 }
@@ -111,8 +121,16 @@ function buildQuestionRowsForTable(_readiness, adapterResult) {
 }
 
 // ---- block 1: two VerdictCards (equal height, chain term muted) --------
+//
+// FBS-205 (AC-18004-5): the count on each card is now a link to the
+// matching table (intent -> questions, build -> blocking); the former
+// "What happens next" paragraph (block 3, retired) is folded into
+// each card as one sentence pulled from the same inputs.
 
-function renderVerdictCards(readiness, verdictLines) {
+const QUESTIONS_HREF = '#tab=readiness&sub=questions';
+const BLOCKING_HREF = '#tab=readiness&sub=blocking';
+
+function renderVerdictCards(readiness, verdictLines, q) {
   const l = readiness.levels;
   const intentOk = l.intentComplete.ok;
   const buildOk = l.readyToBuild.ok;
@@ -124,27 +142,57 @@ function renderVerdictCards(readiness, verdictLines) {
 
   const intentValueLabel = intentOk ? 'Yes' : 'Not yet';
   const buildValueLabel = buildOk ? 'Yes' : 'Not yet';
-  const intentCountLine = intentCount === 0
-    ? '0 questions waiting for you'
-    : `<strong>${intentCount} question${intentCount === 1 ? '' : 's'} waiting for you</strong>`;
+
+  const questionGroups = Array.isArray(q && q.groups) ? q.groups : [];
+  const questionTotal = questionGroups.reduce((sum, g) => sum + ((g && g.items && g.items.length) || 0), 0);
+  const askTotal = Number.isFinite(questionTotal) ? questionTotal : intentCount;
+
+  const intentCountLine = askTotal === 0
+    ? `<a class="rcf-po-verdict__count-link" href="${escapeHtml(QUESTIONS_HREF)}" data-rcf-link="questions">0 questions waiting for you</a>`
+    : `<a class="rcf-po-verdict__count-link" href="${escapeHtml(QUESTIONS_HREF)}" data-rcf-link="questions"><strong>${askTotal} question${askTotal === 1 ? '' : 's'} waiting for you</strong></a>`;
   const buildCountLine = buildTotal === 0
-    ? 'nothing waiting for engineers'
-    : `<strong>${buildEng} item${buildEng === 1 ? '' : 's'} for engineers</strong>, ${buildPo === 0 ? 'none' : buildPo} for you`;
+    ? `<a class="rcf-po-verdict__count-link" href="${escapeHtml(BLOCKING_HREF)}" data-rcf-link="blocking">nothing waiting for engineers</a>`
+    : `<a class="rcf-po-verdict__count-link" href="${escapeHtml(BLOCKING_HREF)}" data-rcf-link="blocking"><strong>${buildEng} item${buildEng === 1 ? '' : 's'} for engineers</strong>, ${buildPo === 0 ? 'none' : buildPo} for you</a>`;
+
+  const intentNext = intentNextSentence(intentOk, askTotal);
+  const buildNext = buildNextSentence(buildOk, buildEng);
 
   return `<section class="rcf-po-verdicts" data-rcf-intent-ok="${intentOk ? 'yes' : 'no'}" data-rcf-build-ok="${buildOk ? 'yes' : 'no'}">
   <article class="rcf-po-verdict rcf-po-verdict--intent">
     <p class="rcf-po-verdict__eyebrow muted">Your requirements set</p>
     <h2 class="rcf-po-verdict__heading">Ready for engineers: <span class="rcf-pill rcf-pill--${intentOk ? 'ok' : 'warn'}">${escapeHtml(intentValueLabel)}</span> <span class="rcf-chain-term" title="What the chain calls this rung">intent-complete</span></h2>
     <p class="rcf-po-verdict__count">${intentCountLine}</p>
+    <p class="rcf-po-verdict__next" data-rcf-next="intent">${intentNext}</p>
     <p class="rcf-po-verdict__verdict muted"><code>${escapeHtml(verdictLines.intentComplete)}</code></p>
   </article>
   <article class="rcf-po-verdict rcf-po-verdict--build">
     <p class="rcf-po-verdict__eyebrow muted">The build</p>
     <h2 class="rcf-po-verdict__heading">Ready to build: <span class="rcf-pill rcf-pill--${buildOk ? 'ok' : 'warn'}">${escapeHtml(buildValueLabel)}</span> <span class="rcf-chain-term" title="What the chain calls this rung">ready-to-build</span></h2>
     <p class="rcf-po-verdict__count">${buildCountLine}</p>
+    <p class="rcf-po-verdict__next" data-rcf-next="build">${buildNext}</p>
     <p class="rcf-po-verdict__verdict muted"><code>${escapeHtml(verdictLines.readyToBuild)}</code></p>
   </article>
 </section>`;
+}
+
+function intentNextSentence(ok, askTotal) {
+  if (ok && askTotal === 0) {
+    return 'Your requirements set is ready for engineers; this page updates as they move the build along.';
+  }
+  if (askTotal === 0) {
+    return 'Nothing on this tree needs your answer right now.';
+  }
+  return `Answer the ${askTotal} question${askTotal === 1 ? '' : 's'} in the questions table and your requirements set is ready for engineers.`;
+}
+
+function buildNextSentence(ok, engCount) {
+  if (ok) {
+    return 'Engineers have nothing waiting; the tree is ready to freeze.';
+  }
+  if (engCount === 0) {
+    return 'No engineer items are blocking the build right now.';
+  }
+  return `Engineers have ${engCount} item${engCount === 1 ? '' : 's'} to settle before the build can start; you do not need to do anything for those.`;
 }
 
 // FBS-204 note: block 2 (QuestionCards grouped by source span) and the
@@ -156,97 +204,6 @@ function renderVerdictCards(readiness, verdictLines) {
 // `stageTitle` import is kept because renderNextStep and the engineer
 // section still carry stage-legend hints into the tooltip layer.
 void stageTitle;
-
-// ---- block 3: What happens next ---------------------------------------
-
-function renderNextStep(readiness, q) {
-  const l = readiness.levels;
-  const groups = Array.isArray(q.groups) ? q.groups : [];
-  const total = groups.reduce((sum, g) => sum + (g.items?.length ?? 0), 0);
-  const buildBlockers = Array.isArray(l.readyToBuild.blockedBy) ? l.readyToBuild.blockedBy : [];
-  const engCount = buildBlockers.filter((b) => b && b.persona === 'engineer').length;
-  const verdictLines = formatVerdictLines(readiness);
-
-  const lines = [];
-  if (total === 0 && l.intentComplete.ok) {
-    lines.push(`<p><strong>Your requirements set is ready for engineers.</strong> This page will update as the engineer-level work moves along.</p>`);
-  } else if (total === 0) {
-    lines.push(`<p>Nothing on this tree needs your answer right now.</p>`);
-  } else {
-    lines.push(`<p><strong>Answer the ${total} question${total === 1 ? '' : 's'} above</strong> and your requirements set is ready for engineers.</p>`);
-  }
-  if (engCount > 0) {
-    lines.push(`<p>Engineers then have <strong>${engCount} item${engCount === 1 ? '' : 's'}</strong> to settle before the build can start. You do not need to do anything for those.</p>`);
-  } else if (l.readyToBuild.ok) {
-    lines.push(`<p>Engineers have nothing waiting; the tree is ready to freeze.</p>`);
-  }
-  lines.push(`<p class="small muted">Verdict as the CLI prints it: <code>${escapeHtml(verdictLines.intentComplete)}</code></p>`);
-
-  return `<section class="rcf-po-next">
-  <h2>What happens next</h2>
-  <div class="rcf-po-next__card">${lines.join('\n    ')}</div>
-</section>`;
-}
-
-// ---- block 4: Requirements that still need work -----------------------
-
-function renderReqWorkTable(readiness) {
-  const rows = buildReqWorkRows(readiness);
-  if (rows.length === 0) {
-    return `<section class="rcf-po-reqwork" data-rcf-empty="yes">
-  <h2>Requirements that still need work <span class="rcf-badge rcf-badge--count">0</span></h2>
-  <p class="muted small">Each row says what is missing in plain words. Open a requirement to read it in the Requirements tab.</p>
-  <p class="rcf-po-reqwork__empty">All requirements have a plain description, a home, and at least one story. Nothing is waiting on you here.</p>
-</section>`;
-  }
-  const body = rows.map((r) => `<tr>
-  <td><code class="rcf-po-reqwork__id">${escapeHtml(r.reqId)}</code></td>
-  <td>${escapeHtml(r.reason)}</td>
-  <td><a href="#tab=requirements&amp;entity=${escapeHtml(r.reqId)}">Open</a></td>
-</tr>`).join('');
-  return `<section class="rcf-po-reqwork">
-  <h2>Requirements that still need work <span class="rcf-badge rcf-badge--count">${rows.length}</span></h2>
-  <p class="muted small">Each row says what is missing in plain words. Open a requirement to read it in the Requirements tab.</p>
-  <table class="rcf-po-reqwork__table">
-    <thead><tr><th>Requirement</th><th>What is missing</th><th></th></tr></thead>
-    <tbody>${body}</tbody>
-  </table>
-</section>`;
-}
-
-/**
- * The PO checks that name a REQ (`skeleton:reqIntent`,
- * `stories:reqHasUs`, `skeleton:resolvedBy` with REQ-shaped
- * suggestions). The Needs-work filter on the Requirements tab reads
- * from the same set.
- */
-function buildReqWorkRows(readiness) {
-  const stages = Array.isArray(readiness.stages) ? readiness.stages : [];
-  /** @type {Map<string, string>} */
-  const reasonById = new Map();
-  const REASON = {
-    'stories:reqHasUs': 'No story yet: who uses this, and what do they do with it?',
-    'skeleton:reqIntent': 'Needs a plain description: what must the product do here, and which part does it belong to?',
-    'skeleton:resolvedBy': 'A statement from your document may belong here; confirm in the questions above.',
-  };
-  for (const s of stages) {
-    if (!s || !Array.isArray(s.checks)) continue;
-    for (const c of s.checks) {
-      if (!c || c.ok) continue;
-      const reason = REASON[c.name];
-      if (!reason) continue;
-      const failing = Array.isArray(c.failing) ? c.failing : [];
-      for (const f of failing) {
-        if (!f || typeof f !== 'object') continue;
-        const id = typeof f.id === 'string' ? f.id : '';
-        if (!/^REQ-\d+/.test(id)) continue;
-        const reqId = id.split(':')[0];
-        if (!reasonById.has(reqId)) reasonById.set(reqId, reason);
-      }
-    }
-  }
-  return Array.from(reasonById.entries()).map(([reqId, reason]) => ({ reqId, reason }));
-}
 
 // ---- block 5: For engineers DocRow ------------------------------------
 
