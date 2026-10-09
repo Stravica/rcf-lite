@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-788",
+  "path": "src/view/readiness/thin-reqs.js",
+  "title": "Readiness thin-requirements table (FBS-205, TAC-4135)",
+  "description": "buildThinReqRows + renderThinReqsTable. Widens the former buildReqWorkRows to the five AC-18004-4 reasons (reqHasUs, usFloors, reqIntent, zeroCriteria, uncoveredAc) plus the retained resolvedBy signal; emits ThinReqRow with stories, criteria, covered, thinReason, openHref and traceHref.",
+  "implementsAcIds": [
+    "AC-18004-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T10:26:59.708Z",
+  "updatedAt": "2026-10-09T10:26:59.708Z"
+}

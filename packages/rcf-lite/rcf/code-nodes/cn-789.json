@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-789",
+  "path": "src/view/readiness/po-layer.js#renderVerdictCards",
+  "title": "Readiness PO verdict-card count links and folded next-step (FBS-205)",
+  "description": "renderVerdictCards + intentNextSentence + buildNextSentence. The question count on the intent card is an anchor to the questions sub-tab, the engineer count on the build card is an anchor to the blocking sub-tab, and the former renderNextStep paragraph is folded into one sentence per card.",
+  "implementsAcIds": [
+    "AC-18004-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-09T10:27:00.194Z",
+  "updatedAt": "2026-10-09T10:27:00.194Z"
+}
