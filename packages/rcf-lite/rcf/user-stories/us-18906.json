@@ -1,0 +1,73 @@
+{
+  "createdAt": "2026-10-09T16:28:29.856Z",
+  "updatedAt": "2026-10-09T16:28:29.856Z",
+  "description": "User story under REQ-189 for the binding (FBS-215; external dependency rcf-schemas 0.7 for journeyStepIds). Validation resolves the ids; queue, show and bundle expose the step state; build review reports stubs as findings with no new hard gate; coverage, trace and impact never walk journey edges.",
+  "asA": "an engineer running the build queue",
+  "iWant": "each build spec to name the journey steps it delivers and the queue to show which steps nobody has picked up",
+  "soThat": "a step with no owner is visible before the product ships with a gap between its screens",
+  "tacIds": [
+    "TAC-4142-discovery-journey-gate"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18906-1",
+      "description": "[happy] Given an FBS whose journeyStepIds all resolve to steps in journey.json, when rcf define validate and rcf build bundle run, then validate reports no finding for it and the bundle prints each bound step with its id, label, screen slug and Screen.wireframe path so the executor sees the map.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[journey binding readers]"
+      }
+    },
+    {
+      "id": "AC-18906-2",
+      "description": "[happy] Given a light or central product, when rcf build queue runs, then its markdown and JSON output carry a journeySteps block with one StepState per step whose StepState.state is unbound when no FBS names the step and otherwise the least advanced bound executionStatus mapped as [notStarted to queued | inProgress to inProgress | complete to built | verified to verified], with StepState.fbsIds listing the build specs that name it, and the journey show verb prints the same state beside each step.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[StepState]"
+      }
+    },
+    {
+      "id": "AC-18906-3",
+      "description": "[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind otherDeclared per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \"journeyStub:\" and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[journey binding readers]"
+      }
+    },
+    {
+      "id": "AC-18906-4",
+      "description": "[failure] Given an FBS whose journeyStepIds names an id that resolves to no step (a retired number or a typo), when rcf define validate runs, then it reports a brokenReference finding naming the FBS id and the unresolved id, and the journey show verb lists that FBS under a broken-binding line.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[journey binding readers]"
+      }
+    },
+    {
+      "id": "AC-18906-5",
+      "description": "[edge] Given a step bound to two build specs with executionStatus complete and inProgress, when the state derives, then StepState.state is inProgress, and the same step with complete and verified derives built.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[StepState]"
+      }
+    },
+    {
+      "id": "AC-18906-6",
+      "description": "[must-not] Given journeyStepIds on any FBS, when rcf audit coverage, rcf audit trace or rcf audit impact run, then no journey or step id appears as a node or an edge in their output and the FBS designStage.journeys[] is unchanged by the binding.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[journey binding readers]"
+      }
+    }
+  ],
+  "usId": "US-18906",
+  "prdId": "PRD-001",
+  "reqId": "REQ-189",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "build units bind to journey steps so a stubbed step is visible in the queue, not inside a component"
+}

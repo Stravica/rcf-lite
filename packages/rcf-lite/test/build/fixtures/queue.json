@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 99,
-    "notStarted": 49,
+    "items": 105,
+    "notStarted": 55,
     "inProgress": 2,
     "complete": 33,
     "verified": 15,
-    "actionable": 39,
-    "blocked": 10
+    "actionable": 40,
+    "blocked": 15
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -69,7 +69,8 @@
         "FBS-203",
         "FBS-204",
         "FBS-207",
-        "FBS-209"
+        "FBS-209",
+        "FBS-210"
       ]
     },
     {
@@ -85,7 +86,9 @@
         "FBS-191",
         "FBS-193",
         "FBS-195",
-        "FBS-205"
+        "FBS-205",
+        "FBS-211",
+        "FBS-212"
       ]
     },
     {
@@ -99,7 +102,8 @@
         "FBS-043",
         "FBS-182",
         "FBS-196",
-        "FBS-206"
+        "FBS-206",
+        "FBS-213"
       ]
     },
     {
@@ -113,7 +117,8 @@
         "FBS-044",
         "FBS-183",
         "FBS-197",
-        "FBS-208"
+        "FBS-208",
+        "FBS-214"
       ]
     },
     {
@@ -126,7 +131,8 @@
         "FBS-045",
         "FBS-184",
         "FBS-198",
-        "FBS-199"
+        "FBS-199",
+        "FBS-215"
       ]
     },
     {
@@ -1290,6 +1296,90 @@
       "dependsOnFbsIds": [],
       "state": "actionable",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-210",
+      "buildOrder": 210,
+      "tier": 0,
+      "title": "Journey record and authoring verbs: add, import, show",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-211",
+      "buildOrder": 211,
+      "tier": 1,
+      "title": "Three-valued UI declaration at intake, declare verb, init and doctor, grandfathering",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-210"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-210"
+      ]
+    },
+    {
+      "fbsId": "FBS-212",
+      "buildOrder": 212,
+      "tier": 1,
+      "title": "Journey check: structure, interruption catalogue, wireframe file rules",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-210"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-210"
+      ]
+    },
+    {
+      "fbsId": "FBS-213",
+      "buildOrder": 213,
+      "tier": 2,
+      "title": "Review stamp sealed by the discovery hash; harness rule in the managed block",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-212"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-212"
+      ]
+    },
+    {
+      "fbsId": "FBS-214",
+      "buildOrder": 214,
+      "tier": 3,
+      "title": "Readiness stage D0 and the DEFINE door on the three chain-write verbs",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-211",
+        "FBS-213"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-211",
+        "FBS-213"
+      ]
+    },
+    {
+      "fbsId": "FBS-215",
+      "buildOrder": 215,
+      "tier": 4,
+      "title": "Journey-step binding: journeyStepIds on the FBS, step state in queue, show, bundle and review",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-210",
+        "FBS-214"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-210",
+        "FBS-214"
+      ]
     }
   ]
 }

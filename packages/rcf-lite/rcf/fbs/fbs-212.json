@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-10-09T16:30:02.139Z",
+  "updatedAt": "2026-10-09T17:02:42.425Z",
+  "summary": "Journey check: structure, interruption catalogue, wireframe file rules (US-18903). Delivers AC-18903-1 to AC-18903-8. Estimated new node:test cases: 8. Order in the UX intake gate build: 3 of 6.",
+  "approach": "Add src/discovery/check.js (checkDiscovery, INTERRUPTION_CATALOGUE_V1) and the check verb: journeyPresent, stepsNameScreens, reachable with the dead-end why, interruptions covered by a step of any kind or notApplicable with a 20-character reason floor, wireframePerStep for central only, wireframeFormat (extension set; PNG only when asBuilt), wireframeSelfContained over .html bytes across href, src, srcset, CSS url() and @import, byte hashing of every wireframe file, notApplicable for none and for an absent record before any file read.",
+  "deliverables": [
+    "src/discovery/check.js (new): checkDiscovery, INTERRUPTION_CATALOGUE_V1, the wireframe file rules",
+    "src/discovery/hash.js (new): sha256 over wireframe bytes and the external-URL scan for .html (href, src, srcset, CSS url(), @import)",
+    "src/cli/journey.js: check verb, exit 0 or 4",
+    "test/discovery/journey-check.test.js: not-yet-built flags removed, bodies land (8 cases)"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-210"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4142-discovery-journey-gate",
+      "TAC-4130-define-intake-brief"
+    ],
+    "adrIds": [
+      "ADR-4143-three-valued-ui-declaration-proportional-gate",
+      "ADR-4144-wireframe-files-formats-byte-hash"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "executionStatus": "notStarted",
+  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 8 new node:test cases in the suite named by the TS bound to US-18903; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs.",
+  "acIds": [
+    "AC-18903-1",
+    "AC-18903-2",
+    "AC-18903-3",
+    "AC-18903-4",
+    "AC-18903-5",
+    "AC-18903-6",
+    "AC-18903-7",
+    "AC-18903-8"
+  ],
+  "fbsId": "FBS-212",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 212,
+  "title": "Journey check: structure, interruption catalogue, wireframe file rules"
+}

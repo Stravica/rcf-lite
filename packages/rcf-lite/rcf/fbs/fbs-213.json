@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-10-09T16:30:02.608Z",
+  "updatedAt": "2026-10-09T16:30:02.608Z",
+  "summary": "Review stamp sealed by the discovery hash; harness rule in the managed block (US-18904). Delivers AC-18904-1 to AC-18904-5. Estimated new node:test cases: 5. Order in the UX intake gate build: 4 of 6.",
+  "approach": "Add discoveryHash (canonical record without review plus sorted wireframe (path, sha256) pairs), the review verb (structural checks first, refuse on failure, one-line summary, ReviewStamp written), discovery:reviewed comparing the stamped hash with the recomputed one and naming what changed, and the managed agent-instructions rule beside the ADR-4132 prototype rule.",
+  "deliverables": [
+    "src/discovery/hash.js: discoveryHash",
+    "src/discovery/check.js: discovery:reviewed with the stale why",
+    "src/cli/journey.js: review verb with --by and --note",
+    "src/setup/managed-block.js: the journey review rule",
+    "test/discovery/journey-review.test.js: not-yet-built flags removed, bodies land (5 cases)"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-212"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4142-discovery-journey-gate",
+      "TAC-4130-define-intake-brief"
+    ],
+    "adrIds": [
+      "ADR-4146-d0-blocking-no-ack-three-verb-door-single-reviewer"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "executionStatus": "notStarted",
+  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 5 new node:test cases in the suite named by the TS bound to US-18904; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs.",
+  "acIds": [
+    "AC-18904-1",
+    "AC-18904-2",
+    "AC-18904-3",
+    "AC-18904-4",
+    "AC-18904-5"
+  ],
+  "fbsId": "FBS-213",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 213,
+  "title": "Review stamp sealed by the discovery hash; harness rule in the managed block"
+}

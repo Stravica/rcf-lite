@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 119  covered: 119  covered-unresolved: 0  uncovered: 0
+Requirements: 120  covered: 120  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -688,3 +688,45 @@ REQ-188      yes      AC-18801-1   yes         TC-228-draft-coreentity
                       AC-18801-3   yes         TC-228-draft-cleared
                       AC-18801-4   yes         TC-228-draft-template-markers
                       AC-18801-5   yes         TC-228-draft-no-po-read
+REQ-189      yes      AC-18901-1   yes         TC-243-18901-1-happy
+                      AC-18901-2   yes         TC-243-18901-2-happy
+                      AC-18901-3   yes         TC-243-18901-3-happy
+                      AC-18901-4   yes         TC-243-18901-4-failure
+                      AC-18901-5   yes         TC-243-18901-5-edge
+                      AC-18901-6   yes         TC-243-18901-6-edge
+                      AC-18901-7   yes         TC-243-18901-7-mustnot
+                      AC-18902-1   yes         TC-244-18902-1-happy
+                      AC-18902-2   yes         TC-244-18902-2-happy
+                      AC-18902-3   yes         TC-244-18902-3-happy
+                      AC-18902-4   yes         TC-244-18902-4-happy
+                      AC-18902-5   yes         TC-244-18902-5-failure
+                      AC-18902-6   yes         TC-244-18902-6-edge
+                      AC-18902-7   yes         TC-244-18902-7-mustnot
+                      AC-18903-1   yes         TC-245-18903-1-happy
+                      AC-18903-2   yes         TC-245-18903-2-happy
+                      AC-18903-3   yes         TC-245-18903-3-happy
+                      AC-18903-4   yes         TC-245-18903-4-happy
+                      AC-18903-5   yes         TC-245-18903-5-failure
+                      AC-18903-6   yes         TC-245-18903-6-edge
+                      AC-18903-7   yes         TC-245-18903-7-mustnot
+                      AC-18903-8   yes         TC-245-18903-8-failure
+                      AC-18904-1   yes         TC-246-18904-1-happy
+                      AC-18904-2   yes         TC-246-18904-2-happy
+                      AC-18904-3   yes         TC-246-18904-3-failure
+                      AC-18904-4   yes         TC-246-18904-4-edge
+                      AC-18904-5   yes         TC-246-18904-5-mustnot
+                      AC-18905-1   yes         TC-247-18905-1-happy
+                      AC-18905-2   yes         TC-247-18905-2-happy
+                      AC-18905-3   yes         TC-247-18905-3-edge
+                      AC-18905-4   yes         TC-247-18905-4-failure
+                      AC-18905-5   yes         TC-247-18905-5-happy
+                      AC-18905-6   yes         TC-247-18905-6-mustnot
+                      AC-18905-7   yes         TC-247-18905-7-mustnot
+                      AC-18905-8   yes         TC-247-18905-8-happy
+                      AC-18905-9   yes         TC-247-18905-9-failure
+                      AC-18906-1   yes         TC-248-18906-1-happy
+                      AC-18906-2   yes         TC-248-18906-2-happy
+                      AC-18906-3   yes         TC-248-18906-3-happy
+                      AC-18906-4   yes         TC-248-18906-4-failure
+                      AC-18906-5   yes         TC-248-18906-5-edge
+                      AC-18906-6   yes         TC-248-18906-6-mustnot

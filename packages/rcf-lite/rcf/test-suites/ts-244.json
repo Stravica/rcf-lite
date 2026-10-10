@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-09T16:29:39.430Z",
+  "updatedAt": "2026-10-09T16:29:47.952Z",
+  "purpose": "Cover every acceptance criterion of US-18902 with one node:test case each in test/discovery/journey-record.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-210) removes the flags as it makes them pass.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18902-1",
+    "AC-18902-2",
+    "AC-18902-3",
+    "AC-18902-4",
+    "AC-18902-5",
+    "AC-18902-6",
+    "AC-18902-7"
+  ],
+  "id": "TS-244",
+  "usId": "US-18902",
+  "title": "US-18902 UX intake gate suite (journey-record)",
+  "testCases": [
+    {
+      "id": "TC-244-18902-1-happy",
+      "acId": "AC-18902-1",
+      "description": "[happy] Given a journey source file in the line grammar, when the journey add verb runs with --from, then journey.json gains one Journey whose JourneyStep entries carry JNY-nnn-nnn ids in file order, each step kind from [entry | step | exit | interruption], each step screen resolved by slug to a Screen minted as SCR-nnn on first sight, and Journey.source equal to the file path.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-1 happy: a journey source file in the line grammar"
+    },
+    {
+      "id": "TC-244-18902-2-happy",
+      "acId": "AC-18902-2",
+      "description": "[happy] Given a journey already minted, when its source is edited and the journey add verb runs again with --from, then every step whose slug is unchanged keeps its JourneyStep.id, a new slug mints the next number, and a removed slug's number is never reused by a later mint.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-2 happy: a journey already minted"
+    },
+    {
+      "id": "TC-244-18902-3-happy",
+      "acId": "AC-18902-3",
+      "description": "[happy] Given a journey-map document in the prose shape (an H2 heading per step, a Screen: wf-NN-slug line and zero or more Goes to: wf-NN-slug lines), when the journey import verb runs with --from, then the record minted is the one the line grammar would produce for the same journey, with the first heading as the entry, a heading with no Goes to line as an exit, and each wf-NN-slug resolved to a Screen whose Screen.wireframe is the file of the same stem beside the source when it exists.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-3 happy: a journeymap document in the prose shape an h2 h"
+    },
+    {
+      "id": "TC-244-18902-4-happy",
+      "acId": "AC-18902-4",
+      "description": "[happy] Given a minted record, when the journey show verb runs, then it prints each journey's steps in order with id, kind, screen slug, label, next and returnsTo, the interruption answers and the review state, and with --json emits the JourneyRecord verbatim.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-4 happy: a minted record"
+    },
+    {
+      "id": "TC-244-18902-5-failure",
+      "acId": "AC-18902-5",
+      "description": "[failure] Given a source line outside the grammar (a missing kind, a missing @screen-slug, or an interruption with no returns target), when the journey add verb runs with --from, then it exits 3 naming the file, the line number and the rule, and journey.json is not written.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-5 failure: a source line outside the grammar a missing kind"
+    },
+    {
+      "id": "TC-244-18902-6-edge",
+      "acId": "AC-18902-6",
+      "description": "[edge] Given --dry-run on the journey add or import verb, when it runs, then the planned mints are printed, the same local schema pass the write path runs is applied, and journey.json is byte-identical before and after.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-6 edge: dryrun on the journey add or import verb"
+    },
+    {
+      "id": "TC-244-18902-7-mustnot",
+      "acId": "AC-18902-7",
+      "description": "[must-not] Given any journey verb, when it writes journey.json, then it never accepts a hand-supplied JNY or SCR id, never records a Figma or Confluence link as Screen.wireframe, and the walker's document count is unchanged by the file (rcf/discovery/ is invisible to the loader).",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-record.test.js::AC-18902-7 must-not: any journey verb"
+    }
+  ],
+  "status": "draft"
+}

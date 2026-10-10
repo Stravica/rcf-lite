@@ -1,0 +1,100 @@
+{
+  "createdAt": "2026-10-09T16:28:29.221Z",
+  "updatedAt": "2026-10-09T17:02:39.106Z",
+  "description": "User story under REQ-189 for the readiness stage and the door (FBS-214). D0 ahead of D1, blocking, no ack, productOwner; the three chain-write verbs refuse with exit 4 before writing; repair verbs untouched; questions surface D0 first; notApplicable for a none product and for a grandfathered tree, failing on the ui null record rcf init writes; a light product never needs a wireframe or a review to pass.",
+  "asA": "an engineer or agent about to write the first requirement",
+  "iWant": "the tool to refuse the write, in the same voice as the other gates, when the product owner has not finished DISCOVERY for a product whose UI matters",
+  "soThat": "requirements are drawn from a reviewed journey and nobody can acknowledge their way past it",
+  "tacIds": [
+    "TAC-4142-discovery-journey-gate"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18905-1",
+      "description": "[happy] Given readiness computes, when the stages are listed, then D0 (gate define.discovery, short name discovery) precedes D1 in STAGE_ORDER, its policy is blocking, it is absent from WARN_WITH_ACK, every discovery:* check carries the productOwner persona, and rcf define readiness --check discovery exits 4 when D0 fails and 0 when it passes or is notApplicable.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    },
+    {
+      "id": "AC-18905-2",
+      "description": "[happy] Given a declared central product, when D0 evaluates, then it runs discovery:declared, discovery:journeyPresent, discovery:stepsNameScreens, discovery:reachable, discovery:interruptions, discovery:wireframePerStep, discovery:wireframeFormat, discovery:wireframeSelfContained and discovery:reviewed, and given a declared light product the same set runs with discovery:wireframePerStep and discovery:reviewed notApplicable, so a light product is never refused for a missing wireframe or a missing review.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[checkDiscovery]"
+      }
+    },
+    {
+      "id": "AC-18905-3",
+      "description": "[edge] Given a declared none product or a tree with no journey.json, when D0 evaluates, then it reports notApplicable with the reason \"product declared not UI-bearing\" or \"no discovery declaration (existing tree)\", journey.json is the only file under rcf/discovery/ read, and the door check passes without reading any other file.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    },
+    {
+      "id": "AC-18905-4",
+      "description": "[failure] Given a declared light or central product whose D0 fails, when rcf define ledger brief add, rcf define create or rcf define blueprint add runs, then it exits 4 before any write, the message begins \"[error] refused define:\" and names the declared value, the failing check, the failing ids and the readiness check to run, and the tree is byte-identical before and after.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[define door check]"
+      }
+    },
+    {
+      "id": "AC-18905-5",
+      "description": "[happy] Given a central product reviewed at the current hash, or a light product whose journey answers the catalogue whether or not it has been reviewed, when rcf define ledger brief add, rcf define create or rcf define blueprint add runs, then the door check passes and the write lands as it did before this requirement.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[define door check]"
+      }
+    },
+    {
+      "id": "AC-18905-6",
+      "description": "[must-not] Given D0 failing, when rcf define readiness --ack discovery or rcf define freeze runs, then no acknowledgement path exists for D0: --ack discovery exits 2 as not ackable and freeze refuses through its failing block naming D0.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    },
+    {
+      "id": "AC-18905-7",
+      "description": "[must-not] Given a product whose D0 fails, when rcf define update, delete, link, unlink, design, standards, the decisions, concerns or probes ledgers, readiness or questions run, then they are not gated and complete as they did before this requirement.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[define door check]"
+      }
+    },
+    {
+      "id": "AC-18905-8",
+      "description": "[happy] Given rcf define questions --persona productOwner on a failing D0, when it runs, then the D0 items come first, each with a plain question template and a write-back naming the journey verb that resolves it, and a none product or a grandfathered tree contributes no D0 question.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    },
+    {
+      "id": "AC-18905-9",
+      "description": "[failure] Given a record whose JourneyRecord.ui is null (the record rcf init writes), when D0 evaluates, then discovery:declared fails with a why naming the declare verb and the three values, D0 is failing, and the door check refuses as it does for any failing D0 until a declaration is made.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[D0 define.discovery]"
+      }
+    }
+  ],
+  "usId": "US-18905",
+  "prdId": "PRD-001",
+  "reqId": "REQ-189",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "DEFINE refuses to open on a UI-bearing product whose discovery is not complete, and a product with no UI pays nothing"
+}

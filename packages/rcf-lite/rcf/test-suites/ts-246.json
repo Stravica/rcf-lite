@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-09T16:29:40.378Z",
+  "updatedAt": "2026-10-09T16:29:53.536Z",
+  "purpose": "Cover every acceptance criterion of US-18904 with one node:test case each in test/discovery/journey-review.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-213) removes the flags as it makes them pass.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18904-1",
+    "AC-18904-2",
+    "AC-18904-3",
+    "AC-18904-4",
+    "AC-18904-5"
+  ],
+  "id": "TS-246",
+  "usId": "US-18904",
+  "title": "US-18904 UX intake gate suite (journey-review)",
+  "testCases": [
+    {
+      "id": "TC-246-18904-1-happy",
+      "acId": "AC-18904-1",
+      "description": "[happy] Given a journey that passes every structural check, when the journey review verb runs with --by and a name, then ReviewStamp.state equals \"reviewed\", ReviewStamp.by equals the name, ReviewStamp.at carries the time and the discoveryHash of the record, and ReviewStamp.wireframeHashes carries one sha256 per screen with a wireframe.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-review.test.js::AC-18904-1 happy: a journey that passes every structural check"
+    },
+    {
+      "id": "TC-246-18904-2-happy",
+      "acId": "AC-18904-2",
+      "description": "[happy] Given a reviewed record, when discovery:reviewed evaluates with the record and every wireframe file unchanged, then it passes, and the review verb that produced the stamp printed the one-line summary (journeys, steps, screens, interruptions mapped) before writing.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-review.test.js::AC-18904-2 happy: a reviewed record"
+    },
+    {
+      "id": "TC-246-18904-3-failure",
+      "acId": "AC-18904-3",
+      "description": "[failure] Given a journey that fails any structural check, when the journey review verb runs, then it exits 4 printing the failing checks and writes no ReviewStamp.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-review.test.js::AC-18904-3 failure: a journey that fails any structural check"
+    },
+    {
+      "id": "TC-246-18904-4-edge",
+      "acId": "AC-18904-4",
+      "description": "[edge] Given a reviewed record, when a wireframe file's bytes change or a journey source is re-minted, then discovery:reviewed fails as stale with a why naming the changed screens or journey, and a second review at the new hash makes it pass again.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-review.test.js::AC-18904-4 edge: a reviewed record"
+    },
+    {
+      "id": "TC-246-18904-5-mustnot",
+      "acId": "AC-18904-5",
+      "description": "[must-not] Given the managed agent-instructions block, when rcf init or rcf doctor --fix writes it, then it carries the rule that the harness never runs the journey review verb on its own beside the ADR-4132 prototype rule, and no verb other than journey review ever writes ReviewStamp.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-review.test.js::AC-18904-5 must-not: the managed agentinstructions block"
+    }
+  ],
+  "status": "draft"
+}

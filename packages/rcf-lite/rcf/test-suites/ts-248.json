@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-10-09T16:29:41.351Z",
+  "updatedAt": "2026-10-09T16:30:00.609Z",
+  "purpose": "Cover every acceptance criterion of US-18906 with one node:test case each in test/discovery/journey-binding.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-215) removes the flags as it makes them pass.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-18906-1",
+    "AC-18906-2",
+    "AC-18906-3",
+    "AC-18906-4",
+    "AC-18906-5",
+    "AC-18906-6"
+  ],
+  "id": "TS-248",
+  "usId": "US-18906",
+  "title": "US-18906 UX intake gate suite (journey-binding)",
+  "testCases": [
+    {
+      "id": "TC-248-18906-1-happy",
+      "acId": "AC-18906-1",
+      "description": "[happy] Given an FBS whose journeyStepIds all resolve to steps in journey.json, when rcf define validate and rcf build bundle run, then validate reports no finding for it and the bundle prints each bound step with its id, label, screen slug and Screen.wireframe path so the executor sees the map.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-binding.test.js::AC-18906-1 happy: an fbs whose journeystepids all resolve to steps"
+    },
+    {
+      "id": "TC-248-18906-2-happy",
+      "acId": "AC-18906-2",
+      "description": "[happy] Given a light or central product, when rcf build queue runs, then its markdown and JSON output carry a journeySteps block with one StepState per step whose StepState.state is unbound when no FBS names the step and otherwise the least advanced bound executionStatus mapped as [notStarted to queued | inProgress to inProgress | complete to built | verified to verified], with StepState.fbsIds listing the build specs that name it, and the journey show verb prints the same state beside each step.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-binding.test.js::AC-18906-2 happy: a light or central product"
+    },
+    {
+      "id": "TC-248-18906-3-happy",
+      "acId": "AC-18906-3",
+      "description": "[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind otherDeclared per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \"journeyStub:\" and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-binding.test.js::AC-18906-3 happy: rcf build review on a light or central product"
+    },
+    {
+      "id": "TC-248-18906-4-failure",
+      "acId": "AC-18906-4",
+      "description": "[failure] Given an FBS whose journeyStepIds names an id that resolves to no step (a retired number or a typo), when rcf define validate runs, then it reports a brokenReference finding naming the FBS id and the unresolved id, and the journey show verb lists that FBS under a broken-binding line.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-binding.test.js::AC-18906-4 failure: an fbs whose journeystepids names an id that res"
+    },
+    {
+      "id": "TC-248-18906-5-edge",
+      "acId": "AC-18906-5",
+      "description": "[edge] Given a step bound to two build specs with executionStatus complete and inProgress, when the state derives, then StepState.state is inProgress, and the same step with complete and verified derives built.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-binding.test.js::AC-18906-5 edge: a step bound to two build specs with executionst"
+    },
+    {
+      "id": "TC-248-18906-6-mustnot",
+      "acId": "AC-18906-6",
+      "description": "[must-not] Given journeyStepIds on any FBS, when rcf audit coverage, rcf audit trace or rcf audit impact run, then no journey or step id appears as a node or an edge in their output and the FBS designStage.journeys[] is unchanged by the binding.",
+      "status": "pending",
+      "testPointer": "test/discovery/journey-binding.test.js::AC-18906-6 must-not: journeystepids on any fbs"
+    }
+  ],
+  "status": "draft"
+}

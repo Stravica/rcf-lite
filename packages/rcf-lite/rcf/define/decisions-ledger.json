@@ -108,6 +108,157 @@
       "answer": "a. Product owner render ruling 2026-10-07: sub-tabs (Overview, Questions, Blocking, Coverage, Trace); the one long page alternative is retired.",
       "answeredAt": "2026-10-09T13:18:33.262Z",
       "resolvedAt": "2026-10-09T13:18:33.262Z"
+    },
+    {
+      "id": 6,
+      "question": "Q1 schema home: does the journey record stay rcf-lite-local like the ledgers, with only the FBS journeyStepIds field going to rcf-schemas 0.7, or is the declaration mirrored onto manifest.intakeClassification from day one?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "rcf-lite-local record under rcf/discovery/; only journeyStepIds to schemas 0.7; no manifest mirror"
+        },
+        {
+          "letter": "b",
+          "text": "mirror the declaration onto the manifest in a second schemas change"
+        }
+      ],
+      "default": "a",
+      "blocks": "US-18902",
+      "addedAt": "2026-10-09T16:30:03.794Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY verdict 2026-10-09 (engineering): journey.json rcf-lite-local like the ledgers (ADR-4121); only FBS journeyStepIds goes to rcf-schemas 0.7; no manifest mirror. ADR-4142.",
+      "answeredAt": "2026-10-09T16:30:04.509Z",
+      "resolvedAt": "2026-10-09T16:30:04.509Z"
+    },
+    {
+      "id": 7,
+      "question": "Q2 legacy rollout: warn for one release then bite, bite immediately where inference says UI, or grandfather existing trees with no rollout mechanism?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "warn for one release, then fail on an absent declaration"
+        },
+        {
+          "letter": "b",
+          "text": "bite immediately on every tree the fallback inference calls UI"
+        },
+        {
+          "letter": "c",
+          "text": "grandfather existing trees by absence of the record; no warn window, no retirement; doctor advises only"
+        }
+      ],
+      "default": "c",
+      "blocks": "US-18901",
+      "addedAt": "2026-10-09T16:30:03.909Z",
+      "status": "resolved",
+      "answer": "c. Product owner ruling 2026-10-09: old projects land safely as they already exist; no warn-then-bite release train and no cliff; the gate applies to intake after the release and to any tree that re-runs intake. ADR-4145.",
+      "answeredAt": "2026-10-09T16:30:04.625Z",
+      "resolvedAt": "2026-10-09T16:30:04.625Z"
+    },
+    {
+      "id": 8,
+      "question": "Q3 interruption catalogue v1 membership and the shape of the check: the four from the incident, or the six from the ux-designer role; drawn, or answered?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "four entries from the incident (lostEmail, abandonedMidway, expiredLink, wrongDevice)"
+        },
+        {
+          "letter": "b",
+          "text": "six entries from the ux-designer role (lostEmail, closedTab, deadBattery, expiredLink, switchedDevice, lostSignal), each answered by a step or notApplicable with a reason of 20 or more characters"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18903",
+      "addedAt": "2026-10-09T16:30:04.024Z",
+      "status": "resolved",
+      "answer": "b. Product owner ruling 2026-10-09: the six from the ux-designer role, answered-or-notApplicable with a reason; the check is answered, not drawn. ADR-4143.",
+      "answeredAt": "2026-10-09T16:30:04.739Z",
+      "resolvedAt": "2026-10-09T16:30:04.739Z"
+    },
+    {
+      "id": 9,
+      "question": "Q4 wireframe file types and the gate shape: markdown only with a heading-structure check, or markdown default plus self-contained HTML plus PNG for migration, hashed as bytes with no heading check; and is the declaration boolean or three-valued?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "markdown only; Shape, States and Behaviour headings checked; boolean uiBearing"
+        },
+        {
+          "letter": "b",
+          "text": "markdown default, self-contained HTML, PNG for as-built migration; bytes hashed, headings never inspected; three-valued none, light, central with wireframes required for central only"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18903",
+      "addedAt": "2026-10-09T16:30:04.149Z",
+      "status": "resolved",
+      "answer": "b. Product owner ruling 2026-10-09: the gate is not tight; three values; wireframe richness is better input, never mandated; only central refuses for a missing wireframe. Engineering: markdown, self-contained HTML, PNG migration only; hash bytes never headings. ADR-4143, ADR-4144.",
+      "answeredAt": "2026-10-09T16:30:04.855Z",
+      "resolvedAt": "2026-10-09T16:30:04.855Z"
+    },
+    {
+      "id": 10,
+      "question": "Q5 reviewer: single reviewer in v1, or a second-reader flag on journey review from the start?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "single reviewer; a second reader only after the first missed dead end"
+        },
+        {
+          "letter": "b",
+          "text": "a --litmus n second reader from the start"
+        }
+      ],
+      "default": "a",
+      "blocks": "US-18904",
+      "addedAt": "2026-10-09T16:30:04.268Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY verdict 2026-10-09 (engineering): single reviewer in v1; a second reader only after the first missed dead end. ADR-4146.",
+      "answeredAt": "2026-10-09T16:30:05.002Z",
+      "resolvedAt": "2026-10-09T16:30:05.002Z"
+    },
+    {
+      "id": 11,
+      "question": "Q6 build binding posture: is a UI-bearing build spec with no journeyStepIds refused at mark complete, or reported as a build review finding with no new hard gate at BUILD?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "refuse at rcf build mark complete in the same block as the design gate"
+        },
+        {
+          "letter": "b",
+          "text": "report as a build review finding (journeyStub) and show the state in the queue; the only hard gate is the DEFINE door"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18906",
+      "addedAt": "2026-10-09T16:30:04.392Z",
+      "status": "resolved",
+      "answer": "b. DEFINE 2026-10-09: the accepted proposal states no new hard gate at BUILD and the product owner posture is not tight; the binding is visibility (queue, show, bundle, review finding), the DEFINE door is the only refusal. Deviation from the proposal's mark-complete line, flagged for the reviewer.",
+      "answeredAt": "2026-10-09T16:30:05.197Z",
+      "resolvedAt": "2026-10-09T16:30:05.197Z"
+    },
+    {
+      "id": 12,
+      "question": "Q7 drawing requirements from journey steps: does this release carry the brief-statement source span journey:<stepId> and a D1 check brief:journeySteps (every step of a light or central product has at least one brief statement sourced to it), or does it carry only the record, the gate and the FBS binding, with the D1 check in the next DEFINE?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "this release: journey:<stepId> source spans and the brief:journeySteps D1 check under REQ-189"
+        },
+        {
+          "letter": "b",
+          "text": "next DEFINE: this release ships the record, the D0 gate and the FBS binding; the D1 check gets its own requirement once a tree has drawn requirements from a journey and the shape of a step-sourced statement is known"
+        }
+      ],
+      "default": "b",
+      "blocks": "US-18905",
+      "addedAt": "2026-10-09T17:03:11.736Z",
+      "status": "resolved",
+      "answer": "b. DEFINE FINALISE 2026-10-09: this release ships the record, the D0 gate and the FBS binding (REQ-189). Drawing requirements from steps (journey:<stepId> source spans, a brief:journeySteps D1 check) is carried to the next DEFINE as its own requirement; the verdict is silent on it and the shape of a step-sourced statement is best set once a tree has drawn requirements from a real journey. Named as a carried item in the PR body.",
+      "answeredAt": "2026-10-09T17:03:43.631Z",
+      "resolvedAt": "2026-10-09T17:03:43.631Z"
     }
   ]
 }

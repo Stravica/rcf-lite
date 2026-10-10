@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-09T16:28:06.067Z",
+  "updatedAt": "2026-10-09T17:02:40.509Z",
+  "context": "The review stamp is a content hash, so whatever a wireframe is must be hashable from the fresh clone rcf verify run works in. A Figma or Confluence link cannot be hashed and drifts silently. The HQ ux-designer role produced 24 standalone HTML wireframes this week; the application-spa blueprint ships markdown wireframes whose section headings are inconsistent (half carry Shape, half States, none all three). The verdict (Q4) ruled: markdown, self-contained HTML, PNG for as-built migration only; hash bytes, never headings.",
+  "decision": "A wireframe is a file under rcf/discovery/wireframes/<screen-slug>.md, .html or .png. Markdown is the default. HTML is accepted only when self-contained: any href, src or srcset attribute value, and any CSS url() or @import target in a style element or a style attribute, that starts http:, https: or // (a stylesheet, script, image or font fetched from outside the pack) fails discovery:wireframeSelfContained naming the file and the first offending URL. PNG is accepted only on a record declared as-built (rcf discover journey declare --as-built), so a capture of an existing screen can serve a product that declares after the fact; a .png on any other record, and any extension outside .md, .html and .png, fails discovery:wireframeFormat naming the file and the rule. The check hashes the bytes of every wireframe file with sha256 and never parses headings or sections; a heading-structure check is explicitly not a check. Links go on Screen.references for the mid-fi layer and never satisfy any check.",
+  "consequences": "The 24 standalone HTML files pass the byte-hash rule unchanged. A product can switch a wireframe from markdown to HTML without touching the record. An HTML file that pulls a CDN font, whether through a link tag or an @import in its style block, is refused until inlined, which is the cost of a reproducible hash in an offline clone. A new product cannot ship screenshots as its lo-fi wireframes: PNG is the migration format and nothing else. No format conversion, no renderer and no dependency is added.",
+  "alternativesConsidered": [
+    {
+      "name": "Links as wireframes",
+      "summary": "Accept a Figma or Confluence URL on the screen as the wireframe.",
+      "reasonNotChosen": "Not hashable, drifts silently, unreachable from a fresh clone; the review stamp would seal nothing."
+    },
+    {
+      "name": "Markdown-only with a heading-structure check",
+      "summary": "Require Shape, States and Behaviour sections and fail on a missing one.",
+      "reasonNotChosen": "The shipped blueprint wireframes already disagree on headings; the check would refuse the method's own examples and recreate the edge-case world the product owner ruled out."
+    }
+  ],
+  "adrId": "ADR-4144-wireframe-files-formats-byte-hash",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Wireframes are files in the pack: markdown default, self-contained HTML, PNG for migration; hashed as bytes, never inspected for headings"
+}

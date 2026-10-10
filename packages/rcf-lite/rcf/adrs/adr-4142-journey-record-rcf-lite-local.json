@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-09T16:28:05.082Z",
+  "updatedAt": "2026-10-09T16:28:05.082Z",
+  "context": "The UX intake gate needs a durable record of the UI declaration, the journeys, the screens and the review stamp. @stravica-ai/rcf-schemas 0.6.3 knows none of it, and fbs.schema.json is additionalProperties false so an FBS cannot carry a journey binding without a schema release. ADR-4121 already placed the four DEFINE ledgers and the freeze record under rcf/define/ with a local schema, invisible to the walker, promoted to the shared schema later. The DISCOVERY verdict (2026-10-09, Q1) answered the schema home: rcf-lite-local like the ledgers; only the FBS field goes to schemas 0.7; no manifest mirror.",
+  "decision": "rcf/discovery/journey.json is written and validated by rcf-lite alone, through src/discovery/record.js, with a local schema; the authored sources live beside it under rcf/discovery/journeys/ and the wireframes under rcf/discovery/wireframes/. The walker never reads rcf/discovery/ (loader subdirFor returns null; the walker-invisibility invariant test names the directory). The declaration is not mirrored onto manifest.intakeClassification. The one shared-schema change is an optional journeyStepIds string array on the FBS, requested for rcf-schemas 0.7; the build unit that reads it names that release as its external dependency and nothing else in the gate waits on it.",
+  "consequences": "The gate ships in the release after 0.33.0 with no schemas bump. Two places hold DISCOVERY state until schemas 0.7 (manifest.intakeClassification for fidelity and artefacts, journey.json for the declaration and the journey); the promotion path is the same one ADR-4121 documents. The binding build unit is the last in order and may land in a later release than the gate if schemas 0.7 slips; the record and the gate do not depend on it.",
+  "alternativesConsidered": [
+    {
+      "name": "Mirror the declaration onto manifest.intakeClassification now",
+      "summary": "Add a ui field to the intake record in rcf-schemas 0.6.4 so the declaration is in the shared manifest from day one.",
+      "reasonNotChosen": "A second schemas round trip for one enum, with the journey still local; the verdict ruled no manifest mirror. The declaration lives with the record it governs."
+    },
+    {
+      "name": "Journey as chain documents (a new kind under the walker)",
+      "summary": "Make JNY and SCR first-class documents the walker loads, with their own schema.",
+      "reasonNotChosen": "A journey step is discovery evidence, not a chain node; a loaded kind would appear in coverage, trace and impact and become the parallel chain the method forbids (ADR-4132 posture)."
+    }
+  ],
+  "adrId": "ADR-4142-journey-record-rcf-lite-local",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "The journey record is an rcf-lite-local sidecar under rcf/discovery/; only FBS journeyStepIds[] goes to rcf-schemas 0.7"
+}

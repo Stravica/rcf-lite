@@ -1,0 +1,64 @@
+{
+  "createdAt": "2026-10-09T16:28:28.595Z",
+  "updatedAt": "2026-10-09T16:28:28.595Z",
+  "description": "User story under REQ-189 for the review stamp (FBS-213). The hash is sha256 over the canonical record without review plus the sorted (path, sha256) pairs of every wireframe file; the verb refuses on any structural failure; discovery:reviewed compares the stamped hash with the hash recomputed now; the managed agent-instructions block says the harness never runs the verb on its own.",
+  "asA": "a product owner signing off DISCOVERY",
+  "iWant": "to review the journey the tool shows me and stamp it, and to have that stamp go stale the moment a journey or a wireframe changes",
+  "soThat": "\"reviewed\" is a fact the tool can check, not a sentence in a plan",
+  "tacIds": [
+    "TAC-4142-discovery-journey-gate"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-18904-1",
+      "description": "[happy] Given a journey that passes every structural check, when the journey review verb runs with --by and a name, then ReviewStamp.state equals \"reviewed\", ReviewStamp.by equals the name, ReviewStamp.at carries the time and the discoveryHash of the record, and ReviewStamp.wireframeHashes carries one sha256 per screen with a wireframe.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey review]"
+      }
+    },
+    {
+      "id": "AC-18904-2",
+      "description": "[happy] Given a reviewed record, when discovery:reviewed evaluates with the record and every wireframe file unchanged, then it passes, and the review verb that produced the stamp printed the one-line summary (journeys, steps, screens, interruptions mapped) before writing.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[discoveryHash]"
+      }
+    },
+    {
+      "id": "AC-18904-3",
+      "description": "[failure] Given a journey that fails any structural check, when the journey review verb runs, then it exits 4 printing the failing checks and writes no ReviewStamp.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey review]"
+      }
+    },
+    {
+      "id": "AC-18904-4",
+      "description": "[edge] Given a reviewed record, when a wireframe file's bytes change or a journey source is re-minted, then discovery:reviewed fails as stale with a why naming the changed screens or journey, and a second review at the new hash makes it pass again.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[ReviewStamp]"
+      }
+    },
+    {
+      "id": "AC-18904-5",
+      "description": "[must-not] Given the managed agent-instructions block, when rcf init or rcf doctor --fix writes it, then it carries the rule that the harness never runs the journey review verb on its own beside the ADR-4132 prototype rule, and no verb other than journey review ever writes ReviewStamp.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4142-discovery-journey-gate",
+        "field": "interfaces[rcf discover journey review]"
+      }
+    }
+  ],
+  "usId": "US-18904",
+  "prdId": "PRD-001",
+  "reqId": "REQ-189",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "the product owner reviews the journey and the review is sealed by a content hash"
+}

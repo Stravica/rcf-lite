@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-10-09T16:30:01.126Z",
+  "updatedAt": "2026-10-09T16:30:01.126Z",
+  "summary": "Journey record and authoring verbs: add, import, show (US-18902). Delivers AC-18902-1 to AC-18902-7. Estimated new node:test cases: 7. Order in the UX intake gate build: 1 of 6.",
+  "approach": "Add src/discovery/ (record.js, grammar.js, mint.js) and src/cli/journey.js with the add, import and show verbs: two parsers into one JourneyDraft, minting stable by slug with retired numbers never reused, the canonical-JSON writer as the only path onto rcf/discovery/journey.json, --dry-run through the same local schema pass, and the walker-invisibility invariant extended to rcf/discovery/.",
+  "deliverables": [
+    "src/discovery/record.js (new): DISCOVERY_RELATIVE_DIR, JOURNEY_FILE, WIREFRAMES_DIR, local schema, readJourneyRecord, writeJourneyRecord",
+    "src/discovery/grammar.js (new): parseJourneyLines, parseJourneyMap",
+    "src/discovery/mint.js (new): mintJourney",
+    "src/cli/journey.js (new): rcf discover journey add | import | show; src/cli/help.js and the discover router gain the verb family",
+    "test/rcf-tree.test.js and test/store/walker.test.js: rcf/discovery/ named in the walker-invisibility invariant",
+    "test/discovery/journey-record.test.js: not-yet-built flags removed, bodies land (7 cases)"
+  ],
+  "dependsOnFbsIds": [],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4142-discovery-journey-gate",
+      "TAC-4130-define-intake-brief"
+    ],
+    "adrIds": [
+      "ADR-4142-journey-record-rcf-lite-local",
+      "ADR-4144-wireframe-files-formats-byte-hash"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "defineDetection",
+  "estimatedSize": "medium",
+  "executionStatus": "notStarted",
+  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 7 new node:test cases in the suite named by the TS bound to US-18902; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs.",
+  "acIds": [
+    "AC-18902-1",
+    "AC-18902-2",
+    "AC-18902-3",
+    "AC-18902-4",
+    "AC-18902-5",
+    "AC-18902-6",
+    "AC-18902-7"
+  ],
+  "fbsId": "FBS-210",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 210,
+  "title": "Journey record and authoring verbs: add, import, show"
+}
