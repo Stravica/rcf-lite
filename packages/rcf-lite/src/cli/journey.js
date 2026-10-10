@@ -1,5 +1,6 @@
-// `rcf discover journey <add|import|show|declare|check>` sub-dispatcher
-// (REQ-189, TAC-4142, FBS-210, FBS-211 and FBS-212, US-18902 and US-18903).
+// `rcf discover journey <add|import|show|declare|check|review>` sub-dispatcher
+// (REQ-189, TAC-4142, FBS-210, FBS-211, FBS-212, FBS-213; US-18902,
+// US-18903, US-18904).
 //
 // Verbs that live in this file:
 //
@@ -9,17 +10,19 @@
 //   declare : record the UI posture (ADR-4143), with --as-built and
 //             --reason semantics for lowering a prior value (FBS-211)
 //   check   : run the pure discovery check list and print one line per check (FBS-212)
+//   review  : run the structural checks, print the one-line summary, and
+//             stamp ReviewStamp sealed by the discoveryHash (FBS-213)
 //
-// Later FBS add siblings alongside: `review` with FBS-214. FBS-211 and
-// FBS-212 were built in parallel because they add verb branches to the
-// one dispatch table.
+// FBS-213's review verb never writes a stamp when any structural
+// check fails; see ADR-4146 for the single-reviewer D0 door.
 //
 // Exit codes:
-//   0 ok (check: every check passes OR notApplicable)
+//   0 ok (check: every check passes OR notApplicable; review: stamp written)
 //   1 io failure
 //   2 usage
 //   3 grammar OR local-schema validation failure (write path or --dry-run)
-//   4 check refused: discovery check verb (FBS-212) returned a failing check
+//   4 check refused: discovery check verb (FBS-212) returned a failing check,
+//     or review verb refused because a structural check failed (FBS-213)
 //
 // The write path and --dry-run run the SAME local-schema pass, so a
 // preview can never pass what the write would refuse (AC-18902-6).
@@ -49,6 +52,7 @@ import {
   writeJourneyRecord,
 } from '../discovery/record.js';
 import { checkDiscovery } from '../discovery/check.js';
+import { discoveryHash, fileSha256 } from '../discovery/hash.js';
 import { findProjectRoot } from '../view/index.js';
 
 export const HELP = `Usage: rcf discover journey <verb> [options]
@@ -80,10 +84,20 @@ Verbs:
                             reachable with dead-end distinction,
                             interruptions, wireframePerStep for
                             central only, wireframeFormat,
-                            wireframeSelfContained) and print one
-                            line per check. Exit 0 when every check
-                            passes or is notApplicable; exit 4 on
-                            any failing check.
+                            wireframeSelfContained, reviewed) and
+                            print one line per check. Exit 0 when
+                            every check passes or is notApplicable;
+                            exit 4 on any failing check.
+  review --by <name> [--note <text>] [--dry-run]
+                            Run the structural check list; on a full
+                            pass, print the one-line summary
+                            (journeys, steps, screens, interruptions
+                            mapped) and stamp ReviewStamp sealed by
+                            the discoveryHash. Exit 0 on stamp
+                            written, 4 when any structural check
+                            fails (no stamp is written in that case).
+                            --dry-run prints the summary and the hash
+                            that would be stamped, but writes nothing.
 
 Options common to add / import:
   --from <path>             Repo-relative or absolute path of the
@@ -138,6 +152,7 @@ export async function main(argv, deps = {}) {
     case 'show': return await runShow({ argv: rest, deps: { stdout, stderr, cwd } });
     case 'declare': return await runDeclare({ argv: rest, deps: { stdout, stderr, cwd } });
     case 'check': return await runCheck({ argv: rest, deps: { stdout, stderr, cwd } });
+    case 'review': return await runReview({ argv: rest, deps: { stdout, stderr, cwd } });
     default: {
       stderr.write(`[error] usage unknown sub-verb '${verb}' under 'discover journey'.\n`);
       stderr.write(HELP);
@@ -687,4 +702,194 @@ async function normaliseWireframePaths(draft, projectRoot) {
     try { canonical = await realpath(absPath); } catch { /* keep as-is */ }
     map.set(slug, relRepoPath(projectRoot, canonical));
   }
+}
+
+/**
+ * `rcf discover journey review` (FBS-213, US-18904). Runs the structural
+ * discovery check list; on a full pass computes the discoveryHash and
+ * the per-wireframe sha256 hashes, prints the one-line summary, and
+ * writes ReviewStamp onto the record.
+ *
+ * AC-18904-3: on any failing check the verb exits 4 and writes no
+ * ReviewStamp.
+ * AC-18904-2: the one-line summary (journeys, steps, screens,
+ * interruptions mapped) is printed BEFORE the write.
+ * AC-18904-5: ReviewStamp is written only by this verb. Other verbs
+ * (add, import, declare) never set record.review; the managed
+ * agent-instructions block names this discipline so the harness never
+ * runs review on its own.
+ */
+async function runReview({ argv, deps }) {
+  const { stdout, stderr, cwd } = deps;
+  let parsed;
+  try {
+    parsed = parseArgs({
+      args: argv,
+      options: {
+        by: { type: 'string' },
+        note: { type: 'string' },
+        json: { type: 'boolean' },
+        help: { type: 'boolean' },
+      },
+      strict: true,
+      allowPositionals: false,
+    });
+  } catch (err) {
+    stderr.write(`[error] usage journey review: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
+  }
+  if (parsed.values.help) {
+    stdout.write(HELP);
+    return 0;
+  }
+  const by = typeof parsed.values.by === 'string' ? parsed.values.by.trim() : '';
+  if (by.length === 0) {
+    stderr.write(`[error] usage journey review: --by <name> is required\n`);
+    return 2;
+  }
+  const note = typeof parsed.values.note === 'string' ? parsed.values.note.trim() : '';
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write(`[error] usage journey review: no rcf/manifest.json found in '${cwd}' or any ancestor.\n`);
+    return 2;
+  }
+  const rootCanonical = await realpath(projectRoot);
+  let record;
+  try {
+    record = await readJourneyRecord(rootCanonical);
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      const prefix = err.code === 'ioFailure' ? 'io' : 'refused define:';
+      stderr.write(`[error] ${prefix} ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    throw err;
+  }
+  if (record === null) {
+    stderr.write(`[error] refused define: no ${JOURNEY_FILE}: author a record with 'rcf discover journey add' or 'rcf discover journey import' before review.\n`);
+    return 3;
+  }
+  if (record.ui === 'none') {
+    stderr.write(`[error] refused define: ui is declared none; nothing to review (no journey, wireframes or review required on a none product).\n`);
+    return 3;
+  }
+
+  // Load wireframes; same loader shape as runCheck.
+  const wireframes = new Map();
+  for (const screen of record.screens) {
+    if (!screen.wireframe) continue;
+    const absPath = join(rootCanonical, screen.wireframe);
+    let bytes;
+    try {
+      bytes = await readFile(absPath);
+    } catch (err) {
+      const code = /** @type {NodeJS.ErrnoException} */ (err).code;
+      if (code === 'ENOENT') continue;
+      stderr.write(`[error] io journey review: cannot read ${screen.wireframe}: ${/** @type {Error} */ (err).message}\n`);
+      return 1;
+    }
+    const entry = { bytes };
+    const ext = screen.wireframe.toLowerCase();
+    if (ext.endsWith('.html')) entry.text = bytes.toString('utf8');
+    wireframes.set(screen.wireframe, entry);
+  }
+
+  const results = checkDiscovery({ record, ui: record.ui, wireframes });
+  // Structural view = every check EXCEPT discovery:reviewed. A fail on
+  // discovery:reviewed is caused by this very stamp being absent or
+  // stale, which the review verb is here to replace; it never blocks
+  // the write.
+  const structural = results.filter((r) => r.id !== 'discovery:reviewed');
+  const failing = structural.filter((r) => r.state === 'fail');
+  if (failing.length > 0) {
+    if (parsed.values.json) {
+      stdout.write(`${JSON.stringify({ exit: 4, written: false, failing: failing.map((f) => ({ id: f.id, why: f.why, failingIds: f.failingIds ?? [] })) }, null, 2)}\n`);
+    } else {
+      for (const r of structural) {
+        const tag = r.state === 'pass' ? 'ok' : r.state === 'notApplicable' ? 'n/a' : 'fail';
+        const line = r.why ? `[${tag}] ${r.id}: ${r.why}` : `[${tag}] ${r.id}`;
+        stdout.write(`${line}\n`);
+      }
+      stdout.write(`[refused] journey review refused: ${failing.length} failing structural check(s); no ReviewStamp written.\n`);
+    }
+    return 4;
+  }
+
+  // Compute the summary counts and the stamp.
+  const journeyCount = record.journeys.length;
+  const stepCount = record.journeys.reduce((n, j) => n + j.steps.length, 0);
+  const screenCount = record.screens.length;
+  const interruptionsMapped = countInterruptionsMapped(record);
+  const summary = `${journeyCount} journey${journeyCount === 1 ? '' : 's'}, ${stepCount} step${stepCount === 1 ? '' : 's'}, ${screenCount} screen${screenCount === 1 ? '' : 's'}, ${interruptionsMapped} interruption${interruptionsMapped === 1 ? '' : 's'} mapped`;
+  stdout.write(`[ok] discovery review: ${summary}.\n`);
+
+  const wireframePairs = [];
+  for (const [path, entry] of wireframes.entries()) {
+    if (entry && entry.bytes) wireframePairs.push({ path, sha256: fileSha256(entry.bytes) });
+  }
+  wireframePairs.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
+  const hash = discoveryHash(record, wireframePairs);
+  const wireframeHashes = {};
+  for (const pair of wireframePairs) wireframeHashes[pair.path] = pair.sha256;
+
+  const stamped = {
+    ...record,
+    review: {
+      state: 'reviewed',
+      by,
+      ...(note.length > 0 ? { note } : {}),
+      at: { time: new Date().toISOString(), hash },
+      wireframeHashes,
+    },
+  };
+
+  try {
+    await writeJourneyRecord({ projectRoot: rootCanonical, record: stamped });
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      stderr.write(`[error] refused define: ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    throw err;
+  }
+
+  if (parsed.values.json) {
+    stdout.write(`${JSON.stringify({
+      verb: 'review',
+      written: true,
+      by,
+      note: note.length > 0 ? note : null,
+      summary: {
+        journeys: journeyCount,
+        steps: stepCount,
+        screens: screenCount,
+        interruptionsMapped,
+      },
+      discoveryHash: hash,
+      wireframeHashes,
+    }, null, 2)}\n`);
+  } else {
+    stdout.write(`  stamped by: ${by}\n`);
+    stdout.write(`  discoveryHash: ${hash}\n`);
+  }
+  return 0;
+}
+
+/**
+ * Count interruption catalogue entries that are mapped to a step
+ * across every journey (i.e. the catalogue entries whose answer is a
+ * step id, not a notApplicable reason).
+ *
+ * @param {import('../discovery/record.js').JourneyRecord} record
+ * @returns {number}
+ */
+function countInterruptionsMapped(record) {
+  let mapped = 0;
+  for (const j of record.journeys) {
+    const answers = j.interruptions && typeof j.interruptions === 'object' ? j.interruptions : {};
+    for (const value of Object.values(answers)) {
+      if (typeof value === 'string' && !value.startsWith('notApplicable:')) mapped += 1;
+    }
+  }
+  return mapped;
 }

@@ -190,7 +190,10 @@ test('AC-18903-1 happy: a declared light or central product with a journ', async
   const r = runCli(['discover', 'journey', 'check'], scratch);
   assert.equal(r.status, 0, `stdout=${r.stdout}\nstderr=${r.stderr}`);
   const lines = checkLines(r.stdout);
-  assert.equal(lines.length, 7, `one line per check (central: 7 checks): ${r.stdout}`);
+  // FBS-213 added discovery:reviewed to the check list; a central
+  // record now reports 8 structural + reviewed-stamp checks per
+  // run, with reviewed reading n/a when no ReviewStamp is present.
+  assert.equal(lines.length, 8, `one line per check (central: 7 structural + reviewed): ${r.stdout}`);
   for (const required of [
     'discovery:journeyPresent',
     'discovery:stepsNameScreens',
@@ -207,7 +210,7 @@ test('AC-18903-1 happy: a declared light or central product with a journ', async
   const rLight = runCli(['discover', 'journey', 'check'], scratch);
   assert.equal(rLight.status, 0, `light must exit 0: stdout=${rLight.stdout}\nstderr=${rLight.stderr}`);
   const lightLines = checkLines(rLight.stdout);
-  assert.equal(lightLines.length, 7, `one line per check on light: ${rLight.stdout}`);
+  assert.equal(lightLines.length, 8, `one line per check on light (7 structural + reviewed): ${rLight.stdout}`);
   assert.ok(/\[n\/a\] discovery:wireframePerStep/.test(rLight.stdout), rLight.stdout);
 });
 

@@ -46,7 +46,7 @@
 
 import { basename, extname } from 'node:path';
 
-import { scanHtmlForExternalUrls, checkWireframeFormat, fileSha256 } from './hash.js';
+import { scanHtmlForExternalUrls, checkWireframeFormat, discoveryHash, fileSha256 } from './hash.js';
 
 /** The v1 catalogue, in the order the ux-designer role prints it. The
  *  value is frozen so a test that mutates it would throw rather than
@@ -176,7 +176,94 @@ export function checkDiscovery({ record, ui, wireframes }) {
     }
   }
 
+  // discovery:reviewed (FBS-213, AC-18904-2, AC-18904-4): compare the
+  // ReviewStamp's recorded discoveryHash and per-wireframe byte hashes
+  // against the current record and wireframe bytes. notApplicable when
+  // no stamp is present, pass when every hash matches, fail (stale)
+  // when any differs, with a why naming the changed screens or
+  // calling the journey record itself re-minted.
+  results.push(checkReviewed(record, hashes));
+
   return attachHashes(results, hashes);
+}
+
+/**
+ * discovery:reviewed - the ReviewStamp (if any) still binds the current
+ * record and the current wireframe bytes.
+ *
+ * The stamp carries `at.hash` (the discoveryHash the review verb
+ * computed over the record WITHOUT its review field, concatenated with
+ * the sorted (path, sha256) pairs of every wireframe) and
+ * `wireframeHashes` (one sha256 per screen path hashed at review).
+ *
+ * On an unreviewed record (`record.review === null`) the check folds
+ * to notApplicable. Otherwise it recomputes the discoveryHash from the
+ * current record and the live byte hashes, and compares both against
+ * the stamp:
+ *
+ *   - Every stamped per-wireframe hash is present in the live map and
+ *     identical => wireframe bytes unchanged.
+ *   - The recomputed discoveryHash equals the stamped at.hash =>
+ *     neither the record body nor the wireframe set changed.
+ *
+ * When the per-wireframe hashes drift, the why names the changed
+ * screens (by path). When they do not drift but the discoveryHash
+ * does, the record body itself was re-minted; the why says so.
+ * AC-18904-4 requires both branches to be distinguishable.
+ *
+ * @param {import('./record.js').JourneyRecord} record
+ * @param {Record<string, string>} currentHashes - path -> sha256 for every wireframe handed in
+ * @returns {CheckResult}
+ */
+function checkReviewed(record, currentHashes) {
+  const stamp = record.review;
+  if (!stamp || typeof stamp !== 'object') {
+    return {
+      id: 'discovery:reviewed',
+      state: 'notApplicable',
+      why: 'no ReviewStamp on the record: run rcf discover journey review --by <name>.',
+      failingIds: [],
+    };
+  }
+  const stampedWireframes = stamp.wireframeHashes && typeof stamp.wireframeHashes === 'object'
+    ? stamp.wireframeHashes
+    : {};
+  const changedPaths = [];
+  for (const path of Object.keys(stampedWireframes)) {
+    if (currentHashes[path] !== stampedWireframes[path]) {
+      changedPaths.push(path);
+    }
+  }
+  if (changedPaths.length > 0) {
+    return {
+      id: 'discovery:reviewed',
+      state: 'fail',
+      why: `stale ReviewStamp: wireframe bytes changed since review (${changedPaths.join(', ')}); re-review with rcf discover journey review --by <name>.`,
+      failingIds: changedPaths,
+    };
+  }
+  const stampedHash = stamp.at && typeof stamp.at === 'object' ? stamp.at.hash : undefined;
+  if (typeof stampedHash !== 'string') {
+    return {
+      id: 'discovery:reviewed',
+      state: 'fail',
+      why: 'stale ReviewStamp: review.at.hash is missing; re-review with rcf discover journey review --by <name>.',
+      failingIds: [],
+    };
+  }
+  const wireframePairs = Object.keys(currentHashes)
+    .sort()
+    .map((p) => ({ path: p, sha256: currentHashes[p] }));
+  const liveHash = discoveryHash(record, wireframePairs);
+  if (liveHash !== stampedHash) {
+    return {
+      id: 'discovery:reviewed',
+      state: 'fail',
+      why: 'stale ReviewStamp: journey record was re-minted since review (per-wireframe bytes unchanged); re-review with rcf discover journey review --by <name>.',
+      failingIds: [],
+    };
+  }
+  return { id: 'discovery:reviewed', state: 'pass', why: '' };
 }
 
 /**
