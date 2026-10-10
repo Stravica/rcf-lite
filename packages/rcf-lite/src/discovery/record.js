@@ -390,6 +390,15 @@ export async function readJourneyRecord(projectRoot) {
       { code: 'parseFailure' },
     );
   }
+  // FBS-211 (ADR-4145): a record written by main at e2a80f08 (FBS-210)
+  // has no declaredReason field. Normalise an absent declaredReason to
+  // null on read so a main-shape record passes the FBS-211 schema. The
+  // writer path keeps the strict shape - validateJourneyRecord still
+  // refuses an undefined declaredReason, so a bad write cannot land.
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      && !Object.prototype.hasOwnProperty.call(parsed, 'declaredReason')) {
+    parsed.declaredReason = null;
+  }
   return validateJourneyRecord(parsed);
 }
 

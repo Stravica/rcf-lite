@@ -1004,7 +1004,10 @@ async function buildDiscoveryDeclarationNotice(projectRoot) {
     if (err && err.code === 'ENOENT') {
       return `[notice] discovery-declaration-missing: ${JOURNEY_FILE} not present on this tree. The tree is grandfathered (ADR-4145); readiness and the D0 door fold to notApplicable. Declare a UI posture through the discovery journey verbs when the project is ready; doctor never writes this record.`;
     }
-    // A permission or other io error is still only advice: say so and move on.
-    return `[notice] discovery-declaration-missing: ${JOURNEY_FILE} could not be read (${err && err.message ? err.message : 'unknown error'}); the grandfathered posture applies until the record is readable.`;
+    // A permission or other io error is still only advice: say so and
+    // move on. The grandfathered posture (ADR-4145) covers an ABSENT
+    // record only; an unreadable one is an io problem for the operator
+    // to resolve, not a grandfathering case (FBS-211 review F10).
+    return `[notice] discovery-declaration-missing: ${JOURNEY_FILE} could not be read (${err && err.message ? err.message : 'unknown error'}); resolve the io issue and re-run doctor.`;
   }
 }

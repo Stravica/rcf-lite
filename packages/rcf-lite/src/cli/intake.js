@@ -21,11 +21,34 @@ import {
   writeIntakeRecord,
 } from '../intake/index.js';
 import {
+  JOURNEY_FILE,
+  JourneyRecordError,
   emptyJourneyRecord,
   readJourneyRecord,
+  serialiseJourneyRecord,
   writeJourneyRecord,
 } from '../discovery/record.js';
 import { matchUiSignals } from '#core/patterns/ui-shapes';
+
+// FBS-211 proposal rule (ADR-4143): translate a UI-signal match set into
+// one advisory posture value. Any central-shape noun (dashboard, admin,
+// nav, navigation, layout, sidebar, modal, component, table, header,
+// footer) proposes 'central'; any other signal proposes 'light'; no
+// signal proposes 'none'. The matcher's output is the floor; the
+// operator's answer is still what gets written (AC-18901-3).
+const CENTRAL_PROPOSAL_TOKENS = new Set([
+  'dashboard', 'admin', 'nav', 'navigation', 'layout', 'sidebar',
+  'modal', 'component', 'table', 'header', 'footer',
+]);
+
+function proposalFromSignals(signals) {
+  if (!Array.isArray(signals) || signals.length === 0) return 'none';
+  for (const s of signals) {
+    const token = typeof s?.match === 'string' ? s.match.toLowerCase() : '';
+    if (CENTRAL_PROPOSAL_TOKENS.has(token)) return 'central';
+  }
+  return 'light';
+}
 
 const OPTION_SPEC = {
   artefact: { type: 'string', multiple: true },
@@ -138,7 +161,13 @@ export async function main(argv, deps = {}) {
   // exits 2 with no writes (AC-18901-4). On the command line, --ui
   // supplies the value; omitted on an interactive stdin we ask (and
   // print the matcher signals as advice). An absent flag with no TTY
-  // and no --input is a usage error.
+  // and no --input is a usage error. Mixing --input (which already
+  // carries a ui field) with a CLI --ui is a usage error so an
+  // operator never silently loses one of the two.
+  if (input !== null && typeof flags.ui === 'string') {
+    stderr.write('[error] usage intake: --ui and --input both set a ui field; pass only one.\n');
+    return 2;
+  }
   let uiDeclaration = null;
   if (input !== null) {
     if (typeof input.ui !== 'string') {
@@ -186,6 +215,47 @@ export async function main(argv, deps = {}) {
     return outcome.kind === 'usage' ? 2 : 3;
   }
 
+  // ADR-4143 (FBS-211): compose the next JourneyRecord BEFORE any
+  // write. A parse / schema failure on the existing record surfaces
+  // as exit 3 and nothing is written; an io failure surfaces as exit
+  // 1. Only a readJourneyRecord that returns null (the grandfathered
+  // state, ADR-4145) seeds from empty - a swallowed read error used
+  // to overwrite a healthy record with an empty one (FBS-211 review
+  // F5), which is now a hard refusal.
+  let currentJourney;
+  try {
+    currentJourney = await readJourneyRecord(projectRoot);
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      const prefix = err.code === 'ioFailure' ? 'io' : 'refused define:';
+      stderr.write(`[error] ${prefix} ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    throw err;
+  }
+  const baseJourney = currentJourney ?? emptyJourneyRecord();
+  const nowIso = new Date().toISOString();
+  /** @type {import('../discovery/record.js').JourneyRecord} */
+  const nextJourney = {
+    ...baseJourney,
+    ui: uiDeclaration,
+    declaredAt: nowIso,
+    declaredVia: 'intake',
+  };
+  // Validate the composed journey record now so a bad write cannot
+  // get past the next couple of steps and leave an intakeClassification
+  // without its declaration (FBS-211 review F4).
+  let plannedJourneyBytes;
+  try {
+    plannedJourneyBytes = serialiseJourneyRecord(nextJourney);
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      stderr.write(`[error] refused define: ${err.message}\n`);
+      return 3;
+    }
+    throw err;
+  }
+
   if (flags['dry-run']) {
     // 0.28.2 (issue #230): run the same schema pass the writer runs so
     // a preview no longer passes on a value the real run refuses.
@@ -199,11 +269,35 @@ export async function main(argv, deps = {}) {
       return 3;
     }
     if (flags.json) {
-      stdout.write(`${JSON.stringify(outcome.record, null, 2)}\n`);
+      stdout.write(`${JSON.stringify({
+        verb: 'intake',
+        dryRun: true,
+        intakeClassification: outcome.record,
+        journeyRecord: nextJourney,
+      }, null, 2)}\n`);
     } else {
       stdout.write(`[dry-run] would write intakeClassification ${outcome.record.id} (fidelity=${outcome.record.fidelity}, findings=${outcome.record.validationFindings.length}, ui=${uiDeclaration})\n`);
+      stdout.write(`[dry-run] would write ${JOURNEY_FILE}:\n`);
+      stdout.write(plannedJourneyBytes);
     }
     return 0;
+  }
+
+  // Write the journey record first so an io failure never leaves a
+  // lone intakeClassification without its declaration (FBS-211 review
+  // F4). The journey write exits 1 on io failure (write path) and 3
+  // on a schema failure (already caught above by serialiseJourneyRecord).
+  try {
+    await writeJourneyRecord({ projectRoot, record: nextJourney });
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      stderr.write(`[error] ${err.code === 'ioFailure' ? 'io' : 'refused define:'} ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    // Node fs errors do not come as JourneyRecordError - the writer's
+    // mkdir / writeFile call surfaces them raw. Treat as io failure.
+    stderr.write(`[error] io failed to write journey record: ${err && err.message ? err.message : String(err)}\n`);
+    return 1;
   }
 
   const result = await writeIntakeRecord({
@@ -216,29 +310,6 @@ export async function main(argv, deps = {}) {
     return 3;
   }
 
-  // ADR-4143 (FBS-211): the intake run's ui lands on the journey
-  // record beside the intakeClassification write. Fold onto whatever
-  // record is already there (an init seed, a prior declare), or seed
-  // one from empty. declaredVia 'intake' marks the record as the
-  // product of this verb.
-  let currentJourney = null;
-  try {
-    currentJourney = await readJourneyRecord(projectRoot);
-  } catch {
-    // The caller surfaced the parse / schema failure on the first
-    // read above (walkTree runs the full chain validation). A record
-    // we cannot read is still something intake replaces, not refuses.
-  }
-  const baseJourney = currentJourney ?? emptyJourneyRecord();
-  const nowIso = new Date().toISOString();
-  const nextJourney = {
-    ...baseJourney,
-    ui: uiDeclaration,
-    declaredAt: nowIso,
-    declaredVia: 'intake',
-  };
-  await writeJourneyRecord({ projectRoot, record: nextJourney });
-
   if (flags.json) {
     stdout.write(`${JSON.stringify(outcome.record, null, 2)}\n`);
     return 0;
@@ -249,11 +320,13 @@ export async function main(argv, deps = {}) {
   return 0;
 }
 
-async function promptForUi({ artefactPaths, projectRoot, stdin, stdout }) {
+
+export async function promptForUi({ artefactPaths, projectRoot, stdin, stdout }) {
   // Advice over the artefact text: run the shared matcher so the
-  // operator sees the UI signals (if any) before answering. The
-  // signals never become the answer: the operator's input is the
-  // declaration (AC-18901-3).
+  // operator sees the UI signals (if any) before answering, together
+  // with a concrete proposal computed from those signals under a
+  // documented rule. The signals never become the answer: the
+  // operator's input is the declaration (AC-18901-3).
   let signals = [];
   if (Array.isArray(artefactPaths) && artefactPaths.length > 0) {
     try {
@@ -271,19 +344,30 @@ async function promptForUi({ artefactPaths, projectRoot, stdin, stdout }) {
       signals = [];
     }
   }
-  const proposal = signals.length === 0 ? 'none' : null;
-  const unique = Array.from(new Set(signals.map((s) => s.pattern))).slice(0, 12);
+  const proposal = proposalFromSignals(signals);
+  // C1 fold-in: show the actual matched text (deduped, lower-cased),
+  // not the regex source. 'shows?' and friends read as noise; 'shows'
+  // reads as a signal.
+  const unique = Array.from(new Set(signals.map((s) => (typeof s?.match === 'string' ? s.match.toLowerCase() : null))
+    .filter((t) => typeof t === 'string' && t.length > 0))).slice(0, 12);
   stdout.write(`UI signals in artefact text: ${unique.length === 0 ? '(none)' : unique.join(', ')}\n`);
-  stdout.write(`Proposed: ${proposal ?? '(signals detected; no mechanical proposal)'}\n`);
+  stdout.write(`Proposed: ${proposal}\n`);
   stdout.write('Declare the UI posture [none|light|central]: ');
   const { createInterface } = await import('node:readline/promises');
   const rl = createInterface({ input: stdin, output: stdout });
-  let answer;
+  let answer = null;
   try {
-    answer = (await rl.question('')).trim().toLowerCase();
+    const raw = await rl.question('');
+    answer = typeof raw === 'string' ? raw.trim().toLowerCase() : null;
+  } catch {
+    // EOF (Ctrl+D) or AbortError on a closed stdin: no answer. Map to
+    // null so main() returns exit 2 with nothing written (FBS-211
+    // review F7). Any other failure folds the same way; a blown-up
+    // readline is still 'the operator did not answer'.
+    answer = null;
   } finally {
-    rl.close();
+    try { rl.close(); } catch { /* already closed */ }
   }
-  if (!UI_VALUES.includes(answer)) return null;
+  if (!answer || !UI_VALUES.includes(answer)) return null;
   return answer;
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:28:04.587Z",
-  "updatedAt": "2026-10-10T11:31:01.561Z",
+  "updatedAt": "2026-10-10T14:05:06.046Z",
   "purpose": "One new module, src/discovery/, owns the journey record (rcf/discovery/journey.json, local schema, tool as sole writer), the two authoring parsers (line grammar and journey-map prose), id minting stable by slug, the pure discovery check with its interruption catalogue and wireframe file rules, the content hash and review stamp, and the per-step state derivation. src/query/gates.js gains stage D0 (define.discovery) ahead of D1 running the same pure check; the three chain-write verbs call it as a door check before writing. src/intake gains the three-valued --ui declaration; src/build/queue.js, bundle.js and src/review gain the journey-step binding readers. The product owner never edits JSON: markdown in, record out, hash sealed.",
   "responsibilities": [
     "src/discovery/record.js: DISCOVERY_RELATIVE_DIR (rcf/discovery), JOURNEY_FILE (rcf/discovery/journey.json), WIREFRAMES_DIR (rcf/discovery/wireframes), the local JSON schema for JourneyRecord, readJourneyRecord(projectRoot) returning null when the file is absent (the grandfathered state), writeJourneyRecord through the canonical-JSON writer (ADR-4120); no other module writes the file.",
@@ -57,7 +57,7 @@
     {
       "name": "JourneyRecord",
       "kind": "recordShape",
-      "description": "The whole of rcf/discovery/journey.json.\nfields: version, ui, declaredAt, declaredBy, declaredVia, asBuilt, screens, journeys, review\nnotes: ui is null, none, light or central; declaredVia is intake, declare or init; asBuilt is a boolean, false unless rcf discover journey declare --as-built set it, and the only thing that admits a PNG wireframe; screens is Screen[]; journeys is Journey[]; review is ReviewStamp or null. Written only by writeJourneyRecord."
+      "description": "The whole of rcf/discovery/journey.json.\nfields: version, ui, declaredAt, declaredBy, declaredReason, declaredVia, asBuilt, screens, journeys, review\nnotes: ui is null, none, light or central; declaredVia is intake, declare or init; declaredReason is the operator rationale on a lowering declare, nullable, set only when a declare lowers the posture (central to light, or either to none), cleared when a declare is not a lowering; asBuilt is a boolean, false unless rcf discover journey declare --as-built set it, and the only thing that admits a PNG wireframe; screens is Screen[]; journeys is Journey[]; review is ReviewStamp or null. Written only by writeJourneyRecord."
     },
     {
       "name": "Journey",

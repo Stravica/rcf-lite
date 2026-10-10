@@ -350,6 +350,9 @@ async function runShow({ argv, deps }) {
     } else {
       stdout.write(`[notice] no ${JOURNEY_FILE}: this project has no journey record yet.\n`);
       stdout.write(`  Author one through the journey authoring verbs on this command, or declare the UI posture to seed a record on an existing tree.\n`);
+      // TAC-4142 interfaces[show]: an absent record folds to
+      // notApplicable with a reason (FBS-211 review F11).
+      stdout.write(`notApplicable: no journey record on this tree (grandfathered, ADR-4145); discovery checks fold to notApplicable until a declare run or an intake run seeds the record.\n`);
     }
     return 0;
   }
@@ -358,6 +361,12 @@ async function runShow({ argv, deps }) {
     return 0;
   }
   renderRecord(record, stdout);
+  // TAC-4142 interfaces[show]: a none product folds to notApplicable
+  // with a reason in the text output (FBS-211 review F11); --json
+  // round-trips the record verbatim and so does not carry this line.
+  if (record.ui === 'none') {
+    stdout.write(`notApplicable: ui=none means this product has no UI surface; discovery journey checks fold to notApplicable for the whole tree.\n`);
+  }
   return 0;
 }
 
@@ -419,20 +428,29 @@ async function runDeclare({ argv, deps }) {
   const nextRank = UI_RANK.get(ui);
   const priorRank = priorUi ? UI_RANK.get(priorUi) : null;
   const isLowering = priorRank !== null && nextRank < priorRank;
-  if (isLowering && !parsed.values.reason) {
+  // The --reason text must carry something after trim; a whitespace-
+  // only reason used to satisfy the lowering rule and left blank
+  // characters on disk (FBS-211 review F8).
+  const reasonText = typeof parsed.values.reason === 'string' ? parsed.values.reason.trim() : '';
+  if (isLowering && reasonText.length === 0) {
     stderr.write(`[error] usage journey declare: lowering ${priorUi} to ${ui} requires --reason <text>\n`);
     return 2;
   }
   const base = current ?? emptyJourneyRecord();
   const asBuilt = parsed.values['as-built'] === true ? true : Boolean(base.asBuilt);
   const nowIso = new Date().toISOString();
+  // declaredReason is set ONLY on a declare that lowers the posture.
+  // A declare that is not a lowering clears any prior reason, so a
+  // central -> light --reason "..." declare followed by central
+  // --as-built does not leave the earlier reason stale on the record
+  // (FBS-211 review F9).
   /** @type {import('../discovery/record.js').JourneyRecord} */
   const next = {
     ...base,
     ui,
     declaredAt: nowIso,
     declaredBy: base.declaredBy ?? null,
-    declaredReason: isLowering ? parsed.values.reason : (base.declaredReason ?? null),
+    declaredReason: isLowering ? reasonText : null,
     declaredVia: 'declare',
     asBuilt,
   };
@@ -457,11 +475,14 @@ async function runDeclare({ argv, deps }) {
         declaredVia: 'declare',
         dryRun: true,
         bytesIdentical,
+        journeyRecord: next,
       }, null, 2)}\n`);
     } else {
       stdout.write(`[dry-run] journey declare would set ui=${ui}, asBuilt=${asBuilt}, declaredVia=declare.\n`);
       stdout.write(`  ${bytesIdentical ? `${JOURNEY_FILE} would be byte-identical to the current file.` : `${JOURNEY_FILE} would change.`}\n`);
       stdout.write(`  local-schema: ok\n`);
+      stdout.write(`[dry-run] would write ${JOURNEY_FILE}:\n`);
+      stdout.write(planned);
     }
     return 0;
   }
