@@ -20,12 +20,22 @@
 //                              kind OR ruled out as notApplicable:<reason> with
 //                              a reason body of at least 20 characters
 //   - wireframePerStep       : (central only) every step's Screen.wireframe is
-//                              non-null and the bytes are present
+//                              non-null AND the file resolves on disk (the
+//                              caller signals disk presence by including the
+//                              path in `wireframes`); never fails for a missing
+//                              file on a light product
 //   - wireframeFormat        : every wireframe path has an admitted extension
 //                              (.md, .html; .png only when record.asBuilt)
 //   - wireframeSelfContained : every .html wireframe is free of external URLs
 //                              in any of href, src, srcset, CSS url(),
 //                              CSS @import
+//
+// Returned shape: an Array<CheckResult> (so existing callers that
+// iterate the list keep working) with a non-enumerable `hashes`
+// property attached, mapping screen.wireframe path to its sha256 hex.
+// The hash is computed in-check so AC-18903-4's byte-hash clause is
+// honoured on the check path (not only inside the review verb that
+// stamps it later).
 //
 // Grandfathering (ADR-4143): when ui === 'none' OR record is null, the
 // whole check list folds to one notApplicable entry with a reason and
@@ -36,7 +46,7 @@
 
 import { basename, extname } from 'node:path';
 
-import { scanHtmlForExternalUrls, checkWireframeFormat } from './hash.js';
+import { scanHtmlForExternalUrls, checkWireframeFormat, fileSha256 } from './hash.js';
 
 /** The v1 catalogue, in the order the ux-designer role prints it. The
  *  value is frozen so a test that mutates it would throw rather than
@@ -51,7 +61,9 @@ export const INTERRUPTION_CATALOGUE_V1 = Object.freeze([
 ]);
 
 /** The reason-body floor on an interruption notApplicable value, in
- *  characters AFTER the 'notApplicable:' prefix. */
+ *  characters AFTER the 'notApplicable:' prefix and after trimming
+ *  surrounding whitespace (so a 20-character wall of blanks never
+ *  satisfies the floor). */
 export const NOT_APPLICABLE_REASON_FLOOR = 20;
 
 /**
@@ -69,13 +81,21 @@ export const NOT_APPLICABLE_REASON_FLOOR = 20;
  *
  * The map key is the repo-relative path exactly as it appears on
  * Screen.wireframe. The value is the file bytes (Buffer or
- * Uint8Array) and, for an .html file, the decoded text. The caller
- * MUST only include screens whose wireframe is non-null; a null
- * wireframe is signalled by its absence from this map.
+ * Uint8Array) and, optionally, the decoded text. When the caller does
+ * not pre-decode an .html wireframe, this module decodes the bytes
+ * on the fly so a bytes-only entry still participates in the
+ * self-contained scan (the pure contract is "over the bytes you were
+ * handed", so a bytes-only .html must be scanned).
+ *
+ * A screen whose wireframe is null (unauthored) is signalled by its
+ * absence from the map; so is a wireframe whose file is absent on
+ * disk. The two cases are told apart from the record itself: a null
+ * Screen.wireframe is unauthored, a non-null path missing from the
+ * map is "the file does not resolve on disk".
  *
  * @typedef {object} WireframeBytes
  * @property {Buffer | Uint8Array} bytes
- * @property {string} [text]  // utf-8 decoded text; required for .html
+ * @property {string} [text]  // utf-8 decoded text; optional
  */
 
 /**
@@ -95,8 +115,14 @@ export const NOT_APPLICABLE_REASON_FLOOR = 20;
 /**
  * Run the discovery check list over a loaded record.
  *
+ * Returns an Array<CheckResult> with a `hashes` property attached:
+ * one sha256 hex per screen.wireframe path whose bytes were handed
+ * in. The property is non-enumerable so JSON.stringify of the array
+ * stays identical to the plain list, but a caller that wants the per-
+ * screen hash (review verb, D0 door) can read `results.hashes`.
+ *
  * @param {CheckInput} input
- * @returns {CheckResult[]}
+ * @returns {CheckResult[] & { hashes: Record<string, string> }}
  */
 export function checkDiscovery({ record, ui, wireframes }) {
   // AC-18903-7: a declared none product folds to one notApplicable
@@ -104,24 +130,24 @@ export function checkDiscovery({ record, ui, wireframes }) {
   // signal that fold by returning a single-entry list so a caller
   // that iterates results prints one line and exits 0.
   if (ui === 'none') {
-    return [
+    return attachHashes([
       {
         id: 'discovery:applicable',
         state: 'notApplicable',
-        why: 'ui declared none; no journey, wireframes or review required.',
+        why: 'ui declared none: no journey, wireframes or review required.',
         failingIds: [],
       },
-    ];
+    ], {});
   }
   if (!record) {
-    return [
+    return attachHashes([
       {
         id: 'discovery:applicable',
         state: 'notApplicable',
         why: 'no rcf/discovery/journey.json: the grandfathered state (existing tree, no ui declaration yet).',
         failingIds: [],
       },
-    ];
+    ], {});
   }
 
   const results = [];
@@ -129,15 +155,46 @@ export function checkDiscovery({ record, ui, wireframes }) {
   results.push(checkStepsNameScreens(record));
   results.push(checkReachable(record));
   results.push(checkInterruptions(record));
-  results.push(checkWireframePerStepFor(record, ui));
+  results.push(checkWireframePerStepFor(record, ui, wireframes));
   results.push(checkWireframeFormatAll(record));
   results.push(checkWireframeSelfContainedAll(record, wireframes));
-  return results;
+
+  // Byte-hash every wireframe the caller handed in. AC-18903-4's last
+  // clause: the file's bytes are hashed with sha256 without any
+  // inspection of its headings or sections. Done here, in the pure
+  // check path, so a bytes-only (.md, .png) wireframe is still hashed.
+  const hashes = {};
+  if (wireframes instanceof Map) {
+    for (const [path, entry] of wireframes.entries()) {
+      if (entry && entry.bytes) hashes[path] = fileSha256(entry.bytes);
+    }
+  }
+
+  return attachHashes(results, hashes);
 }
 
 /**
- * discovery:journeyPresent - at least one journey with an entry and
- * an exit step.
+ * Attach a non-enumerable `hashes` map to a results array. Keeps
+ * every existing iteration site (map/filter/find/for-of) unchanged
+ * while making the per-screen hash available via `results.hashes`.
+ *
+ * @param {CheckResult[]} results
+ * @param {Record<string, string>} hashes
+ * @returns {CheckResult[] & { hashes: Record<string, string> }}
+ */
+function attachHashes(results, hashes) {
+  Object.defineProperty(results, 'hashes', {
+    value: hashes, enumerable: false, writable: false, configurable: false,
+  });
+  return /** @type {any} */ (results);
+}
+
+/**
+ * discovery:journeyPresent - at least one journey carries an entry
+ * AND an exit step. A record with no journeys at all fails; a record
+ * with several journeys, at least one of which has an entry and an
+ * exit, passes (AC-18903-1 names the one-journey floor; multi-journey
+ * records are not refused merely because one journey is incomplete).
  *
  * @param {import('./record.js').JourneyRecord} record
  * @returns {CheckResult}
@@ -151,23 +208,16 @@ function checkJourneyPresent(record) {
       failingIds: [],
     };
   }
-  const defective = [];
-  for (const j of record.journeys) {
-    const hasEntry = j.steps.some((s) => s.kind === 'entry');
-    const hasExit = j.steps.some((s) => s.kind === 'exit');
-    if (!hasEntry || !hasExit) {
-      const missing = [];
-      if (!hasEntry) missing.push('entry');
-      if (!hasExit) missing.push('exit');
-      defective.push(`${j.id} (missing ${missing.join(' and ')})`);
-    }
-  }
-  if (defective.length > 0) {
+  const complete = record.journeys.some((j) =>
+    j.steps.some((s) => s.kind === 'entry') &&
+    j.steps.some((s) => s.kind === 'exit'),
+  );
+  if (!complete) {
     return {
       id: 'discovery:journeyPresent',
       state: 'fail',
-      why: `every journey must declare at least one entry and one exit step: ${defective.join(', ')}.`,
-      failingIds: defective.map((d) => d.split(' ')[0]),
+      why: 'no journey carries both an entry and an exit step: at least one journey must declare both.',
+      failingIds: record.journeys.map((j) => j.id),
     };
   }
   return { id: 'discovery:journeyPresent', state: 'pass', why: '' };
@@ -273,7 +323,8 @@ function checkReachable(record) {
  * discovery:interruptions - every catalogue entry is either covered
  * by a step of any kind in a journey, or ruled out as
  * notApplicable:<reason> with a reason body of at least
- * NOT_APPLICABLE_REASON_FLOOR characters.
+ * NOT_APPLICABLE_REASON_FLOOR characters AFTER trimming leading and
+ * trailing whitespace.
  *
  * The record validator ensures interruption values are a string that
  * either names a step id in that journey or starts
@@ -301,7 +352,7 @@ function checkInterruptions(record) {
         continue;
       }
       if (value.startsWith('notApplicable:')) {
-        const reason = value.slice('notApplicable:'.length);
+        const reason = value.slice('notApplicable:'.length).trim();
         if (reason.length < NOT_APPLICABLE_REASON_FLOOR) {
           problems.push(`${j.id}/${entry} notApplicable reason too short (needs >= ${NOT_APPLICABLE_REASON_FLOOR} chars, got ${reason.length})`);
           failingIds.push(`${j.id}/${entry}`);
@@ -326,36 +377,45 @@ function checkInterruptions(record) {
 
 /**
  * discovery:wireframePerStep - central only. Every step's Screen must
- * carry a wireframe path and the bytes must exist on disk (the
- * caller signals disk presence by including the path in `wireframes`).
+ * carry a wireframe path AND that path must resolve on disk (the
+ * caller signals disk presence by including the path as a key of
+ * `wireframes`). AC-18903-3 names both branches: fail when the
+ * wireframe is null OR does not resolve on disk.
  *
  * For light the check folds to notApplicable with a reason, so AC-3's
  * "the same check reports notApplicable" branch passes.
  *
- * We do NOT inspect `wireframes` here beyond "is this path a key?":
- * the format and self-contained checks each handle their own bytes.
- *
  * @param {import('./record.js').JourneyRecord} record
  * @param {'none' | 'light' | 'central' | null} ui
+ * @param {Map<string, WireframeBytes>} wireframes
  * @returns {CheckResult}
  */
-function checkWireframePerStepFor(record, ui) {
+function checkWireframePerStepFor(record, ui, wireframes) {
   if (ui !== 'central') {
     return {
       id: 'discovery:wireframePerStep',
       state: 'notApplicable',
-      why: 'wireframes are optional on a light product; a missing wireframe never fails any check.',
+      why: 'wireframes are optional on a light or undeclared product: a missing wireframe never fails any check.',
       failingIds: [],
     };
   }
   const screenById = new Map(record.screens.map((s) => [s.id, s]));
   const missing = [];
+  const hasWireframeMap = wireframes instanceof Map;
   for (const j of record.journeys) {
     for (const step of j.steps) {
       const screen = screenById.get(step.screenId);
       if (!screen) continue; // stepsNameScreens will report this.
       if (!screen.wireframe) {
-        missing.push(`${step.id} (@${screen.slug})`);
+        missing.push(`${step.id} (@${screen.slug}: unauthored)`);
+        continue;
+      }
+      // Non-null path, but the file did not resolve on disk (the
+      // caller does not include it in the wireframes map). The two
+      // branches share one failure line so a reviewer sees the step
+      // id and the reason together.
+      if (!hasWireframeMap || !wireframes.has(screen.wireframe)) {
+        missing.push(`${step.id} (@${screen.slug}: file not found at ${screen.wireframe})`);
       }
     }
   }
@@ -363,7 +423,7 @@ function checkWireframePerStepFor(record, ui) {
     return {
       id: 'discovery:wireframePerStep',
       state: 'fail',
-      why: `central product: every step needs a wireframe on Screen.wireframe: ${missing.join(', ')}.`,
+      why: `central product: every step needs a wireframe present on disk at Screen.wireframe: ${missing.join(', ')}.`,
       failingIds: missing.map((m) => m.split(' ')[0]),
     };
   }
@@ -410,10 +470,17 @@ function checkWireframeFormatAll(record) {
 /**
  * discovery:wireframeSelfContained - every .html wireframe is scanned
  * for external URLs (href, src, srcset attribute values; CSS url()
- * and @import targets) and refused if any value starts http:, https:
- * or //. The first offending URL is reported.
+ * and @import targets inside a style element or style attribute) and
+ * refused if any value starts http:, https: or //. The first offending
+ * URL by document position is reported.
  *
  * Only .html files are scanned; .md and .png are byte-hashed only.
+ *
+ * When the caller handed only bytes (no decoded text) the bytes are
+ * decoded here as utf-8 so the pure check still runs over everything
+ * the caller handed in. The TAC contract is "pure over the bytes you
+ * were handed"; silently skipping a bytes-only entry would break the
+ * D0 door caller that passes bytes without pre-decoding.
  *
  * @param {import('./record.js').JourneyRecord} record
  * @param {Map<string, WireframeBytes>} wireframes
@@ -422,13 +489,20 @@ function checkWireframeFormatAll(record) {
 function checkWireframeSelfContainedAll(record, wireframes) {
   const failing = [];
   const failingIds = [];
+  const hasWireframeMap = wireframes instanceof Map;
   for (const screen of record.screens) {
     if (!screen.wireframe) continue;
     const ext = extname(basename(screen.wireframe)).toLowerCase();
     if (ext !== '.html') continue;
+    if (!hasWireframeMap) continue;
     const entry = wireframes.get(screen.wireframe);
-    if (!entry || typeof entry.text !== 'string') continue;
-    const offending = scanHtmlForExternalUrls(entry.text);
+    if (!entry || !entry.bytes) continue;
+    let text = typeof entry.text === 'string' ? entry.text : null;
+    if (text === null) {
+      try { text = Buffer.from(entry.bytes).toString('utf8'); }
+      catch { continue; }
+    }
+    const offending = scanHtmlForExternalUrls(text);
     if (offending !== null) {
       failing.push(`${screen.wireframe} -> ${offending}`);
       failingIds.push(screen.id);
