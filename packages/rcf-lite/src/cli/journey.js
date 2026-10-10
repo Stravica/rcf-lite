@@ -1,21 +1,23 @@
-// `rcf discover journey <add|import|show>` sub-dispatcher
-// (REQ-189, TAC-4142, FBS-210, US-18902).
+// `rcf discover journey <add|import|show|check>` sub-dispatcher
+// (REQ-189, TAC-4142, FBS-210 and FBS-212, US-18902 and US-18903).
 //
-// Three verbs land in this FBS. Later FBS add siblings that live
-// alongside in this file (TAC P3-2 fold-in: `declare` arrives with
-// FBS-211; `check` with FBS-213; `review` with FBS-214; FBS-211 and
-// FBS-212 can be built in parallel because they add verb branches to
-// the one SUB_VERBS table).
+// Verbs that live in this file:
 //
-//   add    : parse a line-grammar source, mint, write the record
-//   import : parse a prose-shape journey map, mint, write the record
-//   show   : print the record, --json emits the JourneyRecord verbatim
+//   add    : parse a line-grammar source, mint, write the record (FBS-210)
+//   import : parse a prose-shape journey map, mint, write the record (FBS-210)
+//   show   : print the record, --json emits the JourneyRecord verbatim (FBS-210)
+//   check  : run the pure discovery check list and print one line per check (FBS-212)
+//
+// Later FBS add siblings alongside: `declare` arrives with FBS-211,
+// `review` with FBS-214. FBS-211 and FBS-212 can be built in parallel
+// because they add verb branches to the one dispatch table.
 //
 // Exit codes:
-//   0 ok
+//   0 ok (check: every check passes OR notApplicable)
 //   1 io failure
 //   2 usage
 //   3 grammar OR local-schema validation failure (write path or --dry-run)
+//   4 check refused: discovery check verb (FBS-212) returned a failing check
 //
 // The write path and --dry-run run the SAME local-schema pass, so a
 // preview can never pass what the write would refuse (AC-18902-6).
@@ -24,7 +26,7 @@
 
 import { readFile, realpath } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
-import { relative, resolve, isAbsolute } from 'node:path';
+import { relative, resolve, isAbsolute, join } from 'node:path';
 
 import {
   GrammarError,
@@ -44,6 +46,7 @@ import {
   serialiseJourneyRecord,
   writeJourneyRecord,
 } from '../discovery/record.js';
+import { checkDiscovery } from '../discovery/check.js';
 import { findProjectRoot } from '../view/index.js';
 
 export const HELP = `Usage: rcf discover journey <verb> [options]
@@ -63,6 +66,15 @@ Verbs:
   show [--json]             Print every journey with its steps,
                             interruption answers and review state.
                             --json emits the JourneyRecord verbatim.
+  check [--json]            Run the pure discovery check list
+                            (journeyPresent, stepsNameScreens,
+                            reachable with dead-end distinction,
+                            interruptions, wireframePerStep for
+                            central only, wireframeFormat,
+                            wireframeSelfContained) and print one
+                            line per check. Exit 0 when every check
+                            passes or is notApplicable; exit 4 on
+                            any failing check.
 
 Options common to add / import:
   --from <path>             Repo-relative or absolute path of the
@@ -74,10 +86,11 @@ Options common to add / import:
   --json                    Emit a machine-readable envelope.
 
 Exit codes:
-  0  success
+  0  success (check: every check passes or is notApplicable)
   1  io failure
   2  usage error
   3  grammar failure (naming file, line, rule) or local-schema failure
+  4  check refused: any discovery:* check failed
 
 Notes:
   - Ids are minted by rcf-lite. The verb never accepts a hand-supplied
@@ -114,6 +127,7 @@ export async function main(argv, deps = {}) {
     case 'add': return await runAddOrImport({ argv: rest, deps: { stdout, stderr, cwd }, mode: 'add' });
     case 'import': return await runAddOrImport({ argv: rest, deps: { stdout, stderr, cwd }, mode: 'import' });
     case 'show': return await runShow({ argv: rest, deps: { stdout, stderr, cwd } });
+    case 'check': return await runCheck({ argv: rest, deps: { stdout, stderr, cwd } });
     default: {
       stderr.write(`[error] usage unknown sub-verb '${verb}' under 'discover journey'.\n`);
       stderr.write(HELP);
@@ -374,6 +388,128 @@ function renderRecord(record, stdout) {
 function relRepoPath(projectRoot, absPath) {
   const rel = relative(projectRoot, absPath);
   return rel.split('\\').join('/');
+}
+
+/**
+ * `rcf discover journey check` (FBS-212, US-18903). Runs the pure
+ * discovery check list and prints one line per check. The verb owns
+ * every filesystem read the check needs: it loads the record, loads
+ * every wireframe file the record names, and hands the bytes to
+ * checkDiscovery which is pure.
+ *
+ * AC-18903-7 contract: a declared none product or an absent record
+ * reads no wireframe file. checkDiscovery folds those two cases to
+ * one notApplicable entry before any wireframe path is examined;
+ * this function therefore skips the wireframe read loop entirely
+ * when the record is absent, and when the record declares ui none
+ * it still calls checkDiscovery with an empty wireframes map (the
+ * fold happens there).
+ */
+async function runCheck({ argv, deps }) {
+  const { stdout, stderr, cwd } = deps;
+  let parsed;
+  try {
+    parsed = parseArgs({ args: argv, options: { json: { type: 'boolean' }, help: { type: 'boolean' } }, strict: true, allowPositionals: false });
+  } catch (err) {
+    stderr.write(`[error] usage journey check: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
+  }
+  if (parsed.values.help) {
+    stdout.write(HELP);
+    return 0;
+  }
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write(`[error] usage journey check: no rcf/manifest.json found in '${cwd}' or any ancestor.\n`);
+    return 2;
+  }
+  const rootCanonical = await realpath(projectRoot);
+  let record;
+  try {
+    record = await readJourneyRecord(rootCanonical);
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      const prefix = err.code === 'ioFailure' ? 'io' : 'refused define:';
+      stderr.write(`[error] ${prefix} ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    throw err;
+  }
+
+  // AC-18903-7: an absent record folds to notApplicable without
+  // reading any wireframe file. We hand checkDiscovery a null record
+  // and skip the file-load loop entirely.
+  if (record === null) {
+    const results = checkDiscovery({ record: null, ui: null, wireframes: new Map() });
+    return printCheckResults(results, parsed.values.json, stdout);
+  }
+  // AC-18903-7: declared none also folds; checkDiscovery handles that
+  // but we still skip the wireframe load to honour the "reads no
+  // wireframe file" contract.
+  if (record.ui === 'none') {
+    const results = checkDiscovery({ record, ui: 'none', wireframes: new Map() });
+    return printCheckResults(results, parsed.values.json, stdout);
+  }
+
+  // Load wireframe files. The caller passes bytes (and utf-8 text for
+  // .html) in the shape checkDiscovery expects. A missing file is
+  // recorded by its absence from the map, which lets the pure check
+  // report wireframePerStep correctly without this loader deciding
+  // what central vs light means.
+  const wireframes = new Map();
+  for (const screen of record.screens) {
+    if (!screen.wireframe) continue;
+    const absPath = join(rootCanonical, screen.wireframe);
+    let bytes;
+    try {
+      bytes = await readFile(absPath);
+    } catch (err) {
+      const code = /** @type {NodeJS.ErrnoException} */ (err).code;
+      if (code === 'ENOENT') {
+        // Absent: do not add to the map (wireframePerStep reports it
+        // for central; a light product does not fail).
+        continue;
+      }
+      stderr.write(`[error] io journey check: cannot read ${screen.wireframe}: ${/** @type {Error} */ (err).message}\n`);
+      return 1;
+    }
+    const entry = { bytes };
+    const ext = screen.wireframe.toLowerCase();
+    if (ext.endsWith('.html')) entry.text = bytes.toString('utf8');
+    wireframes.set(screen.wireframe, entry);
+  }
+
+  const results = checkDiscovery({ record, ui: record.ui, wireframes });
+  return printCheckResults(results, parsed.values.json, stdout);
+}
+
+/**
+ * Print the check results in text or JSON form. Returns the exit code
+ * the check verb should return (0 when every result is pass or
+ * notApplicable, 4 when any is fail).
+ *
+ * @param {Array<{id:string,state:'pass'|'fail'|'notApplicable',why:string,failingIds?:string[]}>} results
+ * @param {boolean | undefined} asJson
+ * @param {{ write: (s:string)=>void }} stdout
+ * @returns {number}
+ */
+function printCheckResults(results, asJson, stdout) {
+  const anyFail = results.some((r) => r.state === 'fail');
+  if (asJson) {
+    stdout.write(`${JSON.stringify({ exit: anyFail ? 4 : 0, results }, null, 2)}\n`);
+    return anyFail ? 4 : 0;
+  }
+  for (const r of results) {
+    const tag = r.state === 'pass' ? 'ok' : r.state === 'notApplicable' ? 'n/a' : 'fail';
+    const line = r.why ? `[${tag}] ${r.id}: ${r.why}` : `[${tag}] ${r.id}`;
+    stdout.write(`${line}\n`);
+  }
+  if (anyFail) {
+    stdout.write(`[refused] discovery check failed; see failing lines above.\n`);
+  } else {
+    stdout.write(`[ok] discovery check passed.\n`);
+  }
+  return anyFail ? 4 : 0;
 }
 
 async function normaliseWireframePaths(draft, projectRoot) {
