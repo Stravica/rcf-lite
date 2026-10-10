@@ -25,6 +25,11 @@ import { mkdir, stat, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
 import { rcfError } from '../errors/index.js';
+import {
+  JOURNEY_FILE,
+  emptyJourneyRecord,
+  writeJourneyRecord,
+} from '../../discovery/record.js';
 
 const TIMESTAMP = '2026-01-01T00:00:00Z';
 
@@ -255,5 +260,18 @@ export async function initProject({ projectRoot, projectName = 'New RCF Project'
     await writeJson(join(projectRoot, relPath), data);
   }
 
-  return { created: files.map(([p]) => p) };
+  // FBS-211 (ADR-4145): seed the discovery journey record so a new
+  // project is never read as a grandfathered tree. ui stays null until
+  // the operator declares; declaredVia 'init' is the seed marker; the
+  // record otherwise matches emptyJourneyRecord so the walker and the
+  // local schema never flag it.
+  const nowIso = new Date().toISOString();
+  const seedRecord = {
+    ...emptyJourneyRecord(),
+    declaredAt: nowIso,
+    declaredVia: 'init',
+  };
+  await writeJourneyRecord({ projectRoot, record: seedRecord });
+
+  return { created: [...files.map(([p]) => p), JOURNEY_FILE] };
 }

@@ -12,7 +12,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, writeFile, mkdir, stat, chmod } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, stat, chmod, unlink } from 'node:fs/promises';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -47,6 +47,13 @@ function mkProject() {
 
 async function setupProject(scratch) {
   await initProject({ projectRoot: scratch, projectName: 'FBS-210 Scratch' });
+  // FBS-211 adds a journey.json seed on init. The FBS-210 journey
+  // add/import/show tests were built against the pre-FBS-211 blank
+  // tree; strip the seed so those tests still exercise the "no
+  // record" shape they were written for. Tests that need the init
+  // seed (grandfathered vs seeded, FBS-211's own tests) build their
+  // own tree inline.
+  try { await unlink(join(scratch, 'rcf', 'discovery', 'journey.json')); } catch { /* already absent */ }
   const journeysDir = join(scratch, 'rcf', 'discovery', 'journeys');
   await mkdir(journeysDir, { recursive: true });
   return journeysDir;

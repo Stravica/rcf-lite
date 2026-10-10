@@ -1,16 +1,18 @@
-// `rcf discover journey <add|import|show|check>` sub-dispatcher
-// (REQ-189, TAC-4142, FBS-210 and FBS-212, US-18902 and US-18903).
+// `rcf discover journey <add|import|show|declare|check>` sub-dispatcher
+// (REQ-189, TAC-4142, FBS-210, FBS-211 and FBS-212, US-18902 and US-18903).
 //
 // Verbs that live in this file:
 //
-//   add    : parse a line-grammar source, mint, write the record (FBS-210)
-//   import : parse a prose-shape journey map, mint, write the record (FBS-210)
-//   show   : print the record, --json emits the JourneyRecord verbatim (FBS-210)
-//   check  : run the pure discovery check list and print one line per check (FBS-212)
+//   add     : parse a line-grammar source, mint, write the record (FBS-210)
+//   import  : parse a prose-shape journey map, mint, write the record (FBS-210)
+//   show    : print the record, --json emits the JourneyRecord verbatim (FBS-210)
+//   declare : record the UI posture (ADR-4143), with --as-built and
+//             --reason semantics for lowering a prior value (FBS-211)
+//   check   : run the pure discovery check list and print one line per check (FBS-212)
 //
-// Later FBS add siblings alongside: `declare` arrives with FBS-211,
-// `review` with FBS-214. FBS-211 and FBS-212 can be built in parallel
-// because they add verb branches to the one dispatch table.
+// Later FBS add siblings alongside: `review` with FBS-214. FBS-211 and
+// FBS-212 were built in parallel because they add verb branches to the
+// one dispatch table.
 //
 // Exit codes:
 //   0 ok (check: every check passes OR notApplicable)
@@ -66,6 +68,13 @@ Verbs:
   show [--json]             Print every journey with its steps,
                             interruption answers and review state.
                             --json emits the JourneyRecord verbatim.
+  declare --ui <none|light|central> [--as-built] [--reason <text>]
+                            Record the UI posture on the project.
+                            Lowering a prior declaration (central to
+                            light, or either to none) is refused
+                            without --reason. --as-built flips the
+                            asBuilt flag to true; omitting it leaves
+                            the flag as it was.
   check [--json]            Run the pure discovery check list
                             (journeyPresent, stepsNameScreens,
                             reachable with dead-end distinction,
@@ -127,6 +136,7 @@ export async function main(argv, deps = {}) {
     case 'add': return await runAddOrImport({ argv: rest, deps: { stdout, stderr, cwd }, mode: 'add' });
     case 'import': return await runAddOrImport({ argv: rest, deps: { stdout, stderr, cwd }, mode: 'import' });
     case 'show': return await runShow({ argv: rest, deps: { stdout, stderr, cwd } });
+    case 'declare': return await runDeclare({ argv: rest, deps: { stdout, stderr, cwd } });
     case 'check': return await runCheck({ argv: rest, deps: { stdout, stderr, cwd } });
     default: {
       stderr.write(`[error] usage unknown sub-verb '${verb}' under 'discover journey'.\n`);
@@ -186,7 +196,7 @@ async function runAddOrImport({ argv, deps, mode }) {
   try {
     draft = mode === 'add'
       ? parseJourneyLines(srcText, srcRel)
-      : parseJourneyMap(srcText, srcCanonical);
+      : parseJourneyMap(srcText, srcCanonical, { displaySource: srcRel });
   } catch (err) {
     if (err instanceof GrammarError) {
       stderr.write(`[error] refused define: ${err.message}\n`);
@@ -339,7 +349,7 @@ async function runShow({ argv, deps }) {
       stdout.write(`${JSON.stringify({ record: null, note: 'no rcf/discovery/journey.json (the grandfathered state)' })}\n`);
     } else {
       stdout.write(`[notice] no ${JOURNEY_FILE}: this project has no journey record yet.\n`);
-      stdout.write(`  Author one with 'rcf discover journey add --from <path>' or 'rcf discover journey import --from <path>'.\n`);
+      stdout.write(`  Author one through the journey authoring verbs on this command, or declare the UI posture to seed a record on an existing tree.\n`);
     }
     return 0;
   }
@@ -348,6 +358,133 @@ async function runShow({ argv, deps }) {
     return 0;
   }
   renderRecord(record, stdout);
+  return 0;
+}
+
+const DECLARE_OPTIONS = {
+  ui: { type: 'string' },
+  'as-built': { type: 'boolean' },
+  reason: { type: 'string' },
+  'dry-run': { type: 'boolean' },
+  json: { type: 'boolean' },
+  help: { type: 'boolean' },
+};
+
+const UI_RANK = new Map([['none', 0], ['light', 1], ['central', 2]]);
+
+async function runDeclare({ argv, deps }) {
+  const { stdout, stderr, cwd } = deps;
+  let parsed;
+  try {
+    parsed = parseArgs({ args: argv, options: DECLARE_OPTIONS, strict: true, allowPositionals: false });
+  } catch (err) {
+    stderr.write(`[error] usage journey declare: ${/** @type {Error} */ (err).message}\n`);
+    return 2;
+  }
+  if (parsed.values.help) {
+    stdout.write(HELP);
+    return 0;
+  }
+  const ui = parsed.values.ui;
+  if (!ui) {
+    stderr.write(`[error] usage journey declare: --ui <none|light|central> is required\n`);
+    return 2;
+  }
+  if (!UI_RANK.has(ui)) {
+    stderr.write(`[error] usage journey declare: --ui must be one of none, light, central (got ${JSON.stringify(ui)})\n`);
+    return 2;
+  }
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write(`[error] usage journey declare: no rcf/manifest.json found in '${cwd}' or any ancestor. Run 'rcf init' first.\n`);
+    return 2;
+  }
+  const rootCanonical = await realpath(projectRoot);
+  let current;
+  try {
+    current = await readJourneyRecord(rootCanonical);
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      const prefix = err.code === 'ioFailure' ? 'io' : 'refused define:';
+      stderr.write(`[error] ${prefix} ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    throw err;
+  }
+  // Lowering check against the prior declared value. A null prior
+  // (grandfathered tree, or an init seed with ui === null) never
+  // counts as a lowering since the operator has not previously
+  // declared a value they are now walking back.
+  const priorUi = current && current.ui ? current.ui : null;
+  const nextRank = UI_RANK.get(ui);
+  const priorRank = priorUi ? UI_RANK.get(priorUi) : null;
+  const isLowering = priorRank !== null && nextRank < priorRank;
+  if (isLowering && !parsed.values.reason) {
+    stderr.write(`[error] usage journey declare: lowering ${priorUi} to ${ui} requires --reason <text>\n`);
+    return 2;
+  }
+  const base = current ?? emptyJourneyRecord();
+  const asBuilt = parsed.values['as-built'] === true ? true : Boolean(base.asBuilt);
+  const nowIso = new Date().toISOString();
+  /** @type {import('../discovery/record.js').JourneyRecord} */
+  const next = {
+    ...base,
+    ui,
+    declaredAt: nowIso,
+    declaredBy: base.declaredBy ?? null,
+    declaredReason: isLowering ? parsed.values.reason : (base.declaredReason ?? null),
+    declaredVia: 'declare',
+    asBuilt,
+  };
+  if (parsed.values['dry-run']) {
+    let planned;
+    try {
+      planned = serialiseJourneyRecord(next);
+    } catch (err) {
+      if (err instanceof JourneyRecordError) {
+        stderr.write(`[error] refused define: ${err.message}\n`);
+        return 3;
+      }
+      throw err;
+    }
+    const bytesBefore = current ? serialiseJourneyRecord(current) : '';
+    const bytesIdentical = current !== null && planned === bytesBefore;
+    if (parsed.values.json) {
+      stdout.write(`${JSON.stringify({
+        verb: 'declare',
+        ui,
+        asBuilt,
+        declaredVia: 'declare',
+        dryRun: true,
+        bytesIdentical,
+      }, null, 2)}\n`);
+    } else {
+      stdout.write(`[dry-run] journey declare would set ui=${ui}, asBuilt=${asBuilt}, declaredVia=declare.\n`);
+      stdout.write(`  ${bytesIdentical ? `${JOURNEY_FILE} would be byte-identical to the current file.` : `${JOURNEY_FILE} would change.`}\n`);
+      stdout.write(`  local-schema: ok\n`);
+    }
+    return 0;
+  }
+  try {
+    await writeJourneyRecord({ projectRoot: rootCanonical, record: next });
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      stderr.write(`[error] refused define: ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
+    }
+    throw err;
+  }
+  if (parsed.values.json) {
+    stdout.write(`${JSON.stringify({
+      verb: 'declare',
+      ui,
+      asBuilt,
+      declaredVia: 'declare',
+      declaredAt: nowIso,
+    }, null, 2)}\n`);
+  } else {
+    stdout.write(`[ok] journey declare: ui=${ui}, asBuilt=${asBuilt}, declaredVia=declare (at ${nowIso}).\n`);
+  }
   return 0;
 }
 
