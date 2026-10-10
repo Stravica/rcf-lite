@@ -416,6 +416,27 @@ export function parseJourneyMap(text, source, opts = {}) {
     }
     steps[b].nextSlugs = nextSlugs;
   }
+  // Resolve prose interruption values: the ux-designer prose shape
+  // authors a catalogue bullet as '<entry>: <wf-NN-slug or notApplicable, reason>',
+  // naming a screen slug (what the designer sees on the page). mint.js
+  // only maps step slugs onto step ids, so screen slugs must be
+  // rewritten to the step slug whose screenSlug matches before the
+  // draft leaves this parser. A screen named by Interruptions that no
+  // H2 block declares is a grammar failure (same shape as goes-target).
+  if (interruptions) {
+    for (const [entry, value] of Object.entries(interruptions)) {
+      if (typeof value !== 'string') continue;
+      if (value.startsWith('notApplicable:')) continue;
+      // Already a step slug (a block heading slug-ified): leave as-is
+      // so a prose source authored with step slugs still mints.
+      if (steps.some((s) => s.slug === value)) continue;
+      const target = stepIndexByScreenSlug.get(value);
+      if (!target) {
+        throw new GrammarError(`Interruptions bullet '${entry}: ${value}' names a screen or step that no H2 block declares`, { source, line: 1, rule: 'interruption-target' });
+      }
+      interruptions[entry] = target;
+    }
+  }
   // Wireframe side-car check. For each screen slug named in any
   // Screen: or Goes to: line, if a file of the same stem with .md,
   // .html or .png lives beside the authored source, that path is the

@@ -310,8 +310,13 @@ async function runShow({ argv, deps }) {
     record = await readJourneyRecord(rootCanonical);
   } catch (err) {
     if (err instanceof JourneyRecordError) {
-      stderr.write(`[error] refused define: ${err.message}\n`);
-      return 3;
+      // TAC-4142 exit-code family: 1 for I/O failures, 3 for schema or
+      // parse failures. readJourneyRecord tags filesystem errors with
+      // code ioFailure; keep that distinction so a permission or disk
+      // problem does not read as a validation refusal.
+      const prefix = err.code === 'ioFailure' ? 'io' : 'refused define:';
+      stderr.write(`[error] ${prefix} ${err.message}\n`);
+      return err.code === 'ioFailure' ? 1 : 3;
     }
     throw err;
   }

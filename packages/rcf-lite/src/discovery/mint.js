@@ -204,21 +204,60 @@ export function mintJourney({ record, draft }) {
 
   // If the draft carries interruptions keyed by step slug, resolve
   // the values that look like step slugs to step ids.
+  // AC-18902-7 defence: refuse any value that is itself a JNY, JNY-step
+  // or SCR id. Hand-supplied ids never pass minting, even when they
+  // happen to name an existing step on the same journey (which the
+  // record validator would otherwise accept).
   if (draft.interruptions) {
     /** @type {Record<string,string>} */
     const resolved = {};
     for (const [entry, value] of Object.entries(draft.interruptions)) {
-      if (typeof value === 'string' && value.startsWith('notApplicable:')) {
+      if (typeof value !== 'string') {
+        // The record validator will refuse any non-string; preserve
+        // the shape so its message points at the right field.
         resolved[entry] = value;
-      } else if (typeof value === 'string' && slugToId.has(value)) {
-        resolved[entry] = slugToId.get(value);
-      } else {
-        // Pass through unchanged; the record validator will refuse an
-        // id that is neither a step id nor notApplicable:.
-        resolved[entry] = value;
+        continue;
       }
+      if (value.startsWith('notApplicable:')) {
+        resolved[entry] = value;
+        continue;
+      }
+      if (JNY_RE.test(value) || JNY_STEP_RE.test(value) || SCR_RE.test(value)) {
+        throw new MintError(`refused: interruption '${entry}' carries a hand-supplied id '${value}'. Ids are minted by rcf-lite; interruptions name step slugs or notApplicable:<reason>.`);
+      }
+      if (slugToId.has(value)) {
+        resolved[entry] = slugToId.get(value);
+        continue;
+      }
+      // Unresolved slug: the record validator will refuse (step id
+      // not in this journey) with a precise pointer.
+      resolved[entry] = value;
     }
     existing.interruptions = resolved;
+  } else if (existing.interruptions && typeof existing.interruptions === 'object') {
+    // C1: no draft interruptions line on this re-mint. Carry the old
+    // answers forward, but drop any value that referenced a step
+    // whose id is no longer in the minted step set (the slug was
+    // removed from the authored source). Otherwise the record
+    // validator refuses the write with 'step id not in this journey'.
+    const liveStepIds = new Set(newSteps.map((s) => s.id));
+    /** @type {Record<string,string>} */
+    const carried = {};
+    for (const [entry, value] of Object.entries(existing.interruptions)) {
+      if (typeof value !== 'string') continue;
+      if (value.startsWith('notApplicable:')) {
+        carried[entry] = value;
+        continue;
+      }
+      if (liveStepIds.has(value)) {
+        carried[entry] = value;
+      }
+      // Else: the target step was retired; drop the answer so the
+      // product owner answers afresh on the next source edit. The
+      // alternative (keep it) would make the validator fail at the
+      // write path and give the author no useful fix path.
+    }
+    existing.interruptions = Object.keys(carried).length > 0 ? carried : null;
   }
 
   const nextRecord = {
