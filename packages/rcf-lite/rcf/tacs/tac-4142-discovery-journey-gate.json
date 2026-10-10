@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:28:04.587Z",
-  "updatedAt": "2026-10-09T17:02:39.580Z",
+  "updatedAt": "2026-10-10T11:31:01.561Z",
   "purpose": "One new module, src/discovery/, owns the journey record (rcf/discovery/journey.json, local schema, tool as sole writer), the two authoring parsers (line grammar and journey-map prose), id minting stable by slug, the pure discovery check with its interruption catalogue and wireframe file rules, the content hash and review stamp, and the per-step state derivation. src/query/gates.js gains stage D0 (define.discovery) ahead of D1 running the same pure check; the three chain-write verbs call it as a door check before writing. src/intake gains the three-valued --ui declaration; src/build/queue.js, bundle.js and src/review gain the journey-step binding readers. The product owner never edits JSON: markdown in, record out, hash sealed.",
   "responsibilities": [
     "src/discovery/record.js: DISCOVERY_RELATIVE_DIR (rcf/discovery), JOURNEY_FILE (rcf/discovery/journey.json), WIREFRAMES_DIR (rcf/discovery/wireframes), the local JSON schema for JourneyRecord, readJourneyRecord(projectRoot) returning null when the file is absent (the grandfathered state), writeJourneyRecord through the canonical-JSON writer (ADR-4120); no other module writes the file.",
@@ -62,7 +62,7 @@
     {
       "name": "Journey",
       "kind": "recordShape",
-      "description": "One journey in the record.\nfields: id, slug, actor, goal, source, steps, interruptions\nnotes: id is JNY-nnn; source is the authored markdown path; steps is JourneyStep[] in file order; interruptions maps every catalogue entry to a step id or to notApplicable:<reason>."
+      "description": "One journey in the record.\nfields: id, slug, actor, goal, source, steps, interruptions, stepHighWaterMark\nnotes: id is JNY-nnn; source is the authored markdown path; steps is JourneyStep[] in file order; interruptions maps every catalogue entry to a step id or to notApplicable:<reason>; stepHighWaterMark is a non-negative integer, written on every re-mint, holding the highest step number ever minted on this journey so retired step numbers never reuse."
     },
     {
       "name": "JourneyStep",
@@ -72,7 +72,7 @@
     {
       "name": "Screen",
       "kind": "recordShape",
-      "description": "One screen shared across journeys.\nfields: id, slug, title, wireframe, references\nnotes: id is SCR-nnn minted on first sight of the slug; wireframe is the repo-relative file under rcf/discovery/wireframes or null; references are links for the mid-fi layer and never satisfy any check."
+      "description": "One screen shared across journeys.\nfields: id, slug, title, wireframe, references\nnotes: id is SCR-nnn minted on first sight of the slug; wireframe is a repo-relative file path or null; the FBS-210 importer records the wireframe at the sibling file beside the source (same stem, .md/.html/.png), so an imported journey map carries wireframes under rcf/discovery/journeys/ beside the map file. A later FBS stages those files into rcf/discovery/wireframes/ on write (the directory named by WIREFRAMES_DIR), at which point wireframe paths move under that directory. References are links for the mid-fi layer and never satisfy any check."
     },
     {
       "name": "ReviewStamp",
@@ -92,7 +92,7 @@
     {
       "name": "journey-map prose shape",
       "kind": "fileFormat",
-      "description": "format: markdown as the ux-designer role writes it; one H2 heading per step, a `Screen: wf-NN-slug` line, zero or more `Goes to: wf-NN-slug` lines; the first heading is the entry, a heading with no Goes to line is an exit, an `Interruptions:` list of `<entry>: <wf-NN-slug or notApplicable, reason>` lines answers the catalogue; wf-NN-slug.html or .md beside the source is the screen wireframe."
+      "description": "format: markdown as the ux-designer role writes it; one H2 heading per step, a `Screen: wf-NN-slug` line, zero or more `Goes to: wf-NN-slug` lines; the first heading is the entry, a heading with no Goes to line is an exit, an `Interruptions:` list of `<entry>: <wf-NN-slug or notApplicable, reason>` lines answers the catalogue (the parser maps a screen slug to the step whose Screen: line names that slug before minting; a step slug is accepted verbatim); wf-NN-slug.html or .md beside the source is the screen wireframe. The parser consumes Screen: and Goes to: only; Sees: and Can do: lines from the ux-designer template are prose context, not grammar, and ignored by the prose importer."
     },
     {
       "name": "wireframe file",

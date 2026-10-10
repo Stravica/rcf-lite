@@ -29,6 +29,7 @@ import { knownKinds, validateDocument } from '#core/store';
 // copy of the directory name would drift the moment the ledger module
 // moved. Importing the constant keeps the two sides mechanically agreed.
 import { DEFINE_RELATIVE_DIR } from '../src/define/ledgers.js';
+import { DISCOVERY_RELATIVE_DIR } from '../src/discovery/record.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
@@ -56,12 +57,21 @@ function classify(relPath) {
 // directory. The directory name is sourced from `src/define/ledgers.js`
 // (single source of truth), expressed project-root-relative, so the
 // skip works regardless of where the caller rooted the walk.
+//
+// REQ-189 (UX intake gate, FBS-210): rcf/discovery/ is the second
+// sidecar carve-out. The journey record and the wireframe files under
+// it are rcf-lite-local; the loader's subdirFor returns null for
+// 'discovery' so the production walker never descends into it, and
+// this test-side walker mirrors the carve-out by name here. The
+// constant is sourced from src/discovery/record.js for the same
+// single-source-of-truth reason the DEFINE one is.
 function walk(dir, acc = [], projectRootForSkip = repoRoot) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
     const relFromProjectRoot = relative(projectRootForSkip, full).split('\\').join('/');
     if (statSync(full).isDirectory()) {
       if (relFromProjectRoot === DEFINE_RELATIVE_DIR) continue;
+      if (relFromProjectRoot === DISCOVERY_RELATIVE_DIR) continue;
       walk(full, acc, projectRootForSkip);
     } else if (entry.endsWith('.json')) {
       acc.push(full);
@@ -800,6 +810,62 @@ test('dogfood walker (issue 321): the four rcf/define/ ledgers are invisible, ch
     assert.ok(req, 'expected rcf/requirements/req-001.json to be walked');
     assert.equal(req.kind, 'req');
     assert.equal(req.json.reqId, 'REQ-001');
+  } finally {
+    rmSync(scratch, { recursive: true, force: true });
+  }
+});
+
+// REQ-189 FBS-210 (UX intake gate, dex 2026-10-10): fixture-driven
+// proof that the dogfood walker ignores rcf/discovery/ as cleanly as
+// it ignores rcf/define/. The journey record (rcf/discovery/journey.json)
+// and wireframe files under rcf/discovery/wireframes/ are rcf-lite-local
+// sidecars (ADR-4142), hashed as bytes and never loaded as chain
+// documents. The loader's subdirFor returns null for 'discovery' so
+// the production walker already skips the subtree; this fixture
+// bait-tests the carve-out with a REQ-shaped file dropped inside it.
+test('dogfood walker (FBS-210, issue 189-discovery): rcf/discovery/ is invisible, chain docs still load', () => {
+  const scratch = mkdtempSync(join(tmpdir(), 'rcf-tree-discovery-'));
+  try {
+    const rcfDir = join(scratch, 'rcf');
+    const discoveryDir = join(rcfDir, 'discovery');
+    const wireframesDir = join(discoveryDir, 'wireframes');
+    const reqDir = join(rcfDir, 'requirements');
+    mkdirSync(discoveryDir, { recursive: true });
+    mkdirSync(wireframesDir, { recursive: true });
+    mkdirSync(reqDir, { recursive: true });
+
+    // A journey record and a REQ-shaped bug-bait file inside the
+    // carve-out, plus a wireframe HTML file beside them.
+    writeFileSync(join(discoveryDir, 'journey.json'),
+      JSON.stringify({
+        version: 1,
+        ui: null,
+        declaredAt: null,
+        declaredBy: null,
+        declaredVia: null,
+        asBuilt: false,
+        screens: [],
+        journeys: [],
+        review: null,
+      }, null, 2));
+    writeFileSync(join(discoveryDir, 'req-999.json'),
+      JSON.stringify({ reqId: 'REQ-999', prdId: 'PRD-001', title: 'should never load' }, null, 2));
+    writeFileSync(join(wireframesDir, 'home.html'),
+      '<!doctype html><title>home</title>');
+
+    writeFileSync(join(reqDir, 'req-001.json'),
+      JSON.stringify({ reqId: 'REQ-001', prdId: 'PRD-001', title: 'placeholder' }, null, 2));
+
+    const docs = loadAll(scratch);
+    const rels = docs.map((d) => d.rel).sort();
+
+    for (const rel of rels) {
+      assert.equal(rel.startsWith('discovery/'), false,
+        `walker surfaced a rcf/discovery/ file: ${rel}`);
+    }
+    const req = docs.find((d) => d.rel === 'requirements/req-001.json');
+    assert.ok(req, 'expected rcf/requirements/req-001.json to be walked');
+    assert.equal(req.kind, 'req');
   } finally {
     rmSync(scratch, { recursive: true, force: true });
   }

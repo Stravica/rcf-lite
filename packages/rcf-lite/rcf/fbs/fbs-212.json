@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:30:02.139Z",
-  "updatedAt": "2026-10-09T17:02:42.425Z",
+  "updatedAt": "2026-10-10T10:29:06.077Z",
   "summary": "Journey check: structure, interruption catalogue, wireframe file rules (US-18903). Delivers AC-18903-1 to AC-18903-8. Estimated new node:test cases: 8. Order in the UX intake gate build: 3 of 6.",
   "approach": "Add src/discovery/check.js (checkDiscovery, INTERRUPTION_CATALOGUE_V1) and the check verb: journeyPresent, stepsNameScreens, reachable with the dead-end why, interruptions covered by a step of any kind or notApplicable with a 20-character reason floor, wireframePerStep for central only, wireframeFormat (extension set; PNG only when asBuilt), wireframeSelfContained over .html bytes across href, src, srcset, CSS url() and @import, byte hashing of every wireframe file, notApplicable for none and for an absent record before any file read.",
   "deliverables": [
@@ -26,7 +26,7 @@
   "domain": "defineDetection",
   "estimatedSize": "medium",
   "executionStatus": "notStarted",
-  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 8 new node:test cases in the suite named by the TS bound to US-18903; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs.",
+  "notes": "Sized for one PR (DEFINE 2026-10-09, UX intake gate). Test estimate 8 new node:test cases in the suite named by the TS bound to US-18903; the suite's declarations land at DEFINE flagged not yet built and this FBS is done when none of them carries the flag and pnpm test is green. No freeze, no ack verbs. Binding rulings: three-valued declaration, answered not drawn, only central refuses for a missing wireframe, grandfather by absence of the record, no ack on D0, single reviewer. Not in any FBS here: a Journey tab in the viewer, a brief:journeySteps D1 check, a mark-complete refusal for unbound build specs. Parallel-safe once FBS-210 lands: this FBS adds the check subverb and the discovery:* catalogue in src/cli/journey.js and src/discovery/check.js; FBS-211 adds the declare subverb in the same file. The two can be built concurrently after 210 is merged (two branches off main).",
   "acIds": [
     "AC-18903-1",
     "AC-18903-2",

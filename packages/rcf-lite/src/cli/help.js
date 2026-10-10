@@ -43,6 +43,7 @@ import { HELP as VIEW_HELP } from './view.js';
 import { HELP as REQ_CLASSIFY_HELP } from './req-classify.js';
 import { HELP as REQ_BASELINE_HELP } from './req-baseline.js';
 import { HELP as INTAKE_HELP } from './intake.js';
+import { HELP as JOURNEY_HELP } from './journey.js';
 import { HELP as BLUEPRINT_HELP } from './blueprint.js';
 import { HELP as STANDARDS_HELP } from './standards.js';
 import { HELP as LEDGER_HELP } from './ledger.js';
@@ -84,6 +85,7 @@ discover     Learn what is already true for this project.
   req-baseline <verb>      Sweep and record baseline ACs per REQ.
   ui-classify <fbs-id>     Classify one FBS as UI-bearing or not.
   ui-baseline <verb>       Rule and record the project's UI defaults.
+  journey <verb>           Author and inspect the journey record.
 
 define       Author the RCF tree.
   create <kind>            Create a new document.
@@ -173,6 +175,8 @@ Verbs:
   req-baseline <verb>      Sweep and record baseline ACs per REQ.
   ui-classify <fbs-id>     Classify one FBS as UI-bearing or not.
   ui-baseline <verb>       Rule and record the project's UI defaults.
+  journey <verb>           Author and inspect the journey record under
+                           rcf/discovery/ (add | import | show).
 
 Run 'rcf help discover <verb>' for per-verb help.
 `;
@@ -291,6 +295,7 @@ export const HELP_MAP = {
     'req-baseline': REQ_BASELINE_HELP,
     'ui-classify': UI_CLASSIFY_HELP,
     'ui-baseline': UI_BASELINE_HELP,
+    journey: JOURNEY_HELP,
   },
   define: {
     create: CREATE_HELP,

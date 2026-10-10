@@ -1050,3 +1050,36 @@ test('walkTree upper-cases the prefix segment on numeric-only ids unchanged (0.8
   assert.equal(tree.kindById.get('FBS-003'), 'fbs');
   assert.equal(tree.kindById.get('TS-001'), 'testSuite');
 });
+
+// REQ-189 FBS-210 (UX intake gate, dex 2026-10-10): the production
+// walker's load path (loader.subdirFor) returns null for the string
+// 'discovery', so files under rcf/discovery/ are never enumerated and
+// never classified. This test bait-tests the invariant with a
+// REQ-shaped file dropped inside the carve-out: the walker returns
+// zero errors and zero documents from the subtree while the chain
+// documents outside it still load.
+import { mkdir as mkdirAsync } from 'node:fs/promises';
+import { DISCOVERY_RELATIVE_DIR } from '../../src/discovery/record.js';
+
+test('walkTree (FBS-210): rcf/discovery/ is invisible to the dogfood walker', async () => {
+  const tmpRoot = await mkdtemp(join(tmpdir(), 'rcf-walker-discovery-'));
+  await initProject({ projectRoot: tmpRoot, projectName: 'FBS-210 walker fixture' });
+  const discoveryAbs = join(tmpRoot, DISCOVERY_RELATIVE_DIR);
+  await mkdirAsync(discoveryAbs, { recursive: true });
+  // A JourneyRecord-shaped file.
+  await writeFile(join(discoveryAbs, 'journey.json'), JSON.stringify({
+    version: 1, ui: null, declaredAt: null, declaredBy: null, declaredVia: null,
+    asBuilt: false, screens: [], journeys: [], review: null,
+  }, null, 2));
+  // Bug-bait: a REQ-shaped file inside the carve-out. A walker that
+  // enumerated the subtree would classify it as a req and either load
+  // or raise brokenReference. The invariant says it does neither.
+  await writeFile(join(discoveryAbs, 'req-999.json'), JSON.stringify({
+    reqId: 'REQ-999', prdId: 'PRD-001', title: 'should never load',
+  }, null, 2));
+
+  const { tree, errors } = await walkTree({ projectRoot: tmpRoot });
+  assert.deepEqual(errors, [], JSON.stringify(errors, null, 2));
+  assert.equal(tree.byId.has('REQ-999'), false,
+    'walker surfaced a REQ-shaped file from rcf/discovery/');
+});
