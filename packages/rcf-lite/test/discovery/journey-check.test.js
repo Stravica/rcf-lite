@@ -14,7 +14,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { readFile, writeFile, mkdir, chmod } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, chmod, unlink } from 'node:fs/promises';
 import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -552,13 +552,28 @@ test('AC-18903-7 must-not: a declared none product or a tree with no journe', as
   assert.equal(r2[0].state, 'notApplicable');
   assert.ok(r2[0].why.includes('none'), `reason must name the none declaration: ${r2[0].why}`);
 
-  // Verb end-to-end on an absent record: exit 0 and no wireframe file
-  // is touched. The project has no journey.json at all.
+  // Verb end-to-end on a truly absent record: initProject seeds a
+  // journey.json under FBS-211, so delete it to prove the "absent
+  // file" leg of the grandfather fold (ADR-4145) still exits 0 and
+  // reads no wireframe file.
   const scratch = mkProject();
   await setupProject(scratch);
+  await unlink(join(scratch, 'rcf', 'discovery', 'journey.json'));
   const r = runCli(['discover', 'journey', 'check'], scratch);
   assert.equal(r.status, 0, `absent record must exit 0\nstdout=${r.stdout}\nstderr=${r.stderr}`);
   assert.ok(r.stdout.includes('notApplicable') || r.stdout.includes('n/a'), r.stdout);
+
+  // Verb end-to-end on an init-seeded undeclared record: initProject
+  // writes a journey.json with ui null and zero journeys so a new
+  // project can never be mistaken for one that pre-dates the gate
+  // (ADR-4145). The check verb must fold that state to notApplicable
+  // exactly as the absent file does: exit 0, no journeyPresent fail.
+  const scratchSeed = mkProject();
+  await setupProject(scratchSeed);
+  const rSeed = runCli(['discover', 'journey', 'check'], scratchSeed);
+  assert.equal(rSeed.status, 0, `init-seeded undeclared must exit 0\nstdout=${rSeed.stdout}\nstderr=${rSeed.stderr}`);
+  assert.ok(rSeed.stdout.includes('notApplicable') || rSeed.stdout.includes('n/a'), rSeed.stdout);
+  assert.ok(!rSeed.stdout.includes('journeyPresent'), `undeclared record must not report journeyPresent fail: ${rSeed.stdout}`);
 
   // Verb on a declared none product: exit 0 even when the record
   // names a wireframe path that WOULD fail if read (a directory with

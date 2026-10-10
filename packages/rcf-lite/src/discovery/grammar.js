@@ -276,13 +276,17 @@ function linkByFileOrder(draft) {
  * so mint.js has one path.
  *
  * @param {string} text
- * @param {string} source - the authored path
+ * @param {string} source - the authored path (absolute when the caller needs the wireframe side-car check to resolve files on disk)
  * @param {object} [opts]
  * @param {(absPath: string) => boolean} [opts.wireframeExists] - test seam; defaults to a real existsSync check beside the source
+ * @param {string} [opts.displaySource] - the path quoted in GrammarError messages; defaults to `source`. Callers whose `source` is absolute (for the wireframe check) pass the repo-relative path here so errors read the same as the add verb's.
  * @returns {JourneyDraft}
  */
 export function parseJourneyMap(text, source, opts = {}) {
   const existsFn = opts.wireframeExists ?? defaultWireframeExists(source);
+  const displaySource = typeof opts.displaySource === 'string' && opts.displaySource.length > 0
+    ? opts.displaySource
+    : source;
   const lines = text.split(/\r?\n/);
   let title = null;
   const blocks = /** @type {Array<{heading: string, headingLine: number, screenSlug: string|null, screenLine: number, goesTo: Array<{slug:string, line:number}>}>} */ ([]);
@@ -302,10 +306,10 @@ export function parseJourneyMap(text, source, opts = {}) {
       const headingText = h2[1].trim();
       const slug = toSlug(headingText);
       if (!SLUG_RE.test(slug)) {
-        throw new GrammarError(`H2 heading '${headingText}' does not slug to a valid kebab-slug`, { source, line: lineNo, rule: 'h2-slug' });
+        throw new GrammarError(`H2 heading '${headingText}' does not slug to a valid kebab-slug`, { source: displaySource, line: lineNo, rule: 'h2-slug' });
       }
       if (slugSeen.has(slug)) {
-        throw new GrammarError(`duplicate H2 heading '${headingText}' (slug ${slug})`, { source, line: lineNo, rule: 'h2-unique' });
+        throw new GrammarError(`duplicate H2 heading '${headingText}' (slug ${slug})`, { source: displaySource, line: lineNo, rule: 'h2-unique' });
       }
       slugSeen.add(slug);
       blocks.push({ heading: headingText, headingLine: lineNo, screenSlug: null, screenLine: -1, goesTo: [] });
@@ -322,7 +326,7 @@ export function parseJourneyMap(text, source, opts = {}) {
       // Inline form 'Interruptions: a=1, b=2': consume the tail.
       const inline = line.slice(line.indexOf(':') + 1).trim();
       if (inline.length > 0) {
-        interruptions = parseInterruptionsLine(inline, source, lineNo);
+        interruptions = parseInterruptionsLine(inline, displaySource, lineNo);
       } else if (interruptions === null) {
         interruptions = {};
       }
@@ -332,7 +336,7 @@ export function parseJourneyMap(text, source, opts = {}) {
       const entry = line.replace(/^-\s+/, '');
       const colon = entry.indexOf(':');
       if (colon <= 0) {
-        throw new GrammarError(`interruption bullet '${entry}' must be '<entry>: <wf-NN-slug or notApplicable, reason>'`, { source, line: lineNo, rule: 'interruption-bullet' });
+        throw new GrammarError(`interruption bullet '${entry}' must be '<entry>: <wf-NN-slug or notApplicable, reason>'`, { source: displaySource, line: lineNo, rule: 'interruption-bullet' });
       }
       const key = entry.slice(0, colon).trim();
       const val = entry.slice(colon + 1).trim();
@@ -348,15 +352,15 @@ export function parseJourneyMap(text, source, opts = {}) {
     const screenM = /^Screen:\s*(\S+)\s*$/i.exec(line);
     if (screenM) {
       if (blocks.length === 0) {
-        throw new GrammarError(`'Screen:' line before any H2 heading`, { source, line: lineNo, rule: 'screen-outside-step' });
+        throw new GrammarError(`'Screen:' line before any H2 heading`, { source: displaySource, line: lineNo, rule: 'screen-outside-step' });
       }
       const slug = screenM[1];
       if (!SLUG_RE.test(slug)) {
-        throw new GrammarError(`screen slug '${slug}' must be lower-case kebab`, { source, line: lineNo, rule: 'screen-slug' });
+        throw new GrammarError(`screen slug '${slug}' must be lower-case kebab`, { source: displaySource, line: lineNo, rule: 'screen-slug' });
       }
       const block = blocks[blocks.length - 1];
       if (block.screenSlug !== null) {
-        throw new GrammarError(`H2 block for '${block.heading}' has more than one 'Screen:' line`, { source, line: lineNo, rule: 'single-screen' });
+        throw new GrammarError(`H2 block for '${block.heading}' has more than one 'Screen:' line`, { source: displaySource, line: lineNo, rule: 'single-screen' });
       }
       block.screenSlug = slug;
       block.screenLine = lineNo;
@@ -366,11 +370,11 @@ export function parseJourneyMap(text, source, opts = {}) {
     const goesM = /^Goes to:\s*(\S+)\s*$/i.exec(line);
     if (goesM) {
       if (blocks.length === 0) {
-        throw new GrammarError(`'Goes to:' line before any H2 heading`, { source, line: lineNo, rule: 'goes-outside-step' });
+        throw new GrammarError(`'Goes to:' line before any H2 heading`, { source: displaySource, line: lineNo, rule: 'goes-outside-step' });
       }
       const slug = goesM[1];
       if (!SLUG_RE.test(slug)) {
-        throw new GrammarError(`Goes to slug '${slug}' must be lower-case kebab`, { source, line: lineNo, rule: 'goes-slug' });
+        throw new GrammarError(`Goes to slug '${slug}' must be lower-case kebab`, { source: displaySource, line: lineNo, rule: 'goes-slug' });
       }
       blocks[blocks.length - 1].goesTo.push({ slug, line: lineNo });
       inInterruptions = false;
@@ -381,12 +385,12 @@ export function parseJourneyMap(text, source, opts = {}) {
     // comment for the fold-in reason.
   }
   if (blocks.length === 0) {
-    throw new GrammarError(`no H2 step headings found`, { source, line: 1, rule: 'at-least-one-step' });
+    throw new GrammarError(`no H2 step headings found`, { source: displaySource, line: 1, rule: 'at-least-one-step' });
   }
   const effectiveTitle = title ?? toTitleFromSource(source);
   const journeySlug = toSlug(effectiveTitle);
   if (!SLUG_RE.test(journeySlug)) {
-    throw new GrammarError(`journey title '${effectiveTitle}' does not slug to a valid kebab-slug`, { source, line: 1, rule: 'journey-slug' });
+    throw new GrammarError(`journey title '${effectiveTitle}' does not slug to a valid kebab-slug`, { source: displaySource, line: 1, rule: 'journey-slug' });
   }
   // Build steps: screen slug is derived from the Screen: line; nextSlugs
   // are the step slugs whose screenSlug matches a Goes to screen slug.
@@ -397,7 +401,7 @@ export function parseJourneyMap(text, source, opts = {}) {
   for (let b = 0; b < blocks.length; b += 1) {
     const block = blocks[b];
     if (block.screenSlug === null) {
-      throw new GrammarError(`H2 block for '${block.heading}' is missing its 'Screen:' line`, { source, line: block.headingLine, rule: 'step-screen' });
+      throw new GrammarError(`H2 block for '${block.heading}' is missing its 'Screen:' line`, { source: displaySource, line: block.headingLine, rule: 'step-screen' });
     }
     const kind = b === 0 ? 'entry' : (block.goesTo.length === 0 ? 'exit' : 'step');
     const slug = toSlug(block.heading);
@@ -410,7 +414,7 @@ export function parseJourneyMap(text, source, opts = {}) {
     for (const g of block.goesTo) {
       const target = stepIndexByScreenSlug.get(g.slug);
       if (!target) {
-        throw new GrammarError(`'Goes to: ${g.slug}' names a screen that no H2 block declares`, { source, line: g.line, rule: 'goes-target' });
+        throw new GrammarError(`'Goes to: ${g.slug}' names a screen that no H2 block declares`, { source: displaySource, line: g.line, rule: 'goes-target' });
       }
       nextSlugs.push(target);
     }
@@ -432,7 +436,7 @@ export function parseJourneyMap(text, source, opts = {}) {
       if (steps.some((s) => s.slug === value)) continue;
       const target = stepIndexByScreenSlug.get(value);
       if (!target) {
-        throw new GrammarError(`Interruptions bullet '${entry}: ${value}' names a screen or step that no H2 block declares`, { source, line: 1, rule: 'interruption-target' });
+        throw new GrammarError(`Interruptions bullet '${entry}: ${value}' names a screen or step that no H2 block declares`, { source: displaySource, line: 1, rule: 'interruption-target' });
       }
       interruptions[entry] = target;
     }

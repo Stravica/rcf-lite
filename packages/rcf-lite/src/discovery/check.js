@@ -139,12 +139,18 @@ export function checkDiscovery({ record, ui, wireframes }) {
       },
     ], {});
   }
-  if (!record) {
+  if (!record || ui === null) {
+    // An absent file and an init-seeded record whose ui is still null
+    // are the same semantic state: nothing has been declared yet. The
+    // ADR-4145 grandfather rule folds both to one notApplicable entry
+    // and the caller reads no wireframe file. The record body may be
+    // present (init seed) or null (truly absent); either way nothing
+    // in the record is examined past this fold.
     return attachHashes([
       {
         id: 'discovery:applicable',
         state: 'notApplicable',
-        why: 'no rcf/discovery/journey.json: the grandfathered state (existing tree, no ui declaration yet).',
+        why: 'no declared journey record (absent file or ui null): the grandfathered state (ADR-4145).',
         failingIds: [],
       },
     ], {});

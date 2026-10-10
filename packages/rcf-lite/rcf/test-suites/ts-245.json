@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:29:39.905Z",
-  "updatedAt": "2026-10-09T17:03:06.066Z",
+  "updatedAt": "2026-10-10T15:44:20.188Z",
   "purpose": "Cover every acceptance criterion of US-18903 with one node:test case each in test/discovery/journey-check.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-212) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -62,7 +62,7 @@
     {
       "id": "TC-245-18903-7-mustnot",
       "acId": "AC-18903-7",
-      "description": "[must-not] Given a declared none product or a tree with no journey.json, when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.",
+      "description": "[must-not] Given a declared none product or a tree with no declared journey record (absent file or ui null), when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.",
       "status": "pending",
       "testPointer": "test/discovery/journey-check.test.js::AC-18903-7 must-not: a declared none product or a tree with no journe"
     },

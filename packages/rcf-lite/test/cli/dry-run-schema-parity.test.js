@@ -52,6 +52,7 @@ test('AC-15701 (0.28.2 issue #230): intake --dry-run refuses a bad fidelity enum
   const tmp = await scaffold('rcf-dryrun-intake-bad-fidelity-');
   const input = {
     fidelity: 'briefRich',
+    ui: 'none',
     artefacts: [],
     validationFindings: [],
     elicitationScope: { requestElicitationForAll: false },
@@ -72,6 +73,7 @@ test('AC-15701 (0.28.2 issue #230): intake --dry-run passes an allowed fidelity 
   const tmp = await scaffold('rcf-dryrun-intake-ok-fidelity-');
   const input = {
     fidelity: 'briefLight',
+    ui: 'none',
     artefacts: [],
     validationFindings: [],
     elicitationScope: {},

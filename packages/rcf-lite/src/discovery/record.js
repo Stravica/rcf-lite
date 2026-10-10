@@ -87,6 +87,7 @@ export function emptyJourneyRecord() {
     ui: null,
     declaredAt: null,
     declaredBy: null,
+    declaredReason: null,
     declaredVia: null,
     asBuilt: false,
     screens: [],
@@ -115,7 +116,7 @@ export function validateJourneyRecord(body) {
   }
   const rec = /** @type {Record<string, unknown>} */ (body);
   const allowedTop = new Set([
-    'version', 'ui', 'declaredAt', 'declaredBy', 'declaredVia', 'asBuilt',
+    'version', 'ui', 'declaredAt', 'declaredBy', 'declaredReason', 'declaredVia', 'asBuilt',
     'screens', 'journeys', 'review',
   ]);
   for (const key of Object.keys(rec)) {
@@ -134,6 +135,9 @@ export function validateJourneyRecord(body) {
   }
   if (rec.declaredBy !== null && typeof rec.declaredBy !== 'string') {
     throw new JourneyRecordError('journey.json: declaredBy must be a string or null.', { pointer: '/declaredBy' });
+  }
+  if (rec.declaredReason !== null && typeof rec.declaredReason !== 'string') {
+    throw new JourneyRecordError('journey.json: declaredReason must be a string or null.', { pointer: '/declaredReason' });
   }
   if (rec.declaredVia !== null && !DECLARED_VIA_VALUES.includes(/** @type {any} */ (rec.declaredVia))) {
     throw new JourneyRecordError(`journey.json: declaredVia must be null or one of ${DECLARED_VIA_VALUES.join(', ')}.`, { pointer: '/declaredVia' });
@@ -386,6 +390,15 @@ export async function readJourneyRecord(projectRoot) {
       { code: 'parseFailure' },
     );
   }
+  // FBS-211 (ADR-4145): a record written by main at e2a80f08 (FBS-210)
+  // has no declaredReason field. Normalise an absent declaredReason to
+  // null on read so a main-shape record passes the FBS-211 schema. The
+  // writer path keeps the strict shape - validateJourneyRecord still
+  // refuses an undefined declaredReason, so a bad write cannot land.
+  if (parsed && typeof parsed === 'object' && !Array.isArray(parsed)
+      && !Object.prototype.hasOwnProperty.call(parsed, 'declaredReason')) {
+    parsed.declaredReason = null;
+  }
   return validateJourneyRecord(parsed);
 }
 
@@ -474,6 +487,7 @@ export function serialiseJourneyRecord(record) {
  * @property {'none'|'light'|'central'|null} ui
  * @property {string | null} declaredAt
  * @property {string | null} declaredBy
+ * @property {string | null} declaredReason
  * @property {'init'|'declare'|'intake'|null} declaredVia
  * @property {boolean} asBuilt
  * @property {Screen[]} screens
