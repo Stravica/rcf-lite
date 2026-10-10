@@ -637,11 +637,20 @@ async function runCheck({ argv, deps }) {
   // .html) in the shape checkDiscovery expects. A missing file is
   // recorded by its absence from the map, which lets the pure check
   // report wireframePerStep correctly without this loader deciding
-  // what central vs light means.
+  // what central vs light means. Containment (P2 from PR 345 review):
+  // record.js refuses URL-ish, absolute and '..' paths at the write
+  // path, but a symlink inside the repo could still point outside;
+  // we refuse (exit 3) a resolved path that leaves rootCanonical so
+  // the check verb cannot read bytes from outside the repo.
   const wireframes = new Map();
   for (const screen of record.screens) {
     if (!screen.wireframe) continue;
     const absPath = join(rootCanonical, screen.wireframe);
+    const escaped = await resolvedOutsideRoot(absPath, rootCanonical);
+    if (escaped) {
+      stderr.write(`[error] refused define: screen wireframe ${screen.wireframe} resolves outside the repo (${escaped}); wireframes live under rcf/discovery/wireframes/.\n`);
+      return 3;
+    }
     let bytes;
     try {
       bytes = await readFile(absPath);
@@ -728,7 +737,7 @@ async function runReview({ argv, deps }) {
       options: {
         by: { type: 'string' },
         note: { type: 'string' },
-        json: { type: 'boolean' },
+        'dry-run': { type: 'boolean' },
         help: { type: 'boolean' },
       },
       strict: true,
@@ -748,6 +757,7 @@ async function runReview({ argv, deps }) {
     return 2;
   }
   const note = typeof parsed.values.note === 'string' ? parsed.values.note.trim() : '';
+  const dryRun = Boolean(parsed.values['dry-run']);
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
     stderr.write(`[error] usage journey review: no rcf/manifest.json found in '${cwd}' or any ancestor.\n`);
@@ -774,11 +784,20 @@ async function runReview({ argv, deps }) {
     return 3;
   }
 
-  // Load wireframes; same loader shape as runCheck.
+  // Load wireframes; same loader shape as runCheck plus a containment
+  // check (P2 from PR 345 review): record.js refuses URL-ish paths,
+  // absolute paths and '..' segments, but a symlink inside the repo
+  // can still point outside. We realpath the loaded path and refuse
+  // (exit 3) if it does not sit under rootCanonical.
   const wireframes = new Map();
   for (const screen of record.screens) {
     if (!screen.wireframe) continue;
     const absPath = join(rootCanonical, screen.wireframe);
+    const escaped = await resolvedOutsideRoot(absPath, rootCanonical);
+    if (escaped) {
+      stderr.write(`[error] refused define: screen wireframe ${screen.wireframe} resolves outside the repo (${escaped}); wireframes live under rcf/discovery/wireframes/.\n`);
+      return 3;
+    }
     let bytes;
     try {
       bytes = await readFile(absPath);
@@ -802,16 +821,13 @@ async function runReview({ argv, deps }) {
   const structural = results.filter((r) => r.id !== 'discovery:reviewed');
   const failing = structural.filter((r) => r.state === 'fail');
   if (failing.length > 0) {
-    if (parsed.values.json) {
-      stdout.write(`${JSON.stringify({ exit: 4, written: false, failing: failing.map((f) => ({ id: f.id, why: f.why, failingIds: f.failingIds ?? [] })) }, null, 2)}\n`);
-    } else {
-      for (const r of structural) {
-        const tag = r.state === 'pass' ? 'ok' : r.state === 'notApplicable' ? 'n/a' : 'fail';
-        const line = r.why ? `[${tag}] ${r.id}: ${r.why}` : `[${tag}] ${r.id}`;
-        stdout.write(`${line}\n`);
-      }
-      stdout.write(`[refused] journey review refused: ${failing.length} failing structural check(s); no ReviewStamp written.\n`);
+    for (const r of structural) {
+      const tag = r.state === 'pass' ? 'ok' : r.state === 'notApplicable' ? 'n/a' : 'fail';
+      const line = r.why ? `[${tag}] ${r.id}: ${r.why}` : `[${tag}] ${r.id}`;
+      stdout.write(`${line}\n`);
     }
+    const failingIdList = failing.map((f) => f.id).join(', ');
+    stdout.write(`[refused] journey review refused: ${failing.length} failing structural check(s) (${failingIdList}); no ReviewStamp written.\n`);
     return 4;
   }
 
@@ -821,6 +837,10 @@ async function runReview({ argv, deps }) {
   const screenCount = record.screens.length;
   const interruptionsMapped = countInterruptionsMapped(record);
   const summary = `${journeyCount} journey${journeyCount === 1 ? '' : 's'}, ${stepCount} step${stepCount === 1 ? '' : 's'}, ${screenCount} screen${screenCount === 1 ? '' : 's'}, ${interruptionsMapped} interruption${interruptionsMapped === 1 ? '' : 's'} mapped`;
+  // Summary ALWAYS prints before any write (AC-18904-2): on a
+  // dry-run no write follows; on a wet run the write happens
+  // below. The 'stamped by' line prints only on a wet run so the
+  // dry-run output is clearly distinguishable from a real stamp.
   stdout.write(`[ok] discovery review: ${summary}.\n`);
 
   const wireframePairs = [];
@@ -829,8 +849,22 @@ async function runReview({ argv, deps }) {
   }
   wireframePairs.sort((a, b) => (a.path < b.path ? -1 : a.path > b.path ? 1 : 0));
   const hash = discoveryHash(record, wireframePairs);
+  // wireframeHashes is keyed by screen id (TAC-4142 ReviewStamp: 'one
+  // sha256 per screen id with a wireframe'). Two screens pointing at
+  // the same wireframe file no longer collapse to a single entry.
   const wireframeHashes = {};
-  for (const pair of wireframePairs) wireframeHashes[pair.path] = pair.sha256;
+  const pathHashBySource = Object.fromEntries(wireframePairs.map((p) => [p.path, p.sha256]));
+  for (const screen of record.screens) {
+    if (!screen.wireframe) continue;
+    const h = pathHashBySource[screen.wireframe];
+    if (typeof h === 'string') wireframeHashes[screen.id] = h;
+  }
+
+  if (dryRun) {
+    stdout.write(`[dry-run] journey review would stamp by: ${by}\n`);
+    stdout.write(`[dry-run]                  discoveryHash: ${hash}\n`);
+    return 0;
+  }
 
   const stamped = {
     ...record,
@@ -853,26 +887,57 @@ async function runReview({ argv, deps }) {
     throw err;
   }
 
-  if (parsed.values.json) {
-    stdout.write(`${JSON.stringify({
-      verb: 'review',
-      written: true,
-      by,
-      note: note.length > 0 ? note : null,
-      summary: {
-        journeys: journeyCount,
-        steps: stepCount,
-        screens: screenCount,
-        interruptionsMapped,
-      },
-      discoveryHash: hash,
-      wireframeHashes,
-    }, null, 2)}\n`);
-  } else {
-    stdout.write(`  stamped by: ${by}\n`);
-    stdout.write(`  discoveryHash: ${hash}\n`);
-  }
+  stdout.write(`  stamped by: ${by}\n`);
+  stdout.write(`  discoveryHash: ${hash}\n`);
   return 0;
+}
+
+/**
+ * Check that a repo-relative path, once joined to rootCanonical,
+ * resolves (through any symlinks on the path) inside rootCanonical.
+ * Returns the escaped canonical path when it leaves the repo and
+ * null otherwise. A path that does not exist yet (ENOENT) resolves
+ * through its longest existing prefix.
+ *
+ * @param {string} absPath
+ * @param {string} rootCanonical
+ * @returns {Promise<string | null>}
+ */
+async function resolvedOutsideRoot(absPath, rootCanonical) {
+  let canonical;
+  try {
+    canonical = await realpath(absPath);
+  } catch (err) {
+    if (/** @type {NodeJS.ErrnoException} */ (err).code !== 'ENOENT') {
+      // Any other error (EACCES, ELOOP) is reported as escape so the
+      // reviewer sees it rather than a loader crash later.
+      return absPath;
+    }
+    // ENOENT: resolve the longest existing ancestor to catch a
+    // symlink part-way up a path that does not yet point at a file.
+    let probe = absPath;
+    while (true) {
+      const parent = resolve(probe, '..');
+      if (parent === probe) {
+        canonical = parent;
+        break;
+      }
+      try {
+        canonical = resolve(await realpath(parent), relative(parent, absPath));
+        break;
+      } catch (e) {
+        if (/** @type {NodeJS.ErrnoException} */ (e).code === 'ENOENT') {
+          probe = parent;
+          continue;
+        }
+        return absPath;
+      }
+    }
+  }
+  const prefix = rootCanonical.endsWith('/') ? rootCanonical : rootCanonical + '/';
+  if (canonical === rootCanonical) return null;
+  if (!canonical.startsWith(prefix)) return canonical;
+  return null;
 }
 
 /**

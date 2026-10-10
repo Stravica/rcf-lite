@@ -186,13 +186,18 @@ test('AC-18903-1 happy: a declared light or central product with a journ', async
   const jp = twoJresults.find((r) => r.id === 'discovery:journeyPresent');
   assert.equal(jp.state, 'pass', `at least one complete journey must pass journeyPresent: ${jp.why}`);
 
-  // Verb end-to-end: one line per check and exit 0.
+  // Verb end-to-end: one line per check and exit 0. FBS-213 made the
+  // central posture 'review required': an unreviewed central record
+  // fails discovery:reviewed. We seed a review first so this test
+  // continues to prove the 'every check passes' happy path.
+  const rSeedReview = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One'], scratch);
+  assert.equal(rSeedReview.status, 0, `seed review must pass on a fully-structural record: ${rSeedReview.stdout}\n${rSeedReview.stderr}`);
   const r = runCli(['discover', 'journey', 'check'], scratch);
   assert.equal(r.status, 0, `stdout=${r.stdout}\nstderr=${r.stderr}`);
   const lines = checkLines(r.stdout);
-  // FBS-213 added discovery:reviewed to the check list; a central
-  // record now reports 8 structural + reviewed-stamp checks per
-  // run, with reviewed reading n/a when no ReviewStamp is present.
+  // FBS-213 added discovery:reviewed to the check list; a reviewed
+  // central record now reports 8 structural + reviewed-stamp checks
+  // per run, with reviewed reading ok after the seed review.
   assert.equal(lines.length, 8, `one line per check (central: 7 structural + reviewed): ${r.stdout}`);
   for (const required of [
     'discovery:journeyPresent',
@@ -641,9 +646,13 @@ test('AC-18903-8 failure: a screenwireframe whose extension is outside md ', asy
   assert.ok(r.stdout.includes('home.png'), r.stdout);
   assert.ok(r.stdout.includes('--as-built'), `rule text must name --as-built: ${r.stdout}`);
 
-  // Same tree declared as-built: wireframeFormat passes.
+  // Same tree declared as-built: wireframeFormat passes. FBS-213 made
+  // the central posture 'review required', so a seed review is needed
+  // for the structural check verb to exit 0 overall.
   pngRec.asBuilt = true;
   await writeJourneyRecord({ projectRoot: scratch, record: pngRec });
+  const rSeedReview = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One'], scratch);
+  assert.equal(rSeedReview.status, 0, `as-built: seed review must pass: ${rSeedReview.stdout}\n${rSeedReview.stderr}`);
   const r2 = runCli(['discover', 'journey', 'check'], scratch);
   // Reachability still passes, interruptions still answered: this
   // check verb now exits 0.

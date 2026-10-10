@@ -156,13 +156,37 @@ test('AC-18904-1 happy: a journey that passes every structural check', async () 
   const expectedHash = discoveryHash(record, expectedPairs);
   assert.equal(stamp.at.hash, expectedHash, 'at.hash must equal discoveryHash(record without review, sorted wireframe pairs)');
 
-  // wireframeHashes carries one entry per screen with a wireframe.
+  // wireframeHashes is keyed by SCREEN ID (TAC-4142 ReviewStamp: 'one
+  // sha256 per screen id with a wireframe'); two screens that point
+  // at the same file no longer collapse to a single entry.
   assert.deepEqual(
     Object.keys(stamp.wireframeHashes).sort(),
-    ['rcf/discovery/wireframes/done.md', 'rcf/discovery/wireframes/home.md'],
+    ['SCR-001', 'SCR-002'],
   );
-  assert.equal(stamp.wireframeHashes['rcf/discovery/wireframes/home.md'], fileSha256(homeBytes));
-  assert.equal(stamp.wireframeHashes['rcf/discovery/wireframes/done.md'], fileSha256(doneBytes));
+  assert.equal(stamp.wireframeHashes['SCR-001'], fileSha256(homeBytes));
+  assert.equal(stamp.wireframeHashes['SCR-002'], fileSha256(doneBytes));
+
+  // Two screens that reference the same wireframe file get one entry
+  // per screen in the stamp, not one entry collapsed by path.
+  const sharedRecord = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/shared.md',
+    done: 'rcf/discovery/wireframes/shared.md',
+  } });
+  const sharedScratch = mkProject();
+  const sharedDir = await setupProject(sharedScratch);
+  const sharedBytes = Buffer.from('# shared\n', 'utf8');
+  await writeFile(join(sharedDir, 'shared.md'), sharedBytes);
+  await writeJourneyRecord({ projectRoot: sharedScratch, record: sharedRecord });
+  const rShared = runCli(['discover', 'journey', 'review', '--by', 'Reviewer Two'], sharedScratch);
+  assert.equal(rShared.status, 0, `shared-file review must pass: ${rShared.stdout}\n${rShared.stderr}`);
+  const sharedStamped = await readJourneyRecord(sharedScratch);
+  assert.deepEqual(
+    Object.keys(sharedStamped.review.wireframeHashes).sort(),
+    ['SCR-001', 'SCR-002'],
+    'two screens sharing a wireframe file must keep two stamp entries, keyed by screen id',
+  );
+  assert.equal(sharedStamped.review.wireframeHashes['SCR-001'], fileSha256(sharedBytes));
+  assert.equal(sharedStamped.review.wireframeHashes['SCR-002'], fileSha256(sharedBytes));
 });
 
 test('AC-18904-2 happy: a reviewed record', async () => {
@@ -219,36 +243,50 @@ test('AC-18904-2 happy: a reviewed record', async () => {
 
 test('AC-18904-3 failure: a journey that fails any structural check', async () => {
   // Given a journey that fails any structural check, the review verb
-  // exits 4, prints the failing checks and writes no ReviewStamp. We
-  // exercise two independent failure modes to prove the refusal is
-  // not keyed to one check:
+  // exits 4, prints the failing check ids (so the operator can act on
+  // more than a generic refusal line) and leaves journey.json BYTE-
+  // IDENTICAL to its pre-review state. We exercise two independent
+  // failure modes to prove the refusal is not keyed to one check:
   //
   //   - an unmapped interruption (discovery:interruptions failure)
   //   - a central product with a missing wireframe path on disk
   //     (discovery:wireframePerStep failure)
-  for (const scenario of ['missing-interruption', 'missing-wireframe-file']) {
+  for (const scenario of [
+    { name: 'missing-interruption', failingId: 'discovery:interruptions' },
+    { name: 'missing-wireframe-file', failingId: 'discovery:wireframePerStep' },
+  ]) {
     const record = completeRecord({ ui: 'central', wireframes: {
       home: 'rcf/discovery/wireframes/home.md',
       done: 'rcf/discovery/wireframes/done.md',
     } });
-    if (scenario === 'missing-interruption') {
+    if (scenario.name === 'missing-interruption') {
       // Blank an interruption so the catalogue is incomplete.
       delete record.journeys[0].interruptions.lostEmail;
     }
     const scratch = mkProject();
     const dir = await setupProject(scratch);
     await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
-    if (scenario !== 'missing-wireframe-file') {
+    if (scenario.name !== 'missing-wireframe-file') {
       await writeFile(join(dir, 'done.md'), '# done\n', 'utf8');
     }
     await writeJourneyRecord({ projectRoot: scratch, record });
 
+    // Capture the pre-review journey.json bytes so the refusal can be
+    // proved byte-identical, not just 'review field is still null'.
+    const journeyPath = join(scratch, 'rcf', 'discovery', 'journey.json');
+    const before = await readFile(journeyPath);
+
     const r = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One'], scratch);
-    assert.equal(r.status, 4, `scenario=${scenario} must exit 4: ${r.stdout}\n${r.stderr}`);
+    assert.equal(r.status, 4, `scenario=${scenario.name} must exit 4: ${r.stdout}\n${r.stderr}`);
     assert.match(r.stdout, /\[refused\] journey review refused/);
-    // No ReviewStamp lands on the disk when the verb refuses.
+    assert.ok(r.stdout.includes(scenario.failingId), `scenario=${scenario.name}: refusal line must name the failing check id ${scenario.failingId}: ${r.stdout}`);
+    // No ReviewStamp lands on the disk when the verb refuses, AND the
+    // file bytes are identical: no whitespace or key-order drift from
+    // a serialise-then-not-write round trip.
+    const after = await readFile(journeyPath);
+    assert.ok(before.equals(after), `scenario=${scenario.name}: journey.json must be byte-identical on refusal`);
     const read = await readJourneyRecord(scratch);
-    assert.equal(read.review, null, `scenario=${scenario}: review.review must stay null on refusal`);
+    assert.equal(read.review, null, `scenario=${scenario.name}: review.review must stay null on refusal`);
   }
 });
 
@@ -284,7 +322,10 @@ test('AC-18904-4 edge: a reviewed record', async () => {
   const reviewed = r1Results.find((x) => x.id === 'discovery:reviewed');
   assert.equal(reviewed.state, 'fail', 'wireframe bytes change must fail discovery:reviewed');
   assert.ok(/wireframe bytes changed/.test(reviewed.why), `why must name the wireframe-byte branch: ${reviewed.why}`);
-  assert.ok(reviewed.failingIds.includes('rcf/discovery/wireframes/home.md'), `failingIds must name the changed screen: ${JSON.stringify(reviewed.failingIds)}`);
+  // failingIds names the SCREEN ID whose wireframe bytes changed
+  // (SCR-001 points at home.md in completeRecord), matching the
+  // screen-id keying of ReviewStamp.wireframeHashes.
+  assert.ok(reviewed.failingIds.includes('SCR-001'), `failingIds must name the changed screen id: ${JSON.stringify(reviewed.failingIds)}`);
   // The check verb exit code picks up the stale stamp.
   const rCheck = runCli(['discover', 'journey', 'check'], scratch);
   assert.equal(rCheck.status, 4, `check must exit 4 on a stale stamp: ${rCheck.stdout}`);
@@ -314,10 +355,11 @@ test('AC-18904-4 edge: a reviewed record', async () => {
   const reviewed3 = r3Results.find((x) => x.id === 'discovery:reviewed');
   assert.equal(reviewed3.state, 'fail', 'journey re-mint must fail discovery:reviewed');
   assert.ok(/journey record was re-minted/.test(reviewed3.why), `why must name the record-body re-mint branch: ${reviewed3.why}`);
-  // The record-body branch must NOT name a changed wireframe path
-  // (every per-wireframe hash is unchanged here); the earlier
-  // branch (changed wireframe bytes) is the one that lists paths.
-  assert.deepEqual(reviewed3.failingIds, [], `record-body branch must not list wireframe paths in failingIds: ${JSON.stringify(reviewed3.failingIds)}`);
+  // The record-body branch names the JOURNEY IDs whose record was
+  // re-minted (not a wireframe-screen list; every per-wireframe hash
+  // is unchanged here). An empty failingIds is a defect: the operator
+  // needs something concrete to look at.
+  assert.deepEqual(reviewed3.failingIds, ['JNY-001'], `record-body branch must list journey ids in failingIds: ${JSON.stringify(reviewed3.failingIds)}`);
 
   // One more review restores pass.
   const r4 = runCli(['discover', 'journey', 'review', '--by', 'Reviewer Two'], scratch);
@@ -385,6 +427,7 @@ test('AC-18904-5 must-not: the managed agentinstructions block', async () => {
   // stale on the next check. The current implementation preserves
   // the stamp verbatim across an add; the discovery:reviewed check
   // is the enforcement that catches a journey-content change.
+  const seededStamp = afterSeed.review;
   const source = join(scratch, 'journey-v2.rcf');
   await writeFile(source, [
     '# Journey: signup-v2',
@@ -394,10 +437,230 @@ test('AC-18904-5 must-not: the managed agentinstructions block', async () => {
   const rAdd = runCli(['discover', 'journey', 'add', '--from', source], scratch);
   assert.equal(rAdd.status, 0, `add must succeed: ${rAdd.stdout}\n${rAdd.stderr}`);
   const afterAdd = await readJourneyRecord(scratch);
-  // The stamp still carries the pre-add state (add never writes a
-  // ReviewStamp of its own). The at.hash is the pre-add value; the
-  // check verb will catch the mismatch, but the file bytes prove the
-  // stamp was NOT rewritten by `add`.
-  assert.ok(afterAdd.review, 'add must not strip the stamp');
-  assert.equal(afterAdd.review.at.hash, seededHash, 'add must not re-stamp the record (at.hash is preserved verbatim)');
+  // Full-stamp comparison, not just at.hash: by, note (absent),
+  // at.time, at.hash and wireframeHashes must all survive verbatim.
+  assert.deepEqual(afterAdd.review, seededStamp, 'add must preserve the ReviewStamp verbatim (full-stamp compare)');
+
+  // `doctor --fix` is a modifying verb that rewrites managed artefacts
+  // (CLAUDE.md / AGENTS.md fragment, .gitignore). It MUST NOT touch
+  // journey.json's review field. We run it on a tree that already
+  // carries a reviewed stamp and compare the full stamp bytes before
+  // and after; a change here would break the TAC's single-reviewer
+  // discipline silently.
+  // The exit code of `doctor --fix` is independent of this AC
+  // (unrelated drift may be reported); the invariant is that the run
+  // completes (not a crash) and journey.json's review field survives
+  // verbatim. We assert on the stamp, not on the status code.
+  const rDoctor = runCli(['doctor', '--fix'], scratch);
+  assert.ok(typeof rDoctor.status === 'number', `doctor --fix must terminate with a status code: ${rDoctor.stderr}`);
+  const afterDoctor = await readJourneyRecord(scratch);
+  assert.deepEqual(afterDoctor.review, seededStamp, 'doctor --fix must preserve the ReviewStamp verbatim (full-stamp compare)');
+
+  // Belt-and-braces: journey.json BYTES stay identical across both
+  // modifying runs for the review field. The file as a whole may have
+  // changed (add appended a new journey); we isolate the stamp by
+  // comparing the review object serialised the same way as the file.
+  assert.equal(JSON.stringify(afterAdd.review), JSON.stringify(seededStamp), 'add: serialised review must be byte-identical to the seeded stamp');
+  assert.equal(JSON.stringify(afterDoctor.review), JSON.stringify(seededStamp), 'doctor --fix: serialised review must be byte-identical to the seeded stamp');
+});
+
+test('AC-18904-1 edge: review --dry-run prints the plan and writes no stamp', async () => {
+  // --dry-run (TAC-4142 review usage): compute the stamp fields and
+  // print them, but write nothing. The pre-review bytes of
+  // journey.json must survive verbatim.
+  const record = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/home.md',
+    done: 'rcf/discovery/wireframes/done.md',
+  } });
+  const scratch = mkProject();
+  const dir = await setupProject(scratch);
+  await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
+  await writeFile(join(dir, 'done.md'), '# done\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch, record });
+  const journeyPath = join(scratch, 'rcf', 'discovery', 'journey.json');
+  const before = await readFile(journeyPath);
+
+  const r = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One', '--dry-run'], scratch);
+  assert.equal(r.status, 0, `dry-run must exit 0 on a clean record: ${r.stdout}\n${r.stderr}`);
+  assert.ok(/\[ok\] discovery review:/.test(r.stdout), `summary must still print on dry-run: ${r.stdout}`);
+  assert.ok(/\[dry-run\] journey review would stamp by: Reviewer One/.test(r.stdout), `dry-run must name the by: ${r.stdout}`);
+  assert.ok(/discoveryHash: [0-9a-f]{64}/.test(r.stdout), `dry-run must print the discoveryHash it would stamp: ${r.stdout}`);
+
+  const after = await readFile(journeyPath);
+  assert.ok(before.equals(after), 'dry-run must leave journey.json byte-identical');
+  const read = await readJourneyRecord(scratch);
+  assert.equal(read.review, null, 'dry-run must not write a ReviewStamp');
+});
+
+test('AC-18904-1 edge: review refuses --json (uncontracted output)', async () => {
+  // --json was never named by TAC-4142 for the review verb and would
+  // print a mixed text/JSON stream (summary before the envelope).
+  // The strict parser must refuse it with exit 2, not run.
+  const record = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/home.md',
+    done: 'rcf/discovery/wireframes/done.md',
+  } });
+  const scratch = mkProject();
+  const dir = await setupProject(scratch);
+  await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
+  await writeFile(join(dir, 'done.md'), '# done\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch, record });
+
+  const r = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One', '--json'], scratch);
+  assert.equal(r.status, 2, `review --json must exit 2 (usage): ${r.stdout}\n${r.stderr}`);
+});
+
+test('AC-18904-4 edge: a wireframe added since review reads as stale (wireframe branch)', async () => {
+  // Adding a new screen with a wireframe after review must land in
+  // the per-wireframe branch (keyed on screen id), NOT fold into the
+  // generic 'record body re-minted' phrasing. The failingIds names
+  // the newly added screen id.
+  const record = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/home.md',
+    done: 'rcf/discovery/wireframes/done.md',
+  } });
+  const scratch = mkProject();
+  const dir = await setupProject(scratch);
+  await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
+  await writeFile(join(dir, 'done.md'), '# done\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch, record });
+  const r1 = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One'], scratch);
+  assert.equal(r1.status, 0, `seed review must pass: ${r1.stdout}\n${r1.stderr}`);
+
+  // Add a new screen that references a new wireframe file (bytes
+  // present on disk). The record body changes (new screen) AND a new
+  // per-wireframe hash appears; the wireframe branch wins.
+  const stamped = await readJourneyRecord(scratch);
+  stamped.screens.push({
+    id: 'SCR-003', slug: 'extra', title: null,
+    wireframe: 'rcf/discovery/wireframes/extra.md', references: [],
+  });
+  await writeFile(join(dir, 'extra.md'), '# extra\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch, record: stamped });
+
+  const r3Record = await readJourneyRecord(scratch);
+  const wireframes = new Map([
+    ['rcf/discovery/wireframes/home.md', { bytes: await readFile(join(dir, 'home.md')) }],
+    ['rcf/discovery/wireframes/done.md', { bytes: await readFile(join(dir, 'done.md')) }],
+    ['rcf/discovery/wireframes/extra.md', { bytes: await readFile(join(dir, 'extra.md')) }],
+  ]);
+  const results = checkDiscovery({ record: r3Record, ui: r3Record.ui, wireframes });
+  const reviewed = results.find((x) => x.id === 'discovery:reviewed');
+  assert.equal(reviewed.state, 'fail');
+  assert.ok(/new wireframe/.test(reviewed.why), `added-wireframe case must name the new-wireframe branch, not 'bytes unchanged': ${reviewed.why}`);
+  assert.ok(reviewed.failingIds.includes('SCR-003'), `failingIds must name the newly added screen id: ${JSON.stringify(reviewed.failingIds)}`);
+  // The generic 'per-wireframe bytes unchanged' phrasing (the record-
+  // body branch) must NOT appear here: a new wireframe is a wireframe
+  // drift, not a record-body-only re-mint.
+  assert.ok(!/per-wireframe bytes unchanged/.test(reviewed.why), `added-wireframe case must not fall through to the record-body branch: ${reviewed.why}`);
+});
+
+test('AC-18904-2 posture: central without a ReviewStamp fails discovery:reviewed', async () => {
+  // TAC-4142: a central product needs a reviewed stamp. An unreviewed
+  // central record must fail the reviewed check (not fold to n/a) so
+  // the gate catches an authored journey that was never reviewed.
+  const record = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/home.md',
+    done: 'rcf/discovery/wireframes/done.md',
+  } });
+  const scratch = mkProject();
+  const dir = await setupProject(scratch);
+  await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
+  await writeFile(join(dir, 'done.md'), '# done\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch, record });
+
+  const r = runCli(['discover', 'journey', 'check'], scratch);
+  assert.equal(r.status, 4, `central without a stamp must exit 4: ${r.stdout}\n${r.stderr}`);
+  assert.ok(/\[fail\] discovery:reviewed/.test(r.stdout), `discovery:reviewed must fail (not n/a) on an unreviewed central product: ${r.stdout}`);
+  assert.ok(/central product needs a ReviewStamp/.test(r.stdout), `the fail why must name the posture: ${r.stdout}`);
+
+  // Pure: same posture on checkDiscovery directly.
+  const results = checkDiscovery({ record, ui: 'central', wireframes: new Map([
+    ['rcf/discovery/wireframes/home.md', { bytes: Buffer.from('# home\n', 'utf8') }],
+    ['rcf/discovery/wireframes/done.md', { bytes: Buffer.from('# done\n', 'utf8') }],
+  ]) });
+  const reviewed = results.find((x) => x.id === 'discovery:reviewed');
+  assert.equal(reviewed.state, 'fail', 'checkDiscovery: central without stamp must fail reviewed');
+});
+
+test('AC-18904-2 posture: light records never fail discovery:reviewed regardless of stamp state', async () => {
+  // TAC-4142: review is optional on a light product. An unreviewed
+  // light record folds to notApplicable; a stale stamp (bytes changed
+  // after review) ALSO folds to notApplicable, so an edit never trips
+  // the gate on light.
+  const record = completeRecord({ ui: 'light', wireframes: {
+    home: 'rcf/discovery/wireframes/home.md',
+    done: 'rcf/discovery/wireframes/done.md',
+  } });
+  const scratch = mkProject();
+  const dir = await setupProject(scratch);
+  await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
+  await writeFile(join(dir, 'done.md'), '# done\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch, record });
+  // No stamp: n/a + exit 0.
+  const r0 = runCli(['discover', 'journey', 'check'], scratch);
+  assert.equal(r0.status, 0, `light without stamp must exit 0: ${r0.stdout}\n${r0.stderr}`);
+  assert.ok(/\[n\/a\] discovery:reviewed/.test(r0.stdout), `light without stamp: reviewed must be n/a: ${r0.stdout}`);
+
+  // Review it (light can still carry a stamp), then flip the bytes.
+  // Reviewed check must still read n/a on light.
+  const r1 = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One'], scratch);
+  assert.equal(r1.status, 0, `light review must succeed: ${r1.stdout}\n${r1.stderr}`);
+  await writeFile(join(dir, 'home.md'), '# home (edited)\n', 'utf8');
+  const r2 = runCli(['discover', 'journey', 'check'], scratch);
+  assert.equal(r2.status, 0, `light with stale stamp must still exit 0: ${r2.stdout}\n${r2.stderr}`);
+  assert.ok(/\[n\/a\] discovery:reviewed/.test(r2.stdout), `light with stale stamp: reviewed must stay n/a: ${r2.stdout}`);
+});
+
+test('AC-18904-3 edge: a wireframe symlink that escapes the repo is refused', async () => {
+  // Containment (P2 from PR 345 review): record.js refuses URL-ish,
+  // absolute and '..' paths at the write path, but a symlink inside
+  // the repo could still point at bytes outside. The review verb
+  // realpath-checks each wireframe and refuses (exit 3) a path that
+  // leaves rootCanonical.
+  const { symlink } = await import('node:fs/promises');
+  const record = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/home.md',
+    done: 'rcf/discovery/wireframes/escape.md',
+  } });
+  const scratch = mkProject();
+  const dir = await setupProject(scratch);
+  await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
+  // Point escape.md at a file OUTSIDE the project root.
+  const outside = mkdtempSync(join(tmpdir(), 'rcf-fbs213-outside-'));
+  await writeFile(join(outside, 'secret.md'), 'external bytes\n', 'utf8');
+  await symlink(join(outside, 'secret.md'), join(dir, 'escape.md'));
+  await writeJourneyRecord({ projectRoot: scratch, record });
+
+  const rReview = runCli(['discover', 'journey', 'review', '--by', 'Reviewer One'], scratch);
+  assert.equal(rReview.status, 3, `review must exit 3 on an escaping symlink: ${rReview.stdout}\n${rReview.stderr}`);
+  assert.ok(/resolves outside the repo/.test(rReview.stderr), `error must name the escape: ${rReview.stderr}`);
+  // No stamp written.
+  const read = await readJourneyRecord(scratch);
+  assert.equal(read.review, null, 'symlink refusal must not write a stamp');
+
+  // The check verb must refuse the same way.
+  const rCheck = runCli(['discover', 'journey', 'check'], scratch);
+  assert.equal(rCheck.status, 3, `check must exit 3 on an escaping symlink: ${rCheck.stdout}\n${rCheck.stderr}`);
+  assert.ok(/resolves outside the repo/.test(rCheck.stderr), `check error must name the escape: ${rCheck.stderr}`);
+
+  // Negative: an unusual-looking repo-relative path that stays inside
+  // the repo (contains a '..' lookalike-but-not-segment such as
+  // 'v1..2.md') is NOT refused. This proves the containment check is
+  // over resolved paths, not over the string shape (over-refusal
+  // would reject valid filenames).
+  const lookalike = completeRecord({ ui: 'central', wireframes: {
+    home: 'rcf/discovery/wireframes/v1..2.md',
+    done: 'rcf/discovery/wireframes/done.md',
+  } });
+  const scratch2 = mkProject();
+  const dir2 = await setupProject(scratch2);
+  await writeFile(join(dir2, 'v1..2.md'), '# v1..2\n', 'utf8');
+  await writeFile(join(dir2, 'done.md'), '# done\n', 'utf8');
+  await writeJourneyRecord({ projectRoot: scratch2, record: lookalike });
+  const r2 = runCli(['discover', 'journey', 'check'], scratch2);
+  // Exit code is driven by the reviewed-gate posture (central without
+  // stamp = 4), not by the path shape: anything other than 3 proves
+  // the containment check did NOT over-refuse.
+  assert.notEqual(r2.status, 3, `look-alike repo-relative path must not be refused as an escape: ${r2.stdout}\n${r2.stderr}`);
 });
