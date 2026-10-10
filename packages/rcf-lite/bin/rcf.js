@@ -50,6 +50,7 @@ import { main as viewMain } from '../src/cli/view.js';
 import { main as reqClassifyMain } from '../src/cli/req-classify.js';
 import { main as reqBaselineMain } from '../src/cli/req-baseline.js';
 import { main as intakeMain } from '../src/cli/intake.js';
+import { main as journeyMain } from '../src/cli/journey.js';
 import { main as evalMain } from '../src/cli/eval.js';
 import { main as ledgerMain } from '../src/cli/ledger.js';
 import { main as readinessMain } from '../src/cli/readiness.js';
@@ -87,6 +88,7 @@ export const GROUPS = {
     'req-baseline': reqBaselineMain,
     'ui-classify': uiClassifyMain,
     'ui-baseline': uiBaselineMain,
+    journey: journeyMain,
   },
   define: {
     create: createMain,
