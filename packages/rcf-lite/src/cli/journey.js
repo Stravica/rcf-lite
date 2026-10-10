@@ -601,6 +601,15 @@ async function runCheck({ argv, deps }) {
     const results = checkDiscovery({ record: null, ui: null, wireframes: new Map() });
     return printCheckResults(results, parsed.values.json, stdout);
   }
+  // AC-18903-7: an init-seeded undeclared record (ui null, declaredVia
+  // 'init', zero journeys) is the same grandfathered state as an
+  // absent file (ADR-4145). The fold happens in checkDiscovery when
+  // ui is null; we also skip the wireframe load to honour the "reads
+  // no wireframe file" contract.
+  if (record.ui === null) {
+    const results = checkDiscovery({ record, ui: null, wireframes: new Map() });
+    return printCheckResults(results, parsed.values.json, stdout);
+  }
   // AC-18903-7: declared none also folds; checkDiscovery handles that
   // but we still skip the wireframe load to honour the "reads no
   // wireframe file" contract.
