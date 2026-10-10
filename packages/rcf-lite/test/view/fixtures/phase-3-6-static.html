@@ -20569,7 +20569,7 @@
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-212">FBS-212</a></p></li>
 <li id="AC-18903-6" class="ac-item"><strong>AC-18903-6</strong> - [edge] Given a journey with a non-exit step that has no next and no returnsTo, when discovery:reachable evaluates, then it fails naming that step as a dead end, distinct from the why it gives a step no entry reaches.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-212">FBS-212</a></p></li>
-<li id="AC-18903-7" class="ac-item"><strong>AC-18903-7</strong> - [must-not] Given a declared none product or a tree with no journey.json, when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.
+<li id="AC-18903-7" class="ac-item"><strong>AC-18903-7</strong> - [must-not] Given a declared none product or a tree with no declared journey record (absent file or ui null), when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-212">FBS-212</a></p></li>
 <li id="AC-18903-8" class="ac-item"><strong>AC-18903-8</strong> - [failure] Given a Screen.wireframe whose extension is outside .md, .html and .png, or a .png on a record whose JourneyRecord.asBuilt is false, when the journey check verb runs, then discovery:wireframeFormat fails naming the file and the rule it breaks and the verb exits 4, on a light product as on a central one.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-212">FBS-212</a></p></li>
@@ -20577,7 +20577,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-18903::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-09T16:28:27.988Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-09T17:02:38.629Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-10T15:44:16.089Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-189 for the pure check (FBS-212). Structural checks, the six-entry interruption catalogue covered by a step of any kind or ruled out with a reason, wireframe file rules (markdown; HTML self-contained across href, src, srcset, CSS url() and @import; PNG only on a record declared as-built; any other extension refused; bytes hashed, headings ignored), wireframePerStep for central only, notApplicable for none and for a grandfathered tree.&quot;,
   &quot;asA&quot;: &quot;a product owner about to open DEFINE&quot;,
   &quot;iWant&quot;: &quot;one check that tells me whether the journey has a way in, a way out, no dead ends, an answer for every way a person gets interrupted, and, only when the UI is central, a wireframe per step&quot;,
@@ -20642,7 +20642,7 @@
     },
     {
       &quot;id&quot;: &quot;AC-18903-7&quot;,
-      &quot;description&quot;: &quot;[must-not] Given a declared none product or a tree with no journey.json, when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.&quot;,
+      &quot;description&quot;: &quot;[must-not] Given a declared none product or a tree with no declared journey record (absent file or ui null), when the journey check verb runs, then it reports notApplicable with the reason, reads no wireframe file, and exits 0.&quot;,
       &quot;testable&quot;: true,
       &quot;ownerRef&quot;: {
         &quot;tacId&quot;: &quot;TAC-4142-discovery-journey-gate&quot;,
