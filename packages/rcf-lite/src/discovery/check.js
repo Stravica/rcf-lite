@@ -46,7 +46,7 @@
 
 import { basename, extname } from 'node:path';
 
-import { scanHtmlForExternalUrls, checkWireframeFormat, fileSha256 } from './hash.js';
+import { scanHtmlForExternalUrls, checkWireframeFormat, discoveryHash, fileSha256 } from './hash.js';
 
 /** The v1 catalogue, in the order the ux-designer role prints it. The
  *  value is frozen so a test that mutates it would throw rather than
@@ -176,7 +176,152 @@ export function checkDiscovery({ record, ui, wireframes }) {
     }
   }
 
+  // discovery:reviewed (FBS-213, AC-18904-2, AC-18904-4): compare the
+  // ReviewStamp's recorded discoveryHash and per-wireframe byte hashes
+  // against the current record and wireframe bytes. The posture is
+  // keyed on `ui` (TAC-4142):
+  //   - central: a reviewed stamp is required; no stamp or a stale
+  //     stamp fails the check.
+  //   - light: review is optional; the check always folds to
+  //     notApplicable, even when a prior stamp exists.
+  //   - other (undeclared, null): no stamp => notApplicable; a stamp
+  //     is still checked for staleness so a tree declared then
+  //     undeclared does not silently invalidate.
+  results.push(checkReviewed(record, hashes, ui));
+
   return attachHashes(results, hashes);
+}
+
+/**
+ * discovery:reviewed - the ReviewStamp (if any) still binds the current
+ * record and the current wireframe bytes.
+ *
+ * The stamp carries `at.hash` (the discoveryHash the review verb
+ * computed over the record WITHOUT its review field, concatenated with
+ * the sorted (path, sha256) pairs of every wireframe) and
+ * `wireframeHashes` (one sha256 per screen id with a wireframe, per
+ * TAC-4142 ReviewStamp).
+ *
+ * Posture by ui (TAC-4142):
+ *   - central: a reviewed stamp is required. No stamp fails ('needs
+ *     review'); a stale stamp fails.
+ *   - light: review is optional; the check always folds to
+ *     notApplicable regardless of stamp state.
+ *   - other (undeclared/null): no stamp => notApplicable; when a
+ *     stamp is present it is still checked for staleness.
+ *
+ * Staleness branches (AC-18904-4) stay distinguishable:
+ *   - per-wireframe hashes drift (bytes changed, screens added or
+ *     removed since review) => the why names the affected screen ids
+ *     and the kind of drift;
+ *   - the discoveryHash drifts without any per-wireframe drift => the
+ *     record body itself was re-minted; the why names the record and
+ *     failingIds lists the journey ids.
+ *
+ * @param {import('./record.js').JourneyRecord} record
+ * @param {Record<string, string>} currentHashes - path -> sha256 for every wireframe handed in
+ * @param {'none' | 'light' | 'central' | null | undefined} ui
+ * @returns {CheckResult}
+ */
+function checkReviewed(record, currentHashes, ui) {
+  const stamp = record.review;
+  // Light: review is optional. The check always reports notApplicable
+  // so an edited light record does not fail the gate (TAC posture).
+  if (ui === 'light') {
+    return {
+      id: 'discovery:reviewed',
+      state: 'notApplicable',
+      why: 'light product: review is optional; a ReviewStamp is not required for the discovery gate.',
+      failingIds: [],
+    };
+  }
+  if (!stamp || typeof stamp !== 'object') {
+    if (ui === 'central') {
+      return {
+        id: 'discovery:reviewed',
+        state: 'fail',
+        why: 'central product needs a ReviewStamp: run rcf discover journey review --by <name>.',
+        failingIds: [],
+      };
+    }
+    return {
+      id: 'discovery:reviewed',
+      state: 'notApplicable',
+      why: 'no ReviewStamp on the record: run rcf discover journey review --by <name>.',
+      failingIds: [],
+    };
+  }
+  const stampedWireframes = stamp.wireframeHashes && typeof stamp.wireframeHashes === 'object'
+    ? stamp.wireframeHashes
+    : {};
+  // Build the live wireframeHashes keyed by screen id, from the
+  // record's screens + the loader's path -> sha256 map. A screen with
+  // no wireframe does not contribute; a screen whose file is absent
+  // on disk (not in currentHashes) is reported through
+  // discovery:wireframePerStep on central, so we omit it here and
+  // report other drift distinctly.
+  const liveWireframeHashes = {};
+  for (const screen of record.screens) {
+    if (!screen.wireframe) continue;
+    const h = currentHashes[screen.wireframe];
+    if (typeof h === 'string') liveWireframeHashes[screen.id] = h;
+  }
+  const changedScreens = [];
+  const removedScreens = [];
+  const addedScreens = [];
+  for (const screenId of Object.keys(stampedWireframes)) {
+    if (!(screenId in liveWireframeHashes)) {
+      removedScreens.push(screenId);
+    } else if (liveWireframeHashes[screenId] !== stampedWireframes[screenId]) {
+      changedScreens.push(screenId);
+    }
+  }
+  for (const screenId of Object.keys(liveWireframeHashes)) {
+    if (!(screenId in stampedWireframes)) {
+      addedScreens.push(screenId);
+    }
+  }
+  if (changedScreens.length + addedScreens.length + removedScreens.length > 0) {
+    const parts = [];
+    if (changedScreens.length > 0) parts.push(`wireframe bytes changed since review (${changedScreens.join(', ')})`);
+    if (addedScreens.length > 0) parts.push(`new wireframe(s) since review (${addedScreens.join(', ')})`);
+    if (removedScreens.length > 0) parts.push(`stamped wireframe(s) no longer in the record (${removedScreens.join(', ')})`);
+    return {
+      id: 'discovery:reviewed',
+      state: 'fail',
+      why: `stale ReviewStamp: ${parts.join('; ')}; re-review with rcf discover journey review --by <name>.`,
+      failingIds: [...changedScreens, ...addedScreens, ...removedScreens],
+    };
+  }
+  const stampedHash = stamp.at && typeof stamp.at === 'object' ? stamp.at.hash : undefined;
+  if (typeof stampedHash !== 'string') {
+    return {
+      id: 'discovery:reviewed',
+      state: 'fail',
+      why: 'stale ReviewStamp: review.at.hash is missing; re-review with rcf discover journey review --by <name>.',
+      failingIds: [],
+    };
+  }
+  const wireframePairs = Object.keys(currentHashes)
+    .sort()
+    .map((p) => ({ path: p, sha256: currentHashes[p] }));
+  const liveHash = discoveryHash(record, wireframePairs);
+  if (liveHash !== stampedHash) {
+    // Record body re-mint: wireframe hashes line up (every stamped
+    // key maps to the same live hash and the live set carries no new
+    // or removed screens) but the record body hashed into
+    // discoveryHash differs. Failing ids list the journeys so a
+    // reviewer sees which record was re-minted; the generic 'per-
+    // wireframe bytes unchanged' phrasing stays because the previous
+    // branch has already filtered out every wireframe-drift case.
+    return {
+      id: 'discovery:reviewed',
+      state: 'fail',
+      why: 'stale ReviewStamp: journey record was re-minted since review (per-wireframe bytes unchanged); re-review with rcf discover journey review --by <name>.',
+      failingIds: record.journeys.map((j) => j.id),
+    };
+  }
+  return { id: 'discovery:reviewed', state: 'pass', why: '' };
 }
 
 /**

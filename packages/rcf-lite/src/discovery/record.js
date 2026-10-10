@@ -203,6 +203,20 @@ function validateScreen(screen, pointer, idSet, slugSet) {
     if (/^(?:https?:|\/\/|mailto:|data:)/i.test(s.wireframe)) {
       throw new JourneyRecordError(`journey.json: screen wireframe at ${pointer}/wireframe is a URL (${s.wireframe}); wireframes are files under rcf/discovery/wireframes/, not links. Mid-fi links belong on Screen.references.`, { pointer: `${pointer}/wireframe` });
     }
+    // Containment (P3-a from PR 344 gate; FBS-213): Screen.wireframe must
+    // stay inside the repo tree. An absolute path (POSIX-style '/' or a
+    // Windows-style drive 'C:\\' prefix) or any '..' path segment is
+    // refused here so the record can never carry a path that would resolve
+    // outside the project when the check verb joins it against the
+    // project root. The URL refusal above covers hyperlink shapes; this
+    // clause covers filesystem escape.
+    if (/^(?:\/|[A-Za-z]:[\\/])/.test(s.wireframe)) {
+      throw new JourneyRecordError(`journey.json: screen wireframe at ${pointer}/wireframe must be a repo-relative path (got ${JSON.stringify(s.wireframe)}); wireframes live under rcf/discovery/wireframes/.`, { pointer: `${pointer}/wireframe` });
+    }
+    const parts = s.wireframe.split(/[\\/]+/);
+    if (parts.some((seg) => seg === '..')) {
+      throw new JourneyRecordError(`journey.json: screen wireframe at ${pointer}/wireframe must not escape the repo with a '..' segment (got ${JSON.stringify(s.wireframe)}); wireframes live under rcf/discovery/wireframes/.`, { pointer: `${pointer}/wireframe` });
+    }
   }
   if (!Array.isArray(s.references)) {
     throw new JourneyRecordError(`journey.json: screen references at ${pointer}/references must be an array.`, { pointer: `${pointer}/references` });

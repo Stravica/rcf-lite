@@ -563,6 +563,36 @@ test('AC-18902-7 must-not: any journey verb', async () => {
   const bad2 = emptyJourneyRecord();
   bad2.screens.push({ id: 'SCR-002', slug: 'home', title: null, wireframe: 'https://confluence.example.com/page', references: [] });
   assert.throws(() => validateJourneyRecord(bad2), /URL/);
+
+  // P3-a from PR 344 gate (FBS-213): the record validator also refuses
+  // a path that would escape the repo tree. A `..` segment anywhere in
+  // the path (whether as a prefix or a mid-path segment) and an
+  // absolute POSIX or Windows-style path are both refused. The URL
+  // refusal above covers hyperlink shapes; this clause covers
+  // filesystem-escape shapes a reviewer should not have to catch by
+  // reading the running CLI's path handling.
+  const parentPrefix = emptyJourneyRecord();
+  parentPrefix.screens.push({ id: 'SCR-010', slug: 'home', title: null, wireframe: '../leaky.md', references: [] });
+  assert.throws(() => validateJourneyRecord(parentPrefix), /must not escape the repo/,
+    'validator must refuse a ".." path prefix in Screen.wireframe');
+  const parentMid = emptyJourneyRecord();
+  parentMid.screens.push({ id: 'SCR-011', slug: 'home', title: null, wireframe: 'rcf/discovery/../../leaky.md', references: [] });
+  assert.throws(() => validateJourneyRecord(parentMid), /must not escape the repo/,
+    'validator must refuse a mid-path ".." segment in Screen.wireframe');
+  const absolutePosix = emptyJourneyRecord();
+  absolutePosix.screens.push({ id: 'SCR-012', slug: 'home', title: null, wireframe: '/etc/passwd', references: [] });
+  assert.throws(() => validateJourneyRecord(absolutePosix), /must be a repo-relative path/,
+    'validator must refuse an absolute POSIX path in Screen.wireframe');
+  const absoluteWindows = emptyJourneyRecord();
+  absoluteWindows.screens.push({ id: 'SCR-013', slug: 'home', title: null, wireframe: 'C:\\windows\\stolen.md', references: [] });
+  assert.throws(() => validateJourneyRecord(absoluteWindows), /must be a repo-relative path/,
+    'validator must refuse an absolute Windows-style path in Screen.wireframe');
+
+  // Repo-relative paths with no '..' segment stay accepted (false-
+  // negative floor): the common wireframe path shape must still land.
+  const good = emptyJourneyRecord();
+  good.screens.push({ id: 'SCR-020', slug: 'home', title: null, wireframe: 'rcf/discovery/wireframes/home.md', references: [] });
+  assert.doesNotThrow(() => validateJourneyRecord(good), 'a repo-relative wireframe path must stay accepted');
 });
 
 // --- Extra tests binding review findings that were otherwise unprotected ---
