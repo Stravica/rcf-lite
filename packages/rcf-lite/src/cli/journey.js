@@ -370,6 +370,20 @@ async function runShow({ argv, deps }) {
       // TAC-4142 interfaces[show]: an absent record folds to
       // notApplicable with a reason (FBS-211 review F11).
       stdout.write(`notApplicable: no journey record on this tree (grandfathered, ADR-4145); discovery checks fold to notApplicable until a declare run or an intake run seeds the record.\n`);
+      // FBS-215 (AC-18906-4): an FBS whose journeyStepIds[] carries
+      // any id when the record is absent is a brokenReference on
+      // every id (walker reports it; validate surfaces it). Mirror
+      // that signal in show so the operator sees which build specs
+      // need unbinding or a seeded record. The grandfather notice
+      // above still prints: binding gaps are additive, not an
+      // override.
+      const { brokenBindings } = await loadJourneyBindings(rootCanonical);
+      if (brokenBindings.length > 0) {
+        stdout.write('\nbroken-binding:\n');
+        for (const b of brokenBindings) {
+          stdout.write(`  ${b.fbsId}: ${b.unresolvedIds.join(', ')}\n`);
+        }
+      }
     }
     return 0;
   }

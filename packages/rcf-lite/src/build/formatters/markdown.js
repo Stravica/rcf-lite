@@ -78,20 +78,28 @@ function formatQueueTable(queue) {
   }
   lines.push('');
   lines.push(`Next actionable: ${queue.nextActionable ?? 'none'}`);
-  // FBS-215 (AC-18906-2): journey-step binding state. Absence of the
-  // record (grandfathered) renders no block so grandfathered trees do
-  // not spawn an empty section; a declared record always renders the
-  // header, even when every step is unbound.
-  const steps = queue.journeySteps ?? [];
-  if (steps.length > 0) {
+  // FBS-215 (AC-18906-2): journey-step binding state. The header
+  // renders iff the product's UI posture makes the block applicable
+  // (light or central with a record present). Grandfathered trees
+  // (no record), undeclared trees (ui null) and ui 'none' products
+  // all suppress the block entirely. An applicable product renders
+  // the header even when every row is unbound (and even when there
+  // are zero rows): the surface is a signal that the posture asks
+  // for binding work, not a conditional on content.
+  if (queue.journeyApplicable) {
+    const steps = queue.journeySteps ?? [];
     lines.push('');
     lines.push('Journey steps:');
     lines.push('');
     lines.push('| step | journey | state | bound by |');
     lines.push('|---|---|---|---|');
-    for (const row of steps) {
-      const boundBy = row.fbsIds.length === 0 ? '-' : row.fbsIds.join(', ');
-      lines.push(`| ${row.stepId} | ${row.journeyId} | ${row.state} | ${boundBy} |`);
+    if (steps.length === 0) {
+      lines.push('| - | - | - | - |');
+    } else {
+      for (const row of steps) {
+        const boundBy = row.fbsIds.length === 0 ? '-' : row.fbsIds.join(', ');
+        lines.push(`| ${row.stepId} | ${row.journeyId} | ${row.state} | ${boundBy} |`);
+      }
     }
   }
   return `${lines.join('\n')}\n`;

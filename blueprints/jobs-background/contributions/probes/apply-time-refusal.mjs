@@ -46,8 +46,10 @@ function runNode(args, opts = {}) {
 // as the `limitation` string the probe records when a precondition
 // step fails (init, declare, or scratch-dir teardown). Both were
 // pre-existing on main; the sibling override probe fixed the same
-// shape by inlining the limitation string, so these mirror that
-// pattern. The strings read as what they are: the D0 UX intake gate
+// shape by defining its own OVERRIDE_PRECOND_LIM constant, so these
+// mirror that pattern (shared module-level constant, same wording
+// for the D0 precondition and a probe-local wording for teardown).
+// The strings read as what they are: the D0 UX intake gate
 // precondition keeps the refusal probe observable without the probe
 // itself caring about D0 (FBS-214 / ADR-4146 wording).
 const REFUSAL_PRECOND_LIM = 'D0 precondition: UI posture declared before blueprint apply (FBS-214/ADR-4146)';

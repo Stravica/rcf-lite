@@ -181,7 +181,15 @@ export async function main(argv, deps = {}) {
     if (!flags.quiet) {
       stdout.write(`[dry-run] review ${fbsId}: ${findings.length} finding(s); verdict=${record.verdict}\n`);
       for (const f of findings) {
-        stdout.write(`  [${f.severity}] ${f.kind} ${f.tsId}${f.tcId ? '/' + f.tcId : ''}: ${f.detail}\n`);
+        // FBS-215: journeyStub findings carry anchorId instead of
+        // tsId; render whichever the finding set, and omit the anchor
+        // slot when neither exists (schema forbids this today but the
+        // text path should not print "undefined").
+        const anchor = f.tsId ?? f.anchorId ?? '';
+        const tc = f.tcId ? `/${f.tcId}` : '';
+        const slot = anchor ? `${anchor}${tc}` : (f.tcId ? f.tcId : '');
+        const prefix = slot ? ` ${slot}` : '';
+        stdout.write(`  [${f.severity}] ${f.kind}${prefix}: ${f.detail}\n`);
       }
     }
     return record.verdict === 'pass' ? 0 : 4;

@@ -1114,11 +1114,17 @@ export function createToolRegistry({ projectRoot, log }) {
   const handlers = {
     rcf_validate: async (args) => {
       const { tree, errors } = await walkTree({ projectRoot });
+      // FBS-215: journey-record load errors are parked on the tree
+      // (ADR-4142). rcf_validate is the sanctioned MCP surfacing
+      // path; concatenate the parked error into the issue list.
+      const baseErrors = tree.discoveryJourneyLoadError
+        ? [...errors, tree.discoveryJourneyLoadError]
+        : errors;
       // Phase 10 (X2 CodeNode bridge, D6/D8): the staleness pass runs by
       // default, folded into the same issue list; noCode skips it.
       const allErrors = Boolean(args?.noCode)
-        ? errors
-        : [...errors, ...(await checkCodeNodeResolution({ projectRoot, tree }))];
+        ? baseErrors
+        : [...baseErrors, ...(await checkCodeNodeResolution({ projectRoot, tree }))];
       // D10: for validate, the issues ARE the answer - never isError.
       return okResult({ ok: allErrors.length === 0, issues: issuesFromErrors(allErrors) });
     },

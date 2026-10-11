@@ -264,14 +264,31 @@ export function computeQueue(tree) {
 
   // FBS-215 (AC-18906-2): journey-step binding state. Pure projection
   // off the walked tree and the loaded journey record (both already on
-  // the tree). Absent record (grandfathered) yields an empty block so
-  // callers can key on `journeySteps.length === 0` without a null
-  // guard. The block carries one StepState per step on the record, in
-  // record order, so markdown and JSON formatters render deterministic
-  // output.
-  const journeySteps = computeStepStates({ tree, record: tree.discoveryJourney ?? null });
+  // the tree). The journey block renders only when the product's UI
+  // posture is applicable (light or central with a record present);
+  // absent record (grandfathered, ADR-4145), ui null (undeclared) and
+  // ui 'none' all yield journeyApplicable=false and an empty steps
+  // list. A declared light/central product with zero steps on the
+  // record (schema-valid but degenerate) is still applicable and
+  // renders the header - review already catches it as a journeyStub,
+  // so queue carrying the empty section is a surfacing choice, not a
+  // door. See TAC-4142 interfaces[queue journeySteps].
+  const record = tree.discoveryJourney ?? null;
+  const ui = record?.ui ?? null;
+  const journeyApplicable = record !== null && (ui === 'light' || ui === 'central');
+  const journeySteps = journeyApplicable
+    ? computeStepStates({ tree, record })
+    : [];
 
-  return { bs, totals, nextActionable: next ? next.fbsId : null, tiers: groupTiers(items), items, journeySteps };
+  return {
+    bs,
+    totals,
+    nextActionable: next ? next.fbsId : null,
+    tiers: groupTiers(items),
+    items,
+    journeyApplicable,
+    journeySteps,
+  };
 }
 
 /**

@@ -1382,5 +1382,6 @@
       ]
     }
   ],
+  "journeyApplicable": false,
   "journeySteps": []
 }

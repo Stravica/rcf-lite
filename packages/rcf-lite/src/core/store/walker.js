@@ -135,12 +135,22 @@ function newTree() {
     // integrity-checked like every other child kind.
     evals: [],
     // FBS-215 / rcf-schemas 0.7.0: parsed discovery/journey.json record
-    // (or null when absent / parse-failed; parse errors surface on the
-    // walker's error list). Used by brokenReference checks on
-    // fbs.journeyStepIds[] and by the review/queue/bundle surfaces that
-    // walk journey steps. Loaded at the start of walkTree so every pass
-    // sees the same bytes.
+    // (or null when absent / parse-failed). Used by brokenReference
+    // checks on fbs.journeyStepIds[] and by the review/queue/bundle
+    // surfaces that walk journey steps. Loaded at the start of
+    // walkTree so every pass sees the same bytes.
+    //
+    // Load errors (parse, schema, io) do NOT ride on the walker error
+    // list - that list is read by audit CLIs (coverage, trace, impact,
+    // build queue) which must not fail because of a discovery-record
+    // bug. The parse/schema failure parks on tree.discoveryJourneyLoadError
+    // instead and is surfaced to the operator by `rcf define validate`
+    // (and MCP rcf_validate), which concatenate it into their own
+    // errors output. ADR-4142: the walker loads the journey record
+    // for binding validation; it does not inject that read into the
+    // chain-query exit path.
     discoveryJourney: null,
+    discoveryJourneyLoadError: null,
     byId: new Map(),
     rawById: new Map(),
     kindById: new Map(),
@@ -317,19 +327,25 @@ export async function walkTree({ projectRoot }) {
 
   // FBS-215 / rcf-schemas 0.7.0: load the discovery journey record so
   // the referential-integrity pass can validate FBS.journeyStepIds[]
-  // against real step ids. Absence is the grandfathered state (ADR-4145);
-  // schema failure surfaces as a validation error on the walker's error
-  // list, consistent with the ledger loader's posture.
+  // against real step ids. Absence is the grandfathered state
+  // (ADR-4145). A parse / schema / io failure parks on
+  // tree.discoveryJourneyLoadError and does NOT ride on the walker
+  // error list: audit CLIs (coverage, trace, impact, build queue)
+  // must not exit 3 because of a discovery-record bug (ADR-4142
+  // read posture). The define validate CLI (and MCP rcf_validate)
+  // concatenate the parked error into their own output, so the
+  // operator still sees schema failures through the sanctioned
+  // validation path.
   try {
     tree.discoveryJourney = await readJourneyRecord(projectRoot);
   } catch (err) {
     if (err instanceof JourneyRecordError) {
-      errors.push(rcfError({
+      tree.discoveryJourneyLoadError = rcfError({
         kind: err.code === 'ioFailure' ? 'ioFailure' : 'validation',
         message: `discovery/journey.json: ${err.message}`,
         filePath: 'rcf/discovery/journey.json',
         field: err.pointer,
-      }));
+      });
       tree.discoveryJourney = null;
     } else {
       throw err;
@@ -552,6 +568,14 @@ export function simulateWriteErrors({ tree, preErrors = [], upserts = [], delete
   // every entry, keep valid ones, then invert and integrity-check.
   const post = newTree();
   post.manifest = tree.manifest;
+  // FBS-215: carry the discovery journey record and its load error
+  // into the simulated tree. collectBrokenReferences reads
+  // tree.discoveryJourney for FBS.journeyStepIds[] resolution; without
+  // this copy, every valid binding would read as unknown in the
+  // post-write tree, and every unrelated write on a tree that already
+  // carried bindings would appear to introduce brokenReferences.
+  post.discoveryJourney = tree.discoveryJourney;
+  post.discoveryJourneyLoadError = tree.discoveryJourneyLoadError;
   /** @type {import('../errors/index.js').RcfError[]} */
   const errors = [];
   for (const [id, entry] of entries) {
