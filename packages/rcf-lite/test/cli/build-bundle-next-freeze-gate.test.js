@@ -19,6 +19,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '../../src/core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,7 @@ async function runBin(cwd, args = []) {
 async function scaffold() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-pr8-bundle-'));
   await initProject({ projectRoot: tmp, projectName: 'PR8BundleTest' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

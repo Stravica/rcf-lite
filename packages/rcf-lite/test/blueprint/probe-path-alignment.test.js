@@ -28,6 +28,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = pathResolve(here, '..', '..', '..', '..');
@@ -53,6 +54,7 @@ const PERMUTATIONS = [
 async function scaffoldProject(label) {
   const root = await mkdtemp(join(tmpdir(), `rcf-probe-align-${label}-`));
   const init = await initProject({ projectRoot: root, projectName: `ProbeAlign_${label}` });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);
   return root;
 }

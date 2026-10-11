@@ -15,6 +15,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -322,6 +323,7 @@ test('apply deploy-cloudflare-workers v1.2.0 lands 41 contributions and records 
   const scratch = await mkdtemp(join(tmpdir(), 'cf-t0-apply-'));
   try {
     await initProject({ projectRoot: scratch, projectName: 'cf-t0-apply', now: new Date() });
+    await declareUiNoneForTests(scratch);
     const { tree } = await walkTree({ projectRoot: scratch });
     const result = await applyBlueprint({
       projectRoot: scratch,

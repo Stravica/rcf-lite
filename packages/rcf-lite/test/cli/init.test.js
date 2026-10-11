@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -155,6 +156,7 @@ test('rcf init non-interactive seed keeps ADR-001 in proposed (D22)', async () =
   const { initProject } = await import('#core/store/init.js');
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-noninteractive-adr-'));
   await initProject({ projectRoot: tmp, projectName: 'Scripted' });
+  await declareUiNoneForTests(tmp);
   const adr = JSON.parse(await readFile(join(tmp, 'rcf', 'adrs', 'adr-001.json'), 'utf8'));
   assert.equal(adr.status, 'proposed');
 });

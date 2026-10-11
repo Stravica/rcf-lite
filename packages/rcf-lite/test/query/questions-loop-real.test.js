@@ -15,6 +15,7 @@ import { Writable } from 'node:stream';
 import { initProject } from '#core/store/init.js';
 import { main as questionsMain } from '../../src/cli/questions.js';
 import { main as ledgerMain } from '../../src/cli/ledger.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 function sink() {
   const chunks = [];
@@ -38,6 +39,11 @@ async function invokeLedger(argv, cwd) {
 async function scratchProject() {
   const root = await mkdtemp(join(tmpdir(), 'questions-loop-real-'));
   await initProject({ projectRoot: root });
+  // FBS-214: initProject seeds a ui-null journey record so D0 fails on
+  // discovery:declared. The behaviour under test here is the brief
+  // workflow, so declare the UI posture as 'none' to let D0 fold to
+  // notApplicable and the brief-add door pass.
+  await declareUiNoneForTests(root);
   return root;
 }
 

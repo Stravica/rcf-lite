@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,7 @@ async function runBin(cwd, args = []) {
 async function scaffold(name) {
   const tmp = await mkdtemp(join(tmpdir(), `rcf-cn-cli-${name}-`));
   await initProject({ projectRoot: tmp, projectName: 'CnCliTest' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

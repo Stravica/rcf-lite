@@ -16,6 +16,7 @@ import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { enrichRowsWithCategories, groupRowsByCategory, listBlueprints } from '../../src/blueprint/list.js';
 import { removeBlueprint } from '../../src/blueprint/remove.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -37,6 +38,7 @@ async function ensurePackagedShelfStaged() {
 async function scaffoldProject() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-blueprint-lr-'));
   const init = await initProject({ projectRoot: root, projectName: 'BLR' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
   return root;
 }

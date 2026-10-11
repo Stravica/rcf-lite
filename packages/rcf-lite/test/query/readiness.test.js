@@ -92,7 +92,7 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   assert.ok(result.tree);
   assert.ok(result.delta);
   assert.ok(Array.isArray(result.stages));
-  assert.equal(result.stages.length, 8);
+  assert.equal(result.stages.length, 9);
   assert.ok(result.coverage && result.coverage.tree);
   assert.ok(Array.isArray(result.coverage.delta));
   assert.ok(Array.isArray(result.decisions));
@@ -103,8 +103,8 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   assert.equal(typeof result.tree.litmusHash, 'string');
   assert.match(result.tree.litmusHash, /^sha256:[0-9a-f]{64}$/);
   assert.equal(typeof result.tree.fbsTotal, 'number');
-  // Every stage in D1..D8 order.
-  assert.deepEqual(result.stages.map((s) => s.stage), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
+  // Every stage in D0..D8 order (FBS-214 prepends D0).
+  assert.deepEqual(result.stages.map((s) => s.stage), ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
   // Empty tree + no ledger + no freeze -> D1 fails (no statement); D8 fails (no queue head).
   assert.equal(result.freezeable, false);
 });

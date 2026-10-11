@@ -56,6 +56,24 @@ export default async function runProbe() {
         evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
       }];
     }
+    // FBS-214 (ADR-4146): declare the UI posture so the D0 door folds
+    // to notApplicable; otherwise the apply refuses with exit 4 (D0)
+    // before the requiresAppliedCapabilities refusal (exit 3) this
+    // probe is here to observe.
+    const declare = await runNode(
+      [RCF_BIN, 'discover', 'journey', 'declare', '--ui', 'none'],
+      { cwd: scratch },
+    );
+    if (declare.code !== 0) {
+      return [{
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${REFUSAL_PRECOND_LIM}`,
+        verdict: 'fail',
+        detail: `conformanceOnly (${REFUSAL_PRECOND_LIM}) - declare ui none failed exit=${declare.code} stderr=${declare.stderr}`,
+        evidence: { declareExitCode: declare.code, declareStderrSample: declare.stderr.slice(0, 400) },
+      }];
+    }
     // 2. Attempt to apply jobs-background on the bare project.
     const apply = await runNode(
       [RCF_BIN, 'define', 'blueprint', 'add', BLUEPRINT_DIR],

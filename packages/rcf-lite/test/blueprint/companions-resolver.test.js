@@ -15,6 +15,7 @@ import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { resolveCompanionRole, setCompanionPin } from '../../src/blueprint/companions.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -23,6 +24,7 @@ const LOGGING_SHELF = join(REPO_ROOT, 'blueprints', 'observability-logging');
 test('resolver returns shelf-fallback when only the core shelf provides the role', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-resolver-shelf-'));
   await initProject({ projectRoot: root, projectName: 'shelf' });
+  await declareUiNoneForTests(root);
   const { tree } = await walkTree({ projectRoot: root });
   const r = await resolveCompanionRole({
     projectRoot: root,
@@ -37,6 +39,7 @@ test('resolver returns shelf-fallback when only the core shelf provides the role
 test('resolver returns appliedProvider when the shelf blueprint is already applied', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-resolver-applied-'));
   await initProject({ projectRoot: root, projectName: 'applied' });
+  await declareUiNoneForTests(root);
   let { tree } = await walkTree({ projectRoot: root });
   await applyBlueprint({ projectRoot: root, tree, source: LOGGING_SHELF });
   ({ tree } = await walkTree({ projectRoot: root }));
@@ -53,6 +56,7 @@ test('resolver returns appliedProvider when the shelf blueprint is already appli
 test('resolver honours a pinnedShelf pin over a plain shelfFallback', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-resolver-pin-'));
   await initProject({ projectRoot: root, projectName: 'pinned' });
+  await declareUiNoneForTests(root);
   const pinRes = await setCompanionPin({ projectRoot: root, role: 'logging', provider: 'observability-logging' });
   assert.equal(pinRes.written, true);
   const { tree } = await walkTree({ projectRoot: root });
@@ -70,6 +74,7 @@ test('resolver honours a pinnedShelf pin over a plain shelfFallback', async () =
 test('resolver returns unresolved when no provider exists', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-resolver-unresolved-'));
   await initProject({ projectRoot: root, projectName: 'unresolved' });
+  await declareUiNoneForTests(root);
   const { tree } = await walkTree({ projectRoot: root });
   const r = await resolveCompanionRole({
     projectRoot: root,

@@ -22,6 +22,7 @@ import {
   STAGE_GATES,
   STAGE_ORDER,
   STAGE_SHORT_NAMES,
+  checkD0Discovery,
   checkD1Brief,
   checkD2Skeleton,
   checkD3Shapes,
@@ -173,6 +174,12 @@ import {
  *   caller already resolved on disk; threaded into the stage context so
  *   `shapes:pathsResolve` can decide the D3 bite without I/O. Undefined
  *   means no paths are known-resolved.
+ * @param {import('./gates.js').DiscoveryContext | undefined} [args.discoveryContext]
+ *   FBS-214 (REQ-189, TAC-4142, ADR-4146): the pre-loaded discovery
+ *   inputs (`record`, `hasRecordFile`, `wireframes`) the CLI resolves
+ *   before calling computeReadiness. Undefined means the compute runs
+ *   without D0 context: D0 folds to notApplicable with the "no
+ *   discovery declaration (existing tree)" reason (ADR-4145).
  * @param {import('../define/probe-runner.js').ProbeRunner | null | undefined} [args.probeRunner]  ADR-4131 extended
  *   (0.30.0 PR 7, spec section 11.6): injectable `({ reqId, tree }) => findings[]`
  *   seam called once per REQ in scope; returned findings are merged into
@@ -191,6 +198,7 @@ export function computeReadiness(tree, args = {}) {
     validateErrors = [],
     resolvedPaths = undefined,
     probeRunner = null,
+    discoveryContext = undefined,
   } = args;
 
   // 1. Delta.
@@ -320,7 +328,9 @@ export function computeReadiness(tree, args = {}) {
     currentTreeHash,
     priorStages: undefined,
     resolvedPaths,
+    discoveryContext,
   };
+  stages.push(checkD0Discovery(ctx));
   stages.push(checkD1Brief(ctx));
   stages.push(checkD2Skeleton(ctx));
   stages.push(checkD3Shapes(ctx));

@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { walkTree } from '#core/store/walker.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -34,6 +35,10 @@ test('scripted journey: init -> create req -> validate -> create us -> ac -> ts 
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-e2e-'));
   // 1. init.
   await runBin(tmp, ['init', '--project-name', 'E2E', '--non-interactive', '--quiet']);
+  // FBS-214: init seeds a ui-null journey record so D0 fails on
+  // discovery:declared; declare ui='none' to let the create verbs
+  // through the D0 door.
+  await declareUiNoneForTests(tmp);
   let tree = await reload(tmp);
   assert.deepEqual(tree.childrenByParent.get('PRD-001'), ['REQ-001']);
   assert.deepEqual(tree.childrenByParent.get('REQ-001'), ['US-101']);

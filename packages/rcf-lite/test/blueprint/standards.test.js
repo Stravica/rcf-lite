@@ -11,10 +11,12 @@ import { join } from 'node:path';
 
 import { initProject, walkTree } from '#core/store';
 import { registerStandardsPack } from '../../src/blueprint/standards.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 async function scaffoldProject() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-standards-'));
   const init = await initProject({ projectRoot: root, projectName: 'ST' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
   return root;
 }

@@ -21,10 +21,12 @@ import { normaliseId, sameId } from '#core/store/ids.js';
 import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store/walker.js';
 import { nextIdForKind } from '#core/store/writer.js';
+import { declareUiNoneForTests } from '../../_helpers/d0.js';
 
 async function scaffold(tag) {
   const root = await mkdtemp(join(tmpdir(), `rcf-dupid-${tag}-`));
   await initProject({ projectRoot: root });
+  await declareUiNoneForTests(root);
   return root;
 }
 

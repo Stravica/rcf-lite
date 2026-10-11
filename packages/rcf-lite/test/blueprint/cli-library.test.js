@@ -12,6 +12,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +52,7 @@ function runBinInteractive(cwd, args, input) {
 async function scaffoldProject() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-bp-lib-cli-'));
   const init = await initProject({ projectRoot: root, projectName: 'CliLibBP' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
   return root;
 }

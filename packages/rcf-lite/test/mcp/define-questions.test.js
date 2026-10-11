@@ -12,6 +12,7 @@ import { Writable } from 'node:stream';
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { main as questionsMain } from '../../src/cli/questions.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
@@ -27,6 +28,7 @@ function makeSink() {
 async function scratchProject(prefix = 'questions-mcp-') {
   const root = await mkdtemp(join(tmpdir(), prefix));
   await initProject({ projectRoot: root });
+  await declareUiNoneForTests(root);
   return root;
 }
 

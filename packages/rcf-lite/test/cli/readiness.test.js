@@ -13,6 +13,7 @@ import { Writable } from 'node:stream';
 import { initProject } from '#core/store/init.js';
 
 import { main } from '../../src/cli/readiness.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 /** Buffered writable that exposes accumulated text. */
 function makeSink() {
@@ -27,6 +28,7 @@ function makeSink() {
 async function scratchProject(prefix = 'readiness-cli-') {
   const root = await mkdtemp(join(tmpdir(), prefix));
   const result = await initProject({ projectRoot: root });
+  await declareUiNoneForTests(root);
   assert.ok(result && Array.isArray(result.created), `initProject failed: ${JSON.stringify(result)}`);
   return root;
 }
@@ -70,7 +72,7 @@ test('readiness cli: text output shape and --check exit codes', async () => {
   // Per-persona next-action lines (spec section 4).
   assert.match(rDefault.stdout, /Next action \(product owner\):/);
   assert.match(rDefault.stdout, /Next action \(engineer\):/);
-  assert.match(rDefault.stdout, /Chips: D1:/);
+  assert.match(rDefault.stdout, /Chips: D0:/);
   assert.match(rDefault.stdout, /Freezeable: (yes|no)\./);
 
   // --check freeze -> blocking stage failing -> exit 4.
@@ -95,7 +97,7 @@ test('readiness cli: --json emits the full readiness object', async () => {
   assert.ok(parsed.tree);
   assert.ok(parsed.delta);
   assert.ok(Array.isArray(parsed.stages));
-  assert.equal(parsed.stages.length, 8);
+  assert.equal(parsed.stages.length, 9);
   assert.ok(parsed.coverage && parsed.coverage.tree);
   assert.equal(typeof parsed.freezeable, 'boolean');
   // _meta side-band is stable-by-convention.

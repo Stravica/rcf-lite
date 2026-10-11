@@ -13,10 +13,12 @@ import { join } from 'node:path';
 
 import { initProject } from '../../../src/core/store/init.js';
 import { walkTree } from '../../../src/core/store/walker.js';
+import { declareUiNoneForTests } from '../../_helpers/d0.js';
 
 async function scaffold(name) {
   const root = await mkdtemp(join(tmpdir(), `rcf-walker-cn-${name}-`));
   await initProject({ projectRoot: root, projectName: 'CnTest' });
+  await declareUiNoneForTests(root);
   return root;
 }
 

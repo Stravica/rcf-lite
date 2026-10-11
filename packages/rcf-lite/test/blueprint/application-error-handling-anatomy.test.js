@@ -49,6 +49,7 @@ test('application-error-handling: blueprint.json declares the ratified shape (TC
 test('application-error-handling: apply into a fresh fixture succeeds and writes the namespaced contributions (TC-039-clean-apply)', async () => {
  const root = await mkdtemp(join(tmpdir(), 'rcf-err-apply-'));
  await initProject({ projectRoot: root, projectName: 'err-apply' });
+ await declareUiNoneForTests(root);
  const { tree } = await walkTree({ projectRoot: root });
  const res = await applyBlueprint({ projectRoot: root, tree, source: BLUEPRINT_ROOT });
  assert.equal(res.applied, true, JSON.stringify(res));
@@ -78,6 +79,7 @@ test('application-error-handling: docs/topics.md distinguishes errorHandling fro
 import { readdir as _readdirCritE, readFile as _rf } from 'node:fs/promises';
 import { pathToFileURL as _toUrlCritE } from 'node:url';
 import { join as _joinCritE } from 'node:path';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const _CRIT_E_REPO_ROOT = REPO_ROOT;
 const _CRIT_E_BP_ROOT = _joinCritE(_CRIT_E_REPO_ROOT, 'blueprints', 'application-error-handling');

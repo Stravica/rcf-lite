@@ -18,6 +18,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -66,6 +67,7 @@ const reqBody = (id) => ({
 async function scaffoldFeedbackProject(name) {
   const root = await mkdtemp(join(tmpdir(), `rcf-fb-dest-${name}-`));
   await initProject({ projectRoot: root, projectName: name });
+  await declareUiNoneForTests(root);
   await writeFile(join(root, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return root;
 }

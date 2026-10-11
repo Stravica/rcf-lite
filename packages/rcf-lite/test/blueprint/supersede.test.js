@@ -17,10 +17,12 @@ import { join } from 'node:path';
 import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { supersedeBlueprintTopic } from '../../src/blueprint/supersede.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 async function scaffoldProject() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-supersede-'));
   const init = await initProject({ projectRoot: root, projectName: 'SupersedeTest' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);
   return root;
 }

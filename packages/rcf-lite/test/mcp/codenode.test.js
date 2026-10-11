@@ -11,12 +11,14 @@ import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
 async function scaffold() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-cn-'));
   await initProject({ projectRoot: tmp, projectName: 'McpCnTest' });
+  await declareUiNoneForTests(tmp);
   await mkdir(join(tmp, 'src'), { recursive: true });
   await writeFile(join(tmp, 'src', 'save.js'), 'export function save() {}\n', 'utf8');
   return tmp;

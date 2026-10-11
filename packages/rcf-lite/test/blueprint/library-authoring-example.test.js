@@ -19,6 +19,7 @@ import { loadLibrary } from '../../src/blueprint/library-loader.js';
 import { resolveBlueprintSource } from '../../src/blueprint/shelf-resolver.js';
 import { REGISTRY_PATH, REGISTRY_VERSION } from '../../src/blueprint/library-registry.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const PACKAGE_ROOT = resolve(here, '..', '..');
@@ -113,6 +114,7 @@ test('worked-example fixture: plain-path apply (A2) and qualified apply produce 
 async function scaffoldProject() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-fixture-wla-'));
   const init = await initProject({ projectRoot: root, projectName: 'LibraryAuthoringExample' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, JSON.stringify(init));
   return root;
 }

@@ -12,6 +12,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '#core/store';
 import { walkTree } from '../../src/core/store/walker.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -49,6 +50,7 @@ test('blueprint.json declares 26 contributions with capabilities relationalStore
 test('apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-070-applies-clean-no-persistence)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-postgres-apply-'));
   await initProject({ projectRoot: dir, projectName: 'PostgresApplyTest' });
+  await declareUiNoneForTests(dir);
   const { tree } = await walkTree({ projectRoot: dir });
   const res = await applyBlueprint({ projectRoot: dir, tree, source: BLUEPRINT_ROOT });
   assert.equal(res.applied, true, `applyBlueprint returned ${JSON.stringify(res)}`);
@@ -66,6 +68,7 @@ test('apply persistence-data-postgres on a bare scratch project writes 26 contri
 test('apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-070-conflict-with-d1)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'rcf-postgres-conflict-'));
   await initProject({ projectRoot: dir, projectName: 'PostgresConflictTest' });
+  await declareUiNoneForTests(dir);
   const { tree: t0 } = await walkTree({ projectRoot: dir });
   const d1Res = await applyBlueprint({ projectRoot: dir, tree: t0, source: D1_BLUEPRINT_ROOT });
   assert.equal(d1Res.applied, true, `d1 apply returned ${JSON.stringify(d1Res)}`);

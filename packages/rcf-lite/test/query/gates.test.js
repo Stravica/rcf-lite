@@ -115,7 +115,9 @@ function assertCheckShape(stage) {
 // ---------------------------------------------------------------------------
 
 test('gates: STAGE_ORDER, STAGE_GATES and STAGE_SHORT_NAMES cover every stage', () => {
-  assert.deepEqual([...STAGE_ORDER], ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
+  // FBS-214: D0 (UX intake gate) prepends the sequence; D1..D8
+  // keep their canonical order.
+  assert.deepEqual([...STAGE_ORDER], ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
   for (const stage of STAGE_ORDER) {
     assert.ok(typeof STAGE_GATES[stage] === 'string');
     assert.ok(typeof STAGE_SHORT_NAMES[stage] === 'string');
@@ -599,8 +601,13 @@ import {
   hasDraftMarker,
 } from '../../src/query/gates.js';
 
-/** The 36 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites + PR 6 D4/D5/standards + PR 7 D6 scans). */
+/** The check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites +
+ *  PR 6 D4/D5/standards + PR 7 D6 scans; FBS-214 adds nine D0
+ *  discovery:* names for the UX intake gate). */
 const EXPECTED_CHECK_NAMES = [
+  'discovery:declared', 'discovery:journeyPresent', 'discovery:stepsNameScreens',
+  'discovery:reachable', 'discovery:interruptions', 'discovery:wireframePerStep',
+  'discovery:wireframeFormat', 'discovery:wireframeSelfContained', 'discovery:reviewed',
   'brief:sinceFreeze', 'brief:kinds', 'brief:openQuestions', 'brief:profile',
   'skeleton:resolvedBy', 'skeleton:reqIntent', 'skeleton:reqShape',
   'skeleton:tadPersistence', 'skeleton:deployAdr', 'skeleton:standardsCited',
@@ -637,7 +644,7 @@ test('gates (ADR-4126): checkPersona / checkQuestion helpers mirror the maps', (
 });
 
 test('gates (ADR-4126): STAGE_FALLBACK_PERSONA covers every stage', () => {
-  for (const stage of ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
+  for (const stage of ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
     const v = STAGE_FALLBACK_PERSONA[stage];
     assert.ok(v === 'productOwner' || v === 'engineer', `${stage}: ${v}`);
   }

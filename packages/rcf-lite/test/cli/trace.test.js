@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -29,6 +30,7 @@ async function runBin(cwd, args = []) {
 async function scaffold() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-trace-cli-'));
   await initProject({ projectRoot: tmp, projectName: 'TraceTest' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

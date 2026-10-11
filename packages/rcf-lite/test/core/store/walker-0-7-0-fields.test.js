@@ -28,12 +28,14 @@ import { join } from 'node:path';
 
 import { initProject } from '../../../src/core/store/init.js';
 import { walkTree } from '../../../src/core/store/walker.js';
+import { declareUiNoneForTests } from '../../_helpers/d0.js';
 
 const TIMESTAMP = '2026-07-30T14:20:00Z';
 
 async function scaffold(name) {
   const root = await mkdtemp(join(tmpdir(), `rcf-walker-070-${name}-`));
   await initProject({ projectRoot: root, projectName: '070Train' });
+  await declareUiNoneForTests(root);
   return root;
 }
 

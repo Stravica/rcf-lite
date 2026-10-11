@@ -16,6 +16,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -24,6 +25,7 @@ const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 async function scaffoldReady() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-optout-'));
   await initProject({ projectRoot: tmp, projectName: 'OptOutTest' });
+  await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;
 }

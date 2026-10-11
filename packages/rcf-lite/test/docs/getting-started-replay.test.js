@@ -16,6 +16,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { execFile } from 'node:child_process';
 import { access, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
@@ -89,6 +90,12 @@ test('s2: rcf init scaffolds the project (exit 0)', async () => {
   assert.equal(code, 0);
   assert.match(stdout, /RCF project created\./);
   assert.match(stdout, /Document chain\s+scaffolded under rcf\//);
+  // FBS-214: init seeds a ui-null journey record so the D0 door
+  // (ledger brief add, create, blueprint add) refuses until declared.
+  // The replay walkthrough does not yet document the declare step
+  // (follow-up for the docs lane); declare 'none' here so the s4+
+  // authoring sequence can run.
+  await declareUiNoneForTests(project);
 });
 
 test('s4: the authoring sequence succeeds end to end (exit 0 each)', async () => {

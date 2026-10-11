@@ -36,6 +36,15 @@ function runNode(args, opts = {}) {
   });
 }
 
+// FBS-214 (REQ-189, ADR-4146): `rcf define blueprint add` is now gated by
+// the D0 UX intake gate. A freshly `rcf init`-ed tree seeds the discovery
+// record with ui=null (FBS-211), so the blueprint-add call refuses with
+// exit 4 unless the UI posture is declared first. This probe is a
+// conformance check and does not care about D0 as such; declaring 'none'
+// is the stable passthrough that lets the apply-time-override behaviour
+// stay observable without changing the probe's intent.
+const OVERRIDE_PRECOND_LIM = 'D0 precondition: UI posture declared before blueprint apply (FBS-214/ADR-4146)';
+
 export default async function runProbe() {
   const scratch = await mkdtemp(join(tmpdir(), 'jobs-bg-override-'));
   try {
@@ -48,6 +57,23 @@ export default async function runProbe() {
         verdict: 'fail',
         detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - rcf init failed exit=${init.code} stderr=${init.stderr}`,
         evidence: { initExitCode: init.code, initStderrSample: init.stderr.slice(0, 400) },
+      }];
+    }
+    // FBS-214/ADR-4146: declare the UI posture so the D0 door folds
+    // to notApplicable and blueprint add proceeds. 'none' is the
+    // right choice for a background-jobs blueprint probe (no UI).
+    const declare = await runNode(
+      [RCF_BIN, 'discover', 'journey', 'declare', '--ui', 'none'],
+      { cwd: scratch },
+    );
+    if (declare.code !== 0) {
+      return [{
+        anchorAcId: null,
+        conformanceOnly: true,
+        limitation: `${OVERRIDE_PRECOND_LIM}`,
+        verdict: 'fail',
+        detail: `conformanceOnly (${OVERRIDE_PRECOND_LIM}) - declare ui none failed exit=${declare.code} stderr=${declare.stderr}`,
+        evidence: { declareExitCode: declare.code, declareStderrSample: declare.stderr.slice(0, 400) },
       }];
     }
     const apply = await runNode(
