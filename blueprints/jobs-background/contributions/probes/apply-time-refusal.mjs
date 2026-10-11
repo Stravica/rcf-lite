@@ -41,7 +41,6 @@ function runNode(args, opts = {}) {
   });
 }
 
-// P3-2 fold-in from the PR 347 (FBS-214) gate (Dave relay d6634033):
 // REFUSAL_PRECOND_LIM and TEARDOWN_PRECOND_LIM_R are referenced below
 // as the `limitation` string the probe records when a precondition
 // step fails (init, declare, or scratch-dir teardown). Both were
