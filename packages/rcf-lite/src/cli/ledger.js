@@ -11,7 +11,7 @@
 import { readFile, realpath } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
-import { checkD0Door } from '../discovery/door.js';
+import { checkD0Door } from './_door.js';
 
 import {
   BRIEF_KINDS,

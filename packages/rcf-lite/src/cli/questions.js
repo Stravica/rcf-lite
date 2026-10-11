@@ -24,6 +24,7 @@ import { findProjectRoot } from '../view/index.js';
 import { loadFreezeRecord } from '../define/freeze-record.js';
 import { loadAllLedgers } from '../define/ledgers.js';
 import { STAGE_ALIASES } from '../query/gates.js';
+import { loadDiscoveryContext } from '../discovery/context.js';
 import { computeReadiness } from '../query/readiness.js';
 import { computeQuestions, PERSONAS } from '../query/questions.js';
 
@@ -174,11 +175,14 @@ export async function main(argv, deps = {}) {
   const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
   const validateErrors = [...errors, ...staleErrors];
 
-  const [freeze, ledgers, testPointers, profileText] = await Promise.all([
+  const [freeze, ledgers, testPointers, profileText, discoveryContext] = await Promise.all([
     loadFreezeRecord({ projectRoot }),
     loadAllLedgers({ projectRoot }),
     resolveTestPointers({ projectRoot, tree }),
     readProfileText(projectRoot),
+    // F3 (FBS-214): D0 discovery context so `questions` surfaces the
+    // D0 blocker first on a failing tree (AC-18905-8).
+    loadDiscoveryContext({ projectRoot }),
   ]);
 
   if (persona === undefined) {
@@ -187,7 +191,7 @@ export async function main(argv, deps = {}) {
   }
 
   const readiness = computeReadiness(tree, {
-    freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors,
+    freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors, discoveryContext,
   });
 
   const result = computeQuestions(readiness, { tree, ledgers, profileText, persona });

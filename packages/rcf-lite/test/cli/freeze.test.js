@@ -17,6 +17,7 @@ import { loadFreezeRecord } from '../../src/define/freeze-record.js';
 import { computeDelta } from '../../src/query/delta.js';
 import { loadAllLedgers } from '../../src/define/ledgers.js';
 import { walkTree } from '#core/store';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 function makeSink() {
   const chunks = [];
@@ -31,6 +32,9 @@ async function scratchProject(prefix = 'freeze-cli-') {
   const root = await mkdtemp(join(tmpdir(), prefix));
   const result = await initProject({ projectRoot: root });
   assert.ok(result && Array.isArray(result.created), `initProject failed: ${JSON.stringify(result)}`);
+  // FBS-214: declare ui=none so D0 folds to notApplicable in these
+  // freeze fixtures (they predate the UX intake gate).
+  await declareUiNoneForTests(root);
   return root;
 }
 

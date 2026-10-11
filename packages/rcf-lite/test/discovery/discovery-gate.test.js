@@ -27,7 +27,14 @@ import { main as readinessMain } from '../../src/cli/readiness.js';
 import { main as ledgerMain } from '../../src/cli/ledger.js';
 import { main as createMain } from '../../src/cli/create.js';
 import { main as freezeMain } from '../../src/cli/freeze.js';
+import { main as blueprintMain } from '../../src/cli/blueprint.js';
+import { main as updateMain } from '../../src/cli/update.js';
+import { main as deleteMain } from '../../src/cli/delete.js';
+import { main as linkMain } from '../../src/cli/link.js';
+import { main as questionsMain } from '../../src/cli/questions.js';
+import { loadDiscoveryContext } from '../../src/discovery/context.js';
 import { writeJourneyRecord, emptyJourneyRecord } from '../../src/discovery/record.js';
+import { initProject } from '../../src/core/store/init.js';
 
 // ---------------------------------------------------------------------------
 // Helpers: minimal in-memory tree for computeReadiness, and a tiny
@@ -95,6 +102,23 @@ async function seedMinimalProject() {
     join(root, 'rcf', 'define', 'brief-ledger.json'),
     `${JSON.stringify({ statements: [] }, null, 2)}\n`,
   );
+  return root;
+}
+
+async function seedFullProject() {
+  // A full init-shaped project so `rcf define create req --parent PRD-001`
+  // resolves PRD-001 against a schema-valid root. The scaffold seeds a
+  // ui-null journey record (ADR-4145); callers overwrite that for the
+  // D0 posture they want.
+  const dir = await mkdtemp(join(tmpdir(), 'rcf-fbs-214-full-'));
+  const root = await realpath(dir);
+  await initProject({ projectRoot: root, projectName: 'FBS-214 test project', seed: null });
+  // Seed an empty brief ledger explicitly - initProject does not
+  // create one, and the ledger CLI needs the file to append to.
+  await mkdir(join(root, 'rcf', 'define'), { recursive: true });
+  const briefLedger = join(root, 'rcf', 'define', 'brief-ledger.json');
+  try { await readFile(briefLedger, 'utf8'); }
+  catch { await writeFile(briefLedger, `${JSON.stringify({ statements: [] }, null, 2)}\n`); }
   return root;
 }
 
@@ -206,37 +230,143 @@ test('AC-18905-3 edge: a declared none product or a tree with no journe', () => 
   assert.ok(/not UI-bearing/.test(none.reason), `none reason text; got ${none.reason}`);
 });
 
+// AC-18905-3 (loader read-set): the file reader for a declared none
+// product (or an absent file) must NOT read any wireframe bytes.
+// Prove it by placing a wireframe path on disk that the loader
+// WOULD read on a central product, declaring none, and confirming
+// the loaded context's wireframes map stays empty.
+test('AC-18905-3 edge: loader reads NO wireframe bytes on the none path', async () => {
+  const root = await seedMinimalProject();
+  await mkdir(join(root, 'rcf', 'discovery', 'wireframes'), { recursive: true });
+  // Place a would-be-wireframe file; if the loader were reading it we
+  // would see it in the wireframes map on a declared record.
+  await writeFile(join(root, 'rcf', 'discovery', 'wireframes', 'home.md'), '# wireframe\n');
+  // Declare NONE: the loader must short-circuit before any wireframe
+  // path on the record is touched. The screen below carries a
+  // wireframe path; the loader must not resolve it on the none path.
+  await writeDeclaredRecord(root, {
+    ui: 'none',
+    journeys: [],
+    screens: [{ id: 'SCR-100', slug: 'home', title: null, wireframe: 'rcf/discovery/wireframes/home.md', references: [] }],
+  });
+  const ctx = await loadDiscoveryContext({ projectRoot: root });
+  assert.equal(ctx.hasRecordFile, true, 'record was declared, so hasRecordFile is true');
+  assert.equal(ctx.wireframes.size, 0, 'none path reads no wireframe bytes');
+
+  // Grandfathered (absent file): empty wireframes map and
+  // hasRecordFile false.
+  const freshRoot = await seedMinimalProject();
+  const ctxAbsent = await loadDiscoveryContext({ projectRoot: freshRoot });
+  assert.equal(ctxAbsent.hasRecordFile, false, 'absent file => hasRecordFile false');
+  assert.equal(ctxAbsent.wireframes.size, 0, 'absent file reads no wireframe bytes');
+});
+
+// AC-18905-3 (F1 regression): a malformed, schema-invalid or
+// out-of-enum record is NOT grandfathered. The context reports
+// invalidRecord, D0 fails on discovery:declared and the door
+// refuses with exit 4.
+test('AC-18905-3 F1: a malformed journey.json fails D0, door refuses (not grandfathered)', async () => {
+  for (const payload of ['{not json', '', '{"version":1,"ui":"CENTRAL"}', '{"version":1,"ui":null,"stray":true}']) {
+    const root = await seedMinimalProject();
+    await mkdir(join(root, 'rcf', 'discovery'), { recursive: true });
+    await writeFile(join(root, 'rcf', 'discovery', 'journey.json'), payload);
+    const ctx = await loadDiscoveryContext({ projectRoot: root });
+    assert.ok(ctx.invalidRecord instanceof Error, `payload ${JSON.stringify(payload).slice(0,30)}: ctx.invalidRecord is set`);
+    const stage = checkD0Discovery({ discoveryContext: ctx });
+    assert.equal(stage.state, 'failing', 'D0 fails on an invalid record');
+    const d = stage.checks.find((c) => c.name === 'discovery:declared');
+    assert.ok(d && d.ok === false, 'discovery:declared fails');
+    // Door path: brief add refuses.
+    const stdout = captureStream(); const stderr = captureStream();
+    const briefLedgerPath = join(root, 'rcf', 'define', 'brief-ledger.json');
+    const before = await readFile(briefLedgerPath, 'utf8');
+    const rc = await ledgerMain(['brief', 'add', '--text', 't', '--kind', 'capability'], { stdout, stderr, cwd: root });
+    assert.equal(rc, 4, `malformed/invalid record: brief add refuses with exit 4; got ${rc}; stderr=${stderr.text}`);
+    const after = await readFile(briefLedgerPath, 'utf8');
+    assert.equal(after, before, 'brief ledger byte-identical after refusal on invalid record');
+  }
+});
+
 // ---------------------------------------------------------------------------
 // AC-18905-4: a failing D0 refuses the three write verbs with exit 4
 // and the [error] refused define: ... message family; the tree is
 // byte-identical before and after.
 // ---------------------------------------------------------------------------
 
+// AC-18905-4: ui-null AND light AND central with a failing discovery
+// all refuse the three write verbs with exit 4; tree is byte-identical;
+// refusal names failing ids. TAC-4142 shape: "this product is declared
+// <light|central> but DISCOVERY is not complete." (null variant swaps
+// in "the discovery journey record is not declared").
 test('AC-18905-4 failure: a declared light or central product whose d0 fai', async () => {
-  const root = await seedMinimalProject();
-  // init-seeded record: ui null => D0 fails on discovery:declared.
-  await writeInitSeededRecord(root);
-  const briefLedgerPath = join(root, 'rcf', 'define', 'brief-ledger.json');
-  const beforeBrief = await readFile(briefLedgerPath, 'utf8');
+  /** @type {Array<{ label: string, declareWriter: (root: string) => Promise<void>, declaredRe: RegExp }>} */
+  const cases = [
+    {
+      label: 'ui-null (init-seeded)',
+      declareWriter: writeInitSeededRecord,
+      declaredRe: /the discovery journey record is not declared/,
+    },
+    {
+      label: 'ui-light (no journey authored)',
+      declareWriter: async (root) => { await writeDeclaredRecord(root, { ui: 'light' }); },
+      declaredRe: /this product is declared light but DISCOVERY is not complete/,
+    },
+    {
+      label: 'ui-central (no journey authored)',
+      declareWriter: async (root) => { await writeDeclaredRecord(root, { ui: 'central' }); },
+      declaredRe: /this product is declared central but DISCOVERY is not complete/,
+    },
+  ];
 
-  // 1) brief add
-  {
-    const stdout = captureStream(); const stderr = captureStream();
-    const rc = await ledgerMain(['brief', 'add', '--text', 'test', '--kind', 'capability'], { stdout, stderr, cwd: root });
-    assert.equal(rc, 4, `brief add should exit 4; got ${rc}; stderr=${stderr.text}`);
-    assert.ok(/^\[error\] refused define: brief add: D0 /.test(stderr.text), `brief add message family; got ${stderr.text}`);
-    assert.ok(/null/.test(stderr.text), `brief add message names declared value (null); got ${stderr.text}`);
-    assert.ok(/discovery:declared/.test(stderr.text), `brief add names failing check; got ${stderr.text}`);
-    assert.ok(/rcf define readiness --check discovery/.test(stderr.text), `brief add names readiness command; got ${stderr.text}`);
-    const afterBrief = await readFile(briefLedgerPath, 'utf8');
-    assert.equal(afterBrief, beforeBrief, 'brief ledger byte-identical after refusal');
-  }
-  // 2) create req
-  {
-    const stdout = captureStream(); const stderr = captureStream();
-    const rc = await createMain(['req', '--parent', 'PRD-001', '--title', 'test'], { stdout, stderr, cwd: root });
-    assert.equal(rc, 4, `create should exit 4; got ${rc}; stderr=${stderr.text}`);
-    assert.ok(/^\[error\] refused define: create req: /.test(stderr.text), `create message family; got ${stderr.text}`);
+  for (const c of cases) {
+    // Use the init-scaffolded project so the blueprint CLI's pre-add
+    // walkTree does not short-circuit on manifest validation; the
+    // writer still runs the D0 door before resolving the source.
+    const root = await seedFullProject();
+    await c.declareWriter(root);
+
+    const briefLedgerPath = join(root, 'rcf', 'define', 'brief-ledger.json');
+    const beforeBrief = await readFile(briefLedgerPath, 'utf8');
+
+    // 1) brief add
+    {
+      const stdout = captureStream(); const stderr = captureStream();
+      const rc = await ledgerMain(['brief', 'add', '--text', 'test', '--kind', 'capability'], { stdout, stderr, cwd: root });
+      assert.equal(rc, 4, `${c.label}: brief add exit 4; got ${rc}; stderr=${stderr.text}`);
+      assert.ok(/^\[error\] refused define: brief add: /.test(stderr.text), `${c.label}: brief add message family`);
+      assert.ok(c.declaredRe.test(stderr.text), `${c.label}: brief add names declared posture; got ${stderr.text}`);
+      assert.ok(/D0 \(define.discovery\) is failing on/.test(stderr.text), `${c.label}: brief add names D0`);
+      assert.ok(/\[rcf\/discovery\/journey.json\]/.test(stderr.text) || /\[JNY-/.test(stderr.text), `${c.label}: brief add names failing ids; got ${stderr.text}`);
+      assert.ok(/rcf define readiness --check discovery/.test(stderr.text), `${c.label}: brief add names readiness command`);
+      const afterBrief = await readFile(briefLedgerPath, 'utf8');
+      assert.equal(afterBrief, beforeBrief, `${c.label}: brief ledger byte-identical after refusal`);
+    }
+    // 2) create req: assert byte-identity of the PRD and the whole rcf/requirements/ tree
+    {
+      const prdPath = join(root, 'rcf', 'prd.json');
+      const beforePrd = await readFile(prdPath, 'utf8');
+      const beforeReqs = await (async () => {
+        try { return (await readFile(join(root, 'rcf', 'requirements', 'req-001.json'), 'utf8')); } catch { return null; }
+      })();
+      const stdout = captureStream(); const stderr = captureStream();
+      const rc = await createMain(['req', '--parent', 'PRD-001', '--title', 'test'], { stdout, stderr, cwd: root });
+      assert.equal(rc, 4, `${c.label}: create req exit 4; got ${rc}; stderr=${stderr.text}`);
+      assert.ok(/^\[error\] refused define: create req: /.test(stderr.text), `${c.label}: create message family`);
+      assert.ok(c.declaredRe.test(stderr.text), `${c.label}: create names declared posture`);
+      const afterPrd = await readFile(prdPath, 'utf8');
+      assert.equal(afterPrd, beforePrd, `${c.label}: prd.json byte-identical after create refusal`);
+      let afterReqs = null;
+      try { afterReqs = await readFile(join(root, 'rcf', 'requirements', 'req-001.json'), 'utf8'); } catch {}
+      assert.equal(afterReqs, beforeReqs, `${c.label}: no new requirement file minted on refusal`);
+    }
+    // 3) blueprint add: refuses before resolving the source
+    {
+      const stdout = captureStream(); const stderr = captureStream();
+      const rc = await blueprintMain(['add', 'nonexistent-source.md'], { stdout, stderr, cwd: root });
+      assert.equal(rc, 4, `${c.label}: blueprint add exit 4; got ${rc}; stderr=${stderr.text}`);
+      assert.ok(/^\[error\] refused define: blueprint add: /.test(stderr.text), `${c.label}: blueprint add message family`);
+      assert.ok(c.declaredRe.test(stderr.text), `${c.label}: blueprint add names declared posture`);
+    }
   }
 });
 
@@ -278,6 +408,54 @@ test('AC-18905-5 happy: a central product reviewed at the current hash o', async
   const briefLedgerPath = join(root, 'rcf', 'define', 'brief-ledger.json');
   const after = JSON.parse(await readFile(briefLedgerPath, 'utf8'));
   assert.ok(after.statements.length >= 1, 'brief ledger carries the new statement after a passing door');
+
+  // Light passes the door for create too (mint a REQ under PRD-001).
+  // We use the full-shape (init-scaffolded) project so the walker
+  // resolves PRD-001 against a schema-valid root, overwritten with
+  // a declared-light journey record.
+  const fullRoot = await seedFullProject();
+  await writeDeclaredRecord(fullRoot, {
+    ui: 'light',
+    journeys: [{ id: 'JNY-100', slug: 'home-flow', actor: null, goal: null, source: 'inline:test', steps, interruptions, stepHighWaterMark: 200 }],
+    screens: [screen],
+  });
+  {
+    const so = captureStream(); const se = captureStream();
+    const rcCreate = await createMain(['req', '--parent', 'PRD-001', '--title', 'light pass'], { stdout: so, stderr: se, cwd: fullRoot });
+    assert.equal(rcCreate, 0, `light: create req passes door; got ${rcCreate}; stderr=${se.text}`);
+    assert.ok(!/refused define/.test(se.text), 'light: create must not carry refusal shape');
+  }
+});
+
+// AC-18905-5 positive (declared none): the grandfather-adjacent fold -
+// a declared `none` product passes the door for all three verbs.
+test('AC-18905-5 happy: a declared none product passes the door', async () => {
+  // brief add via minimal (fast) project
+  {
+    const root = await seedMinimalProject();
+    await writeDeclaredRecord(root, { ui: 'none' });
+    const so = captureStream(); const se = captureStream();
+    const rc = await ledgerMain(['brief', 'add', '--text', 'none-pass', '--kind', 'capability'], { stdout: so, stderr: se, cwd: root });
+    assert.equal(rc, 0, `none: brief add passes; got ${rc}; stderr=${se.text}`);
+  }
+  // create via full-shape (init-scaffolded) project so PRD-001 resolves
+  {
+    const root = await seedFullProject();
+    await writeDeclaredRecord(root, { ui: 'none' });
+    const so = captureStream(); const se = captureStream();
+    const rc = await createMain(['req', '--parent', 'PRD-001', '--title', 'none pass'], { stdout: so, stderr: se, cwd: root });
+    assert.equal(rc, 0, `none: create passes; got ${rc}; stderr=${se.text}`);
+    assert.ok(!/refused define/.test(se.text), 'none: create must not carry refusal shape');
+  }
+  // blueprint add (source missing => exit 2 after door passed; NOT 4)
+  {
+    const root = await seedMinimalProject();
+    await writeDeclaredRecord(root, { ui: 'none' });
+    const so = captureStream(); const se = captureStream();
+    const rc = await blueprintMain(['add', 'nonexistent-source.md'], { stdout: so, stderr: se, cwd: root });
+    assert.notEqual(rc, 4, `none: blueprint add passes the door (exit != 4); got ${rc}; stderr=${se.text}`);
+    assert.ok(!/refused define/.test(se.text), 'none: blueprint add refusal shape must not appear');
+  }
 });
 
 // ---------------------------------------------------------------------------
@@ -299,13 +477,15 @@ test('AC-18905-6 must-not: d0 failing', async () => {
     assert.ok(/ADR-4146/.test(stderr.text), `message cites ADR-4146; got ${stderr.text}`);
   }
 
-  // freeze refuses because D0 is failing (and D0 is in BLOCKING set).
-  // We only probe exit code; the whole freeze pipeline needs more
-  // chain to actually run, so refusal before deeper work is fine.
+  // freeze refuses with exit 4 (D0 in BLOCKING set). The printed
+  // failing block must name D0 (define.discovery), not only D1..D8.
   {
     const stdout = captureStream(); const stderr = captureStream();
     const rc = await freezeMain([], { stdout, stderr, cwd: root });
-    assert.notEqual(rc, 0, `freeze should refuse on failing D0; got ${rc}`);
+    assert.equal(rc, 4, `freeze should exit 4 on failing D0; got ${rc}; stderr=${stderr.text}`);
+    const combined = stdout.text + stderr.text;
+    assert.ok(/D0\s*\(define\.discovery\)/.test(combined), `freeze failing block names D0; got ${combined}`);
+    assert.ok(/discovery:declared/.test(combined), `freeze failing block names the failing check; got ${combined}`);
   }
 });
 
@@ -337,6 +517,29 @@ test('AC-18905-7 must-not: a product whose d0 fails', async () => {
     const rc = await readinessMain([], { stdout, stderr, cwd: root });
     assert.equal(rc, 0, `readiness (no --check) should not fail on D0; got ${rc}; stderr=${stderr.text}`);
     assert.ok(/D0 \(define.discovery\)/.test(stdout.text) || /discovery/.test(stdout.text), 'readiness output names D0');
+  }
+
+  // AC-7: update, delete and link are NOT door-gated. They touch
+  // existing records and must proceed even on a failing D0. Seed a
+  // minimal pre-existing req so update/delete have a target.
+  await mkdir(join(root, 'rcf', 'requirements'), { recursive: true });
+  await writeFile(
+    join(root, 'rcf', 'requirements', 'req-001.json'),
+    `${JSON.stringify({ reqId: 'REQ-001', prdId: 'PRD-001', title: 'seed', description: 'seed', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), status: 'draft', version: '0.1.0', domain: 'test' }, null, 2)}\n`,
+  );
+  // update: not gated
+  {
+    const stdout = captureStream(); const stderr = captureStream();
+    const rc = await updateMain(['REQ-001', '--set', 'title=renamed'], { stdout, stderr, cwd: root });
+    assert.notEqual(rc, 4, `update is NOT door-gated; got ${rc}; stderr=${stderr.text}`);
+    assert.ok(!/refused define/.test(stderr.text), 'update must not carry refusal shape on failing D0');
+  }
+  // delete --dry-run: not gated (we use dry-run so we leave the file for the link test below)
+  {
+    const stdout = captureStream(); const stderr = captureStream();
+    const rc = await deleteMain(['REQ-001', '--dry-run', '--cascade'], { stdout, stderr, cwd: root });
+    assert.notEqual(rc, 4, `delete is NOT door-gated; got ${rc}; stderr=${stderr.text}`);
+    assert.ok(!/refused define/.test(stderr.text), 'delete must not carry refusal shape on failing D0');
   }
 });
 
@@ -380,6 +583,30 @@ test('AC-18905-8 happy: rcf define questions persona productowner on a f', () =>
   assert.equal(first.check, 'discovery:declared');
   assert.ok(first.writeBack && first.writeBack.length > 0 && /rcf discover journey/.test(first.writeBack[0].command),
     'D0 question write-back names a journey verb');
+});
+
+// AC-18905-8 (through the CLI): the shipped `rcf define questions`
+// verb must thread discoveryContext, so a failing D0 tree surfaces
+// a D0 item from the questions CLI (not just from the pure compose).
+test('AC-18905-8 happy: `rcf define questions --persona productOwner` surfaces D0 first', async () => {
+  const root = await seedMinimalProject();
+  await writeInitSeededRecord(root);
+  const stdout = captureStream(); const stderr = captureStream();
+  const rc = await questionsMain(['--persona', 'productOwner', '--json'], { stdout, stderr, cwd: root });
+  assert.equal(rc, 0, `questions CLI exits 0; got ${rc}; stderr=${stderr.text}`);
+  const envelope = JSON.parse(stdout.text);
+  assert.ok(Array.isArray(envelope.questions), 'questions is an array');
+  const d0 = envelope.questions.filter((q) => q.stage === 'D0');
+  assert.ok(d0.length >= 1, `at least one D0 question on a failing D0 tree; got ${d0.length}`);
+  const first = envelope.questions[0];
+  assert.equal(first.stage, 'D0', `first question is D0; got ${first.stage}`);
+  assert.equal(first.check, 'discovery:declared');
+  // F4: the write-back must name a journey verb WITH the real flag
+  // set (--from <path>, --ui <...>, --by <name>). No invented flags.
+  const command = first.writeBack[0].command;
+  assert.ok(/rcf discover journey/.test(command), `write-back names a journey verb; got ${command}`);
+  assert.ok(!/--journey\b/.test(command) && !/--step\b/.test(command) && !/--kind\b/.test(command) && !/--screen\b/.test(command) && !/--wireframe\b/.test(command) && !/--interruption\b/.test(command) && !/--answer\b/.test(command) && !/--interruptions\b/.test(command),
+    `write-back must not name invented flags; got ${command}`);
 });
 
 // ---------------------------------------------------------------------------

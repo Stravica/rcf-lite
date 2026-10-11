@@ -46,6 +46,18 @@ The server binds `127.0.0.1` only and has no auth; it is for you, on your machin
 
 ## 4. Author the chain
 
+Before any chain write, declare the UI posture. `rcf init` seeds a `rcf/discovery/journey.json` whose `ui` is unset, which stops any mint on the chain (`ledger brief add`, `create`, `blueprint add`) with exit 4 until you declare it:
+
+```sh
+rcf discover journey declare --ui none
+```
+
+```
+journey.json: declared ui=none at <timestamp>.
+```
+
+Pick `none` for a non-UI product (an API, a CLI, a library), `light` for one or two screens, or `central` when the UI is the product. `none` skips the rest of the UX gate; `light` and `central` ask for an authored journey (and, on `central`, a reviewed set of wireframes). Recipe Box has a UI, but the walkthrough stays declarative - we declare `none` so the chain-authoring sequence below runs unblocked and come back to the UX side when the real app design starts.
+
 Time to replace the placeholders with the actual product. First the PRD - the problem and the objective:
 
 ```sh

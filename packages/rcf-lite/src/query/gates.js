@@ -891,6 +891,10 @@ import { checkDiscovery } from '../discovery/check.js';
  * @property {import('../discovery/record.js').JourneyRecord | null} record
  * @property {boolean} hasRecordFile    true when the file exists on disk
  * @property {Map<string, { bytes: Buffer | Uint8Array, text?: string }>} wireframes
+ * @property {Error} [invalidRecord]    F1 (ADR-4145): set when journey.json
+ *   is present but malformed, schema-invalid or unreadable. The grandfather
+ *   rule is BY ABSENCE ONLY, so an invalid record keeps the door failing
+ *   on discovery:declared. The caller surfaces the message as it wants.
  */
 
 /**
@@ -918,8 +922,23 @@ export function checkD0Discovery(ctx) {
   const dc = ctx.discoveryContext;
   // Treat an absent discoveryContext as the grandfathered state so the
   // compute never crashes a tree that pre-dates FBS-214.
-  if (!dc || (dc.hasRecordFile === false && !dc.record)) {
+  if (!dc || (dc.hasRecordFile === false && !dc.record && !dc.invalidRecord)) {
     return notApplicable('D0', gate, 'no discovery declaration (existing tree)');
+  }
+  // F1 (ADR-4145 grandfather-by-absence): a journey.json that is on
+  // disk but malformed, schema-invalid or unreadable is NOT
+  // grandfathered. Emit a failing discovery:declared check naming the
+  // file and the reason; the door refuses.
+  if (dc.invalidRecord) {
+    const err = /** @type {Error & { message?: string }} */ (dc.invalidRecord);
+    const msg = err && typeof err.message === 'string' ? err.message : String(dc.invalidRecord);
+    const declared = makeCheck('discovery:declared', 'tree', 1, [
+      {
+        id: 'rcf/discovery/journey.json',
+        why: `journey.json is not a valid record: ${msg}. The file must parse as JSON and validate against the journey schema (or be absent for a grandfathered tree).`,
+      },
+    ]);
+    return foldState('D0', gate, [declared]);
   }
   const record = dc.record;
   if (!record) {
@@ -934,7 +953,7 @@ export function checkD0Discovery(ctx) {
     const declared = makeCheck('discovery:declared', 'tree', 1, [
       {
         id: 'rcf/discovery/journey.json',
-        why: 'ui is not declared: run `rcf discover journey declare --ui <none|light|central>` to declare the UI posture.',
+        why: 'ui is not declared (expected one of: none, light, central). The viewer surfaces this on the Readiness tab; the questions compute names the resolving verb.',
       },
     ]);
     return foldState('D0', gate, [declared]);
@@ -962,11 +981,11 @@ export function checkD0Discovery(ctx) {
       // Model a per-check notApplicable as ok with total=0: the stage
       // does not fail on it, the display shows "0/0" and the reason
       // (why) is preserved in the first (and only) hint entry.
+      // F8: the N/A reason is NOT persisted on the check shape;
+      // nothing renders it and the field was undocumented. The reason
+      // belongs on the stage envelope (notApplicable) when the whole
+      // stage folds, not on the per-check row.
       const nc = makeCheck(checkName, 'tree', 0, []);
-      // Carry the reason text on the check for the viewer so the N/A
-      // posture is explicit. The field is advisory and ignored by the
-      // fold.
-      /** @type {any} */ (nc).notApplicableReason = r.why ?? '';
       checks.push(nc);
     } else {
       // state === 'fail'.

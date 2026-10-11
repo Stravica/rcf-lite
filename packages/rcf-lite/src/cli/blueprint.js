@@ -13,7 +13,7 @@ import { parseArgs } from 'node:util';
 
 import { isRcfError } from '#core/errors';
 import { walkTree } from '#core/store';
-import { checkD0Door } from '../discovery/door.js';
+import { checkD0Door } from './_door.js';
 import { findProjectRoot } from '../view/index.js';
 import {
   applyBlueprint,

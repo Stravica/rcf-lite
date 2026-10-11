@@ -8,7 +8,7 @@ import { parseArgs } from 'node:util';
 import { writeUnexpectedFailure } from '#core/errors';
 import { createDocument, deriveSlug, splitCnPath, walkTree } from '#core/store';
 import { deriveFileDeps, mapDerivedDepsToCnIds } from '#core/store/derive-deps.js';
-import { checkD0Door } from '../discovery/door.js';
+import { checkD0Door } from './_door.js';
 import { findProjectRoot } from '../view/index.js';
 // Track C+D §4.4: run the REQ-shape classifier on newly-created REQs
 // so downstream tooling (rcf req-baseline, rcf preflight, the Stage-1

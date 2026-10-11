@@ -18,7 +18,7 @@
 // Node built-ins only.
 
 import { checkD0Discovery, STAGE_GATES } from '../query/gates.js';
-import { loadDiscoveryContext } from './context.js';
+import { loadDiscoveryContext } from '../discovery/context.js';
 
 /**
  * Check the D0 door for `projectRoot`. Returns `{ ok: true }` when the
@@ -54,10 +54,20 @@ export async function checkD0Door({ projectRoot, stderr, verb }) {
     : [];
   const idList = failingIds.length > 0 ? ` [${failingIds.join(', ')}]` : '';
   const allFailing = failingChecks.map((c) => c.name).join(', ');
+  const whyText = first && typeof first.failing?.[0]?.why === 'string' ? first.failing[0].why : '';
+  const whyTrailer = whyText ? ` ${whyText}` : '';
+  // TAC-4142 refusal shape: name the declared posture and the failing
+  // picture, then the ids and the readiness hint. For an init-seeded
+  // record (ui null) we switch the opening to "the discovery journey
+  // record is not declared" because there is no declared posture yet.
+  const declaredPrefix = declared === 'light' || declared === 'central'
+    ? `this product is declared ${declared} but DISCOVERY is not complete.`
+    : 'the discovery journey record is not declared.';
   stderr.write(
-    `[error] refused define: ${verb}: D0 (${STAGE_GATES.D0}) is failing on ${checkName}${idList} with ui declared ${declared}. `
-    + `Resolve the D0 blockers (failing checks: ${allFailing}) with the discovery journey verbs (declare, add, import, review), `
-    + `then re-run \`rcf define readiness --check discovery\`.\n`,
+    `[error] refused define: ${verb}: ${declaredPrefix}`
+    + ` D0 (${STAGE_GATES.D0}) is failing on ${checkName}${idList}.${whyTrailer}`
+    + ` Resolve the D0 blockers (failing checks: ${allFailing}) with the discovery journey verbs (declare, add, import, review),`
+    + ` then re-run \`rcf define readiness --check discovery\`.\n`,
   );
   return { ok: false, exitCode: 4 };
 }

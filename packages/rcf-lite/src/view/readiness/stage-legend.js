@@ -63,7 +63,7 @@ export function renderStageLegend() {
     <h2 id="rcf-stage-legend-title">Stage guide: D0 to D8</h2>
     <form method="dialog"><button type="submit" class="rcf-stage-legend__close">Close</button></form>
   </header>
-  <p class="rcf-stage-legend__intro muted">The eight DEFINE stages the readiness object reports on. A blocking stage must pass before the tree can freeze; a warning stage passes once its findings are acknowledged. Codes are the chain's names; the viewer never asks a product owner to read them.</p>
+  <p class="rcf-stage-legend__intro muted">The nine DEFINE stages the readiness object reports on. A blocking stage must pass before the tree can freeze; a warning stage passes once its findings are acknowledged. Codes are the chain's names; the viewer never asks a product owner to read them.</p>
   <table class="rcf-stage-legend__table">
     <thead><tr><th>Stage</th><th>Name</th><th>What it checks</th><th>Posture</th></tr></thead>
     <tbody>${rows}</tbody>

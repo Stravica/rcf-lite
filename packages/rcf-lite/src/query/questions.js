@@ -253,7 +253,7 @@ function buildQuestionForItem(blocker, item, {
       context: { sourceSpan: 'rcf/discovery/journey.json' },
       answerKinds: ['author'],
       writeBack: [
-        { when: 'author', command: 'rcf discover journey add --journey <JNY-id> --step <JNY-step-id> --kind entry --screen <SCR-slug>; repeat for intermediate steps and an exit step' },
+        { when: 'author', command: 'author a journey source (one JNY: header, then step lines with entry/intermediate/exit kinds and screen references) and run `rcf discover journey add --from <source-path>`' },
       ],
       blocks,
     });
@@ -267,7 +267,7 @@ function buildQuestionForItem(blocker, item, {
       context: { sourceSpan: 'rcf/discovery/journey.json', stepId: itemId },
       answerKinds: ['author'],
       writeBack: [
-        { when: 'author', command: 'rcf discover journey add --journey <JNY-id> --step <JNY-step-id> --screen <SCR-slug>' },
+        { when: 'author', command: 'edit the authored journey source so the step names a declared screen, then re-run `rcf discover journey add --from <source-path>`' },
       ],
       blocks,
     });
@@ -281,7 +281,7 @@ function buildQuestionForItem(blocker, item, {
       context: { sourceSpan: 'rcf/discovery/journey.json', stepId: itemId },
       answerKinds: ['author'],
       writeBack: [
-        { when: 'author', command: 'rcf discover journey add --journey <JNY-id> --step <predecessor> --next <this-step>; or re-declare the step kind as exit' },
+        { when: 'author', command: 'edit the authored journey source so the step has a predecessor (or mark it an exit), then re-run `rcf discover journey add --from <source-path>`' },
       ],
       blocks,
     });
@@ -295,7 +295,7 @@ function buildQuestionForItem(blocker, item, {
       context: { sourceSpan: 'rcf/discovery/journey.json', interruption: itemId },
       answerKinds: ['author'],
       writeBack: [
-        { when: 'author', command: 'rcf discover journey import --journey <JNY-id> --interruptions <path.md>  (or rcf discover journey add --journey <JNY-id> --interruption <catalogue-entry> --answer <step-id-or-notApplicable:reason>)' },
+        { when: 'author', command: 'author the interruption answers in the journey-map source (ux-designer prose shape) and run `rcf discover journey import --from <map-path>`' },
       ],
       blocks,
     });
@@ -309,7 +309,7 @@ function buildQuestionForItem(blocker, item, {
       context: { sourceSpan: 'rcf/discovery/journey.json', stepId: itemId },
       answerKinds: ['author'],
       writeBack: [
-        { when: 'author', command: 'rcf discover journey add --journey <JNY-id> --step <JNY-step-id> --wireframe rcf/discovery/wireframes/<slug>.md' },
+        { when: 'author', command: 'author the wireframe file under rcf/discovery/wireframes/, point the screen at it in the journey source, then re-run `rcf discover journey add --from <source-path>`' },
       ],
       blocks,
     });
@@ -323,7 +323,7 @@ function buildQuestionForItem(blocker, item, {
       context: { sourceSpan: 'rcf/discovery/journey.json', screenId: itemId },
       answerKinds: ['author'],
       writeBack: [
-        { when: 'author', command: 'rcf discover journey add --journey <JNY-id> --step <JNY-step-id> --wireframe rcf/discovery/wireframes/<slug>.md  (or declare --as-built to admit .png)' },
+        { when: 'author', command: 'rename the wireframe file to .md or .html (or run `rcf discover journey declare --as-built` to admit .png) and re-run `rcf discover journey add --from <source-path>`' },
       ],
       blocks,
     });

@@ -65,12 +65,20 @@ export async function loadDiscoveryContext({ projectRoot }) {
   try {
     record = await readJourneyRecord(projectRoot);
   } catch (err) {
-    // A malformed record is reported as parseError on the context so
-    // the compute never fails loudly; D0 then folds to notApplicable
-    // with the grandfathered reason. The CLI can surface the error
-    // through its own output stream when it wants to.
+    // F1 (ADR-4145): grandfathering is BY ABSENCE ONLY. A malformed,
+    // schema-invalid or unreadable record is a declared file in an
+    // invalid state - the door must refuse. We report that through
+    // `invalidRecord` (plus `parseError` for message surfacing); the
+    // record file is present even though we could not read a valid
+    // record out of it, so `hasRecordFile` is true.
     const parseError = err instanceof Error ? err : new Error(String(err));
-    return { ...empty, parseError };
+    return {
+      record: /** @type {any} */ (null),
+      hasRecordFile: true,
+      wireframes: new Map(),
+      invalidRecord: parseError,
+      parseError,
+    };
   }
   if (record === null) {
     return empty;

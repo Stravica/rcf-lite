@@ -9,6 +9,7 @@ import { fileURLToPath } from 'node:url';
 import { readFile, stat } from 'node:fs/promises';
 
 import { resolveTestPointers, walkTree } from '#core/store';
+import { loadDiscoveryContext } from '../discovery/context.js';
 import { computeReadiness } from '../query/readiness.js';
 import { computeQuestions } from '../query/questions.js';
 import { loadFreezeRecord } from '../define/freeze-record.js';
@@ -78,7 +79,7 @@ export async function renderModelToPage({ projectRoot }) {
   // Load the readiness inputs once per rewalk; the viewer is pure
   // (never recomputes readiness). Failures load as `null` so the tab
   // still renders when a tree is partial.
-  const [freezeRecord, ledgers, testPointers, profileText, resolvedPaths] = await Promise.all([
+  const [freezeRecord, ledgers, testPointers, profileText, resolvedPaths, discoveryContext] = await Promise.all([
     loadFreezeRecord({ projectRoot }).catch(() => null),
     loadAllLedgers({ projectRoot }).catch(() => ({})),
     resolveTestPointers({ projectRoot, tree }).catch(() => undefined),
@@ -90,6 +91,9 @@ export async function renderModelToPage({ projectRoot }) {
     // without `resolvedPaths`, D3 false-failed on paths that resolve
     // on disk, and the Readiness tab disagreed with the CLI.
     resolveInterfacePaths(projectRoot, tree).catch(() => undefined),
+    // F3 (FBS-214): load D0 discovery context so the Readiness tab
+    // shows the real D0 state instead of a silent notApplicable.
+    loadDiscoveryContext({ projectRoot }).catch(() => undefined),
   ]);
 
   let readiness = null;
@@ -102,6 +106,7 @@ export async function renderModelToPage({ projectRoot }) {
       testPointers,
       validateErrors: errors,
       resolvedPaths,
+      discoveryContext,
     });
   } catch (err) {
     // A malformed tree should not block the viewer; the Readiness tab
