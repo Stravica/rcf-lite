@@ -440,6 +440,18 @@ The prototype's code is burned (one brief statement, kind
 from the prototype. "Grow the prototype" is rejected on provenance
 grounds. The full doctrine is in `rcf guidance discovery-prototypes`
 and the `rcf_discover_prototype` prompt.
+
+### Journey review (ADR-4146)
+
+Never run `rcf discover journey review` on your own. The review verb
+seals the discovery record with a ReviewStamp sealed by the
+discoveryHash; a stamp that lands without the operator asking turns
+the single-reviewer D0 door into a rubber stamp. The operator (or a
+reviewer the operator names) runs the verb; the agent surfaces that
+the record is ready to review and waits. No other verb ever writes
+ReviewStamp: `rcf discover journey add`, `import` and `declare` leave
+`record.review` alone, so a journey edit after review reads as stale
+on the next check rather than silently re-sealing.
 ```
 
 ## Customisation points
