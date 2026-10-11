@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:28:29.856Z",
-  "updatedAt": "2026-10-09T16:28:29.856Z",
+  "updatedAt": "2026-10-11T13:50:56.264Z",
   "description": "User story under REQ-189 for the binding (FBS-215; external dependency rcf-schemas 0.7 for journeyStepIds). Validation resolves the ids; queue, show and bundle expose the step state; build review reports stubs as findings with no new hard gate; coverage, trace and impact never walk journey edges.",
   "asA": "an engineer running the build queue",
   "iWant": "each build spec to name the journey steps it delivers and the queue to show which steps nobody has picked up",
@@ -29,7 +29,7 @@
     },
     {
       "id": "AC-18906-3",
-      "description": "[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind otherDeclared per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \"journeyStub:\" and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.",
+      "description": "[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind journeyStub per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \"journeyStub:\" and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",
@@ -60,7 +60,7 @@
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4142-discovery-journey-gate",
-        "field": "interfaces[journey binding readers]"
+        "field": "interfaces[StepState]"
       }
     }
   ],

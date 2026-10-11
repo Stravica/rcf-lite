@@ -459,3 +459,46 @@ test('rcf_read: resolves an inline TC on a widened (four-digit) TS (0.8.0 landmi
   assert.equal(result.isError, undefined, `MCP read should resolve TC-1000-first-case; got ${JSON.stringify(result)}`);
   assert.equal(result.structuredContent.value.id, 'TC-1000-first-case');
 });
+
+// ---------------------------------------------------------------------------
+// P3-1 fold-in from PR 347 (FBS-214) gate (Dave relay d6634033): the MCP
+// exit-4-to-refused mapping in rcf_create (~line 1217) and rcf_define_ledger
+// (~line 1478) had no test; a mutation disabling it was not caught. These
+// two tests exercise the mapping end-to-end: scaffold a tree WITHOUT
+// declareUiNoneForTests so D0 refuses, call the tool, assert isError and
+// the structured errors[0] shape (kind=refused, rule=d0:discovery).
+// ---------------------------------------------------------------------------
+test('rcf_create: D0-refused tree maps to isError with errors[0]=refused and rule d0:discovery', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-tools-'));
+  await initProject({ projectRoot: tmp, projectName: 'McpToolsRefusedTest' });
+  // Deliberately skip declareUiNoneForTests: a fresh init seeds the
+  // journey record with ui=null, so D0 refuses and the create door
+  // trips before any write runs.
+  const registry = registryFor(tmp);
+  const result = await registry.call('rcf_create', { kind: 'req', parent: 'PRD-001', title: 'Blocked by D0' });
+  assert.equal(result.isError, true, `expected isError true for D0-refused create; got ${JSON.stringify(result)}`);
+  const errors = result.structuredContent?.errors ?? [];
+  assert.ok(errors.length > 0, 'expected at least one structured error');
+  assert.equal(errors[0].kind, 'refused', `errors[0].kind should be 'refused'; got ${errors[0].kind}`);
+  assert.equal(errors[0].rule, 'd0:discovery', `errors[0].rule should be 'd0:discovery'; got ${errors[0].rule}`);
+});
+
+test('rcf_define_ledger: D0-refused tree maps to isError with errors[0]=refused and rule d0:discovery', async () => {
+  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-tools-'));
+  await initProject({ projectRoot: tmp, projectName: 'McpToolsLedgerRefusedTest' });
+  // Same gate shape as the create test: fresh init leaves ui=null so
+  // the ledger brief add verb refuses on D0 before any write runs.
+  const registry = registryFor(tmp);
+  const result = await registry.call('rcf_define_ledger', {
+    name: 'brief',
+    verb: 'add',
+    kind: 'questionsForProductOwner',
+    text: 'blocked by D0',
+    resolvedBy: 'omitted:test',
+  });
+  assert.equal(result.isError, true, `expected isError true for D0-refused ledger brief add; got ${JSON.stringify(result)}`);
+  const errors = result.structuredContent?.errors ?? [];
+  assert.ok(errors.length > 0, 'expected at least one structured error');
+  assert.equal(errors[0].kind, 'refused', `errors[0].kind should be 'refused'; got ${errors[0].kind}`);
+  assert.equal(errors[0].rule, 'd0:discovery', `errors[0].rule should be 'd0:discovery'; got ${errors[0].rule}`);
+});

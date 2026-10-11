@@ -19,6 +19,8 @@ import { rcfError } from '../errors/index.js';
 import { canonicaliseStem, normaliseId } from './ids.js';
 import { listSubdirJsonFiles, loadDocument, loadRootDocument, pathForId, subdirFor } from './loader.js';
 import { validateDocument } from './validator.js';
+import { readJourneyRecord, JourneyRecordError } from '../../discovery/record.js';
+import { allStepIds } from '../../discovery/state.js';
 
 /**
  * Derive an id from a filename stem. Delegates to the core grammar in
@@ -132,6 +134,13 @@ function newTree() {
     // rcf-schemas 0.6.0: EVAL docs. A peer of testSuites; walked and
     // integrity-checked like every other child kind.
     evals: [],
+    // FBS-215 / rcf-schemas 0.7.0: parsed discovery/journey.json record
+    // (or null when absent / parse-failed; parse errors surface on the
+    // walker's error list). Used by brokenReference checks on
+    // fbs.journeyStepIds[] and by the review/queue/bundle surfaces that
+    // walk journey steps. Loaded at the start of walkTree so every pass
+    // sees the same bytes.
+    discoveryJourney: null,
     byId: new Map(),
     rawById: new Map(),
     kindById: new Map(),
@@ -305,6 +314,27 @@ export async function walkTree({ projectRoot }) {
     return { tree, errors };
   }
   tree.manifest = manifest.doc;
+
+  // FBS-215 / rcf-schemas 0.7.0: load the discovery journey record so
+  // the referential-integrity pass can validate FBS.journeyStepIds[]
+  // against real step ids. Absence is the grandfathered state (ADR-4145);
+  // schema failure surfaces as a validation error on the walker's error
+  // list, consistent with the ledger loader's posture.
+  try {
+    tree.discoveryJourney = await readJourneyRecord(projectRoot);
+  } catch (err) {
+    if (err instanceof JourneyRecordError) {
+      errors.push(rcfError({
+        kind: err.code === 'ioFailure' ? 'ioFailure' : 'validation',
+        message: `discovery/journey.json: ${err.message}`,
+        filePath: 'rcf/discovery/journey.json',
+        field: err.pointer,
+      }));
+      tree.discoveryJourney = null;
+    } else {
+      throw err;
+    }
+  }
 
   // Root docs (PRD, TAD, BS). Each is optional: a failure surfaces as a
   // structured error but the walk continues over what loaded.
@@ -916,6 +946,33 @@ function collectBrokenReferences(tree, errors) {
     if (fbs.bsId && typeof fbs.buildOrder === 'number') {
       const key = `${fbs.bsId}::${fbs.buildOrder}`;
       pushToMap(buildOrderCounts, key, fbs.fbsId);
+    }
+    // FBS-215 (AC-18906-4): fbs.journeyStepIds[] must resolve to a
+    // step id on the discovery journey record. An id that does not
+    // resolve is a brokenReference naming the FBS id and the field.
+    // Absence of the record (grandfathered tree) does not raise this
+    // check (the field is itself optional); the error is emitted only
+    // when the FBS DOES carry journeyStepIds and the record is present
+    // but does not host the id. When the record is absent and the FBS
+    // carries journeyStepIds, every id is unresolvable, so the check
+    // raises one error per id (so the operator sees exactly what the
+    // field named).
+    const stepIds = Array.isArray(fbs.journeyStepIds) ? fbs.journeyStepIds : [];
+    if (stepIds.length > 0) {
+      const knownStepIds = allStepIds(tree.discoveryJourney);
+      for (const [i, stepId] of stepIds.entries()) {
+        if (!knownStepIds.has(stepId)) {
+          errors.push(rcfError({
+            kind: 'brokenReference',
+            message: `FBS ${fbs.fbsId} journeyStepIds[${i}] names unknown journey step ${stepId}`,
+            documentId: fbs.fbsId,
+            filePath: `rcf/fbs/${(fbs.fbsId ?? '').toLowerCase()}.json`,
+            field: `journeyStepIds[${i}]`,
+            rule: 'resolveTo:journeyStep',
+          }));
+          tree.brokenIds.add(stepId);
+        }
+      }
     }
   }
   for (const [key, ids] of buildOrderCounts) {

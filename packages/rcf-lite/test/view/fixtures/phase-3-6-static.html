@@ -20932,7 +20932,7 @@
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-215">FBS-215</a></p></li>
 <li id="AC-18906-2" class="ac-item"><strong>AC-18906-2</strong> - [happy] Given a light or central product, when rcf build queue runs, then its markdown and JSON output carry a journeySteps block with one StepState per step whose StepState.state is unbound when no FBS names the step and otherwise the least advanced bound executionStatus mapped as [notStarted to queued | inProgress to inProgress | complete to built | verified to verified], with StepState.fbsIds listing the build specs that name it, and the journey show verb prints the same state beside each step.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-215">FBS-215</a></p></li>
-<li id="AC-18906-3" class="ac-item"><strong>AC-18906-3</strong> - [happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind otherDeclared per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting &quot;journeyStub:&quot; and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.
+<li id="AC-18906-3" class="ac-item"><strong>AC-18906-3</strong> - [happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind journeyStub per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting &quot;journeyStub:&quot; and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-215">FBS-215</a></p></li>
 <li id="AC-18906-4" class="ac-item"><strong>AC-18906-4</strong> - [failure] Given an FBS whose journeyStepIds names an id that resolves to no step (a retired number or a typo), when rcf define validate runs, then it reports a brokenReference finding naming the FBS id and the unresolved id, and the journey show verb lists that FBS under a broken-binding line.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-215">FBS-215</a></p></li>
@@ -20944,7 +20944,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-18906::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-09T16:28:29.856Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-09T16:28:29.856Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-11T13:50:56.264Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-189 for the binding (FBS-215; external dependency rcf-schemas 0.7 for journeyStepIds). Validation resolves the ids; queue, show and bundle expose the step state; build review reports stubs as findings with no new hard gate; coverage, trace and impact never walk journey edges.&quot;,
   &quot;asA&quot;: &quot;an engineer running the build queue&quot;,
   &quot;iWant&quot;: &quot;each build spec to name the journey steps it delivers and the queue to show which steps nobody has picked up&quot;,
@@ -20973,7 +20973,7 @@
     },
     {
       &quot;id&quot;: &quot;AC-18906-3&quot;,
-      &quot;description&quot;: &quot;[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind otherDeclared per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \&quot;journeyStub:\&quot; and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.&quot;,
+      &quot;description&quot;: &quot;[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind journeyStub per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \&quot;journeyStub:\&quot; and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.&quot;,
       &quot;testable&quot;: true,
       &quot;ownerRef&quot;: {
         &quot;tacId&quot;: &quot;TAC-4142-discovery-journey-gate&quot;,
@@ -21004,7 +21004,7 @@
       &quot;testable&quot;: true,
       &quot;ownerRef&quot;: {
         &quot;tacId&quot;: &quot;TAC-4142-discovery-journey-gate&quot;,
-        &quot;field&quot;: &quot;interfaces[journey binding readers]&quot;
+        &quot;field&quot;: &quot;interfaces[StepState]&quot;
       }
     }
   ],

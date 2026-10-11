@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-09T16:29:41.351Z",
-  "updatedAt": "2026-10-09T16:30:00.609Z",
+  "updatedAt": "2026-10-11T13:51:15.428Z",
   "purpose": "Cover every acceptance criterion of US-18906 with one node:test case each in test/discovery/journey-binding.test.js; DEFINE lands the named declarations flagged not yet built so the strict coverage audit binds each criterion, and BUILD (FBS-215) removes the flags as it makes them pass.",
   "testLevel": "unit",
   "acIds": [
@@ -32,7 +32,7 @@
     {
       "id": "TC-248-18906-3-happy",
       "acId": "AC-18906-3",
-      "description": "[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind otherDeclared per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \"journeyStub:\" and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.",
+      "description": "[happy] Given rcf build review on a light or central product, when it runs, then it emits one finding of kind journeyStub per step in state unbound and one per FBS with uiBearing true and no journeyStepIds, each with detail starting \"journeyStub:\" and anchorId the step id or the FBS id, and the exit code is unchanged by these findings.",
       "status": "pending",
       "testPointer": "test/discovery/journey-binding.test.js::AC-18906-3 happy: rcf build review on a light or central product"
     },

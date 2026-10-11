@@ -12,6 +12,7 @@
 
 import { byBuildOrder, computeQueue } from './queue.js';
 import { selectStandards } from './standards-selector.js';
+import { resolveStep } from '../discovery/state.js';
 
 /**
  * Copy `fields` from `source` onto a new object, skipping fields not
@@ -200,6 +201,27 @@ export function assembleBundle(tree, { fbsId }) {
     finalise: `rcf build finalise ${fbsId} --url <deploy-url>`,
   };
 
+  // FBS-215 (AC-18906-1): journey-step bindings. For each id on
+  // fbs.journeyStepIds[], print the step id, label, screen slug and
+  // Screen.wireframe path so the executor sees the UI map it is
+  // delivering. Unresolved ids (brokenReference raised by the walker)
+  // still render a row so the bundle text names what did not resolve.
+  const journey = tree.discoveryJourney ?? null;
+  const boundSteps = (fbs.journeyStepIds ?? []).map((stepId) => {
+    const resolved = resolveStep(journey, stepId);
+    if (!resolved) return { stepId, resolved: false };
+    return {
+      stepId,
+      resolved: true,
+      journeyId: resolved.journey.id,
+      label: resolved.step.label ?? null,
+      slug: resolved.step.slug,
+      screenId: resolved.step.screenId,
+      screenSlug: resolved.screen ? resolved.screen.slug : null,
+      wireframe: resolved.screen ? (resolved.screen.wireframe ?? null) : null,
+    };
+  });
+
   const result = {
     fbs: fbsBlock,
     queue: { position, total: queue.items.length },
@@ -216,6 +238,7 @@ export function assembleBundle(tree, { fbsId }) {
     ...(context ? { context } : {}),
     tests,
     completionContract,
+    boundSteps,
   };
   return result;
 }

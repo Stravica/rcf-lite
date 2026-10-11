@@ -41,6 +41,18 @@ function runNode(args, opts = {}) {
   });
 }
 
+// P3-2 fold-in from the PR 347 (FBS-214) gate (Dave relay d6634033):
+// REFUSAL_PRECOND_LIM and TEARDOWN_PRECOND_LIM_R are referenced below
+// as the `limitation` string the probe records when a precondition
+// step fails (init, declare, or scratch-dir teardown). Both were
+// pre-existing on main; the sibling override probe fixed the same
+// shape by inlining the limitation string, so these mirror that
+// pattern. The strings read as what they are: the D0 UX intake gate
+// precondition keeps the refusal probe observable without the probe
+// itself caring about D0 (FBS-214 / ADR-4146 wording).
+const REFUSAL_PRECOND_LIM = 'D0 precondition: UI posture declared before blueprint apply (FBS-214/ADR-4146)';
+const TEARDOWN_PRECOND_LIM_R = 'Scratch directory teardown after refusal probe';
+
 export default async function runProbe() {
   const scratch = await mkdtemp(join(tmpdir(), 'jobs-bg-refuse-'));
   try {

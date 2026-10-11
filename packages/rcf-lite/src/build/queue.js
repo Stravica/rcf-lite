@@ -1,3 +1,5 @@
+import { computeStepStates } from '../discovery/state.js';
+
 // Build queue semantics (Phase 6 §D2). Pure projection of the FBS
 // documents into a deterministic queue: per-item derived state
 // (actionable / blocked / inProgress / complete / verified), cycle
@@ -56,6 +58,7 @@ const SATISFIED = new Set(['complete', 'verified']);
  * @property {string|null} nextActionable
  * @property {TierGroup[]} tiers - parallel-safe groups, tier ascending
  * @property {QueueItem[]} items
+ * @property {import('../discovery/state.js').StepState[]} journeySteps - FBS-215: binding state per discovery journey step
  */
 
 /**
@@ -259,7 +262,16 @@ export function computeQueue(tree) {
     ? { bsId: tree.bs.bsId, title: tree.bs.title, generationStrategy: tree.bs.generationStrategy }
     : null;
 
-  return { bs, totals, nextActionable: next ? next.fbsId : null, tiers: groupTiers(items), items };
+  // FBS-215 (AC-18906-2): journey-step binding state. Pure projection
+  // off the walked tree and the loaded journey record (both already on
+  // the tree). Absent record (grandfathered) yields an empty block so
+  // callers can key on `journeySteps.length === 0` without a null
+  // guard. The block carries one StepState per step on the record, in
+  // record order, so markdown and JSON formatters render deterministic
+  // output.
+  const journeySteps = computeStepStates({ tree, record: tree.discoveryJourney ?? null });
+
+  return { bs, totals, nextActionable: next ? next.fbsId : null, tiers: groupTiers(items), items, journeySteps };
 }
 
 /**

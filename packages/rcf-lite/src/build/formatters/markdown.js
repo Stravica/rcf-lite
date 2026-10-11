@@ -78,6 +78,22 @@ function formatQueueTable(queue) {
   }
   lines.push('');
   lines.push(`Next actionable: ${queue.nextActionable ?? 'none'}`);
+  // FBS-215 (AC-18906-2): journey-step binding state. Absence of the
+  // record (grandfathered) renders no block so grandfathered trees do
+  // not spawn an empty section; a declared record always renders the
+  // header, even when every step is unbound.
+  const steps = queue.journeySteps ?? [];
+  if (steps.length > 0) {
+    lines.push('');
+    lines.push('Journey steps:');
+    lines.push('');
+    lines.push('| step | journey | state | bound by |');
+    lines.push('|---|---|---|---|');
+    for (const row of steps) {
+      const boundBy = row.fbsIds.length === 0 ? '-' : row.fbsIds.join(', ');
+      lines.push(`| ${row.stepId} | ${row.journeyId} | ${row.state} | ${boundBy} |`);
+    }
+  }
   return `${lines.join('\n')}\n`;
 }
 
@@ -193,6 +209,27 @@ function pushWork(lines, bundle) {
   if (fbs.deliverables !== undefined && fbs.deliverables.length > 0) {
     lines.push('Deliverables:', '');
     for (const d of fbs.deliverables) lines.push(`- ${d}`);
+    lines.push('');
+  }
+  // FBS-215 (AC-18906-1): bound journey steps. One row per
+  // fbs.journeyStepIds[] entry; the executor needs the step id + label,
+  // the screen slug the step sits on, and the wireframe file path the
+  // record names so the UI map is on one page beside the work.
+  const boundSteps = bundle.boundSteps ?? [];
+  if (boundSteps.length > 0) {
+    lines.push('Bound journey steps:', '');
+    lines.push('| step | journey | label | screen | wireframe |');
+    lines.push('|---|---|---|---|---|');
+    for (const row of boundSteps) {
+      if (!row.resolved) {
+        lines.push(`| ${row.stepId} | - | - | - | (unresolved) |`);
+        continue;
+      }
+      const label = row.label ?? '-';
+      const screen = row.screenSlug ?? row.screenId ?? '-';
+      const wireframe = row.wireframe ?? '-';
+      lines.push(`| ${row.stepId} | ${row.journeyId} | ${label} | ${screen} | ${wireframe} |`);
+    }
     lines.push('');
   }
   if (fbs.notes !== undefined) {

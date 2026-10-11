@@ -20,10 +20,12 @@
 //      the reviewAudit record is still valid schema.
 
 import { classifyAttestationProfile, aggregateAttestationsByAc } from '../query/attestation.js';
+import { isUiBearing } from '../ui-detection/classifier.js';
+import { computeStepStates } from '../discovery/state.js';
 
 /**
  * @typedef {import('#core/store/walker.js').TreeModel} TreeModel
- * @typedef {'mockOnlyIntegrationClaim'|'testPointerBroken'|'assertionStrengthWeak'|'acIdsCoverageDrift'|'uiBaselineDrift'|'otherDeclared'} TestTheatreFindingKind
+ * @typedef {'mockOnlyIntegrationClaim'|'testPointerBroken'|'assertionStrengthWeak'|'acIdsCoverageDrift'|'uiBaselineDrift'|'journeyStub'|'otherDeclared'} TestTheatreFindingKind
  */
 
 /**
@@ -217,6 +219,66 @@ function detectAttestationDrift(tree, fbs) {
 }
 
 /**
+ * Detect `journeyStub` findings (FBS-215, AC-18906-3). Two cases, both
+ * raised ONLY when the project has a declared discovery journey record
+ * with `ui` in {light, central} (a grandfathered tree or a declared
+ * `none` tree has no journey to bind against, so this check is
+ * notApplicable there):
+ *
+ *   (a) a discovery step with no FBS naming it in journeyStepIds[]
+ *       (state=unbound in the step-state projection) - anchorId is the
+ *       step id;
+ *   (b) a UI-bearing FBS whose journeyStepIds[] is empty - anchorId is
+ *       the FBS id.
+ *
+ * Severity is `advisory`, so the finding records the gap without
+ * forcing a block verdict (AC-18906-3: the exit code is unchanged by
+ * these findings). Previously these cases went out as `otherDeclared`
+ * with a `journeyStub:` detail prefix; the dedicated kind landed in
+ * rcf-schemas 0.7.0 so consumers can key on the kind directly.
+ *
+ * The second case runs only on the FBS being audited (one audit =
+ * one FBS, so it can only speak for that FBS's binding). The first
+ * case runs on every step on the record because an unbound step is a
+ * gap regardless of which FBS is in the audit frame; the single-FBS
+ * audit still surfaces every unbound step on the review record so the
+ * reviewer sees the whole binding picture.
+ *
+ * @param {TreeModel} tree
+ * @param {object} fbs
+ * @returns {TestTheatreFinding[]}
+ */
+function detectJourneyStub(tree, fbs) {
+  const record = tree.discoveryJourney ?? null;
+  if (!record || record.ui === null || record.ui === 'none') return [];
+  const findings = [];
+  // Case (a): unbound discovery steps.
+  const stepStates = computeStepStates({ tree, record });
+  for (const row of stepStates) {
+    if (row.state !== 'unbound') continue;
+    findings.push({
+      anchorId: row.stepId,
+      kind: 'journeyStub',
+      detail: `journeyStub: discovery step ${row.stepId} on journey ${row.journeyId} has no FBS naming it in journeyStepIds[]; one build spec should deliver it.`,
+      severity: 'advisory',
+    });
+  }
+  // Case (b): the audited FBS is uiBearing but names no steps.
+  if (isUiBearing(fbs)) {
+    const stepIds = Array.isArray(fbs.journeyStepIds) ? fbs.journeyStepIds : [];
+    if (stepIds.length === 0) {
+      findings.push({
+        anchorId: fbs.fbsId,
+        kind: 'journeyStub',
+        detail: `journeyStub: ${fbs.fbsId} is uiBearing but journeyStepIds[] is empty; name the discovery steps this build spec delivers.`,
+        severity: 'advisory',
+      });
+    }
+  }
+  return findings;
+}
+
+/**
  * Run the deterministic test-theatre audit on one FBS. Returns the
  * findings list (aggregated across the four detectors).
  *
@@ -232,6 +294,7 @@ export function auditTestTheatre({ tree, fbs, testPointers }) {
     ...detectTestPointerBroken(tree, fbs, testPointers),
     ...detectAcIdsCoverageDrift(tree, fbs),
     ...detectAttestationDrift(tree, fbs),
+    ...detectJourneyStub(tree, fbs),
   ];
 }
 
@@ -318,8 +381,18 @@ export function composeReviewAuditRecord({ tree, fbs, findings, mutationSampling
 }
 
 function normaliseFinding(f) {
-  const out = { tsId: f.tsId, kind: f.kind, detail: f.detail, severity: f.severity };
+  // tsId is required by the schema for every kind except
+  // uiBaselineDrift and journeyStub; detectors that need it always
+  // set it, detectors that do not need it omit it. Preserve what the
+  // detector set, don't synthesise. Key order mirrors the pre-FBS-215
+  // normalise so JSON output stays byte-stable where tsId is present.
+  const out = {};
+  if (typeof f.tsId === 'string' && f.tsId.length > 0) out.tsId = f.tsId;
+  out.kind = f.kind;
+  out.detail = f.detail;
+  out.severity = f.severity;
   if (typeof f.tcId === 'string' && f.tcId.length > 0) out.tcId = f.tcId;
+  if (typeof f.anchorId === 'string' && f.anchorId.length > 0) out.anchorId = f.anchorId;
   if (typeof f.kindDescription === 'string' && f.kindDescription.length > 0) out.kindDescription = f.kindDescription;
   return out;
 }
