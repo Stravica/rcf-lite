@@ -11,6 +11,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -30,6 +31,7 @@ async function runBin(cwd, args = []) {
 async function scaffoldWithTs(tsStatus = 'draft') {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-ts-cli-'));
   await initProject({ projectRoot: tmp, projectName: 'TsTest' });
+  await declareUiNoneForTests(tmp);
   const ts = {
     id: 'TS-001',
     usId: 'US-101',
@@ -145,6 +147,7 @@ test('test-suite approve is a no-op when already approved', async () => {
 async function scaffoldWithFourDigitTs(tsStatus = 'draft') {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-ts-cli-4digit-'));
   await initProject({ projectRoot: tmp, projectName: 'TsFourDigitTest' });
+  await declareUiNoneForTests(tmp);
   const ts = {
     id: 'TS-1000',
     usId: 'US-101',

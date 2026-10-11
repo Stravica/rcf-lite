@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -53,6 +54,7 @@ async function assertApplied(source, scratch, opts) {
 test('apply refuses with requiresAppliedCapabilities rcfError on a bare project (TC-051-apply-discovery-refuse)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-bare-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   // No auth blueprint applied. The console apply refuses, with the
   // spec 5.5.1 verbatim opening line and the "Applied blueprints on
   // this project:" block naming (none) plus the --allow-no-auth-yet
@@ -69,6 +71,7 @@ test('apply refuses with requiresAppliedCapabilities rcfError on a bare project 
 test('apply honours allowNoAuthYet and writes sidecar with notes (TC-051-apply-allow-skip)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-skip-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const result = await applyIn(scratch, CONSOLE_BP, { allowNoAuthYet: true });
   assert.equal(result.applied, true, JSON.stringify(result));
   assert.equal(result.sidecarPath, 'rcf/blueprints/application-admin-console.applied.json');
@@ -84,6 +87,7 @@ test('apply honours allowNoAuthYet and writes sidecar with notes (TC-051-apply-a
 test('object-storage-s3 apply refuses on a bare project with the object-storage-s3-no-secrets tag and names the override (TC-051-obj-storage-refuse)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-obj-bare-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const result = await applyIn(scratch, OBJECT_STORAGE_BP);
   assert.equal(result.kind, 'requiresAppliedCapabilities', JSON.stringify(result));
   // First-line tag is the stable message id; dashboards/lints bind here.
@@ -97,6 +101,7 @@ test('object-storage-s3 apply refuses on a bare project with the object-storage-
 test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secrets-management-flavoured notes (TC-051-obj-storage-allow-skip)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-obj-skip-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const result = await applyIn(scratch, OBJECT_STORAGE_BP, { allowNoAuthYet: true });
   assert.equal(result.applied, true, JSON.stringify(result));
   assert.equal(result.sidecarPath, 'rcf/blueprints/object-storage-s3.applied.json');
@@ -122,6 +127,7 @@ test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secr
 test('object-storage-s3 apply passes on a project with security-secrets-management v1.0.1 (secretsProvider) applied (TC-051-obj-storage-cap-satisfied)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-obj-happy-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const first = await applyIn(scratch, SECRETS_BP);
   assert.equal(first.applied, true, `security-secrets-management apply failed: ${JSON.stringify(first)}`);
   const second = await applyIn(scratch, OBJECT_STORAGE_BP);
@@ -143,6 +149,7 @@ test('object-storage-s3 apply passes on a project with security-secrets-manageme
 test('apply elicitation phase coerces answers by kind and refuses missing required (TC-051-elicit-answers)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-elicit-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   // Apply clerk (declares principalDirectory + roleModel) so
   // baseline-roles fires; invite-transport is always in the elicit
   // set (no when-predicate). tenancy-shape and audit-retention-days
@@ -163,6 +170,7 @@ test('apply elicitation phase coerces answers by kind and refuses missing requir
   // Enum refusal when a firing prompt gets an out-of-vocabulary answer.
   const scratch2 = await mkdtemp(join(tmpdir(), 'cap-apply-elicit-2-'));
   await initProject({ projectRoot: scratch2, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch2);
   await assertApplied(CLERK_BP, scratch2);
   const bad = await applyIn(scratch2, CONSOLE_BP, {
     elicitAnswers: { 'invite-transport': 'carrier-pigeon' },
@@ -175,6 +183,7 @@ test('apply elicitation phase coerces answers by kind and refuses missing requir
 test('apply writes sidecar with appliedCapabilities and appliedElicitations idempotently (TC-051-sidecar-write)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-sidecar-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   await assertApplied(MAGIC_LINK_BP, scratch);
   const first = await applyIn(scratch, CONSOLE_BP);
   assert.equal(first.applied, true, JSON.stringify(first));
@@ -194,6 +203,7 @@ test('apply writes sidecar with appliedCapabilities and appliedElicitations idem
   // Clerk widens the union to [principalDirectory, roleModel].
   const scratch2 = await mkdtemp(join(tmpdir(), 'cap-apply-sidecar-2-'));
   await initProject({ projectRoot: scratch2, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch2);
   await assertApplied(CLERK_BP, scratch2);
   const wide = await applyIn(scratch2, CONSOLE_BP);
   assert.equal(wide.applied, true, JSON.stringify(wide));
@@ -204,6 +214,7 @@ test('apply writes sidecar with appliedCapabilities and appliedElicitations idem
 test('apply on a custom-auth project fires providesCapability elicits pre-refusal and folds the answers into appliedCapabilities (TC-051-custom-auth-elicit)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-custom-auth-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   // No shelf auth applied. Custom-auth boolean answers say the
   // project's own auth provides principalDirectory + roleModel; the
   // refusal gate must NOT fire, the sidecar must record the caps
@@ -233,6 +244,7 @@ test('apply on a custom-auth project fires providesCapability elicits pre-refusa
 test('apply on a custom-auth project still refuses when no capability answers are supplied and no override is passed (TC-051-custom-auth-elicit-refusal)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-custom-auth-refuse-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   // No custom-auth answers supplied and no allowNoAuthYet: refusal
   // must fire, same message as before the mechanism landed.
   const result = await applyIn(scratch, CONSOLE_BP, {
@@ -248,6 +260,7 @@ test('apply on a custom-auth project still refuses when no capability answers ar
 test('apply on a custom-auth project supports interactive TTY prompts via a readLine seam (TC-051-custom-auth-elicit-tty)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-custom-auth-tty-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   // Simulate a TTY session by providing a readLine seam that answers
   // each custom-auth prompt as yes / no in turn. No answers supplied
   // via the answer bag; the seam is the only source.
@@ -277,6 +290,7 @@ test('apply on a custom-auth project supports interactive TTY prompts via a read
 test('jobs-background apply refuses on a bare project with the jobs-background-no-queue tag, names messaging-queue-cloudflare and the --allow-no-queue-yet override (TC-051-jobs-background-refuse)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-bare-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const result = await applyIn(scratch, JOBS_BACKGROUND_BP);
   assert.equal(result.kind, 'requiresAppliedCapabilities', JSON.stringify(result));
   // First-line tag is the stable message id; dashboards/lints bind here.
@@ -290,6 +304,7 @@ test('jobs-background apply refuses on a bare project with the jobs-background-n
 test('jobs-background --allow-no-queue-yet override writes sidecar with queue-family notes (TC-051-jobs-background-allow-skip)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-skip-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const result = await applyIn(scratch, JOBS_BACKGROUND_BP, { allowNoAuthYet: true });
   assert.equal(result.applied, true, JSON.stringify(result));
   assert.equal(result.sidecarPath, 'rcf/blueprints/jobs-background.applied.json');
@@ -313,6 +328,7 @@ test('jobs-background --allow-no-queue-yet override writes sidecar with queue-fa
 test('jobs-background apply passes on a project with messaging-queue-cloudflare (queue) applied (TC-051-jobs-background-cap-satisfied)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-happy-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const first = await applyIn(scratch, MESSAGING_QUEUE_BP);
   assert.equal(first.applied, true, `messaging-queue-cloudflare apply failed: ${JSON.stringify(first)}`);
   const second = await applyIn(scratch, JOBS_BACKGROUND_BP);
@@ -329,6 +345,7 @@ test('jobs-background apply passes on a project with messaging-queue-cloudflare 
 test('jobs-background legacy --allow-no-auth-yet also unblocks the queue-capability override (TC-051-jobs-background-legacy-flag)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'cap-apply-jobs-legacy-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   // The runner applies the OR-of-flags shape (allowNoAuthYet piped from
   // --allow-no-auth-yet OR --allow-no-secrets-yet OR --allow-no-queue-yet).
   // A caller passing the legacy auth-family flag on a jobs-background

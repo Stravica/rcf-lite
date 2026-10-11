@@ -14,6 +14,7 @@ import { walkTree } from '../../../src/core/store/walker.js';
 import {
   createDocument, deleteDocument, deriveSlug, nextIdForKind, updateDocument,
 } from '../../../src/core/store/writer.js';
+import { declareUiNoneForTests } from '../../_helpers/d0.js';
 
 async function scaffold() {
   const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-writer-'));

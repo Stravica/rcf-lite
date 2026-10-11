@@ -25,6 +25,7 @@ import { walkTree } from '../../../src/core/store/walker.js';
 import {
   createDocument, deleteDocument, nextIdForKind, updateDocument,
 } from '../../../src/core/store/writer.js';
+import { declareUiNoneForTests } from '../../_helpers/d0.js';
 
 // The exact TS-003 wedge shape: a test suite whose `status` fails the
 // schema enum. Everything else about the tree stays scaffold-valid.

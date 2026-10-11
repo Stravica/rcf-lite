@@ -24,6 +24,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { BODY_CAP_BYTES } from '../../src/feedback/redact.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -50,6 +51,7 @@ async function runBin(cwd, args = [], extraEnv = {}) {
 async function scaffoldReady(name = 'PreviewProject') {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-preview-'));
   await initProject({ projectRoot: tmp, projectName: name });
+  await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;
 }

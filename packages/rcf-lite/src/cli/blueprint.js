@@ -8,10 +8,12 @@
 //   diff         side-by-side view of applied blueprints' scope:global
 //                ADRs on a topic
 
+import { realpath } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
 import { isRcfError } from '#core/errors';
 import { walkTree } from '#core/store';
+import { checkD0Door } from './_door.js';
 import { findProjectRoot } from '../view/index.js';
 import {
   applyBlueprint,
@@ -297,6 +299,12 @@ export async function main(argv, deps = {}) {
       stderr.write('[error] blueprint add: missing <source>\n');
       return 2;
     }
+    // FBS-214 (REQ-189, TAC-4142, ADR-4146): D0 door before any
+    // blueprint-add write (AC-18905-4). Other blueprint verbs
+    // (list, remove, library-*, lint-consistency) are not gated.
+    const projectRootCanonical = await realpath(projectRoot);
+    const door = await checkD0Door({ projectRoot: projectRootCanonical, stderr, verb: 'blueprint add' });
+    if (!door.ok) return door.exitCode;
     const rawSource = rest[0];
     const resolved = await resolveBlueprintSource(rawSource, { projectRoot });
     if (isRcfError(resolved)) {

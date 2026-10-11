@@ -52,6 +52,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { fingerprint } from '../../src/feedback/fingerprint.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -61,6 +62,7 @@ const FAKE = resolve(here, '..', 'feedback', 'gh-fakes', 'gh-fake-configurable.m
 async function scaffoldReady(name = 'SubmitTest') {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-submit-'));
   await initProject({ projectRoot: tmp, projectName: name });
+  await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;
 }

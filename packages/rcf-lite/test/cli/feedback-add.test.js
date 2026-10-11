@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -46,6 +47,7 @@ async function runBin(cwd, args = []) {
 async function scaffoldReady() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-add-'));
   await initProject({ projectRoot: tmp, projectName: 'FeedbackAdd' });
+  await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;
 }
@@ -53,6 +55,7 @@ async function scaffoldReady() {
 async function scaffoldNoIgnore() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-add-noignore-'));
   await initProject({ projectRoot: tmp, projectName: 'FeedbackNoIgnore' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

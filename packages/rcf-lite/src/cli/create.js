@@ -2,12 +2,13 @@
 // the actual persistence; this file handles CLI parsing + defaults +
 // pre-run tree walk. Phase 4 §D6 (revised).
 
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
 
 import { writeUnexpectedFailure } from '#core/errors';
 import { createDocument, deriveSlug, splitCnPath, walkTree } from '#core/store';
 import { deriveFileDeps, mapDerivedDepsToCnIds } from '#core/store/derive-deps.js';
+import { checkD0Door } from './_door.js';
 import { findProjectRoot } from '../view/index.js';
 // Track C+D §4.4: run the REQ-shape classifier on newly-created REQs
 // so downstream tooling (rcf req-baseline, rcf preflight, the Stage-1
@@ -160,6 +161,14 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
     return 2;
   }
+
+  // FBS-214 (REQ-189, TAC-4142, ADR-4146): D0 door before any
+  // chain-write mint. `create` is one of the three verbs gated
+  // (AC-18905-4). Runs before walkTree so a failing D0 refuses with
+  // zero side effects.
+  const projectRootCanonical = await realpath(projectRoot);
+  const door = await checkD0Door({ projectRoot: projectRootCanonical, stderr, verb: `create ${rawKind}` });
+  if (!door.ok) return door.exitCode;
 
   const walkResult = await walkTree({ projectRoot });
   // B5: pre-existing tree breakage no longer blocks write verbs - the

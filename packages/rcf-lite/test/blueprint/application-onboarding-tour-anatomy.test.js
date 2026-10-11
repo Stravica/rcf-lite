@@ -16,6 +16,7 @@ import { walkTree } from '../../src/core/store/walker.js';
 import { readContributedAcIds } from '../../src/browser-verify/pack-loader.js';
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 import { main as runDefineValidate } from '../../src/cli/validate.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -83,6 +84,7 @@ test('ADR JSON documents validate against 0.6.1 and standardsTraceClause is non-
 test('applies cleanly on a fresh project with 21 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'onboarding-tour-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
   const apply = await applyBlueprint({ projectRoot: scratch, tree, source: BLUEPRINT_ROOT });
   assert.equal(apply.applied, true, JSON.stringify(apply));

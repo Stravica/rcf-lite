@@ -17,6 +17,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { createRouter } from '../../src/server/routes.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 async function freePort() {
   return await new Promise((resolveP, rejectP) => {

@@ -11,6 +11,7 @@ import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
@@ -30,6 +31,7 @@ const MALFORMED_TS_003 = {
 async function scaffoldWedge() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-b5-mcp-'));
   await initProject({ projectRoot: tmp, projectName: 'B5McpTest' });
+  await declareUiNoneForTests(tmp);
   await writeFile(
     join(tmp, 'rcf/test-suites/ts-003.json'),
     `${JSON.stringify(MALFORMED_TS_003, null, 2)}\n`,

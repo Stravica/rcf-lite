@@ -15,6 +15,7 @@ import {
   parseOpenArgs,
   resolveBaseUrl,
 } from '../../src/cli/view.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -36,6 +37,7 @@ async function runBin(cwd, args = [], env = {}) {
 async function makeProjectWithBlueprint() {
   const root = await mkdtemp(join(tmpdir(), 'rcf-view-open-'));
   await initProject({ projectRoot: root, projectName: 'scope test' });
+  await declareUiNoneForTests(root);
   // Seed manifest.blueprints[] with an applied record.
   const manifestPath = join(root, 'rcf', 'manifest.json');
   const raw = await (await import('node:fs/promises')).readFile(manifestPath, 'utf8');
@@ -87,6 +89,7 @@ test('composeScopeUrl handles bare base url without params', () => {
 test('resolveBaseUrl falls back to default port when nothing is running or flagged', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-resolve-'));
   await initProject({ projectRoot: root, projectName: 'resolve test' });
+  await declareUiNoneForTests(root);
   const r = await resolveBaseUrl({ projectRoot: root, port: null, env: {} });
   assert.equal(r.source, 'default');
   assert.equal(r.baseUrl, 'http://127.0.0.1:4373/');
@@ -95,6 +98,7 @@ test('resolveBaseUrl falls back to default port when nothing is running or flagg
 test('resolveBaseUrl honours --port when passed', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-resolve-'));
   await initProject({ projectRoot: root, projectName: 'resolve test' });
+  await declareUiNoneForTests(root);
   const r = await resolveBaseUrl({ projectRoot: root, port: 5555, env: {} });
   assert.equal(r.source, 'flag');
   assert.equal(r.baseUrl, 'http://127.0.0.1:5555/');

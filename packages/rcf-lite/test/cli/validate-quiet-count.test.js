@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,7 @@ async function runBin(cwd, args = []) {
 async function scaffoldBroken(errorCount) {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-validate-quiet-count-'));
   await initProject({ projectRoot: tmp, projectName: 'QuietTest' });
+  await declareUiNoneForTests(tmp);
   // Break multiple docs' schema by removing the required `status` field.
   // Each doc contributes one validation error.
   const targets = [

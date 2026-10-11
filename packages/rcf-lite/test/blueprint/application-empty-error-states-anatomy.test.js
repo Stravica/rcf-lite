@@ -18,6 +18,7 @@ import { loadProbePacks, readContributedAcIds } from '../../src/browser-verify/p
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer, NAMED_STATES } from '../fixtures/probe-pack-application-empty-error-states/server.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -62,6 +63,7 @@ test('blueprint.json declares 21 contributions with no capabilities and no requi
 test('applies cleanly on a fresh init project and adds 21 documents to the tree (TC-053-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
   assert.equal(bp.slug, 'application-empty-error-states');
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -113,6 +115,7 @@ test('every pack check id matches a contributed AC id and appliesTo binds tacIds
 test('application-empty-error-states: pack loader discovers the shipped pack against an applied scratch project (TC-053-pack-loader-discovers)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-loader-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
   await applyBlueprint({ projectRoot: scratch, tree, source: BLUEPRINT_ROOT });
   const { packs, errors, warnings } = await loadProbePacks({

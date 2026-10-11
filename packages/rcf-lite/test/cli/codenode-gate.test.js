@@ -13,6 +13,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -32,6 +33,7 @@ async function runBin(cwd, args = []) {
 async function scaffold(name) {
   const tmp = await mkdtemp(join(tmpdir(), `rcf-gate-cli-${name}-`));
   await initProject({ projectRoot: tmp, projectName: 'GateTest' });
+  await declareUiNoneForTests(tmp);
   await mkdir(join(tmp, 'src'), { recursive: true });
   await writeFile(join(tmp, 'src', 'save.js'), 'export function save() {}\n', 'utf8');
   // Scaffold FBS-001 delivers AC-101-1 (initProject wires acIds:['AC-101-1']).

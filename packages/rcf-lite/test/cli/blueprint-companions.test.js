@@ -15,6 +15,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -39,6 +40,7 @@ async function runBin(cwd, args) {
 async function scaffold(name) {
   const root = await mkdtemp(join(tmpdir(), `rcf-bp-companions-${name}-`));
   const init = await initProject({ projectRoot: root, projectName: name });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
   return root;
 }

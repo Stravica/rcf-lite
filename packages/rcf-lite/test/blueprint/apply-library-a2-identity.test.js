@@ -13,6 +13,7 @@ import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { resolveBlueprintSource } from '../../src/blueprint/shelf-resolver.js';
 import { REGISTRY_PATH, REGISTRY_VERSION } from '../../src/blueprint/library-registry.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const now = new Date('2026-09-04T10:00:00Z');
 
@@ -49,6 +50,7 @@ async function scaffoldLibrary() {
 async function scaffoldProjectWithRegistry(entry) {
   const root = await mkdtemp(join(tmpdir(), 'rcf-a2-id-proj-'));
   const init = await initProject({ projectRoot: root, projectName: 'A2IdentityTest' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, JSON.stringify(init));
   if (entry) {
     await writeFile(join(root, REGISTRY_PATH), JSON.stringify({

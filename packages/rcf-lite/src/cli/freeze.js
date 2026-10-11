@@ -35,6 +35,7 @@ import { checkCodeNodeResolution } from '#core/store';
 import { findProjectRoot } from '../view/index.js';
 import { loadFreezeRecord, saveFreezeRecord } from '../define/freeze-record.js';
 import { loadAllLedgers } from '../define/ledgers.js';
+import { loadDiscoveryContext } from '../discovery/context.js';
 import { resolveInterfacePaths } from '../define/interface-paths.js';
 import {
   STAGE_ALIASES,
@@ -375,6 +376,9 @@ async function runFreeze({
   // readiness verdict instead of defaulting to an empty set and
   // false-failing resolvable paths.
   const resolvedPaths = await resolveInterfacePaths(projectRoot, tree);
+  // F3 (FBS-214): load D0 discovery context so freeze refuses on a
+  // failing D0 and `printFailingBlock` names the stage in its output.
+  const discoveryContext = await loadDiscoveryContext({ projectRoot });
   /** @type {import('../query/readiness.js').ReadinessResult} */
   const readiness = computeReadiness(tree, {
     freeze: freezeForCompute,
@@ -383,6 +387,7 @@ async function runFreeze({
     testPointers,
     validateErrors,
     resolvedPaths,
+    discoveryContext,
   });
   const gated = await runWithAdmissibilityGate({
     tree,

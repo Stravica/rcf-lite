@@ -41,6 +41,8 @@ async function rcf(args) {
 
 const SEQUENCE = {
   s2Init: ['init', '--non-interactive', '--project-name', 'Recipe Box'],
+  // FBS-214: section 4 of docs/getting-started.md starts with a declare step.
+  s4Declare: ['discover', 'journey', 'declare', '--ui', 'none'],
   s4Author: [
     ['define', 'update', 'PRD-001', '--set', 'problemStatement=Home cooks lose recipes across bookmarks, screenshots and notes apps.', '--set', 'objectives.0=Keep every recipe in one place and find it again by ingredient.'],
     ['define', 'update', 'REQ-001', '--set', 'title=Recipe capture', '--set', 'description=Users can save a recipe with a title, an ingredient list and a method.', '--set', 'domain=capture'],
@@ -89,6 +91,15 @@ test('s2: rcf init scaffolds the project (exit 0)', async () => {
   assert.equal(code, 0);
   assert.match(stdout, /RCF project created\./);
   assert.match(stdout, /Document chain\s+scaffolded under rcf\//);
+});
+
+test('s4: declare the UI posture (section 4 preamble, exit 0)', async () => {
+  // FBS-214 (AC-18905-9 + docs F7): the walkthrough now documents the
+  // declare step at the top of section 4. We replay the exact command
+  // the doc prints so a user following getting-started.md end to end
+  // never hits the D0 door at "Author the chain".
+  const { code, stderr } = await rcf(SEQUENCE.s4Declare);
+  assert.equal(code, 0, `declare failed: ${stderr}`);
 });
 
 test('s4: the authoring sequence succeeds end to end (exit 0 each)', async () => {

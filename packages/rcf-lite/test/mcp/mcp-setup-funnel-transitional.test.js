@@ -14,12 +14,14 @@ import { join } from 'node:path';
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { hasAgentMarker } from '../../src/setup/agent-setup.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
 async function scaffold(prefix) {
   const tmp = await mkdtemp(join(tmpdir(), prefix));
   await initProject({ projectRoot: tmp, projectName: 'FunnelXfer' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

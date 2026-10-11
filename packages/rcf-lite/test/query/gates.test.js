@@ -11,6 +11,7 @@ import {
   STAGE_GATES,
   STAGE_ORDER,
   STAGE_SHORT_NAMES,
+  checkD0Discovery,
   checkD1Brief,
   checkD2Skeleton,
   checkD3Shapes,
@@ -115,7 +116,9 @@ function assertCheckShape(stage) {
 // ---------------------------------------------------------------------------
 
 test('gates: STAGE_ORDER, STAGE_GATES and STAGE_SHORT_NAMES cover every stage', () => {
-  assert.deepEqual([...STAGE_ORDER], ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
+  // FBS-214: D0 (UX intake gate) prepends the sequence; D1..D8
+  // keep their canonical order.
+  assert.deepEqual([...STAGE_ORDER], ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
   for (const stage of STAGE_ORDER) {
     assert.ok(typeof STAGE_GATES[stage] === 'string');
     assert.ok(typeof STAGE_SHORT_NAMES[stage] === 'string');
@@ -599,8 +602,13 @@ import {
   hasDraftMarker,
 } from '../../src/query/gates.js';
 
-/** The 36 check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites + PR 6 D4/D5/standards + PR 7 D6 scans). */
+/** The check names (0.30.0 after ADR-4126 + ADR-4131 PR 5 D3 bites +
+ *  PR 6 D4/D5/standards + PR 7 D6 scans; FBS-214 adds nine D0
+ *  discovery:* names for the UX intake gate). */
 const EXPECTED_CHECK_NAMES = [
+  'discovery:declared', 'discovery:journeyPresent', 'discovery:stepsNameScreens',
+  'discovery:reachable', 'discovery:interruptions', 'discovery:wireframePerStep',
+  'discovery:wireframeFormat', 'discovery:wireframeSelfContained', 'discovery:reviewed',
   'brief:sinceFreeze', 'brief:kinds', 'brief:openQuestions', 'brief:profile',
   'skeleton:resolvedBy', 'skeleton:reqIntent', 'skeleton:reqShape',
   'skeleton:tadPersistence', 'skeleton:deployAdr', 'skeleton:standardsCited',
@@ -637,7 +645,7 @@ test('gates (ADR-4126): checkPersona / checkQuestion helpers mirror the maps', (
 });
 
 test('gates (ADR-4126): STAGE_FALLBACK_PERSONA covers every stage', () => {
-  for (const stage of ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
+  for (const stage of ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']) {
     const v = STAGE_FALLBACK_PERSONA[stage];
     assert.ok(v === 'productOwner' || v === 'engineer', `${stage}: ${v}`);
   }
@@ -2741,4 +2749,71 @@ test('gates (R8, AC-17405-5): applied disposition satisfies standardsCited along
   assert.equal(unsatisfiedCheck.ok, false);
   assert.equal(unsatisfiedCheck.failing[0].id, 'standards:company-security');
   assert.equal(unsatisfiedCheck.failing[0].why, 'uncited, unapplied and unwaived');
+});
+
+// ---------------------------------------------------------------------------
+// FBS-214 D0 fixtures: checkD0Discovery against the real DiscoveryContext
+// shapes - grandfathered (absent), declared-none, ui-null, declared-light
+// (with and without journey), declared-central (with and without review),
+// and the F1 invalid-record signal. Kept here as pure-gate coverage so a
+// regression in checkD0Discovery is caught in the gates test file too
+// (not only in discovery-gate.test.js).
+// ---------------------------------------------------------------------------
+
+test('gates (FBS-214): checkD0Discovery folds every DiscoveryContext shape correctly', () => {
+  // Grandfathered (absent file).
+  const grand = checkD0Discovery({ discoveryContext: { record: null, hasRecordFile: false, wireframes: new Map() } });
+  assert.equal(grand.state, 'notApplicable');
+  assert.ok(/no discovery declaration/.test(grand.reason), `grand reason; got ${grand.reason}`);
+
+  // Declared none.
+  const none = checkD0Discovery({ discoveryContext: { record: { ui: 'none', asBuilt: false, journeys: [], screens: [], review: null }, hasRecordFile: true, wireframes: new Map() } });
+  assert.equal(none.state, 'notApplicable');
+  assert.ok(/not UI-bearing/.test(none.reason));
+
+  // ui null (init-seeded) => failing on discovery:declared, one check.
+  const seeded = checkD0Discovery({ discoveryContext: { record: { ui: null, asBuilt: false, journeys: [], screens: [], review: null }, hasRecordFile: true, wireframes: new Map() } });
+  assert.equal(seeded.state, 'failing');
+  assert.equal(seeded.checks.length, 1);
+  assert.equal(seeded.checks[0].name, 'discovery:declared');
+  assert.equal(seeded.checks[0].ok, false);
+
+  // Light with no journey authored: discovery:journeyPresent fails;
+  // wireframePerStep and reviewed are N/A (ok=true, total=0).
+  const lightEmpty = checkD0Discovery({ discoveryContext: { record: { ui: 'light', asBuilt: false, journeys: [], screens: [], review: null }, hasRecordFile: true, wireframes: new Map() } });
+  assert.equal(lightEmpty.state, 'failing');
+  const lightJourney = lightEmpty.checks.find((c) => c.name === 'discovery:journeyPresent');
+  const lightWf = lightEmpty.checks.find((c) => c.name === 'discovery:wireframePerStep');
+  const lightReviewed = lightEmpty.checks.find((c) => c.name === 'discovery:reviewed');
+  assert.ok(lightJourney && lightJourney.ok === false, 'light empty: journeyPresent fails');
+  assert.ok(lightWf && lightWf.ok === true && lightWf.total === 0, 'light: wireframePerStep is N/A');
+  assert.ok(lightReviewed && lightReviewed.ok === true && lightReviewed.total === 0, 'light: reviewed is N/A');
+
+  // Central with no review: discovery:reviewed fails (every central
+  // product demands a stamp). journeyPresent also fails on an empty
+  // journeys array.
+  const centralEmpty = checkD0Discovery({ discoveryContext: { record: { ui: 'central', asBuilt: false, journeys: [], screens: [], review: null }, hasRecordFile: true, wireframes: new Map() } });
+  assert.equal(centralEmpty.state, 'failing');
+  const centralReviewed = centralEmpty.checks.find((c) => c.name === 'discovery:reviewed');
+  assert.ok(centralReviewed && centralReviewed.ok === false, 'central without stamp: reviewed fails');
+
+  // F1: invalid record signal => failing discovery:declared.
+  const invalid = checkD0Discovery({ discoveryContext: {
+    record: null, hasRecordFile: true, wireframes: new Map(),
+    invalidRecord: new Error('journey.json parse failed: Unexpected token'),
+  } });
+  assert.equal(invalid.state, 'failing');
+  const invalidDeclared = invalid.checks.find((c) => c.name === 'discovery:declared');
+  assert.ok(invalidDeclared && invalidDeclared.ok === false, 'invalid record: discovery:declared fails');
+  const invalidWhy = invalidDeclared.failing[0].why;
+  assert.ok(/not a valid record/.test(invalidWhy), `invalid why mentions not a valid record; got ${invalidWhy}`);
+  // F8: no undocumented notApplicableReason field on any check.
+  for (const stage of [grand, none, seeded, lightEmpty, centralEmpty, invalid]) {
+    for (const c of (stage.checks || [])) {
+      assert.ok(!('notApplicableReason' in c), `check ${c.name} must not carry notApplicableReason`);
+    }
+  }
+  // F9: the ui-null why on discovery:declared carries no backticked rcf command.
+  const ac9Why = seeded.checks[0].failing[0].why;
+  assert.ok(!/`rcf\s/.test(ac9Why), `discovery:declared why must not carry backticked command; got ${ac9Why}`);
 });

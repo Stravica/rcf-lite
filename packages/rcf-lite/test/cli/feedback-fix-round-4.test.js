@@ -33,6 +33,7 @@ import {
   matchesSecretKeyLoose,
   secretKeyRegexSource,
 } from '../../src/feedback/redact.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -59,6 +60,7 @@ async function runBin(cwd, args = [], extraEnv = {}) {
 async function scaffold(name = 'FixRound4Project') {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-fixround4-'));
   await initProject({ projectRoot: tmp, projectName: name });
+  await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;
 }

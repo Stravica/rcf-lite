@@ -12,6 +12,7 @@ import { join } from 'node:path';
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry, validateToolArgs } from '../../src/mcp/tools.js';
 import { JsonRpcError } from '#core/mcp-shell';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
@@ -26,6 +27,7 @@ const EXPECTED_NAMES = [
 async function scaffold() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-tools-'));
   await initProject({ projectRoot: tmp, projectName: 'McpToolsTest' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

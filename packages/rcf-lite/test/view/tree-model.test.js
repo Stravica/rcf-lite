@@ -8,6 +8,7 @@ import { fileURLToPath } from 'node:url';
 import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store';
 import { buildTreeModel, listAllDocumentIds } from '../../src/view/tree-model.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -113,6 +114,7 @@ test('buildTreeModel exposes empty tsByAcId / tcsByAcId when no TS files exist',
   // scaffold, whose test-suites/ directory is empty by construction.
   const root = await mkdtemp(join(tmpdir(), 'rcf-tree-model-no-ts-'));
   await initProject({ projectRoot: root });
+  await declareUiNoneForTests(root);
   const result = await walkTree({ projectRoot: root });
   const model = buildTreeModel(result);
   assert.equal(model.tsByAcId.size, 0);

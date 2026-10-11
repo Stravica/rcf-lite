@@ -14,6 +14,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
@@ -21,6 +22,7 @@ const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 async function scaffold() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-e2e-'));
   await initProject({ projectRoot: tmp, projectName: 'McpE2eTest' });
+  await declareUiNoneForTests(tmp);
   return tmp;
 }
 

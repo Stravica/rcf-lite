@@ -16,6 +16,7 @@ import { STAGE_GATES, STAGE_ORDER } from '../../query/gates.js';
  * @type {Record<string, { name: string, meaning: string, posture: 'blocking'|'warn-with-ack' }>}
  */
 export const STAGE_LEGEND = {
+  D0: { name: 'Discovery', meaning: 'UX intake gate: a journey record is declared (none, light or central); for a UI-bearing product every journey step names a reachable screen, the interruption catalogue is answered, central wireframes are present and the review stamp is fresh.', posture: 'blocking' },
   D1: { name: 'Brief', meaning: 'Brief intake and ledger: the owner\'s statements numbered and kinded, open questions answered or promoted, profile markers set.', posture: 'blocking' },
   D2: { name: 'Skeleton', meaning: 'Requirements and architecture skeleton: every statement resolves to a requirement, an entity, an actor, a system or a surface; TAD persistence and a deploy decision exist.', posture: 'blocking' },
   D3: { name: 'Shapes', meaning: 'Interface contracts and shapes on components and on shaped requirements (http, persistence, auth).', posture: 'warn-with-ack' },
@@ -59,10 +60,10 @@ export function renderStageLegend() {
   }).join('');
   return `<dialog id="rcf-stage-legend" class="rcf-stage-legend" aria-labelledby="rcf-stage-legend-title">
   <header class="rcf-stage-legend__head">
-    <h2 id="rcf-stage-legend-title">Stage guide: D1 to D8</h2>
+    <h2 id="rcf-stage-legend-title">Stage guide: D0 to D8</h2>
     <form method="dialog"><button type="submit" class="rcf-stage-legend__close">Close</button></form>
   </header>
-  <p class="rcf-stage-legend__intro muted">The eight DEFINE stages the readiness object reports on. A blocking stage must pass before the tree can freeze; a warning stage passes once its findings are acknowledged. Codes are the chain's names; the viewer never asks a product owner to read them.</p>
+  <p class="rcf-stage-legend__intro muted">The nine DEFINE stages the readiness object reports on. A blocking stage must pass before the tree can freeze; a warning stage passes once its findings are acknowledged. Codes are the chain's names; the viewer never asks a product owner to read them.</p>
   <table class="rcf-stage-legend__table">
     <thead><tr><th>Stage</th><th>Name</th><th>What it checks</th><th>Posture</th></tr></thead>
     <tbody>${rows}</tbody>

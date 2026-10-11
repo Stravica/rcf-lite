@@ -25,6 +25,7 @@ import { initProject } from '#core/store/init.js';
 import { redact, findResidualSecrets, BODY_CAP_BYTES } from '../../src/feedback/redact.js';
 import { renderIssue, capRenderedBody } from '../../src/feedback/render.js';
 import { ensureGitignore, appendEntry, appendState, feedbackDir } from '../../src/feedback/store.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -51,6 +52,7 @@ async function runBin(cwd, args = [], extraEnv = {}) {
 async function scaffold(name = 'FixRound3Project') {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-fixround3-'));
   await initProject({ projectRoot: tmp, projectName: name });
+  await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;
 }

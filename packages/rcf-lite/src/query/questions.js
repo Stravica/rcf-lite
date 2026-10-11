@@ -14,9 +14,11 @@
 /** The accepted personas, named everywhere the usage error mentions them. */
 export const PERSONAS = /** @type {const} */ (['productOwner', 'engineer']);
 
-/** Ordering spec §1.2: PO stages in this order; later stages fall through. */
-const PO_STAGE_ORDER = ['D1', 'D2', 'D4', 'D7'];
-const ENG_STAGE_ORDER = ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8'];
+/** Ordering spec §1.2 + FBS-214: D0 first (UX intake gate items come
+ *  before brief/skeleton questions). AC-18905-8 names the ordering
+ *  rule: "the D0 items come first". */
+const PO_STAGE_ORDER = ['D0', 'D1', 'D2', 'D4', 'D7'];
+const ENG_STAGE_ORDER = ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8'];
 
 /**
  * Compute the persona question set from a readiness result, the tree,
@@ -219,6 +221,141 @@ function buildQuestionForItem(blocker, item, {
   const check = blocker.check;
   const itemId = item.id;
   const qid = `Q-${stage}-${check.replace(/[^A-Za-z0-9:]/g, '-')}-${itemId}`;
+
+  // ---- D0 discovery:* -------------------------------------------------
+  // FBS-214 (AC-18905-8): the D0 items come first and each carries a
+  // plain question template plus a write-back naming the journey verb
+  // that resolves it. The "declare" verb is the top of the discovery
+  // write path; the structural and wireframe failures route through
+  // `add`, `import` and `review`. A declared `none` product and a
+  // grandfathered tree (absent record) contribute no D0 question
+  // because D0 folds to notApplicable before extractItems runs.
+  if (check === 'discovery:declared') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Has the UI posture been declared?',
+      ask: 'Does this project present any user interface: none, light (one or two screens) or central (the UI is the product)? Pick one; a none product skips the rest of the discovery gate.',
+      context: { sourceSpan: 'rcf/discovery/journey.json' },
+      answerKinds: ['declare'],
+      writeBack: [
+        { when: 'declare', command: 'rcf discover journey declare --ui <none|light|central>' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:journeyPresent') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Is at least one journey authored with an entry and an exit?',
+      ask: `Journey ${JSON.stringify(itemId)} is missing an entry or an exit step. Author at least one complete journey (entry, intermediate steps, exit) before the discovery gate can pass.`,
+      context: { sourceSpan: 'rcf/discovery/journey.json' },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'author a journey source (one JNY: header, then step lines with entry/intermediate/exit kinds and screen references) and run `rcf discover journey add --from <source-path>`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:stepsNameScreens') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Does every step name a declared screen?',
+      ask: `Step ${JSON.stringify(itemId)} names a screen the record does not declare. Add the screen through the journey add verb or correct the step's screenId.`,
+      context: { sourceSpan: 'rcf/discovery/journey.json', stepId: itemId },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'edit the authored journey source so the step names a declared screen, then re-run `rcf discover journey add --from <source-path>`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:reachable') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Is every step reachable, and does no non-exit step dead-end?',
+      ask: `Step ${JSON.stringify(itemId)} is unreachable from an entry step, or is a non-exit dead end (no next and no returnsTo). Add an edge from a reachable step or mark it an exit through the journey add verb.`,
+      context: { sourceSpan: 'rcf/discovery/journey.json', stepId: itemId },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'edit the authored journey source so the step has a predecessor (or mark it an exit), then re-run `rcf discover journey add --from <source-path>`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:interruptions') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Is every interruption catalogue entry answered?',
+      ask: `Interruption catalogue entry ${JSON.stringify(itemId)} has no answer or a reason body shorter than 20 characters. Point it at a step id or write a notApplicable reason of at least 20 characters.`,
+      context: { sourceSpan: 'rcf/discovery/journey.json', interruption: itemId },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'author the interruption answers in the journey-map source (ux-designer prose shape) and run `rcf discover journey import --from <map-path>`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:wireframePerStep') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'On a central product, is every step\'s wireframe present on disk?',
+      ask: `Step ${JSON.stringify(itemId)} has no wireframe file on disk (or no wireframe path on its screen). Author the wireframe under rcf/discovery/wireframes/ and point the screen at it through the journey add verb.`,
+      context: { sourceSpan: 'rcf/discovery/journey.json', stepId: itemId },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'author the wireframe file under rcf/discovery/wireframes/, point the screen at it in the journey source, then re-run `rcf discover journey add --from <source-path>`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:wireframeFormat') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Does every wireframe carry an admitted extension?',
+      ask: `Screen ${JSON.stringify(itemId)} points at a wireframe whose extension is not admitted. Admitted: .md, .html, and .png on an as-built record (declare --as-built).`,
+      context: { sourceSpan: 'rcf/discovery/journey.json', screenId: itemId },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'rename the wireframe file to .md or .html (or run `rcf discover journey declare --as-built` to admit .png) and re-run `rcf discover journey add --from <source-path>`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:wireframeSelfContained') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'Is every .html wireframe free of external URLs?',
+      ask: `Screen ${JSON.stringify(itemId)}'s .html wireframe references an external URL (href, src, srcset, CSS url() or @import). Inline the referenced asset or remove the reference; the wireframe must render offline.`,
+      context: { sourceSpan: 'rcf/discovery/journey.json', screenId: itemId },
+      answerKinds: ['author'],
+      writeBack: [
+        { when: 'author', command: 'edit the wireframe file to inline referenced assets, then re-run `rcf discover journey check`' },
+      ],
+      blocks,
+    });
+  }
+  if (check === 'discovery:reviewed') {
+    return makeQuestion({
+      id: qid,
+      stage, check, itemId,
+      heading: 'On a central product, is the review stamp fresh?',
+      ask: 'The review stamp is missing or stale (wireframe bytes drifted or journeys were re-minted since the last review). Re-review the discovery record.',
+      context: { sourceSpan: 'rcf/discovery/journey.json' },
+      answerKinds: ['review'],
+      writeBack: [
+        { when: 'review', command: 'rcf discover journey review --by <name>' },
+      ],
+      blocks,
+    });
+  }
 
   // ---- D1 brief:sinceFreeze -------------------------------------------
   if (check === 'brief:sinceFreeze') {

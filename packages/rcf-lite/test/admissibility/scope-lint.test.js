@@ -9,6 +9,7 @@ import { join } from 'node:path';
 import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store';
 import { scanAcScopeCoverage, scanTcScopeVsAc } from '#admissibility';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 async function scaffold() {
   const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-admissibility-scope-'));

@@ -48,11 +48,15 @@ import { isOptedOut } from '../req-baseline/opt-out.js';
 import { BRIEF_KINDS, parseResolvedBy } from '../define/ledgers.js';
 import { applicableConcernsForShapes } from '../define/concern-catalogue.js';
 
-/** Canonical stage order (proposal §3.2). */
-export const STAGE_ORDER = /** @type {const} */ (['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
+/** Canonical stage order (proposal §3.2; FBS-214 prepends D0 as the
+ *  UX intake gate, REQ-189, ADR-4146). D0 is blocking and never
+ *  ackable; it reads at most `rcf/discovery/journey.json` and never
+ *  reads a wireframe file for a none or absent record (AC-18905-3). */
+export const STAGE_ORDER = /** @type {const} */ (['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
 
 /** Stage -> gate id map (used by the freeze verb and the CLI --check flag). */
 export const STAGE_GATES = /** @type {const} */ ({
+  D0: 'define.discovery',
   D1: 'define.brief',
   D2: 'define.skeleton',
   D3: 'define.shapes',
@@ -65,6 +69,7 @@ export const STAGE_GATES = /** @type {const} */ ({
 
 /** Stage -> operator-friendly short name (--check <short> equivalent to --check <D>). */
 export const STAGE_SHORT_NAMES = /** @type {const} */ ({
+  D0: 'discovery',
   D1: 'brief',
   D2: 'skeleton',
   D3: 'shapes',
@@ -109,6 +114,16 @@ export const INTERFACE_KINDS = /** @type {const} */ ([
  * It is always ok so it never affects a level verdict.
  */
 export const CHECK_PERSONA = /** @type {const} */ ({
+  // D0 Discovery: every check is PO (TAC-4142; ADR-4146 single-reviewer D0 door).
+  'discovery:declared': 'productOwner',
+  'discovery:journeyPresent': 'productOwner',
+  'discovery:stepsNameScreens': 'productOwner',
+  'discovery:reachable': 'productOwner',
+  'discovery:interruptions': 'productOwner',
+  'discovery:wireframePerStep': 'productOwner',
+  'discovery:wireframeFormat': 'productOwner',
+  'discovery:wireframeSelfContained': 'productOwner',
+  'discovery:reviewed': 'productOwner',
   // D1 Brief: every check is PO (the brief is the PO's statement of intent).
   'brief:sinceFreeze': 'productOwner',
   'brief:kinds': 'productOwner',
@@ -164,6 +179,15 @@ export const CHECK_PERSONA = /** @type {const} */ ({
  * wording is step 3's guided elicitation.
  */
 export const CHECK_QUESTION = /** @type {const} */ ({
+  'discovery:declared': 'Has the UI posture been declared (none, light or central)?',
+  'discovery:journeyPresent': 'Is at least one journey authored with an entry and an exit?',
+  'discovery:stepsNameScreens': 'Does every journey step name a declared screen?',
+  'discovery:reachable': 'Can every step be reached from an entry and has no non-exit dead end?',
+  'discovery:interruptions': 'Is every entry in the interruption catalogue answered?',
+  'discovery:wireframePerStep': 'On a central product, does every step have a wireframe file on disk?',
+  'discovery:wireframeFormat': 'Does every wireframe carry an admitted extension (.md, .html; .png when as-built)?',
+  'discovery:wireframeSelfContained': 'Is every .html wireframe free of external URLs?',
+  'discovery:reviewed': 'On a central product, is the review stamp fresh at the current journey hash?',
   'brief:sinceFreeze': 'What has changed, or what is this project for?',
   'brief:kinds': 'Is this a capability, a constraint, an actor, or something else?',
   'brief:openQuestions': 'Any open questions in the brief, resolved or promoted to a decision?',
@@ -210,6 +234,7 @@ export const CHECK_QUESTION = /** @type {const} */ ({
  * decision 10).
  */
 export const STAGE_FALLBACK_PERSONA = /** @type {const} */ ({
+  D0: 'productOwner',
   D1: 'productOwner',
   D2: 'productOwner',
   D3: 'engineer',
@@ -443,11 +468,12 @@ export function extractInterfacePathTokens(description) {
   return out;
 }
 
-/** Warn-with-ack stages in 0.29.0 (ADR-4122). */
+/** Warn-with-ack stages in 0.29.0 (ADR-4122). D0 is deliberately absent
+ *  (ADR-4146: D0 is blocking and never ackable). */
 const WARN_WITH_ACK = new Set(['D3', 'D5', 'D6']);
 
-/** Blocking stages in 0.29.0 (ADR-4122). */
-const BLOCKING = new Set(['D1', 'D2', 'D4', 'D7', 'D8']);
+/** Blocking stages (ADR-4122 for D1..D8; FBS-214 / ADR-4146 for D0). */
+const BLOCKING = new Set(['D0', 'D1', 'D2', 'D4', 'D7', 'D8']);
 
 /**
  * Signals a stage exports so consumers can render policy in the pill
@@ -821,8 +847,15 @@ function treeWideFailureEnvelope(stage, gate, treeWideChecks, freezeCtx) {
 }
 
 // ---------------------------------------------------------------------------
-// D1 -- Brief intake and ledger (blocking in 0.29.0).
+// D0 -- Discovery (UX intake gate; blocking, never ackable; FBS-214,
+// REQ-189, TAC-4142, ADR-4146). Wraps the pure `checkDiscovery` from
+// `src/discovery/check.js` with the tree context so computeReadiness
+// composes D0 the same way it composes D1..D8. The CLI (readiness)
+// loads the journey record and (for central only) the wireframe bytes
+// and hands them in via `ctx.discoveryContext`.
 // ---------------------------------------------------------------------------
+
+import { checkDiscovery } from '../discovery/check.js';
 
 /**
  * @typedef {object} StageContext
@@ -843,7 +876,133 @@ function treeWideFailureEnvelope(stage, gate, treeWideChecks, freezeCtx) {
  *   whether a `path:` token on an interface description resolves. Empty or
  *   undefined means no path is known-resolved, so every candidate token
  *   fails unless the interface description carries `authoredAt: D3`.
+ * @property {DiscoveryContext | undefined} discoveryContext  FBS-214: the pre-loaded
+ *   discovery inputs the CLI resolves before calling computeReadiness. Undefined means
+ *   "the record has not been inspected" and D0 folds to notApplicable (the grandfathered
+ *   state, ADR-4145). `record === null` and `hasRecordFile === false` mean the same
+ *   fold; `record` with `ui: null` is the init-seeded state (AC-18905-9).
  */
+
+/**
+ * The pre-loaded discovery inputs the CLI feeds into D0 (FBS-214,
+ * AC-18905-3: journey.json is the only file read on the fold path).
+ *
+ * @typedef {object} DiscoveryContext
+ * @property {import('../discovery/record.js').JourneyRecord | null} record
+ * @property {boolean} hasRecordFile    true when the file exists on disk
+ * @property {Map<string, { bytes: Buffer | Uint8Array, text?: string }>} wireframes
+ * @property {Error} [invalidRecord]    F1 (ADR-4145): set when journey.json
+ *   is present but malformed, schema-invalid or unreadable. The grandfather
+ *   rule is BY ABSENCE ONLY, so an invalid record keeps the door failing
+ *   on discovery:declared. The caller surfaces the message as it wants.
+ */
+
+/**
+ * D0 -- Discovery (UX intake gate).
+ *
+ * Pure: the caller resolves the record and the wireframe bytes before
+ * calling computeReadiness; D0 inspects neither the filesystem nor the
+ * clock. Grandfathering (ADR-4145) folds an absent file AND an existing
+ * file whose `ui` is 'none' to one `notApplicable` envelope with a
+ * reason; neither reads any wireframe bytes (AC-18905-3). An existing
+ * record whose `ui` is `null` (the init-seeded state) is a `failing`
+ * stage carrying one `discovery:declared` check (AC-18905-9). A
+ * declared light or central product runs the full nine-check list from
+ * `src/discovery/check.js`, folded into gate `discovery:*` checks:
+ * `discovery:declared` plus the eight structural / wireframe / review
+ * checks. On a light product `discovery:wireframePerStep` and
+ * `discovery:reviewed` carry `pass` with `total=0` because the pure
+ * check marks them `notApplicable` (TAC posture: light is never refused
+ * for a missing wireframe or review).
+ *
+ * @param {StageContext} ctx
+ */
+export function checkD0Discovery(ctx) {
+  const gate = STAGE_GATES.D0;
+  const dc = ctx.discoveryContext;
+  // Treat an absent discoveryContext as the grandfathered state so the
+  // compute never crashes a tree that pre-dates FBS-214.
+  if (!dc || (dc.hasRecordFile === false && !dc.record && !dc.invalidRecord)) {
+    return notApplicable('D0', gate, 'no discovery declaration (existing tree)');
+  }
+  // F1 (ADR-4145 grandfather-by-absence): a journey.json that is on
+  // disk but malformed, schema-invalid or unreadable is NOT
+  // grandfathered. Emit a failing discovery:declared check naming the
+  // file and the reason; the door refuses.
+  if (dc.invalidRecord) {
+    const err = /** @type {Error & { message?: string }} */ (dc.invalidRecord);
+    const msg = err && typeof err.message === 'string' ? err.message : String(dc.invalidRecord);
+    const declared = makeCheck('discovery:declared', 'tree', 1, [
+      {
+        id: 'rcf/discovery/journey.json',
+        why: `journey.json is not a valid record: ${msg}. The file must parse as JSON and validate against the journey schema (or be absent for a grandfathered tree).`,
+      },
+    ]);
+    return foldState('D0', gate, [declared]);
+  }
+  const record = dc.record;
+  if (!record) {
+    return notApplicable('D0', gate, 'no discovery declaration (existing tree)');
+  }
+  const ui = record.ui ?? null;
+  if (ui === 'none') {
+    return notApplicable('D0', gate, 'product declared not UI-bearing');
+  }
+  // ui === null is the init-seeded record: discovery:declared fails.
+  if (ui === null) {
+    const declared = makeCheck('discovery:declared', 'tree', 1, [
+      {
+        id: 'rcf/discovery/journey.json',
+        why: 'ui is not declared (expected one of: none, light, central). The viewer surfaces this on the Readiness tab; the questions compute names the resolving verb.',
+      },
+    ]);
+    return foldState('D0', gate, [declared]);
+  }
+  // ui === 'light' | 'central': run the full discovery check list,
+  // then adapt each CheckResult into a gate check. `discovery:declared`
+  // is passing by construction (ui is a value in the enum).
+  const wireframes = dc.wireframes instanceof Map ? dc.wireframes : new Map();
+  const results = checkDiscovery({ record, ui, wireframes });
+
+  /** @type {Array<ReturnType<typeof makeCheck>>} */
+  const checks = [];
+  checks.push(makeCheck('discovery:declared', 'tree', 1, []));
+  // Order per AC-18905-2: journeyPresent, stepsNameScreens, reachable,
+  // interruptions, wireframePerStep, wireframeFormat, wireframeSelfContained,
+  // reviewed. checkDiscovery emits results in this order (reviewed last).
+  for (const r of results) {
+    if (!r || typeof r.id !== 'string') continue;
+    if (r.id === 'discovery:applicable') continue;
+    const checkName = r.id;
+    const total = 1;
+    if (r.state === 'pass') {
+      checks.push(makeCheck(checkName, 'tree', total, []));
+    } else if (r.state === 'notApplicable') {
+      // Model a per-check notApplicable as ok with total=0: the stage
+      // does not fail on it, the display shows "0/0" and the reason
+      // (why) is preserved in the first (and only) hint entry.
+      // F8: the N/A reason is NOT persisted on the check shape;
+      // nothing renders it and the field was undocumented. The reason
+      // belongs on the stage envelope (notApplicable) when the whole
+      // stage folds, not on the per-check row.
+      const nc = makeCheck(checkName, 'tree', 0, []);
+      checks.push(nc);
+    } else {
+      // state === 'fail'.
+      const ids = Array.isArray(r.failingIds) && r.failingIds.length > 0
+        ? r.failingIds
+        : ['rcf/discovery/journey.json'];
+      const failing = ids.map((id) => ({ id, why: r.why ?? '' }));
+      checks.push(makeCheck(checkName, 'tree', Math.max(total, failing.length), failing));
+    }
+  }
+
+  return foldState('D0', gate, checks);
+}
+
+// ---------------------------------------------------------------------------
+// D1 -- Brief intake and ledger (blocking in 0.29.0).
+// ---------------------------------------------------------------------------
 
 /**
  * D1 -- Brief intake and ledger.
@@ -2468,6 +2627,7 @@ export function runStage(stageOrShort, ctx) {
   const stage = STAGE_ALIASES[stageOrShort];
   if (!stage) throw new TypeError(`Unknown stage '${stageOrShort}'`);
   switch (stage) {
+    case 'D0': return checkD0Discovery(ctx);
     case 'D1': return checkD1Brief(ctx);
     case 'D2': return checkD2Skeleton(ctx);
     case 'D3': return checkD3Shapes(ctx);

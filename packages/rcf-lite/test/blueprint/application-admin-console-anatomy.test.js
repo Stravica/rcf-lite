@@ -15,6 +15,7 @@ import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { readContributedAcIds } from '../../src/browser-verify/pack-loader.js';
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -71,6 +72,7 @@ test('blueprint.json declares 34 contributions with requiresAppliedCapabilities 
 test('apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'admin-console-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
   const result = await applyBlueprint({ projectRoot: scratch, tree, source: BLUEPRINT_ROOT, allowNoAuthYet: true });
   assert.equal(result.applied, true, JSON.stringify(result));
@@ -82,6 +84,7 @@ test('apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:t
 test('apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'admin-console-refuse-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
   const result = await applyBlueprint({ projectRoot: scratch, tree, source: BLUEPRINT_ROOT });
   assert.equal(result.kind, 'requiresAppliedCapabilities');
@@ -92,6 +95,7 @@ test('apply refuses on bare SPA with spec 5.5.1 verbatim message and lists appli
 test('apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'admin-console-magic-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const { tree: t0 } = await walkTree({ projectRoot: scratch });
   const mlApply = await applyBlueprint({ projectRoot: scratch, tree: t0, source: MAGIC_LINK_BP });
   assert.equal(mlApply.applied, true, JSON.stringify(mlApply));
@@ -106,6 +110,7 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   // the mechanism reads, never providesRoles[].
   const scratch2 = await mkdtemp(join(tmpdir(), 'admin-console-clerk-'));
   await initProject({ projectRoot: scratch2, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch2);
   const { tree: c0 } = await walkTree({ projectRoot: scratch2 });
   const clerkApply = await applyBlueprint({ projectRoot: scratch2, tree: c0, source: CLERK_BP });
   assert.equal(clerkApply.applied, true, JSON.stringify(clerkApply));

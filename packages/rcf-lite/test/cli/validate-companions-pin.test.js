@@ -14,6 +14,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -33,6 +34,7 @@ async function runBin(cwd, args) {
 test('validate refuses exit 3 when a companions.json pin names an unresolvable provider (TC-043-validate-refuses-unresolvable-pin)', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-validate-pin-'));
   const init = await initProject({ projectRoot: root, projectName: 'validate-pin' });
+  await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
   await writeFile(join(root, 'rcf', 'companions.json'), JSON.stringify({
     schemaVersion: 1,
@@ -46,6 +48,7 @@ test('validate refuses exit 3 when a companions.json pin names an unresolvable p
 test('validate is clean when companions.json is absent', async () => {
   const root = await mkdtemp(join(tmpdir(), 'rcf-validate-pin-absent-'));
   await initProject({ projectRoot: root, projectName: 'no-pin-file' });
+  await declareUiNoneForTests(root);
   const { code, stdout } = await runBin(root, ['define', 'validate', '--no-code']);
   assert.equal(code, 0, stdout);
 });

@@ -21,10 +21,12 @@ import {
   writeNavSet,
   writeThemeA11ySet,
 } from '../../src/design/index.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 async function makeTempProject(fbsExtras = {}, manifestExtras = {}) {
   const root = await mkdtemp(join(tmpdir(), 'rcf-design-test-'));
   await initProject({ projectRoot: root, projectName: 'design-test' });
+  await declareUiNoneForTests(root);
   // Patch the FBS with our test's uiBearing / designStage overrides.
   const fbsPath = join(root, 'rcf', 'fbs', 'fbs-001.json');
   const existing = JSON.parse(await readFile(fbsPath, 'utf8'));

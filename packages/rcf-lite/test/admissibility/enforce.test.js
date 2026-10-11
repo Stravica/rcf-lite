@@ -12,6 +12,7 @@ import { walkTree } from '#core/store';
 import { enforceAdmissibility, getRulesetToolScope } from '#admissibility';
 import { getUmbrellaVersion } from '#ruleset';
 import { runWithAdmissibilityGate } from '../../src/query/index.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 async function scaffold() {
   const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-admissibility-enforce-'));

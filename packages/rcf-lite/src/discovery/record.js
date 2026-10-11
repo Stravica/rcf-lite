@@ -72,6 +72,35 @@ export class JourneyRecordError extends Error {
 }
 
 /**
+ * Produce an empty-but-valid declared record whose `ui` is a chosen
+ * enum value (FBS-214). Tests and fixtures that need a tree to pass
+ * D0 without having to spin up the `declare` CLI can call this and
+ * `writeJourneyRecord` the result. Production code uses the `declare`
+ * verb; this seam exists only so tests do not reach into the CLI
+ * every time.
+ *
+ * @param {'none' | 'light' | 'central'} ui
+ * @param {object} [opts]
+ * @param {string} [opts.by]      declaredBy (defaults to 'test')
+ * @param {string} [opts.reason]  declaredReason (defaults to a short string)
+ * @returns {JourneyRecord}
+ */
+export function declaredJourneyRecord(ui, opts = {}) {
+  if (ui !== 'none' && ui !== 'light' && ui !== 'central') {
+    throw new JourneyRecordError(`declaredJourneyRecord: ui must be 'none', 'light' or 'central' (got ${JSON.stringify(ui)}).`);
+  }
+  const now = new Date().toISOString();
+  return {
+    ...emptyJourneyRecord(),
+    ui,
+    declaredAt: now,
+    declaredBy: typeof opts.by === 'string' && opts.by.length > 0 ? opts.by : 'test',
+    declaredReason: typeof opts.reason === 'string' && opts.reason.length > 0 ? opts.reason : null,
+    declaredVia: 'declare',
+  };
+}
+
+/**
  * Produce an empty-but-valid record. Used by callers that need to
  * seed a brand-new tree. FBS-211's declare / init / intake flows use
  * this; FBS-210's add verb falls back on it when the file is absent

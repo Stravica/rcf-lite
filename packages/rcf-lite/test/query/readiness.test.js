@@ -92,7 +92,7 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   assert.ok(result.tree);
   assert.ok(result.delta);
   assert.ok(Array.isArray(result.stages));
-  assert.equal(result.stages.length, 8);
+  assert.equal(result.stages.length, 9);
   assert.ok(result.coverage && result.coverage.tree);
   assert.ok(Array.isArray(result.coverage.delta));
   assert.ok(Array.isArray(result.decisions));
@@ -103,8 +103,8 @@ test('readiness: returns the section 2.4 shape and freezeable folds correctly', 
   assert.equal(typeof result.tree.litmusHash, 'string');
   assert.match(result.tree.litmusHash, /^sha256:[0-9a-f]{64}$/);
   assert.equal(typeof result.tree.fbsTotal, 'number');
-  // Every stage in D1..D8 order.
-  assert.deepEqual(result.stages.map((s) => s.stage), ['D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
+  // Every stage in D0..D8 order (FBS-214 prepends D0).
+  assert.deepEqual(result.stages.map((s) => s.stage), ['D0', 'D1', 'D2', 'D3', 'D4', 'D5', 'D6', 'D7', 'D8']);
   // Empty tree + no ledger + no freeze -> D1 fails (no statement); D8 fails (no queue head).
   assert.equal(result.freezeable, false);
 });
@@ -713,4 +713,51 @@ test('readiness (PR 7): parseLitmusFlag validates its input', () => {
   assert.throws(() => parseLitmusFlag('-1'), /positive integer/);
   assert.throws(() => parseLitmusFlag('two'), /positive integer/);
   assert.throws(() => parseLitmusFlag('1.5'), /positive integer/);
+});
+
+// ---------------------------------------------------------------------------
+// FBS-214 (REQ-189, AC-18905-8): computeReadiness must thread
+// discoveryContext through to the D0 fold. On a tree whose record
+// is init-seeded (ui null) the D0 stage must be failing; on absent
+// the stage must be notApplicable.
+// ---------------------------------------------------------------------------
+
+import { strict as _strict } from 'node:assert';  // noop; same assertion module
+
+test('readiness (FBS-214): discoveryContext threads to D0 fold (ui-null => failing; absent => notApplicable)', () => {
+  const tree = {
+    manifest: null, prd: null, tad: null, bs: null,
+    requirements: [], userStories: [], tacs: [], adrs: [],
+    fbsItems: [], testSuites: [], codeNodes: [], evals: [],
+    byId: new Map(), rawById: new Map(), kindById: new Map(),
+    brokenIds: new Set(), invalidDocs: new Map(),
+    parentByChild: new Map(), childrenByParent: new Map(),
+    fbsByAcId: new Map(), dependentsByFbsId: new Map(),
+    tsByAcId: new Map(), tcsByAcId: new Map(),
+    usByTacId: new Map(), cnByAcId: new Map(),
+    dependentsByCnId: new Map(), evalByAcId: new Map(),
+  };
+  // ui-null: D0 failing on discovery:declared.
+  const r1 = computeReadiness(tree, {
+    ledgers: { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } },
+    discoveryContext: { record: { ui: null, asBuilt: false, journeys: [], screens: [], review: null }, hasRecordFile: true, wireframes: new Map() },
+  });
+  const d0a = r1.stages.find((s) => s.stage === 'D0');
+  assert.ok(d0a, 'D0 stage present');
+  assert.equal(d0a.state, 'failing');
+  // Absent: D0 notApplicable (grandfathered).
+  const r2 = computeReadiness(tree, {
+    ledgers: { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } },
+    discoveryContext: { record: null, hasRecordFile: false, wireframes: new Map() },
+  });
+  const d0b = r2.stages.find((s) => s.stage === 'D0');
+  assert.ok(d0b);
+  assert.equal(d0b.state, 'notApplicable');
+  // No discoveryContext at all: still notApplicable (crash guard).
+  const r3 = computeReadiness(tree, {
+    ledgers: { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } },
+  });
+  const d0c = r3.stages.find((s) => s.stage === 'D0');
+  assert.ok(d0c);
+  assert.equal(d0c.state, 'notApplicable');
 });

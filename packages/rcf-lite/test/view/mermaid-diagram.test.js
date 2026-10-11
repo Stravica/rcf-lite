@@ -12,6 +12,7 @@ import {
   requirementSubdiagram,
 } from '../../src/view/mermaid-diagram.js';
 import { buildTreeModel } from '../../src/view/tree-model.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -43,6 +44,7 @@ test('requirementSubdiagram marks a broken node visibly rather than omitting it 
   // subdiagram - so the diagram must keep the node AND mark it.
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-diagram-broken-'));
   await initProject({ projectRoot: tmp, projectName: 'BrokenDiagram' });
+  await declareUiNoneForTests(tmp);
   const us = JSON.parse(await readFile(join(tmp, 'rcf/user-stories/us-101.json'), 'utf8'));
   const twin = { ...us, usId: 'US-102', title: 'Colliding twin story' };
   await writeFile(join(tmp, 'rcf/user-stories/us-102.json'), `${JSON.stringify(twin, null, 2)}\n`, 'utf8');

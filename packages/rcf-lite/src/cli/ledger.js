@@ -8,8 +8,10 @@
 // them in. Exit codes match the rest of the CLI: 0 success, 2 usage
 // error, 1 unexpected runtime failure.
 
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import { parseArgs } from 'node:util';
+
+import { checkD0Door } from './_door.js';
 
 import {
   BRIEF_KINDS,
@@ -301,6 +303,15 @@ function renderGenericList(name, body) {
  * @param {object} args
  */
 async function runAdd({ projectRoot, name, flags, stdout, stderr }) {
+  // FBS-214 (REQ-189, TAC-4142, ADR-4146): the three-verb D0 door
+  // gates `brief add` before any write (AC-18905-4). Other ledger
+  // names and other verbs (update, resolve, list) are NOT gated
+  // (AC-18905-7); the chain-write minting is what the door is for.
+  if (name === 'brief') {
+    const projectRootCanonical = await realpath(projectRoot);
+    const door = await checkD0Door({ projectRoot: projectRootCanonical, stderr, verb: 'brief add' });
+    if (!door.ok) return door.exitCode;
+  }
   const body = await loadLedger({ projectRoot, name });
   const now = new Date().toISOString();
 

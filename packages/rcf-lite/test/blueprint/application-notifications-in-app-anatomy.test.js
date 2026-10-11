@@ -18,6 +18,7 @@ import { loadProbePacks, readContributedAcIds } from '../../src/browser-verify/p
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer } from '../fixtures/probe-pack-application-notifications-in-app/server.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -48,6 +49,7 @@ test('application-notifications-in-app: blueprint.json declares the ratified sha
 test('application-notifications-in-app: applies cleanly on a fresh init project and adds 20 documents to the tree (TC-050-applies-clean)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'notifications-scratch-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
   assert.equal(bp.slug, 'application-notifications-in-app');
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -86,6 +88,7 @@ test('application-notifications-in-app: every pack check id matches a contribute
 test('application-notifications-in-app: pack loader discovers the shipped pack against an applied scratch project (TC-050-pack-loader-discovers)', async () => {
   const scratch = await mkdtemp(join(tmpdir(), 'notifications-loader-'));
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
+  await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
   await applyBlueprint({ projectRoot: scratch, tree, source: BLUEPRINT_ROOT });
   const { packs, errors, warnings } = await loadProbePacks({

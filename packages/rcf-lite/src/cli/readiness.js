@@ -16,8 +16,10 @@
 // every other query verb has.
 
 import { parseArgs } from 'node:util';
-import { readFile } from 'node:fs/promises';
+import { readFile, realpath } from 'node:fs/promises';
 import { join } from 'node:path';
+
+import { loadDiscoveryContext } from '../discovery/context.js';
 
 import { resolveTestPointers, walkTree } from '#core/store';
 import { checkCodeNodeResolution } from '#core/store';
@@ -50,6 +52,11 @@ const OPTION_SPEC = {
   level: { type: 'string' },
   persona: { type: 'string' },
   litmus: { type: 'string' },
+  // FBS-214 (AC-18905-6): --ack is never valid on `rcf define readiness`
+  // (ack lives on freeze). Accepting it here lets us emit a precise
+  // usage error naming D0's "not ackable" posture instead of Node's
+  // generic unknown-option message.
+  ack: { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -74,12 +81,12 @@ Options:
   --json                    Emit the full readiness object as JSON.
                             --persona is ignored under --json.
   --check <stage>           Narrow the output to one stage. Accepts a
-                            stage id (D1..D8) or its short name:
-                            brief | skeleton | shapes | stories |
-                            crosscut | consistency | decisions |
-                            freeze. Exits 4 on a blocking-stage
-                            failure (D1 / D2 / D4 / D7 / D8) and on
-                            an unacknowledged D3 or D5 bite failure
+                            stage id (D0..D8) or its short name:
+                            discovery | brief | skeleton | shapes |
+                            stories | crosscut | consistency |
+                            decisions | freeze. Exits 4 on a blocking-
+                            stage failure (D0 / D1 / D2 / D4 / D7 /
+                            D8) and on an unacknowledged D3 or D5 bite failure
                             (ADR-4131, 0.30.0 PR 5 and PR 6); exits 0
                             when D3 or D5 is acknowledged at the
                             current tree hash; exits 0 with a visible
@@ -199,6 +206,15 @@ export async function main(argv, deps = {}) {
     return 0;
   }
 
+  // FBS-214 (AC-18905-6): --ack is a usage error on readiness. D0
+  // (define.discovery) is blocking and never ackable (ADR-4146); every
+  // other gate's ack path lives on `rcf define freeze`. Report both
+  // facts so the operator sees the right verb and the posture.
+  if (flags.ack !== undefined) {
+    stderr.write(`[error] usage readiness: --ack is not accepted on this verb; D0 (define.discovery) is blocking and never ackable (ADR-4146). For warn-with-ack gates (D3, D5, D6) use \`rcf define freeze --ack <gate> --reason "<text>"\`.\n`);
+    return 2;
+  }
+
   const checkArg = flags.check;
   let checkStage = null;
   if (typeof checkArg === 'string') {
@@ -207,7 +223,7 @@ export async function main(argv, deps = {}) {
     } else if (STAGE_ALIASES[checkArg]) {
       checkStage = STAGE_ALIASES[checkArg];
     } else {
-      stderr.write(`[error] usage readiness: unknown --check ${checkArg} (expected D1..D8, one of ${Object.values(STAGE_SHORT_NAMES).join(' | ')}, or 'all')\n`);
+      stderr.write(`[error] usage readiness: unknown --check ${checkArg} (expected D0..D8, one of ${Object.values(STAGE_SHORT_NAMES).join(' | ')}, or 'all')\n`);
       return 2;
     }
   }
@@ -249,12 +265,17 @@ export async function main(argv, deps = {}) {
   const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
   const validateErrors = [...errors, ...staleErrors];
 
-  const [freeze, ledgers, testPointers, profileText, resolvedPaths] = await Promise.all([
+  // FBS-214: resolve the project root through any symlinks before
+  // loading the discovery context, so the symlink-escape guard in
+  // src/discovery/context.js can compare realpaths against the root.
+  const rootCanonical = await realpath(projectRoot);
+  const [freeze, ledgers, testPointers, profileText, resolvedPaths, discoveryContext] = await Promise.all([
     loadFreezeRecord({ projectRoot }),
     loadAllLedgers({ projectRoot }),
     resolveTestPointers({ projectRoot, tree }),
     readProfileText(projectRoot),
     resolveInterfacePaths(projectRoot, tree),
+    loadDiscoveryContext({ projectRoot: rootCanonical }),
   ]);
 
   const startedAt = Date.now();
@@ -277,6 +298,7 @@ export async function main(argv, deps = {}) {
     testPointers,
     validateErrors,
     resolvedPaths,
+    discoveryContext,
   });
   const gated = await runWithAdmissibilityGate({
     tree,

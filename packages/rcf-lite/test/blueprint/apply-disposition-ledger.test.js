@@ -14,12 +14,14 @@ import { join } from 'node:path';
 import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { ledgerRelPath } from '../../src/blueprint/disposition-ledger.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const now = new Date('2026-09-09T12:00:00Z');
 
 async function scaffoldWithApply({ acs = [] } = {}) {
   const root = await mkdtemp(join(tmpdir(), 'rcf-apply-ledger-'));
   await initProject({ projectRoot: root, projectName: 'DemoProject' });
+  await declareUiNoneForTests(root);
   const src = join(root, 'src-bp');
   await mkdir(join(src, 'contributions', 'requirements'), { recursive: true });
   await mkdir(join(src, 'contributions', 'user-stories'), { recursive: true });

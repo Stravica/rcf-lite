@@ -20,6 +20,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { declareUiNoneForTests } from '../_helpers/d0.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -46,6 +47,7 @@ async function runBin(cwd, args = []) {
 async function scaffoldUiBearingProject() {
   const tmp = await mkdtemp(join(tmpdir(), 'rcf-bv-gate-'));
   await initProject({ projectRoot: tmp, projectName: 'BVGateTest' });
+  await declareUiNoneForTests(tmp);
 
   // Turn FBS-001 into a uiBearing FBS with a complete designStage.
   const fbsPath = join(tmp, 'rcf', 'fbs', 'fbs-001.json');

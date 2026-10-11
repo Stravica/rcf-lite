@@ -45,6 +45,8 @@ import { assembleBundle } from '../build/index.js';
 import { hasAgentMarker, SETUP_FUNNEL_INSTRUCTION } from '../setup/agent-setup.js';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { loadDiscoveryContext } from '../discovery/context.js';
+import { checkD0Door } from '../cli/_door.js';
 import { computeReadiness } from '../query/readiness.js';
 import { computeQuestions, PERSONAS as QUESTIONS_PERSONAS } from '../query/questions.js';
 import { loadFreezeRecord } from '../define/freeze-record.js';
@@ -1213,6 +1215,29 @@ export function createToolRegistry({ projectRoot, log }) {
     },
 
     rcf_create: async (args) => {
+      // F2 (FBS-214, AC-18905-4): D0 door before any chain-write mint.
+      // The CLI gates `create` at this seam; MCP must gate the same.
+      // The door captures its own stderr so the registry caller does
+      // not see raw bytes; on refusal it returns a usage-shaped error
+      // naming the stage, which maps to a refused result at the top.
+      {
+        const stderr = { lines: [], write(s) { this.lines.push(String(s)); return true; } };
+        const door = await checkD0Door({ projectRoot, stderr, verb: `create ${args.kind}` });
+        if (!door.ok) {
+          const raw = stderr.lines.join('').trim();
+          // The CLI door writes `[error] refused define: <verb>: ...`;
+          // formatError prepends its own `[error] <kind>`, so strip
+          // our prefix to avoid a double header in the mapped payload.
+          const stripped = raw.replace(/^\[error\]\s+refused define:\s*/, '');
+          return errorResult([{
+            kind: 'refused',
+            message: stripped || `create ${args.kind}: refused by D0 (define.discovery).`,
+            documentId: null,
+            field: null,
+            rule: 'd0:discovery',
+          }]);
+        }
+      }
       // B5: pre-existing tree breakage no longer blocks write tools -
       // the writer gates on the POST-write tree state (net-new breakage
       // still refuses; repairing a broken tree is allowed).
@@ -1379,14 +1404,17 @@ export function createToolRegistry({ projectRoot, log }) {
         else if (STAGE_ALIASES[args.check]) checkStage = STAGE_ALIASES[args.check];
         else return usageErrorResult(`readiness: unknown --check '${args.check}'`);
       }
-      const [freeze, ledgers, testPointers, profileText] = await Promise.all([
+      const [freeze, ledgers, testPointers, profileText, discoveryContext] = await Promise.all([
         loadFreezeRecord({ projectRoot }),
         loadAllLedgers({ projectRoot }),
         resolveTestPointers({ projectRoot, tree }),
         readProfileTextForMcp(projectRoot),
+        // F3 (FBS-214): D0 context so the MCP readiness tool reports
+        // the real D0 state instead of a silent notApplicable.
+        loadDiscoveryContext({ projectRoot }),
       ]);
       const result = computeReadiness(tree, {
-        freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors,
+        freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors, discoveryContext,
       });
       const level = args.level ?? null;
       return okResult({ ...result, _meta: { checkStage, level } });
@@ -1407,18 +1435,21 @@ export function createToolRegistry({ projectRoot, log }) {
       const { tree, errors } = await walkTree({ projectRoot });
       const staleErrors = await checkCodeNodeResolution({ projectRoot, tree });
       const validateErrors = [...errors, ...staleErrors];
-      const [freeze, ledgers, testPointers, profileText] = await Promise.all([
+      const [freeze, ledgers, testPointers, profileText, discoveryContext] = await Promise.all([
         loadFreezeRecord({ projectRoot }),
         loadAllLedgers({ projectRoot }),
         resolveTestPointers({ projectRoot, tree }),
         readProfileTextForMcp(projectRoot),
+        // F3 (FBS-214): D0 context so questions surfaces D0 blockers
+        // first on a failing tree (AC-18905-8).
+        loadDiscoveryContext({ projectRoot }),
       ]);
       let resolvedPersona = persona;
       if (resolvedPersona === undefined) {
         resolvedPersona = pickRegisterForMcp(profileText) === 'engineer' ? 'engineer' : 'productOwner';
       }
       const readiness = computeReadiness(tree, {
-        freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors,
+        freeze, ledgers, profile: undefined, profileText, testPointers, validateErrors, discoveryContext,
       });
       const result = computeQuestions(readiness, {
         tree, ledgers, profileText, persona: resolvedPersona,
@@ -1460,6 +1491,21 @@ export function createToolRegistry({ projectRoot, log }) {
       }
       if (exitCode === 2) {
         return usageErrorResult(`ledger: ${err.trim() || 'usage error'}`);
+      }
+      if (exitCode === 4) {
+        // C1 (FBS-214): the ledger CLI exits 4 when the D0 door
+        // refuses a chain-write ledger op (brief add). Surface that
+        // as a refused result naming the stage, not an ioFailure.
+        // Strip our own `[error] refused define: ...` prefix so the
+        // mapped payload does not carry a double [error] header.
+        const stripped = err.trim().replace(/^\[error\]\s+refused define:\s*/, '');
+        return errorResult([{
+          kind: 'refused',
+          message: stripped || `ledger ${args.verb}: refused by D0 (define.discovery).`,
+          documentId: null,
+          field: null,
+          rule: 'd0:discovery',
+        }]);
       }
       if (exitCode !== 0) {
         return errorResult([{ kind: 'ioFailure', message: `ledger ${args.verb} failed: ${err.trim() || out.trim()}`, documentId: null, field: null, rule: null }]);
