@@ -168,6 +168,7 @@ export const CHECK_PERSONA = /** @type {const} */ ({
   'freeze:priorGates': 'engineer',
   'freeze:acFbsOwnership': 'engineer',
   'freeze:queueHead': 'engineer',
+  'freeze:queueEmptyAllBuilt': 'engineer',
   'freeze:validateClean': 'engineer',
 });
 
@@ -223,6 +224,7 @@ export const CHECK_QUESTION = /** @type {const} */ ({
   'freeze:priorGates': 'Every prior stage passed or is acknowledged at the current hash.',
   'freeze:acFbsOwnership': 'Every AC is owned by exactly one FBS.',
   'freeze:queueHead': 'Queue head is actionable and not a placeholder.',
+  'freeze:queueEmptyAllBuilt': 'Nothing left to build: every build unit is complete or verified.',
   'freeze:validateClean': 'Validate is clean tree-wide.',
 });
 
@@ -2568,19 +2570,33 @@ export function checkD8Freeze(ctx) {
   }
   checks.push(makeCheck('freeze:acFbsOwnership', 'tree', acIds.size, acFail));
 
-  // Check 3: queue head actionable and not a placeholder.
+  // Check 3: queue head actionable and not a placeholder, OR the queue
+  // is empty because every FBS is already built. A fully built tree
+  // (every FBS complete or verified) has nothing left to build, which
+  // is a terminal pass: the stage emits `freeze:queueEmptyAllBuilt`
+  // in place of `freeze:queueHead` so consumers can tell the two apart
+  // from the check name alone. A queue head blocked by dependencies,
+  // or a tree with no FBS records at all, keeps the queueHead failure.
   const queue = computeQueue(tree);
-  const queueFail = [];
-  if (!queue.nextActionable) {
-    queueFail.push({ id: 'queue:head', why: 'no actionable FBS at the queue head' });
+  const fbsCount = (tree.fbsItems ?? []).length;
+  const allBuilt = fbsCount > 0
+    && queue.totals.notStarted === 0
+    && queue.totals.inProgress === 0;
+  if (allBuilt) {
+    checks.push(makeCheck('freeze:queueEmptyAllBuilt', 'tree', 1, []));
   } else {
-    const head = (tree.fbsItems ?? []).find((f) => f.fbsId === queue.nextActionable);
-    const title = typeof head?.title === 'string' ? head.title.trim() : '';
-    if (!title || /^todo\b/i.test(title)) {
-      queueFail.push({ id: queue.nextActionable, why: 'queue head title is empty or a TODO placeholder' });
+    const queueFail = [];
+    if (!queue.nextActionable) {
+      queueFail.push({ id: 'queue:head', why: 'no actionable FBS at the queue head' });
+    } else {
+      const head = (tree.fbsItems ?? []).find((f) => f.fbsId === queue.nextActionable);
+      const title = typeof head?.title === 'string' ? head.title.trim() : '';
+      if (!title || /^todo\b/i.test(title)) {
+        queueFail.push({ id: queue.nextActionable, why: 'queue head title is empty or a TODO placeholder' });
+      }
     }
+    checks.push(makeCheck('freeze:queueHead', 'tree', 1, queueFail));
   }
-  checks.push(makeCheck('freeze:queueHead', 'tree', 1, queueFail));
 
   // Check 4: validate clean tree-wide (same signal as D6 but blocking here).
   // Truncate the failing array for display; fold `pass` from the
