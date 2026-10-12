@@ -278,7 +278,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Viewer UI refresh amendments (w-2026-10-04-dave-001) added US-207
   // under REQ-002 for the WCAG 2.1 AA contrast audit (208 -> 209).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added US-18901..18906 (215 -> 221).
-  assert.equal(tree.userStories.length, 221);
+  // Per-FBS finalise scope (2026-10-12, REQ-165) added US-16504 (221 -> 222).
+  assert.equal(tree.userStories.length, 222);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -312,7 +313,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // TAC-4126-define-validate-findings under REQ-177 and REQ-178
   // (55 -> 57).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added TAC-4142 (60 -> 61).
-  assert.equal(tree.tacs.length, 61);
+  // Per-FBS finalise scope (2026-10-12, REQ-165) added TAC-4143 (61 -> 62).
+  assert.equal(tree.tacs.length, 62);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -359,7 +361,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // ADR-4138 (tree-wide checks evaluate before any scope short-circuit;
   // shared helper backing R2 + R5 + R7) (61 -> 62).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added ADR-4142..4146 (65 -> 70).
-  assert.equal(tree.adrs.length, 70);
+  // Per-FBS finalise scope (2026-10-12, REQ-165) added ADR-4147 (70 -> 71).
+  assert.equal(tree.adrs.length, 71);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -433,7 +436,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // notStarted; carries ACs for REQ-187 and the REQ-173 amendment)
   // (91 -> 92).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added FBS-210..215 (99 -> 105).
-  assert.equal(tree.fbsItems.length, 105);
+  // Per-FBS finalise scope (2026-10-12, REQ-165) added FBS-216 (105 -> 106).
+  assert.equal(tree.fbsItems.length, 106);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -556,7 +560,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (US-207 WCAG 2.1 AA contrast audit, 2 TCs on
   // test/view/contrast-aa.test.js) (176 -> 177).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added TS-243..248 (183 -> 189).
-  assert.equal(tree.testSuites.length, 189);
+  // Per-FBS finalise scope (2026-10-12, REQ-165) added TS-249 (189 -> 190).
+  assert.equal(tree.testSuites.length, 190);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
