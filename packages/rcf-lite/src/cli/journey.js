@@ -54,6 +54,8 @@ import {
 import { checkDiscovery } from '../discovery/check.js';
 import { discoveryHash, fileSha256 } from '../discovery/hash.js';
 import { findProjectRoot } from '../view/index.js';
+import { walkTree } from '#core/store';
+import { computeStepStates, allStepIds } from '../discovery/state.js';
 
 export const HELP = `Usage: rcf discover journey <verb> [options]
 
@@ -368,14 +370,38 @@ async function runShow({ argv, deps }) {
       // TAC-4142 interfaces[show]: an absent record folds to
       // notApplicable with a reason (FBS-211 review F11).
       stdout.write(`notApplicable: no journey record on this tree (grandfathered, ADR-4145); discovery checks fold to notApplicable until a declare run or an intake run seeds the record.\n`);
+      // FBS-215 (AC-18906-4): an FBS whose journeyStepIds[] carries
+      // any id when the record is absent is a brokenReference on
+      // every id (walker reports it; validate surfaces it). Mirror
+      // that signal in show so the operator sees which build specs
+      // need unbinding or a seeded record. The grandfather notice
+      // above still prints: binding gaps are additive, not an
+      // override.
+      const { brokenBindings } = await loadJourneyBindings(rootCanonical);
+      if (brokenBindings.length > 0) {
+        stdout.write('\nbroken-binding:\n');
+        for (const b of brokenBindings) {
+          stdout.write(`  ${b.fbsId}: ${b.unresolvedIds.join(', ')}\n`);
+        }
+      }
     }
     return 0;
   }
+  // FBS-215 (AC-18906-2, AC-18906-4): the walk gives us step states
+  // (which FBS has queued/started/built each step) and the broken-
+  // binding list (FBS entries whose journeyStepIds[] names an id this
+  // record does not host). Both are derived; the show verb never
+  // mutates the tree. A walk failure is non-fatal here (show is a
+  // read-only convenience; the broken-binding section is empty when
+  // the walk could not load the tree). --json keeps the record-only
+  // round-trip shape AC-18902-4 asserts; the derived rows ride on the
+  // text output only.
   if (parsed.values.json) {
     stdout.write(`${JSON.stringify(record, null, 2)}\n`);
     return 0;
   }
-  renderRecord(record, stdout);
+  const bindings = await loadJourneyBindings(rootCanonical);
+  renderRecord(record, stdout, bindings);
   // TAC-4142 interfaces[show]: a none product folds to notApplicable
   // with a reason in the text output (FBS-211 review F11); --json
   // round-trips the record verbatim and so does not carry this line.
@@ -383,6 +409,38 @@ async function runShow({ argv, deps }) {
     stdout.write(`notApplicable: ui=none means this product has no UI surface; discovery journey checks fold to notApplicable for the whole tree.\n`);
   }
   return 0;
+}
+
+/**
+ * FBS-215: load the tree and project journey-step bindings off it.
+ * Returns { stepStates, brokenBindings } where stepStates is the
+ * computeStepStates projection and brokenBindings[] names each FBS
+ * whose journeyStepIds references an id the record does not host.
+ * Walk failures (missing manifest, schema trip in another doc) do not
+ * surface as errors here; the show verb is a read-only convenience and
+ * leaves the broken-binding section empty when the walk could not
+ * load the tree.
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<{ stepStates: import('../discovery/state.js').StepState[], brokenBindings: Array<{ fbsId: string, unresolvedIds: string[] }> }>}
+ */
+async function loadJourneyBindings(projectRoot) {
+  try {
+    const { tree } = await walkTree({ projectRoot });
+    const record = tree.discoveryJourney ?? null;
+    const stepStates = computeStepStates({ tree, record });
+    const knownStepIds = allStepIds(record);
+    const brokenBindings = [];
+    for (const fbs of tree.fbsItems ?? []) {
+      const stepIds = Array.isArray(fbs.journeyStepIds) ? fbs.journeyStepIds : [];
+      if (stepIds.length === 0) continue;
+      const unresolvedIds = stepIds.filter((id) => !knownStepIds.has(id));
+      if (unresolvedIds.length > 0) brokenBindings.push({ fbsId: fbs.fbsId, unresolvedIds });
+    }
+    return { stepStates, brokenBindings };
+  } catch {
+    return { stepStates: [], brokenBindings: [] };
+  }
 }
 
 const DECLARE_OPTIONS = {
@@ -524,7 +582,7 @@ async function runDeclare({ argv, deps }) {
   return 0;
 }
 
-function renderRecord(record, stdout) {
+function renderRecord(record, stdout, bindings = { stepStates: [], brokenBindings: [] }) {
   const ui = record.ui === null ? 'not declared' : record.ui;
   stdout.write(`UI: ${ui}`);
   if (record.declaredVia) stdout.write(` (via ${record.declaredVia}`);
@@ -534,6 +592,11 @@ function renderRecord(record, stdout) {
   stdout.write(`asBuilt: ${record.asBuilt}\n`);
   stdout.write(`screens: ${record.screens.length}\n`);
   stdout.write(`journeys: ${record.journeys.length}\n`);
+  // FBS-215 (AC-18906-2): index StepState rows by stepId so each step
+  // can print its binding state inline. An absent entry (walk failed
+  // or step not in projection) renders no suffix, keeping the text
+  // output stable on grandfathered trees.
+  const stateByStep = new Map((bindings.stepStates ?? []).map((row) => [row.stepId, row]));
   for (const j of record.journeys) {
     stdout.write(`\n${j.id} ${j.slug}`);
     if (j.actor) stdout.write(` (actor: ${j.actor})`);
@@ -545,13 +608,26 @@ function renderRecord(record, stdout) {
       const label = step.label ? ` - ${step.label}` : '';
       const next = step.next.length === 0 ? '' : `  next: ${step.next.join(', ')}`;
       const returns = step.returnsTo ? `  returnsTo: ${step.returnsTo}` : '';
-      stdout.write(`  ${step.id} ${step.kind} ${step.slug} @${screenSlug}${label}${next}${returns}\n`);
+      const row = stateByStep.get(step.id);
+      const state = row ? `  state: ${row.state}${row.fbsIds.length > 0 ? ` (${row.fbsIds.join(', ')})` : ''}` : '';
+      stdout.write(`  ${step.id} ${step.kind} ${step.slug} @${screenSlug}${label}${next}${returns}${state}\n`);
     }
     if (j.interruptions && Object.keys(j.interruptions).length > 0) {
       stdout.write(`  interruptions:\n`);
       for (const [entry, value] of Object.entries(j.interruptions)) {
         stdout.write(`    ${entry} = ${value}\n`);
       }
+    }
+  }
+  // FBS-215 (AC-18906-4): a broken-binding line names every FBS whose
+  // journeyStepIds references an id the record does not host. The
+  // detail (which ids did not resolve) sits beside the FBS id so the
+  // operator can go fix the FBS without walking the tree manually.
+  const broken = bindings.brokenBindings ?? [];
+  if (broken.length > 0) {
+    stdout.write(`\nbroken-binding:\n`);
+    for (const row of broken) {
+      stdout.write(`  ${row.fbsId}: ${row.unresolvedIds.join(', ')}\n`);
     }
   }
   const review = record.review;

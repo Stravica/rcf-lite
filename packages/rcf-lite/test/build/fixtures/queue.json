@@ -1381,5 +1381,7 @@
         "FBS-214"
       ]
     }
-  ]
+  ],
+  "journeyApplicable": false,
+  "journeySteps": []
 }

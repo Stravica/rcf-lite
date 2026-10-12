@@ -120,6 +120,16 @@ export async function main(argv, deps = {}) {
     return 2;
   }
   const { tree, errors } = await walkTree({ projectRoot });
+  // FBS-215: journey-record load errors are parked on the tree rather
+  // than pushed onto the walker error list (so audit CLIs do not fail
+  // on a discovery-record bug, per ADR-4142's read posture). The
+  // define validate verb is the sanctioned surfacing path: it rides
+  // the same exit path as schema / referential-integrity errors so
+  // operators get the diagnostic without needing a discover-specific
+  // check.
+  if (tree.discoveryJourneyLoadError) {
+    errors.push(tree.discoveryJourneyLoadError);
+  }
   // Phase 10 (X2 CodeNode bridge, spec D6): staleness pass. Every Code
   // Node's declared path/symbol is checked against the working tree;
   // unresolved ones surface as `staleCode` errors folded into the same

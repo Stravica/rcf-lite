@@ -1,3 +1,5 @@
+import { computeStepStates } from '../discovery/state.js';
+
 // Build queue semantics (Phase 6 §D2). Pure projection of the FBS
 // documents into a deterministic queue: per-item derived state
 // (actionable / blocked / inProgress / complete / verified), cycle
@@ -56,6 +58,7 @@ const SATISFIED = new Set(['complete', 'verified']);
  * @property {string|null} nextActionable
  * @property {TierGroup[]} tiers - parallel-safe groups, tier ascending
  * @property {QueueItem[]} items
+ * @property {import('../discovery/state.js').StepState[]} journeySteps - FBS-215: binding state per discovery journey step
  */
 
 /**
@@ -259,7 +262,33 @@ export function computeQueue(tree) {
     ? { bsId: tree.bs.bsId, title: tree.bs.title, generationStrategy: tree.bs.generationStrategy }
     : null;
 
-  return { bs, totals, nextActionable: next ? next.fbsId : null, tiers: groupTiers(items), items };
+  // FBS-215 (AC-18906-2): journey-step binding state. Pure projection
+  // off the walked tree and the loaded journey record (both already on
+  // the tree). The journey block renders only when the product's UI
+  // posture is applicable (light or central with a record present);
+  // absent record (grandfathered, ADR-4145), ui null (undeclared) and
+  // ui 'none' all yield journeyApplicable=false and an empty steps
+  // list. A declared light/central product with zero steps on the
+  // record (schema-valid but degenerate) is still applicable and
+  // renders the header - review already catches it as a journeyStub,
+  // so queue carrying the empty section is a surfacing choice, not a
+  // door. See TAC-4142 interfaces[queue journeySteps].
+  const record = tree.discoveryJourney ?? null;
+  const ui = record?.ui ?? null;
+  const journeyApplicable = record !== null && (ui === 'light' || ui === 'central');
+  const journeySteps = journeyApplicable
+    ? computeStepStates({ tree, record })
+    : [];
+
+  return {
+    bs,
+    totals,
+    nextActionable: next ? next.fbsId : null,
+    tiers: groupTiers(items),
+    items,
+    journeyApplicable,
+    journeySteps,
+  };
 }
 
 /**
