@@ -323,6 +323,85 @@ test('finalise: an agent result missing one scoped AC refuses promotion (noFindi
   assert.match(summariseReport(report2), /ignored findings outside scope \(1\):\n {2}- AC-101-3: BROKEN/);
 });
 
+async function markVerified(root, fbsId) {
+  const fbsPath = join(root, 'rcf', 'fbs', `${fbsId.toLowerCase()}.json`);
+  const doc = JSON.parse(await readFile(fbsPath, 'utf8'));
+  doc.executionStatus = 'verified';
+  await writeFile(fbsPath, `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
+}
+
+test('finalise: re-verify of a verified FBS runs the report checks before confirming (a skipped AC in scope is refused, correctness authority holds, a clean run confirms)', async () => {
+  const root = await scaffoldPairFbs();
+  await markVerified(root, 'FBS-003');
+  assert.equal(await statusOf(root, 'FBS-003'), 'verified');
+
+  // Scoped run skips AC-101-4 (no finding) while AC-101-3 passes: verify
+  // exits 0 with a PASS verdict, and finalise refuses rather than
+  // printing gate passed. The status is not rewritten.
+  const stdout = sink();
+  const stderr = sink();
+  const code = await finalise(['FBS-003', '--url', 'https://app.example.com', '--allow-pre-merge'], {
+    stdout, stderr, cwd: root,
+    detectVerify: async () => DETECTED,
+    spawnVerify: inProcessVerify({
+      seen: [], calls: [],
+      respond: (brief) => brief.journeys.filter((j) => j.acId === 'AC-101-3').map(passFinding),
+    }),
+  });
+  assert.equal(code, 4);
+  assert.doesNotMatch(stdout.data, /gate passed/);
+  assert.match(stderr.data, /gate NOT promoted: 1 AC\(s\) in scope fbs:FBS-003 were not exercised \(AC-101-4\); FBS-003 left 'verified'/);
+  assert.match(stderr.data, /ADR-4112/);
+  assert.equal(await statusOf(root, 'FBS-003'), 'verified');
+
+  // A re-verify under a profile without ship authority holds, exactly as
+  // a first promotion would.
+  const stdout2 = sink();
+  const stderr2 = sink();
+  const code2 = await finalise(['FBS-003', '--url', 'http://localhost:3000', '--profile', 'ci', '--allow-pre-merge'], {
+    stdout: stdout2, stderr: stderr2, cwd: root,
+    detectVerify: async () => DETECTED,
+    spawnVerify: inProcessVerify({ seen: [], calls: [] }),
+  });
+  assert.equal(code2, 4);
+  assert.doesNotMatch(stdout2.data, /gate passed/);
+  assert.match(stderr2.data, /HOLD: rcf verify passed but this run carries 'correctness' authority/);
+
+  // A clean scoped run confirms the status with the re-verify line and
+  // writes nothing.
+  const stdout3 = sink();
+  const stderr3 = sink();
+  const code3 = await finalise(['FBS-003', '--url', 'https://app.example.com', '--allow-pre-merge'], {
+    stdout: stdout3, stderr: stderr3, cwd: root,
+    detectVerify: async () => DETECTED,
+    spawnVerify: inProcessVerify({ seen: [], calls: [] }),
+  });
+  assert.equal(code3, 0, stderr3.data);
+  assert.match(stdout3.data, /gate passed; FBS-003 already verified \(re-verify, scope fbs:FBS-003, 2 ACs\)/);
+  assert.equal(await statusOf(root, 'FBS-003'), 'verified');
+
+  // The same refusal when the skipped AC comes from provisioning rather
+  // than a missing finding: FBS-005 binds the sign-in AC (blocked, no
+  // signup route) together with the landing AC (PASS).
+  const root2 = await scaffoldTwoFbs();
+  await writeFile(join(root2, 'rcf', 'fbs', 'fbs-005.json'), `${JSON.stringify(fbsDoc('FBS-005', 5, ['AC-101-1', 'AC-101-3']), null, 2)}\n`, 'utf8');
+  await markVerified(root2, 'FBS-005');
+  const stdout4 = sink();
+  const stderr4 = sink();
+  const code4 = await finalise(['FBS-005', '--url', 'https://app.example.com', '--allow-pre-merge'], {
+    stdout: stdout4, stderr: stderr4, cwd: root2,
+    detectVerify: async () => DETECTED,
+    spawnVerify: inProcessVerify({ seen: [], calls: [] }),
+  });
+  assert.equal(code4, 4);
+  assert.doesNotMatch(stdout4.data, /gate passed/);
+  const report4 = JSON.parse(await readFile(join(root2, '.rcf-verify-report.json'), 'utf8'));
+  assert.equal(report4.verdict, 'PASS');
+  assert.deepEqual(report4.blockedAcs.map((b) => b.acId), ['AC-101-1']);
+  assert.match(stderr4.data, /1 AC\(s\) in scope fbs:FBS-005 were not exercised \(AC-101-1\); FBS-005 left 'verified'/);
+  assert.equal(await statusOf(root2, 'FBS-005'), 'verified');
+});
+
 test('finalise: a deterministic report with skipped ACs in scope is refused with the counts line naming the scope', async () => {
   const root = await scaffoldTwoFbs();
   const report = {

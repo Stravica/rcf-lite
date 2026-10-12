@@ -509,12 +509,11 @@ export async function main(argv, deps = {}) {
 
   // --- gate on the subprocess exit code (§8.2) + ship authority (§4) ------
   if (spawnResult.code === 0) {
-    // Gate passed on exit code. Promote to verified (idempotent if a re-verify
-    // of an already-verified item).
-    if (currentStatus === 'verified') {
-      if (!quiet) stdout.write(`[finalise] gate passed; ${fbsId} already verified (re-verify, scope ${scope}, ${scopeAcCount} ACs) -> ${outPath}\n`);
-      return 0;
-    }
+    // Gate passed on exit code. A re-verify of an already verified item
+    // takes the same road as a first promotion: every report check below
+    // (ship authority, the scoped verified invariant, the per-AC refusals)
+    // runs before the status is confirmed, so a zero exit alone never
+    // re-asserts verified over a report that would refuse a promotion.
     // Ship-authority gate (spec §4, w-2026-07-22-004): exit 0 is necessary but
     // not sufficient to write `verified`. Only a run that carries SHIP authority
     // may promote - a `deployed`-profile run, or a `ci`/`local-dev` run with an
@@ -725,6 +724,14 @@ export async function main(argv, deps = {}) {
     // check degrades to a warn line rather than a hard fail: verify
     // against a bare tarball deploy is legitimate and should not be
     // refused by a git-shape check.
+    // Re-verify of an already verified FBS: every report check above has
+    // passed, so the status is confirmed as it stands and nothing is
+    // written. The merge-state precondition guards the write below and
+    // does not apply here.
+    if (currentStatus === 'verified') {
+      if (!quiet) stdout.write(`[finalise] gate passed; ${fbsId} already verified (re-verify, scope ${scope}, ${scopeAcCount} ACs) -> ${outPath}\n`);
+      return 0;
+    }
     const gitBranch = await resolveGitBranch({ cwd, deps });
     if (!gitBranch.ok) {
       stderr.write(`[warn] finalise: could not resolve git branch (${gitBranch.reason}); skipping the post-merge precondition. Referee-guarantees claim C-26.\n`);
