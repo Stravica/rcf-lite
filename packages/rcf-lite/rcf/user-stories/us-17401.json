@@ -47,7 +47,7 @@
     },
     {
       "id": "AC-17401-8",
-      "description": "checkD8Freeze enforces the tree-wide gate: every prior stage state (D1..D7 as computeReadiness composes them) is passed or acknowledged at the current hash; every AC id in the tree is bound by exactly one FBS (walker's fbsByAcId map has length 1); the queue head (computeQueue.nextActionable) is not null; validateErrors is empty. The stage is never notApplicable.",
+      "description": "checkD8Freeze enforces the tree-wide gate: every prior stage state (D1..D7 as computeReadiness composes them) is passed or acknowledged at the current hash; every AC id in the tree is bound by exactly one FBS (walker fbsByAcId map has length 1); the queue head (computeQueue.nextActionable) is actionable OR the queue is empty because every FBS is complete or verified (a fully built tree, emitted as freeze:queueEmptyAllBuilt in place of freeze:queueHead so consumers tell the two apart); validateErrors is empty. The stage is never notApplicable.",
       "testable": true
     },
     {
@@ -76,5 +76,5 @@
   ],
   "tags": [],
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-05T18:00:00Z"
+  "updatedAt": "2026-10-12T13:30:15.932Z"
 }

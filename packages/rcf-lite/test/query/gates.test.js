@@ -512,6 +512,94 @@ test('gates: D8 tree-wide freeze checks', () => {
 });
 
 // ---------------------------------------------------------------------------
+// AC-17401-8: a fully built tree (every FBS complete or verified) is a
+// terminal pass on D8: the stage emits freeze:queueEmptyAllBuilt in
+// place of freeze:queueHead, so the empty queue is not a failure.
+// Case (b): queue head blocked by dependencies still fails on
+// freeze:queueHead. Case (c): no FBS records at all keeps the queueHead
+// failure (unchanged). Case (d): one notStarted actionable FBS passes
+// freeze:queueHead as before.
+// ---------------------------------------------------------------------------
+
+test('gates: D8 fully built tree passes with freeze:queueEmptyAllBuilt', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = { usId: 'US-1', reqId: 'REQ-1', acceptanceCriteria: [{ id: 'AC-1' }, { id: 'AC-2' }] };
+  const fbsA = { fbsId: 'FBS-1', acIds: ['AC-1'], executionStatus: 'complete', dependsOnFbsIds: [], title: 'shipped' };
+  const fbsB = { fbsId: 'FBS-2', acIds: ['AC-2'], executionStatus: 'verified', dependsOnFbsIds: [], title: 'proven' };
+  const tree = makeTree({ userStories: [us], fbsItems: [fbsA, fbsB] });
+  const stage = checkD8Freeze({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+    priorStages: [],
+  });
+  assertCheckShape(stage);
+  const allBuilt = stage.checks.find((c) => c.name === 'freeze:queueEmptyAllBuilt');
+  assert.ok(allBuilt, 'freeze:queueEmptyAllBuilt should be emitted on a fully built tree');
+  assert.equal(allBuilt.ok, true);
+  assert.equal(allBuilt.pass, 1);
+  assert.equal(allBuilt.total, 1);
+  assert.equal(allBuilt.failing.length, 0);
+  assert.equal(allBuilt.persona, 'engineer');
+  assert.match(allBuilt.question, /Nothing left to build/);
+  // The queueHead failure must NOT appear once the tree is fully built.
+  assert.equal(stage.checks.filter((c) => c.name === 'freeze:queueHead').length, 0);
+});
+
+test('gates: D8 blocked queue head still fails freeze:queueHead', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = { usId: 'US-1', reqId: 'REQ-1', acceptanceCriteria: [{ id: 'AC-1' }, { id: 'AC-2' }] };
+  // FBS-1 is notStarted but blocked on FBS-2 which is also notStarted
+  // (cycle). Neither is actionable; both carry real titles.
+  const fbsA = { fbsId: 'FBS-1', acIds: ['AC-1'], executionStatus: 'notStarted', dependsOnFbsIds: ['FBS-2'], title: 'ship' };
+  const fbsB = { fbsId: 'FBS-2', acIds: ['AC-2'], executionStatus: 'notStarted', dependsOnFbsIds: ['FBS-1'], title: 'ship again' };
+  const tree = makeTree({ userStories: [us], fbsItems: [fbsA, fbsB] });
+  const stage = checkD8Freeze({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+    priorStages: [],
+  });
+  assertCheckShape(stage);
+  const queueHead = stage.checks.find((c) => c.name === 'freeze:queueHead');
+  assert.ok(queueHead, 'freeze:queueHead should still be emitted when the head is blocked');
+  assert.equal(queueHead.ok, false);
+  assert.ok(queueHead.failing.some((f) => /actionable/.test(f.why)));
+  assert.equal(stage.checks.filter((c) => c.name === 'freeze:queueEmptyAllBuilt').length, 0);
+});
+
+test('gates: D8 tree with no FBS records keeps queueHead failure (unchanged)', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const tree = makeTree();
+  const stage = checkD8Freeze({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+    priorStages: [],
+  });
+  assertCheckShape(stage);
+  const queueHead = stage.checks.find((c) => c.name === 'freeze:queueHead');
+  assert.ok(queueHead, 'freeze:queueHead should still be emitted when no FBS records exist');
+  assert.equal(queueHead.ok, false);
+  assert.equal(stage.checks.filter((c) => c.name === 'freeze:queueEmptyAllBuilt').length, 0);
+});
+
+test('gates: D8 single actionable notStarted FBS passes freeze:queueHead as before', () => {
+  const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };
+  const us = { usId: 'US-1', reqId: 'REQ-1', acceptanceCriteria: [{ id: 'AC-1' }] };
+  const fbs = { fbsId: 'FBS-1', acIds: ['AC-1'], executionStatus: 'notStarted', dependsOnFbsIds: [], title: 'ship it' };
+  const tree = makeTree({ userStories: [us], fbsItems: [fbs] });
+  const stage = checkD8Freeze({
+    tree, ledgers: emptyLedgers, scope: new Set(),
+    validateErrors: [], currentTreeHash: 'sha256:aaa',
+    priorStages: [],
+  });
+  assertCheckShape(stage);
+  const queueHead = stage.checks.find((c) => c.name === 'freeze:queueHead');
+  assert.ok(queueHead);
+  assert.equal(queueHead.ok, true);
+  assert.equal(queueHead.failing.length, 0);
+  assert.equal(stage.checks.filter((c) => c.name === 'freeze:queueEmptyAllBuilt').length, 0);
+});
+
+// ---------------------------------------------------------------------------
 // AC-17401-9: checkD2Skeleton reads tad.dataArchitecture.{dataStores,coreEntities}
 // (not top-level) per rcf-schemas 0.6.3. w-2026-09-25-dave-004 defect A.
 // ---------------------------------------------------------------------------
@@ -621,7 +709,8 @@ const EXPECTED_CHECK_NAMES = [
   'consistency:contradictions', 'consistency:unsatisfiable',
   'consistency:duplicates', 'consistency:orphanInterfaces',
   'decisions:wellFormed', 'decisions:allAnswered',
-  'freeze:priorGates', 'freeze:acFbsOwnership', 'freeze:queueHead', 'freeze:validateClean',
+  'freeze:priorGates', 'freeze:acFbsOwnership', 'freeze:queueHead',
+  'freeze:queueEmptyAllBuilt', 'freeze:validateClean',
 ];
 
 test('gates (ADR-4126): CHECK_PERSONA and CHECK_QUESTION cover every check name', () => {

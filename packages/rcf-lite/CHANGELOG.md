@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- **D8 readiness: a fully built tree is a terminal pass (w-2026-10-12-dave-004, d-2026-10-12-014).** On a tree where every FBS is complete or verified, the build queue is legitimately empty: there is nothing left to build and that is a pass, not a failure. `checkD8Freeze` now emits `freeze:queueEmptyAllBuilt` ("Nothing left to build: every build unit is complete or verified.") in place of the `freeze:queueHead` failure, so the CLI, the JSON readiness output and the embedded viewer all read the state in plain words and `rcf define freeze` stops refusing on an empty-but-done queue. A queue head blocked by dependencies or missing chain prerequisites still fails on `freeze:queueHead` as before, and a tree with no FBS records at all is unchanged. AC-17401-8 is extended through the chain to describe the fully-built pass; the four cases are bound by new tests in `test/query/gates.test.js`.
+
 ## [0.33.0] - 2026-10-09
 
 0.33.0 makes the viewer's Readiness tab the command page: questions, blocking items, a coverage summary, a stage grid with sub-tabs, delta counts and a trace matrix, backed by three new trace, impact and coverage JSON routes with a per-version memo on the viewer server. `rcf verify run` and `rcf build finalise` gain a deterministic mode so a dispatched worker that cannot spawn the agent CLI can still produce a report and refuse promotion honestly. Two watcher and server fixes make the live viewer survive write-temp-then-rename saves and never silently drop a change that lands mid-rewalk. breaking: false; every change is additive on the surfaces consumers run (new routes, new flags, new sub-views, a new verify mode, watcher and rewalk fixes); the `@stravica-ai/rcf-schemas` 0.6.3 pin is unchanged. minAgentAction: null.

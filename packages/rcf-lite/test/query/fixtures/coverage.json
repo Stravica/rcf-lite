@@ -4968,7 +4968,11 @@
           "id": "AC-17401-8",
           "covered": true,
           "testCases": [
-            "TC-216-d8-freeze"
+            "TC-216-d8-freeze",
+            "TC-216-d8-freeze-all-built",
+            "TC-216-d8-freeze-blocked-head",
+            "TC-216-d8-freeze-no-fbs",
+            "TC-216-d8-freeze-single-actionable"
           ],
           "unresolvedTestCases": []
         },

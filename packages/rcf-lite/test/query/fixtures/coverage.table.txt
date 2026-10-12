@@ -514,7 +514,7 @@ REQ-174      yes      AC-17401-1   yes         TC-216-shape
                       AC-17401-5   yes         TC-216-d3-shapes
                       AC-17401-6   yes         TC-216-d5-crosscut
                       AC-17401-7   yes         TC-216-d6-consistency
-                      AC-17401-8   yes         TC-216-d8-freeze
+                      AC-17401-8   yes         TC-216-d8-freeze, TC-216-d8-freeze-all-built, TC-216-d8-f...
                       AC-17401-9   yes         TC-216-d2-data-architecture
                       AC-17401-10  yes         TC-216-identity-seed-surface
                       AC-17401-11  yes         TC-216-r13-crosscut-security-tree-wide
