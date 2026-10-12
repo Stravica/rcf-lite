@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-05T18:00:00Z",
+  "updatedAt": "2026-10-12T13:31:07.935Z",
   "purpose": "Cover the DEFINE stage-gate check functions D1..D8 (AC-17401-1..8) with unit tests over hand-built TreeModel and ledger fixtures.",
   "testLevel": "unit",
   "acIds": [
@@ -104,6 +104,34 @@
       "description": "A D5 scope narrowed so no REQ is in scope but the tree carries an AC with the '[deployed]' marker and TAD.operationalConcerns empty still fails crosscut:operationalConcerns; stage state is failing (not notApplicable) via the ADR-4138 shared helper.",
       "status": "pending",
       "testPointer": "test/query/gates.test.js::gates (R13, AC-17401-12): crosscut:operationalConcerns runs tree-wide under narrowed D5 scope"
+    },
+    {
+      "id": "TC-216-d8-freeze-all-built",
+      "acId": "AC-17401-8",
+      "description": "A fully built tree (every FBS complete or verified) emits freeze:queueEmptyAllBuilt (pass, 1/1) in place of freeze:queueHead; a blocked head still fails freeze:queueHead; a tree with no FBS keeps the queueHead failure; one notStarted actionable FBS passes freeze:queueHead as before.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D8 fully built tree passes with freeze:queueEmptyAllBuilt"
+    },
+    {
+      "id": "TC-216-d8-freeze-blocked-head",
+      "acId": "AC-17401-8",
+      "description": "A queue head blocked by dependencies (every FBS notStarted, cyclic depends) still fails freeze:queueHead with the \"no actionable FBS at the queue head\" reason; freeze:queueEmptyAllBuilt is not emitted.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D8 blocked queue head still fails freeze:queueHead"
+    },
+    {
+      "id": "TC-216-d8-freeze-no-fbs",
+      "acId": "AC-17401-8",
+      "description": "A tree with no FBS records keeps the freeze:queueHead failure (unchanged behaviour); freeze:queueEmptyAllBuilt is not emitted.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D8 tree with no FBS records keeps queueHead failure (unchanged)"
+    },
+    {
+      "id": "TC-216-d8-freeze-single-actionable",
+      "acId": "AC-17401-8",
+      "description": "A single notStarted actionable FBS with a real title passes freeze:queueHead as before (ok, 1/1); freeze:queueEmptyAllBuilt is not emitted.",
+      "status": "pending",
+      "testPointer": "test/query/gates.test.js::gates: D8 single actionable notStarted FBS passes freeze:queueHead as before"
     }
   ],
   "status": "draft"
