@@ -491,7 +491,7 @@ export async function main(argv, deps = {}) {
     if (verifyAll) {
       stdout.write(`[finalise] --all: verifying the whole chain (${chainAcCount} ACs), not only the ${boundAcIds.length} bound to ${fbsId}.\n`);
     }
-    stdout.write(`[finalise] launching rcf verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}, scope=${scope} (${scopeAcCount} ACs)]...\n`);
+    stdout.write(`[finalise] launching the verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}, scope=${scope} (${scopeAcCount} ACs)]...\n`);
   }
 
   let spawnResult;

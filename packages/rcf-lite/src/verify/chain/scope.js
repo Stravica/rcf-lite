@@ -74,7 +74,7 @@ export function resolveScope({ chain, fbsIds } = {}) {
     return rcfError({
       kind: 'usage',
       field: 'fbs',
-      message: `--fbs names ${unknown.length === 1 ? 'an FBS' : 'FBS items'} not on this chain: ${unknown.join(', ')}. Check the id with rcf build queue.`,
+      message: `--fbs names ${unknown.length === 1 ? 'an FBS' : 'FBS items'} not on this chain: ${unknown.join(', ')}. Check the id against the build queue.`,
     });
   }
   const bound = new Set();
