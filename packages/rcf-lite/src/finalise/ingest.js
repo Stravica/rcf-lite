@@ -59,6 +59,13 @@ export function summariseReport(report) {
     lines.push(`runtime: profile=${run.profile ?? '?'} url=${run.url ?? '?'}`
       + (run.parityEnv ? ' parity-env' : ''));
   }
+  // ADR-4147: the scope the run covered (whole chain or the named FBS
+  // items) so a reader of the finalise output never mistakes a one-unit
+  // run for a whole-chain statement.
+  if (typeof run.scope === 'string') {
+    lines.push(`scope: ${run.scope}`
+      + (typeof run.scopeAcCount === 'number' ? ` (${run.scopeAcCount} ACs)` : ''));
+  }
   const findings = Array.isArray(report.findings) ? report.findings : [];
   if (findings.length > 0) {
     lines.push(`findings (${findings.length}):`);

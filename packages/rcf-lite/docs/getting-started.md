@@ -514,7 +514,7 @@ rcf build mark FBS-001 inProgress
 [error] refused build: refusing backward transition complete -> inProgress on FBS-001; for a deliberate correction use: rcf define update FBS-001 --set executionStatus=inProgress
 ```
 
-Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge; `verified` is not a `--mark` target - it is written only by the finalise gate (`rcf build finalise`), which promotes `complete -> verified` when an independent post-merge verify run against the deploy passes with ship authority.
+Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge; `verified` is not a `--mark` target - it is written only by the finalise gate (`rcf build finalise`), which promotes `complete -> verified` when an independent post-merge verify run against the deploy passes with ship authority. By default that verify run covers only the acceptance criteria bound to the FBS being finalised; `--all` verifies the whole chain instead.
 
 ## 8. Do it from your agent
 

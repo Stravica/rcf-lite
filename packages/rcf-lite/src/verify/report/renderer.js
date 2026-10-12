@@ -39,6 +39,12 @@ export function renderReport(report) {
     lines.push(`  reachable: ${run.reachability.reachable}  looksLocal: ${run.reachability.looksLocal}`);
   }
   lines.push(`  chainRef:  ${run.chainRef ?? '(none)'}`);
+  // ADR-4147: what the run was briefed on - the whole chain or the ACs
+  // bound to the named FBS items - and how many criteria that is.
+  const scopeCount = typeof run.scopeAcCount === 'number'
+    ? ` (${run.scopeAcCount} AC${run.scopeAcCount === 1 ? '' : 's'})`
+    : '';
+  lines.push(`  scope:     ${run.scope ?? 'chain'}${scopeCount}`);
   lines.push(`  persona:   ${run.persona ?? '(default)'}`);
   if (run.verifierIsolation) {
     lines.push(`  isolation: autoMemory=${run.verifierIsolation.autoMemory} nonEssentialTraffic=${run.verifierIsolation.nonEssentialTraffic}`);

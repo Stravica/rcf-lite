@@ -23,6 +23,12 @@ const RUN_INPUT_SCHEMA = {
     provisionMode: { type: 'string', enum: ['run', 'skip'] },
     persona: { type: 'string' },
     severityGate: { type: 'string', enum: FINDING_SEVERITIES },
+    fbsIds: {
+      type: 'array',
+      items: { type: 'string' },
+      description: 'Verify only the acceptance criteria bound to these FBS ids (ADR-4147). Omit to verify the whole chain. The report records run.scope and run.scopeAcCount.',
+    },
+    mode: { type: 'string', enum: ['agentScreenshotCritique', 'deterministic'], description: 'Verify mode (default agentScreenshotCritique)' },
   },
   required: ['repo', 'profile', 'url'],
 };
@@ -66,6 +72,9 @@ export function createToolRegistry(deps = {}) {
     if (typeof a.repo !== 'string') errors.push({ kind: 'usage', field: 'repo', message: 'repo is required' });
     if (!['deployed', 'ci', 'local-dev'].includes(a.profile)) errors.push({ kind: 'usage', field: 'profile', message: 'profile must be deployed|ci|local-dev' });
     if (typeof a.url !== 'string') errors.push({ kind: 'usage', field: 'url', message: 'url is required' });
+    if (a.fbsIds !== undefined && (!Array.isArray(a.fbsIds) || a.fbsIds.some((id) => typeof id !== 'string'))) {
+      errors.push({ kind: 'usage', field: 'fbsIds', message: 'fbsIds must be an array of FBS id strings' });
+    }
     if (errors.length > 0) {
       return errorResult(errors);
     }
@@ -80,6 +89,8 @@ export function createToolRegistry(deps = {}) {
       provisionMode: a.provisionMode ?? 'run',
       persona: a.persona,
       severityGate: a.severityGate,
+      fbsIds: a.fbsIds,
+      mode: a.mode,
     }, deps);
 
     if (isRcfError(result)) {

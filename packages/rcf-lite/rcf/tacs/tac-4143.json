@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:17:59.841Z",
-  "updatedAt": "2026-10-12T19:17:59.841Z",
+  "updatedAt": "2026-10-12T19:29:34.109Z",
   "purpose": "Implement the ADR-4147 decision: `rcf verify run` gains a repeatable `--fbs <id>` filter resolved in the chain reader to the acceptance criteria bound to the named FBS items; the engine feeds the scoped set to per-AC verdicts, provisioning, the adversarial brief, the deterministic ledger and the EVAL coverage rollup, and stamps `run.scope` and `run.scopeAcCount` on every report path. `rcf build finalise <fbs-id>` passes its FBS as the filter by default, exposes `--all` to pass no filter, refuses an FBS with zero bound criteria before launching verify, and names the scope in its launch and refusal lines. The MCP verify tool accepts `fbsIds`.",
   "responsibilities": [
     "src/verify/chain/index.js readChain additionally returns fbsItems as { fbsId, acIds } so scope resolution never re-opens the tree.",
@@ -10,7 +10,7 @@
     "src/verify/cli/run.js adds --fbs <id> (repeatable, comma lists accepted), passes fbsIds to the engine, prints a Verify scope line on stderr and documents the option in HELP.",
     "src/verify/mcp/tools.js adds fbsIds (array of strings) to the rcf_verify_run input schema and passes it through.",
     "src/finalise/spawn.js buildVerifyArgs appends --fbs <id> for each entry in opts.fbsIds.",
-    "src/cli/finalise.js adds --all, refuses an FBS whose acIds is empty before launch, passes fbsIds [fbsId] unless --all, and names the scope in the launch line, the deterministic counts refusal and HELP."
+    "src/cli/finalise.js adds --all, names an FBS with no bound criteria plainly on the walker-error path (the schema refuses an empty acIds list; exit 3) before launch, passes fbsIds [fbsId] unless --all, refuses promotion whenever the report's blockedAcs list is non-empty (every entry is in scope) in any mode, and names the scope in the launch line, the refusal lines and HELP."
   ],
   "internalStructure": "Scope resolution is a pure function over the chain read-out; the engine calls it once and threads the scoped array everywhere chain.acs was used. Finalise's change is a flag, a precondition and a one-field thread-through to buildVerifyArgs. Nothing under the chain reader imports the write path.",
   "interfaces": [],

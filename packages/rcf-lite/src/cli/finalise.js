@@ -124,6 +124,10 @@ const OPTION_SPEC = {
   // because the harness refuses to let a worker spawn `claude` as a
   // subagent, which agentScreenshotCritique requires.
   mode: { type: 'string' },
+  // ADR-4147 (US-16504): finalise verifies the named FBS's bound ACs by
+  // default (the fresh verify subprocess receives `--fbs <fbs-id>`).
+  // --all passes no filter so the whole chain is verified, for slice end.
+  all: { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
@@ -141,6 +145,15 @@ a run must both pass and carry SHIP authority (a 'deployed'-profile
 run, or a 'ci'/'local-dev' run with --parity-env) to promote. A
 correctness-only PASS holds without promoting. Findings flow back via
 the --out report file.
+
+Scope: by default the verify run covers only the acceptance criteria
+bound to <fbs-id> (the subprocess receives --fbs <fbs-id>), so
+finalising one build unit costs one unit's verification. The FBS is
+promoted when every criterion bound to it is verified and none is
+skipped (ADR-4112, evaluated over that bound set). Pass --all to verify
+the whole chain instead, for example at the end of a slice. An FBS with
+no bound criteria is refused before verify launches. The report records
+the scope as run.scope ('fbs:<id>' or 'chain') and the AC count.
 
 If rcf-lite is not installed, finalise PROMPTS to install it (install-
 together posture) - it never silently skips the gate. Off a TTY, pass
@@ -201,6 +214,11 @@ Options:
                                  promotion on a deterministic run that
                                  skipped any AC (ADR-4112 verified
                                  invariant).
+  --all                     Verify the whole chain, not only the criteria
+                            bound to <fbs-id>. Promotion still requires
+                            a passing run with ship authority. Without
+                            this flag the verify subprocess receives
+                            --fbs <fbs-id> (ADR-4147).
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -208,7 +226,8 @@ Exit codes:
   0  gate passed - FBS marked verified
   1  IO / unexpected runtime failure
   2  usage error (bad flags, unknown / non-FBS id)
-  3  schema validation or broken references (tree unreadable, or write refused)
+  3  schema validation or broken references (tree unreadable, the FBS has no
+     bound acceptance criteria, or write refused)
   4  gate NOT passed - verify blocked ship, OR verify passed but the run lacks
      ship authority (a correctness-only HOLD), OR rcf-lite absent and install
      declined/unavailable - the FBS is left unchanged, findings surfaced
@@ -336,6 +355,17 @@ export async function main(argv, deps = {}) {
   // fails validation, and no status write lands (mirrors build --mark, §D6).
   const { tree, errors } = await walkTree({ projectRoot });
   if (errors.length > 0) {
+    // ADR-4147: an FBS with no bound acceptance criteria has nothing for
+    // the verified invariant to be evaluated over. The schema already
+    // refuses an empty acIds list, so the walker surfaces it here; name
+    // it plainly instead of leaving the operator to read the schema
+    // message, and refuse before any verify run launches.
+    const emptyBinding = errors.find((e) => e?.documentId === fbsId && /acIds/.test(e?.message ?? ''));
+    if (emptyBinding) {
+      stderr.write(`[error] refused finalise: ${fbsId} has no bound acceptance criteria; there is nothing to verify. `
+        + 'Bind at least one AC to the FBS (acIds) before finalising it.\n');
+      return 3;
+    }
     stderr.write('[error] validation the RCF tree does not validate; fix it before finalising.\n');
     return 3;
   }
@@ -353,6 +383,26 @@ export async function main(argv, deps = {}) {
       + `Mark it complete first: rcf build mark ${fbsId} complete\n`);
     return 4;
   }
+
+  // ADR-4147 (US-16504) verification scope. By default the fresh verify
+  // subprocess is briefed on this FBS's bound ACs only; --all passes no
+  // filter. The schema refuses an empty acIds list (handled on the
+  // walker-error path above); this guard keeps the invariant if a chain
+  // ever loads with an empty binding, whether or not --all was given.
+  const boundAcIds = Array.isArray(fbs.acIds) ? fbs.acIds.filter((id) => typeof id === 'string') : [];
+  if (boundAcIds.length === 0) {
+    stderr.write(`[error] refused finalise: ${fbsId} has no bound acceptance criteria; there is nothing to verify. `
+      + 'Bind at least one AC to the FBS (acIds) before finalising it.\n');
+    return 3;
+  }
+  const verifyAll = Boolean(flags.all);
+  const scopeFbsIds = verifyAll ? [] : [fbsId];
+  // Label mirrors verify's chain/scope.js by contract (build never imports
+  // verify's chain reader): 'chain' with no filter, otherwise 'fbs:<id>'.
+  const scope = verifyAll ? 'chain' : `fbs:${fbsId}`;
+  const chainAcCount = (tree.userStories ?? [])
+    .reduce((n, us) => n + (Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria.length : 0), 0);
+  const scopeAcCount = verifyAll ? chainAcCount : boundAcIds.length;
 
   const quiet = Boolean(flags.quiet);
   const io = { stdout, stderr, input: deps.input ?? process.stdin, output: deps.output ?? process.stdout };
@@ -395,6 +445,7 @@ export async function main(argv, deps = {}) {
     chain: flags.chain,
     persona: flags.persona,
     mode,
+    fbsIds: scopeFbsIds,
   });
 
   // Issue 330 partial-report preseed. Verify is a fresh subprocess and
@@ -414,6 +465,8 @@ export async function main(argv, deps = {}) {
     run: {
       profile,
       url: flags.url,
+      scope,
+      scopeAcCount,
       startedAt: finaliseStartedAt,
       finishedAt: null,
       runStats: { mode, status: 'pending', reason: 'verify not yet started' },
@@ -435,7 +488,10 @@ export async function main(argv, deps = {}) {
   }
 
   if (!quiet) {
-    stdout.write(`[finalise] launching rcf verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}]...\n`);
+    if (verifyAll) {
+      stdout.write(`[finalise] --all: verifying the whole chain (${chainAcCount} ACs), not only the ${boundAcIds.length} bound to ${fbsId}.\n`);
+    }
+    stdout.write(`[finalise] launching rcf verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}, scope=${scope} (${scopeAcCount} ACs)]...\n`);
   }
 
   let spawnResult;
@@ -456,7 +512,7 @@ export async function main(argv, deps = {}) {
     // Gate passed on exit code. Promote to verified (idempotent if a re-verify
     // of an already-verified item).
     if (currentStatus === 'verified') {
-      if (!quiet) stdout.write(`[finalise] gate passed; ${fbsId} already verified (re-verify) -> ${outPath}\n`);
+      if (!quiet) stdout.write(`[finalise] gate passed; ${fbsId} already verified (re-verify, scope ${scope}, ${scopeAcCount} ACs) -> ${outPath}\n`);
       return 0;
     }
     // Ship-authority gate (spec §4, w-2026-07-22-004): exit 0 is necessary but
@@ -502,11 +558,32 @@ export async function main(argv, deps = {}) {
       if (runStats && runStats.mode === 'deterministic') {
         const counts = runStats.counts ?? { verified: 0, failed: 0, skipped: 0, total: 0 };
         if ((counts.skipped ?? 0) > 0 || (counts.verified ?? 0) < (counts.total ?? 0)) {
-          stderr.write(`[finalise] gate NOT promoted: deterministic mode verified ${counts.verified ?? 0} of ${counts.total ?? 0} ACs (skipped ${counts.skipped ?? 0} critique-only); critique mode required to promote ${fbsId} to 'verified'. ADR-4112 verified invariant.\n`);
+          stderr.write(`[finalise] gate NOT promoted: deterministic mode verified ${counts.verified ?? 0} of ${counts.total ?? 0} ACs in scope ${passLoaded.report?.run?.scope ?? scope} (skipped ${counts.skipped ?? 0} critique-only); critique mode required to promote ${fbsId} to 'verified'. ADR-4112 verified invariant.\n`);
           stderr.write("Re-run from a parent session that may spawn the agent CLI ('rcf build finalise ... --mode agentScreenshotCritique'), or extend the chain so every AC carries a deterministic probe shape.\n");
           stderr.write(`Report: ${outPath}\n`);
           return 4;
         }
+      }
+    }
+    // ADR-4147 / ADR-4112 verified invariant over the scoped set. The
+    // verifier only considers the ACs in scope (this FBS's bound ACs by
+    // default, the whole chain with --all), so every entry on the
+    // report's blockedAcs[] is an AC in scope that was NOT exercised
+    // (unprovisionable prerequisite, or critique-only in deterministic
+    // mode). The aggregate verdict can still be PASS when other ACs
+    // passed; promotion is refused regardless, in any mode, because an
+    // FBS is verified only when every AC bound to it is verified and
+    // none is skipped. A skipped AC outside the scope never appears on
+    // this report and so never blocks this FBS.
+    if (passLoaded.ok) {
+      const blockedInScope = Array.isArray(passLoaded.report?.blockedAcs) ? passLoaded.report.blockedAcs : [];
+      if (blockedInScope.length > 0) {
+        const reportScope = passLoaded.report?.run?.scope ?? scope;
+        const acList = blockedInScope.map((b) => b?.acId).filter(Boolean).join(', ');
+        stderr.write(`[finalise] gate NOT promoted: ${blockedInScope.length} AC(s) in scope ${reportScope} were not exercised (${acList}); ${fbsId} left '${currentStatus}'. Every AC bound to the FBS must be verified and none skipped. ADR-4112 verified invariant.\n`);
+        stderr.write(summariseReport(passLoaded.report));
+        stderr.write(`Report: ${outPath}\n`);
+        return 4;
       }
     }
     // 0.7.0 verification-integrity §5.2: the finalise gate reads the
@@ -677,7 +754,7 @@ export async function main(argv, deps = {}) {
       if (result.kind === 'validation' || result.kind === 'brokenReference') return 3;
       return 1;
     }
-    if (!quiet) stdout.write(`[finalise] gate passed; marked ${fbsId} complete -> verified. Report: ${outPath}\n`);
+    if (!quiet) stdout.write(`[finalise] gate passed; marked ${fbsId} complete -> verified (scope ${scope}, ${scopeAcCount} ACs). Report: ${outPath}\n`);
     return 0;
   }
 

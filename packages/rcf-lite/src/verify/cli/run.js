@@ -19,6 +19,7 @@ import {
 } from '../engine/deterministic.js';
 import { isSemverString, PLAYWRIGHT_MCP_VERSION } from '../engine/launcher.js';
 import { serialiseReport } from '../report/index.js';
+import { normaliseFbsIds } from '../chain/scope.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
 
 const OPTION_SPEC = {
@@ -37,6 +38,10 @@ const OPTION_SPEC = {
   // the parent-session default; deterministic is the model-free, in-
   // process mode a dispatched worker can run (never spawns `claude`).
   mode: { type: 'string' },
+  // ADR-4147 (US-16504): verification scope. Repeatable; a comma list
+  // is accepted too. Narrows the contract to the ACs bound to the named
+  // FBS items. `rcf build finalise` passes its own FBS here by default.
+  fbs: { type: 'string', multiple: true },
   help: { type: 'boolean' },
 };
 
@@ -53,6 +58,14 @@ Required:
 
 Optional:
   --chain <PRD/ref>         Which PRD/chain to verify against (default: the repo's)
+  --fbs <fbs-id>            Verify only the acceptance criteria bound to this
+                            FBS (repeatable; a comma list is accepted). Without
+                            it the whole chain is verified. The report records
+                            the scope as run.scope ('chain' or 'fbs:<ids>')
+                            and the AC count as run.scopeAcCount. An unknown
+                            id, or an FBS with no bound criteria, refuses with
+                            exit 2. 'rcf build finalise <fbs-id>' passes its
+                            own FBS here by default.
   --parity-env              Assert this ci/local-dev runtime is edge-identical
                             to prod — the only path to a SHIP verdict from a
                             non-deployed profile. Logged in the report.
@@ -184,6 +197,13 @@ export async function main(argv, deps = {}) {
   if (mode === 'deterministic') {
     stderr.write('Verify mode: deterministic (model-free, in-process; a dispatched worker can run this)\n');
   }
+  // ADR-4147: the verification scope. Printed before the run so an
+  // operator watching a long pass knows what it covers; the resolved AC
+  // count follows on the report line once the chain has been read.
+  const fbsIds = normaliseFbsIds(flags.fbs);
+  if (fbsIds.length > 0) {
+    stderr.write(`Verify scope: ${fbsIds.join(', ')} (only the acceptance criteria bound to ${fbsIds.length === 1 ? 'this FBS' : 'these FBS items'})\n`);
+  }
 
   const result = await runVerification({
     repo: flags.repo,
@@ -197,6 +217,7 @@ export async function main(argv, deps = {}) {
     severityGate: gate,
     playwrightMcpVersion: overrideRaw,
     mode,
+    fbsIds,
   }, deps);
 
   if (isRcfError(result)) {
@@ -231,6 +252,8 @@ export async function main(argv, deps = {}) {
     }
   }
 
+  const scopeCount = typeof report?.run?.scopeAcCount === 'number' ? ` (${report.run.scopeAcCount} ACs)` : '';
+  stderr.write(`[rcf-verify] scope ${report?.run?.scope ?? 'chain'}${scopeCount}\n`);
   stderr.write(`[rcf-verify] verdict ${report.verdict} [${report.verdictAuthority}] -> ${flags.out}\n`);
 
   // Exit code is the gate (§8.2). NOT-DEPLOYED / BLOCKED always trip.

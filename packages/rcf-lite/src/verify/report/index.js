@@ -31,6 +31,11 @@ export function buildReport(p) {
       reachability: p.reachability ?? null,
       chainRef: p.chainRef ?? null,
       repo: p.repo ?? null,
+      // ADR-4147 verification scope: 'chain' (no filter) or 'fbs:<ids>'
+      // (the ACs bound to the named FBS items), plus the number of ACs
+      // the run was briefed on. Additive; older readers ignore both.
+      scope: typeof p.scope === 'string' && p.scope.length > 0 ? p.scope : 'chain',
+      scopeAcCount: typeof p.scopeAcCount === 'number' ? p.scopeAcCount : null,
       persona: p.persona ?? DEFAULT_PERSONA,
       startedAt: p.startedAt ?? null,
       finishedAt: p.finishedAt ?? null,
