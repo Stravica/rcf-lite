@@ -119,6 +119,104 @@ test('run --fbs: verifies exactly the ACs bound to the named FBS items and recor
   assert.equal(report3.run.scopeAcCount, 3);
 });
 
+// A launcher that answers only for the ACs named in `answer` (PASS) and
+// adds whatever extra findings it is given, in scope or not.
+function partialLauncher({ answer, extra = [] }) {
+  return async ({ brief }) => ({
+    findings: [
+      ...brief.journeys
+        .filter((j) => answer.includes(j.acId))
+        .map((j) => ({ severity: 'PASS', acId: j.acId, journey: j.journey, reproSteps: ['drive'], evidence: { kind: 'note', detail: 'ok' } })),
+      ...extra,
+    ],
+  });
+}
+
+test('run --fbs: a scoped AC with no finding is recorded as blocked (noFinding); a finding outside the scope is ignored and noted', async () => {
+  const { root } = await scaffoldTwoFbs();
+
+  // FBS-002 scopes AC-101-1 and AC-101-2. The launcher answers for
+  // AC-101-1 only and adds a BROKEN finding for AC-101-3 (outside the
+  // scope). AC-101-2 lands on blockedAcs with reason noFinding, the
+  // out-of-scope finding does not reach the verdict (still PASS), and
+  // both facts are on the report.
+  const out = await outPath();
+  const stderr = capture();
+  const code = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000',
+      '--out', out, '--provision-mode', 'skip', '--fbs', 'FBS-002'],
+    {
+      stderr: stderr.stream,
+      launchAgent: partialLauncher({
+        answer: ['AC-101-1'],
+        extra: [{ severity: 'BROKEN', acId: 'AC-101-3', journey: 'landing', reproSteps: ['load /'], evidence: { kind: 'note', detail: 'out of scope' } }],
+      }),
+    },
+  );
+  assert.equal(code, 0);
+  const report = JSON.parse(await readFile(out, 'utf8'));
+  assert.equal(report.verdict, 'PASS');
+  assert.deepEqual(report.findings.map((f) => f.acId), ['AC-101-1']);
+  assert.deepEqual(report.blockedAcs.map((b) => b.acId), ['AC-101-2']);
+  assert.match(report.blockedAcs[0].reason, /^noFinding:/);
+  assert.equal(report.blockedAcs[0].mode, 'agentScreenshotCritique');
+  assert.deepEqual(report.run.runStats.coverage, {
+    expected: 2, found: 1, missing: ['AC-101-2'], ignored: [{ acId: 'AC-101-3', severity: 'BROKEN' }],
+  });
+  const rendered = renderReport(report);
+  assert.match(rendered, /Blocked ACs \(1\)[\s\S]*AC-101-2: noFinding:/);
+  assert.match(rendered, /Ignored findings \(1\), outside the verification scope\n {2}AC-101-3: BROKEN/);
+
+  // The same launcher with every scoped AC answered: no blocked entry, the
+  // extra finding is still ignored and the verdict is the same PASS.
+  const out2 = await outPath();
+  const code2 = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000',
+      '--out', out2, '--provision-mode', 'skip', '--fbs', 'FBS-002'],
+    {
+      stderr: capture().stream,
+      launchAgent: partialLauncher({
+        answer: ['AC-101-1', 'AC-101-2'],
+        extra: [{ severity: 'BROKEN', acId: 'AC-101-3', journey: 'landing', reproSteps: ['load /'], evidence: { kind: 'note', detail: 'out of scope' } }],
+      }),
+    },
+  );
+  assert.equal(code2, 0);
+  const report2 = JSON.parse(await readFile(out2, 'utf8'));
+  assert.equal(report2.verdict, 'PASS');
+  assert.deepEqual(report2.blockedAcs, []);
+  assert.deepEqual(report2.findings.map((f) => f.acId), ['AC-101-1', 'AC-101-2']);
+  assert.deepEqual(report2.run.runStats.coverage.ignored, [{ acId: 'AC-101-3', severity: 'BROKEN' }]);
+
+  // No findings at all: every scoped AC is blocked, so the verdict is
+  // BLOCKED (exit 5), never an empty PASS.
+  const out3 = await outPath();
+  const code3 = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000',
+      '--out', out3, '--provision-mode', 'skip', '--fbs', 'FBS-002'],
+    { stderr: capture().stream, launchAgent: partialLauncher({ answer: [] }) },
+  );
+  assert.equal(code3, 5);
+  const report3 = JSON.parse(await readFile(out3, 'utf8'));
+  assert.equal(report3.verdict, 'BLOCKED');
+  assert.deepEqual(report3.blockedAcs.map((b) => b.acId), ['AC-101-1', 'AC-101-2']);
+
+  // Deterministic mode runs the same reconciliation: its skip ledger
+  // already names every scoped AC, so nothing is added and the coverage
+  // record shows the scoped count with nothing found.
+  const out4 = await outPath();
+  const code4 = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000',
+      '--out', out4, '--provision-mode', 'skip', '--mode', 'deterministic', '--fbs', 'FBS-002'],
+    { stderr: capture().stream, fetchImpl: async () => ({ status: 200, text: async () => '<html>ok</html>' }) },
+  );
+  assert.equal(code4, 5);
+  const report4 = JSON.parse(await readFile(out4, 'utf8'));
+  assert.deepEqual(report4.blockedAcs.map((b) => b.acId), ['AC-101-1', 'AC-101-2']);
+  assert.ok(report4.blockedAcs.every((b) => /critique-only/.test(b.reason)));
+  assert.deepEqual(report4.run.runStats.coverage, { expected: 2, found: 0, missing: [], ignored: [] });
+});
+
 test('run (no --fbs): the whole chain is verified and the report records scope chain', async () => {
   const { root } = await scaffoldTwoFbs();
   const seen = [];

@@ -74,6 +74,16 @@ export function renderReport(report) {
     lines.push('');
   }
 
+  // ADR-4147 scoped coverage: findings the verifier returned for criteria
+  // outside the scope were ignored by the verdict; name them so the
+  // report reader sees they were returned, not lost.
+  const ignored = report.run?.runStats?.coverage?.ignored ?? [];
+  if (ignored.length > 0) {
+    lines.push(`Ignored findings (${ignored.length}), outside the verification scope`);
+    for (const i of ignored) lines.push(`  ${i.acId}: ${i.severity}`);
+    lines.push('');
+  }
+
   // 0.7.0 per-AC verdicts. Rendered as a dedicated section so an operator
   // reading the human render sees the honest picture on any AC that came
   // back mock-only / declared / UI-baseline-unmet, even when the top-level

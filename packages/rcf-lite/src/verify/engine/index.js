@@ -26,6 +26,7 @@ import {
   runDeterministic,
 } from './deterministic.js';
 import { aggregateVerdict, derivePerAcVerdicts, validateFinding } from '../verdict/index.js';
+import { reconcileScopedCoverage } from './coverage.js';
 import { buildReport } from '../report/index.js';
 
 /**
@@ -202,7 +203,18 @@ export async function runVerification(opts = {}, deps = {}) {
   // 7. Validate + stamp the findings (§5.2 chain-node addressing).
   const normalised = normaliseFindings(launchResult?.findings);
   if (isRcfError(normalised)) return normalised;
-  const { findings } = normalised;
+
+  // 7b. Scoped coverage (ADR-4147, ADR-4112). Compare what came back with
+  // the scoped set: a scoped criterion with no finding is recorded as
+  // blocked (reason noFinding) so an omission never reads as a pass, and
+  // a finding for a criterion outside the scope is dropped from the
+  // verdict and noted on runStats.coverage. Runs in both verify modes.
+  const reconciled = reconcileScopedCoverage({
+    acs, findings: normalised.findings, blockedAcs, mode,
+  });
+  const { findings, coverage } = reconciled;
+  blockedAcs.length = 0;
+  blockedAcs.push(...reconciled.blockedAcs);
 
   // 8. Cleanup provisioned artefacts (§6 cleanup contract).
   await runCleanup();
@@ -228,6 +240,7 @@ export async function runVerification(opts = {}, deps = {}) {
     mode,
     playwrightMcpVersion,
     evalCoverage,
+    coverage,
   };
   const report = buildReport({
     profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo, ...scopeFields,

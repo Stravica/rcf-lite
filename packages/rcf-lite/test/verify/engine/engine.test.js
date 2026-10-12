@@ -144,8 +144,14 @@ test('runVerification: provisioning auth succeeds with an injected signup; clean
   assert.ok(res.report.provisioning.provisioned.length >= 2);
   assert.equal(res.report.provisioning.cleanupRan, true);
   assert.ok(res.report.provisioning.cleanupRemoved.length >= 2);
+  // Payment stays blocked at provisioning. AC-101-1 was provisioned but the
+  // stub returned no finding for it, so scoped coverage records it as
+  // blocked with reason noFinding rather than letting the omission pass.
   const blockedIds = res.report.blockedAcs.map((b) => b.acId);
-  assert.deepEqual(blockedIds, ['AC-101-2']); // payment only
+  assert.deepEqual(blockedIds, ['AC-101-2', 'AC-101-1']);
+  assert.match(res.report.blockedAcs[0].reason, /cannot provision/);
+  assert.match(res.report.blockedAcs[1].reason, /^noFinding:/);
+  assert.deepEqual(res.report.run.runStats.coverage, { expected: 3, found: 1, missing: ['AC-101-1'], ignored: [] });
   // No secret leaked into the report body.
   assert.doesNotMatch(JSON.stringify(res.report), /"password":"pw"/);
 });

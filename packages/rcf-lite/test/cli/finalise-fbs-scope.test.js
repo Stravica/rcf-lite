@@ -82,8 +82,47 @@ async function scaffoldTwoFbs() {
   return root;
 }
 
+// FBS-003 binds two plain ACs (AC-101-3 and AC-101-4) that the stub
+// launcher can pass, so a launcher that answers for one of them leaves
+// the other unexercised inside the scope. FBS-004 binds AC-101-4 only.
+async function scaffoldPairFbs() {
+  const { root } = await scaffoldChain({
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-3',
+        description: 'The landing page renders a headline',
+        given: 'the app is reachable',
+        when: 'a visitor loads the landing page',
+        then: 'a headline is visible above the fold',
+        testable: true,
+      },
+      {
+        id: 'AC-101-4',
+        description: 'The landing page renders a footer',
+        given: 'the app is reachable',
+        when: 'a visitor scrolls to the end of the landing page',
+        then: 'a footer with the product name is visible',
+        testable: true,
+      },
+    ],
+    fbsItems: [
+      // The seeded FBS-001 binds AC-101-1, which this chain does not carry.
+      fbsDoc('FBS-001', 1, ['AC-101-3']),
+      fbsDoc('FBS-003', 3, ['AC-101-3', 'AC-101-4']),
+      fbsDoc('FBS-004', 4, ['AC-101-4']),
+    ],
+  });
+  return root;
+}
+
+function passFinding(j) {
+  return { severity: 'PASS', acId: j.acId, journey: j.journey, reproSteps: ['drive'], evidence: { kind: 'note', detail: 'ok' } };
+}
+
 // Runs the real verify CLI in-process with the argv finalise composed.
-function inProcessVerify({ seen, calls }) {
+// `respond` maps the brief to the findings the stub launcher returns; the
+// default passes every journey in the brief.
+function inProcessVerify({ seen, calls, respond }) {
   return async ({ verifyArgs, cwd }) => {
     calls.push(verifyArgs);
     assert.deepEqual(verifyArgs.slice(0, 2), ['verify', 'run']);
@@ -95,11 +134,7 @@ function inProcessVerify({ seen, calls }) {
       fetchImpl: async () => ({ status: 200, text: async () => '<html>ok</html>' }),
       launchAgent: async ({ brief }) => {
         for (const j of brief.journeys) seen.push(j.acId);
-        return {
-          findings: brief.journeys.map((j) => ({
-            severity: 'PASS', acId: j.acId, journey: j.journey, reproSteps: ['drive'], evidence: { kind: 'note', detail: 'ok' },
-          })),
-        };
+        return { findings: respond ? respond(brief) : brief.journeys.map(passFinding) };
       },
     });
     return { code, signal: null, env: {} };
@@ -235,6 +270,57 @@ test('finalise: the verified invariant is evaluated over the scoped set (skipped
     assert.match(stderr4.data, /refused finalise: FBS-003 has no bound acceptance criteria; there is nothing to verify/);
     assert.equal(await statusOf(root, 'FBS-003'), 'complete');
   }
+});
+
+test('finalise: an agent result missing one scoped AC refuses promotion (noFinding); an extra out-of-scope finding does not change the verdict', async () => {
+  const root = await scaffoldPairFbs();
+
+  // The launcher answers for AC-101-3 only. AC-101-4 is in FBS-003's
+  // scope with no finding, so verify records it as blocked (noFinding)
+  // and finalise refuses; the FBS stays complete.
+  const stderr = sink();
+  const code = await finalise(['FBS-003', '--url', 'https://app.example.com', '--allow-pre-merge'], {
+    stdout: sink(), stderr, cwd: root,
+    detectVerify: async () => DETECTED,
+    spawnVerify: inProcessVerify({
+      seen: [], calls: [],
+      respond: (brief) => brief.journeys.filter((j) => j.acId === 'AC-101-3').map(passFinding),
+    }),
+  });
+  assert.equal(code, 4);
+  assert.equal(await statusOf(root, 'FBS-003'), 'complete');
+  assert.match(stderr.data, /gate NOT promoted: 1 AC\(s\) in scope fbs:FBS-003 were not exercised \(AC-101-4\)/);
+  assert.match(stderr.data, /AC-101-4: noFinding:/);
+  assert.match(stderr.data, /ADR-4112/);
+  const report = JSON.parse(await readFile(join(root, '.rcf-verify-report.json'), 'utf8'));
+  assert.equal(report.verdict, 'PASS');
+  assert.deepEqual(report.blockedAcs.map((b) => b.acId), ['AC-101-4']);
+  assert.deepEqual(report.run.runStats.coverage.missing, ['AC-101-4']);
+
+  // The launcher answers for every scoped AC and adds a BROKEN finding
+  // for an AC outside FBS-004's scope. The extra finding is ignored and
+  // noted; the verdict is PASS and FBS-004 is promoted.
+  const stdout2 = sink();
+  const stderr2 = sink();
+  const code2 = await finalise(['FBS-004', '--url', 'https://app.example.com', '--allow-pre-merge'], {
+    stdout: stdout2, stderr: stderr2, cwd: root,
+    detectVerify: async () => DETECTED,
+    spawnVerify: inProcessVerify({
+      seen: [], calls: [],
+      respond: (brief) => [
+        ...brief.journeys.map(passFinding),
+        { severity: 'BROKEN', acId: 'AC-101-3', journey: 'landing', reproSteps: ['load /'], evidence: { kind: 'note', detail: 'outside the scope' } },
+      ],
+    }),
+  });
+  assert.equal(code2, 0, stderr2.data);
+  assert.equal(await statusOf(root, 'FBS-004'), 'verified');
+  const report2 = JSON.parse(await readFile(join(root, '.rcf-verify-report.json'), 'utf8'));
+  assert.equal(report2.verdict, 'PASS');
+  assert.deepEqual(report2.findings.map((f) => f.acId), ['AC-101-4']);
+  assert.deepEqual(report2.blockedAcs, []);
+  assert.deepEqual(report2.run.runStats.coverage.ignored, [{ acId: 'AC-101-3', severity: 'BROKEN' }]);
+  assert.match(summariseReport(report2), /ignored findings outside scope \(1\):\n {2}- AC-101-3: BROKEN/);
 });
 
 test('finalise: a deterministic report with skipped ACs in scope is refused with the counts line naming the scope', async () => {

@@ -82,6 +82,15 @@ export function summariseReport(report) {
       lines.push(`  - ${b.acId ?? '?'}: ${b.reason ?? 'unprovisionable'}`);
     }
   }
+  // ADR-4147 scoped coverage: findings returned for criteria outside the
+  // scope were ignored by the verdict; name them rather than drop them.
+  const ignored = Array.isArray(run.runStats?.coverage?.ignored) ? run.runStats.coverage.ignored : [];
+  if (ignored.length > 0) {
+    lines.push(`ignored findings outside scope (${ignored.length}):`);
+    for (const i of ignored) {
+      lines.push(`  - ${i.acId ?? '?'}: ${i.severity ?? '?'}`);
+    }
+  }
   const declared = findMockOnlyDeclaredAcs(report);
   if (declared.length > 0) {
     lines.push(`mock-only declared (${declared.length}):`);
