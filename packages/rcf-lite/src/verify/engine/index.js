@@ -16,6 +16,7 @@ import {
   verdictAuthorityFor,
 } from '../profile/index.js';
 import { readChain as defaultReadChain } from '../chain/index.js';
+import { resolveScope } from '../chain/scope.js';
 import { runProvisioning, cleanup as defaultCleanup } from '../provision/index.js';
 import { composeBrief } from './brief.js';
 import { PLAYWRIGHT_MCP_VERSION, playwrightMcpConfig, resolveLauncher } from './launcher.js';
@@ -25,6 +26,7 @@ import {
   runDeterministic,
 } from './deterministic.js';
 import { aggregateVerdict, derivePerAcVerdicts, validateFinding } from '../verdict/index.js';
+import { reconcileScopedCoverage } from './coverage.js';
 import { buildReport } from '../report/index.js';
 
 /**
@@ -61,6 +63,7 @@ export function normaliseFindings(rawFindings) {
  * exit.
  *
  * @param {object} opts - the CLI-parsed run options
+ * @param {string[]} [opts.fbsIds] - ADR-4147 scope: verify only the ACs bound to these FBS items (empty = whole chain)
  * @param {object} [deps] - injectable seams (launchAgent, fetchImpl, signup, teardown, now, readChain)
  * @returns {Promise<{ report: object } | import('#core/errors').RcfError>}
  */
@@ -82,6 +85,17 @@ export async function runVerification(opts = {}, deps = {}) {
   const chain = await readChain({ repo: opts.repo, chainRef: opts.chainRef });
   if (isRcfError(chain)) return chain;
 
+  // 2b. Verification scope (ADR-4147, US-16504). `--fbs <id>` narrows the
+  // contract to the ACs bound to the named FBS items; finalise passes its
+  // own FBS by default. Every downstream stage (per-AC verdicts,
+  // provisioning, the brief, the deterministic ledger, EVAL coverage)
+  // reads the SCOPED list so the report is internally consistent, and
+  // every report path stamps run.scope + run.scopeAcCount.
+  const scoped = resolveScope({ chain, fbsIds: opts.fbsIds });
+  if (isRcfError(scoped)) return scoped;
+  const acs = scoped.acs;
+  const scopeFields = { scope: scoped.scope, scopeAcCount: scoped.acCount };
+
   const verdictAuthority = verdictAuthorityFor(profile, parityEnv);
 
   // Per-AC verdicts (0.7.0). Derived from chain data — service attestations
@@ -92,7 +106,7 @@ export async function runVerification(opts = {}, deps = {}) {
   // refuses `verified` on any MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION
   // entry regardless of the run-level verdict.
   const perAcVerdicts = derivePerAcVerdicts({
-    acs: chain.acs,
+    acs,
     browserVerification: chain.manifest?.browserVerification ?? [],
   });
 
@@ -103,7 +117,7 @@ export async function runVerification(opts = {}, deps = {}) {
     if (isNotDeployed(profile, reachability)) {
       // Refusal to issue a verdict — never a soft pass (§4, §5.1).
       const report = buildReport({
-        profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo,
+        profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo, ...scopeFields,
         persona: opts.persona, startedAt, finishedAt: now(),
         verifierIsolation: isolationProvenance(),
         verdict: 'NOT-DEPLOYED', verdictAuthority,
@@ -117,7 +131,7 @@ export async function runVerification(opts = {}, deps = {}) {
 
   // 4. Provision prerequisites (§6). Unprovisionable → BLOCKED (named), dependent ACs BLOCKED.
   const { provisioning, blockedAcs } = await runProvisioning({
-    acs: chain.acs,
+    acs,
     url,
     provisionPath: opts.provision,
     mode: opts.provisionMode ?? 'run',
@@ -125,7 +139,7 @@ export async function runVerification(opts = {}, deps = {}) {
   });
 
   // 5. Compose the adversarial brief from the chain ACs (§5, §9 guarantee 4).
-  const brief = composeBrief({ acs: chain.acs, url, persona: opts.persona, chainRef: chain.chainRef });
+  const brief = composeBrief({ acs, url, persona: opts.persona, chainRef: chain.chainRef });
 
   // Cleanup runs whether or not the launch succeeds — provisioned artefacts
   // must not be orphaned by a launch failure (§6 cleanup contract).
@@ -159,7 +173,7 @@ export async function runVerification(opts = {}, deps = {}) {
   let launchResult;
   try {
     if (mode === 'deterministic') {
-      const detResult = await runDeterministic({ url, acs: chain.acs, deps });
+      const detResult = await runDeterministic({ url, acs, deps });
       launchResult = { findings: detResult.findings, runStats: detResult.runStats };
       for (const b of detResult.blockedAcs ?? []) blockedAcs.push(b);
     } else {
@@ -174,7 +188,7 @@ export async function runVerification(opts = {}, deps = {}) {
     // the fix loop has something to ingest. Exit stays non-zero (gate trips).
     await runCleanup();
     const report = buildReport({
-      profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo,
+      profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo, ...scopeFields,
       persona: opts.persona, startedAt, finishedAt: now(),
       verifierIsolation: isolationProvenance(),
       verdict: 'LAUNCH-FAILURE', verdictAuthority,
@@ -189,7 +203,18 @@ export async function runVerification(opts = {}, deps = {}) {
   // 7. Validate + stamp the findings (§5.2 chain-node addressing).
   const normalised = normaliseFindings(launchResult?.findings);
   if (isRcfError(normalised)) return normalised;
-  const { findings } = normalised;
+
+  // 7b. Scoped coverage (ADR-4147, ADR-4112). Compare what came back with
+  // the scoped set: a scoped criterion with no finding is recorded as
+  // blocked (reason noFinding) so an omission never reads as a pass, and
+  // a finding for a criterion outside the scope is dropped from the
+  // verdict and noted on runStats.coverage. Runs in both verify modes.
+  const reconciled = reconcileScopedCoverage({
+    acs, findings: normalised.findings, blockedAcs, mode,
+  });
+  const { findings, coverage } = reconciled;
+  blockedAcs.length = 0;
+  blockedAcs.push(...reconciled.blockedAcs);
 
   // 8. Cleanup provisioned artefacts (§6 cleanup contract).
   await runCleanup();
@@ -204,7 +229,7 @@ export async function runVerification(opts = {}, deps = {}) {
   // rcf-eval-node spec section 5.3: eval-coverage rollup lands on
   // runStats so a report re-render surfaces the pass state. Counts
   // are read off the chain's per-AC evalStatus derivation.
-  const nonDeterministic = chain.acs.filter((a) => a.determinism === 'nonDeterministic');
+  const nonDeterministic = acs.filter((a) => a.determinism === 'nonDeterministic');
   const evalCoverage = {
     nonDeterministic: nonDeterministic.length,
     covered: nonDeterministic.filter((a) => a.evalStatus === 'resolving').length,
@@ -215,9 +240,10 @@ export async function runVerification(opts = {}, deps = {}) {
     mode,
     playwrightMcpVersion,
     evalCoverage,
+    coverage,
   };
   const report = buildReport({
-    profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo,
+    profile, url, parityEnv, reachability, chainRef: chain.chainRef, repo: opts.repo, ...scopeFields,
     persona: opts.persona, startedAt, finishedAt: now(),
     verifierIsolation: isolationProvenance(),
     verdict, verdictAuthority,

@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 105,
-    "notStarted": 55,
+    "items": 106,
+    "notStarted": 56,
     "inProgress": 2,
     "complete": 33,
     "verified": 15,
     "actionable": 40,
-    "blocked": 15
+    "blocked": 16
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -88,7 +88,8 @@
         "FBS-195",
         "FBS-205",
         "FBS-211",
-        "FBS-212"
+        "FBS-212",
+        "FBS-216"
       ]
     },
     {
@@ -1379,6 +1380,20 @@
       "blockedBy": [
         "FBS-210",
         "FBS-214"
+      ]
+    },
+    {
+      "fbsId": "FBS-216",
+      "buildOrder": 216,
+      "tier": 1,
+      "title": "FBS-216 finalise per-FBS verify scope: --fbs filter, --all escape, scoped verified invariant",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-209"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-209"
       ]
     }
   ],

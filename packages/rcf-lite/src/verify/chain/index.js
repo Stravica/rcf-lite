@@ -208,7 +208,7 @@ function evalBindingFor(evals, usId, acId) {
  * @param {object} opts
  * @param {string} opts.repo - path-or-ref to the RCF chain source
  * @param {string} [opts.chainRef] - which PRD/chain; default = the repo's PRD
- * @returns {Promise<{ acs: Array<object>, chainRef: string, projectRoot: string, manifest: object } | import('#core/errors').RcfError>}
+ * @returns {Promise<{ acs: Array<object>, chainRef: string, projectRoot: string, manifest: object, fbsItems: Array<{ fbsId: string, acIds: string[] }> } | import('#core/errors').RcfError>}
  */
 export async function readChain({ repo, chainRef } = {}) {
   if (typeof repo !== 'string' || repo.length === 0) {
@@ -284,5 +284,13 @@ export async function readChain({ repo, chainRef } = {}) {
   // an older chain simply has no 0.7.0 fields, and `manifest` is `{}`.
   const manifest = tree.manifest ?? {};
 
-  return { acs, chainRef: resolvedRef, projectRoot, manifest };
+  // ADR-4147 verification scope: surface each FBS's binding so the scope
+  // resolver (`chain/scope.js`) can narrow the contract to one build
+  // unit without re-opening the tree. Read-only projection of the
+  // walker's fbsItems; nothing else about the FBS travels.
+  const fbsBindings = fbsItems
+    .filter((f) => typeof f?.fbsId === 'string')
+    .map((f) => ({ fbsId: f.fbsId, acIds: Array.isArray(f.acIds) ? [...f.acIds] : [] }));
+
+  return { acs, chainRef: resolvedRef, projectRoot, manifest, fbsItems: fbsBindings };
 }

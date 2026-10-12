@@ -39,6 +39,12 @@ export function renderReport(report) {
     lines.push(`  reachable: ${run.reachability.reachable}  looksLocal: ${run.reachability.looksLocal}`);
   }
   lines.push(`  chainRef:  ${run.chainRef ?? '(none)'}`);
+  // ADR-4147: what the run was briefed on - the whole chain or the ACs
+  // bound to the named FBS items - and how many criteria that is.
+  const scopeCount = typeof run.scopeAcCount === 'number'
+    ? ` (${run.scopeAcCount} AC${run.scopeAcCount === 1 ? '' : 's'})`
+    : '';
+  lines.push(`  scope:     ${run.scope ?? 'chain'}${scopeCount}`);
   lines.push(`  persona:   ${run.persona ?? '(default)'}`);
   if (run.verifierIsolation) {
     lines.push(`  isolation: autoMemory=${run.verifierIsolation.autoMemory} nonEssentialTraffic=${run.verifierIsolation.nonEssentialTraffic}`);
@@ -65,6 +71,16 @@ export function renderReport(report) {
   if (blocked.length > 0) {
     lines.push(`Blocked ACs (${blocked.length}), NOT exercisable, not silently skipped`);
     for (const b of blocked) lines.push(`  ${b.acId}: ${b.reason}`);
+    lines.push('');
+  }
+
+  // ADR-4147 scoped coverage: findings the verifier returned for criteria
+  // outside the scope were ignored by the verdict; name them so the
+  // report reader sees they were returned, not lost.
+  const ignored = report.run?.runStats?.coverage?.ignored ?? [];
+  if (ignored.length > 0) {
+    lines.push(`Ignored findings (${ignored.length}), outside the verification scope`);
+    for (const i of ignored) lines.push(`  ${i.acId}: ${i.severity}`);
     lines.push('');
   }
 

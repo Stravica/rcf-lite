@@ -4604,6 +4604,38 @@
             "TC-242-16503-4-usage"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16504-1",
+          "covered": true,
+          "testCases": [
+            "TC-249-16504-1-scope"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16504-2",
+          "covered": true,
+          "testCases": [
+            "TC-249-16504-2-default"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16504-3",
+          "covered": true,
+          "testCases": [
+            "TC-249-16504-3-invariant"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16504-4",
+          "covered": true,
+          "testCases": [
+            "TC-249-16504-4-help"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

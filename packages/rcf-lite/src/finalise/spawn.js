@@ -32,6 +32,7 @@ import { isolationEnv } from '#core/isolation';
  * @param {string} [opts.chain] - PRD/chain ref
  * @param {string} [opts.persona]
  * @param {string} [opts.mode] - verify mode (issue 330): agentScreenshotCritique | deterministic
+ * @param {string[]} [opts.fbsIds] - ADR-4147 scope: one `--fbs <id>` per entry; absent/empty = whole chain
  * @returns {string[]}
  */
 export function buildVerifyArgs(opts) {
@@ -49,6 +50,13 @@ export function buildVerifyArgs(opts) {
   if (opts.provision) args.push('--provision', opts.provision);
   if (opts.persona) args.push('--persona', opts.persona);
   if (opts.mode) args.push('--mode', opts.mode);
+  // ADR-4147: finalise passes its own FBS so the verifier is briefed on
+  // that unit's bound ACs only; `--all` on finalise leaves this empty.
+  if (Array.isArray(opts.fbsIds)) {
+    for (const id of opts.fbsIds) {
+      if (typeof id === 'string' && id.length > 0) args.push('--fbs', id);
+    }
+  }
   return args;
 }
 
