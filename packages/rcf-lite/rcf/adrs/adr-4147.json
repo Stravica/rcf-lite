@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-12T19:17:59.290Z",
+  "updatedAt": "2026-10-12T19:17:59.290Z",
+  "context": "`rcf build finalise <fbs-id>` launches `rcf verify run` as a fresh subprocess. Until this decision the subprocess received `--repo` with no FBS or AC filter, so a finalise of one FBS verified every acceptance criterion in the tree; the FBS id only selected the promotion target. On a real estate tree a finalise of two FBS items verified all 1,124 ACs: about thirteen minutes, launch failures and a run that hit the session window. The ADR-4112 verified invariant (an FBS is verified when every AC bound to it is verified, none skipped) is a per-FBS statement; nothing in it requires the rest of the chain to be exercised to promote one FBS.",
+  "decision": "Finalise verifies per FBS by default. `rcf verify run` gains a repeatable `--fbs <id>` filter that narrows the acceptance contract to the criteria bound to the named FBS items (unknown id: usage refusal; zero bound criteria: refusal with a plain message). `rcf build finalise <fbs-id>` passes its own FBS as the filter unless `--all` is given, which restores whole-chain verification for slice end. The verified invariant is evaluated over the scoped set: a skipped criterion inside the scope refuses promotion, a skipped criterion outside the scope does not. The report records `run.scope` as `fbs:<ids>` or `chain` and `run.scopeAcCount` so a report reader always knows what the run covered.",
+  "consequences": "Finalising one build unit costs one unit's verification. A finalise run is no longer a statement about the whole chain; operators who want that run `--all` or `rcf verify run` without a filter. Per-AC verdicts, provisioning, the deterministic ledger and the EVAL coverage line are all derived from the scoped set, so the report stays internally consistent. The MCP verify tool takes the same filter as `fbsIds`. The report schema is additive (two new fields under `run`); older report readers ignore them.",
+  "alternativesConsidered": [
+    {
+      "name": "Keep whole-chain verification as the default and add --fbs as an opt-in",
+      "summary": "Leave finalise unchanged and let operators pass a filter when they want a cheaper run.",
+      "reasonNotChosen": "The expensive default is the one that bit a real estate. Finalise names one FBS; the natural reading of the command is that it verifies that FBS. The whole-chain run keeps an explicit option instead."
+    },
+    {
+      "name": "Filter by AC id instead of FBS id",
+      "summary": "Accept --ac <id> on verify run and have finalise expand the FBS to its ACs before spawning.",
+      "reasonNotChosen": "The FBS is the unit the operator reasons about and the unit the verified invariant is stated over. Expanding to AC ids on the finalise side would bloat the subprocess argv and lose the scope label on the report. An AC-level filter can be added later if a use case appears."
+    }
+  ],
+  "adrId": "ADR-4147",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "finalise verifies per FBS by default; --all restores whole-chain verification"
+}

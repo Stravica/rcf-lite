@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-12T19:18:00.962Z",
+  "updatedAt": "2026-10-12T19:18:03.202Z",
+  "purpose": "Cover the --fbs filter on rcf verify run (brief and deterministic ledger scoped to the bound criteria, report scope fields), the finalise default filter and --all escape, the ADR-4112 invariant over the scoped set with the zero-AC refusal, and the help, render and docs surfaces.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-16504-1",
+    "AC-16504-2",
+    "AC-16504-3",
+    "AC-16504-4"
+  ],
+  "id": "TS-249",
+  "usId": "US-16504",
+  "title": "Finalise per-FBS verify scope: verify run --fbs filter, finalise default and --all, scoped verified invariant, help and docs",
+  "testCases": [
+    {
+      "id": "TC-249-16504-1-scope",
+      "acId": "AC-16504-1",
+      "description": "verify run --fbs verifies exactly the bound criteria and records the scope, deterministic mode included",
+      "status": "pending",
+      "testPointer": "test/verify/cli/run-fbs-scope.test.js::run --fbs: verifies exactly the ACs bound to the named FBS items and records the scope (agent mode and deterministic mode)"
+    },
+    {
+      "id": "TC-249-16504-2-default",
+      "acId": "AC-16504-2",
+      "description": "finalise passes its FBS as the filter by default and --all passes no filter",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-fbs-scope.test.js::finalise: passes its own FBS as the verify filter by default; --all passes no filter"
+    },
+    {
+      "id": "TC-249-16504-3-invariant",
+      "acId": "AC-16504-3",
+      "description": "verified invariant over the scoped set: skipped in scope refuses, skipped outside scope promotes, zero-AC FBS refused",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-fbs-scope.test.js::finalise: the verified invariant is evaluated over the scoped set (skipped AC in scope refuses, skipped AC outside scope does not, zero-AC FBS refused)"
+    },
+    {
+      "id": "TC-249-16504-4-help",
+      "acId": "AC-16504-4",
+      "description": "help text, report render and docs page describe the scope",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-fbs-scope.test.js::finalise and verify run help, the report render and the finalise docs page describe the verification scope"
+    }
+  ],
+  "status": "draft"
+}

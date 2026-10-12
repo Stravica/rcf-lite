@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-10-12T19:18:03.777Z",
+  "updatedAt": "2026-10-12T19:18:03.777Z",
+  "riskLevel": "low",
+  "domain": "verify",
+  "estimatedSize": "small",
+  "summary": "Per-FBS verifier scope: rcf verify run --fbs <id> (repeatable) narrows the acceptance contract to the criteria bound to the named FBS items and records run.scope and run.scopeAcCount; rcf build finalise <fbs-id> passes its FBS as the filter by default, --all restores whole-chain verification, an FBS with zero bound criteria is refused before launch; the verified invariant is evaluated over the scoped set (ADR-4147).",
+  "notes": "Behavioural change on the finalise default only; rcf verify run without --fbs is unchanged.",
+  "dependsOnFbsIds": [
+    "FBS-209"
+  ],
+  "acIds": [
+    "AC-16504-1",
+    "AC-16504-2",
+    "AC-16504-3",
+    "AC-16504-4"
+  ],
+  "fbsId": "FBS-216",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 216,
+  "executionStatus": "notStarted",
+  "title": "FBS-216 finalise per-FBS verify scope: --fbs filter, --all escape, scoped verified invariant"
+}

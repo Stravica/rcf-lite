@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-12T19:17:56.478Z",
+  "updatedAt": "2026-10-12T19:18:18.922Z",
+  "asA": "operator finalising one build unit on a tree that carries hundreds of acceptance criteria",
+  "iWant": "`rcf build finalise <fbs-id>` to verify only the acceptance criteria bound to that FBS by default, with `rcf verify run --fbs <id>` as the underlying filter and an explicit `--all` option that restores whole-chain verification",
+  "soThat": "finalising one build unit costs one unit's verification rather than the whole chain, the ADR-4112 verified invariant still holds per FBS (every AC bound to the FBS verified, none skipped), and a whole-chain run stays available at slice end",
+  "usId": "US-16504",
+  "prdId": "PRD-001",
+  "reqId": "REQ-165",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "US-16504: finalise verifies one build unit by default; whole-chain verification on request",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16504-1",
+      "description": "rcf verify run accepts an FBS filter (--fbs <id>, repeatable) and verifies exactly the acceptance criteria bound to those FBS items; the report states the scope and the AC count.",
+      "testable": true,
+      "given": "a chain whose FBS items bind disjoint sets of acceptance criteria",
+      "when": "rcf verify run --repo <chain> --fbs <fbs-id> ... is invoked (the option is repeatable), in agent mode or deterministic mode",
+      "then": "the verifier is briefed on exactly the acceptance criteria bound to the named FBS items and no others; the report records run.scope as 'fbs:<ids>' and run.scopeAcCount as the number of criteria in scope; in deterministic mode run.runStats.counts.total equals that number; an unknown FBS id refuses with exit 2 and names the id; a run without --fbs records run.scope 'chain' and behaves as before",
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16504-2",
+      "description": "rcf build finalise <fbs-id> passes its FBS as the verify filter by default; --all restores whole-chain verification.",
+      "testable": true,
+      "given": "an FBS at status 'complete' bound to a subset of the chain's acceptance criteria",
+      "when": "rcf build finalise <fbs-id> --url ... is invoked without --all, and separately with --all",
+      "then": "without --all the fresh rcf verify run subprocess receives --fbs <fbs-id> and the finalise output names the scope and the AC count; with --all no --fbs filter is passed and the whole chain is verified; the promotion to 'verified' still requires a passing run with ship authority"
+    },
+    {
+      "id": "AC-16504-3",
+      "description": "The ADR-4112 verified invariant is evaluated over the scoped AC set: a skipped AC inside the scope refuses promotion, a skipped AC outside the scope does not, and an FBS with zero bound ACs is refused with a plain message.",
+      "testable": true,
+      "given": "a chain where one FBS binds an acceptance criterion the verifier cannot exercise (it lands on blockedAcs) and another FBS binds only exercisable criteria",
+      "when": "rcf build finalise is run for each FBS in turn, and for an FBS whose acIds list is empty",
+      "then": "the FBS whose scoped set contains the skipped criterion is refused (exit 4, left at 'complete'); the FBS whose scoped set contains no skipped criterion is promoted when the run passes with ship authority; an FBS with zero bound acceptance criteria is refused before verify launches with a plain message naming the FBS and saying there is nothing to verify"
+    },
+    {
+      "id": "AC-16504-4",
+      "description": "The help text for finalise and verify run, the human report render and the finalise docs page describe the verification scope plainly.",
+      "testable": true,
+      "given": "the shipped package",
+      "when": "rcf build finalise --help, rcf verify run --help, rcf verify report <path> and the finalise docs page are read",
+      "then": "each states plainly that finalise verifies the named FBS's bound acceptance criteria by default, that --all verifies the whole chain, and that verify run --fbs <id> is the filter; the human report render shows the scope and the AC count"
+    }
+  ],
+  "tacIds": [
+    "TAC-4143"
+  ]
+}
