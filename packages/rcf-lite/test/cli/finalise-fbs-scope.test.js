@@ -464,6 +464,6 @@ test('finalise and verify run help, the report render and the finalise docs page
   const fbsBlock = VERIFY_RUN_HELP.slice(VERIFY_RUN_HELP.indexOf('--fbs <fbs-id>'), VERIFY_RUN_HELP.indexOf('--parity-env'));
   const scopeSection = docs.slice(docs.indexOf('## Verification scope'), docs.indexOf('## Runtime profiles and verdict authority'));
   for (const text of [FINALISE_HELP, fbsBlock, scopeSection]) {
-    assert.doesNotMatch(text, /—/);
+    assert.doesNotMatch(text, /\u2014/);
   }
 });
