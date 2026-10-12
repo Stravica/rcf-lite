@@ -2383,6 +2383,14 @@ flowchart LR
   REQ-174 --> AC-17401-8
   TC-216-d8-freeze["TC-216-d8-freeze"]
   AC-17401-8 -.-> TC-216-d8-freeze
+  TC-216-d8-freeze-all-built["TC-216-d8-freeze-all-built"]
+  AC-17401-8 -.-> TC-216-d8-freeze-all-built
+  TC-216-d8-freeze-blocked-head["TC-216-d8-freeze-blocked-head"]
+  AC-17401-8 -.-> TC-216-d8-freeze-blocked-head
+  TC-216-d8-freeze-no-fbs["TC-216-d8-freeze-no-fbs"]
+  AC-17401-8 -.-> TC-216-d8-freeze-no-fbs
+  TC-216-d8-freeze-single-actionable["TC-216-d8-freeze-single-actionable"]
+  AC-17401-8 -.-> TC-216-d8-freeze-single-actionable
   AC-17401-9["AC-17401-9"]
   REQ-174 --> AC-17401-9
   TC-216-d2-data-architecture["TC-216-d2-data-architecture"]
@@ -4527,6 +4535,10 @@ flowchart LR
   class TC-216-d6-consistency tc;
   class AC-17401-8 ac;
   class TC-216-d8-freeze tc;
+  class TC-216-d8-freeze-all-built tc;
+  class TC-216-d8-freeze-blocked-head tc;
+  class TC-216-d8-freeze-no-fbs tc;
+  class TC-216-d8-freeze-single-actionable tc;
   class AC-17401-9 ac;
   class TC-216-d2-data-architecture tc;
   class AC-17401-10 ac;
