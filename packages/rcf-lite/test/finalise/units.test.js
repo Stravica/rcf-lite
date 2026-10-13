@@ -154,21 +154,30 @@ test('resolvePackageBin resolves the rcf-lite bin/rcf.js entry when the umbrella
     'rcf-lite bin/rcf.js must resolve from a nearby node_modules install');
 });
 
-test('detectVerify reports installed with a PATH invocation', async () => {
+// Issue 356 (US-16505 / AC-16505-5): detection is package-first and PATH
+// is the documented fallback, reached only when neither package route
+// (this package's own entry, the project-local install) resolves. The
+// two package seams are disabled here so the fallback is what is under
+// test; a bare findOnPath seam would no longer win on its own.
+test('detectVerify reports installed with a PATH invocation (the fallback when no package entry resolves)', async () => {
   const dir = await mkdtemp(join(tmpdir(), 'fin-det-'));
   const bin = join(dir, 'rcf');
   await writeFile(bin, '#!/bin/sh\n', 'utf8');
   await chmod(bin, 0o755);
   const det = await detectVerify({
+    resolveSelfBin: async () => null,
+    resolvePackageBin: async () => null,
     findOnPath: async () => bin,
   });
   assert.equal(det.installed, true);
   assert.equal(det.invocation.command, bin);
   assert.deepEqual(det.invocation.prefixArgs, []);
+  assert.equal(det.invocation.source, 'path');
 });
 
 test('detectVerify reports installed with a package invocation (node + entry)', async () => {
   const det = await detectVerify({
+    resolveSelfBin: async () => null,
     findOnPath: async () => null,
     resolvePackageBin: async () => '/somewhere/bin/rcf.js',
   });
@@ -177,8 +186,9 @@ test('detectVerify reports installed with a package invocation (node + entry)', 
   assert.deepEqual(det.invocation.prefixArgs, ['/somewhere/bin/rcf.js']);
 });
 
-test('detectVerify reports not-installed when neither route resolves', async () => {
+test('detectVerify reports not-installed when no route resolves', async () => {
   const det = await detectVerify({
+    resolveSelfBin: async () => null,
     findOnPath: async () => null,
     resolvePackageBin: async () => null,
   });
