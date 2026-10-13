@@ -1,0 +1,68 @@
+{
+  "createdAt": "2026-10-13T20:16:41.430Z",
+  "updatedAt": "2026-10-13T20:16:45.265Z",
+  "purpose": "Cover the five issue 356 contract points on rcf build finalise: --provision-mode accepted and forwarded verbatim to the fresh verify subprocess (usage error on an unknown value), the finalise help text lists it, the finalise report stamps provisioning.mode on completed runs and launch failures, a provisioning blocked-reason surfaced by finalise names only remedies finalise accepts, and detectVerify prefers the package-local verify entry over PATH while the report records the resolved verify command and its version.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-16505-1",
+    "AC-16505-2",
+    "AC-16505-3",
+    "AC-16505-4",
+    "AC-16505-5"
+  ],
+  "id": "TS-250",
+  "usId": "US-16505",
+  "title": "Finalise provisioning declaration and package-local verify resolution: --provision-mode accept/forward/help, report provisioning.mode stamp, available-remedy blocked reasons, detectVerify package-first with command and version recorded",
+  "testCases": [
+    {
+      "id": "TC-250-16505-1-args",
+      "acId": "AC-16505-1",
+      "description": "buildVerifyArgs emits ['--provision-mode', <mode>] exactly once when provisionMode is set and nothing when it is absent",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-provision-mode.test.js::buildVerifyArgs: --provision-mode threads through to the fresh subprocess argv exactly once; absent means no flag"
+    },
+    {
+      "id": "TC-250-16505-1-forward",
+      "acId": "AC-16505-1",
+      "description": "finalise accepts --provision-mode run|skip, forwards the pair to the verify subprocess argv, passes nothing when absent, and refuses an unknown value with exit 2 before verify launches",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-provision-mode.test.js::finalise: accepts --provision-mode run|skip and forwards it to the verify subprocess; an unknown value is a usage error (exit 2)"
+    },
+    {
+      "id": "TC-250-16505-2-help",
+      "acId": "AC-16505-2",
+      "description": "finalise HELP lists --provision-mode <m> naming run and skip, the out-of-band purpose of skip and the report.provisioning.mode disclosure, with no em-dash",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-provision-mode.test.js::finalise help lists --provision-mode with run and skip and the report.provisioning.mode disclosure"
+    },
+    {
+      "id": "TC-250-16505-3-stamp",
+      "acId": "AC-16505-3",
+      "description": "finalise report at --out carries provisioning.mode 'skip' after a completed skip run (promoted) and after a launch failure (aborted record), and 'run' when the flag is absent (blocked)",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-provision-mode.test.js::finalise: the report stamps provisioning.mode on a completed run (skip promotes, run blocks) and on a launch failure"
+    },
+    {
+      "id": "TC-250-16505-4-remedy",
+      "acId": "AC-16505-4",
+      "description": "every --flag token in a provisioning blocked-reason finalise prints on stderr is listed in finalise help and accepted by its parser, or the reason names rcf verify run",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-provision-mode.test.js::finalise: a provisioning blocked-reason names only remedies finalise itself exposes"
+    },
+    {
+      "id": "TC-250-16505-5-detect",
+      "acId": "AC-16505-5",
+      "description": "detectVerify with a foreign rcf first on PATH and no local install in cwd returns the package's own bin/rcf.js under process.execPath with source not 'path' and version equal to the package version; PATH only when no package entry resolves",
+      "status": "pending",
+      "testPointer": "test/finalise/verify-resolution.test.js::detectVerify prefers the verify entry of the package finalise runs from over a foreign rcf on PATH, and carries its version"
+    },
+    {
+      "id": "TC-250-16505-5-record",
+      "acId": "AC-16505-5",
+      "description": "finalise report at --out records run.verify.command, prefixArgs, source and version equal to the resolved invocation on the launch-failure record and after a completed run",
+      "status": "pending",
+      "testPointer": "test/finalise/verify-resolution.test.js::finalise: the report records the resolved verify command and its version, launch failure and completed run included"
+    }
+  ],
+  "status": "draft"
+}

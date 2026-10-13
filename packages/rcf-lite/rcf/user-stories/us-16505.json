@@ -1,0 +1,56 @@
+{
+  "createdAt": "2026-10-13T20:15:45.437Z",
+  "updatedAt": "2026-10-13T20:16:12.916Z",
+  "asA": "operator running `rcf build finalise` on a chain whose prerequisites are supplied out of band (admin-seeded auth, operator-managed sandboxes, pre-populated test data) from a project-local rcf-lite install",
+  "iWant": "`rcf build finalise` to accept `--provision-mode <run|skip>` with the semantics documented for `rcf verify run` and forward it to the fresh verify subprocess, the finalise report to carry the same `provisioning.mode` stamp, every remedy named in a finalise blocked-reason to be a flag finalise exposes (or the verify-direct route), and finalise to launch the verify entry of the package it runs from (PATH only as a fallback) while recording the resolved verify command and its version in the report",
+  "soThat": "an admin-seeded chain that passes `rcf verify run --provision-mode skip` with ship authority can promote through finalise instead of blocking on a flag finalise does not expose, the audit trail records the operator's provisioning declaration whichever command invoked the gate, and a stale global `rcf` can no longer silently shadow the project-local install without the report saying which binary ran (issue 356)",
+  "usId": "US-16505",
+  "prdId": "PRD-001",
+  "reqId": "REQ-165",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "US-16505: finalise forwards the operator's provisioning declaration and runs the package-local verify",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-16505-1",
+      "description": "rcf build finalise accepts --provision-mode <run|skip> with the semantics documented for rcf verify run and forwards it verbatim to the fresh verify subprocess; an unknown value is a usage error.",
+      "testable": true,
+      "given": "an FBS at status 'complete' and a spawnVerify seam that captures the argv finalise composes",
+      "when": "rcf build finalise <fbsId> --url ... is invoked with --provision-mode skip, separately with --provision-mode run, separately with no --provision-mode flag, and separately with --provision-mode foo",
+      "then": "with skip the captured argv contains the adjacent pair ['--provision-mode', 'skip'] exactly once and buildVerifyArgs({ ..., provisionMode: 'skip' }) emits that same pair; with run the pair is ['--provision-mode', 'run']; with no flag the argv carries no --provision-mode token (verify's default applies) and buildVerifyArgs without provisionMode emits none; with foo the exit code is 2, no verify run launches, the FBS stays 'complete' and stderr matches /--provision-mode must be run \\| skip/",
+      "scope": "runtime"
+    },
+    {
+      "id": "AC-16505-2",
+      "description": "rcf build finalise --help lists --provision-mode with both values and the report.provisioning.mode disclosure.",
+      "testable": true,
+      "given": "the shipped package",
+      "when": "rcf build finalise --help is read (the exported finalise HELP string, and the rendered --help output)",
+      "then": "the help text lists a --provision-mode <m> option in its Options block that names the two values run and skip, states that skip is for prerequisites supplied out of band, states that the mode is disclosed on report.provisioning.mode, and the finalise help contains no em-dash"
+    },
+    {
+      "id": "AC-16505-3",
+      "description": "The finalise report carries the same provisioning.mode stamp as a direct verify run, on a completed run and on a launch failure, so the audit trail records the operator's declaration whichever command invoked the gate.",
+      "testable": true,
+      "given": "an FBS at status 'complete' bound to criteria whose prerequisites verify cannot provision (an auth account with no signup route and a service sandbox) and which the verifier passes once provisioning is skipped; and separately a spawnVerify seam that exits non-zero without writing to --out",
+      "when": "rcf build finalise <fbsId> --url <ship-authority url> --provision-mode skip is invoked in each setup, and separately rcf build finalise <fbsId> --url ... with no --provision-mode flag against the first setup",
+      "then": "after the completed run under skip the report at --out has provisioning.mode === 'skip', blockedAcs is empty and the FBS is promoted to 'verified' (exit 0); after the launch failure the aborted record at --out has provisioning.mode === 'skip' and the FBS stays 'complete'; with no flag the completed-run report has provisioning.mode === 'run', the provisioning-dependent criteria are on blockedAcs and the FBS stays 'complete' (exit 4)"
+    },
+    {
+      "id": "AC-16505-4",
+      "description": "Every remedy flag named in a provisioning blocked-reason that finalise surfaces is a flag rcf build finalise itself accepts, or the reason names the verify-direct route; finalise never tells the operator to re-run with a flag finalise rejects.",
+      "testable": true,
+      "given": "an FBS at status 'complete' bound to a criterion whose prerequisite verify cannot provision (a service sandbox), invoked without --provision-mode",
+      "when": "rcf build finalise <fbsId> --url ... is invoked and the gate refuses on the blocked criterion",
+      "then": "the exit code is 4 and stderr carries the blocked-reason for that criterion; every --<flag> token in that reason is present in the finalise help text and accepted by the finalise option parser (re-invoking finalise with that flag and a legal value is not a usage error), or the reason names 'rcf verify run' as the direct route; in particular a reason naming --provision-mode skip is only shown by a finalise that accepts --provision-mode"
+    },
+    {
+      "id": "AC-16505-5",
+      "description": "finalise launches the verify entry of the rcf-lite package it runs from, uses PATH only when no package entry resolves, and the finalise report records the resolved verify command and its version so a stale global rcf cannot shadow the local install silently.",
+      "testable": true,
+      "given": "detectVerify called from an rcf-lite package whose own bin/rcf.js exists, with a foreign executable named rcf first on PATH and a cwd that has no rcf-lite install; and separately an FBS at status 'complete' with a detectVerify seam that resolves a PATH binary carrying a version and a spawnVerify seam that exits 2 without writing a report, plus a seam that completes a passing run",
+      "when": "detectVerify({ env: { PATH: <dir holding the foreign rcf> }, cwd: <empty project dir> }) is called; and rcf build finalise <fbsId> --url ... is invoked in each seam setup",
+      "then": "detectVerify returns installed: true with invocation.command === process.execPath, invocation.prefixArgs[0] resolving (realpath) to this package's bin/rcf.js, invocation.source !== 'path' and invocation.version equal to this package's package.json version; the foreign PATH rcf is returned only when no package entry resolves; the report at --out records run.verify.command, run.verify.prefixArgs, run.verify.source and run.verify.version equal to the resolved invocation, both on the launch-failure (aborted) record and after a completed run"
+    }
+  ]
+}
