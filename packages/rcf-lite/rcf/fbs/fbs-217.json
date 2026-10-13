@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-13T20:32:43.903Z",
-  "updatedAt": "2026-10-13T20:32:43.903Z",
+  "updatedAt": "2026-10-13T22:27:30.674Z",
   "riskLevel": "low",
   "domain": "verify",
   "estimatedSize": "small",
@@ -20,6 +20,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 217,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "FBS-217 finalise --provision-mode forwarding, provisioning.mode stamp, available-remedy blocked reasons, package-local verify resolution with command and version recorded"
 }

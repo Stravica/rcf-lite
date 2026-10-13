@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-802",
+  "path": "src/finalise/detect.js#readEntryVersion",
+  "title": "readEntryVersion reads the resolved verifier version (FBS-217)",
+  "description": "readEntryVersion follows the resolved entry realpath and walks up to the nearest package.json named rcf-lite, returning its version or null when nothing readable answers (omit-not-fake), so every detected invocation carries the version finalise records on run.verify.",
+  "implementsAcIds": [
+    "AC-16505-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-13T22:27:14.722Z",
+  "updatedAt": "2026-10-13T22:27:14.722Z"
+}

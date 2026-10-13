@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-799",
+  "path": "src/finalise/spawn.js#buildVerifyArgs",
+  "title": "buildVerifyArgs forwards --provision-mode verbatim (FBS-217)",
+  "description": "buildVerifyArgs threads opts.provisionMode onto the fresh rcf verify run argv as one adjacent --provision-mode <m> pair after the other forwarded optionals; an absent or undefined provisionMode emits no flag so verify applies its own default. The required section 8.2 prefix is unchanged.",
+  "implementsAcIds": [
+    "AC-16505-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-13T22:27:13.101Z",
+  "updatedAt": "2026-10-13T22:27:13.101Z"
+}

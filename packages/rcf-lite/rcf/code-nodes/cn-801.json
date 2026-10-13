@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-801",
+  "path": "src/finalise/detect.js#detectVerify",
+  "title": "detectVerify resolves the verifier package-first with PATH as the fallback (FBS-217)",
+  "description": "detectVerify tries resolveSelfBin (this package own bin/rcf.js, run under process.execPath) first, then resolvePackageBin from the project cwd, then findOnPath; each invocation carries source (package | path) and the resolved binary version. A foreign rcf first on PATH no longer wins over the package finalise runs from.",
+  "implementsAcIds": [
+    "AC-16505-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-13T22:27:14.184Z",
+  "updatedAt": "2026-10-13T22:27:14.184Z"
+}
