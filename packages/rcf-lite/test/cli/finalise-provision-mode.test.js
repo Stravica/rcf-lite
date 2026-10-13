@@ -194,7 +194,7 @@ test('finalise help lists --provision-mode with run and skip and the report.prov
   assert.match(entryBody, /\bskip\b/);
   assert.match(entryBody, /out of band/);
   assert.match(entryBody, /report\.provisioning\.mode/);
-  assert.doesNotMatch(FINALISE_HELP, /—/, 'no em-dash in the finalise help');
+  assert.doesNotMatch(FINALISE_HELP, /\u2014/, 'no em-dash in the finalise help');
   // The rendered --help goes through the same string.
   const stdout = sink();
   const code = await finalise(['--help'], { stdout, stderr: sink() });
