@@ -2234,6 +2234,8 @@ flowchart LR
   AC-16505-5 -.-> TC-250-16505-5-detect
   TC-250-16505-5-record["TC-250-16505-5-record"]
   AC-16505-5 -.-> TC-250-16505-5-record
+  TC-250-16505-5-stamp-refused["TC-250-16505-5-stamp-refused"]
+  AC-16505-5 -.-> TC-250-16505-5-stamp-refused
   REQ-170["REQ-170"]
   AC-17001-1["AC-17001-1"]
   REQ-170 --> AC-17001-1
@@ -4498,6 +4500,7 @@ flowchart LR
   class AC-16505-5 ac;
   class TC-250-16505-5-detect tc;
   class TC-250-16505-5-record tc;
+  class TC-250-16505-5-stamp-refused tc;
   class REQ-170 req;
   class AC-17001-1 ac;
   class TC-204-shape-buckets-present tc;

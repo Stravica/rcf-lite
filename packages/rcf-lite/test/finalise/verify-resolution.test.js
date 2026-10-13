@@ -13,7 +13,10 @@
 //   3. the finalise report records the resolved verify command, its
 //      prefix args, the route and the version, on the launch-failure
 //      record and after a completed run, so an operator can see when a
-//      stale global shadowed the local install.
+//      stale global shadowed the local install;
+//   4. (gate P1, fix round) a completed report that cannot be stamped
+//      with that record is never promoted: finalise stops before gate
+//      evaluation, exits 1, names the failure and leaves the FBS as is.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -149,4 +152,66 @@ test('finalise: the report records the resolved verify command and its version, 
   assert.deepEqual(completed.run?.verify, {
     command: process.execPath, prefixArgs: ['/proj/node_modules/rcf-lite/bin/rcf.js'], source: 'package', version: '0.34.0',
   });
+});
+
+// --- AC-16505-5 (integrity): no run.verify record, no promotion ------------
+
+// Issue 356 gate P1 (fix round, hand 1). The run.verify stamp is the only
+// record of which verifier produced a completed report. A completed PASS
+// report with ship authority must not promote the FBS when that record
+// cannot be persisted: finalise stops before any gate evaluation, exits
+// 1, names the failure and leaves the FBS as it found it. The writeFile
+// seam below accepts the preseed stub (it carries run.verify already)
+// and rejects every other write, which is exactly the stamp write after
+// verify has replaced the stub with its real report.
+test('finalise: a completed ship report that cannot be stamped with run.verify is refused before the gate (exit 1, FBS unchanged)', async () => {
+  const local = {
+    installed: true,
+    invocation: { command: process.execPath, prefixArgs: ['/proj/node_modules/rcf-lite/bin/rcf.js'], source: 'package', version: '0.34.0' },
+  };
+  const { root } = await scaffoldChain({ fbsItems: [fbsDoc('FBS-001', 1, ['AC-101-3'])] });
+  const outPath = join(root, '.rcf-verify-report.json');
+  const rejected = [];
+  const writeFileSeam = async (path, data, encoding) => {
+    const parsed = JSON.parse(String(data));
+    if (parsed?.launchFailure?.reason === 'preseed') return writeFile(path, data, encoding);
+    rejected.push(path);
+    throw new Error('EIO: simulated stamp write failure');
+  };
+  const stdout = sink();
+  const stderr = sink();
+  const code = await finalise(['FBS-001', '--url', URL, '--allow-pre-merge'], {
+    stdout, stderr, cwd: root,
+    detectVerify: async () => local,
+    writeFile: writeFileSeam,
+    spawnVerify: async ({ verifyArgs, cwd }) => {
+      const rc = await verifyRun(verifyArgs.slice(2), {
+        cwd,
+        stdout: sink(),
+        stderr: sink(),
+        fetchImpl: async () => ({ status: 200, text: async () => '<html>ok</html>' }),
+        launchAgent: async ({ brief }) => ({
+          findings: brief.journeys.map((j) => ({ severity: 'PASS', acId: j.acId, journey: j.journey, reproSteps: ['drive'], evidence: { kind: 'note', detail: 'ok' } })),
+        }),
+      });
+      return { code: rc, signal: null, env: {} };
+    },
+  });
+
+  // The precondition the seam set up: verify wrote a valid ship report
+  // and finalise's stamp write was the one refused, so the report on
+  // disk carries no run.verify record.
+  assert.deepEqual(rejected, [outPath], 'the refused write is the run.verify stamp on the report path');
+  const onDisk = await readReport(root);
+  assert.equal(onDisk.verdict, 'PASS');
+  assert.equal(onDisk.verdictAuthority, 'ship');
+  assert.equal(onDisk.run?.verify, undefined, 'the stamp never landed');
+
+  // The contract: no record, no promotion, and the failure is named.
+  assert.equal(code, 1, `finalise must exit 1 when run.verify cannot be persisted:\n${stderr.data}`);
+  assert.equal(await statusOf(root, 'FBS-001'), 'complete', 'the FBS is left unchanged');
+  assert.doesNotMatch(stdout.data, /gate passed|-> verified/, 'the gate must not be evaluated, let alone promote');
+  assert.match(stderr.data, /run\.verify/, 'stderr names the record that could not be persisted');
+  assert.ok(stderr.data.includes(outPath), 'stderr names the report path');
+  assert.match(stderr.data, /FBS-001/, 'stderr names the FBS left unchanged');
 });

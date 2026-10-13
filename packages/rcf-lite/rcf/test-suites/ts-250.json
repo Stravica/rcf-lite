@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-13T20:16:41.430Z",
-  "updatedAt": "2026-10-13T20:16:45.265Z",
+  "updatedAt": "2026-10-13T23:43:23.705Z",
   "purpose": "Cover the five issue 356 contract points on rcf build finalise: --provision-mode accepted and forwarded verbatim to the fresh verify subprocess (usage error on an unknown value), the finalise help text lists it, the finalise report stamps provisioning.mode on completed runs and launch failures, a provisioning blocked-reason surfaced by finalise names only remedies finalise accepts, and detectVerify prefers the package-local verify entry over PATH while the report records the resolved verify command and its version.",
   "testLevel": "unit",
   "acIds": [
@@ -62,6 +62,13 @@
       "description": "finalise report at --out records run.verify.command, prefixArgs, source and version equal to the resolved invocation on the launch-failure record and after a completed run",
       "status": "pending",
       "testPointer": "test/finalise/verify-resolution.test.js::finalise: the report records the resolved verify command and its version, launch failure and completed run included"
+    },
+    {
+      "id": "TC-250-16505-5-stamp-refused",
+      "acId": "AC-16505-5",
+      "description": "finalise refuses to promote a completed ship-authority PASS report whose run.verify stamp write fails: exit 1 before gate evaluation, stderr names run.verify, the report path and the FBS, and the FBS stays 'complete'",
+      "status": "pending",
+      "testPointer": "test/finalise/verify-resolution.test.js::finalise: a completed ship report that cannot be stamped with run.verify is refused before the gate (exit 1, FBS unchanged)"
     }
   ],
   "status": "draft"
