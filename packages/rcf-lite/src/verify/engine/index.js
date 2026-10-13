@@ -139,7 +139,16 @@ export async function runVerification(opts = {}, deps = {}) {
   });
 
   // 5. Compose the adversarial brief from the chain ACs (§5, §9 guarantee 4).
-  const brief = composeBrief({ acs, url, persona: opts.persona, chainRef: chain.chainRef });
+  // composeBrief throws when a testable AC carries neither a BDD triplet nor
+  // a non-empty description (issue #352). Catch here so the empty-criterion
+  // guard surfaces as data (kind: 'validation', CLI exit 3) rather than an
+  // unhandled rejection — the chain is unverifiable without criterion text.
+  let brief;
+  try {
+    brief = composeBrief({ acs, url, persona: opts.persona, chainRef: chain.chainRef });
+  } catch (err) {
+    return rcfError({ kind: 'validation', message: err.message, field: 'acs' });
+  }
 
   // Cleanup runs whether or not the launch succeeds — provisioned artefacts
   // must not be orphaned by a launch failure (§6 cleanup contract).
