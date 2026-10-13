@@ -120,6 +120,9 @@ test('buildVerifyArgs: --provision-mode threads through to the fresh subprocess 
   assert.equal(skip.filter((a) => a === '--provision-mode').length, 1);
   const run = buildVerifyArgs({ ...base, provisionMode: 'run' });
   assert.deepEqual(pairOf(run, '--provision-mode'), ['--provision-mode', 'run']);
+  // Gate P2 (fix round): the exact-once count holds for run as it does
+  // for skip; a value-specific duplicate pair would violate AC-16505-1.
+  assert.equal(run.filter((a) => a === '--provision-mode').length, 1);
   // The issue 356 shape: the mode travels next to the other forwarded
   // optionals and does not disturb the required §8.2 prefix.
   assert.deepEqual(skip.slice(0, 11), buildVerifyArgs(base).slice(0, 11));
@@ -145,7 +148,7 @@ test('finalise: accepts --provision-mode run|skip and forwards it to the verify 
   assert.deepEqual(pairOf(calls[0], '--provision-mode'), ['--provision-mode', 'skip']);
   assert.equal(calls[0].filter((a) => a === '--provision-mode').length, 1);
 
-  // run: accepted and forwarded verbatim.
+  // run: accepted and forwarded verbatim, exactly once.
   const calls2 = [];
   const stderr2 = sink();
   const code2 = await finalise(['FBS-001', '--url', URL, '--allow-pre-merge', '--provision-mode', 'run'], {
@@ -154,7 +157,11 @@ test('finalise: accepts --provision-mode run|skip and forwards it to the verify 
     spawnVerify: launchFailure({ calls: calls2 }),
   });
   assert.notEqual(code2, 2, stderr2.data);
+  assert.equal(calls2.length, 1, 'verify launches exactly once');
   assert.deepEqual(pairOf(calls2[0], '--provision-mode'), ['--provision-mode', 'run']);
+  // Gate P2 (fix round): exactly one token for run in the captured argv,
+  // the same count the skip branch above pins.
+  assert.equal(calls2[0].filter((a) => a === '--provision-mode').length, 1);
 
   // absent: nothing forwarded; verify's own default applies.
   const calls3 = [];
