@@ -4675,7 +4675,9 @@
           "covered": true,
           "testCases": [
             "TC-250-16505-5-detect",
+            "TC-250-16505-5-path-fallback",
             "TC-250-16505-5-record",
+            "TC-250-16505-5-record-blocked",
             "TC-250-16505-5-stamp-refused"
           ],
           "unresolvedTestCases": []

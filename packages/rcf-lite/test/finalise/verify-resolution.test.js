@@ -20,7 +20,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmod, mkdtemp, readFile, realpath, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, mkdtemp, readFile, realpath, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -94,6 +94,68 @@ test('detectVerify prefers the verify entry of the package finalise runs from ov
   assert.equal(det.invocation.version, await packageVersion(), 'the invocation carries the resolved binary\'s version');
 });
 
+// --- AC-16505-5 (resolution): PATH is the fallback, reached only after both
+// package routes miss (gate P2, fix round) -----------------------------------
+
+// An npm-global style layout: <prefix>/lib/node_modules/rcf-lite holding a
+// package.json at the given version and its bin/rcf.js, with
+// <prefix>/bin/rcf symlinked to that entry, exactly as `npm i -g` lays it
+// out. The version of a PATH hit is read by following that symlink back
+// to the package.
+async function stagedGlobalRcf(version) {
+  const prefix = await realpath(await mkdtemp(join(tmpdir(), 'rcf-global-')));
+  const pkgDir = join(prefix, 'lib', 'node_modules', 'rcf-lite');
+  await mkdir(join(pkgDir, 'bin'), { recursive: true });
+  await writeFile(join(pkgDir, 'package.json'), JSON.stringify({ name: 'rcf-lite', version, bin: { rcf: 'bin/rcf.js' } }), 'utf8');
+  await writeFile(join(pkgDir, 'bin', 'rcf.js'), '#!/usr/bin/env node\n', 'utf8');
+  await chmod(join(pkgDir, 'bin', 'rcf.js'), 0o755);
+  await mkdir(join(prefix, 'bin'));
+  const bin = join(prefix, 'bin', 'rcf');
+  await symlink(join(pkgDir, 'bin', 'rcf.js'), bin);
+  return { binDir: join(prefix, 'bin'), bin, entry: join(pkgDir, 'bin', 'rcf.js') };
+}
+
+test('detectVerify uses the rcf on PATH only when both package routes return null, records source path, and carries the version behind the PATH binary (null for a foreign script)', async () => {
+  const none = async () => null;
+  const global = await stagedGlobalRcf('0.33.0');
+  const { dir: foreignDir, bin: foreignBin } = await foreignRcfOnPath();
+
+  // Both package routes miss: the PATH hit is the invocation, run by its
+  // own shebang (no prefix args), route 'path', version read through the
+  // global symlink back to the installed package.
+  const viaPath = await detectVerify({
+    resolveSelfBin: none, resolvePackageBin: none, cwd: foreignDir, env: { PATH: `/nonexistent:${global.binDir}` },
+  });
+  assert.equal(viaPath.installed, true);
+  assert.deepEqual(viaPath.invocation, { command: global.bin, prefixArgs: [], source: 'path', version: '0.33.0' });
+
+  // A PATH hit that is not an rcf-lite package (a foreign script named
+  // rcf) is still the fallback invocation, with version null: omit, never
+  // guess.
+  const viaForeign = await detectVerify({
+    resolveSelfBin: none, resolvePackageBin: none, cwd: foreignDir, env: { PATH: foreignDir },
+  });
+  assert.equal(viaForeign.installed, true);
+  assert.deepEqual(viaForeign.invocation, { command: foreignBin, prefixArgs: [], source: 'path', version: null });
+
+  // Only when no package entry resolves: the project-local route winning
+  // over a PATH hit that is also present, and the self route winning over
+  // both, with the package version carried in each case.
+  const viaProject = await detectVerify({
+    resolveSelfBin: none, resolvePackageBin: async () => global.entry, cwd: foreignDir, env: { PATH: foreignDir },
+  });
+  assert.deepEqual(viaProject.invocation, { command: process.execPath, prefixArgs: [global.entry], source: 'package', version: '0.33.0' });
+  const viaSelf = await detectVerify({
+    resolveSelfBin: async () => global.entry, resolvePackageBin: async () => { throw new Error('the project route must not be consulted when the self route resolves'); },
+    cwd: foreignDir, env: { PATH: foreignDir },
+  });
+  assert.deepEqual(viaSelf.invocation, { command: process.execPath, prefixArgs: [global.entry], source: 'package', version: '0.33.0' });
+
+  // Nothing anywhere: not installed, no invocation (the install prompt path).
+  const nothing = await detectVerify({ resolveSelfBin: none, resolvePackageBin: none, cwd: foreignDir, env: { PATH: '/nonexistent' } });
+  assert.deepEqual(nothing, { installed: false, invocation: null });
+});
+
 // --- AC-16505-5 (disclosure): the report records what ran ------------------
 
 test('finalise: the report records the resolved verify command and its version, launch failure and completed run included', async () => {
@@ -152,6 +214,71 @@ test('finalise: the report records the resolved verify command and its version, 
   assert.deepEqual(completed.run?.verify, {
     command: process.execPath, prefixArgs: ['/proj/node_modules/rcf-lite/bin/rcf.js'], source: 'package', version: '0.34.0',
   });
+});
+
+// --- AC-16505-5 (disclosure): every completed report, not only a PASS ------
+
+// Gate P2 (fix round). The hand-1 report case covers the aborted record
+// and a promoted PASS. A completed run that the gate refuses (blocked
+// criteria under the default provisioning mode, or a PASS held for lack
+// of ship authority) is a completed report too, and must carry the same
+// full run.verify object.
+test('finalise: a completed blocked run and a completed held run record the full run.verify object on the report (exit 4, FBS unchanged)', async () => {
+  const local = {
+    installed: true,
+    invocation: { command: process.execPath, prefixArgs: ['/proj/node_modules/rcf-lite/bin/rcf.js'], source: 'package', version: '0.34.0' },
+  };
+  const expectedRecord = {
+    command: process.execPath, prefixArgs: ['/proj/node_modules/rcf-lite/bin/rcf.js'], source: 'package', version: '0.34.0',
+  };
+  const inProcess = async ({ verifyArgs, cwd }) => {
+    const rc = await verifyRun(verifyArgs.slice(2), {
+      cwd,
+      stdout: sink(),
+      stderr: sink(),
+      fetchImpl: async () => ({ status: 200, text: async () => '<html>ok</html>' }),
+      launchAgent: async ({ brief }) => ({
+        findings: brief.journeys.map((j) => ({ severity: 'PASS', acId: j.acId, journey: j.journey, reproSteps: ['drive'], evidence: { kind: 'note', detail: 'ok' } })),
+      }),
+    });
+    return { code: rc, signal: null, env: {} };
+  };
+
+  // Blocked: FBS-001 binds the auth and payment-sandbox criteria, which
+  // verify cannot provision under the default mode; the completed report
+  // lists them on blockedAcs and the gate refuses.
+  const { root } = await scaffoldChain({ fbsItems: [fbsDoc('FBS-001', 1, ['AC-101-1', 'AC-101-2'])] });
+  const stderr = sink();
+  const code = await finalise(['FBS-001', '--url', URL, '--allow-pre-merge'], {
+    stdout: sink(), stderr, cwd: root,
+    detectVerify: async () => local,
+    spawnVerify: inProcess,
+  });
+  assert.equal(code, 4, stderr.data);
+  assert.equal(await statusOf(root, 'FBS-001'), 'complete');
+  const blockedReport = await readReport(root);
+  assert.equal(blockedReport.launchFailure ?? null, null, 'a completed report, not the preseed or an aborted record');
+  assert.deepEqual(blockedReport.blockedAcs.map((b) => b.acId), ['AC-101-1', 'AC-101-2']);
+  assert.equal(blockedReport.provisioning?.mode, 'run');
+  assert.deepEqual(blockedReport.run?.verify, expectedRecord);
+
+  // Held: a ci-profile PASS carries correctness authority only, so the
+  // gate holds instead of promoting; the completed report is stamped all
+  // the same.
+  const { root: root2 } = await scaffoldChain({ fbsItems: [fbsDoc('FBS-001', 1, ['AC-101-3'])] });
+  const stderr2 = sink();
+  const code2 = await finalise(['FBS-001', '--url', URL, '--allow-pre-merge', '--profile', 'ci'], {
+    stdout: sink(), stderr: stderr2, cwd: root2,
+    detectVerify: async () => local,
+    spawnVerify: inProcess,
+  });
+  assert.equal(code2, 4, stderr2.data);
+  assert.match(stderr2.data, /HOLD/);
+  assert.equal(await statusOf(root2, 'FBS-001'), 'complete');
+  const heldReport = await readReport(root2);
+  assert.equal(heldReport.verdict, 'PASS');
+  assert.notEqual(heldReport.verdictAuthority, 'ship');
+  assert.deepEqual(heldReport.run?.verify, expectedRecord);
 });
 
 // --- AC-16505-5 (integrity): no run.verify record, no promotion ------------
