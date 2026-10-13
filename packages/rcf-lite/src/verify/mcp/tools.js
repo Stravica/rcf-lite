@@ -20,7 +20,11 @@ const RUN_INPUT_SCHEMA = {
     url: { type: 'string', description: 'The running app for this profile' },
     parityEnv: { type: 'boolean', description: 'Assert a non-deployed runtime is edge-identical to prod (the only path to SHIP from a non-deployed profile)' },
     provision: { type: 'string', description: 'Provisioning credentials FILE path (never inline)' },
-    provisionMode: { type: 'string', enum: ['run', 'skip'] },
+    provisionMode: {
+      type: 'string',
+      enum: ['run', 'skip'],
+      description: 'Prerequisite provisioning. `run` (default) derives prerequisites from the ACs and provisions what it can; ACs whose prerequisites cannot be provisioned are reported BLOCKED. `skip` bypasses provisioning entirely for chains whose prerequisites are supplied out of band (admin-seeded auth accounts, pre-populated test data, operator-managed service sandboxes); the mode is stamped on report.provisioning as an audit-trail disclosure so a promoted tree records that provisioning was skipped rather than satisfied.',
+    },
     persona: { type: 'string' },
     severityGate: { type: 'string', enum: FINDING_SEVERITIES },
     fbsIds: {

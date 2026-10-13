@@ -24,7 +24,7 @@ export const DEFAULT_PERSONA = 'generic-sceptic';
  *      content to run against (the slice-1 Backstory chains author ACs this
  *      way; prior to the fix those produced an empty-text disprove line).
  *   3. If neither form carries any criterion text, that is a hard failure
- *      naming the acId — never a silent empty-text run against nothing. A
+ *      naming the acId; never a silent empty-text run against nothing. A
  *      walk that can run against an empty criterion will eventually run
  *      against an empty criterion again.
  *
@@ -41,7 +41,7 @@ export function composeBrief({ acs = [], url, persona = DEFAULT_PERSONA, chainRe
   const journeys = testable.map((ac) => {
     // Precedence (issue #352): BDD triplet when complete, else description,
     // else refuse the whole brief. The adversarial walk NEVER runs against
-    // empty criterion text — the verifier confidently reporting on nothing
+    // empty criterion text; the verifier confidently reporting on nothing
     // is the exact failure mode this guard exists for.
     const given = typeof ac.given === 'string' ? ac.given.trim() : '';
     const when = typeof ac.when === 'string' ? ac.when.trim() : '';

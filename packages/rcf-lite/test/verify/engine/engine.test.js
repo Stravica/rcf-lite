@@ -47,7 +47,7 @@ test('runVerification: deployed + local URL -> NOT-DEPLOYED report, agent never 
 // must reach the walk with real criterion content, not the empty-triplet
 // disprove line the pre-fix engine produced. The Backstory FBS-001 slice
 // hit exactly this shape and its verifier logged "AC text was empty, so I
-// read this criterion as..." — the empirical confirmation the walk was
+// read this criterion as...": the empirical confirmation the walk was
 // running against nothing.
 test('runVerification: description-only ACs reach the walk with their description text, not an empty disprove line (#352)', async () => {
   const { root } = await scaffoldChain({

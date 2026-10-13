@@ -202,6 +202,17 @@ Not to be confused with [Runtime requirements](#runtime-requirements) above: thi
 
 Adversarial testing often needs state: auth accounts, third-party service sandboxes, seed data. `run` provisions declared prerequisites before the pass and tears them down after; `provision` / `cleanup` expose the same machinery standalone. Everything provisioned is prefixed `zzverify-` so cleanup is unambiguous. A prerequisite that cannot be provisioned yields `BLOCKED`, never a silent skip of the journeys that needed it.
 
+### `--provision-mode run | skip`
+
+`rcf verify run` takes a `--provision-mode` flag that controls whether verify tries to stand up prerequisites:
+
+| Mode | Behaviour |
+|---|---|
+| `run` (default) | derive prerequisites from the ACs and provision what verify can (auth signups where a route exists; service sandboxes and seed data are out-of-band and refuse honestly). An AC whose prerequisite cannot be provisioned is reported BLOCKED. |
+| `skip` | bypass provisioning entirely for chains whose prerequisites are supplied out of band (admin-seeded auth accounts, pre-populated test data, operator-managed service sandboxes). |
+
+The mode is disclosed on `report.provisioning.mode` on every run (both `run` and `skip`) so the audit trail distinguishes a run whose prerequisites were skipped from one whose prerequisites were satisfied. Without this disclosure a seeded tree and a verified one read identically; the human render annotates `skip` as "prerequisites supplied out of band; not provisioned by verify". When a run under default `run` mode blocks on an unprovisionable prerequisite, the blocked-AC reason text names `--provision-mode skip` as the remedy so the next operator does not need to be told the flag exists.
+
 ## Verifier-agent launcher
 
 Verify launches an isolated fresh agent (Claude Code by default) with the isolation environment (`CLAUDE_CODE_DISABLE_AUTO_MEMORY=1` + `CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1`) and browser tooling; that agent drives the running app and returns structured findings.

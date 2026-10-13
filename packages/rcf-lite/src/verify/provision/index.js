@@ -129,6 +129,15 @@ export async function readProvisionFile(provisionPath) {
 }
 
 /**
+ * Reason text for an unprovisionable auth kind, exported so other consumers
+ * (and tests) share the same guidance string. Points the next operator at
+ * `--provision-mode skip` as the remedy for admin-seeded / invite-only /
+ * out-of-band provisioning paths; surfaced per issue #353 so a blocked
+ * run reads as actionable instead of mysterious.
+ */
+export const UNPROVISIONABLE_AUTH_REASON = 'cannot provision: app exposes no derivable signup route (invite-only / admin-seeded / out-of-band). If prerequisites are supplied out of band, re-run with `--provision-mode skip` (the mode is disclosed on report.provisioning.mode). See §6 deferred.';
+
+/**
  * Provision auth accounts against a signup-exposing app. The actual signup is
  * app-specific and agent-driven — supplied via the injected `signup` function
  * (the seam; §6 "the provisioning route is app-specific"). Without a signup
@@ -146,7 +155,7 @@ export async function provisionAuth({ url, count = MIN_AUTH_ACCOUNTS, signup } =
   const blocked = [];
   const credentials = [];
   if (typeof signup !== 'function') {
-    blocked.push({ kind: 'authAccount', reason: 'cannot provision: app exposes no derivable signup route (invite-only / admin-seeded / out-of-band). See §6 deferred.' });
+    blocked.push({ kind: 'authAccount', reason: UNPROVISIONABLE_AUTH_REASON });
     return { provisioned, blocked, credentials };
   }
   const suffixes = 'abcdefghijklmnopqrstuvwxyz';
@@ -178,7 +187,13 @@ export async function provisionAuth({ url, count = MIN_AUTH_ACCOUNTS, signup } =
  * @returns {Promise<{ provisioning: object, blockedAcs: object[] }>}
  */
 export async function runProvisioning({ acs = [], url, provisionPath, mode = 'run', signup } = {}) {
-  const provisioning = { provisioned: [], blocked: [], cleanupRan: false, cleanupRemoved: [] };
+  // Issue #353: `mode` is stamped on every record so the audit trail
+  // distinguishes a run whose prerequisites were skipped (admin-seeded /
+  // out-of-band) from one whose prerequisites were satisfied. Without this
+  // disclosure a promoted tree carrying `provisioned: [], blocked: []` is
+  // ambiguous: someone reading the record later cannot tell a seeded tree
+  // from a verified one.
+  const provisioning = { mode, provisioned: [], blocked: [], cleanupRan: false, cleanupRemoved: [] };
   const blockedAcs = [];
 
   if (mode === 'skip') return { provisioning, blockedAcs };
@@ -195,12 +210,15 @@ export async function runProvisioning({ acs = [], url, provisionPath, mode = 'ru
       allCredentials.push(...credentials);
       // If auth could not be provisioned at all, its dependent ACs are BLOCKED.
       if (provisioned.length === 0) {
-        const reason = blocked[0]?.reason ?? 'cannot provision: authAccount';
+        const reason = blocked[0]?.reason ?? UNPROVISIONABLE_AUTH_REASON;
         for (const acId of dependentAcIds) blockedAcs.push({ acId, reason });
       }
     } else {
-      // serviceSandbox / seedData — v1 honest BLOCK unless an out-of-band route exists.
-      const reason = `cannot provision: ${kind} (out-of-band route required — §6 v1 deferred)`;
+      // serviceSandbox / seedData: v1 honest BLOCK unless an out-of-band
+      // route exists. Issue #353: the message now names `--provision-mode
+      // skip` as the remedy for operator-managed sandboxes / pre-populated
+      // test data so the next person does not need Dex to tell them.
+      const reason = `cannot provision: ${kind} (out-of-band route required; §6 v1 deferred). If the prerequisite is supplied out of band, re-run with \`--provision-mode skip\` (the mode is disclosed on report.provisioning.mode).`;
       provisioning.blocked.push({ kind, reason });
       for (const acId of dependentAcIds) blockedAcs.push({ acId, reason });
     }

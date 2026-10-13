@@ -142,7 +142,7 @@ export async function runVerification(opts = {}, deps = {}) {
   // composeBrief throws when a testable AC carries neither a BDD triplet nor
   // a non-empty description (issue #352). Catch here so the empty-criterion
   // guard surfaces as data (kind: 'validation', CLI exit 3) rather than an
-  // unhandled rejection — the chain is unverifiable without criterion text.
+  // unhandled rejection; the chain is unverifiable without criterion text.
   let brief;
   try {
     brief = composeBrief({ acs, url, persona: opts.persona, chainRef: chain.chainRef });

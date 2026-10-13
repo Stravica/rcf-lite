@@ -95,6 +95,32 @@ test('renderReport: human render includes verdict, provenance, findings; never c
   assert.doesNotMatch(text, /fully verified/i);
 });
 
+// Issue #353: the human render discloses provisioning.mode so a reader
+// can tell a seeded tree from a verified one. Skip mode is annotated so
+// the reader does not need the ADR to interpret it.
+test('renderReport: provisioning.mode skip is annotated as an audit-trail disclosure (#353)', () => {
+  const r = buildReport({
+    profile: 'ci', url: 'http://localhost:3000', parityEnv: false,
+    verdict: 'PASS', verdictAuthority: 'correctness', findings: [], blockedAcs: [],
+    provisioning: { mode: 'skip', provisioned: [], blocked: [], cleanupRan: false, cleanupRemoved: [] },
+  });
+  const text = renderReport(r);
+  assert.match(text, /mode:\s+skip/);
+  assert.match(text, /supplied out of band/);
+});
+
+test('renderReport: provisioning.mode run is also disclosed (unambiguous audit trail; #353)', () => {
+  const r = buildReport({
+    profile: 'ci', url: 'http://localhost:3000', parityEnv: false,
+    verdict: 'PASS', verdictAuthority: 'correctness', findings: [], blockedAcs: [],
+    provisioning: { mode: 'run', provisioned: [{ kind: 'authAccount', ref: 'zzverify-a' }], blocked: [], cleanupRan: true, cleanupRemoved: ['zzverify-a'] },
+  });
+  const text = renderReport(r);
+  assert.match(text, /mode:\s+run/);
+  // The `run` label does NOT carry the skip annotation; only skip gets it.
+  assert.doesNotMatch(text, /supplied out of band/);
+});
+
 test('buildReport: LAUNCH-FAILURE report carries launchFailure + round-trips (fix 4)', () => {
   const r = buildReport({
     profile: 'ci', url: 'http://localhost:3000', parityEnv: false,

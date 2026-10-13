@@ -64,7 +64,7 @@ test('composeBrief: description-only AC reaches the walk with real criterion tex
     journey.disprove,
     /A signed-out user with a valid email can request a password reset email/,
   );
-  // And the pre-fix empty-text framing is gone — no `""` triplet.
+  // And the pre-fix empty-text framing is gone; no `""` triplet.
   assert.doesNotMatch(journey.disprove, /FAIL "" starting from ""/);
 });
 

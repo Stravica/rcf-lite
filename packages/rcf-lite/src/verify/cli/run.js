@@ -73,7 +73,22 @@ Optional:
                             (never inline; secrets never echoed)
   --severity-gate <sev>     Exit non-zero at/above this severity:
                             PASS | COSMETIC | DEGRADED | BROKEN
-  --provision-mode <m>      run | skip (default: run)
+  --provision-mode <m>      Prerequisite provisioning (default: run):
+                              run   derive prerequisites from the ACs and
+                                    provision what verify can (auth signups
+                                    where a route exists; service sandboxes
+                                    and seed data are out-of-band and refuse
+                                    honestly). An AC whose prerequisite
+                                    cannot be provisioned is reported
+                                    BLOCKED rather than silently skipped.
+                              skip  bypass provisioning entirely for chains
+                                    whose prerequisites are supplied out of
+                                    band (admin-seeded auth accounts,
+                                    pre-populated test data, operator-
+                                    managed service sandboxes). The mode is
+                                    disclosed on report.provisioning.mode so
+                                    a promoted tree records that provisioning
+                                    was skipped rather than satisfied.
   --persona <name>          Adversarial persona flavour (default: generic-sceptic)
   --playwright-mcp-version <semver>
                             Override the pinned Playwright MCP version for
