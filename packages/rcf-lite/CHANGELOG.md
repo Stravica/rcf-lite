@@ -32,7 +32,6 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Notes
 
 - Rerun `rcf init` after installing: the managed agent-instructions block changed (journey review rule), so `rcf doctor` reports a stale hash until the block is refreshed.
-- One pre-existing env-dependent skip remains (`TC-119 real-account-gated-url-skipped`).
 
 ## [0.33.0] - 2026-10-09
 
