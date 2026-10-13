@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 106,
-    "notStarted": 56,
+    "items": 107,
+    "notStarted": 57,
     "inProgress": 2,
     "complete": 33,
     "verified": 15,
     "actionable": 40,
-    "blocked": 16
+    "blocked": 17
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -104,7 +104,8 @@
         "FBS-182",
         "FBS-196",
         "FBS-206",
-        "FBS-213"
+        "FBS-213",
+        "FBS-217"
       ]
     },
     {
@@ -1394,6 +1395,20 @@
       "state": "blocked",
       "blockedBy": [
         "FBS-209"
+      ]
+    },
+    {
+      "fbsId": "FBS-217",
+      "buildOrder": 217,
+      "tier": 2,
+      "title": "FBS-217 finalise --provision-mode forwarding, provisioning.mode stamp, available-remedy blocked reasons, package-local verify resolution with command and version recorded",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-216"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-216"
       ]
     }
   ],

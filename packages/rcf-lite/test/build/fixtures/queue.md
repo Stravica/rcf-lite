@@ -110,13 +110,14 @@ Generation strategy: dependencyFirst
 | 214 | 3 | FBS-214 | Readiness stage D0 and the DEFINE door on the three chain-write verbs | notStarted | blocked | FBS-211, FBS-213 |
 | 215 | 4 | FBS-215 | Journey-step binding: journeyStepIds on the FBS, step state in queue, show, bundle and review | notStarted | blocked | FBS-210, FBS-214 |
 | 216 | 1 | FBS-216 | FBS-216 finalise per-FBS verify scope: --fbs filter, --all escape, scoped verified invariant | notStarted | blocked | FBS-209 |
+| 217 | 2 | FBS-217 | FBS-217 finalise --provision-mode forwarding, provisioning.mode stamp, available-remedy blocked reasons, package-local verify resolution with command and version recorded | notStarted | blocked | FBS-216 |
 
-Totals: items 106 | notStarted 56 | inProgress 2 | complete 33 | verified 15 | actionable 40 | blocked 16
+Totals: items 107 | notStarted 57 | inProgress 2 | complete 33 | verified 15 | actionable 40 | blocked 17
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210
 - tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216
-- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206, FBS-213
+- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206, FBS-213, FBS-217
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197, FBS-208, FBS-214
 - tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198, FBS-199, FBS-215
 - tier 5: FBS-029, FBS-046, FBS-185, FBS-200

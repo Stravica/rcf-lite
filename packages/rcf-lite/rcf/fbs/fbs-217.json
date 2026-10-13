@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-13T20:32:43.903Z",
+  "updatedAt": "2026-10-13T20:32:43.903Z",
+  "riskLevel": "low",
+  "domain": "verify",
+  "estimatedSize": "small",
+  "summary": "Finalise provisioning declaration and package-local verify resolution (issue 356): rcf build finalise accepts --provision-mode <run|skip> and forwards it to the fresh verify subprocess, the finalise report stamps provisioning.mode on completed runs and launch failures, a provisioning blocked-reason surfaced by finalise names only remedies finalise accepts (or the verify-direct route), detectVerify prefers the verify entry of the package finalise runs from over PATH, and the report records the resolved verify command and its version.",
+  "notes": "Three-hand fix per the RCF-separation ruling 2026-10-13: hand 1 lands US-16505, TS-250 and the red tests; hand 2 makes them pass and updates docs/verify-reference.md, the finalise help and the CHANGELOG; an independent gate reviews both. Code Nodes land with hand 2.",
+  "dependsOnFbsIds": [
+    "FBS-216"
+  ],
+  "acIds": [
+    "AC-16505-1",
+    "AC-16505-2",
+    "AC-16505-3",
+    "AC-16505-4",
+    "AC-16505-5"
+  ],
+  "fbsId": "FBS-217",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 217,
+  "executionStatus": "notStarted",
+  "title": "FBS-217 finalise --provision-mode forwarding, provisioning.mode stamp, available-remedy blocked reasons, package-local verify resolution with command and version recorded"
+}

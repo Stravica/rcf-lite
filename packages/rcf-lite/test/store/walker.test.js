@@ -279,7 +279,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // under REQ-002 for the WCAG 2.1 AA contrast audit (208 -> 209).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added US-18901..18906 (215 -> 221).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added US-16504 (221 -> 222).
-  assert.equal(tree.userStories.length, 222);
+  // Finalise provisioning declaration (2026-10-13, REQ-165, issue 356) added US-16505 (222 -> 223).
+  assert.equal(tree.userStories.length, 223);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -437,7 +438,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (91 -> 92).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added FBS-210..215 (99 -> 105).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added FBS-216 (105 -> 106).
-  assert.equal(tree.fbsItems.length, 106);
+  // Finalise provisioning declaration (2026-10-13, REQ-165, issue 356) added FBS-217 (106 -> 107).
+  assert.equal(tree.fbsItems.length, 107);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -561,7 +563,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // test/view/contrast-aa.test.js) (176 -> 177).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added TS-243..248 (183 -> 189).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added TS-249 (189 -> 190).
-  assert.equal(tree.testSuites.length, 190);
+  // Finalise provisioning declaration (2026-10-13, REQ-165, issue 356) added TS-250 (190 -> 191).
+  assert.equal(tree.testSuites.length, 191);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
