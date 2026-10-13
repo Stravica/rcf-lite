@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.33.0"
+latest: "0.34.0"
 releases:
+  - version: "0.34.0"
+    date: "2026-10-13"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.34.0 verifies one build unit at a time: finalise scopes verification to its own build spec, with an escape to verify the whole chain. The brief composer carries the canonical criterion text whichever field holds it and refuses an empty one, skipped provisioning is disclosed in the audit trail, discovery gains a D0 stage with journey record, declare, check and review verbs, and a fully built tree reads as a terminal pass."
+      - "Rerun rcf init after installing: the managed agent-instructions block now carries the journey review rule, so rcf doctor reports a stale hash until the block is refreshed. The @stravica-ai/rcf-schemas pin moves from 0.6.3 to 0.7.0 as an additive change; existing chain files need no migration, and existing trees without a journey record pass the new D0 gate unchanged."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.33.0"
     date: "2026-10-09"
     breaking: false
