@@ -14,19 +14,50 @@ export const DEFAULT_PERSONA = 'generic-sceptic';
  * two inputs (§9 guarantee 2). Returned as structured data so tests can assert
  * the ACs drove it and no build context leaked in.
  *
+ * Precedence between the two AC authoring forms is explicit (issue #352). An
+ * AC may carry the canonical acceptance text either as the structured BDD
+ * triplet (`given` / `when` / `then`) or as a prose `description`:
+ *   1. BDD form wins whenever all three of `given`, `when`, `then` are
+ *      non-empty strings. The existing structured disprove line is used.
+ *   2. Otherwise, if `description` is a non-empty string, verify falls back
+ *      to a description-based disprove line so the walk has real adversarial
+ *      content to run against (the slice-1 Backstory chains author ACs this
+ *      way; prior to the fix those produced an empty-text disprove line).
+ *   3. If neither form carries any criterion text, that is a hard failure
+ *      naming the acId; never a silent empty-text run against nothing. A
+ *      walk that can run against an empty criterion will eventually run
+ *      against an empty criterion again.
+ *
  * @param {object} opts
  * @param {Array<object>} opts.acs - flattened ACs from the chain
  * @param {string} opts.url - the running app under test
  * @param {string} [opts.persona]
  * @param {string} [opts.chainRef]
  * @returns {{ persona: string, url: string, chainRef: string, stance: string, acCount: number, journeys: object[], instructions: string }}
+ * @throws {Error} when a testable AC carries neither a BDD triplet nor a non-empty description
  */
 export function composeBrief({ acs = [], url, persona = DEFAULT_PERSONA, chainRef } = {}) {
   const testable = acs.filter((ac) => ac.testable !== false);
   const journeys = testable.map((ac) => {
-    // Base disprove line — the AC-only framing verify has always shipped.
+    // Precedence (issue #352): BDD triplet when complete, else description,
+    // else refuse the whole brief. The adversarial walk NEVER runs against
+    // empty criterion text; the verifier confidently reporting on nothing
+    // is the exact failure mode this guard exists for.
+    const given = typeof ac.given === 'string' ? ac.given.trim() : '';
+    const when = typeof ac.when === 'string' ? ac.when.trim() : '';
+    const then = typeof ac.then === 'string' ? ac.then.trim() : '';
+    const description = typeof ac.description === 'string' ? ac.description.trim() : '';
+    const isBddForm = given.length > 0 && when.length > 0 && then.length > 0;
+    const hasDescription = description.length > 0;
+    if (!isBddForm && !hasDescription) {
+      throw new Error(
+        `composeBrief: ${ac.acId ?? '(unknown AC)'} has no criterion text (both the given/when/then triplet and description are empty); refusing to run an adversarial walk against nothing (issue #352)`,
+      );
+    }
     const parts = [
-      `Attempt to make the app FAIL "${ac.then}" starting from "${ac.given}" by doing "${ac.when}", and adversarial variations of it.`,
+      isBddForm
+        ? `Attempt to make the app FAIL "${ac.then}" starting from "${ac.given}" by doing "${ac.when}", and adversarial variations of it.`
+        : `Attempt to make the app FAIL the acceptance criterion "${description}", by probing every reasonable path for this behaviour and adversarial variations of it.`,
     ];
     // 0.7.0: service-attestation suffix (verification-integrity-cluster-spec
     // §5.2). Prompt-only; the chain records the attestation and verify

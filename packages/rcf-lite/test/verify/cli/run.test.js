@@ -30,6 +30,57 @@ test('run: --help exits 0 and prints usage', async () => {
   assert.match(stdout.out.text, /Usage: rcf verify run/);
 });
 
+// Issue #353: `--provision-mode skip` is critical for chains whose
+// prerequisites are admin-seeded / out-of-band (Dex's first run blocked
+// 68 ACs for lack of this). The help text must describe the modes and
+// name the audit-trail disclosure so a reader knows the flag exists and
+// what it commits them to.
+test('run: --help describes --provision-mode skip and names the audit-trail disclosure (#353)', async () => {
+  const stdout = capture();
+  const code = await runMain(['--help'], { stdout: stdout.stream });
+  assert.equal(code, 0);
+  const help = stdout.out.text;
+  assert.match(help, /--provision-mode/);
+  assert.match(help, /skip\s+bypass/);
+  assert.match(help, /admin-seeded/);
+  assert.match(help, /report\.provisioning\.mode/);
+});
+
+// Issue #353: the mode lands on report.provisioning.mode as an audit-trail
+// disclosure so a promoted tree records that provisioning was skipped
+// rather than satisfied. Without this, a seeded tree and a verified tree
+// are indistinguishable in the ingested report.
+test('run: --provision-mode skip stamps provisioning.mode on the written report (#353)', async () => {
+  const { root } = await scaffoldChain();
+  const out = await outPath();
+  const code = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000',
+      '--out', out, '--provision-mode', 'skip'],
+    { stderr: capture().stream, launchAgent: stubLauncher([passFinding]) },
+  );
+  assert.equal(code, 0);
+  const report = JSON.parse(await readFile(out, 'utf8'));
+  assert.equal(report.provisioning.mode, 'skip');
+});
+
+test('run: default (run mode) also stamps provisioning.mode so the audit trail is unambiguous (#353)', async () => {
+  // The default scaffold's AC-101-1 is an auth journey. In `run` mode, with
+  // no injected signup route, it gets BLOCKED: exactly the shape Dex's
+  // first run hit. The mode disclosure must still land on the report.
+  const { root } = await scaffoldChain();
+  const out = await outPath();
+  const code = await runMain(
+    ['--repo', root, '--profile', 'ci', '--url', 'http://localhost:3000', '--out', out],
+    { stderr: capture().stream, launchAgent: stubLauncher([passFinding]) },
+  );
+  // Exit 5 is expected: an auth AC is BLOCKED under default `run` mode.
+  // The code is incidental to this test; the audit-trail disclosure is
+  // the lock.
+  assert.ok([0, 5].includes(code), `unexpected exit ${code}`);
+  const report = JSON.parse(await readFile(out, 'utf8'));
+  assert.equal(report.provisioning.mode, 'run');
+});
+
 test('run: missing --out is a usage error (exit 2)', async () => {
   const { root } = await scaffoldChain();
   const stderr = capture();

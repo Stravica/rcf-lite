@@ -42,6 +42,57 @@ test('runVerification: deployed + local URL -> NOT-DEPLOYED report, agent never 
   assert.equal(res.report.verdictAuthority, 'ship'); // it was a ship-gate attempt
 });
 
+// Issue #352: a chain authored with `description` as the canonical
+// acceptance text (given/when/then left blank, which the AC schema allows)
+// must reach the walk with real criterion content, not the empty-triplet
+// disprove line the pre-fix engine produced. The Backstory FBS-001 slice
+// hit exactly this shape and its verifier logged "AC text was empty, so I
+// read this criterion as...": the empirical confirmation the walk was
+// running against nothing.
+test('runVerification: description-only ACs reach the walk with their description text, not an empty disprove line (#352)', async () => {
+  const { root } = await scaffoldChain({
+    acceptanceCriteria: [
+      {
+        id: 'AC-101-1',
+        description: 'A signed-out visitor can request a password reset by email',
+        given: '',
+        when: '',
+        then: '',
+        testable: true,
+      },
+    ],
+  });
+  const briefsSeen = [];
+  const res = await runVerification(
+    { repo: root, profile: 'ci', url: 'http://localhost:3000', provisionMode: 'skip' },
+    {
+      now: FIXED_NOW,
+      launchAgent: async ({ brief }) => {
+        briefsSeen.push(brief);
+        return {
+          findings: brief.journeys.map((j) => ({
+            severity: 'PASS',
+            acId: j.acId,
+            journey: j.journey,
+            reproSteps: ['drive'],
+            evidence: { kind: 'note', detail: 'ok' },
+          })),
+        };
+      },
+    },
+  );
+  assert.ok(!isRcfError(res));
+  assert.equal(briefsSeen.length, 1);
+  const [brief] = briefsSeen;
+  const [journey] = brief.journeys;
+  assert.match(
+    journey.disprove,
+    /A signed-out visitor can request a password reset by email/,
+  );
+  // Explicit no-regression on the pre-fix empty-text framing.
+  assert.doesNotMatch(journey.disprove, /FAIL "" starting from ""/);
+});
+
 test('runVerification: ci + localhost + stub findings -> split-not-averaged BROKEN, correctness authority', async () => {
   const { root } = await scaffoldChain();
   const res = await runVerification(

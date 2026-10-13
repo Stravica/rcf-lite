@@ -11,6 +11,7 @@ import { join } from 'node:path';
 import {
   ZZVERIFY_PREFIX,
   MIN_AUTH_ACCOUNTS,
+  UNPROVISIONABLE_AUTH_REASON,
   classifyPrerequisite,
   deriveProvisioningPlan,
   redactSecrets,
@@ -94,6 +95,36 @@ test('runProvisioning: mode skip provisions nothing', async () => {
   const { provisioning, blockedAcs } = await runProvisioning({ acs: [authAc], url: 'https://app', mode: 'skip' });
   assert.deepEqual(provisioning.provisioned, []);
   assert.deepEqual(blockedAcs, []);
+});
+
+// Issue #353: the mode is stamped on every provisioning record so the audit
+// trail distinguishes a run whose prerequisites were skipped (admin-seeded
+// / out-of-band) from one whose prerequisites were satisfied. Without this
+// disclosure the record `provisioned: [], blocked: []` is ambiguous: a
+// seeded tree reads identically to a verified one.
+test('runProvisioning: mode skip is disclosed on provisioning.mode (audit-trail; #353)', async () => {
+  const { provisioning } = await runProvisioning({ acs: [authAc], url: 'https://app', mode: 'skip' });
+  assert.equal(provisioning.mode, 'skip');
+});
+
+test('runProvisioning: mode run is also stamped on provisioning.mode (unambiguous audit trail; #353)', async () => {
+  const { provisioning } = await runProvisioning({ acs: [plainAc], url: 'https://app' });
+  assert.equal(provisioning.mode, 'run');
+});
+
+test('runProvisioning: an auth-blocked AC reason names --provision-mode skip as the remedy (#353)', async () => {
+  const { blockedAcs } = await runProvisioning({ acs: [authAc], url: 'https://app' });
+  assert.equal(blockedAcs.length, 1);
+  assert.match(blockedAcs[0].reason, /--provision-mode skip/);
+  // The shared constant is the single source of this guidance string.
+  assert.equal(blockedAcs[0].reason, UNPROVISIONABLE_AUTH_REASON);
+});
+
+test('runProvisioning: a serviceSandbox / seedData blocked reason also names --provision-mode skip (#353)', async () => {
+  const { blockedAcs } = await runProvisioning({ acs: [payAc, seedAc], url: 'https://app' });
+  for (const b of blockedAcs) {
+    assert.match(b.reason, /--provision-mode skip/, `expected ${b.acId} reason to name the remedy flag`);
+  }
 });
 
 test('runProvisioning: surfaces a provision-file write failure as data, not discarded (w-2026-07-21-006)', async () => {

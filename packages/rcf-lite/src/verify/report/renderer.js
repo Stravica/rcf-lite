@@ -121,6 +121,16 @@ export function renderReport(report) {
   const prov = report.provisioning;
   if (prov) {
     lines.push('Provisioning');
+    // Issue #353: the mode is a load-bearing disclosure. `skip` means the
+    // run never attempted provisioning (prerequisites were supplied out of
+    // band, e.g. admin-seeded auth); without this line a reader cannot tell
+    // a seeded tree from a verified one.
+    if (typeof prov.mode === 'string') {
+      const annotation = prov.mode === 'skip'
+        ? ' (prerequisites supplied out of band; not provisioned by verify)'
+        : '';
+      lines.push(`  mode:        ${prov.mode}${annotation}`);
+    }
     lines.push(`  provisioned: ${(prov.provisioned ?? []).map((p) => p.ref).join(', ') || '(none)'}`);
     if ((prov.blocked ?? []).length) {
       lines.push(`  blocked:     ${prov.blocked.map((b) => `${b.kind} (${b.reason})`).join('; ')}`);
