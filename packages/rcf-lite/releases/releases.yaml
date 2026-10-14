@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.34.0"
+latest: "0.34.1"
 releases:
+  - version: "0.34.1"
+    date: "2026-10-14"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.34.1 lets finalise run against prerequisites supplied out of band: --provision-mode is accepted and forwarded, every finalise report records the provisioning mode and which verifier ran, the verifier is resolved from the package finalise runs from before PATH, and a report that cannot record its verifier is never promoted."
+      - "No extra action after installing: the managed agent-instructions block and the @stravica-ai/rcf-schemas 0.7.0 pin are unchanged since 0.34.0, and the new report fields are additive."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.34.0"
     date: "2026-10-13"
     breaking: false
