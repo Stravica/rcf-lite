@@ -706,7 +706,13 @@
         // FBS-204 (AC-18003-2): #tab=readiness&sub=questions&entity=<itemId>
         // lands on a readiness-row element when the itemId is not a
         // document (brief:ledger, profile:surface, open-decision:5).
-        if (params.entity) {
+        // On #tab=readiness&sub=trace&entity=<docId> the entity is the
+        // trace-matrix pivot (consumed by applyReadinessHash above), not
+        // a navigation target; skipping the entity-redirect here keeps
+        // the Trace sub-view mounted instead of flipping to the tab the
+        // document happens to live under.
+        var entityIsSubPanelPivot = tab === 'readiness' && params.sub === 'trace';
+        if (params.entity && !entityIsSubPanelPivot) {
           var ent = findByDocId(params.entity);
           if (!ent && tab === 'readiness') ent = findByReadinessEntity(params.entity);
           if (ent) {
