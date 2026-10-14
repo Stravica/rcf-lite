@@ -172,7 +172,9 @@ The verify subprocess is the rcf-lite package this finalise runs from
 (same install, same version); a project-local install is next and the
 'rcf' bin on PATH is the fallback only. The report records what ran as
 run.verify { command, prefixArgs, source, version }, so a stale global
-shadowing the local install is visible in the audit trail.
+shadowing the local install is visible in the audit trail. A completed
+report that cannot be stamped with that record is never promoted:
+finalise stops before the gate (exit 1) and leaves the FBS unchanged.
 
 If rcf-lite is not installed, finalise PROMPTS to install it (install-
 together posture) - it never silently skips the gate. Off a TTY, pass
@@ -362,33 +364,42 @@ function formatInvocation(record) {
  * resolved invocation onto the report at `outPath` as `run.verify`. The
  * preseed stub finalise wrote already carries it; a report verify
  * replaced it with does not, so this is where a completed run (passing
- * or tripped) learns which verifier produced it. Disclosure only: the
- * verdict, authority, findings and every other field verify stamped are
- * left untouched, and a failure to write is reported on stderr without
- * changing the gate's outcome.
+ * or tripped) learns which verifier produced it. Disclosure only as far
+ * as the report goes: the verdict, authority, findings and every other
+ * field verify stamped are left untouched.
+ *
+ * The result is checked by the caller. A completed report that cannot
+ * be stamped is `{ ok: false }`: finalise must then refuse before gate
+ * evaluation (exit 1, FBS unchanged), because promoting off a report
+ * with no record of which verifier produced it would leave the audit
+ * trail blind to exactly the stale-global case the record exists for
+ * (issue 356 gate P1). An unreadable report or the untouched preseed
+ * stub is `{ ok: true, stamped: false }`: there is no completed report
+ * to stamp, and the gate below already reads those two shapes as
+ * "unreadable is not a pass" / launch failure.
  *
  * @param {object} args
  * @param {string} args.outPath
  * @param {ReturnType<typeof describeInvocation>} args.verifyRecord
  * @param {typeof writeFile} args.writer
- * @param {{ write(s: string): unknown }} args.stderr
  * @param {object} args.deps
- * @returns {Promise<void>}
+ * @returns {Promise<{ ok: true, stamped: boolean } | { ok: false, stamped: false, reason: string }>}
  */
-async function recordVerifyInvocation({ outPath, verifyRecord, writer, stderr, deps }) {
+async function recordVerifyInvocation({ outPath, verifyRecord, writer, deps }) {
   const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
-  if (!loaded.ok || !loaded.report || typeof loaded.report !== 'object') return;
+  if (!loaded.ok || !loaded.report || typeof loaded.report !== 'object') return { ok: true, stamped: false };
   const { report } = loaded;
   // The preseed stub (or the aborted record derived from it) was written
   // by finalise with run.verify in place; nothing to add.
-  if (report.launchFailure?.reason === 'preseed') return;
+  if (report.launchFailure?.reason === 'preseed') return { ok: true, stamped: false };
   const run = (report.run && typeof report.run === 'object') ? report.run : {};
   const stamped = { ...report, run: { ...run, verify: verifyRecord } };
   try {
     await writer(outPath, `${JSON.stringify(stamped, null, 2)}\n`, 'utf8');
   } catch (err) {
-    stderr.write(`[finalise] could not record the verify invocation on ${outPath}: ${err.message}\n`);
+    return { ok: false, stamped: false, reason: err?.message ?? String(err) };
   }
+  return { ok: true, stamped: true };
 }
 
 /**
@@ -650,9 +661,17 @@ export async function main(argv, deps = {}) {
   // report verify replaced it with does not know how it was launched, so
   // finalise adds the record here before the gate reads the report. This
   // is disclosure, not a verdict: build never re-derives anything verify
-  // stamped (§9), and a failure to write the record is reported but does
-  // not change the gate's reading of the verdict.
-  await recordVerifyInvocation({ outPath, verifyRecord, writer, stderr, deps });
+  // stamped (§9). But a completed report that cannot carry the record is
+  // never promoted (gate P1 on the 356 fix): the stamp is the only audit
+  // record of which verifier ran, so a refused stamp write stops finalise
+  // here, before any gate evaluation, with the FBS untouched.
+  const stamp = await recordVerifyInvocation({ outPath, verifyRecord, writer, deps });
+  if (!stamp.ok) {
+    stderr.write(`[finalise] gate NOT evaluated: could not record run.verify on the verify report at ${outPath} (${stamp.reason}); ${fbsId} left '${currentStatus}'.\n`);
+    stderr.write('A completed verify report with no run.verify record is never promoted: without it the audit trail cannot say which verifier produced the verdict. '
+      + `The report on disk is verify's own, unstamped. Fix the write failure and re-run finalise. Report: ${outPath}\n`);
+    return 1;
+  }
 
   // --- gate on the subprocess exit code (§8.2) + ship authority (§4) ------
   if (spawnResult.code === 0) {
