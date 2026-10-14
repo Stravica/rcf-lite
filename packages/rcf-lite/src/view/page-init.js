@@ -711,7 +711,7 @@
         // a navigation target; skipping the entity-redirect here keeps
         // the Trace sub-view mounted instead of flipping to the tab the
         // document happens to live under.
-        var entityIsSubPanelPivot = tab === 'readiness' && params.sub === 'trace';
+        var entityIsSubPanelPivot = tab === 'readiness' && normaliseReadinessSub(params.sub) === 'trace';
         if (params.entity && !entityIsSubPanelPivot) {
           var ent = findByDocId(params.entity);
           if (!ent && tab === 'readiness') ent = findByReadinessEntity(params.entity);
@@ -2388,17 +2388,23 @@
     writeHash(readinessHashFragment(), true);
   }
 
+  // F1 gate fix: normalise a raw sub= value once (decode, trim, lowercase)
+  // so applyReadinessHash's membership check, the sub-panel-pivot guard
+  // in resolveHash and the pivot read in traceEntityFromHash agree on
+  // which panel a hash resolves to. Returns '' when the value is empty
+  // or the decode fails, so callers can fall back to 'overview' without
+  // the normalised form masking a malformed input.
+  function normaliseReadinessSub(rawSub) {
+    if (!rawSub) return '';
+    var decoded;
+    try { decoded = decodeURIComponent(rawSub); } catch (e) { return ''; }
+    return decoded.trim().toLowerCase();
+  }
+
   function applyReadinessHash(params) {
-    // decodeURIComponent throws URIError on malformed input such as a
-    // bare '%' or an incomplete escape. Treat that as unknown so the
-    // overview fallback and hash-drop still fire (AC-18005-8).
-    var raw = 'overview';
-    var decodeFailed = false;
-    if (params && params.sub) {
-      try { raw = decodeURIComponent(params.sub); } catch (e) { decodeFailed = true; raw = params.sub; }
-    }
-    var known = !decodeFailed && READINESS_SUBS.indexOf(raw) !== -1;
-    var sub = known ? raw : 'overview';
+    var normalised = params ? normaliseReadinessSub(params.sub) : '';
+    var known = normalised !== '' && READINESS_SUBS.indexOf(normalised) !== -1;
+    var sub = known ? normalised : 'overview';
     activateReadinessSub(sub);
     // AC-18005-8: unknown sub= is dropped from the hash and the overview
     // is activated. Rewrite the hash in place without pushing a new entry.
@@ -2491,7 +2497,7 @@
       var h = (window.location.hash || '').replace(/^#/, '');
       var params = parseHashParams(h);
       if (!params) return '';
-      if (params.tab !== 'readiness' || params.sub !== 'trace') return '';
+      if (params.tab !== 'readiness' || normaliseReadinessSub(params.sub) !== 'trace') return '';
       return params.entity ? decodeURIComponent(params.entity) : '';
     } catch (e) { return ''; }
   }
