@@ -2402,9 +2402,12 @@
   }
 
   function applyReadinessHash(params) {
-    var normalised = params ? normaliseReadinessSub(params.sub) : '';
-    var known = normalised !== '' && READINESS_SUBS.indexOf(normalised) !== -1;
-    var sub = known ? normalised : 'overview';
+    // Normalise once (decode, trim, lowercase); the helper returns '' on
+    // decode failure, which lands on the overview fallback and the
+    // hash-rewrite below the same way an unknown value does.
+    var raw = params ? normaliseReadinessSub(params.sub) : '';
+    var known = raw !== '' && READINESS_SUBS.indexOf(raw) !== -1;
+    var sub = known ? raw : 'overview';
     activateReadinessSub(sub);
     // AC-18005-8: unknown sub= is dropped from the hash and the overview
     // is activated. Rewrite the hash in place without pushing a new entry.
