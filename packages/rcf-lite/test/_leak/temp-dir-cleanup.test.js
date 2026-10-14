@@ -30,17 +30,23 @@ const PIN_SPAWNED = process.env.RCF_LEAK_PIN_SPAWNED === '1';
 const SKIP_REASON = 'child run from the pin itself (RCF_LEAK_PIN_SPAWNED set): the suite re-entered through this file would recurse';
 
 async function runSuite({ cwd, tmp, log }) {
+  // The pin itself runs under `node --test`, which exports
+  // NODE_TEST_CONTEXT / NODE_TEST_WORKER_ID into our environment and
+  // makes any inner `node --test` emit "run() is being called
+  // recursively within a test file. skipping running files." and
+  // exit without discovering anything. Strip those vars so the child
+  // runs the suite normally.
+  const childEnv = { ...process.env, TMPDIR: tmp, RCF_LEAK_PIN_SPAWNED: '1' };
+  delete childEnv.NODE_TEST_CONTEXT;
+  delete childEnv.NODE_TEST_WORKER_ID;
+
   return new Promise((resolveRun, rejectRun) => {
     const child = spawn(
       process.execPath,
       ['--test', '--test-concurrency=1', 'test/**/*.test.js'],
       {
         cwd,
-        env: {
-          ...process.env,
-          TMPDIR: tmp,
-          RCF_LEAK_PIN_SPAWNED: '1',
-        },
+        env: childEnv,
         stdio: ['ignore', 'pipe', 'pipe'],
       },
     );
@@ -88,6 +94,13 @@ test(
         .join('\n');
 
       t.diagnostic(`child exit code=${code} signal=${signal ?? 'none'}`);
+      t.diagnostic(`child cwd=${pkgRoot}`);
+      t.diagnostic(`child TMPDIR=${isolated}`);
+      // Child transcript summary: the suite's own ok/fail lines are
+      // noisy; echo only the trailing per-run summary (last ~500B)
+      // so the pin's own transcript still shows the child ran.
+      const childTail = (transcript[0] ?? '').slice(-800);
+      t.diagnostic(`child transcript tail:\n${childTail}`);
       t.diagnostic(`leaked temp dir count: ${leaked.length} across ${byPrefix.size} prefixes`);
       if (topFamilies) t.diagnostic(`top prefixes (grep \`mkdtemp(join(tmpdir(), '<prefix>'\` to find the creating test):\n${topFamilies}`);
 
