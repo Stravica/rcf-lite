@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-803",
+  "path": "src/cli/finalise.js#recordVerifyInvocation",
+  "title": "recordVerifyInvocation stamps run.verify on the finalise report (FBS-217)",
+  "description": "describeInvocation projects the detected invocation onto run.verify { command, prefixArgs, source, version } (nulls where unknown); the preseed stub carries it before launch and recordVerifyInvocation copies it onto the report verify wrote after the subprocess returns, leaving every verify-stamped field untouched, so the launch-failure record and a completed run both say which verifier ran. formatInvocation prints the same record on the launch line.",
+  "implementsAcIds": [
+    "AC-16505-5"
+  ],
+  "dependencies": [
+    "CN-801",
+    "CN-802"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-13T22:27:15.263Z",
+  "updatedAt": "2026-10-13T22:27:30.101Z"
+}

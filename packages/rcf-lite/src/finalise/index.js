@@ -10,6 +10,8 @@ export {
   detectVerify,
   findOnPath,
   resolvePackageBin,
+  resolveSelfBin,
+  readEntryVersion,
   VERIFY_PACKAGE,
   VERIFY_PACKAGE_CANDIDATES,
   VERIFY_BIN,

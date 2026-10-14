@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-800",
+  "path": "src/cli/finalise.js#HELP",
+  "title": "finalise HELP lists --provision-mode and the verifier resolution (FBS-217)",
+  "description": "The finalise Options block lists --provision-mode <m>, names run and skip, says skip is for prerequisites supplied out of band, discloses report.provisioning.mode on the completed run and the launch-failure record, and names the exit 2 refusal; the intro names the package-first verifier resolution and the run.verify record. Every remedy flag a finalise-surfaced provisioning blocked-reason names (--provision-mode skip) is therefore listed in the help finalise prints. No em-dash.",
+  "implementsAcIds": [
+    "AC-16505-2",
+    "AC-16505-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-13T22:27:13.643Z",
+  "updatedAt": "2026-10-13T22:27:13.643Z"
+}

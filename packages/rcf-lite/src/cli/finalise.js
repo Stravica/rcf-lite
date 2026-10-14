@@ -83,6 +83,11 @@ const PROFILES = new Set(['deployed', 'ci', 'local-dev']);
 const SEVERITIES = new Set(['PASS', 'COSMETIC', 'DEGRADED', 'BROKEN']);
 const DEFAULT_PROFILE = 'deployed';
 const DEFAULT_GATE = 'BROKEN';
+// Issue 356 (US-16505): verify's prerequisite provisioning modes and its
+// documented default, mirrored by contract like PROFILES / SEVERITIES
+// above (build never imports verify's CLI).
+const PROVISION_MODES = new Set(['run', 'skip']);
+const DEFAULT_PROVISION_MODE = 'run';
 const DEFAULT_REPORT = '.rcf-verify-report.json';
 // The finalise gate only makes sense on a built item; verified re-verify is
 // allowed (the §5.4 loop re-runs the gate on a previously-verified item).
@@ -124,6 +129,14 @@ const OPTION_SPEC = {
   // because the harness refuses to let a worker spawn `claude` as a
   // subagent, which agentScreenshotCritique requires.
   mode: { type: 'string' },
+  // Issue 356 (US-16505 / AC-16505-1): the operator's prerequisite
+  // provisioning declaration, forwarded verbatim to the fresh `rcf
+  // verify run` subprocess (run | skip, verify's own semantics). Absent
+  // means nothing is forwarded and verify applies its default (run).
+  // Before this flag existed, finalise printed verify's blocked-reason
+  // "re-run with `--provision-mode skip`" while refusing the flag, so an
+  // admin-seeded chain could pass a direct verify run and never promote.
+  'provision-mode': { type: 'string' },
   // ADR-4147 (US-16504): finalise verifies the named FBS's bound ACs by
   // default (the fresh verify subprocess receives `--fbs <fbs-id>`).
   // --all passes no filter so the whole chain is verified, for slice end.
@@ -154,6 +167,14 @@ skipped (ADR-4112, evaluated over that bound set). Pass --all to verify
 the whole chain instead, for example at the end of a slice. An FBS with
 no bound criteria is refused before verify launches. The report records
 the scope as run.scope ('fbs:<id>' or 'chain') and the AC count.
+
+The verify subprocess is the rcf-lite package this finalise runs from
+(same install, same version); a project-local install is next and the
+'rcf' bin on PATH is the fallback only. The report records what ran as
+run.verify { command, prefixArgs, source, version }, so a stale global
+shadowing the local install is visible in the audit trail. A completed
+report that cannot be stamped with that record is never promoted:
+finalise stops before the gate (exit 1) and leaves the FBS unchanged.
 
 If rcf-lite is not installed, finalise PROMPTS to install it (install-
 together posture) - it never silently skips the gate. Off a TTY, pass
@@ -219,6 +240,26 @@ Options:
                             a passing run with ship authority. Without
                             this flag the verify subprocess receives
                             --fbs <fbs-id> (ADR-4147).
+  --provision-mode <m>      Prerequisite provisioning, forwarded verbatim
+                            to the verify subprocess (default: verify's
+                            own default, run):
+                              run   derive prerequisites from the ACs and
+                                    provision what verify can (auth signups
+                                    where a route exists; service sandboxes
+                                    and seed data refuse honestly). An AC
+                                    whose prerequisite cannot be provisioned
+                                    is reported BLOCKED, and this gate then
+                                    refuses to promote.
+                              skip  bypass provisioning entirely for chains
+                                    whose prerequisites are supplied out of band
+                                    (admin-seeded auth accounts, pre-populated
+                                    test data, operator-managed sandboxes).
+                            The mode is disclosed on report.provisioning.mode
+                            on a completed run and on the launch-failure
+                            record, so a promoted tree records that
+                            provisioning was skipped rather than satisfied.
+                            Any other value is a usage error (exit 2) before
+                            verify launches.
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -286,6 +327,82 @@ async function resolveGitBranch({ cwd, deps = {} }) {
 }
 
 /**
+ * Issue 356 (US-16505 / AC-16505-5). Project the detected verify
+ * invocation onto the `run.verify` record the finalise report carries:
+ * the command, its prefix args, the resolution route and the version of
+ * the resolved binary. Unknown route or version are recorded as null
+ * (omit-not-fake), never guessed.
+ *
+ * @param {import('../finalise/detect.js').VerifyInvocation | null | undefined} invocation
+ * @returns {{ command: string|null, prefixArgs: string[], source: string|null, version: string|null }}
+ */
+function describeInvocation(invocation) {
+  return {
+    command: invocation?.command ?? null,
+    prefixArgs: Array.isArray(invocation?.prefixArgs) ? [...invocation.prefixArgs] : [],
+    source: invocation?.source ?? null,
+    version: invocation?.version ?? null,
+  };
+}
+
+/**
+ * One-line rendering of a run.verify record for the finalise stdout:
+ * `rcf-lite <version> via <source>: <command> <prefixArgs>`.
+ *
+ * @param {ReturnType<typeof describeInvocation>} record
+ * @returns {string}
+ */
+function formatInvocation(record) {
+  const version = record.version ? `rcf-lite ${record.version}` : 'rcf-lite (version unknown)';
+  const source = record.source ?? 'unknown route';
+  const argv = [record.command ?? '?', ...record.prefixArgs].join(' ');
+  return `${version} via ${source}: ${argv}`;
+}
+
+/**
+ * Issue 356 (AC-16505-5). After the verify subprocess returns, copy the
+ * resolved invocation onto the report at `outPath` as `run.verify`. The
+ * preseed stub finalise wrote already carries it; a report verify
+ * replaced it with does not, so this is where a completed run (passing
+ * or tripped) learns which verifier produced it. Disclosure only as far
+ * as the report goes: the verdict, authority, findings and every other
+ * field verify stamped are left untouched.
+ *
+ * The result is checked by the caller. A completed report that cannot
+ * be stamped is `{ ok: false }`: finalise must then refuse before gate
+ * evaluation (exit 1, FBS unchanged), because promoting off a report
+ * with no record of which verifier produced it would leave the audit
+ * trail blind to exactly the stale-global case the record exists for
+ * (issue 356 gate P1). An unreadable report or the untouched preseed
+ * stub is `{ ok: true, stamped: false }`: there is no completed report
+ * to stamp, and the gate below already reads those two shapes as
+ * "unreadable is not a pass" / launch failure.
+ *
+ * @param {object} args
+ * @param {string} args.outPath
+ * @param {ReturnType<typeof describeInvocation>} args.verifyRecord
+ * @param {typeof writeFile} args.writer
+ * @param {object} args.deps
+ * @returns {Promise<{ ok: true, stamped: boolean } | { ok: false, stamped: false, reason: string }>}
+ */
+async function recordVerifyInvocation({ outPath, verifyRecord, writer, deps }) {
+  const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
+  if (!loaded.ok || !loaded.report || typeof loaded.report !== 'object') return { ok: true, stamped: false };
+  const { report } = loaded;
+  // The preseed stub (or the aborted record derived from it) was written
+  // by finalise with run.verify in place; nothing to add.
+  if (report.launchFailure?.reason === 'preseed') return { ok: true, stamped: false };
+  const run = (report.run && typeof report.run === 'object') ? report.run : {};
+  const stamped = { ...report, run: { ...run, verify: verifyRecord } };
+  try {
+    await writer(outPath, `${JSON.stringify(stamped, null, 2)}\n`, 'utf8');
+  } catch (err) {
+    return { ok: false, stamped: false, reason: err?.message ?? String(err) };
+  }
+  return { ok: true, stamped: true };
+}
+
+/**
  * @param {string[]} argv - argv slice after `finalise`
  * @param {object} [deps] - injectable seams (detect / spawn / prompt / install /
  *   loadReport) for testing the gate without a real rcf-verify + live app.
@@ -344,6 +461,20 @@ export async function main(argv, deps = {}) {
     return usage(`--mode must be one of ${VERIFY_MODES.join(' | ')} (got "${modeFlag}")`);
   }
   const mode = modeFlag ?? DEFAULT_VERIFY_MODE;
+  // Issue 356 (US-16505 / AC-16505-1): --provision-mode takes verify's
+  // two values and nothing else. Refused here, before any verify launch,
+  // with the same message `rcf verify run` prints so the two commands
+  // teach the same thing. Absent means no flag is forwarded; verify
+  // applies its own default (run) and stamps it on the report.
+  const provisionModeFlag = flags['provision-mode'];
+  if (provisionModeFlag !== undefined && !PROVISION_MODES.has(provisionModeFlag)) {
+    return usage(`--provision-mode must be run | skip (got "${provisionModeFlag}")`);
+  }
+  const provisionMode = provisionModeFlag;
+  // The mode the launch-failure record discloses when no flag was given:
+  // verify's documented default. A completed run is stamped by verify
+  // itself from the forwarded flag (or its default), never here.
+  const effectiveProvisionMode = provisionMode ?? DEFAULT_PROVISION_MODE;
 
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
@@ -445,8 +576,14 @@ export async function main(argv, deps = {}) {
     chain: flags.chain,
     persona: flags.persona,
     mode,
+    provisionMode,
     fbsIds: scopeFbsIds,
   });
+  // Issue 356 (AC-16505-5): the resolved verify invocation, recorded on
+  // the report as run.verify so an operator can see which binary ran
+  // and at what version (a stale global shadowing the local install is
+  // then visible in the audit trail instead of a bare exit 2).
+  const verifyRecord = describeInvocation(detection.invocation);
 
   // Issue 330 partial-report preseed. Verify is a fresh subprocess and
   // may fail to start (ENOENT, blocked by harness), be killed, or exit
@@ -470,9 +607,16 @@ export async function main(argv, deps = {}) {
       startedAt: finaliseStartedAt,
       finishedAt: null,
       runStats: { mode, status: 'pending', reason: 'verify not yet started' },
+      // Issue 356 (AC-16505-5): which verifier finalise is about to run.
+      verify: verifyRecord,
     },
     findings: [],
     blockedAcs: [],
+    // Issue 356 (AC-16505-3): the operator's provisioning declaration
+    // travels onto the launch-failure record too, so the audit trail of
+    // a failed finalise can tell a skipped run from a provisioned one.
+    // A completed run replaces this with verify's own stamp.
+    provisioning: { mode: effectiveProvisionMode },
     launchFailure: {
       message: 'rcf verify did not write a report (process was killed, errored before write, or did not start)',
       status: 'aborted',
@@ -491,7 +635,12 @@ export async function main(argv, deps = {}) {
     if (verifyAll) {
       stdout.write(`[finalise] --all: verifying the whole chain (${chainAcCount} ACs), not only the ${boundAcIds.length} bound to ${fbsId}.\n`);
     }
-    stdout.write(`[finalise] launching the verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}, scope=${scope} (${scopeAcCount} ACs)]...\n`);
+    const provisionNote = provisionMode ? `, provision-mode=${provisionMode}` : '';
+    stdout.write(`[finalise] launching the verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}${provisionNote}, scope=${scope} (${scopeAcCount} ACs)]...\n`);
+    // Issue 356 (AC-16505-5): say which verifier is about to run, so a
+    // stale global shadowing the local install is visible before the
+    // exit code arrives.
+    stdout.write(`[finalise] verify: ${formatInvocation(verifyRecord)}\n`);
   }
 
   let spawnResult;
@@ -504,6 +653,23 @@ export async function main(argv, deps = {}) {
       rcfError({ kind: 'ioFailure', message: `finalise: could not launch rcf verify: ${err.message}`, stack: err.stack }),
       stderr,
     );
+    return 1;
+  }
+
+  // Issue 356 (AC-16505-5): record the resolved verify invocation on the
+  // report verify wrote. The preseed stub already carries run.verify; a
+  // report verify replaced it with does not know how it was launched, so
+  // finalise adds the record here before the gate reads the report. This
+  // is disclosure, not a verdict: build never re-derives anything verify
+  // stamped (§9). But a completed report that cannot carry the record is
+  // never promoted (gate P1 on the 356 fix): the stamp is the only audit
+  // record of which verifier ran, so a refused stamp write stops finalise
+  // here, before any gate evaluation, with the FBS untouched.
+  const stamp = await recordVerifyInvocation({ outPath, verifyRecord, writer, deps });
+  if (!stamp.ok) {
+    stderr.write(`[finalise] gate NOT evaluated: could not record run.verify on the verify report at ${outPath} (${stamp.reason}); ${fbsId} left '${currentStatus}'.\n`);
+    stderr.write('A completed verify report with no run.verify record is never promoted: without it the audit trail cannot say which verifier produced the verdict. '
+      + `The report on disk is verify's own, unstamped. Fix the write failure and re-run finalise. Report: ${outPath}\n`);
     return 1;
   }
 

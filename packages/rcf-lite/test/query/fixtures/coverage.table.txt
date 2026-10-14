@@ -479,6 +479,11 @@ REQ-165      yes      AC-16501-1   yes         TC-202-ui-baseline-unmet-refusal
                       AC-16504-2   yes         TC-249-16504-2-default
                       AC-16504-3   yes         TC-249-16504-3-invariant
                       AC-16504-4   yes         TC-249-16504-4-help
+                      AC-16505-1   yes         TC-250-16505-1-args, TC-250-16505-1-forward
+                      AC-16505-2   yes         TC-250-16505-2-help
+                      AC-16505-3   yes         TC-250-16505-3-stamp
+                      AC-16505-4   yes         TC-250-16505-4-remedy
+                      AC-16505-5   yes         TC-250-16505-5-detect, TC-250-16505-5-path-fallback, TC-2...
 REQ-170      yes      AC-17001-1   yes         TC-204-shape-buckets-present
                       AC-17001-2   yes         TC-204-shape-drill-req-us-ac
                       AC-17002-1   yes         TC-205-status-filter-control

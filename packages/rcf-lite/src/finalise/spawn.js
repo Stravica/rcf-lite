@@ -32,6 +32,9 @@ import { isolationEnv } from '#core/isolation';
  * @param {string} [opts.chain] - PRD/chain ref
  * @param {string} [opts.persona]
  * @param {string} [opts.mode] - verify mode (issue 330): agentScreenshotCritique | deterministic
+ * @param {string} [opts.provisionMode] - prerequisite provisioning mode (issue 356): run | skip;
+ *   forwarded verbatim as one adjacent `--provision-mode <m>` pair, absent means no flag
+ *   (verify applies its own default and stamps it on report.provisioning.mode)
  * @param {string[]} [opts.fbsIds] - ADR-4147 scope: one `--fbs <id>` per entry; absent/empty = whole chain
  * @returns {string[]}
  */
@@ -50,6 +53,11 @@ export function buildVerifyArgs(opts) {
   if (opts.provision) args.push('--provision', opts.provision);
   if (opts.persona) args.push('--persona', opts.persona);
   if (opts.mode) args.push('--mode', opts.mode);
+  // Issue 356 (US-16505 / AC-16505-1): the operator's provisioning
+  // declaration travels to the verify subprocess exactly as given, so a
+  // finalise-launched gate and a direct `rcf verify run` read the same
+  // declaration and stamp the same report.provisioning.mode.
+  if (opts.provisionMode) args.push('--provision-mode', opts.provisionMode);
   // ADR-4147: finalise passes its own FBS so the verifier is briefed on
   // that unit's bound ACs only; `--all` on finalise leaves this empty.
   if (Array.isArray(opts.fbsIds)) {

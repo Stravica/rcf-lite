@@ -4636,6 +4636,51 @@
             "TC-249-16504-4-help"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16505-1",
+          "covered": true,
+          "testCases": [
+            "TC-250-16505-1-args",
+            "TC-250-16505-1-forward"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16505-2",
+          "covered": true,
+          "testCases": [
+            "TC-250-16505-2-help"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16505-3",
+          "covered": true,
+          "testCases": [
+            "TC-250-16505-3-stamp"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16505-4",
+          "covered": true,
+          "testCases": [
+            "TC-250-16505-4-remedy"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16505-5",
+          "covered": true,
+          "testCases": [
+            "TC-250-16505-5-detect",
+            "TC-250-16505-5-path-fallback",
+            "TC-250-16505-5-record",
+            "TC-250-16505-5-record-blocked",
+            "TC-250-16505-5-stamp-refused"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

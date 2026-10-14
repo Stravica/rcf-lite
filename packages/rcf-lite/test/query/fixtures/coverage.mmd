@@ -2210,6 +2210,36 @@ flowchart LR
   REQ-165 --> AC-16504-4
   TC-249-16504-4-help["TC-249-16504-4-help"]
   AC-16504-4 -.-> TC-249-16504-4-help
+  AC-16505-1["AC-16505-1"]
+  REQ-165 --> AC-16505-1
+  TC-250-16505-1-args["TC-250-16505-1-args"]
+  AC-16505-1 -.-> TC-250-16505-1-args
+  TC-250-16505-1-forward["TC-250-16505-1-forward"]
+  AC-16505-1 -.-> TC-250-16505-1-forward
+  AC-16505-2["AC-16505-2"]
+  REQ-165 --> AC-16505-2
+  TC-250-16505-2-help["TC-250-16505-2-help"]
+  AC-16505-2 -.-> TC-250-16505-2-help
+  AC-16505-3["AC-16505-3"]
+  REQ-165 --> AC-16505-3
+  TC-250-16505-3-stamp["TC-250-16505-3-stamp"]
+  AC-16505-3 -.-> TC-250-16505-3-stamp
+  AC-16505-4["AC-16505-4"]
+  REQ-165 --> AC-16505-4
+  TC-250-16505-4-remedy["TC-250-16505-4-remedy"]
+  AC-16505-4 -.-> TC-250-16505-4-remedy
+  AC-16505-5["AC-16505-5"]
+  REQ-165 --> AC-16505-5
+  TC-250-16505-5-detect["TC-250-16505-5-detect"]
+  AC-16505-5 -.-> TC-250-16505-5-detect
+  TC-250-16505-5-path-fallback["TC-250-16505-5-path-fallback"]
+  AC-16505-5 -.-> TC-250-16505-5-path-fallback
+  TC-250-16505-5-record["TC-250-16505-5-record"]
+  AC-16505-5 -.-> TC-250-16505-5-record
+  TC-250-16505-5-record-blocked["TC-250-16505-5-record-blocked"]
+  AC-16505-5 -.-> TC-250-16505-5-record-blocked
+  TC-250-16505-5-stamp-refused["TC-250-16505-5-stamp-refused"]
+  AC-16505-5 -.-> TC-250-16505-5-stamp-refused
   REQ-170["REQ-170"]
   AC-17001-1["AC-17001-1"]
   REQ-170 --> AC-17001-1
@@ -4462,6 +4492,21 @@ flowchart LR
   class TC-249-16504-3-invariant tc;
   class AC-16504-4 ac;
   class TC-249-16504-4-help tc;
+  class AC-16505-1 ac;
+  class TC-250-16505-1-args tc;
+  class TC-250-16505-1-forward tc;
+  class AC-16505-2 ac;
+  class TC-250-16505-2-help tc;
+  class AC-16505-3 ac;
+  class TC-250-16505-3-stamp tc;
+  class AC-16505-4 ac;
+  class TC-250-16505-4-remedy tc;
+  class AC-16505-5 ac;
+  class TC-250-16505-5-detect tc;
+  class TC-250-16505-5-path-fallback tc;
+  class TC-250-16505-5-record tc;
+  class TC-250-16505-5-record-blocked tc;
+  class TC-250-16505-5-stamp-refused tc;
   class REQ-170 req;
   class AC-17001-1 ac;
   class TC-204-shape-buckets-present tc;
