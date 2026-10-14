@@ -6,6 +6,10 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Fixed
+
+- **Viewer: following a Readiness/Coverage Trace link lands on and stays on the Readiness/trace sub-view.** `#tab=readiness&sub=trace&entity=<docId>` activated Readiness and mounted the Trace sub-panel, then the shared entity-redirect branch in `resolveHash` resolved the docId to the Requirements tab and called `activateTab('requirements')`, so the Trace view flashed and then got replaced. On `sub=trace` the entity is the trace-matrix pivot (already consumed by `applyReadinessHash`), not a navigation target; the entity-redirect branch now short-circuits for that sub-panel so the Trace view stays mounted. Regression test: `test/view/readiness-trace-redirect-wsd.test.js`.
+
 ## [0.34.1] - 2026-10-14
 
 0.34.1 lets `rcf build finalise` run against prerequisites supplied out of band: `--provision-mode` is accepted and forwarded to the verify subprocess, every finalise report records the provisioning mode and which verifier ran, the verifier is resolved from the package finalise runs from before `PATH`, and a report that cannot record its verifier is never promoted. User-story pages in the viewer no longer carry whitespace-only lines. breaking: false; the flag is optional, the report fields are additive and the report schema version is unchanged, package-first resolution keeps `PATH` as the documented fallback, no shipped blueprint takes a major bump, no applied-record shape changes and the `@stravica-ai/rcf-schemas` 0.7.0 pin is unchanged. minAgentAction: null; the managed agent-instructions block is unchanged since 0.34.0, so `rcf doctor` reports a clean hash without an `rcf init` rerun.
