@@ -30,23 +30,29 @@ export function renderUserStory(us, ctx) {
   const anchor = `${prefix}${anchorIdFor(us.usId ?? 'US')}`;
   const broken = ctx.errors?.length ? brokenBanner(ctx.errors) : '';
   const acItems = (us.acceptanceCriteria ?? []).map((ac) => renderAcItem(ac, ctx, prefix)).join('\n');
-  return `
-<article id="${anchor}" class="doc doc-us">
-  <h3>${escapeHtml(us.usId ?? 'US')} - ${escapeHtml(us.title ?? '')}</h3>
-  ${broken}
-  <p><strong>As a:</strong> ${escapeHtml(us.asA ?? '')}</p>
-  <p><strong>I want:</strong> ${escapeHtml(us.iWant ?? '')}</p>
-  <p><strong>So that:</strong> ${escapeHtml(us.soThat ?? '')}</p>
-  ${fieldPara('Description', us.description)}
-  <section class="field-list"><h4>Requirement</h4><p>${docLink(us.reqId)}</p></section>
-  <section class="acceptance-criteria">
-    <h4>Acceptance criteria</h4>
-    <ul class="ac-list">
-      ${acItems}
-    </ul>
-  </section>
-  ${ctx.suppressRawJson ? '' : rawJsonDisclosure(ctx.raw, us, us.usId, prefix)}
-</article>`.trim();
+  // Optional parts (the broken banner, the description, the raw-JSON
+  // disclosure, an empty AC list) are dropped from the line list rather
+  // than interpolated as '', so an absent part leaves no whitespace-only
+  // line behind in the rendered page (and so none in the viewer golden).
+  const indented = (indent, html) => (html ? `${indent}${html}` : null);
+  return [
+    `<article id="${anchor}" class="doc doc-us">`,
+    `  <h3>${escapeHtml(us.usId ?? 'US')} - ${escapeHtml(us.title ?? '')}</h3>`,
+    indented('  ', broken),
+    `  <p><strong>As a:</strong> ${escapeHtml(us.asA ?? '')}</p>`,
+    `  <p><strong>I want:</strong> ${escapeHtml(us.iWant ?? '')}</p>`,
+    `  <p><strong>So that:</strong> ${escapeHtml(us.soThat ?? '')}</p>`,
+    indented('  ', fieldPara('Description', us.description)),
+    `  <section class="field-list"><h4>Requirement</h4><p>${docLink(us.reqId)}</p></section>`,
+    '  <section class="acceptance-criteria">',
+    '    <h4>Acceptance criteria</h4>',
+    '    <ul class="ac-list">',
+    indented('      ', acItems),
+    '    </ul>',
+    '  </section>',
+    indented('  ', ctx.suppressRawJson ? '' : rawJsonDisclosure(ctx.raw, us, us.usId, prefix)),
+    '</article>',
+  ].filter((line) => line !== null).join('\n');
 }
 
 function renderAcItem(ac, ctx, prefix) {

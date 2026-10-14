@@ -322,7 +322,6 @@
   <div class="rcf-row-body body">
     <article id="US-101" class="doc doc-us">
   <h3>US-101 - Initialise an RCF project on disk</h3>
-  
   <p><strong>As a:</strong> project owner starting a new RCF project</p>
   <p><strong>I want:</strong> to run a single initialise command that creates the rcf folder, the manifest and the root document placeholders</p>
   <p><strong>So that:</strong> I have a valid RCF project structure on disk without authoring any layout by hand</p>
@@ -395,7 +394,6 @@
   <div class="rcf-row-body body">
     <article id="US-102" class="doc doc-us">
   <h3>US-102 - Load and walk the tree</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to load the whole RCF tree from the on-disk files in one operation</p>
   <p><strong>So that:</strong> every later command works against a single, validated in-memory view of the project</p>
@@ -497,7 +495,6 @@
   <div class="rcf-row-body body">
     <article id="US-201" class="doc doc-us">
   <h3>US-201 - Render the tree as a diagram</h3>
-  
   <p><strong>As a:</strong> project owner who cannot read code</p>
   <p><strong>I want:</strong> a diagram of the whole RCF tree showing documents and the links between them</p>
   <p><strong>So that:</strong> I can see what is specified at a glance</p>
@@ -570,7 +567,6 @@
   <div class="rcf-row-body body">
     <article id="US-202" class="doc doc-us">
   <h3>US-202 - Browse the tree as a static page</h3>
-  
   <p><strong>As a:</strong> project owner</p>
   <p><strong>I want:</strong> a browsable static page of the whole tree that I can open locally</p>
   <p><strong>So that:</strong> I can read each document&#39;s content and follow its links without a server or a JSON viewer</p>
@@ -676,7 +672,6 @@
   <div class="rcf-row-body body">
     <article id="US-203" class="doc doc-us">
   <h3>US-203 - View reflects current on-disk state</h3>
-  
   <p><strong>As a:</strong> project owner</p>
   <p><strong>I want:</strong> the view to reflect exactly what is on disk at the moment it is generated</p>
   <p><strong>So that:</strong> I never review a stale snapshot</p>
@@ -738,7 +733,6 @@
   <div class="rcf-row-body body">
     <article id="US-204" class="doc doc-us">
   <h3>US-204 - An engineer sees the FBS DAG</h3>
-  
   <p><strong>As a:</strong> an engineer looking at the build sequence</p>
   <p><strong>I want:</strong> a dependency DAG of the FBS with click-to-highlight closure, an inspector and filters</p>
   <p><strong>So that:</strong> I can see what feeds what, pick the next buildable work and spot the critical path without reading JSON</p>
@@ -835,7 +829,6 @@
   <div class="rcf-row-body body">
     <article id="US-205" class="doc doc-us">
   <h3>US-205 - An engineer jumps to any document or AC by id</h3>
-  
   <p><strong>As a:</strong> an engineer looking at any tab of the review surface</p>
   <p><strong>I want:</strong> a modal that lets me jump to any document or AC by typing part of its id or title</p>
   <p><strong>So that:</strong> I can navigate the tree by id without hunting through the tabs</p>
@@ -946,7 +939,6 @@
   <div class="rcf-row-body body">
     <article id="US-206" class="doc doc-us">
   <h3>US-206 - wespa&#39;s embedding contract is proved by a CI host fixture</h3>
-  
   <p><strong>As a:</strong> Dex integrating the rcf-lite viewer behind wespa&#39;s reverse proxy</p>
   <p><strong>I want:</strong> a CI host fixture that proves the viewer honours the embedding contract and three lints that keep framing, target=&#39;_top&#39; and localStorage namespace in place over time; and a visible three-state theme control in the standalone viewer that is hidden under embed=1</p>
   <p><strong>So that:</strong> regressions in the embedding contract are caught in the viewer&#39;s own suite before they reach wespa, and standalone viewer users can switch theme without a URL edit</p>
@@ -1065,7 +1057,6 @@
   <div class="rcf-row-body body">
     <article id="US-207" class="doc doc-us">
   <h3>US-207 - Every viewer text and control colour pair meets WCAG 2.1 AA in both themes</h3>
-  
   <p><strong>As a:</strong> an engineer or reviewer looking at the review surface in either theme</p>
   <p><strong>I want:</strong> every text and control colour pair in the viewer to meet WCAG 2.1 AA in both themes, pinned by a test that fails the suite when a new rule breaks the floor</p>
   <p><strong>So that:</strong> the review surface stays readable in both themes and nobody has to re-do the audit by hand on every CSS change</p>
@@ -1129,7 +1120,6 @@
   <div class="rcf-row-body body">
     <article id="US-208" class="doc doc-us">
   <h3>US-208 - the viewer serves trace, impact and coverage for a selected node as JSON routes computed from the current tree</h3>
-  
   <p><strong>As a:</strong> an engineer or an embedding host using the viewer</p>
   <p><strong>I want:</strong> trace, impact and coverage for any id as JSON from the running viewer, computed from the same tree the page shows</p>
   <p><strong>So that:</strong> the viewer can render traceability on demand and an agent or host can read the same numbers without a terminal</p>
@@ -1241,7 +1231,6 @@
   <div class="rcf-row-body body">
     <article id="US-209" class="doc doc-us">
   <h3>US-209 - the viewer renders a trace matrix for a selected node and offers Trace on every id, retiring the Mermaid slice</h3>
-  
   <p><strong>As a:</strong> a product owner showing traceability or an engineer checking a requirement&#39;s reach</p>
   <p><strong>I want:</strong> a matrix from the chosen requirement down to its tests, with the unresolved cells visible, reachable from any id on the page</p>
   <p><strong>So that:</strong> the viewer demonstrates the traceability the method sells without a terminal</p>
@@ -1381,7 +1370,6 @@
   <div class="rcf-row-body body">
     <article id="US-301" class="doc doc-us">
   <h3>US-301 - Read any document</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to read any RCF document by its id</p>
   <p><strong>So that:</strong> I can inspect a document&#39;s current content without opening files by hand</p>
@@ -1454,7 +1442,6 @@
   <div class="rcf-row-body body">
     <article id="US-302" class="doc doc-us">
   <h3>US-302 - Create a document with parent linkage</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to create a new RCF document and have its parent linkage maintained</p>
   <p><strong>So that:</strong> the tree stays consistent without me editing two files by hand</p>
@@ -1527,7 +1514,6 @@
   <div class="rcf-row-body body">
     <article id="US-303" class="doc doc-us">
   <h3>US-303 - Update fields safely</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to update fields on an existing document</p>
   <p><strong>So that:</strong> I can revise content without rewriting the whole document or risking an invalid result</p>
@@ -1600,7 +1586,6 @@
   <div class="rcf-row-body body">
     <article id="US-304" class="doc doc-us">
   <h3>US-304 - Delete with reference safety</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to delete a document without silently orphaning the documents that depend on it</p>
   <p><strong>So that:</strong> I cannot accidentally break the tree</p>
@@ -1702,7 +1687,6 @@
   <div class="rcf-row-body body">
     <article id="US-401" class="doc doc-us">
   <h3>US-401 - Coverage report</h3>
-  
   <p><strong>As a:</strong> project owner</p>
   <p><strong>I want:</strong> a coverage report over the tree</p>
   <p><strong>So that:</strong> I can see at a glance what is unspecified or untested without reading every document</p>
@@ -1775,7 +1759,6 @@
   <div class="rcf-row-body body">
     <article id="US-402" class="doc doc-us">
   <h3>US-402 - Trace forward and back</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to trace from any document forward to its descendants and back to its ancestors</p>
   <p><strong>So that:</strong> I can follow an agreed decision down to the work that satisfies it, or a piece of work up to the decision it serves</p>
@@ -1848,7 +1831,6 @@
   <div class="rcf-row-body body">
     <article id="US-403" class="doc doc-us">
   <h3>US-403 - Impact analysis</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to ask what is affected if I change a given document</p>
   <p><strong>So that:</strong> I understand the ripple of an edit before I make it</p>
@@ -1950,7 +1932,6 @@
   <div class="rcf-row-body body">
     <article id="US-501" class="doc doc-us">
   <h3>US-501 - Assemble a build prompt</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to turn a Functional Build Specification into a single implementation prompt</p>
   <p><strong>So that:</strong> a coding agent has everything it needs to implement the slice, traceable to the acceptance criteria it must satisfy</p>
@@ -2023,7 +2004,6 @@
   <div class="rcf-row-body body">
     <article id="US-502" class="doc doc-us">
   <h3>US-502 - Build order respects dependencies</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> the build order to respect the dependency graph declared on the FBS items</p>
   <p><strong>So that:</strong> no slice is built before the work it depends on</p>
@@ -2096,7 +2076,6 @@
   <div class="rcf-row-body body">
     <article id="US-503" class="doc doc-us">
   <h3>US-503 - Mark a slice done</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> to mark a build slice done once it is finished</p>
   <p><strong>So that:</strong> the build sequence reflects real progress and the coverage report stays honest</p>
@@ -2198,7 +2177,6 @@
   <div class="rcf-row-body body">
     <article id="US-601" class="doc doc-us">
   <h3>US-601 - Query and view over MCP</h3>
-  
   <p><strong>As a:</strong> AI tool running in a harness</p>
   <p><strong>I want:</strong> the query and view operations exposed as MCP tools over local stdio</p>
   <p><strong>So that:</strong> I can read and report on the project&#39;s RCF tree without shelling out to the CLI</p>
@@ -2271,7 +2249,6 @@
   <div class="rcf-row-body body">
     <article id="US-602" class="doc doc-us">
   <h3>US-602 - CRUD and build over MCP</h3>
-  
   <p><strong>As a:</strong> AI tool running in a harness</p>
   <p><strong>I want:</strong> the CRUD and build operations exposed as MCP tools</p>
   <p><strong>So that:</strong> I can construct and maintain the RCF tree on the owner&#39;s behalf through structured tools that validate</p>
@@ -2373,7 +2350,6 @@
   <div class="rcf-row-body body">
     <article id="US-701" class="doc doc-us">
   <h3>US-701 - Refuse invalid writes</h3>
-  
   <p><strong>As a:</strong> project owner</p>
   <p><strong>I want:</strong> the tool to refuse to write any document that does not validate against the schema</p>
   <p><strong>So that:</strong> what is on disk is always valid, even though I cannot check it myself</p>
@@ -2446,7 +2422,6 @@
   <div class="rcf-row-body body">
     <article id="US-702" class="doc doc-us">
   <h3>US-702 - Clear validation errors</h3>
-  
   <p><strong>As a:</strong> project owner or AI tool</p>
   <p><strong>I want:</strong> validation failures reported as clear, structured errors</p>
   <p><strong>So that:</strong> I can understand and fix what is wrong without reading the schema</p>
@@ -2548,7 +2523,6 @@
   <div class="rcf-row-body body">
     <article id="US-801" class="doc doc-us">
   <h3>US-801 - Every build leaves a working local preview</h3>
-  
   <p><strong>As a:</strong> non-coding product owner</p>
   <p><strong>I want:</strong> every build to leave me a working, documented way to run the app locally</p>
   <p><strong>So that:</strong> I can see and use what was built without needing to deploy it anywhere first</p>
@@ -2633,7 +2607,6 @@
   <div class="rcf-row-body body">
     <article id="US-802" class="doc doc-us">
   <h3>US-802 - Deploy target is established before the stack is chosen</h3>
-  
   <p><strong>As a:</strong> non-coding product owner</p>
   <p><strong>I want:</strong> the tool to work out where my app will run before it picks the technology to build it with</p>
   <p><strong>So that:</strong> it does not build me something my hosting cannot actually run</p>
@@ -2718,7 +2691,6 @@
   <div class="rcf-row-body body">
     <article id="US-803" class="doc doc-us">
   <h3>US-803 - Hosting-choice guidance when the owner is unsure</h3>
-  
   <p><strong>As a:</strong> non-coding product owner who does not know my hosting options</p>
   <p><strong>I want:</strong> to be walked through choosing and setting up somewhere to run my app, in plain language</p>
   <p><strong>So that:</strong> I can make and act on the hosting decision without already being an expert</p>
@@ -2803,7 +2775,6 @@
   <div class="rcf-row-body body">
     <article id="US-804" class="doc doc-us">
   <h3>US-804 - Verification claims name their runtime</h3>
-  
   <p><strong>As a:</strong> non-coding product owner</p>
   <p><strong>I want:</strong> every claim that something was verified to say what it was verified against</p>
   <p><strong>So that:</strong> I am not told the deployed app works when only a local emulator was checked</p>
@@ -2888,7 +2859,6 @@
   <div class="rcf-row-body body">
     <article id="US-805" class="doc doc-us">
   <h3>US-805 - Interim self-review guidance</h3>
-  
   <p><strong>As a:</strong> non-coding product owner</p>
   <p><strong>I want:</strong> the build to include a periodic fresh look that actually drives the app against what it is supposed to do</p>
   <p><strong>So that:</strong> defects my passing tests miss are caught before I rely on the result</p>
@@ -3002,7 +2972,6 @@
   <div class="rcf-row-body body">
     <article id="US-901" class="doc doc-us">
   <h3>US-901 - Route the verify suite under the `rcf verify` group and delete the legacy alias bin</h3>
-  
   <p><strong>As a:</strong> consumer of the RCF Lite CLI</p>
   <p><strong>I want:</strong> to invoke the verify suite as `rcf verify &lt;verb&gt;` inside the unified CLI</p>
   <p><strong>So that:</strong> verify sits inside the same verb space as the rest of the RCF chain and I only have to install one package</p>
@@ -3104,7 +3073,6 @@
   <div class="rcf-row-body body">
     <article id="US-1001" class="doc doc-us">
   <h3>US-1001 - Blueprint verb family: add, list, remove, upgrade</h3>
-  
   <p><strong>As a:</strong> operator on an RCF project</p>
   <p><strong>I want:</strong> to add, list, remove and upgrade blueprints against my project tree from a single `rcf define blueprint` verb family</p>
   <p><strong>So that:</strong> composition is a first-class action instead of a one-shot init flag, and I can layer several blueprints across the life of a project without hand-editing the manifest</p>
@@ -3199,7 +3167,6 @@
   <div class="rcf-row-body body">
     <article id="US-1002" class="doc doc-us">
   <h3>US-1002 - Composition, namespaced ids and scope:global ADR conflict surfacing</h3>
-  
   <p><strong>As a:</strong> operator on an RCF project</p>
   <p><strong>I want:</strong> blueprint contributions to compose without id collisions, and for `scope: global` ADR conflicts to be surfaced with both sides visible before anything is written</p>
   <p><strong>So that:</strong> composition never silently merges incompatible whole-project decisions</p>
@@ -3349,7 +3316,6 @@
   <div class="rcf-row-body body">
     <article id="US-1003" class="doc doc-us">
   <h3>US-1003 - Standards ingestion: reference by default, copy only when out of root</h3>
-  
   <p><strong>As a:</strong> operator on an RCF project</p>
   <p><strong>I want:</strong> to register standards packs against my project tree, referencing in place when the source is already inside the repo and copying into `rcf/standards/&lt;slug&gt;/` only when the source lives outside the project root</p>
   <p><strong>So that:</strong> duplication inside the repo is not accepted, portability across machines is preserved for external sources, and the manifest is the single source of truth for what standards apply</p>
@@ -3433,7 +3399,6 @@
   <div class="rcf-row-body body">
     <article id="US-1004" class="doc doc-us">
   <h3>US-1004 - Selective retrieval at bundle assembly (contextRequirements.standardIds)</h3>
-  
   <p><strong>As a:</strong> operator on an RCF project with standards registered</p>
   <p><strong>I want:</strong> the bundle assembler to select relevant standards per FBS automatically, and to honour my override when I author the array on the FBS itself</p>
   <p><strong>So that:</strong> the default path does not require operator authoring and the override path exists when the agentic selection needs correcting</p>
@@ -3549,11 +3514,9 @@
   <div class="rcf-row-body body">
     <article id="US-1101" class="doc doc-us">
   <h3>US-1101 - Verify pins the Playwright MCP version and prints it in preflight</h3>
-  
   <p><strong>As a:</strong> operator running rcf verify as the ship gate</p>
   <p><strong>I want:</strong> the verify launcher to provision a version-pinned @playwright/mcp instead of @latest, print the effective pin in preflight, record it in the report, and honour an emergency override with a loud stderr notice</p>
   <p><strong>So that:</strong> a newly published Playwright MCP release cannot become a silent runtime change on the next verify run, and every report artefact carries the exact browser tooling version the pass ran against</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -3636,11 +3599,9 @@
   <div class="rcf-row-body body">
     <article id="US-1102" class="doc doc-us">
   <h3>US-1102 - Application-spa declares browserSurface and delivery-ci-workflows materialises an e2e CI job</h3>
-  
   <p><strong>As a:</strong> operator applying the application-spa and delivery-ci-workflows blueprints</p>
   <p><strong>I want:</strong> the SPA blueprint&#39;s manifest to declare a browserSurface field, its browser-facing acceptance criteria and e2e test-case template to ship, and the delivery-ci-workflows materialiser to wire a distinct e2e CI job when at least one applied blueprint carries a browserSurface</p>
   <p><strong>So that:</strong> e2e is a first-class declared test level in the chain, and browser-facing projects get a distinct pull-request-checks e2e job while API-only projects keep the existing workflow shape verbatim</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -3735,11 +3696,9 @@
   <div class="rcf-row-body body">
     <article id="US-1103" class="doc doc-us">
   <h3>US-1103 - rcf doctor checks Playwright and a browser on browser-facing projects and skips them otherwise</h3>
-  
   <p><strong>As a:</strong> operator running rcf doctor on either a browser-facing or an API-only project</p>
   <p><strong>I want:</strong> doctor to run playwright-present, browser-present, and playwright-mcp-reachable checks when at least one applied blueprint declares a browserSurface, and to skip all three with one printed reason line otherwise</p>
   <p><strong>So that:</strong> browser-facing projects surface missing Playwright, missing browser, or an unreachable @playwright/mcp with actionable fix lines, while API-only projects are not asked to install a browser stack they will never use</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -3822,11 +3781,9 @@
   <div class="rcf-row-body body">
     <article id="US-1104" class="doc doc-us">
   <h3>US-1104 - rcf init writes a Playwright MCP entry only when no scope-visible entry exists</h3>
-  
   <p><strong>As a:</strong> operator running rcf init on a project with or without an ambient Playwright MCP entry</p>
   <p><strong>I want:</strong> init to detect a project-scope Playwright signature by command-tail matching, probe user scope via claude mcp list where the Claude Code harness is on PATH, write a distinctly named playwright-rcf project-scope entry only when it cannot prove any Playwright entry exists at any scope, and honour --no-playwright-mcp</p>
   <p><strong>So that:</strong> an operator with a user-scope Playwright MCP entry in Claude Code keeps it (init never shadows it) and an operator with none gets a working project-scope entry that shadows nothing at any scope by naming convention</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-011">REQ-011</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -3953,11 +3910,9 @@
   <div class="rcf-row-body body">
     <article id="US-1201" class="doc doc-us">
   <h3>US-1201 - observability-essentials + observability-probe-endpoints + application-api-rest compose cleanly in every ordering with no globalAdrTopic conflict on healthProbes or readinessSemantics</h3>
-  
   <p><strong>As a:</strong> operator applying the three post-alignment observability + api-rest blueprints on one project in any order</p>
   <p><strong>I want:</strong> the three amended blueprints (essentials v2.0.0, probe-endpoints v1.1.0, api-rest v2.0.0) to apply cleanly in every ordering, with observability-probe-endpoints as the sole scope:global claimant of healthProbes and readinessSemantics in the resulting manifest</p>
   <p><strong>So that:</strong> a project that reaches for all three shipped blueprints inherits a single-owner probe-path surface without an operator-side supersede ADR or a manifest-editing follow-up</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4017,11 +3972,9 @@
   <div class="rcf-row-body body">
     <article id="US-1202" class="doc doc-us">
   <h3>US-1202 - The applied tree carries no literal probe path (/healthz, /readyz, /healthz/*) outside observability-probe-endpoints prose</h3>
-  
   <p><strong>As a:</strong> operator or reviewer grepping an applied project tree for literal probe paths after re-applying the three amended blueprints</p>
   <p><strong>I want:</strong> zero matches for /healthz, /readyz, /healthz/live, /healthz/ready or /healthz/startup in the applied `rcf/` tree, so the shelf ships one probe-path opinion (the resolved one) and no rogue literals</p>
   <p><strong>So that:</strong> a project that composes the three shipped blueprints never inherits a stale literal path binding that disagrees with the resolved probe path set</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4069,11 +4022,9 @@
   <div class="rcf-row-body body">
     <article id="US-1203" class="doc doc-us">
   <h3>US-1203 - Each amended blueprint carries the ratified alignment facts: probe-endpoints optional startup + composing section; essentials path-neutral REQs/TACs and PROBE_INTERFACE_PATHS_MISSING; api-rest defers all probe paths</h3>
-  
   <p><strong>As a:</strong> reviewer walking the three amended blueprint source directories after the alignment lands</p>
   <p><strong>I want:</strong> each blueprint to carry the shape the spec ratified: observability-probe-endpoints v1.1.0 adds the optional startup path and a composing section; observability-essentials v2.0.0 restates REQ-001/002 and TAC-801/802 path-neutral and names the PROBE_INTERFACE_PATHS_MISSING boot refusal; application-api-rest v2.0.0 defers probe paths to the resolved set with a matching AC on the auth-exempt list and a startup AC that consumes the optional path</p>
   <p><strong>So that:</strong> a downstream project (or a gate reviewer walking the shelf) reads the ratified alignment off the source blueprints directly, without needing to reconstruct the intent from the spec</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4145,11 +4096,9 @@
   <div class="rcf-row-body body">
     <article id="US-1204" class="doc doc-us">
   <h3>US-1204 - Operator running `rcf define blueprint remove-resolution &lt;adr-id&gt;` drops a redundant historical resolutions[] entry cleanly (spec section 9 remedy)</h3>
-  
   <p><strong>As a:</strong> operator running `rcf doctor --check probe-path-owner` on a project that upgraded to observability-essentials v2.0.0 + observability-probe-endpoints v1.1.0 and now sees a redundant-&lt;topic&gt;-resolution drift line</p>
   <p><strong>I want:</strong> the `rcf define blueprint remove-resolution &lt;adr-id&gt;` verb the drift line and section 9 name to actually exist, drop the named manifest.resolutions[] entry (and nothing else), refuse exit 2 when the id is not a resolution entry, and be idempotent on a second run</p>
   <p><strong>So that:</strong> the section 9 migration remedy printed by the doctor is executable verbatim, and re-running the same command after a successful pass is a no-op rather than a refusal</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-012">REQ-012</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4229,11 +4178,9 @@
   <div class="rcf-row-body body">
     <article id="US-1301" class="doc doc-us">
   <h3>US-1301 - Core shelf ships observability-logging v1.0.0 with providesRoles logging and the shelf-canonical logging global topic</h3>
-  
   <p><strong>As a:</strong> operator running rcf define blueprint add on a fresh project that needs a general-enterprise-practice logging contract</p>
   <p><strong>I want:</strong> the shipped core shelf to carry an observability-logging blueprint (v1.0.0) that provides the logging role, mints the logging global topic on ADR-1601, and applies cleanly into a fixture project alongside every other shipped shelf blueprint</p>
   <p><strong>So that:</strong> a project falls back to a sensible logging contract without registering any library, the mechanism in REQ-014 has a shelf provider to resolve to, and the logging global topic has one owner on the shelf</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-013">REQ-013</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4305,11 +4252,9 @@
   <div class="rcf-row-body body">
     <article id="US-1302" class="doc doc-us">
   <h3>US-1302 - Core shelf ships application-error-handling v1.0.0 with providesRoles errorHandling and mints the errorHandling global topic</h3>
-  
   <p><strong>As a:</strong> operator running rcf define blueprint add on a fresh project that needs a transport-agnostic error-handling contract</p>
   <p><strong>I want:</strong> the shipped core shelf to carry an application-error-handling blueprint (v1.0.0) that provides the errorHandling role, mints the errorHandling global topic on ADR-1701 (distinct from errorEnvelope), and applies cleanly into a fixture project</p>
   <p><strong>So that:</strong> a project falls back to a sensible error-handling contract without registering any library, and the internal error record shape sits one project decision above any transport-specific error-envelope decision</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-013">REQ-013</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4413,11 +4358,9 @@
   <div class="rcf-row-body body">
     <article id="US-1401" class="doc doc-us">
   <h3>US-1401 - Loader accepts and validates providesRoles[] and suggestedCompanions[] on blueprint.json (shape + camelCase + paired-ADR + reason-string)</h3>
-  
   <p><strong>As a:</strong> blueprint author declaring a companion suggestion or a role provided on a shipped blueprint</p>
   <p><strong>I want:</strong> the loader to accept two additive top-level fields on blueprint.json, validate their shape at load time, and refuse a mis-authored file before the tree is touched</p>
   <p><strong>So that:</strong> a service blueprint can name the roles it recommends and a provider blueprint can name the roles it provides, and mis-shaped or unpaired declarations never reach apply</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-014">REQ-014</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4489,11 +4432,9 @@
   <div class="rcf-row-body body">
     <article id="US-1402" class="doc doc-us">
   <h3>US-1402 - `rcf define blueprint add` prints resolved companion suggestions and accepts --companion selectors that persist to rcf/companions.json</h3>
-  
   <p><strong>As a:</strong> operator running rcf define blueprint add on a service blueprint that declares suggestedCompanions[]</p>
   <p><strong>I want:</strong> the apply to print the resolved companion set as a suggestion block after a successful apply, and to accept `--companion &lt;role&gt;=&lt;slug&gt;` selectors that record my choice to rcf/companions.json for future runs</p>
   <p><strong>So that:</strong> the mechanism surfaces the suggestion at the moment of the apply, my explicit selection at apply time survives to future re-runs without repeating the flag, and the apply itself never adopts a companion on my behalf</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-014">REQ-014</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4565,11 +4506,9 @@
   <div class="rcf-row-body body">
     <article id="US-1403" class="doc doc-us">
   <h3>US-1403 - `rcf define blueprint companions` verb: three sub-verbs (print resolution, set pin, unset pin) with --json on all three</h3>
-  
   <p><strong>As a:</strong> operator inspecting or pinning companion suggestions on an applied service blueprint outside the apply flow</p>
   <p><strong>I want:</strong> a `rcf define blueprint companions &lt;slug&gt;` sub-verb that prints the resolved companion set for one applied service blueprint, `rcf define blueprint companions set &lt;role&gt; &lt;slug&gt;` that writes a project-level pin to rcf/companions.json, and `rcf define blueprint companions unset &lt;role&gt;` that removes a pin</p>
   <p><strong>So that:</strong> I can read the current resolution without re-applying, pin a decision the operator makes outside the apply, and lift a pin cleanly</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-014">REQ-014</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4641,11 +4580,9 @@
   <div class="rcf-row-body body">
     <article id="US-1404" class="doc doc-us">
   <h3>US-1404 - Resolution rule prefers applied &gt; registered library &gt; core shelf; two libraries on one role refuse exit 3; validate refuses an unresolvable pin exit 3</h3>
-  
   <p><strong>As a:</strong> operator resolving a companion suggestion on a project with a registered library that provides the same role as the shelf</p>
   <p><strong>I want:</strong> the deterministic tier ladder (applied provider wins, single library candidate wins over shelf, two library candidates refuse with the explicit three-path resolution message, shelf provider is the terminal fallback) and validate to refuse a pin that names no known provider</p>
   <p><strong>So that:</strong> the operator&#39;s opt-in to a library is honoured over the shelf, ambiguity refuses with the explicit remedy paths rather than picking silently, and a stale pin cannot silently drift after a library is removed</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-014">REQ-014</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4749,11 +4686,9 @@
   <div class="rcf-row-body body">
     <article id="US-1501" class="doc doc-us">
   <h3>US-1501 - Loader accepts standardsTrace[], recommendedDefault, elicited and standardsTraceClause; refuses a declared standardsTrace missing a clause reference on any ADR contribution</h3>
-  
   <p><strong>As a:</strong> library author writing a standards-derived blueprint (e.g. wsd-logging composing on WSD-001)</p>
   <p><strong>I want:</strong> the loader to accept a blueprint-level standardsTrace[] and per-ADR-contribution recommendedDefault, elicited and standardsTraceClause fields, and refuse the load when standardsTrace[] is declared but any ADR contribution has no standardsTraceClause</p>
   <p><strong>So that:</strong> the standards-derived discipline is machine-checkable at load time and a mis-authored library blueprint fails fast, before an apply lands into the tree</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-015">REQ-015</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -4856,7 +4791,6 @@
   <div class="rcf-row-body body">
     <article id="US-1601" class="doc doc-us">
   <h3>US-1601 - The four-track eval-node surface (audit / verdict / finalise / define) reads a single spec across four independent consumers</h3>
-  
   <p><strong>As a:</strong> project owner shipping non-deterministic behaviour on an rcf-lite project</p>
   <p><strong>I want:</strong> rcf-lite to speak the eval-node surface at every stage of the build cycle</p>
   <p><strong>So that:</strong> a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models</p>
@@ -4974,7 +4908,6 @@
   <div class="rcf-row-body body">
     <article id="US-1701" class="doc doc-us">
   <h3>US-1701 - Blueprint-shipped browser-verify probe packs load, scope to real surfaces, and gate ship on runtime failure</h3>
-  
   <p><strong>As a:</strong> blueprint author shipping runtime-observable visual ACs alongside contributions</p>
   <p><strong>I want:</strong> the browser-verify runner to discover, scope and run my blueprint&#39;s probe pack, and record each check against the AC it names</p>
   <p><strong>So that:</strong> a runtime-observable AC that a Node build-scan cannot see (grid announcements, keyboard traversal, live-region text after a synthetic event) is compelled at ship the same way an invariant or an auth-smoke fail is compelled, and the run-4 pack-fires-on-every-FBS residual is cured at load time</p>
@@ -5101,11 +5034,9 @@
   <div class="rcf-row-body body">
     <article id="US-1801" class="doc doc-us">
   <h3>US-1801 - The application-datatable blueprint ships on the shelf and its probe pack refuses ship on a broken surface</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-datatable v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, its Playwright probe pack, and a sample-app fixture proving both to load, apply and gate ship the way the T-0 runner extension expects</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the datatable ACs, the pack that runs them, and a golden fixture the pack refuses on a broken surface</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-018">REQ-018</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -5205,11 +5136,9 @@
   <div class="rcf-row-body body">
     <article id="US-1901" class="doc doc-us">
   <h3>US-1901 - The application-charts blueprint ships on the shelf and its probe pack refuses ship on a broken chart surface</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-charts v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, its Playwright probe pack anchoring non-colour distinction, text-alternative table and keyboard traversal, and a sample-app fixture proving both to load, apply and gate ship the way the T-0 runner extension expects</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the chart-accessibility ACs, the pack that runs them, and a golden fixture the pack refuses on a chart surface that drops the text-alternative table or the non-colour pattern.</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-019">REQ-019</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -5329,11 +5258,9 @@
   <div class="rcf-row-body body">
     <article id="US-2001" class="doc doc-us">
   <h3>US-2001 - The application-dashboard blueprint ships on the shelf with its packaged design-guidance asset and probe pack refuses ship on a broken dashboard surface</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-dashboard v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the packaged design-guidance asset, the Playwright probe pack anchoring primary-KPI position, timeframe refetch fan-out and per-tile state contract, and a sample-app fixture proving the pack passes on a compliant surface and refuses on a broken one</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the dashboard-shape ACs, the operator-facing design guidance the applying agent reads at ship, the pack that runs the three runtime-observable ACs, and a golden fixture the pack refuses on a surface that drops the primary-KPI placement or the timeframe fan-out or the four-state distinction</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-020">REQ-020</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -5442,11 +5369,9 @@
   <div class="rcf-row-body body">
     <article id="US-2101" class="doc doc-us">
   <h3>US-2101 - The application-notifications-in-app blueprint ships on the shelf and its probe pack refuses ship on a broken notifications surface</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-notifications-in-app v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring live-region preseeding, the transient toast contract with priority-to-role mapping and timeout floor, and the notification-centre acknowledge round-trip, plus a sample-app fixture proving the pack passes on a compliant surface and refuses on the four break switches</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the in-app notifications-shape ACs, the pack that runs the three runtime-observable ACs, and a golden fixture the pack refuses on a surface that lazy-inserts the wrappers, inverts the priority-to-role mapping, dismisses toasts below the WCAG 2.2.1 floor, or drops the acknowledge POST</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-021">REQ-021</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -5548,11 +5473,9 @@
   <div class="rcf-row-body body">
     <article id="US-2201" class="doc doc-us">
   <h3>US-2201 - The capability-declaration mechanism lands in the loader and apply verb; the four shelf auth blueprints adopt it in v1.1.0 minor bumps</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying a consumer blueprint that gates surfaces on identity or platform capabilities</p>
   <p><strong>I want:</strong> the blueprint loader to accept capabilities[], elicits[] and requiresAppliedCapabilities on blueprint.json with shape validation, the apply verb to discover applied capabilities by reading each applied blueprint&#39;s source blueprint.json, refuse admin-console-shaped applies with the spec 5.5.1 verbatim message when no required capability is applied and --allow-no-auth-yet is absent, prompt an elicitation phase gated by the discovered capabilities, and persist appliedCapabilities and appliedElicitations to rcf/blueprints/${slug}.applied.json; and the four shelf auth blueprints to declare capabilities[] in v1.1.0 minor bumps landing in the same PR</p>
   <p><strong>So that:</strong> a project applying admin-console (or any future capability-gated blueprint) gets deterministic apply-time surface configuration, a bare-SPA apply is refused with the operator-friendly message the spec ratified, custom-auth projects elicit their answers into a persistent record the console reads, and the four shelf auth blueprints announce their identity capability set in one release train per spec Q2 default</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-022">REQ-022</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -5675,11 +5598,9 @@
   <div class="rcf-row-body body">
     <article id="US-2301" class="doc doc-us">
   <h3>US-2301 - The application-admin-console blueprint ships on the shelf; its probe pack fires only on applied capabilities and refuses on a broken admin surface</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-admin-console v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files with a users, roles, orgs, audit-log surface set that self-configures from the applied capability declarations, the Playwright probe pack whose four checks each gate their fire on the applied capability, and a sample-app fixture proving the pack passes on a compliant surface, records applicable: false where the capability is absent, and refuses on the three break switches</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets a vendor-neutral admin console conditional on what identity blueprint is applied, no dead links to unapplied capabilities, the pack that proves the ARIA APG grid pattern on the permission matrix, the request-log ACs on the audit view, and a golden fixture the pack refuses on a surface that loses the grid roles, drops the request-access control, or writes an audit entry missing the correlation id</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-023">REQ-023</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -5789,7 +5710,6 @@
   <div class="rcf-row-body body">
     <article id="US-2401" class="doc doc-us">
   <h3>US-2401 - The application-empty-error-states blueprint ships on the shelf with its eight-state pack and sample-app fixture; the pack refuses on the four break switches</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-empty-error-states v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the eight named states of the empty and error catalogue, the recovery-action router across parent-surface search request-access and retry, the offline state with the write-buffer contract, and a sample-app fixture proving the pack passes on a compliant surface and refuses on the four break switches</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the eight-state contract with a runtime-verified pack, the least-privilege surface for the 500 and 403 states, and a golden fixture the pack refuses on a surface that leaks a stack trace, leaks a resource id, drops a recovery affordance, or drops the polite live-region wrapper</p>
@@ -5970,7 +5890,6 @@
   <div class="rcf-row-body body">
     <article id="US-2501" class="doc doc-us">
   <h3>US-2501 - The application-file-upload blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-file-upload v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the file-upload contract (input surface with a labelled file input plus drop-zone plus keyboard alternative, transport contract with a chunked path and a refusal contract, and a progress announcer with a polite tick and an assertive completion), and a sample-app fixture proving the pack passes on both transport branches multipart POST and tus.io and refuses on the four break switches</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the WCAG 2.5.7 dragging-movements safe file-upload contract with a runtime-verified pack, one recommended transport with two elicited alternatives, and a golden fixture the pack refuses on a surface that drops the file input, drops the polite live-region, ships a refused file to the server or collapses the chunked path</p>
@@ -6137,7 +6056,6 @@
   <div class="rcf-row-body body">
     <article id="US-2601" class="doc doc-us">
   <h3>US-2601 - The application-forms-wizard blueprint ships on the shelf with its four-check pack and sample-app fixture; the pack refuses on the four break switches</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-forms-wizard v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks of the wizard contract (task-list contract with the closed GOV.UK vocabulary, error-summary contract with the top-of-page summary and aria bindings, summary-review pattern with the change-per-row and answer retention, and save-and-return contract with a server-side draft table or a client-side local buffer with a sync tick), and a sample-app fixture proving the pack passes on the honest render of the four wizard surfaces and refuses on the four break switches</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the WCAG 2.2 AA compliant multi-step forms contract with a runtime-verified pack, the GOV.UK Design System task-list pattern out of the box, one recommended navigation posture with an elicited alternative, two save-and-return transports with no default so the abandoned-draft loss class does not ship silently, and a golden fixture the pack refuses on a surface that swaps a state string away from the closed vocabulary, drops the error summary, drops answer retention on the summary review, or drops the draft transport altogether</p>
@@ -6392,11 +6310,9 @@
   <div class="rcf-row-body body">
     <article id="US-2701" class="doc doc-us">
   <h3>US-2701 - The application-account-settings blueprint ships on the shelf with its 5-check pack and sample-app fixture; the pack refuses on the four break switches; the four auth minors and the observability-logging minor bump ship in the same PR with the extended section 6a capability table</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-account-settings v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the five surface-observable checks (shell tabs, profile autocomplete, security branch, sessions dialog-modal, theme radiogroup) with capability-gated appliesTo, and a sample-app fixture proving the pack passes on the honest render of the five conditional surfaces and fails on the four break switches; the four auth blueprint minor bumps and the observability-logging minor bump riding the same PR extending the section 6a capability table with credentialSelfService sessionInventory and hostedIdentityUi</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets the WCAG 2.2 AA compliant account-settings surface with a runtime-verified pack that gates on the applied capability set (no bespoke work when magic-link is applied and only profile activates; the security surface renders self-service on Keycloak or hosted-link-out on Clerk; the sessions surface renders on any applied sessionInventory provider including observability-logging as the logging-projection provider), one recommended default per elicit where honest and no recommended default on security-surface-shape where dishonest</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-027">REQ-027</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -6532,11 +6448,9 @@
   <div class="rcf-row-body body">
     <article id="US-2801" class="doc doc-us">
   <h3>US-2801 - The application-onboarding-tour blueprint ships on the shelf with its 4-check pack and sample-app fixture; the pack refuses on the four break switches; the tour composes on dashboard notifications-in-app account-settings and the SPA with the documented fallback per Q4 when no persistence blueprint is applied</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the application-onboarding-tour v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files, the Playwright probe pack anchoring the four surface-observable checks (step-container focus and Escape, tooltip-as-dialog contract, checklist slot with dashboard-when-applied and settings-page-when-not, completion-state persistence per the elicited store shape) with the pack composing on the applied blueprint set (dashboard for the anchor slot, notifications-in-app for the completion announcement, account-settings for the restart control, any auth for the per-principal state) and a sample-app fixture proving the pack passes on both the ?apps=dashboard and ?apps= (empty) branches plus multiple ?store= branches and refuses on the four break switches</p>
   <p><strong>So that:</strong> a project consuming rcf-lite gets a WCAG 2.2 AA compliant onboarding-tour surface (2.1.1 Keyboard, 2.1.2 No Keyboard Trap, 2.4.11 Focus Not Obscured Minimum, 2.4.3 Focus Order) built on the ARIA APG dialog-modal pattern, a first-run checklist that renders on the dashboard shell when application-dashboard is applied and collapses to the settings page when not, three-to-five steps with per-step content owned by the project voice, one recommended default per elicit (dismissal policy dismiss-permanently, completion-state store spa-local-storage per Q4 when no persistence blueprint is applied, checklist anchor derived at apply time), and a documented restart-tour affordance on the settings surface</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-028">REQ-028</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -6652,11 +6566,9 @@
   <div class="rcf-row-body body">
     <article id="US-2901" class="doc doc-us">
   <h3>US-2901 - T-0 delta on deploy-cloudflare-workers v1.2.0 shelf: seven-contribution additive minor bump plus cf-platform fixture with the assets-manifest-scan probe passing</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a fresh SPA-on-Workers project</p>
   <p><strong>I want:</strong> the shipped v1.2.0 blueprint files (blueprint.json version 1.2.0 with the seven-contribution delta on top of the v1.1.0 shipped set; two new REQ contributions deploy-cloudflare-workers-REQ-013 and REQ-014; three new US contributions in the existing 12xx band deploy-cloudflare-workers-US-12113 SPA-on-Workers deploy, US-12114 assets-directory elicitation, US-12115 migrate-from-Pages guidance; one new ADR contribution ADR-1306-deploy-cloudflare-workers-spa-shape with the verbatim Cloudflare Pages landing-page quote and standardsTraceClause Cloudflare Pages landing-page recommendation 2026-09-06; one new probe module assets-manifest-scan.mjs anchored to AC-2901-2 assetsBlockEmitted; two new elicits assets-directory and run-worker-first) proven against the cf-platform shared sample-app fixture</p>
   <p><strong>So that:</strong> a rcf-lite project applying deploy-cloudflare-workers v1.2.0 gets a Workers-with-static-assets shape ratified over Pages for greenfield SPA-on-Workers projects (per the Cloudflare Pages landing-page recommendation, verbatim quoted on ADR-1306), an elicited [assets] directory in wrangler.toml, a probed assertion of the emitted assets block, an unchanged v1.1.0 contribution set (12 REQs, 12 USs, 6 TACs, 5 ADRs, deploymentTarget global topic, suggestedCompanions logging and errorHandling), and a shared sample-app fixture that T-1 through T-3 and T-5 extend later</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-029">REQ-029</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -6730,11 +6642,9 @@
   <div class="rcf-row-body body">
     <article id="US-2902" class="doc doc-us">
   <h3>US-2902 - T-0 assets-directory and run-worker-first elicits on blueprint.json top-level elicits[] and baked into the cf-platform fixture wrangler.toml</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint who wants the two new elicits to appear in the operator elicit prompt with sane defaults</p>
   <p><strong>I want:</strong> the blueprint.json top-level elicits[] to declare both new entries (assets-directory kind string default empty; run-worker-first kind boolean default false), the CLI to accept --answer assets-directory=&lt;path&gt; and --answer run-worker-first=&lt;bool&gt; at blueprint add, and the generated wrangler.toml under the applied project to reflect the answered values</p>
   <p><strong>So that:</strong> a project answering assets-directory=./dist gets [assets] directory = &quot;./dist&quot; emitted in its wrangler.toml, a project not answering assets-directory keeps the bare-Worker shape without any [assets] block, and the two elicits do not affect any shipped v1.1.0 contribution</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-029">REQ-029</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -6865,11 +6775,9 @@
   <div class="rcf-row-body body">
     <article id="US-3001" class="doc doc-us">
   <h3>US-3001 - T-0 ADR-1306-deploy-cloudflare-workers-spa-shape, guide section with migrate-from-Pages link, and probed spaFallbackShape with induced-failure switches</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-cloudflare-workers v1.2.0 blueprint on a project migrating from Cloudflare Pages</p>
   <p><strong>I want:</strong> an ADR blessing the Workers-with-static-assets shape as the ratified SPA-on-Workers deploy shape over Pages (ADR-1306-deploy-cloudflare-workers-spa-shape) carrying the verbatim Cloudflare Pages landing-page recommendation, a guide section titled Workers-with-static-assets: the SPA-on-Workers shape that links the Cloudflare migrate-from-Pages guide, and the SPA fallback discipline elicited via run_worker_first so a truthy answer emits run_worker_first = true under the [assets] block on the generated wrangler.toml</p>
   <p><strong>So that:</strong> a project can read the ratified shape decision with its standards trace to Cloudflare&#39;s own landing-page recommendation and know exactly how to migrate its Pages routing to Workers</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-030">REQ-030</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7022,11 +6930,9 @@
   <div class="rcf-row-body body">
     <article id="US-4001" class="doc doc-us">
   <h3>US-4001 - The persistence-data-postgres blueprint ships on the shelf; six Node-only probes pass against a live postgres:17-alpine container and refuse on each induced failure</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the persistence-data-postgres v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files with 26 contributions and six probes, a sample-app fixture that boots postgres:17-alpine and applies three toy forward-only migrations, and gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch</p>
   <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets a facade contract over pg with numbered forward-only migrations, prepared-statement discipline, transactional atomicity, a two-path recovery model, and pool posture per deploy target, with runtime-observable ACs proven by probes the HQ gate runs against a real Postgres container rather than a simulated harness</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-040">REQ-040</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7158,11 +7064,9 @@
   <div class="rcf-row-body body">
     <article id="US-4101" class="doc doc-us">
   <h3>US-4101 - The object-storage-s3 blueprint ships on the shelf with five MinIO probes plus one accountBound R2 smoke</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the object-storage-s3 v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files with 21 contributions, six probes, and the T-2 side of the shared sample-app fixture that boots MinIO and applies the security-secrets-management shim, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch</p>
   <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets an S3-shape facade over @aws-sdk/client-s3 or aws4fetch with put/get/delete/list, presigned URLs with bounded TTL, multipart-upload above threshold, a lifecycle-event sink with metadata-only fields, and a compose-time refusal on missing security-secrets-management, with runtime-observable ACs proven by probes the HQ gate runs against a real MinIO container</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-041">REQ-041</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7406,11 +7310,9 @@
   <div class="rcf-row-body body">
     <article id="US-4201" class="doc doc-us">
   <h3>US-4201 - The messaging-queue-cloudflare blueprint ships on the shelf with four wrangler-dev probes plus one accountBound real-account concurrency smoke</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the messaging-queue-cloudflare v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files with 20 to 24 contributions, six probes, and the T-3 side of the shared sample-app fixture that boots a Cloudflare Worker under wrangler dev with a queue binding and a DLQ binding, plus gate-runnable proof that every probe passes on the canonical fixture state and refuses on each induced-failure switch</p>
   <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets a producer facade over the Cloudflare Queues binding with publish, consume, ack, retry, and DLQ, a lifecycle-event sink with metadata-only fields, and the queue capability the jobs-background blueprint composes on at apply time, with runtime-observable ACs proven by probes the HQ gate runs against a real wrangler dev process</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-042">REQ-042</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7588,11 +7490,9 @@
   <div class="rcf-row-body body">
     <article id="US-4301" class="doc doc-us">
   <h3>US-4301 - The jobs-background blueprint ships on the shelf with five probes wired to the T-3 in-memory queue seam</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the jobs-background v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped blueprint files with 22 contributions, five probes, an extension to the shared sample-app fixture wiring the jobs runtime and scheduler on top of the T-3 in-memory queue seam, plus gate-runnable proof that apply refuses on a bare project with exit 3 and the stable message id, --allow-no-queue-yet writes a sidecar note, and every probe passes on the canonical fixture state</p>
   <p><strong>So that:</strong> a rcf-lite project applying this blueprint gets a job-definition contract with retry policy and timeout, an elicited scheduler (inProcess for now, workerCron or external for shipped adapters, workflows reserved for v1.1.0), a metadata-only run-log event stream at four moments, and the backgroundJobs capability future consumer blueprints can compose on; the T-5 capability-consumer mechanism is exercised end to end through the queue-capability path with runtime-observable ACs proven by probes the HQ gate runs against the shared sample-app fixture</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-043">REQ-043</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7762,11 +7662,9 @@
   <div class="rcf-row-body body">
     <article id="US-5001" class="doc doc-us">
   <h3>US-5001 - T-1 KV facade opens against the elicited KV binding on boot and emits facadeReady</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-cloudflare-kv v1.0.0 blueprint on a Workers project using the cf-platform fixture</p>
   <p><strong>I want:</strong> one KV facade module (src/kv-facade.mjs) that opens against the elicited KV binding on process boot and emits a facadeReady lifecycle event with a metadata-only payload</p>
   <p><strong>So that:</strong> boot ordering is observable, the ready-check seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-050">REQ-050</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7816,11 +7714,9 @@
   <div class="rcf-row-body body">
     <article id="US-5002" class="doc doc-us">
   <h3>US-5002 - T-1 KV facade module is the sole reader of the KV binding grep-verified on the applied fixture tree</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> the KV binding reference (env.CACHE) to appear in exactly one source module (src/kv-facade.mjs)</p>
   <p><strong>So that:</strong> the vendor surface is diffused across zero call sites outside the facade, and a future adapter swap lands without moving any AC</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-050">REQ-050</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7900,11 +7796,9 @@
   <div class="rcf-row-body body">
     <article id="US-5101" class="doc doc-us">
   <h3>US-5101 - T-1 typed put get delete round-trip against the KV driver realises the Workers KV binding shape</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> typed put and get verbs that round-trip a value through the KV driver realising the Workers KV binding shape</p>
   <p><strong>So that:</strong> the applied project can persist a small piece of state and read it back deterministically, in the same shape the real Workers KV binding would present</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-051">REQ-051</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -7966,11 +7860,9 @@
   <div class="rcf-row-body body">
     <article id="US-5102" class="doc doc-us">
   <h3>US-5102 - T-1 list with prefix returns every key under the prefix with metadata shape intact</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> facade.list({prefix}) to return every key under a prefix with the metadata shape intact</p>
   <p><strong>So that:</strong> the applied project can enumerate feature flags, sessions, or any prefix-scoped collection through one seam</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-051">REQ-051</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8050,11 +7942,9 @@
   <div class="rcf-row-body body">
     <article id="US-5201" class="doc doc-us">
   <h3>US-5201 - T-1 cache-aside helper: hit-then-miss with a fake clock proves one origin call within TTL and a second past TTL</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> the cache-aside helper to read from KV first and fall back to origin on miss, writing back with the elicited TTL</p>
   <p><strong>So that:</strong> the origin surface (a database, a downstream service) is spared one call per cached hit within TTL</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-052">REQ-052</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8146,11 +8036,9 @@
   <div class="rcf-row-body body">
     <article id="US-5301" class="doc doc-us">
   <h3>US-5301 - T-1 lifecycle events fire on facadeReady kvHit kvMiss kvWrite with metadata-only payload</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> the facade to emit facadeReady kvHit kvMiss kvWrite events with metadata-only payload on the injected sink</p>
   <p><strong>So that:</strong> the applied logging companion can render KV activity without ever writing a body byte to the log stream</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-053">REQ-053</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8200,11 +8088,9 @@
   <div class="rcf-row-body body">
     <article id="US-5302" class="doc doc-us">
   <h3>US-5302 - T-1 event secrecy: no body bytes no PII no user id beyond the key ever reach the event sink</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> the event-secrecy probe to prove no body bytes or PII ever reach the event sink</p>
   <p><strong>So that:</strong> the operator can trust that a KV that holds a PII fixture (users/1234/profile with SSN) never leaks the body to the log stream even under a mutation-run</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-053">REQ-053</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8284,11 +8170,9 @@
   <div class="rcf-row-body body">
     <article id="US-5401" class="doc doc-us">
   <h3>US-5401 - T-1 real-account eventual-consistency smoke: write eventually appears on a global read within a bounded 60-second cap or records accountBoundSkipped in CI</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying platform-cloudflare-kv v1.0.0 in CI with real Cloudflare credentials</p>
   <p><strong>I want:</strong> the real-account eventual-consistency smoke to open the facade against a real KV namespace and observe the write eventually appearing on a global read</p>
   <p><strong>So that:</strong> the applied project has one probe that exercises the real vendor surface (not just the in-memory driver) and closes the mechanism-reach gap between fixture and production</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-054">REQ-054</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8368,11 +8252,9 @@
   <div class="rcf-row-body body">
     <article id="US-6001" class="doc doc-us">
   <h3>US-6001 - T-2 scheduled() handler opens against the elicited cron triggers on boot and emits cronReady</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-cloudflare-cron-triggers v1.0.0 blueprint on a Workers project using the cf-platform fixture</p>
   <p><strong>I want:</strong> one scheduled() handler module (src/scheduled.mjs) that opens against the elicited cron triggers on process boot, wires the dispatcher and event sink, and emits a cronReady lifecycle event with a metadata-only payload</p>
   <p><strong>So that:</strong> boot ordering is observable, the scheduled seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-060">REQ-060</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8422,11 +8304,9 @@
   <div class="rcf-row-body body">
     <article id="US-6002" class="doc doc-us">
   <h3>US-6002 - T-2 wrangler dev --test-scheduled fires cronFired on the fixture handler</h3>
-  
   <p><strong>As a:</strong> reviewer verifying the platform-cloudflare-cron-triggers v1.0.0 blueprint at mechanism reach</p>
   <p><strong>I want:</strong> the wrangler-test-scheduled probe to spawn wrangler dev --test-scheduled on the cf-platform fixture, drive its scheduled-fire route with a cron expression declared in wrangler.toml, assert a cronFired event fires on the sink and wrangler exits cleanly</p>
   <p><strong>So that:</strong> the shipped scheduled() handler is proven wired to the vendor&#39;s CLI seam, not only to an in-process spy</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-060">REQ-060</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8476,11 +8356,9 @@
   <div class="rcf-row-body body">
     <article id="US-6003" class="doc doc-us">
   <h3>US-6003 - T-2 real-account live-cron smoke fires cronFired at least once against a real Cloudflare Worker</h3>
-  
   <p><strong>As a:</strong> operator validating platform-cloudflare-cron-triggers v1.0.0 against a real Cloudflare account</p>
   <p><strong>I want:</strong> the real-account-scheduled-smoke probe to schedule a per-minute cron on a real Worker, wait bounded 90 seconds and assert cronFired fires at least once</p>
   <p><strong>So that:</strong> the shipped scheduled() surface is proven against the vendor&#39;s global cron scheduler, not only against wrangler dev</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-060">REQ-060</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8562,11 +8440,9 @@
   <div class="rcf-row-body body">
     <article id="US-6101" class="doc doc-us">
   <h3>US-6101 - T-2 dispatcher routes multiple cron expressions to distinct handlers by expression match</h3>
-  
   <p><strong>As a:</strong> developer whose Worker needs to schedule two or more distinct workloads on distinct cron cadences</p>
   <p><strong>I want:</strong> one dispatcher module (src/dispatcher.mjs) that accepts an ordered map of cron expressions to handler functions and, on every scheduled invocation, routes to the matched handler with a bounded context</p>
   <p><strong>So that:</strong> one wrangler.toml [triggers] block with multiple cron expressions cleanly maps to distinct handler code paths without hand-rolled conditionals</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-061">REQ-061</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8658,11 +8534,9 @@
   <div class="rcf-row-body body">
     <article id="US-6201" class="doc doc-us">
   <h3>US-6201 - T-2 skew tolerance: fires inside the elicited window are onTime; outside record cronSkewed with delta</h3>
-  
   <p><strong>As a:</strong> operator observing the timeliness of scheduled work on a Worker</p>
   <p><strong>I want:</strong> the dispatcher to classify every fire against an elicited skew window and record cronSkewed for late fires with the delta</p>
   <p><strong>So that:</strong> the applied logging companion surfaces cron drift as a first-class signal without every handler having to keep its own clock</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-062">REQ-062</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8756,11 +8630,9 @@
   <div class="rcf-row-body body">
     <article id="US-6301" class="doc doc-us">
   <h3>US-6301 - T-2 soft budget: a handler running past the elicited budget logs cronStalled and continues</h3>
-  
   <p><strong>As a:</strong> operator observing long-running scheduled work on a Worker</p>
   <p><strong>I want:</strong> the dispatcher to fire cronStalled at the moment a handler&#39;s observed duration crosses the elicited soft budget, without terminating the handler</p>
   <p><strong>So that:</strong> the applied logging companion surfaces stalled fires as a first-class signal, and the Worker&#39;s own CPU budget remains the vendor&#39;s concern</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-063">REQ-063</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8822,11 +8694,9 @@
   <div class="rcf-row-body body">
     <article id="US-6302" class="doc doc-us">
   <h3>US-6302 - T-2 event secrecy: every scheduled-side event record carries only metadata; no closure or PII</h3>
-  
   <p><strong>As a:</strong> security reviewer reading the applied logging companion&#39;s stream</p>
   <p><strong>I want:</strong> every cron lifecycle event record to carry only {event, expression, scheduledTime, outcome, duration} and optional numeric metadata fields; never a handler input, closure or PII substring</p>
   <p><strong>So that:</strong> the logging stream stays safe to ship to any downstream sink without a per-blueprint scrub pass</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-063">REQ-063</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8908,11 +8778,9 @@
   <div class="rcf-row-body body">
     <article id="US-7001" class="doc doc-us">
   <h3>US-7001 - T-3 DO facade opens against env.CELL and env.HUB and emits namespaceReady</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-cloudflare-durable-objects v1.0.0 blueprint on a Workers project using the cf-platform fixture</p>
   <p><strong>I want:</strong> one DO facade module (src/do-facade.mjs) that opens against env.CELL and env.HUB on boot, wires the injected event sink and emits a namespaceReady lifecycle event with a metadata-only payload</p>
   <p><strong>So that:</strong> boot ordering is observable, the DO namespace seam is a single call site, and the applied project can compose its own bootstrapping around one predictable event</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-070">REQ-070</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -8962,11 +8830,9 @@
   <div class="rcf-row-body body">
     <article id="US-7002" class="doc doc-us">
   <h3>US-7002 - T-3 real-account storage smoke records accountBoundSkipped without env var</h3>
-  
   <p><strong>As a:</strong> operator validating platform-cloudflare-durable-objects v1.0.0 against a real Cloudflare account</p>
   <p><strong>I want:</strong> the real-account-storage-smoke probe to record accountBoundSkipped and aggregate to pass when CI_HAS_CLOUDFLARE_ACCOUNT is unset</p>
   <p><strong>So that:</strong> the shipped account-bound seam matches the Clerk pattern (skip-in-CI when no account, run when one is available) per spec section 3.5</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-070">REQ-070</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9046,11 +8912,9 @@
   <div class="rcf-row-body body">
     <article id="US-7101" class="doc doc-us">
   <h3>US-7101 - T-3 single-cell concurrent increments serialise per instance and return witness of prior write</h3>
-  
   <p><strong>As a:</strong> developer whose Worker needs an authoritative counter, session store or lock behind a swappable boundary</p>
   <p><strong>I want:</strong> one SingleCellObject instance to observe concurrent increments in per-instance FIFO order and return the sum plus a written witness</p>
   <p><strong>So that:</strong> two concurrent callers cannot silently overwrite each other and a domain assertion can prove the write happened before the read</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-071">REQ-071</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9130,11 +8994,9 @@
   <div class="rcf-row-body body">
     <article id="US-7201" class="doc doc-us">
   <h3>US-7201 - T-3 storage round-trip covers put/get/delete/list on both SQL and KV backends</h3>
-  
   <p><strong>As a:</strong> developer configuring the storage backend on a new SingleCellObject</p>
   <p><strong>I want:</strong> the shipped storage driver factory to round-trip put/get/delete/list on both SQL and KV backends</p>
   <p><strong>So that:</strong> the applied project can elicit the backend at apply time and the shipped code path exercises both branches without code changes</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-072">REQ-072</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9214,11 +9076,9 @@
   <div class="rcf-row-body body">
     <article id="US-7301" class="doc doc-us">
   <h3>US-7301 - T-3 alarm fires exactly once and doAlarmFired records objectName and scheduledTime</h3>
-  
   <p><strong>As a:</strong> developer whose SingleCellObject schedules future work via storage.setAlarm</p>
   <p><strong>I want:</strong> the alarm() handler to fire exactly once per scheduled time and doAlarmFired to carry objectName and scheduledTime</p>
   <p><strong>So that:</strong> the applied project can observe alarm delivery through the metadata-only sink and trust the once-per-schedule contract</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-073">REQ-073</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9298,11 +9158,9 @@
   <div class="rcf-row-body body">
     <article id="US-7401" class="doc doc-us">
   <h3>US-7401 - T-3 hub broadcast fans out a payload from A to all connected clients within the elicited window</h3>
-  
   <p><strong>As a:</strong> developer coordinating multiplayer websocket clients through one authoritative hub</p>
   <p><strong>I want:</strong> the HubObject to fan out a broadcast payload from one connected client to all connected clients within the elicited window</p>
   <p><strong>So that:</strong> the shipped hub shape delivers the coordinated-multiplayer contract without a hand-rolled broadcast layer</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-074">REQ-074</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9352,11 +9210,9 @@
   <div class="rcf-row-body body">
     <article id="US-7402" class="doc doc-us">
   <h3>US-7402 - T-3 hibernate-and-wake round-trip preserves storage and doWakeUp fires exactly once</h3>
-  
   <p><strong>As a:</strong> developer whose HubObject hibernates when idle and wakes on the next message</p>
   <p><strong>I want:</strong> the wake handler to run from cold and read the same lastBroadcast key from storage the pre-hibernate state persisted</p>
   <p><strong>So that:</strong> a re-emerging client can catch up on the missed broadcast without a full re-sync</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-074">REQ-074</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9436,11 +9292,9 @@
   <div class="rcf-row-body body">
     <article id="US-7501" class="doc doc-us">
   <h3>US-7501 - T-3 lifecycle events on the shipped path carry only allowed metadata keys</h3>
-  
   <p><strong>As a:</strong> reviewer verifying the platform-cloudflare-durable-objects v1.0.0 blueprint at mechanism reach</p>
   <p><strong>I want:</strong> every lifecycle event emitted on the shipped code path to carry only the allowed metadata keys and never a forbidden key</p>
   <p><strong>So that:</strong> a logging companion can render the sink directly without a per-blueprint scrub pass</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-075">REQ-075</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9520,11 +9374,9 @@
   <div class="rcf-row-body body">
     <article id="US-7601" class="doc doc-us">
   <h3>US-7601 - T-3 sole-reader-scan probe surfaces every non-facade module that dereferences env.CELL or env.HUB</h3>
-  
   <p><strong>As a:</strong> reviewer enforcing the sole-reader guarantee on env.CELL and env.HUB</p>
   <p><strong>I want:</strong> the sole-reader-scan probe to walk every .mjs/.js/.ts file under the fixture applied source root and assert only src/do-facade.mjs dereferences env.CELL or env.HUB in live source</p>
   <p><strong>So that:</strong> a legacy call site or an accidental new one surfaces at self-review, not at runtime</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-076">REQ-076</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9604,11 +9456,9 @@
   <div class="rcf-row-body body">
     <article id="US-7701" class="doc doc-us">
   <h3>US-7701 - T-3 wrangler.toml commits stable DO class names on both binding blocks and a migrations tag records the mint classes</h3>
-  
   <p><strong>As a:</strong> operator applying platform-cloudflare-durable-objects on a fresh Workers project</p>
   <p><strong>I want:</strong> the generated wrangler.toml to carry [[durable_objects.bindings]] blocks and a paired [[migrations]] block with a stable tag</p>
   <p><strong>So that:</strong> a future rename lands as a wrangler migration rather than a silent rewire and the DO class identity survives the mint</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-077">REQ-077</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9688,11 +9538,9 @@
   <div class="rcf-row-body body">
     <article id="US-8001" class="doc doc-us">
   <h3>US-8001 - T-4 JWT validator: fixture-signed JWT validates and principal reduces onto request.auth</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
   <p><strong>I want:</strong> the Cf-Access-Jwt-Assertion header validated against the Access JWKS on every request, the principal reduced into request.auth as {email, sub, groups} and the downstream handler observes 200 with the reduced principal fields</p>
   <p><strong>So that:</strong> the Worker only ever sees authenticated principals and downstream code reads a single stable seam for identity</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-080">REQ-080</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9739,11 +9587,9 @@
   <div class="rcf-row-body body">
     <article id="US-8002" class="doc doc-us">
   <h3>US-8002 - T-4 JWT validator: missing, expired or mis-signed JWT rejects 401 with metadata-only audit event</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
   <p><strong>I want:</strong> requests carrying a missing, expired or mis-signed JWT to reject with 401 and emit exactly one metadata-only audit event on the shipped audit sink</p>
   <p><strong>So that:</strong> unauthenticated traffic cannot reach the downstream handler and every reject is observable without leaking the token value or headers</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-080">REQ-080</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9790,11 +9636,9 @@
   <div class="rcf-row-body body">
     <article id="US-8003" class="doc doc-us">
   <h3>US-8003 - T-4 JWT validator is the sole reader of the Cf-Access-Jwt-Assertion header in the applied source tree</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
   <p><strong>I want:</strong> only src/jwt-validator.mjs to dereference the Cf-Access-Jwt-Assertion header string in the applied source tree</p>
   <p><strong>So that:</strong> the validator is the single seam and a stray header read in the applied code is a defect the AST scan catches</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-080">REQ-080</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9871,11 +9715,9 @@
   <div class="rcf-row-body body">
     <article id="US-8101" class="doc doc-us">
   <h3>US-8101 - T-4 Access application declared with elicited hostname or self-hosted-app id and elicited policy shape</h3>
-  
   <p><strong>As a:</strong> operator applying the edge-cloudflare-access v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the blueprint to elicit either an Access application hostname or a self-hosted-app id, plus a policy shape from the enum</p>
   <p><strong>So that:</strong> the apply record captures the exact Access application declaration the operator will issue in the Zero Trust dashboard or over the API</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-081">REQ-081</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -9952,11 +9794,9 @@
   <div class="rcf-row-body body">
     <article id="US-8201" class="doc doc-us">
   <h3>US-8201 - T-4 operator issues a Zero Trust policy via the guide&#39;s dashboard walk-through or the alternative API path</h3>
-  
   <p><strong>As a:</strong> operator applying the edge-cloudflare-access v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the guide to walk me through issuing the Zero Trust policy on the Cloudflare dashboard AND to document the alternative API path</p>
   <p><strong>So that:</strong> the policy issuance flow is unambiguous whether I use the dashboard or the API</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-082">REQ-082</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10033,11 +9873,9 @@
   <div class="rcf-row-body body">
     <article id="US-8301" class="doc doc-us">
   <h3>US-8301 - T-4 audit event carries only email, outcome, timestamp and path; no token value or headers on any code path</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-access v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
   <p><strong>I want:</strong> the audit sink to receive only metadata-only records for every validate-pass and validate-reject</p>
   <p><strong>So that:</strong> the audit trail is observable without leaking the JWT, its signature bytes or any request header value</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-083">REQ-083</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10114,11 +9952,9 @@
   <div class="rcf-row-body body">
     <article id="US-8401" class="doc doc-us">
   <h3>US-8401 - T-4 break-glass posture: an elicited bypass-service-auth token pair signs CI automation requests through the validator</h3>
-  
   <p><strong>As a:</strong> operator running CI-signed automation against an Access-gated Worker</p>
   <p><strong>I want:</strong> an elicited bypass-service-auth token pair that the validator recognises and passes through as an authenticated principal</p>
   <p><strong>So that:</strong> CI can hit the gated Worker without a browser flow while every bypass leaves a distinct audit trace</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-084">REQ-084</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10195,11 +10031,9 @@
   <div class="rcf-row-body body">
     <article id="US-8501" class="doc doc-us">
   <h3>US-8501 - T-4 admin-console composition: the sign-in surface swaps to Access-gated when zeroTrustGate applied and falls back to security-auth-* otherwise</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying both edge-cloudflare-access and application-admin-console v1.1.0</p>
   <p><strong>I want:</strong> the admin-console sign-in surface to flip to Access-gated when zeroTrustGate is applied, and to fall back to the local security-auth-* surface otherwise</p>
   <p><strong>So that:</strong> the composition is deterministic and no local login form leaks into an Access-gated deployment</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-085">REQ-085</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10246,11 +10080,9 @@
   <div class="rcf-row-body body">
     <article id="US-8502" class="doc doc-us">
   <h3>US-8502 - T-4 real-account gated URL: a request against a scheduled Access-configured hostname lands the Access UI</h3>
-  
   <p><strong>As a:</strong> HQ operator running the real-account gated-URL smoke against a scheduled Access-configured hostname</p>
   <p><strong>I want:</strong> the probe to fire against the hostname when the env vars are present and record accountBoundSkipped when not</p>
   <p><strong>So that:</strong> the mechanism-reach claim is proven on a real Cloudflare Access instance without ever failing the shelf gate on the absence of an account</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-085">REQ-085</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10327,11 +10159,9 @@
   <div class="rcf-row-body body">
     <article id="US-8601" class="doc doc-us">
   <h3>US-8601 - T-4 admin-console v1.1.0: Access-gated sign-in surface with no local login form and principal reads from request.auth</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying application-admin-console v1.1.0 with zeroTrustGate in the applied capability set</p>
   <p><strong>I want:</strong> the sign-in surface to render as Access-gated with no local login form and to read the principal from request.auth</p>
   <p><strong>So that:</strong> the admin console composes with edge-cloudflare-access at the sign-in seam and never re-collects credentials in an Access-gated deployment</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-086">REQ-086</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10378,11 +10208,9 @@
   <div class="rcf-row-body body">
     <article id="US-8602" class="doc doc-us">
   <h3>US-8602 - T-4 admin-console v1.1.0: falls back to security-auth-* sign-in surface when zeroTrustGate absent</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying application-admin-console v1.1.0 WITHOUT zeroTrustGate in the applied capability set</p>
   <p><strong>I want:</strong> the sign-in surface to render as the local security-auth-* surface with no Access-gated region</p>
   <p><strong>So that:</strong> the v1.1.0 admin-console remains backward-compatible with every v1.0.0 deployment that never adopted Access</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-086">REQ-086</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10459,11 +10287,9 @@
   <div class="rcf-row-body body">
     <article id="US-9001" class="doc doc-us">
   <h3>US-9001 - T-5 widget mount: elicited sitekey renders Turnstile widget with token populated on submit</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-turnstile v1.0.0 blueprint on a Workers project using the probe-pack-edge-cloudflare-turnstile fixture</p>
   <p><strong>I want:</strong> the Turnstile widget to mount on my public form with the elicited TURNSTILE_SITEKEY, to inject only Cloudflare Turnstile JS (no other third-party script), and to populate the hidden Cf-Turnstile-Response token field on submit</p>
   <p><strong>So that:</strong> every submit that reaches my server carries a Turnstile response my server-side verifier can check</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-090">REQ-090</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10513,11 +10339,9 @@
   <div class="rcf-row-body body">
     <article id="US-9002" class="doc doc-us">
   <h3>US-9002 - T-5 secret shape: TURNSTILE_SECRET is read only via the applied secrets facade and never inlined in fixture source</h3>
-  
   <p><strong>As a:</strong> reviewer auditing the applied Workers project source for secret hygiene</p>
   <p><strong>I want:</strong> the TURNSTILE_SECRET to be read through the elicited config or applied secrets facade, and to see no plain-text secret literal in the fixture source</p>
   <p><strong>So that:</strong> the Turnstile secret is never committed to the applying project source tree</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-090">REQ-090</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10623,11 +10447,9 @@
   <div class="rcf-row-body body">
     <article id="US-9101" class="doc doc-us">
   <h3>US-9101 - T-5 server-side siteverify pass: the always-pass Turnstile secret returns success:true and the handler proceeds with 200</h3>
-  
   <p><strong>As a:</strong> shelf consumer whose Worker verifies Turnstile tokens through the shipped verifier</p>
   <p><strong>I want:</strong> a POST to challenges.cloudflare.com/turnstile/v0/siteverify with the pinned always-pass secret and any response token to return success true and my handler to respond 200</p>
   <p><strong>So that:</strong> the Turnstile-verified path is exercised end-to-end against the real Cloudflare endpoint</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-091">REQ-091</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10677,11 +10499,9 @@
   <div class="rcf-row-body body">
     <article id="US-9102" class="doc doc-us">
   <h3>US-9102 - T-5 server-side siteverify fail: the always-fail Turnstile secret returns success:false, the handler rejects 400, and event records carry no token or secret</h3>
-  
   <p><strong>As a:</strong> shelf consumer whose Worker fails safe on any Turnstile verification refusal</p>
   <p><strong>I want:</strong> a POST to siteverify with the pinned always-fail secret to return success false, the handler to reject with 400, and every event record to carry only sitekeyHash, outcome and timestamp</p>
   <p><strong>So that:</strong> the fail branch never leaks the secret or the response token into observability</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-091">REQ-091</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10796,11 +10616,9 @@
   <div class="rcf-row-body body">
     <article id="US-9201" class="doc doc-us">
   <h3>US-9201 - T-5 refuse-if-token-missing guard: a submit without Cf-Turnstile-Response rejects with 400 before any downstream logic</h3>
-  
   <p><strong>As a:</strong> shelf consumer whose Worker refuses cheap submit-without-token attempts at the earliest possible boundary</p>
   <p><strong>I want:</strong> the guard to reject every submit whose payload has no Cf-Turnstile-Response field with 400 before the downstream handler is entered</p>
   <p><strong>So that:</strong> downstream handlers never execute against a missing-token submit</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-092">REQ-092</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10894,11 +10712,9 @@
   <div class="rcf-row-body body">
     <article id="US-9301" class="doc doc-us">
   <h3>US-9301 - T-5 composition with security-auth-magic-link: the magic-link mint surface reads through the Turnstile guard</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying both security-auth-magic-link and edge-cloudflare-turnstile</p>
   <p><strong>I want:</strong> the magic-link mint surface to be gated by the Turnstile guard so a mint submit reads through the same token check as any other elicited surface</p>
   <p><strong>So that:</strong> magic-link mint requests are protected by the same human-check as any other public form on my project</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-093">REQ-093</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -10948,11 +10764,9 @@
   <div class="rcf-row-body body">
     <article id="US-9302" class="doc doc-us">
   <h3>US-9302 - T-5 magic-link guard cross-cutting: a magic-link mint submit without a valid Turnstile token is refused with 400 before the mint fires</h3>
-  
   <p><strong>As a:</strong> shelf consumer relying on the composition to gate magic-link mint attempts</p>
   <p><strong>I want:</strong> a magic-link mint POST that carries no Turnstile response, or a mint POST whose Turnstile response fails siteverify, to be refused with 400 before the mint fires</p>
   <p><strong>So that:</strong> no magic-link is minted for a submitter who did not complete a Turnstile challenge</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-093">REQ-093</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11066,11 +10880,9 @@
   <div class="rcf-row-body body">
     <article id="US-9401" class="doc doc-us">
   <h3>US-9401 - T-5 widget mode elicit: managed, non-interactive and invisible each render per Cloudflare documented widget modes and the elicited default is managed</h3>
-  
   <p><strong>As a:</strong> shelf consumer selecting a Turnstile widget mode for my project</p>
   <p><strong>I want:</strong> to elicit one of managed, non-interactive or invisible at apply time with managed as the recommendedDefault, and to see each mode render as Cloudflare documents</p>
   <p><strong>So that:</strong> my applied surface matches the operational profile the site needs (interactive challenge, always non-interactive, or invisible background check)</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-094">REQ-094</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11164,11 +10976,9 @@
   <div class="rcf-row-body body">
     <article id="US-10001" class="doc doc-us">
   <h3>US-10001 - T-6 rate-limit manifest present in cf-edge cloudflare/rate-limits/ carrying seven required fields without plaintext secrets</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the edge-cloudflare-rate-limiting v1.0.0 blueprint on a Workers project using the cf-edge fixture</p>
   <p><strong>I want:</strong> the elicited manifest directory to hold at least one committed JSON file per rate-limit rule, each carrying the seven documented fields and no plaintext secret</p>
   <p><strong>So that:</strong> the rules are source-controlled and reviewable and the operator has a stable source of truth to apply to the live zone</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-100">REQ-100</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11213,11 +11023,9 @@
   <div class="rcf-row-body body">
     <article id="US-10601" class="doc doc-us">
   <h3>US-10601 - T-6 manifest schema validates every rule file against the shipped draft-07 schema and refuses invalid shapes</h3>
-  
   <p><strong>As a:</strong> operator committing new rate-limit rule files under the elicited manifest directory</p>
   <p><strong>I want:</strong> the shipped JSON Schema to validate every rule file and the manifest-schema-validate probe to surface any file that violates the shape</p>
   <p><strong>So that:</strong> invalid manifest changes are caught in the fixture probe rather than at operator apply time</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-100">REQ-100</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11262,11 +11070,9 @@
   <div class="rcf-row-body body">
     <article id="US-10801" class="doc doc-us">
   <h3>US-10801 - T-6 manifest-presence probe refuses a missing manifest file and names the basename in the detail</h3>
-  
   <p><strong>As a:</strong> operator that accidentally deletes or moves a manifest file</p>
   <p><strong>I want:</strong> the manifest-presence probe to surface the missing file at fixture probe time</p>
   <p><strong>So that:</strong> a manifest under-population defect is caught in CI rather than at operator apply time</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-100">REQ-100</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11336,11 +11142,9 @@
   <div class="rcf-row-body body">
     <article id="US-10101" class="doc doc-us">
   <h3>US-10101 - T-6 operator-facing management surface: wrangler command flow and Cloudflare dashboard flow documented in the guide</h3>
-  
   <p><strong>As a:</strong> operator on the applying project preparing to push rate-limit rules from the local manifest to the live Cloudflare zone</p>
   <p><strong>I want:</strong> a documented flow with both wrangler command steps and a Cloudflare dashboard walkthrough</p>
   <p><strong>So that:</strong> I can pick the flow that suits my operating discipline and reproduce the apply from the manifest</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-101">REQ-101</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11410,11 +11214,9 @@
   <div class="rcf-row-body body">
     <article id="US-10201" class="doc doc-us">
   <h3>US-10201 - T-6 real-account burst returns 429 with Retry-After and Cf-Ray on over-threshold requests, or accountBoundSkipped in CI per ruling 6</h3>
-  
   <p><strong>As a:</strong> operator running the real-account burst probe against a scheduled HQ-owned URL</p>
   <p><strong>I want:</strong> the probe to fire an undici burst above the rule threshold and observe the (N+1)th and subsequent requests return HTTP 429 with Retry-After and Cf-Ray, or record accountBoundSkipped in CI</p>
   <p><strong>So that:</strong> the over-threshold behaviour is verified against a real Cloudflare account when the account is available, and CI without an account records the honest verdict per ruling 6</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-102">REQ-102</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11484,11 +11286,9 @@
   <div class="rcf-row-body body">
     <article id="US-10301" class="doc doc-us">
   <h3>US-10301 - T-6 drift-audit runner reads live rules and diffs against manifest, constructing metadata-only drift records</h3>
-  
   <p><strong>As a:</strong> operator on the applying project running the scheduled drift-audit runner behind the elicited cadence</p>
   <p><strong>I want:</strong> the runner to fetch the live rules via the Cloudflare API and diff each against the local manifest, constructing metadata-only drift records</p>
   <p><strong>So that:</strong> manifest drift is surfaced through the logging companion rather than lingering unnoticed</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-103">REQ-103</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11533,11 +11333,9 @@
   <div class="rcf-row-body body">
     <article id="US-10701" class="doc doc-us">
   <h3>US-10701 - T-6 drift-audit event records carry ruleId, clientIpHash, outcome, timestamp, diff only; no full IP, body or user-agent</h3>
-  
   <p><strong>As a:</strong> operator reading drift-audit reports and rate-limit event records through the applied logging companion</p>
   <p><strong>I want:</strong> every drift-audit record to carry only metadata-safe fields, never a full IP, request body or user agent string</p>
   <p><strong>So that:</strong> the audit trail is safe to store, forward and read without additional PII scrubbing</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-103">REQ-103</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11607,11 +11405,9 @@
   <div class="rcf-row-body body">
     <article id="US-10401" class="doc doc-us">
   <h3>US-10401 - T-6 composition with security-auth-magic-link: zone rule layers over the per-email application rule per ADR-3702, documented in the guide</h3>
-  
   <p><strong>As a:</strong> operator applying both edge-cloudflare-rate-limiting and security-auth-magic-link on the same project</p>
   <p><strong>I want:</strong> the guide to name the ADR-3702 layering explicitly with a copy-paste example</p>
   <p><strong>So that:</strong> I understand the two-rule shape at apply time rather than by trial and error</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-104">REQ-104</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11681,11 +11477,9 @@
   <div class="rcf-row-body body">
     <article id="US-11001" class="doc doc-us">
   <h3>US-11001 - T-1 provisioner opens on boot with sole HETZNER_ACCOUNT_API_KEY reader and emits provisionerReady with metadata-only payload</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint on a Node project that provisions a Hetzner Cloud VM</p>
   <p><strong>I want:</strong> the provisioner facade to be the sole reader of the Hetzner API token (via security-secrets-management) and to fire provisionerReady with a metadata-only payload when it opens on boot</p>
   <p><strong>So that:</strong> the applying project has one auditable seam for the token and the observability sink surfaces the ready event without a secret</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-110">REQ-110</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11800,11 +11594,9 @@
   <div class="rcf-row-body body">
     <article id="US-11101" class="doc doc-us">
   <h3>US-11101 - T-1 server manifest schema at hetzner/servers/name.json validates and names type location image ssh-key ids firewall id network id cloud-init path labels</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the applying project&#39;s hetzner/servers/name.json manifests to validate against a shipped JSON Schema naming type, location, image, sshKeyIds, firewallId, networkId, cloudInitPath, labels, snapshotCadence</p>
   <p><strong>So that:</strong> the operator has a stable declarative source of truth for every server</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-111">REQ-111</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11849,11 +11641,9 @@
   <div class="rcf-row-body body">
     <article id="US-11102" class="doc doc-us">
   <h3>US-11102 - T-1 applying the provisioner reads each manifest and creates a matching live server, hetznerServerProvisioned event carries id primary IPv4 location server-type</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint against a Hetzner project</p>
   <p><strong>I want:</strong> applying the provisioner to read each manifest under hetzner/servers/, create a matching live Hetzner Cloud server, and emit hetznerServerProvisioned with id, primaryIpv4, location, serverType</p>
   <p><strong>So that:</strong> the manifest is the source of truth for what actually exists in the project</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-111">REQ-111</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11943,11 +11733,9 @@
   <div class="rcf-row-body body">
     <article id="US-11201" class="doc doc-us">
   <h3>US-11201 - T-1 cloud-init template lands the six hardening baseline blocks in the rendered YAML for every provisioned server</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the shipped cloud-init template to render YAML that lands SSH key-only, root disabled, UFW default-deny incoming, DOCKER-USER iptables chain, fail2ban SSH jail and unattended-upgrades on every server</p>
   <p><strong>So that:</strong> the operator inherits the six-block hardening baseline without hand-authoring per host</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-112">REQ-112</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -11992,11 +11780,9 @@
   <div class="rcf-row-body body">
     <article id="US-11202" class="doc doc-us">
   <h3>US-11202 - T-1 provisioned server is hardened at runtime: root ssh refused, password auth refused, UFW active default-deny, DOCKER-USER present, unattended-upgrades service active</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint on a real Hetzner account</p>
   <p><strong>I want:</strong> the provisioned server to be hardened at runtime as the rendered cloud-init promised: root ssh refused, password auth refused, UFW active default-deny incoming, DOCKER-USER present, unattended-upgrades service active</p>
   <p><strong>So that:</strong> the operator can trust the cloud-init contract without ssh-in-and-check for every server</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-112">REQ-112</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12095,11 +11881,9 @@
   <div class="rcf-row-body body">
     <article id="US-11301" class="doc doc-us">
   <h3>US-11301 - T-1 firewall rule shape: 22 from operator-nominated prefixes, 80 and 443 open, all other inbound denied, applied at provision time</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the firewall rule set carried in hetzner/servers/name.json to permit 22 only from an operator-nominated set of source-prefix ranges, permit 80 and 443 from 0.0.0.0/0 for the reverse proxy, and deny all other inbound; the provisioner applies the rules at provision time</p>
   <p><strong>So that:</strong> the operator inherits a documented least-privilege firewall shape on every server without opening ssh to the world</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-113">REQ-113</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12190,11 +11974,9 @@
   <div class="rcf-row-body body">
     <article id="US-11401" class="doc doc-us">
   <h3>US-11401 - T-1 snapshot cadence file present under the manifest set, cadence value elicited (weekly default, daily and off alternatives) matches the schema</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the elicited snapshot cadence value on hetzner/servers/name.json to match the shipped enum (weekly, daily, off), with weekly the recommended default per ADR-3802</p>
   <p><strong>So that:</strong> the operator has a single project-wide answer for how often each server snapshots</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-114">REQ-114</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12239,11 +12021,9 @@
   <div class="rcf-row-body body">
     <article id="US-11402" class="doc doc-us">
   <h3>US-11402 - T-1 snapshot-on-demand verb fires the hcloud snapshot verb, tags the snapshot with server name and wall-clock time, hetznerSnapshotTaken event fires with snapshot id</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint on a real Hetzner account</p>
   <p><strong>I want:</strong> the snapshot-on-demand verb on the provisioner to shell to hcloud image create-image (or the raw-api equivalent) and tag the snapshot with server name and wall-clock time; hetznerSnapshotTaken carries snapshot id and time</p>
   <p><strong>So that:</strong> the operator has a documented on-demand recovery point at any moment</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-114">REQ-114</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12320,11 +12100,9 @@
   <div class="rcf-row-body body">
     <article id="US-11501" class="doc doc-us">
   <h3>US-11501 - T-1 four lifecycle events fire with metadata-only payloads, no secret leaks through any event body</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the deploy-hetzner-server v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the provisioner facade to fire the four lifecycle events (provisionerReady, hetznerServerProvisioned, hetznerSnapshotTaken, hetznerServerDestroyed) with metadata-only payloads (id, primaryIpv4, location, serverType, snapshotId, wallClockTime) and no secret content</p>
   <p><strong>So that:</strong> the observability sink carries the operational trail without ever leaking a token or an ssh key</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-115">REQ-115</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12419,11 +12197,9 @@
   <div class="rcf-row-body body">
     <article id="US-12001" class="doc doc-us">
   <h3>US-12001 - T-2 compose.yaml at repo root is the single-source runtime topology (service-per-container, named networks and volumes, .env for non-secret config)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that runs its stack on a Hetzner cloudHost</p>
   <p><strong>I want:</strong> a single compose.yaml at the repo root to declare every service as one container with explicit named networks, named volumes, and non-secret config in a .env file</p>
   <p><strong>So that:</strong> the runtime topology has one auditable seam and the container host can bring the stack up from the file alone</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-120">REQ-120</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12500,11 +12276,9 @@
   <div class="rcf-row-body body">
     <article id="US-12101" class="doc doc-us">
   <h3>US-12101 - T-2 secrets flow via docker compose secrets file mounts (no plaintext literal in compose.yaml)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with secret material bound to a container</p>
   <p><strong>I want:</strong> every secret to be declared under the compose secrets top-level key and mounted into the service via secrets: rather than inlined as an environment literal</p>
   <p><strong>So that:</strong> the compose file is safe to read at review time and the mounted file inherits 0o400 inside the container</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-121">REQ-121</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12549,11 +12323,9 @@
   <div class="rcf-row-body body">
     <article id="US-12102" class="doc doc-us">
   <h3>US-12102 - T-2 cross-cutting secretsAreFiles: the source-tree scan refuses any plaintext secret literal in compose.yaml or a referenced service config</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project with sensitive material</p>
   <p><strong>I want:</strong> the secrets-as-files probe to walk compose.yaml and every service config in the fixture and refuse on any plaintext secret literal, naming the file and line</p>
   <p><strong>So that:</strong> a secret accidentally inlined in a review is caught by the probe before docker compose up runs</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-121">REQ-121</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12630,11 +12402,9 @@
   <div class="rcf-row-body body">
     <article id="US-12201" class="doc doc-us">
   <h3>US-12201 - T-2 healthcheck contract: docker compose config refuses when an HTTP-terminating service is missing a healthcheck block</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that terminates HTTP inside a container</p>
   <p><strong>I want:</strong> the compose config lint to refuse at gate time on any HTTP-terminating service that is missing a healthcheck block, naming the service</p>
   <p><strong>So that:</strong> the stack never comes up with a service the container host cannot know is ready</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-122">REQ-122</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12679,11 +12449,9 @@
   <div class="rcf-row-body body">
     <article id="US-12202" class="doc doc-us">
   <h3>US-12202 - T-2 cross-cutting upClean: the stack comes up clean and every declared service reaches healthy</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a Hetzner cloudHost</p>
   <p><strong>I want:</strong> the real-account minimal-stack-up probe to scp the compose.yaml to the throwaway server, run docker compose up -d --wait, and assert every declared service reaches healthy inside the elicited timeout</p>
   <p><strong>So that:</strong> the composeStackReady claim is proven on real docker before the blueprint ships</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-122">REQ-122</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12761,11 +12529,9 @@
   <div class="rcf-row-body body">
     <article id="US-12301" class="doc doc-us">
   <h3>US-12301 - T-2 restart discipline: unless-stopped on long-running, on-failure on jobs; unclassified value refuses at lint</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the compose config lint to enforce a restart policy on every service and refuse on any value outside the two allowed policies (unless-stopped for long-running, on-failure for jobs)</p>
   <p><strong>So that:</strong> the operator sees a wrong or missing restart policy at gate time rather than as a stuck container</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-123">REQ-123</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12864,11 +12630,9 @@
   <div class="rcf-row-body body">
     <article id="US-12401" class="doc doc-us">
   <h3>US-12401 - T-2 reverse-proxy config as a first-class versioned artefact (caddy/Caddyfile) validated by the vendor validator</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint with reverseProxy=caddy</p>
   <p><strong>I want:</strong> a checked-in caddy/Caddyfile bind-mounted into the proxy service so the reload verb picks up an operator change, validated at gate time by caddy validate</p>
   <p><strong>So that:</strong> a broken Caddyfile is caught before the reload burst runs, and there is one place in the tree the operator edits to route hostnames</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-124">REQ-124</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -12913,11 +12677,9 @@
   <div class="rcf-row-body body">
     <article id="US-12402" class="doc doc-us">
   <h3>US-12402 - T-2 cross-cutting zeroDowntimeReload: a client burst against the proxy during a config reload sees no non-2xx and no dropped connection inside the elicited window</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint</p>
   <p><strong>I want:</strong> the real-account reload-burst probe to fire an undici burst against the reverse proxy while docker compose exec caddy caddy reload runs and assert no non-2xx or dropped connection inside the elicited window</p>
   <p><strong>So that:</strong> the zero-downtime reload claim is proven on real docker before the blueprint ships</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-124">REQ-124</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13001,11 +12763,9 @@
   <div class="rcf-row-body body">
     <article id="US-12501" class="doc doc-us">
   <h3>US-12501 - T-2 log shipping to the elicited observability-logging sink (journald default; loki opt-in)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying the platform-docker-compose-host v1.0.0 blueprint on a project that may run Grafana or the estate default</p>
   <p><strong>I want:</strong> the elicited log driver to be wired into every service in the compose file (journald default, loki opt-in) and the choice recorded on the log-driver ADR</p>
   <p><strong>So that:</strong> the container stdout and stderr reach the applied observability sink without a per-service edit</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-125">REQ-125</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13082,11 +12842,9 @@
   <div class="rcf-row-body body">
     <article id="US-13001" class="doc doc-us">
   <h3>US-13001 - T-3 cloudflared connector install shape switches on applied containerHost (compose-service default; systemd-unit fallback for bare cloudHost)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0 alongside deploy-hetzner-server (and optionally platform-docker-compose-host)</p>
   <p><strong>I want:</strong> the cloudflared connector to install as a compose service when the containerHost capability is applied and as a systemd unit when the host runs bare</p>
   <p><strong>So that:</strong> the runtime shape matches the applied platform rather than forcing a container onto a bare host or a bare service into a compose-managed stack</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-130">REQ-130</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13131,11 +12889,9 @@
   <div class="rcf-row-body body">
     <article id="US-13002" class="doc doc-us">
   <h3>US-13002 - T-3 cloudflared connector reports healthy on boot (tunnelConnectorUp fires with connector id, region, version)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0 on a cloudHost</p>
   <p><strong>I want:</strong> the connector to emit a tunnelConnectorUp event on boot with connector id, region and version metadata (metadata only)</p>
   <p><strong>So that:</strong> the observability sink proves the tunnel is up without a shell into the host</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-130">REQ-130</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13225,11 +12981,9 @@
   <div class="rcf-row-body body">
     <article id="US-13101" class="doc doc-us">
   <h3>US-13101 - T-3 tunnel manifest schema at cloudflare/tunnels/&lt;name&gt;.yaml validates on shape (tunnel id, credentials secretRef, ingress rules with catch-all 404)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0</p>
   <p><strong>I want:</strong> the tunnel manifest at cloudflare/tunnels/&lt;name&gt;.yaml to validate against a shipped JSON schema (uuid-shaped tunnel id, secretRef credentials, ingress rules with a mandatory catch-all http_status 404)</p>
   <p><strong>So that:</strong> a mis-shaped manifest is caught at apply-time rather than at first inbound request</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-131">REQ-131</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13274,11 +13028,9 @@
   <div class="rcf-row-body body">
     <article id="US-13102" class="doc doc-us">
   <h3>US-13102 - T-3 ingress rules route the public hostname to an internal service URL and cloudflared config lint exits 0</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0 with a compose service listening on an internal port</p>
   <p><strong>I want:</strong> the ingress rule mapping the public hostname to the internal service URL (e.g. http://web:8080) to pass cloudflared tunnel ingress validate cleanly</p>
   <p><strong>So that:</strong> a rule that would fail at boot fails at gate instead</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-131">REQ-131</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13390,11 +13142,9 @@
   <div class="rcf-row-body body">
     <article id="US-13201" class="doc doc-us">
   <h3>US-13201 - T-3 no public origin ports on the host (firewall stays 22 plus 80/443-only-when-reverse-proxy; manifest refuses an origin-port request)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0 without a reverse proxy</p>
   <p><strong>I want:</strong> the host firewall to stay closed on 80/443 and the manifest schema to refuse any ingress rule that binds to a host public port rather than an internal address</p>
   <p><strong>So that:</strong> the tunnel remains the only path from the edge to the origin</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-132">REQ-132</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13479,11 +13229,9 @@
   <div class="rcf-row-body body">
     <article id="US-13301" class="doc doc-us">
   <h3>US-13301 - T-3 Access-gated composition: when zeroTrustGate is applied, ingress rules attach originRequest.access.aud</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0 alongside edge-cloudflare-access v1.0.0</p>
   <p><strong>I want:</strong> every ingress rule to attach an originRequest.access block naming the Access AUD</p>
   <p><strong>So that:</strong> cloudflared refuses at the edge any request that arrives without a valid Access JWT for that AUD</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-133">REQ-133</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13528,11 +13276,9 @@
   <div class="rcf-row-body body">
     <article id="US-13302" class="doc doc-us">
   <h3>US-13302 - T-3 shape does not silently degrade to open ingress when zeroTrustGate drifts absent on a project that intended the gated shape (aud-presence-check refuses)</h3>
-  
   <p><strong>As a:</strong> shelf consumer who applied edge-cloudflare-tunnel v1.0.0 with zeroTrustGate on</p>
   <p><strong>I want:</strong> a probe that asserts the ingress rule keeps its originRequest.access.aud block on every reapply and refuses if the block drifts absent</p>
   <p><strong>So that:</strong> a silent config drift to open ingress is caught at gate rather than at first probing</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-133">REQ-133</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13610,11 +13356,9 @@
   <div class="rcf-row-body body">
     <article id="US-13401" class="doc doc-us">
   <h3>US-13401 - T-3 credentials-file discipline (JSON at mode 0o400, referenced via secretRef, not committed, grep-refuses on the literal, no leak in event bodies)</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying edge-cloudflare-tunnel v1.0.0 on a cloudHost</p>
   <p><strong>I want:</strong> the tunnel credentials file to land at mode 0o400 on the host, be referenced from the manifest as a secretRef, never be committed to the applying project tree (grep-refuse on the tunnel id and account tag literals), and never appear in any lifecycle event body</p>
   <p><strong>So that:</strong> a leaked credentials file cannot happen through a review-time miss</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-134">REQ-134</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -13714,7 +13458,6 @@
   <div class="rcf-row-body body">
     <article id="US-14001" class="doc doc-us">
   <h3>US-14001 - T-follow-up adapter object-storage-s3 v1.1.0 Hetzner: endpoint-shape helper composes &lt;bucket&gt;.&lt;location&gt;.your-objectstorage.com; new probe hetzner-object-storage-round-trip drives put/get/delete against the composed endpoint on the extended fixture; accountBound gated on CI_HAS_HETZNER_OBJECT_STORAGE</h3>
-  
   <p><strong>As a:</strong> shelf consumer applying object-storage-s3 v1.1.0 on a Hetzner Object Storage bucket (fsn1, hel1 or nbg1 location)</p>
   <p><strong>I want:</strong> an endpoint-shape helper that composes &lt;bucket&gt;.&lt;location&gt;.your-objectstorage.com from an elicited bucket and location per the Hetzner storage overview, plus a new Node-only probe hetzner-object-storage-round-trip.mjs driven from the extended infra-s3-and-queue fixture that either round-trips a byte-equal put/get/delete against a real Hetzner Object Storage bucket when CI_HAS_HETZNER_OBJECT_STORAGE is set or records accountBoundSkipped true when unset</p>
   <p><strong>So that:</strong> the shelf gains a fourth provider value alongside R2, AWS and MinIO with no runtime dependency added to the applying project, no facade re-shape, and no regression to the shipped MinIO local-emulator or R2 real-account paths</p>
@@ -13922,11 +13665,9 @@
   <div class="rcf-row-body body">
     <article id="US-14501" class="doc doc-us">
   <h3>US-14501 - H-1: deploy-hetzner-server 1.0.1 real-account probes return aggregateVerdict pass unpatched; fixture renders cloud-init with ssh public key material and NOPASSWD deploy user; mock consumes the same rendered file; destroy and sweep drop --output json on delete; snapshot uses hcloud server create-image --type snapshot; ssh baseline polls before firing; sshKeyIds override via RCF_LITE_CI_SSH_KEY_NAME</h3>
-  
   <p><strong>As a:</strong> shelf consumer running the deploy-hetzner-server v1.0.1 real-account probes against a live Hetzner Cloud project (CI_HAS_HETZNER_ACCOUNT=true)</p>
   <p><strong>I want:</strong> the T-1 real-account probes to return aggregateVerdict pass without local patches: provision reads snake_case hcloud fields; the fixture renders the cloud-init user-data to a scratch path from the shipped template with resolved ssh public-key material and NOPASSWD sudo for the deploy user; provision, mock and destroy consume that same rendered file; destroy and sweep-orphans never pass --output json to a delete verb; the snapshot verb uses hcloud server create-image --type snapshot and matches by label; ssh baseline waits for cloud-init before firing; and the manifest ssh-key name is overridable via RCF_LITE_CI_SSH_KEY_NAME with the manifest value as default</p>
   <p><strong>So that:</strong> the mocked probes cannot pass while the real path fails on the same rendered artefact, throwaway servers never leak because destroy always succeeds, and the six baseline hardening blocks are observably present on the running server</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-145">REQ-145</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -14037,7 +13778,6 @@
   <div class="rcf-row-body body">
     <article id="US-15001" class="doc doc-us">
   <h3>US-15001 - H-2 kv re-anchor: every kv probe result cites AC-31xxx; every shipped kv AC gains a runtime observable through the existing five probes</h3>
-  
   <p><strong>As a:</strong> rcf-lite maintainer applying platform-cloudflare-kv v1.0.0</p>
   <p><strong>I want:</strong> every kv probe result and the kv README to cite ACs from the shipped AC-31xxx band, and every one of the nine shipped kv ACs to appear as an anchor (primary or additional result) on at least one probe with a runtime observable</p>
   <p><strong>So that:</strong> the shipped kv probes count as evidence for the shipped kv ACs, no defunct AC-5xxx id survives on the kv blueprint, and traceability closes over the whole shipped kv surface</p>
@@ -14124,7 +13864,6 @@
   <div class="rcf-row-body body">
     <article id="US-15101" class="doc doc-us">
   <h3>US-15101 - H-2 DO real storage driver + anchor coverage: real-account-storage-smoke drives a byte-equal put/get round-trip against a deployed Worker; five previously-unbound DO ACs bound as additional-result anchors on existing probes</h3>
-  
   <p><strong>As a:</strong> rcf-lite maintainer applying platform-cloudflare-durable-objects v1.0.0</p>
   <p><strong>I want:</strong> real-account-storage-smoke to drive a real HTTP round trip against a deployed Worker route that opens the DO facade, writes a fixture key and reads it back byte-equal (or record accountBoundSkipped when the account env is absent), and the five DO ACs currently unbound (AC-33106-1, AC-33108-1, AC-33109-1, AC-33110-1, AC-33111-1) to appear as additional-result anchors on the wrangler-seam, storage-round-trip and concurrent-increment probes</p>
   <p><strong>So that:</strong> the real-account run proves the DO facade actually round-trips a value on Cloudflare (not just that credentials are present), and all 13 shipped DO ACs are bound to a probe with a runtime observable</p>
@@ -14276,7 +14015,6 @@
   <div class="rcf-row-body body">
     <article id="US-15201" class="doc doc-us">
   <h3>US-15201 - H-2 queue real concurrency driver: real-account-concurrency-smoke publishes 500 messages through the producer facade against a live Queues binding on a deployed Worker and asserts concurrent processing up to the documented push-invocation cap</h3>
-  
   <p><strong>As a:</strong> rcf-lite maintainer applying messaging-queue-cloudflare v1.0.0</p>
   <p><strong>I want:</strong> real-account-concurrency-smoke to publish 500 messages through the producer facade wired to a live Queues binding on a deployed Worker and assert concurrent processing up to the documented push-invocation cap when CI_HAS_CLOUDFLARE_ACCOUNT is set (or record accountBoundSkipped when it is not)</p>
   <p><strong>So that:</strong> the real-account run proves the queue actually processes messages concurrently on Cloudflare (not just that credentials are present) and the accountBoundSkipped pass-stub can never again be reached from account-flag presence alone</p>
@@ -14356,7 +14094,6 @@
   <div class="rcf-row-body body">
     <article id="US-15301" class="doc doc-us">
   <h3>US-15301 - H-2 tunnel real drivers: connector-healthy exercises cloudflared tunnel info against the throwaway hetzner server; hostname-routes drives undici and (when Access is enabled) a two-identity JWT probe; manifest-schema-validate placeholder becomes fail-with-pointer</h3>
-  
   <p><strong>As a:</strong> rcf-lite maintainer applying edge-cloudflare-tunnel v1.0.0</p>
   <p><strong>I want:</strong> real-account-connector-healthy to actually provision the throwaway hetzner server through the T-1 fixture surface and run cloudflared tunnel info &lt;name&gt; asserting healthy connector count (when both CI_HAS_CLOUDFLARE_ACCOUNT and CI_HAS_HETZNER_ACCOUNT are set), real-account-tunnel-hostname-routes to drive undici for the public-hostname sub-case (activated on CI_HAS_CLOUDFLARE_ACCOUNT) and a two-identity JWT probe for the access-gated sub-case (activated only when CI_HAS_CLOUDFLARE_ACCESS is also set), and manifest-schema-validate to fail with a fixture-setup pointer when the credentials placeholder is missing rather than warn</p>
   <p><strong>So that:</strong> the real-account tunnel run proves connectors are up and routes actually serve on Cloudflare, the warn-on-env-set branches never again mask a broken driver, and a missing fixture pointer surfaces as a clear failure not a warning</p>
@@ -14489,7 +14226,6 @@
   <div class="rcf-row-body body">
     <article id="US-15401" class="doc doc-us">
   <h3>US-15401 - H-2 cross-cutting probe hygiene: SIMULATE_ branches out of probe bodies into fixture shims; no fail envelope committed; probe comments name test doubles honestly</h3>
-  
   <p><strong>As a:</strong> rcf-lite maintainer applying the four Cloudflare-platform blueprints</p>
   <p><strong>I want:</strong> no SIMULATE_ read anywhere in a shipped probe body on the four blueprints, no fail envelope committed under .rcf/reports on the four blueprints, and every committed envelope reflecting a shipped-code pass run against the re-anchored probes</p>
   <p><strong>So that:</strong> the mutation-purity rule holds at the probe boundary, envelopes are trusted evidence rather than stale fail records, and honest labelling of local test doubles restores probe-comment credibility</p>
@@ -14606,11 +14342,9 @@
   <div class="rcf-row-body body">
     <article id="US-15501" class="doc doc-us">
   <h3>US-15501 - Agent records a finding with one command</h3>
-  
   <p><strong>As a:</strong> agent that has just seen a blueprint or rcf-lite misbehave</p>
   <p><strong>I want:</strong> to record the finding with a single rcf feedback add call whose flags cover kind, target, anchor, symptom class, severity, title, body and evidence pointers, and to be told nothing was sent</p>
   <p><strong>So that:</strong> a finding is captured at the moment I see it, without any user-facing interruption and without any network traffic</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-155">REQ-155</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -14705,11 +14439,9 @@
   <div class="rcf-row-body body">
     <article id="US-15502" class="doc doc-us">
   <h3>US-15502 - Operator lists and inspects what has been recorded</h3>
-  
   <p><strong>As a:</strong> operator who wants to see what the agent has logged this session</p>
   <p><strong>I want:</strong> to run rcf feedback list (and rcf feedback status) to see pending entries and their state without triggering any submission</p>
   <p><strong>So that:</strong> I can decide by hand what to do with the log, and doctor can report the same counts on demand</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-155">REQ-155</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -14768,11 +14500,9 @@
   <div class="rcf-row-body body">
     <article id="US-15503" class="doc doc-us">
   <h3>US-15503 - Operator defers or discards recorded findings</h3>
-  
   <p><strong>As a:</strong> operator who has decided not to submit some findings</p>
   <p><strong>I want:</strong> to mark the pending batch deferred for this session, or discard specific entries entirely, without any network activity</p>
   <p><strong>So that:</strong> a &quot;not now&quot; or &quot;never for this one&quot; answer is honoured immediately and the state is durable across the next boot</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-155">REQ-155</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -14856,11 +14586,9 @@
   <div class="rcf-row-body body">
     <article id="US-15601" class="doc doc-us">
   <h3>US-15601 - Operator sees the exact issue text and what was stripped before consenting</h3>
-  
   <p><strong>As a:</strong> operator being asked to submit findings</p>
   <p><strong>I want:</strong> rcf feedback preview to print the exact rendered issue title and body, the destination repo and its visibility, and a redaction ledger that lists every rule-triggered replacement so I can see what was stripped</p>
   <p><strong>So that:</strong> my yes is informed and nothing surprising leaves the machine</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-156">REQ-156</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -14992,11 +14720,9 @@
   <div class="rcf-row-body body">
     <article id="US-15701" class="doc doc-us">
   <h3>US-15701 - The same finding from many reporters folds into one issue</h3>
-  
   <p><strong>As a:</strong> blueprint maintainer receiving reports</p>
   <p><strong>I want:</strong> ten reporters hitting the same defect on the same anchor to land as one issue with nine +1 comments carrying their environments, not ten separate issues</p>
   <p><strong>So that:</strong> triage is cheap and duplicate storms do not swamp the tracker</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-157">REQ-157</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15092,11 +14818,9 @@
   <div class="rcf-row-body body">
     <article id="US-15801" class="doc doc-us">
   <h3>US-15801 - Library owner declares where feedback issues go</h3>
-  
   <p><strong>As a:</strong> library owner shipping a blueprint library</p>
   <p><strong>I want:</strong> to name the reports destination in one field on library.json, snapshotted into the consuming project registry on library add, so every project using my library files reports on my repo</p>
   <p><strong>So that:</strong> I hear about defects on my library without every consuming project having to be told separately</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-158">REQ-158</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15179,11 +14903,9 @@
   <div class="rcf-row-body body">
     <article id="US-15802" class="doc doc-us">
   <h3>US-15802 - Findings on shelf blueprints and on rcf-lite itself go to rcf-lite</h3>
-  
   <p><strong>As a:</strong> operator whose agent has logged a finding on a shelf blueprint or on rcf-lite core</p>
   <p><strong>I want:</strong> those findings routed to Stravica/rcf-lite by default without any per-project configuration</p>
   <p><strong>So that:</strong> reports about shelf content and core verbs reach the maintainers who own them</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-158">REQ-158</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15267,11 +14989,9 @@
   <div class="rcf-row-body body">
     <article id="US-15901" class="doc doc-us">
   <h3>US-15901 - Operator yes files issues under the reporter GitHub login</h3>
-  
   <p><strong>As a:</strong> operator saying yes to the ask</p>
   <p><strong>I want:</strong> the tool to call gh under my ambient login and file each pending entry as a GitHub issue or +1 comment, mark each entry submitted with the URL, and print the URLs so the agent can relay them</p>
   <p><strong>So that:</strong> reports are visibly mine, with no relay in between and no token handling in the tool</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-159">REQ-159</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15330,11 +15050,9 @@
   <div class="rcf-row-body body">
     <article id="US-15902" class="doc doc-us">
   <h3>US-15902 - Labels are applied where the reporter may set them</h3>
-  
   <p><strong>As a:</strong> maintainer triaging inbound issues</p>
   <p><strong>I want:</strong> rcf-feedback plus severity:&lt;...&gt; plus area:&lt;...&gt; labels applied by the tool when the destination repo carries them and the reporter has push or triage access</p>
   <p><strong>So that:</strong> triage queues sort correctly for reporters who have the right, while outside reporters on a public repo still land readable issues (title prefix and body fingerprint remain the load-bearing handles).</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-159">REQ-159</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15442,11 +15160,9 @@
   <div class="rcf-row-body body">
     <article id="US-16001" class="doc doc-us">
   <h3>US-16001 - No gh, no login or no access still gives the operator a bundle and a URL</h3>
-  
   <p><strong>As a:</strong> operator without gh installed, not logged in, or without access to a private destination repo</p>
   <p><strong>I want:</strong> submit to write a bundle file with the exact issue text and print the file path and the destination issues/new URL in one line</p>
   <p><strong>So that:</strong> I can paste or email the report even when the tool cannot file it on my behalf, and I am not asked about the same entries again next session</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-160">REQ-160</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15554,11 +15270,9 @@
   <div class="rcf-row-body body">
     <article id="US-16101" class="doc doc-us">
   <h3>US-16101 - Operator is asked once, at a pause, with the exact preview text, and never nagged</h3>
-  
   <p><strong>As a:</strong> operator in the middle of getting work done</p>
   <p><strong>I want:</strong> the ask to arrive at a natural pause (queue complete, an entry older than 15 minutes, a carried-over entry, or a --ask-now blocker), for the ask to carry the exact preview text and destination, and for me never to be asked twice in one session</p>
   <p><strong>So that:</strong> the ask is welcome rather than an interruption</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-161">REQ-161</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15629,11 +15343,9 @@
   <div class="rcf-row-body body">
     <article id="US-16102" class="doc doc-us">
   <h3>US-16102 - Operator silences the ask for this project</h3>
-  
   <p><strong>As a:</strong> operator who does not want to be asked about feedback on this project</p>
   <p><strong>I want:</strong> a one-command opt-out that writes rcf/feedback-settings.json:ask false (checked in), and an env variable that silences the ask per user without touching the file</p>
   <p><strong>So that:</strong> a shared project silences the ask for everyone, and a CI or per-user preference silences it locally</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-161">REQ-161</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15692,11 +15404,9 @@
   <div class="rcf-row-body body">
     <article id="US-16103" class="doc doc-us">
   <h3>US-16103 - A carried-over batch is offered next session</h3>
-  
   <p><strong>As a:</strong> operator whose session ended before the ask fired</p>
   <p><strong>I want:</strong> the SessionEnd hook to flush a bundle idempotently and the SessionStart hook of the next session to inject a one-line context reminder that pending entries exist</p>
   <p><strong>So that:</strong> a crash or /clear does not lose findings and the next session&#39;s first pause carries the ask</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-161">REQ-161</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15767,11 +15477,9 @@
   <div class="rcf-row-body body">
     <article id="US-16104" class="doc doc-us">
   <h3>US-16104 - rcf init installs the feedback hooks and rcf doctor keeps them honest</h3>
-  
   <p><strong>As a:</strong> operator running rcf init on a project</p>
   <p><strong>I want:</strong> the feedback Stop / SessionEnd / SessionStart hook entries merged into .claude/settings.json and .codex/hooks.json (with --no-feedback-hooks to skip), and rcf doctor to report missing-hook (fixable with --fix) and foreign-hook (refused) so the harness config stays honest across clones</p>
   <p><strong>So that:</strong> every clone gets the same ask behaviour without a per-developer setup step, and drift is surfaced instead of quietly diverging</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-161">REQ-161</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15867,11 +15575,9 @@
   <div class="rcf-row-body body">
     <article id="US-16201" class="doc doc-us">
   <h3>US-16201 - RULE 17 tells every agent when to log and when to ask</h3>
-  
   <p><strong>As a:</strong> harness (Claude Code or Codex) that reads the managed instructions block</p>
   <p><strong>I want:</strong> a static RULE 17 in guidance/managed/agent-instructions-block.md that names rcf feedback add for logging, describes the one-ask-per-session posture (harness hook or operator wrap-up as trigger, preview then submit --yes or defer or opt-out), and states the redaction posture</p>
   <p><strong>So that:</strong> an agent under pace still follows the shape when the harness hooks are not trusted, and the same rule serves both harnesses</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-162">REQ-162</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -15955,11 +15661,9 @@
   <div class="rcf-row-body body">
     <article id="US-16301" class="doc doc-us">
   <h3>US-16301 - US-16301: define validate walks ADR supersededBy; relatedAdrs stays a schemas follow-up (compatibility carry)</h3>
-  
   <p><strong>As a:</strong> beta reader relying on the referee-guarantees page to know what `rcf define validate` proves</p>
   <p><strong>I want:</strong> a broken ADR supersededBy pointer to be reported as a brokenReference the same way a broken parent link is, and the soft `relatedAdrs` back-reference to stay silent so the ratified blueprint-supersede workflow is not broken</p>
   <p><strong>So that:</strong> the docs-page promise that every reference in every document resolves is enforced on the strong chain-of-decisions reference (supersededBy), while the soft see-also field stays a schemas follow-up (either value-narrowed or workflow-aware)</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-163">REQ-163</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16046,11 +15750,9 @@
   <div class="rcf-row-body body">
     <article id="US-16401" class="doc doc-us">
   <h3>US-16401 - US-16401: strict-by-default coverage with a shallow-any opt-out and a legacy --strict alias</h3>
-  
   <p><strong>As a:</strong> beta reader who typed the command from the referee-guarantees page</p>
   <p><strong>I want:</strong> `rcf audit coverage` with no flag to fail the gate on a stub or missing test, and `--mode shallow-any` to be the documented escape valve</p>
   <p><strong>So that:</strong> the docs promise &#39;a stub or stale pointer fails the gate exactly as a missing test does&#39; holds by construction, and my existing `--strict` invocations do not need rewriting</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-164">REQ-164</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16149,11 +15851,9 @@
   <div class="rcf-row-body body">
     <article id="US-16501" class="doc doc-us">
   <h3>US-16501 - US-16501: finalise refuses on UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING and SCOPE-MISMATCH</h3>
-  
   <p><strong>As a:</strong> beta reader trusting the referee-guarantees page&#39;s finalise refusal list</p>
   <p><strong>I want:</strong> `rcf build finalise` to refuse promotion when the verify report carries UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH on any AC</p>
   <p><strong>So that:</strong> a UI baseline violation, a missing browser check on a UI-bearing FBS, a bound TC narrower than its AC scope, or a block-severity probe-pack failure all fail the gate the same way the mock-only and EVAL refusals already do</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-165">REQ-165</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16227,11 +15927,9 @@
   <div class="rcf-row-body body">
     <article id="US-16502" class="doc doc-us">
   <h3>US-16502 - US-16502: finalise is the only path to verified, and it fires only on a default trunk</h3>
-  
   <p><strong>As a:</strong> beta reader trusting the referee-guarantees page&#39;s verified-invariant promise</p>
   <p><strong>I want:</strong> `rcf define update` to refuse writing FBS.executionStatus=verified by default, and `rcf build finalise` to refuse promotion when the git working tree is not on a default trunk</p>
   <p><strong>So that:</strong> a chain that says verified traces to an actual post-merge runtime check by construction, and a mid-branch dev-loop finalise cannot stamp verified without the operator&#39;s deliberate opt-out</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-165">REQ-165</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16305,11 +16003,9 @@
   <div class="rcf-row-body body">
     <article id="US-16503" class="doc doc-us">
   <h3>US-16503 - US-16503: a dispatched worker can run the finalise gate without spawning the agent CLI</h3>
-  
   <p><strong>As a:</strong> operator running `rcf build finalise` from a dispatched worker that may not spawn the agent CLI</p>
   <p><strong>I want:</strong> a `--mode deterministic` option on `rcf verify run` and `rcf build finalise` that runs the gate in-process with a per-AC skip ledger, and a partial-report fallback that names the mode and the reason when verify exits without writing a report</p>
   <p><strong>So that:</strong> the finalise gate always surfaces a readable report, deterministic runs never silently promote to verified (ADR-4112), and the parent-session `agentScreenshotCritique` mode is unchanged for operators who can spawn the agent CLI</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-165">REQ-165</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16392,11 +16088,9 @@
   <div class="rcf-row-body body">
     <article id="US-16504" class="doc doc-us">
   <h3>US-16504 - US-16504: finalise verifies one build unit by default; whole-chain verification on request</h3>
-  
   <p><strong>As a:</strong> operator finalising one build unit on a tree that carries hundreds of acceptance criteria</p>
   <p><strong>I want:</strong> `rcf build finalise &lt;fbs-id&gt;` to verify only the acceptance criteria bound to that FBS by default, with `rcf verify run --fbs &lt;id&gt;` as the underlying filter and an explicit `--all` option that restores whole-chain verification</p>
   <p><strong>So that:</strong> finalising one build unit costs one unit&#39;s verification rather than the whole chain, the ADR-4112 verified invariant still holds per FBS (every AC bound to the FBS verified, none skipped), and a whole-chain run stays available at slice end</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-165">REQ-165</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16480,11 +16174,9 @@
   <div class="rcf-row-body body">
     <article id="US-16505" class="doc doc-us">
   <h3>US-16505 - US-16505: finalise forwards the operator&#39;s provisioning declaration and runs the package-local verify</h3>
-  
   <p><strong>As a:</strong> operator running `rcf build finalise` on a chain whose prerequisites are supplied out of band (admin-seeded auth, operator-managed sandboxes, pre-populated test data) from a project-local rcf-lite install</p>
   <p><strong>I want:</strong> `rcf build finalise` to accept `--provision-mode &lt;run|skip&gt;` with the semantics documented for `rcf verify run` and forward it to the fresh verify subprocess, the finalise report to carry the same `provisioning.mode` stamp, every remedy named in a finalise blocked-reason to be a flag finalise exposes (or the verify-direct route), and finalise to launch the verify entry of the package it runs from (PATH only as a fallback) while recording the resolved verify command and its version in the report</p>
   <p><strong>So that:</strong> an admin-seeded chain that passes `rcf verify run --provision-mode skip` with ship authority can promote through finalise instead of blocking on a flag finalise does not expose, the audit trail records the operator&#39;s provisioning declaration whichever command invoked the gate, and a stale global `rcf` can no longer silently shadow the project-local install without the report saying which binary ran (issue 356)</p>
-  
   <section class="field-list"><h4>Requirement</h4><p><a href="#REQ-165">REQ-165</a></p></section>
   <section class="acceptance-criteria">
     <h4>Acceptance criteria</h4>
@@ -16600,7 +16292,6 @@
   <div class="rcf-row-body body">
     <article id="US-17001" class="doc doc-us">
   <h3>US-17001 - Product Map: shape grouping</h3>
-  
   <p><strong>As a:</strong> a product reader reviewing the requirements chain</p>
   <p><strong>I want:</strong> the Product Map tab to bucket requirements by shapeClassification.shapes[], with an &quot;Unclassified&quot; bucket for REQs missing the classification and a &quot;Business rules&quot; bucket for the &quot;none&quot; shape</p>
   <p><strong>So that:</strong> I can see at a glance which requirements sit in each surface area (webUi, httpApi, auth, persistence, notifications, business rules) without reading every REQ body</p>
@@ -16655,7 +16346,6 @@
   <div class="rcf-row-body body">
     <article id="US-17002" class="doc doc-us">
   <h3>US-17002 - Product Map: status filter</h3>
-  
   <p><strong>As a:</strong> a reviewer preparing a sign-off pass</p>
   <p><strong>I want:</strong> a status filter (all, draft, review, needsRevision, approved, superseded) on the Product Map tab that applies to whichever grouping is active</p>
   <p><strong>So that:</strong> I can narrow the tab to just the &quot;approved&quot; or just the &quot;needsRevision&quot; REQs without switching tabs or scanning by hand</p>
@@ -16703,7 +16393,6 @@
   <div class="rcf-row-body body">
     <article id="US-17003" class="doc doc-us">
   <h3>US-17003 - Product Map: component-first grouping</h3>
-  
   <p><strong>As a:</strong> a technical reviewer wanting to see requirements from the architecture down</p>
   <p><strong>I want:</strong> a component grouping rooted at the TAD, showing each TAC (with its dependencies) at level 1, the user stories linked to that TAC at level 2, each story&#39;s parent REQ at level 3, and its ACs at level 4, plus an &quot;Unmapped&quot; bucket for REQs no component reaches</p>
   <p><strong>So that:</strong> I can pivot from a component to the requirements it delivers without leaving the tab</p>
@@ -16751,7 +16440,6 @@
   <div class="rcf-row-body body">
     <article id="US-17004" class="doc doc-us">
   <h3>US-17004 - Product Map: trace-coverage grouping</h3>
-  
   <p><strong>As a:</strong> a reviewer about to sign a chain off</p>
   <p><strong>I want:</strong> a trace-coverage grouping that buckets each REQ by chain completeness (complete, missing stories, missing AC scope or owner, missing component owner, missing tests)</p>
   <p><strong>So that:</strong> I can see which requirements are safe to sign off and which still need work</p>
@@ -16799,7 +16487,6 @@
   <div class="rcf-row-body body">
     <article id="US-17005" class="doc doc-us">
   <h3>US-17005 - Product Map: capability grouping</h3>
-  
   <p><strong>As a:</strong> a product reader thinking in capabilities rather than technical shape</p>
   <p><strong>I want:</strong> a capability grouping that reads capability:&lt;slug&gt; entries from REQ.tags[] and buckets requirements per capability</p>
   <p><strong>So that:</strong> I can see the product as a set of capabilities and drill into each capability&#39;s REQs, stories and ACs</p>
@@ -16847,7 +16534,6 @@
   <div class="rcf-row-body body">
     <article id="US-17006" class="doc doc-us">
   <h3>US-17006 - Product Map: usable interaction model</h3>
-  
   <p><strong>As a:</strong> a product reader who returns to the Product Map across sessions</p>
   <p><strong>I want:</strong> collapsed-by-default buckets, a jump-nav index across the top, per-bucket status mini-counts, hash-encoded open-bucket state and compact REQ cards with drill-down (raw JSON stays on the Requirements tab)</p>
   <p><strong>So that:</strong> the tab scans in under a minute and a bookmarked URL restores tab, grouping, filter and the buckets I had open, and my open state survives a live refresh</p>
@@ -16894,7 +16580,6 @@
   <div class="rcf-row-body body">
     <article id="US-17007" class="doc doc-us">
   <h3>US-17007 - Product Map: lazy first-load payload</h3>
-  
   <p><strong>As a:</strong> a reviewer opening the review surface on a slow link</p>
   <p><strong>I want:</strong> an initial HTML payload well under 3 MB by rendering only the active grouping fully and hydrating the other groupings on demand from a partial endpoint</p>
   <p><strong>So that:</strong> first paint is fast and the tab stays interactive on 100-plus REQ trees</p>
@@ -16941,7 +16626,6 @@
   <div class="rcf-row-body body">
     <article id="US-17008" class="doc doc-us">
   <h3>US-17008 - Product Map: blueprint badge and by-blueprint grouping</h3>
-  
   <p><strong>As a:</strong> a product reader auditing what came from applied blueprints vs the project&#39;s own requirements</p>
   <p><strong>I want:</strong> a blueprint badge on every REQ row that was contributed by a blueprint plus a by-blueprint grouping (one bucket per applied blueprint plus an Application bucket) with capability as the second level inside each bucket</p>
   <p><strong>So that:</strong> I can see at a glance which parts of the tree ride on shared blueprints and which the project owns, and drill from a blueprint to the capabilities it contributed</p>
@@ -17031,7 +16715,6 @@
   <div class="rcf-row-body body">
     <article id="US-17101" class="doc doc-us">
   <h3>US-17101 - Dogfood chain carries capability tags on every requirement</h3>
-  
   <p><strong>As a:</strong> the maintainer of the rcf-lite dogfood chain</p>
   <p><strong>I want:</strong> every REQ under rcf-lite/rcf to carry at least one capability:&lt;slug&gt; tag drawn from the documented taxonomy</p>
   <p><strong>So that:</strong> the by-capability Product Map view has something to bucket on, and the trial can be evaluated against real data rather than a fixture</p>
@@ -17079,7 +16762,6 @@
   <div class="rcf-row-body body">
     <article id="US-17102" class="doc doc-us">
   <h3>US-17102 - Capability taxonomy is documented in the rcf-lite docs</h3>
-  
   <p><strong>As a:</strong> a reader of the rcf-lite docs deciding whether to adopt the convention</p>
   <p><strong>I want:</strong> the capability:&lt;slug&gt; convention, the initial taxonomy and the rule for adding a new capability documented alongside the rest of the rcf-lite docs</p>
   <p><strong>So that:</strong> a new capability is added deliberately rather than by drift, and a reader can look up what each slug means</p>
@@ -17180,7 +16862,6 @@
   <div class="rcf-row-body body">
     <article id="US-17201" class="doc doc-us">
   <h3>US-17201 - Delta detection and freeze record land as reusable primitives</h3>
-  
   <p><strong>As a:</strong> the maintainer of a rcf-lite tree</p>
   <p><strong>I want:</strong> hashDocument, computeTreeHash, computeDelta and the rcf/define/freeze.json reader/writer to land as pure modules exposed on the query surface, with a documented return shape that later DEFINE slices can call unchanged</p>
   <p><strong>So that:</strong> the gates, readiness view, freeze verb and bundle-side read all consume the same detection primitives, and a hand reformat of a document never surfaces as a change</p>
@@ -17284,7 +16965,6 @@
   <div class="rcf-row-body body">
     <article id="US-17301" class="doc doc-us">
   <h3>US-17301 - rcf define ledger reads and writes the four sidecars under rcf/define/</h3>
-  
   <p><strong>As a:</strong> an operator staging or reviewing a DEFINE change</p>
   <p><strong>I want:</strong> rcf define ledger to author brief statements, decisions, concern dispositions and probe findings under rcf/define/ with numbered ids stable for the life of the project, and to leave every ledger invisible to the walker</p>
   <p><strong>So that:</strong> the freeze record&#39;s high-water mark, the D7 decisions list, D5 concern coverage and D6 probe findings all have a written record and every later DEFINE slice reads the same seam without discovering a second source of truth</p>
@@ -17354,7 +17034,6 @@
   <div class="rcf-row-body body">
     <article id="US-17302" class="doc doc-us">
   <h3>US-17302 - update and the pointer grammar</h3>
-  
   <p><strong>As a:</strong> harness</p>
   <p><strong>I want:</strong> to patch a statement&#39;s kind, text or resolution</p>
   <p><strong>So that:</strong> a correction does not mint a duplicate</p>
@@ -17523,7 +17202,6 @@
   <div class="rcf-row-body body">
     <article id="US-17401" class="doc doc-us">
   <h3>US-17401 - Stage gates land as pure check functions with per-stage state</h3>
-  
   <p><strong>As a:</strong> a downstream consumer of DEFINE gates (readiness, freeze, viewer)</p>
   <p><strong>I want:</strong> gates.js to expose one pure check function per stage D1..D8, each returning a { stage, gate, state, checks[] } object with checks in the { name, ok, over: &#39;delta&#39;|&#39;tree&#39;, pass, total, failing: [{ id, why }] } shape</p>
   <p><strong>So that:</strong> computeReadiness composes the eight checks, the freeze verb refuses on any failing state, and the viewer&#39;s Readiness tab prints the same rows the CLI does with no schema translation</p>
@@ -17651,7 +17329,6 @@
   <div class="rcf-row-body body">
     <article id="US-17402" class="doc doc-us">
   <h3>US-17402 - Persona tag on every gate check</h3>
-  
   <p><strong>As a:</strong> an engineer reading a readiness report</p>
   <p><strong>I want:</strong> every failing check to say whose question it is</p>
   <p><strong>So that:</strong> product-owner questions reach the product owner and engineering gaps stay with me</p>
@@ -17751,7 +17428,6 @@
   <div class="rcf-row-body body">
     <article id="US-17403" class="doc doc-us">
   <h3>US-17403 - Split heterogeneous checks and detect the D3 draft marker</h3>
-  
   <p><strong>As a:</strong> an engineer</p>
   <p><strong>I want:</strong> the mixed checks split and a draft interface distinguishable from a settled one</p>
   <p><strong>So that:</strong> a shape the L1 agent pre-populated never reads as my finished work</p>
@@ -17865,7 +17541,6 @@
   <div class="rcf-row-body body">
     <article id="US-17404" class="doc doc-us">
   <h3>US-17404 - D3 bites</h3>
-  
   <p><strong>As a:</strong> an engineer</p>
   <p><strong>I want:</strong> D3 to run the substantive template, entity-join and path-resolution checks under --check with the same recorded-override channel D3, D5 and D6 share</p>
   <p><strong>So that:</strong> a draft shape that is missing its markers, an unjoined entity or a dangling path blocks the gate until I either fix the tree or acknowledge it at the current hash</p>
@@ -17973,7 +17648,6 @@
   <div class="rcf-row-body body">
     <article id="US-17405" class="doc doc-us">
   <h3>US-17405 - D4, D5 and D2 bite</h3>
-  
   <p><strong>As a:</strong> an engineer</p>
   <p><strong>I want:</strong> D4 to flag enumeration cues without a closed set, D5 to drive the eight-concern catalogue against the concern ledger for every REQ in scope, D2 to insist every registered standards pack is cited or waived, and --check crosscut to honour the recorded override at the current hash</p>
   <p><strong>So that:</strong> an AC that invites unlisted values, an unresolved ownerRef, a REQ that forgot a crosscut concern or a registered standards pack that no document cites blocks the gate until the tree is fixed or the gate is acknowledged</p>
@@ -18081,7 +17755,6 @@
   <div class="rcf-row-body body">
     <article id="US-17406" class="doc doc-us">
   <h3>US-17406 - D6 bites</h3>
-  
   <p><strong>As a:</strong> an engineer</p>
   <p><strong>I want:</strong> D6 to run the four substantive consistency scans and --check consistency to honour the recorded override at the current hash</p>
   <p><strong>So that:</strong> two ACs on one story that contradict each other, a then that names an undefined field, duplicate descriptions across stories or an orphaned interface block the gate until the tree is fixed or the gate is acknowledged</p>
@@ -18208,7 +17881,6 @@
   <div class="rcf-row-body body">
     <article id="US-17501" class="doc doc-us">
   <h3>US-17501 - computeReadiness and rcf define readiness render the same object</h3>
-  
   <p><strong>As a:</strong> an operator asking &#39;can I build, and if not what is in the way&#39;</p>
   <p><strong>I want:</strong> one pure compute that composes delta, fan-out, gates, coverage and decisions into a single object, and one CLI that prints it in a compact form or emits it as JSON</p>
   <p><strong>So that:</strong> the tree line, next action, stage chips, delta list and failing items are the same wherever they are shown, and slice 3&#39;s rcf define freeze refuses on the same freezeable flag the CLI reports</p>
@@ -18292,7 +17964,6 @@
   <div class="rcf-row-body body">
     <article id="US-17502" class="doc doc-us">
   <h3>US-17502 - Two levels folded on one readiness object</h3>
-  
   <p><strong>As a:</strong> a delivery stream</p>
   <p><strong>I want:</strong> `rcf define readiness --level intent --json` at a tree hash to be the artefact that says the product owner&#39;s part is done</p>
   <p><strong>So that:</strong> I can pick a tree up without a hand-over meeting</p>
@@ -18392,7 +18063,6 @@
   <div class="rcf-row-body body">
     <article id="US-17503" class="doc doc-us">
   <h3>US-17503 - Level and persona flags on rcf define readiness</h3>
-  
   <p><strong>As a:</strong> an operator</p>
   <p><strong>I want:</strong> --level intent|build and --persona on rcf define readiness</p>
   <p><strong>So that:</strong> a script exits on the verdict it cares about and a person sees their own questions first</p>
@@ -18499,7 +18169,6 @@
   <div class="rcf-row-body body">
     <article id="US-17504" class="doc doc-us">
   <h3>US-17504 - probe seam and litmus</h3>
-  
   <p><strong>As a:</strong> an engineer</p>
   <p><strong>I want:</strong> an injectable probeRunner seam on computeReadiness and a --litmus &lt;n&gt; flag on readiness and freeze that counts recorded litmus probe entries at the current litmus hash (the tree hash excluding the probes ledger)</p>
   <p><strong>So that:</strong> the harness can land fresh-context readings through the probe ledger and rcf-lite exits 4 until n distinct readers have attested at the current hash, without rcf-lite itself calling an LLM or spawning a process</p>
@@ -18619,7 +18288,6 @@
   <div class="rcf-row-body body">
     <article id="US-17601" class="doc doc-us">
   <h3>US-17601 - rcf define freeze runs readiness, refuses on failing, writes freeze.json and prints the section 2.5 summary</h3>
-  
   <p><strong>As a:</strong> an operator wrapping up a change on the tree</p>
   <p><strong>I want:</strong> one command that says &#39;yes freezeable and I have written the record&#39; or &#39;no here is the gate that blocks and its first failing ids&#39;, accepts --ack on the three warn-first gates with a mandatory reason, and prints a summary line I can paste into a commit message</p>
   <p><strong>So that:</strong> the freeze record is authoritative for slice 4&#39;s bundle --next and slice 5&#39;s viewer, and the same rules that gate readiness also gate the freeze</p>
@@ -18751,7 +18419,6 @@
   <div class="rcf-row-body body">
     <article id="US-17702" class="doc doc-us">
   <h3>US-17702 - bundle refuses and skips</h3>
-  
   <p><strong>As a:</strong> an operator closing a change</p>
   <p><strong>I want:</strong> `rcf build bundle --next` to refuse without a freeze record, to accept a recorded override, to skip FBS impacted by a non-empty delta and hand out the next unimpacted one, and to refuse when every actionable item is impacted and no override is given</p>
   <p><strong>So that:</strong> I cannot bundle a stale next item against an unfrozen tree, a hotfix path exists with a recorded reason, and the 0.29.0 output on a frozen tree with an empty delta is unchanged</p>
@@ -18878,7 +18545,6 @@
   <div class="rcf-row-body body">
     <article id="US-17802" class="doc doc-us">
   <h3>US-17802 - validate findings</h3>
-  
   <p><strong>As a:</strong> an author of chain documents</p>
   <p><strong>I want:</strong> validate to catch misuse of the four closed vocabularies (interface kind, AC class, tacIds, ownerRef / deliveredBy) at the one surface everyone runs today</p>
   <p><strong>So that:</strong> a typo or a wrong vocabulary value fails fast and is not left to the gates</p>
@@ -18990,7 +18656,6 @@
   <div class="rcf-row-body body">
     <article id="US-17902" class="doc doc-us">
   <h3>US-17902 - NV-DL enforced</h3>
-  
   <p><strong>As a:</strong> an operator of the DEFINE stage gates</p>
   <p><strong>I want:</strong> the five NV-DL rules to refuse by default with a recorded-in-chain override channel so a build verb cannot proceed on an unfrozen tree without a documented reason</p>
   <p><strong>So that:</strong> the ruleset&#39;s intent (ruling-sheet item 1) is enforced in code and the readiness compute still prints its diagnostics under a refusal</p>
@@ -19110,7 +18775,6 @@
   <div class="rcf-row-body body">
     <article id="US-18001" class="doc doc-us">
   <h3>US-18001 - Readiness as the first tab in the viewer</h3>
-  
   <p><strong>As a:</strong> an operator opening the viewer</p>
   <p><strong>I want:</strong> Readiness as the first tab with the two verdict pills and persona-grouped blockers</p>
   <p><strong>So that:</strong> the first thing I see is whether I can build and whose questions stand in the way</p>
@@ -19210,7 +18874,6 @@
   <div class="rcf-row-body body">
     <article id="US-18002" class="doc doc-us">
   <h3>US-18002 - the Readiness tab renders question cards grouped by source span</h3>
-  
   <p><strong>As a:</strong> a product owner opening the Readiness tab</p>
   <p><strong>I want:</strong> the questions waiting on me in plain words, grouped by their source span, without ids or stage codes</p>
   <p><strong>So that:</strong> I can answer them in my own session and see the hand-over state update as I go</p>
@@ -19275,7 +18938,6 @@
   <div class="rcf-row-body body">
     <article id="US-18003" class="doc doc-us">
   <h3>US-18003 - the Readiness tab lists questions and blocking items as linked tables, read-only, with no command text</h3>
-  
   <p><strong>As a:</strong> a product owner or an engineer opening the Readiness tab</p>
   <p><strong>I want:</strong> every question waiting on me and every blocking item as a table row I can sort, count and open where it lives</p>
   <p><strong>So that:</strong> I can brief my agent from the row without reading prose or a terminal</p>
@@ -19394,7 +19056,6 @@
   <div class="rcf-row-body body">
     <article id="US-18004" class="doc doc-us">
   <h3>US-18004 - the Readiness tab shows a coverage summary with real numbers and a thin-requirements table fed by every signal</h3>
-  
   <p><strong>As a:</strong> an engineer or product owner reading the Readiness tab</p>
   <p><strong>I want:</strong> to see how much of the chain is covered by resolving tests and which requirements are thin, as numbers and rows with links</p>
   <p><strong>So that:</strong> I can see the traceability reach without the CLI and open a thin requirement where it lives</p>
@@ -19502,7 +19163,6 @@
   <div class="rcf-row-body body">
     <article id="US-18005" class="doc doc-us">
   <h3>US-18005 - the Readiness tab is laid out as a stage grid with sub-tabs and delta counts, the For-engineers row retired</h3>
-  
   <p><strong>As a:</strong> an engineer opening the Readiness tab on a large unfrozen tree</p>
   <p><strong>I want:</strong> the stage states as a grid above the fold, the page split into sub-views, and the delta as counts rather than every document in the tree</p>
   <p><strong>So that:</strong> the command page loads light, reads top-down and never buries the failing ids under a thousand delta rows</p>
@@ -19664,7 +19324,6 @@
   <div class="rcf-row-body body">
     <article id="US-18101" class="doc doc-us">
   <h3>US-18101 - Shared pill, findings-list and diff components</h3>
-  
   <p><strong>As a:</strong> a maintainer of the viewer</p>
   <p><strong>I want:</strong> one pill, one findings list and one diff component</p>
   <p><strong>So that:</strong> gate state, persona, level verdict and AC class read the same on every tab</p>
@@ -19769,7 +19428,6 @@
   <div class="rcf-row-body body">
     <article id="US-18202" class="doc doc-us">
   <h3>US-18202 - the DEFINE-stage guidance pack</h3>
-  
   <p><strong>As a:</strong> harness</p>
   <p><strong>I want:</strong> the DEFINE-stage guidance pack served through one surface</p>
   <p><strong>So that:</strong> the loop reads one slug per topic and the register scans and managed-block rules apply everywhere</p>
@@ -19875,7 +19533,6 @@
   <div class="rcf-row-body body">
     <article id="US-18601" class="doc doc-us">
   <h3>US-18601 - the question set</h3>
-  
   <p><strong>As a:</strong> harness serving a product owner</p>
   <p><strong>I want:</strong> computeQuestions to turn every failing product-owner item into one plain question with its write-back</p>
   <p><strong>So that:</strong> I can ask without reading gate internals</p>
@@ -19968,7 +19625,6 @@
   <div class="rcf-row-body body">
     <article id="US-18602" class="doc doc-us">
   <h3>US-18602 - the verb and the tools</h3>
-  
   <p><strong>As a:</strong> operator or harness</p>
   <p><strong>I want:</strong> the verb and the MCP tool to return the same object</p>
   <p><strong>So that:</strong> the two loops cannot disagree</p>
@@ -20054,7 +19710,6 @@
   <div class="rcf-row-body body">
     <article id="US-18603" class="doc doc-us">
   <h3>US-18603 - write-back and termination</h3>
-  
   <p><strong>As a:</strong> product owner</p>
   <p><strong>I want:</strong> every answer to land through a verb and the loop to end at the computed verdict</p>
   <p><strong>So that:</strong> nothing about my intent lives only in a chat</p>
@@ -20167,7 +19822,6 @@
   <div class="rcf-row-body body">
     <article id="US-18701" class="doc doc-us">
   <h3>US-18701 - the statement file</h3>
-  
   <p><strong>As a:</strong> harness</p>
   <p><strong>I want:</strong> a line grammar for kind and source</p>
   <p><strong>So that:</strong> the split I propose to the owner is what gets minted</p>
@@ -20253,7 +19907,6 @@
   <div class="rcf-row-body body">
     <article id="US-18702" class="doc doc-us">
   <h3>US-18702 - scans into open questions</h3>
-  
   <p><strong>As a:</strong> product owner</p>
   <p><strong>I want:</strong> contradictions and gaps the tool can see to reach me as questions</p>
   <p><strong>So that:</strong> the first readiness run tells me what is still mine</p>
@@ -20379,7 +20032,6 @@
   <div class="rcf-row-body body">
     <article id="US-18801" class="doc doc-us">
   <h3>US-18801 - the draft homes</h3>
-  
   <p><strong>As a:</strong> engineer picking up an intent-complete tree</p>
   <p><strong>I want:</strong> every pre-populated shape marked</p>
   <p><strong>So that:</strong> nothing drafted reads as settled</p>
@@ -20492,7 +20144,6 @@
   <div class="rcf-row-body body">
     <article id="US-18901" class="doc doc-us">
   <h3>US-18901 - a product declares at intake how much of it is UI, and existing trees are grandfathered</h3>
-  
   <p><strong>As a:</strong> a product owner running intake on a new or re-intaken product</p>
   <p><strong>I want:</strong> to say once whether the product has no UI, a light UI or a UI that is front and centre, with the tool proposing from the brief and never deciding for me</p>
   <p><strong>So that:</strong> a product with no UI pays nothing, a light product is asked only the journey questions, and the trees that already exist are left as they are</p>
@@ -20612,7 +20263,6 @@
   <div class="rcf-row-body body">
     <article id="US-18902" class="doc doc-us">
   <h3>US-18902 - the journey is authored as markdown and minted as a record only the tool writes</h3>
-  
   <p><strong>As a:</strong> a product owner or a ux designer with a journey map in markdown</p>
   <p><strong>I want:</strong> to hand the tool my journey source, in the line grammar or in the prose shape the ux-designer role already writes, and get a record with stable ids and a readable printout back</p>
   <p><strong>So that:</strong> the path between screens is a record the tool can check, not a paragraph nobody reads, and I never edit JSON</p>
@@ -20732,7 +20382,6 @@
   <div class="rcf-row-body body">
     <article id="US-18903" class="doc doc-us">
   <h3>US-18903 - the journey is checked for structure, interruption answers and wireframe files in proportion to the declaration</h3>
-  
   <p><strong>As a:</strong> a product owner about to open DEFINE</p>
   <p><strong>I want:</strong> one check that tells me whether the journey has a way in, a way out, no dead ends, an answer for every way a person gets interrupted, and, only when the UI is central, a wireframe per step</p>
   <p><strong>So that:</strong> the questions are answered before requirements are drawn, without being asked for drawings a light product does not need</p>
@@ -20863,7 +20512,6 @@
   <div class="rcf-row-body body">
     <article id="US-18904" class="doc doc-us">
   <h3>US-18904 - the product owner reviews the journey and the review is sealed by a content hash</h3>
-  
   <p><strong>As a:</strong> a product owner signing off DISCOVERY</p>
   <p><strong>I want:</strong> to review the journey the tool shows me and stamp it, and to have that stamp go stale the moment a journey or a wireframe changes</p>
   <p><strong>So that:</strong> &quot;reviewed&quot; is a fact the tool can check, not a sentence in a plan</p>
@@ -20961,7 +20609,6 @@
   <div class="rcf-row-body body">
     <article id="US-18905" class="doc doc-us">
   <h3>US-18905 - DEFINE refuses to open on a UI-bearing product whose discovery is not complete, and a product with no UI pays nothing</h3>
-  
   <p><strong>As a:</strong> an engineer or agent about to write the first requirement</p>
   <p><strong>I want:</strong> the tool to refuse the write, in the same voice as the other gates, when the product owner has not finished DISCOVERY for a product whose UI matters</p>
   <p><strong>So that:</strong> requirements are drawn from a reviewed journey and nobody can acknowledge their way past it</p>
@@ -21103,7 +20750,6 @@
   <div class="rcf-row-body body">
     <article id="US-18906" class="doc doc-us">
   <h3>US-18906 - build units bind to journey steps so a stubbed step is visible in the queue, not inside a component</h3>
-  
   <p><strong>As a:</strong> an engineer running the build queue</p>
   <p><strong>I want:</strong> each build spec to name the journey steps it delivers and the queue to show which steps nobody has picked up</p>
   <p><strong>So that:</strong> a step with no owner is visible before the product ships with a gap between its screens</p>
