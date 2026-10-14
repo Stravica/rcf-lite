@@ -295,3 +295,93 @@ test('viewer: a trace-link hash (#tab=readiness&sub=trace&entity=REQ-002) lands 
   assert.ok(activeTopTab, 'a top-level tab is aria-selected');
   assert.equal(activeTopTab.getAttribute('data-tab'), 'readiness');
 });
+
+// -----------------------------------------------------------------
+// Sub-panel pivot normalisation (gate finding F1, context/rcf-gate-F1.md,
+// P2 on 2026-10-14). The commit `7e688d1` guard at
+// `src/view/page-init.js:714` exempts the literal `sub=trace` spelling
+// only. Readers that reach the viewer with a different-but-equivalent
+// spelling (URL-encoded `t`, uppercase `Trace`, a whitespace-padded
+// value) still fall into the entity-redirect branch and get kicked to
+// the Requirements tab, with `traceEntityFromHash` at line 2494 also
+// dropping the pivot.
+//
+// `applyReadinessHash` at lines 2391-2402 normalises `params.sub` by
+// `decodeURIComponent` once, then checks membership in
+// `READINESS_SUBS = ['overview','questions','blocking','coverage','trace']`.
+// So the function resolves to the Trace panel for the literal `trace`
+// AND for any URL-encoded form that decodes to lowercase `trace`
+// (e.g. `%74race` or `%74%72%61%63%65`). It does NOT normalise case or
+// whitespace: `Trace`, `TRACE`, ` trace`, and `%20trace` fall through
+// to the `overview` fallback and the hash-rewrite at lines 2404-2412.
+//
+// Per the escalation note on the SPEC-AND-TEST brief
+// (w-2026-10-14-dave-006: "If applyReadinessHash accepts only the
+// literal, say so and add only the encoded and case variants"), the
+// cases below pin the three spellings the fix must normalise through
+// to the sub-panel-pivot exemption so the Trace sub-view stays
+// mounted. The URL-encoded case is the exact form the F1 gate finding
+// calls out at `page-init.js:714`; `sub=Trace` and `sub=%20trace` are
+// the case-and-whitespace variants from the main brief.
+// -----------------------------------------------------------------
+
+function assertStaysOnReadinessTrace(dom) {
+  assert.equal(dom.panels.readiness.getAttribute('hidden'), null, 'Readiness tab stays active after resolveHash');
+  assert.equal(dom.panels.requirements.getAttribute('hidden'), '', 'Requirements tab is NOT the active panel; the Trace link must not redirect to it');
+
+  assert.equal(dom.subPanels.trace.getAttribute('hidden'), null, 'Readiness Trace sub-panel stays visible');
+  assert.equal(dom.subPanels.overview.getAttribute('hidden'), '', 'Readiness Overview sub-panel is hidden under sub=trace');
+
+  const activeSub = dom.subButtons.find((b) => b.getAttribute('aria-selected') === 'true');
+  assert.ok(activeSub, 'a readiness sub-tab is aria-selected');
+  assert.equal(activeSub.getAttribute('data-sub'), 'trace');
+
+  const activeTopTab = dom.tabButtons.find((b) => b.getAttribute('aria-selected') === 'true');
+  assert.ok(activeTopTab, 'a top-level tab is aria-selected');
+  assert.equal(activeTopTab.getAttribute('data-tab'), 'readiness');
+}
+
+test('viewer: a URL-encoded trace-link hash (#tab=readiness&sub=%74race&entity=REQ-002) resolves through applyReadinessHash to the Trace sub-panel and must stay there', async () => {
+  // applyReadinessHash decodes `%74race` to `trace` and activates the
+  // Trace sub-view (page-init.js:2398-2402, 2416-2418), so this is a
+  // spelling the function already resolves. The F1 gate finding is
+  // that the entity-redirect at page-init.js:714 sees the raw
+  // `%74race` and does not match the literal `trace`, so the pivot
+  // branch is bypassed and the viewer flips to the Requirements tab.
+  const dom = await bootPageInit({ hash: '#tab=readiness&sub=%74race&entity=REQ-002' });
+  assertStaysOnReadinessTrace(dom);
+});
+
+test('viewer: a fully-URL-encoded trace-link hash (#tab=readiness&sub=%74%72%61%63%65&entity=REQ-002) resolves through applyReadinessHash to the Trace sub-panel and must stay there', async () => {
+  // Every character encoded. Same mechanism as the single-char-encoded
+  // case: applyReadinessHash decodes to `trace` and activates the
+  // Trace sub-view, but the raw-string comparison at page-init.js:714
+  // sees `%74%72%61%63%65`, treats it as non-pivot, and lets the
+  // entity-redirect fire.
+  const dom = await bootPageInit({ hash: '#tab=readiness&sub=%74%72%61%63%65&entity=REQ-002' });
+  assertStaysOnReadinessTrace(dom);
+});
+
+test('viewer: an uppercase trace-link hash (#tab=readiness&sub=Trace&entity=REQ-002) must land on and stay on the Readiness/trace sub-view', async () => {
+  // Case variant called out in the SPEC-AND-TEST brief. On today's
+  // tree applyReadinessHash does not case-fold: `Trace` decodes to
+  // `Trace`, falls off `READINESS_SUBS`, and lands the sub on
+  // `overview` while the hash-rewrite at 2404-2412 drops the unknown
+  // sub. The F1 fix is to normalise the sub value safely once (case
+  // and whitespace included) and share that normalised value across
+  // applyReadinessHash's membership check, the entityIsSubPanelPivot
+  // guard at line 714, and traceEntityFromHash at line 2494.
+  const dom = await bootPageInit({ hash: '#tab=readiness&sub=Trace&entity=REQ-002' });
+  assertStaysOnReadinessTrace(dom);
+});
+
+test('viewer: a whitespace-padded trace-link hash (#tab=readiness&sub=%20trace&entity=REQ-002) must land on and stay on the Readiness/trace sub-view', async () => {
+  // Whitespace variant from the SPEC-AND-TEST brief. `%20trace`
+  // decodes to ` trace`; today applyReadinessHash does not trim it,
+  // so the sub falls through to the overview fallback and the
+  // entity-redirect kicks in. The F1 fix must trim before the
+  // membership check and reuse the trimmed value in both pivot
+  // guards.
+  const dom = await bootPageInit({ hash: '#tab=readiness&sub=%20trace&entity=REQ-002' });
+  assertStaysOnReadinessTrace(dom);
+});
