@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile as readFileAsync, writeFile } from 'node:fs/promises';
+import { mkdir, readFile as readFileAsync, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { Writable } from 'node:stream';

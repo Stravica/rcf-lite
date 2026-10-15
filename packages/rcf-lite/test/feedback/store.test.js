@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -25,6 +25,7 @@ import {
   writeAskLedger,
 } from '../../src/feedback/store.js';
 import { managedGitignoreEntries } from '../../src/setup/managed-gitignore.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function fixture() {
   const root = await scratchDir('rcf-feedback-store-');
@@ -175,7 +176,6 @@ test('F-slice-1-03: mintUniqueEntryId regenerates on collision so two entries ne
 
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
-import { scratchDir } from '../_helpers/scratch.js';
 
 const execFileP = promisify(execFile);
 

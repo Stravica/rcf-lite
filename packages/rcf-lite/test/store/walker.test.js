@@ -6,13 +6,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store/walker.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -1067,7 +1068,6 @@ test('walkTree upper-cases the prefix segment on numeric-only ids unchanged (0.8
 // documents outside it still load.
 import { mkdir as mkdirAsync } from 'node:fs/promises';
 import { DISCOVERY_RELATIVE_DIR } from '../../src/discovery/record.js';
-import { scratchDir } from '../_helpers/scratch.js';
 
 test('walkTree (FBS-210): rcf/discovery/ is invisible to the dogfood walker', async () => {
   const tmpRoot = await scratchDir('rcf-walker-discovery-');

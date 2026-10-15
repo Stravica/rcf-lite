@@ -2,13 +2,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 
 import { main } from '../../src/cli/ledger.js';
 import { loadLedger, ledgerRelPath } from '../../src/define/ledgers.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeSink() {
   const chunks = [];
@@ -381,7 +382,6 @@ test('ledger CLI (R1, AC-17302-9): add without --id mints next id', async () => 
 // the "file exists and is already populated" case (contents
 // preserved).
 import { stat } from 'node:fs/promises';
-import { scratchDir } from '../_helpers/scratch.js';
 
 async function treeBytes(cwd) {
   const relPaths = [

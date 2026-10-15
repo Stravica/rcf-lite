@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +16,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // packages/rcf-lite/test/blueprint -> packages/rcf-lite -> monorepo root
@@ -125,7 +126,6 @@ test('observability-logging: contributions/probes/ pack is present and every pro
 // criterion e (positive-evidence) extensions.
 import { collectEnvReads, listMjsUnder, importProbe, resultHasEvidenceShape, collectShippedAcIds, skipReasonNamesExactlyOneDeclared } from './_probe-anatomy-helpers.mjs';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
-import { scratchDir } from '../_helpers/scratch.js';
 
 const PROBES_DIR_E = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 const FIXTURE_DIR_E = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'probe-pack-observability-logging');

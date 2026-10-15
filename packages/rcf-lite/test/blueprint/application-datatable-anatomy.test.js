@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertResultShape, runResultShapeNegativeCases } from './_result-shape.mjs';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -18,6 +18,7 @@ import { loadProbePacks, readContributedAcIds } from '../../src/browser-verify/p
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer } from '../fixtures/probe-pack-application-datatable/server.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -127,7 +128,6 @@ import { readdir as _readdirCritE, readFile as _rf } from 'node:fs/promises';
 import { pathToFileURL as _toUrlCritE } from 'node:url';
 import { join as _joinCritE } from 'node:path';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
-import { scratchDir } from '../_helpers/scratch.js';
 
 const _CRIT_E_REPO_ROOT = REPO_ROOT;
 const _CRIT_E_BP_ROOT = _joinCritE(_CRIT_E_REPO_ROOT, 'blueprints', 'application-datatable');

@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertResultShape, runResultShapeNegativeCases } from './_result-shape.mjs';
-import { mkdtemp, readFile, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +15,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -80,7 +81,6 @@ import { readdir as _readdirCritE, readFile as _rf } from 'node:fs/promises';
 import { pathToFileURL as _toUrlCritE } from 'node:url';
 import { join as _joinCritE } from 'node:path';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
-import { scratchDir } from '../_helpers/scratch.js';
 
 const _CRIT_E_REPO_ROOT = REPO_ROOT;
 const _CRIT_E_BP_ROOT = _joinCritE(_CRIT_E_REPO_ROOT, 'blueprints', 'application-error-handling');

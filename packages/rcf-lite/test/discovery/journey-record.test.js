@@ -13,7 +13,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir, stat, chmod, unlink } from 'node:fs/promises';
-import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -35,13 +34,14 @@ import {
   validateJourneyRecord,
   JourneyRecordError,
 } from '../../src/discovery/record.js';
+import { scratchDirSync } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const BIN = resolve(repoRoot, 'bin', 'rcf.js');
 
 function mkProject() {
-  const scratch = mkdtempSync(join(tmpdir(), 'rcf-journey-fbs210-'));
+  const scratch = scratchDirSync('rcf-journey-fbs210-');
   return scratch;
 }
 

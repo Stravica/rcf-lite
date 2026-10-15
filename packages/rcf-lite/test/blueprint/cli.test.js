@@ -5,13 +5,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -354,7 +355,6 @@ test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shap
 import { readFile as _readFile } from 'node:fs/promises';
 import { resolve as _resolveP } from 'node:path';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
-import { scratchDir } from '../_helpers/scratch.js';
 
 // The shipped application-spa + application-api-rest blueprints live in
 // the repo root's blueprints/ tree (../../../blueprints/application-spa,
