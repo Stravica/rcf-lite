@@ -6,9 +6,13 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.34.2] - 2026-10-15
+
+0.34.2 fixes the viewer's Readiness and trace links, which could land on the Requirements panel instead of the item they named. Following `#tab=readiness&sub=trace&entity=<docId>` now resolves to the panel the link points at, including the four spellings the fix covers. breaking: false; a viewer routing fix with no CLI surface change, no shipped blueprint major and no applied-record shape change; the `@stravica-ai/rcf-schemas` 0.7.0 pin is unchanged. minAgentAction: null; the managed agent-instructions block is unchanged since 0.34.1, so `rcf doctor` reports a clean hash without an `rcf init` rerun.
+
 ### Fixed
 
-- **Viewer: following a Readiness/Coverage Trace link lands on and stays on the Readiness/trace sub-view.** `#tab=readiness&sub=trace&entity=<docId>` activated Readiness and mounted the Trace sub-panel, then the shared entity-redirect branch in `resolveHash` resolved the docId to the Requirements tab and called `activateTab('requirements')`, so the Trace view flashed and then got replaced. On `sub=trace` the entity is the trace-matrix pivot (already consumed by `applyReadinessHash`), not a navigation target; the entity-redirect branch now short-circuits for that sub-panel so the Trace view stays mounted. Regression test: `test/view/readiness-trace-redirect-wsd.test.js`.
+- **Viewer: following a Readiness/Coverage Trace link lands on and stays on the Readiness/trace sub-view (PR 359).** `#tab=readiness&sub=trace&entity=<docId>` activated Readiness and mounted the Trace sub-panel, then the shared entity-redirect branch in `resolveHash` resolved the docId to the Requirements tab and called `activateTab('requirements')`, so the Trace view flashed and then got replaced. On `sub=trace` the entity is the trace-matrix pivot (already consumed by `applyReadinessHash`), not a navigation target; the entity-redirect branch now short-circuits for that sub-panel so the Trace view stays mounted, with the `sub` value normalised once at hash parse and four spelling cases covered. Regression test: `test/view/readiness-trace-redirect-wsd.test.js`.
 
 ## [0.34.1] - 2026-10-14
 
