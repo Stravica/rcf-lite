@@ -77,7 +77,20 @@ test(
       const { code, signal } = await runSuite({ cwd: pkgRoot, tmp: isolated, log: transcript });
 
       const after = await readdir(isolated);
-      const leaked = after.filter((e) => !before.has(e));
+      // `node-compile-cache` is a fixed-name cache directory that
+      // npm v11 writes under TMPDIR when it is spawned as a child
+      // process (via `module.enableCompileCache()`). Several of our
+      // tests shell out to `npm` / `npx`, so this directory shows up
+      // in the isolated TMPDIR. It is cache behaviour from the
+      // toolchain, not a product `mkdtemp` leak: it has no random
+      // suffix, is explicitly reused across runs, and is owned by
+      // the npm process we invoked, not by any test we ship. The pin
+      // only cares about `mkdtemp(join(tmpdir(), '<prefix>'))` leaks,
+      // so this exact-name entry is excluded from the leak set.
+      const KNOWN_TOOLCHAIN_CACHES = new Set(['node-compile-cache']);
+      const leaked = after
+        .filter((e) => !before.has(e))
+        .filter((e) => !KNOWN_TOOLCHAIN_CACHES.has(e));
 
       // Group leaks by prefix (the fixed-length head before mkdtemp's
       // six-character random suffix) so the message points at the
