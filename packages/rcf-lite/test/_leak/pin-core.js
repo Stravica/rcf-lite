@@ -16,13 +16,19 @@ import assert from 'node:assert/strict';
 // contraction while still refusing a cherry-picked subset.
 export const EXECUTED_TESTS_FLOOR = 3000;
 
-// Parse node:test's TAP summary line `# tests <N>`. The summary is
-// written once at the end of the run; a child that crashes before
-// that line (early exit, discovery failure) returns null so the
-// caller refuses the run instead of trusting a vacuous green.
+// Parse node:test's summary tally. Node emits one summary line at
+// the end of the run; the shape depends on reporter:
+//   TAP reporter : `# tests <N>`
+//   spec reporter: `ℹ tests <N>` (Node 24+ default on both TTY and
+//                                 non-TTY output).
+// The pin pins the child to the TAP reporter, but this regex
+// accepts either prefix so a reporter default change does not
+// re-break the parser. A child that crashes before the summary
+// returns null so the caller refuses the run instead of trusting
+// a vacuous green.
 export function parseExecutedTests(tap) {
   if (typeof tap !== 'string' || tap.length === 0) return null;
-  const m = tap.match(/^# tests[ \t]+(\d+)[ \t]*$/m);
+  const m = tap.match(/^(?:#|ℹ)[ \t]+tests[ \t]+(\d+)[ \t]*$/m);
   return m ? Number(m[1]) : null;
 }
 

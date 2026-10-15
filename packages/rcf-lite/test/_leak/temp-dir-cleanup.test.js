@@ -49,7 +49,17 @@ async function runSuite({ cwd, tmp, log }) {
   return new Promise((resolveRun, rejectRun) => {
     const child = spawn(
       process.execPath,
-      ['--test', '--test-concurrency=1', 'test/**/*.test.js'],
+      // Pin the child to the TAP reporter: Node 24 defaults to
+      // spec on both TTY and non-TTY output, which breaks the
+      // summary parse (`# tests <N>` vs `ℹ tests <N>`). TAP is the
+      // stable, scripted contract for scraping the executed-test
+      // count.
+      [
+        '--test',
+        '--test-reporter=tap',
+        '--test-concurrency=1',
+        'test/**/*.test.js',
+      ],
       {
         cwd,
         env: childEnv,

@@ -26,6 +26,15 @@ ok 1 - something
   assert.equal(parseExecutedTests(tap), 7421);
 });
 
+test('parseExecutedTests parses the spec summary ℹ tests line (Node 24 default)', () => {
+  const spec = `✔ something (1ms)
+ℹ tests 3837
+ℹ suites 0
+ℹ pass 3837
+`;
+  assert.equal(parseExecutedTests(spec), 3837);
+});
+
 test('parseExecutedTests returns null when the summary line is absent', () => {
   assert.equal(parseExecutedTests('nothing TAP-shaped at all'), null);
 });
