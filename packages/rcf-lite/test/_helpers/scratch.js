@@ -12,51 +12,73 @@
 // All three forms exist to let a run of the package test suite leave
 // `TMPDIR` empty: see `test/_leak/temp-dir-cleanup.test.js`.
 
-import { after } from 'node:test';
 import { mkdtemp, rm } from 'node:fs/promises';
-import { mkdtempSync, rmSync } from 'node:fs';
+import { mkdtempSync, rmSync, chmodSync, readdirSync, statSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 const moduleTracked = new Set();
-let moduleHookRegistered = false;
 let exitHookRegistered = false;
+
+// Give every entry under `dir` write permissions (sync, best-effort)
+// so a subsequent `rmSync` can remove trees whose contents a test
+// intentionally chmod'd to r-x (see test/cli/error-classification.test.js
+// BUG-007, which drops write on `rcf/requirements` and relies on its
+// own `t.after` to restore it; module-level cleanup must survive that
+// restore being missed or racing).
+function chmodWritableRecursive(dir) {
+  let entries;
+  try {
+    entries = readdirSync(dir, { withFileTypes: true });
+  } catch {
+    return;
+  }
+  try {
+    chmodSync(dir, 0o700);
+  } catch {
+    // Best-effort.
+  }
+  for (const entry of entries) {
+    const full = join(dir, entry.name);
+    if (entry.isDirectory() && !entry.isSymbolicLink()) {
+      chmodWritableRecursive(full);
+    } else {
+      try {
+        chmodSync(full, 0o600);
+      } catch {
+        // Best-effort.
+      }
+    }
+  }
+}
 
 function cleanupSync() {
   for (const dir of moduleTracked) {
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch {
-      // Best-effort.
-    }
-  }
-  moduleTracked.clear();
-}
-
-async function cleanupAsync() {
-  for (const dir of moduleTracked) {
-    try {
-      await rm(dir, { recursive: true, force: true });
-    } catch {
-      // Best-effort.
+      // A test may have chmod'd a child to r-x; relax perms and retry.
+      try {
+        chmodWritableRecursive(dir);
+        rmSync(dir, { recursive: true, force: true });
+      } catch {
+        // Best-effort.
+      }
     }
   }
   moduleTracked.clear();
 }
 
 function ensureModuleHook() {
-  if (!exitHookRegistered) {
-    exitHookRegistered = true;
-    process.on('exit', cleanupSync);
-  }
-  if (moduleHookRegistered) return;
-  try {
-    after(cleanupAsync);
-    moduleHookRegistered = true;
-  } catch {
-    // `after()` can only register from a top-level or suite context;
-    // if we're called mid-test, the exit hook above is the fallback.
-  }
+  if (exitHookRegistered) return;
+  exitHookRegistered = true;
+  // Process-level cleanup is the only reliable spot: node:test's
+  // `after()` from inside a test body registers for that test's own
+  // context (not the file suite), so a cleanup that fires there races
+  // with the test's own `t.after` chmod restores. The exit handler
+  // runs after every test in the file has completed and its hooks
+  // have resolved, so permission state is final by the time we rm.
+  process.on('exit', cleanupSync);
 }
 
 /**

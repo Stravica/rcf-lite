@@ -266,8 +266,8 @@ test('assets-manifest-scan drives three fixture states and produces the expected
   });
   assert.equal(canonical.aggregateVerdict, 'pass');
   // SIMULATE_MIXED_SHAPE: prepend pages_build_output_dir and expect fail.
-  const scratchDir = await scratchDir('cf-platform-mixed-');
-  const mixedManifestPath = join(scratchDir, 'wrangler.mixed.toml');
+  const scratchRoot = await scratchDir('cf-platform-mixed-');
+  const mixedManifestPath = join(scratchRoot, 'wrangler.mixed.toml');
   const baseText = await readFile(join(FIXTURE_ROOT, 'wrangler.toml'), 'utf8');
   await writeFile(
     mixedManifestPath,
@@ -275,7 +275,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
     'utf8',
   );
   const mixed = await probe.scan({
-    fixtureRoot: scratchDir,
+    fixtureRoot: scratchRoot,
     manifestPath: mixedManifestPath,
     elicited: { 'assets-directory': './dist', 'run-worker-first': 'true' },
   });
@@ -283,7 +283,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
   const offending = mixed.results.find((r) => r.verdict === 'fail');
   assert.ok(offending && /pages_build_output_dir/.test(offending.detail));
   // SIMULATE_EMPTY_ASSETS: strip [assets] table and elicited empty answer -> pass.
-  const emptyManifestPath = join(scratchDir, 'wrangler.empty-assets.toml');
+  const emptyManifestPath = join(scratchRoot, 'wrangler.empty-assets.toml');
   const stripped = baseText
     .split(/\r?\n/)
     .reduce(
@@ -303,7 +303,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
     .out.join('\n');
   await writeFile(emptyManifestPath, stripped, 'utf8');
   const empty = await probe.scan({
-    fixtureRoot: scratchDir,
+    fixtureRoot: scratchRoot,
     manifestPath: emptyManifestPath,
     elicited: { 'assets-directory': '', 'run-worker-first': 'false' },
   });
@@ -312,7 +312,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
     empty.results.some((r) => /bare-Worker shape/.test(r.detail)),
     'empty-assets branch records the bare-Worker shape',
   );
-  await rm(scratchDir, { recursive: true, force: true });
+  await rm(scratchRoot, { recursive: true, force: true });
 });
 
 // Extra: apply-clean smoke bookmark against the shipped blueprint so a
