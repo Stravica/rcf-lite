@@ -61,6 +61,41 @@ function resolveLeafRealPath(input) {
   }
 }
 
+// Delete-time boundary recheck (finding 1 P1 close): a registered path
+// passes the realpath check at registration, but an ancestor component can
+// still be swapped for a symlink before the exit hook fires. We re-run the
+// realpath + strict-prefix check immediately before rmSync, fail closed on
+// any error, and emit a stderr line naming the refused path. No tree
+// outside TMP_ROOT_REAL can be deleted by this helper.
+function stillInsideTmpRootAtDeleteTime(input) {
+  if (typeof input !== 'string' || input.length === 0) {
+    return { ok: false, real: null, reason: 'path must be a non-empty string' };
+  }
+  if (!isAbsolute(input)) {
+    return { ok: false, real: null, reason: `path must be absolute: ${input}` };
+  }
+  if (input.split(sep).includes('..')) {
+    return { ok: false, real: null, reason: `path contains '..' segment: ${input}` };
+  }
+  let real;
+  try {
+    real = resolveLeafRealPath(input);
+  } catch (err) {
+    return { ok: false, real: null, reason: err.message };
+  }
+  if (real === TMP_ROOT_REAL) {
+    return { ok: false, real, reason: `resolves to tmpdir root ${TMP_ROOT_REAL}` };
+  }
+  if (!real.startsWith(TMP_ROOT_REAL + sep)) {
+    return {
+      ok: false,
+      real,
+      reason: `escapes tmpdir ${TMP_ROOT_REAL}, resolves to ${real}`,
+    };
+  }
+  return { ok: true, real };
+}
+
 function assertInsideTmpRoot(input, label) {
   if (typeof input !== 'string' || input.length === 0) {
     throw new TypeError(`${label}: path must be a non-empty string`);
@@ -171,6 +206,17 @@ async function removeScratchWithRetry(
 
 function cleanupSync() {
   for (const dir of moduleTracked) {
+    // Delete-time recheck: an ancestor of `dir` may have been swapped for
+    // an escaping symlink after registration. Re-resolve now and refuse
+    // (fail-closed, stderr-noisy) if the realpath is no longer strictly
+    // inside TMP_ROOT_REAL. Never deletes outside tmpdir.
+    const recheck = stillInsideTmpRootAtDeleteTime(dir);
+    if (!recheck.ok) {
+      process.stderr.write(
+        `scratch helper: refusing delete of ${dir} at exit (${recheck.reason})\n`,
+      );
+      continue;
+    }
     try {
       rmSync(dir, { recursive: true, force: true });
     } catch (err) {
@@ -275,5 +321,7 @@ export {
   chmodWritableRecursive as _chmodWritableRecursive,
   removeScratchWithRetry as _removeScratchWithRetry,
   assertInsideTmpRoot as _assertInsideTmpRoot,
+  stillInsideTmpRootAtDeleteTime as _stillInsideTmpRootAtDeleteTime,
+  cleanupSync as _cleanupSync,
   TMP_ROOT_REAL as _TMP_ROOT_REAL,
 };
