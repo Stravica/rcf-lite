@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.34.1"
+latest: "0.34.2"
 releases:
+  - version: "0.34.2"
+    date: "2026-10-15"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.34.2 fixes the viewer's Readiness and trace links, which could land on the Requirements panel instead of the item they named. Following a Readiness/trace link now resolves to the panel the link points at, including the four spellings the fix covers."
+      - "No extra action after installing: the managed agent-instructions block and the @stravica-ai/rcf-schemas 0.7.0 pin are unchanged since 0.34.1."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.34.1"
     date: "2026-10-14"
     breaking: false
