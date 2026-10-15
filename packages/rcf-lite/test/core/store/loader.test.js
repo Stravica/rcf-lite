@@ -12,9 +12,10 @@ import {
   rootPathFor,
   subdirFor,
 } from '../../../src/core/store/loader.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function makeFixtureRoot(name) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-loader-${name}-`));
+  const root = await scratchDir(`rcf-loader-${name}-`);
   await mkdir(join(root, 'rcf'), { recursive: true });
   await mkdir(join(root, 'rcf', 'requirements'), { recursive: true });
   return root;

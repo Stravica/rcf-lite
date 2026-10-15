@@ -29,7 +29,7 @@ async function runBin(cwd, args) {
 }
 
 async function scaffold() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bp-cli-'));
+  const root = await scratchDir('rcf-bp-cli-');
   const init = await initProject({ projectRoot: root, projectName: 'CliBP' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
@@ -354,6 +354,7 @@ test('rcf blueprint add --resolve rejects a whitespace-only topic and a mis-shap
 import { readFile as _readFile } from 'node:fs/promises';
 import { resolve as _resolveP } from 'node:path';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 // The shipped application-spa + application-api-rest blueprints live in
 // the repo root's blueprints/ tree (../../../blueprints/application-spa,

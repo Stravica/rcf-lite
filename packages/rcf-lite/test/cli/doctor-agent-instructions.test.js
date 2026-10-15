@@ -13,6 +13,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +45,7 @@ async function fileExists(path) {
 }
 
 async function freshInit(prefix = 'rcf-doc-ai-') {
-  const tmp = await mkdtemp(join(tmpdir(), prefix));
+  const tmp = await scratchDir(prefix);
   const { code } = await runBin(tmp, ['init', '--project-name', 'DoctorTest', '--non-interactive']);
   assert.equal(code, 0);
   return tmp;
@@ -75,7 +76,7 @@ test('AC-1.2: doctor on a repo with hand-edited managed block reports stale-hash
 });
 
 test('AC-1.3: doctor on a repo with only legacy markers reports legacy-markers and exits 3', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-legacy-'));
+  const tmp = await scratchDir('rcf-doc-legacy-');
   // Do NOT run rcf init — write a legacy-marker file by hand.
   const canonical = await readFile(CANONICAL_PATH, 'utf8');
   await writeFile(join(tmp, 'CLAUDE.md'), `# legacy\n${LEGACY_BEGIN}\n${canonical.trim()}\n${LEGACY_END}\n`, 'utf8');
@@ -103,7 +104,7 @@ test('AC-1.4: --fix on stale-hash rewrites the block, preserves operator content
 });
 
 test('AC-1.5: --fix on legacy-markers rewrites block in place with new markers + new canonical text, preserves operator content', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-legacy-fix-'));
+  const tmp = await scratchDir('rcf-doc-legacy-fix-');
   // Legacy block wraps the pre-0.6.0 canonical fragment (build-v0.4.0)
   // so §7.3's whitelist detector treats it as unmodified canonical and
   // --fix proceeds without --force in non-interactive mode. The
@@ -122,7 +123,7 @@ test('AC-1.5: --fix on legacy-markers rewrites block in place with new markers +
 });
 
 test('AC-1.6: --fix on orphan-marker refuses, writes nothing, exits 3', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-orphan-'));
+  const tmp = await scratchDir('rcf-doc-orphan-');
   await writeFile(join(tmp, 'CLAUDE.md'), `# stuff\n${NEW_BEGIN}\ncontent\n`, 'utf8');
   const before = await readFile(join(tmp, 'CLAUDE.md'), 'utf8');
   const { code, stdout } = await runBin(tmp, ['doctor', '--fix', '--check', 'agent-instructions']);
@@ -192,7 +193,7 @@ test('doctor with unknown --check name returns usage error (exit 2)', async () =
 
 // Sanity: the doctor verb exists in the top-level help.
 test('doctor is registered in the top-level help', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-help-'));
+  const tmp = await scratchDir('rcf-doc-help-');
   const { code, stdout } = await runBin(tmp, ['--help']);
   assert.equal(code, 0);
   assert.match(stdout, /^\s+doctor\s+/m);

@@ -12,6 +12,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -29,7 +30,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffoldWithTs(tsStatus = 'draft') {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-ts-cli-'));
+  const tmp = await scratchDir('rcf-ts-cli-');
   await initProject({ projectRoot: tmp, projectName: 'TsTest' });
   await declareUiNoneForTests(tmp);
   const ts = {
@@ -145,7 +146,7 @@ test('test-suite approve is a no-op when already approved', async () => {
 // >= 1000 even though rcf-schemas 0.4.3 admits it. Widened to `\d{3,}`.
 // ---------------------------------------------------------------------------
 async function scaffoldWithFourDigitTs(tsStatus = 'draft') {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-ts-cli-4digit-'));
+  const tmp = await scratchDir('rcf-ts-cli-4digit-');
   await initProject({ projectRoot: tmp, projectName: 'TsFourDigitTest' });
   await declareUiNoneForTests(tmp);
   const ts = {

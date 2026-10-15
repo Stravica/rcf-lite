@@ -42,6 +42,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -59,7 +60,7 @@ async function runBin(cwd, args) {
 }
 
 async function scaffold() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bp-ownership-'));
+  const root = await scratchDir('rcf-bp-ownership-');
   const init = await initProject({ projectRoot: root, projectName: 'BpOwnership' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

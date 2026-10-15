@@ -22,13 +22,14 @@ import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = pathResolve(here, '..', '..', '..', '..');
 const spaSource = join(repoRoot, 'blueprints', 'application-spa');
 
 test('AC-1102-5: apply application-spa v1.4.0 -> manifest still validates + no browserSurface on the applied record', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-spa-14-'));
+  const root = await scratchDir('rcf-spa-14-');
   await initProject({ projectRoot: root, projectName: 'SpaV14Fixture' });
   await declareUiNoneForTests(root);
 

@@ -10,9 +10,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scratchBlueprint(overrides) {
-  const dir = await mkdtemp(join(tmpdir(), 'cap-loader-'));
+  const dir = await scratchDir('cap-loader-');
   await mkdir(join(dir, 'contributions'), { recursive: true });
   const doc = {
     slug: 'test-bp',

@@ -11,6 +11,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -28,7 +29,7 @@ async function runBin(cwd, args) {
 }
 
 async function freshInit(prefix = 'rcf-doc-kn-') {
-  const tmp = await mkdtemp(join(tmpdir(), prefix));
+  const tmp = await scratchDir(prefix);
   const { code } = await runBin(tmp, ['init', '--project-name', 'KnTest', '--non-interactive']);
   assert.equal(code, 0);
   return tmp;

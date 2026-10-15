@@ -7,9 +7,10 @@ import { join } from 'node:path';
 import { initProject } from '../../../src/core/store/init.js';
 import { walkTree } from '../../../src/core/store/walker.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 test('initProject scaffolds a fresh tree', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-fresh-'));
+  const root = await scratchDir('rcf-init-fresh-');
   const result = await initProject({ projectRoot: root, projectName: 'Demo' });
   await declareUiNoneForTests(root);
   assert.ok(result.created);
@@ -20,7 +21,7 @@ test('initProject scaffolds a fresh tree', async () => {
 });
 
 test('initProject refuses to overwrite an existing manifest (AC-101-2)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-existing-'));
+  const root = await scratchDir('rcf-init-existing-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const result = await initProject({ projectRoot: root });
@@ -30,7 +31,7 @@ test('initProject refuses to overwrite an existing manifest (AC-101-2)', async (
 });
 
 test('initProject refuses to overwrite without touching anything else', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-no-touch-'));
+  const root = await scratchDir('rcf-init-no-touch-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const before = JSON.parse(await readFile(join(root, 'rcf', 'manifest.json'), 'utf8'));
@@ -46,7 +47,7 @@ test('initProject rejects empty projectRoot', async () => {
 });
 
 test('initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-walk-'));
+  const root = await scratchDir('rcf-init-walk-');
   await initProject({ projectRoot: root, projectName: 'Demo' });
   await declareUiNoneForTests(root);
   const { tree, errors } = await walkTree({ projectRoot: root });
@@ -62,7 +63,7 @@ test('initProject + walkTree yields a clean tree (AC-101-1, AC-101-3)', async ()
 });
 
 test('initProject creates the expected directory layout including test-suites (D14)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-dirs-'));
+  const root = await scratchDir('rcf-init-dirs-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   for (const sub of ['requirements', 'user-stories', 'tacs', 'adrs', 'fbs', 'test-suites']) {
@@ -72,7 +73,7 @@ test('initProject creates the expected directory layout including test-suites (D
 });
 
 test('initProject scaffolds a PRD that does NOT carry the removed requirementIds field (D14)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-prd-shape-'));
+  const root = await scratchDir('rcf-init-prd-shape-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const prd = JSON.parse(await readFile(join(root, 'rcf', 'prd.json'), 'utf8'));
@@ -80,7 +81,7 @@ test('initProject scaffolds a PRD that does NOT carry the removed requirementIds
 });
 
 test('initProject scaffolds a TAD without componentIds / architecturalDecisionIds (D14)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-tad-shape-'));
+  const root = await scratchDir('rcf-init-tad-shape-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const tad = JSON.parse(await readFile(join(root, 'rcf', 'tad.json'), 'utf8'));
@@ -89,7 +90,7 @@ test('initProject scaffolds a TAD without componentIds / architecturalDecisionId
 });
 
 test('initProject scaffolds a BS without fbs[] array (D14)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-bs-shape-'));
+  const root = await scratchDir('rcf-init-bs-shape-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const bs = JSON.parse(await readFile(join(root, 'rcf', 'build-sequence.json'), 'utf8'));
@@ -97,7 +98,7 @@ test('initProject scaffolds a BS without fbs[] array (D14)', async () => {
 });
 
 test('initProject scaffolds an FBS with buildOrder + executionStatus + dependsOnFbsIds (D14)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-fbs-shape-'));
+  const root = await scratchDir('rcf-init-fbs-shape-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const fbs = JSON.parse(await readFile(join(root, 'rcf', 'fbs', 'fbs-001.json'), 'utf8'));
@@ -109,7 +110,7 @@ test('initProject scaffolds an FBS with buildOrder + executionStatus + dependsOn
 });
 
 test('initProject scaffolds a REQ that carries prdId (D1 child-owned parent edge)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-init-req-shape-'));
+  const root = await scratchDir('rcf-init-req-shape-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const req = JSON.parse(await readFile(join(root, 'rcf', 'requirements', 'req-001.json'), 'utf8'));

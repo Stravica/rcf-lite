@@ -19,6 +19,7 @@ import {
   runProvisioning,
   cleanup,
 } from '../../../src/verify/provision/index.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 const authAc = { acId: 'AC-1', description: 'user can sign in', given: 'a registered account', when: 'the user logs in', then: 'dashboard shown' };
 const payAc = { acId: 'AC-2', description: 'checkout via payment sandbox', when: 'user pays with stripe', then: 'receipt shown' };
@@ -66,7 +67,7 @@ test('provisionAuth: no signup route -> BLOCKED, naming the missing prerequisite
 });
 
 test('runProvisioning: credentials go ONLY to the --provision file, never into the report body', async () => {
-  const provisionPath = join(await mkdtemp(join(tmpdir(), 'rcf-prov-')), 'creds.json');
+  const provisionPath = join(await scratchDir('rcf-prov-'), 'creds.json');
   const signup = async ({ username }) => ({ username, password: 'top-secret-123' });
   const { provisioning } = await runProvisioning({ acs: [authAc], url: 'https://app', provisionPath, signup });
   // Report-body record carries refs only, no secret.
@@ -139,7 +140,7 @@ test('runProvisioning: surfaces a provision-file write failure as data, not disc
 });
 
 test('runProvisioning: no provisionWriteError when the write succeeds', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-verify-prov-'));
+  const dir = await scratchDir('rcf-verify-prov-');
   const signup = async ({ username }) => ({ username, password: 'pw' });
   const { provisioning } = await runProvisioning({ acs: [authAc], url: 'https://app', provisionPath: join(dir, 'creds.json'), signup });
   assert.equal(provisioning.provisionWriteError, undefined);

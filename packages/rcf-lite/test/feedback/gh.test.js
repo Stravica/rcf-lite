@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { loadGhAdapter, DEFAULT_ADAPTER } from '../../src/feedback/gh.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('loadGhAdapter returns the default adapter when RCF_FEEDBACK_GH_MODULE is absent', async () => {
   const env = { ...process.env };
@@ -36,7 +37,7 @@ test('loadGhAdapter returns the default adapter when RCF_FEEDBACK_GH_MODULE is a
 });
 
 test('loadGhAdapter honours the RCF_FEEDBACK_GH_MODULE override and returns its exports', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-gh-seam-'));
+  const tmp = await scratchDir('rcf-gh-seam-');
   const overridePath = join(tmp, 'fake.mjs');
   const src = [
     'export const seen = [];',

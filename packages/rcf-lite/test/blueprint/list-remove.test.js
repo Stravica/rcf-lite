@@ -17,6 +17,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { enrichRowsWithCategories, groupRowsByCategory, listBlueprints } from '../../src/blueprint/list.js';
 import { removeBlueprint } from '../../src/blueprint/remove.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -36,7 +37,7 @@ async function ensurePackagedShelfStaged() {
 }
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-blueprint-lr-'));
+  const root = await scratchDir('rcf-blueprint-lr-');
   const init = await initProject({ projectRoot: root, projectName: 'BLR' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
@@ -90,7 +91,7 @@ test('enrichRowsWithCategories: bare shelf-slug source re-resolves through the p
   // under `uncategorised`. With `projectRoot` threaded through, the
   // enricher hands the token to the shelf resolver first and reads the
   // shipping blueprint.json off the packaged shelf.
-  const root = await mkdtemp(join(tmpdir(), 'rcf-blueprint-enrich-slug-'));
+  const root = await scratchDir('rcf-blueprint-enrich-slug-');
   const rows = [{
     slug: 'application-spa', version: '1.0.0', appliedAt: '2026-08-30T10:00:00Z',
     source: 'application-spa', // bare slug (the F1 shape)

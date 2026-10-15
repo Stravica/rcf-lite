@@ -32,9 +32,10 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { supersedeBlueprintTopic } from '../../src/blueprint/supersede.js';
 import { listBlueprints } from '../../src/blueprint/list.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-coresidence-'));
+  const root = await scratchDir('rcf-coresidence-');
   const init = await initProject({ projectRoot: root, projectName: 'CoResidence' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

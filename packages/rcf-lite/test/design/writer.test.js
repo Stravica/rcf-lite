@@ -22,9 +22,10 @@ import {
   writeThemeA11ySet,
 } from '../../src/design/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function makeTempProject(fbsExtras = {}, manifestExtras = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-design-test-'));
+  const root = await scratchDir('rcf-design-test-');
   await initProject({ projectRoot: root, projectName: 'design-test' });
   await declareUiNoneForTests(root);
   // Patch the FBS with our test's uiBearing / designStage overrides.

@@ -19,6 +19,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { watch } from '../../src/watch/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeFakeFsWatch() {
   // Simulates Linux fs.watch recursive: each handle delivers rename
@@ -60,7 +61,7 @@ function manualTimers() {
 }
 
 test('re-arms on a rename event: a later rename on the same path is reported', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-rearm-'));
+  const dir = await scratchDir('rcf-watch-rearm-');
   try {
     const { fsWatchImpl, handles } = makeFakeFsWatch();
     const { timers, fire } = manualTimers();
@@ -106,7 +107,7 @@ test('re-arms on a rename event: a later rename on the same path is reported', a
 });
 
 test('plain change events do not re-arm', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-no-rearm-'));
+  const dir = await scratchDir('rcf-watch-no-rearm-');
   try {
     const { fsWatchImpl, handles } = makeFakeFsWatch();
     const { timers, fire } = manualTimers();
@@ -137,7 +138,7 @@ test('a rename on a filtered path (non-json) still re-arms the base', async () =
   // filter: a .log rotate over the tree can invalidate inotify just as
   // a .json rename does, so we re-arm on any rename inside the base.
   // (The filtered event itself is not reported to onChange.)
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-rearm-filtered-'));
+  const dir = await scratchDir('rcf-watch-rearm-filtered-');
   try {
     const { fsWatchImpl, handles } = makeFakeFsWatch();
     const { timers, fire } = manualTimers();
@@ -164,7 +165,7 @@ test('a rename on a filtered path (non-json) still re-arms the base', async () =
 });
 
 test('coalesces a burst of rename events into one re-arm per flush window', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-rearm-burst-'));
+  const dir = await scratchDir('rcf-watch-rearm-burst-');
   try {
     const { fsWatchImpl, handles } = makeFakeFsWatch();
     const { timers, fire } = manualTimers();

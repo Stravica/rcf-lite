@@ -67,7 +67,7 @@ test('blueprint.json declares 20 contributions with no capabilities and no requi
 });
 
 test('applies cleanly on a fresh init project and adds 20 documents to the tree (TC-055-applies-clean)', async () => {
- const scratch = await mkdtemp(join(tmpdir(), 'forms-wizard-scratch-'));
+ const scratch = await scratchDir('forms-wizard-scratch-');
  await initProject({ projectRoot: scratch, projectName: 'scratch' });
  await declareUiNoneForTests(scratch);
  const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -114,7 +114,7 @@ test('every pack check id matches a contributed AC id and appliesTo binds tacIds
 });
 
 test('application-forms-wizard: pack loader discovers the shipped pack against an applied scratch project (TC-055-pack-loader-discovers)', async () => {
- const scratch = await mkdtemp(join(tmpdir(), 'forms-wizard-loader-'));
+ const scratch = await scratchDir('forms-wizard-loader-');
  await initProject({ projectRoot: scratch, projectName: 'scratch' });
  await declareUiNoneForTests(scratch);
  const { tree } = await walkTree({ projectRoot: scratch });
@@ -256,6 +256,7 @@ import { readdir as _readdirCritE, readFile as _rf } from 'node:fs/promises';
 import { pathToFileURL as _toUrlCritE } from 'node:url';
 import { join as _joinCritE } from 'node:path';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const _CRIT_E_REPO_ROOT = REPO_ROOT;
 const _CRIT_E_BP_ROOT = _joinCritE(_CRIT_E_REPO_ROOT, 'blueprints', 'application-forms-wizard');

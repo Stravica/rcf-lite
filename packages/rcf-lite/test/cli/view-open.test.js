@@ -16,6 +16,7 @@ import {
   resolveBaseUrl,
 } from '../../src/cli/view.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -35,7 +36,7 @@ async function runBin(cwd, args = [], env = {}) {
 }
 
 async function makeProjectWithBlueprint() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-view-open-'));
+  const root = await scratchDir('rcf-view-open-');
   await initProject({ projectRoot: root, projectName: 'scope test' });
   await declareUiNoneForTests(root);
   // Seed manifest.blueprints[] with an applied record.
@@ -87,7 +88,7 @@ test('composeScopeUrl handles bare base url without params', () => {
 });
 
 test('resolveBaseUrl falls back to default port when nothing is running or flagged', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-resolve-'));
+  const root = await scratchDir('rcf-resolve-');
   await initProject({ projectRoot: root, projectName: 'resolve test' });
   await declareUiNoneForTests(root);
   const r = await resolveBaseUrl({ projectRoot: root, port: null, env: {} });
@@ -96,7 +97,7 @@ test('resolveBaseUrl falls back to default port when nothing is running or flagg
 });
 
 test('resolveBaseUrl honours --port when passed', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-resolve-'));
+  const root = await scratchDir('rcf-resolve-');
   await initProject({ projectRoot: root, projectName: 'resolve test' });
   await declareUiNoneForTests(root);
   const r = await resolveBaseUrl({ projectRoot: root, port: 5555, env: {} });

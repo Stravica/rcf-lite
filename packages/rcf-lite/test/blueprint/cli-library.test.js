@@ -13,6 +13,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -50,7 +51,7 @@ function runBinInteractive(cwd, args, input) {
 }
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bp-lib-cli-'));
+  const root = await scratchDir('rcf-bp-lib-cli-');
   const init = await initProject({ projectRoot: root, projectName: 'CliLibBP' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
@@ -65,7 +66,7 @@ const reqBody = (id) => ({
 });
 
 async function scaffoldLibrary({ prefix, blueprintSlug, bands, contributions }) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-lib-${prefix}-`));
+  const root = await scratchDir(`rcf-lib-${prefix}-`);
   const bpDir = join(root, 'blueprints', blueprintSlug);
   await mkdir(join(bpDir, 'contributions'), { recursive: true });
   await writeFile(
@@ -352,7 +353,7 @@ test('library remove does not refuse for a record whose libraryPrefix names a di
 // (and, from there, the review-card renderer via
 // `library.blueprints[].globalTopics`).
 async function scaffoldLibraryMulti({ prefix, bands, blueprints, publisherContact, libraryDisplayName }) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-lib-multi-${prefix}-`));
+  const root = await scratchDir(`rcf-lib-multi-${prefix}-`);
   for (const bp of blueprints) {
     const bpDir = join(root, 'blueprints', bp.slug);
     await mkdir(join(bpDir, 'contributions'), { recursive: true });

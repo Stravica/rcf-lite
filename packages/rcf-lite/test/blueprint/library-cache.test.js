@@ -17,6 +17,7 @@ import {
   sanitiseRef,
 } from '../../src/blueprint/library-cache.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('CACHE_ROOT is rcf/.blueprint-libraries so a fresh clone keeps the tree self-contained', () => {
   assert.equal(CACHE_ROOT, 'rcf/.blueprint-libraries');
@@ -46,7 +47,7 @@ test('resolveCachePath returns absolute cachePath verbatim; joins relative under
 });
 
 test('ensureEmptyCache creates a fresh directory when the path does not exist', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-cache-'));
+  const root = await scratchDir('rcf-cache-');
   const target = join(root, 'nested', 'wsd', '1.2.0');
   const err = await ensureEmptyCache(target);
   assert.equal(err, null);
@@ -54,7 +55,7 @@ test('ensureEmptyCache creates a fresh directory when the path does not exist', 
 });
 
 test('ensureEmptyCache refuses when a non-empty directory already exists at the path', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-cache-'));
+  const root = await scratchDir('rcf-cache-');
   const target = join(root, 'existing');
   await mkdir(target, { recursive: true });
   await writeFile(join(target, 'library.json'), '{}', 'utf8');
@@ -64,7 +65,7 @@ test('ensureEmptyCache refuses when a non-empty directory already exists at the 
 });
 
 test('ensureEmptyCache with replace: true wipes the pre-existing tree first', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-cache-'));
+  const root = await scratchDir('rcf-cache-');
   const target = join(root, 'existing');
   await mkdir(target, { recursive: true });
   await writeFile(join(target, 'stale.txt'), 'x', 'utf8');
@@ -74,7 +75,7 @@ test('ensureEmptyCache with replace: true wipes the pre-existing tree first', as
 });
 
 test('removeCache is a no-op on a missing path (idempotent)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-cache-'));
+  const root = await scratchDir('rcf-cache-');
   const target = join(root, 'ghost');
   const err = await removeCache(target);
   assert.equal(err, null);
@@ -82,7 +83,7 @@ test('removeCache is a no-op on a missing path (idempotent)', async () => {
 });
 
 test('removeCache wipes an existing tree', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-cache-'));
+  const root = await scratchDir('rcf-cache-');
   const target = join(root, 'cache');
   await mkdir(join(target, 'inner'), { recursive: true });
   await writeFile(join(target, 'inner', 'file.txt'), 'x', 'utf8');

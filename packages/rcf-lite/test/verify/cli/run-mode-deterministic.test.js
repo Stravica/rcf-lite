@@ -12,6 +12,7 @@ import { join } from 'node:path';
 
 import { main as runMain } from '../../../src/verify/cli/run.js';
 import { scaffoldChain } from '../helpers/chain.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 function capture() {
   const out = { text: '' };
@@ -19,7 +20,7 @@ function capture() {
 }
 
 async function outPath() {
-  return join(await mkdtemp(join(tmpdir(), 'rcf-cli-')), 'report.json');
+  return join(await scratchDir('rcf-cli-'), 'report.json');
 }
 
 // Stub fetch that returns a 200 so the deterministic reachability

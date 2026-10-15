@@ -13,6 +13,7 @@ import {
   parseUrlScope,
   treeHasId,
 } from '../../src/view/scope.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('parseUrlScope reads blueprint and node from URLSearchParams', () => {
   const p = new URLSearchParams('blueprint=application-spa&node=REQ-001');
@@ -74,7 +75,7 @@ test('treeHasId uses tree.byId to answer existence', () => {
 });
 
 test('detectCustomisations flags files whose bytes differ from the shipping source', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-scope-'));
+  const root = await scratchDir('rcf-scope-');
   const src = join(root, 'src-blueprint');
   const contribDir = join(src, 'contributions', 'reqs');
   await mkdir(contribDir, { recursive: true });
@@ -121,7 +122,7 @@ test('detectCustomisations re-resolves a bare shelf-slug source through the pack
   // fell through the `isAbsolute` guard and returned a relative token
   // the FS could not open, so every contribution rendered as
   // missingSource.
-  const root = await mkdtemp(join(tmpdir(), 'rcf-scope-shelfslug-'));
+  const root = await scratchDir('rcf-scope-shelfslug-');
   const src = join(root, 'src-blueprint');
   const contribDir = join(src, 'contributions', 'reqs');
   await mkdir(contribDir, { recursive: true });
@@ -167,7 +168,7 @@ test('detectCustomisations re-resolves a colon-qualified library source through 
   // project registry (or an injected resolver seam) to reach the
   // library's cache directory. Without this the library-applied
   // customisation banner is silently broken.
-  const root = await mkdtemp(join(tmpdir(), 'rcf-scope-libref-'));
+  const root = await scratchDir('rcf-scope-libref-');
   const src = join(root, 'lib-cache', 'blueprints', 'auth-oauth2');
   const contribDir = join(src, 'contributions');
   await mkdir(contribDir, { recursive: true });
@@ -210,7 +211,7 @@ test('detectCustomisations re-resolves a colon-qualified library source through 
 });
 
 test('detectCustomisations returns empty when the shipping source is unreadable', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-scope-'));
+  const root = await scratchDir('rcf-scope-');
   const record = {
     slug: 'foo',
     source: join(root, 'gone'),

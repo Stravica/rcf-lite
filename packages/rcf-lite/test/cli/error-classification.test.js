@@ -19,6 +19,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -36,7 +37,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffold(prefix) {
-  const tmp = await mkdtemp(join(tmpdir(), `rcf-err-${prefix}-`));
+  const tmp = await scratchDir(`rcf-err-${prefix}-`);
   await initProject({ projectRoot: tmp, projectName: 'ErrClassTest' });
   await declareUiNoneForTests(tmp);
   return tmp;

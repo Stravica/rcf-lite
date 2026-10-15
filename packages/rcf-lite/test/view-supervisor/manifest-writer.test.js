@@ -15,6 +15,7 @@ import {
   removePidFile,
   isPidAlive,
 } from '../../src/view-supervisor/manifest-writer.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldManifest(dir) {
   await mkdir(join(dir, 'rcf'), { recursive: true });
@@ -29,7 +30,7 @@ async function scaffoldManifest(dir) {
 }
 
 test('writeViewServerRecord + readViewServerRecord roundtrips a valid record', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-view-super-'));
+  const dir = await scratchDir('rcf-view-super-');
   await scaffoldManifest(dir);
   const record = {
     mode: 'detached',
@@ -47,7 +48,7 @@ test('writeViewServerRecord + readViewServerRecord roundtrips a valid record', a
 });
 
 test('clearViewServerRecord removes the viewServer field and drops reviewSurface if empty', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-view-super-'));
+  const dir = await scratchDir('rcf-view-super-');
   await scaffoldManifest(dir);
   const record = {
     mode: 'detached', startedAt: '2026-07-31T10:00:00.000Z',
@@ -63,7 +64,7 @@ test('clearViewServerRecord removes the viewServer field and drops reviewSurface
 });
 
 test('writePidFile + readPidFile + removePidFile lifecycle', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-view-super-'));
+  const dir = await scratchDir('rcf-view-super-');
   await writePidFile(dir, 12345);
   const read = await readPidFile(dir);
   assert.equal(read, 12345);

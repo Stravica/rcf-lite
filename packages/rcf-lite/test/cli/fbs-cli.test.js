@@ -12,6 +12,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -29,7 +30,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffoldFbs() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-fbs-cli-'));
+  const tmp = await scratchDir('rcf-fbs-cli-');
   await initProject({ projectRoot: tmp, projectName: 'FbsTest' });
   await declareUiNoneForTests(tmp);
   const fbs = {

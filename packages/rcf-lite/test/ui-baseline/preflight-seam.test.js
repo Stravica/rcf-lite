@@ -19,9 +19,10 @@ import {
   preflightSeamOverrides,
   writeUiBaselineRecord,
 } from '../../src/ui-baseline/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function makeProject(manifestExtras) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-seam-'));
+  const root = await scratchDir('rcf-seam-');
   await initProject({ projectRoot: root, projectName: 'seam-test' });
   if (manifestExtras) {
     const manifestPath = join(root, 'rcf', 'manifest.json');

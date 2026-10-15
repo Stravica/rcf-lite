@@ -24,6 +24,7 @@ import { join } from 'node:path';
 import { initProject } from '#core/store/init.js';
 
 import { main as finalise } from '../../src/cli/finalise.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() {
   return { data: '', write(s) { this.data += s; } };
@@ -57,7 +58,7 @@ process.exit(Number(process.env.STUB_EXIT ?? '0'));
 `;
 
 async function scaffoldComplete() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-finalise-'));
+  const tmp = await scratchDir('rcf-finalise-');
   await initProject({ projectRoot: tmp, projectName: 'FinaliseTest' });
   // Move FBS-001 to `complete` so the finalise gate is applicable.
   const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
@@ -269,7 +270,7 @@ test('finalise: absent rcf-verify off a TTY without --install-verify ABORTS with
 });
 
 test('finalise: refuses an FBS that is not yet complete', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-finalise-ns-'));
+  const tmp = await scratchDir('rcf-finalise-ns-');
   await initProject({ projectRoot: tmp, projectName: 'NotStarted' });
   const deps = { stdout: sink(), stderr: sink(), cwd: tmp, detectVerify: async () => ({ installed: true, invocation: {} }) };
 

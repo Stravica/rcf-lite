@@ -10,6 +10,7 @@ import { join } from 'node:path';
 
 import { main as runMain } from '../../../src/verify/cli/run.js';
 import { scaffoldChain, stubLauncher } from '../helpers/chain.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 function capture() {
   const out = { text: '' };
@@ -20,7 +21,7 @@ const brokenFinding = { severity: 'BROKEN', acId: 'AC-101-1', journey: 'sign-in'
 const passFinding = { severity: 'PASS', acId: 'AC-101-3', journey: 'landing', reproSteps: ['load /'], evidence: { kind: 'note', detail: 'ok' } };
 
 async function outPath() {
-  return join(await mkdtemp(join(tmpdir(), 'rcf-cli-')), 'report.json');
+  return join(await scratchDir('rcf-cli-'), 'report.json');
 }
 
 test('run: --help exits 0 and prints usage', async () => {

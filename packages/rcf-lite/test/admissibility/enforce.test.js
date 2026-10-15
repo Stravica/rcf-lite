@@ -13,9 +13,10 @@ import { enforceAdmissibility, getRulesetToolScope } from '#admissibility';
 import { getUmbrellaVersion } from '#ruleset';
 import { runWithAdmissibilityGate } from '../../src/query/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffold() {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-admissibility-enforce-'));
+  const projectRoot = await scratchDir('rcf-admissibility-enforce-');
   await initProject({ projectRoot, projectName: 'AdmissibilityEnforceTest' });
   return projectRoot;
 }

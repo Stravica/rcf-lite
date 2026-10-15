@@ -27,7 +27,7 @@ import {
 import { managedGitignoreEntries } from '../../src/setup/managed-gitignore.js';
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-feedback-store-'));
+  const root = await scratchDir('rcf-feedback-store-');
   return root;
 }
 
@@ -175,6 +175,7 @@ test('F-slice-1-03: mintUniqueEntryId regenerates on collision so two entries ne
 
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const execFileP = promisify(execFile);
 

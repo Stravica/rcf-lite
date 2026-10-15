@@ -16,6 +16,7 @@ import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -265,7 +266,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
   });
   assert.equal(canonical.aggregateVerdict, 'pass');
   // SIMULATE_MIXED_SHAPE: prepend pages_build_output_dir and expect fail.
-  const scratchDir = await mkdtemp(join(tmpdir(), 'cf-platform-mixed-'));
+  const scratchDir = await scratchDir('cf-platform-mixed-');
   const mixedManifestPath = join(scratchDir, 'wrangler.mixed.toml');
   const baseText = await readFile(join(FIXTURE_ROOT, 'wrangler.toml'), 'utf8');
   await writeFile(
@@ -320,7 +321,7 @@ test('assets-manifest-scan drives three fixture states and produces the expected
 // sidecar. Not gated by any AC (belt-and-braces on the apply seam).
 
 test('apply deploy-cloudflare-workers v1.2.0 lands 41 contributions and records the two elicit answers on the applied sidecar (bookmark)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'cf-t0-apply-'));
+  const scratch = await scratchDir('cf-t0-apply-');
   try {
     await initProject({ projectRoot: scratch, projectName: 'cf-t0-apply', now: new Date() });
     await declareUiNoneForTests(scratch);

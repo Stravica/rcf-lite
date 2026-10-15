@@ -35,6 +35,7 @@ import { main as questionsMain } from '../../src/cli/questions.js';
 import { loadDiscoveryContext } from '../../src/discovery/context.js';
 import { writeJourneyRecord, emptyJourneyRecord } from '../../src/discovery/record.js';
 import { initProject } from '../../src/core/store/init.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 // ---------------------------------------------------------------------------
 // Helpers: minimal in-memory tree for computeReadiness, and a tiny
@@ -82,7 +83,7 @@ function captureStream() {
 }
 
 async function seedMinimalProject() {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-fbs-214-'));
+  const dir = await scratchDir('rcf-fbs-214-');
   const root = await realpath(dir);
   // Minimal rcf tree the CLI mains need: a manifest, a PRD stub, an
   // empty brief ledger so brief add has a target. No TAD / BS so
@@ -110,7 +111,7 @@ async function seedFullProject() {
   // resolves PRD-001 against a schema-valid root. The scaffold seeds a
   // ui-null journey record (ADR-4145); callers overwrite that for the
   // D0 posture they want.
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-fbs-214-full-'));
+  const dir = await scratchDir('rcf-fbs-214-full-');
   const root = await realpath(dir);
   await initProject({ projectRoot: root, projectName: 'FBS-214 test project', seed: null });
   // Seed an empty brief ledger explicitly - initProject does not

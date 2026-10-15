@@ -10,9 +10,10 @@ import { join } from 'node:path';
 
 import { resolveBlueprintSource } from '../../src/blueprint/shelf-resolver.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldShelf(slugs) {
-  const shelf = await mkdtemp(join(tmpdir(), 'rcf-shelf-'));
+  const shelf = await scratchDir('rcf-shelf-');
   for (const slug of slugs) {
     const dir = join(shelf, slug);
     await mkdir(dir, { recursive: true });

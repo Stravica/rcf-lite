@@ -16,6 +16,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -38,7 +39,7 @@ async function runBin(cwd, args) {
 }
 
 async function scaffold(name) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-bp-companions-${name}-`));
+  const root = await scratchDir(`rcf-bp-companions-${name}-`);
   const init = await initProject({ projectRoot: root, projectName: name });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
@@ -160,7 +161,7 @@ test('--json emits machine-readable envelope preserving suggestedCompanions orde
 // ---------------------------------------------------------------------
 
 async function scratchLibrary(prefix, slug, role, bandStart) {
-  const dir = await mkdtemp(join(tmpdir(), `rcf-scratchlib-${prefix}-`));
+  const dir = await scratchDir(`rcf-scratchlib-${prefix}-`);
   const publisherId = prefix.replace(/[^a-z0-9-]/g, '-');
   await writeFile(join(dir, 'library.json'), JSON.stringify({
     libraryVersion: 1,

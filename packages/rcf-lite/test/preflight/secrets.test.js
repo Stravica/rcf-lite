@@ -17,6 +17,7 @@ import {
   preflightSecretsPath,
   recordPreflightSecret,
 } from '../../src/preflight/secrets.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('preflightEntry is the exact aggregator-entry shape and version', () => {
   assert.deepEqual({ ...preflightEntry }, {
@@ -32,7 +33,7 @@ test('preflightSecretsPath returns the correct absolute path', () => {
 });
 
 test('loadPreflightSecretsFile returns an empty file when nothing exists', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-secrets-empty-'));
+  const tmp = await scratchDir('rcf-secrets-empty-');
   const file = await loadPreflightSecretsFile({ projectRoot: tmp });
   assert.equal(Array.isArray(file.entries), true);
   assert.equal(file.entries.length, 0);
@@ -40,7 +41,7 @@ test('loadPreflightSecretsFile returns an empty file when nothing exists', async
 });
 
 test('recordPreflightSecret writes name + presence but NEVER the value', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-secrets-record-'));
+  const tmp = await scratchDir('rcf-secrets-record-');
   // Fake env: obviously test-only.
   const env = { RESEND_API_KEY: 'sk-test-not-real-value-abcdef' };
   const entry = await recordPreflightSecret({
@@ -65,7 +66,7 @@ test('recordPreflightSecret writes name + presence but NEVER the value', async (
 });
 
 test('recordPreflightSecret with an absent env var writes present:false', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-secrets-absent-'));
+  const tmp = await scratchDir('rcf-secrets-absent-');
   const env = {};
   const entry = await recordPreflightSecret({
     projectRoot: tmp,
@@ -78,7 +79,7 @@ test('recordPreflightSecret with an absent env var writes present:false', async 
 });
 
 test('recordPreflightSecret is idempotent by serviceId (later call replaces)', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-secrets-idem-'));
+  const tmp = await scratchDir('rcf-secrets-idem-');
   await recordPreflightSecret({
     projectRoot: tmp, serviceId: 'resend', envVarName: 'OLD_KEY', env: {}, now: () => '2026-07-30T14:20:00.000Z',
   });
@@ -93,7 +94,7 @@ test('recordPreflightSecret is idempotent by serviceId (later call replaces)', a
 });
 
 test('recordPreflightSecret refuses empty serviceId / envVarName', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-secrets-refuse-'));
+  const tmp = await scratchDir('rcf-secrets-refuse-');
   await assert.rejects(recordPreflightSecret({ projectRoot: tmp, serviceId: '', envVarName: 'X', env: {} }), /serviceId required/);
   await assert.rejects(recordPreflightSecret({ projectRoot: tmp, serviceId: 'x', envVarName: '', env: {} }), /envVarName required/);
 });

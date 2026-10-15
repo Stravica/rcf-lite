@@ -12,9 +12,10 @@ import { initProject } from '../../../src/core/store/init.js';
 import { walkTree } from '../../../src/core/store/walker.js';
 import { createDocument, deleteDocument, nextIdForKind, updateDocument } from '../../../src/core/store/writer.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function scaffold(name) {
-  const projectRoot = await mkdtemp(join(tmpdir(), `rcf-writer-cn-${name}-`));
+  const projectRoot = await scratchDir(`rcf-writer-cn-${name}-`);
   await initProject({ projectRoot, projectName: 'WriterCnTest' });
   await mkdir(join(projectRoot, 'src'), { recursive: true });
   await writeFile(join(projectRoot, 'src', 'example.js'), 'export function exampleFn() {}\n', 'utf8');

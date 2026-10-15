@@ -9,6 +9,7 @@ import { join } from 'node:path';
 
 import { main as initMain } from '../../src/cli/init.js';
 import { PLAYWRIGHT_MCP_VERSION } from '../../src/verify/engine/launcher.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function capture() {
   const out = { text: '' };
@@ -20,7 +21,7 @@ const probeFound = async () => ({ kind: 'found', name: 'playwright', scope: 'use
 const probeInconclusive = async () => ({ kind: 'inconclusive', reason: 'CLI absent' });
 
 async function tmpProject() {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-init-pw-'));
+  const dir = await scratchDir('rcf-init-pw-');
   return dir;
 }
 

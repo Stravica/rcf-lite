@@ -11,6 +11,7 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { findProjectRoot, renderModelToPage } from '../../src/view/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -21,7 +22,7 @@ test('findProjectRoot walks upwards to find rcf/manifest.json (D19)', async () =
 });
 
 test('findProjectRoot returns null when no manifest is found', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-no-project-'));
+  const tmp = await scratchDir('rcf-no-project-');
   const out = await findProjectRoot(tmp);
   assert.equal(out, null);
 });

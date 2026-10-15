@@ -16,13 +16,14 @@ import { join } from 'node:path';
 import { initProject } from '#core/store/init.js';
 
 import { main as review } from '../../src/cli/review.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() {
   return { data: '', write(s) { this.data += s; } };
 }
 
 async function scaffoldWithFbs({ dependsOnServices, tsProfile } = {}) {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-review-cli-'));
+  const tmp = await scratchDir('rcf-review-cli-');
   await initProject({ projectRoot: tmp, projectName: 'ReviewTest' });
   if (dependsOnServices) {
     const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
@@ -124,7 +125,7 @@ test('review with injected mutationRunner records the survivor and blocks', asyn
 });
 
 test('review refuses on a non-FBS id (exit 2)', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-review-badid-'));
+  const tmp = await scratchDir('rcf-review-badid-');
   await initProject({ projectRoot: tmp, projectName: 'BadId' });
   const stdout = sink();
   const stderr = sink();

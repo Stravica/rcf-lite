@@ -31,6 +31,7 @@ import {
   kindOf,
 } from '../../src/query/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function freePort() {
   return await new Promise((resolveP, rejectP) => {
@@ -44,7 +45,7 @@ async function freePort() {
 }
 
 async function makeCleanProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-queryroutes-'));
+  const root = await scratchDir('rcf-queryroutes-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   return root;

@@ -14,6 +14,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffoldWithReq() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-delete-msg-'));
+  const tmp = await scratchDir('rcf-delete-msg-');
   await initProject({ projectRoot: tmp, projectName: 'DeleteMsg' });
   await declareUiNoneForTests(tmp);
   const r = await runBin(tmp, ['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'To Delete']);
@@ -67,7 +68,7 @@ test('BUG-006: rcf delete plan line resolves the real subdirectory (no `rcf/.../
 });
 
 test('BUG-006: rcf delete US --cascade plan resolves REQ + US subdirectories', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-delete-msg-cascade-'));
+  const tmp = await scratchDir('rcf-delete-msg-cascade-');
   await initProject({ projectRoot: tmp, projectName: 'DeleteMsgCascade' });
   await declareUiNoneForTests(tmp);
   // Add a REQ and a child US so cascade prints multiple deleted paths.

@@ -12,9 +12,10 @@ import { join } from 'node:path';
 import { initProject, walkTree } from '#core/store';
 import { registerStandardsPack } from '../../src/blueprint/standards.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-standards-'));
+  const root = await scratchDir('rcf-standards-');
   const init = await initProject({ projectRoot: root, projectName: 'ST' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);
@@ -49,7 +50,7 @@ test('registerStandardsPack: in-repo source is referenced in place (AC-1003-1, A
 
 test('registerStandardsPack: out-of-root source is copied into rcf/standards/<slug>/ (AC-1003-3)', async () => {
   const root = await scaffoldProject();
-  const outsideRoot = await mkdtemp(join(tmpdir(), 'ext-standards-'));
+  const outsideRoot = await scratchDir('ext-standards-');
   await writeFile(join(outsideRoot, 'PATTERNS.md'), '# Baseline', 'utf8');
   const { tree } = await walkTree({ projectRoot: root });
   const result = await registerStandardsPack({

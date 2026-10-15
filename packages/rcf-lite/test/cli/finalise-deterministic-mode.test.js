@@ -19,11 +19,12 @@ import { initProject } from '#core/store/init.js';
 
 import { main as finalise } from '../../src/cli/finalise.js';
 import { buildVerifyArgs } from '../../src/finalise/spawn.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() { return { data: '', write(s) { this.data += s; } }; }
 
 async function scaffoldComplete() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-finalise-330-'));
+  const tmp = await scratchDir('rcf-finalise-330-');
   await initProject({ projectRoot: tmp, projectName: 'FinaliseTest' });
   const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
   const fbs = JSON.parse(await readFile(fbsPath, 'utf8'));

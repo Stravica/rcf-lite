@@ -15,6 +15,7 @@ import { promisify } from 'node:util';
 
 import { CORE_HELP } from '../../src/cli/help.js';
 import { listTopics } from '../../src/cli/guidance.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -35,7 +36,7 @@ async function runBin(cwd, args) {
 
 /** A directory with no rcf/ tree anywhere above it that we control. */
 async function treelessDir() {
-  return await mkdtemp(join(tmpdir(), 'rcf-guidance-'));
+  return await scratchDir('rcf-guidance-');
 }
 
 test('the topic list covers every manifest doc and prompt', async () => {

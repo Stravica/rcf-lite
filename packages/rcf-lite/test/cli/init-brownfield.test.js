@@ -18,6 +18,7 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -65,7 +66,7 @@ const PRIOR_CLAUDE = '# legacy-app\n\nHouse rules that predate RCF.\n\n## Style\
 
 /** A repo that already has code, a tree, MCP servers and instructions. */
 async function makeBrownfieldRepo() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-brownfield-'));
+  const tmp = await scratchDir('rcf-brownfield-');
   await mkdir(join(tmp, 'src'), { recursive: true });
   await mkdir(join(tmp, 'rcf', 'requirements'), { recursive: true });
   await writeFile(join(tmp, 'src', 'app.js'), 'export const hello = () => "hi";\n', 'utf8');
@@ -133,7 +134,7 @@ test('the tree guard keys on rcf/manifest.json, not on the rcf/ directory', asyn
   // directory with no manifest is a fresh scaffold target, so a file on
   // a scaffold path is overwritten while unrelated files survive. Pinned
   // so the documented caveat and the behaviour move together.
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-brownfield-nomanifest-'));
+  const tmp = await scratchDir('rcf-brownfield-nomanifest-');
   await mkdir(join(tmp, 'rcf', 'requirements'), { recursive: true });
   await writeFile(join(tmp, 'rcf', 'notes.txt'), 'unrelated notes\n', 'utf8');
   await writeFile(join(tmp, 'rcf', 'requirements', 'req-001.json'), AUTHORED_REQ, 'utf8');
@@ -153,7 +154,7 @@ test('init exposes no --dry-run: the documented preview route is git', async () 
   // docs/install.md section 8.3 tells the reader plainly that no preview
   // flag exists. If one is ever added, this test fails and the doc gets
   // corrected rather than silently going stale.
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-brownfield-dryrun-'));
+  const tmp = await scratchDir('rcf-brownfield-dryrun-');
   const { code, stderr } = await runBinInit(tmp, ['--dry-run', '--project-name', 'X', '--non-interactive']);
   assert.equal(code, 2);
   assert.match(stderr, /Unknown option '--dry-run'/);

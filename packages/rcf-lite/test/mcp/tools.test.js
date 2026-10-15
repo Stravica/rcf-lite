@@ -13,6 +13,7 @@ import { initProject } from '#core/store/init.js';
 import { createToolRegistry, validateToolArgs } from '../../src/mcp/tools.js';
 import { JsonRpcError } from '#core/mcp-shell';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
@@ -25,7 +26,7 @@ const EXPECTED_NAMES = [
 ];
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-tools-'));
+  const tmp = await scratchDir('rcf-mcp-tools-');
   await initProject({ projectRoot: tmp, projectName: 'McpToolsTest' });
   await declareUiNoneForTests(tmp);
   return tmp;
@@ -469,7 +470,7 @@ test('rcf_read: resolves an inline TC on a widened (four-digit) TS (0.8.0 landmi
 // the structured errors[0] shape (kind=refused, rule=d0:discovery).
 // ---------------------------------------------------------------------------
 test('rcf_create: D0-refused tree maps to isError with errors[0]=refused and rule d0:discovery', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-tools-'));
+  const tmp = await scratchDir('rcf-mcp-tools-');
   await initProject({ projectRoot: tmp, projectName: 'McpToolsRefusedTest' });
   // Deliberately skip declareUiNoneForTests: a fresh init seeds the
   // journey record with ui=null, so D0 refuses and the create door
@@ -484,7 +485,7 @@ test('rcf_create: D0-refused tree maps to isError with errors[0]=refused and rul
 });
 
 test('rcf_define_ledger: D0-refused tree maps to isError with errors[0]=refused and rule d0:discovery', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-tools-'));
+  const tmp = await scratchDir('rcf-mcp-tools-');
   await initProject({ projectRoot: tmp, projectName: 'McpToolsLedgerRefusedTest' });
   // Same gate shape as the create test: fresh init leaves ui=null so
   // the ledger brief add verb refuses on D0 before any write runs.

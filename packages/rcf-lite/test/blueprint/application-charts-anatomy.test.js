@@ -19,6 +19,7 @@ import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer } from '../fixtures/probe-pack-application-charts/server.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -46,7 +47,7 @@ test('application-charts: blueprint.json declares the ratified shape (TC-048-blu
 });
 
 test('application-charts: applies cleanly on a fresh init project and adds 15 documents to the tree (TC-048-applies-clean)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'charts-scratch-'));
+  const scratch = await scratchDir('charts-scratch-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -78,7 +79,7 @@ test('application-charts: every AC id in each contributed US matches the pack ch
 });
 
 test('application-charts: pack loader discovers the shipped pack against an applied scratch project (TC-048-pack-loader-discovers)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'charts-loader-'));
+  const scratch = await scratchDir('charts-loader-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });

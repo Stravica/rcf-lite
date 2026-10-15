@@ -10,9 +10,10 @@ import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store';
 import { scanAcScopeCoverage, scanTcScopeVsAc } from '#admissibility';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffold() {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-admissibility-scope-'));
+  const projectRoot = await scratchDir('rcf-admissibility-scope-');
   await initProject({ projectRoot, projectName: 'AdmissibilityScopeTest' });
   return projectRoot;
 }

@@ -12,6 +12,7 @@ import { PassThrough } from 'node:stream';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -29,7 +30,7 @@ async function runBinInit(cwd, args = []) {
 }
 
 test('rcf init --project-name X --non-interactive scaffolds a tree', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-cli-'));
+  const tmp = await scratchDir('rcf-init-cli-');
   const { code, stdout } = await runBinInit(tmp, ['--project-name', 'TestProj', '--non-interactive']);
   assert.equal(code, 0);
   assert.match(stdout, /RCF project created/);
@@ -38,7 +39,7 @@ test('rcf init --project-name X --non-interactive scaffolds a tree', async () =>
 });
 
 test('rcf init without --project-name in non-interactive mode defaults to the cwd basename', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-defaultname-'));
+  const tmp = await scratchDir('rcf-init-defaultname-');
   const { code, stdout } = await runBinInit(tmp, ['--non-interactive']);
   assert.equal(code, 0);
   assert.match(stdout, /RCF project created/);
@@ -57,7 +58,7 @@ test('rcf init non-interactive still refuses when the cwd basename is unusable',
 });
 
 test('rcf init never overwrites an existing tree; re-run refreshes the wiring (Theme 1)', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-twice-'));
+  const tmp = await scratchDir('rcf-init-twice-');
   await runBinInit(tmp, ['--project-name', 'A', '--non-interactive']);
   const { code, stdout } = await runBinInit(tmp, ['--project-name', 'B', '--non-interactive']);
   assert.equal(code, 0);
@@ -67,7 +68,7 @@ test('rcf init never overwrites an existing tree; re-run refreshes the wiring (T
 });
 
 test('rcf init --no-agent-setup on an existing project still refuses (exit 2, nothing to do)', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-twice-optout-'));
+  const tmp = await scratchDir('rcf-init-twice-optout-');
   await runBinInit(tmp, ['--project-name', 'A', '--non-interactive']);
   const { code, stderr } = await runBinInit(tmp, ['--project-name', 'B', '--non-interactive', '--no-agent-setup']);
   assert.equal(code, 2);
@@ -87,7 +88,7 @@ test('rcf init interactive prompts ONLY for the project name and seeds placehold
   // name a first requirement / story / problem statement up front. Drive
   // main() with a fake TTY stdin/stdout and assert the single prompt.
   const { main } = await import('../../src/cli/init.js');
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-interactive-'));
+  const tmp = await scratchDir('rcf-init-interactive-');
 
   const stdin = new PassThrough();
   stdin.isTTY = true;
@@ -130,7 +131,7 @@ test('rcf init interactive seed produces the expected doc bodies (D5 + D22)', as
   // test exercises the store-level seed contract (interactive flag
   // flips ADR-001 to `draft`; seed values flow into PRD, REQ, US).
   const { initProject } = await import('#core/store/init.js');
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-seed-'));
+  const tmp = await scratchDir('rcf-init-seed-');
   const result = await initProject({
     projectRoot: tmp,
     projectName: 'MyProj',
@@ -154,7 +155,7 @@ test('rcf init interactive seed produces the expected doc bodies (D5 + D22)', as
 
 test('rcf init non-interactive seed keeps ADR-001 in proposed (D22)', async () => {
   const { initProject } = await import('#core/store/init.js');
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-noninteractive-adr-'));
+  const tmp = await scratchDir('rcf-init-noninteractive-adr-');
   await initProject({ projectRoot: tmp, projectName: 'Scripted' });
   await declareUiNoneForTests(tmp);
   const adr = JSON.parse(await readFile(join(tmp, 'rcf', 'adrs', 'adr-001.json'), 'utf8'));

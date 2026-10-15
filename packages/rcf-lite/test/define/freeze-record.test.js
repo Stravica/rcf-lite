@@ -15,9 +15,10 @@ import {
   saveFreezeRecord,
   validateFreezeRecord,
 } from '../../src/define/freeze-record.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scratch(prefix = 'freeze-') {
-  return mkdtemp(join(tmpdir(), prefix));
+  return scratchDir(prefix);
 }
 
 const validRecord = {

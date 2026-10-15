@@ -14,6 +14,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffold(name) {
-  const tmp = await mkdtemp(join(tmpdir(), `rcf-gate-cli-${name}-`));
+  const tmp = await scratchDir(`rcf-gate-cli-${name}-`);
   await initProject({ projectRoot: tmp, projectName: 'GateTest' });
   await declareUiNoneForTests(tmp);
   await mkdir(join(tmp, 'src'), { recursive: true });

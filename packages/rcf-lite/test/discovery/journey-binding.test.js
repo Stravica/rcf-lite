@@ -36,6 +36,7 @@ import { formatMarkdown } from '../../src/build/formatters/markdown.js';
 import { formatJson } from '../../src/build/formatters/json.js';
 import { auditTestTheatre, aggregateVerdict } from '../../src/review/index.js';
 import { computeCoverage, computeTrace, computeImpact } from '../../src/query/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -92,7 +93,7 @@ async function writeFbs(projectRoot, overrides) {
 }
 
 async function scaffold() {
-  const scratch = await mkdtemp(join(tmpdir(), 'rcf-fbs215-'));
+  const scratch = await scratchDir('rcf-fbs215-');
   await initProject({ projectRoot: scratch, projectName: 'FBS-215 Scratch' });
   return scratch;
 }

@@ -10,6 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { KNOWLEDGE_README, KNOWLEDGE_INDEX } from '../../src/setup/knowledge-seed.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -31,7 +32,7 @@ async function pathExists(p) {
 }
 
 test('AC-2.1: rcf init on a fresh repo creates rcf/knowledge/{README.md, INDEX.md, notes/.gitkeep, docs/.gitkeep} with canonical text', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-kn-'));
+  const tmp = await scratchDir('rcf-init-kn-');
   const { code } = await runBinInit(tmp);
   assert.equal(code, 0);
   const readme = await readFile(join(tmp, 'rcf', 'knowledge', 'README.md'), 'utf8');
@@ -43,7 +44,7 @@ test('AC-2.1: rcf init on a fresh repo creates rcf/knowledge/{README.md, INDEX.m
 });
 
 test('AC-2.2: init re-run leaves rcf/knowledge/README.md untouched even with operator content', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-kn-re-'));
+  const tmp = await scratchDir('rcf-init-kn-re-');
   await runBinInit(tmp);
   const custom = '# Custom README\n\nOperator wrote this after init.\n';
   await writeFile(join(tmp, 'rcf', 'knowledge', 'README.md'), custom, 'utf8');
@@ -54,7 +55,7 @@ test('AC-2.2: init re-run leaves rcf/knowledge/README.md untouched even with ope
 });
 
 test('AC-2.3: init re-run on a repo whose knowledge/ tree was fully deleted re-seeds all four managed files', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-kn-nuke-'));
+  const tmp = await scratchDir('rcf-init-kn-nuke-');
   await runBinInit(tmp);
   await rm(join(tmp, 'rcf', 'knowledge'), { recursive: true, force: true });
   const { code } = await runBinInit(tmp);

@@ -8,6 +8,7 @@ import { join } from 'node:path';
 
 import { loadLibrary } from '../../src/blueprint/library-loader.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldLibrary(root, manifest, blueprintDirs = []) {
   await mkdir(root, { recursive: true });
@@ -33,7 +34,7 @@ function validManifest(overrides = {}) {
 }
 
 test('loads a valid library and validates each declared blueprint', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest(), [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }]);
   const lib = await loadLibrary(root);
   assert.equal(isRcfError(lib), false);
@@ -46,14 +47,14 @@ test('loads a valid library and validates each declared blueprint', async () => 
 });
 
 test('refuses a library missing library.json', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   const lib = await loadLibrary(root);
   assert.equal(isRcfError(lib), true);
   assert.match(lib.message, /no library\.json/);
 });
 
 test('refuses a library with an unknown libraryVersion', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest({ libraryVersion: 99 }));
   const lib = await loadLibrary(root);
   assert.equal(isRcfError(lib), true);
@@ -61,7 +62,7 @@ test('refuses a library with an unknown libraryVersion', async () => {
 });
 
 test('refuses a library whose declared blueprint slug disagrees with its own blueprint.json', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest({
     blueprints: [{ slug: 'auth-oauth2', path: 'blueprints/oops' }],
   }));
@@ -75,7 +76,7 @@ test('refuses a library whose declared blueprint slug disagrees with its own blu
 });
 
 test('refuses a library with bands.ac out of the 1..99999 range', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest({ bands: { ac: { start: 0, end: 200 } } }));
   const lib = await loadLibrary(root);
   assert.equal(isRcfError(lib), true);
@@ -83,7 +84,7 @@ test('refuses a library with bands.ac out of the 1..99999 range', async () => {
 });
 
 test('refuses a library with duplicate blueprint slugs', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest({
     blueprints: [
       { slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' },
@@ -96,7 +97,7 @@ test('refuses a library with duplicate blueprint slugs', async () => {
 });
 
 test('attaches globalTopics per blueprint from scope:global ADR contributions', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest({
     blueprints: [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }],
   }), [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }]);
@@ -118,7 +119,7 @@ test('attaches globalTopics per blueprint from scope:global ADR contributions', 
 });
 
 test('attaches an empty globalTopics list when no scope:global ADRs are contributed', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   await scaffoldLibrary(root, validManifest(), [{ slug: 'auth-oauth2', path: 'blueprints/auth-oauth2' }]);
   const lib = await loadLibrary(root);
   assert.equal(isRcfError(lib), false);
@@ -126,7 +127,7 @@ test('attaches an empty globalTopics list when no scope:global ADRs are contribu
 });
 
 test('validateBlueprints:false skips the per-blueprint walk', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const root = await scratchDir('rcf-lib-');
   // Manifest names a blueprint whose directory does not exist. With
   // validateBlueprints:false, load succeeds.
   await scaffoldLibrary(root, validManifest());

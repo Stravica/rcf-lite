@@ -20,7 +20,7 @@ function makeSink() {
 }
 
 async function scratchProject(prefix = 'ledger-cli-') {
-  const cwd = await mkdtemp(join(tmpdir(), prefix));
+  const cwd = await scratchDir(prefix);
   await mkdir(join(cwd, 'rcf'), { recursive: true });
   // Minimal manifest so findProjectRoot succeeds; the walker is never
   // called by the ledger CLI so the manifest need not be schema-valid.
@@ -381,6 +381,7 @@ test('ledger CLI (R1, AC-17302-9): add without --id mints next id', async () => 
 // the "file exists and is already populated" case (contents
 // preserved).
 import { stat } from 'node:fs/promises';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function treeBytes(cwd) {
   const relPaths = [

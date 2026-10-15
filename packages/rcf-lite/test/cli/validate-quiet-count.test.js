@@ -15,6 +15,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -32,7 +33,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffoldBroken(errorCount) {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-validate-quiet-count-'));
+  const tmp = await scratchDir('rcf-validate-quiet-count-');
   await initProject({ projectRoot: tmp, projectName: 'QuietTest' });
   await declareUiNoneForTests(tmp);
   // Break multiple docs' schema by removing the required `status` field.

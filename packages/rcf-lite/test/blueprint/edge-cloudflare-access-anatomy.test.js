@@ -10,6 +10,7 @@ import { existsSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { spawn } from 'node:child_process';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -290,7 +291,7 @@ test('admin-console v1_1_0 pack check AC-21815-1 fires on gated caps combination
   // by writing a temporary sidecar under a scratch projectRoot.
   const { mkdtemp, mkdir, writeFile, rm } = await import('node:fs/promises');
   const { tmpdir } = await import('node:os');
-  const scratch = await mkdtemp(join(tmpdir(), 'cf-edge-anatomy-'));
+  const scratch = await scratchDir('cf-edge-anatomy-');
   await mkdir(join(scratch, 'rcf', 'blueprints'), { recursive: true });
   await writeFile(join(scratch, 'rcf', 'blueprints', 'application-admin-console.applied.json'), JSON.stringify({ appliedCapabilities: ['principalDirectory', 'zeroTrustGate'] }), 'utf8');
   try {

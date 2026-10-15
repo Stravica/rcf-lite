@@ -16,6 +16,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -46,7 +47,7 @@ const MALFORMED_TS_003 = {
 };
 
 async function scaffoldWedge() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-b5-cli-'));
+  const tmp = await scratchDir('rcf-b5-cli-');
   await initProject({ projectRoot: tmp, projectName: 'B5CliTest' });
   await declareUiNoneForTests(tmp);
   await writeFile(
@@ -91,7 +92,7 @@ test('net-new breakage on a wedged tree still exits 3', async () => {
 });
 
 test('normal-path refusal intact on a valid tree (exit 3, no warn)', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-b5-cli-valid-'));
+  const tmp = await scratchDir('rcf-b5-cli-valid-');
   await initProject({ projectRoot: tmp, projectName: 'B5CliValidTest' });
   await declareUiNoneForTests(tmp);
   const { code, stderr } = await runBin(tmp, ['define', 'update', 'REQ-001', '--set', 'priority=irresistible']);

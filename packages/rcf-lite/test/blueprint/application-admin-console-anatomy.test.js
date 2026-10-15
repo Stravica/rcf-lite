@@ -16,6 +16,7 @@ import { walkTree } from '../../src/core/store/walker.js';
 import { readContributedAcIds } from '../../src/browser-verify/pack-loader.js';
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -70,7 +71,7 @@ test('blueprint.json declares 34 contributions with requiresAppliedCapabilities 
 });
 
 test('apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:true and empty appliedCapabilities (TC-052-applies-clean-with-override)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'admin-console-scratch-'));
+  const scratch = await scratchDir('admin-console-scratch-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -82,7 +83,7 @@ test('apply --allow-no-auth-yet on bare SPA writes sidecar with allowNoAuthYet:t
 });
 
 test('apply refuses on bare SPA with spec 5.5.1 verbatim message and lists applied blueprints (TC-052-refuses-bare-spa)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'admin-console-refuse-'));
+  const scratch = await scratchDir('admin-console-refuse-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -93,7 +94,7 @@ test('apply refuses on bare SPA with spec 5.5.1 verbatim message and lists appli
 });
 
 test('apply on magic-link project yields [principalDirectory] and on clerk+logging project yields [principalDirectory,roleModel,auditLog] (TC-052-capability-discovery)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'admin-console-magic-'));
+  const scratch = await scratchDir('admin-console-magic-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree: t0 } = await walkTree({ projectRoot: scratch });
@@ -108,7 +109,7 @@ test('apply on magic-link project yields [principalDirectory] and on clerk+loggi
   // inference); applying it alongside clerk widens the union to [auditLog, principalDirectory, roleModel]. This
   // proves the union math without conflating role and capability grammars: the capabilities[] declaration is what
   // the mechanism reads, never providesRoles[].
-  const scratch2 = await mkdtemp(join(tmpdir(), 'admin-console-clerk-'));
+  const scratch2 = await scratchDir('admin-console-clerk-');
   await initProject({ projectRoot: scratch2, projectName: 'scratch' });
   await declareUiNoneForTests(scratch2);
   const { tree: c0 } = await walkTree({ projectRoot: scratch2 });
@@ -150,7 +151,7 @@ test('every pack check id matches a contributed AC id and appliesTo predicate ga
   assert.ok(/tacIds/.test(src), 'pack appliesTo references tacIds');
   assert.ok(/route|path/.test(src), 'pack appliesTo references route/path');
   // Per-check appliesTo gates on the right capability.
-  const scratch = await mkdtemp(join(tmpdir(), 'admin-console-pack-'));
+  const scratch = await scratchDir('admin-console-pack-');
   const usersCheck = validation.pack.checks.find((c) => c.id === 'AC-21102-1');
   // No sidecar yet: capabilities = []; per-check appliesTo returns false.
   assert.equal(await usersCheck.appliesTo({ projectRoot: scratch }), false);
@@ -397,7 +398,6 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-admin-console-AC-21102-1 violates the rule-7d null-anchor \+ limitation shape/);
 });
-
 
 test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
   const badRow = {

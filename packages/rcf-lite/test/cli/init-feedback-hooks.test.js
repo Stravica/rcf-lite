@@ -13,13 +13,14 @@ import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 
 async function fixture() {
-  return mkdtemp(join(tmpdir(), 'rcf-init-hooks-'));
+  return scratchDir('rcf-init-hooks-');
 }
 
 async function runInit(cwd, args = []) {

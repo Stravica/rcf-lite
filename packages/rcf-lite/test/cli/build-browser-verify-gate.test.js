@@ -21,6 +21,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -45,7 +46,7 @@ async function runBin(cwd, args = []) {
 // The ONLY remaining gate at --mark complete is the browser-verification
 // gate; the tests below exercise each of its arms.
 async function scaffoldUiBearingProject() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-bv-gate-'));
+  const tmp = await scratchDir('rcf-bv-gate-');
   await initProject({ projectRoot: tmp, projectName: 'BVGateTest' });
   await declareUiNoneForTests(tmp);
 

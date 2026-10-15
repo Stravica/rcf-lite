@@ -13,9 +13,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function writeBlueprint(meta, bodies = {}) {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-loader-standards-'));
+  const dir = await scratchDir('rcf-loader-standards-');
   await mkdir(join(dir, 'contributions', 'adrs'), { recursive: true });
   await writeFile(join(dir, 'blueprint.json'), `${JSON.stringify(meta, null, 2)}\n`, 'utf8');
   for (const [rel, body] of Object.entries(bodies)) {

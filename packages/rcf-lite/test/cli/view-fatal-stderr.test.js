@@ -15,6 +15,7 @@ import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { main as viewMain } from '../../src/cli/view.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeStartServerSpy() {
   const captured = { options: null };
@@ -60,7 +61,7 @@ async function runCli(args, projectRoot) {
 }
 
 test('audit view wires log and logError sinks correctly for both --verbose states (issue #333 item 2)', async () => {
-  const tmpA = await mkdtemp(join(tmpdir(), 'rcf-cli-fatal-a-'));
+  const tmpA = await scratchDir('rcf-cli-fatal-a-');
   await initProject({ projectRoot: tmpA });
   const nonVerbose = await runCli(['--port', '0', '--no-open'], tmpA);
   assert.ok(nonVerbose.options, 'startServer was called');
@@ -73,7 +74,7 @@ test('audit view wires log and logError sinks correctly for both --verbose state
   nonVerbose.options.logError('[server] walker failed: boom');
   assert.match(nonVerbose.readStderr(), /\[server\] walker failed: boom/);
 
-  const tmpB = await mkdtemp(join(tmpdir(), 'rcf-cli-fatal-b-'));
+  const tmpB = await scratchDir('rcf-cli-fatal-b-');
   await initProject({ projectRoot: tmpB });
   const verbose = await runCli(['--port', '0', '--no-open', '--verbose'], tmpB);
   // --verbose ON: chatty log reaches stderr too.

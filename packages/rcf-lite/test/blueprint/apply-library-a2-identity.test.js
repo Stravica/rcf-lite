@@ -14,6 +14,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { resolveBlueprintSource } from '../../src/blueprint/shelf-resolver.js';
 import { REGISTRY_PATH, REGISTRY_VERSION } from '../../src/blueprint/library-registry.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const now = new Date('2026-09-04T10:00:00Z');
 
@@ -27,7 +28,7 @@ const reqBody = (id) => ({
 });
 
 async function scaffoldLibrary() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-a2-id-lib-'));
+  const root = await scratchDir('rcf-a2-id-lib-');
   const bpDir = join(root, 'blueprints', 'auth-oauth2');
   await mkdir(join(bpDir, 'contributions'), { recursive: true });
   await writeFile(join(bpDir, 'blueprint.json'), JSON.stringify({
@@ -48,7 +49,7 @@ async function scaffoldLibrary() {
 }
 
 async function scaffoldProjectWithRegistry(entry) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-a2-id-proj-'));
+  const root = await scratchDir('rcf-a2-id-proj-');
   const init = await initProject({ projectRoot: root, projectName: 'A2IdentityTest' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, JSON.stringify(init));

@@ -11,9 +11,10 @@ import { join } from 'node:path';
 
 import { resolveBlueprintSource } from '../../src/blueprint/shelf-resolver.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldLibrary({ prefix = 'wsd', blueprintSlug = 'auth-oauth2', bands = { ac: { start: 50000, end: 59999 } } } = {}) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-a2-lib-${prefix}-`));
+  const root = await scratchDir(`rcf-a2-lib-${prefix}-`);
   const bpDir = join(root, 'blueprints', blueprintSlug);
   await mkdir(join(bpDir, 'contributions'), { recursive: true });
   await writeFile(join(bpDir, 'blueprint.json'), JSON.stringify({
@@ -72,7 +73,7 @@ test('A2: path with no library.json in any ancestor keeps the phase-1 path route
   // A tempdir with no library.json anywhere in its ancestor chain
   // (mkdtemp roots under $TMPDIR, whose ancestors do not carry
   // library.json in a working RCF checkout).
-  const wanderer = await mkdtemp(join(tmpdir(), 'rcf-a2-nolib-'));
+  const wanderer = await scratchDir('rcf-a2-nolib-');
   const bpDir = join(wanderer, 'blueprints', 'lonely');
   await mkdir(join(bpDir, 'contributions'), { recursive: true });
   await writeFile(join(bpDir, 'blueprint.json'), JSON.stringify({ slug: 'lonely', version: '1.0.0', contributions: [] }, null, 2), 'utf8');

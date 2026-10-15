@@ -15,11 +15,12 @@ import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { MARKER_BEGIN, MARKER_END } from '../../src/setup/agent-setup.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-funnel-'));
+  const tmp = await scratchDir('rcf-funnel-');
   await initProject({ projectRoot: tmp, projectName: 'FunnelTest' });
   await declareUiNoneForTests(tmp);
   return tmp;

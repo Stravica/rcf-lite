@@ -13,6 +13,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -30,7 +31,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-update-cli-'));
+  const tmp = await scratchDir('rcf-update-cli-');
   await initProject({ projectRoot: tmp, projectName: 'UpdateTest' });
   await declareUiNoneForTests(tmp);
   return tmp;

@@ -11,6 +11,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -28,7 +29,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-validate-cli-'));
+  const tmp = await scratchDir('rcf-validate-cli-');
   await initProject({ projectRoot: tmp, projectName: 'ValidateTest' });
   await declareUiNoneForTests(tmp);
   return tmp;
@@ -142,7 +143,7 @@ test('rcf validate --help prints help', async () => {
 });
 
 test('rcf validate outside a project exits 2', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-validate-noproject-'));
+  const tmp = await scratchDir('rcf-validate-noproject-');
   const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 2);
   assert.match(stderr, /no project root found/);

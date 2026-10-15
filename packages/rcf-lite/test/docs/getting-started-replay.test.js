@@ -22,11 +22,12 @@ import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const bin = resolve(fileURLToPath(new URL('../..', import.meta.url)), 'bin', 'rcf.js');
 
-const project = await mkdtemp(join(tmpdir(), 'rcf-gs-replay-'));
+const project = await scratchDir('rcf-gs-replay-');
 
 async function rcf(args) {
   try {

@@ -8,6 +8,7 @@ import { initProject } from '#core/store';
 import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 /**
  * @param {object} [opts]
@@ -17,7 +18,7 @@ import { join } from 'node:path';
  * @returns {Promise<{ root: string }>}
  */
 export async function scaffoldChain(opts = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-verify-chain-'));
+  const root = await scratchDir('rcf-verify-chain-');
   await initProject({ projectRoot: root, projectName: 'VerifyFixture' });
 
   const acceptanceCriteria = opts.acceptanceCriteria ?? [

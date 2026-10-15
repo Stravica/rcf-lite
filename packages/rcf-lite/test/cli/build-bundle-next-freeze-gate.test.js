@@ -20,6 +20,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '../../src/core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -38,7 +39,7 @@ async function runBin(cwd, args = []) {
 }
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-pr8-bundle-'));
+  const tmp = await scratchDir('rcf-pr8-bundle-');
   await initProject({ projectRoot: tmp, projectName: 'PR8BundleTest' });
   await declareUiNoneForTests(tmp);
   return tmp;
@@ -281,7 +282,7 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
     // Initialise a real local git repo (empty) and set the local
     // user.email; the resolver reads layered config and the local
     // scope wins over our /dev/null system/global.
-    const tmp1 = await mkdtemp(join(tmpdir(), 'pr9-by-gitconfig-'));
+    const tmp1 = await scratchDir('pr9-by-gitconfig-');
     try {
       await exec('git', ['init', '-q', tmp1], { encoding: 'utf8' });
       await exec('git', ['-C', tmp1, 'config', 'user.email', 'canary@test.invalid'], { encoding: 'utf8' });
@@ -294,7 +295,7 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
       await rm(tmp1, { recursive: true, force: true });
     }
     // Arm 2: no git identity -> GITHUB_ACTOR wins.
-    const tmp2 = await mkdtemp(join(tmpdir(), 'pr9-by-actor-'));
+    const tmp2 = await scratchDir('pr9-by-actor-');
     try {
       delete process.env.USER;
       delete process.env.USERNAME;
@@ -305,7 +306,7 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
       await rm(tmp2, { recursive: true, force: true });
     }
     // Arm 3: no git identity, no GITHUB_ACTOR -> USER wins.
-    const tmp3 = await mkdtemp(join(tmpdir(), 'pr9-by-user-'));
+    const tmp3 = await scratchDir('pr9-by-user-');
     try {
       delete process.env.GITHUB_ACTOR;
       process.env.USER = 'local-user-canary';
@@ -316,7 +317,7 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
       await rm(tmp3, { recursive: true, force: true });
     }
     // Arm 4: no git identity, no GITHUB_ACTOR, no USER -> USERNAME wins.
-    const tmp4 = await mkdtemp(join(tmpdir(), 'pr9-by-username-'));
+    const tmp4 = await scratchDir('pr9-by-username-');
     try {
       delete process.env.USER;
       process.env.USERNAME = 'win-user-canary';
@@ -326,7 +327,7 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
       await rm(tmp4, { recursive: true, force: true });
     }
     // Arm 5: nothing available -> literal 'operator' fallback.
-    const tmp5 = await mkdtemp(join(tmpdir(), 'pr9-by-op-'));
+    const tmp5 = await scratchDir('pr9-by-op-');
     try {
       delete process.env.USER;
       delete process.env.USERNAME;
@@ -340,7 +341,7 @@ test('bundle --next (PR 9, AC-17702-6): freeze.override.by resolves via git conf
     // over the next arm. GITHUB_ACTOR = '   ' falls through to USER;
     // USER = ' \t ' falls through to USERNAME; USERNAME = '\n' falls
     // through to 'operator'.
-    const tmp6 = await mkdtemp(join(tmpdir(), 'pr9-by-ws-'));
+    const tmp6 = await scratchDir('pr9-by-ws-');
     try {
       process.env.GITHUB_ACTOR = '   ';
       process.env.USER = ' \t ';

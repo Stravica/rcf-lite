@@ -70,7 +70,7 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
 });
 
 test('observability-logging: apply into a fresh fixture succeeds and writes the namespaced contributions (TC-038-clean-apply)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-obs-log-apply-'));
+  const root = await scratchDir('rcf-obs-log-apply-');
   await initProject({ projectRoot: root, projectName: 'obs-log-apply' });
   await declareUiNoneForTests(root);
   const { tree } = await walkTree({ projectRoot: root });
@@ -125,6 +125,7 @@ test('observability-logging: contributions/probes/ pack is present and every pro
 // criterion e (positive-evidence) extensions.
 import { collectEnvReads, listMjsUnder, importProbe, resultHasEvidenceShape, collectShippedAcIds, skipReasonNamesExactlyOneDeclared } from './_probe-anatomy-helpers.mjs';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const PROBES_DIR_E = join(BLUEPRINT_ROOT, 'contributions', 'probes');
 const FIXTURE_DIR_E = join(REPO_ROOT, 'packages', 'rcf-lite', 'test', 'fixtures', 'probe-pack-observability-logging');

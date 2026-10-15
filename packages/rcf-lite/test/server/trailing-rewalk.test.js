@@ -18,6 +18,7 @@ import { join } from 'node:path';
 import { initProject } from '#core/store/init.js';
 import { startServer } from '../../src/server/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function freePort() {
   return await new Promise((resolveP, rejectP) => {
@@ -31,7 +32,7 @@ async function freePort() {
 }
 
 async function makeCleanProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-trailing-rewalk-'));
+  const root = await scratchDir('rcf-trailing-rewalk-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   return root;

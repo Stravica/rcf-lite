@@ -14,9 +14,10 @@ import { walkTree } from '#core/store';
 import { createResourceRegistry, GUIDANCE_DIR, readGuidanceManifest } from '../../src/mcp/resources.js';
 import { RESOURCE_NOT_FOUND } from '#core/mcp-shell';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-resources-'));
+  const tmp = await scratchDir('rcf-mcp-resources-');
   await initProject({ projectRoot: tmp, projectName: 'McpResourcesTest' });
   await declareUiNoneForTests(tmp);
   return tmp;
