@@ -245,11 +245,14 @@ export default async function runProbe() {
       evidence: { composeSha256, dockerLocal: null },
     });
   } else {
-    const { writeFile, mkdir, cp, rm } = await import('node:fs/promises');
-    const { tmpdir } = await import('node:os');
+    const { writeFile, cp, rm } = await import('node:fs/promises');
     const { join } = await import('node:path');
-    const scratch = join(tmpdir(), `rcf-lite-t2-compose-config-lint-${Date.now()}`);
-    await mkdir(scratch, { recursive: true });
+    // Finding 4: use mkdtemp (unique, atomic) so two concurrent
+    // invocations never share a scratch dir. The old
+    // `${Date.now()}` suffix collided under same-millisecond
+    // concurrency and either invocation's `finally` could delete
+    // the shared dir while the other was still writing to it.
+    const scratch = await makeComposeConfigLintScratch();
     let cfg;
     try {
       await writeFile(join(scratch, 'compose.yaml'), mutatedText, 'utf8');
@@ -300,6 +303,17 @@ export default async function runProbe() {
     extra.dockerComposeConfigExit = cfg.status;
   }
   return { results, extra };
+}
+
+// Finding 4: factored out of runProbe so the mkdtemp replacement
+// can be exercised directly by a biting test (two concurrent calls
+// must return distinct paths and both clean up) without having to
+// drive the full docker-dependent probe path.
+export async function makeComposeConfigLintScratch() {
+  const { mkdtemp } = await import('node:fs/promises');
+  const { tmpdir } = await import('node:os');
+  const { join } = await import('node:path');
+  return mkdtemp(join(tmpdir(), 'rcf-lite-t2-compose-config-lint-'));
 }
 
 const engine = { kind: 'compose-config', image: 'docker compose config (local daemon)', healthy: true };

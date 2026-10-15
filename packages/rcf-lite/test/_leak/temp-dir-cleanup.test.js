@@ -26,6 +26,12 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { spawn } from 'node:child_process';
 
+import {
+  parseExecutedTests,
+  assessPinChildRun,
+  EXECUTED_TESTS_FLOOR,
+} from './pin-core.js';
+
 const PIN_SPAWNED = process.env.RCF_LEAK_PIN_SPAWNED === '1';
 const SKIP_REASON = 'child run from the pin itself (RCF_LEAK_PIN_SPAWNED set): the suite re-entered through this file would recurse';
 
@@ -116,6 +122,22 @@ test(
       t.diagnostic(`child transcript tail:\n${childTail}`);
       t.diagnostic(`leaked temp dir count: ${leaked.length} across ${byPrefix.size} prefixes`);
       if (topFamilies) t.diagnostic(`top prefixes (grep \`mkdtemp(join(tmpdir(), '<prefix>'\` to find the creating test):\n${topFamilies}`);
+
+      // Finding 3: refuse a vacuous pin. We must have seen a clean
+      // child exit AND the TAP summary must report at least the
+      // vacuous-run floor of tests, or the leak snapshot is not
+      // trustworthy (an early-exit or discovery-failure child would
+      // leave TMPDIR empty regardless of whether the suite leaks).
+      const executedTests = parseExecutedTests(transcript[0] ?? '');
+      t.diagnostic(
+        `child executed tests parsed from TAP summary: ${executedTests ?? 'null (no summary line seen)'}`,
+      );
+      assessPinChildRun({
+        code,
+        signal,
+        executedTests,
+        floor: EXECUTED_TESTS_FLOOR,
+      });
 
       assert.equal(
         leaked.length,
