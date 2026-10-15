@@ -245,22 +245,27 @@ export default async function runProbe() {
       evidence: { composeSha256, dockerLocal: null },
     });
   } else {
-    const { writeFile, mkdir, cp } = await import('node:fs/promises');
+    const { writeFile, mkdir, cp, rm } = await import('node:fs/promises');
     const { tmpdir } = await import('node:os');
     const { join } = await import('node:path');
     const scratch = join(tmpdir(), `rcf-lite-t2-compose-config-lint-${Date.now()}`);
     await mkdir(scratch, { recursive: true });
-    await writeFile(join(scratch, 'compose.yaml'), mutatedText, 'utf8');
-    for (const rel of ['.env', 'caddy', 'secrets', 'src']) {
-      try {
-        await cp(join(FIXTURE_DIR, rel), join(scratch, rel), { recursive: true });
-      } catch (err) {
-        // best-effort
+    let cfg;
+    try {
+      await writeFile(join(scratch, 'compose.yaml'), mutatedText, 'utf8');
+      for (const rel of ['.env', 'caddy', 'secrets', 'src']) {
+        try {
+          await cp(join(FIXTURE_DIR, rel), join(scratch, rel), { recursive: true });
+        } catch (err) {
+          // best-effort
+        }
       }
+      cfg = spawnSync('docker', ['compose', '-f', join(scratch, 'compose.yaml'), 'config'], {
+        encoding: 'utf8', timeout: 30_000,
+      });
+    } finally {
+      await rm(scratch, { recursive: true, force: true }).catch(() => {});
     }
-    const cfg = spawnSync('docker', ['compose', '-f', join(scratch, 'compose.yaml'), 'config'], {
-      encoding: 'utf8', timeout: 30_000,
-    });
     if (cfg.status === 0) {
       results.push({
         anchorAcId: null,
