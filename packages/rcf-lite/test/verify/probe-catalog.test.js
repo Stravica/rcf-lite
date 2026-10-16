@@ -314,3 +314,72 @@ test('AC-19201-7: rcf verify run --mode deterministic on a chain with no in-scop
   assert.equal(target.hits.includes('/health'), false, 'an out-of-scope probe is never requested');
   assert.deepEqual(await readTrace('run.jsonl'), [], 'deterministic verify spawns no child process');
 });
+
+// Gate finding BH-1 (PR 370): a probe that carries no response assertion
+// (no expectStatus, expectHeader, expectBody or selector) is an invalid
+// catalog entry. Verify never resolves it to "pass"; validate refuses it.
+
+test('AC-19201-8: rcf verify run --mode deterministic records an assertion-free probe (catalog { path: "/" } or AC-level) as "fail" with evidence naming the missing assertion, counts it under runStats.counts.failed never verified, and exits 4', async (t) => {
+  const target = await startTarget(t, { '/': { status: 200, body: 'ok' } });
+  const root = await fixtureChain({
+    acs: [
+      ac('AC-101-1'),
+      ac('AC-101-2'),
+      ac('AC-101-3', { probe: { path: '/' } }),
+    ],
+    catalog: {
+      'AC-101-1': { path: '/' },
+      // Control: a probe with an assertion still passes in the same run.
+      'AC-101-2': { path: '/', expectStatus: 200 },
+    },
+  });
+  const { code, stderr, report } = await verifyRun(root, target.url);
+  assert.equal(code, 4, `an assertion-free probe fails the run, exit 4; stderr:\n${stderr}`);
+
+  for (const acId of ['AC-101-1', 'AC-101-3']) {
+    const entry = perAc(report, acId);
+    assert.equal(entry.result, 'fail', `${acId}: an assertion-free probe is never "pass"`);
+    assert.match(String(entry.evidence?.failedExpectation), /assertion/i,
+      `${acId}: evidence names the missing assertion`);
+  }
+  assert.equal(perAc(report, 'AC-101-2').result, 'pass', 'the control probe with expectStatus passes');
+
+  assert.equal(report.run.runStats.counts.failed, 2, 'both assertion-free probes count under failed');
+  assert.equal(report.run.runStats.counts.verified, 1, 'only the control probe counts as verified');
+  assert.notEqual(report.verdict, 'PASS');
+});
+
+test('AC-19201-8: rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1', async () => {
+  // Control: catalogVersion 1 with asserting probes validates clean.
+  const okRoot = await fixtureChain({
+    acs: [ac('AC-101-1')],
+    catalog: { 'AC-101-1': { path: '/', expectStatus: 200 } },
+  });
+  const ok = await rcf(['define', 'validate'], { cwd: okRoot });
+  assert.equal(ok.code, 0, `a valid catalog validates; stdout:\n${ok.stdout}\nstderr:\n${ok.stderr}`);
+
+  // An assertion-free probe: refused, naming the key.
+  const bareRoot = await fixtureChain({
+    acs: [ac('AC-101-1'), ac('AC-101-2')],
+    catalog: {
+      'AC-101-1': { path: '/', expectStatus: 200 },
+      'AC-101-2': { path: '/' },
+    },
+  });
+  const bare = await rcf(['define', 'validate'], { cwd: bareRoot });
+  assert.equal(bare.code, 3, `an assertion-free catalog probe fails validate; stdout:\n${bare.stdout}`);
+  assert.match(`${bare.stdout}${bare.stderr}`, /AC-101-2/, 'validate names the assertion-free key');
+  assert.doesNotMatch(`${bare.stdout}${bare.stderr}`, /AC-101-1/, 'validate does not flag the asserting probe');
+
+  // catalogVersion missing, then catalogVersion 2: both refused.
+  for (const [label, doc] of [
+    ['missing', { probes: { 'AC-101-1': { path: '/', expectStatus: 200 } } }],
+    ['2', { catalogVersion: 2, probes: { 'AC-101-1': { path: '/', expectStatus: 200 } } }],
+  ]) {
+    const root = await fixtureChain({ acs: [ac('AC-101-1')] });
+    await writeFile(join(root, 'rcf', 'verify-catalog.json'), `${JSON.stringify(doc, null, 2)}\n`, 'utf8');
+    const res = await rcf(['define', 'validate'], { cwd: root });
+    assert.equal(res.code, 3, `catalogVersion ${label} fails validate; stdout:\n${res.stdout}`);
+    assert.match(`${res.stdout}${res.stderr}`, /catalogVersion/, `validate names catalogVersion (${label})`);
+  }
+});
