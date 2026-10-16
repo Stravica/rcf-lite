@@ -9,11 +9,11 @@
   "totals": {
     "items": 114,
     "notStarted": 62,
-    "inProgress": 3,
-    "complete": 34,
+    "inProgress": 2,
+    "complete": 35,
     "verified": 15,
-    "actionable": 41,
-    "blocked": 21
+    "actionable": 42,
+    "blocked": 20
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1423,9 +1423,9 @@
       "buildOrder": 218,
       "tier": 0,
       "title": "Per-AC probe catalog resolved by deterministic verify (issue 349)",
-      "executionStatus": "inProgress",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [],
-      "state": "inProgress",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1437,10 +1437,8 @@
       "dependsOnFbsIds": [
         "FBS-218"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-218"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-220",
