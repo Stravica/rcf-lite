@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-814",
+  "path": "src/verify/report/index.js#buildReport",
+  "implementsAcIds": [
+    "AC-19201-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T17:26:56.938Z",
+  "updatedAt": "2026-10-16T17:26:56.938Z"
+}

@@ -25,6 +25,7 @@ import {
   isVerifyMode,
   runDeterministic,
 } from './deterministic.js';
+import { readVerifyCatalog } from './catalog.js';
 import { aggregateVerdict, derivePerAcVerdicts, validateFinding } from '../verdict/index.js';
 import { reconcileScopedCoverage } from './coverage.js';
 import { buildReport } from '../report/index.js';
@@ -182,8 +183,16 @@ export async function runVerification(opts = {}, deps = {}) {
   let launchResult;
   try {
     if (mode === 'deterministic') {
-      const detResult = await runDeterministic({ url, acs, deps });
-      launchResult = { findings: detResult.findings, runStats: detResult.runStats };
+      // FBS-218: probes come from the AC first, then rcf/verify-catalog.json.
+      const catalog = chain.projectRoot ? await readVerifyCatalog(chain.projectRoot) : { probes: {} };
+      if (isRcfError(catalog)) {
+        await runCleanup();
+        return catalog;
+      }
+      const detResult = await runDeterministic({
+        url, acs, catalog, parityEnv: typeof opts.parityEnv === 'string' ? opts.parityEnv : null, deps,
+      });
+      launchResult = { findings: detResult.findings, runStats: detResult.runStats, perAc: detResult.perAc };
       for (const b of detResult.blockedAcs ?? []) blockedAcs.push(b);
     } else {
       const launchAgent = await resolveLauncher(deps);
@@ -259,6 +268,7 @@ export async function runVerification(opts = {}, deps = {}) {
     findings, blockedAcs, provisioning,
     runStats: runStatsForReport,
     perAcVerdicts,
+    perAc: launchResult?.perAc,
   });
 
   return { report };

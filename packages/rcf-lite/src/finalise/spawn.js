@@ -14,6 +14,9 @@ import { spawn } from 'node:child_process';
 
 import { isolationEnv } from '#core/isolation';
 
+/** Environment name finalise forwards as `verify run --parity-env <env>` (FBS-218). */
+export const FINALISE_PARITY_ENV = 'production';
+
 /**
  * Assemble the `rcf verify run` argument vector from finalise options.
  * Deterministic and pure so it is directly unit-testable; the exact
@@ -49,7 +52,9 @@ export function buildVerifyArgs(opts) {
     '--out', opts.out,
   ];
   if (opts.chain) args.push('--chain', opts.chain);
-  if (opts.parityEnv) args.push('--parity-env');
+  // FBS-218: verify's --parity-env takes the environment name. Finalise's
+  // own flag asserts edge-identity with production, so forward that name.
+  if (opts.parityEnv) args.push('--parity-env', FINALISE_PARITY_ENV);
   if (opts.provision) args.push('--provision', opts.provision);
   if (opts.persona) args.push('--persona', opts.persona);
   if (opts.mode) args.push('--mode', opts.mode);

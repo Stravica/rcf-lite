@@ -27,7 +27,9 @@ const OPTION_SPEC = {
   chain: { type: 'string' },
   profile: { type: 'string' },
   url: { type: 'string' },
-  'parity-env': { type: 'boolean' },
+  // FBS-218: takes the target environment name; a probe carrying
+  // parityEnv resolves only when it matches.
+  'parity-env': { type: 'string' },
   provision: { type: 'string' },
   out: { type: 'string' },
   'severity-gate': { type: 'string' },
@@ -66,9 +68,12 @@ Optional:
                             id, or an FBS with no bound criteria, refuses with
                             exit 2. 'rcf build finalise <fbs-id>' passes its
                             own FBS here by default.
-  --parity-env              Assert this ci/local-dev runtime is edge-identical
+  --parity-env <env>        Assert this ci/local-dev runtime is edge-identical
                             to prod — the only path to a SHIP verdict from a
-                            non-deployed profile. Logged in the report.
+                            non-deployed profile. Logged in the report. In
+                            deterministic mode a probe carrying parityEnv
+                            resolves only when it equals <env>; otherwise it
+                            is recorded skipped ('parityEnv mismatch').
   --provision <path>        Provisioning spec / prerequisite credentials FILE
                             (never inline; secrets never echoed)
   --severity-gate <sev>     Exit non-zero at/above this severity:
@@ -104,14 +109,15 @@ Optional:
                                  from a parent session that may spawn the
                                  agent CLI.
                               deterministic  model-free, in-process mode a
-                                 dispatched worker can run; records a per-AC
-                                 skip ledger as blockedAcs[] with reason
-                                 'critique-only' and stamps
-                                 runStats.counts = { verified, failed,
-                                 skipped, total }. The finalise gate refuses
-                                 promotion on a deterministic run that
-                                 skipped any AC (ADR-4112 verified
-                                 invariant).
+                                 dispatched worker can run; resolves each
+                                 AC's probe (on the AC, else in
+                                 rcf/verify-catalog.json) to pass, fail or
+                                 skipped with evidence on report.perAc[];
+                                 an AC with no probe is 'critiqueOnly' on
+                                 blockedAcs[]. Stamps runStats.counts =
+                                 { verified, failed, skipped, critiqueOnly,
+                                 total }. Exits 0 only when every in-scope
+                                 AC passed, 4 otherwise.
   --help                    Print this help
 
 Exit codes:
@@ -225,7 +231,7 @@ export async function main(argv, deps = {}) {
     chainRef: flags.chain,
     profile: flags.profile,
     url: flags.url,
-    parityEnv: Boolean(flags['parity-env']),
+    parityEnv: flags['parity-env'],
     provision: flags.provision,
     provisionMode,
     persona: flags.persona,
@@ -270,6 +276,13 @@ export async function main(argv, deps = {}) {
   const scopeCount = typeof report?.run?.scopeAcCount === 'number' ? ` (${report.run.scopeAcCount} ACs)` : '';
   stderr.write(`[rcf-verify] scope ${report?.run?.scope ?? 'chain'}${scopeCount}\n`);
   stderr.write(`[rcf-verify] verdict ${report.verdict} [${report.verdictAuthority}] -> ${flags.out}\n`);
+
+  // FBS-218: deterministic mode exits 0 only when every in-scope AC
+  // passed its probe, 4 otherwise (a fail, a skip or a critique-only AC).
+  if (mode === 'deterministic') {
+    const counts = report?.run?.runStats?.counts;
+    return counts && counts.total > 0 && counts.verified === counts.total ? 0 : 4;
+  }
 
   // Exit code is the gate (§8.2). NOT-DEPLOYED / BLOCKED always trip.
   return gateTripped({ verdict: report.verdict, findings: report.findings, gate }) ? 5 : 0;

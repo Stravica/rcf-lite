@@ -273,6 +273,10 @@ export async function readChain({ repo, chainRef } = {}) {
         // profile check.
         scope: ac.scope,
         boundTcs: boundTcsFor(testSuites, ac.id),
+        // FBS-218 (issue 349): the optional AC-level probe (rcf-schemas
+        // 0.7.1 $defs/acProbe); deterministic verify resolves it and it
+        // wins over a rcf/verify-catalog.json entry for the same AC.
+        ...(ac.probe !== undefined ? { probe: ac.probe } : {}),
       });
     }
   }

@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-810",
+  "path": "src/verify/engine/deterministic.js#runDeterministic",
+  "implementsAcIds": [
+    "AC-19201-1",
+    "AC-19201-2",
+    "AC-19201-3",
+    "AC-19201-5",
+    "AC-19201-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T17:26:54.672Z",
+  "updatedAt": "2026-10-16T17:26:54.672Z"
+}

@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Deterministic verify resolves per-AC probes (FBS-218, issue 349).** An acceptance criterion may carry an optional `probe` (`@stravica-ai/rcf-schemas` 0.7.1 `$defs/acProbe`: method, path, expectStatus, expectHeader, expectBody, selector, parityEnv) or an entry in `rcf/verify-catalog.json { catalogVersion: 1, probes: { <acId>: Probe } }`; the AC-level probe wins. `rcf verify run --mode deterministic` resolves each in-scope AC to pass, fail or skipped with evidence on `report.perAc[]` (evidence `source` is `ac` or `catalog`), keeps an AC with no probe `critiqueOnly`, and stamps `runStats.counts { verified, failed, skipped, critiqueOnly, total }`. It exits 0 only when every in-scope AC passed, 4 otherwise; `rcf build finalise` maps that 4 to its own 4. `rcf define update <us-id> --ac <ac-id> --probe <json>` (or `--probe-file <path>`) sets the probe and refuses an unknown key or a bad type with exit 3; `rcf define validate` exits 3 on a catalog key naming no AC.
+
+### Changed
+
+- **`rcf verify run --parity-env` takes an environment name** (`--parity-env <env>`). A probe carrying `parityEnv` resolves only when it matches and is otherwise recorded skipped with reason `parityEnv mismatch`. `rcf build finalise --parity-env` stays a bare flag and forwards `--parity-env production`. The `@stravica-ai/rcf-schemas` pin moves from 0.7.0 to 0.7.1.
+
 ## [0.34.2] - 2026-10-15
 
 0.34.2 fixes the viewer's Readiness and trace links, which could land on the Requirements panel instead of the item they named. Following `#tab=readiness&sub=trace&entity=<docId>` now resolves to the panel the link points at, including the four spellings the fix covers. breaking: false; a viewer routing fix with no CLI surface change, no shipped blueprint major and no applied-record shape change; the `@stravica-ai/rcf-schemas` 0.7.0 pin is unchanged. minAgentAction: null; the managed agent-instructions block is unchanged since 0.34.1, so `rcf doctor` reports a clean hash without an `rcf init` rerun.

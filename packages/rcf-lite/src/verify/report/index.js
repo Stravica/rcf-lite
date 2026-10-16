@@ -66,6 +66,10 @@ export function buildReport(p) {
       ...(v.reason !== undefined ? { reason: v.reason } : {}),
     }));
   }
+  // FBS-218 (issue 349): deterministic mode's per-AC probe results
+  // ({ acId, result: pass|fail|skipped|critiqueOnly, evidence }).
+  // Present-only, so agent-mode reports are unchanged.
+  if (Array.isArray(p.perAc)) report.perAc = p.perAc;
   // Defence-in-depth: never let a secret reach the report body (§10).
   return redactSecrets(report);
 }

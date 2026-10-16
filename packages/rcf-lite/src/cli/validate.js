@@ -10,6 +10,7 @@ import { validateCompanionPinsResolvable } from '../blueprint/companions.js';
 import { findProjectRoot } from '../view/index.js';
 // 0.30.0 PR 8 (REQ-178 / TAC-4126): define-validate findings.
 import { collectDefineValidateFindings } from '../define/validate-findings.js';
+import { validateVerifyCatalogKeys } from '../verify/engine/catalog.js';
 
 const OPTION_SPEC = {
   quiet: { type: 'boolean' },
@@ -151,6 +152,9 @@ export async function main(argv, deps = {}) {
   // a class marker is NOT a finding (decision 10 kept).
   const defineValidateFindings = collectDefineValidateFindings(tree);
   errors.push(...defineValidateFindings);
+  // FBS-218 (issue 349): a rcf/verify-catalog.json key naming no AC in
+  // the tree is exit 3, so a probe can never silently orphan.
+  errors.push(...await validateVerifyCatalogKeys({ projectRoot, tree }));
   if (flags.json) {
     const issues = errors.map((e) => ({
       id: e.documentId ?? null,

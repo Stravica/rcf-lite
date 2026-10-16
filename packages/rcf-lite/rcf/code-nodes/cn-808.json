@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-808",
+  "path": "src/verify/engine/deterministic.js#requestProbe",
+  "implementsAcIds": [
+    "AC-19201-1",
+    "AC-19201-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T17:26:53.530Z",
+  "updatedAt": "2026-10-16T17:26:53.530Z"
+}
