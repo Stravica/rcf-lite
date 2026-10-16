@@ -72,7 +72,7 @@
     "#admissibility": "./src/admissibility/index.js"
   },
   "dependencies": {
-    "@stravica-ai/rcf-schemas": "0.7.0",
+    "@stravica-ai/rcf-schemas": "0.8.0",
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1"
   },

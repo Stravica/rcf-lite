@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-816",
+  "path": "src/finalise/spawn.js#FINALISE_PARITY_ENV",
+  "implementsAcIds": [
+    "AC-19201-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T17:26:58.045Z",
+  "updatedAt": "2026-10-16T17:26:58.045Z"
+}

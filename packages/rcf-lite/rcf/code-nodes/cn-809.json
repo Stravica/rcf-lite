@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-809",
+  "path": "src/verify/engine/deterministic.js#snapshotSelector",
+  "implementsAcIds": [
+    "AC-19201-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T17:26:54.087Z",
+  "updatedAt": "2026-10-16T17:26:54.087Z"
+}

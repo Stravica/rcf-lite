@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:15.641Z",
-  "updatedAt": "2026-10-16T15:44:23.837Z",
+  "updatedAt": "2026-10-16T20:18:33.010Z",
   "purpose": "Declare one test per AC of US-19201 (FBS-218) driving rcf verify run --mode deterministic and rcf define update/validate through bin/rcf.js, so the FBS-218 Define round turns each declaration into a red test against the probe catalog behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -10,7 +10,8 @@
     "AC-19201-4",
     "AC-19201-5",
     "AC-19201-6",
-    "AC-19201-7"
+    "AC-19201-7",
+    "AC-19201-8"
   ],
   "id": "TS-251",
   "usId": "US-19201",
@@ -20,50 +21,106 @@
       "id": "TC-251-probe-pass",
       "acId": "AC-19201-1",
       "description": "rcf verify run --url <target> --fbs <fbs-id> --mode deterministic with an AC probe { path: \"/health\", expectStatus: 200 } served 200 exits 0; report records the AC \"pass\" with observed status and elapsed time and runStats.counts.verified incremented",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-1: rcf verify run --url <target> --fbs <fbs-id> --mode deterministic with an AC probe { path: \"/health\", expectStatus: 200 } served 200 exits 0; report records the AC \"pass\" with observed status and elapsed time and runStats.counts.verified incremented"
     },
     {
       "id": "TC-251-probe-fail",
       "acId": "AC-19201-2",
       "description": "rcf verify run --mode deterministic with a probe expecting 200 and body \"ready\" against a body without \"ready\" exits 4; report records the AC \"fail\" naming the failed expectation and observed value, runStats.counts.failed at least 1",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-2: rcf verify run --mode deterministic with a probe expecting 200 and body \"ready\" against a body without \"ready\" exits 4; report records the AC \"fail\" naming the failed expectation and observed value, runStats.counts.failed at least 1"
     },
     {
       "id": "TC-251-critique-only-and-unreachable",
       "acId": "AC-19201-3",
       "description": "rcf verify run --mode deterministic on an AC with no probe and no catalog entry exits 4 recording \"critiqueOnly\" counted in runStats.counts.critiqueOnly, verdict not PASS; an unreachable probe path is recorded \"skipped\" with the error kind, never \"pass\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-3: rcf verify run --mode deterministic on an AC with no probe and no catalog entry exits 4 recording \"critiqueOnly\" counted in runStats.counts.critiqueOnly, verdict not PASS; an unreachable probe path is recorded \"skipped\" with the error kind, never \"pass\""
     },
     {
       "id": "TC-251-probe-source",
       "acId": "AC-19201-4",
       "description": "rcf verify run --mode deterministic uses the AC-level probe over rcf/verify-catalog.json with evidence source \"ac\", a catalog-only probe with source \"catalog\"; a catalog key naming no AC makes rcf define validate exit 3",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-4: rcf verify run --mode deterministic uses the AC-level probe over rcf/verify-catalog.json with evidence source \"ac\", a catalog-only probe with source \"catalog\"; a catalog key naming no AC makes rcf define validate exit 3"
     },
     {
       "id": "TC-251-parity-env",
       "acId": "AC-19201-5",
       "description": "rcf verify run --mode deterministic --parity-env staging resolves a probe with parityEnv \"staging\"; with --parity-env production the same probe is recorded \"skipped\" with reason \"parityEnv mismatch\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-5: rcf verify run --mode deterministic --parity-env staging resolves a probe with parityEnv \"staging\"; with --parity-env production the same probe is recorded \"skipped\" with reason \"parityEnv mismatch\""
     },
     {
       "id": "TC-251-probe-schema",
       "acId": "AC-19201-6",
       "description": "rcf define update <us-id> --ac <ac-id> --probe {\"path\":\"/\",\"expectStatus\":200} stores the probe and rcf define validate exits 0; an unknown probe key or a non-integer expectStatus is refused with exit 3 naming the key",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-6: rcf define update <us-id> --ac <ac-id> --probe {\"path\":\"/\",\"expectStatus\":200} stores the probe and rcf define validate exits 0; an unknown probe key or a non-integer expectStatus is refused with exit 3 naming the key"
     },
     {
       "id": "TC-251-no-probe-no-pass",
       "acId": "AC-19201-7",
       "description": "rcf verify run --mode deterministic on a chain with no in-scope probe exits 4 with runStats.counts.verified 0, never records \"pass\" for an AC without a probe and spawns no child process",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-7: rcf verify run --mode deterministic on a chain with no in-scope probe exits 4 with runStats.counts.verified 0, never records \"pass\" for an AC without a probe and spawns no child process"
+    },
+    {
+      "id": "TC-251-assertion-free-probe-fails",
+      "acId": "AC-19201-8",
+      "description": "rcf verify run --mode deterministic records an assertion-free probe (catalog { path: \"/\" } or AC-level) as \"fail\" with evidence naming the missing assertion, counts it under runStats.counts.failed never verified, and exits 4",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf verify run --mode deterministic records an assertion-free probe (catalog { path: \"/\" } or AC-level) as \"fail\" with evidence naming the missing assertion, counts it under runStats.counts.failed never verified, and exits 4"
+    },
+    {
+      "id": "TC-251-catalog-validate-refuses",
+      "acId": "AC-19201-8",
+      "description": "rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1"
+    },
+    {
+      "id": "TC-251-empty-assertion-probe-fails",
+      "acId": "AC-19201-8",
+      "description": "rcf verify run --mode deterministic records a catalog probe with an empty or malformed assertion (expectBody {}, selector \"\", expectBody { contains: \"\" }, expectHeader match \"\", expectStatus \"200\") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf verify run --mode deterministic records a catalog probe with an empty or malformed assertion (expectBody {}, selector \"\", expectBody { contains: \"\" }, expectHeader match \"\", expectStatus \"200\") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4"
+    },
+    {
+      "id": "TC-251-catalog-validate-refuses-malformed",
+      "acId": "AC-19201-8",
+      "description": "rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with an empty or malformed assertion",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with an empty or malformed assertion"
+    },
+    {
+      "id": "TC-251-ac-level-empty-assertion-refused",
+      "acId": "AC-19201-8",
+      "description": "an AC-level probe with an empty assertion (expectBody {}, selector \"\") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one",
+      "status": "passing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: an AC-level probe with an empty assertion (expectBody {}, selector \"\") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one"
+    },
+    {
+      "id": "TC-251-whitespace-assertion-probe-fails",
+      "acId": "AC-19201-8",
+      "description": "rcf verify run --mode deterministic records a catalog probe with a whitespace-only assertion string (expectBody contains \" \", expectBody matches \" \", expectHeader match \" \") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf verify run --mode deterministic records a catalog probe with a whitespace-only assertion string (expectBody contains \" \", expectBody matches \" \", expectHeader match \" \") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4"
+    },
+    {
+      "id": "TC-251-catalog-validate-refuses-whitespace",
+      "acId": "AC-19201-8",
+      "description": "rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with a whitespace-only assertion string (contains, matches, header name, header match, selector)",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with a whitespace-only assertion string (contains, matches, header name, header match, selector)"
+    },
+    {
+      "id": "TC-251-ac-level-whitespace-assertion-refused",
+      "acId": "AC-19201-8",
+      "description": "rcf define update --ac --probe refuses an AC-level probe with a whitespace-only assertion string (selector \"  \", expectBody contains \" \") with exit 3 naming the field and never writes it",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define update --ac --probe refuses an AC-level probe with a whitespace-only assertion string (selector \"  \", expectBody contains \" \") with exit 3 naming the field and never writes it"
     }
   ],
   "status": "draft"

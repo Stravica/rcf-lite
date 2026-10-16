@@ -9,6 +9,7 @@ import { parseArgs } from 'node:util';
 import { isRcfError, writeUnexpectedFailure } from '#core/errors';
 import { splitCnPath, updateDocument, walkTree } from '#core/store';
 import { deriveFileDeps, mapDerivedDepsToCnIds } from '#core/store/derive-deps.js';
+import userStorySchema from '@stravica-ai/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
 import { findProjectRoot } from '../view/index.js';
 // Track C+D §4.4: reclassify a REQ when its description-carrying fields
 // change so downstream tooling sees a fresh shapeClassification.
@@ -30,6 +31,10 @@ const OPTION_SPEC = {
   // is the deliberate manual override: a logged operator decision
   // that skips the post-merge runtime check finalise runs.
   'acknowledge-verified-override': { type: 'boolean' },
+  // FBS-218 (issue 349): set the optional probe on one AC of a US.
+  ac: { type: 'string' },
+  probe: { type: 'string' },
+  'probe-file': { type: 'string' },
 };
 
 export const HELP = `Usage: rcf define update <id> [options]
@@ -52,6 +57,13 @@ Options:
                             the sole path to verified; the override is
                             a deliberate, logged operator decision that
                             skips the post-merge runtime check.
+  --ac <ac-id>              US only: the acceptance criterion --probe or
+                            --probe-file applies to
+  --probe <json>            Set the AC's probe (rcf-schemas $defs/acProbe:
+                            method, path, expectStatus, expectHeader,
+                            expectBody, selector, parityEnv); validated
+                            against the schema, exit 3 on a bad key
+  --probe-file <path>       As --probe, reading the JSON from a file
   --help                    Print this help
 `;
 
@@ -81,7 +93,7 @@ export async function main(argv, deps = {}) {
     stderr.write(HELP);
     return 2;
   }
-  const id = positionals[0];
+  let id = positionals[0];
 
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
@@ -124,6 +136,36 @@ export async function main(argv, deps = {}) {
       stderr.write(`[error] usage update: cannot read --from-file: ${err.message}\n`);
       return 2;
     }
+  }
+  // FBS-218: --ac <ac-id> with --probe / --probe-file sets the probe on
+  // that inline AC; the writer validates it against the AC subschema.
+  if (flags.probe !== undefined || flags['probe-file'] !== undefined) {
+    const acId = flags.ac;
+    if (!acId || !walkResult.tree.byId.get(id)?.acceptanceCriteria?.some((a) => a.id === acId)) {
+      stderr.write(`[error] usage update: --probe needs --ac <ac-id> naming an acceptance criterion of ${id}\n`);
+      return 2;
+    }
+    let probe;
+    try {
+      const raw = flags.probe ?? await readFile(flags['probe-file'], 'utf8');
+      probe = JSON.parse(raw);
+    } catch (err) {
+      stderr.write(`[error] usage update: cannot parse the probe JSON: ${err.message}\n`);
+      return 2;
+    }
+    // The writer's schema check refuses an unknown key without naming
+    // it; name it here off the schema's own $defs/acProbe properties.
+    const probeKeys = Object.keys(userStorySchema.$defs.acProbe.properties);
+    const unknown = probe && typeof probe === 'object' ? Object.keys(probe).filter((k) => !probeKeys.includes(k)) : [];
+    if (unknown.length > 0) {
+      stderr.write(`[error] validation probe carries unknown key(s) ${unknown.join(', ')} (allowed: ${probeKeys.join(', ')})\n`);
+      return 3;
+    }
+    id = acId;
+    sets.push({ path: 'probe', value: probe });
+  } else if (flags.ac !== undefined) {
+    stderr.write('[error] usage update: --ac applies only with --probe or --probe-file\n');
+    return 2;
   }
   if (flags['derive-deps']) {
     if (walkResult.tree.kindById.get(id) !== 'codeNode') {

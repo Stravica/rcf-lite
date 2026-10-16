@@ -184,3 +184,21 @@ export function validateDocument({ doc, kind, filePath }) {
     rule,
   });
 }
+
+/**
+ * Validate a value against one `$defs` subschema of a registered document
+ * kind (for example the user story's `acProbe`), on the same Ajv instance
+ * the chain loader uses. Returns the Ajv errors, or null when valid.
+ *
+ * @param {object} args
+ * @param {unknown} args.value
+ * @param {DocKind} args.kind
+ * @param {string} args.def - the `$defs` key
+ * @returns {Array<object> | null}
+ */
+export function validateSubschema({ value, kind, def }) {
+  const ajv = getAjv();
+  const validate = ajv.getSchema(`${SCHEMAS[kind].$id}#/$defs/${def}`);
+  if (validate(value)) return null;
+  return validate.errors ?? [];
+}

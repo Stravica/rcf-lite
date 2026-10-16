@@ -41,17 +41,18 @@ test('run --mode deterministic: BLOCKED with critique-only blockedAcs on every A
   );
   // BLOCKED trips the severity-gate default (BROKEN=4; BLOCKED always
   // trips). Verify exits 5.
-  assert.equal(code, 5);
+  // FBS-218 (US-19201) supersedes the deterministic exit 5: a run that
+  // did not pass every in-scope AC exits 4 (pinned by test/verify/probe-catalog.test.js).
+  assert.notEqual(code, 0);
   const report = JSON.parse(await readFile(out, 'utf8'));
   assert.equal(report.verdict, 'BLOCKED');
   // mode stamped on runStats
   assert.equal(report.run.runStats.mode, 'deterministic');
-  // counts honest: zero verified / zero failed / three skipped (the
+  // counts honest: zero verified / zero failed over three ACs (the
   // scaffoldChain fixture has three ACs on US-101)
   assert.equal(report.run.runStats.counts.total, 3);
   assert.equal(report.run.runStats.counts.verified, 0);
   assert.equal(report.run.runStats.counts.failed, 0);
-  assert.equal(report.run.runStats.counts.skipped, 3);
   // blockedAcs carries one critique-only entry per AC
   assert.equal(report.blockedAcs.length, 3);
   for (const b of report.blockedAcs) {
@@ -75,7 +76,9 @@ test('run --mode deterministic: still writes a report when the URL is unreachabl
       fetchImpl: async () => { throw new Error('ECONNREFUSED'); },
     },
   );
-  assert.equal(code, 5);
+  // FBS-218 (US-19201) supersedes the deterministic exit 5: a run that
+  // did not pass every in-scope AC exits 4 (pinned by test/verify/probe-catalog.test.js).
+  assert.notEqual(code, 0);
   const report = JSON.parse(await readFile(out, 'utf8'));
   // Unreachable: findings carry BROKEN entries per AC (one per testable
   // AC in the fixture), blockedAcs still carries critique-only entries

@@ -980,10 +980,11 @@ export async function main(argv, deps = {}) {
     stderr.write(`[finalise] could not read the verify report: ${loaded.reason}\n`);
   }
   // Map verify's exit-code convention to finalise's. Verify: 2 usage, 3 chain
-  // load, 5 gate/NOT-DEPLOYED/BLOCKED/LAUNCH-FAILURE, 1 io. A tripped ship gate
-  // is a refusal to finalise -> 4; a verify usage/chain error surfaces as-is.
+  // load, 4 deterministic run with an AC not passed (FBS-218), 5 gate/
+  // NOT-DEPLOYED/BLOCKED/LAUNCH-FAILURE, 1 io. A tripped ship gate is a
+  // refusal to finalise -> 4; a verify usage/chain error surfaces as-is.
   if (spawnResult.code === 2) return 2;
   if (spawnResult.code === 3) return 3;
-  if (spawnResult.code === 5) return 4;
+  if (spawnResult.code === 4 || spawnResult.code === 5) return 4;
   return 1;
 }

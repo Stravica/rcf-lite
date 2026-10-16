@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-812",
+  "path": "src/verify/engine/index.js#runVerification",
+  "implementsAcIds": [
+    "AC-19201-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T17:26:55.830Z",
+  "updatedAt": "2026-10-16T17:26:55.830Z"
+}
