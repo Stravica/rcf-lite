@@ -6,13 +6,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { startServer } from '../../src/server/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function freePort() {
   return await new Promise((resolveP, rejectP) => {
@@ -26,7 +27,7 @@ async function freePort() {
 }
 
 async function makeCleanProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-server-'));
+  const root = await scratchDir('rcf-server-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   return root;

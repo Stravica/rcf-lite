@@ -14,16 +14,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject, walkTree } from '#core/store';
 import { removeResolution } from '../../src/blueprint/remove-resolution.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-remove-resolution-'));
+  const root = await scratchDir('rcf-remove-resolution-');
   const init = await initProject({ projectRoot: root, projectName: 'RemoveResolutionTest' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

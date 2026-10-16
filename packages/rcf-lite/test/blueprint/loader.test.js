@@ -14,14 +14,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function writeBlueprintMeta(meta, extras = []) {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-blueprint-loader-'));
+  const dir = await scratchDir('rcf-blueprint-loader-');
   await mkdir(join(dir, 'contributions'), { recursive: true });
   await writeFile(join(dir, 'blueprint.json'), `${JSON.stringify(meta, null, 2)}\n`, 'utf8');
   for (const [rel, body] of extras) {

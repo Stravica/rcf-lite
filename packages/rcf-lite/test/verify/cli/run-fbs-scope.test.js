@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,6 +15,7 @@ import { main as runMain } from '../../../src/verify/cli/run.js';
 import { createToolRegistry } from '../../../src/verify/mcp/tools.js';
 import { renderReport } from '../../../src/verify/report/renderer.js';
 import { scaffoldChain } from '../helpers/chain.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 function capture() {
   const out = { text: '' };
@@ -22,7 +23,7 @@ function capture() {
 }
 
 async function outPath() {
-  return join(await mkdtemp(join(tmpdir(), 'rcf-cli-scope-')), 'report.json');
+  return join(await scratchDir('rcf-cli-scope-'), 'report.json');
 }
 
 function fbsDoc(fbsId, buildOrder, acIds) {

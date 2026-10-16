@@ -10,7 +10,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -22,12 +22,13 @@ import {
   runPass1,
   runPass2,
 } from '../../src/blueprint/consistency-lint.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const shelfRoot = resolve(here, '..', '..', '..', '..', 'blueprints');
 
 async function scaffoldBlueprint({ slug = 'test-bp', version = '1.0.0', tacs = [], reqs = [], userStories = [], adrs = [], guide = '', readme = '' } = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-consistency-lint-'));
+  const root = await scratchDir('rcf-consistency-lint-');
   await mkdir(join(root, 'contributions', 'tacs'), { recursive: true });
   await mkdir(join(root, 'contributions', 'requirements'), { recursive: true });
   await mkdir(join(root, 'contributions', 'user-stories'), { recursive: true });

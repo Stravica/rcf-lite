@@ -15,7 +15,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -26,6 +26,7 @@ import { redact, findResidualSecrets, BODY_CAP_BYTES } from '../../src/feedback/
 import { renderIssue, capRenderedBody } from '../../src/feedback/render.js';
 import { ensureGitignore, appendEntry, appendState, feedbackDir } from '../../src/feedback/store.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -50,7 +51,7 @@ async function runBin(cwd, args = [], extraEnv = {}) {
 }
 
 async function scaffold(name = 'FixRound3Project') {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-fixround3-'));
+  const tmp = await scratchDir('rcf-feedback-fixround3-');
   await initProject({ projectRoot: tmp, projectName: name });
   await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
@@ -164,7 +165,7 @@ test('AC-15601-4 (round 3): bundle-level residual returns exit 3, not 1', async 
 // -- F-slice-1-01 (round 3): fallback rejects unknown negations -------------
 
 test('F-slice-1-01 (round 3): fallback ensureGitignore refuses when an unrecognised ! negation is present', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-negfallback-'));
+  const tmp = await scratchDir('rcf-feedback-negfallback-');
   // No git init on `tmp`, so ensureGitignore falls into the textual
   // scan. The negation `!*.jsonl` would re-include entries.jsonl
   // under real git even though `.rcf/feedback/*` is ignored; the

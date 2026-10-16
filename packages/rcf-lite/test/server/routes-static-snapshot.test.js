@@ -12,12 +12,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { createRouter } from '../../src/server/routes.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function freePort() {
   return await new Promise((resolveP, rejectP) => {
@@ -42,7 +43,7 @@ async function bindServer(handler) {
 }
 
 test('issue #248: a snapshotted styleAsset is served from memory even after the source file mutates on disk', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-static-snapshot-'));
+  const dir = await scratchDir('rcf-static-snapshot-');
   const stylePath = join(dir, 'style.css');
   const original = 'body { color: red; /* v1 */ }\n';
   await writeFile(stylePath, original, 'utf8');
@@ -102,7 +103,7 @@ test('issue #248: without an asset AND without a fallback path, the router retur
 });
 
 test('issue #248: the legacy fallback path is still honoured when no snapshot is provided (backwards compatibility)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-static-fallback-'));
+  const dir = await scratchDir('rcf-static-fallback-');
   const stylePath = join(dir, 'style.css');
   await writeFile(stylePath, '/* fallback path */\n', 'utf8');
 
@@ -130,7 +131,7 @@ test('issue #248 (Codex P2-2): startServer snapshots on boot and serves the pre-
   const { initProject } = await import('#core/store/init.js');
   const { STYLE_CSS_PATH } = await import('../../src/view/index.js');
 
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-startup-snapshot-'));
+  const projectRoot = await scratchDir('rcf-startup-snapshot-');
   await initProject({ projectRoot });
 
   // Read the shipped style.css so we can restore it after the test.

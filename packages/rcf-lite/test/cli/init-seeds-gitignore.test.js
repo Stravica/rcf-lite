@@ -5,13 +5,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { composeGitignoreBlock } from '../../src/setup/managed-gitignore.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -29,7 +30,7 @@ async function runBin(cwd, args) {
 }
 
 test('fresh init: .gitignore contains exactly the composed managed block', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-gi-fresh-'));
+  const tmp = await scratchDir('rcf-init-gi-fresh-');
   const { code } = await runBin(tmp, ['init', '--project-name', 'GTest', '--non-interactive']);
   assert.equal(code, 0);
   const gitignore = await readFile(join(tmp, '.gitignore'), 'utf8');
@@ -37,7 +38,7 @@ test('fresh init: .gitignore contains exactly the composed managed block', async
 });
 
 test('existing .gitignore: operator entries preserved above the managed block', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-gi-existing-'));
+  const tmp = await scratchDir('rcf-init-gi-existing-');
   const operatorHeader = '# operator gitignore\nnode_modules/\n.env\n';
   await writeFile(join(tmp, '.gitignore'), operatorHeader, 'utf8');
   const { code } = await runBin(tmp, ['init', '--project-name', 'GTest', '--non-interactive']);
@@ -49,7 +50,7 @@ test('existing .gitignore: operator entries preserved above the managed block', 
 });
 
 test('re-run init on the same repo: managed block does not duplicate', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-gi-rerun-'));
+  const tmp = await scratchDir('rcf-init-gi-rerun-');
   await runBin(tmp, ['init', '--project-name', 'First', '--non-interactive']);
   const first = await readFile(join(tmp, '.gitignore'), 'utf8');
   await runBin(tmp, ['init', '--project-name', 'Second', '--non-interactive']);

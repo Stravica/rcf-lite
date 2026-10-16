@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, mkdir } from 'node:fs/promises';
+import { writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
@@ -16,6 +16,7 @@ import { initProject } from '#core/store/init.js';
 import { main as questionsMain } from '../../src/cli/questions.js';
 import { main as ledgerMain } from '../../src/cli/ledger.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() {
   const chunks = [];
@@ -37,7 +38,7 @@ async function invokeLedger(argv, cwd) {
 }
 
 async function scratchProject() {
-  const root = await mkdtemp(join(tmpdir(), 'questions-loop-real-'));
+  const root = await scratchDir('questions-loop-real-');
   await initProject({ projectRoot: root });
   // FBS-214: initProject seeds a ui-null journey record so D0 fails on
   // discovery:declared. The behaviour under test here is the brief

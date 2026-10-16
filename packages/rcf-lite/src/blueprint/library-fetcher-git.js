@@ -191,8 +191,9 @@ export async function fetchGitLibrary({ url, ref, refKind, targetDir, git = 'git
     if (settled) return settled;
     return { resolvedSha: ref.toLowerCase(), root: targetDir };
   } catch (err) {
-    await rm(scratch, { recursive: true, force: true }).catch(() => {});
     return rcfError({ kind: 'ioFailure', message: `git fetch: ${err.message}`, stack: err.stack });
+  } finally {
+    await rm(scratch, { recursive: true, force: true }).catch(() => {});
   }
 }
 

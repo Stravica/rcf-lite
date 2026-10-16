@@ -2,12 +2,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { scanFilesForMarkers, scanSourceStringForMarkers } from '#admissibility';
 import { getRuleset } from '#ruleset';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('scanSourceStringForMarkers surfaces every ratified marker case-insensitively', async () => {
   // Every marker from the ratified vocabulary appears verbatim in one
@@ -45,7 +46,7 @@ test('scanSourceStringForMarkers on empty/whitespace input returns no findings',
 });
 
 test('scanFilesForMarkers scans multiple files and surfaces IO failures as ioFailure findings', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-markers-'));
+  const dir = await scratchDir('rcf-markers-');
   const clean = join(dir, 'clean.js');
   const dirty = join(dir, 'dirty.js');
   const missing = join(dir, 'does-not-exist.js');

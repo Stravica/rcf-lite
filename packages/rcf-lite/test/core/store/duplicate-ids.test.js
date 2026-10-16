@@ -13,7 +13,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -22,9 +22,10 @@ import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store/walker.js';
 import { nextIdForKind } from '#core/store/writer.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function scaffold(tag) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-dupid-${tag}-`));
+  const root = await scratchDir(`rcf-dupid-${tag}-`);
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   return root;
@@ -210,7 +211,7 @@ test('a document filed under one id while declaring another occupies BOTH ids', 
 });
 
 test('a case-only filename collision is refused rather than silently collapsed', async (t) => {
-  const probe = await mkdtemp(join(tmpdir(), 'rcf-dupid-casecheck-'));
+  const probe = await scratchDir('rcf-dupid-casecheck-');
   await writeFile(join(probe, 'AAA'), 'x', 'utf8');
   let caseSensitive = true;
   try {

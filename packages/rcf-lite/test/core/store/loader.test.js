@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -12,9 +12,10 @@ import {
   rootPathFor,
   subdirFor,
 } from '../../../src/core/store/loader.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function makeFixtureRoot(name) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-loader-${name}-`));
+  const root = await scratchDir(`rcf-loader-${name}-`);
   await mkdir(join(root, 'rcf'), { recursive: true });
   await mkdir(join(root, 'rcf', 'requirements'), { recursive: true });
   return root;

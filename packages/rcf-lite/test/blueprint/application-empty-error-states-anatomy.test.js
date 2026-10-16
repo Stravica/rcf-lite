@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -19,6 +19,7 @@ import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer, NAMED_STATES } from '../fixtures/probe-pack-application-empty-error-states/server.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -61,7 +62,7 @@ test('blueprint.json declares 21 contributions with no capabilities and no requi
 });
 
 test('applies cleanly on a fresh init project and adds 21 documents to the tree (TC-053-applies-clean)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-scratch-'));
+  const scratch = await scratchDir('empty-error-states-scratch-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -113,7 +114,7 @@ test('every pack check id matches a contributed AC id and appliesTo binds tacIds
 });
 
 test('application-empty-error-states: pack loader discovers the shipped pack against an applied scratch project (TC-053-pack-loader-discovers)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'empty-error-states-loader-'));
+  const scratch = await scratchDir('empty-error-states-loader-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -397,7 +398,6 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-empty-error-states-AC-22101-1 violates the rule-7d null-anchor \+ limitation shape/);
 });
-
 
 test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
   const badRow = {

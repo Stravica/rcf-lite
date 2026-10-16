@@ -9,13 +9,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 
 import { initProject } from '#core/store/init.js';
 import { main as readinessMain } from '../../src/cli/readiness.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeSink() {
   const chunks = [];
@@ -27,7 +27,7 @@ function makeSink() {
 }
 
 async function scaffold() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-pr8-readiness-info-'));
+  const root = await scratchDir('rcf-pr8-readiness-info-');
   const result = await initProject({ projectRoot: root });
   assert.ok(result && Array.isArray(result.created));
   return root;

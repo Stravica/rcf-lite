@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -16,6 +16,7 @@ import {
   parseClaudeMcpListOutput,
   probeClaudeCodeMcp,
 } from '../../src/setup/playwright-checks.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('hasPlaywrightSignature: args string matching @playwright/mcp@... is a hit', () => {
   assert.equal(hasPlaywrightSignature({ command: 'npx', args: ['-y', '@playwright/mcp@0.0.99'] }), true);
@@ -98,7 +99,7 @@ test('probeClaudeCodeMcp: clean stdout with a playwright user-scope line -> foun
 });
 
 test('loadBrowserFacingSources: returns { browserFacing: false, sources: [] } on a manifest with no blueprints', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bfs-'));
+  const root = await scratchDir('rcf-bfs-');
   await mkdir(join(root, 'rcf'), { recursive: true });
   await writeFile(join(root, 'rcf', 'manifest.json'), JSON.stringify({
     version: '2.0.0',
@@ -113,7 +114,7 @@ test('loadBrowserFacingSources: returns { browserFacing: false, sources: [] } on
 });
 
 test('loadBrowserFacingSources: returns { browserFacing: true } when at least one source declares browserSurface', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bfs-'));
+  const root = await scratchDir('rcf-bfs-');
   await mkdir(join(root, 'rcf'), { recursive: true });
   await mkdir(join(root, 'bp'), { recursive: true });
   await writeFile(join(root, 'bp', 'blueprint.json'), JSON.stringify({
@@ -134,7 +135,7 @@ test('loadBrowserFacingSources: returns { browserFacing: true } when at least on
 });
 
 test('loadBrowserFacingSources: a source with .browserSurface but no declared:true is not browser-facing', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bfs-'));
+  const root = await scratchDir('rcf-bfs-');
   await mkdir(join(root, 'rcf'), { recursive: true });
   await mkdir(join(root, 'bp'), { recursive: true });
   await writeFile(join(root, 'bp', 'blueprint.json'), JSON.stringify({

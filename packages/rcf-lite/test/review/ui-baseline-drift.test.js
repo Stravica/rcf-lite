@@ -2,14 +2,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
 import { auditUiBaselineDrift } from '../../src/review/ui-baseline-drift.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function makeProjectFiles(files) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-uibd-'));
+  const root = await scratchDir('rcf-uibd-');
   for (const [rel, contents] of Object.entries(files)) {
     const abs = join(root, rel);
     await mkdir(join(root, rel, '..'), { recursive: true });

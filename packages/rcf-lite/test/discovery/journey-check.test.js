@@ -15,7 +15,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir, chmod, unlink } from 'node:fs/promises';
-import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -41,13 +40,14 @@ import {
   readJourneyRecord,
   writeJourneyRecord,
 } from '../../src/discovery/record.js';
+import { scratchDirSync } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const BIN = resolve(repoRoot, 'bin', 'rcf.js');
 
 function mkProject() {
-  const scratch = mkdtempSync(join(tmpdir(), 'rcf-journey-fbs212-'));
+  const scratch = scratchDirSync('rcf-journey-fbs212-');
   return scratch;
 }
 

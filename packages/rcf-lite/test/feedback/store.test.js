@@ -6,7 +6,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -25,9 +25,10 @@ import {
   writeAskLedger,
 } from '../../src/feedback/store.js';
 import { managedGitignoreEntries } from '../../src/setup/managed-gitignore.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function fixture() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-feedback-store-'));
+  const root = await scratchDir('rcf-feedback-store-');
   return root;
 }
 

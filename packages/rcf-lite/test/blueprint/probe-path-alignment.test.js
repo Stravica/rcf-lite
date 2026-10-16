@@ -19,7 +19,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve as pathResolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +29,7 @@ import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = pathResolve(here, '..', '..', '..', '..');
@@ -52,7 +53,7 @@ const PERMUTATIONS = [
 ];
 
 async function scaffoldProject(label) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-probe-align-${label}-`));
+  const root = await scratchDir(`rcf-probe-align-${label}-`);
   const init = await initProject({ projectRoot: root, projectName: `ProbeAlign_${label}` });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

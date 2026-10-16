@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -16,6 +16,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 // packages/rcf-lite/test/blueprint -> packages/rcf-lite -> monorepo root
@@ -70,7 +71,7 @@ test('observability-logging: blueprint.json declares the ratified shape (TC-038-
 });
 
 test('observability-logging: apply into a fresh fixture succeeds and writes the namespaced contributions (TC-038-clean-apply)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-obs-log-apply-'));
+  const root = await scratchDir('rcf-obs-log-apply-');
   await initProject({ projectRoot: root, projectName: 'obs-log-apply' });
   await declareUiNoneForTests(root);
   const { tree } = await walkTree({ projectRoot: root });

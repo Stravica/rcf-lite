@@ -5,16 +5,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-lib-apply-'));
+  const root = await scratchDir('rcf-lib-apply-');
   const init = await initProject({ projectRoot: root, projectName: 'LibraryApplyTest' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

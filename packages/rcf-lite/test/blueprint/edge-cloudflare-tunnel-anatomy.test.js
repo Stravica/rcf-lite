@@ -13,10 +13,11 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cp, mkdtemp, readFile, writeFile, stat } from 'node:fs/promises';
+import { cp, readFile, writeFile, stat } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 import { tmpdir } from 'node:os';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -48,7 +49,7 @@ async function runProbe(name, { env = {}, fixtureRoot } = {}) {
 }
 
 async function scratchFixture() {
-  const scratch = await mkdtemp(join(tmpdir(), 'rcf-lite-t3-anatomy-'));
+  const scratch = await scratchDir('rcf-lite-t3-anatomy-');
   await cp(CANONICAL, scratch, { recursive: true });
   return scratch;
 }

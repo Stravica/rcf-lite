@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import http from 'node:http';
 import { dirname, join, resolve } from 'node:path';
@@ -17,6 +17,7 @@ import { readContributedAcIds } from '../../src/browser-verify/pack-loader.js';
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 import { main as runDefineValidate } from '../../src/cli/validate.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -82,7 +83,7 @@ test('ADR JSON documents validate against 0.6.1 and standardsTraceClause is non-
 });
 
 test('applies cleanly on a fresh project with 21 contributions and no requiresAppliedCapabilities refusal (TC-057-applies-clean)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'onboarding-tour-'));
+  const scratch = await scratchDir('onboarding-tour-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -418,7 +419,6 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-onboarding-tour-AC-26104-1 violates the rule-7d null-anchor \+ limitation shape/);
 });
-
 
 test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
   const badRow = {

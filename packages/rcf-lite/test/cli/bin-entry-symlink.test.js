@@ -11,11 +11,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtempSync, rmSync, symlinkSync } from 'node:fs';
+import { rmSync, symlinkSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDirSync } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -33,7 +34,7 @@ async function runNode(argv0Bin, args = ['--version']) {
 }
 
 test('BUG-001: rcf --version via a symlinked bin path prints "rcf-lite <semver>"', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'rcf-bug001-e2e-'));
+  const dir = scratchDirSync('rcf-bug001-e2e-');
   try {
     const linkedRoot = join(dir, 'linked-root');
     symlinkSync(repoRoot, linkedRoot, 'dir');
@@ -52,7 +53,7 @@ test('BUG-001: rcf --version via a symlinked bin path prints "rcf-lite <semver>"
 });
 
 test('BUG-001: rcf --help via a symlinked bin path emits top-level help', async () => {
-  const dir = mkdtempSync(join(tmpdir(), 'rcf-bug001-help-'));
+  const dir = scratchDirSync('rcf-bug001-help-');
   try {
     const linkedRoot = join(dir, 'linked-root');
     symlinkSync(repoRoot, linkedRoot, 'dir');

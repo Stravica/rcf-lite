@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import {
-  mkdir, mkdtemp, readFile, stat, writeFile,
+  mkdir, readFile, stat, writeFile
 } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
@@ -18,6 +18,7 @@ import { computeDelta } from '../../src/query/delta.js';
 import { loadAllLedgers } from '../../src/define/ledgers.js';
 import { walkTree } from '#core/store';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeSink() {
   const chunks = [];
@@ -29,7 +30,7 @@ function makeSink() {
 }
 
 async function scratchProject(prefix = 'freeze-cli-') {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  const root = await scratchDir(prefix);
   const result = await initProject({ projectRoot: root });
   assert.ok(result && Array.isArray(result.created), `initProject failed: ${JSON.stringify(result)}`);
   // FBS-214: declare ui=none so D0 folds to notApplicable in these

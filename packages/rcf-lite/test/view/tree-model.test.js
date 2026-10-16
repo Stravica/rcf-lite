@@ -1,6 +1,5 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -9,6 +8,7 @@ import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store';
 import { buildTreeModel, listAllDocumentIds } from '../../src/view/tree-model.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -112,7 +112,7 @@ test('buildTreeModel exposes empty tsByAcId / tcsByAcId when no TS files exist',
   // The live dogfood tree now carries a populated test axis
   // (w-2026-07-28-005), so the no-TS shape is asserted against a fresh
   // scaffold, whose test-suites/ directory is empty by construction.
-  const root = await mkdtemp(join(tmpdir(), 'rcf-tree-model-no-ts-'));
+  const root = await scratchDir('rcf-tree-model-no-ts-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const result = await walkTree({ projectRoot: root });

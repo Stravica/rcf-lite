@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -16,6 +16,7 @@ import {
   stopDetached,
   statusOfDetached,
 } from '../../src/view-supervisor/supervisor.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldTree(dir) {
   await mkdir(join(dir, 'rcf'), { recursive: true });
@@ -30,7 +31,7 @@ async function scaffoldTree(dir) {
 }
 
 test('rcf view start --detach survives its parent CLI exit and stop cleanly tears down', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-view-detach-'));
+  const dir = await scratchDir('rcf-view-detach-');
   await scaffoldTree(dir);
   try {
     const started = await startDetached({

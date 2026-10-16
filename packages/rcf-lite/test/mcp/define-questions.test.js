@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
@@ -13,6 +13,7 @@ import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { main as questionsMain } from '../../src/cli/questions.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
@@ -26,7 +27,7 @@ function makeSink() {
 }
 
 async function scratchProject(prefix = 'questions-mcp-') {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  const root = await scratchDir(prefix);
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   return root;

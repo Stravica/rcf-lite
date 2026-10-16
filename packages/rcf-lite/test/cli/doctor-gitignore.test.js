@@ -9,7 +9,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +27,7 @@ import {
   managedGitignoreEntries,
 } from '../../src/setup/managed-gitignore.js';
 import { hashInnerContent } from '../../src/setup/managed-block.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +45,7 @@ async function runBin(cwd, args) {
 }
 
 async function freshInit(prefix = 'rcf-doc-gi-') {
-  const tmp = await mkdtemp(join(tmpdir(), prefix));
+  const tmp = await scratchDir(prefix);
   const { code } = await runBin(tmp, ['init', '--project-name', 'GitTest', '--non-interactive']);
   assert.equal(code, 0);
   return tmp;
@@ -73,7 +74,7 @@ test('AC-3.1: rcf init creates a .gitignore with the managed block containing ex
 });
 
 test('AC-3.2: rcf init on a repo with an existing .gitignore preserves operator entries and appends the managed block', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-gi-existing-'));
+  const tmp = await scratchDir('rcf-doc-gi-existing-');
   const operatorEntries = 'node_modules/\n.env\ndist/\n';
   await writeFile(join(tmp, '.gitignore'), operatorEntries, 'utf8');
   const { code } = await runBin(tmp, ['init', '--project-name', 'ExistingGI', '--non-interactive']);
@@ -104,7 +105,7 @@ test('AC-3.4: doctor reports stale-hash on a hand-edited managed block', async (
 });
 
 test('AC-3.5: --fix on stale-hash rewrites the managed block, preserves operator content outside byte-identically', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-gi-fix-'));
+  const tmp = await scratchDir('rcf-doc-gi-fix-');
   const operatorHeader = '# operator gitignore\nnode_modules/\n';
   await writeFile(join(tmp, '.gitignore'), operatorHeader, 'utf8');
   await runBin(tmp, ['init', '--project-name', 'GIfix', '--non-interactive']);
@@ -226,7 +227,7 @@ test('AC-3.7: composed .gitignore block has no em-dash and no denylisted America
 });
 
 test('doctor --fix on a repo with no .gitignore creates one with only the managed block', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-gi-none-'));
+  const tmp = await scratchDir('rcf-doc-gi-none-');
   const { code } = await runBin(tmp, ['doctor', '--fix', '--check', 'gitignore']);
   assert.equal(code, 0);
   const contents = await readFile(join(tmp, '.gitignore'), 'utf8');

@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,11 +15,12 @@ import {
   writeLedger,
 } from '../../src/blueprint/disposition-ledger.js';
 import { renderDispositions } from '../../src/blueprint/dispositions.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const now = new Date('2026-09-09T12:00:00Z');
 
 test('initialiseLedger writes one record per AC with the correct action per source disposition', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-ledger-'));
+  const root = await scratchDir('rcf-ledger-');
   const res = await initialiseLedger({
     projectRoot: root, slug: 'demo',
     acDescriptors: [
@@ -46,7 +47,7 @@ test('initialiseLedger writes one record per AC with the correct action per sour
 });
 
 test('initialiseLedger is idempotent: an existing ledger is left byte-identical', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-ledger-'));
+  const root = await scratchDir('rcf-ledger-');
   await initialiseLedger({
     projectRoot: root, slug: 'demo',
     acDescriptors: [{ id: 'AC-1', storyId: 'US-1' }],
@@ -64,7 +65,7 @@ test('initialiseLedger is idempotent: an existing ledger is left byte-identical'
 });
 
 test('upsertLedgerRecord updates an existing record by acId and records resolvedAt', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-ledger-'));
+  const root = await scratchDir('rcf-ledger-');
   await initialiseLedger({
     projectRoot: root, slug: 'demo',
     acDescriptors: [{ id: 'AC-1', storyId: 'US-1', sourceDisposition: 'template' }],
@@ -91,7 +92,7 @@ test('upsertLedgerRecord updates an existing record by acId and records resolved
 });
 
 test('writeLedger refuses an unknown action value', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-ledger-'));
+  const root = await scratchDir('rcf-ledger-');
   const res = await writeLedger({
     projectRoot: root, slug: 'demo',
     records: [{ acId: 'AC-1', storyId: 'US-1', action: 'ambivalent' }],
@@ -100,7 +101,7 @@ test('writeLedger refuses an unknown action value', async () => {
 });
 
 test('renderDispositions returns present:false when no ledger exists (JSON path)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-ledger-'));
+  const root = await scratchDir('rcf-ledger-');
   const rendered = await renderDispositions({ projectRoot: root, slug: 'missing', asJson: true });
   assert.equal(rendered.exitCode, 0);
   const doc = JSON.parse(rendered.output);
@@ -109,7 +110,7 @@ test('renderDispositions returns present:false when no ledger exists (JSON path)
 });
 
 test('renderDispositions returns the ledger records (JSON path)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-ledger-'));
+  const root = await scratchDir('rcf-ledger-');
   await initialiseLedger({
     projectRoot: root, slug: 'demo',
     acDescriptors: [{ id: 'AC-1', storyId: 'US-1', sourceDisposition: 'template' }],

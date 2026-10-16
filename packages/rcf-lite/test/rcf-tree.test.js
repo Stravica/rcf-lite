@@ -30,6 +30,7 @@ import { knownKinds, validateDocument } from '#core/store';
 // moved. Importing the constant keeps the two sides mechanically agreed.
 import { DEFINE_RELATIVE_DIR } from '../src/define/ledgers.js';
 import { DISCOVERY_RELATIVE_DIR } from '../src/discovery/record.js';
+import { scratchDirSync } from './_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
@@ -761,11 +762,11 @@ test('the REQ-007 validation chain (13 nodes) is present with the PoC-proven imp
 // `rcf/define/`, while still returning chain documents from the same
 // scratch tree. Mirrors the real tree shape just enough to exercise
 // walk + classify + loadAll end to end.
-import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from 'node:fs';
+import { mkdirSync, writeFileSync, rmSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 
 test('dogfood walker (issue 321): the four rcf/define/ ledgers are invisible, chain docs still load', () => {
-  const scratch = mkdtempSync(join(tmpdir(), 'rcf-tree-321-'));
+  const scratch = scratchDirSync('rcf-tree-321-');
   try {
     const rcfDir = join(scratch, 'rcf');
     const defineDir = join(rcfDir, 'define');
@@ -824,7 +825,7 @@ test('dogfood walker (issue 321): the four rcf/define/ ledgers are invisible, ch
 // the production walker already skips the subtree; this fixture
 // bait-tests the carve-out with a REQ-shaped file dropped inside it.
 test('dogfood walker (FBS-210, issue 189-discovery): rcf/discovery/ is invisible, chain docs still load', () => {
-  const scratch = mkdtempSync(join(tmpdir(), 'rcf-tree-discovery-'));
+  const scratch = scratchDirSync('rcf-tree-discovery-');
   try {
     const rcfDir = join(scratch, 'rcf');
     const discoveryDir = join(rcfDir, 'discovery');

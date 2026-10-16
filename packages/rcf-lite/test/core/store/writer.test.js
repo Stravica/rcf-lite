@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir, stat, unlink, writeFile } from 'node:fs/promises';
+import { readFile, readdir, stat, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,9 +15,10 @@ import {
   createDocument, deleteDocument, deriveSlug, nextIdForKind, updateDocument,
 } from '../../../src/core/store/writer.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function scaffold() {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-writer-'));
+  const projectRoot = await scratchDir('rcf-writer-');
   await initProject({ projectRoot, projectName: 'WriterTest' });
   const { tree } = await walkTree({ projectRoot });
   return { projectRoot, tree };

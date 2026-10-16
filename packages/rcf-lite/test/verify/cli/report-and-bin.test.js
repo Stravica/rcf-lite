@@ -2,13 +2,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { main as reportMain } from '../../../src/verify/cli/report.js';
 import { main as binMain } from '../../../bin/rcf.js';
 import { buildReport, serialiseReport } from '../../../src/verify/report/index.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 function capture() {
   const out = { text: '' };
@@ -16,7 +17,7 @@ function capture() {
 }
 
 async function writeSampleReport() {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-report-'));
+  const dir = await scratchDir('rcf-report-');
   const path = join(dir, 'report.json');
   const report = buildReport({
     profile: 'deployed', url: 'https://app', parityEnv: false, reachability: { reachable: true, looksLocal: false },

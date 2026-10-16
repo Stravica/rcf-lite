@@ -7,16 +7,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '../../../src/core/store/init.js';
 import { walkTree } from '../../../src/core/store/walker.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function scaffold(name) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-walker-cn-${name}-`));
+  const root = await scratchDir(`rcf-walker-cn-${name}-`);
   await initProject({ projectRoot: root, projectName: 'CnTest' });
   await declareUiNoneForTests(root);
   return root;

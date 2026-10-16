@@ -9,13 +9,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 
 import { main as finalise } from '../../src/cli/finalise.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() {
   return { data: '', write(s) { this.data += s; } };
@@ -39,7 +40,7 @@ process.exit(0);
 `;
 
 async function scaffoldComplete() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-fin-mockonly-'));
+  const tmp = await scratchDir('rcf-fin-mockonly-');
   await initProject({ projectRoot: tmp, projectName: 'FinMockOnlyTest' });
   const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
   const fbs = JSON.parse(await readFile(fbsPath, 'utf8'));

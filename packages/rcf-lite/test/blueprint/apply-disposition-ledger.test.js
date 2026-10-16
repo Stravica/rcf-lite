@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,11 +15,12 @@ import { initProject, walkTree } from '#core/store';
 import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { ledgerRelPath } from '../../src/blueprint/disposition-ledger.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const now = new Date('2026-09-09T12:00:00Z');
 
 async function scaffoldWithApply({ acs = [] } = {}) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-apply-ledger-'));
+  const root = await scratchDir('rcf-apply-ledger-');
   await initProject({ projectRoot: root, projectName: 'DemoProject' });
   await declareUiNoneForTests(root);
   const src = join(root, 'src-bp');

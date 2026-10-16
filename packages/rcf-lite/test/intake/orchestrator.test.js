@@ -4,14 +4,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { runIntakePhases } from '../../src/intake/orchestrator.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('runIntakePhases classifies a briefStrong artefact and surfaces findings', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-intake-'));
+  const dir = await scratchDir('rcf-intake-');
   const brief = [
     Array(200).fill('word').join(' '),
     '## Capabilities',
@@ -43,7 +44,7 @@ test('runIntakePhases classifies a briefStrong artefact and surfaces findings', 
 });
 
 test('runIntakePhases returns an RcfError on a missing artefact file', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-intake-'));
+  const dir = await scratchDir('rcf-intake-');
   const outcome = await runIntakePhases({
     projectRoot: dir,
     artefactPaths: ['does-not-exist.md'],
@@ -56,7 +57,7 @@ test('runIntakePhases returns an RcfError on a missing artefact file', async () 
 // (kind, detail) before timestamping. Two artefacts that both trip
 // the same branch land as ONE finding.
 test('runIntakePhases dedupes an impliedButNotStated finding that fires on two artefacts (0.28.2 #229)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-intake-dedupe-'));
+  const dir = await scratchDir('rcf-intake-dedupe-');
   const webUiBody = [
     'The admin dashboard exposes every monitor.',
     'Users log in via a browser.',
@@ -77,7 +78,7 @@ test('runIntakePhases dedupes an impliedButNotStated finding that fires on two a
 });
 
 test('runIntakePhases folds operator-supplied validationFindings of ANY kind (not just otherDeclared) from --input (0.28.2 #229)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-intake-input-findings-'));
+  const dir = await scratchDir('rcf-intake-input-findings-');
   const artefactBody = 'A short brief with no red-flags.';
   const artefact = join(dir, 'brief.md');
   await writeFile(artefact, artefactBody, 'utf8');
@@ -102,7 +103,7 @@ test('runIntakePhases folds operator-supplied validationFindings of ANY kind (no
 });
 
 test('runIntakePhases coalesces an operator-authored finding with a scan-authored duplicate; the operator response survives (0.28.2 #229)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-intake-coalesce-'));
+  const dir = await scratchDir('rcf-intake-coalesce-');
   const webUiBody = [
     'The admin dashboard exposes every monitor.',
     'Users log in via a browser.',

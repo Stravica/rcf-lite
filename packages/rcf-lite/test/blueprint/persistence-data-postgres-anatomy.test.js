@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir, stat } from 'node:fs/promises';
+import { readFile, readdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -13,6 +13,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '#core/store';
 import { walkTree } from '../../src/core/store/walker.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -48,7 +49,7 @@ test('blueprint.json declares 26 contributions with capabilities relationalStore
 });
 
 test('apply persistence-data-postgres on a bare scratch project writes 26 contributions and validate plus strict audits exit zero (TC-070-applies-clean-no-persistence)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-postgres-apply-'));
+  const dir = await scratchDir('rcf-postgres-apply-');
   await initProject({ projectRoot: dir, projectName: 'PostgresApplyTest' });
   await declareUiNoneForTests(dir);
   const { tree } = await walkTree({ projectRoot: dir });
@@ -66,7 +67,7 @@ test('apply persistence-data-postgres on a bare scratch project writes 26 contri
 });
 
 test('apply persistence-data-postgres on a d1-applied scratch project surfaces globalAdrTopic conflict on persistenceStore and migrationDiscipline (TC-070-conflict-with-d1)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-postgres-conflict-'));
+  const dir = await scratchDir('rcf-postgres-conflict-');
   await initProject({ projectRoot: dir, projectName: 'PostgresConflictTest' });
   await declareUiNoneForTests(dir);
   const { tree: t0 } = await walkTree({ projectRoot: dir });

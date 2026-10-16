@@ -5,7 +5,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile as readFileAsync, writeFile } from 'node:fs/promises';
+import { mkdir, readFile as readFileAsync, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, relative } from 'node:path';
 import { Writable } from 'node:stream';
@@ -14,6 +14,7 @@ import { initProject } from '#core/store/init.js';
 
 import { main } from '../../src/cli/readiness.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 /** Buffered writable that exposes accumulated text. */
 function makeSink() {
@@ -26,7 +27,7 @@ function makeSink() {
 }
 
 async function scratchProject(prefix = 'readiness-cli-') {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  const root = await scratchDir(prefix);
   const result = await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   assert.ok(result && Array.isArray(result.created), `initProject failed: ${JSON.stringify(result)}`);
@@ -105,7 +106,7 @@ test('readiness cli: --json emits the full readiness object', async () => {
 });
 
 test('readiness cli: no project root exits 2 with usage error', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'readiness-noroot-'));
+  const cwd = await scratchDir('readiness-noroot-');
   const r = await run([], cwd);
   assert.equal(r.code, 2);
   assert.match(r.stderr, /no project root found/);

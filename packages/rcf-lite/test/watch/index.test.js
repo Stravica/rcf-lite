@@ -7,11 +7,12 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, rm, unlink, writeFile } from 'node:fs/promises';
+import { rm, unlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { watch } from '../../src/watch/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const DEBOUNCE_MS = 30;
 const FLUSH_BUDGET_MS = 500;
@@ -22,7 +23,7 @@ async function collect(fn, budgetMs = FLUSH_BUDGET_MS) {
 }
 
 test('watch fires on a .json change under a temp dir', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-basic-'));
+  const dir = await scratchDir('rcf-watch-basic-');
   const events = [];
   const w = watch({
     paths: [dir],
@@ -44,7 +45,7 @@ test('watch coalesces bursts of writes to the same file into one event', async (
   // the debounce window closes only when the test says so - however the
   // OS spreads or merges delivery, the pending map still coalesces by
   // path and exactly one flush fires.
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-coalesce-'));
+  const dir = await scratchDir('rcf-watch-coalesce-');
   const events = [];
   let flushNow = null;
   let scheduleCount = 0;
@@ -90,7 +91,7 @@ test('watch coalesces bursts of writes to the same file into one event', async (
 });
 
 test('watch filters non-JSON files by default', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-filter-'));
+  const dir = await scratchDir('rcf-watch-filter-');
   const events = [];
   const w = watch({
     paths: [dir],
@@ -105,7 +106,7 @@ test('watch filters non-JSON files by default', async () => {
 });
 
 test('watch fires with type "create" for a brand-new .json file', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-create-'));
+  const dir = await scratchDir('rcf-watch-create-');
   const events = [];
   const w = watch({
     paths: [dir],
@@ -119,7 +120,7 @@ test('watch fires with type "create" for a brand-new .json file', async () => {
 });
 
 test('watch fires with type "delete" for a removed .json file', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-delete-'));
+  const dir = await scratchDir('rcf-watch-delete-');
   const p = join(dir, 'c.json');
   await writeFile(p, '{}', 'utf8');
   await new Promise((r) => setTimeout(r, 50));
@@ -137,7 +138,7 @@ test('watch fires with type "delete" for a removed .json file', async () => {
 });
 
 test('watch close() is idempotent', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-idempotent-'));
+  const dir = await scratchDir('rcf-watch-idempotent-');
   const w = watch({
     paths: [dir],
     onChange: () => {},
@@ -149,7 +150,7 @@ test('watch close() is idempotent', async () => {
 });
 
 test('watch close() stops further onChange invocations', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-close-stops-'));
+  const dir = await scratchDir('rcf-watch-close-stops-');
   const events = [];
   const w = watch({
     paths: [dir],
@@ -163,7 +164,7 @@ test('watch close() stops further onChange invocations', async () => {
 });
 
 test('watch AbortSignal aborts the watcher', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-signal-'));
+  const dir = await scratchDir('rcf-watch-signal-');
   const controller = new AbortController();
   const events = [];
   watch({
@@ -190,7 +191,7 @@ test('watch throws when onChange is not a function', () => {
 });
 
 test('watch honours a custom filter over the default `*.json` filter', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-customfilter-'));
+  const dir = await scratchDir('rcf-watch-customfilter-');
   const events = [];
   const w = watch({
     paths: [dir],
@@ -207,7 +208,7 @@ test('watch honours a custom filter over the default `*.json` filter', async () 
 });
 
 test('watch recursively picks up changes in a nested subdir', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-recursive-'));
+  const dir = await scratchDir('rcf-watch-recursive-');
   const { mkdir } = await import('node:fs/promises');
   await mkdir(join(dir, 'nested', 'deeper'), { recursive: true });
   await new Promise((r) => setTimeout(r, 50));
@@ -225,7 +226,7 @@ test('watch recursively picks up changes in a nested subdir', async () => {
 });
 
 test('watch cleans up watched dirs after close (temp dir removable)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-watch-cleanup-'));
+  const dir = await scratchDir('rcf-watch-cleanup-');
   const w = watch({
     paths: [dir],
     onChange: () => {},

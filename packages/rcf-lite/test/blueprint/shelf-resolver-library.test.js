@@ -4,16 +4,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { resolveBlueprintSource } from '../../src/blueprint/shelf-resolver.js';
 import { REGISTRY_PATH, REGISTRY_VERSION } from '../../src/blueprint/library-registry.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldProjectWithRegistry(entries, libraryCache) {
-  const project = await mkdtemp(join(tmpdir(), 'rcf-proj-'));
+  const project = await scratchDir('rcf-proj-');
   await mkdir(join(project, 'rcf'), { recursive: true });
   await writeFile(
     join(project, REGISTRY_PATH),
@@ -31,7 +32,7 @@ async function scaffoldLibraryOnDisk(root, blueprintSlug) {
 }
 
 test('colon-qualified <prefix>:<slug> resolves to the library-cache blueprint dir', async () => {
-  const libRoot = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const libRoot = await scratchDir('rcf-lib-');
   await scaffoldLibraryOnDisk(libRoot, 'auth-oauth2');
   const project = await scaffoldProjectWithRegistry([{
     libraryPrefix: 'wsd',
@@ -67,7 +68,7 @@ test('colon-qualified refuses when the library is not registered', async () => {
 });
 
 test('colon-qualified refuses when the library is registered but has no such blueprint', async () => {
-  const libRoot = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const libRoot = await scratchDir('rcf-lib-');
   const project = await scaffoldProjectWithRegistry([{
     libraryPrefix: 'wsd',
     sourceKind: 'local',
@@ -89,7 +90,7 @@ test('colon-qualified refuses when the library is registered but has no such blu
 
 test('colon-qualified refuses when the on-disk blueprint dir is missing', async () => {
   // Registry says the blueprint is there; on disk it is not.
-  const libRoot = await mkdtemp(join(tmpdir(), 'rcf-lib-'));
+  const libRoot = await scratchDir('rcf-lib-');
   const project = await scaffoldProjectWithRegistry([{
     libraryPrefix: 'wsd',
     sourceKind: 'local',

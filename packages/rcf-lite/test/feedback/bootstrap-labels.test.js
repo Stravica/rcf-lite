@@ -7,16 +7,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const FAKE = resolve(here, 'gh-fakes', 'gh-fake-configurable.mjs');
 
 async function setup(scenario) {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-bootstrap-labels-'));
+  const tmp = await scratchDir('rcf-bootstrap-labels-');
   const configPath = join(tmp, 'config.json');
   const logPath = join(tmp, 'log.jsonl');
   await writeFile(configPath, JSON.stringify(scenario), 'utf8');

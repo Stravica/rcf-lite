@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertResultShape, runResultShapeNegativeCases } from './_result-shape.mjs';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -18,6 +18,7 @@ import { loadProbePacks, readContributedAcIds } from '../../src/browser-verify/p
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer, TRANSPORTS, STATES, REFUSAL_REASONS } from '../fixtures/probe-pack-application-file-upload/server.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -64,7 +65,7 @@ test('blueprint.json declares 20 contributions with no capabilities and no requi
 });
 
 test('applies cleanly on a fresh init project and adds 20 documents to the tree (TC-054-applies-clean)', async () => {
- const scratch = await mkdtemp(join(tmpdir(), 'file-upload-scratch-'));
+ const scratch = await scratchDir('file-upload-scratch-');
  await initProject({ projectRoot: scratch, projectName: 'scratch' });
  await declareUiNoneForTests(scratch);
  const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -110,7 +111,7 @@ test('every pack check id matches a contributed AC id and appliesTo binds tacIds
 });
 
 test('application-file-upload: pack loader discovers the shipped pack against an applied scratch project (TC-054-pack-loader-discovers)', async () => {
- const scratch = await mkdtemp(join(tmpdir(), 'file-upload-loader-'));
+ const scratch = await scratchDir('file-upload-loader-');
  await initProject({ projectRoot: scratch, projectName: 'scratch' });
  await declareUiNoneForTests(scratch);
  const { tree } = await walkTree({ projectRoot: scratch });

@@ -6,13 +6,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store/walker.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -582,7 +583,7 @@ test('walkTree lists are sorted by id (D15 deterministic output)', async () => {
 });
 
 test('walkTree reports a missing manifest as a single missingFile error', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-empty-'));
+  const root = await scratchDir('rcf-walker-empty-');
   const { tree, errors } = await walkTree({ projectRoot: root });
   assert.equal(errors.length, 1);
   assert.equal(errors[0].kind, 'missingFile');
@@ -590,7 +591,7 @@ test('walkTree reports a missing manifest as a single missingFile error', async 
 });
 
 test('walkTree carries on past validation failures and aggregates errors (AC-102-2)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-bad-req-'));
+  const root = await scratchDir('rcf-walker-bad-req-');
   await initProject({ projectRoot: root });
   // Corrupt the REQ to fail validation.
   await writeFile(
@@ -606,7 +607,7 @@ test('walkTree carries on past validation failures and aggregates errors (AC-102
 });
 
 test('walkTree reports a REQ with a broken prdId as brokenReference (D7 step 5, D8)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-broken-parent-'));
+  const root = await scratchDir('rcf-walker-broken-parent-');
   await initProject({ projectRoot: root });
   const reqPath = join(root, 'rcf', 'requirements', 'req-001.json');
   const req = JSON.parse(await import('node:fs').then((m) => m.readFileSync(reqPath, 'utf8')));
@@ -620,7 +621,7 @@ test('walkTree reports a REQ with a broken prdId as brokenReference (D7 step 5, 
 });
 
 test('walkTree reports parseFailure without crashing the walk', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-parse-'));
+  const root = await scratchDir('rcf-walker-parse-');
   await initProject({ projectRoot: root });
   await writeFile(join(root, 'rcf', 'user-stories', 'us-101.json'), '{not json', 'utf8');
   const { tree, errors } = await walkTree({ projectRoot: root });
@@ -629,7 +630,7 @@ test('walkTree reports parseFailure without crashing the walk', async () => {
 });
 
 test('walkTree reports unknown FBS dependsOnFbsIds as brokenReference', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fbs-dep-'));
+  const root = await scratchDir('rcf-walker-fbs-dep-');
   await initProject({ projectRoot: root });
   const fbsPath = join(root, 'rcf', 'fbs', 'fbs-001.json');
   const fbs = JSON.parse(await import('node:fs').then((m) => m.readFileSync(fbsPath, 'utf8')));
@@ -686,7 +687,7 @@ test('walkTree computes fbsByAcId and dependentsByFbsId cross-link inversions (D
 });
 
 test('walkTree flags a US whose reqId does not resolve as brokenReference', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-orphan-us-'));
+  const root = await scratchDir('rcf-walker-orphan-us-');
   await initProject({ projectRoot: root });
   const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
   const us = JSON.parse(await import('node:fs').then((m) => m.readFileSync(usPath, 'utf8')));
@@ -698,7 +699,7 @@ test('walkTree flags a US whose reqId does not resolve as brokenReference', asyn
 });
 
 test('walkTree flags a TAC with a broken tadId as brokenReference', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-tac-parent-'));
+  const root = await scratchDir('rcf-walker-tac-parent-');
   await initProject({ projectRoot: root });
   const tacPath = join(root, 'rcf', 'tacs', 'tac-001.json');
   const tac = JSON.parse(await import('node:fs').then((m) => m.readFileSync(tacPath, 'utf8')));
@@ -710,7 +711,7 @@ test('walkTree flags a TAC with a broken tadId as brokenReference', async () => 
 });
 
 test('walkTree flags an ADR with a broken tadId as brokenReference', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-parent-'));
+  const root = await scratchDir('rcf-walker-adr-parent-');
   await initProject({ projectRoot: root });
   const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
   const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
@@ -727,7 +728,7 @@ test('walkTree flags an ADR with a broken tadId as brokenReference', async () =>
 // schema-declared but never walked, so validate would pass on a chain
 // whose supersession target had no file on disk. TC-200-supersededBy-broken.
 test('walkTree flags an ADR with a broken supersededBy pointer as brokenReference (REQ-163 AC-16301-1)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-superseded-'));
+  const root = await scratchDir('rcf-walker-adr-superseded-');
   await initProject({ projectRoot: root });
   const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
   const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
@@ -747,7 +748,7 @@ test('walkTree flags an ADR with a broken supersededBy pointer as brokenReferenc
 // test proves that an unresolved relatedAdrs pointer stays silent:
 // silence is exactly the compatibility carry.
 test('walkTree stays silent on an ADR with an unknown id in relatedAdrs (referee-guarantee C-7 compatibility carry: soft-reference half deferred)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-adr-related-'));
+  const root = await scratchDir('rcf-walker-adr-related-');
   await initProject({ projectRoot: root });
   const adrPath = join(root, 'rcf', 'adrs', 'adr-001.json');
   const adr = JSON.parse(await import('node:fs').then((m) => m.readFileSync(adrPath, 'utf8')));
@@ -759,7 +760,7 @@ test('walkTree stays silent on an ADR with an unknown id in relatedAdrs (referee
 });
 
 test('walkTree flags an FBS with an unknown acId as brokenReference', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fbs-ac-'));
+  const root = await scratchDir('rcf-walker-fbs-ac-');
   await initProject({ projectRoot: root });
   const fbsPath = join(root, 'rcf', 'fbs', 'fbs-001.json');
   const fbs = JSON.parse(await import('node:fs').then((m) => m.readFileSync(fbsPath, 'utf8')));
@@ -771,7 +772,7 @@ test('walkTree flags an FBS with an unknown acId as brokenReference', async () =
 });
 
 test('walkTree flags an FBS.contextRequirements.tacIds broken cross-link', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fbs-ctx-tac-'));
+  const root = await scratchDir('rcf-walker-fbs-ctx-tac-');
   await initProject({ projectRoot: root });
   const fbsPath = join(root, 'rcf', 'fbs', 'fbs-001.json');
   const fbs = JSON.parse(await import('node:fs').then((m) => m.readFileSync(fbsPath, 'utf8')));
@@ -783,7 +784,7 @@ test('walkTree flags an FBS.contextRequirements.tacIds broken cross-link', async
 });
 
 test('walkTree flags an FBS.contextRequirements.adrIds broken cross-link', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fbs-ctx-adr-'));
+  const root = await scratchDir('rcf-walker-fbs-ctx-adr-');
   await initProject({ projectRoot: root });
   const fbsPath = join(root, 'rcf', 'fbs', 'fbs-001.json');
   const fbs = JSON.parse(await import('node:fs').then((m) => m.readFileSync(fbsPath, 'utf8')));
@@ -795,7 +796,7 @@ test('walkTree flags an FBS.contextRequirements.adrIds broken cross-link', async
 });
 
 test('walkTree flags an inline AC id whose prefix mismatches its parent US number', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-ac-prefix-'));
+  const root = await scratchDir('rcf-walker-ac-prefix-');
   await initProject({ projectRoot: root });
   const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
   const us = JSON.parse(await import('node:fs').then((m) => m.readFileSync(usPath, 'utf8')));
@@ -809,7 +810,7 @@ test('walkTree flags an inline AC id whose prefix mismatches its parent US numbe
 });
 
 test('walkTree computes tsByAcId inversion for a valid TS (D4)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-ts-ac-'));
+  const root = await scratchDir('rcf-walker-ts-ac-');
   await initProject({ projectRoot: root });
   const tsDir = join(root, 'rcf', 'test-suites');
   await import('node:fs/promises').then((m) => m.mkdir(tsDir, { recursive: true }));
@@ -861,7 +862,7 @@ test('walkTree is idempotent: same input yields structurally identical output', 
 });
 
 test('walkTree resolves a valid dependsOnFbsIds edge and records it in dependentsByFbsId', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fbs-dep-ok-'));
+  const root = await scratchDir('rcf-walker-fbs-dep-ok-');
   await initProject({ projectRoot: root });
   // Add a second FBS that depends on FBS-001.
   await writeFile(join(root, 'rcf', 'fbs', 'fbs-002.json'), JSON.stringify({
@@ -884,7 +885,7 @@ test('walkTree resolves a valid dependsOnFbsIds edge and records it in dependent
 });
 
 test('walkTree records a valid childrenByParent entry for a fresh init tree (single REQ)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-fresh-'));
+  const root = await scratchDir('rcf-walker-fresh-');
   await initProject({ projectRoot: root });
   const { tree } = await walkTree({ projectRoot: root });
   assert.deepEqual(tree.childrenByParent.get('PRD-001'), ['REQ-001']);
@@ -892,7 +893,7 @@ test('walkTree records a valid childrenByParent entry for a fresh init tree (sin
 });
 
 test('walkTree tolerates a fresh tree with an empty test-suites/ directory (D14)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-empty-ts-'));
+  const root = await scratchDir('rcf-walker-empty-ts-');
   await initProject({ projectRoot: root });
   const { tree, errors } = await walkTree({ projectRoot: root });
   assert.deepEqual(errors, [], JSON.stringify(errors, null, 2));
@@ -920,7 +921,7 @@ test('walkTree produces stable childrenByParent lists (deterministic ordering)',
 });
 
 test('walkTree flags duplicate buildOrder within a BS as brokenReference', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-dup-order-'));
+  const root = await scratchDir('rcf-walker-dup-order-');
   await initProject({ projectRoot: root });
   // Add a second FBS with the same buildOrder as FBS-001.
   const fbs002Path = join(root, 'rcf', 'fbs', 'fbs-002.json');
@@ -953,7 +954,7 @@ test('walkTree flags duplicate buildOrder within a BS as brokenReference', async
 // slug-consuming change (allocator, TC-prefix widen, deriveSlug leak).
 // ---------------------------------------------------------------------------
 test('walkTree preserves case on slug tails when deriving id from filename (0.8.0 landmine 1)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-slug-tail-'));
+  const root = await scratchDir('rcf-walker-slug-tail-');
   await initProject({ projectRoot: root });
   // Author a slugged FBS: filename lower-case kebab (fbs-004-user-login.json),
   // body's fbsId matches (FBS-004-user-login).
@@ -1021,7 +1022,7 @@ test('walkTree preserves case on slug tails when deriving id from filename (0.8.
 // and loader through the shared `parseIdParts` seat.
 // ---------------------------------------------------------------------------
 test('walkTree keys prefix-family slug-prefixed ids under the correct id (0.4.4 grammar, w-2026-08-19-001)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-walker-prefix-slug-'));
+  const root = await scratchDir('rcf-walker-prefix-slug-');
   await initProject({ projectRoot: root });
   // Prefix-family: filename stem `spa-req-001` derives id `spa-REQ-001`
   // (slug lower-case, family upper-case, digits verbatim).
@@ -1049,7 +1050,6 @@ test('walkTree keys prefix-family slug-prefixed ids under the correct id (0.4.4 
   assert.equal(usageErr, undefined, `unexpected usage error: ${JSON.stringify(usageErr, null, 2)}`);
 });
 
-
 test('walkTree upper-cases the prefix segment on numeric-only ids unchanged (0.8.0 landmine 1 back-compat)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   // Every existing numeric-only id continues to key by its canonical upper-cased
@@ -1070,7 +1070,7 @@ import { mkdir as mkdirAsync } from 'node:fs/promises';
 import { DISCOVERY_RELATIVE_DIR } from '../../src/discovery/record.js';
 
 test('walkTree (FBS-210): rcf/discovery/ is invisible to the dogfood walker', async () => {
-  const tmpRoot = await mkdtemp(join(tmpdir(), 'rcf-walker-discovery-'));
+  const tmpRoot = await scratchDir('rcf-walker-discovery-');
   await initProject({ projectRoot: tmpRoot, projectName: 'FBS-210 walker fixture' });
   const discoveryAbs = join(tmpRoot, DISCOVERY_RELATIVE_DIR);
   await mkdirAsync(discoveryAbs, { recursive: true });

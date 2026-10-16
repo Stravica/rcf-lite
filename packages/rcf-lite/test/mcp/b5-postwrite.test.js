@@ -5,13 +5,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
@@ -29,7 +30,7 @@ const MALFORMED_TS_003 = {
 };
 
 async function scaffoldWedge() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-b5-mcp-'));
+  const tmp = await scratchDir('rcf-b5-mcp-');
   await initProject({ projectRoot: tmp, projectName: 'B5McpTest' });
   await declareUiNoneForTests(tmp);
   await writeFile(

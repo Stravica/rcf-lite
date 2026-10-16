@@ -15,7 +15,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn as realSpawn } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -24,6 +24,7 @@ import { initProject } from '#core/store/init.js';
 import { main as finalise } from '../../src/cli/finalise.js';
 import { updateDocument } from '#core/store';
 import { walkTree } from '#core/store';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() {
   return { data: '', write(s) { this.data += s; } };
@@ -47,7 +48,7 @@ process.exit(0);
 `;
 
 async function scaffoldComplete() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-fin-referee-'));
+  const tmp = await scratchDir('rcf-fin-referee-');
   await initProject({ projectRoot: tmp, projectName: 'RefereeTest' });
   const fbsPath = join(tmp, 'rcf/fbs/fbs-001.json');
   const fbs = JSON.parse(await readFile(fbsPath, 'utf8'));

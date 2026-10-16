@@ -8,11 +8,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { access, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -36,7 +37,7 @@ async function fileExists(path) {
 const INIT_ARGS = ['--project-name', 'BootstrapTest', '--non-interactive'];
 
 test('fresh dir: init creates the tree, .mcp.json and BOTH CLAUDE.md + AGENTS.md', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-fresh-'));
+  const tmp = await scratchDir('rcf-boot-fresh-');
   const { code, stdout } = await runBinInit(tmp, INIT_ARGS);
   assert.equal(code, 0);
   // High-level completion output, not a developer file list.
@@ -69,7 +70,7 @@ test('fresh dir: init creates the tree, .mcp.json and BOTH CLAUDE.md + AGENTS.md
 });
 
 test('existing .mcp.json with another server: merged, other server and unknown keys intact', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-merge-'));
+  const tmp = await scratchDir('rcf-boot-merge-');
   const existing = {
     mcpServers: { playwright: { command: 'npx', args: ['playwright-mcp'] } },
     someUnknownKey: { keep: true },
@@ -85,7 +86,7 @@ test('existing .mcp.json with another server: merged, other server and unknown k
 });
 
 test('existing rcf entry in .mcp.json is left alone', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-kept-'));
+  const tmp = await scratchDir('rcf-boot-kept-');
   const existing = { mcpServers: { rcf: { command: 'node', args: ['/custom/path/rcf.js', 'mcp'] } } };
   await writeFile(join(tmp, '.mcp.json'), JSON.stringify(existing, null, 2), 'utf8');
   const { code, stdout } = await runBinInit(tmp, INIT_ARGS);
@@ -96,7 +97,7 @@ test('existing rcf entry in .mcp.json is left alone', async () => {
 });
 
 test('unparseable .mcp.json is refused, never clobbered', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-badjson-'));
+  const tmp = await scratchDir('rcf-boot-badjson-');
   await writeFile(join(tmp, '.mcp.json'), '{not json', 'utf8');
   const { code, stderr } = await runBinInit(tmp, INIT_ARGS);
   assert.equal(code, 2);
@@ -105,7 +106,7 @@ test('unparseable .mcp.json is refused, never clobbered', async () => {
 });
 
 test('existing CLAUDE.md: fragment appended inside markers, prior content intact, no AGENTS.md invented', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-claude-'));
+  const tmp = await scratchDir('rcf-boot-claude-');
   const prior = '# My project\n\nPre-existing instructions the user wrote.\n';
   await writeFile(join(tmp, 'CLAUDE.md'), prior, 'utf8');
   const { code, stdout } = await runBinInit(tmp, INIT_ARGS);
@@ -120,7 +121,7 @@ test('existing CLAUDE.md: fragment appended inside markers, prior content intact
 });
 
 test('existing AGENTS.md and no CLAUDE.md: fragment lands in AGENTS.md, no CLAUDE.md invented', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-agents-'));
+  const tmp = await scratchDir('rcf-boot-agents-');
   await writeFile(join(tmp, 'AGENTS.md'), '# Agents\n', 'utf8');
   const { code, stdout } = await runBinInit(tmp, INIT_ARGS);
   assert.equal(code, 0);
@@ -131,7 +132,7 @@ test('existing AGENTS.md and no CLAUDE.md: fragment lands in AGENTS.md, no CLAUD
 });
 
 test('re-run idempotency: tree untouched, marked block replaced not duplicated', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-rerun-'));
+  const tmp = await scratchDir('rcf-boot-rerun-');
   await runBinInit(tmp, ['--project-name', 'First', '--non-interactive']);
   const { code, stdout } = await runBinInit(tmp, ['--project-name', 'Second', '--non-interactive']);
   assert.equal(code, 0);
@@ -148,7 +149,7 @@ test('re-run idempotency: tree untouched, marked block replaced not duplicated',
 });
 
 test('--no-agent-setup: tree only, manual instructions printed, no wiring files', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-boot-optout-'));
+  const tmp = await scratchDir('rcf-boot-optout-');
   const { code, stdout } = await runBinInit(tmp, [...INIT_ARGS, '--no-agent-setup']);
   assert.equal(code, 0);
   assert.match(stdout, /Set up the RCF document chain under rcf\//);

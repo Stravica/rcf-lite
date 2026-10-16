@@ -4,13 +4,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { IDENTITY_TEMPLATE } from '../../src/setup/identity-seed.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -28,7 +29,7 @@ async function runBinInit(cwd) {
 }
 
 test('AC-4.1: rcf init creates rcf/.identity/profile.md with the canonical template', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-id-'));
+  const tmp = await scratchDir('rcf-init-id-');
   const { code } = await runBinInit(tmp);
   assert.equal(code, 0);
   const profile = await readFile(join(tmp, 'rcf', '.identity', 'profile.md'), 'utf8');
@@ -36,7 +37,7 @@ test('AC-4.1: rcf init creates rcf/.identity/profile.md with the canonical templ
 });
 
 test('AC-4.2: init re-run leaves an operator-owned profile.md byte-identical', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-init-id-re-'));
+  const tmp = await scratchDir('rcf-init-id-re-');
   await runBinInit(tmp);
   const custom = '# my profile\n\nBaz. Direct, casual, no filler.\n';
   await writeFile(join(tmp, 'rcf', '.identity', 'profile.md'), custom, 'utf8');

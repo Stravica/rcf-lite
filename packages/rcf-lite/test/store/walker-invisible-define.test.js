@@ -7,15 +7,16 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { walkTree } from '#core/store/walker.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scratchProject(prefix = 'define-invisible-') {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  const root = await scratchDir(prefix);
   const result = await initProject({ projectRoot: root });
   assert.ok(result && Array.isArray(result.created), `initProject failed: ${JSON.stringify(result)}`);
   return root;

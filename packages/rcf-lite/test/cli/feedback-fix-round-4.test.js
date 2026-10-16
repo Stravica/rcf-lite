@@ -18,7 +18,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readdir, readFile, writeFile } from 'node:fs/promises';
+import { readdir, readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
@@ -34,6 +34,7 @@ import {
   secretKeyRegexSource,
 } from '../../src/feedback/redact.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -58,7 +59,7 @@ async function runBin(cwd, args = [], extraEnv = {}) {
 }
 
 async function scaffold(name = 'FixRound4Project') {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-feedback-fixround4-'));
+  const tmp = await scratchDir('rcf-feedback-fixround4-');
   await initProject({ projectRoot: tmp, projectName: name });
   await declareUiNoneForTests(tmp);
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');

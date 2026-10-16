@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile, chmod, mkdir, realpath } from 'node:fs/promises';
+import { writeFile, chmod, mkdir, realpath } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -21,6 +21,7 @@ import {
   VERIFY_PACKAGE_CANDIDATES,
   VERIFY_BIN,
 } from '../../src/finalise/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function sink() {
   return { data: '', write(s) { this.data += s; } };
@@ -84,7 +85,7 @@ test('summariseReport surfaces blocked ACs and launch failures', () => {
 // --- loadReport -----------------------------------------------------------
 
 test('loadReport parses a JSON report artifact', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'fin-load-'));
+  const dir = await scratchDir('fin-load-');
   const p = join(dir, 'r.json');
   await writeFile(p, JSON.stringify({ schemaVersion: '1', verdict: 'PASS' }), 'utf8');
   const res = await loadReport(p);
@@ -99,7 +100,7 @@ test('loadReport degrades (never throws) on a missing report', async () => {
 });
 
 test('loadReport degrades on invalid JSON', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'fin-bad-'));
+  const dir = await scratchDir('fin-bad-');
   const p = join(dir, 'r.json');
   await writeFile(p, '{ not json', 'utf8');
   const res = await loadReport(p);
@@ -110,7 +111,7 @@ test('loadReport degrades on invalid JSON', async () => {
 // --- detection ------------------------------------------------------------
 
 test('findOnPath returns an executable found on PATH', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'fin-path-'));
+  const dir = await scratchDir('fin-path-');
   const bin = join(dir, 'rcf');
   await writeFile(bin, '#!/bin/sh\necho hi\n', 'utf8');
   await chmod(bin, 0o755);
@@ -124,7 +125,7 @@ test('findOnPath returns null when absent from PATH', async () => {
 });
 
 test('resolvePackageBin returns null when the package is not installed nearby', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'fin-res-'));
+  const dir = await scratchDir('fin-res-');
   const res = await resolvePackageBin(dir);
   assert.equal(res, null);
 });
@@ -139,7 +140,7 @@ test('resolvePackageBin resolves the rcf-lite bin/rcf.js entry when the umbrella
   // Stage a project whose node_modules holds an rcf-lite install; the
   // 0.10.0 clean break deleted the transition-grace legacy scoped
   // package, so this is the only supported route.
-  const proj = await realpath(await mkdtemp(join(tmpdir(), 'fin-pref-')));
+  const proj = await realpath(await scratchDir('fin-pref-'));
   const umbrella = join(proj, 'node_modules', 'rcf-lite');
   await mkdir(join(umbrella, 'bin'), { recursive: true });
   await writeFile(join(umbrella, 'bin', 'rcf.js'), '#!/usr/bin/env node\n', 'utf8');
@@ -160,7 +161,7 @@ test('resolvePackageBin resolves the rcf-lite bin/rcf.js entry when the umbrella
 // two package seams are disabled here so the fallback is what is under
 // test; a bare findOnPath seam would no longer win on its own.
 test('detectVerify reports installed with a PATH invocation (the fallback when no package entry resolves)', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'fin-det-'));
+  const dir = await scratchDir('fin-det-');
   const bin = join(dir, 'rcf');
   await writeFile(bin, '#!/bin/sh\n', 'utf8');
   await chmod(bin, 0o755);

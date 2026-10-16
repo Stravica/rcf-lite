@@ -23,7 +23,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -32,9 +32,10 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { supersedeBlueprintTopic } from '../../src/blueprint/supersede.js';
 import { listBlueprints } from '../../src/blueprint/list.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scaffoldProject() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-coresidence-'));
+  const root = await scratchDir('rcf-coresidence-');
   const init = await initProject({ projectRoot: root, projectName: 'CoResidence' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

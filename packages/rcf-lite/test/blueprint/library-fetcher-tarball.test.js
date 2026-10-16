@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { gzipSync } from 'node:zlib';
@@ -18,6 +18,7 @@ import {
 } from '../../src/blueprint/library-fetcher-tarball.js';
 import { ensureEmptyCache } from '../../src/blueprint/library-cache.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function libraryTarballEntries() {
   return [
@@ -65,7 +66,7 @@ test('parseUstar: refuses absolute-path entries at extraction time', async () =>
   const evil = Buffer.from(buf);
   evil.write('/lib.json', 0, 9, 'utf8');
   evil[9] = 0;
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const sha = sha256Hex(evil);
   const res = await fetchTarballLibrary({
@@ -78,7 +79,7 @@ test('parseUstar: refuses absolute-path entries at extraction time', async () =>
 test('fetchTarballLibrary: successful extraction with the declared SHA-256 pin', async () => {
   const buf = createUstarBuffer(libraryTarballEntries());
   const sha = sha256Hex(buf);
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchTarballLibrary({
     url: 'https://example.invalid/x.tar', expectedSha256: sha, targetDir, fetchImpl: stubFetch(buf),
@@ -94,7 +95,7 @@ test('fetchTarballLibrary: successful extraction with the declared SHA-256 pin',
 test('fetchTarballLibrary: SHA-256 mismatch refuses the fetch and writes nothing', async () => {
   const buf = createUstarBuffer(libraryTarballEntries());
   const wrong = 'a'.repeat(64);
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchTarballLibrary({
     url: 'https://example.invalid/x.tar', expectedSha256: wrong, targetDir, fetchImpl: stubFetch(buf),
@@ -108,7 +109,7 @@ test('fetchTarballLibrary: gzipped tarball with .tar.gz URL is gunzipped transpa
   const buf = createUstarBuffer(libraryTarballEntries());
   const gz = gzipSync(buf);
   const sha = sha256Hex(gz);
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchTarballLibrary({
     url: 'https://example.invalid/x.tar.gz', expectedSha256: sha, targetDir, fetchImpl: stubFetch(gz),
@@ -135,7 +136,7 @@ test('fetchTarballLibrary: single top-level directory is unwrapped so library.js
   ];
   const buf = createUstarBuffer(wrapped);
   const sha = sha256Hex(buf);
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchTarballLibrary({
     url: 'https://example.invalid/x.tar', expectedSha256: sha, targetDir, fetchImpl: stubFetch(buf),
@@ -146,7 +147,7 @@ test('fetchTarballLibrary: single top-level directory is unwrapped so library.js
 });
 
 test('fetchTarballLibrary: expectedSha256 in the wrong shape refuses before fetch', async () => {
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   const res = await fetchTarballLibrary({
     url: 'https://example.invalid/x.tar', expectedSha256: 'not-hex', targetDir, fetchImpl: async () => new Response(Buffer.alloc(0)),
   });
@@ -155,7 +156,7 @@ test('fetchTarballLibrary: expectedSha256 in the wrong shape refuses before fetc
 });
 
 test('fetchTarballLibrary: HTTP non-2xx refuses cleanly', async () => {
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-tar-target-'));
+  const targetDir = await scratchDir('rcf-tar-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchTarballLibrary({
     url: 'https://example.invalid/x.tar',

@@ -4,14 +4,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { resolveTestPointers, splitTestPointer, testCaseKey } from '../../../src/core/store/tp-resolve.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function makeRoot(name) {
-  return mkdtemp(join(tmpdir(), `rcf-tp-resolve-${name}-`));
+  return scratchDir(`rcf-tp-resolve-${name}-`);
 }
 
 function ts(testCases, overrides = {}) {

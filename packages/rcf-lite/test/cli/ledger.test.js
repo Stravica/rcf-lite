@@ -2,13 +2,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 
 import { main } from '../../src/cli/ledger.js';
 import { loadLedger, ledgerRelPath } from '../../src/define/ledgers.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeSink() {
   const chunks = [];
@@ -20,7 +21,7 @@ function makeSink() {
 }
 
 async function scratchProject(prefix = 'ledger-cli-') {
-  const cwd = await mkdtemp(join(tmpdir(), prefix));
+  const cwd = await scratchDir(prefix);
   await mkdir(join(cwd, 'rcf'), { recursive: true });
   // Minimal manifest so findProjectRoot succeeds; the walker is never
   // called by the ledger CLI so the manifest need not be schema-valid.

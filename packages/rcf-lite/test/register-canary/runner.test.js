@@ -2,7 +2,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, rm, writeFile } from 'node:fs/promises';
+import { readFile, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -19,6 +19,7 @@ import {
   MOCK_DRIVER_BUILD_VERSION_SUFFIX,
   runCanaryAgainstFixture,
 } from '../../src/register-canary/runner.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('loadFixturePack reads the shipped core fixture pack in canonical order', async () => {
   const fixtures = await loadFixturePack();
@@ -150,7 +151,7 @@ test('composeCanaryRecord assigns monotonic rc-... ids', () => {
 });
 
 test('read/writeCanaryManifest roundtrips a records array atomically', async () => {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-canary-'));
+  const dir = await scratchDir('rcf-canary-');
   const path = join(dir, 'canary-manifest.json');
   const seed = { registerCanary: [{
     id: 'rc-2026-07-31-001',

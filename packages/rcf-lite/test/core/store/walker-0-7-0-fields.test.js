@@ -22,18 +22,19 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '../../../src/core/store/init.js';
 import { walkTree } from '../../../src/core/store/walker.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 const TIMESTAMP = '2026-07-30T14:20:00Z';
 
 async function scaffold(name) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-walker-070-${name}-`));
+  const root = await scratchDir(`rcf-walker-070-${name}-`);
   await initProject({ projectRoot: root, projectName: '070Train' });
   await declareUiNoneForTests(root);
   return root;

@@ -5,14 +5,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { checkCodeNodeResolution, splitCnPath } from '../../../src/core/store/cn-resolve.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 async function makeRoot(name) {
-  return mkdtemp(join(tmpdir(), `rcf-cn-resolve-${name}-`));
+  return scratchDir(`rcf-cn-resolve-${name}-`);
 }
 
 function cn(overrides) {

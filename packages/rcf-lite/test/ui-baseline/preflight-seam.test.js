@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { tmpdir } from 'node:os';
 
@@ -19,9 +19,10 @@ import {
   preflightSeamOverrides,
   writeUiBaselineRecord,
 } from '../../src/ui-baseline/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function makeProject(manifestExtras) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-seam-'));
+  const root = await scratchDir('rcf-seam-');
   await initProject({ projectRoot: root, projectName: 'seam-test' });
   if (manifestExtras) {
     const manifestPath = join(root, 'rcf', 'manifest.json');

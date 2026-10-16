@@ -7,16 +7,17 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, stat, writeFile } from 'node:fs/promises';
+import { readFile, stat, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { renderModelToPage } from '../../src/view/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('renderModelToPage on a clean fresh tree returns HTML with no errors', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-clean-'));
+  const root = await scratchDir('rcf-render-clean-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const result = await renderModelToPage({ projectRoot: root });
@@ -28,7 +29,7 @@ test('renderModelToPage on a clean fresh tree returns HTML with no errors', asyn
 });
 
 test('renderModelToPage default mode surfaces broken-tree errors alongside a render', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-broken-default-'));
+  const root = await scratchDir('rcf-render-broken-default-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const reqPath = join(root, 'rcf', 'requirements', 'req-001.json');
@@ -42,7 +43,7 @@ test('renderModelToPage default mode surfaces broken-tree errors alongside a ren
 });
 
 test('renderModelToPage never writes to disk (Phase 3.8 regression)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-nofs-'));
+  const root = await scratchDir('rcf-render-nofs-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   await renderModelToPage({ projectRoot: root });
@@ -56,7 +57,7 @@ test('renderModelToPage picks up manifest changes between calls (re-walk is fres
   // rename lands in the second render and the first render's name is
   // gone from the title. manifest.projectName is updated in lockstep so
   // the fall-through does not mask the change.
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-fresh-'));
+  const root = await scratchDir('rcf-render-fresh-');
   await initProject({ projectRoot: root, projectName: 'First' });
   await declareUiNoneForTests(root);
   const first = await renderModelToPage({ projectRoot: root });
@@ -75,7 +76,7 @@ test('renderModelToPage picks up manifest changes between calls (re-walk is fres
 });
 
 test('renderModelToPage always wraps content in <div id="rcf-live-content"> (D13a)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-wrap-'));
+  const root = await scratchDir('rcf-render-wrap-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const result = await renderModelToPage({ projectRoot: root });
@@ -86,7 +87,7 @@ test('renderModelToPage always wraps content in <div id="rcf-live-content"> (D13
 });
 
 test('renderModelToPage always emits the live-client script tag (D13a)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-script-'));
+  const root = await scratchDir('rcf-render-script-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const result = await renderModelToPage({ projectRoot: root });
@@ -94,7 +95,7 @@ test('renderModelToPage always emits the live-client script tag (D13a)', async (
 });
 
 test('renderModelToPage emits the external page-init script and no inline script (viewer UI refresh PR 1)', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-render-page-init-'));
+  const root = await scratchDir('rcf-render-page-init-');
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   const result = await renderModelToPage({ projectRoot: root });

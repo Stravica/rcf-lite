@@ -5,13 +5,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, isAbsolute, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -29,7 +30,7 @@ async function runBin(cwd, args) {
 }
 
 async function scaffold() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-bp-cli-'));
+  const root = await scratchDir('rcf-bp-cli-');
   const init = await initProject({ projectRoot: root, projectName: 'CliBP' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined);

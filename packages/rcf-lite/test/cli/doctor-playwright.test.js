@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -25,6 +25,7 @@ import {
   composeGitignoreBlock,
 } from '../../src/setup/managed-gitignore.js';
 import { FIX_LINES, SKIP_LINE_NON_BROWSER_FACING } from '../../src/setup/playwright-checks.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function capture() {
   const out = { text: '' };
@@ -32,7 +33,7 @@ function capture() {
 }
 
 async function scaffoldCleanProject(browserFacing) {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-doc-pw-'));
+  const root = await scratchDir('rcf-doc-pw-');
   await initProject({ projectRoot: root, projectName: 'PwFixture' });
   const fragment = await loadManagedBlock();
   await writeAgentInstructions({ projectRoot: root, fragment });

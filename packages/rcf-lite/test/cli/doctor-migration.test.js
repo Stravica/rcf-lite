@@ -6,11 +6,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +45,7 @@ async function buildLegacyFixture() {
   // hash sits in `guidance/managed/legacy-fragment-hashes.json`, so
   // `detectLegacyHandEdits` returns false and --fix migrates without
   // requiring --force even in non-interactive mode.
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-mig-'));
+  const tmp = await scratchDir('rcf-doc-mig-');
   // Full rcf/ tree via init WITHOUT the 0.6.0 hygiene layer; we then
   // rewrite CLAUDE.md into legacy markers to simulate pre-0.6.0 state.
   await runBin(tmp, ['init', '--project-name', 'MigTest', '--non-interactive']);
@@ -66,7 +67,7 @@ async function buildLegacyHandEditedFixture() {
   // operator-added rules. The resulting inner hash is NOT in the
   // whitelist, so `detectLegacyHandEdits` returns true; in the
   // non-TTY branch this must refuse --fix without --force.
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-handedit-'));
+  const tmp = await scratchDir('rcf-doc-handedit-');
   await runBin(tmp, ['init', '--project-name', 'HandEditTest', '--non-interactive']);
   const legacyFragment = (await readFile(LEGACY_CANONICAL_PATH, 'utf8')).trim();
   const handEdited = `${legacyFragment}\n\n## Team notes\n- Ship on Fridays only.\n- Ask Baz before touching migrations.\n- Never bypass RCF, ever.`;
@@ -136,7 +137,7 @@ test('AC-5.2 (non-TTY branch): --fix refuses hand-edited legacy without --force,
 });
 
 test('AC-5.3: stale-hash cycle: simulate a package upgrade by tampering the block and asserting --fix rewrites without touching operator content', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-stale-'));
+  const tmp = await scratchDir('rcf-doc-stale-');
   await runBin(tmp, ['init', '--project-name', 'StaleTest', '--non-interactive']);
   const original = await readFile(join(tmp, 'CLAUDE.md'), 'utf8');
   const augmented = `# Operator preamble\n\n${original}\n\n## Operator trailer\n\nAfter block.\n`;

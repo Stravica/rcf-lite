@@ -7,7 +7,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdtemp, readFile, writeFile, mkdir, stat } from 'node:fs/promises';
+import { readFile, writeFile, mkdir, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -28,6 +28,7 @@ import {
   KNOWN_FEED_VERSION,
   main as versionMain,
 } from '../../src/cli/version.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -126,7 +127,7 @@ async function serveOnce({ status = 200, body, contentType = 'application/json',
 }
 
 async function tempDirs() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-version-'));
+  const root = await scratchDir('rcf-version-');
   const cacheDir = join(root, 'cache');
   const configDir = join(root, 'config');
   await mkdir(cacheDir, { recursive: true });
@@ -671,7 +672,7 @@ test('rcf version rejects unknown flags with exit 2', async () => {
 // ---------------------------------------------------------------------------
 
 test('the real bin: rcf version prints rcf-lite <package.version>', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'rcf-version-bin-'));
+  const cwd = await scratchDir('rcf-version-bin-');
   const pkg = JSON.parse(await readFile(join(packageRoot, 'package.json'), 'utf8'));
   const { code, stdout } = await runBin(cwd, ['version']);
   assert.equal(code, 0);
@@ -679,28 +680,28 @@ test('the real bin: rcf version prints rcf-lite <package.version>', async () => 
 });
 
 test('the real bin: rcf version --help prints the version help block', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'rcf-version-bin-'));
+  const cwd = await scratchDir('rcf-version-bin-');
   const { code, stdout } = await runBin(cwd, ['version', '--help']);
   assert.equal(code, 0);
   assert.match(stdout, /Usage: rcf version/);
 });
 
 test('the real bin: rcf help version prints the version help block', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'rcf-version-bin-'));
+  const cwd = await scratchDir('rcf-version-bin-');
   const { code, stdout } = await runBin(cwd, ['help', 'version']);
   assert.equal(code, 0);
   assert.match(stdout, /Usage: rcf version/);
 });
 
 test('the real bin: rcf help top-level lists the version verb under core', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'rcf-version-bin-'));
+  const cwd = await scratchDir('rcf-version-bin-');
   const { code, stdout } = await runBin(cwd, ['help']);
   assert.equal(code, 0);
   assert.match(stdout, /version \[--check\]/);
 });
 
 test('the real bin: rcf version --check with kill-switch on skips the network', async () => {
-  const cwd = await mkdtemp(join(tmpdir(), 'rcf-version-bin-'));
+  const cwd = await scratchDir('rcf-version-bin-');
   const { code, stdout, stderr } = await runBin(cwd, ['version', '--check'], {
     RCF_UPDATE_CHECK: 'off',
   });

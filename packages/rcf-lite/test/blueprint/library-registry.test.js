@@ -2,7 +2,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -18,6 +18,7 @@ import {
   writeLibraryRegistry,
 } from '../../src/blueprint/library-registry.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeEntry(overrides = {}) {
   return {
@@ -38,7 +39,7 @@ function makeEntry(overrides = {}) {
 }
 
 test('readLibraryRegistry returns an empty registry when file is absent', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-reg-'));
+  const root = await scratchDir('rcf-reg-');
   const reg = await readLibraryRegistry(root);
   assert.equal(isRcfError(reg), false);
   assert.equal(reg.registryVersion, REGISTRY_VERSION);
@@ -46,7 +47,7 @@ test('readLibraryRegistry returns an empty registry when file is absent', async 
 });
 
 test('writeLibraryRegistry persists a valid registry file', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-reg-'));
+  const root = await scratchDir('rcf-reg-');
   await mkdir(join(root, 'rcf'), { recursive: true });
   const written = await writeLibraryRegistry(root, {
     registryVersion: REGISTRY_VERSION,
@@ -60,7 +61,7 @@ test('writeLibraryRegistry persists a valid registry file', async () => {
 });
 
 test('writeLibraryRegistry with dryRun does not touch disk', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-reg-'));
+  const root = await scratchDir('rcf-reg-');
   const res = await writeLibraryRegistry(root, {
     registryVersion: REGISTRY_VERSION,
     libraries: [makeEntry()],
@@ -189,7 +190,7 @@ test('loadCoreBandReservations reads the shipped data file', async () => {
 });
 
 test('readLibraryRegistry refuses a malformed registry file', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-reg-'));
+  const root = await scratchDir('rcf-reg-');
   await mkdir(join(root, 'rcf'), { recursive: true });
   await writeFile(join(root, REGISTRY_PATH), '{ this is not JSON }', 'utf8');
   const reg = await readLibraryRegistry(root);
@@ -198,7 +199,7 @@ test('readLibraryRegistry refuses a malformed registry file', async () => {
 });
 
 test('readLibraryRegistry refuses a registry with a newer version than known', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-reg-'));
+  const root = await scratchDir('rcf-reg-');
   await mkdir(join(root, 'rcf'), { recursive: true });
   await writeFile(join(root, REGISTRY_PATH), JSON.stringify({ registryVersion: 99, libraries: [] }), 'utf8');
   const reg = await readLibraryRegistry(root);

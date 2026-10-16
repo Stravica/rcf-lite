@@ -20,7 +20,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmod, mkdir, mkdtemp, readFile, realpath, symlink, writeFile } from 'node:fs/promises';
+import { chmod, mkdir, readFile, realpath, symlink, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -29,6 +29,7 @@ import { main as finalise } from '../../src/cli/finalise.js';
 import { detectVerify } from '../../src/finalise/detect.js';
 import { main as verifyRun } from '../../src/verify/cli/run.js';
 import { scaffoldChain } from '../verify/helpers/chain.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..', '..');
@@ -43,7 +44,7 @@ async function packageVersion() {
 
 // A foreign `rcf` executable (the "stale global") placed first on PATH.
 async function foreignRcfOnPath() {
-  const dir = await mkdtemp(join(tmpdir(), 'rcf-foreign-bin-'));
+  const dir = await scratchDir('rcf-foreign-bin-');
   const bin = join(dir, 'rcf');
   await writeFile(bin, '#!/bin/sh\necho "rcf-lite 0.33.0"\nexit 2\n', 'utf8');
   await chmod(bin, 0o755);
@@ -81,7 +82,7 @@ test('detectVerify prefers the verify entry of the package finalise runs from ov
   const { dir, bin } = await foreignRcfOnPath();
   // A cwd with no rcf-lite installed nearby: the only package entry that
   // can resolve is the one finalise itself is running from.
-  const emptyProject = await mkdtemp(join(tmpdir(), 'rcf-no-install-'));
+  const emptyProject = await scratchDir('rcf-no-install-');
 
   const det = await detectVerify({ env: { PATH: `/nonexistent:${dir}` }, cwd: emptyProject });
   assert.equal(det.installed, true);
@@ -103,7 +104,7 @@ test('detectVerify prefers the verify entry of the package finalise runs from ov
 // out. The version of a PATH hit is read by following that symlink back
 // to the package.
 async function stagedGlobalRcf(version) {
-  const prefix = await realpath(await mkdtemp(join(tmpdir(), 'rcf-global-')));
+  const prefix = await realpath(await scratchDir('rcf-global-'));
   const pkgDir = join(prefix, 'lib', 'node_modules', 'rcf-lite');
   await mkdir(join(pkgDir, 'bin'), { recursive: true });
   await writeFile(join(pkgDir, 'package.json'), JSON.stringify({ name: 'rcf-lite', version, bin: { rcf: 'bin/rcf.js' } }), 'utf8');

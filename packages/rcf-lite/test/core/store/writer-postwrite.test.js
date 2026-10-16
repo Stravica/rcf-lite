@@ -16,7 +16,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { access, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { access, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -26,6 +26,7 @@ import {
   createDocument, deleteDocument, nextIdForKind, updateDocument,
 } from '../../../src/core/store/writer.js';
 import { declareUiNoneForTests } from '../../_helpers/d0.js';
+import { scratchDir } from '../../_helpers/scratch.js';
 
 // The exact TS-003 wedge shape: a test suite whose `status` fails the
 // schema enum. Everything else about the tree stays scaffold-valid.
@@ -43,7 +44,7 @@ const MALFORMED_TS_003 = {
 };
 
 async function scaffoldWedge() {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-b5-wedge-'));
+  const projectRoot = await scratchDir('rcf-b5-wedge-');
   await initProject({ projectRoot, projectName: 'B5WedgeTest' });
   await writeFile(
     join(projectRoot, 'rcf/test-suites/ts-003.json'),
@@ -121,7 +122,7 @@ test('(d2) a write refused at the doc level still refuses on a broken tree', asy
 });
 
 test('(e) normal-path refusal intact: invalid doc into a VALID tree still refuses', async () => {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-b5-valid-'));
+  const projectRoot = await scratchDir('rcf-b5-valid-');
   await initProject({ projectRoot, projectName: 'B5ValidTest' });
   const { tree, errors } = await walkTree({ projectRoot });
   assert.equal(errors.length, 0);
@@ -135,7 +136,7 @@ test('(e) normal-path refusal intact: invalid doc into a VALID tree still refuse
 });
 
 test('post-write gate closes the inbound-AC hole on VALID trees too', async () => {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-b5-inbound-'));
+  const projectRoot = await scratchDir('rcf-b5-inbound-');
   await initProject({ projectRoot, projectName: 'B5InboundTest' });
   const { tree, errors } = await walkTree({ projectRoot });
   // FBS-001 references AC-101-1; dropping it from US-101 must refuse
@@ -184,7 +185,7 @@ test('id allocation never reuses or overwrites the wedged id', async () => {
 });
 
 test('delete of a parse-broken file succeeds (disk-level wedge variant)', async () => {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-b5-parse-'));
+  const projectRoot = await scratchDir('rcf-b5-parse-');
   await initProject({ projectRoot, projectName: 'B5ParseTest' });
   await writeFile(join(projectRoot, 'rcf/test-suites/ts-002.json'), '{truncated', 'utf8');
   const { tree, errors } = await walkTree({ projectRoot });
@@ -196,7 +197,7 @@ test('delete of a parse-broken file succeeds (disk-level wedge variant)', async 
 });
 
 test('create refuses to overwrite an on-disk file that did not load', async () => {
-  const projectRoot = await mkdtemp(join(tmpdir(), 'rcf-b5-overwrite-'));
+  const projectRoot = await scratchDir('rcf-b5-overwrite-');
   await initProject({ projectRoot, projectName: 'B5OverwriteTest' });
   await writeFile(join(projectRoot, 'rcf/test-suites/ts-001.json'), '{truncated', 'utf8');
   const { tree, errors } = await walkTree({ projectRoot });

@@ -2,13 +2,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { initProject } from '#core/store/init.js';
 import { main as browserVerifyMain } from '../../src/cli/browser-verify.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const packageRoot = resolve(here, '..', '..');
@@ -30,7 +31,7 @@ function makeStream() {
 //    blueprints/ directory, with a single US contribution declaring
 //    AC-17101-1 and one probe pack whose check id matches.
 async function scaffoldProbePackProject({ writePack } = { writePack: true }) {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-bv-probe-pack-'));
+  const tmp = await scratchDir('rcf-bv-probe-pack-');
   await initProject({ projectRoot: tmp, projectName: 'ProbePackTest' });
 
   const fbsPath = join(tmp, 'rcf', 'fbs', 'fbs-001.json');

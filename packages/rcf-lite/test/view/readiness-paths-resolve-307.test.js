@@ -12,13 +12,14 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, rm, writeFile } from 'node:fs/promises';
+import { mkdir, rm, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { renderModelToPage } from '../../src/view/index.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function writeJson(path, body) {
   await mkdir(join(path, '..'), { recursive: true }).catch(() => {});
@@ -26,7 +27,7 @@ async function writeJson(path, body) {
 }
 
 async function scratchProject(prefix) {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  const root = await scratchDir(prefix);
   await initProject({ projectRoot: root });
   await declareUiNoneForTests(root);
   return root;

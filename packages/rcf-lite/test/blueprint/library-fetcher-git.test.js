@@ -4,7 +4,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
@@ -19,6 +19,7 @@ import {
 } from '../../src/blueprint/library-fetcher-git.js';
 import { ensureEmptyCache } from '../../src/blueprint/library-cache.js';
 import { isRcfError } from '../../src/core/errors/index.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 
@@ -29,8 +30,8 @@ const exec = promisify(execFile);
  * either shape.
  */
 async function scaffoldBareRepo({ tag = 'v1.0.0', lightweightTag = 'v-loose' } = {}) {
-  const workRoot = await mkdtemp(join(tmpdir(), 'rcf-git-work-'));
-  const bareRoot = await mkdtemp(join(tmpdir(), 'rcf-git-bare-'));
+  const workRoot = await scratchDir('rcf-git-work-');
+  const bareRoot = await scratchDir('rcf-git-bare-');
 
   const gitEnv = {
     ...process.env,
@@ -106,7 +107,7 @@ test('parseGitRef: floating branch names are refused up front', () => {
 
 test('fetchGitLibrary: annotated tag lands the tree and records the commit sha', async () => {
   const scratch = await scaffoldBareRepo();
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-git-target-'));
+  const targetDir = await scratchDir('rcf-git-target-');
   // Clean the mkdtemp-created directory so ensureEmptyCache accepts it.
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchGitLibrary({
@@ -125,7 +126,7 @@ test('fetchGitLibrary: annotated tag lands the tree and records the commit sha',
 
 test('fetchGitLibrary: lightweight tag refuses with the annotation diagnostic', async () => {
   const scratch = await scaffoldBareRepo();
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-git-target-'));
+  const targetDir = await scratchDir('rcf-git-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchGitLibrary({
     url: scratch.bareUrl,
@@ -139,7 +140,7 @@ test('fetchGitLibrary: lightweight tag refuses with the annotation diagnostic', 
 
 test('fetchGitLibrary: commit sha ref lands the tree and records the sha verbatim', async () => {
   const scratch = await scaffoldBareRepo();
-  const targetDir = await mkdtemp(join(tmpdir(), 'rcf-git-target-'));
+  const targetDir = await scratchDir('rcf-git-target-');
   await ensureEmptyCache(targetDir, { replace: true });
   const res = await fetchGitLibrary({
     url: scratch.bareUrl,

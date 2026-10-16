@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,9 +15,10 @@ import {
   saveFreezeRecord,
   validateFreezeRecord,
 } from '../../src/define/freeze-record.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scratch(prefix = 'freeze-') {
-  return mkdtemp(join(tmpdir(), prefix));
+  return scratchDir(prefix);
 }
 
 const validRecord = {

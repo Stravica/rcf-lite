@@ -5,7 +5,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, readdir } from 'node:fs/promises';
+import { readFile, readdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -19,6 +19,7 @@ import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer } from '../fixtures/probe-pack-application-notifications-in-app/server.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -47,7 +48,7 @@ test('application-notifications-in-app: blueprint.json declares the ratified sha
 });
 
 test('application-notifications-in-app: applies cleanly on a fresh init project and adds 20 documents to the tree (TC-050-applies-clean)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'notifications-scratch-'));
+  const scratch = await scratchDir('notifications-scratch-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -86,7 +87,7 @@ test('application-notifications-in-app: every pack check id matches a contribute
 });
 
 test('application-notifications-in-app: pack loader discovers the shipped pack against an applied scratch project (TC-050-pack-loader-discovers)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'notifications-loader-'));
+  const scratch = await scratchDir('notifications-loader-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -379,7 +380,6 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-notifications-in-app-AC-20103-1 violates the rule-7d null-anchor \+ limitation shape/);
 });
-
 
 test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
   const badRow = {

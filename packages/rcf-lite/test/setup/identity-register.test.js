@@ -8,6 +8,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 
 import { IDENTITY_TEMPLATE } from '../../src/setup/identity-seed.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 test('IDENTITY_TEMPLATE carries a ## Register heading under ## Working preferences', () => {
   const wpIdx = IDENTITY_TEMPLATE.indexOf('## Working preferences');
@@ -37,7 +38,7 @@ test('IDENTITY_TEMPLATE Register section names all three values and seeds to uns
 // w-2026-09-25-dave-004 defect B.
 // ---------------------------------------------------------------------------
 
-import { mkdtemp, readFile, writeFile, mkdir } from 'node:fs/promises';
+import { readFile, writeFile, mkdir } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { IDENTITY_TEMPLATE as _T, writeIdentityTemplate, identityProfilePath } from '../../src/setup/identity-seed.js';
@@ -65,7 +66,7 @@ test('IDENTITY_TEMPLATE Surface section names all three values and seeds to prDi
 });
 
 test('a fresh writeIdentityTemplate call seeds a profile that satisfies checkD1Brief surfaceMarkers', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-identity-surface-'));
+  const root = await scratchDir('rcf-identity-surface-');
   const result = await writeIdentityTemplate({ projectRoot: root });
   assert.equal(result.action, 'created');
   const body = await readFile(identityProfilePath(root), 'utf8');
@@ -78,7 +79,7 @@ test('a fresh writeIdentityTemplate call seeds a profile that satisfies checkD1B
 });
 
 test('writeIdentityTemplate stays idempotent: an existing profile.md with no ## Surface is left byte-identical', async () => {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-identity-kept-'));
+  const root = await scratchDir('rcf-identity-kept-');
   const custom = '# My profile\n\nhand-written, no surface section here\n';
   await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
   await writeFile(identityProfilePath(root), custom, 'utf8');

@@ -15,11 +15,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -43,7 +44,7 @@ async function runBin(cwd, args, env = {}) {
 }
 
 async function freshInit(prefix = 'rcf-r17-init-') {
-  const tmp = await mkdtemp(join(tmpdir(), prefix));
+  const tmp = await scratchDir(prefix);
   const { code, stderr } = await runBin(tmp, ['init', '--project-name', 'Rule17Test', '--non-interactive']);
   assert.equal(code, 0, stderr);
   return tmp;

@@ -4,7 +4,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import http from 'node:http';
 import { dirname, join, resolve } from 'node:path';
@@ -16,6 +16,7 @@ import { walkTree } from '../../src/core/store/walker.js';
 import { readContributedAcIds } from '../../src/browser-verify/pack-loader.js';
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -73,7 +74,7 @@ test('blueprint.json declares 28 contributions with requiresAppliedCapabilities 
 });
 
 test('applies cleanly on a magic-link project with 28 contributions and appliedCapabilities=[principalDirectory] (TC-056-applies-clean)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'acct-settings-magic-'));
+  const scratch = await scratchDir('acct-settings-magic-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree: t0 } = await walkTree({ projectRoot: scratch });
@@ -89,7 +90,7 @@ test('applies cleanly on a magic-link project with 28 contributions and appliedC
 });
 
 test('apply refuses on bare SPA with the [application-account-settings-bare-spa] message; --allow-no-auth-yet applies with a scaffolding note (TC-056-apply-refusal-and-override)', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'acct-settings-bare-'));
+  const scratch = await scratchDir('acct-settings-bare-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree } = await walkTree({ projectRoot: scratch });
@@ -98,7 +99,7 @@ test('apply refuses on bare SPA with the [application-account-settings-bare-spa]
   assert.match(refuse.message, /application-account-settings requires at least one applied security-auth-\*/);
   assert.match(refuse.message, /--allow-no-auth-yet/);
 
-  const scratch2 = await mkdtemp(join(tmpdir(), 'acct-settings-override-'));
+  const scratch2 = await scratchDir('acct-settings-override-');
   await initProject({ projectRoot: scratch2, projectName: 'scratch' });
   await declareUiNoneForTests(scratch2);
   const { tree: t2 } = await walkTree({ projectRoot: scratch2 });
@@ -117,7 +118,7 @@ test('Q3 gate: security-surface-shape is silently gated when neither credentialS
   // compatibility with the round-3 T-5 TTY prompt seam). This test asserts
   // the silent-gate behaviour at apply, and the AC-25110-1 documented
   // mechanism-reach gap in the README names the surface-side enforcement.
-  const scratch = await mkdtemp(join(tmpdir(), 'acct-settings-q3-'));
+  const scratch = await scratchDir('acct-settings-q3-');
   await initProject({ projectRoot: scratch, projectName: 'scratch' });
   await declareUiNoneForTests(scratch);
   const { tree: t0 } = await walkTree({ projectRoot: scratch });
@@ -421,7 +422,6 @@ test('rule-7d row-shape check refuses an anchored conformanceOnly row (TC-criter
   assert.throws(() => assertRule7dRowShape(badRow, 'negative-case'),
     /conformanceOnly row anchorAcId=application-account-settings-AC-25101-1 violates the rule-7d null-anchor \+ limitation shape/);
 });
-
 
 test('rule-7d row-shape check refuses a positive row with an empty derived object and no excerpt (TC-criterion-e-evidence-shape-negative-empty-derived)', async () => {
   const badRow = {

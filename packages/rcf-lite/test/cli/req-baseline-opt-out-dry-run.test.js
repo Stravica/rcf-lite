@@ -6,13 +6,13 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, stat } from 'node:fs/promises';
-import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { Writable } from 'node:stream';
 
 import { initProject } from '#core/store/init.js';
 import { main } from '../../src/cli/req-baseline.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 function makeSink() {
   const chunks = [];
@@ -24,7 +24,7 @@ function makeSink() {
 }
 
 async function scratchProject(prefix = 'req-baseline-opt-out-dry-run-') {
-  const root = await mkdtemp(join(tmpdir(), prefix));
+  const root = await scratchDir(prefix);
   const result = await initProject({ projectRoot: root });
   assert.ok(result && Array.isArray(result.created), `initProject failed: ${JSON.stringify(result)}`);
   return root;

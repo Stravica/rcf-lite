@@ -16,20 +16,21 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, readdir, writeFile } from 'node:fs/promises';
+import { readFile, readdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { initProject } from '#core/store/init.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 
 async function scaffoldReady() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-hook-'));
+  const tmp = await scratchDir('rcf-hook-');
   await initProject({ projectRoot: tmp, projectName: 'HookTest' });
   await writeFile(join(tmp, '.gitignore'), '.rcf/feedback/\n', 'utf8');
   return tmp;

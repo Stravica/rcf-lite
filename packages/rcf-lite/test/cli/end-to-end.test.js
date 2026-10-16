@@ -5,7 +5,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +12,7 @@ import { promisify } from 'node:util';
 
 import { walkTree } from '#core/store/walker.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -32,7 +32,7 @@ async function reload(projectRoot) {
 }
 
 test('scripted journey: init -> create req -> validate -> create us -> ac -> ts -> tc -> link -> update -> cascade delete -> validate', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-e2e-'));
+  const tmp = await scratchDir('rcf-e2e-');
   // 1. init.
   await runBin(tmp, ['init', '--project-name', 'E2E', '--non-interactive', '--quiet']);
   // FBS-214: init seeds a ui-null journey record so D0 fails on

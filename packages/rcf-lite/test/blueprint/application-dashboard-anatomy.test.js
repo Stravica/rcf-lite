@@ -5,7 +5,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertResultShape, runResultShapeNegativeCases } from './_result-shape.mjs';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
@@ -18,6 +18,7 @@ import { loadProbePacks, readContributedAcIds } from '../../src/browser-verify/p
 import { validatePackModule } from '../../src/browser-verify/pack-schema.js';
 
 import { startServer } from '../fixtures/probe-pack-application-dashboard/server.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -46,7 +47,7 @@ test('application-dashboard: blueprint.json declares the ratified shape (TC-049-
 });
 
 test('application-dashboard: applies cleanly on a fresh init project and adds 18 documents to the tree (TC-049-applies-clean)', async () => {
- const scratch = await mkdtemp(join(tmpdir(), 'dashboard-scratch-'));
+ const scratch = await scratchDir('dashboard-scratch-');
  await initProject({ projectRoot: scratch, projectName: 'scratch' });
  await declareUiNoneForTests(scratch);
  const bp = await loadBlueprint(BLUEPRINT_ROOT);
@@ -96,7 +97,7 @@ test('application-dashboard: every pack check id matches a contributed AC id, ev
 });
 
 test('application-dashboard: pack loader discovers the shipped pack against an applied scratch project (TC-049-pack-loader-discovers)', async () => {
- const scratch = await mkdtemp(join(tmpdir(), 'dashboard-loader-'));
+ const scratch = await scratchDir('dashboard-loader-');
  await initProject({ projectRoot: scratch, projectName: 'scratch' });
  await declareUiNoneForTests(scratch);
  const { tree } = await walkTree({ projectRoot: scratch });

@@ -2,14 +2,15 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { loadProbePacks } from '../../src/browser-verify/pack-loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function makeBlueprint({ slug, acs }) {
-  const root = await mkdtemp(join(tmpdir(), `pack-loader-${slug}-`));
+  const root = await scratchDir(`pack-loader-${slug}-`);
   await mkdir(join(root, 'contributions', 'user-stories'), { recursive: true });
   const usPath = join('contributions', 'user-stories', `${slug}-us-1101.json`);
   await writeFile(join(root, usPath), JSON.stringify({
@@ -135,7 +136,7 @@ export default {
 });
 
 test('loadProbePacks skips a blueprint that has no probe-packs directory (benign)', async () => {
-  const bp = await mkdtemp(join(tmpdir(), 'pack-loader-empty-'));
+  const bp = await scratchDir('pack-loader-empty-');
   await writeFile(join(bp, 'blueprint.json'), JSON.stringify({ slug: 'empty', version: '1.0.0', contributions: [] }));
   const result = await loadProbePacks({ appliedBlueprints: [{ slug: 'empty', absPath: bp }] });
   assert.equal(result.errors.length, 0);

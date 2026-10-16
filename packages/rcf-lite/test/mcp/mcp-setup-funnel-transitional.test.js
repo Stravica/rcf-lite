@@ -7,7 +7,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, writeFile } from 'node:fs/promises';
+import { writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -15,11 +15,12 @@ import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { hasAgentMarker } from '../../src/setup/agent-setup.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
 async function scaffold(prefix) {
-  const tmp = await mkdtemp(join(tmpdir(), prefix));
+  const tmp = await scratchDir(prefix);
   await initProject({ projectRoot: tmp, projectName: 'FunnelXfer' });
   await declareUiNoneForTests(tmp);
   return tmp;

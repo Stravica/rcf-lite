@@ -3,7 +3,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, mkdir, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
@@ -25,9 +25,10 @@ import {
   updateEntry,
   validateLedger,
 } from '../../src/define/ledgers.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 async function scratch(prefix = 'ledgers-') {
-  return mkdtemp(join(tmpdir(), prefix));
+  return scratchDir(prefix);
 }
 
 test('ledgers: LEDGER_NAMES lists the four proposal-mandated ledgers', () => {
@@ -464,7 +465,6 @@ test('parseResolvedBy: TAC long form matches an exact tacId', () => {
   const r = parseResolvedBy('TAC-4130-define-intake-brief', tree);
   assert.equal(r.ok, true);
 });
-
 
 test('ledgers: loadAllLedgers omits absent ledger files', async () => {
   const root = await scratch();

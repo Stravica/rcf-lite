@@ -15,7 +15,6 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtempSync } from 'node:fs';
 import { readFile, writeFile, mkdir, stat, unlink, rm } from 'node:fs/promises';
 import { PassThrough } from 'node:stream';
 import { tmpdir } from 'node:os';
@@ -29,13 +28,14 @@ import {
   readJourneyRecord,
 } from '../../src/discovery/record.js';
 import { promptForUi } from '../../src/cli/intake.js';
+import { scratchDirSync } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const BIN = resolve(repoRoot, 'bin', 'rcf.js');
 
 function mkProject() {
-  return mkdtempSync(join(tmpdir(), 'rcf-journey-fbs211-'));
+  return scratchDirSync('rcf-journey-fbs211-');
 }
 
 async function initTree(scratch, { stripSeed = false } = {}) {

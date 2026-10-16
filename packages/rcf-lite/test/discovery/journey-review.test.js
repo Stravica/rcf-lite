@@ -19,7 +19,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFile, writeFile, mkdir } from 'node:fs/promises';
-import { mkdtempSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
@@ -42,13 +41,14 @@ import {
   readJourneyRecord,
   writeJourneyRecord,
 } from '../../src/discovery/record.js';
+import { scratchDirSync } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 const BIN = resolve(repoRoot, 'bin', 'rcf.js');
 
 function mkProject() {
-  return mkdtempSync(join(tmpdir(), 'rcf-journey-fbs213-'));
+  return scratchDirSync('rcf-journey-fbs213-');
 }
 
 async function setupProject(scratch) {
@@ -627,7 +627,7 @@ test('AC-18904-3 edge: a wireframe symlink that escapes the repo is refused', as
   const dir = await setupProject(scratch);
   await writeFile(join(dir, 'home.md'), '# home\n', 'utf8');
   // Point escape.md at a file OUTSIDE the project root.
-  const outside = mkdtempSync(join(tmpdir(), 'rcf-fbs213-outside-'));
+  const outside = scratchDirSync('rcf-fbs213-outside-');
   await writeFile(join(outside, 'secret.md'), 'external bytes\n', 'utf8');
   await symlink(join(outside, 'secret.md'), join(dir, 'escape.md'));
   await writeJourneyRecord({ projectRoot: scratch, record });

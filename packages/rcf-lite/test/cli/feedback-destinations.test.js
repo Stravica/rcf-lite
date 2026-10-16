@@ -11,7 +11,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile, spawn } from 'node:child_process';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve as resolvePath } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -19,6 +19,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -65,7 +66,7 @@ const reqBody = (id) => ({
 });
 
 async function scaffoldFeedbackProject(name) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-fb-dest-${name}-`));
+  const root = await scratchDir(`rcf-fb-dest-${name}-`);
   await initProject({ projectRoot: root, projectName: name });
   await declareUiNoneForTests(root);
   await writeFile(join(root, '.gitignore'), '.rcf/feedback/\n', 'utf8');
@@ -73,7 +74,7 @@ async function scaffoldFeedbackProject(name) {
 }
 
 async function scaffoldLibrary({ prefix, blueprintSlug, bands, contributions, issues, publisher }) {
-  const root = await mkdtemp(join(tmpdir(), `rcf-lib-${prefix}-`));
+  const root = await scratchDir(`rcf-lib-${prefix}-`);
   const bpDir = join(root, 'blueprints', blueprintSlug);
   await mkdir(join(bpDir, 'contributions'), { recursive: true });
   await writeFile(

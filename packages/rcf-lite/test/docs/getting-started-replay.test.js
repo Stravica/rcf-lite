@@ -17,16 +17,17 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { access, mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const bin = resolve(fileURLToPath(new URL('../..', import.meta.url)), 'bin', 'rcf.js');
 
-const project = await mkdtemp(join(tmpdir(), 'rcf-gs-replay-'));
+const project = await scratchDir('rcf-gs-replay-');
 
 async function rcf(args) {
   try {

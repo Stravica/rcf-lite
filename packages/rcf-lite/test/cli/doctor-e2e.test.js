@@ -5,11 +5,12 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -27,7 +28,7 @@ async function runBin(cwd, args) {
 }
 
 test('e2e: init -> doctor clean -> stale -> doctor 3 -> --fix -> doctor clean', async () => {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-doc-e2e-'));
+  const tmp = await scratchDir('rcf-doc-e2e-');
   const init = await runBin(tmp, ['init', '--project-name', 'E2E', '--non-interactive']);
   assert.equal(init.code, 0);
 

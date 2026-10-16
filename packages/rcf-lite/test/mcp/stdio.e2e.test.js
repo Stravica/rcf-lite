@@ -8,19 +8,20 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { mkdtemp, readFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath, pathToFileURL } from 'node:url';
 
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-e2e-'));
+  const tmp = await scratchDir('rcf-mcp-e2e-');
   await initProject({ projectRoot: tmp, projectName: 'McpE2eTest' });
   await declareUiNoneForTests(tmp);
   return tmp;
@@ -247,7 +248,7 @@ test('e2e: verbose logging goes to stderr, never stdout', async () => {
 });
 
 test('e2e: no project root - exit 2, stderr line, zero stdout traffic', async () => {
-  const bare = await mkdtemp(join(tmpdir(), 'rcf-mcp-noroot-'));
+  const bare = await scratchDir('rcf-mcp-noroot-');
   const server = spawnServer(bare);
   const { code } = await server.exited;
   assert.equal(code, 2);
@@ -275,7 +276,7 @@ test('e2e: SIGTERM exits cleanly', async () => {
 
 test('e2e: --project-root serves a project from elsewhere', async () => {
   const tmp = await scaffold();
-  const elsewhere = await mkdtemp(join(tmpdir(), 'rcf-mcp-elsewhere-'));
+  const elsewhere = await scratchDir('rcf-mcp-elsewhere-');
   const server = spawnServer(elsewhere, ['--project-root', tmp]);
   const init = await server.initialize();
   assert.equal(init.result.protocolVersion, '2025-11-25');

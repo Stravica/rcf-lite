@@ -18,10 +18,11 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { access, mkdtemp, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
+import { access, mkdir, readdir, readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const guidanceDir = fileURLToPath(new URL('../../guidance', import.meta.url));
 const discoveryDir = join(guidanceDir, 'discovery');
@@ -87,7 +88,7 @@ test('issue 322: every guidance/discovery/*.md filename stem is a well-formed sl
 // invisible to the top-level readdir enumeration, while a new file
 // dropped directly in guidance/ is caught by the orphan assertion.
 test('issue 322 (fixture): new file under discovery/ passes the orphan check; new file in guidance/ fails it', async () => {
-  const scratch = await mkdtemp(join(tmpdir(), 'rcf-guidance-322-'));
+  const scratch = await scratchDir('rcf-guidance-322-');
   try {
     // Scaffold a mini guidance pack: one manifest-mapped file, one
     // discovery file, and no stray.

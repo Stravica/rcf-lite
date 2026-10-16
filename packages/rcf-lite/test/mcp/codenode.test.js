@@ -5,18 +5,19 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { initProject } from '#core/store/init.js';
 import { createToolRegistry } from '../../src/mcp/tools.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const silentLog = { info: () => {}, error: () => {} };
 
 async function scaffold() {
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-mcp-cn-'));
+  const tmp = await scratchDir('rcf-mcp-cn-');
   await initProject({ projectRoot: tmp, projectName: 'McpCnTest' });
   await declareUiNoneForTests(tmp);
   await mkdir(join(tmp, 'src'), { recursive: true });

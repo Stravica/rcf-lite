@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,6 +13,7 @@ import {
 } from '../../src/view/mermaid-diagram.js';
 import { buildTreeModel } from '../../src/view/tree-model.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -42,7 +43,7 @@ test('requirementSubdiagram marks a broken node visibly rather than omitting it 
   // claims the same inline AC id as US-101. The walker flags AC-101-1 as
   // broken (globallyUniqueIds); the AC still renders in REQ-001's
   // subdiagram - so the diagram must keep the node AND mark it.
-  const tmp = await mkdtemp(join(tmpdir(), 'rcf-diagram-broken-'));
+  const tmp = await scratchDir('rcf-diagram-broken-');
   await initProject({ projectRoot: tmp, projectName: 'BrokenDiagram' });
   await declareUiNoneForTests(tmp);
   const us = JSON.parse(await readFile(join(tmp, 'rcf/user-stories/us-101.json'), 'utf8'));

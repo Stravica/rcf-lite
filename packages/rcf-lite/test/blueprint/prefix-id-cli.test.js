@@ -19,7 +19,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { mkdir, mkdtemp, writeFile } from 'node:fs/promises';
+import { mkdir, writeFile } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -27,6 +27,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -44,7 +45,7 @@ async function runBin(cwd, args) {
 }
 
 async function scaffold() {
-  const root = await mkdtemp(join(tmpdir(), 'rcf-prefix-id-cli-'));
+  const root = await scratchDir('rcf-prefix-id-cli-');
   const init = await initProject({ projectRoot: root, projectName: 'PrefixIdCli' });
   await declareUiNoneForTests(root);
   assert.equal(init.kind, undefined, `initProject failed: ${JSON.stringify(init)}`);

@@ -6,7 +6,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { assertResultShape, runResultShapeNegativeCases } from './_result-shape.mjs';
-import { mkdtemp, readFile, stat } from 'node:fs/promises';
+import { readFile, stat } from 'node:fs/promises';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -15,6 +15,7 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { initProject } from '../../src/core/store/init.js';
 import { walkTree } from '../../src/core/store/walker.js';
 import { loadBlueprint } from '../../src/blueprint/loader.js';
+import { scratchDir } from '../_helpers/scratch.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
@@ -47,7 +48,7 @@ test('application-error-handling: blueprint.json declares the ratified shape (TC
 });
 
 test('application-error-handling: apply into a fresh fixture succeeds and writes the namespaced contributions (TC-039-clean-apply)', async () => {
- const root = await mkdtemp(join(tmpdir(), 'rcf-err-apply-'));
+ const root = await scratchDir('rcf-err-apply-');
  await initProject({ projectRoot: root, projectName: 'err-apply' });
  await declareUiNoneForTests(root);
  const { tree } = await walkTree({ projectRoot: root });
