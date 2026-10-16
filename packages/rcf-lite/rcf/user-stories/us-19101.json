@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-16T12:47:26.713Z",
+  "updatedAt": "2026-10-16T12:47:43.273Z",
+  "description": "User story under REQ-191 for the separation verb (FBS-222). Range from the merge-base with origin/main to HEAD, merge commits skipped, Hand: trailer over the five estate hands, default path classes at any depth, one quotable line and --json rows.",
+  "asA": "a gate reviewer reading a build pull request",
+  "iWant": "one line that says whether any commit crossed hands",
+  "soThat": "I quote it instead of re-reading every diff",
+  "tacIds": [
+    "TAC-4149-audit-separation"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19101-1",
+      "description": "[happy] Given a branch whose commits are a Hand: test-author commit touching test/x.test.js and rcf/user-stories/us-1.json, a Hand: builder commit touching src/x.js and rcf/code-nodes/cn-1.json, and a Hand: verifier commit touching rcf/verify-reports/FBS-1/abc.json, when rcf audit separation runs, then it exits 0 and prints \"separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\".",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4149-audit-separation",
+        "field": "interfaces[rcf audit separation]"
+      }
+    },
+    {
+      "id": "AC-19101-2",
+      "description": "[failure] Given a Hand: builder commit that touches test/x.test.js, when rcf audit separation runs, then it exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\"; the same holds for a Hand: test-author commit touching src/, and for a Hand: builder commit touching rcf/user-stories/.",
+      "testable": true
+    },
+    {
+      "id": "AC-19101-3",
+      "description": "[edge] Given an undeclared commit touching only src/ and another touching only test/, when the verb runs, then both pass and are counted under undeclared; an undeclared commit touching both src/ and test/ fails exit 4 naming both paths.",
+      "testable": true
+    },
+    {
+      "id": "AC-19101-4",
+      "description": "[failure] Given --base naming a ref that does not exist, the verb exits 2 with \"separation: bad ref <ref>\"; run outside a git repository it exits 1 with \"separation: not a git repository\"; a Hand: value outside the five hands and mixed is reported as a violation with reason \"unknown hand <value>\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19101-5",
+      "description": "[happy] Given the same branch as the PASS case, when rcf audit separation --json runs, then stdout is a JSON array with one SeparationRow per non-merge commit { sha, subject, hand, declared, classes, verdict, reason, paths } and merge commits in the range are absent.",
+      "testable": true
+    }
+  ],
+  "usId": "US-19101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-191",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf audit separation judges each commit's hand against the paths it touches"
+}

@@ -1,0 +1,43 @@
+{
+  "createdAt": "2026-10-16T12:47:24.367Z",
+  "updatedAt": "2026-10-16T12:47:42.644Z",
+  "description": "User story under REQ-190 for the backstop (FBS-221). With the backstop adopted (rcf/define/backstop.json), rcf build bundle --next will not hand out a later spec while any FBS inside the window is complete and not verified; --allow-unverified records a reasoned override. A tree with no backstop.json is grandfathered.",
+  "asA": "a stage-keeper dispatching the next build hand",
+  "iWant": "the tool to refuse the next bundle while a merged spec is unverified",
+  "soThat": "the backstop is enforced by the tool, not by whoever writes the brief",
+  "tacIds": [
+    "TAC-4148-test-stage-verify-finalise"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19003-1",
+      "description": "[failure] Given rcf/define/backstop.json with fromBuildOrder N and an FBS with buildOrder >= N at complete, when rcf build bundle --next runs, then it exits 4 with \"backstop: <k> merged spec(s) complete and not verified: <ids>; run rcf build finalise <id> or pass --allow-unverified \\\"<reason>\\\"\" and emits no bundle.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4148-test-stage-verify-finalise",
+        "field": "interfaces[rcf build bundle --next (backstop)]"
+      }
+    },
+    {
+      "id": "AC-19003-2",
+      "description": "[happy] Given the same tree, when rcf build bundle --next --allow-unverified \"hotfix while FBS-xxx re-verifies\" runs, then the bundle is emitted, backstop.overrides in rcf/define/backstop.json gains { reason, by, at, unverifiedFbsIds } and stdout carries \"backstop overridden: <reason>\"; an empty reason exits 2.",
+      "testable": true
+    },
+    {
+      "id": "AC-19003-3",
+      "description": "[edge] Given a tree with no rcf/define/backstop.json, or one whose complete FBS all have buildOrder below fromBuildOrder, when rcf build bundle --next runs, then the backstop does not refuse and the bundle behaves as before.",
+      "testable": true
+    },
+    {
+      "id": "AC-19003-4",
+      "description": "[happy] Given a tree without a backstop record, when rcf build backstop adopt --from FBS-218 runs, then rcf/define/backstop.json holds { fromBuildOrder: 218, adoptedAt, adoptedBy } and the command exits 0; an unknown FBS id exits 3 and a missing --from exits 2.",
+      "testable": true
+    }
+  ],
+  "usId": "US-19003",
+  "prdId": "PRD-001",
+  "reqId": "REQ-190",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "bundle --next refuses while a merged spec is complete and not verified"
+}

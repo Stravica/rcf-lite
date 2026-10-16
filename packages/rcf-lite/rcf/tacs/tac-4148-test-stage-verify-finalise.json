@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:44:24.006Z",
-  "updatedAt": "2026-10-16T12:44:32.411Z",
+  "updatedAt": "2026-10-16T12:47:13.360Z",
   "purpose": "Implement ADR-4148: the verifier hand produces a Test-stage verify report before merge and Finalise ingests it after merge to write verified deterministically, with provenance checks and the bundle --next backstop.",
   "responsibilities": [
     "src/verify/cli/run.js: --report-out <path> writes a VerifyReport v1 (headSha from git rev-parse HEAD, target, mode, hand, verifierId) and --hand <name> stamps the hand; the default path is rcf/verify-reports/<fbs-id>/<headSha12>.json when --fbs names one build spec.",
@@ -39,6 +39,16 @@
       "name": "rcf/verify-reports/<fbs-id>/<headSha12>.json",
       "kind": "fileFormat",
       "description": "Committed by the verifier hand on the PR branch under a Hand: verifier trailer. Walker-invisible; the separation check classes the directory as verifier evidence, not production code, tests or criteria."
+    },
+    {
+      "name": "rcf guidance build-cycle",
+      "kind": "cliCommand",
+      "description": "usage: rcf guidance build-cycle\nPrints the five-stage contract: Define (test-author), Build (builder), Review (reviewer), Test (verifier, rcf verify run and the committed report), Finalise (stage-keeper, CI green, merge, mark complete, rcf build finalise ingesting the report). Exit 0."
+    },
+    {
+      "name": "managed agent-instructions block",
+      "kind": "fileFormat",
+      "description": "guidance/managed/agent-instructions-block.md and its hash: the rcf doctor managed CLAUDE.md/AGENTS.md block. Changes with this train; the release carries a non-null minAgentAction."
     }
   ],
   "notes": "Supersedes the spawn path that 0.3.0 PR 50 introduced and 0.33.0, 0.34.0 and 0.34.1 extended. The ship-authority (0.4.0), per-AC refusal (0.7.0, 0.8.0, 0.20.0, 0.28.0) and per-FBS scope (0.34.0) semantics are kept, read from the ingested report instead of a spawned run.",

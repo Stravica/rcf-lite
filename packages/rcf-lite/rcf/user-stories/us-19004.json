@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-16T12:47:32.041Z",
+  "updatedAt": "2026-10-16T12:47:44.407Z",
+  "description": "User story under REQ-190 for the guidance train (FBS-224). The Build hand rewrites build-cycle.md stages 1, 4 and 5, the playbook, the bundle closing runbook, the managed agent-instructions block (minAgentAction set) and the README, and replaces the fifth verb attest with audit.",
+  "asA": "an agent or operator reading rcf-lite's method through the CLI",
+  "iWant": "the stage contract the tool prints to match what the tool enforces",
+  "soThat": "nobody follows guidance that sends verification after merge or names a verb that does not exist",
+  "tacIds": [
+    "TAC-4148-test-stage-verify-finalise"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19004-1",
+      "description": "[happy] When rcf guidance build-cycle runs, then the Test stage text names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier against the preview or version host, the committed report under rcf/verify-reports/ and the merge gate (Review MERGE plus Test PASS); the Finalise stage text names CI green, merge, rcf build mark <fbs-id> complete and rcf build finalise <fbs-id> --ci-run <ref> ingesting the report; and the output contains neither \"--url <deploy-url>\" on the finalise line nor \"post-merge verify run\".",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4148-test-stage-verify-finalise",
+        "field": "interfaces[rcf guidance build-cycle]"
+      }
+    },
+    {
+      "id": "AC-19004-2",
+      "description": "[happy] When rcf guidance build-cycle runs, then the Define stage text names the test-author hand writing AC-based and E2E tests and TS/TC bindings, the Build stage names the builder writing production code, Code Nodes and code-hygiene unit tests only, and every stage names its Hand: trailer value.",
+      "testable": true
+    },
+    {
+      "id": "AC-19004-3",
+      "description": "[happy] When rcf build bundle --next --format md emits a bundle, then its closing runbook lists the five stages with their hands, the rcf verify run Test-stage command with --hand verifier, rcf audit separation, and the rcf build finalise <fbs-id> --ci-run <ref> line, and no finalise line carries --mode or --url.",
+      "testable": true
+    },
+    {
+      "id": "AC-19004-4",
+      "description": "[happy] When rcf guidance managed/agent-instructions-block runs after the release, then the block states that verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction telling agents to refresh the block with rcf doctor, and rcf doctor reports the old block as drifted.",
+      "testable": true
+    },
+    {
+      "id": "AC-19004-5",
+      "description": "[happy] When the README at the repository root and every guidance topic printed by rcf guidance are searched for the stage chain, then the fifth verb reads audit (define, build, verify, release, audit) and the word attest appears nowhere as a verb or stage name (the attestation field family on ACs and the --litmus-attested flag are unrelated and stay).",
+      "testable": true
+    }
+  ],
+  "usId": "US-19004",
+  "prdId": "PRD-001",
+  "reqId": "REQ-190",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Guidance, the managed agent-instructions block and the README say the new stage contract, and audit is the fifth verb"
+}

@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-16T12:47:17.390Z",
+  "updatedAt": "2026-10-16T12:47:41.388Z",
+  "description": "User story under REQ-190 for the Test-stage report writer (FBS-219). The verifier hand runs rcf verify run against the preview or version host and commits the VerifyReport on the PR branch; the report is the evidence the merge gate reads and Finalise later ingests. Committing the report is evidence, not an edit to production code, tests or criteria.",
+  "asA": "the verifier hand at the Test stage of one build spec",
+  "iWant": "one command that verifies the spec's criteria through the real entry point and writes a report naming the head, the target, the hand and every per-AC result",
+  "soThat": "the merge gate and Finalise read the same evidence and nobody re-verifies after merge to learn what was already known",
+  "tacIds": [
+    "TAC-4148-test-stage-verify-finalise"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19001-1",
+      "description": "[happy] Given a git checkout at head H and an FBS with bound ACs, when rcf verify run --url <preview-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> runs, then rcf/verify-reports/<fbs-id>/<first 12 of H>.json exists and validates as VerifyReport v1 with headSha H, target.kind \"url\", target.url the given URL, hand \"verifier\", verifierId the given id, mode, startedAt, finishedAt, rcfLiteVersion, verdict and one perAc row per bound AC, and stdout ends with \"verify report: <path> <verdict> <verified>/<total>\".",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4148-test-stage-verify-finalise",
+        "field": "interfaces[rcf verify run (Test stage)]"
+      }
+    },
+    {
+      "id": "AC-19001-2",
+      "description": "[failure] Given a working tree with uncommitted changes outside rcf/verify-reports/, when rcf verify run --hand verifier --fbs <fbs-id> runs, then it refuses with exit 4 and stderr \"verify report refused: working tree is dirty; the report must name a committed head\", and writes no report.",
+      "testable": true
+    },
+    {
+      "id": "AC-19001-3",
+      "description": "[failure] Given --hand with a value outside [test-author | builder | reviewer | verifier | stage-keeper], or --fbs absent while --hand is given, when rcf verify run is invoked, then it exits 2 naming the flag and writes no report.",
+      "testable": true
+    },
+    {
+      "id": "AC-19001-4",
+      "description": "[happy] Given a version-host target (a packed or published package rather than a URL), when rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier runs, then the report carries target.kind \"package\" and target.packageRef, and no URL field, so a CLI product verifies against its version host.",
+      "testable": true
+    },
+    {
+      "id": "AC-19001-5",
+      "description": "[happy] Given a committed report under rcf/verify-reports/, when rcf define validate and the tree walker run, then neither treats the directory as chain documents (validate exit 0, no unknown-document error) and rcf audit separation classifies the path as verifier evidence.",
+      "testable": true
+    }
+  ],
+  "usId": "US-19001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-190",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The verifier records a Test-stage verify report before merge"
+}

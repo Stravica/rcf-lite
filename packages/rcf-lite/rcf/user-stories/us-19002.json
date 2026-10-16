@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-10-16T12:47:20.312Z",
+  "updatedAt": "2026-10-16T12:47:41.982Z",
+  "description": "User story under REQ-190 for the administrative Finalise (FBS-220). rcf build finalise reads the report, checks preconditions and provenance and writes verified; it spawns no verify subprocess and no agent CLI. Every refusal names its reason, exits 4 (or 3 for validation, 2 for usage) and leaves the FBS unchanged.",
+  "asA": "the stage-keeper, or any hand it names, after the merge",
+  "iWant": "Finalise to be a deterministic check of recorded evidence that any worker can run",
+  "soThat": "every merged spec reaches verified or a named refusal, and no merge waits on a session allowed to spawn an agent",
+  "tacIds": [
+    "TAC-4148-test-stage-verify-finalise"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19002-1",
+      "description": "[happy] Given an FBS at complete, HEAD on the default branch containing the report head, every bound AC with a Code Node, and a valid VerifyReport with hand \"verifier\", a non-loopback target, verdict PASS with ship authority and finishedAt within 7 days, when rcf build finalise <fbs-id> --ci-run <ref> runs, then executionStatus becomes verified, stdout carries \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", it exits 0, and no child process other than git is spawned.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4148-test-stage-verify-finalise",
+        "field": "interfaces[rcf build finalise]"
+      }
+    },
+    {
+      "id": "AC-19002-2",
+      "description": "[failure] Given no report under rcf/verify-reports/<fbs-id>/ (and no --report), when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \"finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge\" and the FBS stays complete.",
+      "testable": true
+    },
+    {
+      "id": "AC-19002-3",
+      "description": "[failure] Given a report whose headSha is neither an ancestor of HEAD nor tree-equal to a commit HEAD contains, when Finalise runs, then it exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\"; a target that is loopback (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0) exits 4 with \"finalise refused: report target <url> is loopback\"; a finishedAt older than --max-report-age (default 7 days) exits 4 with \"finalise refused: report is <n> days old\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19002-4",
+      "description": "[failure] Given a report whose hand is not \"verifier\", or whose verifierId equals the Hand-Id trailer of any Hand: builder commit between the merge-base and HEAD, when Finalise runs, then it exits 4 with \"finalise refused: report hand <hand>/<id> is not separate from the builder\" and the FBS is unchanged.",
+      "testable": true
+    },
+    {
+      "id": "AC-19002-5",
+      "description": "[failure] Given --ci-run absent, the FBS not at complete, HEAD off the default branch, or a bound AC without a Code Node, when Finalise runs, then it exits 4 (\"ci evidence missing: pass --ci-run <ref>\"), 4 (the existing not-complete message), 4 (the existing off-trunk message) and 3 (\"missing Code Nodes: <ac-ids>\") respectively; a report that fails VerifyReport v1 validation exits 3 naming the field.",
+      "testable": true
+    },
+    {
+      "id": "AC-19002-6",
+      "description": "[failure] Given a valid report whose perAc rows carry any of MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or whose verdict is not PASS or verdictAuthority is not ship, when Finalise runs, then it refuses exit 4 with the same message shapes 0.20.0 and 0.28.0 defined, read from the ingested report.",
+      "testable": true
+    },
+    {
+      "id": "AC-19002-7",
+      "description": "[failure] Given the retired flags, when rcf build finalise <fbs-id> --mode <any> or --url <url> runs, then it exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing.",
+      "testable": true
+    }
+  ],
+  "usId": "US-19002",
+  "prdId": "PRD-001",
+  "reqId": "REQ-190",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Finalise promotes to verified by ingesting the Test-stage report, with no agent spawn"
+}
