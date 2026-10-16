@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-16T12:49:31.803Z",
+  "updatedAt": "2026-10-16T12:49:31.803Z",
+  "summary": "Hand: mixed with Separation-Reason:, rcf/separation.json, --require-hand and Hand-Id, and the pull_request CI step (US-19102). Delivers AC-19102-1 to AC-19102-5.",
+  "approach": "Extend the classifier with the override file and the exception verdict; add --require-hand; add a pull_request job with fetch-depth 0 to .github/workflows/ci.yml.",
+  "deliverables": [
+    "src/audit/separation.js: override, exception, require-hand",
+    ".github/workflows/ci.yml: pull_request separation step"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-222"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4149-audit-separation"
+    ],
+    "adrIds": [
+      "ADR-4149-separation-trailer-hands-classes"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "functional",
+  "estimatedSize": "small",
+  "executionStatus": "notStarted",
+  "notes": "Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 6 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19102 at this FBS's own Define stage (estimate 5 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
+  "acIds": [
+    "AC-19102-1",
+    "AC-19102-2",
+    "AC-19102-3",
+    "AC-19102-4",
+    "AC-19102-5"
+  ],
+  "fbsId": "FBS-223",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 223,
+  "title": "Separation wiring: mixed escape, override file, --require-hand, CI on pull requests"
+}
