@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-16T12:47:29.677Z",
+  "updatedAt": "2026-10-16T12:48:47.782Z",
+  "description": "User story under REQ-191 for the separation wiring (FBS-223): Hand: mixed with Separation-Reason:, rcf/separation.json, --require-hand, the Hand-Id trailer, and the pull_request CI step in this repository.",
+  "asA": "the owner of a repository adopting the separation check",
+  "iWant": "one recorded escape, a way to adjust classes that a builder cannot use, and the check running on every pull request",
+  "soThat": "harness work can cross classes honestly and nothing merges without the line",
+  "tacIds": [
+    "TAC-4149-audit-separation"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19102-1",
+      "description": "[happy] Given a commit carrying Hand: mixed and Separation-Reason: rename crosses test and src, touching src/ and test/, when rcf audit separation runs, then that commit passes, the line counts exceptions 1, and --json gives it verdict \"exception\" with the reason; Hand: mixed with an empty or absent Separation-Reason: fails exit 4 with reason \"mixed without Separation-Reason\".",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4149-audit-separation",
+        "field": "interfaces[rcf audit separation]"
+      }
+    },
+    {
+      "id": "AC-19102-2",
+      "description": "[happy] Given rcf/separation.json { classes: { test: [\"spec/**\"] } }, when a Hand: builder commit touches spec/a.js, then the verb fails exit 4 naming spec/a.js; a malformed rcf/separation.json exits 2 naming the file; a Hand: builder commit that edits rcf/separation.json itself fails as a criteria-class touch.",
+      "testable": true
+    },
+    {
+      "id": "AC-19102-3",
+      "description": "[failure] Given --require-hand, when any non-merge commit in the range carries no Hand: trailer, or a Hand: builder commit carries no Hand-Id: trailer, then the verb exits 4 naming the commit and the missing trailer.",
+      "testable": true
+    },
+    {
+      "id": "AC-19102-4",
+      "description": "[happy] Given this repository's .github/workflows/ci.yml after the change, when a pull_request event runs CI, then a job with checkout fetch-depth 0 runs \"node bin/rcf.js audit separation --base origin/${{ github.base_ref }}\" from packages/rcf-lite and its exit code fails the job; the step does not run on push to main.",
+      "testable": true
+    },
+    {
+      "id": "AC-19102-5",
+      "description": "[must-not] a Separation-Reason: trailer that is empty or whitespace-only never turns Hand: mixed into a pass, and the CI step never runs with a shallow checkout (fetch-depth other than 0 makes the verb exit 2 naming the missing base).",
+      "testable": true
+    }
+  ],
+  "usId": "US-19102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-191",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The mixed escape, the class override file, --require-hand and CI on pull requests"
+}

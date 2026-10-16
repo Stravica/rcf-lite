@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 120,
-    "covered": 120,
+    "requirements": 123,
+    "covered": 123,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -6867,6 +6867,379 @@
           "covered": true,
           "testCases": [
             "TC-248-18906-6-mustnot"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-190",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-19001-1",
+          "covered": true,
+          "testCases": [
+            "TC-252-report-written"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19001-2",
+          "covered": true,
+          "testCases": [
+            "TC-252-dirty-tree-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19001-3",
+          "covered": true,
+          "testCases": [
+            "TC-252-bad-hand-flags"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19001-4",
+          "covered": true,
+          "testCases": [
+            "TC-252-package-target"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19001-5",
+          "covered": true,
+          "testCases": [
+            "TC-252-reports-not-chain"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19001-6",
+          "covered": true,
+          "testCases": [
+            "TC-252-writes-only-reports"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-1",
+          "covered": true,
+          "testCases": [
+            "TC-253-promotes-verified"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-2",
+          "covered": true,
+          "testCases": [
+            "TC-253-no-report"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-3",
+          "covered": true,
+          "testCases": [
+            "TC-253-head-loopback-age"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-4",
+          "covered": true,
+          "testCases": [
+            "TC-253-hand-not-separate"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-5",
+          "covered": true,
+          "testCases": [
+            "TC-253-preconditions"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-6",
+          "covered": true,
+          "testCases": [
+            "TC-253-blocking-per-ac-verdicts"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-7",
+          "covered": true,
+          "testCases": [
+            "TC-253-retired-flags"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19002-8",
+          "covered": true,
+          "testCases": [
+            "TC-253-no-spawn-no-mutation"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19003-1",
+          "covered": true,
+          "testCases": [
+            "TC-254-refuses-unverified"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19003-2",
+          "covered": true,
+          "testCases": [
+            "TC-254-override-recorded"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19003-3",
+          "covered": true,
+          "testCases": [
+            "TC-254-inert-without-backstop"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19003-4",
+          "covered": true,
+          "testCases": [
+            "TC-254-adopt"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19003-5",
+          "covered": true,
+          "testCases": [
+            "TC-254-no-silent-bypass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-1",
+          "covered": true,
+          "testCases": [
+            "TC-257-test-and-finalise-stages"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-2",
+          "covered": true,
+          "testCases": [
+            "TC-257-define-and-build-hands"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-3",
+          "covered": true,
+          "testCases": [
+            "TC-257-bundle-runbook"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-4",
+          "covered": true,
+          "testCases": [
+            "TC-257-managed-block"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-5",
+          "covered": true,
+          "testCases": [
+            "TC-257-audit-fifth-verb"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-6",
+          "covered": true,
+          "testCases": [
+            "TC-257-doctor-drift"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19004-7",
+          "covered": true,
+          "testCases": [
+            "TC-257-no-post-merge-verify"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-191",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-19101-1",
+          "covered": true,
+          "testCases": [
+            "TC-255-pass-line"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19101-2",
+          "covered": true,
+          "testCases": [
+            "TC-255-fail-line"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19101-3",
+          "covered": true,
+          "testCases": [
+            "TC-255-undeclared"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19101-4",
+          "covered": true,
+          "testCases": [
+            "TC-255-bad-ref-and-repo"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19101-5",
+          "covered": true,
+          "testCases": [
+            "TC-255-json-rows"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19101-6",
+          "covered": true,
+          "testCases": [
+            "TC-255-read-only"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19102-1",
+          "covered": true,
+          "testCases": [
+            "TC-256-mixed-exception"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19102-2",
+          "covered": true,
+          "testCases": [
+            "TC-256-class-override"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19102-3",
+          "covered": true,
+          "testCases": [
+            "TC-256-require-hand"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19102-4",
+          "covered": true,
+          "testCases": [
+            "TC-256-ci-pull-request-step"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19102-5",
+          "covered": true,
+          "testCases": [
+            "TC-256-no-empty-reason-no-shallow"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-192",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-19201-1",
+          "covered": true,
+          "testCases": [
+            "TC-251-probe-pass"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-2",
+          "covered": true,
+          "testCases": [
+            "TC-251-probe-fail"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-3",
+          "covered": true,
+          "testCases": [
+            "TC-251-critique-only-and-unreachable"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-4",
+          "covered": true,
+          "testCases": [
+            "TC-251-probe-source"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-5",
+          "covered": true,
+          "testCases": [
+            "TC-251-parity-env"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-6",
+          "covered": true,
+          "testCases": [
+            "TC-251-probe-schema"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-7",
+          "covered": true,
+          "testCases": [
+            "TC-251-no-probe-no-pass"
           ],
           "unresolvedTestCases": []
         }

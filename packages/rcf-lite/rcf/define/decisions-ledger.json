@@ -259,6 +259,471 @@
       "answer": "b. DEFINE FINALISE 2026-10-09: this release ships the record, the D0 gate and the FBS binding (REQ-189). Drawing requirements from steps (journey:<stepId> source spans, a brief:journeySteps D1 check) is carried to the next DEFINE as its own requirement; the verdict is silent on it and the shape of a step-sourced statement is best set once a tree has drawn requirements from a real journey. Named as a carried item in the PR body.",
       "answeredAt": "2026-10-09T17:03:43.631Z",
       "resolvedAt": "2026-10-09T17:03:43.631Z"
+    },
+    {
+      "id": 13,
+      "question": "(a) Finalise preconditions and exit codes: which preconditions refuse and with which codes?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FBS complete (4), HEAD on the default branch (4), --ci-run <ref> given and recorded (4 when absent; the CI status itself is not fetched in v1), every bound AC with a Code Node (3, matching mark complete), a Test-stage report present (4) and valid (3); provenance failures (4); retired --mode/--url (2)"
+        },
+        {
+          "letter": "b",
+          "text": "same set, but Finalise queries the CI provider for the merge commit status (needs network and a token)"
+        },
+        {
+          "letter": "c",
+          "text": "drop the CI precondition; branch protection already requires green CI before merge"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-220",
+      "addedAt": "2026-10-16T12:50:53.206Z",
+      "status": "resolved",
+      "answer": "a. Exit 4 for every refusal of state or evidence, 3 for validation and missing Code Nodes (the mark-complete precedent), 2 for usage. CI is recorded by reference, not fetched: Finalise stays network-free and worker-runnable. Fetching CI status is a named later option.",
+      "answeredAt": "2026-10-16T12:50:53.413Z",
+      "resolvedAt": "2026-10-16T12:50:53.413Z"
+    },
+    {
+      "id": 14,
+      "question": "(b) The verify report: where it lives, its schema, whether the verifier commits it, and whether committing it counts as editing.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "in tree at rcf/verify-reports/<fbs-id>/<headSha12>.json, VerifyReport v1 (reportVersion, fbsId, headSha, target {kind url|package, url, packageRef}, mode, hand, verifierId, startedAt, finishedAt, rcfLiteVersion, verdict, verdictAuthority, runStats.counts, perAc[]), rcf-lite-local, committed by the verifier on the PR branch under Hand: verifier; a report file is evidence and does not count as editing production code, tests or criteria"
+        },
+        {
+          "letter": "b",
+          "text": "out of tree (artefact store) referenced by hash on the FBS (needs an rcf-schemas FBS field)"
+        },
+        {
+          "letter": "c",
+          "text": "in tree but committed by the stage-keeper after merge"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-219",
+      "addedAt": "2026-10-16T12:50:53.613Z",
+      "status": "resolved",
+      "answer": "a. Reviewable in the PR, no schema change, walker-invisible like rcf/discovery/. The verifier still edits no production code, test or criterion; the separation check classes rcf/verify-reports/ as verifier evidence (ADR-4149).",
+      "answeredAt": "2026-10-16T12:50:53.807Z",
+      "resolvedAt": "2026-10-16T12:50:53.807Z"
+    },
+    {
+      "id": 15,
+      "question": "(c) Provenance checks before Finalise writes verified.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "report headSha is an ancestor of HEAD, or its tree equals the tree of a commit HEAD contains (squash merges); target is not loopback (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0); report hand is verifier and its verifierId matches no Hand-Id trailer on a Hand: builder commit in the merged range; finishedAt within --max-report-age, default 7 days"
+        },
+        {
+          "letter": "b",
+          "text": "ancestry only (forbid squash merges on RCF build PRs)"
+        },
+        {
+          "letter": "c",
+          "text": "a, plus Finalise re-probes the deployed URL"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-220",
+      "addedAt": "2026-10-16T12:50:54.004Z",
+      "status": "resolved",
+      "answer": "a. 24 of the last 30 merged PRs here were squashed, so ancestry alone would refuse most merges; tree equality covers the squash case and forces a re-verify only when main moved under the PR. The hand check is as strong as the trailers (self-declared), which the scoped Review gate backstops.",
+      "answeredAt": "2026-10-16T12:50:54.201Z",
+      "resolvedAt": "2026-10-16T12:50:54.201Z"
+    },
+    {
+      "id": 16,
+      "question": "(d) What happens to agentScreenshotCritique?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "becomes an rcf verify run mode the verifier may use at Test for subjective visual criteria; leaves Finalise; URL-verifiable criteria resolve through the probe catalog; subjective criteria stay critique-only"
+        },
+        {
+          "letter": "b",
+          "text": "retired entirely; subjective criteria are verified by a person"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-220",
+      "addedAt": "2026-10-16T12:50:54.392Z",
+      "status": "resolved",
+      "answer": "a. Recommended. Consequence named: a spec with subjective criteria needs a Test-stage session allowed to run the critique mode; it no longer blocks Finalise itself.",
+      "answeredAt": "2026-10-16T12:50:54.592Z",
+      "resolvedAt": "2026-10-16T12:50:54.592Z"
+    },
+    {
+      "id": 17,
+      "question": "(e) The backstop in rcf build bundle --next: refusal, override and adoption.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "refuse exit 4 while any FBS at or above the adopted fromBuildOrder is complete and not verified; --allow-unverified \"<reason>\" proceeds and appends { reason, by, at, unverifiedFbsIds } to rcf/define/backstop.json; a tree without backstop.json is grandfathered; rcf build backstop adopt --from <fbs-id> writes the window"
+        },
+        {
+          "letter": "b",
+          "text": "refuse on every complete unverified FBS in the tree, no window (would block this repository at once: none of its 107 FBS is verified)"
+        },
+        {
+          "letter": "c",
+          "text": "reuse --override and freeze.override"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-221",
+      "addedAt": "2026-10-16T12:50:54.790Z",
+      "status": "resolved",
+      "answer": "a. A separate flag keeps freeze overrides and verification overrides apart in the record. Whether the window holds is decision pending the operator (see the backstop decision below).",
+      "answeredAt": "2026-10-16T12:50:54.992Z",
+      "resolvedAt": "2026-10-16T12:50:54.992Z"
+    },
+    {
+      "id": 18,
+      "question": "(f1) Separation: how a commit declares its hand.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Hand: trailer plus path inference; a declared hand must agree with its paths; an undeclared single-class commit passes"
+        },
+        {
+          "letter": "b",
+          "text": "trailer required on every commit"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-222",
+      "addedAt": "2026-10-16T12:50:55.189Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY PR 365 recommendation 1; --require-hand gives b per repository when wanted.",
+      "answeredAt": "2026-10-16T12:50:55.387Z",
+      "resolvedAt": "2026-10-16T12:50:55.387Z"
+    },
+    {
+      "id": 19,
+      "question": "(f2) Separation: commits that touch both test and production classes.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "fail, with one escape: Hand: mixed plus a non-empty Separation-Reason:, counted on the report line"
+        },
+        {
+          "letter": "b",
+          "text": "always fail"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-223",
+      "addedAt": "2026-10-16T12:50:55.582Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY recommendation 2 (the ADR-4131 posture: the gate bites, the acknowledgement is recorded).",
+      "answeredAt": "2026-10-16T12:50:55.778Z",
+      "resolvedAt": "2026-10-16T12:50:55.778Z"
+    },
+    {
+      "id": 20,
+      "question": "(f3) Separation: where it runs.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "rcf audit separation in CI on pull_request with fetch-depth 0, no hook in v1"
+        },
+        {
+          "letter": "b",
+          "text": "also a pre-push hook installed by rcf init"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-223",
+      "addedAt": "2026-10-16T12:50:55.975Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY recommendation 3.",
+      "answeredAt": "2026-10-16T12:50:56.171Z",
+      "resolvedAt": "2026-10-16T12:50:56.171Z"
+    },
+    {
+      "id": 21,
+      "question": "(f4) Separation: path classes.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "defaults matching at any depth, optional override rcf/separation.json (inside rcf/, so test-author territory); rcf/code-nodes/ builder, rcf/verify-reports/ verifier, rcf/fbs/ and rcf/manifest.json neutral"
+        },
+        {
+          "letter": "b",
+          "text": "a required per-repo config"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-222",
+      "addedAt": "2026-10-16T12:50:56.367Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY recommendation 4, extended with the verifier evidence class (ADR-4149). Named gap: rcf/fbs/ is neutral, so a builder could edit an FBS acIds unseen.",
+      "answeredAt": "2026-10-16T12:50:56.561Z",
+      "resolvedAt": "2026-10-16T12:50:56.561Z"
+    },
+    {
+      "id": 22,
+      "question": "(f5) Separation: posture.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "opt-in per repository; rcf-lite adopts from this DEFINE forward with no retroactive audit"
+        },
+        {
+          "letter": "b",
+          "text": "separation as the default build cycle in the same release"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-223",
+      "addedAt": "2026-10-16T12:50:56.758Z",
+      "status": "resolved",
+      "answer": "a. DISCOVERY recommendation 5. This DEFINE train already carries Hand: test-author on every commit.",
+      "answeredAt": "2026-10-16T12:50:56.966Z",
+      "resolvedAt": "2026-10-16T12:50:56.966Z"
+    },
+    {
+      "id": 23,
+      "question": "(f6) Separation: trailer vocabulary.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the five estate hand names (test-author, builder, reviewer, verifier, stage-keeper) plus mixed"
+        },
+        {
+          "letter": "b",
+          "text": "the DISCOVERY values test and build plus mixed"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-222",
+      "addedAt": "2026-10-16T12:50:57.166Z",
+      "status": "resolved",
+      "answer": "a. The verifier report commit and the stage-keeper commits would otherwise be undeclared or mixed; one vocabulary across briefs, trailers and reports (ADR-4149). test and build are not accepted as aliases.",
+      "answeredAt": "2026-10-16T12:50:57.364Z",
+      "resolvedAt": "2026-10-16T12:50:57.364Z"
+    },
+    {
+      "id": 24,
+      "question": "(g) Issue 349 scope and its schema dependency.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "optional probe object on the acceptanceCriterion subschema (an @stravica-ai/rcf-schemas minor) plus rcf/verify-catalog.json keyed by acId, AC-level probe wins; the deterministic engine resolves pass, fail or skipped per AC with evidence; --parity-env honoured"
+        },
+        {
+          "letter": "b",
+          "text": "catalog file only, no schema change"
+        },
+        {
+          "letter": "c",
+          "text": "schema fields only, no catalog"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T12:50:57.566Z",
+      "status": "resolved",
+      "answer": "a. Build-ordering constraint: the rcf-schemas minor must publish and be pinned before FBS-218 merges ($defs/acceptanceCriterion is additionalProperties false today). The catalog alone would work without it, so b is the fallback if the schema minor slips.",
+      "answeredAt": "2026-10-16T12:50:57.767Z",
+      "resolvedAt": "2026-10-16T12:50:57.767Z"
+    },
+    {
+      "id": 25,
+      "question": "(h) Guidance, managed block and attest-to-audit changes the Build hand makes.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FBS-224 rewrites guidance/build-cycle.md stages 1, 4 and 5 and the playbook to the five hands and the Test-stage report, updates the bundle closing runbook, regenerates the managed agent-instructions block with a non-null minAgentAction, and fixes README.md line 49 (define, build, verify, release, audit)"
+        },
+        {
+          "letter": "b",
+          "text": "guidance changes ride with each behavioural FBS"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-224",
+      "addedAt": "2026-10-16T12:50:57.964Z",
+      "status": "resolved",
+      "answer": "a. One guidance train after the behaviour exists, so the text never describes a verb that has not shipped. The attest grep found one fifth-verb hit (README.md:49); the other attest hits are the AC attestation field family and --litmus-attested, which are unrelated and stay.",
+      "answeredAt": "2026-10-16T12:50:58.158Z",
+      "resolvedAt": "2026-10-16T12:50:58.158Z"
+    },
+    {
+      "id": 26,
+      "question": "(i) Sizing and build order.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "seven FBS: FBS-218 probes (schema first), FBS-219 report, FBS-220 Finalise, FBS-221 backstop, FBS-222 separation verb, FBS-223 separation wiring, FBS-224 guidance"
+        },
+        {
+          "letter": "b",
+          "text": "three FBS (verify and Finalise, separation, guidance)"
+        }
+      ],
+      "default": "a",
+      "blocks": "BS-001",
+      "addedAt": "2026-10-16T12:50:58.355Z",
+      "status": "resolved",
+      "answer": "a. Each FBS fits one test-author, builder and verifier round; FBS-220 is the largest and the first candidate to split (ingest versus provenance) if its Define round shows more than eight tests.",
+      "answeredAt": "2026-10-16T12:50:58.553Z",
+      "resolvedAt": "2026-10-16T12:50:58.553Z"
+    },
+    {
+      "id": 27,
+      "question": "PENDING OPERATOR: may the builder hand create Code Nodes through rcf define create cn?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, Code Nodes are the one chain write a builder makes (rcf/code-nodes/ is builder class in the separation check)"
+        },
+        {
+          "letter": "b",
+          "text": "no, the test-author writes Code Nodes too"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-220",
+      "addedAt": "2026-10-16T12:50:58.744Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16 12:45Z: yes, the builder creates Code Nodes through rcf define create cn; it is the one chain write a builder makes.",
+      "answeredAt": "2026-10-16T13:07:12.439Z",
+      "resolvedAt": "2026-10-16T13:07:12.439Z"
+    },
+    {
+      "id": 28,
+      "question": "PENDING OPERATOR: are test-suite and test-case records written at Define by the test-author hand?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, at each FBS's own Define stage, with the tests; this chain-level DEFINE writes none"
+        },
+        {
+          "letter": "b",
+          "text": "written by the verifier at Test"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T12:50:58.937Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16 12:45Z: yes, test-suite and test-case records are written at each FBS's own Define stage by the test-author hand, with the tests.",
+      "answeredAt": "2026-10-16T13:07:12.526Z",
+      "resolvedAt": "2026-10-16T13:07:12.526Z"
+    },
+    {
+      "id": 29,
+      "question": "PENDING OPERATOR: does the backstop block on every merged unverified spec?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes within the adopted window: rcf-lite adopts with rcf build backstop adopt --from FBS-218, and its 107 earlier specs (none verified) stay grandfathered"
+        },
+        {
+          "letter": "b",
+          "text": "yes on every merged unverified spec in the tree, with no window (blocks this repository until the backlog is verified or overridden)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-221",
+      "addedAt": "2026-10-16T12:50:59.135Z",
+      "status": "resolved",
+      "answer": "Operator ruling 2026-10-16 12:45Z: yes, the backstop blocks on every merged unverified spec. Scope rule from this DEFINE: within the repo's adopted window, so a repo adopting mid-life names its first adopted FBS and older specs are grandfathered; a product that adopted from its first spec blocks on all of them.",
+      "answeredAt": "2026-10-16T13:07:12.611Z",
+      "resolvedAt": "2026-10-16T13:07:12.611Z"
+    },
+    {
+      "id": 30,
+      "question": "PENDING OPERATOR: how does the Test-stage verifier obtain prerequisites (service sandboxes, auth accounts, an Access service token) when it runs rcf verify run against the preview or version host? Evidence 2026-10-16: 16 of 18 complete specs on a GBP 249 product refused with BLOCKED-PROVISIONING because the lane host holds no credentials and the operator surface sits behind Cloudflare Access.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the repo declares a provisioning profile (prerequisite kinds and credential references, never values); the stage-keeper's environment supplies the references at Test; verify run records which were supplied and marks the rest BLOCKED-PROVISIONING with the kind"
+        },
+        {
+          "letter": "b",
+          "text": "criteria that need provisioning are verified by CI-profile tests with a declared parity claim; the deployed run covers only unauthenticated routes"
+        },
+        {
+          "letter": "c",
+          "text": "no provisioning in the Test stage; the operator verifies provisioned criteria by hand"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:16:50.806Z",
+      "status": "resolved",
+      "answer": "Operator ruling 2026-10-16 15:5xZ: the orchestrator supplies the prerequisites at Test time (Dave as stage-keeper, or a human RCF operator), from per-repo operational notes kept outside the repo and outside the chain (library docs). The chain keeps only its existing service declarations (what is needed), never where or how. Supply is confirmed with the operator as a preflight once the DEFINE passes readiness. rcf verify run accepts the supplied prerequisites as environment or arguments and records which were supplied.",
+      "answeredAt": "2026-10-16T15:08:25.663Z",
+      "resolvedAt": "2026-10-16T15:08:25.663Z"
+    },
+    {
+      "id": 31,
+      "question": "PENDING OPERATOR: criteria that are repository or CI properties (a workflow exists, a lint runs, a secret is never printed) have no live route on a deployed host. Evidence 2026-10-16: whole specs (CI workflows, deploy pipeline, operations register) came back DEGRADED with every criterion not exercised. How are they verified in the Test stage?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the probe catalog gains a ci probe kind; such criteria resolve from the CI run the verifier names (--ci-run), and the deployed-URL run skips them with reason ci-property"
+        },
+        {
+          "letter": "b",
+          "text": "they are excluded from verify run and counted verified by the Review gate alone"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:16:50.893Z",
+      "status": "resolved",
+      "answer": "Operator ruling 2026-10-16: these criteria are obviously testable, not against a runtime, and the chain already distinguishes this through the runtime-profile vocabulary (deployed, ci, local-dev) on test cases. No new classification. verify run exercises only criteria whose test cases carry the deployed profile against the URL; ci-profile criteria are proven by the CI run the stage-keeper names (--ci-run) and are skipped on the URL run with reason ci-profile; readiness requires every criterion to have a test case with a declared profile.",
+      "answeredAt": "2026-10-16T15:08:25.750Z",
+      "resolvedAt": "2026-10-16T15:08:25.750Z"
+    },
+    {
+      "id": 32,
+      "question": "Test-stage action policy for verify run. Operator ruling 2026-10-16 15:0xZ: a sandbox exists to be used; the up-front decision per integration is either provide the sandbox or test double and let the verifier use it, or mark that route not auto-verifiable. The 2026-10-12 rule covers real money only.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "purchases, card entry and webhook posting are allowed when the target declares a sandbox for that integration (declared in the provisioning profile) and are recorded on the report; denied and resolved BLOCKED-BY-POLICY where no sandbox is declared; never against a live billing mode"
+        },
+        {
+          "letter": "b",
+          "text": "default deny everywhere with a per-run opt-in flag"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:16:50.977Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16: yes, a declared sandbox is for the verifier to use; not much of a sandbox test otherwise. Purchases, card entry and webhook posting allowed where the integration declares a sandbox (supplied by the orchestrator per decision 30) and recorded on the report; blocked by policy where none is declared; never against live billing.",
+      "answeredAt": "2026-10-16T15:08:25.834Z",
+      "resolvedAt": "2026-10-16T15:08:25.834Z"
+    },
+    {
+      "id": 33,
+      "question": "Operator ruling 2026-10-16: how did criteria with no live route (CI workflows, deploy pipeline) reach Build, and why was host capability not checked before the Finalise run? Both are DEFINE and stage-keeper defects, not tool defects. What does the chain require so this family of issue (verification route never decided up front; same family as the 2026-07 persona findings) stops recurring?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "every acceptance criterion declares at DEFINE a verification route (deployedUrl | ciRun | manual | notAutoTestable) and runtime profile, plus the prerequisites it needs (service, sandbox or test double, account); define readiness refuses a tree with any criterion silent on route; rcf build bundle --next emits the per-spec prerequisite list; a stage-keeper preflight verb compares that list with the host before any Test or Finalise dispatch and refuses to launch what the host cannot meet"
+        },
+        {
+          "letter": "b",
+          "text": "keep classification at Test time (verifier marks not exercised) and rely on briefs"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:38:02.193Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16: not testable criteria are obvious at DEFINE and at readiness; host capability is checked before dispatch; sandbox or test-double integrations are decided up front per integration. Decided, not pending.",
+      "answeredAt": "2026-10-16T14:38:02.276Z",
+      "resolvedAt": "2026-10-16T14:38:02.276Z"
     }
   ]
 }

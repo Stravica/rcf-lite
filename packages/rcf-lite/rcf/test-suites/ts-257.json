@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-16T15:45:37.965Z",
+  "updatedAt": "2026-10-16T15:45:41.908Z",
+  "purpose": "Declare one test per AC of US-19004 (FBS-224) driving rcf guidance, rcf build bundle --next --format md and rcf doctor through bin/rcf.js, so the FBS-224 Define round turns each declaration into a red test against the shipped stage contract text.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19004-1",
+    "AC-19004-2",
+    "AC-19004-3",
+    "AC-19004-4",
+    "AC-19004-5",
+    "AC-19004-6",
+    "AC-19004-7"
+  ],
+  "id": "TS-257",
+  "usId": "US-19004",
+  "title": "Guidance, managed agent-instructions block, bundle runbook and README state the five-stage hand contract, Finalise by --ci-run from a Test-stage report, audit as the fifth verb, and doctor flags the old block",
+  "testCases": [
+    {
+      "id": "TC-257-test-and-finalise-stages",
+      "acId": "AC-19004-1",
+      "description": "rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no \"--url <deploy-url>\" and no \"post-merge verify run\"",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-1: rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no \"--url <deploy-url>\" and no \"post-merge verify run\""
+    },
+    {
+      "id": "TC-257-define-and-build-hands",
+      "acId": "AC-19004-2",
+      "description": "rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-2: rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer"
+    },
+    {
+      "id": "TC-257-bundle-runbook",
+      "acId": "AC-19004-3",
+      "description": "rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-3: rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url"
+    },
+    {
+      "id": "TC-257-managed-block",
+      "acId": "AC-19004-4",
+      "description": "rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-4: rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted"
+    },
+    {
+      "id": "TC-257-audit-fifth-verb",
+      "acId": "AC-19004-5",
+      "description": "the root README and every rcf guidance topic read define, build, verify, release, audit as the stage chain and never name attest as a verb or stage, leaving AC attestation and --litmus-attested as they are",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-5: the root README and every rcf guidance topic read define, build, verify, release, audit as the stage chain and never name attest as a verb or stage, leaving AC attestation and --litmus-attested as they are"
+    },
+    {
+      "id": "TC-257-doctor-drift",
+      "acId": "AC-19004-6",
+      "description": "rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-6: rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero"
+    },
+    {
+      "id": "TC-257-no-post-merge-verify",
+      "acId": "AC-19004-7",
+      "description": "no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-7: no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge"
+    }
+  ],
+  "status": "draft"
+}

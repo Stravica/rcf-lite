@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-10-16T12:44:32.987Z",
+  "updatedAt": "2026-10-16T13:02:46.590Z",
+  "description": "Verification moves into the Test stage and Finalise returns to an administrative step. Before merge, the verifier hand runs rcf verify run against the real entry point on the preview or version host and commits a Test-stage verify report (head sha, target, timestamps, per-AC results, mode, hand and verifier identity) under rcf/verify-reports/ on the PR branch; that report plus the scoped Review verdict is the merge gate. After merge, CI green and rcf build mark <fbs> complete, rcf build finalise <fbs> writes verified deterministically by ingesting that report: it spawns no verify subprocess and no agent CLI, checks the report's provenance (head contained in the merge, a non-loopback target, the verifier hand distinct from the builder hand, an age window) and refuses with a named reason and exit code otherwise. Because Finalise is deterministic it is worker-runnable, so the backstop (no later spec on a product enters Build until every merged spec on it is verified) is enforced by rcf build bundle --next rather than by a brief, with a recorded override.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "In October 2026 the fifth stage became a verify wrapper that only a session allowed to spawn the agent CLI could run. Dispatched workers could not run it, merges went ahead without it, 26 build specs on a GBP 249 product built with rcf-lite merged and none reached verified, and 30 gates missed a one-line wiring bug that the first run against the platform caught (process regression investigation 2026-10-16, causes 1 and 2). The operator ruled 2026-10-16: Finalise back to admin, verification in Test; five stages with separated hands for all RCF coding work.",
+  "tags": [
+    "capability:build-sequence",
+    "capability:verify"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4148-test-stage-verify-finalise"
+  },
+  "reqId": "REQ-190",
+  "prdId": "PRD-001",
+  "title": "Test-stage verification report and administrative Finalise: deterministic ingest, provenance and the verified backstop",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-16T12:44:33.131Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "rationale",
+        "shape": "auth",
+        "match": "session"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "admin"
+      }
+    ]
+  }
+}

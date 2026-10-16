@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-10-16T12:45:17.133Z",
+  "updatedAt": "2026-10-16T12:45:25.680Z",
+  "context": "The DISCOVERY record for a mechanical separation check (guidance/discovery/discovery-separation-check.md, PR 365) proposed rcf audit separation with a Hand: trailer whose values were test and build, path classes with defaults, one escape and CI on pull requests. Since then the estate named five hands for RCF coding work: test-author, builder, reviewer, verifier and stage-keeper. The verifier now commits a report (ADR-4148) and the stage-keeper commits the verified mark, so two values no longer describe every commit on a build PR.",
+  "decision": "The Hand: trailer takes the five estate hand names plus mixed. Classes and owners: test (test globs) and criteria (chain documents under rcf/ except the paths below) belong to test-author; production (everything else not neutral) and rcf/code-nodes/ belong to builder; rcf/verify-reports/ belongs to verifier; the changelog and release files belong to stage-keeper; neutral (rcf/fbs/, which the test-author pickup mark and the stage-keeper verified mark both write, Markdown outside rcf/, lockfiles, .github/, rcf/manifest.json) belongs to anyone. A declared hand must touch only its own classes plus neutral. An undeclared commit passes when it touches one non-neutral class. Hand: mixed with a non-empty Separation-Reason: passes and is counted as an exception. Defaults match at any depth; rcf/separation.json may override them and, being under rcf/, is test-author territory. The verb runs in CI on pull_request with fetch-depth 0, never on main after a squash. Adoption is per repository; rcf-lite adopts from this DEFINE forward with no retroactive audit.",
+  "consequences": "A gate quotes one line instead of reading diffs. The DISCOVERY values test and build are not accepted aliases: one vocabulary across briefs, trailers and reports. reviewer commits are expected to be rare (a review is a verdict, not a commit) and are allowed neutral paths only. The trailer is self-declared, so the check catches drift and honest mistakes; the scoped Review gate stays the backstop. A Hand-Id: trailer (a free-text session or agent identity) is optional on every commit and required on builder commits once a repo passes --require-hand; Finalise compares it with the report verifierId (ADR-4148). Out of v1: identity binding beyond Hand-Id, field-level FBS checks, chain-derived classes, hooks.",
+  "alternativesConsidered": [
+    {
+      "name": "Keep test and build as in the DISCOVERY",
+      "summary": "Two values, smaller help text.",
+      "reasonNotChosen": "The verifier report commit and the stage-keeper finalise commit would both be undeclared or mixed; the estate briefs already name five hands."
+    },
+    {
+      "name": "Pre-push hook installed by rcf init",
+      "summary": "Catch violations before push.",
+      "reasonNotChosen": "Recommended against in the DISCOVERY: hooks are local, bypassable and a second install surface; CI on the PR is where the gate reads."
+    }
+  ],
+  "adrId": "ADR-4149-separation-trailer-hands-classes",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Separation check: Hand trailer over the five estate hands, owned path classes, PR-only CI"
+}

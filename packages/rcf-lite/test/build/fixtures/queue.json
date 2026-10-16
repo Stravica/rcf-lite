@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 107,
-    "notStarted": 56,
+    "items": 114,
+    "notStarted": 63,
     "inProgress": 2,
     "complete": 34,
     "verified": 15,
-    "actionable": 40,
-    "blocked": 16
+    "actionable": 42,
+    "blocked": 21
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -70,7 +70,9 @@
         "FBS-204",
         "FBS-207",
         "FBS-209",
-        "FBS-210"
+        "FBS-210",
+        "FBS-218",
+        "FBS-222"
       ]
     },
     {
@@ -89,7 +91,9 @@
         "FBS-205",
         "FBS-211",
         "FBS-212",
-        "FBS-216"
+        "FBS-216",
+        "FBS-219",
+        "FBS-223"
       ]
     },
     {
@@ -105,7 +109,8 @@
         "FBS-196",
         "FBS-206",
         "FBS-213",
-        "FBS-217"
+        "FBS-217",
+        "FBS-220"
       ]
     },
     {
@@ -120,7 +125,8 @@
         "FBS-183",
         "FBS-197",
         "FBS-208",
-        "FBS-214"
+        "FBS-214",
+        "FBS-221"
       ]
     },
     {
@@ -134,7 +140,8 @@
         "FBS-184",
         "FBS-198",
         "FBS-199",
-        "FBS-215"
+        "FBS-215",
+        "FBS-224"
       ]
     },
     {
@@ -1409,6 +1416,100 @@
       "state": "complete",
       "blockedBy": [
         "FBS-216"
+      ]
+    },
+    {
+      "fbsId": "FBS-218",
+      "buildOrder": 218,
+      "tier": 0,
+      "title": "Per-AC probe catalog resolved by deterministic verify (issue 349)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-219",
+      "buildOrder": 219,
+      "tier": 1,
+      "title": "Test-stage verify report: rcf verify run --hand writes VerifyReport v1",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-218"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-218"
+      ]
+    },
+    {
+      "fbsId": "FBS-220",
+      "buildOrder": 220,
+      "tier": 2,
+      "title": "Administrative Finalise: ingest the Test-stage report, no verify spawn",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-219"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-219"
+      ]
+    },
+    {
+      "fbsId": "FBS-221",
+      "buildOrder": 221,
+      "tier": 3,
+      "title": "Verified backstop on rcf build bundle --next",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-220"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-220"
+      ]
+    },
+    {
+      "fbsId": "FBS-222",
+      "buildOrder": 222,
+      "tier": 0,
+      "title": "rcf audit separation verb",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-223",
+      "buildOrder": 223,
+      "tier": 1,
+      "title": "Separation wiring: mixed escape, override file, --require-hand, CI on pull requests",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-222"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-222"
+      ]
+    },
+    {
+      "fbsId": "FBS-224",
+      "buildOrder": 224,
+      "tier": 4,
+      "title": "Guidance, managed block and README: the new stage contract and audit as the fifth verb",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-220",
+        "FBS-221",
+        "FBS-223"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-220",
+        "FBS-221",
+        "FBS-223"
       ]
     }
   ],

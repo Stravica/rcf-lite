@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-16T15:45:07.089Z",
+  "updatedAt": "2026-10-16T15:45:11.564Z",
+  "purpose": "Declare one test per AC of US-19002 (FBS-220) driving rcf build finalise <fbs-id> --ci-run <ref> through bin/rcf.js, so the FBS-220 Define round turns each declaration into a red test against the report-ingesting Finalise.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19002-1",
+    "AC-19002-2",
+    "AC-19002-3",
+    "AC-19002-4",
+    "AC-19002-5",
+    "AC-19002-6",
+    "AC-19002-7",
+    "AC-19002-8"
+  ],
+  "id": "TS-253",
+  "usId": "US-19002",
+  "title": "Administrative Finalise: rcf build finalise --ci-run ingests the Test-stage report and promotes to verified, refuses missing, uncontained, loopback, stale, non-separate or blocking reports, retires --mode and --url, spawns nothing",
+  "testCases": [
+    {
+      "id": "TC-253-promotes-verified",
+      "acId": "AC-19002-1",
+      "description": "rcf build finalise <fbs-id> --ci-run <ref> with a valid verifier PASS report exits 0, sets executionStatus verified and prints \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", spawning nothing but git",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-1: rcf build finalise <fbs-id> --ci-run <ref> with a valid verifier PASS report exits 0, sets executionStatus verified and prints \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", spawning nothing but git"
+    },
+    {
+      "id": "TC-253-no-report",
+      "acId": "AC-19002-2",
+      "description": "rcf build finalise <fbs-id> --ci-run <ref> with no report exits 4 with \"finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge\" and the FBS stays complete",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-2: rcf build finalise <fbs-id> --ci-run <ref> with no report exits 4 with \"finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge\" and the FBS stays complete"
+    },
+    {
+      "id": "TC-253-head-loopback-age",
+      "acId": "AC-19002-3",
+      "description": "rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\", \"report target <url> is loopback\" or \"report is <n> days old\"",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-3: rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\", \"report target <url> is loopback\" or \"report is <n> days old\""
+    },
+    {
+      "id": "TC-253-hand-not-separate",
+      "acId": "AC-19002-4",
+      "description": "rcf build finalise on a report whose hand is not verifier or whose verifierId matches a builder Hand-Id exits 4 with \"finalise refused: report hand <hand>/<id> is not separate from the builder\" and the FBS is unchanged",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-4: rcf build finalise on a report whose hand is not verifier or whose verifierId matches a builder Hand-Id exits 4 with \"finalise refused: report hand <hand>/<id> is not separate from the builder\" and the FBS is unchanged"
+    },
+    {
+      "id": "TC-253-preconditions",
+      "acId": "AC-19002-5",
+      "description": "rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete, 4 off-trunk and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-5: rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete, 4 off-trunk and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field"
+    },
+    {
+      "id": "TC-253-blocking-per-ac-verdicts",
+      "acId": "AC-19002-6",
+      "description": "rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
+    },
+    {
+      "id": "TC-253-retired-flags",
+      "acId": "AC-19002-7",
+      "description": "rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+    },
+    {
+      "id": "TC-253-no-spawn-no-mutation",
+      "acId": "AC-19002-8",
+      "description": "rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+    }
+  ],
+  "status": "draft"
+}

@@ -169,7 +169,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // refuses and skips), REQ-178 (validate findings) and REQ-179 (NV-DL
   // enforced) (116 -> 119).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added REQ-189 (119 -> 120).
-  assert.equal(tree.requirements.length, 120);
+  // Finalise-admin DEFINE (2026-10-16) added REQ-190, REQ-191 and REQ-192 (120 -> 123).
+  assert.equal(tree.requirements.length, 123);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (3 more).
   // w-2026-09-03-dave-021 spec amendment A2 added US-1204 binding the
   // `rcf define blueprint remove-resolution` verb the doctor and spec
@@ -281,7 +282,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
     // UX intake gate DEFINE (2026-10-09, REQ-189) added US-18901..18906 (215 -> 221).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added US-16504 (221 -> 222).
   // Finalise provisioning declaration (2026-10-13, REQ-165, issue 356) added US-16505 (222 -> 223).
-  assert.equal(tree.userStories.length, 223);
+  // Finalise-admin DEFINE (2026-10-16) added US-19001..19004, US-19101,
+  // US-19102 and US-19201 (223 -> 230).
+  assert.equal(tree.userStories.length, 230);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -316,7 +319,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // (55 -> 57).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added TAC-4142 (60 -> 61).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added TAC-4143 (61 -> 62).
-  assert.equal(tree.tacs.length, 62);
+  // Finalise-admin DEFINE (2026-10-16) added TAC-4148..4150 (62 -> 65).
+  assert.equal(tree.tacs.length, 65);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
   // topic-as-free-label-lookup-key decision (Baz ruling on shipped
@@ -364,7 +368,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // shared helper backing R2 + R5 + R7) (61 -> 62).
     // UX intake gate DEFINE (2026-10-09, REQ-189) added ADR-4142..4146 (65 -> 70).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added ADR-4147 (70 -> 71).
-  assert.equal(tree.adrs.length, 71);
+  // Finalise-admin DEFINE (2026-10-16) added ADR-4148 and ADR-4149 (71 -> 73).
+  assert.equal(tree.adrs.length, 73);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -440,7 +445,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
     // UX intake gate DEFINE (2026-10-09, REQ-189) added FBS-210..215 (99 -> 105).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added FBS-216 (105 -> 106).
   // Finalise provisioning declaration (2026-10-13, REQ-165, issue 356) added FBS-217 (106 -> 107).
-  assert.equal(tree.fbsItems.length, 107);
+  // Finalise-admin DEFINE (2026-10-16) added FBS-218..FBS-224 (107 -> 114).
+  assert.equal(tree.fbsItems.length, 114);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -565,7 +571,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
     // UX intake gate DEFINE (2026-10-09, REQ-189) added TS-243..248 (183 -> 189).
   // Per-FBS finalise scope (2026-10-12, REQ-165) added TS-249 (189 -> 190).
   // Finalise provisioning declaration (2026-10-13, REQ-165, issue 356) added TS-250 (190 -> 191).
-  assert.equal(tree.testSuites.length, 191);
+  // Finalise-admin DEFINE (2026-10-16) added TS-251..TS-257, one per new
+  // user story, binding the 44 AC skeletons (191 -> 198).
+  assert.equal(tree.testSuites.length, 198);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
@@ -659,7 +667,7 @@ test('walkTree computes parentByChild by inverting child-borne parent fields', a
   assert.equal(tree.parentByChild.get('FBS-001'), 'BS-001');
 });
 
-test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154, REQ-155..REQ-162, REQ-163..REQ-165, REQ-170..REQ-176, REQ-180..REQ-182, REQ-186..REQ-189)', async () => {
+test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 plus REQ-040, REQ-041, REQ-042, REQ-043, REQ-050..REQ-054, REQ-060..REQ-063, REQ-070..REQ-077, REQ-080..REQ-086, REQ-090..REQ-094, REQ-100..REQ-104, REQ-110..REQ-115, REQ-120..REQ-125, REQ-130..REQ-134, REQ-140, REQ-145, REQ-150..REQ-154, REQ-155..REQ-162, REQ-163..REQ-165, REQ-170..REQ-176, REQ-180..REQ-182, REQ-186..REQ-192)', async () => {
   const { tree } = await walkTree({ projectRoot: repoRoot });
   const reqChildren = tree.childrenByParent.get('PRD-001') ?? [];
   // Round-7 T-2 added REQ-120..125 for the platform-docker-compose-host v1.0.0 blueprint per HQ reserved-block ruling 2026-09-07.
@@ -668,7 +676,7 @@ test('walkTree computes childrenByParent by inversion (PRD has REQ-001..REQ-030 
   // Shelf-audit H-2 train added REQ-150..154 for the Cloudflare-platform probe-integrity repair per Dave reserved-block ruling 2026-09-08T10:35:10Z relay 582c2bca.
   // Referee-guarantee train (merged 2026-09-17) added REQ-163..REQ-165.
   // Product Map chain (w-2026-09-21-dave-008, d-020) added REQ-170..REQ-171.
-  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154', 'REQ-155', 'REQ-156', 'REQ-157', 'REQ-158', 'REQ-159', 'REQ-160', 'REQ-161', 'REQ-162', 'REQ-163', 'REQ-164', 'REQ-165', 'REQ-170', 'REQ-171', 'REQ-172', 'REQ-173', 'REQ-174', 'REQ-175', 'REQ-176', 'REQ-177', 'REQ-178', 'REQ-179', 'REQ-180', 'REQ-181', 'REQ-182', 'REQ-186', 'REQ-187', 'REQ-188', 'REQ-189']);
+  assert.deepEqual(reqChildren, ['REQ-001', 'REQ-002', 'REQ-003', 'REQ-004', 'REQ-005', 'REQ-006', 'REQ-007', 'REQ-008', 'REQ-009', 'REQ-010', 'REQ-011', 'REQ-012', 'REQ-013', 'REQ-014', 'REQ-015', 'REQ-016', 'REQ-017', 'REQ-018', 'REQ-019', 'REQ-020', 'REQ-021', 'REQ-022', 'REQ-023', 'REQ-024', 'REQ-025', 'REQ-026', 'REQ-027', 'REQ-028', 'REQ-029', 'REQ-030', 'REQ-040', 'REQ-041', 'REQ-042', 'REQ-043', 'REQ-050', 'REQ-051', 'REQ-052', 'REQ-053', 'REQ-054', 'REQ-060', 'REQ-061', 'REQ-062', 'REQ-063', 'REQ-070', 'REQ-071', 'REQ-072', 'REQ-073', 'REQ-074', 'REQ-075', 'REQ-076', 'REQ-077', 'REQ-080', 'REQ-081', 'REQ-082', 'REQ-083', 'REQ-084', 'REQ-085', 'REQ-086', 'REQ-090', 'REQ-091', 'REQ-092', 'REQ-093', 'REQ-094', 'REQ-100', 'REQ-101', 'REQ-102', 'REQ-103', 'REQ-104', 'REQ-110', 'REQ-111', 'REQ-112', 'REQ-113', 'REQ-114', 'REQ-115', 'REQ-120', 'REQ-121', 'REQ-122', 'REQ-123', 'REQ-124', 'REQ-125', 'REQ-130', 'REQ-131', 'REQ-132', 'REQ-133', 'REQ-134', 'REQ-140', 'REQ-145', 'REQ-150', 'REQ-151', 'REQ-152', 'REQ-153', 'REQ-154', 'REQ-155', 'REQ-156', 'REQ-157', 'REQ-158', 'REQ-159', 'REQ-160', 'REQ-161', 'REQ-162', 'REQ-163', 'REQ-164', 'REQ-165', 'REQ-170', 'REQ-171', 'REQ-172', 'REQ-173', 'REQ-174', 'REQ-175', 'REQ-176', 'REQ-177', 'REQ-178', 'REQ-179', 'REQ-180', 'REQ-181', 'REQ-182', 'REQ-186', 'REQ-187', 'REQ-188', 'REQ-189', 'REQ-190', 'REQ-191', 'REQ-192']);
   const tadChildren = tree.childrenByParent.get('TAD-001') ?? [];
   // TAD gathers both TAC and ADR children.
   for (const id of ['TAC-001', 'TAC-002', 'TAC-007', 'ADR-001', 'ADR-005']) {

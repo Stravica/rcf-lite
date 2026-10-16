@@ -60,6 +60,42 @@
       "addedAt": "2026-10-09T16:30:05.435Z",
       "status": "open",
       "resolvedBy": "REQ-189"
+    },
+    {
+      "id": 8,
+      "text": "Verification of a build spec happens in the Test stage, before merge, by a verifier hand that is not the builder, through the real entry point on the preview or version host; Finalise after merge is an administrative step that writes verified from that evidence and spawns no agent.",
+      "kind": "capability",
+      "source": "ruling:2026-10-16-finalise-admin-verify-in-test",
+      "addedAt": "2026-10-16T12:51:20.719Z",
+      "status": "open",
+      "resolvedBy": "REQ-190"
+    },
+    {
+      "id": 9,
+      "text": "No later spec on a product enters Build until every merged spec on it is verified, enforced by the tool rather than by a brief.",
+      "kind": "constraint",
+      "source": "ruling:2026-10-16-five-stage-delivery",
+      "addedAt": "2026-10-16T12:51:21.131Z",
+      "status": "open",
+      "resolvedBy": "REQ-190"
+    },
+    {
+      "id": 10,
+      "text": "A mechanical check reads a pull request's commits and fails when a hand touches tests, criteria or production code outside its lane, printing one line a gate can quote.",
+      "kind": "capability",
+      "source": "discovery:separation-check",
+      "addedAt": "2026-10-16T12:51:21.532Z",
+      "status": "open",
+      "resolvedBy": "REQ-191"
+    },
+    {
+      "id": 11,
+      "text": "URL-verifiable acceptance criteria verify deterministically from a per-AC probe catalog, so a dispatched worker can verify without spawning an agent.",
+      "kind": "capability",
+      "source": "issue:349",
+      "addedAt": "2026-10-16T12:51:21.934Z",
+      "status": "open",
+      "resolvedBy": "REQ-192"
     }
   ]
 }

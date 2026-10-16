@@ -1,0 +1,58 @@
+{
+  "createdAt": "2026-10-16T12:47:13.957Z",
+  "updatedAt": "2026-10-16T12:49:57.357Z",
+  "description": "User story under REQ-192 for the probe catalog (FBS-218, issue 349). An AC may carry an optional probe on the AC itself (rcf-schemas minor) or in rcf/verify-catalog.json keyed by acId; rcf verify run --mode deterministic resolves each probe to pass, fail or skipped with evidence and keeps ACs with no probe critique-only.",
+  "asA": "a verifier hand running the Test stage from a dispatched worker",
+  "iWant": "every URL-verifiable criterion in scope to resolve to pass, fail or skipped from a declared probe without a model",
+  "soThat": "Test-stage verification runs where the agent CLI may not be spawned and only subjective visual criteria need a critique",
+  "tacIds": [
+    "TAC-4150-ac-probe-catalog"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19201-1",
+      "description": "[happy] Given an in-scope AC whose probe is { path: \"/health\", expectStatus: 200 } and a target that serves 200 at that path, when rcf verify run --url <target> --fbs <fbs-id> --mode deterministic runs, then the report records that AC with result \"pass\", evidence carrying the observed status and elapsed time, runStats.counts.verified incremented, and the command exits 0 when every in-scope AC passed.",
+      "testable": true,
+      "ownerRef": {
+        "tacId": "TAC-4150-ac-probe-catalog",
+        "field": "interfaces[rcf verify run --mode deterministic]"
+      }
+    },
+    {
+      "id": "AC-19201-2",
+      "description": "[failure] Given an in-scope AC whose probe expects status 200 and a body containing \"ready\", when the target serves 200 with a body without \"ready\" (or a different status), then the report records the AC with result \"fail\" and evidence naming the failed expectation and the observed value, runStats.counts.failed is at least 1 and rcf verify run exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-19201-3",
+      "description": "[edge] Given an in-scope AC with no probe on the AC and no entry in rcf/verify-catalog.json, when deterministic verify runs, then the AC is recorded with result \"critiqueOnly\", runStats.counts.critiqueOnly counts it, the verdict is not PASS and the command exits 4; an AC with a probe whose target path is unreachable (transport error) is recorded \"skipped\" with the error kind, never \"pass\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19201-4",
+      "description": "[happy] Given rcf/verify-catalog.json { catalogVersion: 1, probes: { \"<acId>\": Probe } } and an AC that also carries its own probe, when deterministic verify runs, then the AC-level probe is used and the report evidence names its source as \"ac\"; with only the catalog entry the source is \"catalog\"; a catalog key naming no AC in the tree makes rcf define validate report it and exit 3.",
+      "testable": true
+    },
+    {
+      "id": "AC-19201-5",
+      "description": "[happy] Given a probe carrying parityEnv \"staging\" and a run with --parity-env staging, when deterministic verify runs, then that probe is resolved and recorded; with --parity-env production the same probe is recorded \"skipped\" with reason \"parityEnv mismatch\", so a run never claims a probe it was not scoped to.",
+      "testable": true
+    },
+    {
+      "id": "AC-19201-6",
+      "description": "[happy] Given the rcf-schemas minor that adds the optional probe object to acceptanceCriterion, when rcf define update <us-id> --ac <ac-id> --probe '{\"path\":\"/\",\"expectStatus\":200}' runs, then the AC carries the probe and rcf define validate exits 0; a probe carrying a key the Probe recordShape does not define, or an expectStatus that is not an integer, is refused with exit 3 naming the key.",
+      "testable": true
+    },
+    {
+      "id": "AC-19201-7",
+      "description": "[must-not] rcf verify run --mode deterministic never records \"pass\" for an AC that has no probe and never spawns a child process (no agent CLI, no browser MCP): on a chain where no in-scope AC has a probe it exits 4 with runStats.counts.verified 0.",
+      "testable": true
+    }
+  ],
+  "usId": "US-19201",
+  "prdId": "PRD-001",
+  "reqId": "REQ-192",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Per-AC probes resolve URL-verifiable criteria in deterministic verify"
+}

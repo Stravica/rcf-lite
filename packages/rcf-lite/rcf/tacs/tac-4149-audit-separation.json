@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-16T12:44:24.547Z",
+  "updatedAt": "2026-10-16T12:48:28.135Z",
+  "purpose": "Implement ADR-4149: one deterministic git-and-globs verb that judges hand separation over a pull request's commits and prints one line a gate can quote.",
+  "responsibilities": [
+    "src/audit/separation.js (new): range resolution, merge skip, trailer parse (Hand:, Separation-Reason:), path classification, per-commit verdicts; no network, no chain read.",
+    "src/cli/separation.js (new) and the audit router: flags, the report line, --json rows, the exit table.",
+    ".github/workflows/ci.yml: a pull_request step with fetch-depth 0 running rcf audit separation."
+  ],
+  "internalStructure": "Pure classifier over (path, class table) and verdict function over (declared hand, classes touched); git is read through one spawn seam like resolveGitBranch in src/cli/finalise.js.",
+  "interfaces": [
+    {
+      "name": "rcf audit separation",
+      "kind": "cliCommand",
+      "description": "usage: rcf audit separation [--base <ref>] [--head <ref>] [--require-hand] [--json]\nPrints \"separation: PASS <n> commits (base <sha7>, head <sha7>): test-author <n>, builder <n>, verifier <n>, stage-keeper <n>, neutral <n>, undeclared <n>, exceptions <n>\" or \"separation: FAIL <k> of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=<hand> touches <path>\". Exit 0 pass, 4 violation, 2 bad ref, 1 not a git repository."
+    },
+    {
+      "name": "rcf/separation.json",
+      "kind": "fileFormat",
+      "description": "format: JSON { classes: { <class>: [glob, ...] } } where class is one of test, criteria, production, verifierEvidence, stageKeeper, neutral.\nOptional override of the default path classes: { classes: { <class>: [globs] } }. Inside rcf/ so only the test-author hand may change it."
+    },
+    {
+      "name": "SeparationRow",
+      "kind": "recordShape",
+      "description": "One --json row per non-merge commit.\nfields: sha, subject, hand, declared, classes, verdict, reason, paths\nnotes: verdict is pass, fail or exception."
+    }
+  ],
+  "notes": "No schema change. Trailer is self-declared; the scoped Review gate stays the backstop.",
+  "tacId": "TAC-4149-audit-separation",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "rcf audit separation: hand trailer, path classes, one quotable line"
+}

@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 120  covered: 120  covered-unresolved: 0  uncovered: 0
+Requirements: 123  covered: 123  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -739,3 +739,47 @@ REQ-189      yes      AC-18901-1   yes         TC-243-18901-1-happy
                       AC-18906-4   yes         TC-248-18906-4-failure
                       AC-18906-5   yes         TC-248-18906-5-edge
                       AC-18906-6   yes         TC-248-18906-6-mustnot
+REQ-190      yes      AC-19001-1   yes         TC-252-report-written
+                      AC-19001-2   yes         TC-252-dirty-tree-refused
+                      AC-19001-3   yes         TC-252-bad-hand-flags
+                      AC-19001-4   yes         TC-252-package-target
+                      AC-19001-5   yes         TC-252-reports-not-chain
+                      AC-19001-6   yes         TC-252-writes-only-reports
+                      AC-19002-1   yes         TC-253-promotes-verified
+                      AC-19002-2   yes         TC-253-no-report
+                      AC-19002-3   yes         TC-253-head-loopback-age
+                      AC-19002-4   yes         TC-253-hand-not-separate
+                      AC-19002-5   yes         TC-253-preconditions
+                      AC-19002-6   yes         TC-253-blocking-per-ac-verdicts
+                      AC-19002-7   yes         TC-253-retired-flags
+                      AC-19002-8   yes         TC-253-no-spawn-no-mutation
+                      AC-19003-1   yes         TC-254-refuses-unverified
+                      AC-19003-2   yes         TC-254-override-recorded
+                      AC-19003-3   yes         TC-254-inert-without-backstop
+                      AC-19003-4   yes         TC-254-adopt
+                      AC-19003-5   yes         TC-254-no-silent-bypass
+                      AC-19004-1   yes         TC-257-test-and-finalise-stages
+                      AC-19004-2   yes         TC-257-define-and-build-hands
+                      AC-19004-3   yes         TC-257-bundle-runbook
+                      AC-19004-4   yes         TC-257-managed-block
+                      AC-19004-5   yes         TC-257-audit-fifth-verb
+                      AC-19004-6   yes         TC-257-doctor-drift
+                      AC-19004-7   yes         TC-257-no-post-merge-verify
+REQ-191      yes      AC-19101-1   yes         TC-255-pass-line
+                      AC-19101-2   yes         TC-255-fail-line
+                      AC-19101-3   yes         TC-255-undeclared
+                      AC-19101-4   yes         TC-255-bad-ref-and-repo
+                      AC-19101-5   yes         TC-255-json-rows
+                      AC-19101-6   yes         TC-255-read-only
+                      AC-19102-1   yes         TC-256-mixed-exception
+                      AC-19102-2   yes         TC-256-class-override
+                      AC-19102-3   yes         TC-256-require-hand
+                      AC-19102-4   yes         TC-256-ci-pull-request-step
+                      AC-19102-5   yes         TC-256-no-empty-reason-no-shallow
+REQ-192      yes      AC-19201-1   yes         TC-251-probe-pass
+                      AC-19201-2   yes         TC-251-probe-fail
+                      AC-19201-3   yes         TC-251-critique-only-and-unreachable
+                      AC-19201-4   yes         TC-251-probe-source
+                      AC-19201-5   yes         TC-251-parity-env
+                      AC-19201-6   yes         TC-251-probe-schema
+                      AC-19201-7   yes         TC-251-no-probe-no-pass
