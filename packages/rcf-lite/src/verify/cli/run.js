@@ -238,6 +238,10 @@ export async function main(argv, deps = {}) {
       stderr.write(`[error] usage --hand must be one of ${VERIFY_HANDS.join(' | ')} (got "${flags.hand}")\n`);
       return 2;
     }
+    if (flags.out !== undefined) {
+      stderr.write('[error] usage --out is not allowed with --hand; the report is written under rcf/verify-reports/<fbs-id>/\n');
+      return 2;
+    }
     if (handFbsIds.length !== 1) {
       stderr.write('[error] usage --fbs <fbs-id> is required with --hand (exactly one build spec)\n');
       return 2;
