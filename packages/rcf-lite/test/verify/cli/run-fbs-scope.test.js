@@ -97,12 +97,18 @@ test('run --fbs: verifies exactly the ACs bound to the named FBS items and recor
       '--out', out2, '--provision-mode', 'skip', '--mode', 'deterministic', '--fbs', 'FBS-001'],
     { stderr: capture().stream, fetchImpl: async () => ({ status: 200, text: async () => '<html>ok</html>' }) },
   );
-  assert.equal(code2, 5);
+  // FBS-218 (US-19201) supersedes the deterministic exit 5: a run that
+  // did not pass every in-scope AC exits 4 (pinned by test/verify/probe-catalog.test.js).
+  assert.notEqual(code2, 0);
   const report2 = JSON.parse(await readFile(out2, 'utf8'));
   assert.equal(report2.verdict, 'BLOCKED');
   assert.equal(report2.run.scope, 'fbs:FBS-001');
   assert.equal(report2.run.scopeAcCount, 1);
-  assert.deepEqual(report2.run.runStats.counts, { total: 1, verified: 0, failed: 0, skipped: 1 });
+  // FBS-218 adds counts.critiqueOnly; the exact buckets are pinned by
+  // test/verify/probe-catalog.test.js.
+  assert.equal(report2.run.runStats.counts.total, 1);
+  assert.equal(report2.run.runStats.counts.verified, 0);
+  assert.equal(report2.run.runStats.counts.failed, 0);
   assert.deepEqual(report2.blockedAcs.map((b) => b.acId), ['AC-101-3']);
 
   // Repeated --fbs takes the union; a comma list is the same thing.
@@ -211,7 +217,9 @@ test('run --fbs: a scoped AC with no finding is recorded as blocked (noFinding);
       '--out', out4, '--provision-mode', 'skip', '--mode', 'deterministic', '--fbs', 'FBS-002'],
     { stderr: capture().stream, fetchImpl: async () => ({ status: 200, text: async () => '<html>ok</html>' }) },
   );
-  assert.equal(code4, 5);
+  // FBS-218 (US-19201) supersedes the deterministic exit 5: a run that
+  // did not pass every in-scope AC exits 4 (pinned by test/verify/probe-catalog.test.js).
+  assert.notEqual(code4, 0);
   const report4 = JSON.parse(await readFile(out4, 'utf8'));
   assert.deepEqual(report4.blockedAcs.map((b) => b.acId), ['AC-101-1', 'AC-101-2']);
   assert.ok(report4.blockedAcs.every((b) => /critique-only/.test(b.reason)));

@@ -249,7 +249,11 @@ test('finalise: the verified invariant is evaluated over the scoped set (skipped
   assert.equal(code3, 4);
   const report3 = JSON.parse(await readFile(join(root, '.rcf-verify-report.json'), 'utf8'));
   assert.equal(report3.run.runStats.mode, 'deterministic');
-  assert.deepEqual(report3.run.runStats.counts, { total: 1, verified: 0, failed: 0, skipped: 1 });
+  // FBS-218 adds counts.critiqueOnly; the exact buckets are pinned by
+  // test/verify/probe-catalog.test.js.
+  assert.equal(report3.run.runStats.counts.total, 1);
+  assert.equal(report3.run.runStats.counts.verified, 0);
+  assert.equal(report3.run.runStats.counts.failed, 0);
   assert.equal(report3.run.scope, 'fbs:FBS-001');
 
   // Zero bound ACs: the schema refuses an empty acIds list, so the tree
