@@ -657,7 +657,10 @@
       "default": "a",
       "blocks": "FBS-218",
       "addedAt": "2026-10-16T14:16:50.806Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "Operator ruling 2026-10-16 15:5xZ: the orchestrator supplies the prerequisites at Test time (Dave as stage-keeper, or a human RCF operator), from per-repo operational notes kept outside the repo and outside the chain (library docs). The chain keeps only its existing service declarations (what is needed), never where or how. Supply is confirmed with the operator as a preflight once the DEFINE passes readiness. rcf verify run accepts the supplied prerequisites as environment or arguments and records which were supplied.",
+      "answeredAt": "2026-10-16T15:08:25.663Z",
+      "resolvedAt": "2026-10-16T15:08:25.663Z"
     },
     {
       "id": 31,
@@ -675,7 +678,10 @@
       "default": "a",
       "blocks": "FBS-218",
       "addedAt": "2026-10-16T14:16:50.893Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "Operator ruling 2026-10-16: these criteria are obviously testable, not against a runtime, and the chain already distinguishes this through the runtime-profile vocabulary (deployed, ci, local-dev) on test cases. No new classification. verify run exercises only criteria whose test cases carry the deployed profile against the URL; ci-profile criteria are proven by the CI run the stage-keeper names (--ci-run) and are skipped on the URL run with reason ci-profile; readiness requires every criterion to have a test case with a declared profile.",
+      "answeredAt": "2026-10-16T15:08:25.750Z",
+      "resolvedAt": "2026-10-16T15:08:25.750Z"
     },
     {
       "id": 32,
@@ -693,7 +699,10 @@
       "default": "a",
       "blocks": "FBS-218",
       "addedAt": "2026-10-16T14:16:50.977Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16: yes, a declared sandbox is for the verifier to use; not much of a sandbox test otherwise. Purchases, card entry and webhook posting allowed where the integration declares a sandbox (supplied by the orchestrator per decision 30) and recorded on the report; blocked by policy where none is declared; never against live billing.",
+      "answeredAt": "2026-10-16T15:08:25.834Z",
+      "resolvedAt": "2026-10-16T15:08:25.834Z"
     },
     {
       "id": 33,
