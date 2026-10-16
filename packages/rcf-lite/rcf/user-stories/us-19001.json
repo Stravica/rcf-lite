@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:17.390Z",
-  "updatedAt": "2026-10-16T12:48:45.502Z",
+  "updatedAt": "2026-10-16T22:46:19.629Z",
   "description": "User story under REQ-190 for the Test-stage report writer (FBS-219). The verifier hand runs rcf verify run against the preview or version host and commits the VerifyReport on the PR branch; the report is the evidence the merge gate reads and Finalise later ingests. Committing the report is evidence, not an edit to production code, tests or criteria.",
   "asA": "the verifier hand at the Test stage of one build spec",
   "iWant": "one command that verifies the spec's criteria through the real entry point and writes a report naming the head, the target, the hand and every per-AC result",
@@ -35,7 +35,7 @@
     },
     {
       "id": "AC-19001-5",
-      "description": "[happy] Given a committed report under rcf/verify-reports/, when rcf define validate and the tree walker run, then neither treats the directory as chain documents (validate exit 0, no unknown-document error) and rcf audit separation classifies the path as verifier evidence.",
+      "description": "[happy] Given a committed report under rcf/verify-reports/, when rcf define validate and the tree walker run, then neither treats the directory as chain documents (validate exit 0, no unknown-document error).",
       "testable": true
     },
     {

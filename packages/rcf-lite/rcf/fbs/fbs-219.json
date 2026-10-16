@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:29.520Z",
-  "updatedAt": "2026-10-16T22:35:34.684Z",
+  "updatedAt": "2026-10-16T22:48:25.849Z",
   "summary": "The verifier hand writes a committed, head-pinned report before merge (US-19001). Delivers AC-19001-1 to AC-19001-6.",
   "approach": "Add --hand, --verifier-id, --report-out, --package and --replace to rcf verify run; compose VerifyReport v1 from the existing report plus headSha, target, hand and timestamps; refuse a dirty tree; make rcf/verify-reports/ walker-invisible.",
   "deliverables": [
@@ -23,7 +23,7 @@
   "domain": "functional",
   "estimatedSize": "medium",
   "executionStatus": "inProgress",
-  "notes": "Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 2 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19001 at this FBS's own Define stage (estimate 6 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
+  "notes": "Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 2 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19001 at this FBS's own Define stage (estimate 6 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs. Ruling 2026-10-16 (stage-keeper, decide-and-log): the classification a verb performs belongs to the spec that delivers the verb. AC-19001-5 narrows by exactly the clause \"rcf audit separation classifies the path as verifier evidence\", which moves to AC-19101-7 under FBS-222; FBS-219 keeps the report's exemption from validate and the tree walker. Train order unchanged.",
   "acIds": [
     "AC-19001-1",
     "AC-19001-2",

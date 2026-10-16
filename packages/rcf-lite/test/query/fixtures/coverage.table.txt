@@ -771,6 +771,7 @@ REQ-191      yes      AC-19101-1   yes         TC-255-pass-line
                       AC-19101-4   yes         TC-255-bad-ref-and-repo
                       AC-19101-5   yes         TC-255-json-rows
                       AC-19101-6   yes         TC-255-read-only
+                      AC-19101-7   yes         TC-255-verify-reports-class
                       AC-19102-1   yes         TC-256-mixed-exception
                       AC-19102-2   yes         TC-256-class-override
                       AC-19102-3   yes         TC-256-require-hand

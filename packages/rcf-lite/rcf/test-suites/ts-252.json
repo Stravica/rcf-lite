@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:47.124Z",
-  "updatedAt": "2026-10-16T22:35:34.094Z",
+  "updatedAt": "2026-10-16T22:46:57.917Z",
   "purpose": "Declare one test per AC of US-19001 (FBS-219) driving rcf verify run --hand verifier, rcf define validate and rcf audit separation through bin/rcf.js, so the FBS-219 Define round turns each declaration into a red test against the Test-stage report behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -46,9 +46,9 @@
     {
       "id": "TC-252-reports-not-chain",
       "acId": "AC-19001-5",
-      "description": "with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and rcf audit separation classifies the path as verifier evidence",
-      "status": "failing",
-      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and rcf audit separation classifies the path as verifier evidence"
+      "description": "with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document",
+      "status": "passing",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document"
     },
     {
       "id": "TC-252-writes-only-reports",

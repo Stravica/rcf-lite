@@ -3465,6 +3465,10 @@ flowchart LR
   REQ-191 --> AC-19101-6
   TC-255-read-only["TC-255-read-only"]
   AC-19101-6 -.-> TC-255-read-only
+  AC-19101-7["AC-19101-7"]
+  REQ-191 --> AC-19101-7
+  TC-255-verify-reports-class["TC-255-verify-reports-class"]
+  AC-19101-7 -.-> TC-255-verify-reports-class
   AC-19102-1["AC-19102-1"]
   REQ-191 --> AC-19102-1
   TC-256-mixed-exception["TC-256-mixed-exception"]
@@ -5326,6 +5330,8 @@ flowchart LR
   class TC-255-json-rows tc;
   class AC-19101-6 ac;
   class TC-255-read-only tc;
+  class AC-19101-7 ac;
+  class TC-255-verify-reports-class tc;
   class AC-19102-1 ac;
   class TC-256-mixed-exception tc;
   class AC-19102-2 ac;

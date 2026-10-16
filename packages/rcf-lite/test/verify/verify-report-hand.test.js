@@ -257,8 +257,9 @@ test('AC-19001-4: rcf verify run --package <name@version|tarball> --fbs <fbs-id>
   }
 });
 
-test('AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and rcf audit separation classifies the path as verifier evidence', async () => {
-  const { root, head: base } = await fixtureRepo();
+test('AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document', async () => {
+  // Regression pin: the classification by rcf audit separation moved to AC-19101-7 (FBS-222).
+  const { root } = await fixtureRepo();
   // The FBS-218 Test-stage report, committed under a Hand: verifier trailer.
   await mkdir(reportsDir(root, 'FBS-218'), { recursive: true });
   await writeFile(join(reportsDir(root, 'FBS-218'), 'aebff5f39e5c.json'), await readFile(FBS_218_REPORT, 'utf8'), 'utf8');
@@ -275,15 +276,6 @@ test('AC-19001-5: with a committed report under rcf/verify-reports/, rcf define 
   const coverage = await rcf(['audit', 'coverage', '--json'], { cwd: root });
   assert.doesNotMatch(`${coverage.stdout}${coverage.stderr}`, /verify-reports|aebff5f39e5c/,
     'the walker does not load the report');
-
-  const sep = await rcf(['audit', 'separation', '--base', base, '--head', 'HEAD', '--json'], { cwd: root });
-  assert.equal(sep.code, 0, `a Hand: verifier commit touching rcf/verify-reports/ passes; stderr:\n${sep.stderr}`);
-  const rows = JSON.parse(sep.stdout);
-  const list = Array.isArray(rows) ? rows : rows.rows ?? rows.commits;
-  assert.ok(Array.isArray(list) && list.length === 1, 'one SeparationRow for the one commit');
-  assert.equal(list[0].hand, 'verifier');
-  assert.equal(list[0].verdict, 'pass');
-  assert.deepEqual(list[0].classes, ['verifierEvidence'], 'rcf/verify-reports/ is classed as verifier evidence');
 });
 
 test('AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with "verify report exists for head <sha7>; pass --replace" and never overwrites', async (t) => {
