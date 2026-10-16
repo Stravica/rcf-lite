@@ -1,13 +1,14 @@
 {
   "createdAt": "2026-10-16T12:44:33.721Z",
-  "updatedAt": "2026-10-16T12:44:33.868Z",
+  "updatedAt": "2026-10-16T13:02:47.148Z",
   "description": "rcf-lite gains rcf audit separation [--base <ref>] [--head <ref>] [--require-hand] [--json], a read-only, deterministic check over a pull request's commits (merge-base with origin/main to HEAD, merge commits skipped). Each commit's declared hand (a Hand: trailer naming test-author, builder, reviewer, verifier or stage-keeper) must agree with the path classes it touches; an undeclared commit is classified from its paths and passes when single-class; a commit that crosses the test and production classes fails unless it carries Hand: mixed with a non-empty Separation-Reason: trailer, which passes and is counted. Path classes come from defaults that match at any depth, overridable only by rcf/separation.json. It prints one quotable line (separation: PASS or FAIL with counts, base and head) and exits 0 pass, 4 violation, 2 bad ref, 1 not a git repository. CI runs it on pull_request with full history. Adoption is per repository; rcf-lite adopts from this DEFINE forward with no retroactive audit.",
   "category": "functional",
   "domain": "functional",
   "priority": "must",
   "rationale": "The operator ruling of 2026-10-16: the hand that writes criteria and AC-based tests is never the hand that writes the code that makes them pass. On a GBP 249 product built with rcf-lite delivery converged once authorship split, and a judge confirmed the split by reading diffs by hand each round; that judgement is mechanical. DISCOVERY record: guidance/discovery/discovery-separation-check.md (PR 365), five decisions taken at the recommended option.",
   "tags": [
-    "capability:audit"
+    "capability:build-sequence",
+    "capability:verify"
   ],
   "deliveredBy": {
     "tacId": "TAC-4149-audit-separation"
