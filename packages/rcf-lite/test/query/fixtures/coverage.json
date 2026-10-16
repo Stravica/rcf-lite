@@ -7247,8 +7247,11 @@
           "id": "AC-19201-8",
           "covered": true,
           "testCases": [
+            "TC-251-ac-level-empty-assertion-refused",
             "TC-251-assertion-free-probe-fails",
-            "TC-251-catalog-validate-refuses"
+            "TC-251-catalog-validate-refuses",
+            "TC-251-catalog-validate-refuses-malformed",
+            "TC-251-empty-assertion-probe-fails"
           ],
           "unresolvedTestCases": []
         }
