@@ -7242,6 +7242,15 @@
             "TC-251-no-probe-no-pass"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19201-8",
+          "covered": true,
+          "testCases": [
+            "TC-251-assertion-free-probe-fails",
+            "TC-251-catalog-validate-refuses"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     }

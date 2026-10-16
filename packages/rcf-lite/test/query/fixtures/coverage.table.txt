@@ -783,3 +783,4 @@ REQ-192      yes      AC-19201-1   yes         TC-251-probe-pass
                       AC-19201-5   yes         TC-251-parity-env
                       AC-19201-6   yes         TC-251-probe-schema
                       AC-19201-7   yes         TC-251-no-probe-no-pass
+                      AC-19201-8   yes         TC-251-assertion-free-probe-fails, TC-251-catalog-validat...
