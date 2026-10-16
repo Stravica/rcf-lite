@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:28.956Z",
-  "updatedAt": "2026-10-16T12:49:28.956Z",
+  "updatedAt": "2026-10-16T16:32:51.103Z",
   "summary": "Probe fields and the runtime verify catalog; the deterministic engine resolves them to pass, fail or skipped per AC (US-19201). Delivers AC-19201-1 to AC-19201-7.",
   "approach": "Pin the @stravica-ai/rcf-schemas minor that adds the optional probe object to acceptanceCriterion; add src/verify/engine/catalog.js; extend deterministic.js to resolve probes with evidence, honour --parity-env and add runStats.counts.critiqueOnly; add --probe and --probe-file to rcf define update for an AC; validate catalog keys against the tree.",
   "deliverables": [
@@ -22,7 +22,7 @@
   "riskLevel": "medium",
   "domain": "functional",
   "estimatedSize": "medium",
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "notes": "External dependency: the rcf-schemas minor with the optional AC probe object must be published and pinned before this FBS can merge (build-ordering constraint). Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 1 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19201 at this FBS's own Define stage (estimate 7 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
   "acIds": [
     "AC-19201-1",
