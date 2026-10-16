@@ -111,15 +111,22 @@ Generation strategy: dependencyFirst
 | 215 | 4 | FBS-215 | Journey-step binding: journeyStepIds on the FBS, step state in queue, show, bundle and review | notStarted | blocked | FBS-210, FBS-214 |
 | 216 | 1 | FBS-216 | FBS-216 finalise per-FBS verify scope: --fbs filter, --all escape, scoped verified invariant | notStarted | blocked | FBS-209 |
 | 217 | 2 | FBS-217 | FBS-217 finalise --provision-mode forwarding, provisioning.mode stamp, available-remedy blocked reasons, package-local verify resolution with command and version recorded | complete | complete | FBS-216 |
+| 218 | 0 | FBS-218 | Per-AC probe catalog resolved by deterministic verify (issue 349) | notStarted | actionable |  |
+| 219 | 1 | FBS-219 | Test-stage verify report: rcf verify run --hand writes VerifyReport v1 | notStarted | blocked | FBS-218 |
+| 220 | 2 | FBS-220 | Administrative Finalise: ingest the Test-stage report, no verify spawn | notStarted | blocked | FBS-219 |
+| 221 | 3 | FBS-221 | Verified backstop on rcf build bundle --next | notStarted | blocked | FBS-220 |
+| 222 | 0 | FBS-222 | rcf audit separation verb | notStarted | actionable |  |
+| 223 | 1 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | notStarted | blocked | FBS-222 |
+| 224 | 4 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | notStarted | blocked | FBS-220, FBS-221, FBS-223 |
 
-Totals: items 107 | notStarted 56 | inProgress 2 | complete 34 | verified 15 | actionable 40 | blocked 16
+Totals: items 114 | notStarted 63 | inProgress 2 | complete 34 | verified 15 | actionable 42 | blocked 21
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210
-- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216
-- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206, FBS-213, FBS-217
-- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197, FBS-208, FBS-214
-- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198, FBS-199, FBS-215
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218, FBS-222
+- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216, FBS-219, FBS-223
+- tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206, FBS-213, FBS-217, FBS-220
+- tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197, FBS-208, FBS-214, FBS-221
+- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198, FBS-199, FBS-215, FBS-224
 - tier 5: FBS-029, FBS-046, FBS-185, FBS-200
 - tier 6: FBS-030, FBS-047, FBS-201
 - tier 7: FBS-031, FBS-202
