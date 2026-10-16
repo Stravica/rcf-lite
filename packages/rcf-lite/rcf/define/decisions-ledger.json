@@ -590,7 +590,10 @@
       "default": "a",
       "blocks": "FBS-220",
       "addedAt": "2026-10-16T12:50:58.744Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16 12:45Z: yes, the builder creates Code Nodes through rcf define create cn; it is the one chain write a builder makes.",
+      "answeredAt": "2026-10-16T13:07:12.439Z",
+      "resolvedAt": "2026-10-16T13:07:12.439Z"
     },
     {
       "id": 28,
@@ -608,7 +611,10 @@
       "default": "a",
       "blocks": "FBS-218",
       "addedAt": "2026-10-16T12:50:58.937Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16 12:45Z: yes, test-suite and test-case records are written at each FBS's own Define stage by the test-author hand, with the tests.",
+      "answeredAt": "2026-10-16T13:07:12.526Z",
+      "resolvedAt": "2026-10-16T13:07:12.526Z"
     },
     {
       "id": 29,
@@ -626,7 +632,10 @@
       "default": "a",
       "blocks": "FBS-221",
       "addedAt": "2026-10-16T12:50:59.135Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "Operator ruling 2026-10-16 12:45Z: yes, the backstop blocks on every merged unverified spec. Scope rule from this DEFINE: within the repo's adopted window, so a repo adopting mid-life names its first adopted FBS and older specs are grandfathered; a product that adopted from its first spec blocks on all of them.",
+      "answeredAt": "2026-10-16T13:07:12.611Z",
+      "resolvedAt": "2026-10-16T13:07:12.611Z"
     }
   ]
 }
