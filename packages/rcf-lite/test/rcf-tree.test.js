@@ -66,6 +66,12 @@ function classify(relPath) {
 // this test-side walker mirrors the carve-out by name here. The
 // constant is sourced from src/discovery/record.js for the same
 // single-source-of-truth reason the DEFINE one is.
+//
+// FBS-219 (AC-19001-5, ADR-4148): rcf/verify-reports/ is the third
+// carve-out. Committed Test-stage VerifyReport v1 files are verifier
+// evidence, not chain documents; the production walker never lists the
+// directory, and this walker mirrors that by name.
+const VERIFY_REPORTS_RELATIVE_DIR = 'rcf/verify-reports';
 function walk(dir, acc = [], projectRootForSkip = repoRoot) {
   for (const entry of readdirSync(dir)) {
     const full = join(dir, entry);
@@ -73,6 +79,7 @@ function walk(dir, acc = [], projectRootForSkip = repoRoot) {
     if (statSync(full).isDirectory()) {
       if (relFromProjectRoot === DEFINE_RELATIVE_DIR) continue;
       if (relFromProjectRoot === DISCOVERY_RELATIVE_DIR) continue;
+      if (relFromProjectRoot === VERIFY_REPORTS_RELATIVE_DIR) continue;
       walk(full, acc, projectRootForSkip);
     } else if (entry.endsWith('.json')) {
       acc.push(full);

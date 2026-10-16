@@ -1,0 +1,69 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-218",
+  "headSha": "aebff5f39e5c300403afdd2508cb1fdad26a55dc",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "sha256": "8392b8339e5d9df50644abf6cb084a4b5dfa171e95366c36d2581233db60ea37",
+    "servedSha": "aebff5f39e5c300403afdd2508cb1fdad26a55dc",
+    "installedVersion": "0.34.2",
+    "entryPoint": "npx rcf (scratch project, npm install of the tarball)"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-218-test",
+  "startedAt": "2026-10-16T20:59:49Z",
+  "finishedAt": "2026-10-16T21:13:45Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": "ci",
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "correctness",
+  "runStats": {
+    "counts": {
+      "verified": 8,
+      "failed": 0,
+      "skipped": 0,
+      "total": 8
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19201-1",
+      "result": "pass",
+      "probe": {
+        "path": "/health",
+        "expectStatus": 200
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        }
+      }
+    },
+    {
+      "acId": "AC-19201-2",
+      "result": "pass",
+      "probe": {
+        "path": "/ready",
+        "expectStatus": 200,
+        "expectBody": {
+          "contains": "ready"
+        }
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        }
+      }
+    }
+  ],
+  "notes": "Trimmed copy of the FBS-218 Test-stage report (build/fbs-218 e471f0ad): the VerifyReport v1 shape written by hand before FBS-219 built the writer. Two perAc rows kept."
+}
