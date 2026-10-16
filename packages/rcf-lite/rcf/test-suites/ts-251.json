@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:15.641Z",
-  "updatedAt": "2026-10-16T15:44:23.837Z",
+  "updatedAt": "2026-10-16T16:55:36.857Z",
   "purpose": "Declare one test per AC of US-19201 (FBS-218) driving rcf verify run --mode deterministic and rcf define update/validate through bin/rcf.js, so the FBS-218 Define round turns each declaration into a red test against the probe catalog behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -20,49 +20,49 @@
       "id": "TC-251-probe-pass",
       "acId": "AC-19201-1",
       "description": "rcf verify run --url <target> --fbs <fbs-id> --mode deterministic with an AC probe { path: \"/health\", expectStatus: 200 } served 200 exits 0; report records the AC \"pass\" with observed status and elapsed time and runStats.counts.verified incremented",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-1: rcf verify run --url <target> --fbs <fbs-id> --mode deterministic with an AC probe { path: \"/health\", expectStatus: 200 } served 200 exits 0; report records the AC \"pass\" with observed status and elapsed time and runStats.counts.verified incremented"
     },
     {
       "id": "TC-251-probe-fail",
       "acId": "AC-19201-2",
       "description": "rcf verify run --mode deterministic with a probe expecting 200 and body \"ready\" against a body without \"ready\" exits 4; report records the AC \"fail\" naming the failed expectation and observed value, runStats.counts.failed at least 1",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-2: rcf verify run --mode deterministic with a probe expecting 200 and body \"ready\" against a body without \"ready\" exits 4; report records the AC \"fail\" naming the failed expectation and observed value, runStats.counts.failed at least 1"
     },
     {
       "id": "TC-251-critique-only-and-unreachable",
       "acId": "AC-19201-3",
       "description": "rcf verify run --mode deterministic on an AC with no probe and no catalog entry exits 4 recording \"critiqueOnly\" counted in runStats.counts.critiqueOnly, verdict not PASS; an unreachable probe path is recorded \"skipped\" with the error kind, never \"pass\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-3: rcf verify run --mode deterministic on an AC with no probe and no catalog entry exits 4 recording \"critiqueOnly\" counted in runStats.counts.critiqueOnly, verdict not PASS; an unreachable probe path is recorded \"skipped\" with the error kind, never \"pass\""
     },
     {
       "id": "TC-251-probe-source",
       "acId": "AC-19201-4",
       "description": "rcf verify run --mode deterministic uses the AC-level probe over rcf/verify-catalog.json with evidence source \"ac\", a catalog-only probe with source \"catalog\"; a catalog key naming no AC makes rcf define validate exit 3",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-4: rcf verify run --mode deterministic uses the AC-level probe over rcf/verify-catalog.json with evidence source \"ac\", a catalog-only probe with source \"catalog\"; a catalog key naming no AC makes rcf define validate exit 3"
     },
     {
       "id": "TC-251-parity-env",
       "acId": "AC-19201-5",
       "description": "rcf verify run --mode deterministic --parity-env staging resolves a probe with parityEnv \"staging\"; with --parity-env production the same probe is recorded \"skipped\" with reason \"parityEnv mismatch\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-5: rcf verify run --mode deterministic --parity-env staging resolves a probe with parityEnv \"staging\"; with --parity-env production the same probe is recorded \"skipped\" with reason \"parityEnv mismatch\""
     },
     {
       "id": "TC-251-probe-schema",
       "acId": "AC-19201-6",
       "description": "rcf define update <us-id> --ac <ac-id> --probe {\"path\":\"/\",\"expectStatus\":200} stores the probe and rcf define validate exits 0; an unknown probe key or a non-integer expectStatus is refused with exit 3 naming the key",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-6: rcf define update <us-id> --ac <ac-id> --probe {\"path\":\"/\",\"expectStatus\":200} stores the probe and rcf define validate exits 0; an unknown probe key or a non-integer expectStatus is refused with exit 3 naming the key"
     },
     {
       "id": "TC-251-no-probe-no-pass",
       "acId": "AC-19201-7",
       "description": "rcf verify run --mode deterministic on a chain with no in-scope probe exits 4 with runStats.counts.verified 0, never records \"pass\" for an AC without a probe and spawns no child process",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-7: rcf verify run --mode deterministic on a chain with no in-scope probe exits 4 with runStats.counts.verified 0, never records \"pass\" for an AC without a probe and spawns no child process"
     }
   ],
