@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 114,
-    "notStarted": 63,
-    "inProgress": 2,
+    "notStarted": 62,
+    "inProgress": 3,
     "complete": 34,
     "verified": 15,
-    "actionable": 42,
+    "actionable": 41,
     "blocked": 21
   },
   "nextActionable": "FBS-013",
@@ -1423,9 +1423,9 @@
       "buildOrder": 218,
       "tier": 0,
       "title": "Per-AC probe catalog resolved by deterministic verify (issue 349)",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {
