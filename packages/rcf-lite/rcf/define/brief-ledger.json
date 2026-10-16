@@ -63,7 +63,7 @@
     },
     {
       "id": 8,
-      "text": "A read-only rcf audit separation verb reads a pull request's commit range and exits 4 when a commit declared or inferred as build touches tests or criteria, a test commit touches production code, or one commit touches both classes without a recorded exception; it prints one line a gate can quote and offers --json.",
+      "text": "A read-only separation check in the audit verb group reads a pull request's commit range and refuses with exit 4 when a commit declared or inferred as build touches tests or criteria, a test commit touches production code, or one commit touches both classes without a recorded exception; it prints one line a gate can quote, plus a machine-readable form.",
       "kind": "capability",
       "source": "discovery:separation-check",
       "addedAt": "2026-10-16T10:54:53.972Z",
