@@ -8,6 +8,7 @@ import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
 
 import { isRcfError, rcfError } from '#core/errors';
+import { validateSubschema } from '#core/store/validator.js';
 
 /** Tree-relative path of the catalog file. */
 export const VERIFY_CATALOG_PATH = join('rcf', 'verify-catalog.json');
@@ -43,15 +44,32 @@ export async function readVerifyCatalog(projectRoot) {
 const PROBE_ASSERTION_FIELDS = ['expectStatus', 'expectHeader', 'expectBody', 'selector'];
 
 /**
- * True when a probe carries at least one response assertion. A probe
- * without one is invalid (gate finding BH-1): verify records it as
- * "fail" and validate refuses it in the catalog.
+ * Shape check for one probe, AC-level or catalog: the probe must satisfy
+ * the `acProbe` subschema of @stravica-ai/rcf-schemas (gate finding BH-2:
+ * an empty or malformed assertion is no assertion) and carry at least one
+ * response assertion (gate finding BH-1). Returns null for a valid probe,
+ * else the failing field (taken from the validator's error path) and a
+ * message. Verify records an invalid probe as "fail"; validate refuses it
+ * in the catalog.
  *
- * @param {object} probe
- * @returns {boolean}
+ * @param {unknown} probe
+ * @returns {{ field: string, message: string } | null}
  */
-export function probeHasAssertion(probe) {
-  return PROBE_ASSERTION_FIELDS.some((field) => probe?.[field] !== undefined && probe[field] !== null);
+export function probeShapeError(probe) {
+  const errors = validateSubschema({ value: probe, kind: 'userStory', def: 'acProbe' });
+  if (errors) {
+    const first = errors[0] ?? {};
+    const field = first.instancePath?.split('/')[1]
+      || first.params?.additionalProperty
+      || first.params?.missingProperty
+      || 'probe';
+    const message = errors.map((e) => `${e.instancePath || '/'} ${e.message ?? 'invalid'}`).join('; ');
+    return { field, message };
+  }
+  if (!PROBE_ASSERTION_FIELDS.some((field) => probe[field] !== undefined)) {
+    return { field: 'missing assertion', message: `carries no response assertion (${PROBE_ASSERTION_FIELDS.join(', ')})` };
+  }
+  return null;
 }
 
 /**
@@ -71,7 +89,7 @@ export function selectProbe(ac, catalog) {
 
 /**
  * `rcf define validate` check: every catalog key must name an AC in the
- * tree, every entry must carry a response assertion, and a present
+ * tree, every entry must pass probeShapeError, and a present
  * catalog must declare `catalogVersion: 1`. A malformed catalog surfaces
  * as its read error. Absent file: none.
  *
@@ -104,12 +122,13 @@ export async function validateVerifyCatalogKeys({ projectRoot, tree }) {
         field: `probes.${acId}`,
       }));
     }
-    if (!probeHasAssertion(probe)) {
+    const shapeError = probeShapeError(probe);
+    if (shapeError) {
       errors.push(rcfError({
         kind: 'validation',
-        message: `${VERIFY_CATALOG_PATH} probe for '${acId}' carries no response assertion (expectStatus, expectHeader, expectBody or selector).`,
+        message: `${VERIFY_CATALOG_PATH} probe for '${acId}' is malformed at ${shapeError.field}: ${shapeError.message}.`,
         filePath,
-        field: `probes.${acId}`,
+        field: `probes.${acId}.${shapeError.field}`,
       }));
     }
   }

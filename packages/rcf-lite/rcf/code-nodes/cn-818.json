@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-818",
+  "path": "src/core/store/validator.js#validateSubschema",
+  "implementsAcIds": [
+    "AC-19201-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T19:55:56.227Z",
+  "updatedAt": "2026-10-16T19:55:56.227Z"
+}
