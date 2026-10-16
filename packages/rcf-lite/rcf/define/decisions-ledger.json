@@ -679,21 +679,42 @@
     },
     {
       "id": 32,
-      "question": "PENDING OPERATOR: the critique agent completed a sandbox checkout and posted a forged webhook unprompted on 2026-10-16 (rcf-lite issue filed). What is the Test-stage action policy for verify run?",
+      "question": "Test-stage action policy for verify run. Operator ruling 2026-10-16 15:0xZ: a sandbox exists to be used; the up-front decision per integration is either provide the sandbox or test double and let the verifier use it, or mark that route not auto-verifiable. The 2026-10-12 rule covers real money only.",
       "options": [
         {
           "letter": "a",
-          "text": "default deny: no purchases, card entry, webhook posting, account deletion or outbound email triggering; affected criteria resolve BLOCKED-BY-POLICY; an explicit per-run opt-in such as --allow-sandbox-purchase is recorded on the report"
+          "text": "purchases, card entry and webhook posting are allowed when the target declares a sandbox for that integration (declared in the provisioning profile) and are recorded on the report; denied and resolved BLOCKED-BY-POLICY where no sandbox is declared; never against a live billing mode"
         },
         {
           "letter": "b",
-          "text": "allow sandbox purchases by default when the target declares a sandbox billing mode"
+          "text": "default deny everywhere with a per-run opt-in flag"
         }
       ],
       "default": "a",
       "blocks": "FBS-218",
       "addedAt": "2026-10-16T14:16:50.977Z",
       "status": "open"
+    },
+    {
+      "id": 33,
+      "question": "Operator ruling 2026-10-16: how did criteria with no live route (CI workflows, deploy pipeline) reach Build, and why was host capability not checked before the Finalise run? Both are DEFINE and stage-keeper defects, not tool defects. What does the chain require so this family of issue (verification route never decided up front; same family as the 2026-07 persona findings) stops recurring?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "every acceptance criterion declares at DEFINE a verification route (deployedUrl | ciRun | manual | notAutoTestable) and runtime profile, plus the prerequisites it needs (service, sandbox or test double, account); define readiness refuses a tree with any criterion silent on route; rcf build bundle --next emits the per-spec prerequisite list; a stage-keeper preflight verb compares that list with the host before any Test or Finalise dispatch and refuses to launch what the host cannot meet"
+        },
+        {
+          "letter": "b",
+          "text": "keep classification at Test time (verifier marks not exercised) and rely on briefs"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:38:02.193Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-16: not testable criteria are obvious at DEFINE and at readiness; host capability is checked before dispatch; sandbox or test-double integrations are decided up front per integration. Decided, not pending.",
+      "answeredAt": "2026-10-16T14:38:02.276Z",
+      "resolvedAt": "2026-10-16T14:38:02.276Z"
     }
   ]
 }
