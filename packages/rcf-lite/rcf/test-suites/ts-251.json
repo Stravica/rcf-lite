@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:15.641Z",
-  "updatedAt": "2026-10-16T16:55:36.857Z",
+  "updatedAt": "2026-10-16T18:07:22.233Z",
   "purpose": "Declare one test per AC of US-19201 (FBS-218) driving rcf verify run --mode deterministic and rcf define update/validate through bin/rcf.js, so the FBS-218 Define round turns each declaration into a red test against the probe catalog behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -10,7 +10,8 @@
     "AC-19201-4",
     "AC-19201-5",
     "AC-19201-6",
-    "AC-19201-7"
+    "AC-19201-7",
+    "AC-19201-8"
   ],
   "id": "TS-251",
   "usId": "US-19201",
@@ -64,6 +65,20 @@
       "description": "rcf verify run --mode deterministic on a chain with no in-scope probe exits 4 with runStats.counts.verified 0, never records \"pass\" for an AC without a probe and spawns no child process",
       "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-7: rcf verify run --mode deterministic on a chain with no in-scope probe exits 4 with runStats.counts.verified 0, never records \"pass\" for an AC without a probe and spawns no child process"
+    },
+    {
+      "id": "TC-251-assertion-free-probe-fails",
+      "acId": "AC-19201-8",
+      "description": "rcf verify run --mode deterministic records an assertion-free probe (catalog { path: \"/\" } or AC-level) as \"fail\" with evidence naming the missing assertion, counts it under runStats.counts.failed never verified, and exits 4",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf verify run --mode deterministic records an assertion-free probe (catalog { path: \"/\" } or AC-level) as \"fail\" with evidence naming the missing assertion, counts it under runStats.counts.failed never verified, and exits 4"
+    },
+    {
+      "id": "TC-251-catalog-validate-refuses",
+      "acId": "AC-19201-8",
+      "description": "rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1"
     }
   ],
   "status": "draft"

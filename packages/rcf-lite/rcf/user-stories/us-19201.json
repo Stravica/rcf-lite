@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:13.957Z",
-  "updatedAt": "2026-10-16T12:49:57.357Z",
+  "updatedAt": "2026-10-16T18:07:05.070Z",
   "description": "User story under REQ-192 for the probe catalog (FBS-218, issue 349). An AC may carry an optional probe on the AC itself (rcf-schemas minor) or in rcf/verify-catalog.json keyed by acId; rcf verify run --mode deterministic resolves each probe to pass, fail or skipped with evidence and keeps ACs with no probe critique-only.",
   "asA": "a verifier hand running the Test stage from a dispatched worker",
   "iWant": "every URL-verifiable criterion in scope to resolve to pass, fail or skipped from a declared probe without a model",
@@ -46,6 +46,11 @@
     {
       "id": "AC-19201-7",
       "description": "[must-not] rcf verify run --mode deterministic never records \"pass\" for an AC that has no probe and never spawns a child process (no agent CLI, no browser MCP): on a chain where no in-scope AC has a probe it exits 4 with runStats.counts.verified 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19201-8",
+      "description": "[must-not] Given a probe that carries no response assertion (no expectStatus, expectHeader, expectBody or selector), on the AC or as an rcf/verify-catalog.json entry, when rcf verify run --mode deterministic runs, then the report records that AC with result \"fail\" and evidence naming the missing assertion, runStats.counts.failed counts it (never verified) and the command exits 4; rcf define validate refuses with exit 3 a catalog that carries such an entry, naming its key, and a catalog whose catalogVersion is missing or not 1.",
       "testable": true
     }
   ],
