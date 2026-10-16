@@ -383,3 +383,87 @@ test('AC-19201-8: rcf define validate exits 3 naming the key for an rcf/verify-c
     assert.match(`${res.stdout}${res.stderr}`, /catalogVersion/, `validate names catalogVersion (${label})`);
   }
 });
+
+// Gate finding BH-2 (PR 370 gate 2): an EMPTY or malformed assertion is no
+// assertion. A probe counts only when it satisfies the acProbe subschema of
+// @stravica-ai/rcf-schemas: expectStatus an integer status code,
+// expectHeader { name, match } both non-empty, expectBody exactly one
+// non-empty contains or matches, selector a non-empty string.
+
+const MALFORMED_PROBES = [
+  ['expectBody', { path: '/', expectBody: {} }],
+  ['selector', { path: '/', selector: '' }],
+  ['expectBody', { path: '/', expectBody: { contains: '' } }],
+  ['expectHeader', { path: '/', expectHeader: { name: 'content-type', match: '' } }],
+  ['expectStatus', { path: '/', expectStatus: '200' }],
+];
+
+test('AC-19201-8: rcf verify run --mode deterministic records a catalog probe with an empty or malformed assertion (expectBody {}, selector "", expectBody { contains: "" }, expectHeader match "", expectStatus "200") as "fail" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4', async (t) => {
+  const target = await startTarget(t, { '/': { status: 200, body: 'ok' } });
+  const malformedIds = MALFORMED_PROBES.map((_, i) => `AC-101-${i + 1}`);
+  const controlId = `AC-101-${MALFORMED_PROBES.length + 1}`;
+  const catalog = Object.fromEntries(MALFORMED_PROBES.map(([, probe], i) => [malformedIds[i], probe]));
+  // Control: a well-formed asserting probe still passes in the same run.
+  catalog[controlId] = { path: '/', expectStatus: 200 };
+  const root = await fixtureChain({ acs: [...malformedIds, controlId].map((id) => ac(id)), catalog });
+
+  const { code, stderr, report } = await verifyRun(root, target.url);
+  assert.equal(code, 4, `an empty or malformed assertion fails the run, exit 4; stderr:\n${stderr}`);
+  MALFORMED_PROBES.forEach(([field, probe], i) => {
+    const entry = perAc(report, malformedIds[i]);
+    assert.equal(entry.result, 'fail', `${malformedIds[i]} ${JSON.stringify(probe)}: an empty or malformed assertion is never "pass"`);
+    assert.match(JSON.stringify(entry.evidence ?? null), new RegExp(field),
+      `${malformedIds[i]} ${JSON.stringify(probe)}: evidence names the malformed field ${field}`);
+  });
+  assert.equal(perAc(report, controlId).result, 'pass', 'the well-formed control probe passes');
+  assert.equal(report.run.runStats.counts.failed, MALFORMED_PROBES.length, 'every malformed probe counts under failed');
+  assert.equal(report.run.runStats.counts.verified, 1, 'only the control probe counts as verified');
+  assert.notEqual(report.verdict, 'PASS');
+});
+
+test('AC-19201-8: rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with an empty or malformed assertion', async () => {
+  for (const [field, probe] of MALFORMED_PROBES) {
+    const root = await fixtureChain({
+      acs: [ac('AC-101-1'), ac('AC-101-2')],
+      catalog: {
+        'AC-101-1': { path: '/', expectStatus: 200 },
+        'AC-101-2': probe,
+      },
+    });
+    const res = await rcf(['define', 'validate'], { cwd: root });
+    const out = `${res.stdout}${res.stderr}`;
+    assert.equal(res.code, 3, `${JSON.stringify(probe)} fails validate; stdout:\n${res.stdout}`);
+    assert.match(out, /AC-101-2/, `validate names the malformed key for ${JSON.stringify(probe)}`);
+    assert.match(out, new RegExp(field), `validate names the malformed field ${field} for ${JSON.stringify(probe)}`);
+    assert.doesNotMatch(out, /AC-101-1/, 'validate does not flag the well-formed probe');
+  }
+});
+
+test('AC-19201-8: an AC-level probe with an empty assertion (expectBody {}, selector "") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one', async (t) => {
+  const root = await fixtureChain({ acs: [ac('AC-101-1')] });
+  const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
+  for (const [field, probe] of MALFORMED_PROBES.slice(0, 2)) {
+    const res = await rcf(['define', 'update', 'US-101', '--ac', 'AC-101-1', '--probe', JSON.stringify(probe)], { cwd: root });
+    assert.equal(res.code, 3, `define update refuses ${JSON.stringify(probe)} with exit 3`);
+    assert.match(`${res.stdout}${res.stderr}`, new RegExp(field), `the refusal names ${field}`);
+  }
+  const stored = JSON.parse(await readFile(usPath, 'utf8')).acceptanceCriteria.find((a) => a.id === 'AC-101-1');
+  assert.equal(stored.probe, undefined, 'refused probes are never written');
+
+  // A tree whose ACs already carry empty assertions: the chain loader
+  // refuses it (exit 3 naming each field) and verify never records "pass".
+  const target = await startTarget(t, { '/': { status: 200, body: 'ok' } });
+  const runRoot = await fixtureChain({
+    acs: [
+      ac('AC-101-1', { probe: { path: '/', expectBody: {} } }),
+      ac('AC-101-2', { probe: { path: '/', selector: '' } }),
+    ],
+  });
+  const { code, stdout, stderr, report } = await verifyRun(runRoot, target.url);
+  assert.equal(code, 3, `an empty AC-level assertion is refused at load, exit 3; stderr:\n${stderr}`);
+  for (const field of ['expectBody', 'selector']) {
+    assert.match(`${stdout}${stderr}`, new RegExp(`probe/${field}`), `the refusal names ${field}`);
+  }
+  assert.equal(report?.perAc?.some((e) => e.result === 'pass') ?? false, false, 'nothing is recorded "pass"');
+  assert.equal(target.hits.length, 0, 'a refused chain is never probed');
+});

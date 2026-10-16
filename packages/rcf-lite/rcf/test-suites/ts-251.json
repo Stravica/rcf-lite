@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:15.641Z",
-  "updatedAt": "2026-10-16T18:07:22.233Z",
+  "updatedAt": "2026-10-16T18:50:03.115Z",
   "purpose": "Declare one test per AC of US-19201 (FBS-218) driving rcf verify run --mode deterministic and rcf define update/validate through bin/rcf.js, so the FBS-218 Define round turns each declaration into a red test against the probe catalog behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -79,6 +79,27 @@
       "description": "rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1",
       "status": "failing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key for an rcf/verify-catalog.json probe with no assertion, and exits 3 when catalogVersion is missing or not 1"
+    },
+    {
+      "id": "TC-251-empty-assertion-probe-fails",
+      "acId": "AC-19201-8",
+      "description": "rcf verify run --mode deterministic records a catalog probe with an empty or malformed assertion (expectBody {}, selector \"\", expectBody { contains: \"\" }, expectHeader match \"\", expectStatus \"200\") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf verify run --mode deterministic records a catalog probe with an empty or malformed assertion (expectBody {}, selector \"\", expectBody { contains: \"\" }, expectHeader match \"\", expectStatus \"200\") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4"
+    },
+    {
+      "id": "TC-251-catalog-validate-refuses-malformed",
+      "acId": "AC-19201-8",
+      "description": "rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with an empty or malformed assertion",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with an empty or malformed assertion"
+    },
+    {
+      "id": "TC-251-ac-level-empty-assertion-refused",
+      "acId": "AC-19201-8",
+      "description": "an AC-level probe with an empty assertion (expectBody {}, selector \"\") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one",
+      "status": "passing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: an AC-level probe with an empty assertion (expectBody {}, selector \"\") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one"
     }
   ],
   "status": "draft"
