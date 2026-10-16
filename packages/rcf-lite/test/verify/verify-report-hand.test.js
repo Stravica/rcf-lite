@@ -15,7 +15,8 @@ import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync, readFileSync } from 'node:fs';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -295,4 +296,27 @@ test('AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-re
     `stderr names the head and --replace; got:\n${second.stderr}`);
   assert.equal(await readFile(reportPath(root, head), 'utf8'), before, 'the existing report is never overwritten');
   assert.deepEqual(changedPaths(root), [rel], 'the refused run writes nothing');
+});
+
+test('AC-19001-6: rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path', async (t) => {
+  const target = await startTarget(t);
+  const outside = await mkdtemp(join(tmpdir(), 'rcf-ac-19001-6-out-'));
+  const flags = ['--url', target.url, '--fbs', 'FBS-001', '--hand', 'verifier', '--verifier-id', 'verifier-ac-19001-6'];
+
+  // Violation: --out beside --hand, inside the project and outside it.
+  for (const out of ['verify-out.json', join(outside, 'report.json')]) {
+    const { root } = await fixtureRepo();
+    const refused = await verifyRun(root, [...flags, '--out', out]);
+    assert.equal(refused.code, 2, `--out with --hand is a usage error (--out ${out}); stderr:\n${refused.stderr}`);
+    assert.ok(refused.stderr.includes('--out'), `stderr names --out; got:\n${refused.stderr}`);
+    assert.equal(existsSync(resolve(root, out)), false, `nothing is written at the --out path ${out}`);
+    assert.equal(existsSync(join(root, 'rcf', 'verify-reports')), false, 'no report is written under rcf/verify-reports/');
+    assert.deepEqual(changedPaths(root), [], 'git status lists no change after the refused run');
+  }
+
+  // Control: the same --hand run without --out writes its report.
+  const { root, head } = await fixtureRepo();
+  const ok = await verifyRun(root, flags);
+  assert.equal(ok.code, 0, `--hand without --out writes its report; stderr:\n${ok.stderr}`);
+  assert.ok(existsSync(reportPath(root, head)), 'the report is written at its default path');
 });

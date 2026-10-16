@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:47.124Z",
-  "updatedAt": "2026-10-16T22:46:57.917Z",
+  "updatedAt": "2026-10-16T23:18:19.055Z",
   "purpose": "Declare one test per AC of US-19001 (FBS-219) driving rcf verify run --hand verifier, rcf define validate and rcf audit separation through bin/rcf.js, so the FBS-219 Define round turns each declaration into a red test against the Test-stage report behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -56,6 +56,13 @@
       "description": "rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites",
       "status": "failing",
       "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites"
+    },
+    {
+      "id": "TC-252-hand-refuses-out",
+      "acId": "AC-19001-6",
+      "description": "rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path",
+      "status": "failing",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path"
     }
   ],
   "status": "draft"
