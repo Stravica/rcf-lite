@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:44:24.006Z",
-  "updatedAt": "2026-10-16T12:47:13.360Z",
+  "updatedAt": "2026-10-16T12:48:27.577Z",
   "purpose": "Implement ADR-4148: the verifier hand produces a Test-stage verify report before merge and Finalise ingests it after merge to write verified deterministically, with provenance checks and the bundle --next backstop.",
   "responsibilities": [
     "src/verify/cli/run.js: --report-out <path> writes a VerifyReport v1 (headSha from git rev-parse HEAD, target, mode, hand, verifierId) and --hand <name> stamps the hand; the default path is rcf/verify-reports/<fbs-id>/<headSha12>.json when --fbs names one build spec.",
@@ -38,7 +38,7 @@
     {
       "name": "rcf/verify-reports/<fbs-id>/<headSha12>.json",
       "kind": "fileFormat",
-      "description": "Committed by the verifier hand on the PR branch under a Hand: verifier trailer. Walker-invisible; the separation check classes the directory as verifier evidence, not production code, tests or criteria."
+      "description": "format: JSON, one VerifyReport v1 per file, UTF-8, two-space indent, trailing newline.\nCommitted by the verifier hand on the PR branch under a Hand: verifier trailer. Walker-invisible; the separation check classes the directory as verifier evidence, not production code, tests or criteria."
     },
     {
       "name": "rcf guidance build-cycle",
@@ -48,7 +48,7 @@
     {
       "name": "managed agent-instructions block",
       "kind": "fileFormat",
-      "description": "guidance/managed/agent-instructions-block.md and its hash: the rcf doctor managed CLAUDE.md/AGENTS.md block. Changes with this train; the release carries a non-null minAgentAction."
+      "description": "format: markdown between the rcf doctor managed markers, hashed in agent-instructions-block.hash.\nguidance/managed/agent-instructions-block.md and its hash: the rcf doctor managed CLAUDE.md/AGENTS.md block. Changes with this train; the release carries a non-null minAgentAction."
     }
   ],
   "notes": "Supersedes the spawn path that 0.3.0 PR 50 introduced and 0.33.0, 0.34.0 and 0.34.1 extended. The ship-authority (0.4.0), per-AC refusal (0.7.0, 0.8.0, 0.20.0, 0.28.0) and per-FBS scope (0.34.0) semantics are kept, read from the ingested report instead of a spawned run.",

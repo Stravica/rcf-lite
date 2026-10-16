@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:44:25.108Z",
-  "updatedAt": "2026-10-16T12:44:25.108Z",
+  "updatedAt": "2026-10-16T12:48:28.712Z",
   "purpose": "Implement issue 349: structured per-AC probes resolved by the deterministic verify engine.",
   "responsibilities": [
     "@stravica-ai/rcf-schemas minor: optional probe object on $defs/acceptanceCriterion { method, path, expectStatus, expectHeader { name, match }, expectBody { contains | matches }, selector }.",
@@ -18,7 +18,7 @@
     {
       "name": "rcf/verify-catalog.json",
       "kind": "fileFormat",
-      "description": "{ catalogVersion: 1, probes: { <acId>: Probe } }; written through rcf define update <us-id> --ac <ac-id> --probe or edited by the test-author hand."
+      "description": "format: JSON { catalogVersion: 1, probes: { <acId>: Probe } }; written through rcf define update <us-id> --ac <ac-id> --probe or edited by the test-author hand."
     },
     {
       "name": "Probe",

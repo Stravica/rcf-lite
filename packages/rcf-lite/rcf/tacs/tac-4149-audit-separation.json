@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:44:24.547Z",
-  "updatedAt": "2026-10-16T12:44:24.547Z",
+  "updatedAt": "2026-10-16T12:48:28.135Z",
   "purpose": "Implement ADR-4149: one deterministic git-and-globs verb that judges hand separation over a pull request's commits and prints one line a gate can quote.",
   "responsibilities": [
     "src/audit/separation.js (new): range resolution, merge skip, trailer parse (Hand:, Separation-Reason:), path classification, per-commit verdicts; no network, no chain read.",
@@ -17,12 +17,12 @@
     {
       "name": "rcf/separation.json",
       "kind": "fileFormat",
-      "description": "Optional override of the default path classes: { classes: { <class>: [globs] } }. Inside rcf/ so only the test-author hand may change it."
+      "description": "format: JSON { classes: { <class>: [glob, ...] } } where class is one of test, criteria, production, verifierEvidence, stageKeeper, neutral.\nOptional override of the default path classes: { classes: { <class>: [globs] } }. Inside rcf/ so only the test-author hand may change it."
     },
     {
       "name": "SeparationRow",
       "kind": "recordShape",
-      "description": "--json row per commit: { sha, subject, hand, declared, classes, verdict: pass | fail | exception, reason, paths }"
+      "description": "One --json row per non-merge commit.\nfields: sha, subject, hand, declared, classes, verdict, reason, paths\nnotes: verdict is pass, fail or exception."
     }
   ],
   "notes": "No schema change. Trailer is self-declared; the scoped Review gate stays the backstop.",

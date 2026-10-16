@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:26.713Z",
-  "updatedAt": "2026-10-16T12:47:43.273Z",
+  "updatedAt": "2026-10-16T12:48:47.244Z",
   "description": "User story under REQ-191 for the separation verb (FBS-222). Range from the merge-base with origin/main to HEAD, merge commits skipped, Hand: trailer over the five estate hands, default path classes at any depth, one quotable line and --json rows.",
   "asA": "a gate reviewer reading a build pull request",
   "iWant": "one line that says whether any commit crossed hands",
@@ -36,6 +36,11 @@
     {
       "id": "AC-19101-5",
       "description": "[happy] Given the same branch as the PASS case, when rcf audit separation --json runs, then stdout is a JSON array with one SeparationRow per non-merge commit { sha, subject, hand, declared, classes, verdict, reason, paths } and merge commits in the range are absent.",
+      "testable": true
+    },
+    {
+      "id": "AC-19101-6",
+      "description": "[must-not] rcf audit separation never writes a file, never reads the network and never reads the chain: two runs over the same range print byte-identical output and leave git status unchanged.",
       "testable": true
     }
   ],

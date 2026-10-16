@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:20.312Z",
-  "updatedAt": "2026-10-16T12:47:41.982Z",
+  "updatedAt": "2026-10-16T12:48:46.102Z",
   "description": "User story under REQ-190 for the administrative Finalise (FBS-220). rcf build finalise reads the report, checks preconditions and provenance and writes verified; it spawns no verify subprocess and no agent CLI. Every refusal names its reason, exits 4 (or 3 for validation, 2 for usage) and leaves the FBS unchanged.",
   "asA": "the stage-keeper, or any hand it names, after the merge",
   "iWant": "Finalise to be a deterministic check of recorded evidence that any worker can run",
@@ -40,12 +40,17 @@
     },
     {
       "id": "AC-19002-6",
-      "description": "[failure] Given a valid report whose perAc rows carry any of MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or whose verdict is not PASS or verdictAuthority is not ship, when Finalise runs, then it refuses exit 4 with the same message shapes 0.20.0 and 0.28.0 defined, read from the ingested report.",
+      "description": "[failure] Given a valid report whose perAc rows carry any verdict from [MOCK-ONLY-DECLARED | EVAL-MISSING | EVAL-BELOW-THRESHOLD | UI-BASELINE-UNMET | BROWSER-VERIFICATION-MISSING | SCOPE-MISMATCH], or whose verdict is not PASS or verdictAuthority is not ship, when Finalise runs, then it refuses exit 4 with the same message shapes 0.20.0 and 0.28.0 defined, read from the ingested report, and the FBS stays complete.",
       "testable": true
     },
     {
       "id": "AC-19002-7",
       "description": "[failure] Given the retired flags, when rcf build finalise <fbs-id> --mode <any> or --url <url> runs, then it exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing.",
+      "testable": true
+    },
+    {
+      "id": "AC-19002-8",
+      "description": "[must-not] rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and on every refusal leaves rcf/fbs/<fbs-id>.json byte-identical to its state before the run.",
       "testable": true
     }
   ],

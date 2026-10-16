@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:24.367Z",
-  "updatedAt": "2026-10-16T12:47:42.644Z",
+  "updatedAt": "2026-10-16T12:48:46.664Z",
   "description": "User story under REQ-190 for the backstop (FBS-221). With the backstop adopted (rcf/define/backstop.json), rcf build bundle --next will not hand out a later spec while any FBS inside the window is complete and not verified; --allow-unverified records a reasoned override. A tree with no backstop.json is grandfathered.",
   "asA": "a stage-keeper dispatching the next build hand",
   "iWant": "the tool to refuse the next bundle while a merged spec is unverified",
@@ -31,6 +31,11 @@
     {
       "id": "AC-19003-4",
       "description": "[happy] Given a tree without a backstop record, when rcf build backstop adopt --from FBS-218 runs, then rcf/define/backstop.json holds { fromBuildOrder: 218, adoptedAt, adoptedBy } and the command exits 0; an unknown FBS id exits 3 and a missing --from exits 2.",
+      "testable": true
+    },
+    {
+      "id": "AC-19003-5",
+      "description": "[must-not] rcf build bundle --next never emits a bundle while the backstop refuses unless --allow-unverified carries a non-empty reason, and the override never changes any FBS executionStatus.",
       "testable": true
     }
   ],
