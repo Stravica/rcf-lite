@@ -1,0 +1,163 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-219",
+  "headSha": "1854b3f3e3626ba88e2dea55be963459c57b86f4",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "sha256": "0e6f34c092c4388cf0501a47c6abd63d8b9aaf992eadc2494061397b01aa5351",
+    "servedSha": "1854b3f3e3626ba88e2dea55be963459c57b86f4"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-219-test",
+  "startedAt": "2026-10-16T23:42:43.000Z",
+  "finishedAt": "2026-10-16T23:56:17.000Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": null,
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "correctness",
+  "runStats": {
+    "counts": {
+      "verified": 6,
+      "failed": 0,
+      "skipped": 0,
+      "total": 6
+    }
+  },
+  "suites": {
+    "acFileInClone": {
+      "file": "test/verify/verify-report-hand.test.js",
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "acFileAgainstInstalledPackage": {
+      "file": "test/verify/verify-report-hand.test.js",
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0,
+      "note": "unmodified test copies placed under the installed package so bin/rcf.js resolves to the artefact"
+    },
+    "fullSuiteInClone": {
+      "completed": false,
+      "note": "pnpm test stopped by a 580s timeout while test/_leak/temp-dir-cleanup.test.js re-ran the whole suite as a child; not a criterion result"
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19001-1",
+      "result": "pass",
+      "probe": "npx rcf verify run --repo . --profile ci --provision-mode skip --mode deterministic --url http://127.0.0.1:41219 --fbs FBS-001 --hand verifier --verifier-id rcf-sep-fbs-219-test",
+      "evidence": {
+        "exit": 0,
+        "reportLine": "verify report: rcf/verify-reports/FBS-001/fc78f12412fe.json PASS 2/2",
+        "fixture": "scratch fixture from `npx rcf init` (heads 3e6a2585a429, fc78f12412fe), loopback target 127.0.0.1:41219",
+        "files": [
+          "output/evidence/AC-19001-1.stdout",
+          "output/evidence/AC-19001-1.report.json"
+        ],
+        "test": "test/verify/verify-report-hand.test.js \"AC-19001-1\": ok in the clone and against the installed package"
+      }
+    },
+    {
+      "acId": "AC-19001-2",
+      "result": "pass",
+      "probe": "npx rcf verify run ... --fbs FBS-001 --hand verifier on a tree with src/app.js modified",
+      "evidence": {
+        "exit": 4,
+        "reportLine": "verify report refused: working tree is dirty; the report must name a committed head",
+        "noReportWritten": true,
+        "files": [
+          "output/evidence/AC-19001-2.stderr",
+          "output/evidence/AC-19001-2.no-report.txt"
+        ],
+        "test": "test/verify/verify-report-hand.test.js \"AC-19001-2\": ok in the clone and against the installed package"
+      }
+    },
+    {
+      "acId": "AC-19001-3",
+      "result": "pass",
+      "probe": "npx rcf verify run ... --hand janitor --fbs FBS-001; and --hand verifier with no --fbs",
+      "evidence": {
+        "exit": [
+          2,
+          2
+        ],
+        "reportLine": [
+          "[error] usage --hand must be one of test-author | builder | reviewer | verifier | stage-keeper (got \"janitor\")",
+          "[error] usage --fbs <fbs-id> is required with --hand (exactly one build spec)"
+        ],
+        "noReportWritten": true,
+        "files": [
+          "output/evidence/AC-19001-3a.stderr",
+          "output/evidence/AC-19001-3b.stderr"
+        ],
+        "test": "test/verify/verify-report-hand.test.js \"AC-19001-3\": ok in the clone and against the installed package"
+      }
+    },
+    {
+      "acId": "AC-19001-4",
+      "result": "pass",
+      "probe": "npx rcf verify run ... --package <path>/rcf-lite-0.34.2.tgz --fbs FBS-001 --hand verifier (no --url)",
+      "evidence": {
+        "exit": 4,
+        "reportLine": "verify report: rcf/verify-reports/FBS-001/3e6a2585a429.json BLOCKED 0/2",
+        "targetKind": "package",
+        "packageRefSet": true,
+        "targetUrlAbsent": true,
+        "files": [
+          "output/evidence/AC-19001-4.stdout",
+          "output/evidence/AC-19001-4.report.json"
+        ],
+        "test": "test/verify/verify-report-hand.test.js \"AC-19001-4\": ok in the clone and against the installed package"
+      }
+    },
+    {
+      "acId": "AC-19001-5",
+      "result": "pass",
+      "probe": "commit the report, then npx rcf define validate and npx rcf audit coverage",
+      "evidence": {
+        "exit": {
+          "validate": 0,
+          "coverage": 4
+        },
+        "unknownDocumentErrors": 0,
+        "coverageOutputIdenticalWithAndWithoutReport": true,
+        "note": "coverage exit 4 is the fixture having no test cases in strict mode, identical before the report was committed",
+        "files": [
+          "output/evidence/AC-19001-5a.stdout",
+          "output/evidence/AC-19001-5b.stdout",
+          "output/evidence/AC-19001-5.coverage-diff.txt"
+        ],
+        "test": "test/verify/verify-report-hand.test.js \"AC-19001-5\": ok in the clone and against the installed package"
+      }
+    },
+    {
+      "acId": "AC-19001-6",
+      "result": "pass",
+      "probe": "after a written report: git status; second identical run; and a run with --out",
+      "evidence": {
+        "exit": {
+          "secondRun": 4,
+          "withOut": 2
+        },
+        "reportLine": "verify report exists for head fc78f12; pass --replace \"<reason>\"",
+        "gitStatusAfterRun": "?? rcf/verify-reports/FBS-001/fc78f12412fe.json (only)",
+        "reportSha256Unchanged": true,
+        "outPathNotWritten": true,
+        "files": [
+          "output/evidence/AC-19001-6a.stderr",
+          "output/evidence/AC-19001-6b.stderr",
+          "output/evidence/AC-19001-6.git-status-after-run1.txt",
+          "output/evidence/AC-19001-6.report-sha-before.txt",
+          "output/evidence/AC-19001-6.report-sha-after.txt"
+        ],
+        "test": "test/verify/verify-report-hand.test.js \"AC-19001-6\": ok in the clone and against the installed package (both AC-19001-6 tests)"
+      }
+    }
+  ]
+}
