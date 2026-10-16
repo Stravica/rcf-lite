@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:13.957Z",
-  "updatedAt": "2026-10-16T12:48:44.945Z",
+  "updatedAt": "2026-10-16T12:49:57.357Z",
   "description": "User story under REQ-192 for the probe catalog (FBS-218, issue 349). An AC may carry an optional probe on the AC itself (rcf-schemas minor) or in rcf/verify-catalog.json keyed by acId; rcf verify run --mode deterministic resolves each probe to pass, fail or skipped with evidence and keeps ACs with no probe critique-only.",
   "asA": "a verifier hand running the Test stage from a dispatched worker",
   "iWant": "every URL-verifiable criterion in scope to resolve to pass, fail or skipped from a declared probe without a model",
@@ -40,7 +40,7 @@
     },
     {
       "id": "AC-19201-6",
-      "description": "[happy] Given the rcf-schemas minor that adds the optional probe object to acceptanceCriterion, when rcf define update <us-id> --ac <ac-id> --probe '{\"path\":\"/\",\"expectStatus\":200}' runs, then the AC carries the probe and rcf define validate exits 0; a probe carrying a key outside Probe.fields, or an expectStatus that is not an integer, is refused with exit 3 naming the key.",
+      "description": "[happy] Given the rcf-schemas minor that adds the optional probe object to acceptanceCriterion, when rcf define update <us-id> --ac <ac-id> --probe '{\"path\":\"/\",\"expectStatus\":200}' runs, then the AC carries the probe and rcf define validate exits 0; a probe carrying a key the Probe recordShape does not define, or an expectStatus that is not an integer, is refused with exit 3 naming the key.",
       "testable": true
     },
     {
