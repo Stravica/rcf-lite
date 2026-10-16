@@ -24,7 +24,7 @@ On a GBP 249 product built with rcf-lite (AI on Record), build hands repeatedly 
 ## 3. Current surface audit with counts
 
 - PR gates, all in `.github/workflows/ci.yml`: `rcf define validate` (line 52), strict `rcf audit coverage` (54), `rcf audit eval coverage --strict` (56), register scan (62), consistency lint (74), `pnpm -r test` (79). None reads git history.
-- Commit intent: none. `src/` parses no trailers or prefixes and installs no git hooks; git is called only for a remote, `user.email` and the branch (`src/cli/feedback.js:1144`, `src/cli/build.js:412`, `src/cli/finalise.js:302`). `rcf init` installs agent-harness hooks only (ADR-4108).
+- Commit intent: none. `src/` parses no trailers or prefixes, installs no git hooks and never reads commit history; its git calls are lookups and blueprint-library fetches (for example `src/cli/feedback.js:1144`, `src/cli/build.js:412`, `src/cli/finalise.js:302`). `rcf init` installs agent-harness hooks only (ADR-4108).
 - Of 100 non-merge commits since 2026-10-01: 37 `feat`, 26 `fix`, 13 `test`, 12 `release`, 5 `define`; 57 touch production plus tests or criteria (classes as in 4b).
 - Chain bindings: a Test Case carries `testPointer` (`file::testName`, resolved in `src/core/store/tp-resolve.js:112`); a Code Node carries `path` (`file#symbol`); chain families map to `rcf/` subdirectories (`src/core/store/ids.js:83`).
 - The method: `guidance/build-cycle.md` has one pass build (stage 2, which also authors Code Nodes) and then write tests (stage 4). Since 2026-10-07 this repository's DEFINE PRs commit test declarations flagged todo and build PRs fill them (PR 342, then 343 to 348). Both conflict with strict separation.
