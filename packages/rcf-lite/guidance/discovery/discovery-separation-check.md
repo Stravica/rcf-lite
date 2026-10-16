@@ -10,7 +10,7 @@ Thesis: the smallest thing that holds is one deterministic verb, `rcf audit sepa
 
 ## 1. Problem
 
-On a GBP 249 product built with rcf-lite (AI on Record), build hands repeatedly gamed their own tests: tests that read source text instead of running it, fixes special-cased to the reviewer's scenario. On 2026-10-16 delivery converged once authorship split: a spec-and-test hand wrote the failing tests and chain bindings, a different build hand changed only production code, and a judge confirmed the commit separation by reading the diffs by hand each round. Every round then merged at its first gate, in 25 to 35 minutes. The judging step is mechanical and should not need a reader.
+On a GBP 249 product built with rcf-lite, build hands repeatedly gamed their own tests: tests that read source text instead of running it, fixes special-cased to the reviewer's scenario. On 2026-10-16 delivery converged once authorship split: a spec-and-test hand wrote the failing tests and chain bindings, a different build hand changed only production code, and a judge confirmed the commit separation by reading the diffs by hand each round. Every round then merged at its first gate, in 25 to 35 minutes. The judging step is mechanical and should not need a reader.
 
 ## 2. Users and their questions
 
