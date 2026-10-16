@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-10-16T12:44:34.429Z",
+  "updatedAt": "2026-10-16T12:44:46.369Z",
+  "description": "A URL-verifiable acceptance criterion carries an optional structured probe (HTTP method, path, expected status, header match, body substring or regex, CSS selector) either on the AC itself (an optional probe object on the acceptanceCriterion subschema, an @stravica-ai/rcf-schemas minor) or in a runtime verify catalog keyed by acId (rcf/verify-catalog.json). rcf verify run --mode deterministic resolves each in-scope AC's probe against the target to pass, fail or skipped with evidence, honours --parity-env, and records ACs with no probe as critique-only. URL-verifiable criteria therefore verify without a model and without spawning an agent CLI, which is what makes Test-stage verification runnable by a dispatched verifier; subjective visual criteria stay critique-only.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Issue 349: deterministic mode (issue 330, src/verify/engine/deterministic.js) records every testable AC as critique-only, so its aggregate is BLOCKED and nothing promotes; only agentScreenshotCritique can promote and its launcher spawns the agent CLI. The module header already names the fix. Reported 2026-10-12 when four build specs on another estate could not finalise from a dispatched worker.",
+  "tags": [
+    "capability:verify"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4150-ac-probe-catalog"
+  },
+  "reqId": "REQ-192",
+  "prdId": "PRD-001",
+  "title": "Per-AC probe catalog so URL-verifiable criteria verify deterministically (issue 349)",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-16T12:44:34.575Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "HTTP method"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "header"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "header"
+      }
+    ]
+  }
+}

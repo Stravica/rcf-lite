@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-10-16T12:44:25.108Z",
+  "updatedAt": "2026-10-16T12:44:25.108Z",
+  "purpose": "Implement issue 349: structured per-AC probes resolved by the deterministic verify engine.",
+  "responsibilities": [
+    "@stravica-ai/rcf-schemas minor: optional probe object on $defs/acceptanceCriterion { method, path, expectStatus, expectHeader { name, match }, expectBody { contains | matches }, selector }.",
+    "src/verify/engine/catalog.js (new): reads rcf/verify-catalog.json { probes: { <acId>: probe } }; an AC-level probe wins over the catalog entry.",
+    "src/verify/engine/deterministic.js: resolves each in-scope AC with a probe to pass, fail or skipped with evidence; no probe keeps critique-only; --parity-env selects the target environment.",
+    "src/cli/define.js: rcf define create ac and rcf define update gain --probe <json> and --probe-file <path>."
+  ],
+  "internalStructure": "The resolver is a pure function of (probe, fetch response, optional DOM snapshot); the fetch seam stays deps.fetchImpl; the selector probe uses the declared optional Playwright peer in-process, never the MCP browser.",
+  "interfaces": [
+    {
+      "name": "rcf verify run --mode deterministic",
+      "kind": "cliCommand",
+      "description": "usage: rcf verify run --url <url> [--fbs <id>] --mode deterministic [--parity-env <env>]\nPer AC: pass, fail or skipped with evidence when a probe exists, critiqueOnly otherwise. runStats.counts { verified, failed, skipped, critiqueOnly, total }. Exit 0 when every in-scope AC passed, 4 otherwise."
+    },
+    {
+      "name": "rcf/verify-catalog.json",
+      "kind": "fileFormat",
+      "description": "{ catalogVersion: 1, probes: { <acId>: Probe } }; written through rcf define update <us-id> --ac <ac-id> --probe or edited by the test-author hand."
+    },
+    {
+      "name": "Probe",
+      "kind": "recordShape",
+      "description": "fields: method (GET default), path, expectStatus, expectHeader { name, match }, expectBody { contains | matches }, selector, parityEnv"
+    }
+  ],
+  "notes": "Build-ordering constraint: the rcf-schemas minor (optional probe on acceptanceCriterion) must publish and be pinned before FBS-218 can merge; the catalog file alone needs no schema change.",
+  "tacId": "TAC-4150-ac-probe-catalog",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Per-AC probe catalog resolved by deterministic verify (issue 349)"
+}

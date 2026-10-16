@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-16T12:44:24.006Z",
+  "updatedAt": "2026-10-16T12:44:32.411Z",
+  "purpose": "Implement ADR-4148: the verifier hand produces a Test-stage verify report before merge and Finalise ingests it after merge to write verified deterministically, with provenance checks and the bundle --next backstop.",
+  "responsibilities": [
+    "src/verify/cli/run.js: --report-out <path> writes a VerifyReport v1 (headSha from git rev-parse HEAD, target, mode, hand, verifierId) and --hand <name> stamps the hand; the default path is rcf/verify-reports/<fbs-id>/<headSha12>.json when --fbs names one build spec.",
+    "src/finalise/ingest.js: loadVerifyReport and checkReportProvenance (ancestry or tree equality against HEAD, loopback target refusal, hand separation, age window) as pure functions over git lookups.",
+    "src/cli/finalise.js: the default path reads the report and spawns nothing; --mode agentScreenshotCritique and --mode deterministic leave Finalise (they belong to rcf verify run); every refusal names its reason and exit code.",
+    "src/cli/build.js: bundle --next refuses while a merged spec inside the backstop window is complete and not verified; --allow-unverified \"<reason>\" proceeds and records the override."
+  ],
+  "internalStructure": "Report schema and provenance checks are rcf-lite-local (no rcf-schemas change): the report lives in a walker-invisible directory like rcf/discovery/. Finalise becomes read report, check, write; the only side effect is the FBS executionStatus write through updateDocument with allowVerifiedOverride.",
+  "interfaces": [
+    {
+      "name": "rcf verify run (Test stage)",
+      "kind": "cliCommand",
+      "description": "usage: rcf verify run --url <preview-or-version-url> --fbs <fbs-id> --mode <deterministic|agentScreenshotCritique> --hand verifier --verifier-id <text> [--report-out <path>] [--parity-env <env>]\nWrites a VerifyReport v1 to rcf/verify-reports/<fbs-id>/<headSha12>.json by default and prints \"verify report: <path> <verdict> <verified>/<total>\". Exit 0 report written and verdict PASS, 4 report written and verdict not PASS, 2 usage, 1 IO."
+    },
+    {
+      "name": "rcf build finalise",
+      "kind": "cliCommand",
+      "description": "usage: rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>] [--json]\nIngests the Test-stage verify report for the FBS and writes executionStatus verified when every precondition and provenance check holds. Spawns no verify subprocess and no agent CLI; its only child processes are git lookups. Exit 0 promoted, 4 refused (not complete, not on the default branch, report missing, report head not contained in HEAD, loopback target, verifier hand equals builder hand, report too old, verdict not PASS, ci evidence missing), 3 report or tree fails validation or missing Code Nodes, 2 usage."
+    },
+    {
+      "name": "rcf build bundle --next (backstop)",
+      "kind": "cliCommand",
+      "description": "usage: rcf build bundle --next [--allow-unverified \"<reason>\"]\nRefuses exit 4 with \"backstop: <n> merged spec(s) complete and not verified: <ids>\" while any FBS inside the adopted backstop window is complete and not verified. --allow-unverified with a non-empty reason proceeds and appends { reason, by, at, unverifiedFbsIds } to backstop.overrides in rcf/define/backstop.json."
+    },
+    {
+      "name": "rcf build backstop adopt",
+      "kind": "cliCommand",
+      "description": "usage: rcf build backstop adopt --from <fbs-id>\nWrites rcf/define/backstop.json { fromBuildOrder, adoptedAt, adoptedBy }. A tree with no backstop.json has the backstop off (grandfathered by absence). Exit 0 written, 2 usage, 3 unknown FBS."
+    },
+    {
+      "name": "VerifyReport",
+      "kind": "recordShape",
+      "description": "The Test-stage verify report.\nfields: reportVersion (1), fbsId, headSha, target { kind: url | package, url, packageRef }, mode, hand, verifierId, startedAt, finishedAt, rcfLiteVersion, verdict, verdictAuthority, runStats { counts { verified, failed, skipped, total } }, perAc [ { acId, result: pass | fail | skipped | critiqueOnly | critiqued, probe, evidence } ]\nnotes: rcf-lite-local; hand is one of the five estate hands and must be verifier for Finalise to ingest it."
+    },
+    {
+      "name": "rcf/verify-reports/<fbs-id>/<headSha12>.json",
+      "kind": "fileFormat",
+      "description": "Committed by the verifier hand on the PR branch under a Hand: verifier trailer. Walker-invisible; the separation check classes the directory as verifier evidence, not production code, tests or criteria."
+    }
+  ],
+  "notes": "Supersedes the spawn path that 0.3.0 PR 50 introduced and 0.33.0, 0.34.0 and 0.34.1 extended. The ship-authority (0.4.0), per-AC refusal (0.7.0, 0.8.0, 0.20.0, 0.28.0) and per-FBS scope (0.34.0) semantics are kept, read from the ingested report instead of a spawned run.",
+  "tacId": "TAC-4148-test-stage-verify-finalise",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Test-stage verify report, administrative Finalise ingest and the verified backstop"
+}
