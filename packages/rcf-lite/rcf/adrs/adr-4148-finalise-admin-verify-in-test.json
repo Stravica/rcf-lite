@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-16T12:45:16.587Z",
+  "updatedAt": "2026-10-16T12:45:16.587Z",
+  "context": "0.3.0 (PR 50, 2026-07-22) made rcf build finalise the ship gate: after merge it spawned rcf-verify as a fresh subprocess against the deployed app and promoted complete to verified on a passing run. 0.4.0 capped rcf build mark at complete and required verdictAuthority ship for promotion. 0.7.0 added the agentScreenshotCritique browser-verification mode and per-AC verdict classes; 0.8.0 the SCOPE-MISMATCH verdict Finalise reads; 0.20.0 the EVAL-MISSING and EVAL-BELOW-THRESHOLD refusals and --ship-without-eval; 0.28.0 the per-AC refusals (UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH), the manual verified-override gate and the post-merge precondition (refuse off the default trunk). 0.33.0 (issue 330) added deterministic mode so a dispatched worker could run Finalise, but that mode records every AC critique-only and cannot promote. 0.34.0 scoped Finalise to one FBS (ADR-4147) and 0.34.1 added --provision-mode and the run.verify record. The default verifier mode spawns the agent CLI, so only a parent session could promote; dispatched workers could not, merges went ahead without Finalise, 26 build specs on a GBP 249 product built with rcf-lite merged and none reached verified, and 30 gates missed a one-line wiring bug the first run against the platform caught. The operator ruled 2026-10-16: Finalise back to admin, verification in Test.",
+  "decision": "Verification is a Test-stage act and Finalise is an administrative one. Before merge the verifier hand runs rcf verify run against the real entry point on the preview or version host and commits a VerifyReport v1 under rcf/verify-reports/<fbs-id>/<headSha12>.json with a Hand: verifier trailer; the report plus the scoped Review MERGE is the merge gate. After merge, CI green and rcf build mark <fbs> complete, rcf build finalise <fbs> --ci-run <ref> reads that report and writes verified when: the FBS is complete; HEAD is on the default branch; every bound AC has a Code Node; the report validates; its headSha is an ancestor of HEAD or its tree equals the tree of a commit HEAD contains (the squash-merge case); its target is not loopback; its hand is verifier and its verifierId matches no Hand-Id on a builder commit in the merged range; it is younger than --max-report-age (default 7 days); its verdict is PASS with ship authority and none of the kept per-AC refusals fires. Finalise spawns no verify subprocess and no agent CLI, so any hand the stage-keeper names can run it, and rcf build bundle --next enforces the backstop.",
+  "consequences": "Finalise becomes deterministic and fast and its exit codes become a stable admin contract. The evidence moves earlier: a defect found by the verifier blocks the merge instead of surfacing after it. The tree carries one small committed report per verified head. agentScreenshotCritique and deterministic become rcf verify run modes only; Finalise --mode is retired with a usage error naming the Test-stage command. A product whose subjective criteria need a critique still needs a session that may run the critique mode, now at Test rather than after merge. Squash merges are supported by tree equality but a main branch that moved between verify and merge forces a re-verify. The verified ladder, the ship-authority rule (0.4.0), the per-AC refusal set (0.7.0, 0.8.0, 0.20.0, 0.28.0), per-FBS scope (0.34.0) and the provisioning record (0.34.1) are kept and read from the report. Superseded: the post-merge spawn of rcf verify run inside Finalise (0.3.0 PR 50), Finalise --mode and its deterministic refusal branch (0.33.0), the verify-subprocess forwarding of --provision-mode and the package-first verifier resolution inside Finalise (0.34.1, moved to rcf verify run), and HQ standard rule 4 mechanics (the standard follows once this ships).",
+  "alternativesConsidered": [
+    {
+      "name": "Keep Finalise as the verify wrapper and make deterministic mode promote",
+      "summary": "Land the probe catalog only and leave verification after merge.",
+      "reasonNotChosen": "Verification after merge cannot gate the merge, which is the failure the October trail shows; and subjective criteria would still pin Finalise to a parent session."
+    },
+    {
+      "name": "Finalise re-runs verify itself in deterministic mode after merge as a second check",
+      "summary": "Ingest the Test-stage report and also probe the deployed URL.",
+      "reasonNotChosen": "Doubles the network surface and reintroduces a non-deterministic step into an admin verb; the merged deploy is checked by the next spec's Test stage and by CI. Recorded as a later option, not v1."
+    },
+    {
+      "name": "Store the report out of tree and reference it by hash on the FBS",
+      "summary": "Keep the tree lean; FBS gains a verifyReportHash field.",
+      "reasonNotChosen": "Needs an rcf-schemas change to the closed FBS schema and an artefact store the lane may not reach; a committed file is reviewable in the PR."
+    }
+  ],
+  "adrId": "ADR-4148-finalise-admin-verify-in-test",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Finalise returns to an administrative step; verification moves to the Test stage"
+}
