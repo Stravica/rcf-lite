@@ -60,6 +60,30 @@
       "addedAt": "2026-10-09T16:30:05.435Z",
       "status": "open",
       "resolvedBy": "REQ-189"
+    },
+    {
+      "id": 8,
+      "text": "A read-only separation check in the audit verb group reads a pull request's commit range and refuses with exit 4 when a commit declared or inferred as build touches tests or criteria, a test commit touches production code, or one commit touches both classes without a recorded exception; it prints one line a gate can quote, plus a machine-readable form.",
+      "kind": "capability",
+      "source": "discovery:separation-check",
+      "addedAt": "2026-10-16T10:54:53.972Z",
+      "status": "open"
+    },
+    {
+      "id": 9,
+      "text": "The separation check is deterministic and git-only: no LLM, no network, no schema change, no configuration needed for the default path classes, and it runs on the pull request's own commits, never on a squashed main.",
+      "kind": "constraint",
+      "source": "discovery:separation-check",
+      "addedAt": "2026-10-16T10:54:54.169Z",
+      "status": "open"
+    },
+    {
+      "id": 10,
+      "text": "The first release of the separation check does not prove who made a commit, does not inspect fields inside FBS or Code Node documents, and installs no git hook.",
+      "kind": "outOfScope",
+      "source": "discovery:separation-check",
+      "addedAt": "2026-10-16T10:54:54.362Z",
+      "status": "open"
     }
   ]
 }
