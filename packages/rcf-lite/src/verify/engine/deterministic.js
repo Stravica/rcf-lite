@@ -27,6 +27,9 @@
 // optional `playwright` peer in-process (`deps.domSnapshotImpl` seam),
 // never the MCP.
 
+import { createRequire } from 'node:module';
+import { pathToFileURL } from 'node:url';
+
 import { selectProbe } from './catalog.js';
 
 const DEFAULT_REACHABLE_TIMEOUT_MS = 10000;
@@ -167,7 +170,11 @@ async function requestProbe({ url, method = 'GET', fetchImpl, timeoutMs = DEFAUL
 export async function snapshotSelector({ url, selector }) {
   let chromium;
   try {
-    ({ chromium } = await import('playwright'));
+    // The declared optional peer, resolved the way pack-browser.js does so
+    // it stays out of the runtime dependency set.
+    const playwrightPath = createRequire(import.meta.url).resolve('playwright');
+    const mod = await import(pathToFileURL(playwrightPath).href);
+    chromium = mod?.chromium ?? mod?.default?.chromium;
   } catch (err) {
     return { error: { kind: 'noPlaywright', message: `selector probes need the optional playwright peer: ${err.message}` } };
   }
