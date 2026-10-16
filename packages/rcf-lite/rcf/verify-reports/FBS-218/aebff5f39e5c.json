@@ -1,0 +1,455 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-218",
+  "headSha": "aebff5f39e5c300403afdd2508cb1fdad26a55dc",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "sha256": "8392b8339e5d9df50644abf6cb084a4b5dfa171e95366c36d2581233db60ea37",
+    "servedSha": "aebff5f39e5c300403afdd2508cb1fdad26a55dc",
+    "installedVersion": "0.34.2",
+    "entryPoint": "npx rcf (scratch project, npm install of the tarball)"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-218-test",
+  "startedAt": "2026-10-16T20:59:49Z",
+  "finishedAt": "2026-10-16T21:13:45Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": "ci",
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "correctness",
+  "runStats": {
+    "counts": {
+      "verified": 8,
+      "failed": 0,
+      "skipped": 0,
+      "total": 8
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19201-1",
+      "result": "pass",
+      "probe": {
+        "path": "/health",
+        "expectStatus": 200
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-1.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-1",
+            "exit": 0,
+            "verdict": "PASS",
+            "counts": {
+              "total": 1,
+              "verified": 1,
+              "failed": 0,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "pass",
+            "evidence": {
+              "source": "ac",
+              "url": "http://127.0.0.1:47218/health",
+              "status": 200,
+              "elapsedMs": 3
+            }
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-2",
+      "result": "pass",
+      "probe": {
+        "path": "/ready",
+        "expectStatus": 200,
+        "expectBody": {
+          "contains": "ready"
+        }
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-2.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-2",
+            "exit": 4,
+            "verdict": "BROKEN",
+            "counts": {
+              "total": 1,
+              "verified": 0,
+              "failed": 1,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "fail",
+            "evidence": {
+              "source": "ac",
+              "url": "http://127.0.0.1:47218/ready",
+              "status": 200,
+              "elapsedMs": 3,
+              "failedExpectation": "expectBody.contains",
+              "expected": "ready",
+              "observed": "starting"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-3",
+      "result": "pass",
+      "probe": null,
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-3-critiqueOnly.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-3-critiqueOnly",
+            "exit": 4,
+            "verdict": "BLOCKED",
+            "counts": {
+              "total": 1,
+              "verified": 0,
+              "failed": 0,
+              "skipped": 0,
+              "critiqueOnly": 1
+            },
+            "result": "critiqueOnly",
+            "evidence": {
+              "reason": "critique-only: subjective visual judgement needed; deterministic mode cannot judge this AC (parent-session agentScreenshotCritique mode is required)."
+            }
+          },
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-3-unreachable.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-3-unreachable",
+            "exit": 4,
+            "verdict": "BLOCKED",
+            "counts": {
+              "total": 1,
+              "verified": 0,
+              "failed": 0,
+              "skipped": 1,
+              "critiqueOnly": 0
+            },
+            "result": "skipped",
+            "evidence": {
+              "source": "ac",
+              "url": "http://127.0.0.1:47218/reset",
+              "elapsedMs": 5,
+              "error": {
+                "kind": "network",
+                "message": "fetch failed"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-4",
+      "result": "pass",
+      "probe": {
+        "path": "/from-ac",
+        "expectStatus": 200
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-4-ac-source.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-4-ac-source",
+            "exit": 0,
+            "verdict": "PASS",
+            "counts": {
+              "total": 1,
+              "verified": 1,
+              "failed": 0,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "pass",
+            "evidence": {
+              "source": "ac",
+              "url": "http://127.0.0.1:47218/from-ac",
+              "status": 200,
+              "elapsedMs": 2
+            }
+          },
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-4-catalog-source.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-4-catalog-source",
+            "exit": 0,
+            "verdict": "PASS",
+            "counts": {
+              "total": 1,
+              "verified": 1,
+              "failed": 0,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "pass",
+            "evidence": {
+              "source": "catalog",
+              "url": "http://127.0.0.1:47218/from-catalog",
+              "status": 200,
+              "elapsedMs": 4
+            }
+          },
+          {
+            "run": "AC-19201-4-stray-validate",
+            "command": "npx rcf define validate",
+            "exit": 3,
+            "reportLine": "[error] validation <fixture>/rcf/verify-catalog.json: rcf/verify-catalog.json carries a probe for 'AC-999-9' but no acceptance criterion with that id exists in the tree."
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-5",
+      "result": "pass",
+      "probe": {
+        "path": "/health",
+        "expectStatus": 200,
+        "parityEnv": "staging"
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-5-staging.report.json --provision-mode skip --mode deterministic --fbs FBS-001 --parity-env staging",
+            "run": "AC-19201-5-staging",
+            "exit": 0,
+            "verdict": "PASS",
+            "counts": {
+              "total": 1,
+              "verified": 1,
+              "failed": 0,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "pass",
+            "evidence": {
+              "source": "ac",
+              "url": "http://127.0.0.1:47218/health",
+              "status": 200,
+              "elapsedMs": 3
+            }
+          },
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-5-production.report.json --provision-mode skip --mode deterministic --fbs FBS-001 --parity-env production",
+            "run": "AC-19201-5-production",
+            "exit": 4,
+            "verdict": "BLOCKED",
+            "counts": {
+              "total": 1,
+              "verified": 0,
+              "failed": 0,
+              "skipped": 1,
+              "critiqueOnly": 0
+            },
+            "result": "skipped",
+            "evidence": {
+              "source": "ac",
+              "reason": "parityEnv mismatch",
+              "probeParityEnv": "staging",
+              "runParityEnv": "production"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-6",
+      "result": "pass",
+      "probe": {
+        "path": "/",
+        "expectStatus": 200
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "run": "AC-19201-6-update",
+            "command": "npx rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\",\"expectStatus\":200}'",
+            "exit": 0,
+            "reportLine": "AC-101-1 updated at rcf/user-stories/us-101.json"
+          },
+          {
+            "run": "AC-19201-6-validate",
+            "command": "npx rcf define validate",
+            "exit": 0,
+            "reportLine": "rcf define validate: tree is clean."
+          },
+          {
+            "run": "AC-19201-6-unknown-key",
+            "command": "npx rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\",\"expectStatus\":200,\"bogusKey\":1}'",
+            "exit": 3,
+            "reportLine": "[error] validation probe carries unknown key(s) bogusKey (allowed: method, path, expectStatus, expectHeader, expectBody, selector, parityEnv)"
+          },
+          {
+            "run": "AC-19201-6-nonint-status",
+            "command": "npx rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\",\"expectStatus\":\"200\"}'",
+            "exit": 3,
+            "reportLine": "[error] validation /acceptanceCriteria/0/probe/expectStatus must be integer"
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-7",
+      "result": "pass",
+      "probe": null,
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 1,
+          "cloneBaselinePass": 1,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-7.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-7",
+            "exit": 4,
+            "verdict": "BLOCKED",
+            "counts": {
+              "total": 2,
+              "verified": 0,
+              "failed": 0,
+              "skipped": 0,
+              "critiqueOnly": 2
+            },
+            "result": "critiqueOnly",
+            "evidence": {
+              "reason": "critique-only: subjective visual judgement needed; deterministic mode cannot judge this AC (parent-session agentScreenshotCritique mode is required)."
+            }
+          },
+          {
+            "run": "AC-19201-7-traced",
+            "command": "node --import trace-spawn.mjs node_modules/rcf-lite/bin/rcf.js verify run ... --mode deterministic --fbs FBS-001",
+            "exit": 4,
+            "spawnTraceLines": 0
+          }
+        ]
+      }
+    },
+    {
+      "acId": "AC-19201-8",
+      "result": "pass",
+      "probe": {
+        "path": "/"
+      },
+      "evidence": {
+        "suite": {
+          "file": "test/verify/probe-catalog.test.js",
+          "installedPackagePass": 8,
+          "cloneBaselinePass": 8,
+          "fail": 0
+        },
+        "handRuns": [
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-8-catalog-noassert.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-8-catalog-noassert",
+            "exit": 4,
+            "verdict": "BROKEN",
+            "counts": {
+              "total": 1,
+              "verified": 0,
+              "failed": 1,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "fail",
+            "evidence": {
+              "source": "catalog",
+              "url": "http://127.0.0.1:47218/",
+              "status": 200,
+              "elapsedMs": 2,
+              "failedExpectation": "missing assertion",
+              "expected": "a probe matching $defs/acProbe with at least one response assertion",
+              "observed": "carries no response assertion (expectStatus, expectHeader, expectBody, selector)"
+            }
+          },
+          {
+            "command": "npx rcf verify run --repo <fixture> --profile ci --url http://127.0.0.1:47218 --out <evidence>/AC-19201-8-ac-noassert.report.json --provision-mode skip --mode deterministic --fbs FBS-001",
+            "run": "AC-19201-8-ac-noassert",
+            "exit": 4,
+            "verdict": "BROKEN",
+            "counts": {
+              "total": 1,
+              "verified": 0,
+              "failed": 1,
+              "skipped": 0,
+              "critiqueOnly": 0
+            },
+            "result": "fail",
+            "evidence": {
+              "source": "ac",
+              "url": "http://127.0.0.1:47218/",
+              "status": 200,
+              "elapsedMs": 2,
+              "failedExpectation": "missing assertion",
+              "expected": "a probe matching $defs/acProbe with at least one response assertion",
+              "observed": "carries no response assertion (expectStatus, expectHeader, expectBody, selector)"
+            }
+          },
+          {
+            "run": "AC-19201-8-validate-noassert",
+            "command": "npx rcf define validate",
+            "exit": 3,
+            "reportLine": "[error] validation <fixture>/rcf/verify-catalog.json: rcf/verify-catalog.json probe for 'AC-101-1' is malformed at missing assertion: carries no response assertion (expectStatus, expectHeader, expectBody, selector)."
+          },
+          {
+            "run": "AC-19201-8-validate-no-version",
+            "command": "npx rcf define validate",
+            "exit": 3,
+            "reportLine": "[error] validation <fixture>/rcf/verify-catalog.json: rcf/verify-catalog.json must declare catalogVersion 1 (found null)."
+          },
+          {
+            "run": "AC-19201-8-validate-version-2",
+            "command": "npx rcf define validate",
+            "exit": 3,
+            "reportLine": "[error] validation <fixture>/rcf/verify-catalog.json: rcf/verify-catalog.json must declare catalogVersion 1 (found 2)."
+          }
+        ]
+      }
+    }
+  ],
+  "notes": "Written by hand to the TAC-4148 VerifyReport v1 shape (FBS-219 builds the writer). Probe targets were a loopback fixture server on 127.0.0.1:47218; the report target is the packed artefact. Per-run reports, stdout, stderr and exit files are kept in the verifier job evidence directory, not committed. parityEnv is null because the run was not scoped to a parity env except the AC-19201-5 runs (staging, production)."
+}
