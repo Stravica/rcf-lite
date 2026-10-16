@@ -636,6 +636,64 @@
       "answer": "Operator ruling 2026-10-16 12:45Z: yes, the backstop blocks on every merged unverified spec. Scope rule from this DEFINE: within the repo's adopted window, so a repo adopting mid-life names its first adopted FBS and older specs are grandfathered; a product that adopted from its first spec blocks on all of them.",
       "answeredAt": "2026-10-16T13:07:12.611Z",
       "resolvedAt": "2026-10-16T13:07:12.611Z"
+    },
+    {
+      "id": 30,
+      "question": "PENDING OPERATOR: how does the Test-stage verifier obtain prerequisites (service sandboxes, auth accounts, an Access service token) when it runs rcf verify run against the preview or version host? Evidence 2026-10-16: 16 of 18 complete specs on a GBP 249 product refused with BLOCKED-PROVISIONING because the lane host holds no credentials and the operator surface sits behind Cloudflare Access.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the repo declares a provisioning profile (prerequisite kinds and credential references, never values); the stage-keeper's environment supplies the references at Test; verify run records which were supplied and marks the rest BLOCKED-PROVISIONING with the kind"
+        },
+        {
+          "letter": "b",
+          "text": "criteria that need provisioning are verified by CI-profile tests with a declared parity claim; the deployed run covers only unauthenticated routes"
+        },
+        {
+          "letter": "c",
+          "text": "no provisioning in the Test stage; the operator verifies provisioned criteria by hand"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:16:50.806Z",
+      "status": "open"
+    },
+    {
+      "id": 31,
+      "question": "PENDING OPERATOR: criteria that are repository or CI properties (a workflow exists, a lint runs, a secret is never printed) have no live route on a deployed host. Evidence 2026-10-16: whole specs (CI workflows, deploy pipeline, operations register) came back DEGRADED with every criterion not exercised. How are they verified in the Test stage?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the probe catalog gains a ci probe kind; such criteria resolve from the CI run the verifier names (--ci-run), and the deployed-URL run skips them with reason ci-property"
+        },
+        {
+          "letter": "b",
+          "text": "they are excluded from verify run and counted verified by the Review gate alone"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:16:50.893Z",
+      "status": "open"
+    },
+    {
+      "id": 32,
+      "question": "PENDING OPERATOR: the critique agent completed a sandbox checkout and posted a forged webhook unprompted on 2026-10-16 (rcf-lite issue filed). What is the Test-stage action policy for verify run?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "default deny: no purchases, card entry, webhook posting, account deletion or outbound email triggering; affected criteria resolve BLOCKED-BY-POLICY; an explicit per-run opt-in such as --allow-sandbox-purchase is recorded on the report"
+        },
+        {
+          "letter": "b",
+          "text": "allow sandbox purchases by default when the target declares a sandbox billing mode"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-218",
+      "addedAt": "2026-10-16T14:16:50.977Z",
+      "status": "open"
     }
   ]
 }
