@@ -7248,10 +7248,13 @@
           "covered": true,
           "testCases": [
             "TC-251-ac-level-empty-assertion-refused",
+            "TC-251-ac-level-whitespace-assertion-refused",
             "TC-251-assertion-free-probe-fails",
             "TC-251-catalog-validate-refuses",
             "TC-251-catalog-validate-refuses-malformed",
-            "TC-251-empty-assertion-probe-fails"
+            "TC-251-catalog-validate-refuses-whitespace",
+            "TC-251-empty-assertion-probe-fails",
+            "TC-251-whitespace-assertion-probe-fails"
           ],
           "unresolvedTestCases": []
         }
