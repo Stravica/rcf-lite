@@ -3358,6 +3358,8 @@ flowchart LR
   AC-19001-5 -.-> TC-252-reports-not-chain
   AC-19001-6["AC-19001-6"]
   REQ-190 --> AC-19001-6
+  TC-252-hand-refuses-out["TC-252-hand-refuses-out"]
+  AC-19001-6 -.-> TC-252-hand-refuses-out
   TC-252-writes-only-reports["TC-252-writes-only-reports"]
   AC-19001-6 -.-> TC-252-writes-only-reports
   AC-19002-1["AC-19002-1"]
@@ -5276,6 +5278,7 @@ flowchart LR
   class AC-19001-5 ac;
   class TC-252-reports-not-chain tc;
   class AC-19001-6 ac;
+  class TC-252-hand-refuses-out tc;
   class TC-252-writes-only-reports tc;
   class AC-19002-1 ac;
   class TC-253-promotes-verified tc;

@@ -744,7 +744,7 @@ REQ-190      yes      AC-19001-1   yes         TC-252-report-written
                       AC-19001-3   yes         TC-252-bad-hand-flags
                       AC-19001-4   yes         TC-252-package-target
                       AC-19001-5   yes         TC-252-reports-not-chain
-                      AC-19001-6   yes         TC-252-writes-only-reports
+                      AC-19001-6   yes         TC-252-hand-refuses-out, TC-252-writes-only-reports
                       AC-19002-1   yes         TC-253-promotes-verified
                       AC-19002-2   yes         TC-253-no-report
                       AC-19002-3   yes         TC-253-head-loopback-age
