@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-822",
+  "path": "src/verify/cli/run.js#refusePackageFetch",
+  "implementsAcIds": [
+    "AC-19001-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T22:59:06.413Z",
+  "updatedAt": "2026-10-16T22:59:06.413Z"
+}

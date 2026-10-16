@@ -74,6 +74,55 @@ export function buildReport(p) {
   return redactSecrets(report);
 }
 
+/** FBS-219 (US-19001): the five estate hands a VerifyReport may name. */
+export const VERIFY_HANDS = Object.freeze(['test-author', 'builder', 'reviewer', 'verifier', 'stage-keeper']);
+
+/**
+ * Compose the Test-stage VerifyReport v1 (TAC-4148 recordShape) from a
+ * finished run report plus the provenance the CLI resolved: the head the
+ * run names, the target, the hand and the verifier identity. Pure.
+ *
+ * @param {object} p
+ * @param {object} p.report - the run report from buildReport
+ * @param {string} p.fbsId
+ * @param {string} p.headSha
+ * @param {{ kind: 'url', url: string } | { kind: 'package', packageRef: string }} p.target
+ * @param {string} p.mode
+ * @param {string} p.hand
+ * @param {string|null} p.verifierId
+ * @param {string} p.rcfLiteVersion
+ * @returns {object}
+ */
+export function composeVerifyReport(p) {
+  const run = p.report?.run ?? {};
+  const counts = run.runStats?.counts ?? {};
+  const perAc = Array.isArray(p.report?.perAc) ? p.report.perAc : [];
+  return {
+    reportVersion: 1,
+    fbsId: p.fbsId,
+    headSha: p.headSha,
+    target: p.target,
+    mode: p.mode,
+    hand: p.hand,
+    verifierId: p.verifierId ?? null,
+    startedAt: run.startedAt,
+    finishedAt: run.finishedAt,
+    rcfLiteVersion: p.rcfLiteVersion,
+    profile: run.profile,
+    verdict: p.report.verdict,
+    verdictAuthority: p.report.verdictAuthority,
+    runStats: {
+      counts: {
+        verified: counts.verified ?? 0,
+        failed: counts.failed ?? 0,
+        skipped: counts.skipped ?? 0,
+        total: counts.total ?? perAc.length,
+      },
+    },
+    perAc: perAc.map((row) => ({ acId: row.acId, result: row.result, evidence: row.evidence ?? null })),
+  };
+}
+
 /**
  * Serialise a report to the on-disk artifact string (camelCase JSON).
  *
