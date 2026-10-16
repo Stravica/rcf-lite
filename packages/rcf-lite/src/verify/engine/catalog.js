@@ -17,14 +17,14 @@ export const VERIFY_CATALOG_PATH = join('rcf', 'verify-catalog.json');
  * empty catalog; a malformed one is a validation error as data.
  *
  * @param {string} projectRoot
- * @returns {Promise<{ catalogVersion: number|null, probes: Record<string, object> } | import('#core/errors').RcfError>}
+ * @returns {Promise<{ exists: boolean, catalogVersion: number|null, probes: Record<string, object> } | import('#core/errors').RcfError>}
  */
 export async function readVerifyCatalog(projectRoot) {
   let raw;
   try {
     raw = await readFile(join(projectRoot, VERIFY_CATALOG_PATH), 'utf8');
   } catch (err) {
-    if (err?.code === 'ENOENT') return { catalogVersion: null, probes: {} };
+    if (err?.code === 'ENOENT') return { exists: false, catalogVersion: null, probes: {} };
     return rcfError({ kind: 'ioFailure', message: `could not read ${VERIFY_CATALOG_PATH}: ${err.message}` });
   }
   let doc;
@@ -36,7 +36,22 @@ export async function readVerifyCatalog(projectRoot) {
   if (!doc || typeof doc !== 'object' || !doc.probes || typeof doc.probes !== 'object' || Array.isArray(doc.probes)) {
     return rcfError({ kind: 'validation', message: `${VERIFY_CATALOG_PATH} must be { catalogVersion: 1, probes: { <acId>: Probe } }`, field: 'verifyCatalog' });
   }
-  return { catalogVersion: doc.catalogVersion ?? null, probes: doc.probes };
+  return { exists: true, catalogVersion: doc.catalogVersion ?? null, probes: doc.probes };
+}
+
+/** The response assertions a probe may carry (TAC-4150). */
+const PROBE_ASSERTION_FIELDS = ['expectStatus', 'expectHeader', 'expectBody', 'selector'];
+
+/**
+ * True when a probe carries at least one response assertion. A probe
+ * without one is invalid (gate finding BH-1): verify records it as
+ * "fail" and validate refuses it in the catalog.
+ *
+ * @param {object} probe
+ * @returns {boolean}
+ */
+export function probeHasAssertion(probe) {
+  return PROBE_ASSERTION_FIELDS.some((field) => probe?.[field] !== undefined && probe[field] !== null);
 }
 
 /**
@@ -56,7 +71,9 @@ export function selectProbe(ac, catalog) {
 
 /**
  * `rcf define validate` check: every catalog key must name an AC in the
- * tree. A malformed catalog surfaces as its read error. Absent file: none.
+ * tree, every entry must carry a response assertion, and a present
+ * catalog must declare `catalogVersion: 1`. A malformed catalog surfaces
+ * as its read error. Absent file: none.
  *
  * @param {{ projectRoot: string, tree: { userStories?: Array<object> } }} args
  * @returns {Promise<Array<import('#core/errors').RcfError>>}
@@ -68,12 +85,33 @@ export async function validateVerifyCatalogKeys({ projectRoot, tree }) {
   for (const us of tree.userStories ?? []) {
     for (const ac of us.acceptanceCriteria ?? []) acIds.add(ac.id);
   }
-  return Object.keys(catalog.probes)
-    .filter((acId) => !acIds.has(acId))
-    .map((acId) => rcfError({
+  const filePath = join(projectRoot, VERIFY_CATALOG_PATH);
+  const errors = [];
+  if (catalog.exists && catalog.catalogVersion !== 1) {
+    errors.push(rcfError({
       kind: 'validation',
-      message: `${VERIFY_CATALOG_PATH} carries a probe for '${acId}' but no acceptance criterion with that id exists in the tree.`,
-      filePath: join(projectRoot, VERIFY_CATALOG_PATH),
-      field: `probes.${acId}`,
+      message: `${VERIFY_CATALOG_PATH} must declare catalogVersion 1 (found ${JSON.stringify(catalog.catalogVersion)}).`,
+      filePath,
+      field: 'catalogVersion',
     }));
+  }
+  for (const [acId, probe] of Object.entries(catalog.probes)) {
+    if (!acIds.has(acId)) {
+      errors.push(rcfError({
+        kind: 'validation',
+        message: `${VERIFY_CATALOG_PATH} carries a probe for '${acId}' but no acceptance criterion with that id exists in the tree.`,
+        filePath,
+        field: `probes.${acId}`,
+      }));
+    }
+    if (!probeHasAssertion(probe)) {
+      errors.push(rcfError({
+        kind: 'validation',
+        message: `${VERIFY_CATALOG_PATH} probe for '${acId}' carries no response assertion (expectStatus, expectHeader, expectBody or selector).`,
+        filePath,
+        field: `probes.${acId}`,
+      }));
+    }
+  }
+  return errors;
 }

@@ -30,7 +30,7 @@
 import { createRequire } from 'node:module';
 import { pathToFileURL } from 'node:url';
 
-import { selectProbe } from './catalog.js';
+import { probeHasAssertion, selectProbe } from './catalog.js';
 
 const DEFAULT_REACHABLE_TIMEOUT_MS = 10000;
 const CRITIQUE_ONLY_REASON = 'critique-only: subjective visual judgement needed; deterministic mode cannot judge this AC (parent-session agentScreenshotCritique mode is required).';
@@ -99,6 +99,9 @@ export function resolveProbe(probe, response, dom = null) {
     result: 'fail',
     evidence: { ...base, failedExpectation, expected, observed },
   });
+  if (!probeHasAssertion(probe)) {
+    return fail('missing assertion', 'expectStatus, expectHeader, expectBody or selector', null);
+  }
   if (probe.expectStatus !== undefined && response.status !== probe.expectStatus) {
     return fail('expectStatus', probe.expectStatus, response.status);
   }

@@ -9,6 +9,7 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 ### Added
 
 - **Deterministic verify resolves per-AC probes (FBS-218, issue 349).** An acceptance criterion may carry an optional `probe` (`@stravica-ai/rcf-schemas` 0.7.1 `$defs/acProbe`: method, path, expectStatus, expectHeader, expectBody, selector, parityEnv) or an entry in `rcf/verify-catalog.json { catalogVersion: 1, probes: { <acId>: Probe } }`; the AC-level probe wins. `rcf verify run --mode deterministic` resolves each in-scope AC to pass, fail or skipped with evidence on `report.perAc[]` (evidence `source` is `ac` or `catalog`), keeps an AC with no probe `critiqueOnly`, and stamps `runStats.counts { verified, failed, skipped, critiqueOnly, total }`. It exits 0 only when every in-scope AC passed, 4 otherwise; `rcf build finalise` maps that 4 to its own 4. `rcf define update <us-id> --ac <ac-id> --probe <json>` (or `--probe-file <path>`) sets the probe and refuses an unknown key or a bad type with exit 3; `rcf define validate` exits 3 on a catalog key naming no AC.
+- **A probe with no response assertion fails, never passes (FBS-218, gate finding BH-1).** A probe carrying none of expectStatus, expectHeader, expectBody or selector, on the AC or in `rcf/verify-catalog.json`, is recorded `fail` with `failedExpectation: "missing assertion"`, counts under `runStats.counts.failed` and the run exits 4. `rcf define validate` exits 3 on such a catalog entry, naming its key, and on a present catalog whose `catalogVersion` is missing or not 1.
 
 ### Changed
 
