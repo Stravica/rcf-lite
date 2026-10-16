@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:15.641Z",
-  "updatedAt": "2026-10-16T18:50:03.115Z",
+  "updatedAt": "2026-10-16T20:18:33.010Z",
   "purpose": "Declare one test per AC of US-19201 (FBS-218) driving rcf verify run --mode deterministic and rcf define update/validate through bin/rcf.js, so the FBS-218 Define round turns each declaration into a red test against the probe catalog behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -100,6 +100,27 @@
       "description": "an AC-level probe with an empty assertion (expectBody {}, selector \"\") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one",
       "status": "passing",
       "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: an AC-level probe with an empty assertion (expectBody {}, selector \"\") is refused with exit 3 naming the field, by rcf define update --probe and by rcf verify run --mode deterministic on a tree that already carries one"
+    },
+    {
+      "id": "TC-251-whitespace-assertion-probe-fails",
+      "acId": "AC-19201-8",
+      "description": "rcf verify run --mode deterministic records a catalog probe with a whitespace-only assertion string (expectBody contains \" \", expectBody matches \" \", expectHeader match \" \") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf verify run --mode deterministic records a catalog probe with a whitespace-only assertion string (expectBody contains \" \", expectBody matches \" \", expectHeader match \" \") as \"fail\" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4"
+    },
+    {
+      "id": "TC-251-catalog-validate-refuses-whitespace",
+      "acId": "AC-19201-8",
+      "description": "rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with a whitespace-only assertion string (contains, matches, header name, header match, selector)",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with a whitespace-only assertion string (contains, matches, header name, header match, selector)"
+    },
+    {
+      "id": "TC-251-ac-level-whitespace-assertion-refused",
+      "acId": "AC-19201-8",
+      "description": "rcf define update --ac --probe refuses an AC-level probe with a whitespace-only assertion string (selector \"  \", expectBody contains \" \") with exit 3 naming the field and never writes it",
+      "status": "failing",
+      "testPointer": "test/verify/probe-catalog.test.js::AC-19201-8: rcf define update --ac --probe refuses an AC-level probe with a whitespace-only assertion string (selector \"  \", expectBody contains \" \") with exit 3 naming the field and never writes it"
     }
   ],
   "status": "draft"

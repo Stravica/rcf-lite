@@ -467,3 +467,87 @@ test('AC-19201-8: an AC-level probe with an empty assertion (expectBody {}, sele
   assert.equal(report?.perAc?.some((e) => e.result === 'pass') ?? false, false, 'nothing is recorded "pass"');
   assert.equal(target.hits.length, 0, 'a refused chain is never probed');
 });
+
+// Gate finding BH-2b (PR 370 gate 3): a WHITESPACE-ONLY assertion string
+// is no assertion. Stage-keeper ruling (d-2026-10-16-046): it closes at the
+// schema, where @stravica-ai/rcf-schemas acProbe requires a non-whitespace
+// character on every assertion string (expectBody.contains,
+// expectBody.matches, expectHeader.name, expectHeader.match, selector), so
+// the whitespace-only case is refused by the same path as the empty one.
+// Each entry: [field path the refusal must name, probe].
+
+// Probes that resolve to "pass" against the target below when only
+// minLength 1 is enforced: its body and its Date header both carry spaces.
+const WHITESPACE_RUN_PROBES = [
+  ['expectBody/contains', { path: '/', expectBody: { contains: ' ' } }],
+  ['expectBody/matches', { path: '/', expectBody: { matches: ' ' } }],
+  ['expectHeader/match', { path: '/', expectHeader: { name: 'date', match: ' ' } }],
+];
+
+const WHITESPACE_PROBES = [
+  ...WHITESPACE_RUN_PROBES,
+  ['expectHeader/name', { path: '/', expectHeader: { name: ' ', match: 'text' } }],
+  ['selector', { path: '/', selector: '  ' }],
+  ['expectBody/contains', { path: '/', expectBody: { contains: ' \t\n' } }],
+];
+
+test('AC-19201-8: rcf verify run --mode deterministic records a catalog probe with a whitespace-only assertion string (expectBody contains " ", expectBody matches " ", expectHeader match " ") as "fail" with evidence naming the field, counts it under runStats.counts.failed never verified, and exits 4', async (t) => {
+  const target = await startTarget(t, { '/': { status: 200, body: 'ok go' } });
+  const wsIds = WHITESPACE_RUN_PROBES.map((_, i) => `AC-101-${i + 1}`);
+  const controlId = `AC-101-${WHITESPACE_RUN_PROBES.length + 1}`;
+  const catalog = Object.fromEntries(WHITESPACE_RUN_PROBES.map(([, probe], i) => [wsIds[i], probe]));
+  // Control: a well-formed asserting probe still passes in the same run.
+  catalog[controlId] = { path: '/', expectBody: { contains: 'ok go' } };
+  const root = await fixtureChain({ acs: [...wsIds, controlId].map((id) => ac(id)), catalog });
+
+  const { code, stderr, report } = await verifyRun(root, target.url);
+  assert.equal(code, 4, `a whitespace-only assertion fails the run, exit 4; stderr:\n${stderr}`);
+  WHITESPACE_RUN_PROBES.forEach(([field, probe], i) => {
+    const entry = perAc(report, wsIds[i]);
+    assert.equal(entry.result, 'fail', `${wsIds[i]} ${JSON.stringify(probe)}: a whitespace-only assertion is never "pass"`);
+    assert.match(JSON.stringify(entry.evidence ?? null), new RegExp(field),
+      `${wsIds[i]} ${JSON.stringify(probe)}: evidence names the whitespace-only field ${field}`);
+  });
+  assert.equal(perAc(report, controlId).result, 'pass', 'the well-formed control probe passes');
+  assert.equal(report.run.runStats.counts.failed, WHITESPACE_RUN_PROBES.length, 'every whitespace-only probe counts under failed');
+  assert.equal(report.run.runStats.counts.verified, 1, 'only the control probe counts as verified');
+  assert.notEqual(report.verdict, 'PASS');
+});
+
+test('AC-19201-8: rcf define validate exits 3 naming the key and the field for an rcf/verify-catalog.json probe with a whitespace-only assertion string (contains, matches, header name, header match, selector)', async () => {
+  for (const [field, probe] of WHITESPACE_PROBES) {
+    const root = await fixtureChain({
+      acs: [ac('AC-101-1'), ac('AC-101-2')],
+      catalog: {
+        'AC-101-1': { path: '/', expectBody: { contains: 'ok go' } },
+        'AC-101-2': probe,
+      },
+    });
+    const res = await rcf(['define', 'validate'], { cwd: root });
+    const out = `${res.stdout}${res.stderr}`;
+    assert.equal(res.code, 3, `${JSON.stringify(probe)} fails validate; stdout:\n${res.stdout}`);
+    assert.match(out, /AC-101-2/, `validate names the whitespace-only key for ${JSON.stringify(probe)}`);
+    assert.match(out, new RegExp(field), `validate names the whitespace-only field ${field} for ${JSON.stringify(probe)}`);
+    assert.doesNotMatch(out, /AC-101-1/, 'validate does not flag the well-formed probe');
+  }
+});
+
+test('AC-19201-8: rcf define update --ac --probe refuses an AC-level probe with a whitespace-only assertion string (selector "  ", expectBody contains " ") with exit 3 naming the field and never writes it', async () => {
+  const root = await fixtureChain({ acs: [ac('AC-101-1')] });
+  const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
+  const cases = [
+    ['selector', { path: '/', selector: '  ' }],
+    ['expectBody/contains', { path: '/', expectBody: { contains: ' ' } }],
+  ];
+  for (const [field, probe] of cases) {
+    const res = await rcf(['define', 'update', 'US-101', '--ac', 'AC-101-1', '--probe', JSON.stringify(probe)], { cwd: root });
+    assert.equal(res.code, 3, `define update refuses ${JSON.stringify(probe)} with exit 3; stdout:\n${res.stdout}`);
+    assert.match(`${res.stdout}${res.stderr}`, new RegExp(field), `the refusal names ${field}`);
+  }
+  const stored = JSON.parse(await readFile(usPath, 'utf8')).acceptanceCriteria.find((a) => a.id === 'AC-101-1');
+  assert.equal(stored.probe, undefined, 'refused probes are never written');
+
+  // Control: a well-formed AC-level probe is accepted and written.
+  const ok = await rcf(['define', 'update', 'US-101', '--ac', 'AC-101-1', '--probe', JSON.stringify({ path: '/', selector: 'main' })], { cwd: root });
+  assert.equal(ok.code, 0, `a well-formed probe is accepted; stderr:\n${ok.stderr}`);
+});
