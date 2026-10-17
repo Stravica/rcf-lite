@@ -9,11 +9,11 @@
   "totals": {
     "items": 114,
     "notStarted": 60,
-    "inProgress": 3,
-    "complete": 36,
+    "inProgress": 2,
+    "complete": 37,
     "verified": 15,
-    "actionable": 41,
-    "blocked": 19
+    "actionable": 42,
+    "blocked": 18
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1445,11 +1445,11 @@
       "buildOrder": 220,
       "tier": 2,
       "title": "Administrative Finalise: ingest the Test-stage report, no verify spawn",
-      "executionStatus": "inProgress",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-219"
       ],
-      "state": "inProgress",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1461,10 +1461,8 @@
       "dependsOnFbsIds": [
         "FBS-220"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-220"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-222",
@@ -1503,7 +1501,6 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-220",
         "FBS-221",
         "FBS-223"
       ]
