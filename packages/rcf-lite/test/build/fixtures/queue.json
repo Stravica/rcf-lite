@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 114,
-    "notStarted": 61,
-    "inProgress": 2,
+    "notStarted": 60,
+    "inProgress": 3,
     "complete": 36,
     "verified": 15,
-    "actionable": 42,
+    "actionable": 41,
     "blocked": 19
   },
   "nextActionable": "FBS-013",
@@ -1445,11 +1445,11 @@
       "buildOrder": 220,
       "tier": 2,
       "title": "Administrative Finalise: ingest the Test-stage report, no verify spawn",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-219"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {
