@@ -6,7 +6,7 @@ name: publish
 #   rcf-lite-v<version>  ->  packages/rcf-lite  (`rcf-lite`)
 #
 # The trusted-publisher (OIDC) binding is repo + workflow FILENAME (this
-# file). The Baz-owned re-registration under the new package name is
+# file). The operator-owned re-registration under the new package name is
 # tracked in docs/2026-08-06_packaging-registry-runbook.md step 4;
 # nothing in this workflow executes registry admin.
 #

@@ -1,12 +1,12 @@
 # rcf-lite registry runbook (packaging consolidation)
 
-**Status: SPEC. This runbook is executed at release time only, after the packaging migration PR has landed and Baz has given the go. Nothing in this document runs automatically.**
+**Status: SPEC. This runbook is executed at release time only, after the packaging migration PR has landed and the operator has given the go. Nothing in this document runs automatically.**
 
 Companion to `docs/2026-08-06_packaging-consolidation-proposal.md`. Read that first for context and the ruling items.
 
 ## Scope
 
-Steps for transitioning the RCF Lite suite from four separately-published packages (`@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf-verify-lite`, `@stravica-ai/rcf-lite-core`, `@stravica-ai/rcf-schemas`) to a single published umbrella (`rcf-lite` or `@stravica-ai/rcf-lite` per ruling R1) with schemas remaining separately published (per the 2026-08-06 Baz ruling).
+Steps for transitioning the RCF Lite suite from four separately-published packages (`@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf-verify-lite`, `@stravica-ai/rcf-lite-core`, `@stravica-ai/rcf-schemas`) to a single published umbrella (`rcf-lite` or `@stravica-ai/rcf-lite` per ruling R1) with schemas remaining separately published (per the 2026-08-06 operator ruling).
 
 Legacy packages are DEPRECATED, never UNPUBLISHED — unpublish would break existing consumers' lockfiles.
 
@@ -18,8 +18,8 @@ Every item must be true before running any step below.
 - [ ] Ruling item R1 is resolved (name choice: `rcf-lite` vs `@stravica-ai/rcf-lite`). This runbook references `<UMBRELLA_NAME>` throughout; substitute the ruled name.
 - [ ] Ruling item R5 is resolved (release-train sequencing: `0.7.1` packaging-only, or fold into `0.8.0`). This runbook references `<UMBRELLA_VERSION>`; substitute the ruled version.
 - [ ] `@stravica-ai/rcf-schemas` pin in umbrella package.json is EXACT (`"0.4.2"`, not `"^0.4.2"`) and reviewed for this release. Doctrine per ruling on schemas standalone; every release deliberately reviews the pin. Record the review decision (hold or bump) in the release notes.
-- [ ] Baz has given the go for the release.
-- [ ] Baz-owned action complete: OIDC trusted-publisher binding on npm re-registered under `<UMBRELLA_NAME>` (see step 4 for the exact npm-side steps).
+- [ ] The operator has given the go for the release.
+- [ ] Operator-owned action complete: OIDC trusted-publisher binding on npm re-registered under `<UMBRELLA_NAME>` (see step 4 for the exact npm-side steps).
 
 ## Pre-publish acceptance (mandatory, per R2)
 
@@ -127,7 +127,7 @@ npm deprecate '@stravica-ai/rcf-lite-core@*' \
   'This package is now an internal workspace-only module of <UMBRELLA_NAME>. Direct installation is no longer supported. See https://github.com/Stravica/rcf-lite#migration.'
 ```
 
-Note: `@stravica-ai/rcf-schemas` is NOT deprecated. Per the 2026-08-06 Baz ruling it remains a standalone published package (serves the whole RCF product line, not just Lite).
+Note: `@stravica-ai/rcf-schemas` is NOT deprecated. Per the 2026-08-06 operator ruling it remains a standalone published package (serves the whole RCF product line, not just Lite).
 
 Verify each deprecation:
 
@@ -139,7 +139,7 @@ npm view @stravica-ai/rcf-lite-core deprecated
 
 Each MUST print the migration message.
 
-### Step 4. Trusted-publisher (OIDC) binding — Baz-owned
+### Step 4. Trusted-publisher (OIDC) binding — operator-owned
 
 The current OIDC binding is against workflow filename `publish.yml` on repo `Stravica/rcf-lite` and mapped to each of `@stravica-ai/rcf-build-lite`, `@stravica-ai/rcf-verify-lite`, `@stravica-ai/rcf-lite-core`. The re-registration is:
 
@@ -147,7 +147,7 @@ The current OIDC binding is against workflow filename `publish.yml` on repo `Str
 2. Keep the existing bindings on the legacy packages IN PLACE until at least one deprecation cycle passes. This is defensive: if a critical patch to a legacy version becomes necessary, the machinery still exists.
 3. After a defined cooldown (recommend 90 days from deprecation), remove the OIDC bindings from the three legacy packages.
 
-Step 4 is Baz-owned; Dave does not have registry admin.
+Step 4 is operator-owned; Dave does not have registry admin.
 
 ### Step 5. Announce
 
@@ -171,7 +171,7 @@ After the release lands and the smokes pass:
 
 ## Version-skew management (doctrine, standing rule)
 
-The 2026-08-06 Baz ruling to keep `@stravica-ai/rcf-schemas` standalone re-introduces the version-skew surface the umbrella consolidation kills elsewhere. The mitigation is doctrine, not hygiene:
+The 2026-08-06 operator ruling to keep `@stravica-ai/rcf-schemas` standalone re-introduces the version-skew surface the umbrella consolidation kills elsewhere. The mitigation is doctrine, not hygiene:
 
 - Umbrella's `dependencies` pins `@stravica-ai/rcf-schemas` EXACTLY (`"0.4.2"`, not `"^0.4.2"`). Never a caret, never a tilde.
 - Every umbrella release deliberately reviews the schemas pin: hold, or bump to a specific version, recording the decision in the release notes.
@@ -196,9 +196,9 @@ If a legacy consumer critically needs a patch to a legacy version (unlikely once
 ## References
 
 - Proposal doc: `docs/2026-08-06_packaging-consolidation-proposal.md`.
-- 2026-08-06 Baz ruling on schemas standalone: recorded in the proposal doc's "Considered and ruled" section; feed source is this dispatch's coordinator turn.
-- 2026-08-06 Baz ratification of "one rcf CLI" (verify as subcommand): recorded as ruling item R3 in the proposal doc (RATIFIED).
-- Ruling-sheet item 17 (R1: registry name choice): open, Baz-owned.
+- 2026-08-06 operator ruling on schemas standalone: recorded in the proposal doc's "Considered and ruled" section; feed source is this dispatch's coordinator turn.
+- 2026-08-06 operator ratification of "one rcf CLI" (verify as subcommand): recorded as ruling item R3 in the proposal doc (RATIFIED).
+- Ruling-sheet item 17 (R1: registry name choice): open, operator-owned.
 - Ruling-sheet item 11 (0.8.0 amendment: schemas scope-tag bump): interacts with schemas pin review at umbrella release time.
 - Current publish workflow: `.github/workflows/publish.yml`.
 - Current CI workflow: `.github/workflows/ci.yml`.
