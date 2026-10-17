@@ -1,5 +1,5 @@
 // DEFINE stage gates D1..D8 (REQ-174; proposal 2026-09-22 §2.4, §3.2,
-// §5.2 v3; Baz 2026-09-24 renumbering: warn-with-ack D3/D5/D6 ships in
+// §5.2 v3; operator ruling 2026-09-24 renumbering: warn-with-ack D3/D5/D6 ships in
 // 0.29.0, the fuller template parser / catalogue / probe runner in
 // 0.30).
 //
@@ -518,7 +518,7 @@ export function ackable(stage) {
  */
 const TODO_RE = /\bTODO:/;
 
-/** Bracketed AC-class prefix (Baz decision 6, proposal §3.2 D4). */
+/** Bracketed AC-class prefix (operator decision 6, proposal §3.2 D4). */
 const AC_CLASS_RE = /^\[(happy|edge|failure|must-not|non-functional)\]/;
 
 /**

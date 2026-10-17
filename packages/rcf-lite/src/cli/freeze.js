@@ -1,5 +1,5 @@
 // `rcf define freeze` subcommand handler (REQ-176; proposal
-// 2026-09-22 §2.1, §2.5, §3.2 D8, §8.2 v3; Baz 2026-09-24 renumbering
+// 2026-09-22 §2.1, §2.5, §3.2 D8, §8.2 v3; operator ruling 2026-09-24 renumbering
 // puts this verb in 0.29.0).
 //
 // The freeze verb is the only close verb: no change-object is minted,

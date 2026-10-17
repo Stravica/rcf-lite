@@ -130,7 +130,7 @@ export function buildRefusalMessage({ slug, refusalMessageId, requiredCapabiliti
     ].join('\n');
   }
   if (refusalMessageId === 'jobs-background-no-queue') {
-    // Infra round 5 T-4 (spec 5.4, Baz decision 5). Names the shipped
+    // Infra round 5 T-4 (spec 5.4, operator decision 5). Names the shipped
     // queue provider explicitly (messaging-queue-cloudflare v1.0.0) so
     // an operator hitting the refusal has the shipped answer in hand
     // without a shelf-wide grep. Q3 default per spec section 10: the

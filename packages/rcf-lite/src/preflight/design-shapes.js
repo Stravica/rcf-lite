@@ -2,7 +2,7 @@
 // (verification-integrity-cluster-spec ADDENDUM §A).
 //
 // The v1 catalogue carries exactly ONE question — `auth.htmlLoginPage` —
-// per the plan-committed Baz-approved scope. Additional questions land
+// per the plan-committed operator-approved scope. Additional questions land
 // in v2 only on the evidence-gated triggers named in §A.3 (three
 // separate projects that would have benefited, OR a case-study defect
 // the existing surface cannot express). Broadening speculatively

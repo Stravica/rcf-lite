@@ -60,7 +60,7 @@ const SHAPE_LABELS = {
 };
 
 // Bucket id used for the project's own (non-blueprint) REQs inside the
-// by-blueprint grouping. The label is "Application" (Baz 2026-09-22);
+// by-blueprint grouping. The label is "Application" (operator ruling 2026-09-22);
 // the id is stable so hashes and data-doc-id anchors round-trip.
 const PROJECT_BUCKET_ID = 'application';
 const PROJECT_BUCKET_LABEL = 'Application';
@@ -333,7 +333,7 @@ function statusMiniCounts(reqs) {
 
 function renderStatusMini(counts) {
   const nonZero = STATUS_MINI.filter((s) => (counts[s] ?? 0) > 0);
-  // Polish (Baz 2026-09-22): when a bucket has exactly one status
+  // Polish (operator ruling 2026-09-22): when a bucket has exactly one status
   // represented and its count equals the total, the mini pill just
   // repeats the "(n)" total on the summary row. Suppress it so
   // "(21) 21" becomes "(21)"; buckets with a real split (e.g.

@@ -324,7 +324,7 @@ export function renderSearchButton() {
 
 /**
  * Three-state Light|Dark|Auto theme control for the standalone viewer
- * shell (viewer UI refresh design section 11 recommendation 6, Baz's
+ * shell (viewer UI refresh design section 11 recommendation 6, the operator's
  * 2026-10-04 review `w-2026-10-04-dave-001`). The control is rendered
  * server-side without an initial `aria-pressed=true` on any button; the
  * boot path in `page-init.js` reads `?theme=`, then (non-embed only)

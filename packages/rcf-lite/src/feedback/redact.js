@@ -532,7 +532,7 @@ export function redact(input, context = {}) {
   // 4 narrowing (0.28.2, issue #233, design amendment R5d): a token
   // whose trailing dot-label is a known file extension is NOT a
   // hostname, killing the `Backstory-product-brief.md` and
-  // `intake.json` false positives Barry hit in the WSD round-trip.
+  // `intake.json` false positives the operator hit in the WSD round-trip.
   // The bundled shortlist lives in redact-allowlist.json under the
   // `extensions` field; the operator overlay merges via
   // context.allowExtensions.

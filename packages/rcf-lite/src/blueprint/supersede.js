@@ -3,7 +3,7 @@
 // Scaffolds a project-level ADR at `rcf/adrs/adr-NNN-<kebab-topic>.json`
 // that supersedes the CONFLICT PAIR on the topic (one currently-applied
 // blueprint's scope:global ADR + one incoming (would-be-applied)
-// blueprint's scope:global ADR — Baz ruling, w-2026-08-19-008 round 3),
+// blueprint's scope:global ADR — operator ruling, w-2026-08-19-008 round 3),
 // and appends a matching `manifest.resolutions[]` record so the conflict
 // detector honours the resolution when the operator re-runs
 // `rcf define blueprint add <incoming source>`.
@@ -128,7 +128,7 @@ export async function supersedeBlueprintTopic({ projectRoot, tree, topic, incomi
     }
   }
 
-  // Baz ruling (round 3): the supersession record's two sides are the
+  // operator ruling (round 3): the supersession record's two sides are the
   // CONFLICT PAIR — one applied + one incoming — and this verb must
   // accept the incoming blueprint as the second side. `--incoming
   // <source>` loads the incoming blueprint from disk, finds its

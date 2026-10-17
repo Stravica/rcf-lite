@@ -111,7 +111,7 @@ function truncateToBytes(text, maxBytes) {
 
 /**
  * Render the fold comment body used on the dedupe path (slice 4).
- * 0.28.2 (issue #234, Barry ruling 2026-09-21): the retired
+ * 0.28.2 (issue #234, operator ruling 2026-09-21): the retired
  * "+1 from another reporter." payload is gone; the comment always
  * carries the full report so a human can judge whether the fold is
  * correct. The header line names the fold decision. The visible

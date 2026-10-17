@@ -1346,7 +1346,7 @@ const SUBMIT_OPTIONS = /** @type {const} */ ({
  * ghIssueGetBody, and only candidates whose body carries
  * `rcf-feedback-fingerprint: <fp>` on its own line AND whose anchor /
  * kind / target markers do not disagree with the entry's are counted
- * as verified matches (0.28.2, issue #234, Barry ruling 2026-09-21).
+ * as verified matches (0.28.2, issue #234, operator ruling 2026-09-21).
  * A search hit that does not verify is a NON-MATCH and is dropped
  * before the fold decision. Zero verified hits -> create; one -> fold
  * comment on that number; many -> fold on the lowest and mention the
@@ -1525,7 +1525,7 @@ async function handleSubmit(argv, ctx) {
         searchMatches = searchOpen.value?.matches ?? [];
       }
 
-      // 0.28.2 (issue #234, Barry ruling 2026-09-21): the search hit
+      // 0.28.2 (issue #234, operator ruling 2026-09-21): the search hit
       // alone is not a fold decision. Re-read each candidate body via
       // ghIssueGetBody and keep only those whose body carries
       // `rcf-feedback-fingerprint: <fp>` on its own line AND whose
@@ -1592,7 +1592,7 @@ async function handleSubmit(argv, ctx) {
         });
       } else if (matches.length === 1) {
         // Verified fingerprint match: comment. Comment carries the
-        // full report per Barry's 2026-09-21 ruling on #234.
+        // full report per the operator's 2026-09-21 ruling on #234.
         dedupe = 'comment';
         const commentBody = renderComment(e, built.redacted, {
           fingerprint: built.fingerprint,
@@ -1982,7 +1982,7 @@ function at(now) {
 // A search hit alone is not a fold: submit re-reads the candidate
 // body and folds only when the fingerprint line is literally present
 // on its own line AND the anchor / kind / target markers do not
-// contradict the entry's. This is the code side of Barry's ruling on
+// contradict the entry's. This is the code side of the operator's ruling on
 // #234 (2026-09-21) and of the amended AC-15701-2.
 
 /**

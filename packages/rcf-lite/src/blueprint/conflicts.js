@@ -200,7 +200,7 @@ export function renderConflictReport(conflicts) {
       lines.push(`  refs:     ${c.incoming.id} at ${c.incoming.path}`);
       lines.push(`            ${c.existing.id} at ${c.existing.path}`);
       lines.push('');
-      // Round-3 (Baz ruling): option 3 must be executable VERBATIM
+      // Round-3 (operator ruling): option 3 must be executable VERBATIM
       // from this refused-add state. supersede accepts `--incoming
       // <source>` and carries the SAME source path the operator just
       // typed on `rcf define blueprint add SRC`, so the printed command is

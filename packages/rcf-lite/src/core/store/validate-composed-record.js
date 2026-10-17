@@ -1,6 +1,6 @@
 // Shared validate-composed-record helper (0.28.2, issues #230 / #232
 // and the three folded verbs review / ui-baseline init / browser-verify,
-// per Barry's 2026-09-21 ruling).
+// per the operator's 2026-09-21 ruling).
 //
 // The bug: five discover verbs shipped a `--dry-run` branch that
 // composed a manifest record and printed it without ever running the
