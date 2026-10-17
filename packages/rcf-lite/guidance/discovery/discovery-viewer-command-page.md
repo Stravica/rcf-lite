@@ -21,7 +21,7 @@ Infographic sketches (static mocked pages, light theme, no external assets) sit 
 
 ## 1. Problem
 
-Barry, 2026-10-07, on the Readiness tab:
+The operator, 2026-10-07, on the Readiness tab:
 
 > [Readiness tab] at the moment - apart from the two key stage boxes, its scrappy/messy prose. The user has to try to translate it into the questions its supposed to be answering. E.g. "Questions for you" -> should be a list of the questions in a table perhaps, with a link to where those questions are and can be viewed in full context and/or resolved. If there are say insufficient ACs for a couple of REQs - I would expect to see these specified/listed and links to resolve/view them in place. The "For engineers" section is garbage - its like a scratchpad for the agent - its unhelpful to a human engineer. Lists, tables, counts, links - are whats needed on this whole page - it should serve as THE command page.
 
@@ -61,7 +61,7 @@ Method: the Readiness panel was rendered for both trees with the shipped code pa
 - Kinds of information: two verdicts, two counts, one chain term each.
 - Actionable links: 0 (A and B).
 - Items needing a resolve-in-context link: the two counts (they name a list the reader then has to find).
-- Barry's rule: keep the cards; make each count the link into the table it counts.
+- The operator's rule: keep the cards; make each count the link into the table it counts.
 
 ### 3.2 Questions for you (renderQuestionCards, `question-adapter.js`, `phrasebook.js`)
 
@@ -69,7 +69,7 @@ Method: the Readiness panel was rendered for both trees with the shipped code pa
 - Counts: A has 3 questions in 1 group (151 words, 10 paragraphs, 3 details, 0 tables, 0 links); B has 0 questions (30 words, 0 links).
 - Kinds of information: question text, hint, stage and check id in the detail.
 - Items needing a resolve link: all 3 on A; each already carries `writeBack[].command` in the readiness object (for example `rcf define ledger brief add --text "<text>"`) and `itemId` (profile:surface, brief-ledger), neither rendered.
-- Barry's rule: this becomes a table: number, question, where it lives (link), what settles it, the ask in brief-your-agent form (id plus one-line ask, copyable), state. No CLI command rendered on the page.
+- The operator's rule: this becomes a table: number, question, where it lives (link), what settles it, the ask in brief-your-agent form (id plus one-line ask, copyable), state. No CLI command rendered on the page.
 
 ### 3.3 What happens next (renderNextStep)
 
@@ -77,7 +77,7 @@ Method: the Readiness panel was rendered for both trees with the shipped code pa
 - Counts: 53 words, 0 links (A and B).
 - Kinds of information: the question count and the engineer item count restated.
 - Items needing a link: both counts.
-- Barry's rule: fold into the verdict cards as linked counts, or keep as one sentence; a paragraph that restates two numbers is not a panel.
+- The operator's rule: fold into the verdict cards as linked counts, or keep as one sentence; a paragraph that restates two numbers is not a panel.
 
 ### 3.4 Requirements that still need work (renderReqWorkTable)
 
@@ -85,7 +85,7 @@ Method: the Readiness panel was rendered for both trees with the shipped code pa
 - Counts: 0 rows on A and 0 rows on B. Why 0: only three product-owner checks feed it, and on A the failing checks are engineer-persona (`skeleton:reqShape` 36 ids, `stories:usFloors` 498 ids) while on B nothing fails below D6.
 - Kinds of information when populated: REQ id, one reason sentence, one link.
 - Items needing a link: every thin requirement the other checks name.
-- Barry's rule: the right shape, fed by too little. "Insufficient ACs" has no feed at all today; the nearest signals are D4 `stories:usFloors` per story, the Product Map "Missing AC scope" bucket for a story with zero criteria, and coverage `acs[].covered` for criteria with no resolving test.
+- The operator's rule: the right shape, fed by too little. "Insufficient ACs" has no feed at all today; the nearest signals are D4 `stories:usFloors` per story, the Product Map "Missing AC scope" bucket for a story with zero criteria, and coverage `acs[].covered` for criteria with no resolving test.
 
 ### 3.5 For engineers (renderForEngineers, a collapsed DocRow carrying the full engineer body from `src/view/readiness.js`)
 
@@ -107,12 +107,12 @@ The row is collapsed unless the profile register is engineer; WESPA's register i
 
 - Kinds of information across the row: verdicts, next actions, stage states, failing ids with reasons, delta ids with hashes, coverage counts (not shown), decisions, freeze state.
 - Items needing a resolve link: every failing id (187 on A, 3 on B), every unresolved test pointer (94 on B, not shown), the two coverage counts.
-- Barry's rule: nothing in this row is a table, and the delta is a 616-row list with no filter. The useful engineer content (failing ids with why, next command, coverage) is present but has to be dug out from under the delta.
+- The operator's rule: nothing in this row is a table, and the delta is a 616-row list with no filter. The useful engineer content (failing ids with why, next command, coverage) is present but has to be dug out from under the delta.
 
 ### 3.6 Stage guide dialog (`stage-legend.js`)
 
 - Shape: a dialog with one table (Stage, Name, What it checks, Posture), 8 rows, 238 words, 1 close button.
-- Barry's rule: fine as is; it is the only part of the page that already matches the rule.
+- The operator's rule: fine as is; it is the only part of the page that already matches the rule.
 
 ### 3.7 Summary across panels
 
@@ -128,7 +128,7 @@ The row is collapsed unless the profile register is engineer; WESPA's register i
 
 ## 4. Candidate capabilities ranked
 
-Rank 1 is highest. Barry value is scored on reader clarity (C), operator action (A) and traceability demonstration (T), each H / M / L; cost is S (a day), M (a few days), L (a week or more, or a decision first).
+Rank 1 is highest. Operator value is scored on reader clarity (C), operator action (A) and traceability demonstration (T), each H / M / L; cost is S (a day), M (a few days), L (a week or more, or a decision first).
 
 | Rank | Capability | C | A | T | Cost | Evidence and notes |
 |---|---|---|---|---|---|---|
@@ -245,14 +245,14 @@ Decisions received since the brief are listed first; mitigations and open-risks 
 
 ### 7.1 Decisions received
 
-- **Q1 ruled by Barry, 2026-10-07** (relay 9d3dd0a3-e7e5-4c6a-985e-c3962be38d4c, verbatim quote): "I meant provide the info they need to resolve with their agent. Keep the commands out of the view - the user isnt typing those commands - remember - the user operates their agent which uses these commands. Showing them here is little value." The viewer stays read-only, no CLI commands rendered on the page, no write route. Every row carries the item id, the plain-English ask or finding, the chain location (which REQ, US, AC, which gate), a link that opens the item in full context, and what resolved would look like. A per-row brief-your-agent handle (id plus plain-English ask, one line, copyable) is in scope as a design candidate for the wireframe at DEFINE; Barry rules on the render.
+- **Q1 ruled by the operator, 2026-10-07** (relay 9d3dd0a3-e7e5-4c6a-985e-c3962be38d4c, verbatim quote): "I meant provide the info they need to resolve with their agent. Keep the commands out of the view - the user isnt typing those commands - remember - the user operates their agent which uses these commands. Showing them here is little value." The viewer stays read-only, no CLI commands rendered on the page, no write route. Every row carries the item id, the plain-English ask or finding, the chain location (which REQ, US, AC, which gate), a link that opens the item in full context, and what resolved would look like. A per-row brief-your-agent handle (id plus plain-English ask, one line, copyable) is in scope as a design candidate for the wireframe at DEFINE; the operator rules on the render.
 - **Q2 ruled** (delta on an unfrozen tree): counts only, on-demand expand.
 - **Q3 ruled** (thin requirements table): list all three flavours (zero criteria, unresolved tests, D4 floor failures).
 - **Q4 ruled** (freeze-now): no freeze button, no command text on the page; show the state and what resolves it in human terms.
-- **Q5 ruled at DEFINE** (sub-tabs versus one long page): decided on the render; two HTML sketches (same data, both shapes) land in `guidance/discovery/` at DEFINE and Barry rules.
+- **Q5 ruled at DEFINE** (sub-tabs versus one long page): decided on the render; two HTML sketches (same data, both shapes) land in `guidance/discovery/` at DEFINE and the operator rules.
 - **Admissibility note (F2)**: the proposed viewer trace, impact and coverage routes skip `runWithAdmissibilityGate` the same way `src/cli/coverage.js` and `src/cli/impact.js` do (issue 316 and 317 context), so the BUILD worker does not re-apply the gate and refuse on WESPA. The DEFINE TAC states the admissibility statement explicitly.
 - **No Mermaid user-facing**: the per-requirement Mermaid trace slice (Section 2 row 12) is retired by the Trace-matrix FBS in Section 9. No new Mermaid lands on the viewer.
-- **Full traceability scan (ex-Q6, F1 mitigation)**: on an unfrozen tree the scan is on-demand per pivot with the result cached client-side keyed by `state.version`; a whole-tree re-walk per rewalk would be 1.5 MB of JSON every 30 seconds on WESPA and is out of scope. Barry's framing already covers it ("full traceability scan on-demand").
+- **Full traceability scan (ex-Q6, F1 mitigation)**: on an unfrozen tree the scan is on-demand per pivot with the result cached client-side keyed by `state.version`; a whole-tree re-walk per rewalk would be 1.5 MB of JSON every 30 seconds on WESPA and is out of scope. The operator's framing already covers it ("full traceability scan on-demand").
 - **For-engineers DocRow ruled (Dave 2026-10-07, Section 8 Q1)**: retire the wrapper. Section 3.5 described current state; the DEFINE build has no DocRow for engineers. Everything an engineer needs appears as rows in the tables (blocking check id, finding, location, link that opens the item, what resolves it). The Readiness-layout FBS in Section 9 lists `For-engineers retired` on its line already; this bullet is the ruling behind that.
 - **Readiness timeline deferred (Dave 2026-10-07, Section 8 Q2)**: no snapshot log under `.rcf/` in this DEFINE cycle. Recorded as a later candidate in Section 9 (last row, `defer`); not in scope for this build. Reconsidered when the operator surface earns the persistence.
 
@@ -271,7 +271,7 @@ Decisions received since the brief are listed first; mitigations and open-risks 
 - Tooling on the consumer laptop: `pnpm exec rcf` from `packages/rcf-lite/` resolves the globally installed 0.31.0 binary, not the clone, while `pnpm rcf` and `node bin/rcf.js` resolve 0.32.3. Mitigation: the hand-back names `pnpm rcf`; the pack's `pnpm exec rcf` wording wants a note.
 - Where this document lives: the guidance pack ships in the npm package (`files` in `package.json` includes `guidance`) and is served to every consumer's agent over MCP and `rcf guidance`, and its tests require a manifest entry for every pack file. Mitigation: this stage adds the manifest entry so the suite stays green; the hand-back asks whether a project discovery doc belongs in the product's guidance pack or under the package docs.
 
-## 8. Open questions for Barry
+## 8. Open questions for the operator
 
 None open. Both remaining items (For-engineers DocRow; Readiness timeline) were ruled by Dave on 2026-10-07 and are recorded in Section 7.1. The deferred timeline is also captured in Section 9 as the final row.
 
