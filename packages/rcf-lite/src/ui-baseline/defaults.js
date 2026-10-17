@@ -25,11 +25,11 @@
  * @type {UiBaselineFieldSpec[]}
  */
 export const UI_BASELINE_DEFAULTS_V1 = Object.freeze([
-  { path: 'themeMode', value: 'light-default-with-toggle', label: 'Theme mode', rulingSource: 'Baz Entry 5' },
-  { path: 'sharedLayoutModule', value: 'src/ui/layout.ts', label: 'Shared layout module', rulingSource: 'Baz Entry 5 + review-phase mandate 3' },
+  { path: 'themeMode', value: 'light-default-with-toggle', label: 'Theme mode', rulingSource: 'operator Entry 5' },
+  { path: 'sharedLayoutModule', value: 'src/ui/layout.ts', label: 'Shared layout module', rulingSource: 'operator Entry 5 + review-phase mandate 3' },
   { path: 'designTokensModule', value: 'src/ui/tokens.ts', label: 'Design tokens module', rulingSource: 'review-phase mandate 1' },
   { path: 'noHexInViewFiles', value: true, label: 'No hex literals in view files', rulingSource: 'review-phase mandate 1' },
-  { path: 'contrastTarget', value: 'WCAG AA', label: 'Contrast target', rulingSource: 'Baz Entry 5 + review-phase mandate 6' },
+  { path: 'contrastTarget', value: 'WCAG AA', label: 'Contrast target', rulingSource: 'operator Entry 5 + review-phase mandate 6' },
   { path: 'contrastTestBeforePalette', value: true, label: 'Contrast test authored before palette', rulingSource: 'review-phase mandate 10' },
   { path: 'focusRingsRequired', value: true, label: 'Focus rings required', rulingSource: 'review-phase mandate 6' },
   { path: 'hoverStatesRequired', value: true, label: 'Hover states required', rulingSource: 'review-phase mandate 8' },
@@ -41,7 +41,7 @@ export const UI_BASELINE_DEFAULTS_V1 = Object.freeze([
   { path: 'typography.proseMaxWidth', value: '72ch', label: 'Prose max width', rulingSource: 'review-phase mandate 7' },
   { path: 'interactionDefaults.loadingIndicatorOnFetch', value: true, label: 'Loading indicator on fetch', rulingSource: 'review-phase mandate 8' },
   { path: 'interactionDefaults.disabledStateVisuallyDistinct', value: true, label: 'Disabled state visually distinct', rulingSource: 'review-phase mandate 8' },
-  { path: 'authFlow.htmlLoginPageRequired', value: true, label: 'HTML login page required', rulingSource: 'review-phase mandate 9 + Baz "real login flow"' },
+  { path: 'authFlow.htmlLoginPageRequired', value: true, label: 'HTML login page required', rulingSource: 'review-phase mandate 9 + operator "real login flow"' },
   { path: 'authFlow.smokeChecksRequired', value: true, label: 'Auth-REQ smoke checks required', rulingSource: 'review-phase recommendation 9' },
 ]);
 
