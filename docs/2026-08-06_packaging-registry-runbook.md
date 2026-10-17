@@ -1,6 +1,6 @@
 # rcf-lite registry runbook (packaging consolidation)
 
-**Status: SPEC. This runbook is executed at release time only, after the packaging migration PR has landed and Baz has given the go. Nothing in this document runs automatically.**
+**Status: SPEC. This runbook is executed at release time only, after the packaging migration PR has landed and the operator has given the go. Nothing in this document runs automatically.**
 
 Companion to `docs/2026-08-06_packaging-consolidation-proposal.md`. Read that first for context and the ruling items.
 
