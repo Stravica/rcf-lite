@@ -10,8 +10,8 @@
     "items": 114,
     "notStarted": 60,
     "inProgress": 2,
-    "complete": 37,
-    "verified": 15,
+    "complete": 34,
+    "verified": 18,
     "actionable": 42,
     "blocked": 18
   },
@@ -1423,9 +1423,9 @@
       "buildOrder": 218,
       "tier": 0,
       "title": "Per-AC probe catalog resolved by deterministic verify (issue 349)",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1433,11 +1433,11 @@
       "buildOrder": 219,
       "tier": 1,
       "title": "Test-stage verify report: rcf verify run --hand writes VerifyReport v1",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-218"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1445,11 +1445,11 @@
       "buildOrder": 220,
       "tier": 2,
       "title": "Administrative Finalise: ingest the Test-stage report, no verify spawn",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-219"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
