@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T23:59:00.000Z",
-  "updatedAt": "2026-09-04T23:59:00.000Z",
+  "updatedAt": "2026-10-17T05:20:39.487Z",
   "usId": "US-2101",
   "prdId": "PRD-001",
   "reqId": "REQ-021",
@@ -38,7 +38,7 @@
     },
     {
       "id": "AC-2101-6",
-      "description": "The blueprint's family-prefix reservation (application-notifications- reserved for the sibling channels -email, -push, -webhook per Baz decision 2026-09-04) is documented as a paragraph in the blueprint README AND as a row in the shelf band registry table in every applying blueprint's docs/topics.md (marked as a doc-only reservation with no shipped blueprint).",
+      "description": "The blueprint's family-prefix reservation (application-notifications- reserved for the sibling channels -email, -push, -webhook per the operator's decision 2026-09-04) is documented as a paragraph in the blueprint README AND as a row in the shelf band registry table in every applying blueprint's docs/topics.md (marked as a doc-only reservation with no shipped blueprint).",
       "testable": true
     }
   ]

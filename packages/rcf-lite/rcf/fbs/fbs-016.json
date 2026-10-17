@@ -33,7 +33,7 @@
   "domain": "cli",
   "estimatedSize": "medium",
   "riskLevel": "low",
-  "notes": "Landing car of Phase 1 blueprint mechanism (w-2026-08-18-016, design-brief.md v2 §Composition model). Written against @stravica-ai/rcf-schemas 0.4.4 (blueprints[] host schema); dev pin to feature/blueprint-additive-0.4.4 on the schemas repo carries until the Baz 2FA publish flips the pin to registry-resolved 0.4.4.",
+  "notes": "Landing car of Phase 1 blueprint mechanism (w-2026-08-18-016, design-brief.md v2 §Composition model). Written against @stravica-ai/rcf-schemas 0.4.4 (blueprints[] host schema); dev pin to feature/blueprint-additive-0.4.4 on the schemas repo carries until the operator's 2FA publish flips the pin to registry-resolved 0.4.4.",
   "createdAt": "2026-08-18T22:56:02.353Z",
-  "updatedAt": "2026-08-18T22:56:02.353Z"
+  "updatedAt": "2026-10-17T05:20:27.072Z"
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T12:00:00Z",
-  "updatedAt": "2026-10-05T18:00:00Z",
+  "updatedAt": "2026-10-17T05:20:34.503Z",
   "reqId": "REQ-173",
   "prdId": "PRD-001",
   "title": "Sidecar ledgers under rcf/define/ and the rcf define ledger verb",
@@ -11,14 +11,20 @@
   "version": "0.1.0",
   "status": "draft",
   "shapeClassification": {
-    "shapes": ["persistence"],
+    "shapes": [
+      "persistence"
+    ],
     "reason": "keyword-scan",
     "classifiedAt": "2026-09-24T12:00:00Z",
     "signals": [
-      { "source": "description", "shape": "persistence", "match": "record" }
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "record"
+      }
     ]
   },
-  "rationale": "The proposal (2026-09-22 v3, section 8.2) makes ledgers the seam every later DEFINE stage draws from: D1 reads the brief ledger, D5 the concern ledger, D6 the probe ledger, D7 the decisions ledger, and D2's greenfield resolution walks the brief statements. Building the sidecars and the CLI now, before any gate reads them, keeps slice 2 free of write-side surprises. Baz's ruling of 2026-09-22 (decision 5) fixed the ownership: sidecars in rcf-lite until schemas 0.7 promotes them to manifest records. Precedent: .rcf/preflight-secrets.local.json is an rcf-lite-owned file outside the shared schema; rcf/define/ follows the same shape.",
+  "rationale": "The proposal (2026-09-22 v3, section 8.2) makes ledgers the seam every later DEFINE stage draws from: D1 reads the brief ledger, D5 the concern ledger, D6 the probe ledger, D7 the decisions ledger, and D2's greenfield resolution walks the brief statements. Building the sidecars and the CLI now, before any gate reads them, keeps slice 2 free of write-side surprises. The operator's ruling of 2026-09-22 (decision 5) fixed the ownership: sidecars in rcf-lite until schemas 0.7 promotes them to manifest records. Precedent: .rcf/preflight-secrets.local.json is an rcf-lite-owned file outside the shared schema; rcf/define/ follows the same shape.",
   "tags": [
     "capability:define-ledgers"
   ]

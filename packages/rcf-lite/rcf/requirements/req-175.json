@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-03T16:10:00Z",
+  "updatedAt": "2026-10-17T05:20:35.611Z",
   "reqId": "REQ-175",
   "prdId": "PRD-001",
   "title": "computeReadiness and the rcf define readiness CLI verb",
@@ -24,7 +24,7 @@
       }
     ]
   },
-  "rationale": "Baz ruled on 2026-09-22 (proposal section 2.4, section 6, section 9 decision 4) that Readiness is one object rendered by two consumers (the CLI and the viewer tab) so the two cannot disagree. The Product Map precedent (PR #238) established the shape: one pure compute, one JSON envelope, two renderers. computeReadiness is the object; rcf define readiness is the CLI twin the viewer tab (REQ-180, slice 5) will render unchanged. Slice 3 (rcf define freeze) reads freezeable and the per-stage state and refuses on any failing stage; slice 4's bundle --next reads the same object; slice 6's guidance points at the CLI as the one 'am I ready to build' surface. Fixing the slice-1 P3 in the same slice as the reader that consumes it keeps the ledger docHash contract single-sourced before it stabilises across the fleet.",
+  "rationale": "The operator ruled on 2026-09-22 (proposal section 2.4, section 6, section 9 decision 4) that Readiness is one object rendered by two consumers (the CLI and the viewer tab) so the two cannot disagree. The Product Map precedent (PR #238) established the shape: one pure compute, one JSON envelope, two renderers. computeReadiness is the object; rcf define readiness is the CLI twin the viewer tab (REQ-180, slice 5) will render unchanged. Slice 3 (rcf define freeze) reads freezeable and the per-stage state and refuses on any failing stage; slice 4's bundle --next reads the same object; slice 6's guidance points at the CLI as the one 'am I ready to build' surface. Fixing the slice-1 P3 in the same slice as the reader that consumes it keeps the ledger docHash contract single-sourced before it stabilises across the fleet.",
   "tags": [
     "capability:define-detection"
   ]

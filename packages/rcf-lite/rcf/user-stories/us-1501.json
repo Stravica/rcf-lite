@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-1501-1",
-      "description": "The loader accepts optional top-level `standardsTrace[]` (array of `{id: string, version: string}` objects; `id` is a non-empty string; `version` is a non-empty string), optional ADR-contribution fields `recommendedDefault: true|false`, `elicited: true|false` and `standardsTraceClause: string`. `recommendedDefault` and `elicited` are mutually independent (a SHOULD may be elicited; a MAY need not have a recommended default). The loader does NOT cross-check clause severity against kind (no refusal for a MUST clause mapped to an ADR; the discipline is prose in section 8a, not code, per amendment A2 Baz 2026-09-04T12:20:31Z).",
+      "description": "The loader accepts optional top-level `standardsTrace[]` (array of `{id: string, version: string}` objects; `id` is a non-empty string; `version` is a non-empty string), optional ADR-contribution fields `recommendedDefault: true|false`, `elicited: true|false` and `standardsTraceClause: string`. `recommendedDefault` and `elicited` are mutually independent (a SHOULD may be elicited; a MAY need not have a recommended default). The loader does NOT cross-check clause severity against kind (no refusal for a MUST clause mapped to an ADR; the discipline is prose in section 8a, not code, per the operator's amendment A2, 2026-09-04T12:20:31Z).",
       "given": "a blueprint fixture declaring standardsTrace with WSD-001 v2026-05, and one ADR contribution with recommendedDefault: true, elicited: false and standardsTraceClause: 'WSD-001 clause 3.1'",
       "when": "the loader parses the file",
       "then": "the LoadedBlueprint object carries the fields verbatim and returns no rcfError",
@@ -39,5 +39,5 @@
   ],
   "tacIds": [],
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-09-04T12:20:00Z"
+  "updatedAt": "2026-10-17T05:20:38.370Z"
 }
