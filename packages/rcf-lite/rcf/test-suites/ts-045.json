@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T16:22:23.766Z",
-  "updatedAt": "2026-10-17T01:22:06.152Z",
+  "updatedAt": "2026-10-17T01:35:25.435Z",
   "purpose": "Cover the four ACs on US-1601 via the unit and integration suites landed in this train. L1 through L3 are deterministic tests over pure or seam-injected code paths; L4 tests the judge invocation shape via a stubbed spawn seam (a real subprocess round-trip is exercised out-of-band as the section 11 real-claude smoke).",
   "testLevel": "integration",
   "acIds": [
@@ -30,9 +30,9 @@
     {
       "id": "TC-045-findevalrefusalacs-and",
       "acId": "AC-1601-3",
-      "description": "findEvalRefusalAcs and reportHasEvalRefusal read the two EVAL classes off perAcVerdicts[]; composeShipWithoutEvalRecord carries the operator reason and declared per-AC verdicts; nextShipWithoutEvalId increments monotonically",
+      "description": "Ingest path: a report carrying EVAL-MISSING on AC-101-1 makes rcf build finalise --ci-run refuse exit 4 with the spec message; --ship-without-eval with no reason exits 2 and a flag-like value is refused; --ship-without-eval \"harness offline\" promotes to verified and appends swe-FBS-001-1 to manifest.shipWithoutEval[] with the reason, the declared per-AC verdicts and the report path.",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-1601-3 (ingest): an ingested report carrying EVAL-MISSING refuses exit 4 with the spec message; --ship-without-eval <reason> needs a real reason and, given one, promotes and lands a monotonic swe-* record on manifest.shipWithoutEval[]"
     },
     {
       "id": "TC-045-runonecase-spawns-the-invoker-claude-or",
