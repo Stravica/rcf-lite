@@ -1,0 +1,19 @@
+{
+  "cnId": "CN-824",
+  "path": "src/cli/finalise.js#main",
+  "implementsAcIds": [
+    "AC-19002-1",
+    "AC-19002-2",
+    "AC-19002-3",
+    "AC-19002-4",
+    "AC-19002-5",
+    "AC-19002-6",
+    "AC-19002-7",
+    "AC-19002-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-17T01:51:56.509Z",
+  "updatedAt": "2026-10-17T01:51:56.509Z"
+}

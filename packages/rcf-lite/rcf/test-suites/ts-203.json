@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T22:38:04Z",
-  "updatedAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-10-17T01:35:25.991Z",
   "purpose": "Cover AC-16502-1 (writer refuses executionStatus=verified without allowVerifiedOverride, C-22), AC-16502-2 (writer accepts when allowVerifiedOverride:true, C-22 opt-out seam), and AC-16502-3 (finalise refuses on a non-default branch, --allow-pre-merge is the opt-out, C-26). AC-16502-1 and AC-16502-2 drive the writer directly through updateDocument; AC-16502-3 drives the finalise CLI end-to-end with a spawn seam that returns the branch name.",
   "testLevel": "integration",
   "acIds": [
@@ -29,9 +29,9 @@
     {
       "id": "TC-203-merge-state-refusal-and-opt-out",
       "acId": "AC-16502-3",
-      "description": "Fresh scaffold with a stub verify subprocess and a spawn seam that returns 'feature/x' as the git branch. First invocation: rcf build finalise <fbs> --url ...; assert exit 4 and stderr matches /git working tree is on branch 'feature\\/x'/. Second invocation: add --allow-pre-merge; assert exit 0, FBS at verified, and stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/.",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses promotion when git is not on a default branch (referee-guarantees C-26)"
+      "description": "Ingest path: with a valid report and HEAD on branch feature/x, rcf build finalise --ci-run exits 4 with stderr naming branch feature/x and claim C-26; adding --allow-pre-merge exits 0, FBS at verified, and stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/.",
+      "status": "failing",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-16502-3 (ingest): rcf build finalise on a non-default branch refuses exit 4 naming the branch and claim C-26, and --allow-pre-merge promotes the ingested report and logs the pre-merge decision with C-26"
     }
   ],
   "status": "approved"

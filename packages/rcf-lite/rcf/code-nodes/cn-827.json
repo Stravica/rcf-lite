@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-827",
+  "path": "src/verify/report/index.js#composeVerifyReport",
+  "implementsAcIds": [
+    "AC-19002-1",
+    "AC-19002-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-17T01:52:00.932Z",
+  "updatedAt": "2026-10-17T01:52:00.932Z"
+}

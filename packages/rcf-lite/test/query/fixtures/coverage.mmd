@@ -3364,6 +3364,8 @@ flowchart LR
   AC-19001-6 -.-> TC-252-writes-only-reports
   AC-19002-1["AC-19002-1"]
   REQ-190 --> AC-19002-1
+  TC-253-e2e-verify-then-finalise["TC-253-e2e-verify-then-finalise"]
+  AC-19002-1 -.-> TC-253-e2e-verify-then-finalise
   TC-253-promotes-verified["TC-253-promotes-verified"]
   AC-19002-1 -.-> TC-253-promotes-verified
   AC-19002-2["AC-19002-2"]
@@ -3374,6 +3376,8 @@ flowchart LR
   REQ-190 --> AC-19002-3
   TC-253-head-loopback-age["TC-253-head-loopback-age"]
   AC-19002-3 -.-> TC-253-head-loopback-age
+  TC-253-squash-tree-equal["TC-253-squash-tree-equal"]
+  AC-19002-3 -.-> TC-253-squash-tree-equal
   AC-19002-4["AC-19002-4"]
   REQ-190 --> AC-19002-4
   TC-253-hand-not-separate["TC-253-hand-not-separate"]
@@ -3386,6 +3390,8 @@ flowchart LR
   REQ-190 --> AC-19002-6
   TC-253-blocking-per-ac-verdicts["TC-253-blocking-per-ac-verdicts"]
   AC-19002-6 -.-> TC-253-blocking-per-ac-verdicts
+  TC-253-e2e-per-ac-refusal["TC-253-e2e-per-ac-refusal"]
+  AC-19002-6 -.-> TC-253-e2e-per-ac-refusal
   AC-19002-7["AC-19002-7"]
   REQ-190 --> AC-19002-7
   TC-253-retired-flags["TC-253-retired-flags"]
@@ -5281,17 +5287,20 @@ flowchart LR
   class TC-252-hand-refuses-out tc;
   class TC-252-writes-only-reports tc;
   class AC-19002-1 ac;
+  class TC-253-e2e-verify-then-finalise tc;
   class TC-253-promotes-verified tc;
   class AC-19002-2 ac;
   class TC-253-no-report tc;
   class AC-19002-3 ac;
   class TC-253-head-loopback-age tc;
+  class TC-253-squash-tree-equal tc;
   class AC-19002-4 ac;
   class TC-253-hand-not-separate tc;
   class AC-19002-5 ac;
   class TC-253-preconditions tc;
   class AC-19002-6 ac;
   class TC-253-blocking-per-ac-verdicts tc;
+  class TC-253-e2e-per-ac-refusal tc;
   class AC-19002-7 ac;
   class TC-253-retired-flags tc;
   class AC-19002-8 ac;

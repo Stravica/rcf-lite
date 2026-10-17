@@ -97,6 +97,15 @@ export function composeVerifyReport(p) {
   const run = p.report?.run ?? {};
   const counts = run.runStats?.counts ?? {};
   const perAc = Array.isArray(p.report?.perAc) ? p.report.perAc : [];
+  // FBS-220 (ADR-4148): the per-AC verdicts the engine derived ride on the
+  // perAc rows Finalise ingests (AC-19002-6).
+  const perAcVerdict = new Map((Array.isArray(p.report?.perAcVerdicts) ? p.report.perAcVerdicts : [])
+    .map((v) => [v.acId, v.verdict]));
+  // FBS-220 (ADR-4148): a deterministic PASS is the ship authority; Finalise
+  // is administrative and reads it from this report (AC-19002-1).
+  const verdictAuthority = p.mode === 'deterministic' && p.report.verdict === 'PASS'
+    ? 'ship'
+    : p.report.verdictAuthority;
   return {
     reportVersion: 1,
     fbsId: p.fbsId,
@@ -110,7 +119,7 @@ export function composeVerifyReport(p) {
     rcfLiteVersion: p.rcfLiteVersion,
     profile: run.profile,
     verdict: p.report.verdict,
-    verdictAuthority: p.report.verdictAuthority,
+    verdictAuthority,
     runStats: {
       counts: {
         verified: counts.verified ?? 0,
@@ -119,7 +128,12 @@ export function composeVerifyReport(p) {
         total: counts.total ?? perAc.length,
       },
     },
-    perAc: perAc.map((row) => ({ acId: row.acId, result: row.result, evidence: row.evidence ?? null })),
+    perAc: perAc.map((row) => ({
+      acId: row.acId,
+      result: row.result,
+      ...(perAcVerdict.has(row.acId) ? { verdict: perAcVerdict.get(row.acId) } : {}),
+      evidence: row.evidence ?? null,
+    })),
   };
 }
 

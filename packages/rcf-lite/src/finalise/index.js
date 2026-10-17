@@ -31,6 +31,8 @@ export {
   // finalise refuses on UI-BASELINE-UNMET and BROWSER-VERIFICATION-MISSING.
   findUiBaselineUnmetAcs, reportHasUiBaselineUnmet,
   findBrowserVerificationMissingAcs, reportHasBrowserVerificationMissing,
+  // FBS-220 (ADR-4148): administrative Finalise ingests the Test-stage report.
+  loadVerifyReport, checkReportProvenance,
 } from './ingest.js';
 export {
   composeShipWithoutVerifiedRecord,

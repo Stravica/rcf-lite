@@ -7,7 +7,9 @@
 // This is deliberately a READ of verify's artifact - build never re-derives a
 // verdict, it consumes the one verify stamped.
 
-import { readFile } from 'node:fs/promises';
+import { execFile } from 'node:child_process';
+import { readdir, readFile } from 'node:fs/promises';
+import { join, relative, sep } from 'node:path';
 
 /**
  * Load and parse a verify report artifact. Returns the parsed report, or a
@@ -261,4 +263,179 @@ export function findBrowserVerificationMissingAcs(report) {
  */
 export function reportHasBrowserVerificationMissing(report) {
   return findBrowserVerificationMissingAcs(report).length > 0;
+}
+
+// ---------------------------------------------------------------------------
+// FBS-220 (US-19002, ADR-4148): administrative Finalise ingests the
+// Test-stage VerifyReport v1 the verifier committed under
+// rcf/verify-reports/<fbs-id>/. Both functions read; neither writes, and the
+// only child processes are git lookups.
+
+const VERIFY_REPORTS_DIR = join('rcf', 'verify-reports');
+const PER_AC_RESULTS = new Set(['pass', 'fail', 'skipped', 'critiqueOnly', 'critiqued']);
+const DAY_MS = 24 * 60 * 60 * 1000;
+
+const isText = (v) => typeof v === 'string' && v.length > 0;
+const isTime = (v) => isText(v) && !Number.isNaN(Date.parse(v));
+
+// The first VerifyReport v1 field that fails, as `<field> <problem>`, or null.
+function verifyReportFault(report, fbsId) {
+  if (!report || typeof report !== 'object' || Array.isArray(report)) return 'reportVersion: the report is not an object';
+  if (report.reportVersion !== 1) return `reportVersion must be 1 (got ${JSON.stringify(report.reportVersion)})`;
+  if (report.fbsId !== fbsId) return `fbsId must be ${fbsId} (got ${JSON.stringify(report.fbsId)})`;
+  if (typeof report.headSha !== 'string' || !/^[0-9a-f]{40}$/.test(report.headSha)) return 'headSha must be a 40-character commit sha';
+  const target = report.target;
+  if (!target || typeof target !== 'object') return 'target must be an object';
+  if (target.kind === 'url') {
+    if (!isText(target.url)) return 'target.url must be a non-empty string';
+  } else if (target.kind === 'package') {
+    if (!isText(target.packageRef)) return 'target.packageRef must be a non-empty string';
+  } else {
+    return 'target.kind must be url | package';
+  }
+  for (const field of ['mode', 'hand', 'rcfLiteVersion', 'verdict', 'verdictAuthority']) {
+    if (!isText(report[field])) return `${field} must be a non-empty string`;
+  }
+  if (report.verifierId !== null && !isText(report.verifierId)) return 'verifierId must be a string or null';
+  for (const field of ['startedAt', 'finishedAt']) {
+    if (!isTime(report[field])) return `${field} must be an ISO timestamp`;
+  }
+  if (!report.runStats?.counts || typeof report.runStats.counts !== 'object') return 'runStats.counts must be an object';
+  if (!Array.isArray(report.perAc)) return 'perAc must be an array';
+  for (const row of report.perAc) {
+    if (!row || typeof row !== 'object' || !isText(row.acId)) return 'perAc rows must carry an acId';
+    if (!PER_AC_RESULTS.has(row.result)) return `perAc ${row.acId} result must be one of ${[...PER_AC_RESULTS].join(' | ')}`;
+  }
+  return null;
+}
+
+/**
+ * Locate, parse and validate the Test-stage report for one FBS. With no
+ * explicit path the newest report (by finishedAt) under
+ * rcf/verify-reports/<fbs-id>/ is taken.
+ *
+ * @param {object} p
+ * @param {string} p.projectRoot
+ * @param {string} p.fbsId
+ * @param {string} [p.reportPath] - absolute path from --report
+ * @returns {Promise<{ ok: true, report: object, path: string } | { ok: false, code: number, message: string }>}
+ */
+export async function loadVerifyReport({ projectRoot, fbsId, reportPath }) {
+  const missing = {
+    ok: false,
+    code: 4,
+    message: `finalise refused: no Test-stage verify report for ${fbsId}; the verifier runs rcf verify run --fbs ${fbsId} --hand verifier before merge`,
+  };
+  let paths;
+  if (reportPath) {
+    paths = [reportPath];
+  } else {
+    const dir = join(projectRoot, VERIFY_REPORTS_DIR, fbsId);
+    let names;
+    try { names = await readdir(dir); } catch { return missing; }
+    paths = names.filter((n) => n.endsWith('.json')).sort().map((n) => join(dir, n));
+    if (paths.length === 0) return missing;
+  }
+  let chosen = null;
+  for (const abs of paths) {
+    const shown = relative(projectRoot, abs).split(sep).join('/');
+    let report;
+    try {
+      report = JSON.parse(await readFile(abs, 'utf8'));
+    } catch (err) {
+      if (err?.code === 'ENOENT') return missing;
+      return { ok: false, code: 3, message: `finalise refused: verify report ${shown} is not valid JSON: ${err.message}` };
+    }
+    const fault = verifyReportFault(report, fbsId);
+    if (fault) return { ok: false, code: 3, message: `finalise refused: verify report ${shown} is not a valid VerifyReport v1: ${fault}` };
+    if (!chosen || Date.parse(report.finishedAt) >= Date.parse(chosen.report.finishedAt)) chosen = { report, path: shown };
+  }
+  return { ok: true, ...chosen };
+}
+
+function runGit(cwd, args) {
+  return new Promise((res) => {
+    execFile('git', args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024 }, (err, stdout) => {
+      res({ code: err ? (typeof err.code === 'number' ? err.code : 1) : 0, stdout: (stdout ?? '').trim() });
+    });
+  });
+}
+
+// localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0.
+function isLoopbackUrl(url) {
+  let host;
+  try { host = new URL(url).hostname.toLowerCase(); } catch { return false; }
+  host = host.replace(/^\[|\]$/g, '');
+  return host === 'localhost' || host.endsWith('.localhost') || /^127(\.\d{1,3}){3}$/.test(host)
+    || host === '::1' || host === '0.0.0.0';
+}
+
+// The report head is contained in HEAD when it is an ancestor, or when a
+// commit HEAD contains has the same tree outside rcf/verify-reports/ (the
+// verifier's report commit is folded into a squash merge).
+async function headContained(git, headSha) {
+  if ((await git(['merge-base', '--is-ancestor', headSha, 'HEAD'])).code === 0) return true;
+  if ((await git(['cat-file', '-e', `${headSha}^{commit}`])).code !== 0) return false;
+  const listed = await git(['rev-list', 'HEAD', `^${headSha}`]);
+  if (listed.code !== 0) return false;
+  for (const commit of listed.stdout.split('\n').filter(Boolean)) {
+    const diff = await git(['diff', '--quiet', headSha, commit, '--', ':/', `:(exclude)${VERIFY_REPORTS_DIR.split(sep).join('/')}`]);
+    if (diff.code === 0) return true;
+  }
+  return false;
+}
+
+// Hand-Id trailers of `Hand: builder` commits between the merge-base of the
+// report head with the pre-merge trunk and HEAD.
+async function builderHandIds(git, headSha) {
+  const trunk = (await git(['rev-list', '--first-parent', 'HEAD'])).stdout.split('\n').filter(Boolean);
+  let preMerge = 'HEAD';
+  for (const commit of trunk) {
+    if ((await git(['merge-base', '--is-ancestor', headSha, commit])).code !== 0) { preMerge = commit; break; }
+  }
+  const base = await git(['merge-base', preMerge, headSha]);
+  const revs = base.code === 0 && base.stdout ? ['HEAD', headSha, `^${base.stdout}`] : ['HEAD', headSha];
+  const log = await git(['log', '--format=%(trailers:key=Hand,valueonly,separator=%x2C)%x1f%(trailers:key=Hand-Id,valueonly,separator=%x2C)%x1e', ...revs]);
+  const ids = new Set();
+  for (const entry of log.stdout.split('\x1e')) {
+    const [hand, handId] = entry.trim().split('\x1f');
+    if (!hand?.split(',').map((h) => h.trim()).includes('builder')) continue;
+    for (const id of (handId ?? '').split(',')) if (id.trim()) ids.add(id.trim());
+  }
+  return ids;
+}
+
+/**
+ * Provenance of an ingested report against the working tree: head
+ * containment (ancestry or tree equality outside rcf/verify-reports/),
+ * non-loopback target, hand separation and the age window. Every refusal
+ * is exit 4.
+ *
+ * @param {object} p
+ * @param {object} p.report - a valid VerifyReport v1
+ * @param {string} p.cwd - the git working tree
+ * @param {number} p.maxReportAgeDays
+ * @param {number} [p.now]
+ * @param {object} [deps]
+ * @param {(args: string[]) => Promise<{ code: number, stdout: string }>} [deps.git]
+ * @returns {Promise<{ ok: true } | { ok: false, code: 4, message: string }>}
+ */
+export async function checkReportProvenance({ report, cwd, maxReportAgeDays, now = Date.now() }, deps = {}) {
+  const git = deps.git ?? ((args) => runGit(cwd, args));
+  const refuse = (message) => ({ ok: false, code: 4, message: `finalise refused: ${message}` });
+  const head = (await git(['rev-parse', 'HEAD'])).stdout;
+  if (!(await headContained(git, report.headSha))) {
+    return refuse(`report head ${report.headSha.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify the merged head`);
+  }
+  if (report.target.kind === 'url' && isLoopbackUrl(report.target.url)) {
+    return refuse(`report target ${report.target.url} is loopback`);
+  }
+  const notSeparate = refuse(`report hand ${report.hand}/${report.verifierId} is not separate from the builder`);
+  if (report.hand !== 'verifier') return notSeparate;
+  if ((await builderHandIds(git, report.headSha)).has(report.verifierId)) return notSeparate;
+  const ageMs = now - Date.parse(report.finishedAt);
+  if (ageMs > maxReportAgeDays * DAY_MS) {
+    return refuse(`report is ${Math.floor(ageMs / DAY_MS)} days old (finished ${report.finishedAt}; --max-report-age ${maxReportAgeDays}); re-verify the merged head`);
+  }
+  return { ok: true };
 }

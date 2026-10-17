@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-828",
+  "path": "src/cli/finalise.js#HELP",
+  "implementsAcIds": [
+    "AC-19002-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-17T01:52:06.644Z",
+  "updatedAt": "2026-10-17T01:52:06.644Z"
+}

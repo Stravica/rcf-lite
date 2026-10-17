@@ -1,66 +1,44 @@
-// `rcf finalise` subcommand handler (spec §8, amendments 4 + 5). The build-side
-// home of the finalise-gate integration contract: the ship gate that promotes
-// an FBS from `complete` to `verified` ONLY when an independent rcf-verify run
-// against the deployed app passes.
+// `rcf build finalise` subcommand handler. Administrative Finalise
+// (FBS-220, US-19002, ADR-4148): verification is a Test-stage act, so
+// Finalise promotes an FBS from `complete` to `verified` by ingesting the
+// VerifyReport v1 the verifier hand committed under
+// rcf/verify-reports/<fbs-id>/ before the merge.
 //
-//   rcf finalise <fbs-id> --url <deploy-url> [options]
+//   rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]
 //
-// The spec (§8.2) offers two homes for this: overloading `rcf build --mark
-// complete`, or "a dedicated finalise verb". This is the dedicated verb.
-// `rcf build --mark` is a deterministic-only, pure transition path that runs
-// PRE-deploy; the finalise gate spawns a subprocess, hits the network, and may
-// prompt - it does not belong on the mark path. The `complete -> verified`
-// transition is the exact semantic home: `verified` means "independently
-// verified against the running deploy", which is precisely what rcf-verify
-// stamps.
-//
-// Hard contract points (spec §8.2 / §9):
-//   - verify is a FRESH SUBPROCESS with the isolation env, never an in-process
-//     import (§8.2 / §9: the verifier agent must start cold, zero build context);
-//   - the gate is the subprocess exit code AND the report's ship authority
-//     (spec §4): exit 0 with verdictAuthority 'ship' -> promote to verified;
-//     exit 0 with correctness-only authority -> HOLD (stay put, no promotion);
-//     non-zero -> stay put, surface findings;
-//   - findings flow via the --out report file, not stdout scraping;
-//   - if rcf-verify is absent, PROMPT to install (or accept an explicit
-//     --install-verify flag) - NEVER silently skip the gate (§8.3).
+// Hard contract points:
+//   - Finalise reads the report; it never spawns rcf verify run, the
+//     verifier package or the agent CLI, and never writes under
+//     rcf/verify-reports/. Its only child processes are git lookups;
+//   - preconditions (CI evidence, complete status, Code Nodes, default
+//     branch), the report's VerifyReport v1 shape and its provenance (head
+//     contained in HEAD, non-loopback target, hand separation, age) are
+//     checked before any write; every refusal leaves the FBS byte-identical;
+//   - the ship-authority rule (0.4.0) and the per-AC refusals (0.7.0,
+//     0.20.0, 0.28.0) are kept, read from the ingested report;
+//   - --mode and --url are retired: they belong to rcf verify run.
 
 import { spawn } from 'node:child_process';
 import { resolve as resolvePath } from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
 
-import { writeFile } from 'node:fs/promises';
-
-import { isRcfError, rcfError, writeUnexpectedFailure } from '#core/errors';
+import { isRcfError, writeUnexpectedFailure } from '#core/errors';
 import { updateDocument, walkTree } from '#core/store';
 
 import { findProjectRoot } from '../view/index.js';
 import { kindOf } from '../query/index.js';
+import { checkCodeNodeGate, hasNoCodeNodesDeclaration } from '../build/mark.js';
 import {
-  DEFAULT_VERIFY_MODE,
-  VERIFY_MODES,
-  isVerifyMode,
-} from '../verify/engine/deterministic.js';
-import {
-  buildVerifyArgs,
+  checkReportProvenance,
   composeShipWithoutVerifiedRecord,
   composeShipWithoutEvalRecord,
-  detectVerify,
   findBrowserVerificationMissingAcs,
   findEvalRefusalAcs,
   findMockOnlyDeclaredAcs,
   findScopeMismatchAcs,
   findUiBaselineUnmetAcs,
-  loadReport,
-  reportHasBrowserVerificationMissing,
-  reportHasEvalRefusal,
-  reportHasMockOnlyDeclared,
-  reportHasScopeMismatch,
-  reportHasUiBaselineUnmet,
-  resolveAbsentVerify,
-  spawnVerify,
-  summariseReport,
+  loadVerifyReport,
   writeShipWithoutEvalRecord,
   writeShipWithoutVerifiedRecord,
 } from '../finalise/index.js';
@@ -76,202 +54,104 @@ import {
 // network round-trip on every finalise and fails offline; the small
 // name list is deliberately the safer default.
 const DEFAULT_BRANCH_NAMES = new Set(['main', 'master']);
-// Kept in sync with verify's own sets by contract (build never imports verify -
-// that would break the §9 independence guarantee). Profiles: spec §4.
-// Severities: spec §5.1 finding taxonomy.
-const PROFILES = new Set(['deployed', 'ci', 'local-dev']);
-const SEVERITIES = new Set(['PASS', 'COSMETIC', 'DEGRADED', 'BROKEN']);
-const DEFAULT_PROFILE = 'deployed';
-const DEFAULT_GATE = 'BROKEN';
-// Issue 356 (US-16505): verify's prerequisite provisioning modes and its
-// documented default, mirrored by contract like PROFILES / SEVERITIES
-// above (build never imports verify's CLI).
-const PROVISION_MODES = new Set(['run', 'skip']);
-const DEFAULT_PROVISION_MODE = 'run';
-const DEFAULT_REPORT = '.rcf-verify-report.json';
-// The finalise gate only makes sense on a built item; verified re-verify is
-// allowed (the §5.4 loop re-runs the gate on a previously-verified item).
+
+// The finalise gate only makes sense on a built item; verified re-ingest is
+// allowed and confirms the status without a write.
 const FINALISABLE_STATUSES = new Set(['complete', 'verified']);
+// ADR-4148: a report older than this many days is refused unless
+// --max-report-age widens the window.
+const DEFAULT_MAX_REPORT_AGE_DAYS = 7;
 
 const OPTION_SPEC = {
+  // CI evidence for the merged head (required).
+  'ci-run': { type: 'string' },
+  // An explicit report path instead of rcf/verify-reports/<fbs-id>/.
+  report: { type: 'string' },
+  'max-report-age': { type: 'string' },
+  // Retired (AC-19002-7): parsed only so the usage error can name the
+  // Test-stage command that replaced them.
   url: { type: 'string' },
-  profile: { type: 'string' },
-  'parity-env': { type: 'boolean' },
-  provision: { type: 'string' },
-  'severity-gate': { type: 'string' },
-  out: { type: 'string' },
-  chain: { type: 'string' },
-  persona: { type: 'string' },
-  'install-verify': { type: 'boolean' },
+  mode: { type: 'string' },
   // 0.7.0 verification-integrity: acknowledge MOCK-ONLY-DECLARED /
-  // BLOCKED-BY-DECLARATION per-AC verdicts on the verify report and
+  // BLOCKED-BY-DECLARATION per-AC verdicts on the ingested report and
   // ship the FBS 'complete' without promoting to 'verified'. Records
   // the operator's ack on the manifest.
   'ship-without-verified': { type: 'boolean' },
-  // rcf-eval-node spec 2026-09-04 sections 5.2 + 8: sister opt-out for
-  // EVAL-MISSING / EVAL-BELOW-THRESHOLD. Takes a mandatory reason
-  // string (spec section 8: missing reason exits 2). Shape mirrors
-  // `--provision`: a value that looks like a flag is refused.
+  // rcf-eval-node spec 2026-09-04 sections 5.2 + 8: acknowledge
+  // EVAL-MISSING / EVAL-BELOW-THRESHOLD with a mandatory reason string
+  // (missing reason exits 2); the ack lands on the manifest and the
+  // promotion proceeds.
   'ship-without-eval': { type: 'string' },
   // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
   // finalise refuses promotion when the git working tree is not on
-  // the default branch (main / master) so `verified` traces to an
-  // actual post-merge runtime check by construction. --allow-pre-merge
-  // is the deliberate opt-out for pre-merge dev-loop dry runs; the
-  // decision is logged in the finalise stdout so the operator sees
-  // it. Absent a git working tree (e.g. verify against a bare tarball
-  // deploy), the check is skipped and a warn line records that
-  // finalise could not resolve the branch state.
+  // the default branch (main / master); --allow-pre-merge is the
+  // deliberate opt-out, logged on stdout.
   'allow-pre-merge': { type: 'boolean' },
-  // Issue 330 (2026-10-08): verify mode passed through to the fresh
-  // `rcf verify run` subprocess. Default is agentScreenshotCritique (the
-  // parent-session mode). A dispatched worker runs --mode deterministic
-  // because the harness refuses to let a worker spawn `claude` as a
-  // subagent, which agentScreenshotCritique requires.
-  mode: { type: 'string' },
-  // Issue 356 (US-16505 / AC-16505-1): the operator's prerequisite
-  // provisioning declaration, forwarded verbatim to the fresh `rcf
-  // verify run` subprocess (run | skip, verify's own semantics). Absent
-  // means nothing is forwarded and verify applies its default (run).
-  // Before this flag existed, finalise printed verify's blocked-reason
-  // "re-run with `--provision-mode skip`" while refusing the flag, so an
-  // admin-seeded chain could pass a direct verify run and never promote.
-  'provision-mode': { type: 'string' },
-  // ADR-4147 (US-16504): finalise verifies the named FBS's bound ACs by
-  // default (the fresh verify subprocess receives `--fbs <fbs-id>`).
-  // --all passes no filter so the whole chain is verified, for slice end.
-  all: { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
 };
 
-export const HELP = `Usage: rcf build finalise <fbs-id> --url <deploy-url> [options]
+export const HELP = `Usage: rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]
 
-The ship gate. Promotes an FBS at status complete to verified ONLY when
-an independent 'rcf verify run' passes AND carries ship authority.
+Administrative Finalise. Promotes an FBS at status complete to verified by
+ingesting the Test-stage verify report the verifier hand committed before
+the merge (rcf verify run --fbs <fbs-id> --hand verifier writes it to
+rcf/verify-reports/<fbs-id>/<head12>.json). Finalise reads the report and
+spawns nothing but git lookups; it never runs verify itself.
 
-The verify run is launched as a FRESH SUBPROCESS (never in-process) so
-the verifier agent starts cold, with zero build context - its only
-inputs are the RCF chain (the acceptance contract) and the live URL.
-The gate is the subprocess exit code AND the report's ship authority:
-a run must both pass and carry SHIP authority (a 'deployed'-profile
-run, or a 'ci'/'local-dev' run with --parity-env) to promote. A
-correctness-only PASS holds without promoting. Findings flow back via
-the --out report file.
-
-Scope: by default the verify run covers only the acceptance criteria
-bound to <fbs-id> (the subprocess receives --fbs <fbs-id>), so
-finalising one build unit costs one unit's verification. The FBS is
-promoted when every criterion bound to it is verified and none is
-skipped (ADR-4112, evaluated over that bound set). Pass --all to verify
-the whole chain instead, for example at the end of a slice. An FBS with
-no bound criteria is refused before verify launches. The report records
-the scope as run.scope ('fbs:<id>' or 'chain') and the AC count.
-
-The verify subprocess is the rcf-lite package this finalise runs from
-(same install, same version); a project-local install is next and the
-'rcf' bin on PATH is the fallback only. The report records what ran as
-run.verify { command, prefixArgs, source, version }, so a stale global
-shadowing the local install is visible in the audit trail. A completed
-report that cannot be stamped with that record is never promoted:
-finalise stops before the gate (exit 1) and leaves the FBS unchanged.
-
-If rcf-lite is not installed, finalise PROMPTS to install it (install-
-together posture) - it never silently skips the gate. Off a TTY, pass
---install-verify.
+Promotion needs every one of:
+  - --ci-run <ref> naming the CI run that passed on the merged head;
+  - the FBS at complete, HEAD on the default branch (main / master) and a
+    Code Node on every bound acceptance criterion;
+  - a valid VerifyReport v1 whose head is contained in HEAD (an ancestor,
+    or tree-equal to a commit HEAD contains outside rcf/verify-reports/),
+    whose target is not loopback, whose hand is verifier with a verifierId
+    no builder commit carries as its Hand-Id, and which finished within
+    --max-report-age days;
+  - verdict PASS with ship authority and no blocking per-AC verdict
+    (MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD,
+    UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH).
 
 Required:
   <fbs-id>                  The FBS item to finalise (must be 'complete')
-  --url <deploy-url>        The running deployed app to verify against
+  --ci-run <ref>            The CI run that passed on the merged head
 
 Options:
-  --profile <p>             deployed | ci | local-dev (default: deployed)
-  --parity-env              Assert a ci/local-dev runtime is edge-identical to
-                            prod - the only path to a SHIP verdict off 'deployed'
-  --provision <file>        Provisioning / prerequisite-credentials FILE
-                            (never inline; secrets never echoed)
-  --severity-gate <sev>     Block at/above this severity:
-                            PASS | COSMETIC | DEGRADED | BROKEN (default: BROKEN)
-  --out <path>              Where verify writes its report artifact
-                            (default: ${DEFAULT_REPORT})
-  --chain <PRD/ref>         Which PRD/chain to verify against (default: repo's)
-  --persona <name>          Adversarial persona flavour
-  --install-verify          If rcf-lite is absent, install it without
-                            prompting (the sanctioned non-interactive path)
+  --report <path>           Ingest this report instead of the newest one
+                            under rcf/verify-reports/<fbs-id>/
+  --max-report-age <days>   Refuse a report that finished longer ago than
+                            this (default: ${DEFAULT_MAX_REPORT_AGE_DAYS})
   --ship-without-verified   Acknowledge MOCK-ONLY-DECLARED /
-                            BLOCKED-BY-DECLARATION per-AC verdicts on
-                            the verify report and ship the FBS
-                            'complete' without promoting to 'verified'
-                            (verification-integrity 0.7.0 §5.2). Reads
-                            the disclosed verdicts and leaves the FBS at
-                            'complete'. Without this flag, the gate
-                            refuses to promote when any AC lands in
-                            those verdicts.
+                            BLOCKED-BY-DECLARATION per-AC verdicts and
+                            ship the FBS 'complete' without promoting to
+                            'verified'; the ack lands on the manifest.
   --ship-without-eval "..."  Acknowledge EVAL-MISSING /
-                            EVAL-BELOW-THRESHOLD per-AC verdicts and
-                            proceed with an audit-log entry
-                            (rcf-eval-node spec section 5.2). Reason
-                            string is mandatory; a missing reason exits
-                            2. The ack lands on the manifest under
-                            shipWithoutEval[] with a monotonic id.
-  --allow-pre-merge         Referee-guarantee train (C-26): finalise
-                            refuses to promote when the git working
-                            tree is not on the default branch
-                            (main / master), so verified traces to an
-                            actual post-merge runtime check. This flag
-                            is the deliberate opt-out for pre-merge
-                            dev-loop dry runs; the decision is logged
-                            on stdout. Absent a git checkout the check
-                            degrades to a warn line.
-  --mode <mode>             Verify mode (default: agentScreenshotCritique):
-                              agentScreenshotCritique  parent-session mode
-                                 (spawns the agent CLI as a subagent); only
-                                 runs from a session that may invoke the
-                                 agent CLI.
-                              deterministic  model-free, in-process mode a
-                                 dispatched worker can run. Produces the
-                                 same report schema with a per-AC skip
-                                 ledger; the finalise gate refuses
-                                 promotion on a deterministic run that
-                                 skipped any AC (ADR-4112 verified
-                                 invariant).
-  --all                     Verify the whole chain, not only the criteria
-                            bound to <fbs-id>. Promotion still requires
-                            a passing run with ship authority. Without
-                            this flag the verify subprocess receives
-                            --fbs <fbs-id> (ADR-4147).
-  --provision-mode <m>      Prerequisite provisioning, forwarded verbatim
-                            to the verify subprocess (default: verify's
-                            own default, run):
-                              run   derive prerequisites from the ACs and
-                                    provision what verify can (auth signups
-                                    where a route exists; service sandboxes
-                                    and seed data refuse honestly). An AC
-                                    whose prerequisite cannot be provisioned
-                                    is reported BLOCKED, and this gate then
-                                    refuses to promote.
-                              skip  bypass provisioning entirely for chains
-                                    whose prerequisites are supplied out of band
-                                    (admin-seeded auth accounts, pre-populated
-                                    test data, operator-managed sandboxes).
-                            The mode is disclosed on report.provisioning.mode
-                            on a completed run and on the launch-failure
-                            record, so a promoted tree records that
-                            provisioning was skipped rather than satisfied.
-                            Any other value is a usage error (exit 2) before
-                            verify launches.
+                            EVAL-BELOW-THRESHOLD per-AC verdicts with a
+                            mandatory reason; the ack lands on the
+                            manifest under shipWithoutEval[] and the
+                            promotion proceeds. A missing reason exits 2.
+  --allow-pre-merge         Promote off the default branch, for a
+                            deliberate pre-merge dry run; the decision is
+                            logged on stdout (Referee-guarantees claim C-26).
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
+Retired:
+  --mode, --url             Verification is a Test-stage act: run
+                            rcf verify run --fbs <fbs-id> --hand verifier
+                            before the merge. Either flag exits 2.
+
 Exit codes:
-  0  gate passed - FBS marked verified
+  0  promoted to verified (or an acknowledged ship-without-verified)
   1  IO / unexpected runtime failure
-  2  usage error (bad flags, unknown / non-FBS id)
-  3  schema validation or broken references (tree unreadable, the FBS has no
-     bound acceptance criteria, or write refused)
-  4  gate NOT passed - verify blocked ship, OR verify passed but the run lacks
-     ship authority (a correctness-only HOLD), OR rcf-lite absent and install
-     declined/unavailable - the FBS is left unchanged, findings surfaced
+  2  usage error (bad flags, retired flag, unknown / non-FBS id)
+  3  schema validation or broken references (tree unreadable, missing Code
+     Nodes, a report that is not a valid VerifyReport v1, write refused)
+  4  refused - CI evidence missing, not complete, off the default branch,
+     no report, report head not contained in HEAD, loopback target, hand
+     not separate from the builder, report too old, verdict not PASS or
+     not ship authority, or a blocking per-AC verdict; the FBS is left
+     unchanged
 `;
 
 /**
@@ -327,85 +207,8 @@ async function resolveGitBranch({ cwd, deps = {} }) {
 }
 
 /**
- * Issue 356 (US-16505 / AC-16505-5). Project the detected verify
- * invocation onto the `run.verify` record the finalise report carries:
- * the command, its prefix args, the resolution route and the version of
- * the resolved binary. Unknown route or version are recorded as null
- * (omit-not-fake), never guessed.
- *
- * @param {import('../finalise/detect.js').VerifyInvocation | null | undefined} invocation
- * @returns {{ command: string|null, prefixArgs: string[], source: string|null, version: string|null }}
- */
-function describeInvocation(invocation) {
-  return {
-    command: invocation?.command ?? null,
-    prefixArgs: Array.isArray(invocation?.prefixArgs) ? [...invocation.prefixArgs] : [],
-    source: invocation?.source ?? null,
-    version: invocation?.version ?? null,
-  };
-}
-
-/**
- * One-line rendering of a run.verify record for the finalise stdout:
- * `rcf-lite <version> via <source>: <command> <prefixArgs>`.
- *
- * @param {ReturnType<typeof describeInvocation>} record
- * @returns {string}
- */
-function formatInvocation(record) {
-  const version = record.version ? `rcf-lite ${record.version}` : 'rcf-lite (version unknown)';
-  const source = record.source ?? 'unknown route';
-  const argv = [record.command ?? '?', ...record.prefixArgs].join(' ');
-  return `${version} via ${source}: ${argv}`;
-}
-
-/**
- * Issue 356 (AC-16505-5). After the verify subprocess returns, copy the
- * resolved invocation onto the report at `outPath` as `run.verify`. The
- * preseed stub finalise wrote already carries it; a report verify
- * replaced it with does not, so this is where a completed run (passing
- * or tripped) learns which verifier produced it. Disclosure only as far
- * as the report goes: the verdict, authority, findings and every other
- * field verify stamped are left untouched.
- *
- * The result is checked by the caller. A completed report that cannot
- * be stamped is `{ ok: false }`: finalise must then refuse before gate
- * evaluation (exit 1, FBS unchanged), because promoting off a report
- * with no record of which verifier produced it would leave the audit
- * trail blind to exactly the stale-global case the record exists for
- * (issue 356 gate P1). An unreadable report or the untouched preseed
- * stub is `{ ok: true, stamped: false }`: there is no completed report
- * to stamp, and the gate below already reads those two shapes as
- * "unreadable is not a pass" / launch failure.
- *
- * @param {object} args
- * @param {string} args.outPath
- * @param {ReturnType<typeof describeInvocation>} args.verifyRecord
- * @param {typeof writeFile} args.writer
- * @param {object} args.deps
- * @returns {Promise<{ ok: true, stamped: boolean } | { ok: false, stamped: false, reason: string }>}
- */
-async function recordVerifyInvocation({ outPath, verifyRecord, writer, deps }) {
-  const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
-  if (!loaded.ok || !loaded.report || typeof loaded.report !== 'object') return { ok: true, stamped: false };
-  const { report } = loaded;
-  // The preseed stub (or the aborted record derived from it) was written
-  // by finalise with run.verify in place; nothing to add.
-  if (report.launchFailure?.reason === 'preseed') return { ok: true, stamped: false };
-  const run = (report.run && typeof report.run === 'object') ? report.run : {};
-  const stamped = { ...report, run: { ...run, verify: verifyRecord } };
-  try {
-    await writer(outPath, `${JSON.stringify(stamped, null, 2)}\n`, 'utf8');
-  } catch (err) {
-    return { ok: false, stamped: false, reason: err?.message ?? String(err) };
-  }
-  return { ok: true, stamped: true };
-}
-
-/**
  * @param {string[]} argv - argv slice after `finalise`
- * @param {object} [deps] - injectable seams (detect / spawn / prompt / install /
- *   loadReport) for testing the gate without a real rcf-verify + live app.
+ * @param {object} [deps] - injectable seams (stdout / stderr / cwd / git / now)
  * @returns {Promise<number>}
  */
 export async function main(argv, deps = {}) {
@@ -437,44 +240,27 @@ export async function main(argv, deps = {}) {
     return usage('wildcard / glob positional not supported');
   }
 
-  if (!flags.url) return usage('--url <deploy-url> is required');
-
-  const profile = flags.profile ?? DEFAULT_PROFILE;
-  if (!PROFILES.has(profile)) {
-    return usage(`unknown --profile ${profile} (expected deployed | ci | local-dev)`);
+  // AC-19002-7: --mode and --url belong to rcf verify run at the Test stage.
+  if (flags.mode !== undefined || flags.url !== undefined) {
+    return usage(`finalise no longer runs verify; run rcf verify run --fbs ${fbsId} --hand verifier at the Test stage`);
   }
-  const gate = flags['severity-gate'] ?? DEFAULT_GATE;
-  if (!SEVERITIES.has(gate)) {
-    return usage(`unknown --severity-gate ${gate} (expected PASS | COSMETIC | DEGRADED | BROKEN)`);
+  // A --ship-without-eval that looks like a flag is a swallowed next option.
+  const swe = flags['ship-without-eval'];
+  if (swe !== undefined && (swe.startsWith('-') || swe.trim().length === 0)) {
+    return usage('--ship-without-eval requires a reason string');
   }
-  // Dash-footgun (mirrors build's --body-file / verify's --provision discipline):
-  // a --provision that looks like a flag is a swallowed next option or an inline
-  // credential. Credentials are FILE-only, never inline, never echoed.
-  if (typeof flags.provision === 'string' && flags.provision.startsWith('-')) {
-    return usage('--provision takes a file path, not a flag or inline value (credentials are never accepted inline)');
+  let maxReportAgeDays = DEFAULT_MAX_REPORT_AGE_DAYS;
+  if (flags['max-report-age'] !== undefined) {
+    maxReportAgeDays = Number(flags['max-report-age']);
+    if (!Number.isFinite(maxReportAgeDays) || maxReportAgeDays <= 0) {
+      return usage(`--max-report-age takes a positive number of days (got "${flags['max-report-age']}")`);
+    }
   }
-  // Issue 330: resolve --mode. Unknown value refuses exit 2 so a typo
-  // ("--mode determinstic") does not silently fall through to the
-  // default agent mode a dispatched worker cannot run.
-  const modeFlag = flags.mode;
-  if (modeFlag !== undefined && !isVerifyMode(modeFlag)) {
-    return usage(`--mode must be one of ${VERIFY_MODES.join(' | ')} (got "${modeFlag}")`);
+  const ciRun = flags['ci-run'];
+  if (typeof ciRun !== 'string' || ciRun.trim().length === 0 || ciRun.startsWith('-')) {
+    stderr.write('[error] refused finalise: ci evidence missing: pass --ci-run <ref>\n');
+    return 4;
   }
-  const mode = modeFlag ?? DEFAULT_VERIFY_MODE;
-  // Issue 356 (US-16505 / AC-16505-1): --provision-mode takes verify's
-  // two values and nothing else. Refused here, before any verify launch,
-  // with the same message `rcf verify run` prints so the two commands
-  // teach the same thing. Absent means no flag is forwarded; verify
-  // applies its own default (run) and stamps it on the report.
-  const provisionModeFlag = flags['provision-mode'];
-  if (provisionModeFlag !== undefined && !PROVISION_MODES.has(provisionModeFlag)) {
-    return usage(`--provision-mode must be run | skip (got "${provisionModeFlag}")`);
-  }
-  const provisionMode = provisionModeFlag;
-  // The mode the launch-failure record discloses when no flag was given:
-  // verify's documented default. A completed run is stamped by verify
-  // itself from the forwarded flag (or its default), never here.
-  const effectiveProvisionMode = provisionMode ?? DEFAULT_PROVISION_MODE;
 
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
@@ -486,11 +272,6 @@ export async function main(argv, deps = {}) {
   // fails validation, and no status write lands (mirrors build --mark, §D6).
   const { tree, errors } = await walkTree({ projectRoot });
   if (errors.length > 0) {
-    // ADR-4147: an FBS with no bound acceptance criteria has nothing for
-    // the verified invariant to be evaluated over. The schema already
-    // refuses an empty acIds list, so the walker surfaces it here; name
-    // it plainly instead of leaving the operator to read the schema
-    // message, and refuse before any verify run launches.
     const emptyBinding = errors.find((e) => e?.documentId === fbsId && /acIds/.test(e?.message ?? ''));
     if (emptyBinding) {
       stderr.write(`[error] refused finalise: ${fbsId} has no bound acceptance criteria; there is nothing to verify. `
@@ -514,477 +295,166 @@ export async function main(argv, deps = {}) {
       + `Mark it complete first: rcf build mark ${fbsId} complete\n`);
     return 4;
   }
-
-  // ADR-4147 (US-16504) verification scope. By default the fresh verify
-  // subprocess is briefed on this FBS's bound ACs only; --all passes no
-  // filter. The schema refuses an empty acIds list (handled on the
-  // walker-error path above); this guard keeps the invariant if a chain
-  // ever loads with an empty binding, whether or not --all was given.
-  const boundAcIds = Array.isArray(fbs.acIds) ? fbs.acIds.filter((id) => typeof id === 'string') : [];
-  if (boundAcIds.length === 0) {
-    stderr.write(`[error] refused finalise: ${fbsId} has no bound acceptance criteria; there is nothing to verify. `
-      + 'Bind at least one AC to the FBS (acIds) before finalising it.\n');
-    return 3;
+  if (!hasNoCodeNodesDeclaration(fbs)) {
+    const cnGate = checkCodeNodeGate(tree, fbs);
+    if (!cnGate.ok) {
+      stderr.write(`[error] refused finalise: missing Code Nodes: ${cnGate.missingAcIds.join(', ')}; ${fbsId} left '${currentStatus}'.\n`);
+      return 3;
+    }
   }
-  const verifyAll = Boolean(flags.all);
-  const scopeFbsIds = verifyAll ? [] : [fbsId];
-  // Label mirrors verify's chain/scope.js by contract (build never imports
-  // verify's chain reader): 'chain' with no filter, otherwise 'fbs:<id>'.
-  const scope = verifyAll ? 'chain' : `fbs:${fbsId}`;
-  const chainAcCount = (tree.userStories ?? [])
-    .reduce((n, us) => n + (Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria.length : 0), 0);
-  const scopeAcCount = verifyAll ? chainAcCount : boundAcIds.length;
 
   const quiet = Boolean(flags.quiet);
-  const io = { stdout, stderr, input: deps.input ?? process.stdin, output: deps.output ?? process.stdout };
 
-  // --- rcf-verify install detection (§8.3) --------------------------------
-  let detection = deps.detectVerify
-    ? await deps.detectVerify({ cwd: projectRoot })
-    : await detectVerify({ cwd: projectRoot });
-  if (!detection.installed) {
-    const isTty = deps.isTty ?? Boolean(process.stdin.isTTY && process.stdout.isTTY);
-    const outcome = await resolveAbsentVerify(
-      { installFlag: Boolean(flags['install-verify']), isTty },
-      io,
-      deps,
-    );
-    if (outcome.action === 'abort') {
-      stderr.write(`[error] refused ${outcome.reason}\n`);
-      return outcome.code;
+  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26): the
+  // merge-state precondition. `verified` promises a post-merge check, so a
+  // working tree off the default branch is refused unless --allow-pre-merge
+  // records the deliberate dry run. Absent a git working tree the check
+  // degrades to a warn line.
+  const gitBranch = await resolveGitBranch({ cwd, deps });
+  if (!gitBranch.ok) {
+    stderr.write(`[warn] finalise: could not resolve git branch (${gitBranch.reason}); skipping the post-merge precondition. Referee-guarantees claim C-26.\n`);
+  } else if (!DEFAULT_BRANCH_NAMES.has(gitBranch.branch)) {
+    if (!flags['allow-pre-merge']) {
+      stderr.write(`[finalise] gate NOT promoted: git working tree is on branch '${gitBranch.branch}', not a default trunk (${[...DEFAULT_BRANCH_NAMES].join(' / ')}); ${fbsId} left '${currentStatus}'.\n`);
+      stderr.write('The referee-guarantees page promises that verified traces to an actual post-merge runtime check. Merge the branch and re-run finalise, or pass --allow-pre-merge for a deliberate pre-merge dry run (the decision is logged on stdout). Referee-guarantees claim C-26.\n');
+      return 4;
     }
-    // Installed - re-detect to get a concrete invocation.
-    detection = deps.detectVerify
-      ? await deps.detectVerify({ cwd: projectRoot })
-      : await detectVerify({ cwd: projectRoot });
-    if (!detection.installed) {
-      stderr.write('[error] unexpected the rcf bin still not resolvable after install; install it manually and re-run.\n');
-      return 1;
+    if (!quiet) {
+      stdout.write(`[finalise] --allow-pre-merge: promoting on branch '${gitBranch.branch}' (not a default trunk). Referee-guarantees claim C-26 records the pre-merge decision here.\n`);
     }
   }
 
-  // --- spawn the fresh verify subprocess (§8.2) ---------------------------
-  const outPath = resolvePath(projectRoot, flags.out ?? DEFAULT_REPORT);
-  const verifyArgs = buildVerifyArgs({
-    repo: projectRoot,
-    url: flags.url,
-    profile,
-    out: outPath,
-    severityGate: gate,
-    parityEnv: Boolean(flags['parity-env']),
-    provision: flags.provision,
-    chain: flags.chain,
-    persona: flags.persona,
-    mode,
-    provisionMode,
-    fbsIds: scopeFbsIds,
+  // --- ingest the Test-stage report (ADR-4148) ----------------------------
+  const loaded = await loadVerifyReport({
+    projectRoot,
+    fbsId,
+    reportPath: flags.report === undefined ? undefined : resolvePath(cwd, flags.report),
   });
-  // Issue 356 (AC-16505-5): the resolved verify invocation, recorded on
-  // the report as run.verify so an operator can see which binary ran
-  // and at what version (a stale global shadowing the local install is
-  // then visible in the audit trail instead of a bare exit 2).
-  const verifyRecord = describeInvocation(detection.invocation);
+  if (!loaded.ok) {
+    stderr.write(`[error] ${loaded.message}\n`);
+    return loaded.code;
+  }
+  const { report, path: reportPath } = loaded;
+  const provenance = await checkReportProvenance(
+    { report, cwd: projectRoot, maxReportAgeDays, now: deps.now ?? Date.now() },
+    deps,
+  );
+  if (!provenance.ok) {
+    stderr.write(`[error] ${provenance.message}; ${fbsId} left '${currentStatus}'.\n`);
+    return provenance.code;
+  }
 
-  // Issue 330 partial-report preseed. Verify is a fresh subprocess and
-  // may fail to start (ENOENT, blocked by harness), be killed, or exit
-  // non-zero before it has had the chance to write its own report. In
-  // every one of those cases the ingest step below would otherwise read
-  // ENOENT and finalise would print "could not read the verify report"
-  // with no clue about what the mode or the reason was. Preseeding the
-  // report path with a `{ status: "aborted" }` stub guarantees ingest
-  // always has something to read; a successful verify run overwrites
-  // the stub with its real report in the same path.
-  const finaliseStartedAt = new Date().toISOString();
-  const partialStub = {
-    schemaVersion: '1',
-    verdict: 'LAUNCH-FAILURE',
-    verdictAuthority: null,
-    run: {
-      profile,
-      url: flags.url,
-      scope,
-      scopeAcCount,
-      startedAt: finaliseStartedAt,
-      finishedAt: null,
-      runStats: { mode, status: 'pending', reason: 'verify not yet started' },
-      // Issue 356 (AC-16505-5): which verifier finalise is about to run.
-      verify: verifyRecord,
-    },
-    findings: [],
-    blockedAcs: [],
-    // Issue 356 (AC-16505-3): the operator's provisioning declaration
-    // travels onto the launch-failure record too, so the audit trail of
-    // a failed finalise can tell a skipped run from a provisioned one.
-    // A completed run replaces this with verify's own stamp.
-    provisioning: { mode: effectiveProvisionMode },
-    launchFailure: {
-      message: 'rcf verify did not write a report (process was killed, errored before write, or did not start)',
-      status: 'aborted',
-      reason: 'preseed',
-    },
+  // Ship-authority rule (0.4.0): only a PASS carrying ship authority promotes.
+  if (report.verdict !== 'PASS') {
+    stderr.write(`[finalise] gate NOT promoted: the verify report's verdict is ${report.verdict}, not PASS; ${fbsId} left '${currentStatus}'. Report: ${reportPath}\n`);
+    return 4;
+  }
+  if (report.verdictAuthority !== 'ship') {
+    stderr.write(`[finalise] HOLD: the verify report passed but carries '${report.verdictAuthority}' authority, not 'ship'; ${fbsId} left '${currentStatus}'. Report: ${reportPath}\n`);
+    return 4;
+  }
+
+  // Per-AC refusals (0.7.0, 0.20.0, 0.28.0), read from the report's perAc rows.
+  const verdicts = {
+    perAcVerdicts: report.perAc
+      .filter((row) => typeof row.verdict === 'string')
+      .map((row) => ({ acId: row.acId, verdict: row.verdict })),
   };
-  const writer = deps.writeFile ?? writeFile;
-  try {
-    await writer(outPath, `${JSON.stringify(partialStub, null, 2)}\n`, 'utf8');
-  } catch (err) {
-    stderr.write(`[finalise] could not preseed partial report at ${outPath}: ${err.message}\n`);
-    return 1;
-  }
+  const acList = (rows) => rows.map((a) => a.acId).filter(Boolean).join(', ');
+  const writeAck = async (write, record) => {
+    const result = await write({ projectRoot, tree, record });
+    if (!isRcfError(result)) return 0;
+    if (result.kind === 'ioFailure') { writeUnexpectedFailure(result, stderr); return 1; }
+    stderr.write(`[error] ${result.kind} ${result.message}\n`);
+    return (result.kind === 'validation' || result.kind === 'brokenReference') ? 3 : 1;
+  };
 
-  if (!quiet) {
-    if (verifyAll) {
-      stdout.write(`[finalise] --all: verifying the whole chain (${chainAcCount} ACs), not only the ${boundAcIds.length} bound to ${fbsId}.\n`);
-    }
-    const provisionNote = provisionMode ? `, provision-mode=${provisionMode}` : '';
-    stdout.write(`[finalise] launching the verify run (fresh subprocess) against ${flags.url} [profile=${profile}, mode=${mode}${provisionNote}, scope=${scope} (${scopeAcCount} ACs)]...\n`);
-    // Issue 356 (AC-16505-5): say which verifier is about to run, so a
-    // stale global shadowing the local install is visible before the
-    // exit code arrives.
-    stdout.write(`[finalise] verify: ${formatInvocation(verifyRecord)}\n`);
-  }
-
-  let spawnResult;
-  try {
-    spawnResult = deps.spawnVerify
-      ? await deps.spawnVerify({ invocation: detection.invocation, verifyArgs, cwd: projectRoot }, deps)
-      : await spawnVerify({ invocation: detection.invocation, verifyArgs, cwd: projectRoot }, deps);
-  } catch (err) {
-    writeUnexpectedFailure(
-      rcfError({ kind: 'ioFailure', message: `finalise: could not launch rcf verify: ${err.message}`, stack: err.stack }),
-      stderr,
-    );
-    return 1;
-  }
-
-  // Issue 356 (AC-16505-5): record the resolved verify invocation on the
-  // report verify wrote. The preseed stub already carries run.verify; a
-  // report verify replaced it with does not know how it was launched, so
-  // finalise adds the record here before the gate reads the report. This
-  // is disclosure, not a verdict: build never re-derives anything verify
-  // stamped (§9). But a completed report that cannot carry the record is
-  // never promoted (gate P1 on the 356 fix): the stamp is the only audit
-  // record of which verifier ran, so a refused stamp write stops finalise
-  // here, before any gate evaluation, with the FBS untouched.
-  const stamp = await recordVerifyInvocation({ outPath, verifyRecord, writer, deps });
-  if (!stamp.ok) {
-    stderr.write(`[finalise] gate NOT evaluated: could not record run.verify on the verify report at ${outPath} (${stamp.reason}); ${fbsId} left '${currentStatus}'.\n`);
-    stderr.write('A completed verify report with no run.verify record is never promoted: without it the audit trail cannot say which verifier produced the verdict. '
-      + `The report on disk is verify's own, unstamped. Fix the write failure and re-run finalise. Report: ${outPath}\n`);
-    return 1;
-  }
-
-  // --- gate on the subprocess exit code (§8.2) + ship authority (§4) ------
-  if (spawnResult.code === 0) {
-    // Gate passed on exit code. A re-verify of an already verified item
-    // takes the same road as a first promotion: every report check below
-    // (ship authority, the scoped verified invariant, the per-AC refusals)
-    // runs before the status is confirmed, so a zero exit alone never
-    // re-asserts verified over a report that would refuse a promotion.
-    // Ship-authority gate (spec §4, w-2026-07-22-004): exit 0 is necessary but
-    // not sufficient to write `verified`. Only a run that carries SHIP authority
-    // may promote - a `deployed`-profile run, or a `ci`/`local-dev` run with an
-    // explicit --parity-env parity assertion. A correctness-only PASS (e.g. a
-    // bare `--profile ci` run) is a real regression pass but carries no ship
-    // authority, so it must HOLD rather than promote. We read the authority from
-    // the report verify stamped (never re-derive it here - that would break the
-    // §9 independence guarantee). An unreadable report on a pass is treated as a
-    // HOLD, never a silent promotion (mirrors ingest's "unreadable is not a pass").
-    const passLoaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
-    // Issue 330: a passing exit code with ONLY the preseed stub on disk
-    // means verify exited 0 without writing its own report; treat
-    // that as unreadable (never a silent promotion). Mirrors the
-    // "unreadable is not a pass" NIT-3 contract.
-    const passPreseedOnly = passLoaded.ok
-      && passLoaded.report?.launchFailure?.reason === 'preseed';
-    const authority = (passLoaded.ok && !passPreseedOnly) ? passLoaded.report.verdictAuthority : undefined;
-    if (authority !== 'ship') {
-      stderr.write(`[finalise] HOLD: rcf verify passed but this run carries '${authority ?? 'unknown'}' authority, `
-        + `not 'ship'; ${fbsId} left '${currentStatus}'.\n`);
-      stderr.write('Only a \'deployed\'-profile run - or a \'ci\'/\'local-dev\' run with --parity-env asserting the '
-        + 'runtime is edge-identical to prod - carries ship authority and can promote to verified. '
-        + `Report: ${outPath}\n`);
-      if (!passLoaded.ok) stderr.write(`[finalise] (the verify report could not be read: ${passLoaded.reason})\n`);
-      else if (passPreseedOnly) stderr.write('[finalise] (the verify report could not be read: verify exited 0 without replacing the preseed stub)\n');
-      return 4;
-    }
-    // Issue 330 (2026-10-08) deterministic-mode refusal, keyed off the
-    // ADR-4112 verified invariant. A deterministic-mode run never
-    // actively exercises a critique-only AC (every testable AC is
-    // recorded on blockedAcs[] with reason `critique-only`). Promoting
-    // to `verified` off such a run would quietly contradict the ADR
-    // promise. Refuse with a clear counts line; the operator either
-    // re-runs the gate under agentScreenshotCritique from a parent
-    // session, or extends the chain with a per-AC probe shape the
-    // deterministic mode can judge.
-    if (passLoaded.ok) {
-      const runStats = passLoaded.report?.run?.runStats
-        ?? passLoaded.report?.runStats
-        ?? null;
-      if (runStats && runStats.mode === 'deterministic') {
-        const counts = runStats.counts ?? { verified: 0, failed: 0, skipped: 0, total: 0 };
-        if ((counts.skipped ?? 0) > 0 || (counts.verified ?? 0) < (counts.total ?? 0)) {
-          stderr.write(`[finalise] gate NOT promoted: deterministic mode verified ${counts.verified ?? 0} of ${counts.total ?? 0} ACs in scope ${passLoaded.report?.run?.scope ?? scope} (skipped ${counts.skipped ?? 0} critique-only); critique mode required to promote ${fbsId} to 'verified'. ADR-4112 verified invariant.\n`);
-          stderr.write("Re-run from a parent session that may spawn the agent CLI ('rcf build finalise ... --mode agentScreenshotCritique'), or extend the chain so every AC carries a deterministic probe shape.\n");
-          stderr.write(`Report: ${outPath}\n`);
-          return 4;
-        }
-      }
-    }
-    // ADR-4147 / ADR-4112 verified invariant over the scoped set. The
-    // verifier only considers the ACs in scope (this FBS's bound ACs by
-    // default, the whole chain with --all), so every entry on the
-    // report's blockedAcs[] is an AC in scope that was NOT exercised
-    // (unprovisionable prerequisite, or critique-only in deterministic
-    // mode). The aggregate verdict can still be PASS when other ACs
-    // passed; promotion is refused regardless, in any mode, because an
-    // FBS is verified only when every AC bound to it is verified and
-    // none is skipped. A skipped AC outside the scope never appears on
-    // this report and so never blocks this FBS.
-    if (passLoaded.ok) {
-      const blockedInScope = Array.isArray(passLoaded.report?.blockedAcs) ? passLoaded.report.blockedAcs : [];
-      if (blockedInScope.length > 0) {
-        const reportScope = passLoaded.report?.run?.scope ?? scope;
-        const acList = blockedInScope.map((b) => b?.acId).filter(Boolean).join(', ');
-        stderr.write(`[finalise] gate NOT promoted: ${blockedInScope.length} AC(s) in scope ${reportScope} were not exercised (${acList}); ${fbsId} left '${currentStatus}'. Every AC bound to the FBS must be verified and none skipped. ADR-4112 verified invariant.\n`);
-        stderr.write(summariseReport(passLoaded.report));
-        stderr.write(`Report: ${outPath}\n`);
-        return 4;
-      }
-    }
-    // 0.7.0 verification-integrity §5.2: the finalise gate reads the
-    // verify report's per-AC verdicts and refuses to promote to
-    // 'verified' on MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION unless
-    // the operator has explicitly shipped-without-verified. Graceful
-    // when the report carries no perAcVerdicts field (verify's train
-    // car is later; older reports are silent on this axis).
-    if (passLoaded.ok && reportHasMockOnlyDeclared(passLoaded.report)) {
-      const declared = findMockOnlyDeclaredAcs(passLoaded.report);
-      if (flags['ship-without-verified']) {
-        // B-1 (spec section 5.2, review 2026-07-31): the ack is
-        // recorded on the manifest so it is durable and greppable at
-        // ship time. Stdout alone is neither. Written BEFORE the
-        // success confirmation so a manifest-write failure surfaces
-        // to the operator as a hard failure rather than a silent
-        // stdout-only ack.
-        const ackRecord = composeShipWithoutVerifiedRecord({
-          manifest: tree.manifest,
-          fbsId,
-          declaredAcs: declared,
-          reportPath: outPath,
-        });
-        const ackResult = await writeShipWithoutVerifiedRecord({
-          projectRoot, tree, record: ackRecord,
-        });
-        if (isRcfError(ackResult)) {
-          if (ackResult.kind === 'ioFailure') { writeUnexpectedFailure(ackResult, stderr); return 1; }
-          stderr.write(`[error] ${ackResult.kind} ${ackResult.message}\n`);
-          if (ackResult.kind === 'validation' || ackResult.kind === 'brokenReference') return 3;
-          return 1;
-        }
-        if (!quiet) {
-          stdout.write(`[finalise] gate passed and ${declared.length} AC(s) came back with declared mock-only verdicts; --ship-without-verified acknowledged (${ackRecord.id} on rcf/manifest.json); ${fbsId} left '${currentStatus}'. Report: ${outPath}\n`);
-          stdout.write(summariseReport(passLoaded.report));
-        }
-        return 0;
-      }
-      stderr.write(`[finalise] gate NOT promoted: ${declared.length} AC(s) came back MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION on the report; ${fbsId} left '${currentStatus}'.\n`);
+  const declared = findMockOnlyDeclaredAcs(verdicts);
+  if (declared.length > 0) {
+    if (!flags['ship-without-verified']) {
+      stderr.write(`[finalise] gate NOT promoted: ${declared.length} AC(s) came back MOCK-ONLY-DECLARED / BLOCKED-BY-DECLARATION on the report (${acList(declared)}); ${fbsId} left '${currentStatus}'.\n`);
       stderr.write('Only a run where every service-bound AC verifies with a live-attested profile promotes to verified. To ship the FBS at complete anyway, re-run with --ship-without-verified (the ack lands on the record).\n');
-      stderr.write(summariseReport(passLoaded.report));
-      stderr.write(`Report: ${outPath}\n`);
+      stderr.write(`Report: ${reportPath}\n`);
       return 4;
     }
-    // rcf-eval-node spec section 5.2: EVAL-MISSING / EVAL-BELOW-THRESHOLD
-    // refusal, sister of the mock-only refusal above. Opt-out via
-    // --ship-without-eval "<reason>"; missing reason exits 2, matching
-    // the ship-without-verified argv-shape lesson.
-    if (passLoaded.ok && reportHasEvalRefusal(passLoaded.report)) {
-      const evalDeclared = findEvalRefusalAcs(passLoaded.report);
+    const ackRecord = composeShipWithoutVerifiedRecord({ manifest: tree.manifest, fbsId, declaredAcs: declared, reportPath });
+    const ackCode = await writeAck(writeShipWithoutVerifiedRecord, ackRecord);
+    if (ackCode !== 0) return ackCode;
+    if (!quiet) {
+      stdout.write(`[finalise] ${declared.length} AC(s) came back with declared mock-only verdicts; --ship-without-verified acknowledged (${ackRecord.id} on rcf/manifest.json); ${fbsId} left '${currentStatus}'. Report: ${reportPath}\n`);
+    }
+    return 0;
+  }
+
+  const evalDeclared = findEvalRefusalAcs(verdicts);
+  let evalAck = null;
+  if (evalDeclared.length > 0) {
+    if (swe === undefined) {
       const missingAcIds = evalDeclared.filter((e) => e.verdict === 'EVAL-MISSING').map((e) => e.acId);
       const belowAcIds = evalDeclared.filter((e) => e.verdict === 'EVAL-BELOW-THRESHOLD').map((e) => e.acId);
-      const swe = flags['ship-without-eval'];
-      if (swe !== undefined) {
-        // A --ship-without-eval that looks like a flag is a swallowed
-        // next option; refuse it (parallel to the --provision guard).
-        if (typeof swe !== 'string' || swe.startsWith('-') || swe.trim().length === 0) {
-          stderr.write('[error] usage finalise: --ship-without-eval requires a reason string\n');
-          return 2;
-        }
-        const evalAck = composeShipWithoutEvalRecord({
-          manifest: tree.manifest,
-          fbsId,
-          reason: swe,
-          declaredAcs: evalDeclared,
-          reportPath: outPath,
-        });
-        const evalAckResult = await writeShipWithoutEvalRecord({
-          projectRoot, tree, record: evalAck,
-        });
-        if (isRcfError(evalAckResult)) {
-          if (evalAckResult.kind === 'ioFailure') { writeUnexpectedFailure(evalAckResult, stderr); return 1; }
-          stderr.write(`[error] ${evalAckResult.kind} ${evalAckResult.message}\n`);
-          if (evalAckResult.kind === 'validation' || evalAckResult.kind === 'brokenReference') return 3;
-          return 1;
-        }
-        if (!quiet) {
-          stdout.write(`[finalise] gate passed and ${evalDeclared.length} AC(s) came back with EVAL refusals; --ship-without-eval acknowledged (${evalAck.id} on rcf/manifest.json, reason: ${swe}); ${fbsId} left '${currentStatus}'. Report: ${outPath}\n`);
-          stdout.write(summariseReport(passLoaded.report));
-        }
-        return 0;
-      }
       if (missingAcIds.length > 0) {
         stderr.write(`finalise refused: EVAL missing on AC(s) ${missingAcIds.join(', ')}; author an EVAL or --ship-without-eval "reason"\n`);
       }
       if (belowAcIds.length > 0) {
         stderr.write(`finalise refused: EVAL below threshold on AC(s) ${belowAcIds.join(', ')}; investigate the run record or --ship-without-eval "reason"\n`);
       }
-      stderr.write(summariseReport(passLoaded.report));
-      stderr.write(`Report: ${outPath}\n`);
+      stderr.write(`${fbsId} left '${currentStatus}'. Report: ${reportPath}\n`);
       return 4;
     }
-    // Referee-guarantee train (REQ-165 / US-16501, docs claims C-28,
-    // C-29, C-30, C-36): three further per-AC verdicts join the
-    // finalise refusal list. UI-BASELINE-UNMET (a browserVerification
-    // record whose verdict came back `block`, including the aggregate
-    // for a block-severity probe-pack failure, C-36), BROWSER-VERIFICATION-MISSING
-    // (a UI-bearing FBS with no bound browserVerification record), and
-    // SCOPE-MISMATCH (a bound TC narrower than the AC scope, per NV-BL-GATE-01).
-    // The docs page does not spell a named sister opt-out for these three;
-    // the refusal is honest and there is no ack path here. Graceful on the
-    // older report shape (no perAcVerdicts field): behaviour matches the
-    // MOCK-ONLY branch above.
-    if (passLoaded.ok && reportHasUiBaselineUnmet(passLoaded.report)) {
-      const uiUnmet = findUiBaselineUnmetAcs(passLoaded.report);
-      const acList = uiUnmet.map((a) => a.acId).filter(Boolean).join(', ');
-      stderr.write(`[finalise] gate NOT promoted: ${uiUnmet.length} AC(s) came back UI-BASELINE-UNMET on the report (${acList}); ${fbsId} left '${currentStatus}'.\n`);
-      stderr.write('The deployed UI failed at least one bound baseline invariant; a block-severity probe-pack failure aggregates into the same verdict. Fix the UI or the baseline, re-run rcf verify browser, then re-run finalise. Referee-guarantees claims C-28 and C-36.\n');
-      stderr.write(summariseReport(passLoaded.report));
-      stderr.write(`Report: ${outPath}\n`);
-      return 4;
-    }
-    if (passLoaded.ok && reportHasBrowserVerificationMissing(passLoaded.report)) {
-      const bvMissing = findBrowserVerificationMissingAcs(passLoaded.report);
-      const acList = bvMissing.map((a) => a.acId).filter(Boolean).join(', ');
-      stderr.write(`[finalise] gate NOT promoted: ${bvMissing.length} AC(s) came back BROWSER-VERIFICATION-MISSING on the report (${acList}); ${fbsId} left '${currentStatus}'.\n`);
-      stderr.write('A UI-bearing FBS has no browserVerification record on the manifest; verify has nothing to read for the baseline check. Run rcf verify browser <fbs-id> to lay the record down, then re-run finalise. Referee-guarantees claim C-29.\n');
-      stderr.write(summariseReport(passLoaded.report));
-      stderr.write(`Report: ${outPath}\n`);
-      return 4;
-    }
-    if (passLoaded.ok && reportHasScopeMismatch(passLoaded.report)) {
-      const scopeMismatch = findScopeMismatchAcs(passLoaded.report);
-      const acList = scopeMismatch.map((a) => a.acId).filter(Boolean).join(', ');
-      stderr.write(`[finalise] gate NOT promoted: ${scopeMismatch.length} AC(s) came back SCOPE-MISMATCH on the report (${acList}); ${fbsId} left '${currentStatus}'.\n`);
-      stderr.write('A bound TC is narrower than the AC scope (NV-BL-GATE-01). Widen the TC or narrow the AC scope in define, then re-run verify and finalise. Referee-guarantees claim C-30.\n');
-      stderr.write(summariseReport(passLoaded.report));
-      stderr.write(`Report: ${outPath}\n`);
-      return 4;
-    }
-    // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
-    // the merge-state precondition. `verified` promises "an actual
-    // post-merge runtime check" and the way finalise proves that is
-    // by refusing when the working tree is not on the default branch
-    // (main / master), so a mid-branch dev-loop run cannot stamp
-    // verified. --allow-pre-merge is the deliberate opt-out for
-    // pre-merge dry runs; the decision is logged in the finalise
-    // stdout so the operator sees it. Absent a git working tree the
-    // check degrades to a warn line rather than a hard fail: verify
-    // against a bare tarball deploy is legitimate and should not be
-    // refused by a git-shape check.
-    // Re-verify of an already verified FBS: every report check above has
-    // passed, so the status is confirmed as it stands and nothing is
-    // written. The merge-state precondition guards the write below and
-    // does not apply here.
-    if (currentStatus === 'verified') {
-      if (!quiet) stdout.write(`[finalise] gate passed; ${fbsId} already verified (re-verify, scope ${scope}, ${scopeAcCount} ACs) -> ${outPath}\n`);
-      return 0;
-    }
-    const gitBranch = await resolveGitBranch({ cwd, deps });
-    if (!gitBranch.ok) {
-      stderr.write(`[warn] finalise: could not resolve git branch (${gitBranch.reason}); skipping the post-merge precondition. Referee-guarantees claim C-26.\n`);
-    } else if (!DEFAULT_BRANCH_NAMES.has(gitBranch.branch)) {
-      if (flags['allow-pre-merge']) {
-        if (!quiet) {
-          stdout.write(`[finalise] --allow-pre-merge: promoting on branch '${gitBranch.branch}' (not a default trunk). Referee-guarantees claim C-26 records the pre-merge decision here.\n`);
-        }
-      } else {
-        stderr.write(`[finalise] gate NOT promoted: git working tree is on branch '${gitBranch.branch}', not a default trunk (${[...DEFAULT_BRANCH_NAMES].join(' / ')}); ${fbsId} left '${currentStatus}'.\n`);
-        stderr.write('The referee-guarantees page promises that verified traces to an actual post-merge runtime check. Merge the branch and re-run finalise, or pass --allow-pre-merge for a deliberate pre-merge dry run (the decision is logged on stdout). Referee-guarantees claim C-26.\n');
-        return 4;
-      }
-    }
-    const result = await updateDocument({
-      projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }],
-      // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22):
-      // the writer refuses executionStatus=verified on FBS by default.
-      // Finalise is the only path the docs promise can write it, so
-      // this call carries the override flag through.
-      options: { allowVerifiedOverride: true },
-    });
-    if (isRcfError(result)) {
-      if (result.kind === 'ioFailure') { writeUnexpectedFailure(result, stderr); return 1; }
-      stderr.write(`[error] ${result.kind} ${result.message}\n`);
-      if (result.kind === 'usage') return 2;
-      if (result.kind === 'validation' || result.kind === 'brokenReference') return 3;
-      return 1;
-    }
-    if (!quiet) stdout.write(`[finalise] gate passed; marked ${fbsId} complete -> verified (scope ${scope}, ${scopeAcCount} ACs). Report: ${outPath}\n`);
-    return 0;
+    evalAck = composeShipWithoutEvalRecord({ manifest: tree.manifest, fbsId, reason: swe, declaredAcs: evalDeclared, reportPath });
   }
 
-  // Gate NOT passed. The FBS stays put; surface the findings from the report
-  // (the §5.4 verify -> fix -> re-verify seam), then fail non-zero.
-  stderr.write(`[finalise] gate NOT passed (rcf verify exit ${spawnResult.code}); ${fbsId} left '${currentStatus}'.\n`);
-  // Issue 330: if the subprocess exited without replacing the preseed
-  // partial-report stub, overwrite it with an `aborted` record naming
-  // the mode and the exit code so a reader sees why there is no
-  // verdict, not an ENOENT.
-  const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
-  const finishedAtAborted = new Date().toISOString();
-  if (loaded.ok && loaded.report?.launchFailure?.reason === 'preseed') {
-    const abortedReport = {
-      ...loaded.report,
-      verdict: 'LAUNCH-FAILURE',
-      verdictAuthority: null,
-      run: {
-        ...(loaded.report.run ?? {}),
-        finishedAt: finishedAtAborted,
-        runStats: {
-          ...((loaded.report.run && loaded.report.run.runStats) || {}),
-          mode,
-          status: 'aborted',
-          reason: `rcf verify exited ${spawnResult.code} without writing a report`,
-          exitCode: spawnResult.code,
-        },
-      },
-      launchFailure: {
-        message: `rcf verify exited ${spawnResult.code} without writing a report (mode=${mode})`,
-        status: 'aborted',
-        reason: `rcf verify exited ${spawnResult.code} without writing a report`,
-      },
-    };
-    try {
-      await writer(outPath, `${JSON.stringify(abortedReport, null, 2)}\n`, 'utf8');
-      loaded.report = abortedReport;
-    } catch (err) {
-      stderr.write(`[finalise] could not overwrite preseed stub at ${outPath}: ${err.message}\n`);
+  // Referee-guarantee train (REQ-165 / US-16501, docs claims C-28, C-29,
+  // C-30, C-36): no ack path for these three.
+  const uiUnmet = findUiBaselineUnmetAcs(verdicts);
+  if (uiUnmet.length > 0) {
+    stderr.write(`[finalise] gate NOT promoted: ${uiUnmet.length} AC(s) came back UI-BASELINE-UNMET on the report (${acList(uiUnmet)}); ${fbsId} left '${currentStatus}'.\n`);
+    stderr.write('The deployed UI failed at least one bound baseline invariant; a block-severity probe-pack failure aggregates into the same verdict. Fix the UI or the baseline, re-verify at the Test stage, then re-run finalise. Referee-guarantees claims C-28 and C-36.\n');
+    stderr.write(`Report: ${reportPath}\n`);
+    return 4;
+  }
+  const bvMissing = findBrowserVerificationMissingAcs(verdicts);
+  if (bvMissing.length > 0) {
+    stderr.write(`[finalise] gate NOT promoted: ${bvMissing.length} AC(s) came back BROWSER-VERIFICATION-MISSING on the report (${acList(bvMissing)}); ${fbsId} left '${currentStatus}'.\n`);
+    stderr.write('A UI-bearing FBS has no browserVerification record on the manifest. Run rcf verify browser <fbs-id> to lay the record down, re-verify at the Test stage, then re-run finalise. Referee-guarantees claim C-29.\n');
+    stderr.write(`Report: ${reportPath}\n`);
+    return 4;
+  }
+  const scopeMismatch = findScopeMismatchAcs(verdicts);
+  if (scopeMismatch.length > 0) {
+    stderr.write(`[finalise] gate NOT promoted: ${scopeMismatch.length} AC(s) came back SCOPE-MISMATCH on the report (${acList(scopeMismatch)}); ${fbsId} left '${currentStatus}'.\n`);
+    stderr.write('A bound TC is narrower than the AC scope (NV-BL-GATE-01). Widen the TC or narrow the AC scope in define, re-verify at the Test stage, then re-run finalise. Referee-guarantees claim C-30.\n');
+    stderr.write(`Report: ${reportPath}\n`);
+    return 4;
+  }
+
+  if (evalAck) {
+    const ackCode = await writeAck(writeShipWithoutEvalRecord, evalAck);
+    if (ackCode !== 0) return ackCode;
+    if (!quiet) {
+      stdout.write(`[finalise] ${evalDeclared.length} AC(s) came back with EVAL refusals; --ship-without-eval acknowledged (${evalAck.id} on rcf/manifest.json, reason: ${swe}).\n`);
     }
   }
-  if (loaded.ok) {
-    stderr.write(summariseReport(loaded.report));
-    const abortStats = loaded.report?.run?.runStats ?? loaded.report?.runStats ?? null;
-    if (abortStats && abortStats.status === 'aborted') {
-      stderr.write(`[finalise] mode=${abortStats.mode ?? mode}: ${abortStats.reason ?? 'verify produced no report'}\n`);
-    }
-    stderr.write(`Full report (build-lite ingestible, chain-node-addressed): ${outPath}\n`);
-  } else {
-    stderr.write(`[finalise] could not read the verify report: ${loaded.reason}\n`);
+
+  const verifiedLine = `finalise: ${fbsId} verified from ${reportPath} (head ${report.headSha.slice(0, 7)}, ci ${ciRun})\n`;
+  if (currentStatus === 'verified') {
+    if (!quiet) stdout.write(verifiedLine);
+    return 0;
   }
-  // Map verify's exit-code convention to finalise's. Verify: 2 usage, 3 chain
-  // load, 4 deterministic run with an AC not passed (FBS-218), 5 gate/
-  // NOT-DEPLOYED/BLOCKED/LAUNCH-FAILURE, 1 io. A tripped ship gate is a
-  // refusal to finalise -> 4; a verify usage/chain error surfaces as-is.
-  if (spawnResult.code === 2) return 2;
-  if (spawnResult.code === 3) return 3;
-  if (spawnResult.code === 4 || spawnResult.code === 5) return 4;
-  return 1;
+  const result = await updateDocument({
+    projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }],
+    // Referee-guarantee train (REQ-165 / US-16502, docs claim C-22): the
+    // writer refuses executionStatus=verified on FBS by default; Finalise is
+    // the one path that writes it.
+    options: { allowVerifiedOverride: true },
+  });
+  if (isRcfError(result)) {
+    if (result.kind === 'ioFailure') { writeUnexpectedFailure(result, stderr); return 1; }
+    stderr.write(`[error] ${result.kind} ${result.message}\n`);
+    if (result.kind === 'usage') return 2;
+    if (result.kind === 'validation' || result.kind === 'brokenReference') return 3;
+    return 1;
+  }
+  if (!quiet) stdout.write(verifiedLine);
+  return 0;
 }

@@ -1,0 +1,189 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-220",
+  "headSha": "07ed008c917c1366115cbce209f203aabffe5a55",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "path": "output/rcf-lite-0.34.2.tgz (lane job r-20261017-024724-6c0f)",
+    "sha256": "92ff27560e542a06f6c0d1d22e1d078fa704ba9fe321f78733b024dfc0743715",
+    "servedSha": "07ed008c917c1366115cbce209f203aabffe5a55",
+    "installedVersion": "rcf-lite 0.34.2 (npx rcf version)"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-220-test",
+  "startedAt": "2026-10-17T02:47:38Z",
+  "finishedAt": "2026-10-17T03:08:55Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": null,
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 8,
+      "failed": 0,
+      "skipped": 0,
+      "total": 8
+    }
+  },
+  "suites": {
+    "installedArtefact": {
+      "file": "test/finalise/administrative-finalise.test.js",
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0,
+      "note": "test tree copied beside a copy of the installed package so bin/rcf.js and #core resolve to the installed artefact"
+    },
+    "cloneBaselineFbs220": {
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0
+    },
+    "cloneBaselineFull": "{\"status\":\"incomplete\",\"pass\":1665,\"assertionFailures\":0,\"note\":\"pnpm test killed at the lane background time limit (~20 min, 03:08Z); the 419 cross-marked files after the kill are pending-promise cancellations, not assertion failures; log output/evidence/baseline-clone-pnpm-test.log\"}"
+  },
+  "perAc": [
+    {
+      "acId": "AC-19002-1",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 --ci-run gh-run-4242",
+        "exit": "exit 0",
+        "reportLine": "finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<head12>.json (head <sha7>, ci gh-run-4242); executionStatus verified; spawns only git",
+        "checks": 1,
+        "files": [
+          "output/evidence/AC-19002-1.json",
+          "output/evidence/AC-19002-1.stdout",
+          "output/evidence/AC-19002-1.stderr",
+          "output/evidence/AC-19002-1.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-2",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 --ci-run gh-run-4242 (no report)",
+        "exit": "exit 4",
+        "reportLine": "finalise refused: no Test-stage verify report for FBS-001; the verifier runs rcf verify run --fbs FBS-001 --hand verifier before merge",
+        "checks": 1,
+        "files": [
+          "output/evidence/AC-19002-2.json",
+          "output/evidence/AC-19002-2.stdout",
+          "output/evidence/AC-19002-2.stderr",
+          "output/evidence/AC-19002-2.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-3",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 --ci-run gh-run-4242 (uncontained head; 6 loopback targets; 10-day-old report)",
+        "exit": "exit 4",
+        "reportLine": "report head <sha7> is not contained in HEAD <sha7>; report target <url> is loopback; report is 10 days old",
+        "checks": 8,
+        "files": [
+          "output/evidence/AC-19002-3.json",
+          "output/evidence/AC-19002-3.stdout",
+          "output/evidence/AC-19002-3.stderr",
+          "output/evidence/AC-19002-3.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-4",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 --ci-run gh-run-4242 (hand builder; verifierId = builder Hand-Id)",
+        "exit": "exit 4",
+        "reportLine": "finalise refused: report hand <hand>/<id> is not separate from the builder",
+        "checks": 2,
+        "files": [
+          "output/evidence/AC-19002-4.json",
+          "output/evidence/AC-19002-4.stdout",
+          "output/evidence/AC-19002-4.stderr",
+          "output/evidence/AC-19002-4.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-5",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 [--ci-run gh-run-4242] (no --ci-run; not complete; off-trunk; missing CN; invalid v1 x3)",
+        "exit": "exit 4/4/4/3/3",
+        "reportLine": "ci evidence missing: pass --ci-run <ref>; not-complete; off-trunk; missing Code Nodes: AC-101-1; field named",
+        "checks": 7,
+        "files": [
+          "output/evidence/AC-19002-5.json",
+          "output/evidence/AC-19002-5.stdout",
+          "output/evidence/AC-19002-5.stderr",
+          "output/evidence/AC-19002-5.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-6",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 --ci-run gh-run-4242 (6 blocking perAc verdicts; verdict FAIL; correctness authority)",
+        "exit": "exit 4",
+        "reportLine": "0.20.0 / 0.28.0 message shapes; FBS left complete",
+        "checks": 8,
+        "files": [
+          "output/evidence/AC-19002-6.json",
+          "output/evidence/AC-19002-6.stdout",
+          "output/evidence/AC-19002-6.stderr",
+          "output/evidence/AC-19002-6.exit",
+          "output/evidence/AC-19002-6.eval.json"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-7",
+      "result": "pass",
+      "evidence": {
+        "command": "npx rcf build finalise FBS-001 --ci-run gh-run-4242 --mode <deterministic|agentScreenshotCritique> | --url <url>",
+        "exit": "exit 2",
+        "reportLine": "finalise no longer runs verify; run rcf verify run --fbs FBS-001 --hand verifier at the Test stage; zero spawns",
+        "checks": 3,
+        "files": [
+          "output/evidence/AC-19002-7.json",
+          "output/evidence/AC-19002-7.stdout",
+          "output/evidence/AC-19002-7.stderr",
+          "output/evidence/AC-19002-7.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    },
+    {
+      "acId": "AC-19002-8",
+      "result": "pass",
+      "evidence": {
+        "command": "every refusal above plus the promoting run, under the spawn-trace preload",
+        "exit": "n/a",
+        "reportLine": "no non-git child process; rcf/fbs/fbs-001.json sha256 identical before and after every refusal",
+        "checks": 30,
+        "files": [
+          "output/evidence/AC-19002-8.json",
+          "output/evidence/AC-19002-8.stdout",
+          "output/evidence/AC-19002-8.stderr",
+          "output/evidence/AC-19002-8.exit"
+        ],
+        "acTest": "test/finalise/administrative-finalise.test.js (installed-artefact harness 21/21 pass)"
+      }
+    }
+  ]
+}
