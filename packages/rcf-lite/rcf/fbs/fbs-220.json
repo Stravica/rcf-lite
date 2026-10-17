@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:30.109Z",
-  "updatedAt": "2026-10-17T01:20:09.421Z",
+  "updatedAt": "2026-10-17T03:33:58.231Z",
   "summary": "rcf build finalise ingests the report, checks preconditions and provenance and writes verified; --mode and --url retire (US-19002). Delivers AC-19002-1 to AC-19002-8.",
   "approach": "Replace the spawn path in src/cli/finalise.js with load, check, write: loadVerifyReport and checkReportProvenance in src/finalise/ingest.js (ancestry or tree equality, loopback, hand separation via Hand-Id, age window); keep the per-AC refusal set and ship-authority rule read from the report; require --ci-run; retire --mode and --url with a usage error naming the Test-stage command.",
   "deliverables": [
@@ -23,7 +23,7 @@
   "riskLevel": "high",
   "domain": "functional",
   "estimatedSize": "large",
-  "executionStatus": "inProgress",
+  "executionStatus": "complete",
   "notes": "Supersedes the 0.3.0 PR 50 spawn path and the 0.33.0 deterministic refusal branch inside finalise (ADR-4148). Existing finalise tests that pin the spawn behaviour are retired or rewritten by the test-author at this FBS's Define stage. Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 3 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19002 at this FBS's own Define stage (estimate 8 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
   "acIds": [
     "AC-19002-1",
