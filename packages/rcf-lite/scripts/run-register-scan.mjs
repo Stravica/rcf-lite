@@ -7,7 +7,7 @@
 // Word-boundary matching for the operator and host names so legitimate
 // tokens (Bazel, Dex identity provider, dev-012, decision 10..29) do
 // not false-positive. Case-insensitive on the operator / host / train
-// name matchers so lowercase remnants (dave, baz, hq-estate) are hit.
+// name matchers so lowercase remnants (lowercase operator names, hq-estate) are hit.
 //
 // Exit 1 on any hit; prints `file:line:pattern:snippet` for each.
 // Exit 2 on any unreadable file, missing shelf, non-directory shelf, or
