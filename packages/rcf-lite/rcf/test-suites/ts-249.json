@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:18:00.962Z",
-  "updatedAt": "2026-10-12T19:18:03.202Z",
+  "updatedAt": "2026-10-17T01:22:55.675Z",
   "purpose": "Cover the --fbs filter on rcf verify run (brief and deterministic ledger scoped to the bound criteria, report scope fields), the finalise default filter and --all escape, the ADR-4112 invariant over the scoped set with the zero-AC refusal, and the help, render and docs surfaces.",
   "testLevel": "unit",
   "acIds": [
@@ -24,15 +24,15 @@
       "id": "TC-249-16504-2-default",
       "acId": "AC-16504-2",
       "description": "finalise passes its FBS as the filter by default and --all passes no filter",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-fbs-scope.test.js::finalise: passes its own FBS as the verify filter by default; --all passes no filter"
+      "status": "skipped",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
     },
     {
       "id": "TC-249-16504-3-invariant",
       "acId": "AC-16504-3",
       "description": "verified invariant over the scoped set: skipped in scope refuses, skipped outside scope promotes, zero-AC FBS refused",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-fbs-scope.test.js::finalise: the verified invariant is evaluated over the scoped set (skipped AC in scope refuses, skipped AC outside scope does not, zero-AC FBS refused)"
+      "status": "skipped",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
     },
     {
       "id": "TC-249-16504-4-help",

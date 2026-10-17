@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T22:38:04Z",
-  "updatedAt": "2026-09-16T22:38:04Z",
+  "updatedAt": "2026-10-17T01:22:07.879Z",
   "purpose": "Cover AC-16501-1 (UI-BASELINE-UNMET refusal, C-28 + C-36), AC-16501-2 (BROWSER-VERIFICATION-MISSING refusal, C-29) and AC-16501-3 (SCOPE-MISMATCH refusal, C-30). Each test scaffolds a fresh RCF project with initProject, wires a stub verify subprocess that writes a passing report carrying the named per-AC verdict, invokes rcf build finalise, and asserts exit 4 with the expected stderr message.",
   "testLevel": "integration",
   "acIds": [
@@ -16,22 +16,22 @@
       "id": "TC-202-ui-baseline-unmet-refusal",
       "acId": "AC-16501-1",
       "description": "Fresh project via initProject with FBS-001 at complete; stub verify writes a passing report with perAcVerdicts = [{acId: AC-101-1, verdict: UI-BASELINE-UNMET}]; invoke rcf build finalise; assert exit 4, FBS at complete, stderr matches /UI-BASELINE-UNMET/ and /Referee-guarantees claims C-28 and C-36/.",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses to promote on a passing verify report that carries UI-BASELINE-UNMET (referee-guarantees C-28, C-36)"
+      "status": "failing",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
     },
     {
       "id": "TC-202-browser-verification-missing-refusal",
       "acId": "AC-16501-2",
       "description": "Same scaffold; perAcVerdicts = [{acId: AC-101-1, verdict: BROWSER-VERIFICATION-MISSING}]; assert exit 4, FBS at complete, stderr matches /BROWSER-VERIFICATION-MISSING/ and /Referee-guarantees claim C-29/.",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses to promote on a passing verify report that carries BROWSER-VERIFICATION-MISSING (referee-guarantees C-29)"
+      "status": "failing",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
     },
     {
       "id": "TC-202-scope-mismatch-refusal",
       "acId": "AC-16501-3",
       "description": "Same scaffold; perAcVerdicts = [{acId: AC-101-1, verdict: SCOPE-MISMATCH}]; assert exit 4, FBS at complete, stderr matches /SCOPE-MISMATCH/ and /Referee-guarantees claim C-30/.",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-referee-refusals.test.js::finalise refuses to promote on a passing verify report that carries SCOPE-MISMATCH (referee-guarantees C-30)"
+      "status": "failing",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
     }
   ],
   "status": "approved"

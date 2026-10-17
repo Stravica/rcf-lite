@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-08T15:50:28.920Z",
-  "updatedAt": "2026-10-08T15:50:43.321Z",
+  "updatedAt": "2026-10-17T01:22:54.586Z",
   "purpose": "Cover the --mode flag on rcf verify run and rcf build finalise, the deterministic engine output shape (findings/blockedAcs/runStats), the finalise preseed partial-report fallback, and the ADR-4112 deterministic-mode refusal line.",
   "testLevel": "unit",
   "acIds": [
@@ -24,22 +24,22 @@
       "id": "TC-242-16503-2-refuse",
       "acId": "AC-16503-2",
       "description": "finalise refuses promotion on a deterministic PASS with skipped>0, naming the counts line and ADR-4112",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-deterministic-mode.test.js::finalise: deterministic-mode PASS with skipped>0 is REFUSED (never silently promotes)"
+      "status": "skipped",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
     },
     {
       "id": "TC-242-16503-3-abort",
       "acId": "AC-16503-3",
       "description": "finalise overwrites the preseed stub with a status: aborted record when verify exits non-zero without writing",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-deterministic-mode.test.js::finalise: verify exits non-zero without writing report -> partial `aborted` record overwrites the preseed stub"
+      "status": "skipped",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
     },
     {
       "id": "TC-242-16503-4-usage",
       "acId": "AC-16503-4",
       "description": "verify run --mode and finalise --mode refuse an unknown value with exit 2",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-deterministic-mode.test.js::finalise: --mode unknown value is a usage error (exit 2)"
+      "status": "skipped",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
     }
   ],
   "status": "draft"
