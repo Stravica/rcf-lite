@@ -15,11 +15,11 @@ import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync, readFileSync } from 'node:fs';
-import { mkdir, mkdtemp, readFile, writeFile } from 'node:fs/promises';
-import { tmpdir } from 'node:os';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
+import { scratchDir } from '../_helpers/scratch.js';
 import { scaffoldChain } from './helpers/chain.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -300,7 +300,7 @@ test('AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-re
 
 test('AC-19001-6: rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path', async (t) => {
   const target = await startTarget(t);
-  const outside = await mkdtemp(join(tmpdir(), 'rcf-ac-19001-6-out-'));
+  const outside = await scratchDir(t, 'rcf-ac-19001-6-out-');
   const flags = ['--url', target.url, '--fbs', 'FBS-001', '--hand', 'verifier', '--verifier-id', 'verifier-ac-19001-6'];
 
   // Violation: --out beside --hand, inside the project and outside it.
