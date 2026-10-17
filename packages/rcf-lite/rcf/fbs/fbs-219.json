@@ -1,8 +1,8 @@
 {
   "createdAt": "2026-10-16T12:49:29.520Z",
-  "updatedAt": "2026-10-17T04:07:42.526Z",
+  "updatedAt": "2026-10-17T05:21:27.314Z",
   "summary": "The verifier hand writes a committed, head-pinned report before merge (US-19001). Delivers AC-19001-1 to AC-19001-6.",
-  "approach": "Add --hand, --verifier-id, --report-out, --package and --replace to rcf verify run; compose VerifyReport v1 from the existing report plus headSha, target, hand and timestamps; refuse a dirty tree; make rcf/verify-reports/ walker-invisible.",
+  "approach": "Add --hand, --verifier-id, --package and --replace to rcf verify run; compose VerifyReport v1 from the existing report plus headSha, target, hand and timestamps; refuse a dirty tree; write the report to rcf/verify-reports/<fbs-id>/<head12>.json and make that directory walker-invisible.",
   "deliverables": [
     "src/verify/cli/run.js: flags and report path",
     "src/verify/report/index.js: VerifyReport v1 shape and validator",
