@@ -97,6 +97,9 @@ test('object-storage-s3 apply refuses on a bare project with the object-storage-
   assert.match(result.message, /secretsProvider/);
   assert.match(result.message, /security-secrets-management/);
   assert.match(result.message, /--allow-no-secrets-yet/);
+  // Public-record hygiene (2026-10-17): the shown provenance names the
+  // operator role, not a person; date and meaning kept.
+  assert.match(result.message, /infra round 5 spec 5\.2, operator\s+decision 6\)/);
 });
 
 test('object-storage-s3 --allow-no-secrets-yet override writes sidecar with secrets-management-flavoured notes (TC-051-obj-storage-allow-skip)', async () => {
@@ -300,6 +303,9 @@ test('jobs-background apply refuses on a bare project with the jobs-background-n
   assert.match(result.message, /queue/);
   assert.match(result.message, /messaging-queue-cloudflare/);
   assert.match(result.message, /--allow-no-queue-yet/);
+  // Public-record hygiene (2026-10-17): the shown provenance names the
+  // operator role, not a person; meaning kept.
+  assert.match(result.message, /messaging-queue-postgres sibling \(operator\s+decision 7\)/);
 });
 
 test('jobs-background --allow-no-queue-yet override writes sidecar with queue-family notes (TC-051-jobs-background-allow-skip)', async () => {

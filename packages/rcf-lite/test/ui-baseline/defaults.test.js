@@ -76,3 +76,15 @@ test('isKnownBaselinePath knows every ruled field and refuses unknowns', () => {
   assert.equal(isKnownBaselinePath('made.up.path'), false);
   assert.equal(isKnownBaselinePath(''), false);
 });
+
+test('rulingSource values name the operator role, not a person (code hygiene, public record 2026-10-17)', () => {
+  // session.js prints spec.rulingSource verbatim as "source: ..." on the
+  // edit screen, so the shown provenance is user-facing text. No criterion
+  // owns these strings; this is a code-hygiene assertion. Entry numbers,
+  // mandates and the quoted ruling are kept.
+  const source = (path) => UI_BASELINE_DEFAULTS_V1.find((s) => s.path === path).rulingSource;
+  assert.equal(source('themeMode'), 'operator Entry 5');
+  assert.equal(source('sharedLayoutModule'), 'operator Entry 5 + review-phase mandate 3');
+  assert.equal(source('contrastTarget'), 'operator Entry 5 + review-phase mandate 6');
+  assert.equal(source('authFlow.htmlLoginPageRequired'), 'review-phase mandate 9 + operator "real login flow"');
+});
