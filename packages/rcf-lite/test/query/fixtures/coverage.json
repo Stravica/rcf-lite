@@ -6930,6 +6930,7 @@
           "id": "AC-19002-1",
           "covered": true,
           "testCases": [
+            "TC-253-e2e-verify-then-finalise",
             "TC-253-promotes-verified"
           ],
           "unresolvedTestCases": []
@@ -6946,7 +6947,8 @@
           "id": "AC-19002-3",
           "covered": true,
           "testCases": [
-            "TC-253-head-loopback-age"
+            "TC-253-head-loopback-age",
+            "TC-253-squash-tree-equal"
           ],
           "unresolvedTestCases": []
         },
@@ -6970,7 +6972,8 @@
           "id": "AC-19002-6",
           "covered": true,
           "testCases": [
-            "TC-253-blocking-per-ac-verdicts"
+            "TC-253-blocking-per-ac-verdicts",
+            "TC-253-e2e-per-ac-refusal"
           ],
           "unresolvedTestCases": []
         },

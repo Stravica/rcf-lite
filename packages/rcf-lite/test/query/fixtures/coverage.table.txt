@@ -745,12 +745,12 @@ REQ-190      yes      AC-19001-1   yes         TC-252-report-written
                       AC-19001-4   yes         TC-252-package-target
                       AC-19001-5   yes         TC-252-reports-not-chain
                       AC-19001-6   yes         TC-252-hand-refuses-out, TC-252-writes-only-reports
-                      AC-19002-1   yes         TC-253-promotes-verified
+                      AC-19002-1   yes         TC-253-e2e-verify-then-finalise, TC-253-promotes-verified
                       AC-19002-2   yes         TC-253-no-report
-                      AC-19002-3   yes         TC-253-head-loopback-age
+                      AC-19002-3   yes         TC-253-head-loopback-age, TC-253-squash-tree-equal
                       AC-19002-4   yes         TC-253-hand-not-separate
                       AC-19002-5   yes         TC-253-preconditions
-                      AC-19002-6   yes         TC-253-blocking-per-ac-verdicts
+                      AC-19002-6   yes         TC-253-blocking-per-ac-verdicts, TC-253-e2e-per-ac-refusal
                       AC-19002-7   yes         TC-253-retired-flags
                       AC-19002-8   yes         TC-253-no-spawn-no-mutation
                       AC-19003-1   yes         TC-254-refuses-unverified
