@@ -79,7 +79,7 @@ This preserves the one-tested-combination property with schemas outside the wall
 
 Three items open; two engineering-detail items decided by Dave at PR review (recorded here with reasoning); one already ratified (recorded here as decided).
 
-### R1. Registry name: `rcf-lite` unscoped or `@stravica-ai/rcf-lite` scoped — BAZ ITEM (ruling sheet #17)
+### R1. Registry name: `rcf-lite` unscoped or `@stravica-ai/rcf-lite` scoped — OPERATOR ITEM (ruling sheet #17)
 
 Both names available on npm.
 
@@ -116,7 +116,7 @@ Shape:
 
 Chain-update consequence: the new `rcf verify` verb IS a CLI surface change. The migration PR (not this proposal PR) MUST include the matching `rcf/` chain updates: new verb REQ (or updates to existing verify REQ), matching US / AC, TC bindings, and a build-queue entry per the repo's dogfooding discipline. `rcf coverage --strict` must stay green.
 
-### R5. Release-train sequencing: packaging vs 0.8.0 features — BAZ ITEM
+### R5. Release-train sequencing: packaging vs 0.8.0 features — OPERATOR ITEM
 
 Two options:
 
