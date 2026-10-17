@@ -11,3 +11,4 @@ test.todo('AC-19101-3: rcf audit separation passes undeclared commits touching o
 test.todo('AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with "separation: bad ref <ref>"; outside a git repository it exits 1 with "separation: not a git repository"; an unknown Hand value is a violation "unknown hand <value>"');
 test.todo('AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent');
 test.todo('AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged');
+test.todo('AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence');

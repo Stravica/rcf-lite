@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:47.124Z",
-  "updatedAt": "2026-10-16T15:44:50.560Z",
+  "updatedAt": "2026-10-16T23:18:19.055Z",
   "purpose": "Declare one test per AC of US-19001 (FBS-219) driving rcf verify run --hand verifier, rcf define validate and rcf audit separation through bin/rcf.js, so the FBS-219 Define round turns each declaration into a red test against the Test-stage report behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -19,43 +19,50 @@
       "id": "TC-252-report-written",
       "acId": "AC-19001-1",
       "description": "rcf verify run --url <preview-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> writes rcf/verify-reports/<fbs-id>/<head12>.json valid as VerifyReport v1 and stdout ends \"verify report: <path> <verdict> <verified>/<total>\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-1: rcf verify run --url <preview-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> writes rcf/verify-reports/<fbs-id>/<head12>.json valid as VerifyReport v1 and stdout ends \"verify report: <path> <verdict> <verified>/<total>\""
     },
     {
       "id": "TC-252-dirty-tree-refused",
       "acId": "AC-19001-2",
       "description": "rcf verify run --hand verifier --fbs <fbs-id> on a dirty working tree exits 4 with \"verify report refused: working tree is dirty; the report must name a committed head\" and writes no report",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-2: rcf verify run --hand verifier --fbs <fbs-id> on a dirty working tree exits 4 with \"verify report refused: working tree is dirty; the report must name a committed head\" and writes no report"
     },
     {
       "id": "TC-252-bad-hand-flags",
       "acId": "AC-19001-3",
       "description": "rcf verify run with --hand outside the five hands, or --hand without --fbs, exits 2 naming the flag and writes no report",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-3: rcf verify run with --hand outside the five hands, or --hand without --fbs, exits 2 naming the flag and writes no report"
     },
     {
       "id": "TC-252-package-target",
       "acId": "AC-19001-4",
       "description": "rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier writes a report with target.kind \"package\" and target.packageRef and no target.url",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-4: rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier writes a report with target.kind \"package\" and target.packageRef and no target.url"
     },
     {
       "id": "TC-252-reports-not-chain",
       "acId": "AC-19001-5",
-      "description": "with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and rcf audit separation classifies the path as verifier evidence",
-      "status": "pending",
-      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and rcf audit separation classifies the path as verifier evidence"
+      "description": "with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document",
+      "status": "passing",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document"
     },
     {
       "id": "TC-252-writes-only-reports",
       "acId": "AC-19001-6",
       "description": "rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites"
+    },
+    {
+      "id": "TC-252-hand-refuses-out",
+      "acId": "AC-19001-6",
+      "description": "rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path",
+      "status": "failing",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path"
     }
   ],
   "status": "draft"

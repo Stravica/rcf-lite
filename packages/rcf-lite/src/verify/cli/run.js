@@ -5,8 +5,10 @@
 // NOT-DEPLOYED / BLOCKED). This is the exact call-path build-lite's finalise
 // step spawns (§8.2).
 
-import { writeFile } from 'node:fs/promises';
-import { resolve as resolvePath } from 'node:path';
+import { execFileSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { dirname, resolve as resolvePath } from 'node:path';
 import { parseArgs } from 'node:util';
 
 import { formatError, isRcfError } from '#core/errors';
@@ -18,7 +20,7 @@ import {
   isVerifyMode,
 } from '../engine/deterministic.js';
 import { isSemverString, PLAYWRIGHT_MCP_VERSION } from '../engine/launcher.js';
-import { serialiseReport } from '../report/index.js';
+import { composeVerifyReport, serialiseReport, VERIFY_HANDS } from '../report/index.js';
 import { normaliseFbsIds } from '../chain/scope.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
 
@@ -44,8 +46,47 @@ const OPTION_SPEC = {
   // is accepted too. Narrows the contract to the ACs bound to the named
   // FBS items. `rcf build finalise` passes its own FBS here by default.
   fbs: { type: 'string', multiple: true },
+  // FBS-219 (US-19001): the Test-stage verify report. --hand stamps the
+  // hand and writes VerifyReport v1 to rcf/verify-reports/<fbs>/<head12>.json.
+  hand: { type: 'string' },
+  'verifier-id': { type: 'string' },
+  package: { type: 'string' },
+  replace: { type: 'string' },
   help: { type: 'boolean' },
 };
+
+const VERIFY_REPORTS_DIR = 'rcf/verify-reports';
+
+function git(cwd, args) {
+  return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
+}
+
+// FBS-219: paths git reports changed (tracked or untracked) outside
+// rcf/verify-reports/ under cwd's project. Read from git status on every
+// call, never cached.
+export function dirtyPathsOutsideReports(cwd) {
+  const prefix = git(cwd, ['rev-parse', '--show-prefix']).trim();
+  const exempt = `${prefix}${VERIFY_REPORTS_DIR}/`;
+  return git(cwd, ['status', '--porcelain=v1', '-z', '--no-renames', '--untracked-files=all'])
+    .split('\0').filter(Boolean).map((entry) => entry.slice(3))
+    .filter((path) => !path.startsWith(exempt));
+}
+
+// FBS-219: base URL for a package target given without --url (RFC 2606
+// .invalid, never resolves). Paired with refusePackageFetch so no request
+// leaves the process.
+const PACKAGE_NO_URL = 'http://package.invalid/';
+
+function refusePackageFetch(packageRef) {
+  return async () => {
+    throw new Error(`package target ${packageRef} has no served URL; pass --url to probe it`);
+  };
+}
+
+async function readOwnVersion() {
+  const pkgPath = new URL('../../../package.json', import.meta.url);
+  return JSON.parse(await readFile(pkgPath, 'utf8')).version;
+}
 
 export const HELP = `Usage: rcf verify run [options]
 
@@ -118,6 +159,20 @@ Optional:
                                  { verified, failed, skipped, critiqueOnly,
                                  total }. Exits 0 only when every in-scope
                                  AC passed, 4 otherwise.
+  --hand <hand>             Test-stage verify report (FBS-219): stamp the
+                            hand (test-author | builder | reviewer | verifier |
+                            stage-keeper) and write VerifyReport v1 to
+                            rcf/verify-reports/<fbs-id>/<head12>.json. Needs
+                            exactly one --fbs and a clean working tree outside
+                            rcf/verify-reports/ (exit 4 otherwise); --out is
+                            then optional. Prints
+                            "verify report: <path> <verdict> <verified>/<total>".
+  --verifier-id <id>        The verifier identity recorded on the report
+  --package <ref>           Version-host target (name@version or tarball):
+                            the report records target.kind "package" and
+                            target.packageRef; --url is then optional and
+                            probes need it to reach a served build
+  --replace <reason>        Overwrite an existing report for the same head
   --help                    Print this help
 
 Exit codes:
@@ -173,7 +228,40 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage --provision-mode must be run | skip\n');
     return 2;
   }
-  if (!flags.out) {
+  // FBS-219: --hand writes the Test-stage report; usage first, then the
+  // committed-head and no-overwrite refusals, all before any probe runs.
+  let verifyReportPath = null;
+  let headSha = null;
+  const handFbsIds = normaliseFbsIds(flags.fbs);
+  if (flags.hand !== undefined) {
+    if (!VERIFY_HANDS.includes(flags.hand)) {
+      stderr.write(`[error] usage --hand must be one of ${VERIFY_HANDS.join(' | ')} (got "${flags.hand}")\n`);
+      return 2;
+    }
+    if (flags.out !== undefined) {
+      stderr.write('[error] usage --out is not allowed with --hand; the report is written under rcf/verify-reports/<fbs-id>/\n');
+      return 2;
+    }
+    if (handFbsIds.length !== 1) {
+      stderr.write('[error] usage --fbs <fbs-id> is required with --hand (exactly one build spec)\n');
+      return 2;
+    }
+    try {
+      if (dirtyPathsOutsideReports(cwd).length > 0) {
+        stderr.write('verify report refused: working tree is dirty; the report must name a committed head\n');
+        return 4;
+      }
+      headSha = git(cwd, ['rev-parse', 'HEAD']).trim();
+    } catch (err) {
+      stderr.write(`[rcf-verify] unexpected failure: could not read the git head: ${err.message}\n`);
+      return 1;
+    }
+    verifyReportPath = `${VERIFY_REPORTS_DIR}/${handFbsIds[0]}/${headSha.slice(0, 12)}.json`;
+    if (existsSync(resolvePath(cwd, verifyReportPath)) && !flags.replace) {
+      stderr.write(`verify report exists for head ${headSha.slice(0, 7)}; pass --replace "<reason>"\n`);
+      return 4;
+    }
+  } else if (!flags.out) {
     stderr.write('[error] usage --out <report-path> is required\n');
     return 2;
   }
@@ -230,7 +318,9 @@ export async function main(argv, deps = {}) {
     repo: flags.repo,
     chainRef: flags.chain,
     profile: flags.profile,
-    url: flags.url,
+    // FBS-219: a package target with no served URL resolves every probe
+    // against an address that never answers, so each lands skipped.
+    url: flags.url ?? (flags.package !== undefined ? PACKAGE_NO_URL : undefined),
     parityEnv: flags['parity-env'],
     provision: flags.provision,
     provisionMode,
@@ -239,7 +329,7 @@ export async function main(argv, deps = {}) {
     playwrightMcpVersion: overrideRaw,
     mode,
     fbsIds,
-  }, deps);
+  }, flags.package !== undefined && flags.url === undefined ? { ...deps, fetchImpl: refusePackageFetch(flags.package) } : deps);
 
   if (isRcfError(result)) {
     stderr.write(`${formatError(result, { verbose: true })}\n`);
@@ -249,13 +339,40 @@ export async function main(argv, deps = {}) {
   const { report } = result;
 
   // The report is written ALWAYS, regardless of the gate (§3 rule 5).
-  const outPath = resolvePath(cwd, flags.out);
   const writer = deps.writeFile ?? writeFile;
-  try {
-    await writer(outPath, serialiseReport(report), 'utf8');
-  } catch (err) {
-    stderr.write(`[rcf-verify] unexpected failure: could not write report: ${err.message}\n`);
-    return 1;
+  if (flags.out) {
+    try {
+      await writer(resolvePath(cwd, flags.out), serialiseReport(report), 'utf8');
+    } catch (err) {
+      stderr.write(`[rcf-verify] unexpected failure: could not write report: ${err.message}\n`);
+      return 1;
+    }
+  }
+
+  // FBS-219: the Test-stage VerifyReport v1, the only file this verb
+  // writes under rcf/verify-reports/.
+  let verifyReport = null;
+  if (verifyReportPath) {
+    verifyReport = composeVerifyReport({
+      report,
+      fbsId: handFbsIds[0],
+      headSha,
+      target: flags.package !== undefined
+        ? { kind: 'package', packageRef: flags.package }
+        : { kind: 'url', url: flags.url },
+      mode,
+      hand: flags.hand,
+      verifierId: flags['verifier-id'],
+      rcfLiteVersion: await readOwnVersion(),
+    });
+    const absPath = resolvePath(cwd, verifyReportPath);
+    try {
+      await mkdir(dirname(absPath), { recursive: true });
+      await writer(absPath, serialiseReport(verifyReport), 'utf8');
+    } catch (err) {
+      stderr.write(`[rcf-verify] unexpected failure: could not write verify report: ${err.message}\n`);
+      return 1;
+    }
   }
 
   // rcf-eval-node spec section 5.3: preflight-style print for EVAL
@@ -275,7 +392,11 @@ export async function main(argv, deps = {}) {
 
   const scopeCount = typeof report?.run?.scopeAcCount === 'number' ? ` (${report.run.scopeAcCount} ACs)` : '';
   stderr.write(`[rcf-verify] scope ${report?.run?.scope ?? 'chain'}${scopeCount}\n`);
-  stderr.write(`[rcf-verify] verdict ${report.verdict} [${report.verdictAuthority}] -> ${flags.out}\n`);
+  stderr.write(`[rcf-verify] verdict ${report.verdict} [${report.verdictAuthority}] -> ${flags.out ?? verifyReportPath}\n`);
+  if (verifyReport) {
+    const { verified, total } = verifyReport.runStats.counts;
+    stdout.write(`verify report: ${verifyReportPath} ${verifyReport.verdict} ${verified}/${total}\n`);
+  }
 
   // FBS-218: deterministic mode exits 0 only when every in-scope AC
   // passed its probe, 4 otherwise (a fail, a skip or a critique-only AC).

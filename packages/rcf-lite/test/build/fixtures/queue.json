@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 114,
-    "notStarted": 62,
-    "inProgress": 2,
+    "notStarted": 61,
+    "inProgress": 3,
     "complete": 35,
     "verified": 15,
-    "actionable": 42,
+    "actionable": 41,
     "blocked": 20
   },
   "nextActionable": "FBS-013",
@@ -1433,11 +1433,11 @@
       "buildOrder": 219,
       "tier": 1,
       "title": "Test-stage verify report: rcf verify run --hand writes VerifyReport v1",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-218"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {

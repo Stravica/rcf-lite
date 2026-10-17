@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-823",
+  "path": "src/core/store/walker.js#walkTree",
+  "implementsAcIds": [
+    "AC-19001-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T22:59:06.982Z",
+  "updatedAt": "2026-10-16T22:59:06.982Z"
+}

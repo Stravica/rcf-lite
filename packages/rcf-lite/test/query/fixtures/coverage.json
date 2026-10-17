@@ -6921,6 +6921,7 @@
           "id": "AC-19001-6",
           "covered": true,
           "testCases": [
+            "TC-252-hand-refuses-out",
             "TC-252-writes-only-reports"
           ],
           "unresolvedTestCases": []
@@ -7137,6 +7138,14 @@
           "covered": true,
           "testCases": [
             "TC-255-read-only"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19101-7",
+          "covered": true,
+          "testCases": [
+            "TC-255-verify-reports-class"
           ],
           "unresolvedTestCases": []
         },

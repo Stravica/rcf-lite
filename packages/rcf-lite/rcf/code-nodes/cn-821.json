@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-821",
+  "path": "src/verify/cli/run.js#dirtyPathsOutsideReports",
+  "implementsAcIds": [
+    "AC-19001-2",
+    "AC-19001-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-16T22:59:05.862Z",
+  "updatedAt": "2026-10-16T22:59:05.862Z"
+}

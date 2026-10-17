@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:23.075Z",
-  "updatedAt": "2026-10-16T15:45:26.434Z",
+  "updatedAt": "2026-10-16T22:46:38.940Z",
   "purpose": "Declare one test per AC of US-19101 (FBS-222) driving rcf audit separation through bin/rcf.js over fixture git histories, so the FBS-222 Define round turns each declaration into a red test against the separation verb.",
   "testLevel": "integration",
   "acIds": [
@@ -9,7 +9,8 @@
     "AC-19101-3",
     "AC-19101-4",
     "AC-19101-5",
-    "AC-19101-6"
+    "AC-19101-6",
+    "AC-19101-7"
   ],
   "id": "TS-255",
   "usId": "US-19101",
@@ -56,6 +57,13 @@
       "description": "rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged",
       "status": "pending",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged"
+    },
+    {
+      "id": "TC-255-verify-reports-class",
+      "acId": "AC-19101-7",
+      "description": "rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation.test.js::AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence"
     }
   ],
   "status": "draft"
