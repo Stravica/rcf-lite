@@ -12,6 +12,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
+import { createServer } from 'node:http';
 import { createHash } from 'node:crypto';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -366,4 +367,192 @@ test('AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier p
   const ok = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF], { trace: true });
   assert.equal(ok.code, 0, `the valid report promotes\nstderr:\n${ok.stderr}`);
   assert.deepEqual(nonGitSpawns(ok.spawns), [], 'the promoting run spawns nothing but git');
+});
+
+// ---------------------------------------------------------------------------
+// End to end: the report Finalise ingests is the one a real
+// `rcf verify run --hand verifier` wrote, against a real HTTP target.
+//
+// The target is a server in this test process on 127.0.0.1, reached under a
+// non-loopback name (PREVIEW_HOST) through the host-map preload, so the
+// report's target.url is not loopback and AC-19002-3 does not refuse it.
+// The verify invocation is the Test-stage one FBS-219 pins (AC-19001-1):
+// deterministic, --profile ci, scoped to the FBS, stamped by the verifier.
+
+const HOST_MAP_PRELOAD = resolve(here, 'fixtures', 'host-map-fetch.mjs');
+const PREVIEW_HOST = 'preview.fbs220.test';
+const PREVIEW_URL = `http://${PREVIEW_HOST}`;
+
+async function startPreview(t) {
+  const hits = [];
+  const server = createServer((req, res) => {
+    hits.push(new URL(req.url, 'http://x').pathname);
+    res.writeHead(200, { 'content-type': 'text/plain' });
+    res.end('ok');
+  });
+  await new Promise((r) => server.listen(0, '127.0.0.1', r));
+  t.after(() => new Promise((r) => server.close(r)));
+  return { hostMap: `${PREVIEW_HOST}=127.0.0.1:${server.address().port}`, hits };
+}
+
+function verifyRunE2E(root, preview) {
+  const env = {
+    ...process.env, CI: '1', PATH: '/usr/bin:/bin', RCF_TEST_HOST_MAP: preview.hostMap,
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import ${HOST_MAP_PRELOAD}`.trim(),
+  };
+  const args = ['verify', 'run', '--repo', root, '--profile', 'ci', '--provision-mode', 'skip',
+    '--mode', 'deterministic', '--url', PREVIEW_URL, '--fbs', FBS, '--hand', 'verifier', '--verifier-id', VERIFIER_ID];
+  return new Promise((res) => {
+    execFile(process.execPath, [bin, ...args], { cwd: root, env, encoding: 'utf8', timeout: 90_000 }, (err, stdout, stderr) => {
+      res({ code: err ? (typeof err.code === 'number' ? err.code : 1) : 0, stdout: stdout ?? '', stderr: stderr ?? '' });
+    });
+  });
+}
+
+// The post-merge world with a report the real writer produced on the
+// feature head. `nonDeterministic` reclassifies AC-101-1 so the engine
+// emits EVAL-MISSING for it (no EVAL is bound). `merge` is 'no-ff' or
+// 'squash'.
+async function buildE2EWorld(t, { nonDeterministic = false, merge = 'no-ff' } = {}) {
+  const preview = await startPreview(t);
+  const root = await scratchDir('rcf-fin220-e2e-');
+  await initProject({ projectRoot: root, projectName: 'AdminFinaliseE2E' });
+  await declareUiNoneForTests(root);
+  if (nonDeterministic) {
+    const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
+    const us = JSON.parse(await readFile(usPath, 'utf8'));
+    us.acceptanceCriteria = us.acceptanceCriteria.map((a) => (a.id === AC ? { ...a, determinism: 'nonDeterministic' } : a));
+    await writeFile(usPath, `${JSON.stringify(us, null, 2)}\n`, 'utf8');
+  }
+  await writeFile(join(root, 'rcf', 'verify-catalog.json'), `${JSON.stringify({
+    catalogVersion: 1, probes: { [AC]: { path: '/health', expectStatus: 200 } },
+  }, null, 2)}\n`, 'utf8');
+  await mkdir(join(root, 'src'), { recursive: true });
+  await writeFile(join(root, 'src', 'save.js'), 'export function save() {}\n', 'utf8');
+  const cn = await rcf(root, ['define', 'create', 'cn', '--path', 'src/save.js#save', '--acs', AC]);
+  assert.equal(cn.code, 0, `fixture: create cn\n${cn.stderr}`);
+  const ip = await rcf(root, ['build', 'mark', FBS, 'inProgress']);
+  assert.equal(ip.code, 0, `fixture: mark inProgress\n${ip.stderr}`);
+
+  git(root, 'init', '-q', '-b', 'main');
+  const base = commitAll(root, 'chore: base');
+  git(root, 'checkout', '-q', '-b', 'feature');
+  await writeFile(join(root, 'src', 'save.js'), 'export function save() { return true; }\n', 'utf8');
+  const headSha = commitAll(root, 'feat: save returns true', { Hand: 'builder', 'Hand-Id': BUILDER_ID });
+
+  const run = await verifyRunE2E(root, preview);
+  assert.equal(run.code, 0, `fixture: the verifier's deterministic run passes\nstderr:\n${run.stderr}`);
+  assert.ok(preview.hits.includes('/health'), 'the probe reached the preview target');
+  const reportRel = `rcf/verify-reports/${FBS}/${headSha.slice(0, 12)}.json`;
+  const report = JSON.parse(await readFile(join(root, reportRel), 'utf8'));
+  commitAll(root, 'test: verify report', { Hand: 'verifier', 'Hand-Id': VERIFIER_ID });
+
+  git(root, 'checkout', '-q', 'main');
+  if (merge === 'squash') {
+    git(root, 'merge', '-q', '--squash', 'feature');
+    commitAll(root, 'feat: save returns true (#1)');
+  } else {
+    git(root, 'merge', '-q', '--no-ff', '-m', 'Merge feature', 'feature');
+  }
+  const done = await rcf(root, ['build', 'mark', FBS, 'complete']);
+  assert.equal(done.code, 0, `fixture: mark complete\n${done.stderr}`);
+  const head = commitAll(root, 'chain: mark FBS-001 complete');
+  return { root, base, headSha, head, reportRel, report };
+}
+
+test('AC-19002-1 (end to end): a real rcf verify run --hand verifier --fbs <fbs-id> --url <preview> PASS writes a ship-authority report with per-AC verdicts, and rcf build finalise <fbs-id> --ci-run <ref> promotes it to verified', async (t) => {
+  const world = await buildE2EWorld(t);
+  assert.equal(world.report.verdict, 'PASS', 'the deterministic run passes');
+  assert.equal(world.report.target.url, PREVIEW_URL, 'the report names the non-loopback preview target');
+  assert.equal(world.report.verdictAuthority, 'ship',
+    'a deterministic PASS recorded by --hand verifier carries ship authority (ADR-4148: Finalise is administrative)');
+  const row = world.report.perAc.find((r) => r.acId === AC);
+  assert.equal(row?.result, 'pass', `the perAc row for ${AC} records the passing probe; got ${JSON.stringify(row)}`);
+  assert.ok(row.verdict === undefined || row.verdict === null || row.verdict === 'PASS',
+    `${AC} carries no blocking per-AC verdict on a clean PASS; got ${row.verdict}`);
+
+  assert.equal(await status(world), 'complete', 'fixture: FBS starts complete');
+  const r = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF], { trace: true });
+  assert.equal(r.code, 0, `finalise ingests the real report and promotes: exit 0\nstderr:\n${r.stderr}`);
+  const reportRe = world.reportRel.replace(/[.]/g, '\\.');
+  assert.match(r.stdout, new RegExp(`finalise: ${FBS} verified from (\\S*/)?${reportRe} \\(head ${world.headSha.slice(0, 7)}, ci ${CI_REF}\\)`));
+  assert.equal(await status(world), 'verified');
+  assert.deepEqual(nonGitSpawns(r.spawns), [], 'no child process other than git is spawned');
+});
+
+test('AC-19002-6 (end to end): a real verify run whose engine records EVAL-MISSING on an AC writes that verdict into perAc, and rcf build finalise refuses exit 4 with the 0.20.0 message shape, the FBS staying complete', async (t) => {
+  const world = await buildE2EWorld(t, { nonDeterministic: true });
+  assert.equal(world.report.verdict, 'PASS', 'the probe passes; EVAL-MISSING rides on the per-AC verdict, not the run verdict');
+  const row = world.report.perAc.find((r) => r.acId === AC);
+  assert.equal(row?.verdict, 'EVAL-MISSING', `the writer carries the engine's per-AC verdict into perAc; got ${JSON.stringify(row)}`);
+
+  const before = sha256(await fbsBytes(world));
+  const r = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF], { trace: true });
+  assert.equal(r.code, 4, `refuses exit 4\nstderr:\n${r.stderr}`);
+  const expected = `finalise refused: EVAL missing on AC(s) ${AC}; author an EVAL or --ship-without-eval "reason"`;
+  assert.ok(r.stderr.includes(expected), `stderr carries "${expected}"\n${r.stderr}`);
+  assert.equal(await status(world), 'complete', 'the FBS stays complete');
+  assert.equal(sha256(await fbsBytes(world)), before, `${FBS_PATH} is byte-identical after the refusal`);
+  assert.deepEqual(nonGitSpawns(r.spawns), [], 'no child process other than git is spawned');
+});
+
+test('AC-19002-3 (squash merge): a report head whose tree differs from a commit HEAD contains only under rcf/verify-reports/ is tree-equal, so Finalise accepts it', async (t) => {
+  const world = await buildE2EWorld(t, { merge: 'squash' });
+  let ancestor = true;
+  try { git(world.root, 'merge-base', '--is-ancestor', world.headSha, 'HEAD'); } catch { ancestor = false; }
+  assert.equal(ancestor, false, 'fixture: after a squash merge the report head is not an ancestor of HEAD');
+  const diff = git(world.root, 'diff', '--name-only', world.headSha, 'HEAD~1').split('\n').filter(Boolean);
+  assert.deepEqual(diff, [world.reportRel], 'fixture: the squash commit differs from the report head only by the report');
+
+  const r = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
+  assert.ok(!r.stderr.includes('is not contained in HEAD'), `the squash-merged head is tree-equal to the report head\n${r.stderr}`);
+  assert.equal(r.code, 0, `finalise promotes the squash-merged head: exit 0\nstderr:\n${r.stderr}`);
+  assert.equal(await status(world), 'verified');
+});
+
+// ---------------------------------------------------------------------------
+// The override flags keep their criteria (stage-keeper ruling 2026-10-17):
+// each still does what its criterion says, now applied to the ingested report.
+
+test('AC-1601-3 (ingest): an ingested report carrying EVAL-MISSING refuses exit 4 with the spec message; --ship-without-eval <reason> needs a real reason and, given one, promotes and lands a monotonic swe-* record on manifest.shipWithoutEval[]', async () => {
+  const world = await buildWorld();
+  await replantReport(world, { perAc: [{ acId: AC, result: 'pass', verdict: 'EVAL-MISSING', evidence: { status: 200 } }] });
+
+  const refused = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
+  assert.equal(refused.code, 4, `EVAL-MISSING refuses exit 4\nstderr:\n${refused.stderr}`);
+  assert.ok(refused.stderr.includes(`finalise refused: EVAL missing on AC(s) ${AC}; author an EVAL or --ship-without-eval "reason"`), refused.stderr);
+  assert.equal(await status(world), 'complete');
+
+  const bare = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF, '--ship-without-eval']);
+  assert.equal(bare.code, 2, `--ship-without-eval with no reason is a usage error\nstderr:\n${bare.stderr}`);
+  const flagLike = await rcf(world.root, ['build', 'finalise', FBS, '--ship-without-eval', '--ci-run', CI_REF]);
+  assert.notEqual(flagLike.code, 0, `a reason that looks like a flag is refused\nstderr:\n${flagLike.stderr}`);
+  assert.equal(await status(world), 'complete', 'neither malformed run promotes');
+
+  const ok = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF, '--ship-without-eval', 'harness offline']);
+  assert.equal(ok.code, 0, `--ship-without-eval "harness offline" promotes the ingested report\nstderr:\n${ok.stderr}`);
+  assert.equal(await status(world), 'verified');
+  const manifest = JSON.parse(await readFile(join(world.root, 'rcf', 'manifest.json'), 'utf8'));
+  const recs = manifest.shipWithoutEval ?? [];
+  assert.equal(recs.length, 1, 'one acknowledgement lands on manifest.shipWithoutEval[]');
+  assert.match(recs[0].id, new RegExp(`^swe-${FBS}-1$`), 'monotonic id');
+  assert.equal(recs[0].reason, 'harness offline');
+  assert.ok(JSON.stringify(recs[0]).includes('EVAL-MISSING') && JSON.stringify(recs[0]).includes(AC), 'the declared per-AC verdicts are recorded');
+  assert.ok(String(recs[0].reportPath).endsWith(world.reportRel), `reportPath names the ingested report; got ${recs[0].reportPath}`);
+});
+
+test('AC-16502-3 (ingest): rcf build finalise on a non-default branch refuses exit 4 naming the branch and claim C-26, and --allow-pre-merge promotes the ingested report and logs the pre-merge decision with C-26', async () => {
+  const world = await buildWorld();
+  git(world.root, 'checkout', '-q', '-b', 'feature/x');
+
+  const refused = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
+  assert.equal(refused.code, 4, `off trunk refuses exit 4\nstderr:\n${refused.stderr}`);
+  assert.match(refused.stderr, /git working tree is on branch 'feature\/x'/);
+  assert.match(refused.stderr, /C-26/);
+  assert.equal(await status(world), 'complete');
+
+  const ok = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF, '--allow-pre-merge']);
+  assert.equal(ok.code, 0, `--allow-pre-merge promotes the ingested report\nstderr:\n${ok.stderr}`);
+  assert.match(ok.stdout, /Referee-guarantees claim C-26 records the pre-merge decision here/);
+  assert.equal(await status(world), 'verified');
 });
