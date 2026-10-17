@@ -258,7 +258,7 @@ conflict on topic (theming):
          rcf define blueprint supersede theming --incoming /path/to/blueprints/hello-panel
 ```
 
-That is the mechanism working. Roll the topic back to `operatorPanel` before shipping the blueprint; unrelated concepts sharing a topic string is the [Baz ruling](../../../docs/2026-08-06_packaging-consolidation-proposal.md)-adjacent authoring error the topic-name rules in the standard, section 6, exist to prevent.
+That is the mechanism working. Roll the topic back to `operatorPanel` before shipping the blueprint; unrelated concepts sharing a topic string is the [operator ruling](../../../docs/2026-08-06_packaging-consolidation-proposal.md)-adjacent authoring error the topic-name rules in the standard, section 6, exist to prevent.
 
 ## 14. Remove and re-apply
 
