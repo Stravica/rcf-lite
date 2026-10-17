@@ -1,0 +1,149 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-219",
+  "headSha": "3380e15f9feb0387b57e040aec51ee62114485f1",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "path": "output/rcf-lite-0.34.2.tgz (lane job r-20261017-033829-df73)",
+    "sha256": "ef2335a8186662926168b113f3b7b6c075e53a7ff0b6a2c97f6a83fe05660d18",
+    "servedSha": "3380e15f9feb0387b57e040aec51ee62114485f1",
+    "installedVersion": "rcf-lite 0.34.2 (npx rcf version)"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-compose-218-219",
+  "startedAt": "2026-10-17T03:38:42Z",
+  "finishedAt": "2026-10-17T03:40:13Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": null,
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "method": "composed by the verifier hand from the AC-bound suite run against the installed packed artefact (stage-keeper interim ruling 2026-10-17, pending a suite-as-probe kind, w-2026-10-17-dave-003)",
+  "runStats": {
+    "counts": {
+      "verified": 6,
+      "failed": 0,
+      "skipped": 0,
+      "total": 6
+    }
+  },
+  "suites": {
+    "installedArtefact": {
+      "testSuite": "TS-252",
+      "file": "test/verify/verify-report-hand.test.js",
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0,
+      "note": "test tree copied beside a copy of the installed package so bin/rcf.js and #core resolve to the installed artefact"
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19001-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-252",
+        "acTest": "test/verify/verify-report-hand.test.js",
+        "tapTests": [
+          1
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact (test file copied beside a copy of the installed package; bin/rcf.js and #core resolve to the artefact)",
+        "files": [
+          "output/evidence/TS-252-verify-report-hand.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19001-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-252",
+        "acTest": "test/verify/verify-report-hand.test.js",
+        "tapTests": [
+          2
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact (test file copied beside a copy of the installed package; bin/rcf.js and #core resolve to the artefact)",
+        "files": [
+          "output/evidence/TS-252-verify-report-hand.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19001-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-252",
+        "acTest": "test/verify/verify-report-hand.test.js",
+        "tapTests": [
+          3
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact (test file copied beside a copy of the installed package; bin/rcf.js and #core resolve to the artefact)",
+        "files": [
+          "output/evidence/TS-252-verify-report-hand.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19001-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-252",
+        "acTest": "test/verify/verify-report-hand.test.js",
+        "tapTests": [
+          4
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact (test file copied beside a copy of the installed package; bin/rcf.js and #core resolve to the artefact)",
+        "files": [
+          "output/evidence/TS-252-verify-report-hand.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19001-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-252",
+        "acTest": "test/verify/verify-report-hand.test.js",
+        "tapTests": [
+          5
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact (test file copied beside a copy of the installed package; bin/rcf.js and #core resolve to the artefact)",
+        "files": [
+          "output/evidence/TS-252-verify-report-hand.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19001-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-252",
+        "acTest": "test/verify/verify-report-hand.test.js",
+        "tapTests": [
+          6,
+          7
+        ],
+        "boundTests": 2,
+        "passed": 2,
+        "runAgainst": "installed packed artefact (test file copied beside a copy of the installed package; bin/rcf.js and #core resolve to the artefact)",
+        "files": [
+          "output/evidence/TS-252-verify-report-hand.tap"
+        ]
+      }
+    }
+  ]
+}
