@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-13T20:16:41.430Z",
-  "updatedAt": "2026-10-17T01:22:59.047Z",
+  "updatedAt": "2026-10-17T02:02:41.831Z",
   "purpose": "Cover the five issue 356 contract points on rcf build finalise: --provision-mode accepted and forwarded verbatim to the fresh verify subprocess (usage error on an unknown value), the finalise help text lists it, the finalise report stamps provisioning.mode on completed runs and launch failures, a provisioning blocked-reason surfaced by finalise names only remedies finalise accepts, and detectVerify prefers the package-local verify entry over PATH while the report records the resolved verify command and its version.",
   "testLevel": "unit",
   "acIds": [
@@ -31,9 +31,9 @@
     {
       "id": "TC-250-16505-2-help",
       "acId": "AC-16505-2",
-      "description": "finalise HELP lists --provision-mode <m> naming run and skip, the out-of-band purpose of skip and the report.provisioning.mode disclosure, with no em-dash",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-provision-mode.test.js::finalise help lists --provision-mode with run and skip and the report.provisioning.mode disclosure"
+      "description": "finalise HELP lists --provision-mode <m> naming run and skip, the out-of-band purpose of skip and the report.provisioning.mode disclosure, with no em-dash. Superseded 2026-10-17 by AC-19002-7 (FBS-220): finalise no longer runs verify, so --provision-mode is retired from finalise and its help.",
+      "status": "skipped",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
     },
     {
       "id": "TC-250-16505-3-stamp",

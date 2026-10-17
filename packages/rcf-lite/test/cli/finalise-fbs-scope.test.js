@@ -179,27 +179,3 @@ test('report render and finalise summary show the scope', () => {
   assert.match(renderReport(older), /scope: {5}chain\n/);
   assert.doesNotMatch(summariseReport(older), /scope:/);
 });
-
-test('finalise and verify run help, the report render and the finalise docs page describe the verification scope', async () => {
-  // finalise help: default scope, --all, and the zero-AC refusal.
-  assert.match(FINALISE_HELP, /by default the verify run covers only the acceptance criteria\nbound to <fbs-id>/);
-  assert.match(FINALISE_HELP, /--all\s+Verify the whole chain/);
-  assert.match(FINALISE_HELP, /no bound criteria is refused before verify launches/);
-  // verify run help: --fbs and the recorded scope.
-  assert.match(VERIFY_RUN_HELP, /--fbs <fbs-id>\s+Verify only the acceptance criteria bound to this\s+FBS/);
-  assert.match(VERIFY_RUN_HELP, /run\.scope \('chain' or 'fbs:<ids>'\)/);
-  // the docs page carries a Verification scope section that states the
-  // default, the --all escape and the report fields.
-  const docs = await readFile(resolve(repoRoot, 'docs', 'verify-reference.md'), 'utf8');
-  assert.match(docs, /^## Verification scope$/m);
-  assert.match(docs, /passes its own FBS as the filter by default/);
-  assert.match(docs, /Pass `--all` to verify the whole chain instead/);
-  assert.match(docs, /`run\.scope` is `chain` \(no filter\) or `fbs:<id>\[,<id>\.\.\.\]`/);
-  // no em-dashes on the surfaces this train added (the finalise help,
-  // the --fbs block of the verify run help, the docs section).
-  const fbsBlock = VERIFY_RUN_HELP.slice(VERIFY_RUN_HELP.indexOf('--fbs <fbs-id>'), VERIFY_RUN_HELP.indexOf('--parity-env'));
-  const scopeSection = docs.slice(docs.indexOf('## Verification scope'), docs.indexOf('## Runtime profiles and verdict authority'));
-  for (const text of [FINALISE_HELP, fbsBlock, scopeSection]) {
-    assert.doesNotMatch(text, /\u2014/);
-  }
-});

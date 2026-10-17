@@ -543,11 +543,11 @@ test('AC-1601-3 (ingest): an ingested report carrying EVAL-MISSING refuses exit 
 
 test('AC-16502-3 (ingest): rcf build finalise on a non-default branch refuses exit 4 naming the branch and claim C-26, and --allow-pre-merge promotes the ingested report and logs the pre-merge decision with C-26', async () => {
   const world = await buildWorld();
-  git(world.root, 'checkout', '-q', '-b', 'feature/x');
+  git(world.root, 'checkout', '-q', '-b', 'topic-x');
 
   const refused = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
   assert.equal(refused.code, 4, `off trunk refuses exit 4\nstderr:\n${refused.stderr}`);
-  assert.match(refused.stderr, /git working tree is on branch 'feature\/x'/);
+  assert.match(refused.stderr, /git working tree is on branch 'topic-x'/);
   assert.match(refused.stderr, /C-26/);
   assert.equal(await status(world), 'complete');
 

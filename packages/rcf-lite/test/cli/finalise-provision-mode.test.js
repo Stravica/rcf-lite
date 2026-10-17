@@ -134,25 +134,6 @@ test('buildVerifyArgs: --provision-mode threads through to the fresh subprocess 
 
 // --- AC-16505-2: help text ---------------------------------------------------
 
-test('finalise help lists --provision-mode with run and skip and the report.provisioning.mode disclosure', async () => {
-  const optionsBlock = FINALISE_HELP.slice(FINALISE_HELP.indexOf('Options:'), FINALISE_HELP.indexOf('Exit codes:'));
-  assert.match(optionsBlock, /^ {2}--provision-mode <m>\s+/m, 'the Options block lists --provision-mode <m>');
-  // The entry runs from its own line to the next option line.
-  const entry = optionsBlock.slice(optionsBlock.indexOf('  --provision-mode'));
-  const nextOption = entry.search(/\n {2}--/);
-  const entryBody = nextOption === -1 ? entry : entry.slice(0, nextOption);
-  assert.match(entryBody, /\brun\b/);
-  assert.match(entryBody, /\bskip\b/);
-  assert.match(entryBody, /out of band/);
-  assert.match(entryBody, /report\.provisioning\.mode/);
-  assert.doesNotMatch(FINALISE_HELP, /\u2014/, 'no em-dash in the finalise help');
-  // The rendered --help goes through the same string.
-  const stdout = sink();
-  const code = await finalise(['--help'], { stdout, stderr: sink() });
-  assert.equal(code, 0);
-  assert.match(stdout.data, /--provision-mode <m>/);
-});
-
 // --- AC-16505-3: the report stamps provisioning.mode -----------------------
 
 // --- AC-16505-4: blocked-reason names an available remedy ------------------
