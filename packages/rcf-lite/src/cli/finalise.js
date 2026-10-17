@@ -38,7 +38,6 @@ import {
   findMockOnlyDeclaredAcs,
   findScopeMismatchAcs,
   findUiBaselineUnmetAcs,
-  loadReport,
   loadVerifyReport,
   writeShipWithoutEvalRecord,
   writeShipWithoutVerifiedRecord,
@@ -205,51 +204,6 @@ async function resolveGitBranch({ cwd, deps = {} }) {
       resolveP({ ok: true, branch });
     });
   });
-}
-
-// Issue 356 (AC-16505-5) seam of the retired verify-spawn path. Finalise no
-// longer calls it (ADR-4148); it stays while CN-803 anchors it.
-/**
- * Issue 356 (AC-16505-5). After the verify subprocess returns, copy the
- * resolved invocation onto the report at `outPath` as `run.verify`. The
- * preseed stub finalise wrote already carries it; a report verify
- * replaced it with does not, so this is where a completed run (passing
- * or tripped) learns which verifier produced it. Disclosure only as far
- * as the report goes: the verdict, authority, findings and every other
- * field verify stamped are left untouched.
- *
- * The result is checked by the caller. A completed report that cannot
- * be stamped is `{ ok: false }`: finalise must then refuse before gate
- * evaluation (exit 1, FBS unchanged), because promoting off a report
- * with no record of which verifier produced it would leave the audit
- * trail blind to exactly the stale-global case the record exists for
- * (issue 356 gate P1). An unreadable report or the untouched preseed
- * stub is `{ ok: true, stamped: false }`: there is no completed report
- * to stamp, and the gate below already reads those two shapes as
- * "unreadable is not a pass" / launch failure.
- *
- * @param {object} args
- * @param {string} args.outPath
- * @param {ReturnType<typeof describeInvocation>} args.verifyRecord
- * @param {typeof writeFile} args.writer
- * @param {object} args.deps
- * @returns {Promise<{ ok: true, stamped: boolean } | { ok: false, stamped: false, reason: string }>}
- */
-async function recordVerifyInvocation({ outPath, verifyRecord, writer, deps }) {
-  const loaded = await (deps.loadReport ? deps.loadReport(outPath, deps) : loadReport(outPath, deps));
-  if (!loaded.ok || !loaded.report || typeof loaded.report !== 'object') return { ok: true, stamped: false };
-  const { report } = loaded;
-  // The preseed stub (or the aborted record derived from it) was written
-  // by finalise with run.verify in place; nothing to add.
-  if (report.launchFailure?.reason === 'preseed') return { ok: true, stamped: false };
-  const run = (report.run && typeof report.run === 'object') ? report.run : {};
-  const stamped = { ...report, run: { ...run, verify: verifyRecord } };
-  try {
-    await writer(outPath, `${JSON.stringify(stamped, null, 2)}\n`, 'utf8');
-  } catch (err) {
-    return { ok: false, stamped: false, reason: err?.message ?? String(err) };
-  }
-  return { ok: true, stamped: true };
 }
 
 /**
