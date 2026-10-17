@@ -615,7 +615,7 @@ test('product-map lazy render: raw-JSON disclosures are suppressed inside pm-req
   assert.doesNotMatch(tabSlice, /<details class="raw-json"/);
 });
 
-test('product-map: truncatable chips and bucket labels carry a full-text title attr (Baz 2026-09-22)', async () => {
+test('product-map: truncatable chips and bucket labels carry a full-text title attr (operator 2026-09-22)', async () => {
   const { model } = await renderLive();
   const html = renderProductMapPanel(model, { lazy: new Set() });
   // Component grouping produces the longest labels (`${tacId} - ${name}`);
@@ -641,7 +641,7 @@ test('product-map: truncatable chips and bucket labels carry a full-text title a
   );
 });
 
-test('product-map: single-status buckets suppress the redundant mini pill (Baz 2026-09-22)', async () => {
+test('product-map: single-status buckets suppress the redundant mini pill (operator 2026-09-22)', async () => {
   const { model } = await renderLive();
   const html = renderProductMapPanel(model, { lazy: new Set() });
   // The shape "webUi" bucket is all one status in the dogfood tree, so its

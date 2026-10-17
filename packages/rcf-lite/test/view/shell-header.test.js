@@ -1,4 +1,4 @@
-// Shell header polish (viewer UI refresh PR 2, decision 17 + Baz
+// Shell header polish (viewer UI refresh PR 2, decision 17 + operator
 // 2026-10-02 ruling), with the issue-295 flip (w-2026-10-06-dave-001):
 // project name sourced from prd.productName first (the human-readable
 // name a project owner can edit via `rcf define update PRD-001 --set

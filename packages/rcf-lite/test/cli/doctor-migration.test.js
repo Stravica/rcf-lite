@@ -70,7 +70,7 @@ async function buildLegacyHandEditedFixture() {
   const tmp = await scratchDir('rcf-doc-handedit-');
   await runBin(tmp, ['init', '--project-name', 'HandEditTest', '--non-interactive']);
   const legacyFragment = (await readFile(LEGACY_CANONICAL_PATH, 'utf8')).trim();
-  const handEdited = `${legacyFragment}\n\n## Team notes\n- Ship on Fridays only.\n- Ask Baz before touching migrations.\n- Never bypass RCF, ever.`;
+  const handEdited = `${legacyFragment}\n\n## Team notes\n- Ship on Fridays only.\n- Ask the lead before touching migrations.\n- Never bypass RCF, ever.`;
   await writeFile(join(tmp, 'CLAUDE.md'),
     `# legacy repo\n\n<!-- rcf:begin -->\n${handEdited}\n<!-- rcf:end -->\n`, 'utf8');
   const { rm } = await import('node:fs/promises');

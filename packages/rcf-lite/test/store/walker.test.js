@@ -323,7 +323,7 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   assert.equal(tree.tacs.length, 65);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Phase 3.5 rev-3 (w-2026-08-19-008) added ADR-010 recording the
-  // topic-as-free-label-lookup-key decision (Baz ruling on shipped
+  // topic-as-free-label-lookup-key decision (operator ruling on shipped
   // camelCase topics).
   // Round-7 T-1 added ADR-3801..3804 (cloud host contract, snapshot
   // cadence, provisioning tool, hardening baseline) per HQ reserved-

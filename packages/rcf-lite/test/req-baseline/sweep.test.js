@@ -1,6 +1,6 @@
 // 0.28.2 (issue #231) tests for req-baseline sweep AC-id allocation.
 //
-// Barry's WSD dogfood: `rcf discover req-baseline sweep --yes` on a
+// The operator's WSD dogfood: `rcf discover req-baseline sweep --yes` on a
 // story with two or more open candidates assigned every accepted
 // candidate the identical `AC-<usNum>-<maxN+1>` and the writer's
 // post-write validation refused the tree with a duplicate-id

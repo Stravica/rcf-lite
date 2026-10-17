@@ -48,7 +48,7 @@ test('RULE 14 teaches the agent to run the freshness verb and OFFER, never insta
   assert.match(fragment, /### RULE 14: Check freshness at session start; offer, never install\./);
   // The verb the rule tells the agent to run is the phase-2 CLI form.
   assert.match(fragment, /run `rcf version --check`/);
-  // The load-bearing safety verb (Baz ruling): OFFER, in caps, and
+  // The load-bearing safety verb (operator ruling): OFFER, in caps, and
   // "install" appears only inside "never install".
   assert.match(fragment, /OFFER the upgrade/);
   const installMatches = fragment.match(/\binstall\b/g) ?? [];

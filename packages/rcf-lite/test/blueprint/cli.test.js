@@ -363,7 +363,7 @@ import { declareUiNoneForTests } from '../_helpers/d0.js';
 const shippedSpa  = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-spa');
 const shippedRest = _resolveP(here, '..', '..', '..', '..', 'blueprints', 'application-api-rest');
 
-test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, Baz ruling on the conflict-pair supersede precondition)', async () => {
+test('shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, operator ruling on the conflict-pair supersede precondition)', async () => {
   // AC-1002-5 + AC-1002-9 + AC-1002-10 as ratified in round 3: option
   // 3 as printed in the reshaped conflict message MUST be executable
   // EXACTLY as printed, from the refused-add state, with ZERO prep.
