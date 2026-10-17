@@ -107,8 +107,8 @@ build        Drive the FBS queue and the five-stage build cycle.
   queue                    Show the FBS build queue.
   bundle <fbs-id>          Spec bundle for one FBS (or --next).
   mark <fbs-id> <status>   Record a lifecycle transition.
-  finalise <fbs-id>        Ship gate: run the independent verifier and
-                           promote a complete FBS to verified.
+  finalise <fbs-id>        Ship gate: ingest the Test-stage verify report
+                           and promote a complete FBS to verified.
   review <fbs-id>          Stage-3-to-Stage-4 audit.
   fbs <fbs-id> <verb>      FBS-level operations.
   test-suite <ts-id> <verb>  Test-suite operations.
@@ -227,8 +227,8 @@ Verbs:
   mark <fbs-id> <status>   Record a lifecycle transition (notStarted ->
                            inProgress -> complete). 'verified' is written
                            only by 'build finalise'.
-  finalise <fbs-id>        Ship gate: run the independent verifier and
-                           promote a complete FBS to verified.
+  finalise <fbs-id>        Ship gate: ingest the Test-stage verify report
+                           and promote a complete FBS to verified.
   review <fbs-id>          Stage-3-to-Stage-4 audit (test-theatre and
                            mutation-sampling).
   fbs <fbs-id> <verb>      FBS-level operations (depends-on).
