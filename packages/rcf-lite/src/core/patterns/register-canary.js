@@ -30,7 +30,7 @@
 // -- internalRuleCitation ---------------------------------------------------
 // Any citation of an internal rule (RULE 1, CLAUDE.md, __NOTES__, AGENTS.md,
 // or "per rule X") is a fail. Rationale: the 0.5.1 first response cited
-// "RULE 1" and Baz's Entry-1 response was "why would I care about CLAUDE
+// "RULE 1" and the operator's Entry-1 response was "why would I care about CLAUDE
 // RULE 1?". Internal rule references leaking to the operator is the sin.
 const INTERNAL_RULE_CITATION_PATTERNS = Object.freeze([
   /\bRULE\s?\d+\b/gi,

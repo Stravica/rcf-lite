@@ -170,7 +170,7 @@ export async function main(argv, deps = {}) {
   if (flags.json) stdout.write(`${JSON.stringify(record, null, 2)}\n`);
 
   if (flags['dry-run']) {
-    // 0.28.2 (folded into #230, per Barry ruling 2026-09-21):
+    // 0.28.2 (folded into #230, per operator ruling 2026-09-21):
     // dry-run runs the same schema pass the writer runs so a preview
     // reports the same validation error the write path would refuse.
     const dryValidation = validateComposedRecord({ tree, record, verb: 'review' });

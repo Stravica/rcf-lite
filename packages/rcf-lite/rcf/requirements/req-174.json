@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-05T18:00:00Z",
+  "updatedAt": "2026-10-17T05:20:35.061Z",
   "reqId": "REQ-174",
   "prdId": "PRD-001",
   "title": "DEFINE stage gates D1..D8 as pure check functions",
@@ -24,7 +24,7 @@
       }
     ]
   },
-  "rationale": "Baz ruled on 2026-09-22 (proposal section 9, decision 2) that gates block where the data exists and warn-with-ack for D3, D5 and D6 until 0.31 (Baz ruled 2026-09-24 that 0.31 renumbers to 0.30, so this train ships D3/D5/D6 as warn-with-ack in 0.29.0). One check function per stage is the seam every later consumer reads: the readiness view (REQ-175) composes them, the freeze verb (slice 3) refuses on any failing stage, the viewer's Readiness tab (slice 5) prints the same checks[]. Building the check functions now, with cheap data-backed checks only, keeps 0.29.0 shippable while leaving named seams for 0.30's template parser, entity join, catalogue walk, probe runner and consistency scans.",
+  "rationale": "The operator ruled on 2026-09-22 (proposal section 9, decision 2) that gates block where the data exists and warn-with-ack for D3, D5 and D6 until 0.31 (the operator ruled 2026-09-24 that 0.31 renumbers to 0.30, so this train ships D3/D5/D6 as warn-with-ack in 0.29.0). One check function per stage is the seam every later consumer reads: the readiness view (REQ-175) composes them, the freeze verb (slice 3) refuses on any failing stage, the viewer's Readiness tab (slice 5) prints the same checks[]. Building the check functions now, with cheap data-backed checks only, keeps 0.29.0 shippable while leaving named seams for 0.30's template parser, entity join, catalogue walk, probe runner and consistency scans.",
   "tags": [
     "capability:define-detection"
   ]

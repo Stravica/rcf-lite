@@ -85,7 +85,7 @@
   }
 
   // Three-state theme control (ADR-4137 standalone-theme-persistence,
-  // Baz 2026-10-04 w-2026-10-04-dave-001). The control writes
+  // operator ruling 2026-10-04 w-2026-10-04-dave-001). The control writes
   // `rcf-view:v1:theme` in non-embed mode only; under embed the control
   // is removed from the DOM entirely and the key is never read or
   // written. The key sits under the shared `rcf-view:v1:` namespace so

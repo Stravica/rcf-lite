@@ -13,7 +13,7 @@
 //     refuses promotion while one remains (ADR-4112 verified invariant).
 //
 // Per-AC probes (FBS-218, issue 349, TAC-4150): an AC carrying a probe
-// (on the AC, rcf-schemas 0.7.1 `$defs/acProbe`, or in
+// (on the AC, rcf-schemas 0.8.0 `$defs/acProbe`, or in
 // `rcf/verify-catalog.json`, see catalog.js) is resolved against `--url`
 // to pass, fail or skipped with evidence; an AC with no probe stays
 // critique-only on `blockedAcs[]`. A pass lands as a PASS finding, a fail

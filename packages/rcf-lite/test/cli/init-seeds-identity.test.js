@@ -39,7 +39,7 @@ test('AC-4.1: rcf init creates rcf/.identity/profile.md with the canonical templ
 test('AC-4.2: init re-run leaves an operator-owned profile.md byte-identical', async () => {
   const tmp = await scratchDir('rcf-init-id-re-');
   await runBinInit(tmp);
-  const custom = '# my profile\n\nBaz. Direct, casual, no filler.\n';
+  const custom = '# my profile\n\nSam. Direct, casual, no filler.\n';
   await writeFile(join(tmp, 'rcf', '.identity', 'profile.md'), custom, 'utf8');
   const { code } = await runBinInit(tmp);
   assert.equal(code, 0);

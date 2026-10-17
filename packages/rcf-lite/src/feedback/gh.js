@@ -7,7 +7,7 @@
 //   - ghIssueSearch({ repo, query, state, limit })   dedupe search
 //   - ghIssueGetBody({ repo, number })                re-read a candidate body for fingerprint verification (0.28.2 / #234)
 //   - ghIssueCreate({ repo, title, body, labels })   create one issue
-//   - ghIssueComment({ repo, number, body })         fold comment (carries the full report; the "+1 from another reporter" payload retired in 0.28.2 per Barry's 2026-09-21 ruling on #234)
+//   - ghIssueComment({ repo, number, body })         fold comment (carries the full report; the "+1 from another reporter" payload retired in 0.28.2 per the operator's 2026-09-21 ruling on #234)
 //   - ghLabelCreate({ repo, name, description, color })  bootstrap only
 //
 // Every function returns a typed result. Errors are classified into

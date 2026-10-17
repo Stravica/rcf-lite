@@ -644,7 +644,7 @@ async function enrichAdrConflicts(conflicts, tree, blueprint, sourceLabel) {
       continue;
     }
     const enriched = { ...c, incoming: { ...c.incoming }, existing: { ...c.existing } };
-    // Round-3 (Baz ruling): thread the CLI-supplied source (what the
+    // Round-3 (operator ruling): thread the CLI-supplied source (what the
     // operator typed on `rcf blueprint add SRC`) onto the incoming
     // side so the renderer can print option 3 verbatim — the operator
     // can copy the same source path into the supersede invocation

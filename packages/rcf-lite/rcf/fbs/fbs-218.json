@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-16T12:49:28.956Z",
-  "updatedAt": "2026-10-17T04:07:42.161Z",
-  "summary": "Probe fields and the runtime verify catalog; the deterministic engine resolves them to pass, fail or skipped per AC (US-19201). Delivers AC-19201-1 to AC-19201-7.",
+  "updatedAt": "2026-10-17T05:21:26.716Z",
+  "summary": "Probe fields and the runtime verify catalog; the deterministic engine resolves them to pass, fail or skipped per AC (US-19201). Delivers AC-19201-1 to AC-19201-8.",
   "approach": "Pin the @stravica-ai/rcf-schemas minor that adds the optional probe object to acceptanceCriterion; add src/verify/engine/catalog.js; extend deterministic.js to resolve probes with evidence, honour --parity-env and add runStats.counts.critiqueOnly; add --probe and --probe-file to rcf define update for an AC; validate catalog keys against the tree.",
   "deliverables": [
     "@stravica-ai/rcf-schemas minor (external, must publish first): optional probe on $defs/acceptanceCriterion",

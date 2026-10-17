@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-05T01:30:00.000Z",
-  "updatedAt": "2026-09-05T01:30:00.000Z",
+  "updatedAt": "2026-10-17T05:20:40.040Z",
   "usId": "US-2201",
   "prdId": "PRD-001",
   "reqId": "REQ-022",
@@ -48,7 +48,7 @@
     },
     {
       "id": "AC-2201-8",
-      "description": "The four shelf auth blueprints declare capabilities[] in v1.1.0 minor bumps landing in the same PR: security-auth-magic-link 1.0.0 -> 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -> 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -> 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -> 1.1.0 capabilities: [principalDirectory, roleModel]. Each blueprint's CHANGELOG.md carries a new entry naming the capabilities added and citing this train (Baz Q2 default 2026-09-04, spec section 5.5.2). No other change to the four blueprints.",
+      "description": "The four shelf auth blueprints declare capabilities[] in v1.1.0 minor bumps landing in the same PR: security-auth-magic-link 1.0.0 -> 1.1.0 capabilities: [principalDirectory]; security-auth-clerk 1.1.0 -> 1.2.0 capabilities: [principalDirectory, roleModel]; security-auth-oauth2 1.0.0 -> 1.1.0 capabilities: [principalDirectory, roleModel]; security-auth-keycloak 1.0.0 -> 1.1.0 capabilities: [principalDirectory, roleModel]. Each blueprint's CHANGELOG.md carries a new entry naming the capabilities added and citing this train (the operator's Q2 default 2026-09-04, spec section 5.5.2). No other change to the four blueprints.",
       "testable": true
     },
     {

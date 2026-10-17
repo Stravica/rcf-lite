@@ -56,7 +56,7 @@
       "id": "TC-027-shipped-blueprints-option-3-executable",
       "acId": "AC-1002-5",
       "description": "shipped SPA + REST option-3 verbatim-from-refused-state money probe: fresh scaffold; add spa; add rest (refused with the reshaped message); follow option 3 EXACTLY as printed (`rcf define blueprint supersede errorEnvelope --incoming <rest>` and `rcf define blueprint supersede authModel --incoming <rest>`) with ZERO prep; then re-run `rcf define blueprint add <rest>` and verify co-residence + honour",
-      "testPointer": "test/blueprint/cli.test.js::shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, Baz ruling on the conflict-pair supersede precondition)",
+      "testPointer": "test/blueprint/cli.test.js::shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, operator ruling on the conflict-pair supersede precondition)",
       "status": "pending"
     },
     {
@@ -98,7 +98,7 @@
       "id": "TC-027-topic-free-label-camelcase-verbatim",
       "acId": "AC-1002-9",
       "description": "ADR-010 chain-level decision on record: shipped camelCase topics are accepted verbatim on manifest.resolutions[].topic; the ADR id tail is kebab-ified; no rcfError names 'kebab slug' on any non-whitespace topic",
-      "testPointer": "test/blueprint/cli.test.js::shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, Baz ruling on the conflict-pair supersede precondition)",
+      "testPointer": "test/blueprint/cli.test.js::shipped SPA + REST: option 3 executes VERBATIM from the refused-add state (rev-3 P1-1, operator ruling on the conflict-pair supersede precondition)",
       "status": "pending"
     },
     {
@@ -111,5 +111,5 @@
   ],
   "status": "draft",
   "createdAt": "2026-08-19T00:00:00Z",
-  "updatedAt": "2026-08-19T00:00:00Z"
+  "updatedAt": "2026-10-17T05:40:23.665Z"
 }

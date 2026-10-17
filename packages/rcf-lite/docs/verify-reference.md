@@ -91,7 +91,7 @@ An unknown `--mode` value refuses with exit 2 and the message `--mode must be on
 
 ### Making an AC checkable in deterministic mode
 
-The deterministic engine today records every testable AC as `critique-only` on `blockedAcs[]` because the chain carries no per-AC runtime probe shape. A follow-up train car wires the deterministic engine to read probes from one of three places; this section is the forward contract so a project (for example `ai-on-record/docs/runtime-verify-catalog.md`) can produce machine-readable rows ready to be consumed as soon as the engine lands them.
+The deterministic engine today records every testable AC as `critique-only` on `blockedAcs[]` because the chain carries no per-AC runtime probe shape. A follow-up train car wires the deterministic engine to read probes from one of three places; this section is the forward contract so a project (for example a GBP 249 product built with rcf-lite, in its `docs/runtime-verify-catalog.md`) can produce machine-readable rows ready to be consumed as soon as the engine lands them.
 
 Resolution order (first match wins), each entry maps `acId -> probe[]`:
 
@@ -123,7 +123,7 @@ The probe object has two shapes today, both resolved against the live `--url`:
 }
 ```
 
-Worked example for `AC-801-1` on `ai-on-record` (the sign-in link on the deployed landing page), as a `rcf/runtime-verify-catalog.json` entry:
+Worked example for `AC-801-1` on a GBP 249 product built with rcf-lite (the sign-in link on the deployed landing page), as a `rcf/runtime-verify-catalog.json` entry:
 
 ```json
 {
@@ -132,7 +132,7 @@ Worked example for `AC-801-1` on `ai-on-record` (the sign-in link on the deploye
       "kind": "http",
       "method": "GET",
       "path": "/",
-      "expect": { "status": 200, "bodyIncludes": ["<title>AI on Record"] }
+      "expect": { "status": 200, "bodyIncludes": ["<title>Example Product"] }
     },
     {
       "kind": "dom",

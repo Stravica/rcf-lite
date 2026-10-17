@@ -54,7 +54,7 @@ test('redact rule 4c: project-scoped allowHosts extend the vendor list', () => {
 });
 
 test('AC-15601-6 filename tokens carrying a known extension survive rule 4', () => {
-  // The exact command Barry hit in the WSD round-trip that surfaced
+  // The exact command the operator hit in the WSD round-trip that surfaced
   // the redactor overreach (issue #233). Filename tokens must survive
   // verbatim; the evidence pointer is only useful if it is still
   // re-runnable.

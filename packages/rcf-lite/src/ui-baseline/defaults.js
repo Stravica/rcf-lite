@@ -1,6 +1,6 @@
 // Ruled UI-baseline defaults (ui-design-gate-0.7.0-spec §6.1).
 //
-// Every value is Baz-ruled (Entry 5 of the 2026-07-29 cold-run operator
+// Every value is operator-ruled (Entry 5 of the 2026-07-29 cold-run operator
 // feedback log) or a §4.3 mandate from the review-phase analysis. The
 // `rcf ui-baseline init` verb presents these values as the defaults;
 // the operator accepts (silence is NOT an opt-out) or overrides with a
@@ -90,7 +90,7 @@ export function deepGet(obj, path) {
 
 /**
  * Compose the ruled defaults object from the v1 catalogue. Every field
- * carries its Baz-ruled value; caller overrides land under
+ * carries its operator-ruled value; caller overrides land under
  * `operatorOptOuts[]` on the surrounding record.
  *
  * @param {object} [overrides]  dot-path -> value overrides (used by preflight seam pickup)

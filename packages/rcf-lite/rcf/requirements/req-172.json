@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T12:00:00Z",
-  "updatedAt": "2026-09-24T12:00:00Z",
+  "updatedAt": "2026-10-17T05:20:33.939Z",
   "reqId": "REQ-172",
   "prdId": "PRD-001",
   "title": "DEFINE delta detection and freeze record foundation",
@@ -11,14 +11,20 @@
   "version": "0.1.0",
   "status": "draft",
   "shapeClassification": {
-    "shapes": ["persistence"],
+    "shapes": [
+      "persistence"
+    ],
     "reason": "keyword-scan",
     "classifiedAt": "2026-09-24T12:00:00Z",
     "signals": [
-      { "source": "description", "shape": "persistence", "match": "record" }
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "record"
+      }
     ]
   },
-  "rationale": "Barry's backstory dogfood found DEFINE generated too fast with no gates. Baz ruled 2026-09-22 that the fix is detection over configured change records: the freeze remembers what the tree looked like; anything that differs is the change. The delta.js primitives are what every later slice (gates, readiness, freeze verb, bundle read, viewer tab) consumes, so their return shape is a contract worth pinning early. Canonical-JSON hashing (over raw bytes) is the difference between a real change and a hand reformat; document granularity (over criterion granularity) keeps the model cheap while git supplies the criterion-level diff.",
+  "rationale": "The operator's backstory dogfood found DEFINE generated too fast with no gates. The operator ruled 2026-09-22 that the fix is detection over configured change records: the freeze remembers what the tree looked like; anything that differs is the change. The delta.js primitives are what every later slice (gates, readiness, freeze verb, bundle read, viewer tab) consumes, so their return shape is a contract worth pinning early. Canonical-JSON hashing (over raw bytes) is the difference between a real change and a hand reformat; document granularity (over criterion granularity) keeps the model cheap while git supplies the criterion-level diff.",
   "tags": [
     "capability:define-detection"
   ]

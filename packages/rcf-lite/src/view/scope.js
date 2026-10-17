@@ -3,7 +3,7 @@
 // live-client filter. Nothing here reads process.env, prints, or
 // mutates state.
 //
-// Scope model (spec: w-2026-08-30-dave-020, Baz-ratified 2026-08-30):
+// Scope model (spec: w-2026-08-30-dave-020, operator-ratified 2026-08-30):
 //   * blueprint scope  -> the applied blueprint's namespaced
 //     contribution ids, read from manifest.blueprints[].contributions[].
 //     The applied record IS the truth (project-local), never the

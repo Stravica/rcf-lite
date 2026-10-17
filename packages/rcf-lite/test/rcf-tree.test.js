@@ -261,7 +261,7 @@ const expectedCounts = {
   //   CN-072: src/setup/playwright-checks.js#loadBrowserFacingSources
   //   CN-073: src/cli/init.js#runPlaywrightMcpPass
   // Phase 3.5 rev-3 (w-2026-08-19-008): ADR-010 records the topic-
-  // as-free-label-lookup-key decision (Baz ruling, camelCase canonical
+  // as-free-label-lookup-key decision (operator ruling, camelCase canonical
   // on shipped blueprints).
   // Cloudflare round 6 T-4 added ADR-3501..3504 (JWT gate scope global
   // on new topic edgeAuthenticationGate, identity provider elicited,

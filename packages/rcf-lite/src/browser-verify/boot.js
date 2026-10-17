@@ -8,7 +8,7 @@
 // and stops the process it started when the pass completes.
 //
 // Never used as a per-blueprint harness: this only fires when the URL
-// is genuinely unreachable, per Baz's ruling that the running dev
+// is genuinely unreachable, per the operator's ruling that the running dev
 // server is the normal case (2026-09-04).
 
 import { spawn } from 'node:child_process';

@@ -55,7 +55,7 @@ test('runOneCase returns the parsed graded envelope on a valid response', async 
         responseSchemaPath: 'schemas/judge.json',
       },
     },
-    criteria: [{ id: 'voice-fit', description: 'reads as Barry' }],
+    criteria: [{ id: 'voice-fit', description: 'reads as the operator' }],
   };
   const caseDoc = { id: 'greeting', input: { prompt: 'hi' } };
   const gradedText = JSON.stringify({

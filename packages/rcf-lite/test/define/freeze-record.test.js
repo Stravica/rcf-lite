@@ -135,9 +135,9 @@ test('freeze-record: override is required (nullable) and the loader defaults mis
   // Validator: override === { reason, by, at } is legal.
   const withOverride = validateFreezeRecord({
     ...validRecord,
-    override: { reason: 'Baz override for X', by: 'baz', at: '2026-09-24T10:00:00Z' },
+    override: { reason: 'Operator override for X', by: 'operator', at: '2026-09-24T10:00:00Z' },
   });
-  assert.equal(withOverride.override.reason, 'Baz override for X');
+  assert.equal(withOverride.override.reason, 'Operator override for X');
 
   // Loader: an older on-disk record without the key loads with override defaulted to null.
   const root = await scratch();

@@ -164,8 +164,9 @@ Optional:
                             stage-keeper) and write VerifyReport v1 to
                             rcf/verify-reports/<fbs-id>/<head12>.json. Needs
                             exactly one --fbs and a clean working tree outside
-                            rcf/verify-reports/ (exit 4 otherwise); --out is
-                            then optional. Prints
+                            rcf/verify-reports/ (exit 4 otherwise). --out is
+                            refused with --hand (exit 2): the report path is
+                            the verb's. Prints
                             "verify report: <path> <verdict> <verified>/<total>".
   --verifier-id <id>        The verifier identity recorded on the report
   --package <ref>           Version-host target (name@version or tarball):

@@ -1,9 +1,9 @@
 // Matrix guard: --dry-run and the write path share ONE schema pass
 // across the five discover verbs (0.28.2, issues #230 and #232 with
-// review / ui-baseline init / browser-verify folded in per Barry's
+// review / ui-baseline init / browser-verify folded in per the operator's
 // 2026-09-21 ruling).
 //
-// The reported cases Barry hit in the WSD round-trip:
+// The reported cases the operator hit in the WSD round-trip:
 //   - `rcf discover intake --input <file> --dry-run` accepted a
 //     `fidelity: briefRich` that the real run refused with a manifest
 //     schema error (issue #230).

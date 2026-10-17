@@ -74,7 +74,7 @@ function propertyBlockFor(css, selector) {
   return raw.replace(/\/\*[\s\S]*?\*\//g, '');
 }
 
-// Baz's expected behaviour (brief): tabs never shrink; .tools never
+// The operator's expected behaviour (brief): tabs never shrink; .tools never
 // shrinks; .product carries min-width 0 so it can yield; .product .name
 // carries min-width 0 so the ellipsis actually triggers inside the flex
 // container. These selectors are the fulcrum the brief names; a

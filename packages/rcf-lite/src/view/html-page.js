@@ -847,7 +847,7 @@ function buildSpecFilterText(fbs) {
 }
 
 /**
- * Viewer UI refresh PR 2 (shell polish, Baz 2026-10-02; decision 17)
+ * Viewer UI refresh PR 2 (shell polish, operator ruling 2026-10-02; decision 17)
  * with the issue-295 flip (w-2026-10-06-dave-001): the one-bar header
  * carries the project name only, sourced from `prd.productName` first
  * (the human-readable name an owner edits via `rcf define update

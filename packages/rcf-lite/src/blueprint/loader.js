@@ -54,7 +54,7 @@ const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/u;
  * @property {boolean}  [recommendedDefault] ADR only. Standards-derived
  *                                  discipline (spec 3.2): marks a SHOULD
  *                                  clause, or a choice-shaped MUST per
- *                                  amendment A2 (Baz 2026-09-04T12:20:31Z).
+ *                                  amendment A2 (operator ruling 2026-09-04T12:20:31Z).
  * @property {boolean}  [elicited] ADR only. Marks a MAY clause: the
  *                                  applying operator supplies the value
  *                                  at apply.
@@ -290,7 +290,7 @@ function validateMetadata(doc, metaPath) {
     // Standards-derived discipline (spec 3.2) per-ADR fields. Shape
     // gates only; whether a MUST clause landed on an AC vs an ADR is
     // prose in blueprint-authoring.md section 8a, not code (amendment
-    // A2 Baz 2026-09-04T12:20:31Z).
+    // A2 operator ruling 2026-09-04T12:20:31Z).
     if (c.recommendedDefault !== undefined && typeof c.recommendedDefault !== 'boolean') {
       return rcfError({ kind: 'validation', message: `blueprint.json: contribution ${c.id} recommendedDefault must be a boolean when set`, filePath: metaPath });
     }
@@ -628,7 +628,7 @@ function validateProvidesRolesPairedAdrs(doc, metaPath) {
  * Standards-derived-discipline gate (spec 3.3). If standardsTrace[]
  * is declared, every ADR contribution MUST carry a non-null
  * standardsTraceClause. No cross-check on severity-to-kind mapping
- * (amendment A2 Baz 2026-09-04T12:20:31Z): the discipline is prose in
+ * (amendment A2 operator ruling 2026-09-04T12:20:31Z): the discipline is prose in
  * blueprint-authoring.md section 8a, not code.
  */
 function validateStandardsTrace(doc, metaPath) {

@@ -2047,7 +2047,7 @@ test('gates (issue 311, negative control): a real missing field named in a then 
 //
 // Negative controls (must leave the gate green). Positive controls:
 // `Session.lastSeenAt` where Session is a declared shape without
-// `lastSeenAt` (preserved from issue 311), and the ai-on-record ACs
+// `lastSeenAt` (preserved from issue 311), and the downstream product ACs
 // quoted verbatim at 974b4c1 (AC-1501-9, AC-2201-1, AC-2201-5,
 // AC-2201-8) must stay silent now that the extension stems are not
 // read as fields.
@@ -2168,8 +2168,8 @@ test('gates (issue 315, positive control): Session.lastSeenAt still fires when S
   assert.ok(check.failing.some((f) => f.id === 'AC-315P-1:lastSeenAt'), `expected lastSeenAt in failing, got ${JSON.stringify(check.failing)}`);
 });
 
-test('gates (issue 315): ai-on-record 974b4c1 then clauses are silent on the gate (verbatim fixtures)', () => {
-  // Verbatim then-clauses from the four ai-on-record ACs listed in
+test('gates (issue 315): downstream product 974b4c1 then clauses are silent on the gate (verbatim fixtures)', () => {
+  // Verbatim then-clauses from the four downstream product ACs listed in
   // issue 315 at head 974b4c1 (define/kickoff). These went green on
   // 0.32.1, red on 0.32.2, and must be green again.
   const emptyLedgers = { brief: { statements: [] }, decisions: { decisions: [] }, concerns: { concerns: [] }, probes: { probes: [] } };

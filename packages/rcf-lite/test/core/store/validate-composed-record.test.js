@@ -2,7 +2,7 @@
 // (0.28.2, issues #230/#232 + the three folded verbs review /
 // ui-baseline init / browser-verify).
 //
-// Barry's 2026-09-21 ruling: dry-run and write share ONE schema pass.
+// The operator's 2026-09-21 ruling: dry-run and write share ONE schema pass.
 // This test asserts each verb's buildNextManifest produces the same
 // shape the writer synthesises, and that a bad record surfaces the
 // same validation error the write path would refuse on.
