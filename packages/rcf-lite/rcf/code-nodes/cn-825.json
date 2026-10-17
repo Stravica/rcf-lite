@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-825",
+  "path": "src/finalise/ingest.js#loadVerifyReport",
+  "implementsAcIds": [
+    "AC-19002-2",
+    "AC-19002-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-17T01:51:59.793Z",
+  "updatedAt": "2026-10-17T01:51:59.793Z"
+}

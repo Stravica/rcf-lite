@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-826",
+  "path": "src/finalise/ingest.js#checkReportProvenance",
+  "implementsAcIds": [
+    "AC-19002-3",
+    "AC-19002-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-17T01:52:00.347Z",
+  "updatedAt": "2026-10-17T01:52:00.347Z"
+}
