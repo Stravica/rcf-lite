@@ -93,6 +93,7 @@ async function readOwnVersion() {
 }
 
 export const HELP = `Usage: rcf verify run [options]
+       rcf verify run --artefact <tgz> --fbs <fbs-id> --hand verifier [--verifier-id <id>] [--replace <reason>]
 
 Launch a fresh-context adversarial verifier against a running app and emit a
 structured verdict stamped with the runtime it ran against.
@@ -177,6 +178,20 @@ Optional:
                             the report records target.kind "package" and
                             target.packageRef; --url is then optional and
                             probes need it to reach a served build
+  --artefact <tgz>          Package target mode (FBS-225): with no --url,
+                            install the packed tarball in a scratch project
+                            under the OS temp dir, run the test files bound
+                            to the FBS's criteria (TS/TC testPointers) with
+                            node --test against the installed package, and
+                            write VerifyReport v1 with method suiteAsProbe,
+                            profile packagedArtefact, the artefact identity,
+                            install and suites[] evidence; raw TAP and the
+                            install log go to
+                            rcf/verify-reports/<fbs-id>/<head12>/. Needs
+                            --hand and exactly one --fbs; mode defaults to
+                            deterministic. --url, any other --mode or
+                            --profile, and a missing or non-gzip path exit 2.
+                            Exit 0 PASS, 4 not PASS, 1 install failure.
   --replace <reason>        Overwrite an existing report for the same head
   --help                    Print this help
 

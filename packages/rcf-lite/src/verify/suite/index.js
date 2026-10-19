@@ -153,15 +153,6 @@ export function parseTap(tap) {
 }
 
 /**
- * Remove a scratch project this module created.
- *
- * @param {string} scratch
- */
-export function removeScratch(scratch) {
-  rmSync(scratch, { recursive: true, force: true });
-}
-
-/**
  * Package target mode end to end: read the chain, install and stage the
  * artefact, run every bound file, map the results and compose VerifyReport
  * v1. Returns the report and the evidence files (paths relative to the
@@ -248,6 +239,6 @@ export async function runSuiteAsProbe(p) {
     });
     return { ok: true, verifyReport, evidence };
   } finally {
-    removeScratch(install.scratch);
+    rmSync(install.scratch, { recursive: true, force: true });
   }
 }

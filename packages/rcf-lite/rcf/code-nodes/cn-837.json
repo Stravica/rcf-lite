@@ -1,0 +1,20 @@
+{
+  "cnId": "CN-837",
+  "path": "src/verify/cli/run.js#runArtefactMode",
+  "implementsAcIds": [
+    "AC-19301-1",
+    "AC-19301-2",
+    "AC-19301-3",
+    "AC-19301-4",
+    "AC-19301-5",
+    "AC-19301-6",
+    "AC-19301-7",
+    "AC-19301-8",
+    "AC-19301-9"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T13:47:51.303Z",
+  "updatedAt": "2026-10-19T13:47:51.303Z"
+}
