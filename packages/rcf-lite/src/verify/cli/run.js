@@ -90,6 +90,17 @@ function refusePackageFetch(packageRef) {
   };
 }
 
+// FBS-226 (AC-19302-3): write package target mode's evidence files under
+// <evidenceDir>, with a .gitignore there that keeps its *.log files
+// un-ignored even when the project's own ignore rules match *.log.
+async function writeEvidence(cwd, evidenceDir, files) {
+  await mkdir(resolvePath(cwd, evidenceDir), { recursive: true });
+  await writeFile(resolvePath(cwd, evidenceDir, '.gitignore'), '!*.log\n', 'utf8');
+  for (const file of files) {
+    await writeFile(resolvePath(cwd, evidenceDir, file.name), file.content, 'utf8');
+  }
+}
+
 async function readOwnVersion() {
   const pkgPath = new URL('../../../package.json', import.meta.url);
   return JSON.parse(await readFile(pkgPath, 'utf8')).version;
@@ -182,13 +193,20 @@ Optional:
                             target.packageRef; --url is then optional and
                             probes need it to reach a served build.
                             With <ref> naming a directory and no --url or
-                            --artefact (FBS-226): refuse a dirty tree, run
+                            --artefact (FBS-226): refuse (exit 4) a <dir>
+                            outside the cwd's repository, then a dirty tree;
+                            export HEAD into a scratch directory under the
+                            OS temp dir (removed after the run) and run
                             npm pack --pack-destination <scratch> --json in
-                            <dir> (scratch under the OS temp dir, removed
-                            after the run), then take the --artefact path
-                            over the packed tarball; the report records
+                            <dir>'s path there, so ignored files and
+                            lifecycle output never reach the bytes or the
+                            project; then take the --artefact path over the
+                            packed tarball. The report records
                             pack { command, exitCode } and target.servedSha
-                            HEAD. Exit 1 when the pack fails.
+                            HEAD. A failed pack exits 1, writes npm's output
+                            to rcf/verify-reports/<fbs-id>/<head12>/pack.log
+                            and no report JSON. Evidence directories carry a
+                            .gitignore keeping their *.log files tracked.
   --artefact <tgz>          Package target mode (FBS-225): with no --url,
                             install the packed tarball in a scratch project
                             under the OS temp dir, run the test files bound
@@ -256,7 +274,22 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
   }
 
   let headSha;
+  let packAt = null;
   try {
+    // FBS-226 (AC-19302-5): the packed bytes come from cwd's committed head,
+    // so a package directory in another repository, or in none, is refused
+    // before the dirty check and before any pack.
+    if (packing) {
+      const top = git(cwd, ['rev-parse', '--show-toplevel']).trim();
+      const dir = resolvePath(cwd, flags.package);
+      let dirTop = null;
+      try { dirTop = git(dir, ['rev-parse', '--show-toplevel']).trim(); } catch { /* in no repository */ }
+      if (dirTop !== top) {
+        stderr.write(`verify report refused: --package ${flags.package} is outside this repository; the packed bytes must come from its committed head\n`);
+        return 4;
+      }
+      packAt = { top, prefix: git(dir, ['rev-parse', '--show-prefix']).trim() };
+    }
     if (dirtyPathsOutsideReports(cwd).length > 0) {
       stderr.write('verify report refused: working tree is dirty; the report must name a committed head\n');
       return 4;
@@ -274,14 +307,22 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
   }
 
   const evidenceDir = `${reportDir}/${headSha.slice(0, 12)}`;
-  // FBS-226 (AC-19302-1): pack HEAD into a scratch directory outside the
-  // project; the tarball is removed with it after the run.
+  // FBS-226 (AC-19302-1): pack HEAD, exported into a scratch directory
+  // outside the project; the tarball is removed with it after the run. A
+  // failed pack leaves its log (AC-19302-3) and no report JSON.
   let pack = null;
   if (packing) {
-    pack = await packDirectory({ dir: resolvePath(cwd, flags.package), env: env ?? process.env });
+    pack = await packDirectory({ ...packAt, headSha, env: env ?? process.env });
     if (!pack.tgz) {
       rmSync(pack.scratch, { recursive: true, force: true });
-      stderr.write(`verify run: pack failed (npm exit ${pack.exitCode})\n${pack.log}\n`);
+      const logPath = `${evidenceDir}/pack.log`;
+      try {
+        await writeEvidence(cwd, evidenceDir, [{ name: 'pack.log', content: pack.log }]);
+      } catch (err) {
+        stderr.write(`[rcf-verify] unexpected failure: could not write the pack log: ${err.message}\n`);
+        return 1;
+      }
+      stderr.write(`verify run: pack failed (npm exit ${pack.exitCode}); log ${logPath}\n`);
       return 1;
     }
     tgz = pack.tgz;
@@ -311,10 +352,7 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
   }
   try {
     // FBS-226 (AC-19302-3): a failed install still leaves its log.
-    await mkdir(resolvePath(cwd, evidenceDir), { recursive: true });
-    for (const file of result.evidence) {
-      await writeFile(resolvePath(cwd, evidenceDir, file.name), file.content, 'utf8');
-    }
+    await writeEvidence(cwd, evidenceDir, result.evidence);
     if (!result.ok) {
       stderr.write(`${result.message}\n`);
       return result.code;

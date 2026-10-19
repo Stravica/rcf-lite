@@ -3,11 +3,12 @@
   "path": "src/verify/suite/pack.js#packDirectory",
   "implementsAcIds": [
     "AC-19302-1",
+    "AC-19302-3",
     "AC-19302-5"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-19T17:07:55.308Z",
-  "updatedAt": "2026-10-19T17:07:55.308Z"
+  "updatedAt": "2026-10-19T20:11:35.482Z"
 }
