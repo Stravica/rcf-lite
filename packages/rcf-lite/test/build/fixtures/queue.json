@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 114,
-    "notStarted": 60,
+    "items": 116,
+    "notStarted": 62,
     "inProgress": 2,
     "complete": 34,
     "verified": 18,
-    "actionable": 42,
-    "blocked": 18
+    "actionable": 41,
+    "blocked": 21
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -71,8 +71,7 @@
         "FBS-207",
         "FBS-209",
         "FBS-210",
-        "FBS-218",
-        "FBS-222"
+        "FBS-218"
       ]
     },
     {
@@ -92,8 +91,7 @@
         "FBS-211",
         "FBS-212",
         "FBS-216",
-        "FBS-219",
-        "FBS-223"
+        "FBS-219"
       ]
     },
     {
@@ -141,7 +139,7 @@
         "FBS-198",
         "FBS-199",
         "FBS-215",
-        "FBS-224"
+        "FBS-225"
       ]
     },
     {
@@ -150,7 +148,8 @@
         "FBS-029",
         "FBS-046",
         "FBS-185",
-        "FBS-200"
+        "FBS-200",
+        "FBS-226"
       ]
     },
     {
@@ -158,20 +157,23 @@
       "fbsIds": [
         "FBS-030",
         "FBS-047",
-        "FBS-201"
+        "FBS-201",
+        "FBS-222"
       ]
     },
     {
       "tier": 7,
       "fbsIds": [
         "FBS-031",
-        "FBS-202"
+        "FBS-202",
+        "FBS-223"
       ]
     },
     {
       "tier": 8,
       "fbsIds": [
-        "FBS-032"
+        "FBS-032",
+        "FBS-224"
       ]
     },
     {
@@ -1465,19 +1467,51 @@
       "blockedBy": []
     },
     {
-      "fbsId": "FBS-222",
+      "fbsId": "FBS-225",
       "buildOrder": 222,
-      "tier": 0,
+      "tier": 4,
+      "title": "Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-221"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-221"
+      ]
+    },
+    {
+      "fbsId": "FBS-226",
+      "buildOrder": 223,
+      "tier": 5,
+      "title": "Suite-as-probe B: rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-225"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-225"
+      ]
+    },
+    {
+      "fbsId": "FBS-222",
+      "buildOrder": 227,
+      "tier": 6,
       "title": "rcf audit separation verb",
       "executionStatus": "notStarted",
-      "dependsOnFbsIds": [],
-      "state": "actionable",
-      "blockedBy": []
+      "dependsOnFbsIds": [
+        "FBS-226"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-226"
+      ]
     },
     {
       "fbsId": "FBS-223",
-      "buildOrder": 223,
-      "tier": 1,
+      "buildOrder": 228,
+      "tier": 7,
       "title": "Separation wiring: mixed escape, override file, --require-hand, CI on pull requests",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [
@@ -1490,8 +1524,8 @@
     },
     {
       "fbsId": "FBS-224",
-      "buildOrder": 224,
-      "tier": 4,
+      "buildOrder": 229,
+      "tier": 8,
       "title": "Guidance, managed block and README: the new stage contract and audit as the fifth verb",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [

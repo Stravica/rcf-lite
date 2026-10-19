@@ -3544,6 +3544,63 @@ flowchart LR
   AC-19201-8 -.-> TC-251-empty-assertion-probe-fails
   TC-251-whitespace-assertion-probe-fails["TC-251-whitespace-assertion-probe-fails"]
   AC-19201-8 -.-> TC-251-whitespace-assertion-probe-fails
+  REQ-193["REQ-193"]
+  AC-19301-1["AC-19301-1"]
+  REQ-193 --> AC-19301-1
+  TC-258-pass-all["TC-258-pass-all"]
+  AC-19301-1 -.-> TC-258-pass-all
+  AC-19301-2["AC-19301-2"]
+  REQ-193 --> AC-19301-2
+  TC-258-fail-one["TC-258-fail-one"]
+  AC-19301-2 -.-> TC-258-fail-one
+  AC-19301-3["AC-19301-3"]
+  REQ-193 --> AC-19301-3
+  TC-258-unbound-critique-only["TC-258-unbound-critique-only"]
+  AC-19301-3 -.-> TC-258-unbound-critique-only
+  AC-19301-4["AC-19301-4"]
+  REQ-193 --> AC-19301-4
+  TC-258-todo-skip-and-not-run["TC-258-todo-skip-and-not-run"]
+  AC-19301-4 -.-> TC-258-todo-skip-and-not-run
+  AC-19301-5["AC-19301-5"]
+  REQ-193 --> AC-19301-5
+  TC-258-probe-not-run-and-evidence["TC-258-probe-not-run-and-evidence"]
+  AC-19301-5 -.-> TC-258-probe-not-run-and-evidence
+  AC-19301-6["AC-19301-6"]
+  REQ-193 --> AC-19301-6
+  TC-258-flag-refusals["TC-258-flag-refusals"]
+  AC-19301-6 -.-> TC-258-flag-refusals
+  AC-19301-7["AC-19301-7"]
+  REQ-193 --> AC-19301-7
+  TC-258-fbs-219-rules-kept["TC-258-fbs-219-rules-kept"]
+  AC-19301-7 -.-> TC-258-fbs-219-rules-kept
+  AC-19301-8["AC-19301-8"]
+  REQ-193 --> AC-19301-8
+  TC-258-writes-only-report-dir["TC-258-writes-only-report-dir"]
+  AC-19301-8 -.-> TC-258-writes-only-report-dir
+  AC-19301-9["AC-19301-9"]
+  REQ-193 --> AC-19301-9
+  TC-258-finalise-end-to-end["TC-258-finalise-end-to-end"]
+  AC-19301-9 -.-> TC-258-finalise-end-to-end
+  AC-19302-1["AC-19302-1"]
+  REQ-193 --> AC-19302-1
+  TC-259-pack-from-head["TC-259-pack-from-head"]
+  AC-19302-1 -.-> TC-259-pack-from-head
+  AC-19302-2["AC-19302-2"]
+  REQ-193 --> AC-19302-2
+  TC-259-given-tarball-no-pack["TC-259-given-tarball-no-pack"]
+  AC-19302-2 -.-> TC-259-given-tarball-no-pack
+  AC-19302-3["AC-19302-3"]
+  REQ-193 --> AC-19302-3
+  TC-259-install-failure-exits-1["TC-259-install-failure-exits-1"]
+  AC-19302-3 -.-> TC-259-install-failure-exits-1
+  AC-19302-4["AC-19302-4"]
+  REQ-193 --> AC-19302-4
+  TC-259-offline-and-default-registry["TC-259-offline-and-default-registry"]
+  AC-19302-4 -.-> TC-259-offline-and-default-registry
+  AC-19302-5["AC-19302-5"]
+  REQ-193 --> AC-19302-5
+  TC-259-no-tarball-left["TC-259-no-tarball-left"]
+  AC-19302-5 -.-> TC-259-no-tarball-left
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -5378,6 +5435,35 @@ flowchart LR
   class TC-251-catalog-validate-refuses-whitespace tc;
   class TC-251-empty-assertion-probe-fails tc;
   class TC-251-whitespace-assertion-probe-fails tc;
+  class REQ-193 req;
+  class AC-19301-1 ac;
+  class TC-258-pass-all tc;
+  class AC-19301-2 ac;
+  class TC-258-fail-one tc;
+  class AC-19301-3 ac;
+  class TC-258-unbound-critique-only tc;
+  class AC-19301-4 ac;
+  class TC-258-todo-skip-and-not-run tc;
+  class AC-19301-5 ac;
+  class TC-258-probe-not-run-and-evidence tc;
+  class AC-19301-6 ac;
+  class TC-258-flag-refusals tc;
+  class AC-19301-7 ac;
+  class TC-258-fbs-219-rules-kept tc;
+  class AC-19301-8 ac;
+  class TC-258-writes-only-report-dir tc;
+  class AC-19301-9 ac;
+  class TC-258-finalise-end-to-end tc;
+  class AC-19302-1 ac;
+  class TC-259-pack-from-head tc;
+  class AC-19302-2 ac;
+  class TC-259-given-tarball-no-pack tc;
+  class AC-19302-3 ac;
+  class TC-259-install-failure-exits-1 tc;
+  class AC-19302-4 ac;
+  class TC-259-offline-and-default-registry tc;
+  class AC-19302-5 ac;
+  class TC-259-no-tarball-left tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
