@@ -227,6 +227,9 @@ Verbs:
   mark <fbs-id> <status>   Record a lifecycle transition (notStarted ->
                            inProgress -> complete). 'verified' is written
                            only by 'build finalise'.
+  backstop adopt --from <fbs-id>
+                           Open the verified backstop window for
+                           'bundle --next'.
   finalise <fbs-id>        Ship gate: ingest the Test-stage verify report
                            and promote a complete FBS to verified.
   review <fbs-id>          Stage-3-to-Stage-4 audit (test-theatre and
@@ -317,6 +320,7 @@ export const HELP_MAP = {
     queue: BUILD_HELP,
     bundle: BUILD_HELP,
     mark: BUILD_HELP,
+    backstop: BUILD_HELP,
     finalise: FINALISE_HELP,
     review: REVIEW_HELP,
     fbs: FBS_HELP,
