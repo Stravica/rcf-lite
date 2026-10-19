@@ -198,10 +198,13 @@ Optional:
                             export HEAD into a scratch directory under the
                             OS temp dir (removed after the run) and run
                             npm pack --pack-destination <scratch> --json in
-                            <dir>'s path there, so ignored files and
-                            lifecycle output never reach the bytes or the
-                            project; then take the --artefact path over the
-                            packed tarball. The report records
+                            <dir>'s path there, never in the live directory:
+                            content ignored there never reaches the bytes,
+                            and a lifecycle script such as prepack writes
+                            only inside the export (its output is in the
+                            bytes, as in a separate pack of HEAD) and never
+                            reaches the project; then take the --artefact
+                            path over the packed tarball. The report records
                             pack { command, exitCode } and target.servedSha
                             HEAD. A failed pack exits 1, writes npm's output
                             to rcf/verify-reports/<fbs-id>/<head12>/pack.log
@@ -224,9 +227,14 @@ Optional:
                             (the log goes to
                             rcf/verify-reports/<fbs-id>/<head12>/install.log;
                             no report JSON is written).
-  --offline                 Package target mode: npm install --offline, from
-                            the local npm cache only; the report records
-                            install.registry offline (default otherwise)
+  --offline                 Package target mode only (--artefact <tgz> |
+                            --package <dir>, with no --url): npm install
+                            --offline, from the local npm cache only; the
+                            report records install.registry offline
+                            (default otherwise). Anywhere else (a --url
+                            target, --package name@version or a tarball
+                            name, or no target) it exits 2 before any other
+                            check, writing nothing
   --replace <reason>        Overwrite an existing report for the same head
   --help                    Print this help
 
@@ -412,7 +420,14 @@ export async function main(argv, deps = {}) {
     stdout.write(HELP);
     return 0;
   }
-  if (flags.artefact !== undefined || isPackDirectory(flags, cwd)) {
+  const packageTarget = flags.artefact !== undefined || isPackDirectory(flags, cwd);
+  // FBS-226 (BH-3): --offline selects the install store policy, so outside
+  // package target mode it is refused before any other check or work.
+  if (flags.offline && !packageTarget) {
+    stderr.write('[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)\n');
+    return 2;
+  }
+  if (packageTarget) {
     return runArtefactMode(flags, { ...deps, stdout, stderr, cwd });
   }
 
