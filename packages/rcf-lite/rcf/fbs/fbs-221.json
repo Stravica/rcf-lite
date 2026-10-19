@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:30.718Z",
-  "updatedAt": "2026-10-19T12:26:21.337Z",
+  "updatedAt": "2026-10-19T12:51:51.602Z",
   "summary": "bundle --next refuses while an adopted-window FBS is complete and not verified; --allow-unverified records a reasoned override; rcf build backstop adopt writes the window (US-19003). Delivers AC-19003-1 to AC-19003-5.",
   "approach": "Add src/build/backstop.js (read rcf/define/backstop.json, compute unverified complete FBS at or above fromBuildOrder); call it from bundle --next after the freeze gate; add the adopt verb and the override writer reusing resolveOverrideBy.",
   "deliverables": [
@@ -21,7 +21,7 @@
   "riskLevel": "low",
   "domain": "functional",
   "estimatedSize": "small",
-  "executionStatus": "complete",
+  "executionStatus": "verified",
   "notes": "rcf-lite adopts with rcf build backstop adopt --from FBS-218 once this ships (decision pending the operator). Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 4 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19003 at this FBS's own Define stage (estimate 5 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
   "acIds": [
     "AC-19003-1",
