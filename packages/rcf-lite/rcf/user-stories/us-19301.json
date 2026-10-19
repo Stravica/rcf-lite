@@ -1,0 +1,61 @@
+{
+  "createdAt": "2026-10-19T10:59:34.436Z",
+  "updatedAt": "2026-10-19T11:01:36.808Z",
+  "description": "User story under REQ-193 for FBS-225. rcf verify run --artefact <tgz> --fbs <fbs-id> --hand verifier with no --url installs the given tarball in a scratch project outside the repository, copies the bound test files beside the installed package, runs them with node --test and a TAP reporter, maps TAP results to test cases by exact title and test cases to ACs, and writes VerifyReport v1 with method suiteAsProbe, profile packagedArtefact and the artefact identity, with no hand composition.",
+  "asA": "a verifier hand running the Test stage for a CLI or library product",
+  "iWant": "rcf verify run to run the AC-bound suites against the packed artefact and write the per-AC verdicts itself",
+  "soThat": "the Test-stage report is deterministic and tool-written, and Finalise ingests it without a hand-composed step",
+  "usId": "US-19301",
+  "prdId": "PRD-001",
+  "reqId": "REQ-193",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19301-1",
+      "description": "[happy] Given a fixture git repository at head H holding a zero-dependency package fixture-cli 1.0.0 whose bin prints one line, an rcf/ chain whose FBS-001 scopes AC-001-1 and AC-001-2, each bound by a test case whose testPointer names a test in test/cli.test.js, and fixture-cli-1.0.0.tgz packed from H into a directory outside the repository, when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --verifier-id v1 runs with no --url and both bound tests pass against the installed artefact, then it exits 0, stdout ends \"verify report: rcf/verify-reports/FBS-001/<first 12 of H>.json PASS 2/2\", and the report carries verdict \"PASS\", verdictAuthority \"ship\", mode \"deterministic\", method \"suiteAsProbe\", profile \"packagedArtefact\", target { kind \"package\", packageRef \"fixture-cli-1.0.0.tgz\", name \"fixture-cli\", version \"1.0.0\", sha256 the sha256 of the tarball bytes, servedSha null (a given tarball names no head; FBS-226 records the head when it packs) } and one perAc row per AC with result \"pass\" and evidence naming the TS id, the test file, each bound test title and its reporter test number.",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-2",
+      "description": "[failure] Given the fixture of AC-19301-1 with the one test bound to AC-001-2 failing against the installed artefact, when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier runs, then it exits 4, stdout ends \"verify report: <path> FAIL 1/2\", the report carries verdict \"FAIL\" and verdictAuthority \"correctness\", the AC-001-2 row has result \"fail\" with evidence naming the failing test title, the AC-001-1 row has result \"pass\", and runStats.counts is { verified 1, failed 1, skipped 0, critiqueOnly 0, total 2 }.",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-3",
+      "description": "[edge] Given the fixture of AC-19301-1 with no test case bound to AC-001-2, when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier runs, then it exits 4, stdout ends \"verify report: <path> BLOCKED 1/2\", the AC-001-2 row has result \"critiqueOnly\", runStats.counts.critiqueOnly is 1, verdictAuthority is \"correctness\", and the bound suite for AC-001-1 still ran (its row is \"pass\").",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-4",
+      "description": "[edge] Given the fixture of AC-19301-1 where the test bound to AC-001-1 is marked todo or skip, and a second test case bound to AC-001-2 names a test title that does not appear in the run, when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier runs, then it exits 4, the AC-001-1 row has result \"skipped\", the AC-001-2 row has result \"fail\" with evidence listing the missing title under notRun, and the verdict is not \"PASS\"; an AC passes only when every test bound to it ran and passed and at least one is bound.",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-5",
+      "description": "[edge] Given the fixture of AC-19301-1 where AC-001-1 also carries an HTTP probe, when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier runs with no --url, then AC-001-1 resolves through its bound test (result \"pass\") and its evidence records probeNotRun \"package target has no served URL\"; the report carries one suites[] row per test suite run { testSuite, file, tests, pass, fail, skipped, todo, outputPath }, the files rcf/verify-reports/FBS-001/<first 12 of H>/<TS id>.tap and rcf/verify-reports/FBS-001/<first 12 of H>/install.log exist, install records { command, exitCode 0, logPath }, and rcf define validate still exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-6",
+      "description": "[failure] Given the fixture of AC-19301-1, when rcf verify run --artefact <tgz> is given together with --url, or with --mode agentScreenshotCritique, or with --profile set to anything other than packagedArtefact, or with an --artefact path that does not exist or is not a gzip tarball, then it exits 2 with a stderr line naming the flag and writes nothing under rcf/verify-reports/.",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-7",
+      "description": "[failure] The FBS-219 rules hold under --artefact: a working tree with changes outside rcf/verify-reports/ refuses exit 4 with stderr \"verify report refused: working tree is dirty; the report must name a committed head\"; an existing report for the same head refuses exit 4 with \"verify report exists for head <sha7>; pass --replace \\\"<reason>\\\"\" unless --replace \"<reason>\" is given; --fbs absent or given twice exits 2; and rcf verify run --package <name@version> or --package <tarball name> with no --artefact and no --url still records target.kind \"package\" and target.packageRef only, as AC-19001-4 states, running no suite.",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-8",
+      "description": "[must-not] rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier never writes outside rcf/verify-reports/FBS-001/ in the project: after a run, a hash of every tracked and untracked file outside that directory is byte-identical to the hash before it and git status lists nothing else; the scratch install project lives under the OS temporary directory; and with a claude executable on PATH that records each invocation to a marker file, the marker file is absent after the run (no agent CLI is spawned).",
+      "testable": true
+    },
+    {
+      "id": "AC-19301-9",
+      "description": "[happy] End to end over the consumer: in a fixture git repository whose FBS-001 carries Code Nodes and a Hand: builder commit, when the tool-written report from rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier is committed under a Hand: verifier trailer on a branch, the branch is merged into the default branch, rcf build mark FBS-001 complete runs, and rcf build finalise FBS-001 --ci-run run-1 runs, then Finalise exits 0, prints \"finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<first 12 of H>.json (head <sha7>, ci run-1)\", and FBS-001 reads executionStatus \"verified\"; the report needs no field added or edited by hand.",
+      "testable": true
+    }
+  ]
+}
