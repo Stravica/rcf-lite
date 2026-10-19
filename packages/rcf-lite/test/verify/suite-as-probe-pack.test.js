@@ -512,3 +512,53 @@ test('AC-19302-5 (BH-1 c): rcf verify run --package . --fbs FBS-001 --hand verif
   assert.equal(report.target.sha256, clean.sha256, 'servedSha H names the bytes of a separate pack of H');
   assertNoClaude(world);
 });
+
+// Gate 1 round 2 finding BH-3: --offline is the install store policy of
+// package target mode (TAC-4151's usage places it inside
+// (--artefact <tgz> | --package <dir>)). Every other invocation refuses it
+// with one usage line, exit 2, before any other check and before any network
+// or filesystem work. Each invocation below supplies what the URL path needs
+// (--repo, --profile, --mode deterministic, and --hand with one --fbs at a
+// clean committed head or an --out outside the tree, at a URL that never
+// resolves), so with the refusal absent it gets past every other usage check
+// and runs; the refusal line is the only line that turns it green.
+const OFFLINE_LINE = '[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)';
+const NO_URL = 'http://package.invalid/';
+const URL_PATH = ['--repo', '.', '--profile', 'local-dev', '--mode', 'deterministic'];
+
+test('AC-19302-4 (BH-3): rcf verify run --offline outside package target mode (a --url target, a --package <dir> with --url, a --package name@version or tarball name, or no target) exits 2 with the one stderr line "[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)" before any other check, and writes no report, no evidence directory and no --out file, calls no npm and spawns no agent CLI', { timeout: INSTALL_TIMEOUT }, async (t) => {
+  const cases = [
+    { name: '--url with --hand verifier', args: () => ['--url', NO_URL, ...URL_PATH, ...HAND] },
+    { name: '--url with --out', args: (w) => ['--url', NO_URL, ...URL_PATH, '--fbs', FBS, '--out', w.outFile] },
+    { name: 'no target (no --url, --artefact or --package) with --hand verifier', args: () => [...URL_PATH, ...HAND] },
+    { name: 'reading (i): --package <dir> with --url', args: () => ['--package', '.', '--url', NO_URL, ...URL_PATH, ...HAND] },
+    { name: 'reading (ii): --package name@version (FBS-219 record-only path)', args: () => ['--package', `${PKG_NAME}@${PKG_VERSION}`, ...URL_PATH, ...HAND] },
+    { name: 'reading (ii): --package a tarball name that is not a directory', args: () => ['--package', TARBALL, ...URL_PATH, ...HAND] },
+    { name: 'reading (iii): before the other usage checks (an invalid --severity-gate)', args: () => ['--url', NO_URL, ...URL_PATH, ...HAND, '--severity-gate', 'bogus'] },
+  ];
+  for (const c of cases) {
+    await t.test(c.name, async () => {
+      const world = await packageWorld();
+      commitWorld(world);
+      assertSelf(world, BOTH_PASS);
+      world.outFile = join(world.aux, 'url-report.json');
+      const npm = await npmRecorder(world, 'offline');
+      const tmp = await tmpFor(world);
+      const before = hashTree(world.root);
+
+      const r = await run(world, [...c.args(world), '--offline'], { prependPath: npm.dir, tmpdir: tmp });
+      assertNotTodaysRefusal(r);
+      assert.doesNotMatch(r.stderr, /--out <report-path> is required/, `the run must not stop on the --out usage refusal; stderr:\n${r.stderr}`);
+      assert.deepEqual(r.stderr.split('\n').filter((l) => l.trim().length > 0), [OFFLINE_LINE],
+        `one stderr line names --offline and the target modes that accept it; stderr:\n${r.stderr}`);
+      assert.equal(r.code, 2, `--offline outside package target mode: usage exit 2; stderr:\n${r.stderr}`);
+      assert.equal(r.stdout, '', 'nothing on stdout');
+      assert.deepEqual(await npm.calls(), [], 'no npm call (no pack, no install)');
+      assert.equal(existsSync(join(world.root, 'rcf', 'verify-reports', FBS)), false, 'no report and no evidence directory');
+      assert.equal(existsSync(world.outFile), false, 'no --out file');
+      assert.deepEqual(changedPaths(world.root), [], 'git status lists nothing');
+      assert.deepEqual(hashTree(world.root), before, 'every file in the project is byte-identical');
+      assertNoClaude(world);
+    });
+  }
+});
