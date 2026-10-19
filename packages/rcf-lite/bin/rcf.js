@@ -108,11 +108,12 @@ export const GROUPS = {
   },
   build: {
     // build sub-verbs are dispatched by build.js internally (queue |
-    // bundle | mark). finalise, review, fbs, test-suite are their own
+    // bundle | mark | backstop). finalise, review, fbs, test-suite are their own
     // handlers.
     queue: (argv, deps) => buildMain(['queue', ...argv], deps),
     bundle: (argv, deps) => buildMain(['bundle', ...argv], deps),
     mark: (argv, deps) => buildMain(['mark', ...argv], deps),
+    backstop: (argv, deps) => buildMain(['backstop', ...argv], deps),
     finalise: finaliseMain,
     review: reviewMain,
     fbs: fbsMain,

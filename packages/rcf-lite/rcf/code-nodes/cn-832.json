@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-832",
+  "path": "src/build/backstop.js#saveBackstop",
+  "title": "FBS-221: write backstop.json, two-space indent",
+  "implementsAcIds": [
+    "AC-19003-2",
+    "AC-19003-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T11:12:07.866Z",
+  "updatedAt": "2026-10-19T11:12:07.866Z"
+}

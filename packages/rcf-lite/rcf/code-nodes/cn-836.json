@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-836",
+  "path": "src/cli/build.js#main",
+  "title": "FBS-221: build backstop sub-verb routing and --from usage",
+  "implementsAcIds": [
+    "AC-19003-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T11:12:10.067Z",
+  "updatedAt": "2026-10-19T11:12:10.067Z"
+}

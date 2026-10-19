@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-835",
+  "path": "src/cli/build.js#emitNext",
+  "title": "FBS-221: bundle --next calls the backstop after the freeze gate",
+  "implementsAcIds": [
+    "AC-19003-1",
+    "AC-19003-2",
+    "AC-19003-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T11:12:09.522Z",
+  "updatedAt": "2026-10-19T11:12:09.522Z"
+}

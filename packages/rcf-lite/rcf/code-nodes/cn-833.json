@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-833",
+  "path": "src/cli/build.js#enforceBundleNextBackstop",
+  "title": "FBS-221: backstop refusal and --allow-unverified override writer",
+  "implementsAcIds": [
+    "AC-19003-1",
+    "AC-19003-2",
+    "AC-19003-3",
+    "AC-19003-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T11:12:08.415Z",
+  "updatedAt": "2026-10-19T11:12:08.415Z"
+}
