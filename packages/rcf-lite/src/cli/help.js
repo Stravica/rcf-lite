@@ -29,6 +29,7 @@ import { HELP as MCP_HELP } from './mcp.js';
 import { HELP as PREFLIGHT_HELP } from './preflight.js';
 import { HELP as READ_HELP } from './read.js';
 import { HELP as REVIEW_HELP } from './review.js';
+import { HELP as SEPARATION_HELP } from './separation.js';
 import { HELP as FBS_HELP } from './fbs.js';
 import { HELP as TEST_SUITE_HELP } from './test-suite.js';
 import { HELP as TRACE_HELP } from './trace.js';
@@ -126,6 +127,7 @@ audit        Inspect the tree and its rollups.
   coverage [scope-id]      Structural coverage over the REQ chain.
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
+  separation               Hand separation over a pull request's commits.
 
 Options:
   --version                Print the package version and exit.
@@ -273,6 +275,8 @@ Verbs:
                            (spec rcf-eval-node-2026-09-04 section 4).
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
+  separation               Judge each commit's Hand: trailer against the
+                           path classes it touches over a PR range.
 
 Run 'rcf help audit <verb>' for per-verb help.
 `;
@@ -340,6 +344,7 @@ export const HELP_MAP = {
     trace: TRACE_HELP,
     impact: IMPACT_HELP,
     eval: AUDIT_EVAL_HELP,
+    separation: SEPARATION_HELP,
   },
 };
 

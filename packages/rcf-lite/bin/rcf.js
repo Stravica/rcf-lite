@@ -34,6 +34,7 @@ import { main as mcpMain } from '../src/cli/mcp.js';
 import { main as preflightMain } from '../src/cli/preflight.js';
 import { main as readMain } from '../src/cli/read.js';
 import { main as reviewMain } from '../src/cli/review.js';
+import { main as separationMain } from '../src/cli/separation.js';
 import { main as fbsMain } from '../src/cli/fbs.js';
 import { main as testSuiteMain } from '../src/cli/test-suite.js';
 import { main as traceMain } from '../src/cli/trace.js';
@@ -136,6 +137,8 @@ export const GROUPS = {
     // is a compound sub-dispatcher; today it exposes just `coverage`,
     // future EVAL-shaped audits (trace, run history) plug in here.
     eval: evalMain,
+    // FBS-222: hand separation over a pull request's commits.
+    separation: separationMain,
   },
 };
 
