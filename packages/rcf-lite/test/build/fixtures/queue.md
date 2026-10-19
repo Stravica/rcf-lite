@@ -114,12 +114,12 @@ Generation strategy: dependencyFirst
 | 218 | 0 | FBS-218 | Per-AC probe catalog resolved by deterministic verify (issue 349) | verified | verified |  |
 | 219 | 1 | FBS-219 | Test-stage verify report: rcf verify run --hand writes VerifyReport v1 | verified | verified |  |
 | 220 | 2 | FBS-220 | Administrative Finalise: ingest the Test-stage report, no verify spawn | verified | verified |  |
-| 221 | 3 | FBS-221 | Verified backstop on rcf build bundle --next | notStarted | actionable |  |
+| 221 | 3 | FBS-221 | Verified backstop on rcf build bundle --next | inProgress | inProgress |  |
 | 222 | 0 | FBS-222 | rcf audit separation verb | notStarted | actionable |  |
 | 223 | 1 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | notStarted | blocked | FBS-222 |
 | 224 | 4 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | notStarted | blocked | FBS-221, FBS-223 |
 
-Totals: items 114 | notStarted 60 | inProgress 2 | complete 34 | verified 18 | actionable 42 | blocked 18
+Totals: items 114 | notStarted 59 | inProgress 3 | complete 34 | verified 18 | actionable 41 | blocked 18
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218, FBS-222
