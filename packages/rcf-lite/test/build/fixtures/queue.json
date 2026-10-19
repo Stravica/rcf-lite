@@ -10,8 +10,8 @@
     "items": 116,
     "notStarted": 60,
     "inProgress": 2,
-    "complete": 35,
-    "verified": 19,
+    "complete": 34,
+    "verified": 20,
     "actionable": 41,
     "blocked": 19
   },
@@ -1471,11 +1471,11 @@
       "buildOrder": 222,
       "tier": 4,
       "title": "Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-221"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
