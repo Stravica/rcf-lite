@@ -1,0 +1,220 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-225",
+  "headSha": "8f909279674304865603503854c7598b867f283d",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.34.2",
+    "path": "output/rcf-lite-0.34.2.tgz (lane job r-20261019-140541-562f)",
+    "sha256": "3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff",
+    "servedSha": "8f909279674304865603503854c7598b867f283d",
+    "installedVersion": "rcf-lite 0.34.2 (npx rcf version)"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-225-test",
+  "startedAt": "2026-10-19T14:06:16Z",
+  "finishedAt": "2026-10-19T14:08:16Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": "packagedArtefact",
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "method": "composed by the verifier hand from the AC-bound suite run against the installed packed artefact (stage-keeper interim ruling 2026-10-17, confirmed 2026-10-19; FBS-225's own Test stage, the tool under test is not its own evidence, ADR-4150)",
+  "runStats": {
+    "counts": {
+      "verified": 9,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 9
+    }
+  },
+  "suites": {
+    "installedArtefact": {
+      "testSuite": "TS-258",
+      "file": "test/verify/suite-as-probe.test.js",
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0,
+      "note": "test tree copied beside a copy of the installed package so bin/rcf.js and #core resolve to the installed artefact; runtime deps (ajv, ajv-formats, @stravica-ai/rcf-schemas, fast-deep-equal, fast-uri, json-schema-traverse, require-from-string) copied from the scratch project install; run with RCF_LEAK_PIN_SPAWNED=1; 9 top-level tests (one per TC) with 6 subtests; the tests pack and install a zero-dependency fixture package with npm in temp dirs and put a recording fake claude on PATH"
+    },
+    "cloneBaseline": {
+      "testSuite": "TS-258",
+      "file": "test/verify/suite-as-probe.test.js",
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19301-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-1 (TC-258-pass-all)",
+        "tapTests": [
+          1
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-1.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-2 (TC-258-fail-one)",
+        "tapTests": [
+          2
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-2.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-3 (TC-258-unbound-critique-only)",
+        "tapTests": [
+          3
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-3.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-4 (TC-258-to-do-skip-and-not-run, 2 subtests all ok)",
+        "tapTests": [
+          4
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-4.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-5 (TC-258-probe-not-run-and-evidence)",
+        "tapTests": [
+          5
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-5.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-6 (TC-258-flag-refusals)",
+        "tapTests": [
+          6
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-6.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-7 (TC-258-fbs-219-rules-kept, 4 subtests all ok)",
+        "tapTests": [
+          7
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-7.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-8",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-8 (TC-258-writes-only-report-dir)",
+        "tapTests": [
+          8
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-8.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19301-9",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-258",
+        "acTest": "test/verify/suite-as-probe.test.js::AC-19301-9 (TC-258-finalise-end-to-end)",
+        "tapTests": [
+          9
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 3996a573564e358d42bc71f1c14020355ed52ad5c35373a439f356f677b944ff (packed from 8f909279674304865603503854c7598b867f283d)",
+        "files": [
+          "output/evidence/TS-258-suite-as-probe.tap",
+          "output/evidence/AC-19301-9.tap"
+        ]
+      }
+    }
+  ]
+}
