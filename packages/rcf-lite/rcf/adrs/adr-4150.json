@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-19T11:03:09.999Z",
+  "updatedAt": "2026-10-19T11:03:09.999Z",
+  "context": "FBS-219 gave rcf verify run a package target (--package records target.kind package) and FBS-218 gave the deterministic engine per-AC HTTP probes. A CLI or library product has no served URL, so on 2026-10-17 the FBS-218 and FBS-219 re-verify over --package came back BLOCKED [correctness] with every criterion critique-only (0 of 8, 0 of 6) while the bound node:test suites passed 22 of 22 against the installed packed artefact. The FBS-220 Test stage and the 218 and 219 composition round composed VerifyReport v1 by hand from those suites (method recorded on each report: rcf/verify-reports/FBS-218/3380e15f9feb.json, FBS-219/3380e15f9feb.json, FBS-220/07ed008c917c.json). The interim ruling (2026-10-17, confirmed by the operator 2026-10-19) made such a report Test-stage evidence for CLI products. Every criterion is already bound to tests at its own Define stage (ledger 28), through TS/TC records whose testPointer is <file>::<exact test title>.",
+  "decision": "Package target mode, not a suite probe kind. Under a package target with no --url (--artefact <tgz>, or --package <dir> which packs HEAD), rcf verify run resolves every in-scope criterion through its existing TS/TC bindings: it installs the artefact in a scratch project, copies the bound test files beside the installed package (the proven manual method, no test edits), runs them with the node:test reporter, and maps each result to its test case by exact title and each test case to its criterion. A criterion passes only when every bound test ran and passed; no bound test makes it critiqueOnly; a deterministic PASS over every in-scope criterion carries ship authority. HTTP probes stay the resolution for URL targets; a criterion carrying a probe under package target mode resolves through its bound tests and records probeNotRun. The report records method suiteAsProbe, profile packagedArtefact and the artefact identity. Once FBS-225 ships, the interim ruling is superseded: a tool-written report is the Test-stage evidence for CLI products and the stage-keeper no longer accepts a hand-composed one for a new Test stage. Finalise does not refuse a hand-composed report in this change; the three existing hand-composed reports stay valid history.",
+  "consequences": "No per-AC probe authoring and no change to the acProbe subschema or to any rcf-schemas field; VerifyReport v1 grows additive, rcf-lite-local fields that Finalise ingests unchanged. The Test stage for a CLI product becomes one command and is repeatable byte for byte from the same artefact. A criterion whose bound test is renamed without its testPointer fails as notRun, which keeps bindings honest. The verifier's run needs npm and, by default, registry access for the artefact's dependencies (--offline uses the local cache); Finalise stays network-free. The guidance text that names the hand-composed route (the Test-stage paragraph of the five-stage contract and the verifier role's Test-stage method) changes with the build: FBS-224's guidance names rcf verify run --package . for CLI products.",
+  "alternativesConsidered": [
+    {
+      "name": "A suite probe kind per criterion",
+      "summary": "A probe of kind suite on the AC or in rcf/verify-catalog.json naming a TS, TC or test file.",
+      "reasonNotChosen": "Every criterion would be re-authored with a probe that duplicates its TS/TC binding, and the closed acProbe subschema in rcf-schemas would need a new kind."
+    },
+    {
+      "name": "An environment override for the binary path",
+      "summary": "Point the suites at the installed artefact with an environment variable read by each test.",
+      "reasonNotChosen": "Every existing suite would need editing, and a test that forgot the variable would silently test the working tree."
+    },
+    {
+      "name": "Redirected module resolution in the clone",
+      "summary": "Run the suites in the clone with a loader that maps bin/ and #core to the installed package.",
+      "reasonNotChosen": "A loader is new infrastructure that can drift from how the artefact really resolves; the copy method is what the three verifier rounds proved."
+    },
+    {
+      "name": "Keep hand composition",
+      "summary": "Leave the interim ruling in force.",
+      "reasonNotChosen": "Hand composition is slow, not repeatable and cannot be checked mechanically; the ship-authority ruling of 2026-10-19 asks for a deterministic verifier PASS."
+    }
+  ],
+  "adrId": "ADR-4150",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "proposed",
+  "title": "Suite-as-probe is a package target mode over the TS/TC bindings; the hand-composed interim ruling is superseded"
+}
