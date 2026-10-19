@@ -3607,6 +3607,8 @@ flowchart LR
   REQ-193 --> AC-19302-4
   TC-259-offline-and-default-registry["TC-259-offline-and-default-registry"]
   AC-19302-4 -.-> TC-259-offline-and-default-registry
+  TC-259-offline-outside-package-mode-refused["TC-259-offline-outside-package-mode-refused"]
+  AC-19302-4 -.-> TC-259-offline-outside-package-mode-refused
   AC-19302-5["AC-19302-5"]
   REQ-193 --> AC-19302-5
   TC-259-no-tarball-left["TC-259-no-tarball-left"]
@@ -5481,6 +5483,7 @@ flowchart LR
   class TC-259-pack-failure-log tc;
   class AC-19302-4 ac;
   class TC-259-offline-and-default-registry tc;
+  class TC-259-offline-outside-package-mode-refused tc;
   class AC-19302-5 ac;
   class TC-259-no-tarball-left tc;
   class TC-259-package-outside-repo-refused tc;

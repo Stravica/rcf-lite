@@ -7382,7 +7382,8 @@
           "id": "AC-19302-4",
           "covered": true,
           "testCases": [
-            "TC-259-offline-and-default-registry"
+            "TC-259-offline-and-default-registry",
+            "TC-259-offline-outside-package-mode-refused"
           ],
           "unresolvedTestCases": []
         },
