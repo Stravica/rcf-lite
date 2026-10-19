@@ -91,6 +91,9 @@ export const VERIFY_HANDS = Object.freeze(['test-author', 'builder', 'reviewer',
  * @param {string} p.hand
  * @param {string|null} p.verifierId
  * @param {string} p.rcfLiteVersion
+ * @param {string} [p.method] - FBS-225: "suiteAsProbe" in package target mode
+ * @param {object} [p.install] - FBS-225: { command, exitCode, logPath }
+ * @param {object[]} [p.suites] - FBS-225: one row per suite run
  * @returns {object}
  */
 export function composeVerifyReport(p) {
@@ -118,6 +121,10 @@ export function composeVerifyReport(p) {
     finishedAt: run.finishedAt,
     rcfLiteVersion: p.rcfLiteVersion,
     profile: run.profile,
+    // FBS-225 (TAC-4151): package target mode's suite-as-probe evidence.
+    ...(p.method === undefined ? {} : { method: p.method }),
+    ...(p.install === undefined ? {} : { install: p.install }),
+    ...(p.suites === undefined ? {} : { suites: p.suites }),
     verdict: p.report.verdict,
     verdictAuthority,
     runStats: {
@@ -125,6 +132,7 @@ export function composeVerifyReport(p) {
         verified: counts.verified ?? 0,
         failed: counts.failed ?? 0,
         skipped: counts.skipped ?? 0,
+        critiqueOnly: counts.critiqueOnly ?? 0,
         total: counts.total ?? perAc.length,
       },
     },
@@ -135,6 +143,19 @@ export function composeVerifyReport(p) {
       evidence: row.evidence ?? null,
     })),
   };
+}
+
+/**
+ * FBS-225 (TAC-4151): the suite-as-probe verdict over runStats.counts:
+ * PASS when every in-scope AC passed, FAIL when any failed, BLOCKED
+ * otherwise.
+ *
+ * @param {{ verified: number, failed: number, total: number }} counts
+ * @returns {'PASS'|'FAIL'|'BLOCKED'}
+ */
+export function suiteVerdict(counts) {
+  if (counts.failed > 0) return 'FAIL';
+  return counts.total > 0 && counts.verified === counts.total ? 'PASS' : 'BLOCKED';
 }
 
 /**

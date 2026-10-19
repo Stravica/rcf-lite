@@ -22,6 +22,7 @@ import {
 import { isSemverString, PLAYWRIGHT_MCP_VERSION } from '../engine/launcher.js';
 import { composeVerifyReport, serialiseReport, VERIFY_HANDS } from '../report/index.js';
 import { normaliseFbsIds } from '../chain/scope.js';
+import { isGzipFile, PACKAGED_ARTEFACT_PROFILE, runSuiteAsProbe } from '../suite/index.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
 
 const OPTION_SPEC = {
@@ -51,6 +52,9 @@ const OPTION_SPEC = {
   hand: { type: 'string' },
   'verifier-id': { type: 'string' },
   package: { type: 'string' },
+  // FBS-225 (US-19301): a packed tarball; with no --url it selects package
+  // target mode (the AC-bound suites run against the installed artefact).
+  artefact: { type: 'string' },
   replace: { type: 'string' },
   help: { type: 'boolean' },
 };
@@ -89,6 +93,7 @@ async function readOwnVersion() {
 }
 
 export const HELP = `Usage: rcf verify run [options]
+       rcf verify run --artefact <tgz> --fbs <fbs-id> --hand verifier [--verifier-id <id>] [--replace <reason>]
 
 Launch a fresh-context adversarial verifier against a running app and emit a
 structured verdict stamped with the runtime it ran against.
@@ -173,6 +178,20 @@ Optional:
                             the report records target.kind "package" and
                             target.packageRef; --url is then optional and
                             probes need it to reach a served build
+  --artefact <tgz>          Package target mode (FBS-225): with no --url,
+                            install the packed tarball in a scratch project
+                            under the OS temp dir, run the test files bound
+                            to the FBS's criteria (TS/TC testPointers) with
+                            node --test against the installed package, and
+                            write VerifyReport v1 with method suiteAsProbe,
+                            profile packagedArtefact, the artefact identity,
+                            install and suites[] evidence; raw TAP and the
+                            install log go to
+                            rcf/verify-reports/<fbs-id>/<head12>/. Needs
+                            --hand and exactly one --fbs; mode defaults to
+                            deterministic. --url, any other --mode or
+                            --profile, and a missing or non-gzip path exit 2.
+                            Exit 0 PASS, 4 not PASS, 1 install failure.
   --replace <reason>        Overwrite an existing report for the same head
   --help                    Print this help
 
@@ -184,6 +203,84 @@ Exit codes:
   5  severity gate tripped, or NOT-DEPLOYED / BLOCKED / LAUNCH-FAILURE
      (ship cannot be confirmed — a report is still written)
 `;
+
+// FBS-225 (US-19301, TAC-4151): package target mode. Usage refusals
+// (exit 2) first, then FBS-219's dirty-tree and existing-report refusals
+// (exit 4), then install, run and write; nothing lands under
+// rcf/verify-reports/ before the usage checks pass. The mode is
+// deterministic and the profile packagedArtefact unless a flag says
+// otherwise, and a flag that says otherwise is refused.
+async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
+  const usage = (message) => {
+    stderr.write(`[error] usage ${message}\n`);
+    return 2;
+  };
+  if (flags.url !== undefined) return usage('--url is not allowed with --artefact: package target mode has no served URL');
+  if (flags.mode !== undefined && flags.mode !== 'deterministic') {
+    return usage(`--mode must be deterministic with --artefact (got "${flags.mode}")`);
+  }
+  if (flags.profile !== undefined && flags.profile !== PACKAGED_ARTEFACT_PROFILE) {
+    return usage(`--profile must be ${PACKAGED_ARTEFACT_PROFILE} with --artefact (got "${flags.profile}")`);
+  }
+  if (flags.out !== undefined) return usage('--out is not allowed with --hand; the report is written under rcf/verify-reports/<fbs-id>/');
+  if (flags.hand === undefined || !VERIFY_HANDS.includes(flags.hand)) {
+    return usage(`--hand must be one of ${VERIFY_HANDS.join(' | ')} with --artefact`);
+  }
+  const fbsIds = normaliseFbsIds(flags.fbs);
+  if (fbsIds.length !== 1) return usage('--fbs <fbs-id> is required with --hand (exactly one build spec)');
+  const tgz = resolvePath(cwd, flags.artefact);
+  if (!existsSync(tgz)) return usage(`--artefact ${flags.artefact}: no such file`);
+  if (!isGzipFile(tgz)) return usage(`--artefact ${flags.artefact}: not a gzip tarball`);
+
+  let headSha;
+  try {
+    if (dirtyPathsOutsideReports(cwd).length > 0) {
+      stderr.write('verify report refused: working tree is dirty; the report must name a committed head\n');
+      return 4;
+    }
+    headSha = git(cwd, ['rev-parse', 'HEAD']).trim();
+  } catch (err) {
+    stderr.write(`[rcf-verify] unexpected failure: could not read the git head: ${err.message}\n`);
+    return 1;
+  }
+  const reportDir = `${VERIFY_REPORTS_DIR}/${fbsIds[0]}`;
+  const verifyReportPath = `${reportDir}/${headSha.slice(0, 12)}.json`;
+  if (existsSync(resolvePath(cwd, verifyReportPath)) && !flags.replace) {
+    stderr.write(`verify report exists for head ${headSha.slice(0, 7)}; pass --replace "<reason>"\n`);
+    return 4;
+  }
+
+  const evidenceDir = `${reportDir}/${headSha.slice(0, 12)}`;
+  stderr.write(`Verify mode: deterministic, method suiteAsProbe, profile ${PACKAGED_ARTEFACT_PROFILE} (${flags.artefact})\n`);
+  const result = await runSuiteAsProbe({
+    repo: flags.repo ?? cwd,
+    fbsId: fbsIds[0],
+    headSha,
+    tgz,
+    evidenceDir,
+    hand: flags.hand,
+    verifierId: flags['verifier-id'],
+    rcfLiteVersion: await readOwnVersion(),
+    env,
+  });
+  if (!result.ok) {
+    stderr.write(`${result.message}\n`);
+    return result.code;
+  }
+  try {
+    await mkdir(resolvePath(cwd, evidenceDir), { recursive: true });
+    for (const file of result.evidence) {
+      await writeFile(resolvePath(cwd, evidenceDir, file.name), file.content, 'utf8');
+    }
+    await writeFile(resolvePath(cwd, verifyReportPath), serialiseReport(result.verifyReport), 'utf8');
+  } catch (err) {
+    stderr.write(`[rcf-verify] unexpected failure: could not write verify report: ${err.message}\n`);
+    return 1;
+  }
+  const { verdict, runStats: { counts } } = result.verifyReport;
+  stdout.write(`verify report: ${verifyReportPath} ${verdict} ${counts.verified}/${counts.total}\n`);
+  return verdict === 'PASS' ? 0 : 4;
+}
 
 function exitForError(err) {
   switch (err.kind) {
@@ -217,6 +314,9 @@ export async function main(argv, deps = {}) {
   if (flags.help) {
     stdout.write(HELP);
     return 0;
+  }
+  if (flags.artefact !== undefined) {
+    return runArtefactMode(flags, { ...deps, stdout, stderr, cwd });
   }
 
   const gate = flags['severity-gate'];

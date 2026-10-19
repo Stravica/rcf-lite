@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-850",
+  "path": "src/verify/suite/map.js#countResults",
+  "implementsAcIds": [
+    "AC-19301-2",
+    "AC-19301-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T13:47:58.723Z",
+  "updatedAt": "2026-10-19T13:47:58.723Z"
+}
