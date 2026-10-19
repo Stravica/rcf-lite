@@ -114,23 +114,25 @@ Generation strategy: dependencyFirst
 | 218 | 0 | FBS-218 | Per-AC probe catalog resolved by deterministic verify (issue 349) | verified | verified |  |
 | 219 | 1 | FBS-219 | Test-stage verify report: rcf verify run --hand writes VerifyReport v1 | verified | verified |  |
 | 220 | 2 | FBS-220 | Administrative Finalise: ingest the Test-stage report, no verify spawn | verified | verified |  |
-| 221 | 3 | FBS-221 | Verified backstop on rcf build bundle --next | inProgress | inProgress |  |
-| 222 | 0 | FBS-222 | rcf audit separation verb | notStarted | actionable |  |
-| 223 | 1 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | notStarted | blocked | FBS-222 |
-| 224 | 4 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | notStarted | blocked | FBS-221, FBS-223 |
+| 221 | 3 | FBS-221 | Verified backstop on rcf build bundle --next | notStarted | actionable |  |
+| 222 | 4 | FBS-225 | Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts | notStarted | blocked | FBS-221 |
+| 223 | 5 | FBS-226 | Suite-as-probe B: rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy | notStarted | blocked | FBS-225 |
+| 227 | 6 | FBS-222 | rcf audit separation verb | notStarted | blocked | FBS-226 |
+| 228 | 7 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | notStarted | blocked | FBS-222 |
+| 229 | 8 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | notStarted | blocked | FBS-221, FBS-223 |
 
-Totals: items 114 | notStarted 59 | inProgress 3 | complete 34 | verified 18 | actionable 41 | blocked 18
+Totals: items 116 | notStarted 62 | inProgress 2 | complete 34 | verified 18 | actionable 41 | blocked 21
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218, FBS-222
-- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216, FBS-219, FBS-223
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218
+- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216, FBS-219
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206, FBS-213, FBS-217, FBS-220
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197, FBS-208, FBS-214, FBS-221
-- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198, FBS-199, FBS-215, FBS-224
-- tier 5: FBS-029, FBS-046, FBS-185, FBS-200
-- tier 6: FBS-030, FBS-047, FBS-201
-- tier 7: FBS-031, FBS-202
-- tier 8: FBS-032
+- tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198, FBS-199, FBS-215, FBS-225
+- tier 5: FBS-029, FBS-046, FBS-185, FBS-200, FBS-226
+- tier 6: FBS-030, FBS-047, FBS-201, FBS-222
+- tier 7: FBS-031, FBS-202, FBS-223
+- tier 8: FBS-032, FBS-224
 - tier 9: FBS-033
 - tier 10: FBS-034
 

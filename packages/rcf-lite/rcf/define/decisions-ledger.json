@@ -724,6 +724,228 @@
       "answer": "a. Operator ruling 2026-10-16: not testable criteria are obvious at DEFINE and at readiness; host capability is checked before dispatch; sandbox or test-double integrations are decided up front per integration. Decided, not pending.",
       "answeredAt": "2026-10-16T14:38:02.276Z",
       "resolvedAt": "2026-10-16T14:38:02.276Z"
+    },
+    {
+      "id": 34,
+      "question": "(a) Suite-as-probe: kind or mode. A suite probe kind per criterion, or a package target mode that resolves every in-scope criterion through its TS/TC bindings? And what happens to a criterion that carries an HTTP probe under a package target?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "package target mode: with --artefact or --package <dir> and no --url, every in-scope AC resolves through its existing TS/TC bindings, no per-AC probe authored, no acProbe change; HTTP probes stay for URL targets; an AC carrying an HTTP probe under package target mode resolves through its bound tests and records probeNotRun \"package target has no served URL\""
+        },
+        {
+          "letter": "b",
+          "text": "a suite probe kind on the AC or in rcf/verify-catalog.json naming a TS, TC or test file (needs an rcf-schemas acProbe change and per-AC authoring)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:20.536Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand (brief 2026-10-19): every criterion is already bound at its own Define stage (ledger 28), so the mode needs no per-AC authoring and no schema change. Recorded in ADR-4150, TAC-4151 and AC-19301-5.",
+      "answeredAt": "2026-10-19T11:05:20.732Z",
+      "resolvedAt": "2026-10-19T11:05:20.732Z"
+    },
+    {
+      "id": 35,
+      "question": "(b) How do the bound tests reach the packed artefact?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "copy method: copy the installed package into the scratch project and the bound test files' top-level directory beside it, so the tests' relative bin/rcf.js and the #core imports map resolve to the artefact; no test edits"
+        },
+        {
+          "letter": "b",
+          "text": "an environment override for the binary path (every suite edited to read it)"
+        },
+        {
+          "letter": "c",
+          "text": "redirected module resolution (a loader) in the clone"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:20.930Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand: the method the three verifier rounds of 2026-10-17 proved, with no test edits. Recorded in ADR-4150 and TAC-4151.",
+      "answeredAt": "2026-10-19T11:05:21.129Z",
+      "resolvedAt": "2026-10-19T11:05:21.129Z"
+    },
+    {
+      "id": 36,
+      "question": "(c) Install network and store policy for the packed artefact.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "npm install --no-audit --no-fund <tgz> in a scratch project under os.tmpdir(), registry as the host configures it by default; --offline installs from the local npm cache only; the install command, exit code, registry (default | offline) and a log path are evidence on the report; an install failure exits 1 with the log path and writes no report JSON; Finalise stays network-free either way"
+        },
+        {
+          "letter": "b",
+          "text": "offline by default, registry only on an explicit --online"
+        },
+        {
+          "letter": "c",
+          "text": "a vendored local store under the repository"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-226",
+      "addedAt": "2026-10-19T11:05:21.326Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-19: install from the registry by default, --offline installs from the local npm cache only, the install evidence is on the report, an install failure exits 1.",
+      "answeredAt": "2026-10-19T11:27:06.736Z",
+      "resolvedAt": "2026-10-19T11:27:06.736Z"
+    },
+    {
+      "id": 37,
+      "question": "(d) Result mapping from per-test results to per-AC verdicts, and the exit codes.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "an AC passes only when every test bound to it ran and passed (at least one); a bound test that is todo or skip makes the AC skipped; a bound title absent from the run makes it fail (notRun); no bound TC makes it critiqueOnly; verdict PASS when all passed, FAIL when any failed, BLOCKED otherwise; any non-pass means authority correctness; ship only when every in-scope AC passed; exit 0 written and PASS, 4 written and not PASS, 2 usage, 1 IO"
+        },
+        {
+          "letter": "b",
+          "text": "an AC passes when any bound test passes"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:21.523Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand, with one addition the chain forces: a bound test whose title does not appear in the run fails the AC as notRun, so a rename without its testPointer cannot pass silently (AC-19301-4). Exit codes as TAC-4148 states for rcf verify run.",
+      "answeredAt": "2026-10-19T11:05:21.719Z",
+      "resolvedAt": "2026-10-19T11:05:21.719Z"
+    },
+    {
+      "id": 38,
+      "question": "(e) Report fields for a tool-written package-target report, and where raw evidence lives.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "additive VerifyReport v1 fields: method suiteAsProbe; profile packagedArtefact; target { kind package, packageRef, name, version, sha256, servedSha (HEAD when packed, null for a given --artefact) }; pack and install records; suites[] per-suite counts; runStats.counts.critiqueOnly; perAc evidence with TC ids, test titles and reporter test numbers; raw reporter output and install log in a sibling directory rcf/verify-reports/<fbs-id>/<headSha12>/, walker-invisible, verifier evidence, ignored by Finalise's *.json lookup"
+        },
+        {
+          "letter": "b",
+          "text": "raw output embedded inside the report JSON"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:21.919Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand: the report stays small and readable in the PR, the raw output is reviewable beside it. servedSha is null for a given --artefact because a tarball names no head; FBS-226 records HEAD when it packs. Profile value named packagedArtefact, the name the rcf-schemas 0.9.0 brief proposed.",
+      "answeredAt": "2026-10-19T11:05:22.121Z",
+      "resolvedAt": "2026-10-19T11:05:22.121Z"
+    },
+    {
+      "id": 39,
+      "question": "(f) Finalise and the interim ruling: does rcf build finalise --ci-run ingest the tool-written report unchanged, and should it refuse a hand-composed report once suite-as-probe ships?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Finalise ingests it unchanged (every field is additive; target.kind package with packageRef and perAc results already pass verifyReportFault), proven end to end by AC-19301-9; no refusal of hand-composed reports in this spec; the interim ruling of 2026-10-17 is superseded once FBS-225 ships (ADR-4150): the stage-keeper accepts only a tool-written report for a new CLI-product Test stage; the guidance text naming the hand-composed route (the Test-stage paragraph of the five-stage contract that FBS-224 writes, and the verifier role's Test-stage method outside this repo) changes with the build"
+        },
+        {
+          "letter": "b",
+          "text": "Finalise refuses a report without method suiteAsProbe for package targets"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:22.321Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand. The three hand-composed reports on main (FBS-218, FBS-219, FBS-220) stay valid history. FBS-225's own Test stage runs under the interim ruling, since the tool cannot verify itself before it exists; FBS-226 is the first Test stage the tool runs.",
+      "answeredAt": "2026-10-19T11:05:22.521Z",
+      "resolvedAt": "2026-10-19T11:05:22.521Z"
+    },
+    {
+      "id": 40,
+      "question": "(g) Kept behaviour from FBS-219 under package target mode.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "kept: exactly one --fbs, a dirty tree outside rcf/verify-reports/ refuses exit 4, an existing report for the same head refuses exit 4 unless --replace \"<reason>\", writes only under rcf/verify-reports/<fbs-id>/; and --package <name@version> or a tarball name that is not a directory keeps the FBS-219 record-only behaviour (AC-19001-4), so no verified criterion is superseded"
+        },
+        {
+          "letter": "b",
+          "text": "package target mode replaces the FBS-219 record-only package behaviour (--package <name@version> installs from the registry), superseding the no-suite clause of AC-19001-4"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:22.719Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand (AC-19301-7, AC-19301-8, AC-19302-5).",
+      "answeredAt": "2026-10-19T11:05:22.917Z",
+      "resolvedAt": "2026-10-19T11:05:22.917Z"
+    },
+    {
+      "id": 41,
+      "question": "(h) Position in the train: where do FBS-225 and FBS-226 sit against FBS-221 to 224? rcf define create fbs refuses a buildOrder equal to an existing one (\"--build-order 221 collides with FBS-221 (existing buildOrder=221) under BS-001\") and no free integer lies between 221 and 222, so both were created at the default buildOrders 225 and 226 and the queue lists them after FBS-224.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the operator approves renumbering through the CLI: rcf define update FBS-222, FBS-223, FBS-224 --set buildOrder to 227, 228, 229, then FBS-225 and FBS-226 to 222 and 223 (edits FBS-222 to 224's buildOrder only; goldens and count pins move)"
+        },
+        {
+          "letter": "b",
+          "text": "the operator approves rcf define update FBS-225 --set buildOrder=221 and FBS-226 likewise, relying on the queue's fbsId tie-break; this bypasses the create verb's collision guard"
+        },
+        {
+          "letter": "c",
+          "text": "leave 225 and 226 after FBS-224; FBS-222 to 224's Test stages then run under the interim hand-composed method, and FBS-224's guidance cannot name the tool yet"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:23.123Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-19: ordering by dependency, build order renumbered to match. FBS-222 depends on FBS-226; buildOrders FBS-225 222, FBS-226 223, FBS-222 227, FBS-223 228, FBS-224 229. Operator, verbatim: \"FBS numbers shouldn't matter, only the order they are executed, and they're declared dependencies right? Renumber if that's the solution\"",
+      "answeredAt": "2026-10-19T11:27:07.139Z",
+      "resolvedAt": "2026-10-19T11:27:07.139Z"
+    },
+    {
+      "id": 42,
+      "question": "(i) Sizing: one FBS or two?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "two in order: FBS-225 (install, copy, run, mapping, report, end-to-end Finalise; 9 ACs) then FBS-226 (pack from HEAD, install policy; 5 ACs), each one test-author, builder and verifier round under 40 minutes"
+        },
+        {
+          "letter": "b",
+          "text": "one FBS with all 14 ACs"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:23.324Z",
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-19: two specs, FBS-225 then FBS-226.",
+      "answeredAt": "2026-10-19T11:27:06.940Z",
+      "resolvedAt": "2026-10-19T11:27:06.940Z"
+    },
+    {
+      "id": 43,
+      "question": "(j) Where do VerifyReport v1 and the profile enum live, and does this spec need the in-flight rcf-schemas 0.9.0 release?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "VerifyReport v1 is rcf-lite-local (src/verify/report/index.js writes it, src/finalise/ingest.js validates it; the rcf-schemas 0.9.0 round, PR 24 decision 4, left the packed-artefact fields to this DEFINE), so packagedArtefact and the artefact identity are rcf-lite-local; the deployed | ci | local-dev enum lives in rcf-schemas manifest.schema.json browserVerify.runtimeProfile (test-suite runtimeProvenance.profile is a different enum: mock | stub | fixture | live | mixed) and is not written by this path; no rcf-schemas field is needed; if the 0.9.0 pin bump rides FBS-225's build, 0.9.0 must be published and pinned before FBS-225 merges (build-ordering constraint)"
+        },
+        {
+          "letter": "b",
+          "text": "move VerifyReport v1 into rcf-schemas in a later minor and pin it before FBS-225 merges"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-225",
+      "addedAt": "2026-10-19T11:05:23.529Z",
+      "status": "resolved",
+      "answer": "a. Checked by the DEFINE hand against the rcf-schemas 0.8.0 package pinned in this repo and the 0.9.0 round's record; recorded in TAC-4151 internalStructure and the FBS-225 notes.",
+      "answeredAt": "2026-10-19T11:05:23.727Z",
+      "resolvedAt": "2026-10-19T11:05:23.727Z"
     }
   ]
 }

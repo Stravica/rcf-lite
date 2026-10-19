@@ -1,0 +1,50 @@
+{
+  "createdAt": "2026-10-19T10:58:54.302Z",
+  "updatedAt": "2026-10-19T11:02:43.763Z",
+  "description": "Under a package target with no --url, rcf verify run --fbs <fbs-id> --hand verifier verifies a CLI or library product against its packed artefact with no hand composition. It takes the artefact as --artefact <tgz> or packs it from HEAD with --package <dir>, installs it with npm in a scratch project outside the repository, copies the bound test files beside the installed package so their relative bin and package-imports resolve to the artefact, runs them with node --test and the Test Anything Protocol reporter, maps each reported result to its test case by the exact test title in the TC testPointer and each test case to its acceptance criterion, and writes VerifyReport v1 to rcf/verify-reports/<fbs-id>/<headSha12>.json with method suiteAsProbe, profile packagedArtefact, the artefact identity on target (name, version, sha256, servedSha, packageRef), per-suite counts, per-AC evidence (test titles and reporter test numbers) and the raw reporter output and install log under rcf/verify-reports/<fbs-id>/<headSha12>/. An AC passes only when every test bound to it ran and passed; a deterministic PASS over every in-scope AC carries verdictAuthority ship. The FBS-219 rules hold (exactly one --fbs, dirty-tree refusal, no overwrite without --replace, writes only under rcf/verify-reports/<fbs-id>/), it spawns no agent CLI, and rcf build finalise --ci-run ingests the report unchanged.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "The FBS-218 and FBS-219 re-verify of 2026-10-17 ran rcf verify run --package over both and got BLOCKED [correctness]: the probe engine knows HTTP probes only, so every criterion was critique-only (0 of 8, 0 of 6) while the bound suites passed 22 of 22. The FBS-220 Test stage and the 218 and 219 composition round therefore composed VerifyReport v1 by hand from the bound node:test suites run against the installed packed artefact, under an interim ruling (2026-10-17, confirmed by the operator 2026-10-19) that such a report is Test-stage evidence for CLI products. Suite-as-probe was approved to proceed on 2026-10-19; it makes that method the tool's, deterministic and repeatable, for every later Test stage on this repository (FBS-222 to 224) and on a GBP 249 product built with rcf-lite.",
+  "tags": [
+    "capability:verify",
+    "capability:build-sequence"
+  ],
+  "reqId": "REQ-193",
+  "prdId": "PRD-001",
+  "title": "Suite-as-probe: rcf verify run under a package target runs the AC-bound suites against the installed artefact and writes per-AC verdicts",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-19T11:00:00.998Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "TAP"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "TAP"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "TAP"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "TAP"
+      }
+    ]
+  },
+  "deliveredBy": {
+    "tacId": "TAC-4151"
+  }
+}

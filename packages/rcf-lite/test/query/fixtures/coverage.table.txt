@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 123  covered: 123  covered-unresolved: 0  uncovered: 0
+Requirements: 124  covered: 124  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -785,3 +785,17 @@ REQ-192      yes      AC-19201-1   yes         TC-251-probe-pass
                       AC-19201-6   yes         TC-251-probe-schema
                       AC-19201-7   yes         TC-251-no-probe-no-pass
                       AC-19201-8   yes         TC-251-ac-level-empty-assertion-refused, TC-251-ac-level-...
+REQ-193      yes      AC-19301-1   yes         TC-258-pass-all
+                      AC-19301-2   yes         TC-258-fail-one
+                      AC-19301-3   yes         TC-258-unbound-critique-only
+                      AC-19301-4   yes         TC-258-todo-skip-and-not-run
+                      AC-19301-5   yes         TC-258-probe-not-run-and-evidence
+                      AC-19301-6   yes         TC-258-flag-refusals
+                      AC-19301-7   yes         TC-258-fbs-219-rules-kept
+                      AC-19301-8   yes         TC-258-writes-only-report-dir
+                      AC-19301-9   yes         TC-258-finalise-end-to-end
+                      AC-19302-1   yes         TC-259-pack-from-head
+                      AC-19302-2   yes         TC-259-given-tarball-no-pack
+                      AC-19302-3   yes         TC-259-install-failure-exits-1
+                      AC-19302-4   yes         TC-259-offline-and-default-registry
+                      AC-19302-5   yes         TC-259-no-tarball-left

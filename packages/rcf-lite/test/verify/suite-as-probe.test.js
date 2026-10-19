@@ -1,0 +1,16 @@
+// FBS-225 (US-19301): rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts.
+//
+// Declared skeletons, one per AC, bound by the US-19301 test suite. The
+// FBS-225 Define round (test-author hand) turns each todo into a test that
+// drives bin/rcf.js and is red for the right reason before Build starts.
+import { test } from 'node:test';
+
+test.todo('AC-19301-1: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --verifier-id v1 with both bound tests passing against the installed artefact exits 0 and prints "verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2"; report verdict PASS, method suiteAsProbe, profile packagedArtefact, target kind package with sha256 and servedSha null, perAc evidence naming TS, file, test title and test number');
+test.todo('AC-19301-2: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with the AC-001-2 test failing exits 4 and prints "verify report: <path> FAIL 1/2"; verdict FAIL, verdictAuthority correctness, AC-001-2 fail with the failing title, AC-001-1 pass, runStats.counts verified 1 failed 1');
+test.todo('AC-19301-3: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with AC-001-2 unbound exits 4 and prints "verify report: <path> BLOCKED 1/2"; AC-001-2 critiqueOnly, runStats.counts.critiqueOnly 1, AC-001-1 suite still ran and passes');
+test.todo('AC-19301-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with the AC-001-1 test todo or skip and an AC-001-2 title absent from the run exits 4; AC-001-1 skipped, AC-001-2 fail listing the title under notRun, verdict not PASS');
+test.todo('AC-19301-5: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with an HTTP probe on AC-001-1 and no --url resolves AC-001-1 pass with probeNotRun "package target has no served URL"; suites[] rows, <TS id>.tap and install.log under rcf/verify-reports/FBS-001/<head12>/, install { command, exitCode 0, logPath }, define validate exits 0');
+test.todo('AC-19301-6: rcf verify run --artefact <tgz> with --url, --mode agentScreenshotCritique, a --profile other than packagedArtefact, or a missing or non-gzip path exits 2 with a stderr line naming the flag and writes nothing under rcf/verify-reports/');
+test.todo('AC-19301-7: rcf verify run --artefact under the FBS-219 rules: dirty tree exits 4 "verify report refused: working tree is dirty; the report must name a committed head", existing report exits 4 unless --replace "<reason>", --fbs absent or twice exits 2, --package <name@version> alone records target kind package and packageRef only and runs no suite');
+test.todo('AC-19301-8: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier leaves every file outside rcf/verify-reports/FBS-001/ byte-identical and git status clean beyond it, installs under the OS temporary directory, and never spawns a claude executable on PATH');
+test.todo('AC-19301-9: the tool-written report from rcf verify run --artefact committed under Hand: verifier and merged, then rcf build mark FBS-001 complete and rcf build finalise FBS-001 --ci-run run-1 exits 0 printing "finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<head12>.json (head <sha7>, ci run-1)" and FBS-001 reads executionStatus verified with no report field edited by hand');
