@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:23.075Z",
-  "updatedAt": "2026-10-16T22:46:38.940Z",
+  "updatedAt": "2026-10-19T23:19:11.519Z",
   "purpose": "Declare one test per AC of US-19101 (FBS-222) driving rcf audit separation through bin/rcf.js over fixture git histories, so the FBS-222 Define round turns each declaration into a red test against the separation verb.",
   "testLevel": "integration",
   "acIds": [
@@ -20,49 +20,49 @@
       "id": "TC-255-pass-line",
       "acId": "AC-19101-1",
       "description": "rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints \"separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-1: rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints \"separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\""
     },
     {
       "id": "TC-255-fail-line",
       "acId": "AC-19101-2",
       "description": "rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-2: rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\""
     },
     {
       "id": "TC-255-undeclared",
       "acId": "AC-19101-3",
       "description": "rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-3: rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths"
     },
     {
       "id": "TC-255-bad-ref-and-repo",
       "acId": "AC-19101-4",
       "description": "rcf audit separation --base <missing-ref> exits 2 with \"separation: bad ref <ref>\"; outside a git repository it exits 1 with \"separation: not a git repository\"; an unknown Hand value is a violation \"unknown hand <value>\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with \"separation: bad ref <ref>\"; outside a git repository it exits 1 with \"separation: not a git repository\"; an unknown Hand value is a violation \"unknown hand <value>\""
     },
     {
       "id": "TC-255-json-rows",
       "acId": "AC-19101-5",
       "description": "rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent"
     },
     {
       "id": "TC-255-read-only",
       "acId": "AC-19101-6",
       "description": "rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged"
     },
     {
       "id": "TC-255-verify-reports-class",
       "acId": "AC-19101-7",
       "description": "rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation.test.js::AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence"
     }
   ],
