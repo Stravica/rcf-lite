@@ -26,7 +26,10 @@ import {
   changedPaths, commitAll, commitWorld, git, hashTree, head12, lastLine, packWorld, packageWorld,
   rcf, readReport, realTmp, reportRel, runEnv, selfCheck, sha256,
 } from './helpers/package-world.js';
-import { addDependency, npmRecorder, packAs, setVersion, subcommand, tarballsIn } from './helpers/pack-world.js';
+import {
+  addDependency, cleanPackOf, editPackageJson, isIgnored, nestWorld, npmRecorder, packAs, setPrepack, setVersion, subcommand,
+  tarballEntries, tarballsIn, writeWorldFile,
+} from './helpers/pack-world.js';
 
 // test/verify/suite-as-probe.test.js's INSTALL_TIMEOUT.
 const INSTALL_TIMEOUT = 240_000;
@@ -94,12 +97,12 @@ test('AC-19302-1: rcf verify run --package . --fbs FBS-001 --hand verifier at cl
   assert.equal(report.profile, 'packagedArtefact');
   assert.equal(report.method, 'suiteAsProbe');
 
-  // "packs ... into the scratch directory": the pack ran in the fixture root,
-  // its destination under the OS temp dir, never inside the repository.
+  // "packs ... into the scratch directory": its destination under the OS
+  // temp dir, never inside the repository. Where npm pack runs is not pinned
+  // here: the fix round (BH-1) packs from H itself, not the live directory.
   const packs = (await npm.calls()).filter((c) => subcommand(c) === 'pack');
   assert.equal(packs.length, 1, `exactly one npm pack ran; npm calls:\n${(await npm.calls()).map((c) => c.line).join('\n')}`);
   const [pack] = packs;
-  assert.equal(pack.cwd, realTmp(world.root), 'npm pack ran in the package directory');
   const dest = flagValue(pack.argv, '--pack-destination');
   assert.ok(dest, `npm pack was given --pack-destination; argv ${pack.argv.join(' ')}`);
   // The scratch directory is gone after the run, so compare paths as given.
@@ -254,5 +257,258 @@ test('AC-19302-5: rcf verify run --package . --fbs FBS-001 --hand verifier leave
   assert.equal(dirty.code, 4, `dirty tree: exit 4; stderr:\n${dirty.stderr}`);
   assert.ok(dirty.stderr.includes(DIRTY_LINE), dirty.stderr);
   assert.equal((await npm.calls()).filter((c) => subcommand(c) === 'pack').length, packsBefore, 'the refused run never packs');
+  assertNoClaude(world);
+});
+
+// ---------------------------------------------------------------------------
+// FBS-226 fix round: gate 1 findings BH-1 and BH-2, Test-stage defects TD-1
+// and TD-2. Readings (the test-author's, recorded in the Define return):
+// BH-1 packs from the committed head H itself, never from the live package
+// directory: a package directory outside the cwd's repository refuses exit 4
+// before packing; ignored content the live directory carries never reaches
+// the packed bytes; a prepack that writes into the tree it packs never
+// changes the project. In each run that records servedSha H, target.sha256
+// equals a separate npm pack of a fresh clone of H. TD-2 takes the
+// exception route: the logs the run writes under rcf/verify-reports/FBS-001/
+// are never ignored, even in a project whose .gitignore carries *.log.
+
+const OUTSIDE_LINE = (arg) => `verify report refused: --package ${arg} is outside this repository; the packed bytes must come from its committed head`;
+
+function assertNotPackFailed(r) {
+  assert.doesNotMatch(r.stderr, /verify run: pack failed/, `the run must not stop on the pack-failed line; stderr:\n${r.stderr}`);
+}
+
+const PRINTING_PREPACK = `process.stdout.write('[fixture-prepack] staged 1 blueprint(s) into ' + process.cwd() + '\\n');\n`;
+
+test('AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack prints to stdout before npm\'s JSON exits 0 with "verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned', { timeout: INSTALL_TIMEOUT }, async () => {
+  const world = await packageWorld();
+  await setPrepack(world, PRINTING_PREPACK);
+  commitWorld(world);
+  const clean = cleanPackOf(world);
+  assertSelf(world, BOTH_PASS);
+  const npm = await npmRecorder(world, 'run');
+  const tmp = await tmpFor(world);
+
+  const r = await run(world, ['--package', '.', ...HAND], { prependPath: npm.dir, tmpdir: tmp });
+  assertNotTodaysRefusal(r);
+  const packs = (await npm.calls()).filter((c) => subcommand(c) === 'pack');
+  assert.equal(packs.length, 1, `exactly one npm pack ran; npm calls:\n${(await npm.calls()).map((c) => c.line).join('\n')}`);
+  assert.equal(packs[0].exitCode, 0, 'fixture: npm pack itself succeeds with the printing prepack');
+  assertNotPackFailed(r);
+  assert.equal(r.code, 0, `npm pack exited 0 and both bound tests pass: exit 0; stderr:\n${r.stderr}`);
+  assert.equal(lastLine(r.stdout), `verify report: ${reportRel(world)} PASS 2/2`);
+  const report = readReport(world);
+  assert.deepEqual(report.target, {
+    kind: 'package', packageRef: TARBALL, name: PKG_NAME, version: PKG_VERSION, sha256: clean.sha256, servedSha: world.head,
+  });
+  assert.equal(typeof report.pack?.command, 'string', `the report carries pack { command, exitCode }; got ${JSON.stringify(report.pack)}`);
+  assert.equal(report.pack.exitCode, packs[0].exitCode, 'pack.exitCode is the exit code npm returned');
+  assertNoClaude(world);
+});
+
+test('AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifier whose npm pack fails exits 1 with stderr "verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log", the log holds npm\'s output, no report JSON is written and nothing outside rcf/verify-reports/FBS-001/ changes', { timeout: INSTALL_TIMEOUT }, async () => {
+  const world = await packageWorld();
+  await setPrepack(world, `process.stdout.write('fixture-prepack starting\\n');\nprocess.stderr.write('fixture-prepack: cannot stage the shelf\\n');\nprocess.exit(3);\n`);
+  commitWorld(world);
+  assertSelf(world, BOTH_PASS);
+  const npm = await npmRecorder(world, 'run');
+  const tmp = await tmpFor(world);
+  const exempt = `rcf/verify-reports/${FBS}/`;
+  const before = hashTree(world.root, exempt);
+
+  const r = await run(world, ['--package', '.', ...HAND], { prependPath: npm.dir, tmpdir: tmp });
+  assertNotTodaysRefusal(r);
+  assert.equal(r.code, 1, `a failed pack: exit 1; stderr:\n${r.stderr}`);
+  const packs = (await npm.calls()).filter((c) => subcommand(c) === 'pack');
+  assert.equal(packs.length, 1, `exactly one npm pack ran; npm calls:\n${(await npm.calls()).map((c) => c.line).join('\n')}`);
+  const n = packs[0].exitCode;
+  assert.notEqual(n, 0, 'fixture: npm pack fails on the failing prepack');
+  const logRel = `rcf/verify-reports/${FBS}/${head12(world)}/pack.log`;
+  assert.ok(r.stderr.includes(`verify run: pack failed (npm exit ${n}); log ${logRel}`),
+    `stderr names npm's exit and the pack log; got:\n${r.stderr}`);
+  assert.ok(existsSync(join(world.root, logRel)), `${logRel} exists`);
+  assert.match(readFileSync(join(world.root, logRel), 'utf8'), /fixture-prepack: cannot stage the shelf/, 'the pack log holds npm\'s output');
+  assert.equal(existsSync(join(world.root, reportRel(world))), false, 'no report JSON is written for the head');
+  assert.deepEqual(changedPaths(world.root).filter((p) => !p.startsWith(exempt)), [], 'git status lists nothing outside rcf/verify-reports/FBS-001/');
+  assert.deepEqual(tarballsIn(world.root), [], 'no *.tgz anywhere in the project');
+  assert.deepEqual(hashTree(world.root, exempt), before, 'every file outside rcf/verify-reports/FBS-001/ is byte-identical');
+  assertNoClaude(world);
+});
+
+test('AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the install log at the report\'s install.logPath, the failed install\'s log and the failed pack\'s log are not ignored: git check-ignore does not match them and git status lists them, with no new path outside rcf/verify-reports/FBS-001/', { timeout: 3 * INSTALL_TIMEOUT }, async (t) => {
+  const exempt = `rcf/verify-reports/${FBS}/`;
+  // The ignore rule rcf-lite's own root .gitignore carries.
+  async function logIgnoringWorld() {
+    const world = await packageWorld();
+    await writeWorldFile(world, '.gitignore', '*.log\n');
+    return world;
+  }
+  function assertLogKept(world, logRel) {
+    assert.ok(existsSync(join(world.root, logRel)), `${logRel} exists`);
+    assert.equal(isIgnored(world.root, logRel), false, `git check-ignore does not match ${logRel}`);
+    const changed = changedPaths(world.root);
+    assert.ok(changed.includes(logRel), `git status lists ${logRel}; got ${JSON.stringify(changed)}`);
+    assert.deepEqual(changed.filter((p) => !p.startsWith(exempt)), [], 'no new path outside rcf/verify-reports/FBS-001/');
+  }
+
+  await t.test('a passing run: the log at install.logPath', async () => {
+    const world = await logIgnoringWorld();
+    commitWorld(world);
+    packWorld(world);
+    assert.equal(isIgnored(world.root, `rcf/verify-reports/${FBS}/${head12(world)}/install.log`), true, 'fixture: the project ignores *.log');
+    assertSelf(world, BOTH_PASS);
+    const r = await run(world, ['--artefact', world.tgz, ...HAND]);
+    assertNotTodaysRefusal(r);
+    assert.equal(r.code, 0, `exit 0; stderr:\n${r.stderr}`);
+    const report = readReport(world);
+    assert.equal(typeof report.install?.logPath, 'string', `the report names install.logPath; got ${JSON.stringify(report.install)}`);
+    assertLogKept(world, report.install.logPath);
+    assertNoClaude(world);
+  });
+
+  await t.test('a failed install: the log the stderr line names', async () => {
+    const world = await logIgnoringWorld();
+    await addDependency(world, 'rcf-fixture-unresolvable-dependency', '1.0.0');
+    commitWorld(world);
+    packWorld(world);
+    assertSelf(world, BOTH_PASS);
+    const r = await run(world, ['--artefact', world.tgz, ...HAND, '--offline']);
+    assertNotTodaysRefusal(r);
+    assert.equal(r.code, 1, `a failed install: exit 1; stderr:\n${r.stderr}`);
+    const m = r.stderr.match(/verify run: install failed \(npm exit \d+\); log (\S+)/);
+    assert.ok(m, `stderr names the install log; got:\n${r.stderr}`);
+    assertLogKept(world, m[1]);
+    assertNoClaude(world);
+  });
+
+  await t.test('a failed pack: the log the stderr line names', async () => {
+    const world = await logIgnoringWorld();
+    await setPrepack(world, `process.stderr.write('fixture-prepack: cannot stage the shelf\\n');\nprocess.exit(3);\n`);
+    commitWorld(world);
+    assertSelf(world, BOTH_PASS);
+    const r = await run(world, ['--package', '.', ...HAND], { tmpdir: await tmpFor(world) });
+    assertNotTodaysRefusal(r);
+    assert.equal(r.code, 1, `a failed pack: exit 1; stderr:\n${r.stderr}`);
+    const m = r.stderr.match(/verify run: pack failed \(npm exit \d+\); log (\S+)/);
+    assert.ok(m, `stderr names the pack log; got:\n${r.stderr}`);
+    assertLogKept(world, m[1]);
+    assertNoClaude(world);
+  });
+});
+
+test('AC-19302-5 (BH-1 a): rcf verify run --package <dir> --fbs FBS-001 --hand verifier refuses exit 4 before packing when <dir> is outside the cwd\'s repository (another repository, dirty or clean at another head, or a directory in no repository), and still packs a package directory inside the repository\'s work tree', { timeout: 2 * INSTALL_TIMEOUT }, async (t) => {
+  // The cwd: a clean rcf project at head H whose own package is fixture-cli 1.0.0.
+  async function cwdWorld() {
+    const world = await packageWorld();
+    commitWorld(world);
+    assertSelf(world, BOTH_PASS);
+    return world;
+  }
+  async function assertRefused(world, arg) {
+    const npm = await npmRecorder(world, 'run');
+    const r = await run(world, ['--package', arg, ...HAND], { prependPath: npm.dir, tmpdir: await tmpFor(world) });
+    assertNotTodaysRefusal(r);
+    assertNotPackFailed(r);
+    assert.equal(r.code, 4, `a package directory outside the repository: exit 4; stderr:\n${r.stderr}`);
+    assert.ok(r.stderr.includes(OUTSIDE_LINE(arg)), `stderr carries the refusal; got:\n${r.stderr}`);
+    const calls = await npm.calls();
+    assert.ok(!calls.some((c) => subcommand(c) === 'pack'), `the refused run never packs; npm calls:\n${calls.map((c) => c.line).join('\n')}`);
+    assert.equal(existsSync(join(world.root, reportRel(world))), false, 'no report JSON names H for bytes from another tree');
+    assert.deepEqual(changedPaths(world.root), [], 'the refused run writes nothing');
+    assertNoClaude(world);
+  }
+
+  await t.test('another repository at another head', async () => {
+    const world = await cwdWorld();
+    const other = await packageWorld();
+    await setVersion(other, '2.0.0');
+    commitWorld(other);
+    assert.notEqual(other.head, world.head, 'fixture: the other repository is at another head');
+    await assertRefused(world, other.root);
+  });
+
+  await t.test('another repository with uncommitted changes', async () => {
+    const world = await cwdWorld();
+    const other = await packageWorld();
+    commitWorld(other);
+    await writeWorldFile(other, 'bin/extra.js', '// uncommitted\n');
+    assert.ok(changedPaths(other.root).length > 0, 'fixture: the other repository is dirty');
+    await assertRefused(world, other.root);
+  });
+
+  await t.test('a directory in no repository', async () => {
+    const world = await cwdWorld();
+    const loose = join(world.aux, 'loose-package');
+    await mkdir(loose, { recursive: true });
+    await writeFile(join(loose, 'package.json'), readFileSync(join(world.root, 'package.json')));
+    await mkdir(join(loose, 'bin'), { recursive: true });
+    await writeFile(join(loose, 'bin', `${PKG_NAME}.js`), readFileSync(join(world.root, 'bin', `${PKG_NAME}.js`)));
+    await assertRefused(world, loose);
+  });
+
+  await t.test('control: --package . from a package directory inside its repository\'s work tree (the dogfood shape) packs H', async () => {
+    const world = nestWorld(await packageWorld());
+    const clean = cleanPackOf(world);
+    assertSelf(world, BOTH_PASS);
+    const r = await run(world, ['--package', '.', ...HAND], { tmpdir: await tmpFor(world) });
+    assertNotTodaysRefusal(r);
+    assert.equal(r.code, 0, `exit 0; stderr:\n${r.stderr}`);
+    assert.equal(lastLine(r.stdout), `verify report: ${reportRel(world)} PASS 2/2`);
+    const report = readReport(world);
+    assert.equal(report.target.servedSha, world.head);
+    assert.equal(report.target.sha256, clean.sha256, 'the packed bytes are a separate pack of H');
+    assertNoClaude(world);
+  });
+});
+
+test('AC-19302-1 (BH-1 b): rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H with content git ignores but npm packs records servedSha H only on the bytes of a separate pack of H: exit 0, PASS 2/2, target.sha256 equals that pack, and the project is unchanged', { timeout: INSTALL_TIMEOUT }, async () => {
+  const world = await packageWorld();
+  await editPackageJson(world, (pkg) => { pkg.files = ['bin', 'generated']; });
+  await writeWorldFile(world, '.gitignore', '/generated/\n');
+  commitWorld(world);
+  const clean = cleanPackOf(world);
+  // Content only the live directory carries: ignored, so git status is clean.
+  await writeWorldFile(world, 'generated/live-only.txt', 'not in any commit\n');
+  assert.deepEqual(changedPaths(world.root), [], 'fixture: the ignored content leaves git status clean');
+  const live = packWorld(world);
+  assert.ok(tarballEntries(live).includes('package/generated/live-only.txt'), 'fixture: npm packs the ignored content from the live directory');
+  assert.notEqual(sha256(readFileSync(live)), clean.sha256, 'fixture: a live pack differs from the pack of H');
+  assertSelf(world, BOTH_PASS);
+  const exempt = `rcf/verify-reports/${FBS}/`;
+  const before = hashTree(world.root, exempt);
+
+  const r = await run(world, ['--package', '.', ...HAND], { tmpdir: await tmpFor(world) });
+  assertNotTodaysRefusal(r);
+  assertNotPackFailed(r);
+  assert.equal(r.code, 0, `the bytes of H pass: exit 0; stderr:\n${r.stderr}`);
+  assert.equal(lastLine(r.stdout), `verify report: ${reportRel(world)} PASS 2/2`);
+  const report = readReport(world);
+  assert.equal(report.target.servedSha, world.head);
+  assert.equal(report.target.sha256, clean.sha256, 'servedSha H names the bytes of a separate pack of H, never the live directory\'s ignored content');
+  assert.deepEqual(hashTree(world.root, exempt), before, 'every file outside rcf/verify-reports/FBS-001/ is byte-identical');
+  assertNoClaude(world);
+});
+
+test('AC-19302-5 (BH-1 c): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack writes into the tree it packs leaves the project unchanged (git status lists nothing outside rcf/verify-reports/FBS-001/) and records servedSha H on the bytes of a separate pack of H', { timeout: INSTALL_TIMEOUT }, async () => {
+  const world = await packageWorld();
+  await setPrepack(world, `import { writeFileSync } from 'node:fs';\nwriteFileSync(new URL('../bin/stamp.txt', import.meta.url), 'stamped by prepack\\n');\n`);
+  commitWorld(world);
+  const clean = cleanPackOf(world);
+  assert.ok(tarballEntries(clean.tgz).includes('package/bin/stamp.txt'), 'fixture: the prepack writes into the tree npm packs');
+  assert.equal(existsSync(join(world.root, 'bin', 'stamp.txt')), false, 'fixture: the project has no stamp before the run');
+  assertSelf(world, BOTH_PASS);
+  const exempt = `rcf/verify-reports/${FBS}/`;
+  const before = hashTree(world.root, exempt);
+
+  const r = await run(world, ['--package', '.', ...HAND], { tmpdir: await tmpFor(world) });
+  assertNotTodaysRefusal(r);
+  assertNotPackFailed(r);
+  assert.deepEqual(changedPaths(world.root).filter((p) => !p.startsWith(exempt)), [], 'the pack\'s lifecycle output is never left in the project');
+  assert.deepEqual(hashTree(world.root, exempt), before, 'every file outside rcf/verify-reports/FBS-001/ is byte-identical');
+  assert.equal(r.code, 0, `exit 0; stderr:\n${r.stderr}`);
+  assert.equal(lastLine(r.stdout), `verify report: ${reportRel(world)} PASS 2/2`);
+  const report = readReport(world);
+  assert.equal(report.target.servedSha, world.head);
+  assert.equal(report.target.sha256, clean.sha256, 'servedSha H names the bytes of a separate pack of H');
   assertNoClaude(world);
 });
