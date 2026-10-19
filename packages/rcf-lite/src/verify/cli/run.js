@@ -6,7 +6,7 @@
 // step spawns (§8.2).
 
 import { execFileSync } from 'node:child_process';
-import { existsSync } from 'node:fs';
+import { existsSync, rmSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve as resolvePath } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -23,6 +23,7 @@ import { isSemverString, PLAYWRIGHT_MCP_VERSION } from '../engine/launcher.js';
 import { composeVerifyReport, serialiseReport, VERIFY_HANDS } from '../report/index.js';
 import { normaliseFbsIds } from '../chain/scope.js';
 import { isGzipFile, PACKAGED_ARTEFACT_PROFILE, runSuiteAsProbe } from '../suite/index.js';
+import { packDirectory } from '../suite/pack.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
 
 const OPTION_SPEC = {
@@ -55,6 +56,8 @@ const OPTION_SPEC = {
   // FBS-225 (US-19301): a packed tarball; with no --url it selects package
   // target mode (the AC-bound suites run against the installed artefact).
   artefact: { type: 'string' },
+  // FBS-226 (US-19302): npm install --offline, from the local npm cache only.
+  offline: { type: 'boolean' },
   replace: { type: 'string' },
   help: { type: 'boolean' },
 };
@@ -87,13 +90,24 @@ function refusePackageFetch(packageRef) {
   };
 }
 
+// FBS-226 (AC-19302-3): write package target mode's evidence files under
+// <evidenceDir>, with a .gitignore there that keeps its *.log files
+// un-ignored even when the project's own ignore rules match *.log.
+async function writeEvidence(cwd, evidenceDir, files) {
+  await mkdir(resolvePath(cwd, evidenceDir), { recursive: true });
+  await writeFile(resolvePath(cwd, evidenceDir, '.gitignore'), '!*.log\n', 'utf8');
+  for (const file of files) {
+    await writeFile(resolvePath(cwd, evidenceDir, file.name), file.content, 'utf8');
+  }
+}
+
 async function readOwnVersion() {
   const pkgPath = new URL('../../../package.json', import.meta.url);
   return JSON.parse(await readFile(pkgPath, 'utf8')).version;
 }
 
 export const HELP = `Usage: rcf verify run [options]
-       rcf verify run --artefact <tgz> --fbs <fbs-id> --hand verifier [--verifier-id <id>] [--replace <reason>]
+       rcf verify run (--artefact <tgz> | --package <dir>) --fbs <fbs-id> --hand verifier [--verifier-id <id>] [--offline] [--replace <reason>]
 
 Launch a fresh-context adversarial verifier against a running app and emit a
 structured verdict stamped with the runtime it ran against.
@@ -177,7 +191,25 @@ Optional:
   --package <ref>           Version-host target (name@version or tarball):
                             the report records target.kind "package" and
                             target.packageRef; --url is then optional and
-                            probes need it to reach a served build
+                            probes need it to reach a served build.
+                            With <ref> naming a directory and no --url or
+                            --artefact (FBS-226): refuse (exit 4) a <dir>
+                            outside the cwd's repository, then a dirty tree;
+                            export HEAD into a scratch directory under the
+                            OS temp dir (removed after the run) and run
+                            npm pack --pack-destination <scratch> --json in
+                            <dir>'s path there, never in the live directory:
+                            content ignored there never reaches the bytes,
+                            and a lifecycle script such as prepack writes
+                            only inside the export (its output is in the
+                            bytes, as in a separate pack of HEAD) and never
+                            reaches the project; then take the --artefact
+                            path over the packed tarball. The report records
+                            pack { command, exitCode } and target.servedSha
+                            HEAD. A failed pack exits 1, writes npm's output
+                            to rcf/verify-reports/<fbs-id>/<head12>/pack.log
+                            and no report JSON. Evidence directories carry a
+                            .gitignore keeping their *.log files tracked.
   --artefact <tgz>          Package target mode (FBS-225): with no --url,
                             install the packed tarball in a scratch project
                             under the OS temp dir, run the test files bound
@@ -191,7 +223,18 @@ Optional:
                             --hand and exactly one --fbs; mode defaults to
                             deterministic. --url, any other --mode or
                             --profile, and a missing or non-gzip path exit 2.
-                            Exit 0 PASS, 4 not PASS, 1 install failure.
+                            Exit 0 PASS, 4 not PASS, 1 install failure
+                            (the log goes to
+                            rcf/verify-reports/<fbs-id>/<head12>/install.log;
+                            no report JSON is written).
+  --offline                 Package target mode only (--artefact <tgz> |
+                            --package <dir>, with no --url): npm install
+                            --offline, from the local npm cache only; the
+                            report records install.registry offline
+                            (default otherwise). Anywhere else (a --url
+                            target, --package name@version or a tarball
+                            name, or no target) it exits 2 before any other
+                            check, writing nothing
   --replace <reason>        Overwrite an existing report for the same head
   --help                    Print this help
 
@@ -206,7 +249,8 @@ Exit codes:
 
 // FBS-225 (US-19301, TAC-4151): package target mode. Usage refusals
 // (exit 2) first, then FBS-219's dirty-tree and existing-report refusals
-// (exit 4), then install, run and write; nothing lands under
+// (exit 4), then (FBS-226, --package <dir>) the pack, then install, run
+// and write; nothing lands under
 // rcf/verify-reports/ before the usage checks pass. The mode is
 // deterministic and the profile packagedArtefact unless a flag says
 // otherwise, and a flag that says otherwise is refused.
@@ -215,25 +259,45 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
     stderr.write(`[error] usage ${message}\n`);
     return 2;
   };
+  // FBS-226: no --artefact means main routed a --package <dir> here.
+  const packing = flags.artefact === undefined;
+  const via = packing ? '--package <dir>' : '--artefact';
   if (flags.url !== undefined) return usage('--url is not allowed with --artefact: package target mode has no served URL');
   if (flags.mode !== undefined && flags.mode !== 'deterministic') {
-    return usage(`--mode must be deterministic with --artefact (got "${flags.mode}")`);
+    return usage(`--mode must be deterministic with ${via} (got "${flags.mode}")`);
   }
   if (flags.profile !== undefined && flags.profile !== PACKAGED_ARTEFACT_PROFILE) {
-    return usage(`--profile must be ${PACKAGED_ARTEFACT_PROFILE} with --artefact (got "${flags.profile}")`);
+    return usage(`--profile must be ${PACKAGED_ARTEFACT_PROFILE} with ${via} (got "${flags.profile}")`);
   }
   if (flags.out !== undefined) return usage('--out is not allowed with --hand; the report is written under rcf/verify-reports/<fbs-id>/');
   if (flags.hand === undefined || !VERIFY_HANDS.includes(flags.hand)) {
-    return usage(`--hand must be one of ${VERIFY_HANDS.join(' | ')} with --artefact`);
+    return usage(`--hand must be one of ${VERIFY_HANDS.join(' | ')} with ${via}`);
   }
   const fbsIds = normaliseFbsIds(flags.fbs);
   if (fbsIds.length !== 1) return usage('--fbs <fbs-id> is required with --hand (exactly one build spec)');
-  const tgz = resolvePath(cwd, flags.artefact);
-  if (!existsSync(tgz)) return usage(`--artefact ${flags.artefact}: no such file`);
-  if (!isGzipFile(tgz)) return usage(`--artefact ${flags.artefact}: not a gzip tarball`);
+  let tgz = packing ? null : resolvePath(cwd, flags.artefact);
+  if (!packing) {
+    if (!existsSync(tgz)) return usage(`--artefact ${flags.artefact}: no such file`);
+    if (!isGzipFile(tgz)) return usage(`--artefact ${flags.artefact}: not a gzip tarball`);
+  }
 
   let headSha;
+  let packAt = null;
   try {
+    // FBS-226 (AC-19302-5): the packed bytes come from cwd's committed head,
+    // so a package directory in another repository, or in none, is refused
+    // before the dirty check and before any pack.
+    if (packing) {
+      const top = git(cwd, ['rev-parse', '--show-toplevel']).trim();
+      const dir = resolvePath(cwd, flags.package);
+      let dirTop = null;
+      try { dirTop = git(dir, ['rev-parse', '--show-toplevel']).trim(); } catch { /* in no repository */ }
+      if (dirTop !== top) {
+        stderr.write(`verify report refused: --package ${flags.package} is outside this repository; the packed bytes must come from its committed head\n`);
+        return 4;
+      }
+      packAt = { top, prefix: git(dir, ['rev-parse', '--show-prefix']).trim() };
+    }
     if (dirtyPathsOutsideReports(cwd).length > 0) {
       stderr.write('verify report refused: working tree is dirty; the report must name a committed head\n');
       return 4;
@@ -251,26 +315,55 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
   }
 
   const evidenceDir = `${reportDir}/${headSha.slice(0, 12)}`;
-  stderr.write(`Verify mode: deterministic, method suiteAsProbe, profile ${PACKAGED_ARTEFACT_PROFILE} (${flags.artefact})\n`);
-  const result = await runSuiteAsProbe({
-    repo: flags.repo ?? cwd,
-    fbsId: fbsIds[0],
-    headSha,
-    tgz,
-    evidenceDir,
-    hand: flags.hand,
-    verifierId: flags['verifier-id'],
-    rcfLiteVersion: await readOwnVersion(),
-    env,
-  });
-  if (!result.ok) {
+  // FBS-226 (AC-19302-1): pack HEAD, exported into a scratch directory
+  // outside the project; the tarball is removed with it after the run. A
+  // failed pack leaves its log (AC-19302-3) and no report JSON.
+  let pack = null;
+  if (packing) {
+    pack = await packDirectory({ ...packAt, headSha, env: env ?? process.env });
+    if (!pack.tgz) {
+      rmSync(pack.scratch, { recursive: true, force: true });
+      const logPath = `${evidenceDir}/pack.log`;
+      try {
+        await writeEvidence(cwd, evidenceDir, [{ name: 'pack.log', content: pack.log }]);
+      } catch (err) {
+        stderr.write(`[rcf-verify] unexpected failure: could not write the pack log: ${err.message}\n`);
+        return 1;
+      }
+      stderr.write(`verify run: pack failed (npm exit ${pack.exitCode}); log ${logPath}\n`);
+      return 1;
+    }
+    tgz = pack.tgz;
+  }
+  stderr.write(`Verify mode: deterministic, method suiteAsProbe, profile ${PACKAGED_ARTEFACT_PROFILE} (${packing ? `packed ${flags.package}` : flags.artefact})\n`);
+  let result;
+  try {
+    result = await runSuiteAsProbe({
+      repo: flags.repo ?? cwd,
+      fbsId: fbsIds[0],
+      headSha,
+      tgz,
+      evidenceDir,
+      hand: flags.hand,
+      verifierId: flags['verifier-id'],
+      rcfLiteVersion: await readOwnVersion(),
+      offline: flags.offline === true,
+      ...(pack ? { pack: { command: pack.command, exitCode: pack.exitCode }, servedSha: headSha } : {}),
+      env,
+    });
+  } finally {
+    if (pack) rmSync(pack.scratch, { recursive: true, force: true });
+  }
+  if (!result.ok && !result.evidence) {
     stderr.write(`${result.message}\n`);
     return result.code;
   }
   try {
-    await mkdir(resolvePath(cwd, evidenceDir), { recursive: true });
-    for (const file of result.evidence) {
-      await writeFile(resolvePath(cwd, evidenceDir, file.name), file.content, 'utf8');
+    // FBS-226 (AC-19302-3): a failed install still leaves its log.
+    await writeEvidence(cwd, evidenceDir, result.evidence);
+    if (!result.ok) {
+      stderr.write(`${result.message}\n`);
+      return result.code;
     }
     await writeFile(resolvePath(cwd, verifyReportPath), serialiseReport(result.verifyReport), 'utf8');
   } catch (err) {
@@ -280,6 +373,18 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
   const { verdict, runStats: { counts } } = result.verifyReport;
   stdout.write(`verify report: ${verifyReportPath} ${verdict} ${counts.verified}/${counts.total}\n`);
   return verdict === 'PASS' ? 0 : 4;
+}
+
+// FBS-226 (US-19302): --package naming an existing directory, with no
+// --url, packs the artefact; name@version and a tarball keep FBS-219's
+// record-only path.
+function isPackDirectory(flags, cwd) {
+  if (flags.package === undefined || flags.url !== undefined) return false;
+  try {
+    return statSync(resolvePath(cwd, flags.package)).isDirectory();
+  } catch {
+    return false;
+  }
 }
 
 function exitForError(err) {
@@ -315,7 +420,14 @@ export async function main(argv, deps = {}) {
     stdout.write(HELP);
     return 0;
   }
-  if (flags.artefact !== undefined) {
+  const packageTarget = flags.artefact !== undefined || isPackDirectory(flags, cwd);
+  // FBS-226 (BH-3): --offline selects the install store policy, so outside
+  // package target mode it is refused before any other check or work.
+  if (flags.offline && !packageTarget) {
+    stderr.write('[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)\n');
+    return 2;
+  }
+  if (packageTarget) {
     return runArtefactMode(flags, { ...deps, stdout, stderr, cwd });
   }
 

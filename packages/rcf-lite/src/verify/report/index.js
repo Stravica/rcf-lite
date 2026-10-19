@@ -92,7 +92,8 @@ export const VERIFY_HANDS = Object.freeze(['test-author', 'builder', 'reviewer',
  * @param {string|null} p.verifierId
  * @param {string} p.rcfLiteVersion
  * @param {string} [p.method] - FBS-225: "suiteAsProbe" in package target mode
- * @param {object} [p.install] - FBS-225: { command, exitCode, logPath }
+ * @param {object} [p.pack] - FBS-226: { command, exitCode } on a packed run
+ * @param {object} [p.install] - FBS-225: { command, exitCode, logPath }; FBS-226 adds registry
  * @param {object[]} [p.suites] - FBS-225: one row per suite run
  * @returns {object}
  */
@@ -123,6 +124,8 @@ export function composeVerifyReport(p) {
     profile: run.profile,
     // FBS-225 (TAC-4151): package target mode's suite-as-probe evidence.
     ...(p.method === undefined ? {} : { method: p.method }),
+    // FBS-226 (TAC-4151): the pack step, on a packed run only.
+    ...(p.pack === undefined ? {} : { pack: p.pack }),
     ...(p.install === undefined ? {} : { install: p.install }),
     ...(p.suites === undefined ? {} : { suites: p.suites }),
     verdict: p.report.verdict,

@@ -1,0 +1,137 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-226",
+  "headSha": "96d07a41ae670fcf219bb150d48e04a394ec5fe4",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.34.2",
+    "sha256": "f0189ede1467ef7dd27aa7c875895791e1d1be1d429706c871fc7ed60871d3bf",
+    "servedSha": null
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-226-test",
+  "startedAt": "2026-10-19T17:42:20.761Z",
+  "finishedAt": "2026-10-19T17:42:40.907Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "install": {
+    "command": "npm install --no-audit --no-fund /home/thefoot/remote-lane/jobs/r-20261019-174131-87ea/output/rcf-lite-0.34.2.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-226/96d07a41ae67/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-259",
+      "file": "test/verify/suite-as-probe-pack.test.js",
+      "tests": 7,
+      "pass": 7,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-226/96d07a41ae67/TS-259.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 5,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 5
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19302-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-259",
+        "file": "test/verify/suite-as-probe-pack.test.js",
+        "tests": [
+          {
+            "tcId": "TC-259-pack-from-head",
+            "title": "AC-19302-1: rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H packs with npm pack into the scratch directory, exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; target sha256 equals a separate npm pack of H, servedSha H, pack { command, exitCode 0 }",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19302-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-259",
+        "file": "test/verify/suite-as-probe-pack.test.js",
+        "tests": [
+          {
+            "tcId": "TC-259-given-tarball-no-pack",
+            "title": "AC-19302-2: rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier at head H records target.version 0.9.0, the tarball sha256, servedSha null and no pack object, and an npm wrapper on PATH logs install and never pack",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19302-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-259",
+        "file": "test/verify/suite-as-probe-pack.test.js",
+        "tests": [
+          {
+            "tcId": "TC-259-install-failure-exits-1",
+            "title": "AC-19302-3: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline with an unresolvable dependency exits 1 with stderr \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/install.log\", the log exists and no report JSON is written",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19302-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-259",
+        "file": "test/verify/suite-as-probe-pack.test.js",
+        "tests": [
+          {
+            "tcId": "TC-259-offline-and-default-registry",
+            "title": "AC-19302-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with --offline then without exits 0 both times; install.command carries --offline only on the first, install.registry offline then default; rcf build finalise never installs or reaches the network",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19302-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-259",
+        "file": "test/verify/suite-as-probe-pack.test.js",
+        "tests": [
+          {
+            "tcId": "TC-259-no-tarball-left",
+            "title": "AC-19302-5: rcf verify run --package . --fbs FBS-001 --hand verifier leaves no *.tgz, node_modules or package-lock.json change in git status, new paths only under rcf/verify-reports/FBS-001/, and a dirty tree outside rcf/verify-reports/ refuses exit 4 before packing",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

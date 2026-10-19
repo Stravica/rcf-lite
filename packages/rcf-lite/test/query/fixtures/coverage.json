@@ -7354,7 +7354,9 @@
           "id": "AC-19302-1",
           "covered": true,
           "testCases": [
-            "TC-259-pack-from-head"
+            "TC-259-ignored-content-not-packed",
+            "TC-259-pack-from-head",
+            "TC-259-prepack-stdout-parsed"
           ],
           "unresolvedTestCases": []
         },
@@ -7370,7 +7372,9 @@
           "id": "AC-19302-3",
           "covered": true,
           "testCases": [
-            "TC-259-install-failure-exits-1"
+            "TC-259-evidence-log-not-ignored",
+            "TC-259-install-failure-exits-1",
+            "TC-259-pack-failure-log"
           ],
           "unresolvedTestCases": []
         },
@@ -7378,7 +7382,8 @@
           "id": "AC-19302-4",
           "covered": true,
           "testCases": [
-            "TC-259-offline-and-default-registry"
+            "TC-259-offline-and-default-registry",
+            "TC-259-offline-outside-package-mode-refused"
           ],
           "unresolvedTestCases": []
         },
@@ -7386,7 +7391,9 @@
           "id": "AC-19302-5",
           "covered": true,
           "testCases": [
-            "TC-259-no-tarball-left"
+            "TC-259-no-tarball-left",
+            "TC-259-package-outside-repo-refused",
+            "TC-259-prepack-leaves-project-unchanged"
           ],
           "unresolvedTestCases": []
         }

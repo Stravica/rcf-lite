@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-856",
+  "path": "src/verify/cli/run.js#writeEvidence",
+  "implementsAcIds": [
+    "AC-19302-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T20:11:34.882Z",
+  "updatedAt": "2026-10-19T20:11:34.882Z"
+}
