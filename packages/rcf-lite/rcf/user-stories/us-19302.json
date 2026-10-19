@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-10-19T11:01:56.254Z",
+  "updatedAt": "2026-10-19T11:02:43.217Z",
+  "description": "User story under REQ-193 for FBS-226. rcf verify run --package <dir> --fbs <fbs-id> --hand verifier with no --url and no --artefact packs the package in <dir> from HEAD into the scratch directory with npm pack, records the head it was packed from, and runs the FBS-225 path over that tarball; the install runs from the registry by default or from the local npm cache with --offline, and the install command, exit code and log are evidence on the report.",
+  "asA": "a verifier hand running the Test stage for a CLI or library product",
+  "iWant": "rcf verify run to pack the artefact from the head under test and install it under a declared store policy",
+  "soThat": "the report names exactly which bytes were verified and which head they came from, with no tarball left in the repository",
+  "usId": "US-19302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-193",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19302-1",
+      "description": "[happy] Given the fixture of AC-19301-1 at head H with a clean working tree, when rcf verify run --package . --fbs FBS-001 --hand verifier runs with no --url and no --artefact, then it packs the package from H with npm pack into the scratch directory, exits 0, stdout ends \"verify report: rcf/verify-reports/FBS-001/<first 12 of H>.json PASS 2/2\", and the report carries target { kind \"package\", packageRef \"fixture-cli-1.0.0.tgz\", name \"fixture-cli\", version \"1.0.0\", sha256 equal to the sha256 of a separate npm pack of H, servedSha H }, pack { command, exitCode 0 }, profile \"packagedArtefact\" and method \"suiteAsProbe\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19302-2",
+      "description": "[edge] Given a tarball fixture-cli-0.9.0.tgz packed from an earlier commit, when rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier runs at head H, then the report carries target.version \"0.9.0\", target.sha256 the sha256 of that tarball's bytes, target.servedSha null and no pack object, and no npm pack runs (an npm wrapper on PATH that logs its subcommand records install and never pack).",
+      "testable": true
+    },
+    {
+      "id": "AC-19302-3",
+      "description": "[failure] Given an artefact whose install fails (a tarball declaring a dependency that resolves nowhere, run with --offline), when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline runs, then it exits 1, stderr carries \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<first 12 of H>/install.log\", that log file exists, and no report JSON is written for the head.",
+      "testable": true
+    },
+    {
+      "id": "AC-19302-4",
+      "description": "[edge] Given the fixture of AC-19301-1, when rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier runs with --offline and then without it, then the report's install.command carries \"--offline\" on the first run and not on the second, install.registry records \"offline\" and \"default\" respectively, and both runs exit 0 for the zero-dependency fixture; rcf build finalise never installs or reaches the network for either report.",
+      "testable": true
+    },
+    {
+      "id": "AC-19302-5",
+      "description": "[must-not] rcf verify run --package . --fbs FBS-001 --hand verifier never leaves a tarball or install output in the project: after the run no file matching *.tgz, no node_modules change and no package-lock.json change appears in git status, the only new paths are under rcf/verify-reports/FBS-001/, and a run against a working tree with changes outside rcf/verify-reports/ refuses exit 4 before packing, so the packed bytes always come from a committed head.",
+      "testable": true
+    }
+  ],
+  "tacIds": [
+    "TAC-4151"
+  ]
+}

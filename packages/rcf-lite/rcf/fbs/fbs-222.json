@@ -1,13 +1,15 @@
 {
   "createdAt": "2026-10-16T12:49:31.264Z",
-  "updatedAt": "2026-10-16T22:46:30.635Z",
+  "updatedAt": "2026-10-19T11:27:40.095Z",
   "summary": "The deterministic separation check over a PR range: trailers, default classes, verdicts, one line and --json (US-19101). Delivers AC-19101-1 to AC-19101-6.",
   "approach": "Add src/audit/separation.js (range, merge skip, trailer parse, classifier, verdicts) and src/cli/separation.js under the audit router; git read through one spawn seam; exit table 0/4/2/1.",
   "deliverables": [
     "src/audit/separation.js (new)",
     "src/cli/separation.js (new); src/cli/help.js audit group"
   ],
-  "dependsOnFbsIds": [],
+  "dependsOnFbsIds": [
+    "FBS-226"
+  ],
   "contextRequirements": {
     "tacIds": [
       "TAC-4149-audit-separation"
@@ -33,6 +35,6 @@
   "fbsId": "FBS-222",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 222,
+  "buildOrder": 227,
   "title": "rcf audit separation verb"
 }

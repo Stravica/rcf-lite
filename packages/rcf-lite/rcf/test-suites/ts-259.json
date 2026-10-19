@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-19T11:29:09.152Z",
+  "updatedAt": "2026-10-19T11:29:17.239Z",
+  "purpose": "Declare one test per AC of US-19302 (FBS-226) driving rcf verify run --package and --artefact --offline through bin/rcf.js over a fixture package repository, so the FBS-226 Define round turns each declaration into a red test against pack and install policy.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19302-1",
+    "AC-19302-2",
+    "AC-19302-3",
+    "AC-19302-4",
+    "AC-19302-5"
+  ],
+  "id": "TS-259",
+  "usId": "US-19302",
+  "title": "rcf verify run --package <dir>: pack from a committed HEAD, given-tarball provenance without pack, install failure exits 1 with the log, --offline and default registry policy recorded, no tarball or install output left in the project",
+  "testCases": [
+    {
+      "id": "TC-259-pack-from-head",
+      "acId": "AC-19302-1",
+      "description": "rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H packs with npm pack into the scratch directory, exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; target sha256 equals a separate npm pack of H, servedSha H, pack { command, exitCode 0 }",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-1: rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H packs with npm pack into the scratch directory, exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; target sha256 equals a separate npm pack of H, servedSha H, pack { command, exitCode 0 }"
+    },
+    {
+      "id": "TC-259-given-tarball-no-pack",
+      "acId": "AC-19302-2",
+      "description": "rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier at head H records target.version 0.9.0, the tarball sha256, servedSha null and no pack object, and an npm wrapper on PATH logs install and never pack",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-2: rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier at head H records target.version 0.9.0, the tarball sha256, servedSha null and no pack object, and an npm wrapper on PATH logs install and never pack"
+    },
+    {
+      "id": "TC-259-install-failure-exits-1",
+      "acId": "AC-19302-3",
+      "description": "rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline with an unresolvable dependency exits 1 with stderr \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/install.log\", the log exists and no report JSON is written",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-3: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline with an unresolvable dependency exits 1 with stderr \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/install.log\", the log exists and no report JSON is written"
+    },
+    {
+      "id": "TC-259-offline-and-default-registry",
+      "acId": "AC-19302-4",
+      "description": "rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with --offline then without exits 0 both times; install.command carries --offline only on the first, install.registry offline then default; rcf build finalise never installs or reaches the network",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with --offline then without exits 0 both times; install.command carries --offline only on the first, install.registry offline then default; rcf build finalise never installs or reaches the network"
+    },
+    {
+      "id": "TC-259-no-tarball-left",
+      "acId": "AC-19302-5",
+      "description": "rcf verify run --package . --fbs FBS-001 --hand verifier leaves no *.tgz, node_modules or package-lock.json change in git status, new paths only under rcf/verify-reports/FBS-001/, and a dirty tree outside rcf/verify-reports/ refuses exit 4 before packing",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-5: rcf verify run --package . --fbs FBS-001 --hand verifier leaves no *.tgz, node_modules or package-lock.json change in git status, new paths only under rcf/verify-reports/FBS-001/, and a dirty tree outside rcf/verify-reports/ refuses exit 4 before packing"
+    }
+  ],
+  "status": "draft"
+}
