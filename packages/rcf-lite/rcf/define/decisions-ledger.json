@@ -863,6 +863,10 @@
         {
           "letter": "a",
           "text": "kept: exactly one --fbs, a dirty tree outside rcf/verify-reports/ refuses exit 4, an existing report for the same head refuses exit 4 unless --replace \"<reason>\", writes only under rcf/verify-reports/<fbs-id>/; and --package <name@version> or a tarball name that is not a directory keeps the FBS-219 record-only behaviour (AC-19001-4), so no verified criterion is superseded"
+        },
+        {
+          "letter": "b",
+          "text": "package target mode replaces the FBS-219 record-only package behaviour (--package <name@version> installs from the registry), superseding the no-suite clause of AC-19001-4"
         }
       ],
       "default": "a",
@@ -920,6 +924,10 @@
         {
           "letter": "a",
           "text": "VerifyReport v1 is rcf-lite-local (src/verify/report/index.js writes it, src/finalise/ingest.js validates it; the rcf-schemas 0.9.0 round, PR 24 decision 4, left the packed-artefact fields to this DEFINE), so packagedArtefact and the artefact identity are rcf-lite-local; the deployed | ci | local-dev enum lives in rcf-schemas manifest.schema.json browserVerify.runtimeProfile (test-suite runtimeProvenance.profile is a different enum: mock | stub | fixture | live | mixed) and is not written by this path; no rcf-schemas field is needed; if the 0.9.0 pin bump rides FBS-225's build, 0.9.0 must be published and pinned before FBS-225 merges (build-ordering constraint)"
+        },
+        {
+          "letter": "b",
+          "text": "move VerifyReport v1 into rcf-schemas in a later minor and pin it before FBS-225 merges"
         }
       ],
       "default": "a",

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:02:35.701Z",
-  "updatedAt": "2026-10-19T11:02:35.701Z",
+  "updatedAt": "2026-10-19T11:06:22.003Z",
   "purpose": "Suite-as-probe: under a package target with no --url, rcf verify run verifies the packed artefact by running the test suites bound to the FBS's in-scope criteria (their TS/TC records) against the installed package, and writes VerifyReport v1 with per-AC verdicts and ship authority on a deterministic PASS, with no hand composition (REQ-193).",
   "responsibilities": [
     "src/verify/cli/run.js: --artefact <tgz> and --package <dir> select package target mode when --url is absent; mode defaults to deterministic; --url, --mode agentScreenshotCritique and a --profile other than packagedArtefact are refused exit 2 in this mode; --offline selects the install store policy; --package <name@version> or a tarball name that is not a directory keeps the FBS-219 record-only behaviour (AC-19001-4).",
@@ -20,7 +20,7 @@
     {
       "name": "VerifyReport v1 (package target mode fields)",
       "kind": "recordShape",
-      "description": "Additive to TAC-4148's VerifyReport: method \"suiteAsProbe\" (a hand-composed report carries free text or no method); profile \"packagedArtefact\"; target { kind \"package\", packageRef, name, version, sha256, servedSha (HEAD when packed by the run, null for a given --artefact) }; pack { command, exitCode } when packed; install { command, exitCode, registry default | offline, logPath }; suites [ { testSuite, file, tests, pass, fail, skipped, todo, outputPath } ]; runStats.counts gains critiqueOnly; perAc[].evidence { testSuite, file, tests [ { tcId, title, testNumber, result } ], notRun [], probeNotRun }."
+      "description": "Additive to the VerifyReport of TAC-4148, written in package target mode.\nfields: method (\"suiteAsProbe\"), profile (\"packagedArtefact\"), target { kind \"package\", packageRef, name, version, sha256, servedSha (HEAD when packed by the run, null for a given --artefact) }, pack { command, exitCode } (packed runs only), install { command, exitCode, registry default | offline, logPath }, suites [ { testSuite, file, tests, pass, fail, skipped, todo, outputPath } ], runStats { counts { verified, failed, skipped, critiqueOnly, total } }, perAc [ { acId, result, evidence { testSuite, file, tests [ { tcId, title, testNumber, result } ], notRun [], probeNotRun } } ]\nnotes: rcf-lite-local; a hand-composed report carries free-text method or none; Finalise ingests every field unchanged."
     },
     {
       "name": "rcf/verify-reports/<fbs-id>/<headSha12>/",
