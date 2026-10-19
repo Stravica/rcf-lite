@@ -791,7 +791,10 @@
       "default": "a",
       "blocks": "FBS-226",
       "addedAt": "2026-10-19T11:05:21.326Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-19: install from the registry by default, --offline installs from the local npm cache only, the install evidence is on the report, an install failure exits 1.",
+      "answeredAt": "2026-10-19T11:27:06.736Z",
+      "resolvedAt": "2026-10-19T11:27:06.736Z"
     },
     {
       "id": 37,
@@ -897,7 +900,10 @@
       "default": "a",
       "blocks": "FBS-225",
       "addedAt": "2026-10-19T11:05:23.123Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-19: ordering by dependency, build order renumbered to match. FBS-222 depends on FBS-226; buildOrders FBS-225 222, FBS-226 223, FBS-222 227, FBS-223 228, FBS-224 229. Operator, verbatim: \"FBS numbers shouldn't matter, only the order they are executed, and they're declared dependencies right? Renumber if that's the solution\"",
+      "answeredAt": "2026-10-19T11:27:07.139Z",
+      "resolvedAt": "2026-10-19T11:27:07.139Z"
     },
     {
       "id": 42,
@@ -915,7 +921,10 @@
       "default": "a",
       "blocks": "FBS-225",
       "addedAt": "2026-10-19T11:05:23.324Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Operator ruling 2026-10-19: two specs, FBS-225 then FBS-226.",
+      "answeredAt": "2026-10-19T11:27:06.940Z",
+      "resolvedAt": "2026-10-19T11:27:06.940Z"
     },
     {
       "id": 43,
