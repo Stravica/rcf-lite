@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:32.351Z",
-  "updatedAt": "2026-10-16T12:49:32.351Z",
+  "updatedAt": "2026-10-19T11:27:38.980Z",
   "summary": "build-cycle.md stages 1, 4 and 5, the playbook, the bundle closing runbook, the managed agent-instructions block with a non-null minAgentAction, and the README attest-to-audit fix (US-19004). Delivers AC-19004-1 to AC-19004-7.",
   "approach": "Rewrite guidance/build-cycle.md and guidance/build-cycle-playbook.md to the five hands and the Test-stage report; update the closing runbook in src/build/formatters/markdown.js and src/build/bundle.js; regenerate guidance/managed/agent-instructions-block.md and its hash; fix README.md line 49 (define, build, verify, release, audit); release notes set minAgentAction.",
   "deliverables": [
@@ -42,6 +42,6 @@
   "fbsId": "FBS-224",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 224,
+  "buildOrder": 229,
   "title": "Guidance, managed block and README: the new stage contract and audit as the fifth verb"
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:31.803Z",
-  "updatedAt": "2026-10-16T12:49:31.803Z",
+  "updatedAt": "2026-10-19T11:27:39.545Z",
   "summary": "Hand: mixed with Separation-Reason:, rcf/separation.json, --require-hand and Hand-Id, and the pull_request CI step (US-19102). Delivers AC-19102-1 to AC-19102-5.",
   "approach": "Extend the classifier with the override file and the exception verdict; add --require-hand; add a pull_request job with fetch-depth 0 to .github/workflows/ci.yml.",
   "deliverables": [
@@ -33,6 +33,6 @@
   "fbsId": "FBS-223",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 223,
+  "buildOrder": 228,
   "title": "Separation wiring: mixed escape, override file, --require-hand, CI on pull requests"
 }

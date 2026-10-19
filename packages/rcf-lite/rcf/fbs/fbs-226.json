@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:04:29.926Z",
-  "updatedAt": "2026-10-19T11:04:29.926Z",
+  "updatedAt": "2026-10-19T11:27:41.240Z",
   "summary": "The verifier hand packs the artefact from the head under test and installs it under a declared store policy (US-19302). Delivers AC-19302-1 to AC-19302-5.",
   "approach": "With --package <dir> naming a directory and no --url or --artefact, refuse a dirty tree before packing, run npm pack --pack-destination <scratch> --json in <dir>, record pack { command, exitCode } and servedSha HEAD, then take the FBS-225 path over the packed tarball. Add --offline (npm install --offline from the local cache) and record install.registry default | offline; a failed install exits 1 with the log path and writes no report JSON.",
   "deliverables": [
@@ -33,7 +33,7 @@
   "fbsId": "FBS-226",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 226,
+  "buildOrder": 223,
   "executionStatus": "notStarted",
   "title": "Suite-as-probe B: rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy"
 }
