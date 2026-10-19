@@ -99,3 +99,75 @@ jobs:
             echo "Release version (${{ steps.pkg.outputs.version }}) -> publishing under default dist-tag 'latest'"
             pnpm publish --provenance --access public --no-git-checks
           fi
+  # GitHub Release for the tag. A separate job so the broader permission
+  # never reaches the npm trusted-publishing job above: job-level
+  # permissions replace the top-level set, so this job holds
+  # `contents: write` and nothing else (no `id-token`), and it runs only
+  # after `publish` succeeds. It uses the workflow's GITHUB_TOKEN; no
+  # secret is added. The body is the `## [<version>]` section of
+  # packages/rcf-lite/CHANGELOG.md at the tagged commit; a version with no
+  # section still gets a Release with a one-line body naming the tag. A '-'
+  # in the version marks the Release as a prerelease, matching the
+  # dist-tag rule above. Re-running the job when the Release already
+  # exists is a no-op.
+  release:
+    needs: publish
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
+        with:
+          persist-credentials: false
+      - name: Extract release notes from CHANGELOG
+        id: notes
+        env:
+          TAG: ${{ github.ref_name }}
+        run: |
+          VERSION="${TAG#rcf-lite-v}"
+          NOTES_FILE="$RUNNER_TEMP/release-notes.md"
+          export VERSION NOTES_FILE
+          node - <<'NODE'
+          const fs = require('node:fs');
+          const { TAG, VERSION, NOTES_FILE } = process.env;
+          let text = '';
+          try {
+            text = fs.readFileSync('packages/rcf-lite/CHANGELOG.md', 'utf8');
+          } catch {
+            text = '';
+          }
+          const lines = text.split(/\r?\n/);
+          const start = lines.findIndex((l) => l.startsWith(`## [${VERSION}]`));
+          let body = '';
+          if (start !== -1) {
+            const rest = lines.slice(start + 1);
+            const end = rest.findIndex((l) => /^## \[/.test(l) || /^\[[^\]]+\]:\s/.test(l));
+            body = (end === -1 ? rest : rest.slice(0, end)).join('\n').trim();
+          }
+          if (body === '') {
+            body = `Release for tag ${TAG}. The CHANGELOG has no section for ${VERSION}.`;
+            console.log(`::notice::No CHANGELOG section for ${VERSION}; using the one-line body`);
+          }
+          fs.writeFileSync(NOTES_FILE, `${body}\n`);
+          NODE
+          {
+            echo "version=$VERSION"
+            echo "file=$NOTES_FILE"
+          } >> "$GITHUB_OUTPUT"
+      - name: Create GitHub Release
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          TAG: ${{ github.ref_name }}
+          VERSION: ${{ steps.notes.outputs.version }}
+          NOTES_FILE: ${{ steps.notes.outputs.file }}
+        run: |
+          if gh release view "$TAG" -R "$GITHUB_REPOSITORY" >/dev/null 2>&1; then
+            echo "::notice::Release $TAG already exists; nothing to create"
+            exit 0
+          fi
+          FLAGS=()
+          case "$VERSION" in
+            *-*) FLAGS+=(--prerelease) ;;
+          esac
+          gh release create "$TAG" -R "$GITHUB_REPOSITORY" --verify-tag \
+            --title "rcf-lite v$VERSION" --notes-file "$NOTES_FILE" "${FLAGS[@]}"
