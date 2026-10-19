@@ -9,11 +9,11 @@
   "totals": {
     "items": 116,
     "notStarted": 60,
-    "inProgress": 3,
-    "complete": 34,
+    "inProgress": 2,
+    "complete": 35,
     "verified": 19,
-    "actionable": 40,
-    "blocked": 20
+    "actionable": 41,
+    "blocked": 19
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1471,11 +1471,11 @@
       "buildOrder": 222,
       "tier": 4,
       "title": "Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts",
-      "executionStatus": "inProgress",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-221"
       ],
-      "state": "inProgress",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1487,10 +1487,8 @@
       "dependsOnFbsIds": [
         "FBS-225"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-225"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-222",
