@@ -794,8 +794,8 @@ REQ-193      yes      AC-19301-1   yes         TC-258-pass-all
                       AC-19301-7   yes         TC-258-fbs-219-rules-kept
                       AC-19301-8   yes         TC-258-writes-only-report-dir
                       AC-19301-9   yes         TC-258-finalise-end-to-end
-                      AC-19302-1   yes         TC-259-pack-from-head
+                      AC-19302-1   yes         TC-259-ignored-content-not-packed, TC-259-pack-from-head,...
                       AC-19302-2   yes         TC-259-given-tarball-no-pack
-                      AC-19302-3   yes         TC-259-install-failure-exits-1
+                      AC-19302-3   yes         TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
                       AC-19302-4   yes         TC-259-offline-and-default-registry
-                      AC-19302-5   yes         TC-259-no-tarball-left
+                      AC-19302-5   yes         TC-259-no-tarball-left, TC-259-package-outside-repo-refus...

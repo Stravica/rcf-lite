@@ -280,7 +280,7 @@ function assertNotPackFailed(r) {
 
 const PRINTING_PREPACK = `process.stdout.write('[fixture-prepack] staged 1 blueprint(s) into ' + process.cwd() + '\\n');\n`;
 
-test('AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack prints to stdout before npm\'s JSON exits 0 with "verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned', { timeout: INSTALL_TIMEOUT }, async () => {
+test('AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack prints to stdout before the npm JSON exits 0 with "verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned', { timeout: INSTALL_TIMEOUT }, async () => {
   const world = await packageWorld();
   await setPrepack(world, PRINTING_PREPACK);
   commitWorld(world);
@@ -306,7 +306,7 @@ test('AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifie
   assertNoClaude(world);
 });
 
-test('AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifier whose npm pack fails exits 1 with stderr "verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log", the log holds npm\'s output, no report JSON is written and nothing outside rcf/verify-reports/FBS-001/ changes', { timeout: INSTALL_TIMEOUT }, async () => {
+test('AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifier whose npm pack fails exits 1 with stderr "verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log", the log holds the npm output, no report JSON is written and nothing outside rcf/verify-reports/FBS-001/ changes', { timeout: INSTALL_TIMEOUT }, async () => {
   const world = await packageWorld();
   await setPrepack(world, `process.stdout.write('fixture-prepack starting\\n');\nprocess.stderr.write('fixture-prepack: cannot stage the shelf\\n');\nprocess.exit(3);\n`);
   commitWorld(world);
@@ -335,7 +335,7 @@ test('AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifie
   assertNoClaude(world);
 });
 
-test('AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the install log at the report\'s install.logPath, the failed install\'s log and the failed pack\'s log are not ignored: git check-ignore does not match them and git status lists them, with no new path outside rcf/verify-reports/FBS-001/', { timeout: 3 * INSTALL_TIMEOUT }, async (t) => {
+test('AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the log at the report install.logPath, the log of a failed install and the log of a failed pack are not ignored: git check-ignore does not match them and git status lists them, with no new path outside rcf/verify-reports/FBS-001/', { timeout: 3 * INSTALL_TIMEOUT }, async (t) => {
   const exempt = `rcf/verify-reports/${FBS}/`;
   // The ignore rule rcf-lite's own root .gitignore carries.
   async function logIgnoringWorld() {
@@ -396,7 +396,7 @@ test('AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the instal
   });
 });
 
-test('AC-19302-5 (BH-1 a): rcf verify run --package <dir> --fbs FBS-001 --hand verifier refuses exit 4 before packing when <dir> is outside the cwd\'s repository (another repository, dirty or clean at another head, or a directory in no repository), and still packs a package directory inside the repository\'s work tree', { timeout: 2 * INSTALL_TIMEOUT }, async (t) => {
+test('AC-19302-5 (BH-1 a): rcf verify run --package <dir> --fbs FBS-001 --hand verifier refuses exit 4 before packing when <dir> is outside the repository of the cwd (another repository, dirty or clean at another head, or a directory in no repository), and still packs a package directory inside the work tree of the repository', { timeout: 2 * INSTALL_TIMEOUT }, async (t) => {
   // The cwd: a clean rcf project at head H whose own package is fixture-cli 1.0.0.
   async function cwdWorld() {
     const world = await packageWorld();

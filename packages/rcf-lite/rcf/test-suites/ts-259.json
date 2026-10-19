@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:29:09.152Z",
-  "updatedAt": "2026-10-19T16:52:00.712Z",
+  "updatedAt": "2026-10-19T18:31:59.421Z",
   "purpose": "Declare one test per AC of US-19302 (FBS-226) driving rcf verify run --package and --artefact --offline through bin/rcf.js over a fixture package repository, so the FBS-226 Define round turns each declaration into a red test against pack and install policy.",
   "testLevel": "integration",
   "acIds": [
@@ -48,6 +48,48 @@
       "description": "rcf verify run --package . --fbs FBS-001 --hand verifier leaves no *.tgz, node_modules or package-lock.json change in git status, new paths only under rcf/verify-reports/FBS-001/, and a dirty tree outside rcf/verify-reports/ refuses exit 4 before packing",
       "status": "failing",
       "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-5: rcf verify run --package . --fbs FBS-001 --hand verifier leaves no *.tgz, node_modules or package-lock.json change in git status, new paths only under rcf/verify-reports/FBS-001/, and a dirty tree outside rcf/verify-reports/ refuses exit 4 before packing"
+    },
+    {
+      "id": "TC-259-prepack-stdout-parsed",
+      "acId": "AC-19302-1",
+      "description": "rcf verify run --package . on a package whose prepack prints a line to stdout before npm pack's JSON exits 0 with \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned (0); FBS-226 fix round TD-1",
+      "status": "failing",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack prints to stdout before the npm JSON exits 0 with \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned"
+    },
+    {
+      "id": "TC-259-pack-failure-log",
+      "acId": "AC-19302-3",
+      "description": "rcf verify run --package . whose npm pack fails (a prepack exiting non-zero) exits 1 with stderr \"verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log\", <n> the exit npm returned; the log exists and holds npm's output; no report JSON is written; git status lists nothing outside rcf/verify-reports/FBS-001/ and no *.tgz is in the project; FBS-226 fix round BH-2",
+      "status": "failing",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifier whose npm pack fails exits 1 with stderr \"verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log\", the log holds the npm output, no report JSON is written and nothing outside rcf/verify-reports/FBS-001/ changes"
+    },
+    {
+      "id": "TC-259-evidence-log-not-ignored",
+      "acId": "AC-19302-3",
+      "description": "In a project whose .gitignore carries *.log, the log at the report's install.logPath, the log a failed install names and the log a failed pack names are not ignored: git check-ignore does not match them, git status lists them, and no new path appears outside rcf/verify-reports/FBS-001/; FBS-226 fix round TD-2",
+      "status": "failing",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the log at the report install.logPath, the log of a failed install and the log of a failed pack are not ignored: git check-ignore does not match them and git status lists them, with no new path outside rcf/verify-reports/FBS-001/"
+    },
+    {
+      "id": "TC-259-package-outside-repo-refused",
+      "acId": "AC-19302-5",
+      "description": "rcf verify run --package <dir> refuses exit 4 before packing, stderr \"verify report refused: --package <dir> is outside this repository; the packed bytes must come from its committed head\", no report and nothing written, when <dir> is outside the cwd's repository (another repository at another head, another repository with uncommitted changes, a directory in no repository); --package . from a package directory inside its repository's work tree still packs H; FBS-226 fix round BH-1 (a)",
+      "status": "failing",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-5 (BH-1 a): rcf verify run --package <dir> --fbs FBS-001 --hand verifier refuses exit 4 before packing when <dir> is outside the repository of the cwd (another repository, dirty or clean at another head, or a directory in no repository), and still packs a package directory inside the work tree of the repository"
+    },
+    {
+      "id": "TC-259-ignored-content-not-packed",
+      "acId": "AC-19302-1",
+      "description": "rcf verify run --package . at clean head H whose live directory carries content git ignores but npm packs exits 0, PASS 2/2, servedSha H and target.sha256 equal to a separate pack of a fresh clone of H (the ignored content never reaches the packed bytes), with the project unchanged; FBS-226 fix round BH-1 (b)",
+      "status": "failing",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-1 (BH-1 b): rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H with content git ignores but npm packs records servedSha H only on the bytes of a separate pack of H: exit 0, PASS 2/2, target.sha256 equals that pack, and the project is unchanged"
+    },
+    {
+      "id": "TC-259-prepack-leaves-project-unchanged",
+      "acId": "AC-19302-5",
+      "description": "rcf verify run --package . on a package whose prepack writes into the tree it packs leaves the project byte-identical (git status lists nothing outside rcf/verify-reports/FBS-001/), exits 0 PASS 2/2 and records servedSha H on bytes equal to a separate pack of a fresh clone of H; FBS-226 fix round BH-1 (c)",
+      "status": "failing",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-5 (BH-1 c): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack writes into the tree it packs leaves the project unchanged (git status lists nothing outside rcf/verify-reports/FBS-001/) and records servedSha H on the bytes of a separate pack of H"
     }
   ],
   "status": "draft"
