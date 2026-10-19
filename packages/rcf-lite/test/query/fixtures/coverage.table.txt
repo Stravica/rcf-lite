@@ -753,7 +753,7 @@ REQ-190      yes      AC-19001-1   yes         TC-252-report-written
                       AC-19002-6   yes         TC-253-blocking-per-ac-verdicts, TC-253-e2e-per-ac-refusal
                       AC-19002-7   yes         TC-253-retired-flags
                       AC-19002-8   yes         TC-253-no-spawn-no-mutation
-                      AC-19003-1   yes         TC-254-refuses-unverified
+                      AC-19003-1   yes         TC-254-e2e-finalise-clears-backstop, TC-254-refuses-unver...
                       AC-19003-2   yes         TC-254-override-recorded
                       AC-19003-3   yes         TC-254-inert-without-backstop
                       AC-19003-4   yes         TC-254-adopt
