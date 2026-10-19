@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T10:59:34.436Z",
-  "updatedAt": "2026-10-19T11:01:36.808Z",
+  "updatedAt": "2026-10-19T11:02:42.621Z",
   "description": "User story under REQ-193 for FBS-225. rcf verify run --artefact <tgz> --fbs <fbs-id> --hand verifier with no --url installs the given tarball in a scratch project outside the repository, copies the bound test files beside the installed package, runs them with node --test and a TAP reporter, maps TAP results to test cases by exact title and test cases to ACs, and writes VerifyReport v1 with method suiteAsProbe, profile packagedArtefact and the artefact identity, with no hand composition.",
   "asA": "a verifier hand running the Test stage for a CLI or library product",
   "iWant": "rcf verify run to run the AC-bound suites against the packed artefact and write the per-AC verdicts itself",
@@ -57,5 +57,8 @@
       "description": "[happy] End to end over the consumer: in a fixture git repository whose FBS-001 carries Code Nodes and a Hand: builder commit, when the tool-written report from rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier is committed under a Hand: verifier trailer on a branch, the branch is merged into the default branch, rcf build mark FBS-001 complete runs, and rcf build finalise FBS-001 --ci-run run-1 runs, then Finalise exits 0, prints \"finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<first 12 of H>.json (head <sha7>, ci run-1)\", and FBS-001 reads executionStatus \"verified\"; the report needs no field added or edited by hand.",
       "testable": true
     }
+  ],
+  "tacIds": [
+    "TAC-4151"
   ]
 }

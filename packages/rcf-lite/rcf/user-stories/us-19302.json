@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:01:56.254Z",
-  "updatedAt": "2026-10-19T11:01:59.267Z",
+  "updatedAt": "2026-10-19T11:02:43.217Z",
   "description": "User story under REQ-193 for FBS-226. rcf verify run --package <dir> --fbs <fbs-id> --hand verifier with no --url and no --artefact packs the package in <dir> from HEAD into the scratch directory with npm pack, records the head it was packed from, and runs the FBS-225 path over that tarball; the install runs from the registry by default or from the local npm cache with --offline, and the install command, exit code and log are evidence on the report.",
   "asA": "a verifier hand running the Test stage for a CLI or library product",
   "iWant": "rcf verify run to pack the artefact from the head under test and install it under a declared store policy",
@@ -37,5 +37,8 @@
       "description": "[must-not] rcf verify run --package . --fbs FBS-001 --hand verifier never leaves a tarball or install output in the project: after the run no file matching *.tgz, no node_modules change and no package-lock.json change appears in git status, the only new paths are under rcf/verify-reports/FBS-001/, and a run against a working tree with changes outside rcf/verify-reports/ refuses exit 4 before packing, so the packed bytes always come from a committed head.",
       "testable": true
     }
+  ],
+  "tacIds": [
+    "TAC-4151"
   ]
 }

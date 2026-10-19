@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-19T11:02:35.701Z",
+  "updatedAt": "2026-10-19T11:02:35.701Z",
+  "purpose": "Suite-as-probe: under a package target with no --url, rcf verify run verifies the packed artefact by running the test suites bound to the FBS's in-scope criteria (their TS/TC records) against the installed package, and writes VerifyReport v1 with per-AC verdicts and ship authority on a deterministic PASS, with no hand composition (REQ-193).",
+  "responsibilities": [
+    "src/verify/cli/run.js: --artefact <tgz> and --package <dir> select package target mode when --url is absent; mode defaults to deterministic; --url, --mode agentScreenshotCritique and a --profile other than packagedArtefact are refused exit 2 in this mode; --offline selects the install store policy; --package <name@version> or a tarball name that is not a directory keeps the FBS-219 record-only behaviour (AC-19001-4).",
+    "src/verify/suite/ (new): pack (FBS-226: npm pack --pack-destination <scratch> --json from <dir> on a clean tree, so the bytes are HEAD's), install (npm install --no-audit --no-fund [--offline] <tgz> in a scratch project under os.tmpdir()), stage (copy the installed package to <scratch>/run/ inside the scratch project and copy each bound test file's top-level directory, for example test/, beside it, so bin/ and the package imports map resolve to the artefact and dependencies resolve from the scratch node_modules), run (node --test --test-reporter=tap per bound file, cwd <scratch>/run), parse (the reporter's ok / not ok lines, nested titles joined as node:test names them, todo and skip directives).",
+    "src/verify/suite/map.js (new): bound tests are the TCs of every TS whose acId is in the FBS's acIds; a TC maps to a result by exact equality of its testPointer test name with the reported title in the file its testPointer names; per AC: pass when every bound test ran and passed and at least one is bound, skipped when any bound test is todo or skip and none failed, fail when any bound test failed or did not appear in the run (evidence notRun), critiqueOnly when no TC is bound; an AC that also carries an HTTP probe resolves through its bound tests and records probeNotRun.",
+    "src/verify/report/index.js: composeVerifyReport gains method, artefact identity on target, pack, install, suites[] and runStats.counts.critiqueOnly; verdict PASS when every in-scope AC passed, FAIL when any failed, BLOCKED otherwise; verdictAuthority ship only on PASS, correctness otherwise.",
+    "Evidence: raw reporter output per suite at rcf/verify-reports/<fbs-id>/<headSha12>/<TS id>.tap and the install log at .../install.log; the directory stays walker-invisible and Finalise's newest-report lookup reads only *.json, so neither changes.",
+    "Spawns only npm, node and git; never the agent CLI. The project tree is written only under rcf/verify-reports/<fbs-id>/."
+  ],
+  "internalStructure": "VerifyReport v1 stays rcf-lite-local (src/verify/report/index.js writes it, src/finalise/ingest.js verifyReportFault validates it locally; the rcf-schemas 0.9.0 round, PR 24 decision 4, confirmed it lives here and left the packed-artefact fields to this DEFINE). Every new field is additive to v1: Finalise ingests the report unchanged (target.kind package with packageRef, perAc results within pass | fail | skipped | critiqueOnly | critiqued). The profile value packagedArtefact is rcf-lite-local to VerifyReport v1; the deployed | ci | local-dev enum that rcf-schemas owns (manifest.schema.json browserVerify.runtimeProfile) is not written by this path and does not change. The mapping is a pure function of (TS/TC records, in-scope acIds, parsed run results).",
+  "interfaces": [
+    {
+      "name": "rcf verify run (package target mode)",
+      "kind": "cliCommand",
+      "description": "usage: rcf verify run (--artefact <tgz> | --package <dir>) --fbs <fbs-id> --hand verifier [--verifier-id <text>] [--offline] [--replace \"<reason>\"]\nWith no --url: installs the artefact in a scratch project, runs the bound suites against it, maps per-test results to per-AC verdicts and writes VerifyReport v1 to rcf/verify-reports/<fbs-id>/<headSha12>.json; prints \"verify report: <path> <verdict> <verified>/<total>\". Exit 0 report written and verdict PASS, 4 report written and verdict not PASS (and the FBS-219 refusals: dirty tree, existing report), 2 usage, 1 IO (including pack or install failure, report not written)."
+    },
+    {
+      "name": "VerifyReport v1 (package target mode fields)",
+      "kind": "recordShape",
+      "description": "Additive to TAC-4148's VerifyReport: method \"suiteAsProbe\" (a hand-composed report carries free text or no method); profile \"packagedArtefact\"; target { kind \"package\", packageRef, name, version, sha256, servedSha (HEAD when packed by the run, null for a given --artefact) }; pack { command, exitCode } when packed; install { command, exitCode, registry default | offline, logPath }; suites [ { testSuite, file, tests, pass, fail, skipped, todo, outputPath } ]; runStats.counts gains critiqueOnly; perAc[].evidence { testSuite, file, tests [ { tcId, title, testNumber, result } ], notRun [], probeNotRun }."
+    },
+    {
+      "name": "rcf/verify-reports/<fbs-id>/<headSha12>/",
+      "kind": "fileFormat",
+      "description": "format: one <TS id>.tap per suite run (raw node:test reporter output) and install.log. Verifier evidence beside the report, committed with it under Hand: verifier; walker-invisible, ignored by Finalise's *.json lookup."
+    }
+  ],
+  "notes": "External dependency: none for the report (rcf-lite-local). The rcf-schemas 0.9.0 pin bump may ride FBS-225's build hand; if it does, 0.9.0 must be published and pinned before FBS-225 can merge (build-ordering constraint). Supersedes the interim ruling of 2026-10-17 (ADR-4150).",
+  "tacId": "TAC-4151",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Suite-as-probe: package target mode for rcf verify run over the AC-bound suites"
+}
