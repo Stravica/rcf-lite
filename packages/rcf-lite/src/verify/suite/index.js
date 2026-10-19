@@ -59,13 +59,14 @@ function runChild(command, args, { cwd, env }) {
  *
  * @param {object} p
  * @param {string} p.tgz - absolute path to the packed artefact
+ * @param {boolean} [p.offline] - FBS-226: install from the local npm cache only
  * @param {NodeJS.ProcessEnv} [p.env]
  * @returns {Promise<{ scratch: string, command: string, exitCode: number, log: string, name: string|null, version: string|null }>}
  */
-export async function installArtefact({ tgz, env = process.env }) {
+export async function installArtefact({ tgz, offline = false, env = process.env }) {
   const scratch = mkdtempSync(join(tmpdir(), 'rcf-suite-'));
   writeFileSync(join(scratch, 'package.json'), `${JSON.stringify({ name: 'rcf-suite-scratch', private: true }, null, 2)}\n`, 'utf8');
-  const args = ['install', '--no-audit', '--no-fund', tgz];
+  const args = ['install', '--no-audit', '--no-fund', ...(offline ? ['--offline'] : []), tgz];
   const r = await runChild('npm', args, { cwd: scratch, env });
   let name = null;
   let version = null;
@@ -168,8 +169,11 @@ export function parseTap(tap) {
  * @param {string} p.hand
  * @param {string|null} p.verifierId
  * @param {string} p.rcfLiteVersion
+ * @param {boolean} [p.offline] - FBS-226: npm install --offline (install.registry offline)
+ * @param {{ command: string, exitCode: number }} [p.pack] - FBS-226: the pack step of a packed run
+ * @param {string|null} [p.servedSha] - FBS-226: HEAD on a packed run, null for a given tarball
  * @param {NodeJS.ProcessEnv} [p.env]
- * @returns {Promise<{ ok: true, verifyReport: object, evidence: Array<{ name: string, content: string }> } | { ok: false, code: number, message: string }>}
+ * @returns {Promise<{ ok: true, verifyReport: object, evidence: Array<{ name: string, content: string }> } | { ok: false, code: number, message: string, evidence?: Array<{ name: string, content: string }> }>}
  */
 export async function runSuiteAsProbe(p) {
   const startedAt = new Date().toISOString();
@@ -185,10 +189,16 @@ export async function runSuiteAsProbe(p) {
   const bound = boundTests({ testSuites: tree.testSuites, acIds: acs.map((a) => a.acId) });
   const env = p.env ?? process.env;
 
-  const install = await installArtefact({ tgz: p.tgz, env });
+  const install = await installArtefact({ tgz: p.tgz, offline: p.offline === true, env });
   try {
+    // FBS-226 (AC-19302-3): the install log is written, the report JSON is not.
     if (install.exitCode !== 0 || !install.name) {
-      return { ok: false, code: 1, message: `[rcf-verify] install failed (${install.command}, exit ${install.exitCode}); report not written\n${install.log}` };
+      return {
+        ok: false,
+        code: 1,
+        message: `verify run: install failed (npm exit ${install.exitCode}); log ${p.evidenceDir}/install.log`,
+        evidence: [{ name: 'install.log', content: install.log }],
+      };
     }
     const suites = [];
     for (const b of bound) {
@@ -227,14 +237,18 @@ export async function runSuiteAsProbe(p) {
       headSha: p.headSha,
       target: {
         kind: 'package', packageRef: basename(p.tgz), name: install.name, version: install.version,
-        sha256: createHash('sha256').update(readFileSync(p.tgz)).digest('hex'), servedSha: null,
+        sha256: createHash('sha256').update(readFileSync(p.tgz)).digest('hex'), servedSha: p.servedSha ?? null,
       },
       mode: 'deterministic',
       hand: p.hand,
       verifierId: p.verifierId,
       rcfLiteVersion: p.rcfLiteVersion,
       method: 'suiteAsProbe',
-      install: { command: install.command, exitCode: install.exitCode, logPath: `${p.evidenceDir}/install.log` },
+      pack: p.pack,
+      install: {
+        command: install.command, exitCode: install.exitCode, logPath: `${p.evidenceDir}/install.log`,
+        registry: p.offline === true ? 'offline' : 'default',
+      },
       suites: suiteRows,
     });
     return { ok: true, verifyReport, evidence };
