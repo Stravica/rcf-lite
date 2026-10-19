@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-830",
+  "path": "src/build/backstop.js#loadBackstop",
+  "title": "FBS-221: read the backstop record, null when absent",
+  "implementsAcIds": [
+    "AC-19003-1",
+    "AC-19003-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T11:12:06.759Z",
+  "updatedAt": "2026-10-19T11:12:06.759Z"
+}

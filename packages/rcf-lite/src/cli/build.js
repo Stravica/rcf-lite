@@ -6,6 +6,7 @@
 //   rcf build bundle <fbs-id>            spec bundle for one FBS item
 //   rcf build bundle --next              bundle for the next actionable item
 //   rcf build mark <fbs-id> <status>     record a lifecycle transition
+//   rcf build backstop adopt --from <id> open the verified backstop window
 //
 // Positional is an FBS id ONLY: the FBS is the queue unit (one US's
 // ACs can span multiple FBS items, so US addressing is ambiguous by
@@ -53,6 +54,8 @@ import {
   applyOverrideToFreezeRecord,
   loadFreezeRecord,
 } from '../define/freeze-record.js';
+// FBS-221 (US-19003, TAC-4148): the verified backstop on bundle --next.
+import { loadBackstop, saveBackstop, unverifiedInWindow } from '../build/backstop.js';
 
 const OPTION_SPEC = {
   next: { type: 'boolean' },
@@ -78,18 +81,28 @@ const OPTION_SPEC = {
   // (AC-17702-1) and when every actionable FBS is impacted by the
   // delta (AC-17702-4).
   override: { type: 'string' },
+  // FBS-221 (AC-19003-2): bundle --next --allow-unverified "<reason>"
+  // proceeds past the backstop, appending { reason, by, at,
+  // unverifiedFbsIds } to backstop.overrides. Independent of --override.
+  'allow-unverified': { type: 'string' },
+  // FBS-221 (AC-19003-4): backstop adopt --from <fbs-id>.
+  from: { type: 'string' },
 };
 
 export const HELP = `Usage: rcf build <verb> [options]
 
 Assemble FBS spec bundles and drive the build queue (the SDD adapter).
-Three sub-verbs:
+Four sub-verbs:
 
   rcf build queue                      Queue overview (the FBS queue as a
                                        table, with parallel-safe tier groups)
   rcf build bundle <fbs-id>            Spec bundle for one FBS item
   rcf build bundle --next              Bundle for the next actionable item
   rcf build mark <fbs-id> <status>     Record a lifecycle transition
+  rcf build backstop adopt --from <fbs-id>
+                                       Open the verified backstop window at
+                                       that FBS's buildOrder (writes
+                                       rcf/define/backstop.json)
 
 The positional is an FBS id only. For 'which FBS items implement this
 story', use: rcf audit trace <us-id> --forward --format json
@@ -119,6 +132,18 @@ Options (bundle):
                             freeze.override { reason, by, at } (REQ-177,
                             0.30.0 PR 8). The reason must be a
                             non-empty string.
+  --allow-unverified "<reason>"
+                            With --next: proceed while the verified
+                            backstop refuses (an FBS inside the window
+                            of rcf/define/backstop.json is complete and
+                            not verified), appending { reason, by, at,
+                            unverifiedFbsIds } to backstop.overrides.
+                            Per call; --override never satisfies it.
+
+Options (backstop adopt):
+  --from <fbs-id>           The FBS whose buildOrder opens the window.
+                            Exit 0 written, 2 usage, 3 unknown FBS. A
+                            tree with no backstop.json has it off.
 
 Options (queue):
   --format <format>         md (default) | json
@@ -168,8 +193,8 @@ export async function main(argv, deps = {}) {
     stdout.write(HELP);
     return 0;
   }
-  if (!['queue', 'bundle', 'mark'].includes(subverb)) {
-    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | mark)\n`);
+  if (!['queue', 'bundle', 'mark', 'backstop'].includes(subverb)) {
+    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | mark | backstop)\n`);
     stderr.write(HELP);
     return 2;
   }
@@ -203,6 +228,12 @@ export async function main(argv, deps = {}) {
   } else if (subverb === 'bundle') {
     // Either --next as the first token, or a positional fbs-id.
     translated = rest;
+  } else if (subverb === 'backstop') {
+    if (rest[0] !== 'adopt') {
+      stderr.write('[error] usage build backstop: expected `rcf build backstop adopt --from <fbs-id>`\n');
+      return 2;
+    }
+    translated = rest.slice(1);
   } else { // mark
     if (rest.length < 2) {
       stderr.write('[error] usage build mark: requires <fbs-id> <status>\n');
@@ -265,6 +296,11 @@ export async function main(argv, deps = {}) {
     if (flags.format !== undefined) return usage('mark cannot combine with --format');
     if (flags.out !== undefined) return usage('--out is invalid in mark mode');
     if (flags.strict) return usage('mark cannot combine with --strict');
+  } else if (subverb === 'backstop') {
+    if (positional) return usage('backstop adopt takes no positional');
+    if (typeof flags.from !== 'string' || flags.from.length === 0) {
+      return usage('backstop adopt requires --from <fbs-id>');
+    }
   }
   // Phase 10 (X2 CodeNode bridge, D17): --no-code-nodes only makes sense
   // declaring a spec complete with no traceable code.
@@ -279,7 +315,9 @@ export async function main(argv, deps = {}) {
   if (flags['accept-block'] && (typeof flags.reason !== 'string' || flags.reason.length < 20)) {
     return usage('--accept-block requires --reason "..." with at least 20 characters');
   }
-  const mode = subverb === 'mark' ? 'mark' : subverb === 'queue' ? 'queue' : flags.next ? 'next' : 'bundle';
+  const mode = subverb === 'mark' || subverb === 'queue' || subverb === 'backstop'
+    ? subverb
+    : flags.next ? 'next' : 'bundle';
   const format = flags.format ?? 'md';
   if (!VALID_FORMATS.has(format)) {
     return usage(`unknown --format ${format} (expected md | json)`);
@@ -308,6 +346,9 @@ export async function main(argv, deps = {}) {
       acceptReason: typeof flags.reason === 'string' ? flags.reason : null,
     });
   }
+  if (mode === 'backstop') {
+    return await runBackstopAdopt({ tree, projectRoot, fbsId: flags.from, io });
+  }
   if (mode === 'queue') {
     const queue = computeQueue(tree);
     const output = format === 'json' ? formatJson(queue, 'queue') : formatMarkdown(queue, 'queue');
@@ -318,6 +359,7 @@ export async function main(argv, deps = {}) {
     return await emitNext({
       tree, projectRoot, format, io,
       overrideReason: typeof flags.override === 'string' ? flags.override : null,
+      allowUnverifiedReason: typeof flags['allow-unverified'] === 'string' ? flags['allow-unverified'] : null,
     });
   }
   return await emitBundle({
@@ -522,7 +564,13 @@ async function enforceBundleNextFreezeGate({ tree, projectRoot, overrideReason }
   return { ok: true, impactedFbsIds, override: appliedOverride };
 }
 
-async function emitNext({ tree, projectRoot, format, io, overrideReason = null }) {
+async function emitNext({ tree, projectRoot, format, io, overrideReason = null, allowUnverifiedReason = null }) {
+  // FBS-221 (AC-19003-2): an empty --allow-unverified is a usage error,
+  // refused before any gate writes.
+  if (allowUnverifiedReason === '') {
+    io.stderr.write('[error] build bundle --next: --allow-unverified requires a non-empty reason (e.g. --allow-unverified "hotfix")\n');
+    return 2;
+  }
   // 0.30.0 PR 8 (REQ-177 / TAC-4125): refuse without a freeze record,
   // write freeze.override on --override "<reason>" and proceed, skip
   // impacted FBS from the next-item selection.
@@ -536,6 +584,17 @@ async function emitNext({ tree, projectRoot, format, io, overrideReason = null }
   if (gate.override) {
     const o = gate.override;
     io.stderr.write(`[info] build bundle --next: freeze.override recorded (reason=${JSON.stringify(o.reason)}, by=${o.by}, at=${o.at}).\n`);
+  }
+  const backstop = await enforceBundleNextBackstop({ projectRoot, tree, allowUnverifiedReason });
+  if (!backstop.ok) {
+    io.stderr.write(`[error] ${backstop.message}\n`);
+    return backstop.exitCode;
+  }
+  if (backstop.override) {
+    // Markdown carries the line on stdout (AC-19003-2); json keeps
+    // stdout a single parseable document and carries it on stderr.
+    const sink = format === 'json' ? io.stderr : io.stdout;
+    sink.write(`backstop overridden: ${backstop.override.reason}\n`);
   }
   // Skip FBS impacted by a non-empty delta; the next-item compute
   // walks the queue from the top and the first unimpacted actionable
@@ -603,6 +662,65 @@ async function emitNext({ tree, projectRoot, format, io, overrideReason = null }
   };
   const output = format === 'json' ? formatJson(envelope, 'next') : formatMarkdown(envelope, 'next');
   return await emitToSink(output, io);
+}
+
+/**
+ * FBS-221 (US-19003, TAC-4148): the verified backstop for
+ * `bundle --next`. With no rcf/define/backstop.json the backstop is
+ * off. Otherwise every FBS at or above fromBuildOrder still at
+ * `complete` refuses exit 4, unless --allow-unverified "<reason>"
+ * appends { reason, by, at, unverifiedFbsIds } to backstop.overrides.
+ * Never touches an FBS document.
+ *
+ * @param {object} args
+ * @param {string} args.projectRoot
+ * @param {object} args.tree - walker tree.
+ * @param {string|null} args.allowUnverifiedReason
+ * @returns {Promise<{ ok: true, override: object|null } | { ok: false, exitCode: 4, message: string }>}
+ */
+async function enforceBundleNextBackstop({ projectRoot, tree, allowUnverifiedReason }) {
+  const record = await loadBackstop({ projectRoot });
+  if (!record) return { ok: true, override: null };
+  const ids = unverifiedInWindow(computeQueue(tree), record);
+  if (ids.length === 0) return { ok: true, override: null };
+  if (allowUnverifiedReason === null) {
+    return {
+      ok: false,
+      exitCode: 4,
+      message: `build bundle --next: backstop: ${ids.length} merged spec(s) complete and not verified: ${ids.join(', ')}; `
+        + `run rcf build finalise ${ids[0]} or pass --allow-unverified "<reason>"`,
+    };
+  }
+  const override = {
+    reason: allowUnverifiedReason,
+    by: await resolveOverrideBy({ projectRoot }),
+    at: new Date().toISOString(),
+    unverifiedFbsIds: ids,
+  };
+  const overrides = Array.isArray(record.overrides) ? record.overrides : [];
+  await saveBackstop({ projectRoot, record: { ...record, overrides: [...overrides, override] } });
+  return { ok: true, override };
+}
+
+/**
+ * FBS-221 (AC-19003-4): `rcf build backstop adopt --from <fbs-id>`
+ * writes rcf/define/backstop.json { fromBuildOrder, adoptedAt,
+ * adoptedBy }. Exit 0 written, 3 unknown FBS.
+ */
+async function runBackstopAdopt({ tree, projectRoot, fbsId, io }) {
+  const item = computeQueue(tree).items.find((i) => i.fbsId === fbsId);
+  if (!item) {
+    io.stderr.write(`[error] build backstop adopt: unknown FBS ${fbsId}\n`);
+    return 3;
+  }
+  const record = {
+    fromBuildOrder: item.buildOrder,
+    adoptedAt: new Date().toISOString(),
+    adoptedBy: await resolveOverrideBy({ projectRoot }),
+  };
+  await saveBackstop({ projectRoot, record });
+  if (!io.quiet) io.stdout.write(`backstop adopted from ${fbsId} (fromBuildOrder ${item.buildOrder})\n`);
+  return 0;
 }
 
 /**

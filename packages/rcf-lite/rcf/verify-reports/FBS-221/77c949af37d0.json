@@ -1,0 +1,148 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-221",
+  "headSha": "77c949af37d0cfcd4e5edfa64cb744df4b741dc8",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "path": "output/rcf-lite-0.34.2.tgz (lane job r-20261019-112820-31ca)",
+    "sha256": "cafa3510029f7195d30bfe8f2b8553a75df7517efc3d04830840ccaee21daa12",
+    "servedSha": "77c949af37d0cfcd4e5edfa64cb744df4b741dc8",
+    "installedVersion": "rcf-lite 0.34.2 (npx rcf version)"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-221-test",
+  "startedAt": "2026-10-19T11:40:29Z",
+  "finishedAt": "2026-10-19T11:41:58Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": null,
+  "parityEnv": null,
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "method": "composed by the verifier hand from the AC-bound suite run against the installed packed artefact (stage-keeper interim ruling 2026-10-17, confirmed 2026-10-19, pending a suite-as-probe kind, w-2026-10-17-dave-003)",
+  "runStats": {
+    "counts": {
+      "verified": 5,
+      "failed": 0,
+      "skipped": 0,
+      "total": 5
+    }
+  },
+  "suites": {
+    "installedArtefact": {
+      "testSuite": "TS-254",
+      "file": "test/build/verified-backstop.test.js",
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0,
+      "note": "test tree copied beside a copy of the installed package so bin/rcf.js and #core resolve to the installed artefact; runtime deps (ajv, ajv-formats, @stravica-ai and their deps) copied from the scratch project install; 6 top-level tests (one per TC) with 7 subtests"
+    },
+    "cloneBaseline": {
+      "testSuite": "TS-254",
+      "file": "test/build/verified-backstop.test.js",
+      "tests": 13,
+      "pass": 13,
+      "fail": 0,
+      "skipped": 0,
+      "todo": 0
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19003-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-254",
+        "acTest": "test/build/verified-backstop.test.js::AC-19003-1 (TC-254-refuses-unverified) and AC-19003-1 (end to end) (TC-254-e2e-finalise-clears-backstop)",
+        "tapTests": [
+          1,
+          6
+        ],
+        "boundTests": 2,
+        "passed": 2,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 cafa3510029f7195d30bfe8f2b8553a75df7517efc3d04830840ccaee21daa12 (packed from 77c949af37d0cfcd4e5edfa64cb744df4b741dc8)",
+        "files": [
+          "output/evidence/TS-254-verified-backstop.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19003-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-254",
+        "acTest": "test/build/verified-backstop.test.js::AC-19003-2 (TC-254-override-recorded)",
+        "tapTests": [
+          2
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 cafa3510029f7195d30bfe8f2b8553a75df7517efc3d04830840ccaee21daa12 (packed from 77c949af37d0cfcd4e5edfa64cb744df4b741dc8)",
+        "files": [
+          "output/evidence/TS-254-verified-backstop.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19003-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-254",
+        "acTest": "test/build/verified-backstop.test.js::AC-19003-3 (TC-254-inert-without-backstop)",
+        "tapTests": [
+          3
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 cafa3510029f7195d30bfe8f2b8553a75df7517efc3d04830840ccaee21daa12 (packed from 77c949af37d0cfcd4e5edfa64cb744df4b741dc8)",
+        "files": [
+          "output/evidence/TS-254-verified-backstop.tap"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19003-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-254",
+        "acTest": "test/build/verified-backstop.test.js::AC-19003-4 (TC-254-adopt)",
+        "tapTests": [
+          4
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 cafa3510029f7195d30bfe8f2b8553a75df7517efc3d04830840ccaee21daa12 (packed from 77c949af37d0cfcd4e5edfa64cb744df4b741dc8)",
+        "files": [
+          "output/evidence/TS-254-verified-backstop.tap",
+          "output/evidence/AC-19003-4.adopt.stdout",
+          "output/evidence/AC-19003-4.adopt.exit",
+          "output/evidence/AC-19003-4.unknown.stderr",
+          "output/evidence/AC-19003-4.unknown.exit",
+          "output/evidence/AC-19003-4.missing.stderr",
+          "output/evidence/AC-19003-4.missing.exit",
+          "output/evidence/AC-19003-4.backstop.json"
+        ]
+      }
+    },
+    {
+      "acId": "AC-19003-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-254",
+        "acTest": "test/build/verified-backstop.test.js::AC-19003-5 (TC-254-no-silent-bypass)",
+        "tapTests": [
+          5
+        ],
+        "boundTests": 1,
+        "passed": 1,
+        "runAgainst": "installed packed artefact rcf-lite-0.34.2.tgz sha256 cafa3510029f7195d30bfe8f2b8553a75df7517efc3d04830840ccaee21daa12 (packed from 77c949af37d0cfcd4e5edfa64cb744df4b741dc8)",
+        "files": [
+          "output/evidence/TS-254-verified-backstop.tap"
+        ]
+      }
+    }
+  ]
+}

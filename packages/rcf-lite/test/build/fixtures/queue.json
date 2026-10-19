@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 116,
-    "notStarted": 62,
-    "inProgress": 2,
+    "notStarted": 61,
+    "inProgress": 3,
     "complete": 34,
     "verified": 18,
-    "actionable": 41,
+    "actionable": 40,
     "blocked": 21
   },
   "nextActionable": "FBS-013",
@@ -1459,11 +1459,11 @@
       "buildOrder": 221,
       "tier": 3,
       "title": "Verified backstop on rcf build bundle --next",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-220"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {

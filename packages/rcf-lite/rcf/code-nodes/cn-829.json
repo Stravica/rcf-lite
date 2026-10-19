@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-829",
+  "path": "src/build/backstop.js#BACKSTOP_REL_PATH",
+  "title": "FBS-221: rcf/define/backstop.json location",
+  "implementsAcIds": [
+    "AC-19003-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T11:12:06.221Z",
+  "updatedAt": "2026-10-19T11:12:06.221Z"
+}

@@ -6997,6 +6997,7 @@
           "id": "AC-19003-1",
           "covered": true,
           "testCases": [
+            "TC-254-e2e-finalise-clears-backstop",
             "TC-254-refuses-unverified"
           ],
           "unresolvedTestCases": []
