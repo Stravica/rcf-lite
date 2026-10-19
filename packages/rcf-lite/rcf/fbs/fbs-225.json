@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-19T11:04:29.366Z",
+  "updatedAt": "2026-10-19T11:04:29.366Z",
+  "summary": "The verifier hand runs the AC-bound suites against a given packed artefact and the tool writes the per-AC verdicts (US-19301). Delivers AC-19301-1 to AC-19301-9.",
+  "approach": "Add --artefact <tgz> to rcf verify run; with no --url it selects package target mode: install the tarball in a scratch project under os.tmpdir(), copy the installed package and the bound test files' top-level directory side by side, run each bound file with node --test and the tap reporter, map results to TCs by exact testPointer title and TCs to the FBS's acIds, and compose VerifyReport v1 with method suiteAsProbe, profile packagedArtefact, artefact identity on target, install and suites[] evidence, raw output under rcf/verify-reports/<fbs-id>/<headSha12>/.",
+  "deliverables": [
+    "src/verify/cli/run.js: --artefact, package target mode selection and its usage refusals",
+    "src/verify/suite/: install, stage (copy method), run and reporter parse",
+    "src/verify/suite/map.js: TC and AC result mapping",
+    "src/verify/report/index.js: method, artefact identity, install, suites[], counts.critiqueOnly, verdict FAIL | BLOCKED | PASS"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-221"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4151",
+      "TAC-4148-test-stage-verify-finalise"
+    ],
+    "adrIds": [
+      "ADR-4150",
+      "ADR-4148-finalise-admin-verify-in-test"
+    ]
+  },
+  "riskLevel": "medium",
+  "domain": "functional",
+  "estimatedSize": "medium",
+  "notes": "Order in the train: intended after FBS-221 and before FBS-222 (dependsOnFbsIds FBS-221). Placement is pending the operator (ledger, position decision): rcf define create fbs refuses a buildOrder equal to an existing one (\"--build-order 221 collides with FBS-221 (existing buildOrder=221) under BS-001\"), no free integer lies between 221 and 222, so this FBS carries the default buildOrder and sorts after FBS-224 until the operator picks a placement. Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-19, suite-as-probe); the pack from HEAD and the install policy are split to FBS-226. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19301 at this FBS's own Define stage (estimate 9 node:test cases over a zero-dependency fixture package, so the install needs no registry); this DEFINE lands no test declarations. External dependency: none for the report, which is rcf-lite-local (VerifyReport v1 lives in src/verify/report/index.js; the rcf-schemas 0.9.0 round, PR 24 decision 4, left the packed-artefact fields here). If the rcf-schemas 0.9.0 pin bump rides this build, 0.9.0 must be published and pinned before this FBS can merge (build-ordering constraint). Test stage of this FBS: the tool cannot verify itself before it exists, so FBS-225's own Test stage runs under the interim ruling (hand-composed from the bound suites against the packed artefact, method recorded); FBS-226 onward use the tool. No freeze, no ack verbs.",
+  "acIds": [
+    "AC-19301-1",
+    "AC-19301-2",
+    "AC-19301-3",
+    "AC-19301-4",
+    "AC-19301-5",
+    "AC-19301-6",
+    "AC-19301-7",
+    "AC-19301-8",
+    "AC-19301-9"
+  ],
+  "fbsId": "FBS-225",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 225,
+  "executionStatus": "notStarted",
+  "title": "Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts"
+}

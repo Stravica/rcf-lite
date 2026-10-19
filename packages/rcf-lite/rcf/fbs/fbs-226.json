@@ -1,0 +1,39 @@
+{
+  "createdAt": "2026-10-19T11:04:29.926Z",
+  "updatedAt": "2026-10-19T11:04:29.926Z",
+  "summary": "The verifier hand packs the artefact from the head under test and installs it under a declared store policy (US-19302). Delivers AC-19302-1 to AC-19302-5.",
+  "approach": "With --package <dir> naming a directory and no --url or --artefact, refuse a dirty tree before packing, run npm pack --pack-destination <scratch> --json in <dir>, record pack { command, exitCode } and servedSha HEAD, then take the FBS-225 path over the packed tarball. Add --offline (npm install --offline from the local cache) and record install.registry default | offline; a failed install exits 1 with the log path and writes no report JSON.",
+  "deliverables": [
+    "src/verify/suite/pack.js: npm pack into the scratch directory, identity read from the packed tarball",
+    "src/verify/cli/run.js: --package <dir> selection, --offline, install failure exit 1",
+    "src/verify/report/index.js: pack and servedSha on a packed run"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-225"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4151"
+    ],
+    "adrIds": [
+      "ADR-4150"
+    ]
+  },
+  "riskLevel": "low",
+  "domain": "functional",
+  "estimatedSize": "small",
+  "notes": "Order in the train: directly after FBS-225 (dependsOnFbsIds FBS-225); its buildOrder moves with FBS-225 under the same pending placement decision. Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-19, suite-as-probe). Tests: the test-author writes the AC-based tests and the TS/TC bindings for US-19302 at this FBS's own Define stage (estimate 5 node:test cases); this DEFINE lands no test declarations. External dependency: none. Test stage of this FBS: the first one run by the tool itself, rcf verify run --artefact over FBS-225's tool against this FBS's packed artefact. No freeze, no ack verbs.",
+  "acIds": [
+    "AC-19302-1",
+    "AC-19302-2",
+    "AC-19302-3",
+    "AC-19302-4",
+    "AC-19302-5"
+  ],
+  "fbsId": "FBS-226",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 226,
+  "executionStatus": "notStarted",
+  "title": "Suite-as-probe B: rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy"
+}
