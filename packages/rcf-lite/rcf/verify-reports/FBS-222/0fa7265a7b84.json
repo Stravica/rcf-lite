@@ -1,0 +1,171 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-222",
+  "headSha": "0fa7265a7b84a5c23eb23b349dde4fd46269290a",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.34.2",
+    "sha256": "b37919d9d0e9cc7e2c39e8fa4ef3cbae07aeb00b6c96f02d36803844c1a86ad7",
+    "servedSha": null
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-222-test",
+  "startedAt": "2026-10-19T23:51:09.127Z",
+  "finishedAt": "2026-10-19T23:51:16.626Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "install": {
+    "command": "npm install --no-audit --no-fund /home/thefoot/remote-lane/jobs/r-20261019-235010-0120/output/rcf-lite-0.34.2.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-222/0fa7265a7b84/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-255",
+      "file": "test/cli/audit-separation.test.js",
+      "tests": 15,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-222/0fa7265a7b84/TS-255.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 7,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 7
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19101-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-pass-line",
+            "title": "AC-19101-1: rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints \"separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\"",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19101-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-fail-line",
+            "title": "AC-19101-2: rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\"",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19101-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-undeclared",
+            "title": "AC-19101-3: rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19101-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-bad-ref-and-repo",
+            "title": "AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with \"separation: bad ref <ref>\"; outside a git repository it exits 1 with \"separation: not a git repository\"; an unknown Hand value is a violation \"unknown hand <value>\"",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19101-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-json-rows",
+            "title": "AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19101-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-read-only",
+            "title": "AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19101-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-255",
+        "file": "test/cli/audit-separation.test.js",
+        "tests": [
+          {
+            "tcId": "TC-255-verify-reports-class",
+            "title": "AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence",
+            "testNumber": 7,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}
