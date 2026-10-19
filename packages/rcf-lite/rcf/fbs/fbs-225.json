@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:04:29.366Z",
-  "updatedAt": "2026-10-19T11:27:40.670Z",
+  "updatedAt": "2026-10-19T13:33:47.359Z",
   "summary": "The verifier hand runs the AC-bound suites against a given packed artefact and the tool writes the per-AC verdicts (US-19301). Delivers AC-19301-1 to AC-19301-9.",
   "approach": "Add --artefact <tgz> to rcf verify run; with no --url it selects package target mode: install the tarball in a scratch project under os.tmpdir(), copy the installed package and the bound test files' top-level directory side by side, run each bound file with node --test and the tap reporter, map results to TCs by exact testPointer title and TCs to the FBS's acIds, and compose VerifyReport v1 with method suiteAsProbe, profile packagedArtefact, artefact identity on target, install and suites[] evidence, raw output under rcf/verify-reports/<fbs-id>/<headSha12>/.",
   "deliverables": [
@@ -41,6 +41,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 222,
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "title": "Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts"
 }

@@ -788,7 +788,7 @@ REQ-192      yes      AC-19201-1   yes         TC-251-probe-pass
 REQ-193      yes      AC-19301-1   yes         TC-258-pass-all
                       AC-19301-2   yes         TC-258-fail-one
                       AC-19301-3   yes         TC-258-unbound-critique-only
-                      AC-19301-4   yes         TC-258-todo-skip-and-not-run
+                      AC-19301-4   yes         TC-258-to-do-skip-and-not-run
                       AC-19301-5   yes         TC-258-probe-not-run-and-evidence
                       AC-19301-6   yes         TC-258-flag-refusals
                       AC-19301-7   yes         TC-258-fbs-219-rules-kept
