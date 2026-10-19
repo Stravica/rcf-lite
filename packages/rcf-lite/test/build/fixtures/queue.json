@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 116,
-    "notStarted": 60,
-    "inProgress": 2,
+    "notStarted": 59,
+    "inProgress": 3,
     "complete": 34,
     "verified": 20,
-    "actionable": 41,
+    "actionable": 40,
     "blocked": 19
   },
   "nextActionable": "FBS-013",
@@ -1483,11 +1483,11 @@
       "buildOrder": 223,
       "tier": 5,
       "title": "Suite-as-probe B: rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-225"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {

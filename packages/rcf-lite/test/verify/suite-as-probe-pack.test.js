@@ -102,9 +102,10 @@ test('AC-19302-1: rcf verify run --package . --fbs FBS-001 --hand verifier at cl
   assert.equal(pack.cwd, realTmp(world.root), 'npm pack ran in the package directory');
   const dest = flagValue(pack.argv, '--pack-destination');
   assert.ok(dest, `npm pack was given --pack-destination; argv ${pack.argv.join(' ')}`);
-  const destReal = realTmp(dest);
-  assert.ok(destReal.startsWith(`${realTmp(tmp)}/`), `the pack destination ${destReal} is under the OS temp dir ${realTmp(tmp)}`);
-  assert.ok(!destReal.startsWith(`${realTmp(world.root)}/`), 'the pack destination is not inside the repository');
+  // The scratch directory is gone after the run, so compare paths as given.
+  const under = (p, dir) => p.startsWith(`${dir}/`) || p.startsWith(`${realTmp(dir)}/`);
+  assert.ok(under(dest, tmp), `the pack destination ${dest} is under the OS temp dir ${tmp}`);
+  assert.ok(!under(dest, world.root) && !dest.startsWith('.'), `the pack destination ${dest} is not inside the repository`);
   assertNoClaude(world);
 });
 
