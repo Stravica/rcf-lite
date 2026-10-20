@@ -181,7 +181,7 @@ What good looks like:
 
 - CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
 - `rcf build mark <fbs-id> complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build mark <fbs-id> complete --no-code-nodes` once.
-- `rcf build finalise <fbs-id> --url <deploy-url>` writes `verified` after post-merge verification: the merged artefact observed doing the right thing by an independent verify run, not just the pre-merge tests remembered fondly. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the verify run passes with ship authority.
+- `rcf build finalise <fbs-id> --ci-run <ref>` writes `verified` by ingesting the Test-stage report: the verifier hand ran `rcf verify run --fbs <fbs-id> --hand verifier` against the preview or version host before the merge and committed the report it wrote under `rcf/verify-reports/<fbs-id>/`, and `--ci-run` names the CI run that passed on the merged head. Finalise spawns nothing but git lookups; it never runs verify itself. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the report's verdict is PASS with ship authority.
 - A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
 Referee: CI, the finalise gate, plus the mark commands' own refusals (section 9).
@@ -321,7 +321,7 @@ $ rcf build mark FBS-013 inProgress
 marked FBS-013 notStarted -> inProgress
 ```
 
-From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf build finalise` to promote to `verified` after post-merge verification, and back to `rcf build bundle --next`.
+From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf build finalise` to promote to `verified` from the Test-stage report, and back to `rcf build bundle --next`.
 
 ## 11. Driving the whole queue
 
@@ -336,7 +336,7 @@ rcf build queue      -> queue state; a "Next actionable" id means there is work
 rcf build bundle --next     -> bundle for that item
                         run its five stages (sections 3-7), commit per stage
 rcf build mark <fbs-id> complete       (after merge)
-rcf build finalise <fbs-id> --url <deploy-url>  (independent verify -> verified)
+rcf build finalise <fbs-id> --ci-run <ref>  (Test-stage report -> verified)
                         then rcf build bundle --next again
 ```
 
@@ -469,7 +469,7 @@ Both name the runtime, both refuse to imply the deployed profile, and both say p
 
 ## 16. In-loop fresh-context self-review
 
-Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: `rcf build finalise` runs the independent verifier against the deployed app and is the only thing that promotes an FBS from `complete` to `verified` (section 7). Nothing in this section changes that.
+Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: the verifier hand's `rcf verify run --fbs <fbs-id> --hand verifier` at the Test stage writes the report, and `rcf build finalise`, ingesting that report, is the only thing that promotes an FBS from `complete` to `verified` (section 7). Nothing in this section changes that.
 
 What this section adds is the cheap check that runs **in the loop, between builds** - long before you reach the gate. Its value is finding the defect at FBS 6 instead of at the ship gate. It is subordinate to the gate, never a substitute for it, and it never writes `verified`.
 
