@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-859",
+  "path": "src/audit/separation.js#judgeCommit",
+  "implementsAcIds": [
+    "AC-19101-1",
+    "AC-19101-2",
+    "AC-19101-3",
+    "AC-19101-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-19T23:37:00.235Z",
+  "updatedAt": "2026-10-19T23:37:00.235Z"
+}
