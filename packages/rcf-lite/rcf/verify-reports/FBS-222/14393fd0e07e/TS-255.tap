@@ -1,0 +1,171 @@
+TAP version 13
+# Subtest: AC-19101-1: rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints "separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0"
+ok 1 - AC-19101-1: rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints "separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0"
+  ---
+  duration_ms: 288.128931
+  type: 'test'
+  ...
+# Subtest: AC-19101-2: rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints "separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js"
+    # Subtest: Hand: builder touching test/x.test.js
+    ok 1 - Hand: builder touching test/x.test.js
+      ---
+      duration_ms: 266.437815
+      type: 'test'
+      ...
+    # Subtest: Hand: test-author touching src/x.js
+    ok 2 - Hand: test-author touching src/x.js
+      ---
+      duration_ms: 275.228588
+      type: 'test'
+      ...
+    # Subtest: Hand: builder touching rcf/user-stories/us-1.json
+    ok 3 - Hand: builder touching rcf/user-stories/us-1.json
+      ---
+      duration_ms: 262.350362
+      type: 'test'
+      ...
+    1..3
+ok 2 - AC-19101-2: rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints "separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js"
+  ---
+  duration_ms: 804.736212
+  type: 'test'
+  ...
+# Subtest: AC-19101-3: rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths
+    # Subtest: undeclared single-class commits pass and count as undeclared
+    ok 1 - undeclared single-class commits pass and count as undeclared
+      ---
+      duration_ms: 280.312663
+      type: 'test'
+      ...
+    # Subtest: an undeclared commit touching src/ and test/ fails naming both paths
+    ok 2 - an undeclared commit touching src/ and test/ fails naming both paths
+      ---
+      duration_ms: 317.569005
+      type: 'test'
+      ...
+    1..2
+ok 3 - AC-19101-3: rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths
+  ---
+  duration_ms: 598.377878
+  type: 'test'
+  ...
+# Subtest: AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with "separation: bad ref <ref>"; outside a git repository it exits 1 with "separation: not a git repository"; an unknown Hand value is a violation "unknown hand <value>"
+    # Subtest: --base naming a missing ref exits 2
+    ok 1 - --base naming a missing ref exits 2
+      ---
+      duration_ms: 313.661836
+      type: 'test'
+      ...
+    # Subtest: outside a git repository exits 1
+    ok 2 - outside a git repository exits 1
+      ---
+      duration_ms: 244.390356
+      type: 'test'
+      ...
+    # Subtest: a Hand: value outside the five hands and mixed is a violation
+    ok 3 - a Hand: value outside the five hands and mixed is a violation
+      ---
+      duration_ms: 492.148448
+      type: 'test'
+      ...
+    1..3
+ok 4 - AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with "separation: bad ref <ref>"; outside a git repository it exits 1 with "separation: not a git repository"; an unknown Hand value is a violation "unknown hand <value>"
+  ---
+  duration_ms: 1050.898049
+  type: 'test'
+  ...
+# Subtest: AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent
+ok 5 - AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent
+  ---
+  duration_ms: 513.989834
+  type: 'test'
+  ...
+# Subtest: AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged
+ok 6 - AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged
+  ---
+  duration_ms: 930.674721
+  type: 'test'
+  ...
+# Subtest: AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence
+ok 7 - AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence
+  ---
+  duration_ms: 260.982381
+  type: 'test'
+  ...
+# Subtest: AC-19101-2: rcf audit separation classes a test file with more than one extension after .test. or .spec. as test: Hand: builder touching src/widget.test.d.ts or src/widget.spec.js.map exits 4 with the FAIL line, Hand: test-author touching it passes
+    # Subtest: Hand: builder touching src/widget.test.d.ts fails
+    ok 1 - Hand: builder touching src/widget.test.d.ts fails
+      ---
+      duration_ms: 279.303177
+      type: 'test'
+      ...
+    # Subtest: Hand: test-author touching src/widget.test.d.ts passes classed test
+    ok 2 - Hand: test-author touching src/widget.test.d.ts passes classed test
+      ---
+      duration_ms: 475.601229
+      type: 'test'
+      ...
+    # Subtest: Hand: builder touching src/widget.spec.js.map fails
+    ok 3 - Hand: builder touching src/widget.spec.js.map fails
+      ---
+      duration_ms: 266.004044
+      type: 'test'
+      ...
+    # Subtest: Hand: test-author touching src/widget.spec.js.map passes classed test
+    ok 4 - Hand: test-author touching src/widget.spec.js.map passes classed test
+      ---
+      duration_ms: 482.863497
+      type: 'test'
+      ...
+    # Subtest: Hand: builder touching packages/app/src/widget.test.snap.js fails
+    ok 5 - Hand: builder touching packages/app/src/widget.test.snap.js fails
+      ---
+      duration_ms: 268.651657
+      type: 'test'
+      ...
+    # Subtest: Hand: test-author touching packages/app/src/widget.test.snap.js passes classed test
+    ok 6 - Hand: test-author touching packages/app/src/widget.test.snap.js passes classed test
+      ---
+      duration_ms: 476.124491
+      type: 'test'
+      ...
+    # Subtest: near-miss names that only contain test or spec stay production
+    ok 7 - near-miss names that only contain test or spec stay production
+      ---
+      duration_ms: 244.897774
+      type: 'test'
+      ...
+    1..7
+ok 8 - AC-19101-2: rcf audit separation classes a test file with more than one extension after .test. or .spec. as test: Hand: builder touching src/widget.test.d.ts or src/widget.spec.js.map exits 4 with the FAIL line, Hand: test-author touching it passes
+  ---
+  duration_ms: 2494.47883
+  type: 'test'
+  ...
+# Subtest: AC-19101-2: rcf audit separation classes lockfiles of every common ecosystem as neutral: a Hand: test-author commit touching only package-lock.json, npm-shrinkwrap.json, pnpm-lock.yaml, yarn.lock, bun.lockb, bun.lock, Cargo.lock, Gemfile.lock, poetry.lock, uv.lock, composer.lock, go.sum or any basename ending .lock passes
+    # Subtest: a test-author lockfile-only commit passes with classes exactly neutral
+    ok 1 - a test-author lockfile-only commit passes with classes exactly neutral
+      ---
+      duration_ms: 466.975577
+      type: 'test'
+      ...
+    # Subtest: near-miss names that only resemble a lockfile stay production
+    ok 2 - near-miss names that only resemble a lockfile stay production
+      ---
+      duration_ms: 250.266187
+      type: 'test'
+      ...
+    1..2
+ok 9 - AC-19101-2: rcf audit separation classes lockfiles of every common ecosystem as neutral: a Hand: test-author commit touching only package-lock.json, npm-shrinkwrap.json, pnpm-lock.yaml, yarn.lock, bun.lockb, bun.lock, Cargo.lock, Gemfile.lock, poetry.lock, uv.lock, composer.lock, go.sum or any basename ending .lock passes
+  ---
+  duration_ms: 717.65021
+  type: 'test'
+  ...
+1..9
+# tests 26
+# suites 0
+# pass 26
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7710.428824
