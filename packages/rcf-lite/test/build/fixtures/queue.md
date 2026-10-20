@@ -118,10 +118,10 @@ Generation strategy: dependencyFirst
 | 222 | 4 | FBS-225 | Suite-as-probe A: rcf verify run --artefact runs the AC-bound suites against the installed tarball and writes per-AC verdicts | verified | verified |  |
 | 223 | 5 | FBS-226 | Suite-as-probe B: rcf verify run --package <dir> packs the artefact from HEAD and installs it under a declared store policy | verified | verified |  |
 | 227 | 6 | FBS-222 | rcf audit separation verb | verified | verified |  |
-| 228 | 7 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | inProgress | inProgress |  |
-| 229 | 8 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | notStarted | blocked | FBS-223 |
+| 228 | 7 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | complete | complete |  |
+| 229 | 8 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | notStarted | actionable |  |
 
-Totals: items 116 | notStarted 57 | inProgress 3 | complete 34 | verified 22 | actionable 40 | blocked 17
+Totals: items 116 | notStarted 57 | inProgress 2 | complete 35 | verified 22 | actionable 41 | blocked 16
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218
