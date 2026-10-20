@@ -1,0 +1,140 @@
+TAP version 13
+# Subtest: AC-19102-1: rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict "exception"); Hand: mixed without a reason exits 4 with "mixed without Separation-Reason"
+    # Subtest: Hand: mixed with Separation-Reason touching src/ and test/ passes as an exception
+    ok 1 - Hand: mixed with Separation-Reason touching src/ and test/ passes as an exception
+      ---
+      duration_ms: 483.660072
+      type: 'test'
+      ...
+    # Subtest: Hand: mixed with an absent Separation-Reason touching src/ and test/ fails exit 4 with "mixed without Separation-Reason"
+    ok 2 - Hand: mixed with an absent Separation-Reason touching src/ and test/ fails exit 4 with "mixed without Separation-Reason"
+      ---
+      duration_ms: 457.99765
+      type: 'test'
+      ...
+    # Subtest: Hand: mixed with an empty Separation-Reason touching src/ and test/ fails exit 4 with "mixed without Separation-Reason"
+    ok 3 - Hand: mixed with an empty Separation-Reason touching src/ and test/ fails exit 4 with "mixed without Separation-Reason"
+      ---
+      duration_ms: 456.964397
+      type: 'test'
+      ...
+    1..3
+ok 1 - AC-19102-1: rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict "exception"); Hand: mixed without a reason exits 4 with "mixed without Separation-Reason"
+  ---
+  duration_ms: 1399.954192
+  type: 'test'
+  ...
+# Subtest: AC-19102-2: rcf audit separation with rcf/separation.json { classes: { test: ["spec/**"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch
+    # Subtest: a Hand: builder commit touching spec/a.js under the override exits 4 naming spec/a.js
+    ok 1 - a Hand: builder commit touching spec/a.js under the override exits 4 naming spec/a.js
+      ---
+      duration_ms: 260.465252
+      type: 'test'
+      ...
+    # Subtest: a malformed rcf/separation.json exits 2 naming the file
+    ok 2 - a malformed rcf/separation.json exits 2 naming the file
+      ---
+      duration_ms: 253.389447
+      type: 'test'
+      ...
+    # Subtest: guard: a Hand: builder commit editing rcf/separation.json fails as a criteria-class touch
+    ok 3 - guard: a Hand: builder commit editing rcf/separation.json fails as a criteria-class touch
+      ---
+      duration_ms: 469.597126
+      type: 'test'
+      ...
+    1..3
+ok 2 - AC-19102-2: rcf audit separation with rcf/separation.json { classes: { test: ["spec/**"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch
+  ---
+  duration_ms: 984.207636
+  type: 'test'
+  ...
+# Subtest: AC-19102-3: rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer
+    # Subtest: --require-hand: a non-merge commit with no Hand: trailer exits 4 naming it and Hand:
+    ok 1 - --require-hand: a non-merge commit with no Hand: trailer exits 4 naming it and Hand:
+      ---
+      duration_ms: 259.522039
+      type: 'test'
+      ...
+    # Subtest: --require-hand: a Hand: builder commit with no Hand-Id: trailer exits 4 naming it and Hand-Id:
+    ok 2 - --require-hand: a Hand: builder commit with no Hand-Id: trailer exits 4 naming it and Hand-Id:
+      ---
+      duration_ms: 267.697174
+      type: 'test'
+      ...
+    # Subtest: control: --require-hand with every non-merge commit declared and the builder commit carrying Hand-Id: exits 0
+    ok 3 - control: --require-hand with every non-merge commit declared and the builder commit carrying Hand-Id: exits 0
+      ---
+      duration_ms: 290.63955
+      type: 'test'
+      ...
+    1..3
+ok 3 - AC-19102-3: rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer
+  ---
+  duration_ms: 818.610437
+  type: 'test'
+  ...
+# Subtest: AC-19102-4: on pull_request, CI runs node bin/rcf.js audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite after checkout fetch-depth 0 and its exit code fails the job; the step does not run on push to main
+ok 4 - AC-19102-4: on pull_request, CI runs node bin/rcf.js audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite after checkout fetch-depth 0 and its exit code fails the job; the step does not run on push to main
+  ---
+  duration_ms: 13.008778
+  type: 'test'
+  ...
+# Subtest: AC-19102-5: an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base
+    # Subtest: an empty Separation-Reason on a Hand: mixed commit touching one class fails exit 4 with "mixed without Separation-Reason"
+    ok 1 - an empty Separation-Reason on a Hand: mixed commit touching one class fails exit 4 with "mixed without Separation-Reason"
+      ---
+      duration_ms: 466.912271
+      type: 'test'
+      ...
+    # Subtest: an empty Separation-Reason on a Hand: mixed commit touching src/ and test/ never passes as an exception
+    ok 2 - an empty Separation-Reason on a Hand: mixed commit touching src/ and test/ never passes as an exception
+      ---
+      duration_ms: 253.924328
+      type: 'test'
+      ...
+    # Subtest: an whitespace-only Separation-Reason on a Hand: mixed commit touching one class fails exit 4 with "mixed without Separation-Reason"
+    ok 3 - an whitespace-only Separation-Reason on a Hand: mixed commit touching one class fails exit 4 with "mixed without Separation-Reason"
+      ---
+      duration_ms: 461.375411
+      type: 'test'
+      ...
+    # Subtest: an whitespace-only Separation-Reason on a Hand: mixed commit touching src/ and test/ never passes as an exception
+    ok 4 - an whitespace-only Separation-Reason on a Hand: mixed commit touching src/ and test/ never passes as an exception
+      ---
+      duration_ms: 258.709933
+      type: 'test'
+      ...
+    # Subtest: the CI separation step checks out with fetch-depth 0
+    ok 5 - the CI separation step checks out with fetch-depth 0
+      ---
+      duration_ms: 0.894915
+      type: 'test'
+      ...
+    # Subtest: on a depth-1 clone, the CI command (--base origin/main) exits 2 naming the missing base
+    ok 6 - on a depth-1 clone, the CI command (--base origin/main) exits 2 naming the missing base
+      ---
+      duration_ms: 287.271032
+      type: 'test'
+      ...
+    # Subtest: guard: on a depth-1 clone with no --base the verb exits 2 naming the missing base
+    ok 7 - guard: on a depth-1 clone with no --base the verb exits 2 naming the missing base
+      ---
+      duration_ms: 304.392951
+      type: 'test'
+      ...
+    1..7
+ok 5 - AC-19102-5: an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base
+  ---
+  duration_ms: 2034.478796
+  type: 'test'
+  ...
+1..5
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 5300.6026

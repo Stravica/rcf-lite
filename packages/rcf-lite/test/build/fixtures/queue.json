@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 116,
-    "notStarted": 58,
-    "inProgress": 2,
+    "notStarted": 57,
+    "inProgress": 3,
     "complete": 34,
     "verified": 22,
-    "actionable": 41,
+    "actionable": 40,
     "blocked": 17
   },
   "nextActionable": "FBS-013",
@@ -1507,11 +1507,11 @@
       "buildOrder": 228,
       "tier": 7,
       "title": "Separation wiring: mixed escape, override file, --require-hand, CI on pull requests",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-222"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {

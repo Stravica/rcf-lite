@@ -774,7 +774,7 @@ REQ-191      yes      AC-19101-1   yes         TC-255-pass-line
                       AC-19101-7   yes         TC-255-verify-reports-class
                       AC-19102-1   yes         TC-256-mixed-exception
                       AC-19102-2   yes         TC-256-class-override
-                      AC-19102-3   yes         TC-256-require-hand
+                      AC-19102-3   yes         TC-256-require-hand, TC-256-require-hand-builder-breach, ...
                       AC-19102-4   yes         TC-256-ci-pull-request-step
                       AC-19102-5   yes         TC-256-no-empty-reason-no-shallow
 REQ-192      yes      AC-19201-1   yes         TC-251-probe-pass

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:30.801Z",
-  "updatedAt": "2026-10-16T15:45:33.595Z",
+  "updatedAt": "2026-10-20T04:12:19.697Z",
   "purpose": "Declare one test per AC of US-19102 (FBS-223) driving rcf audit separation flags through bin/rcf.js and checking the pull_request CI wiring, so the FBS-223 Define round turns each declaration into a red test; AC-19102-4 and AC-19102-5 carry the CI-wiring criteria.",
   "testLevel": "integration",
   "acIds": [
@@ -18,36 +18,50 @@
       "id": "TC-256-mixed-exception",
       "acId": "AC-19102-1",
       "description": "rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict \"exception\"); Hand: mixed without a reason exits 4 with \"mixed without Separation-Reason\"",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-1: rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict \"exception\"); Hand: mixed without a reason exits 4 with \"mixed without Separation-Reason\""
     },
     {
       "id": "TC-256-class-override",
       "acId": "AC-19102-2",
       "description": "rcf audit separation with rcf/separation.json { classes: { test: [\"spec/**\"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-2: rcf audit separation with rcf/separation.json { classes: { test: [\"spec/**\"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch"
     },
     {
       "id": "TC-256-require-hand",
       "acId": "AC-19102-3",
       "description": "rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-3: rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer"
     },
     {
       "id": "TC-256-ci-pull-request-step",
       "acId": "AC-19102-4",
       "description": "on pull_request, CI runs node bin/rcf.js audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite after checkout fetch-depth 0 and its exit code fails the job; the step does not run on push to main",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-4: on pull_request, CI runs node bin/rcf.js audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite after checkout fetch-depth 0 and its exit code fails the job; the step does not run on push to main"
     },
     {
       "id": "TC-256-no-empty-reason-no-shallow",
       "acId": "AC-19102-5",
       "description": "an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base",
-      "status": "pending",
+      "status": "failing",
       "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-5: an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base"
+    },
+    {
+      "id": "TC-256-require-hand-undeclared-breach",
+      "acId": "AC-19102-3",
+      "description": "rcf audit separation --require-hand exits 4 naming the missing Hand: trailer for a commit with no Hand: trailer that also touches test and production",
+      "status": "failing",
+      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-3: rcf audit separation --require-hand exits 4 naming the missing Hand: trailer for a commit with no Hand: trailer that also touches test and production"
+    },
+    {
+      "id": "TC-256-require-hand-builder-breach",
+      "acId": "AC-19102-3",
+      "description": "rcf audit separation --require-hand exits 4 naming the missing Hand-Id: trailer for a Hand: builder commit with no Hand-Id: trailer that also touches a test path",
+      "status": "failing",
+      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-3: rcf audit separation --require-hand exits 4 naming the missing Hand-Id: trailer for a Hand: builder commit with no Hand-Id: trailer that also touches a test path"
     }
   ],
   "status": "draft"

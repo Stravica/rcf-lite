@@ -7175,7 +7175,9 @@
           "id": "AC-19102-3",
           "covered": true,
           "testCases": [
-            "TC-256-require-hand"
+            "TC-256-require-hand",
+            "TC-256-require-hand-builder-breach",
+            "TC-256-require-hand-undeclared-breach"
           ],
           "unresolvedTestCases": []
         },
