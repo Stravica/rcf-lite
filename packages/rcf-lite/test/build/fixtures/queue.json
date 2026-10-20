@@ -10,8 +10,8 @@
     "items": 116,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 35,
-    "verified": 21,
+    "complete": 34,
+    "verified": 22,
     "actionable": 41,
     "blocked": 17
   },
@@ -1495,11 +1495,11 @@
       "buildOrder": 227,
       "tier": 6,
       "title": "rcf audit separation verb",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-226"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
