@@ -7,13 +7,13 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 117,
-    "notStarted": 57,
+    "items": 119,
+    "notStarted": 59,
     "inProgress": 2,
     "complete": 34,
     "verified": 24,
     "actionable": 41,
-    "blocked": 16
+    "blocked": 18
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -186,7 +186,14 @@
     {
       "tier": 10,
       "fbsIds": [
-        "FBS-034"
+        "FBS-034",
+        "FBS-228"
+      ]
+    },
+    {
+      "tier": 11,
+      "fbsIds": [
+        "FBS-229"
       ]
     }
   ],
@@ -1533,13 +1540,41 @@
       "fbsId": "FBS-227",
       "buildOrder": 230,
       "tier": 9,
-      "title": "rcf-schemas 0.9.0 consumer side: pin bump with assertion-required probes, retired criteria in coverage and verify, and the expectBody.matches canary rule",
+      "title": "rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes",
       "executionStatus": "notStarted",
       "dependsOnFbsIds": [
         "FBS-224"
       ],
       "state": "actionable",
       "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-228",
+      "buildOrder": 231,
+      "tier": 10,
+      "title": "rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-227"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-227"
+      ]
+    },
+    {
+      "fbsId": "FBS-229",
+      "buildOrder": 232,
+      "tier": 11,
+      "title": "rcf-schemas 0.9.0 consumer side C: the expectBody.matches canary rule",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-228"
+      ],
+      "state": "blocked",
+      "blockedBy": [
+        "FBS-228"
+      ]
     }
   ],
   "journeyApplicable": false,

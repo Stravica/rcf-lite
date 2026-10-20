@@ -454,7 +454,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Finalise-admin DEFINE (2026-10-16) added FBS-218..FBS-224 (107 -> 114).
   // Suite-as-probe DEFINE (2026-10-19) added FBS-225 and FBS-226 (114 -> 116).
   // Schemas-090 DEFINE (2026-10-20) added FBS-227 (116 -> 117).
-  assert.equal(tree.fbsItems.length, 117);
+  // Schemas-090 DEFINE close (2026-10-20) split FBS-227 by ledger 52, adding FBS-228 and FBS-229 (117 -> 119).
+  assert.equal(tree.fbsItems.length, 119);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
