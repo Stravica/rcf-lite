@@ -28,7 +28,7 @@ import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { existsSync, readFileSync } from 'node:fs';
 import { readFile, writeFile } from 'node:fs/promises';
-import { dirname, join, resolve } from 'node:path';
+import { delimiter, dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { scratchDir } from '../_helpers/scratch.js';
 
@@ -49,8 +49,25 @@ const FREEZE_OVERRIDE = ['--override', 'fixture: unfrozen tree'];
 const STAGES = ['Define', 'Build', 'Review', 'Test', 'Finalise'];
 const HANDS = { Define: 'test-author', Build: 'builder', Review: 'reviewer', Test: 'verifier', Finalise: 'stage-keeper' };
 
+// A claude-free PATH for every rcf() call. `rcf init` probes the agent CLI
+// (`claude mcp list`) from PATH, and under `rcf verify run --artefact` a
+// recording fake `claude` sits first on the inherited one (AC-19301-8). The
+// pinned PATH holds only the directory that gives the fixture `git`; node
+// comes from process.execPath, so node's own directory (where an npm-global
+// claude can sit) is never on it. Refuses loudly if a claude is reachable.
+function claudeFreePath(inherited = process.env.PATH ?? '') {
+  const dirs = inherited.split(delimiter).filter(Boolean);
+  const gitDir = dirs.find((d) => existsSync(join(d, 'git')));
+  if (!gitDir) throw new Error(`fixture: no git on the inherited PATH\n${inherited}`);
+  const pinned = [gitDir];
+  const claude = pinned.map((d) => join(d, 'claude')).find((p) => existsSync(p));
+  if (claude) throw new Error(`fixture: the pinned PATH reaches an agent CLI at ${claude}; refusing to run`);
+  return pinned.join(delimiter);
+}
+
 const ENV = {
   ...process.env,
+  PATH: claudeFreePath(),
   CI: '1',
   GIT_CONFIG_GLOBAL: '/dev/null',
   GIT_CONFIG_NOSYSTEM: '1',
