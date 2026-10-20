@@ -367,3 +367,62 @@ test('AC-19102-5: an empty or whitespace Separation-Reason never turns Hand: mix
     assert.doesNotMatch(res.stdout, /separation: (PASS|FAIL)/, 'a shallow range never yields a verdict');
   });
 });
+
+// Gate 1 finding BH-1 (FBS-223 fix round): under --require-hand a commit that
+// also breaks path ownership must still name its missing trailer. Each case
+// pairs the failing commit with one passing declared commit, reads the
+// failing commit's FAIL-line item and its --json row, and holds the item to
+// one `; `-free entry so one commit reads as one item. Whether the item and
+// the reason also name the ownership breach, and in which order, is left to
+// the build; without --require-hand the same shapes are FBS-222's (TS-255).
+test('AC-19102-3: rcf audit separation --require-hand exits 4 naming the missing Hand: trailer for a commit with no Hand: trailer that also touches test and production', async (t) => {
+  const world = await gitWorld(t);
+  commitTrailers(world, 'tests', ['test/y.test.js'], [['Hand', 'test-author']]);
+  const bare = commitTrailers(world, 'undeclared two classes', ['src/x.js', 'test/x.test.js'], []);
+  assertFixture(world, [
+    { trailers: ['Hand: test-author'], paths: ['test/y.test.js'] },
+    { trailers: [], paths: ['src/x.js', 'test/x.test.js'], raw: '' },
+  ]);
+
+  const res = run(world, ['--require-hand']);
+  expectExit(res, 4);
+  const { line, item, items } = failItem(res, bare);
+  assert.match(line, /^separation: FAIL 1 of 2 commits /);
+  assert.equal(items.length, 1, `one failed commit reads as one item: ${line}`);
+  assert.match(item, /(^|[^-\w])Hand:/, `the item names the missing Hand: trailer: ${item}`);
+
+  const json = run(world, ['--require-hand', '--json']);
+  expectExit(json, 4);
+  const rows = rowsOf(json);
+  const row = rows.find((r) => r.sha === bare);
+  assert.ok(row, `--json has a row for ${s7(bare)}`);
+  assert.equal(row.verdict, 'fail');
+  assert.match(row.reason ?? '', /(^|[^-\w])Hand:/, `the reason names the missing Hand: trailer: ${row.reason}`);
+  assert.deepEqual(rows.filter((r) => r.sha !== bare).map((r) => r.verdict), ['pass'], 'the declared commit passes');
+});
+
+test('AC-19102-3: rcf audit separation --require-hand exits 4 naming the missing Hand-Id: trailer for a Hand: builder commit with no Hand-Id: trailer that also touches a test path', async (t) => {
+  const world = await gitWorld(t);
+  commitTrailers(world, 'tests', ['test/y.test.js'], [['Hand', 'test-author']]);
+  const b = commitTrailers(world, 'production and a test', ['src/x.js', 'test/x.test.js'], [['Hand', 'builder']]);
+  assertFixture(world, [
+    { trailers: ['Hand: test-author'], paths: ['test/y.test.js'] },
+    { trailers: ['Hand: builder'], paths: ['src/x.js', 'test/x.test.js'] },
+  ]);
+
+  const res = run(world, ['--require-hand']);
+  expectExit(res, 4);
+  const { line, item, items } = failItem(res, b);
+  assert.match(line, /^separation: FAIL 1 of 2 commits /);
+  assert.equal(items.length, 1, `one failed commit reads as one item: ${line}`);
+  assert.match(item, /Hand-Id:/, `the item names the missing Hand-Id: trailer: ${item}`);
+
+  const json = run(world, ['--require-hand', '--json']);
+  expectExit(json, 4);
+  const rows = rowsOf(json);
+  const row = rows.find((r) => r.sha === b);
+  assert.ok(row, `--json has a row for ${s7(b)}`);
+  assert.equal(row.verdict, 'fail');
+  assert.match(row.reason ?? '', /Hand-Id:/, `the reason names the missing Hand-Id: trailer: ${row.reason}`);
+  assert.deepEqual(rows.filter((r) => r.sha !== b).map((r) => r.verdict), ['pass'], 'the declared commit passes');
+});
