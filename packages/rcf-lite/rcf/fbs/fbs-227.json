@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-10-20T11:38:14.174Z",
+  "updatedAt": "2026-10-20T12:05:27.549Z",
+  "summary": "rcf-lite moves to rcf-schemas 0.9.0 and carries its assertion-required probe rule (US-19401): after the pin bump an assertion-free probe fails rcf define validate, rcf define update --probe and deterministic verify. Delivers AC-19401-1 to AC-19401-4.",
+  "approach": "Bump @stravica-ai/rcf-schemas 0.8.0 to 0.9.0 in packages/rcf-lite/package.json and the lockfile, nothing else in the bump; probeShapeError keeps naming \"missing assertion\" when the 0.9.0 acProbe subschema rejects an assertion-free probe.",
+  "deliverables": [
+    "packages/rcf-lite/package.json and pnpm-lock.yaml: @stravica-ai/rcf-schemas 0.9.0",
+    "src/verify/engine/catalog.js: probeShapeError names missing assertion under the 0.9.0 subschema"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4150-ac-probe-catalog"
+    ],
+    "adrIds": [
+      "ADR-4148-finalise-admin-verify-in-test"
+    ]
+  },
+  "riskLevel": "medium",
+  "domain": "functional",
+  "estimatedSize": "small",
+  "dependsOnFbsIds": [
+    "FBS-224"
+  ],
+  "notes": "Order in the train: after FBS-224 (dependsOnFbsIds FBS-224, buildOrder 230). External dependency: rcf-schemas 0.9.0 is published (npm, 2026-10-19, PR 24 merged); this FBS pins it. Split from the original FBS-227 by ledger 52 into three chained specs. The three parts are now three specs, in train order: FBS-227 the pin bump with assertion-required probes, then FBS-228 the retired rule (its fixtures carry supersededBy, which validates only under 0.9.0), then FBS-229 the canary rule. Path-only probes: none in this chain; four in test/verify/probe-catalog.test.js (lines 216, 328, 331, 366), of which 328, 331 and 366 are the deliberate assertion-free cases of AC-19201-8 and stay so, and 216 (the stray catalog key AC-999-9) gains an assertion at this FBS's Define fill round, before Build. After the pin bump a test-author supersedes AC-19201-8 by AC-19401-3 through rcf define update AC-19201-8 --set supersededBy=AC-19401-3 with supersededOn the day of that change and a supersessionNote naming this FBS (the fields do not validate before the bump). Tests: this spec's share of TS-260 is TC-260-validate-own-chain-0-9-0, TC-260-update-probe-path-only-refused, TC-260-catalog-path-only-still-fails and TC-260-ac-level-path-only-refused, declared in test/verify/probe-assertion-0-9-0.test.js; the test-author turns each into a red test at this FBS's own Define fill round. Commits carry Hand: trailers. No freeze, no ack verbs.",
+  "acIds": [
+    "AC-19401-1",
+    "AC-19401-2",
+    "AC-19401-3",
+    "AC-19401-4"
+  ],
+  "fbsId": "FBS-227",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 230,
+  "executionStatus": "notStarted",
+  "title": "rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes"
+}

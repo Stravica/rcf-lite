@@ -946,6 +946,258 @@
       "answer": "a. Checked by the DEFINE hand against the rcf-schemas 0.8.0 package pinned in this repo and the 0.9.0 round's record; recorded in TAC-4151 internalStructure and the FBS-225 notes.",
       "answeredAt": "2026-10-19T11:05:23.727Z",
       "resolvedAt": "2026-10-19T11:05:23.727Z"
+    },
+    {
+      "id": 44,
+      "question": "(a) Path-only probes under rcf-schemas 0.9.0 (a probe needs expectStatus, expectHeader, expectBody or selector): where are they and who fixes them?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "this DEFINE lists them and edits none; a test-author adds the assertion each criterion actually makes at FBS-227's own Define fill round, before Build (rcf define update <us-id> --ac <ac-id> --probe for a chain probe, the test file for a fixture), so the pin bump lands on a suite that already validates under 0.9.0; the builder bumps the pin and nothing else in that part"
+        },
+        {
+          "letter": "b",
+          "text": "the Build hand fixes them with the pin bump (a builder editing AC-bound test fixtures, against the hand rule)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:27.619Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken by the DEFINE hand (brief 2026-10-20). Found: no chain probe in rcf/ carries a probe at all; four path-only fixtures in test/verify/probe-catalog.test.js, lines 216 (stray catalog key AC-999-9, gains expectStatus 200 at the fill round so the case fails only on the stray key), 328, 331 and 366 (the deliberate assertion-free cases of AC-19201-8, which stay path-only and are read again under 0.9.0). Recorded in the FBS-227 notes.",
+      "answeredAt": "2026-10-20T11:39:27.824Z",
+      "resolvedAt": "2026-10-20T11:39:27.824Z"
+    },
+    {
+      "id": 45,
+      "question": "(b) Which existing criteria does rcf-schemas 0.9.0 change the meaning of, and how is that recorded without amending them?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "amend no existing criterion; write the 0.9.0 behaviour as new criteria in US-19401 and record that the old one is superseded through rcf define update <ac-id> --set supersededBy, supersededOn and supersessionNote by a test-author after the Build hand's pin bump (the fields do not validate under 0.8.0)"
+        },
+        {
+          "letter": "b",
+          "text": "reword the existing criterion now"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:28.039Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken. AC-19201-8 is the one criterion whose meaning moves: under 0.9.0 an AC-level probe with no assertion no longer validates, and probeShapeError runs the acProbe subschema before its own check, so the field a path-only probe names would change from \"missing assertion\" to the first anyOf arm's property. AC-19401-3 (catalog entry still fail naming missing assertion, exit 4) and AC-19401-4 (AC-level probe: validate exit 3, verify never pass) carry the 0.9.0 behaviour. To supersede after the bump: AC-19201-8 by AC-19401-3. AC-19201-6 keeps its meaning (its example probe carries expectStatus 200).",
+      "answeredAt": "2026-10-20T11:39:28.241Z",
+      "resolvedAt": "2026-10-20T11:39:28.241Z"
+    },
+    {
+      "id": 46,
+      "question": "(c) How does a retired criterion (one carrying supersededBy) show in rcf audit coverage?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "its own per-criterion state retired naming its successor, outside the requirement decision in strict and shallow-any modes, never counted covered or uncovered; a TC still bound to it is listed and not counted; table, json and mermaid all carry it"
+        },
+        {
+          "letter": "b",
+          "text": "count it as covered"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:28.442Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken. Table: the AC covered column reads \"retired (<successor>)\". Json: per-AC state \"retired\", supersededBy \"<successor>\", covered false, the bound TCs kept in testCases, and totals.retiredAcs. Mermaid: an edge \"<ac> -. supersededBy .-> <successor>\". AC-19401-5, -9 and -10.",
+      "answeredAt": "2026-10-20T11:39:28.645Z",
+      "resolvedAt": "2026-10-20T11:39:28.645Z"
+    },
+    {
+      "id": 47,
+      "question": "(d) The three supersession failure shapes (successor missing, self-supersession, cycle): verb, exit and message?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "rcf audit coverage in its default strict mode exits 4 with one stdout line per finding naming the criterion, its supersededBy value and the shape; --mode shallow-any prints the same lines and exits 0; rcf define validate is unchanged"
+        },
+        {
+          "letter": "b",
+          "text": "rcf define validate refuses them with exit 3 (moves the rule into the walker)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:28.845Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken. Lines: \"supersession: <ac> supersededBy <id>: successor not found in the chain\", \"supersession: <ac> supersededBy <ac>: a criterion cannot supersede itself\", \"supersession: <ac> supersededBy <id>: cycle <a> -> <b> -> <a>\" (one line per cycle, starting at its lowest id). AC-19401-6, -7 and -8, each also asserting validate exits 0.",
+      "answeredAt": "2026-10-20T11:39:29.046Z",
+      "resolvedAt": "2026-10-20T11:39:29.046Z"
+    },
+    {
+      "id": 48,
+      "question": "(e) EVAL coverage: a retired nonDeterministic criterion with no resolving EVAL reads missing today. Apply the retired rule in src/query/eval-coverage.js?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the same retired rule in src/query/eval-coverage.js (outcome retired naming the successor, not counted in missingCount), one [edge] criterion in this record"
+        },
+        {
+          "letter": "b",
+          "text": "out of scope, a follow-up"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:29.255Z",
+      "status": "resolved",
+      "answer": "a. Decided by the stage-keeper 2026-10-20: take option (a), do not leave it open. AC-19401-11.",
+      "answeredAt": "2026-10-20T11:39:29.456Z",
+      "resolvedAt": "2026-10-20T11:39:29.456Z"
+    },
+    {
+      "id": 49,
+      "question": "(f) Deterministic verify and retired criteria (rcf-schemas 0.9.0 Migration item 3): in scope?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "in scope: deterministic verify never runs the probe of a criterion carrying supersededBy and reports it as retired with its successor named, never pass or fail, one [must-not] criterion"
+        },
+        {
+          "letter": "b",
+          "text": "a follow-up"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:29.661Z",
+      "status": "resolved",
+      "answer": "a. Decided by the stage-keeper 2026-10-20: in scope. AC-19401-12. The perAc result \"retired\" is new to VerifyReport v1 (rcf-lite-local), so src/verify/report/index.js and the PER_AC_RESULTS set in src/finalise/ingest.js move with it.",
+      "answeredAt": "2026-10-20T11:39:29.867Z",
+      "resolvedAt": "2026-10-20T11:39:29.867Z"
+    },
+    {
+      "id": 50,
+      "question": "(g) The canary rule for expectBody.matches: canaries, reason text, compile failure, order, expectHeader?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the two rcf-schemas 0.9.0 Decision 2 canaries qzvxjk0729 and ~!@#%^&*() as fixed constants; a pattern matching both resolves fail with failedExpectation expectBody.matches and expected \"vacuous pattern: matches both canaries \\\"qzvxjk0729\\\" and \\\"~!@#%^&*()\\\"\"; a source that does not compile resolves fail with failedExpectation expectBody.matches, expected \"a pattern that compiles\" and the compile error as observed; the check runs before the body test; expectHeader.match stays a substring check"
+        },
+        {
+          "letter": "b",
+          "text": "a denylist of known match-anything spellings"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:30.074Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken. AC-19401-13 to -17, through rcf verify run --url <local server> --fbs FBS-001 --mode deterministic in the FBS-218 test world.",
+      "answeredAt": "2026-10-20T11:39:30.274Z",
+      "resolvedAt": "2026-10-20T11:39:30.274Z"
+    },
+    {
+      "id": 51,
+      "question": "(h) Position of FBS-227 in the train?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "after FBS-224: dependsOnFbsIds FBS-224 and buildOrder 230, the next free integer above every existing one (FBS-224 holds 229)"
+        },
+        {
+          "letter": "b",
+          "text": "another placement"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:30.477Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken; confirmed against rcf build queue (row 230, tier 9, actionable). Notes: \"Order in the train: after FBS-224 (dependsOnFbsIds FBS-224, buildOrder 230 ...)\".",
+      "answeredAt": "2026-10-20T11:39:30.685Z",
+      "resolvedAt": "2026-10-20T11:39:30.685Z"
+    },
+    {
+      "id": 52,
+      "question": "(i) Sizing: do the three parts (17 criteria) fit one test-author, builder and verifier round under 40 minutes each?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "split at the fill round into three FBSs along the parts: the pin bump with assertion-required probes (AC-19401-1 to -4), the retired rule (AC-19401-5 to -12), the canary rule (AC-19401-13 to -17), each depending on the one before"
+        },
+        {
+          "letter": "b",
+          "text": "keep one FBS and accept rounds over 40 minutes"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:30.894Z",
+      "status": "resolved",
+      "answer": "a. Decided by the stage-keeper 2026-10-20: split now, in the DEFINE close round, into three FBSs along the parts, each depending on the one before: FBS-227 (AC-19401-1 to -4, buildOrder 230), FBS-228 (AC-19401-5 to -12, buildOrder 231), FBS-229 (AC-19401-13 to -17, buildOrder 232). Seventeen criteria do not fit one 40-minute round per hand; the train sized specs at four to eight criteria.",
+      "answeredAt": "2026-10-20T12:06:16.531Z",
+      "resolvedAt": "2026-10-20T12:06:16.531Z"
+    },
+    {
+      "id": 53,
+      "question": "(j) Order inside FBS-227 for the Build hand, and the external dependency?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the pin bump first (the retired-rule fixtures carry supersededBy, which validates only under 0.9.0, so the fill round's red proof for that part needs the bump in its throwaway change), then the coverage and retired rule, then the canary rule; external dependency in the FBS-218 form: rcf-schemas 0.9.0 must be published and pinned before this FBS can merge (build-ordering constraint)"
+        },
+        {
+          "letter": "b",
+          "text": "any order"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:31.111Z",
+      "status": "resolved",
+      "answer": "a. Recommended option taken; recorded in the FBS-227 notes. rcf-schemas 0.9.0 is tagged v0.9.0 (2026-10-19); this repository pins 0.8.0 until the Build hand's bump.",
+      "answeredAt": "2026-10-20T11:39:31.325Z",
+      "resolvedAt": "2026-10-20T11:39:31.325Z"
+    },
+    {
+      "id": 54,
+      "question": "(k) contextRequirements for FBS-227: a new TAC or ADR, or reuse?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "reuse TAC-4150-ac-probe-catalog and ADR-4148-finalise-admin-verify-in-test as FBS-218 carries them (the probe surface; validate and readiness ask for nothing more)"
+        },
+        {
+          "letter": "b",
+          "text": "a new TAC for the coverage audit's retired rule"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T11:39:31.536Z",
+      "status": "resolved",
+      "answer": "a. Taken by the DEFINE hand: rcf define validate exits 0 with the reuse and readiness names no new failing id for FBS-227's contextRequirements. US-19401 links TAC-4150-ac-probe-catalog; REQ-194 deliveredBy TAC-4150-ac-probe-catalog.",
+      "answeredAt": "2026-10-20T11:39:31.743Z",
+      "resolvedAt": "2026-10-20T11:39:31.743Z"
+    },
+    {
+      "id": 55,
+      "question": "(l) The view index envelope in test/view/id-lookup.test.js: the dogfood tree's index passed the 400 KB envelope. Keep 450 KB or restore 400 KB?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "keep 450 KB as a count pin"
+        },
+        {
+          "letter": "b",
+          "text": "restore 400 KB and shorten titles"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T12:06:16.727Z",
+      "status": "resolved",
+      "answer": "a. Decided by the stage-keeper 2026-10-20: kept as a count pin. Reason: real row growth. Main sat at about 405.5 KB; the first DEFINE round's 21 rows took the index to 410502 bytes; after this round it is 410987 bytes.",
+      "answeredAt": "2026-10-20T12:06:20.445Z",
+      "resolvedAt": "2026-10-20T12:06:20.445Z"
     }
   ]
 }

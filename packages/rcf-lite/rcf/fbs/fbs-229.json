@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-10-20T12:03:58.569Z",
+  "updatedAt": "2026-10-20T12:05:28.719Z",
+  "acIds": [
+    "AC-19401-13",
+    "AC-19401-14",
+    "AC-19401-15",
+    "AC-19401-16",
+    "AC-19401-17"
+  ],
+  "fbsId": "FBS-229",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 232,
+  "executionStatus": "notStarted",
+  "title": "rcf-schemas 0.9.0 consumer side C: the expectBody.matches canary rule",
+  "summary": "rcf-lite carries the rcf-schemas 0.9.0 expectBody.matches canary rule (US-19401): a pattern that matches both canaries, or does not compile, fails deterministic verify. Delivers AC-19401-13 to AC-19401-17.",
+  "dependsOnFbsIds": [
+    "FBS-228"
+  ],
+  "approach": "In src/verify/engine/deterministic.js, before the body test, compile expectBody.matches in a guard and test it against the fixed canaries qzvxjk0729 and ~!@#%^&*(); matching both, or failing to compile, resolves fail with failedExpectation expectBody.matches and the named reason.",
+  "deliverables": [
+    "src/verify/engine/deterministic.js: the canary rule"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4150-ac-probe-catalog"
+    ],
+    "adrIds": [
+      "ADR-4148-finalise-admin-verify-in-test"
+    ]
+  },
+  "riskLevel": "medium",
+  "domain": "functional",
+  "estimatedSize": "small",
+  "notes": "Order in the train: after FBS-228 (dependsOnFbsIds FBS-228, buildOrder 232). Split from the original FBS-227 by ledger 52 into three chained specs. Tests: this spec's share of TS-260 is TC-260-specific-pattern-passes, TC-260-vacuous-pattern-fails, TC-260-non-compiling-pattern-fails, TC-260-match-anything-never-passes and TC-260-one-canary-and-header-substring, declared in test/verify/expect-body-canary.test.js; the test-author turns each into a red test at this FBS's own Define fill round. Commits carry Hand: trailers. No freeze, no ack verbs."
+}

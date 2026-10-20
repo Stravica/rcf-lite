@@ -1,0 +1,42 @@
+{
+  "createdAt": "2026-10-20T12:03:51.929Z",
+  "updatedAt": "2026-10-20T12:05:28.147Z",
+  "acIds": [
+    "AC-19401-5",
+    "AC-19401-6",
+    "AC-19401-7",
+    "AC-19401-8",
+    "AC-19401-9",
+    "AC-19401-10",
+    "AC-19401-11",
+    "AC-19401-12"
+  ],
+  "fbsId": "FBS-228",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 231,
+  "executionStatus": "notStarted",
+  "title": "rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify",
+  "summary": "rcf-lite carries the rcf-schemas 0.9.0 retired-criterion rule (US-19401): retired criteria in rcf audit coverage, rcf audit eval coverage and deterministic verify. Delivers AC-19401-5 to AC-19401-12.",
+  "dependsOnFbsIds": [
+    "FBS-227"
+  ],
+  "approach": "In src/query/coverage.js a criterion carrying supersededBy gets per-AC state retired with supersededBy, leaves the requirement decision in both modes, keeps any bound TC listed and uncounted; the successor-missing, self-supersession and cycle checks print a supersession line and fail strict mode with exit 4 (src/cli/coverage.js, the table, json and mermaid formatters); src/query/eval-coverage.js gives outcome retired; deterministic verify resolves a retired criterion as retired without a request.",
+  "deliverables": [
+    "src/query/coverage.js, src/cli/coverage.js, src/query/formatters/: retired state, supersession findings",
+    "src/query/eval-coverage.js: outcome retired",
+    "src/verify/engine/deterministic.js, src/verify/report/index.js, src/finalise/ingest.js: retired result"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4150-ac-probe-catalog"
+    ],
+    "adrIds": [
+      "ADR-4148-finalise-admin-verify-in-test"
+    ]
+  },
+  "riskLevel": "medium",
+  "domain": "functional",
+  "estimatedSize": "medium",
+  "notes": "Order in the train: after FBS-227 (dependsOnFbsIds FBS-227, buildOrder 231). Its retired-rule fixtures carry supersededBy, which validates only under rcf-schemas 0.9.0, so it builds on FBS-227's pin bump. Split from the original FBS-227 by ledger 52 into three chained specs. Tests: this spec's share of TS-260 is TC-260-retired-state-with-successor, TC-260-successor-missing, TC-260-self-supersession, TC-260-supersession-cycle, TC-260-retired-tc-listed-not-counted, TC-260-live-gap-beside-retired and TC-260-eval-coverage-retired, declared in test/cli/coverage-retired.test.js, and TC-260-verify-skips-retired-probe (AC-19401-12), whose declaration stays in test/verify/probe-assertion-0-9-0.test.js so its bound testPointer does not move; the test-author turns each into a red test at this FBS's own Define fill round. Commits carry Hand: trailers. No freeze, no ack verbs."
+}
