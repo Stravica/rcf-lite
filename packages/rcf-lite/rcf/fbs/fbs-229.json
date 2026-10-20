@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-20T12:03:58.569Z",
-  "updatedAt": "2026-10-20T12:04:49.705Z",
+  "updatedAt": "2026-10-20T12:05:28.719Z",
   "acIds": [
     "AC-19401-13",
     "AC-19401-14",
@@ -32,5 +32,6 @@
   },
   "riskLevel": "medium",
   "domain": "functional",
-  "estimatedSize": "small"
+  "estimatedSize": "small",
+  "notes": "Order in the train: after FBS-228 (dependsOnFbsIds FBS-228, buildOrder 232). Split from the original FBS-227 by ledger 52 into three chained specs. Tests: this spec's share of TS-260 is TC-260-specific-pattern-passes, TC-260-vacuous-pattern-fails, TC-260-non-compiling-pattern-fails, TC-260-match-anything-never-passes and TC-260-one-canary-and-header-substring, declared in test/verify/expect-body-canary.test.js; the test-author turns each into a red test at this FBS's own Define fill round. Commits carry Hand: trailers. No freeze, no ack verbs."
 }

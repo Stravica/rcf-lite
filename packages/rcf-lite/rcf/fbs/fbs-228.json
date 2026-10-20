@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-20T12:03:51.929Z",
-  "updatedAt": "2026-10-20T12:04:49.134Z",
+  "updatedAt": "2026-10-20T12:05:28.147Z",
   "acIds": [
     "AC-19401-5",
     "AC-19401-6",
@@ -37,5 +37,6 @@
   },
   "riskLevel": "medium",
   "domain": "functional",
-  "estimatedSize": "medium"
+  "estimatedSize": "medium",
+  "notes": "Order in the train: after FBS-227 (dependsOnFbsIds FBS-227, buildOrder 231). Its retired-rule fixtures carry supersededBy, which validates only under rcf-schemas 0.9.0, so it builds on FBS-227's pin bump. Split from the original FBS-227 by ledger 52 into three chained specs. Tests: this spec's share of TS-260 is TC-260-retired-state-with-successor, TC-260-successor-missing, TC-260-self-supersession, TC-260-supersession-cycle, TC-260-retired-tc-listed-not-counted, TC-260-live-gap-beside-retired and TC-260-eval-coverage-retired, declared in test/cli/coverage-retired.test.js, and TC-260-verify-skips-retired-probe (AC-19401-12), whose declaration stays in test/verify/probe-assertion-0-9-0.test.js so its bound testPointer does not move; the test-author turns each into a red test at this FBS's own Define fill round. Commits carry Hand: trailers. No freeze, no ack verbs."
 }
