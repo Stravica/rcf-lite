@@ -40,8 +40,17 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.34.2"
+latest: "0.35.0"
 releases:
+  - version: "0.35.0"
+    date: "2026-10-20"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.35.0 states the five-stage contract with a hand per stage: verification runs in the Test stage through rcf verify run --fbs <fbs-id> --hand verifier, and Finalise ingests the committed report through rcf build finalise <fbs-id> --ci-run <ref>. The build-cycle guidance, the playbook, the bundle runbook and the root README say so, and audit is the fifth verb."
+      - "Rerun rcf init after installing, or run rcf doctor --fix: the managed agent-instructions block now says verified is written only by rcf build finalise from a Test-stage report, so rcf doctor reports a stale hash until the block is refreshed."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.34.2"
     date: "2026-10-15"
     breaking: false
