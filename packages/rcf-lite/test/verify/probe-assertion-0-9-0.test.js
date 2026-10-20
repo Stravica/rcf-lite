@@ -1,7 +1,7 @@
-// FBS-227 (US-19401) part a: the rcf-schemas 0.9.0 pin bump with assertion-required probes, and deterministic verify skipping a retired criterion's probe (AC-19401-1 to -4, AC-19401-12).
+// FBS-227 and FBS-228 (US-19401): the rcf-schemas 0.9.0 pin bump with assertion-required probes (FBS-227, AC-19401-1 to -4), and deterministic verify skipping a retired criterion's probe (FBS-228, AC-19401-12).
 //
 // Declared skeletons, one per AC, bound by the US-19401 test suite. The
-// FBS-227 Define fill round (test-author hand) turns each todo into a test
+// owning spec's Define fill round (test-author hand; FBS-227 for AC-19401-1 to -4, FBS-228 for AC-19401-12) turns each todo into a test
 // that drives bin/rcf.js in the test/verify/probe-catalog.test.js world (scaffoldChain, a local target server)
 // and is red for the right reason before Build starts. The supersession
 // fixtures validate only once the pin reads rcf-schemas 0.9.0. These

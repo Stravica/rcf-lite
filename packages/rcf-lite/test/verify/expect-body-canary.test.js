@@ -1,7 +1,7 @@
-// FBS-227 (US-19401) part c: the expectBody.matches canary rule in deterministic verify (AC-19401-13 to -17).
+// FBS-229 (US-19401): the expectBody.matches canary rule in deterministic verify (AC-19401-13 to -17).
 //
 // Declared skeletons, one per AC, bound by the US-19401 test suite. The
-// FBS-227 Define fill round (test-author hand) turns each todo into a test
+// FBS-229 Define fill round (test-author hand) turns each todo into a test
 // that drives bin/rcf.js in the test/verify/probe-catalog.test.js world (scaffoldChain, a local target server)
 // and is red for the right reason before Build starts. The supersession
 // fixtures validate only once the pin reads rcf-schemas 0.9.0. These

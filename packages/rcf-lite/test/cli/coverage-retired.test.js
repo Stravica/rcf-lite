@@ -1,7 +1,7 @@
-// FBS-227 (US-19401) part b: retired criteria (supersededBy) in rcf audit coverage and rcf audit eval coverage (AC-19401-5 to -11).
+// FBS-228 (US-19401): retired criteria (supersededBy) in rcf audit coverage and rcf audit eval coverage (AC-19401-5 to -11).
 //
 // Declared skeletons, one per AC, bound by the US-19401 test suite. The
-// FBS-227 Define fill round (test-author hand) turns each todo into a test
+// FBS-228 Define fill round (test-author hand) turns each todo into a test
 // that drives bin/rcf.js in the test/cli/coverage.test.js world (initProject in-process, runBin) and test/query/eval-coverage.test.js
 // and is red for the right reason before Build starts. The supersession
 // fixtures validate only once the pin reads rcf-schemas 0.9.0. These
