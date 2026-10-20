@@ -1,0 +1,137 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-223",
+  "headSha": "e64f212a58bfe715ab9cb6393bcfcae021248e21",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.34.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.34.2",
+    "sha256": "74e663eb10103ccb7d11731419b3bb98267bb1afe56059443e0773678404d436",
+    "servedSha": null
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-223-test",
+  "startedAt": "2026-10-20T03:36:20.938Z",
+  "finishedAt": "2026-10-20T03:36:29.418Z",
+  "rcfLiteVersion": "0.34.2",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "install": {
+    "command": "npm install --no-audit --no-fund /home/thefoot/remote-lane/jobs/r-20261020-033522-f4f8/output/rcf-lite-0.34.2.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-223/e64f212a58bf/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-256",
+      "file": "test/cli/audit-separation-wiring.test.js",
+      "tests": 21,
+      "pass": 21,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-223/e64f212a58bf/TS-256.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 5,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 5
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19102-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-256",
+        "file": "test/cli/audit-separation-wiring.test.js",
+        "tests": [
+          {
+            "tcId": "TC-256-mixed-exception",
+            "title": "AC-19102-1: rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict \"exception\"); Hand: mixed without a reason exits 4 with \"mixed without Separation-Reason\"",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19102-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-256",
+        "file": "test/cli/audit-separation-wiring.test.js",
+        "tests": [
+          {
+            "tcId": "TC-256-class-override",
+            "title": "AC-19102-2: rcf audit separation with rcf/separation.json { classes: { test: [\"spec/**\"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19102-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-256",
+        "file": "test/cli/audit-separation-wiring.test.js",
+        "tests": [
+          {
+            "tcId": "TC-256-require-hand",
+            "title": "AC-19102-3: rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19102-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-256",
+        "file": "test/cli/audit-separation-wiring.test.js",
+        "tests": [
+          {
+            "tcId": "TC-256-ci-pull-request-step",
+            "title": "AC-19102-4: on pull_request, CI runs node bin/rcf.js audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite after checkout fetch-depth 0 and its exit code fails the job; the step does not run on push to main",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19102-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-256",
+        "file": "test/cli/audit-separation-wiring.test.js",
+        "tests": [
+          {
+            "tcId": "TC-256-no-empty-reason-no-shallow",
+            "title": "AC-19102-5: an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}
