@@ -3459,6 +3459,10 @@ flowchart LR
   REQ-191 --> AC-19101-2
   TC-255-fail-line["TC-255-fail-line"]
   AC-19101-2 -.-> TC-255-fail-line
+  TC-255-lockfiles-neutral["TC-255-lockfiles-neutral"]
+  AC-19101-2 -.-> TC-255-lockfiles-neutral
+  TC-255-multi-extension-test-file["TC-255-multi-extension-test-file"]
+  AC-19101-2 -.-> TC-255-multi-extension-test-file
   AC-19101-3["AC-19101-3"]
   REQ-191 --> AC-19101-3
   TC-255-undeclared["TC-255-undeclared"]
@@ -5408,6 +5412,8 @@ flowchart LR
   class TC-255-pass-line tc;
   class AC-19101-2 ac;
   class TC-255-fail-line tc;
+  class TC-255-lockfiles-neutral tc;
+  class TC-255-multi-extension-test-file tc;
   class AC-19101-3 ac;
   class TC-255-undeclared tc;
   class AC-19101-4 ac;

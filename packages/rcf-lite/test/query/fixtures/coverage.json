@@ -7109,7 +7109,9 @@
           "id": "AC-19101-2",
           "covered": true,
           "testCases": [
-            "TC-255-fail-line"
+            "TC-255-fail-line",
+            "TC-255-lockfiles-neutral",
+            "TC-255-multi-extension-test-file"
           ],
           "unresolvedTestCases": []
         },

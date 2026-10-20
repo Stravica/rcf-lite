@@ -766,7 +766,7 @@ REQ-190      yes      AC-19001-1   yes         TC-252-report-written
                       AC-19004-6   yes         TC-257-doctor-drift
                       AC-19004-7   yes         TC-257-no-post-merge-verify
 REQ-191      yes      AC-19101-1   yes         TC-255-pass-line
-                      AC-19101-2   yes         TC-255-fail-line
+                      AC-19101-2   yes         TC-255-fail-line, TC-255-lockfiles-neutral, TC-255-multi-...
                       AC-19101-3   yes         TC-255-undeclared
                       AC-19101-4   yes         TC-255-bad-ref-and-repo
                       AC-19101-5   yes         TC-255-json-rows
