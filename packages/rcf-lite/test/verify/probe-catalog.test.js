@@ -213,7 +213,7 @@ test('AC-19201-4: rcf verify run --mode deterministic uses the AC-level probe ov
   // A catalog key naming no AC in the tree: validate reports it, exit 3.
   const strayRoot = await fixtureChain({
     acs: [ac('AC-101-1')],
-    catalog: { 'AC-101-1': { path: '/from-catalog', expectStatus: 200 }, 'AC-999-9': { path: '/' } },
+    catalog: { 'AC-101-1': { path: '/from-catalog', expectStatus: 200 }, 'AC-999-9': { path: '/', expectStatus: 200 } },
   });
   const stray = await rcf(['define', 'validate'], { cwd: strayRoot });
   assert.equal(stray.code, 3, `stray catalog key fails validate; stdout:\n${stray.stdout}`);
