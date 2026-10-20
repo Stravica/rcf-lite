@@ -11,6 +11,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:http';
+import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
@@ -37,6 +38,37 @@ async function assertPinGiven() {
   const schemasPkg = createRequire(RCF_BIN).resolve(`${SCHEMAS}/package.json`);
   const installed = JSON.parse(await readFile(schemasPkg, 'utf8')).version;
   assert.equal(installed, '0.9.0', `the ${SCHEMAS} that bin/rcf.js resolves (${schemasPkg}) is 0.9.0`);
+}
+
+// This repository's packages/rcf-lite, the directory AC-19401-1 runs its
+// commands from. In the clone it is PKG_ROOT. Inside `rcf verify run
+// --artefact` this file runs from a scratch copy of the installed package,
+// whose chain names Code Node paths the tarball does not ship (blueprints/,
+// scripts/, the root README.md), so the walk also starts from the shell's
+// working directory the run inherited (PWD, or INIT_CWD under a package
+// manager): the verifier's shell sits in the clone. The first directory
+// holding README.md and packages/rcf-lite/rcf/ wins, and its package must be
+// the package under test by name and version; the installed copy never
+// stands in.
+async function repoPackage() {
+  const own = JSON.parse(await readFile(join(PKG_ROOT, 'package.json'), 'utf8'));
+  const starts = [HERE, process.env.PWD, process.env.INIT_CWD].filter(Boolean);
+  for (const start of starts) {
+    let dir = resolve(start);
+    for (;;) {
+      const pkgDir = join(dir, 'packages', 'rcf-lite');
+      if (existsSync(join(dir, 'README.md')) && existsSync(join(pkgDir, 'package.json')) && existsSync(join(pkgDir, 'rcf'))) {
+        const pkg = JSON.parse(await readFile(join(pkgDir, 'package.json'), 'utf8'));
+        assert.equal(`${pkg.name}@${pkg.version}`, `${own.name}@${own.version}`,
+          `${pkgDir} is the repository of the package under test`);
+        return pkgDir;
+      }
+      const up = dirname(dir);
+      if (up === dir) break;
+      dir = up;
+    }
+  }
+  return assert.fail(`no repository root with README.md and packages/rcf-lite/rcf/ above ${starts.join(', ')}`);
 }
 
 // Run bin/rcf.js as a child; never rejects, returns the exit code.
@@ -125,9 +157,13 @@ function assertMissingAssertionFail(report, acId) {
 test('AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0', async (t) => {
   await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.9.0', assertPinGiven);
 
+  // The package under test's bin/rcf.js runs from this repository's
+  // packages/rcf-lite in both worlds, full validation included.
+  const repoPkg = await repoPackage();
+
   // Guard (green at Define under 0.8.0): the own chain validates clean.
   await t.test('guard: node bin/rcf.js define validate over the own chain exits 0 with no "[error]" line', async () => {
-    const r = await rcf(['define', 'validate'], { cwd: PKG_ROOT });
+    const r = await rcf(['define', 'validate'], { cwd: repoPkg });
     const errorLines = `${r.stdout}\n${r.stderr}`.split('\n').filter((l) => l.includes('[error]'));
     assert.deepEqual(errorLines, [], 'no "[error]" line on stdout or stderr');
     assert.equal(r.code, 0, `define validate exits 0; stderr:\n${r.stderr.slice(-2000)}`);
@@ -135,7 +171,7 @@ test('AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node
 
   // Guard (green at Define under 0.8.0): every criterion stays covered.
   await t.test('guard: node bin/rcf.js audit coverage --strict over the own chain exits 0', async () => {
-    const r = await rcf(['audit', 'coverage', '--strict'], { cwd: PKG_ROOT });
+    const r = await rcf(['audit', 'coverage', '--strict'], { cwd: repoPkg });
     assert.equal(r.code, 0, `audit coverage --strict exits 0; stdout tail:\n${r.stdout.slice(-1500)}\nstderr:\n${r.stderr.slice(-1500)}`);
   });
 });
