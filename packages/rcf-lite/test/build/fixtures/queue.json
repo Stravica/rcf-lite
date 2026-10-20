@@ -10,8 +10,8 @@
     "items": 119,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 35,
-    "verified": 24,
+    "complete": 34,
+    "verified": 25,
     "actionable": 41,
     "blocked": 17
   },
@@ -1541,11 +1541,11 @@
       "buildOrder": 230,
       "tier": 9,
       "title": "rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-224"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {

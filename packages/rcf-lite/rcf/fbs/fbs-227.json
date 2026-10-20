@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-20T11:38:14.174Z",
-  "updatedAt": "2026-10-20T15:21:24.012Z",
+  "updatedAt": "2026-10-20T16:09:22.767Z",
   "summary": "rcf-lite moves to rcf-schemas 0.9.0 and carries its assertion-required probe rule (US-19401): after the pin bump an assertion-free probe fails rcf define validate, rcf define update --probe and deterministic verify. Delivers AC-19401-1 to AC-19401-4.",
   "approach": "Bump @stravica-ai/rcf-schemas 0.8.0 to 0.9.0 in packages/rcf-lite/package.json and the lockfile, nothing else in the bump; probeShapeError keeps naming \"missing assertion\" when the 0.9.0 acProbe subschema rejects an assertion-free probe.",
   "deliverables": [
@@ -32,6 +32,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 230,
-  "executionStatus": "complete",
+  "executionStatus": "verified",
   "title": "rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes"
 }
