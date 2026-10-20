@@ -6,7 +6,8 @@
   "implementsAcIds": [
     "AC-701-2",
     "AC-702-1",
-    "AC-702-2"
+    "AC-702-2",
+    "AC-19401-4"
   ],
   "dependencies": [
     "CN-001",
@@ -15,5 +16,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-07-10T11:14:05.169Z",
-  "updatedAt": "2026-07-10T11:14:05.169Z"
+  "updatedAt": "2026-10-20T13:41:29.263Z"
 }

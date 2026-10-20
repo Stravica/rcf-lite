@@ -2,11 +2,12 @@
   "cnId": "CN-806",
   "path": "src/verify/engine/catalog.js#validateVerifyCatalogKeys",
   "implementsAcIds": [
-    "AC-19201-4"
+    "AC-19201-4",
+    "AC-19401-4"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-16T17:26:52.396Z",
-  "updatedAt": "2026-10-16T17:26:52.396Z"
+  "updatedAt": "2026-10-20T13:41:28.646Z"
 }
