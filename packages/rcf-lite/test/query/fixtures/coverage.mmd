@@ -3495,6 +3495,10 @@ flowchart LR
   REQ-191 --> AC-19102-3
   TC-256-require-hand["TC-256-require-hand"]
   AC-19102-3 -.-> TC-256-require-hand
+  TC-256-require-hand-builder-breach["TC-256-require-hand-builder-breach"]
+  AC-19102-3 -.-> TC-256-require-hand-builder-breach
+  TC-256-require-hand-undeclared-breach["TC-256-require-hand-undeclared-breach"]
+  AC-19102-3 -.-> TC-256-require-hand-undeclared-breach
   AC-19102-4["AC-19102-4"]
   REQ-191 --> AC-19102-4
   TC-256-ci-pull-request-step["TC-256-ci-pull-request-step"]
@@ -5430,6 +5434,8 @@ flowchart LR
   class TC-256-class-override tc;
   class AC-19102-3 ac;
   class TC-256-require-hand tc;
+  class TC-256-require-hand-builder-breach tc;
+  class TC-256-require-hand-undeclared-breach tc;
   class AC-19102-4 ac;
   class TC-256-ci-pull-request-step tc;
   class AC-19102-5 ac;
