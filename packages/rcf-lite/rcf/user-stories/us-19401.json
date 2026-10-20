@@ -1,0 +1,104 @@
+{
+  "createdAt": "2026-10-20T11:37:40.546Z",
+  "updatedAt": "2026-10-20T11:37:40.546Z",
+  "description": "User story under REQ-194 for FBS-227. The pin moves to rcf-schemas 0.9.0 with every probe carrying an assertion; a criterion carrying supersededBy is retired in rcf audit coverage, rcf audit eval coverage and deterministic verify, with the successor-missing, self-supersession and cycle shapes failing strict coverage; and deterministic verify tests expectBody.matches against two fixed canaries before the body, so a match-anything pattern never passes a criterion.",
+  "asA": "a chain author or verifier hand working on a product built with rcf-lite",
+  "iWant": "rcf-lite on rcf-schemas 0.9.0 to retire superseded criteria cleanly and to refuse probes that assert nothing",
+  "soThat": "coverage and verify count only live criteria and only probes that actually check the response",
+  "tacIds": [
+    "TAC-4150-ac-probe-catalog"
+  ],
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19401-1",
+      "description": "[happy] Given packages/rcf-lite/package.json reading \"@stravica-ai/rcf-schemas\": \"0.9.0\" and that version installed, when node bin/rcf.js define validate runs over this repository's own chain from packages/rcf-lite, then it exits 0 and prints no \"[error]\" line, and node bin/rcf.js audit coverage --strict over the same chain exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-2",
+      "description": "[failure] Given a fixture chain at rcf-schemas 0.9.0 whose US-101 holds AC-101-1 with no probe, when rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\"}' runs (a probe with path only, carrying none of expectStatus, expectHeader, expectBody or selector), then it exits 3, stderr carries a line naming AC-101-1 and \"missing assertion\" and listing the four assertion fields, and rcf/user-stories/us-101.json is byte-identical to its state before the command.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-3",
+      "description": "[must-not] Given the pin at rcf-schemas 0.9.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, an rcf/verify-catalog.json at catalogVersion 1 whose AC-101-1 entry is { \"path\": \"/\" } and whose AC-101-2 entry is { \"path\": \"/\", \"expectStatus\": 200 }, and a local server answering GET / with 200, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then it exits 4, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\" (never the name of a single assertion field such as \"expectStatus\", which the 0.9.0 acProbe subschema error would otherwise name first), never \"pass\", runStats.counts.failed counts it and runStats.counts.verified counts AC-101-2 only; and rcf define validate on that chain exits 3 naming the key AC-101-1.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-4",
+      "description": "[must-not] Given the pin at rcf-schemas 0.9.0 and a fixture chain whose rcf/user-stories/us-101.json already carries an AC-level probe { \"path\": \"/\" } on AC-101-1 (written to disk, not through the CLI), when rcf define validate runs, then it exits 3 naming AC-101-1 and its probe; and when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs on that tree, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\", never \"pass\", and the command exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-5",
+      "description": "[happy] Given a fixture project initialised by initProject (the test/cli/coverage.test.js world) whose REQ-001 holds US-101 with acceptance criteria AC-101-1 and AC-101-2 and the pin at rcf-schemas 0.9.0, where AC-101-1 carries supersededBy AC-101-2, supersededOn 2026-10-20 and supersessionNote \"replaced by AC-101-2\" and has no test case, and AC-101-2 is bound by a test case whose testPointer resolves, when rcf audit coverage runs (strict by default), then it exits 0, REQ-001 reads covered, the AC-101-1 row reads \"retired (AC-101-2)\" in the AC covered column, --format json gives AC-101-1 state \"retired\", supersededBy \"AC-101-2\" and covered false with totals.retiredAcs 1, --format mermaid carries the edge \"AC-101-1 -. supersededBy .-> AC-101-2\", and --mode shallow-any prints the same retired row and exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-6",
+      "description": "[failure] Given a fixture project initialised by initProject (the test/cli/coverage.test.js world) whose REQ-001 holds US-101 with acceptance criteria AC-101-1 and AC-101-2 and the pin at rcf-schemas 0.9.0, where AC-101-1 carries supersededBy AC-101-9 (with supersededOn and supersessionNote) and no AC-101-9 exists in the chain, when rcf audit coverage runs, then it exits 4 and stdout carries the line \"supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain\"; with --mode shallow-any it prints the same line and exits 0; rcf define validate on the same chain exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-7",
+      "description": "[failure] Given a fixture project initialised by initProject (the test/cli/coverage.test.js world) whose REQ-001 holds US-101 with acceptance criteria AC-101-1 and AC-101-2 and the pin at rcf-schemas 0.9.0, where AC-101-1 carries supersededBy AC-101-1 (with supersededOn and supersessionNote), when rcf audit coverage runs, then it exits 4 and stdout carries the line \"supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself\"; with --mode shallow-any it prints the same line and exits 0; rcf define validate on the same chain exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-8",
+      "description": "[failure] Given a fixture project initialised by initProject (the test/cli/coverage.test.js world) whose REQ-001 holds US-101 with acceptance criteria AC-101-1 and AC-101-2 and the pin at rcf-schemas 0.9.0, where AC-101-1 carries supersededBy AC-101-2 and AC-101-2 carries supersededBy AC-101-1 (each with supersededOn and supersessionNote), when rcf audit coverage runs, then it exits 4 and stdout carries exactly one line for the cycle, \"supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1\", starting at the lowest id in the cycle; with --mode shallow-any it prints the same line and exits 0; rcf define validate on the same chain exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-9",
+      "description": "[edge] Given a fixture project initialised by initProject (the test/cli/coverage.test.js world) whose REQ-001 holds US-101 with acceptance criteria AC-101-1 and AC-101-2 and the pin at rcf-schemas 0.9.0, where AC-101-1 carries supersededBy AC-101-2, supersededOn 2026-10-20 and supersessionNote \"replaced by AC-101-2\" and is still bound by a test case TC-1 whose testPointer resolves, and AC-101-2 has no test case, when rcf audit coverage runs, then it exits 4 with REQ-001 uncovered, the AC-101-1 row reads \"retired (AC-101-2)\" and still lists TC-1 in its Test cases column, --format json lists TC-1 under AC-101-1 testCases with state \"retired\", and TC-1 is not counted toward REQ-001 or toward AC-101-2.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-10",
+      "description": "[must-not] Given a fixture project initialised by initProject (the test/cli/coverage.test.js world) whose REQ-001 holds US-101 with acceptance criteria AC-101-1 and AC-101-2 and the pin at rcf-schemas 0.9.0 and a third criterion AC-101-3, where AC-101-1 carries supersededBy AC-101-2, supersededOn 2026-10-20 and supersessionNote \"replaced by AC-101-2\" and has no test case, AC-101-2 is bound by a resolving test case and AC-101-3 has no resolving test case, when rcf audit coverage runs, then it exits 4, REQ-001 reads uncovered and the AC-101-3 row reads \"no\"; AC-101-1 never reads \"yes\" in the AC covered column nor covered true in --format json, in strict or shallow-any mode, and totals.covered never counts a requirement on the strength of a retired criterion.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-11",
+      "description": "[edge] Given a fixture tree where AC-101-1 is nonDeterministic, carries supersededBy AC-101-2, supersededOn 2026-10-20 and supersessionNote \"replaced by AC-101-2\" and has no EVAL bound, and AC-101-2 is nonDeterministic with a resolving EVAL, when rcf audit eval coverage --strict runs, then it exits 0, AC-101-1 reads outcome \"retired\" with supersededBy \"AC-101-2\" (never \"missing\") and missingCount is 0; with a third nonDeterministic criterion AC-101-3 that has no EVAL, the same command reads AC-101-3 \"missing\" and exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-12",
+      "description": "[must-not] Given the pin at rcf-schemas 0.9.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, where AC-101-1 carries supersededBy AC-101-2, supersededOn 2026-10-20 and supersessionNote \"replaced by AC-101-2\" and an AC-level probe { \"path\": \"/retired\", \"expectStatus\": 200 }, and AC-101-2 carries { \"path\": \"/\", \"expectStatus\": 200 }, and a local server that records every path it is asked for, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then the server never receives a request for /retired, the report records AC-101-1 with result \"retired\" and evidence.supersededBy \"AC-101-2\", never \"pass\" or \"fail\", runStats.counts.verified and runStats.counts.failed never count AC-101-1, and with AC-101-2 passing the command exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-13",
+      "description": "[happy] Given a fixture chain whose FBS-001 scopes the US-101 criteria (the test/verify/probe-catalog.test.js world), a local HTTP server on 127.0.0.1 answering GET / with status 200 and body \"<h1> Notes </h1> Hello, world 0123abcd\" and content-type \"text/html\", when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs with AC-101-1 carrying expectBody.matches set in turn to \"<h1>\\s*Notes\\s*</h1>\", \"Hello, \\w+\" and \"[0-9a-f]{8}\", each matching the body, then each run exits 0, AC-101-1 has result \"pass\" and runStats.counts.verified is 1.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-14",
+      "description": "[failure] Given a fixture chain whose FBS-001 scopes the US-101 criteria (the test/verify/probe-catalog.test.js world), a local HTTP server on 127.0.0.1 answering GET / with status 200 and body \"<h1> Notes </h1> Hello, world 0123abcd\" and content-type \"text/html\", when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs with AC-101-1 carrying expectBody.matches set in turn to \".*\", \"^.*$\", \"[\\s\\S]*\", \"(?:)\", \"x?\" and \"a|\", each of which matches both canaries \"qzvxjk0729\" and \"~!@#%^&*()\" and also matches the body, then each run exits 4 and AC-101-1 has result \"fail\" with evidence.failedExpectation \"expectBody.matches\" and evidence.expected equal to the text vacuous pattern: matches both canaries \"qzvxjk0729\" and \"~!@#%^&*()\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-15",
+      "description": "[failure] Given a fixture chain whose FBS-001 scopes the US-101 criteria (the test/verify/probe-catalog.test.js world), a local HTTP server on 127.0.0.1 answering GET / with status 200 and body \"<h1> Notes </h1> Hello, world 0123abcd\" and content-type \"text/html\", when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs with AC-101-1 carrying expectBody.matches \"(\" or \"[a-\", a source that does not compile, then the command does not crash, it exits 4 and writes the report, and AC-101-1 has result \"fail\" with evidence.failedExpectation \"expectBody.matches\", evidence.expected \"a pattern that compiles\" and evidence.observed the compile error message.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-16",
+      "description": "[must-not] Given a fixture chain whose FBS-001 scopes the US-101 criteria (the test/verify/probe-catalog.test.js world), a local HTTP server on 127.0.0.1 answering GET / with status 200 and body \"<h1> Notes </h1> Hello, world 0123abcd\" and content-type \"text/html\", when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs with AC-101-1 carrying any match-anything expectBody.matches (\".*\", \".+\", \"^\", \"$\", \".*?\", \"(.*)\", \".{0,}\", \"\\S*\", \"[^]*\" or \".\"), alone or beside a passing expectStatus 200, then AC-101-1 never has result \"pass\", runStats.counts.verified never counts it, the verdict is never \"PASS\" and the command exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-19401-17",
+      "description": "[edge] Given a fixture chain whose FBS-001 scopes the US-101 criteria (the test/verify/probe-catalog.test.js world), a local HTTP server on 127.0.0.1 answering GET / with status 200 and body \"<h1> Notes </h1> Hello, world 0123abcd\" and content-type \"text/html\", when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs with AC-101-1 carrying expectBody.matches \"\\w+\" (which matches the word canary only) or a plain-text pattern \"Notes\", each matching the body, then AC-101-1 has result \"pass\" and the run exits 0 (a pattern matching one canary or neither is not vacuous); and with AC-101-1 carrying expectHeader { \"name\": \"content-type\", \"match\": \".*\" } against a content-type that does not contain the literal text \".*\", AC-101-1 has result \"fail\" with failedExpectation \"expectHeader content-type\" and the run exits 4 (expectHeader.match stays a substring check, untouched by the canary rule).",
+      "testable": true
+    }
+  ],
+  "usId": "US-19401",
+  "prdId": "PRD-001",
+  "reqId": "REQ-194",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A chain author and verifier on rcf-schemas 0.9.0: assertion-required probes, retired criteria in coverage and verify, and a canary-checked expectBody.matches"
+}
