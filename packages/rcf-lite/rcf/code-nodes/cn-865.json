@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-865",
+  "path": "src/audit/separation.js#parseOverride",
+  "implementsAcIds": [
+    "AC-19102-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T03:25:21.088Z",
+  "updatedAt": "2026-10-20T03:25:21.088Z"
+}
