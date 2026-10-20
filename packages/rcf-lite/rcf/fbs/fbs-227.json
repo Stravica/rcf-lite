@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-20T11:38:14.174Z",
-  "updatedAt": "2026-10-20T11:38:46.998Z",
+  "updatedAt": "2026-10-20T12:03:59.750Z",
   "summary": "rcf-lite moves to rcf-schemas 0.9.0 and carries its consumer rules (US-19401): assertion-required probes after the pin bump, retired criteria in rcf audit coverage, rcf audit eval coverage and deterministic verify, and the expectBody.matches canary rule. Delivers AC-19401-1 to AC-19401-17.",
   "approach": "Three parts in this order. (1) Bump @stravica-ai/rcf-schemas 0.8.0 to 0.9.0 in packages/rcf-lite/package.json and the lockfile, nothing else in this part; probeShapeError keeps naming \"missing assertion\" when the 0.9.0 acProbe subschema rejects an assertion-free probe. (2) In src/query/coverage.js a criterion carrying supersededBy gets per-AC state retired with supersededBy, leaves the requirement decision in both modes, keeps any bound TC listed and uncounted; the successor-missing, self-supersession and cycle checks print a supersession line and fail strict mode with exit 4 (src/cli/coverage.js, the table, json and mermaid formatters); src/query/eval-coverage.js gives outcome retired; deterministic verify resolves a retired criterion as retired without a request. (3) In src/verify/engine/deterministic.js, before the body test, compile expectBody.matches in a guard and test it against the fixed canaries qzvxjk0729 and ~!@#%^&*(); matching both, or failing to compile, resolves fail with failedExpectation expectBody.matches and the named reason.",
   "deliverables": [
@@ -29,25 +29,12 @@
     "AC-19401-1",
     "AC-19401-2",
     "AC-19401-3",
-    "AC-19401-4",
-    "AC-19401-5",
-    "AC-19401-6",
-    "AC-19401-7",
-    "AC-19401-8",
-    "AC-19401-9",
-    "AC-19401-10",
-    "AC-19401-11",
-    "AC-19401-12",
-    "AC-19401-13",
-    "AC-19401-14",
-    "AC-19401-15",
-    "AC-19401-16",
-    "AC-19401-17"
+    "AC-19401-4"
   ],
   "fbsId": "FBS-227",
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 230,
   "executionStatus": "notStarted",
-  "title": "rcf-schemas 0.9.0 consumer side: pin bump with assertion-required probes, retired criteria in coverage and verify, and the expectBody.matches canary rule"
+  "title": "rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes"
 }

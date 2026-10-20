@@ -1,0 +1,24 @@
+{
+  "createdAt": "2026-10-20T12:03:51.929Z",
+  "updatedAt": "2026-10-20T12:03:58.005Z",
+  "acIds": [
+    "AC-19401-5",
+    "AC-19401-6",
+    "AC-19401-7",
+    "AC-19401-8",
+    "AC-19401-9",
+    "AC-19401-10",
+    "AC-19401-11",
+    "AC-19401-12"
+  ],
+  "fbsId": "FBS-228",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 231,
+  "executionStatus": "notStarted",
+  "title": "rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify",
+  "summary": "TODO: describe the build session",
+  "dependsOnFbsIds": [
+    "FBS-227"
+  ]
+}
