@@ -118,7 +118,7 @@ test('buildViewIndex snippet is whitespace-collapsed and capped at 110 chars', a
   assert.ok(prd.snippet.length <= 110);
 });
 
-test('serialiseViewIndex returns a JSON string under 400 KB on the dogfood tree', async () => {
+test('serialiseViewIndex returns a JSON string under 450 KB on the dogfood tree', async () => {
   const model = await builtModel();
   const json = serialiseViewIndex(model);
   assert.equal(typeof json, 'string');
@@ -128,7 +128,10 @@ test('serialiseViewIndex returns a JSON string under 400 KB on the dogfood tree'
   // to catch a serialisation regression without flaking on a tree that
   // happens to pick up a few more rows.
   const bytes = Buffer.byteLength(json);
-  assert.ok(bytes < 400 * 1024, `expected index JSON under 400 KB, got ${bytes} bytes`);
+  // Schemas-090 DEFINE (2026-10-20): the dogfood tree's growth (REQ-194,
+  // US-19401 and its 17 criteria, FBS-227, TS-260) took the index to
+  // 410502 bytes, past 400 KB; the envelope moves to 450 KB as a count pin.
+  assert.ok(bytes < 450 * 1024, `expected index JSON under 450 KB, got ${bytes} bytes`);
 });
 
 test('renderSearchButton emits a <button> with the data-rcf-search hook and the Cmd/Ctrl+F mnemonic', () => {

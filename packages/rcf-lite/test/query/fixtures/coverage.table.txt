@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 124  covered: 124  covered-unresolved: 0  uncovered: 0
+Requirements: 125  covered: 125  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -799,3 +799,20 @@ REQ-193      yes      AC-19301-1   yes         TC-258-pass-all
                       AC-19302-3   yes         TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
                       AC-19302-4   yes         TC-259-offline-and-default-registry, TC-259-offline-outsi...
                       AC-19302-5   yes         TC-259-no-tarball-left, TC-259-package-outside-repo-refus...
+REQ-194      yes      AC-19401-1   yes         TC-260-validate-own-chain-0-9-0
+                      AC-19401-2   yes         TC-260-update-probe-path-only-refused
+                      AC-19401-3   yes         TC-260-catalog-path-only-still-fails
+                      AC-19401-4   yes         TC-260-ac-level-path-only-refused
+                      AC-19401-5   yes         TC-260-retired-state-with-successor
+                      AC-19401-6   yes         TC-260-successor-missing
+                      AC-19401-7   yes         TC-260-self-supersession
+                      AC-19401-8   yes         TC-260-supersession-cycle
+                      AC-19401-9   yes         TC-260-retired-tc-listed-not-counted
+                      AC-19401-10  yes         TC-260-live-gap-beside-retired
+                      AC-19401-11  yes         TC-260-eval-coverage-retired
+                      AC-19401-12  yes         TC-260-verify-skips-retired-probe
+                      AC-19401-13  yes         TC-260-specific-pattern-passes
+                      AC-19401-14  yes         TC-260-vacuous-pattern-fails
+                      AC-19401-15  yes         TC-260-non-compiling-pattern-fails
+                      AC-19401-16  yes         TC-260-match-anything-never-passes
+                      AC-19401-17  yes         TC-260-one-canary-and-header-substring

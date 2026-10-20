@@ -2,8 +2,8 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 124,
-    "covered": 124,
+    "requirements": 125,
+    "covered": 125,
     "coveredUnresolved": 0,
     "uncovered": 0
   },
@@ -7398,6 +7398,149 @@
             "TC-259-no-tarball-left",
             "TC-259-package-outside-repo-refused",
             "TC-259-prepack-leaves-project-unchanged"
+          ],
+          "unresolvedTestCases": []
+        }
+      ]
+    },
+    {
+      "id": "REQ-194",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-19401-1",
+          "covered": true,
+          "testCases": [
+            "TC-260-validate-own-chain-0-9-0"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-2",
+          "covered": true,
+          "testCases": [
+            "TC-260-update-probe-path-only-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-3",
+          "covered": true,
+          "testCases": [
+            "TC-260-catalog-path-only-still-fails"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-4",
+          "covered": true,
+          "testCases": [
+            "TC-260-ac-level-path-only-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-5",
+          "covered": true,
+          "testCases": [
+            "TC-260-retired-state-with-successor"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-6",
+          "covered": true,
+          "testCases": [
+            "TC-260-successor-missing"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-7",
+          "covered": true,
+          "testCases": [
+            "TC-260-self-supersession"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-8",
+          "covered": true,
+          "testCases": [
+            "TC-260-supersession-cycle"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-9",
+          "covered": true,
+          "testCases": [
+            "TC-260-retired-tc-listed-not-counted"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-10",
+          "covered": true,
+          "testCases": [
+            "TC-260-live-gap-beside-retired"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-11",
+          "covered": true,
+          "testCases": [
+            "TC-260-eval-coverage-retired"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-12",
+          "covered": true,
+          "testCases": [
+            "TC-260-verify-skips-retired-probe"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-13",
+          "covered": true,
+          "testCases": [
+            "TC-260-specific-pattern-passes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-14",
+          "covered": true,
+          "testCases": [
+            "TC-260-vacuous-pattern-fails"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-15",
+          "covered": true,
+          "testCases": [
+            "TC-260-non-compiling-pattern-fails"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-16",
+          "covered": true,
+          "testCases": [
+            "TC-260-match-anything-never-passes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-17",
+          "covered": true,
+          "testCases": [
+            "TC-260-one-canary-and-header-substring"
           ],
           "unresolvedTestCases": []
         }

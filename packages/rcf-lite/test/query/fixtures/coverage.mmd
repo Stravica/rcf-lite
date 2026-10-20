@@ -3625,6 +3625,75 @@ flowchart LR
   AC-19302-5 -.-> TC-259-package-outside-repo-refused
   TC-259-prepack-leaves-project-unchanged["TC-259-prepack-leaves-project-unchanged"]
   AC-19302-5 -.-> TC-259-prepack-leaves-project-unchanged
+  REQ-194["REQ-194"]
+  AC-19401-1["AC-19401-1"]
+  REQ-194 --> AC-19401-1
+  TC-260-validate-own-chain-0-9-0["TC-260-validate-own-chain-0-9-0"]
+  AC-19401-1 -.-> TC-260-validate-own-chain-0-9-0
+  AC-19401-2["AC-19401-2"]
+  REQ-194 --> AC-19401-2
+  TC-260-update-probe-path-only-refused["TC-260-update-probe-path-only-refused"]
+  AC-19401-2 -.-> TC-260-update-probe-path-only-refused
+  AC-19401-3["AC-19401-3"]
+  REQ-194 --> AC-19401-3
+  TC-260-catalog-path-only-still-fails["TC-260-catalog-path-only-still-fails"]
+  AC-19401-3 -.-> TC-260-catalog-path-only-still-fails
+  AC-19401-4["AC-19401-4"]
+  REQ-194 --> AC-19401-4
+  TC-260-ac-level-path-only-refused["TC-260-ac-level-path-only-refused"]
+  AC-19401-4 -.-> TC-260-ac-level-path-only-refused
+  AC-19401-5["AC-19401-5"]
+  REQ-194 --> AC-19401-5
+  TC-260-retired-state-with-successor["TC-260-retired-state-with-successor"]
+  AC-19401-5 -.-> TC-260-retired-state-with-successor
+  AC-19401-6["AC-19401-6"]
+  REQ-194 --> AC-19401-6
+  TC-260-successor-missing["TC-260-successor-missing"]
+  AC-19401-6 -.-> TC-260-successor-missing
+  AC-19401-7["AC-19401-7"]
+  REQ-194 --> AC-19401-7
+  TC-260-self-supersession["TC-260-self-supersession"]
+  AC-19401-7 -.-> TC-260-self-supersession
+  AC-19401-8["AC-19401-8"]
+  REQ-194 --> AC-19401-8
+  TC-260-supersession-cycle["TC-260-supersession-cycle"]
+  AC-19401-8 -.-> TC-260-supersession-cycle
+  AC-19401-9["AC-19401-9"]
+  REQ-194 --> AC-19401-9
+  TC-260-retired-tc-listed-not-counted["TC-260-retired-tc-listed-not-counted"]
+  AC-19401-9 -.-> TC-260-retired-tc-listed-not-counted
+  AC-19401-10["AC-19401-10"]
+  REQ-194 --> AC-19401-10
+  TC-260-live-gap-beside-retired["TC-260-live-gap-beside-retired"]
+  AC-19401-10 -.-> TC-260-live-gap-beside-retired
+  AC-19401-11["AC-19401-11"]
+  REQ-194 --> AC-19401-11
+  TC-260-eval-coverage-retired["TC-260-eval-coverage-retired"]
+  AC-19401-11 -.-> TC-260-eval-coverage-retired
+  AC-19401-12["AC-19401-12"]
+  REQ-194 --> AC-19401-12
+  TC-260-verify-skips-retired-probe["TC-260-verify-skips-retired-probe"]
+  AC-19401-12 -.-> TC-260-verify-skips-retired-probe
+  AC-19401-13["AC-19401-13"]
+  REQ-194 --> AC-19401-13
+  TC-260-specific-pattern-passes["TC-260-specific-pattern-passes"]
+  AC-19401-13 -.-> TC-260-specific-pattern-passes
+  AC-19401-14["AC-19401-14"]
+  REQ-194 --> AC-19401-14
+  TC-260-vacuous-pattern-fails["TC-260-vacuous-pattern-fails"]
+  AC-19401-14 -.-> TC-260-vacuous-pattern-fails
+  AC-19401-15["AC-19401-15"]
+  REQ-194 --> AC-19401-15
+  TC-260-non-compiling-pattern-fails["TC-260-non-compiling-pattern-fails"]
+  AC-19401-15 -.-> TC-260-non-compiling-pattern-fails
+  AC-19401-16["AC-19401-16"]
+  REQ-194 --> AC-19401-16
+  TC-260-match-anything-never-passes["TC-260-match-anything-never-passes"]
+  AC-19401-16 -.-> TC-260-match-anything-never-passes
+  AC-19401-17["AC-19401-17"]
+  REQ-194 --> AC-19401-17
+  TC-260-one-canary-and-header-substring["TC-260-one-canary-and-header-substring"]
+  AC-19401-17 -.-> TC-260-one-canary-and-header-substring
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -5500,6 +5569,41 @@ flowchart LR
   class TC-259-no-tarball-left tc;
   class TC-259-package-outside-repo-refused tc;
   class TC-259-prepack-leaves-project-unchanged tc;
+  class REQ-194 req;
+  class AC-19401-1 ac;
+  class TC-260-validate-own-chain-0-9-0 tc;
+  class AC-19401-2 ac;
+  class TC-260-update-probe-path-only-refused tc;
+  class AC-19401-3 ac;
+  class TC-260-catalog-path-only-still-fails tc;
+  class AC-19401-4 ac;
+  class TC-260-ac-level-path-only-refused tc;
+  class AC-19401-5 ac;
+  class TC-260-retired-state-with-successor tc;
+  class AC-19401-6 ac;
+  class TC-260-successor-missing tc;
+  class AC-19401-7 ac;
+  class TC-260-self-supersession tc;
+  class AC-19401-8 ac;
+  class TC-260-supersession-cycle tc;
+  class AC-19401-9 ac;
+  class TC-260-retired-tc-listed-not-counted tc;
+  class AC-19401-10 ac;
+  class TC-260-live-gap-beside-retired tc;
+  class AC-19401-11 ac;
+  class TC-260-eval-coverage-retired tc;
+  class AC-19401-12 ac;
+  class TC-260-verify-skips-retired-probe tc;
+  class AC-19401-13 ac;
+  class TC-260-specific-pattern-passes tc;
+  class AC-19401-14 ac;
+  class TC-260-vacuous-pattern-fails tc;
+  class AC-19401-15 ac;
+  class TC-260-non-compiling-pattern-fails tc;
+  class AC-19401-16 ac;
+  class TC-260-match-anything-never-passes tc;
+  class AC-19401-17 ac;
+  class TC-260-one-canary-and-header-substring tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

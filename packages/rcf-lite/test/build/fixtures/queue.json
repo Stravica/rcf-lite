@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 116,
-    "notStarted": 56,
+    "items": 117,
+    "notStarted": 57,
     "inProgress": 2,
     "complete": 34,
     "verified": 24,
-    "actionable": 40,
+    "actionable": 41,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -179,7 +179,8 @@
     {
       "tier": 9,
       "fbsIds": [
-        "FBS-033"
+        "FBS-033",
+        "FBS-227"
       ]
     },
     {
@@ -1526,6 +1527,18 @@
         "FBS-223"
       ],
       "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-227",
+      "buildOrder": 230,
+      "tier": 9,
+      "title": "rcf-schemas 0.9.0 consumer side: pin bump with assertion-required probes, retired criteria in coverage and verify, and the expectBody.matches canary rule",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-224"
+      ],
+      "state": "actionable",
       "blockedBy": []
     }
   ],
