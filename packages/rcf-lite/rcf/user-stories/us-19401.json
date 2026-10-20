@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-20T11:37:40.546Z",
-  "updatedAt": "2026-10-20T11:37:40.546Z",
+  "updatedAt": "2026-10-20T11:40:07.824Z",
   "description": "User story under REQ-194 for FBS-227. The pin moves to rcf-schemas 0.9.0 with every probe carrying an assertion; a criterion carrying supersededBy is retired in rcf audit coverage, rcf audit eval coverage and deterministic verify, with the successor-missing, self-supersession and cycle shapes failing strict coverage; and deterministic verify tests expectBody.matches against two fixed canaries before the body, so a match-anything pattern never passes a criterion.",
   "asA": "a chain author or verifier hand working on a product built with rcf-lite",
   "iWant": "rcf-lite on rcf-schemas 0.9.0 to retire superseded criteria cleanly and to refuse probes that assert nothing",
@@ -21,7 +21,7 @@
     },
     {
       "id": "AC-19401-3",
-      "description": "[must-not] Given the pin at rcf-schemas 0.9.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, an rcf/verify-catalog.json at catalogVersion 1 whose AC-101-1 entry is { \"path\": \"/\" } and whose AC-101-2 entry is { \"path\": \"/\", \"expectStatus\": 200 }, and a local server answering GET / with 200, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then it exits 4, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\" (never the name of a single assertion field such as \"expectStatus\", which the 0.9.0 acProbe subschema error would otherwise name first), never \"pass\", runStats.counts.failed counts it and runStats.counts.verified counts AC-101-2 only; and rcf define validate on that chain exits 3 naming the key AC-101-1.",
+      "description": "[must-not] Given the pin at rcf-schemas 0.9.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, an rcf/verify-catalog.json at catalogVersion 1 whose AC-101-1 entry is { \"path\": \"/\" } and whose AC-101-2 entry is { \"path\": \"/\", \"expectStatus\": 200 }, and a local server answering GET / with 200, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then it exits 4, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\" (never \"expectStatus\" or another single assertion name, which the 0.9.0 acProbe subschema error would otherwise name first), never \"pass\", runStats.counts.failed counts it and runStats.counts.verified counts AC-101-2 only; and rcf define validate on that chain exits 3 naming the key AC-101-1.",
       "testable": true
     },
     {
