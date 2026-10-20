@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:31.264Z",
-  "updatedAt": "2026-10-19T23:19:14.803Z",
+  "updatedAt": "2026-10-20T01:19:00.245Z",
   "summary": "The deterministic separation check over a PR range: trailers, default classes, verdicts, one line and --json (US-19101). Delivers AC-19101-1 to AC-19101-6.",
   "approach": "Add src/audit/separation.js (range, merge skip, trailer parse, classifier, verdicts) and src/cli/separation.js under the audit router; git read through one spawn seam; exit table 0/4/2/1.",
   "deliverables": [
@@ -21,7 +21,7 @@
   "riskLevel": "low",
   "domain": "functional",
   "estimatedSize": "medium",
-  "executionStatus": "inProgress",
+  "executionStatus": "complete",
   "notes": "Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 5 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19101 at this FBS's own Define stage (estimate 6 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
   "acIds": [
     "AC-19101-1",
