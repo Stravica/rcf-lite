@@ -23,11 +23,17 @@ const OWNED = {
   'stage-keeper': ['stageKeeper'],
 };
 
+// Lockfiles of the common ecosystems; any other basename ending .lock
+// (flake.lock, Podfile.lock, mix.lock) is matched by LOCKFILE_SUFFIX.
 const LOCKFILES = new Set([
   'pnpm-lock.yaml', 'package-lock.json', 'npm-shrinkwrap.json', 'yarn.lock', 'bun.lockb', 'bun.lock',
+  'Cargo.lock', 'Gemfile.lock', 'poetry.lock', 'uv.lock', 'composer.lock', 'go.sum',
 ]);
+const LOCKFILE_SUFFIX = /.\.lock$/;
 const TEST_DIRS = new Set(['test', 'tests', '__tests__', 'e2e']);
-const TEST_FILE = /\.(test|spec)\.[^.]+$/;
+// .test. or .spec. as a dotted basename segment, whatever follows it
+// (widget.test.js, widget.test.d.ts, widget.spec.js.map).
+const TEST_FILE = /\.(test|spec)\.[^.]/;
 const STAGE_KEEPER_FILE = /^(CHANGELOG|RELEASE)/i;
 
 /**
@@ -51,7 +57,7 @@ export function classifyPath(path) {
     return 'criteria';
   }
   if (dirs.includes('.github')) return 'neutral';
-  if (LOCKFILES.has(name)) return 'neutral';
+  if (LOCKFILES.has(name) || LOCKFILE_SUFFIX.test(name)) return 'neutral';
   if (STAGE_KEEPER_FILE.test(name)) return 'stageKeeper';
   if (/\.md$/i.test(name)) return 'neutral';
   if (dirs.some((d) => TEST_DIRS.has(d)) || TEST_FILE.test(name)) return 'test';
