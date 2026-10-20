@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-873",
+  "path": "releases/releases.yaml",
+  "title": "Release 0.35.0: minAgentAction rerun-init for the managed block (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:41.143Z",
+  "updatedAt": "2026-10-20T07:12:41.143Z"
+}

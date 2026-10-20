@@ -46,7 +46,7 @@ The agent elicits the requirements and drives the build from there. To drive it 
 
 ## Where these tools sit in the suite
 
-The RCF lite suite follows the method's stage chain: **define, build, verify, release, attest**. This repo ships the tooling for the build and verify stages. The unified `rcf` bin also carries the define stage in practice, since `rcf init` plus your agent session is where the requirements chain gets authored.
+The RCF lite suite follows the method's stage chain: **define, build, verify, release, audit**. This repo ships the tooling for the build and verify stages. The unified `rcf` bin also carries the define stage in practice, since `rcf init` plus your agent session is where the requirements chain gets authored.
 
 Sister repo (kept standalone as a language-neutral contract, per the 2026-08-06 operator ruling on schemas):
 

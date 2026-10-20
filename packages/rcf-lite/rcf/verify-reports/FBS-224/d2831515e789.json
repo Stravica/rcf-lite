@@ -1,0 +1,171 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-224",
+  "headSha": "d2831515e789a3345f4189d37a6d6d6139c88032",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.35.0.tgz",
+    "name": "rcf-lite",
+    "version": "0.35.0",
+    "sha256": "98753a894ecf3bcd7dedb518faddb2e0b8818117e2a7a60b07b0378536ee19f0",
+    "servedSha": null
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-sep-fbs-224-test",
+  "startedAt": "2026-10-20T08:52:46.998Z",
+  "finishedAt": "2026-10-20T08:52:59.536Z",
+  "rcfLiteVersion": "0.35.0",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "install": {
+    "command": "npm install --no-audit --no-fund /home/thefoot/remote-lane/jobs/r-20261020-085145-95b9/output/rcf-lite-0.35.0.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-224/d2831515e789/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-257",
+      "file": "test/guidance/stage-contract.test.js",
+      "tests": 29,
+      "pass": 29,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-224/d2831515e789/TS-257.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 7,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 7
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19004-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-test-and-finalise-stages",
+            "title": "AC-19004-1: rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no \"--url <deploy-url>\" and no \"post-merge verify run\"",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19004-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-define-and-build-hands",
+            "title": "AC-19004-2: rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19004-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-bundle-runbook",
+            "title": "AC-19004-3: rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19004-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-managed-block",
+            "title": "AC-19004-4: rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19004-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-audit-fifth-verb",
+            "title": "AC-19004-5: the root README and every rcf guidance topic read define, build, verify, release, audit as the stage chain and never name attest as a verb or stage, leaving AC attestation and --litmus-attested as they are",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19004-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-doctor-drift",
+            "title": "AC-19004-6: rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19004-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-257",
+        "file": "test/guidance/stage-contract.test.js",
+        "tests": [
+          {
+            "tcId": "TC-257-no-post-merge-verify",
+            "title": "AC-19004-7: no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge",
+            "testNumber": 7,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-870",
+  "path": "guidance/build-cycle-playbook.md",
+  "title": "Playbook: finalise --ci-run ingests the Test-stage report (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:39.412Z",
+  "updatedAt": "2026-10-20T07:12:39.412Z"
+}

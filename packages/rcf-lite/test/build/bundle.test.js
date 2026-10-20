@@ -255,6 +255,6 @@ test('completionContract carries the mark commands plus the finalise instruction
   assert.deepEqual(bundle.completionContract, {
     markInProgress: 'rcf build mark FBS-002 inProgress',
     markComplete: 'rcf build mark FBS-002 complete',
-    finalise: 'rcf build finalise FBS-002 --url <deploy-url>',
+    finalise: 'rcf build finalise FBS-002 --ci-run <ref>',
   });
 });

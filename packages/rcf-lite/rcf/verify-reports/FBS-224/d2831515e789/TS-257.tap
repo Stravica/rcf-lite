@@ -1,0 +1,191 @@
+TAP version 13
+# Subtest: AC-19004-1: rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no "--url <deploy-url>" and no "post-merge verify run"
+    # Subtest: the Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier, the preview or version host and rcf/verify-reports/
+    ok 1 - the Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier, the preview or version host and rcf/verify-reports/
+      ---
+      duration_ms: 0.667048
+      type: 'test'
+      ...
+    # Subtest: the Test stage names the merge gate: Review MERGE plus Test PASS in one sentence
+    ok 2 - the Test stage names the merge gate: Review MERGE plus Test PASS in one sentence
+      ---
+      duration_ms: 0.308042
+      type: 'test'
+      ...
+    # Subtest: the Finalise stage names rcf build finalise <fbs-id> --ci-run <ref> ingesting the report
+    ok 3 - the Finalise stage names rcf build finalise <fbs-id> --ci-run <ref> ingesting the report
+      ---
+      duration_ms: 0.200995
+      type: 'test'
+      ...
+    # Subtest: guard (green at Define): the Finalise stage names CI green, the merge and rcf build mark <fbs-id> complete
+    ok 4 - guard (green at Define): the Finalise stage names CI green, the merge and rcf build mark <fbs-id> complete
+      ---
+      duration_ms: 0.206701
+      type: 'test'
+      ...
+    # Subtest: the output carries no "--url <deploy-url>" on a finalise line and no "post-merge verify run"
+    ok 5 - the output carries no "--url <deploy-url>" on a finalise line and no "post-merge verify run"
+      ---
+      duration_ms: 1.412401
+      type: 'test'
+      ...
+    1..5
+ok 1 - AC-19004-1: rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no "--url <deploy-url>" and no "post-merge verify run"
+  ---
+  duration_ms: 196.271366
+  type: 'test'
+  ...
+# Subtest: AC-19004-2: rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer
+    # Subtest: the Define stage names the test-author hand writing AC-based and E2E tests and TS/TC bindings
+    ok 1 - the Define stage names the test-author hand writing AC-based and E2E tests and TS/TC bindings
+      ---
+      duration_ms: 0.392561
+      type: 'test'
+      ...
+    # Subtest: the Build stage names the builder writing production code, Code Nodes and code-hygiene unit tests only
+    ok 2 - the Build stage names the builder writing production code, Code Nodes and code-hygiene unit tests only
+      ---
+      duration_ms: 0.303754
+      type: 'test'
+      ...
+    # Subtest: every stage names its Hand: trailer value
+    ok 3 - every stage names its Hand: trailer value
+      ---
+      duration_ms: 0.213351
+      type: 'test'
+      ...
+    1..3
+ok 2 - AC-19004-2: rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer
+  ---
+  duration_ms: 188.539489
+  type: 'test'
+  ...
+# Subtest: AC-19004-3: rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url
+    # Subtest: guard (green at Define): the runbook prints the five stage headings
+    ok 1 - guard (green at Define): the runbook prints the five stage headings
+      ---
+      duration_ms: 0.225144
+      type: 'test'
+      ...
+    # Subtest: each runbook stage names its hand
+    ok 2 - each runbook stage names its hand
+      ---
+      duration_ms: 0.259087
+      type: 'test'
+      ...
+    # Subtest: the runbook names the Test-stage rcf verify run with --hand verifier, rcf audit separation and rcf build finalise FBS-001 --ci-run <ref>
+    ok 3 - the runbook names the Test-stage rcf verify run with --hand verifier, rcf audit separation and rcf build finalise FBS-001 --ci-run <ref>
+      ---
+      duration_ms: 0.141199
+      type: 'test'
+      ...
+    # Subtest: no finalise line of the runbook carries --mode or --url
+    ok 4 - no finalise line of the runbook carries --mode or --url
+      ---
+      duration_ms: 0.134836
+      type: 'test'
+      ...
+    1..4
+ok 3 - AC-19004-3: rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url
+  ---
+  duration_ms: 588.635169
+  type: 'test'
+  ...
+# Subtest: AC-19004-4: rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted
+    # Subtest: the block states verified is written only by rcf build finalise from a Test-stage report
+    ok 1 - the block states verified is written only by rcf build finalise from a Test-stage report
+      ---
+      duration_ms: 191.568422
+      type: 'test'
+      ...
+    # Subtest: the release notes for the installed version carry a non-null minAgentAction and tell agents to refresh the block with rcf doctor
+    ok 2 - the release notes for the installed version carry a non-null minAgentAction and tell agents to refresh the block with rcf doctor
+      ---
+      duration_ms: 0.556084
+      type: 'test'
+      ...
+    # Subtest: rcf doctor reports the pre-change block as drifted
+    ok 3 - rcf doctor reports the pre-change block as drifted
+      ---
+      duration_ms: 410.137658
+      type: 'test'
+      ...
+    1..3
+ok 4 - AC-19004-4: rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted
+  ---
+  duration_ms: 602.655465
+  type: 'test'
+  ...
+# Subtest: AC-19004-5: the root README and every rcf guidance topic read define, build, verify, release, audit as the stage chain and never name attest as a verb or stage, leaving AC attestation and --litmus-attested as they are
+    # Subtest: the root README reads define, build, verify, release, audit and never names attest
+    ok 1 - the root README reads define, build, verify, release, audit and never names attest
+      ---
+      duration_ms: 0.519855
+      type: 'test'
+      ...
+    # Subtest: guard (green at Define): no guidance topic names attest as a verb or stage, and any stage chain a topic prints ends in audit
+    ok 2 - guard (green at Define): no guidance topic names attest as a verb or stage, and any stage chain a topic prints ends in audit
+      ---
+      duration_ms: 2867.110161
+      type: 'test'
+      ...
+    # Subtest: guard (green at Define): the AC attestation vocabulary and the --litmus-attested flag stay as they are
+    ok 3 - guard (green at Define): the AC attestation vocabulary and the --litmus-attested flag stay as they are
+      ---
+      duration_ms: 378.682659
+      type: 'test'
+      ...
+    1..3
+ok 5 - AC-19004-5: the root README and every rcf guidance topic read define, build, verify, release, audit as the stage chain and never name attest as a verb or stage, leaving AC attestation and --litmus-attested as they are
+  ---
+  duration_ms: 3246.752048
+  type: 'test'
+  ...
+# Subtest: AC-19004-6: rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero
+    # Subtest: the pre-change block (main at 253465a6, byte for byte) is reported drifted, names rcf doctor --fix and does not exit 0
+    ok 1 - the pre-change block (main at 253465a6, byte for byte) is reported drifted, names rcf doctor --fix and does not exit 0
+      ---
+      duration_ms: 408.905726
+      type: 'test'
+      ...
+    # Subtest: control (green at Define): the same project carrying the installed canonical block reads clean for the managed-block check
+    ok 2 - control (green at Define): the same project carrying the installed canonical block reads clean for the managed-block check
+      ---
+      duration_ms: 602.771963
+      type: 'test'
+      ...
+    1..2
+ok 6 - AC-19004-6: rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero
+  ---
+  duration_ms: 1012.026817
+  type: 'test'
+  ...
+# Subtest: AC-19004-7: no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge
+    # Subtest: no rcf build finalise line carries --mode or --url
+    ok 1 - no rcf build finalise line carries --mode or --url
+      ---
+      duration_ms: 0.824479
+      type: 'test'
+      ...
+    # Subtest: nothing tells a hand to run verification after merge
+    ok 2 - nothing tells a hand to run verification after merge
+      ---
+      duration_ms: 5.408956
+      type: 'test'
+      ...
+    1..2
+ok 7 - AC-19004-7: no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge
+  ---
+  duration_ms: 3444.120698
+  type: 'test'
+  ...
+1..7
+# tests 29
+# suites 0
+# pass 29
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 9326.824677

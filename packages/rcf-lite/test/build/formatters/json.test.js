@@ -39,7 +39,7 @@ test('bundle envelope carries mode bundle and the completionContract strings', (
     completionContract: {
       markInProgress: 'rcf build mark FBS-005 inProgress',
       markComplete: 'rcf build mark FBS-005 complete',
-      finalise: 'rcf build finalise FBS-005 --url <deploy-url>',
+      finalise: 'rcf build finalise FBS-005 --ci-run <ref>',
     },
   }, 'bundle');
   const body = JSON.parse(out);

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-871",
+  "path": "guidance/managed/agent-instructions-block.md",
+  "title": "Managed block: verified only from the Test-stage report; new hash drifts the old block (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-4",
+    "AC-19004-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:39.978Z",
+  "updatedAt": "2026-10-20T07:12:39.978Z"
+}

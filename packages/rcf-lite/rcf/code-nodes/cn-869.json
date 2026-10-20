@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-869",
+  "path": "guidance/build-cycle.md",
+  "title": "build-cycle guidance: five-stage contract with a hand per stage (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-1",
+    "AC-19004-2",
+    "AC-19004-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:38.846Z",
+  "updatedAt": "2026-10-20T07:12:38.846Z"
+}

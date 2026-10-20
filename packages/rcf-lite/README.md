@@ -59,6 +59,10 @@ Claude Code is the supported path today. Codex CLI works end to end for a small 
 
 Fuller Codex support is on the roadmap; for now the recommended path is Claude Code.
 
+## Finalise
+
+`rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]` is administrative: it promotes an FBS at `complete` to `verified` by ingesting the Test-stage verify report the verifier hand committed before the merge, and spawns nothing but git lookups. The verifier writes that report with `rcf verify run --fbs <fbs-id> --hand verifier` to `rcf/verify-reports/<fbs-id>/<head12>.json`. Promotion needs `--ci-run` naming the CI run that passed on the merged head, the FBS at `complete` on the default branch with a Code Node on every bound acceptance criterion, and a valid report whose head the merged head contains, from a verifier whose id no builder commit carries, finished within `--max-report-age` days (default 7), with verdict PASS and ship authority. `--mode` and `--url` are retired and exit 2: verification is a Test-stage act. `rcf guidance build-cycle` prints the five-stage contract.
+
 ## Migrating from the pre-0.7.1 packages
 
 If your project pinned one of the pre-consolidation packages, replace it with `rcf-lite`:

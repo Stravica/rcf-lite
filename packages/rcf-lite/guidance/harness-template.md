@@ -360,7 +360,17 @@ elicitation straight into building without the offer.
 
 Run `rcf build bundle --next` to get the spec bundle for the next actionable
 item, then execute the five-stage runbook it prints: Define, Build,
-Review, Test, Finalise. Every stage ends in a commit. Drive the whole
+Review, Test, Finalise. Each stage has its own hand, named in every
+commit's `Hand:` trailer: the test-author writes the AC-based and E2E
+tests and their TS / TC bindings (Define), the builder writes production
+code, Code Nodes and code-hygiene unit tests only (Build), the reviewer
+runs the scoped gate and `rcf audit separation` (Review), the verifier
+runs `rcf verify run --fbs <fbs-id> --hand verifier` against the preview
+or version host and commits the report (Test), and the stage-keeper
+merges on a Review MERGE and a Test PASS, then runs
+`rcf build mark <fbs-id> complete` and
+`rcf build finalise <fbs-id> --ci-run <ref>` (Finalise). Every stage
+ends in a commit. Drive the whole
 queue, not one item. After each item's Finalise, loop `rcf build bundle --next`
 until it reports the queue complete. If your harness can spawn
 sub-agents, run each FBS in its own worker so the driving context stays
@@ -376,8 +386,9 @@ Run the fresh-context self-review every few FBS builds and once at the
 end: a reviewer that drives the running app against its ACs, not one
 that reads the code. Method: `rcf guidance build-cycle-playbook`,
 section 16. It is the cheap in-loop check between builds, and it is not
-the independent verification gate. `rcf build finalise` runs that, and only
-that writes `verified`.
+the independent verification gate. `verified` is written only by
+`rcf build finalise`, from the Test-stage report the verifier hand
+committed under `rcf/verify-reports/`.
 
 If context gets unreliable on a large build, do not stall. Write a
 next-session handover doc (queue state, the in-progress item, the next
