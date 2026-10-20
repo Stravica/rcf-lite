@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-874",
+  "path": "package.json",
+  "implementsAcIds": [
+    "AC-19401-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T13:41:29.840Z",
+  "updatedAt": "2026-10-20T13:41:29.840Z"
+}

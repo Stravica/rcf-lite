@@ -1,0 +1,120 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-227",
+  "headSha": "3ca3055dcfbbba585891eed9a7aa8565a01978ea",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.35.0.tgz",
+    "name": "rcf-lite",
+    "version": "0.35.0",
+    "sha256": "d554467d9634e75cdc143750b9d36521f844ce98966284c8aa328ce932f44a81",
+    "servedSha": null
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-follow-ups-fbs-227-test",
+  "startedAt": "2026-10-20T14:47:36.343Z",
+  "finishedAt": "2026-10-20T14:47:43.138Z",
+  "rcfLiteVersion": "0.35.0",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "install": {
+    "command": "npm install --no-audit --no-fund /home/thefoot/remote-lane/jobs/r-20261020-144625-1855/output/rcf-lite-0.35.0.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-227/3ca3055dcfbb/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-260",
+      "file": "test/verify/probe-assertion-0-9-0.test.js",
+      "tests": 16,
+      "pass": 15,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 1,
+      "outputPath": "rcf/verify-reports/FBS-227/3ca3055dcfbb/TS-260.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 4,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 4
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19401-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-260",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-260-validate-own-chain-0-9-0",
+            "title": "AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19401-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-260",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-260-update-probe-path-only-refused",
+            "title": "AC-19401-2: rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.9.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19401-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-260",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-260-catalog-path-only-still-fails",
+            "title": "AC-19401-3: at rcf-schemas 0.9.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19401-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-260",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-260-ac-level-path-only-refused",
+            "title": "AC-19401-4: at rcf-schemas 0.9.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

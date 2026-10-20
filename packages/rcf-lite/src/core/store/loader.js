@@ -154,6 +154,7 @@ export async function loadDocument({ projectRoot, id }) {
     doc,
     kind: resolved.kind,
     filePath: `rcf/${resolved.relPath}`,
+    allowAssertionFreeProbe: true,
   });
   if (validationError) {
     // B5 (post-write validation): the parsed body rides along on the

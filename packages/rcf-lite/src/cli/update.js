@@ -10,6 +10,7 @@ import { isRcfError, writeUnexpectedFailure } from '#core/errors';
 import { splitCnPath, updateDocument, walkTree } from '#core/store';
 import { deriveFileDeps, mapDerivedDepsToCnIds } from '#core/store/derive-deps.js';
 import userStorySchema from '@stravica-ai/rcf-schemas/schemas/user-story.schema.json' with { type: 'json' };
+import { probeShapeError } from '../verify/engine/catalog.js';
 import { findProjectRoot } from '../view/index.js';
 // Track C+D §4.4: reclassify a REQ when its description-carrying fields
 // change so downstream tooling sees a fresh shapeClassification.
@@ -159,6 +160,13 @@ export async function main(argv, deps = {}) {
     const unknown = probe && typeof probe === 'object' ? Object.keys(probe).filter((k) => !probeKeys.includes(k)) : [];
     if (unknown.length > 0) {
       stderr.write(`[error] validation probe carries unknown key(s) ${unknown.join(', ')} (allowed: ${probeKeys.join(', ')})\n`);
+      return 3;
+    }
+    // FBS-227: name an assertion-free probe before the writer refuses it
+    // with the 0.9.0 anyOf errors by instance path only.
+    const shapeError = probeShapeError(probe);
+    if (shapeError?.field === 'missing assertion') {
+      stderr.write(`[error] validation ${acId} probe missing assertion: ${shapeError.message}\n`);
       return 3;
     }
     id = acId;

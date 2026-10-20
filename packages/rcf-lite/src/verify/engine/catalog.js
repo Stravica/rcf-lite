@@ -56,7 +56,16 @@ const PROBE_ASSERTION_FIELDS = ['expectStatus', 'expectHeader', 'expectBody', 's
  * @returns {{ field: string, message: string } | null}
  */
 export function probeShapeError(probe) {
-  const errors = validateSubschema({ value: probe, kind: 'userStory', def: 'acProbe' });
+  const missing = probe && typeof probe === 'object'
+    && !PROBE_ASSERTION_FIELDS.some((field) => probe[field] !== undefined);
+  let errors = validateSubschema({ value: probe, kind: 'userStory', def: 'acProbe' });
+  // rcf-schemas 0.9.0 rejects an assertion-free probe through the acProbe
+  // anyOf (one required error per arm); those errors are "missing
+  // assertion", so only the probe's other errors keep naming their field.
+  if (errors && missing) {
+    errors = errors.filter((e) => !String(e.schemaPath ?? '').startsWith('#/anyOf'));
+    if (errors.length === 0) errors = null;
+  }
   if (errors) {
     const first = errors[0] ?? {};
     const field = first.instancePath?.split('/')[1]
@@ -66,7 +75,7 @@ export function probeShapeError(probe) {
     const message = errors.map((e) => `${e.instancePath || '/'} ${e.message ?? 'invalid'}`).join('; ');
     return { field, message };
   }
-  if (!PROBE_ASSERTION_FIELDS.some((field) => probe[field] !== undefined)) {
+  if (missing) {
     return { field: 'missing assertion', message: `carries no response assertion (${PROBE_ASSERTION_FIELDS.join(', ')})` };
   }
   return null;
@@ -88,7 +97,8 @@ export function selectProbe(ac, catalog) {
 }
 
 /**
- * `rcf define validate` check: every catalog key must name an AC in the
+ * `rcf define validate` check: every AC-level probe must carry an
+ * assertion, every catalog key must name an AC in the
  * tree, every entry must pass probeShapeError, and a present
  * catalog must declare `catalogVersion: 1`. A malformed catalog surfaces
  * as its read error. Absent file: none.
@@ -100,11 +110,24 @@ export async function validateVerifyCatalogKeys({ projectRoot, tree }) {
   const catalog = await readVerifyCatalog(projectRoot);
   if (isRcfError(catalog)) return [catalog];
   const acIds = new Set();
+  const errors = [];
   for (const us of tree.userStories ?? []) {
-    for (const ac of us.acceptanceCriteria ?? []) acIds.add(ac.id);
+    for (const ac of us.acceptanceCriteria ?? []) {
+      acIds.add(ac.id);
+      // FBS-227: the loader lets an assertion-free AC-level probe through
+      // (so verify resolves it "fail"); validate refuses it by AC id.
+      const acShapeError = ac.probe ? probeShapeError(ac.probe) : null;
+      if (acShapeError?.field === 'missing assertion') {
+        errors.push(rcfError({
+          kind: 'validation',
+          message: `${ac.id} probe is malformed at ${acShapeError.field}: ${acShapeError.message}.`,
+          documentId: us.usId,
+          field: `acceptanceCriteria.${ac.id}.probe`,
+        }));
+      }
+    }
   }
   const filePath = join(projectRoot, VERIFY_CATALOG_PATH);
-  const errors = [];
   if (catalog.exists && catalog.catalogVersion !== 1) {
     errors.push(rcfError({
       kind: 'validation',

@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 119,
-    "notStarted": 59,
-    "inProgress": 2,
+    "notStarted": 58,
+    "inProgress": 3,
     "complete": 34,
     "verified": 24,
-    "actionable": 41,
+    "actionable": 40,
     "blocked": 18
   },
   "nextActionable": "FBS-013",
@@ -1541,11 +1541,11 @@
       "buildOrder": 230,
       "tier": 9,
       "title": "rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [
         "FBS-224"
       ],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     },
     {

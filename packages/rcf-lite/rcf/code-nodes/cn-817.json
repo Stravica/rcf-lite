@@ -2,11 +2,14 @@
   "cnId": "CN-817",
   "path": "src/verify/engine/catalog.js#probeShapeError",
   "implementsAcIds": [
-    "AC-19201-8"
+    "AC-19201-8",
+    "AC-19401-2",
+    "AC-19401-3",
+    "AC-19401-4"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-16T18:28:15.236Z",
-  "updatedAt": "2026-10-16T19:55:55.683Z"
+  "updatedAt": "2026-10-20T13:41:27.454Z"
 }
