@@ -1,0 +1,53 @@
+{
+  "createdAt": "2026-10-20T11:38:14.174Z",
+  "updatedAt": "2026-10-20T11:38:46.998Z",
+  "summary": "rcf-lite moves to rcf-schemas 0.9.0 and carries its consumer rules (US-19401): assertion-required probes after the pin bump, retired criteria in rcf audit coverage, rcf audit eval coverage and deterministic verify, and the expectBody.matches canary rule. Delivers AC-19401-1 to AC-19401-17.",
+  "approach": "Three parts in this order. (1) Bump @stravica-ai/rcf-schemas 0.8.0 to 0.9.0 in packages/rcf-lite/package.json and the lockfile, nothing else in this part; probeShapeError keeps naming \"missing assertion\" when the 0.9.0 acProbe subschema rejects an assertion-free probe. (2) In src/query/coverage.js a criterion carrying supersededBy gets per-AC state retired with supersededBy, leaves the requirement decision in both modes, keeps any bound TC listed and uncounted; the successor-missing, self-supersession and cycle checks print a supersession line and fail strict mode with exit 4 (src/cli/coverage.js, the table, json and mermaid formatters); src/query/eval-coverage.js gives outcome retired; deterministic verify resolves a retired criterion as retired without a request. (3) In src/verify/engine/deterministic.js, before the body test, compile expectBody.matches in a guard and test it against the fixed canaries qzvxjk0729 and ~!@#%^&*(); matching both, or failing to compile, resolves fail with failedExpectation expectBody.matches and the named reason.",
+  "deliverables": [
+    "packages/rcf-lite/package.json and pnpm-lock.yaml: @stravica-ai/rcf-schemas 0.9.0",
+    "src/verify/engine/catalog.js: probeShapeError names missing assertion under the 0.9.0 subschema",
+    "src/query/coverage.js, src/cli/coverage.js, src/query/formatters/: retired state, supersession findings",
+    "src/query/eval-coverage.js: outcome retired",
+    "src/verify/engine/deterministic.js, src/verify/report/index.js, src/finalise/ingest.js: retired result and the canary rule"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4150-ac-probe-catalog"
+    ],
+    "adrIds": [
+      "ADR-4148-finalise-admin-verify-in-test"
+    ]
+  },
+  "riskLevel": "medium",
+  "domain": "functional",
+  "estimatedSize": "medium",
+  "dependsOnFbsIds": [
+    "FBS-224"
+  ],
+  "notes": "Order in the train: after FBS-224 (dependsOnFbsIds FBS-224, buildOrder 230, the next free integer above FBS-224's 229). External dependency: rcf-schemas 0.9.0 must be published and pinned before this FBS can merge (build-ordering constraint). Order inside the FBS for the Build hand: the pin bump first (the retired-rule fixtures carry supersededBy, which validates only under 0.9.0, so the fill round's red proof for the retired rule also needs the bump in its throwaway change), then the coverage and retired rule, then the canary rule. Path-only probes: none in this chain; four in test/verify/probe-catalog.test.js (lines 216, 328, 331, 366), of which 328, 331 and 366 are the deliberate assertion-free cases of AC-19201-8 and stay so, and 216 (the stray catalog key AC-999-9) gains an assertion at this FBS's Define fill round, before Build. After the pin bump a test-author supersedes AC-19201-8 by AC-19401-3 through rcf define update AC-19201-8 --set supersededBy=AC-19401-3 with supersededOn the day of that change and a supersessionNote naming this FBS (the fields do not validate before the bump). Sizing: 17 criteria over three parts; whether one test-author, builder and verifier round fits under 40 minutes each is an open decision (ledger), with a split recommendation; this DEFINE creates one FBS. Tests: TS-260 declares one skeleton per criterion in test/verify/probe-assertion-0-9-0.test.js, test/cli/coverage-retired.test.js and test/verify/expect-body-canary.test.js; the test-author turns each into a red test at this FBS's own Define fill round. Commits carry Hand: trailers. No freeze, no ack verbs.",
+  "acIds": [
+    "AC-19401-1",
+    "AC-19401-2",
+    "AC-19401-3",
+    "AC-19401-4",
+    "AC-19401-5",
+    "AC-19401-6",
+    "AC-19401-7",
+    "AC-19401-8",
+    "AC-19401-9",
+    "AC-19401-10",
+    "AC-19401-11",
+    "AC-19401-12",
+    "AC-19401-13",
+    "AC-19401-14",
+    "AC-19401-15",
+    "AC-19401-16",
+    "AC-19401-17"
+  ],
+  "fbsId": "FBS-227",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 230,
+  "executionStatus": "notStarted",
+  "title": "rcf-schemas 0.9.0 consumer side: pin bump with assertion-required probes, retired criteria in coverage and verify, and the expectBody.matches canary rule"
+}
