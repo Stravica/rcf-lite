@@ -52,51 +52,67 @@ Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or
 
 ### Stage 1 - Define
 
-Satisfied by this bundle: the FBS, acceptance criteria, ancestry and
-architectural context above ARE the definition. Confirm your plan against
-every in-scope acceptance criterion (AC-101-1) in section 4 before writing
-code, then mark pickup:
+Hand: test-author. The FBS, acceptance criteria, ancestry and
+architectural context above ARE the definition. The test-author writes
+the AC-based and E2E tests and their TS / TC bindings for every in-scope
+acceptance criterion (AC-101-1) before any production code, proves each
+new test red, and checks that (section 6 lists the existing surface):
+
+    rcf audit coverage --strict
+
+covers them. Then mark pickup:
 
     rcf build mark FBS-001 inProgress
 
-Commit any plan artefacts the driving workflow requires.
+Commit with the trailer `Hand: test-author`.
 
 ### Stage 2 - Build
 
-Implement to the acceptance criteria in section 4 using the architectural
-context in section 5. The bundle is the spec: deviation is escalation to
-the operator of the loop, not improvisation. As you implement, author or
-update Code Nodes for the source you write:
+Hand: builder. The builder makes the red tests green with production code,
+Code Nodes and code-hygiene unit tests only; it never edits an AC-based or
+E2E test, a TS / TC record or criterion text. Implement to the acceptance
+criteria in section 4 using the architectural context in section 5. The
+bundle is the spec: deviation is escalation to the operator of the loop,
+not improvisation. As you implement, author or update Code Nodes for the
+source you write:
 
     rcf define create cn --path <file>[#symbol] --acs <ac-ids>
 
 Do this now, not as an afterthought: comprehension of which symbols serve
 which acceptance criteria is cheapest to capture while you are writing the
-code, and Stage 5 refuses completion without it. Commit at stage end.
+code, and Stage 5 refuses completion without it. Commit with the trailers
+`Hand: builder` and `Hand-Id: <builder identity>`.
 
 ### Stage 3 - Review
 
-Mechanical referee pass:
+Hand: reviewer. Mechanical referee pass:
 
     rcf define validate
 
-must come back clean; then re-read the diff against every in-scope
-acceptance criterion and document any deviations. Commit.
+    rcf audit separation
+
+must both come back clean (separation judges each commit's `Hand:` trailer
+against the paths it touches, as the pull_request CI job does); then the
+reviewer re-reads the diff against every in-scope acceptance criterion
+and returns MERGE or FINDINGS. Any commit it makes carries
+`Hand: reviewer`.
 
 ### Stage 4 - Test
 
-Exercise every in-scope acceptance criterion: write or extend the TS / TC
-documents (section 6 lists the existing surface and the flagged gaps) and
-the tests they point to, until:
+Hand: verifier. On the reviewed head, the verifier runs the bound suites
+against the preview or version host (`--artefact <tgz>` or
+`--package <dir>`):
 
-    rcf audit coverage --strict
+    rcf verify run --fbs FBS-001 --hand verifier --artefact <tgz>
 
-covers the in-scope acceptance criteria. Commit.
+The verb writes the report to rcf/verify-reports/FBS-001/<head12>.json;
+commit it with the trailer `Hand: verifier`. The PR merges only on a
+Review MERGE and a Test PASS at the same head.
 
 ### Stage 5 - Finalise
 
-CI green; PR raised and merged per the driving workflow's convention.
-After the merge:
+Hand: stage-keeper. CI green; PR merged per the driving workflow's
+convention. After the merge:
 
     rcf build mark FBS-001 complete
 
@@ -106,7 +122,7 @@ or, for a genuinely no-code spec (docs-only, config-only), declare:
 
     rcf build mark FBS-001 complete --no-code-nodes
 
-Then ship-gate the deployed app - an independent verify run that
-passes with ship authority promotes complete -> verified:
+Then promote complete -> verified by ingesting the committed Test-stage
+report, naming the CI run that passed on the merged head:
 
-    rcf build finalise FBS-001 --url <deploy-url>
+    rcf build finalise FBS-001 --ci-run <ref>
