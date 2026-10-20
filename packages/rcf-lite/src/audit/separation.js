@@ -132,7 +132,8 @@ export function classifyPath(path, table = []) {
  * Verdict for one commit from its declared hand (null when undeclared)
  * and its paths. `reason` is the Separation-Reason: value and `handId`
  * the Hand-Id: value (null when absent); `requireHand` fails a commit
- * with no Hand:, or a builder commit with no Hand-Id:.
+ * with no Hand:, or a builder commit with no Hand-Id:, and that missing
+ * trailer leads the reason even when the commit also breaks ownership.
  *
  * @param {string|null} hand
  * @param {string[]} paths
@@ -154,31 +155,33 @@ export function judgeCommit(hand, paths, { reason = null, handId = null, require
     return { classes, verdict: 'fail', reason: MIXED_NO_REASON, offending: [] };
   }
   if (hand === null) {
+    const missing = requireHand ? 'missing Hand: trailer' : null;
     const touched = new Set(nonNeutral.map(([, c]) => c));
     if (touched.size > 1) {
+      const breach = `undeclared commit touches ${[...touched].sort().join(' and ')}`;
       return {
         classes,
         verdict: 'fail',
-        reason: `undeclared commit touches ${[...touched].sort().join(' and ')}`,
+        reason: missing ? `${missing}, ${breach}` : breach,
         offending: nonNeutral.map(([p]) => p),
       };
     }
-    if (requireHand) return { classes, verdict: 'fail', reason: 'missing Hand: trailer', offending: [] };
+    if (missing) return { classes, verdict: 'fail', reason: missing, offending: [] };
     return pass;
   }
+  const missing = requireHand && hand === 'builder' && !(handId ?? '').trim() ? 'missing Hand-Id: trailer' : null;
   const owned = OWNED[hand];
   const foreign = nonNeutral.filter(([, c]) => !owned.includes(c));
   if (foreign.length === 0) {
-    if (requireHand && hand === 'builder' && !(handId ?? '').trim()) {
-      return { classes, verdict: 'fail', reason: 'missing Hand-Id: trailer', offending: [] };
-    }
+    if (missing) return { classes, verdict: 'fail', reason: missing, offending: [] };
     return pass;
   }
   const foreignClasses = [...new Set(foreign.map(([, c]) => c))].sort();
+  const breach = `${hand} touches ${foreignClasses.join(' and ')}`;
   return {
     classes,
     verdict: 'fail',
-    reason: `${hand} touches ${foreignClasses.join(' and ')}`,
+    reason: missing ? `${missing}, ${breach}` : breach,
     offending: foreign.map(([p]) => p),
   };
 }

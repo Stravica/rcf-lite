@@ -129,7 +129,10 @@ export async function main(argv, deps = {}) {
   if (failed.length) {
     const items = failed.map((r) => {
       const who = `${r.sha.slice(0, 7)} Hand=${r.hand ?? 'none'}`;
-      return r.offending.length ? `${who} touches ${r.offending.join(', ')}` : `${who} ${r.reason}`;
+      if (!r.offending.length) return `${who} ${r.reason}`;
+      // Under --require-hand the missing trailer leads the item, still one item per commit.
+      const missing = /^missing Hand(-Id)?: trailer/.exec(r.reason ?? '');
+      return `${who} ${missing ? `${missing[0]}, ` : ''}touches ${r.offending.join(', ')}`;
     });
     stdout.write(`separation: FAIL ${failed.length} of ${rows.length} commits ${range}: ${items.join('; ')}\n`);
     return code;
