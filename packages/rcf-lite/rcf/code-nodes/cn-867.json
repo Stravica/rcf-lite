@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-867",
+  "path": "src/build/formatters/markdown.js#pushRunbook",
+  "title": "Bundle runbook: a hand per stage, Test-stage verify run, finalise --ci-run (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-3",
+    "AC-19004-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:31.386Z",
+  "updatedAt": "2026-10-20T07:12:31.386Z"
+}

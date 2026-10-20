@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-868",
+  "path": "src/build/bundle.js#assembleBundle",
+  "title": "completionContract.finalise carries rcf build finalise --ci-run (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-3",
+    "AC-19004-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:31.960Z",
+  "updatedAt": "2026-10-20T07:12:31.960Z"
+}

@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-872",
+  "path": "../../README.md",
+  "title": "Root README: stage chain ends in audit (FBS-224)",
+  "implementsAcIds": [
+    "AC-19004-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-20T07:12:40.537Z",
+  "updatedAt": "2026-10-20T07:12:40.537Z"
+}
