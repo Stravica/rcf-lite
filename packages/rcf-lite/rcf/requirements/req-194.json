@@ -1,0 +1,60 @@
+{
+  "createdAt": "2026-10-20T11:36:01.023Z",
+  "updatedAt": "2026-10-20T11:36:16.330Z",
+  "description": "rcf-lite consumes @stravica-ai/rcf-schemas 0.9.0 and carries its three consumer rules. (1) The pin moves from 0.8.0 to 0.9.0, where a probe must carry at least one of expectStatus, expectHeader, expectBody or selector: rcf define validate over this repository's own chain still exits 0, rcf define update --ac --probe refuses an assertion-free probe with exit 3, and rcf verify run --mode deterministic still records an assertion-free rcf/verify-catalog.json entry as fail with evidence naming the missing assertion, never pass. (2) A criterion carrying supersededBy (with supersededOn and supersessionNote, which travel together under 0.9.0) is retired: rcf audit coverage shows it in its own retired state naming its successor, outside the coverage denominator in strict and shallow-any modes, requires no bound test, lists and does not count a test still bound to it, and fails strict mode with exit 4 when the successor does not exist in the chain, is the criterion itself, or forms a cycle through supersededBy; rcf audit eval coverage applies the same retired rule; deterministic verify never runs a retired criterion's probe and reports it as retired with its successor named. (3) Before resolving expectBody.matches, deterministic verify compiles the source and tests it against two fixed canaries from disjoint character classes, qzvxjk0729 and ~!@#%^&*(); a pattern that matches both, or a source that does not compile, resolves the criterion as fail with failedExpectation expectBody.matches and a named reason, so a match-anything pattern can never pass a criterion. rcf define validate does not change for the retired rule.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "rcf-schemas 0.9.0 (tag v0.9.0, 2026-10-19) adds the supersession fields on an acceptance criterion and makes a probe carry at least one assertion; its Migration section names four consumer steps for rcf-lite: retired criteria in coverage, the successor and cycle checks, deterministic verify skipping a retired criterion's probe, and the canary rule for expectBody.matches. The supersededBy audit rule and the canary rule were decided under the operator's delegation of 2026-10-19 (work item w-2026-10-19-dave-002); the pin bump rides this record's Build. Until the pin reads 0.9.0 no chain record in this repository can carry the supersession fields (the FBS-220 round hit exactly that), and a match-anything expectBody.matches pattern can pass any criterion today.",
+  "tags": [
+    "capability:verify",
+    "capability:requirements-authoring"
+  ],
+  "reqId": "REQ-194",
+  "prdId": "PRD-001",
+  "title": "Consumer side of rcf-schemas 0.9.0: assertion-required probes, retired criteria in coverage and verify, and the expectBody.matches canary rule",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-20T11:36:01.169Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "shows"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "form"
+      },
+      {
+        "source": "rationale",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "rationale",
+        "shape": "persistence",
+        "match": "Migration"
+      }
+    ]
+  },
+  "deliveredBy": {
+    "tacId": "TAC-4150-ac-probe-catalog"
+  }
+}
