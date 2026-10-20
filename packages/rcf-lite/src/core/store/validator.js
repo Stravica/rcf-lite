@@ -153,9 +153,13 @@ function detailOf(e) {
  * @param {object} args.doc - parsed JSON document
  * @param {DocKind} args.kind
  * @param {string} [args.filePath] - optional, recorded on validation errors
+ * @param {boolean} [args.allowAssertionFreeProbe] - load path only: ignore
+ *   the rcf-schemas 0.9.0 acProbe anyOf errors, so a story whose AC probe
+ *   carries no assertion still loads and verify resolves it "fail"
+ *   (FBS-227); define validate names it through probeShapeError
  * @returns {import('../errors/index.js').RcfError | null}
  */
-export function validateDocument({ doc, kind, filePath }) {
+export function validateDocument({ doc, kind, filePath, allowAssertionFreeProbe = false }) {
   const schema = SCHEMAS[kind];
   if (!schema) {
     return rcfError({
@@ -167,7 +171,12 @@ export function validateDocument({ doc, kind, filePath }) {
   const ajv = getAjv();
   const validate = ajv.getSchema(schema.$id) ?? ajv.compile(schema);
   if (validate(doc)) return null;
-  const ajvErrors = validate.errors ?? [];
+  let ajvErrors = validate.errors ?? [];
+  if (allowAssertionFreeProbe) {
+    ajvErrors = ajvErrors.filter((e) => !(/\/acceptanceCriteria\/\d+\/probe$/.test(e.instancePath ?? '')
+      && /^#(\/\$defs\/acProbe)?\/anyOf(\/|$)/.test(e.schemaPath ?? '')));
+    if (ajvErrors.length === 0) return null;
+  }
   const first = ajvErrors[0] ?? {};
   const field = first.instancePath?.replace(/^\//, '').replace(/\//g, '.') || undefined;
   const rule = first.keyword || undefined;
