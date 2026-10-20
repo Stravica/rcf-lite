@@ -198,7 +198,7 @@ export function assembleBundle(tree, { fbsId }) {
   const completionContract = {
     markInProgress: `rcf build mark ${fbsId} inProgress`,
     markComplete: `rcf build mark ${fbsId} complete`,
-    finalise: `rcf build finalise ${fbsId} --url <deploy-url>`,
+    finalise: `rcf build finalise ${fbsId} --ci-run <ref>`,
   };
 
   // FBS-215 (AC-18906-1): journey-step bindings. For each id on

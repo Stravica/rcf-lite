@@ -391,8 +391,8 @@ function pushTestSurface(lines, bundle) {
 /**
  * Section 7 - the full RCF five-stage build-cycle runbook (§D3.7,
  * amendment D3-A). Static text parameterised only by fbsId and the
- * in-scope AC ids; the each-stage-commits discipline is part of the
- * printed contract. The tool assembles and referees; the harness
+ * in-scope AC ids; the each-stage-commits discipline and the hand per
+ * stage (FBS-224, AC-19004-3) are part of the printed contract. The tool assembles and referees; the harness
  * executes the cycle.
  */
 function pushRunbook(lines, bundle) {
@@ -407,45 +407,58 @@ function pushRunbook(lines, bundle) {
   lines.push('Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or `rcf guidance build-cycle-playbook` on the CLI.', '');
 
   lines.push('### Stage 1 - Define', '');
-  lines.push('Satisfied by this bundle: the FBS, acceptance criteria, ancestry and');
-  lines.push('architectural context above ARE the definition. Confirm your plan against');
-  lines.push(`every in-scope acceptance criterion (${acIds}) in section 4 before writing`);
-  lines.push('code, then mark pickup:', '');
+  lines.push('Hand: test-author. The FBS, acceptance criteria, ancestry and');
+  lines.push('architectural context above ARE the definition. The test-author writes');
+  lines.push('the AC-based and E2E tests and their TS / TC bindings for every in-scope');
+  lines.push(`acceptance criterion (${acIds}) before any production code, proves each`);
+  lines.push('new test red, and checks that (section 6 lists the existing surface):', '');
+  lines.push('    rcf audit coverage --strict', '');
+  lines.push('covers them. Then mark pickup:', '');
   lines.push(`    rcf build mark ${fbsId} inProgress`, '');
-  lines.push('Commit any plan artefacts the driving workflow requires.', '');
+  lines.push('Commit with the trailer `Hand: test-author`.', '');
 
   lines.push('### Stage 2 - Build', '');
-  lines.push('Implement to the acceptance criteria in section 4 using the architectural');
-  lines.push('context in section 5. The bundle is the spec: deviation is escalation to');
-  lines.push('the operator of the loop, not improvisation. As you implement, author or');
-  lines.push('update Code Nodes for the source you write:', '');
+  lines.push('Hand: builder. The builder makes the red tests green with production code,');
+  lines.push('Code Nodes and code-hygiene unit tests only; it never edits an AC-based or');
+  lines.push('E2E test, a TS / TC record or criterion text. Implement to the acceptance');
+  lines.push('criteria in section 4 using the architectural context in section 5. The');
+  lines.push('bundle is the spec: deviation is escalation to the operator of the loop,');
+  lines.push('not improvisation. As you implement, author or update Code Nodes for the');
+  lines.push('source you write:', '');
   lines.push('    rcf define create cn --path <file>[#symbol] --acs <ac-ids>', '');
   lines.push('Do this now, not as an afterthought: comprehension of which symbols serve');
   lines.push('which acceptance criteria is cheapest to capture while you are writing the');
-  lines.push('code, and Stage 5 refuses completion without it. Commit at stage end.', '');
+  lines.push('code, and Stage 5 refuses completion without it. Commit with the trailers');
+  lines.push('`Hand: builder` and `Hand-Id: <builder identity>`.', '');
 
   lines.push('### Stage 3 - Review', '');
-  lines.push('Mechanical referee pass:', '');
+  lines.push('Hand: reviewer. Mechanical referee pass:', '');
   lines.push('    rcf define validate', '');
-  lines.push('must come back clean; then re-read the diff against every in-scope');
-  lines.push('acceptance criterion and document any deviations. Commit.', '');
+  lines.push('    rcf audit separation', '');
+  lines.push('must both come back clean (separation judges each commit\'s `Hand:` trailer');
+  lines.push('against the paths it touches, as the pull_request CI job does); then the');
+  lines.push('reviewer re-reads the diff against every in-scope acceptance criterion');
+  lines.push('and returns MERGE or FINDINGS. Any commit it makes carries');
+  lines.push('`Hand: reviewer`.', '');
 
   lines.push('### Stage 4 - Test', '');
-  lines.push('Exercise every in-scope acceptance criterion: write or extend the TS / TC');
-  lines.push('documents (section 6 lists the existing surface and the flagged gaps) and');
-  lines.push('the tests they point to, until:', '');
-  lines.push('    rcf audit coverage --strict', '');
-  lines.push('covers the in-scope acceptance criteria. Commit.', '');
+  lines.push('Hand: verifier. On the reviewed head, the verifier runs the bound suites');
+  lines.push('against the preview or version host (`--artefact <tgz>` or');
+  lines.push('`--package <dir>`):', '');
+  lines.push(`    rcf verify run --fbs ${fbsId} --hand verifier --artefact <tgz>`, '');
+  lines.push(`The verb writes the report to rcf/verify-reports/${fbsId}/<head12>.json;`);
+  lines.push('commit it with the trailer `Hand: verifier`. The PR merges only on a');
+  lines.push('Review MERGE and a Test PASS at the same head.', '');
 
   lines.push('### Stage 5 - Finalise', '');
-  lines.push('CI green; PR raised and merged per the driving workflow\'s convention.');
-  lines.push('After the merge:', '');
+  lines.push('Hand: stage-keeper. CI green; PR merged per the driving workflow\'s');
+  lines.push('convention. After the merge:', '');
   lines.push(`    rcf build mark ${fbsId} complete`, '');
   lines.push('This refuses (exit 3, missingCodeNodes) if any in-scope acceptance');
   lines.push('criterion still carries no Code Node - go back to Stage 2 and author it,');
   lines.push('or, for a genuinely no-code spec (docs-only, config-only), declare:', '');
   lines.push(`    rcf build mark ${fbsId} complete --no-code-nodes`, '');
-  lines.push('Then ship-gate the deployed app - an independent verify run that');
-  lines.push('passes with ship authority promotes complete -> verified:', '');
-  lines.push(`    rcf build finalise ${fbsId} --url <deploy-url>`);
+  lines.push('Then promote complete -> verified by ingesting the committed Test-stage');
+  lines.push('report, naming the CI run that passed on the merged head:', '');
+  lines.push(`    rcf build finalise ${fbsId} --ci-run <ref>`);
 }
