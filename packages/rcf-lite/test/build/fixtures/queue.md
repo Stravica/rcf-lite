@@ -120,11 +120,11 @@ Generation strategy: dependencyFirst
 | 227 | 6 | FBS-222 | rcf audit separation verb | verified | verified |  |
 | 228 | 7 | FBS-223 | Separation wiring: mixed escape, override file, --require-hand, CI on pull requests | verified | verified |  |
 | 229 | 8 | FBS-224 | Guidance, managed block and README: the new stage contract and audit as the fifth verb | verified | verified |  |
-| 230 | 9 | FBS-227 | rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes | inProgress | inProgress |  |
-| 231 | 10 | FBS-228 | rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify | notStarted | blocked | FBS-227 |
+| 230 | 9 | FBS-227 | rcf-schemas 0.9.0 consumer side A: pin bump with assertion-required probes | complete | complete |  |
+| 231 | 10 | FBS-228 | rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify | notStarted | actionable |  |
 | 232 | 11 | FBS-229 | rcf-schemas 0.9.0 consumer side C: the expectBody.matches canary rule | notStarted | blocked | FBS-228 |
 
-Totals: items 119 | notStarted 58 | inProgress 3 | complete 34 | verified 24 | actionable 40 | blocked 18
+Totals: items 119 | notStarted 58 | inProgress 2 | complete 35 | verified 24 | actionable 41 | blocked 17
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218
