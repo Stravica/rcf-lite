@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:49:32.351Z",
-  "updatedAt": "2026-10-19T11:27:38.980Z",
+  "updatedAt": "2026-10-20T06:51:52.877Z",
   "summary": "build-cycle.md stages 1, 4 and 5, the playbook, the bundle closing runbook, the managed agent-instructions block with a non-null minAgentAction, and the README attest-to-audit fix (US-19004). Delivers AC-19004-1 to AC-19004-7.",
   "approach": "Rewrite guidance/build-cycle.md and guidance/build-cycle-playbook.md to the five hands and the Test-stage report; update the closing runbook in src/build/formatters/markdown.js and src/build/bundle.js; regenerate guidance/managed/agent-instructions-block.md and its hash; fix README.md line 49 (define, build, verify, release, audit); release notes set minAgentAction.",
   "deliverables": [
@@ -28,7 +28,7 @@
   "riskLevel": "low",
   "domain": "functional",
   "estimatedSize": "medium",
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "notes": "The HQ standard rule 4 follows after this ships (outside this repository). Sized for one PR and one test-author, builder and verifier round under 40 minutes each (DEFINE 2026-10-16, finalise-admin). Order in the train: 7 of 7. Tests: the test-author writes the AC-based and E2E tests and the TS/TC bindings for US-19004 at this FBS's own Define stage (estimate 7 node:test cases); this DEFINE lands no test declarations. Commits carry Hand: trailers from this train forward. No freeze, no ack verbs.",
   "acIds": [
     "AC-19004-1",
