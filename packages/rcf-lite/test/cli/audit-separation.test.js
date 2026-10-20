@@ -278,3 +278,112 @@ test('AC-19101-7: rcf audit separation classifies a committed report under rcf/v
   assert.ok(Array.isArray(row.classes) && row.classes.includes('verifierEvidence'), `classes: ${JSON.stringify(row.classes)}`);
   assert.ok(!row.classes.includes('criteria'), `report classed as criteria: ${JSON.stringify(row.classes)}`);
 });
+
+// FBS-222 fix round (gate 1 BH-1): a test-shaped file is one whose basename
+// carries .test. or .spec. as a dotted segment, whatever follows it, at any
+// depth. Each crossing case is the only violator on its own branch, followed
+// by a passing verifier commit so it is not HEAD; n = 2.
+const MULTI_SUFFIX_TESTS = ['src/widget.test.d.ts', 'src/widget.spec.js.map', 'packages/app/src/widget.test.snap.js'];
+// Basenames that only contain the letters test or spec stay production.
+const TEST_NEAR_MISSES = ['src/attest.js', 'src/testing.js', 'src/inspector.js', 'src/contest.config.js', 'src/widget.testing.js', 'src/widget.spectrum.js'];
+
+test('AC-19101-2: rcf audit separation classes a test file with more than one extension after .test. or .spec. as test: Hand: builder touching src/widget.test.d.ts or src/widget.spec.js.map exits 4 with the FAIL line, Hand: test-author touching it passes', async (t) => {
+  for (const path of MULTI_SUFFIX_TESTS) {
+    await t.test(`Hand: builder touching ${path} fails`, async (st) => {
+      const world = await gitWorld(st);
+      const bad = commitPaths(world, 'crossing commit', [path], 'builder');
+      commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
+      assertFixture(world, [{ hand: 'builder', paths: [path] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
+      const { base, head } = baseAndHead(world);
+
+      const res = run(world, []);
+
+      expectExit(res, 4);
+      assert.ok(lines(res.stdout).includes(
+        `separation: FAIL 1 of 2 commits (base ${s7(base)}, head ${s7(head)}): ${s7(bad)} Hand=builder touches ${path}`,
+      ), `FAIL line missing; stdout: ${res.stdout}`);
+    });
+    await t.test(`Hand: test-author touching ${path} passes classed test`, async (st) => {
+      const world = await gitWorld(st);
+      const own = commitPaths(world, 'test commit', [path], 'test-author');
+      commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
+      assertFixture(world, [{ hand: 'test-author', paths: [path] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
+      const { base, head } = baseAndHead(world);
+
+      const res = run(world, []);
+
+      expectExit(res, 0);
+      assert.ok(lines(res.stdout).includes(
+        `separation: PASS 2 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 0, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
+      ), `PASS line missing; stdout: ${res.stdout}`);
+      const json = run(world, ['--json']);
+      expectExit(json, 0);
+      const row = JSON.parse(json.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
+      assert.ok(row, `no row for the test commit: ${json.stdout}`);
+      assert.equal(row.verdict, 'pass');
+      assert.deepEqual(row.classes, ['test'], `classes: ${JSON.stringify(row.classes)}`);
+    });
+  }
+  await t.test('near-miss names that only contain test or spec stay production', async (st) => {
+    const world = await gitWorld(st);
+    const own = commitPaths(world, 'production commit', TEST_NEAR_MISSES, 'builder');
+    assertFixture(world, [{ hand: 'builder', paths: TEST_NEAR_MISSES }]);
+
+    const res = run(world, ['--json']);
+
+    expectExit(res, 0);
+    const row = JSON.parse(res.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
+    assert.ok(row, `no row for the production commit: ${res.stdout}`);
+    assert.equal(row.verdict, 'pass');
+    assert.deepEqual(row.classes, ['production'], `classes: ${JSON.stringify(row.classes)}`);
+  });
+});
+
+// FBS-222 fix round (gate 1 BH-2): lockfiles are neutral in every common
+// ecosystem, at any depth, plus any basename ending .lock. Observed through
+// a hand that does not own production (test-author), so a lockfile classed
+// production would fail it.
+const LOCKFILE_NAMES = [
+  'package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb', 'bun.lock',
+  'Cargo.lock', 'Gemfile.lock', 'poetry.lock', 'uv.lock', 'composer.lock', 'go.sum',
+  'flake.lock', 'Podfile.lock', 'pubspec.lock', 'mix.lock', 'widget-tool.lock',
+  'packages/app/Cargo.lock', 'packages/app/go.sum', 'services/api/poetry.lock',
+];
+// Names that only resemble a lockfile stay production.
+const LOCK_NEAR_MISSES = ['src/lock.js', 'src/flock', 'src/Cargo.lock.js', 'src/lockfile.json', 'src/go.summary'];
+
+test('AC-19101-2: rcf audit separation classes lockfiles of every common ecosystem as neutral: a Hand: test-author commit touching only package-lock.json, npm-shrinkwrap.json, pnpm-lock.yaml, yarn.lock, bun.lockb, bun.lock, Cargo.lock, Gemfile.lock, poetry.lock, uv.lock, composer.lock, go.sum or any basename ending .lock passes', async (t) => {
+  await t.test('a test-author lockfile-only commit passes with classes exactly neutral', async (st) => {
+    const world = await gitWorld(st);
+    const own = commitPaths(world, 'lockfiles', LOCKFILE_NAMES, 'test-author');
+    commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
+    assertFixture(world, [{ hand: 'test-author', paths: LOCKFILE_NAMES }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
+    const { base, head } = baseAndHead(world);
+
+    const res = run(world, []);
+
+    expectExit(res, 0);
+    assert.ok(lines(res.stdout).includes(
+      `separation: PASS 2 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 0, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
+    ), `PASS line missing; stdout: ${res.stdout}`);
+    const json = run(world, ['--json']);
+    expectExit(json, 0);
+    const row = JSON.parse(json.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
+    assert.ok(row, `no row for the lockfile commit: ${json.stdout}`);
+    assert.equal(row.verdict, 'pass');
+    assert.deepEqual(row.classes, ['neutral'], `classes: ${JSON.stringify(row.classes)}`);
+  });
+  await t.test('near-miss names that only resemble a lockfile stay production', async (st) => {
+    const world = await gitWorld(st);
+    const own = commitPaths(world, 'production commit', LOCK_NEAR_MISSES, 'builder');
+    assertFixture(world, [{ hand: 'builder', paths: LOCK_NEAR_MISSES }]);
+
+    const res = run(world, ['--json']);
+
+    expectExit(res, 0);
+    const row = JSON.parse(res.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
+    assert.ok(row, `no row for the production commit: ${res.stdout}`);
+    assert.equal(row.verdict, 'pass');
+    assert.deepEqual(row.classes, ['production'], `classes: ${JSON.stringify(row.classes)}`);
+  });
+});
