@@ -130,7 +130,8 @@ test('serialiseViewIndex returns a JSON string under 450 KB on the dogfood tree'
   const bytes = Buffer.byteLength(json);
   // Schemas-090 DEFINE (2026-10-20): the dogfood tree's growth (REQ-194,
   // US-19401 and its 17 criteria, FBS-227, TS-260) took the index to
-  // 410502 bytes, past 400 KB; the envelope moves to 450 KB as a count pin.
+  // 410502 bytes, past 400 KB; the envelope moves to 450 KB as a count pin
+  // (ledger decision 55, kept by the stage-keeper 2026-10-20).
   assert.ok(bytes < 450 * 1024, `expected index JSON under 450 KB, got ${bytes} bytes`);
 });
 

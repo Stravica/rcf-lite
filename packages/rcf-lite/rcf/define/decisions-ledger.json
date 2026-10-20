@@ -1131,7 +1131,10 @@
       "default": "a",
       "blocks": "FBS-227",
       "addedAt": "2026-10-20T11:39:30.894Z",
-      "status": "open"
+      "status": "resolved",
+      "answer": "a. Decided by the stage-keeper 2026-10-20: split now, in the DEFINE close round, into three FBSs along the parts, each depending on the one before: FBS-227 (AC-19401-1 to -4, buildOrder 230), FBS-228 (AC-19401-5 to -12, buildOrder 231), FBS-229 (AC-19401-13 to -17, buildOrder 232). Seventeen criteria do not fit one 40-minute round per hand; the train sized specs at four to eight criteria.",
+      "answeredAt": "2026-10-20T12:06:16.531Z",
+      "resolvedAt": "2026-10-20T12:06:16.531Z"
     },
     {
       "id": 53,
@@ -1174,6 +1177,27 @@
       "answer": "a. Taken by the DEFINE hand: rcf define validate exits 0 with the reuse and readiness names no new failing id for FBS-227's contextRequirements. US-19401 links TAC-4150-ac-probe-catalog; REQ-194 deliveredBy TAC-4150-ac-probe-catalog.",
       "answeredAt": "2026-10-20T11:39:31.743Z",
       "resolvedAt": "2026-10-20T11:39:31.743Z"
+    },
+    {
+      "id": 55,
+      "question": "(l) The view index envelope in test/view/id-lookup.test.js: the dogfood tree's index passed the 400 KB envelope. Keep 450 KB or restore 400 KB?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "keep 450 KB as a count pin"
+        },
+        {
+          "letter": "b",
+          "text": "restore 400 KB and shorten titles"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-227",
+      "addedAt": "2026-10-20T12:06:16.727Z",
+      "status": "resolved",
+      "answer": "a. Decided by the stage-keeper 2026-10-20: kept as a count pin. Reason: real row growth. Main sat at about 405.5 KB; the first DEFINE round's 21 rows took the index to 410502 bytes; after this round it is 410987 bytes.",
+      "answeredAt": "2026-10-20T12:06:20.445Z",
+      "resolvedAt": "2026-10-20T12:06:20.445Z"
     }
   ]
 }
