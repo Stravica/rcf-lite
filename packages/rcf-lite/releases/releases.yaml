@@ -44,11 +44,12 @@ latest: "0.35.0"
 releases:
   - version: "0.35.0"
     date: "2026-10-20"
-    breaking: false
+    breaking: true
     headlines:
-      - "rcf-lite 0.35.0 states the five-stage contract with a hand per stage: verification runs in the Test stage through rcf verify run --fbs <fbs-id> --hand verifier, and Finalise ingests the committed report through rcf build finalise <fbs-id> --ci-run <ref>. The build-cycle guidance, the playbook, the bundle runbook and the root README say so, and audit is the fifth verb."
-      - "Rerun rcf init after installing, or run rcf doctor --fix: the managed agent-instructions block now says verified is written only by rcf build finalise from a Test-stage report, so rcf doctor reports a stale hash until the block is refreshed."
-    minAgentAction: rerun-init
+      - "rcf-lite 0.35.0 separates the build stages by hand: verification runs in the Test stage through rcf verify run --fbs <fbs-id> --hand verifier, against a URL or the packed package (--artefact, --package), and rcf build finalise <fbs-id> --ci-run <ref> ingests that committed report without running verify. rcf audit separation checks each commit's Hand: trailer against the paths it touches and runs in CI on pull requests, rcf build bundle --next can refuse while a merged spec is not yet verified, and acceptance criteria can carry probes that deterministic verify resolves per criterion."
+      - "Breaking: rcf build finalise no longer takes --mode, --url or the other verify flags (they exit 2) and refuses without --ci-run (exit 4), so sweep scripts, CI and docs for the old finalise forms. Then rerun rcf init or run rcf doctor --fix: the managed agent-instructions block now states the five-stage contract, so rcf doctor reports a stale hash until it is refreshed."
+      - "The @stravica-ai/rcf-schemas pin moves from 0.7.0 to 0.9.0. Trees from 0.34.x need no migration because probes are new in this release; a probe with no response assertion is refused by rcf define validate and fails verify as missing assertion."
+    minAgentAction: rewrite-shell-invocations
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
   - version: "0.34.2"
