@@ -240,8 +240,8 @@ Review MERGE and a Test PASS at the same head.
 
 ### Stage 5 - Finalise
 
-Hand: stage-keeper. CI green; PR merged per the driving workflow's
-convention. After the merge:
+Hand: stage-keeper. On the PR branch before the merge, with CI green on
+the PR head and a Review MERGE and a Test PASS at the same head:
 
     rcf build mark FBS-001 complete
 
@@ -252,6 +252,12 @@ or, for a genuinely no-code spec (docs-only, config-only), declare:
     rcf build mark FBS-001 complete --no-code-nodes
 
 Then promote complete -> verified by ingesting the committed Test-stage
-report, naming the CI run that passed on the merged head:
+report, naming the CI run that passed on the PR head the report names:
 
     rcf build finalise FBS-001 --ci-run <ref>
+
+A loopback report target (localhost, 127.0.0.0/8, ::1) is accepted when
+the report names the engine, the port and the served sha
+(rcf verify run --engine <name> --served-sha <sha>). Commit the verified
+write on the branch, then merge the PR per the driving workflow's
+convention; the merge carries verified.
