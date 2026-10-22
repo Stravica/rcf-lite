@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-09-16T22:38:04Z",
-  "updatedAt": "2026-10-17T01:35:25.991Z",
-  "purpose": "Cover AC-16502-1 (writer refuses executionStatus=verified without allowVerifiedOverride, C-22), AC-16502-2 (writer accepts when allowVerifiedOverride:true, C-22 opt-out seam), and AC-16502-3 (finalise refuses on a non-default branch, --allow-pre-merge is the opt-out, C-26). AC-16502-1 and AC-16502-2 drive the writer directly through updateDocument; AC-16502-3 drives the finalise CLI end-to-end with a spawn seam that returns the branch name.",
+  "updatedAt": "2026-10-22T11:22:29.922Z",
+  "purpose": "Cover AC-16502-1 (writer refuses executionStatus=verified without allowVerifiedOverride, C-22), AC-16502-2 (writer accepts when allowVerifiedOverride:true, C-22 opt-out seam), and AC-16502-3 as restated for ADR-4151 (finalise promotes on a non-default branch with no flag; --allow-pre-merge changes nothing; claim C-26 reversed). AC-16502-1 and AC-16502-2 drive the writer directly through updateDocument; AC-16502-3 drives the finalise CLI through bin/rcf.js in a fixture git repository on branch topic-x.",
   "testLevel": "integration",
   "acIds": [
     "AC-16502-1",
@@ -29,9 +29,9 @@
     {
       "id": "TC-203-merge-state-refusal-and-opt-out",
       "acId": "AC-16502-3",
-      "description": "Ingest path: with a valid report and HEAD on branch feature/x, rcf build finalise --ci-run exits 4 with stderr naming branch feature/x and claim C-26; adding --allow-pre-merge exits 0, FBS at verified, and stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/.",
+      "description": "Ingest path: with a valid committed report and HEAD on branch topic-x, rcf build finalise --ci-run exits 0 with executionStatus verified and no \"git working tree is on branch\" refusal; on a second identical project --allow-pre-merge also exits 0 and stdout carries no /Referee-guarantees claim C-26 records the pre-merge decision here/ (C-26 reversed, ADR-4151).",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-16502-3 (ingest): rcf build finalise on a non-default branch refuses exit 4 naming the branch and claim C-26, and --allow-pre-merge promotes the ingested report and logs the pre-merge decision with C-26"
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-16502-3 (ingest): rcf build finalise on a non-default branch promotes with no flag and no claim C-26 line, and --allow-pre-merge changes nothing"
     }
   ],
   "status": "approved"
