@@ -199,13 +199,16 @@ Optional:
                             (the URL's port, else 80 / 443 by scheme).
                             Required with --hand and a loopback --url
                             (localhost, *.localhost, 127.0.0.0/8, ::1,
-                            0.0.0.0), exit 2 otherwise
+                            0.0.0.0), exit 2 otherwise. URL target only:
+                            exit 2 with --artefact or --package <dir>
   --served-sha <sha>        The full sha of the committed HEAD the --url
                             target serves, recorded as target.servedSha.
                             Required with --hand and a loopback --url
                             (exit 2); any other sha exits 4. rcf build
                             finalise accepts a loopback report only when it
-                            names the engine, the port and this served sha
+                            names the engine, the port and this served sha.
+                            URL target only: exit 2 with --artefact or
+                            --package <dir>
   --package <ref>           Version-host target (name@version or tarball):
                             the report records target.kind "package" and
                             target.packageRef; --url is then optional and
@@ -461,7 +464,16 @@ export async function main(argv, deps = {}) {
     stderr.write('[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)\n');
     return 2;
   }
+  // FBS-230 (AC-19005-5): --engine and --served-sha name what a served
+  // --url target serves, so a package target refuses them, with or
+  // without --hand, before any pack or install.
   if (packageTarget) {
+    for (const flag of ['engine', 'served-sha']) {
+      if (flags[flag] !== undefined) {
+        stderr.write(`[error] usage --${flag} applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\n`);
+        return 2;
+      }
+    }
     return runArtefactMode(flags, { ...deps, stdout, stderr, cwd });
   }
 
