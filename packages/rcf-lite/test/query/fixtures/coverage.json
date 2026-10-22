@@ -7127,6 +7127,7 @@
           "id": "AC-19005-5",
           "covered": true,
           "testCases": [
+            "TC-261-verify-run-loopback-flags-url-only",
             "TC-261-verify-run-loopback-usage",
             "TC-261-verify-run-records-loopback-fields",
             "TC-261-verify-run-served-sha-refused"

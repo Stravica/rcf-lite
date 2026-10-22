@@ -3470,6 +3470,8 @@ flowchart LR
   AC-19005-4 -.-> TC-261-served-sha-mismatch
   AC-19005-5["AC-19005-5"]
   REQ-190 --> AC-19005-5
+  TC-261-verify-run-loopback-flags-url-only["TC-261-verify-run-loopback-flags-url-only"]
+  AC-19005-5 -.-> TC-261-verify-run-loopback-flags-url-only
   TC-261-verify-run-loopback-usage["TC-261-verify-run-loopback-usage"]
   AC-19005-5 -.-> TC-261-verify-run-loopback-usage
   TC-261-verify-run-records-loopback-fields["TC-261-verify-run-records-loopback-fields"]
@@ -5538,6 +5540,7 @@ flowchart LR
   class AC-19005-4 ac;
   class TC-261-served-sha-mismatch tc;
   class AC-19005-5 ac;
+  class TC-261-verify-run-loopback-flags-url-only tc;
   class TC-261-verify-run-loopback-usage tc;
   class TC-261-verify-run-records-loopback-fields tc;
   class TC-261-verify-run-served-sha-refused tc;

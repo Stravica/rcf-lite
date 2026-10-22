@@ -769,7 +769,7 @@ REQ-190      yes      AC-19001-1   yes         TC-252-report-written
                       AC-19005-2   yes         TC-261-loopback-accepted
                       AC-19005-3   yes         TC-261-loopback-missing-field
                       AC-19005-4   yes         TC-261-served-sha-mismatch
-                      AC-19005-5   yes         TC-261-verify-run-loopback-usage, TC-261-verify-run-recor...
+                      AC-19005-5   yes         TC-261-verify-run-loopback-flags-url-only, TC-261-verify-...
                       AC-19005-6   yes         TC-261-report-committed-at-head
                       AC-19005-7   yes         TC-261-provenance-kept-pre-merge
                       AC-19005-8   yes         TC-261-e2e-merge-confirm, TC-261-merged-main-confirm
