@@ -9,9 +9,9 @@
   "totals": {
     "items": 120,
     "notStarted": 58,
-    "inProgress": 3,
+    "inProgress": 2,
     "complete": 34,
-    "verified": 25,
+    "verified": 26,
     "actionable": 41,
     "blocked": 17
   },
@@ -1504,11 +1504,11 @@
       "buildOrder": 226,
       "tier": 3,
       "title": "Pre-merge Finalise on the PR branch and accepted loopback verify targets",
-      "executionStatus": "inProgress",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-220"
       ],
-      "state": "inProgress",
+      "state": "verified",
       "blockedBy": []
     },
     {
