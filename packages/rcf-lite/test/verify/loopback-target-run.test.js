@@ -13,6 +13,7 @@ import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
+import { gzipSync } from 'node:zlib';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -41,8 +42,8 @@ function git(cwd, ...args) {
   }).trim();
 }
 
-function rcf(cwd, args) {
-  const env = { ...process.env, CI: '1', PATH: '/usr/bin:/bin' };
+function rcf(cwd, args, extraEnv = {}) {
+  const env = { ...process.env, CI: '1', PATH: '/usr/bin:/bin', ...extraEnv };
   return new Promise((res) => {
     execFile(process.execPath, [bin, ...args], { cwd, env, encoding: 'utf8', timeout: 90_000 }, (err, stdout, stderr) => {
       res({ code: err ? (typeof err.code === 'number' ? err.code : 1) : 0, stdout: stdout ?? '', stderr: stderr ?? '' });
@@ -154,4 +155,39 @@ test('AC-19005-5: a loopback --url with --hand exits 2 with "[error] usage --eng
     assert.equal(r.code, 2, `exit 2\nstderr:\n${r.stderr}`);
     assertNothingWritten(w, 'no --served-sha');
   });
+});
+
+// FBS-230 gate r1 BH-3: --engine and --served-sha name what a served --url
+// target serves, so outside a --url target (package target mode) each is a
+// usage error before any pack or install, with or without --hand. The npm
+// cache is forced offline so a run that reaches a pack or install never
+// touches the network.
+const NOT_URL_TAIL = 'applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL';
+
+test('AC-19005-5: outside a --url target (package target mode, --artefact <tgz> or --package <dir>) --engine and --served-sha each exit 2 with "[error] usage --engine applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL" (and the same for --served-sha), with or without --hand, before any pack or install, writing no report', async (t) => {
+  const forms = [
+    ['--package <dir>', async () => ['--package', '.']],
+    ['--artefact <tgz>', async () => {
+      const dir = await scratchDir('rcf-fbs230-tgz-');
+      const tgz = join(dir, 'app-1.0.0.tgz');
+      await writeFile(tgz, gzipSync(Buffer.from('not a real package')));
+      return ['--artefact', tgz];
+    }],
+  ];
+  for (const [form, target] of forms) {
+    for (const flag of ['--engine', '--served-sha']) {
+      for (const withHand of [true, false]) {
+        await t.test(`${form} with ${flag}, ${withHand ? 'with' : 'without'} --hand`, async () => {
+          const w = await world(t);
+          const value = flag === '--engine' ? 'node server' : w.head;
+          const hand = withHand ? ['--hand', 'verifier', '--verifier-id', VERIFIER_ID] : [];
+          const r = await rcf(w.root, ['verify', 'run', ...(await target()), '--fbs', FBS, ...hand, flag, value], { npm_config_offline: 'true' });
+          assert.ok(r.stderr.includes(`[error] usage ${flag} ${NOT_URL_TAIL}`), `${form}: the flag is named as URL-target-only\nstderr:\n${r.stderr}`);
+          assert.equal(r.code, 2, `${form}: exit 2\nstderr:\n${r.stderr}`);
+          assertNothingWritten(w, `${form} ${flag}`);
+          assert.equal(git(w.root, 'status', '--porcelain'), '', `${form}: the working tree is untouched (no pack, no install)`);
+        });
+      }
+    }
+  }
 });

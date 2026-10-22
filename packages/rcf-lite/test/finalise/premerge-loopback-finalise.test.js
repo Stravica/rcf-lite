@@ -5,7 +5,9 @@
 // Every test drives `node bin/rcf.js build finalise` in a fixture project
 // that is a real git repository with a bare local remote: a base commit on
 // `main`, a feature branch carrying a `Hand: builder` commit with a `Hand-Id:`
-// (the verified head), a `Hand: verifier` commit adding the VerifyReport v1
+// and after it a `Hand: test-author` commit (the verified head, as on a PR whose
+// last test-author commit follows the build), a `Hand: verifier` commit adding
+// the VerifyReport v1
 // under rcf/verify-reports/FBS-001/, and the complete mark committed on the
 // branch. The branch world stays on the branch (the pre-merge Finalise); the
 // merged world merges it into `main` with --no-ff first.
@@ -19,7 +21,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile, execFileSync } from 'node:child_process';
 import { createServer } from 'node:http';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { mkdir, readFile, symlink, writeFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
@@ -138,8 +140,10 @@ async function replantReport(world, overrides) {
 }
 
 // The pre-merge world: a bare remote, `main` at the base commit, and the PR
-// branch `branch` carrying the builder commit, the verifier's report commit
-// and the complete mark, checked out. `report: false` commits no report.
+// branch `branch` carrying the builder commit, a later test-author commit (the
+// report head, so the builder commit is not the report head), the verifier's
+// report commit and the complete mark, checked out. `report: false` commits no
+// report.
 async function branchWorld({ branch = 'feature', report = true, reportOverrides = {} } = {}) {
   const root = await scratchDir('rcf-fin230-');
   const remote = await scratchDir('rcf-fin230-remote-');
@@ -159,8 +163,9 @@ async function branchWorld({ branch = 'feature', report = true, reportOverrides 
   git(root, 'push', '-q', 'origin', 'main');
   git(root, 'checkout', '-q', '-b', branch);
   await writeFile(join(root, 'src', 'save.js'), 'export function save() { return true; }\n', 'utf8');
-  const headSha = commitAll(root, 'feat: save returns true', { Hand: 'builder', 'Hand-Id': BUILDER_ID });
-  const world = { root, remote, base, branch, headSha, reportRel: `rcf/verify-reports/${FBS}/${headSha.slice(0, 12)}.json` };
+  const builderSha = commitAll(root, 'feat: save returns true', { Hand: 'builder', 'Hand-Id': BUILDER_ID });
+  const headSha = commitAll(root, 'test: goldens after the build', { Hand: 'test-author' });
+  const world = { root, remote, base, branch, builderSha, headSha, reportRel: `rcf/verify-reports/${FBS}/${headSha.slice(0, 12)}.json` };
   if (report) {
     await writeReport(world, verifyReport(world, reportOverrides));
     commitAll(root, 'test: verify report', { Hand: 'verifier', 'Hand-Id': VERIFIER_ID });
@@ -306,6 +311,59 @@ test('AC-19005-6: a report on disk but not committed in HEAD refuses exit 4 with
     await assertRefusal(world, { line: `finalise refused: verify report ${loose} is not committed at HEAD`, extra: ['--report', loose], label: '--report uncommitted' });
   });
 
+  // FBS-230 gate r1 BH-1: the report path, or any component of it below the
+  // repo root, that is a symlink is refused before it is read; only the real,
+  // committed file may promote.
+  await t.test('a committed symlink at the report path pointing at an uncommitted report file refuses "is read through a symlink at <link>"', async () => {
+    const world = await mergedWorld();
+    const loose = 'out/report.json';
+    await writeReport(world, verifyReport(world), loose);
+    git(world.root, 'rm', '-q', world.reportRel);
+    await mkdir(dirname(join(world.root, world.reportRel)), { recursive: true });
+    await symlink(`../../../${loose}`, join(world.root, world.reportRel));
+    git(world.root, 'add', world.reportRel);
+    git(world.root, 'commit', '-q', '-m', 'test: link the verify report\n\nHand: verifier');
+    assert.equal(git(world.root, 'ls-files', '-s', world.reportRel).split(' ')[0], '120000', 'fixture: the report path is a committed symlink');
+    assert.match(git(world.root, 'status', '--porcelain'), /\?\? out\//, 'fixture: the report bytes behind the link are uncommitted');
+    await assertRefusal(world, { line: `finalise refused: verify report ${world.reportRel} is read through a symlink at ${world.reportRel}`, label: 'symlinked report file' });
+  });
+
+  await t.test('a committed symlink pointing at a committed file whose bytes on disk were then edited refuses the same way', async () => {
+    const world = await mergedWorld();
+    const real = 'out/report.json';
+    await writeReport(world, verifyReport(world), real);
+    git(world.root, 'rm', '-q', world.reportRel);
+    await mkdir(dirname(join(world.root, world.reportRel)), { recursive: true });
+    await symlink(`../../../${real}`, join(world.root, world.reportRel));
+    commitAll(world.root, 'test: link the verify report', { Hand: 'verifier' });
+    await writeReport(world, verifyReport(world, { verifierId: 'verify-hand-4' }), real);
+    await assertRefusal(world, { line: `finalise refused: verify report ${world.reportRel} is read through a symlink at ${world.reportRel}`, label: 'symlink to an edited file' });
+  });
+
+  await t.test('--report naming a committed symlink to an uncommitted file refuses the same way', async () => {
+    const world = await mergedWorld();
+    const loose = 'out/report.json';
+    const link = `rcf/verify-reports/${FBS}/linked.json`;
+    await writeReport(world, verifyReport(world, { finishedAt: isoAgo(60 * 1000) }), loose);
+    await symlink(`../../../${loose}`, join(world.root, link));
+    git(world.root, 'add', link);
+    git(world.root, 'commit', '-q', '-m', 'test: link a verify report\n\nHand: verifier');
+    await assertRefusal(world, { line: `finalise refused: verify report ${link} is read through a symlink at ${link}`, extra: ['--report', link], label: '--report through a link' });
+  });
+
+  await t.test('a committed symlinked directory component (rcf/verify-reports/<fbs-id> linking to a directory holding the report) refuses with the link named', async () => {
+    const world = await mergedWorld();
+    const dir = `rcf/verify-reports/${FBS}`;
+    const name = world.reportRel.slice(dir.length + 1);
+    await writeReport(world, verifyReport(world), `out/reports/${name}`);
+    git(world.root, 'rm', '-q', '-r', dir);
+    await mkdir(join(world.root, 'rcf', 'verify-reports'), { recursive: true });
+    await symlink('../../out/reports', join(world.root, dir));
+    git(world.root, 'add', dir);
+    git(world.root, 'commit', '-q', '-m', 'test: link the verify reports directory\n\nHand: verifier');
+    await assertRefusal(world, { line: `finalise refused: verify report ${world.reportRel} is read through a symlink at ${dir}`, label: 'symlinked directory component' });
+  });
+
   await t.test('guard (green at Define): the committed, unmodified report promotes', async () => {
     const world = await mergedWorld();
     assert.equal(git(world.root, 'status', '--porcelain'), '', 'fixture: clean tree');
@@ -319,6 +377,18 @@ test('AC-19005-7: on a branch other than main or master Finalise keeps provenanc
     const world = await branchWorld();
     await replantReport(world, { verifierId: BUILDER_ID });
     await assertRefusal(world, { line: `finalise refused: report hand verifier/${BUILDER_ID} is not separate from the builder`, label: 'builder Hand-Id' });
+  });
+
+  // FBS-230 gate r1 BH-2: the builder Hand-Ids are collected over the whole
+  // branch range (merge-base to the branch head), whatever commit the report
+  // head is; here, as on a PR, the report head is a test-author commit after
+  // the builder commit.
+  await t.test('verifierId equals the Hand-Id of a Hand: builder commit before a later Hand: test-author report head (the whole branch range, merge-base to the branch head)', async () => {
+    const world = await branchWorld({ reportOverrides: { verifierId: BUILDER_ID } });
+    assert.equal(git(world.root, 'rev-parse', `${world.headSha}~1`), world.builderSha, 'fixture: the builder commit is the parent of the report head');
+    assert.equal(git(world.root, 'log', '-1', '--format=%(trailers:key=Hand,valueonly)', world.headSha), 'test-author', 'fixture: the report head is a Hand: test-author commit');
+    assert.equal(git(world.root, 'merge-base', 'main', 'HEAD'), world.base, 'fixture: the branch range starts at the base commit');
+    await assertRefusal(world, { line: `finalise refused: report hand verifier/${BUILDER_ID} is not separate from the builder`, label: 'builder Hand-Id before the report head' });
   });
 
   await t.test('a report older than --max-report-age (default 7 days)', async () => {
