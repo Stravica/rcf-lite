@@ -7089,6 +7089,90 @@
             "TC-257-no-post-merge-verify"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-1",
+          "covered": true,
+          "testCases": [
+            "TC-261-e2e-loopback-verify-then-finalise-on-branch",
+            "TC-261-pre-merge-promotes"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-2",
+          "covered": true,
+          "testCases": [
+            "TC-261-loopback-accepted"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-3",
+          "covered": true,
+          "testCases": [
+            "TC-261-loopback-missing-field"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-4",
+          "covered": true,
+          "testCases": [
+            "TC-261-served-sha-mismatch"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-5",
+          "covered": true,
+          "testCases": [
+            "TC-261-verify-run-loopback-usage",
+            "TC-261-verify-run-records-loopback-fields",
+            "TC-261-verify-run-served-sha-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-6",
+          "covered": true,
+          "testCases": [
+            "TC-261-report-committed-at-head"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-7",
+          "covered": true,
+          "testCases": [
+            "TC-261-provenance-kept-pre-merge"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-8",
+          "covered": true,
+          "testCases": [
+            "TC-261-e2e-merge-confirm",
+            "TC-261-merged-main-confirm"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-9",
+          "covered": true,
+          "testCases": [
+            "TC-261-allow-pre-merge-no-op"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19005-10",
+          "covered": true,
+          "testCases": [
+            "TC-261-shipped-text-pre-merge"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

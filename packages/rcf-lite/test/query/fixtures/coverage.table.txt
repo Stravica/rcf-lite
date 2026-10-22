@@ -765,6 +765,16 @@ REQ-190      yes      AC-19001-1   yes         TC-252-report-written
                       AC-19004-5   yes         TC-257-audit-fifth-verb
                       AC-19004-6   yes         TC-257-doctor-drift
                       AC-19004-7   yes         TC-257-no-post-merge-verify
+                      AC-19005-1   yes         TC-261-e2e-loopback-verify-then-finalise-on-branch, TC-26...
+                      AC-19005-2   yes         TC-261-loopback-accepted
+                      AC-19005-3   yes         TC-261-loopback-missing-field
+                      AC-19005-4   yes         TC-261-served-sha-mismatch
+                      AC-19005-5   yes         TC-261-verify-run-loopback-usage, TC-261-verify-run-recor...
+                      AC-19005-6   yes         TC-261-report-committed-at-head
+                      AC-19005-7   yes         TC-261-provenance-kept-pre-merge
+                      AC-19005-8   yes         TC-261-e2e-merge-confirm, TC-261-merged-main-confirm
+                      AC-19005-9   yes         TC-261-allow-pre-merge-no-op
+                      AC-19005-10  yes         TC-261-shipped-text-pre-merge
 REQ-191      yes      AC-19101-1   yes         TC-255-pass-line
                       AC-19101-2   yes         TC-255-fail-line, TC-255-lockfiles-neutral, TC-255-multi-...
                       AC-19101-3   yes         TC-255-undeclared

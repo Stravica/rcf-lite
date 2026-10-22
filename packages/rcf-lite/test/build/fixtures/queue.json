@@ -7,9 +7,9 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 119,
+    "items": 120,
     "notStarted": 58,
-    "inProgress": 2,
+    "inProgress": 3,
     "complete": 34,
     "verified": 25,
     "actionable": 41,
@@ -124,7 +124,8 @@
         "FBS-197",
         "FBS-208",
         "FBS-214",
-        "FBS-221"
+        "FBS-221",
+        "FBS-230"
       ]
     },
     {
@@ -1496,6 +1497,18 @@
         "FBS-225"
       ],
       "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-230",
+      "buildOrder": 226,
+      "tier": 3,
+      "title": "Pre-merge Finalise on the PR branch and accepted loopback verify targets",
+      "executionStatus": "inProgress",
+      "dependsOnFbsIds": [
+        "FBS-220"
+      ],
+      "state": "inProgress",
       "blockedBy": []
     },
     {

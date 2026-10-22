@@ -3450,6 +3450,54 @@ flowchart LR
   REQ-190 --> AC-19004-7
   TC-257-no-post-merge-verify["TC-257-no-post-merge-verify"]
   AC-19004-7 -.-> TC-257-no-post-merge-verify
+  AC-19005-1["AC-19005-1"]
+  REQ-190 --> AC-19005-1
+  TC-261-e2e-loopback-verify-then-finalise-on-branch["TC-261-e2e-loopback-verify-then-finalise-on-branch"]
+  AC-19005-1 -.-> TC-261-e2e-loopback-verify-then-finalise-on-branch
+  TC-261-pre-merge-promotes["TC-261-pre-merge-promotes"]
+  AC-19005-1 -.-> TC-261-pre-merge-promotes
+  AC-19005-2["AC-19005-2"]
+  REQ-190 --> AC-19005-2
+  TC-261-loopback-accepted["TC-261-loopback-accepted"]
+  AC-19005-2 -.-> TC-261-loopback-accepted
+  AC-19005-3["AC-19005-3"]
+  REQ-190 --> AC-19005-3
+  TC-261-loopback-missing-field["TC-261-loopback-missing-field"]
+  AC-19005-3 -.-> TC-261-loopback-missing-field
+  AC-19005-4["AC-19005-4"]
+  REQ-190 --> AC-19005-4
+  TC-261-served-sha-mismatch["TC-261-served-sha-mismatch"]
+  AC-19005-4 -.-> TC-261-served-sha-mismatch
+  AC-19005-5["AC-19005-5"]
+  REQ-190 --> AC-19005-5
+  TC-261-verify-run-loopback-usage["TC-261-verify-run-loopback-usage"]
+  AC-19005-5 -.-> TC-261-verify-run-loopback-usage
+  TC-261-verify-run-records-loopback-fields["TC-261-verify-run-records-loopback-fields"]
+  AC-19005-5 -.-> TC-261-verify-run-records-loopback-fields
+  TC-261-verify-run-served-sha-refused["TC-261-verify-run-served-sha-refused"]
+  AC-19005-5 -.-> TC-261-verify-run-served-sha-refused
+  AC-19005-6["AC-19005-6"]
+  REQ-190 --> AC-19005-6
+  TC-261-report-committed-at-head["TC-261-report-committed-at-head"]
+  AC-19005-6 -.-> TC-261-report-committed-at-head
+  AC-19005-7["AC-19005-7"]
+  REQ-190 --> AC-19005-7
+  TC-261-provenance-kept-pre-merge["TC-261-provenance-kept-pre-merge"]
+  AC-19005-7 -.-> TC-261-provenance-kept-pre-merge
+  AC-19005-8["AC-19005-8"]
+  REQ-190 --> AC-19005-8
+  TC-261-e2e-merge-confirm["TC-261-e2e-merge-confirm"]
+  AC-19005-8 -.-> TC-261-e2e-merge-confirm
+  TC-261-merged-main-confirm["TC-261-merged-main-confirm"]
+  AC-19005-8 -.-> TC-261-merged-main-confirm
+  AC-19005-9["AC-19005-9"]
+  REQ-190 --> AC-19005-9
+  TC-261-allow-pre-merge-no-op["TC-261-allow-pre-merge-no-op"]
+  AC-19005-9 -.-> TC-261-allow-pre-merge-no-op
+  AC-19005-10["AC-19005-10"]
+  REQ-190 --> AC-19005-10
+  TC-261-shipped-text-pre-merge["TC-261-shipped-text-pre-merge"]
+  AC-19005-10 -.-> TC-261-shipped-text-pre-merge
   REQ-191["REQ-191"]
   AC-19101-1["AC-19101-1"]
   REQ-191 --> AC-19101-1
@@ -5480,6 +5528,30 @@ flowchart LR
   class TC-257-doctor-drift tc;
   class AC-19004-7 ac;
   class TC-257-no-post-merge-verify tc;
+  class AC-19005-1 ac;
+  class TC-261-e2e-loopback-verify-then-finalise-on-branch tc;
+  class TC-261-pre-merge-promotes tc;
+  class AC-19005-2 ac;
+  class TC-261-loopback-accepted tc;
+  class AC-19005-3 ac;
+  class TC-261-loopback-missing-field tc;
+  class AC-19005-4 ac;
+  class TC-261-served-sha-mismatch tc;
+  class AC-19005-5 ac;
+  class TC-261-verify-run-loopback-usage tc;
+  class TC-261-verify-run-records-loopback-fields tc;
+  class TC-261-verify-run-served-sha-refused tc;
+  class AC-19005-6 ac;
+  class TC-261-report-committed-at-head tc;
+  class AC-19005-7 ac;
+  class TC-261-provenance-kept-pre-merge tc;
+  class AC-19005-8 ac;
+  class TC-261-e2e-merge-confirm tc;
+  class TC-261-merged-main-confirm tc;
+  class AC-19005-9 ac;
+  class TC-261-allow-pre-merge-no-op tc;
+  class AC-19005-10 ac;
+  class TC-261-shipped-text-pre-merge tc;
   class REQ-191 req;
   class AC-19101-1 ac;
   class TC-255-pass-line tc;
