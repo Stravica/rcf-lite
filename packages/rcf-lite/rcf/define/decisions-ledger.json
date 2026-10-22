@@ -1408,6 +1408,27 @@
       "answer": "a. Taken by the test-author hand: AC-19001-1 names --url <preview-url>; a preview name keeps its meaning and keeps FBS-219's tests independent of AC-19005-5.",
       "answeredAt": "2026-10-22T11:06:22.449Z",
       "resolvedAt": "2026-10-22T11:06:22.449Z"
+    },
+    {
+      "id": 66,
+      "question": "(k) FBS-230 owners, Build orientation and goldens after the Build: who carries what, and what turns red when the Build lands?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "as recorded in the answer"
+        },
+        {
+          "letter": "b",
+          "text": "another split"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:29:11.688Z",
+      "status": "resolved",
+      "answer": "a. Recorded by the test-author hand 2026-10-22. OWNERS: builder carries src/finalise/ingest.js, src/cli/finalise.js, src/verify/cli/run.js, src/verify/report/index.js, src/cli/build.js, src/cli/help.js (rcf build --help prints the group help at help.js:223 to 240, finalise entry at line 236), src/build/formatters/markdown.js, guidance/build-cycle.md, guidance/build-cycle-playbook.md, guidance/managed/agent-instructions-block.md and its hash and the generated managed artefacts (scripts/gen-managed-artefacts.mjs), packages/rcf-lite/README.md, docs/verify-reference.md, the 0.36.0 package.json line (Hand: builder), the CHANGELOG lines (Hand: mixed, reasoned), the Code Nodes for AC-19005-1 to -10 and the unbound codeNode count pin; the test-author carries tests, fixtures, goldens, chain records, bindings, record-count pins and ledger entries. BUILD NOTES: rcf verify run records target.engine, target.port and target.servedSha only when --engine or --served-sha is given; a URL run without them records { kind, url } exactly as today (AC-19001-1 deepEquals it). Usage refusals (exit 2) come before the dirty-tree check; the served-sha refusal (exit 4) after HEAD is read and before any probe. Finalise checks the selected report is committed at HEAD (git show HEAD:<path>, byte compare) before the provenance checks; the loopback rule replaces the loopback refusal after head containment; the --allow-pre-merge deprecation line goes to stderr. Guidance wording must not match test/guidance/stage-contract.test.js POST_MERGE_PATTERNS when describing the AC-19005-8 confirm. GOLDENS AFTER BUILD (test-author regenerates): test/build/fixtures/bundle-fbs-001.md (golden: rcf build FBS-001 (bundle md) matches dogfood fixture; Stage 5 text), test/cli/fixtures/bundle-next-029-golden.md (bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the 0.29.0 golden bundle byte-for-byte), test/view/fixtures/phase-3-6-static.html (layout regression: rendered live tree matches the committed baseline byte for byte; 0.36.0 footer and Code Nodes), and the queue and coverage goldens if the Build moves chain records.",
+      "answeredAt": "2026-10-22T11:29:11.884Z",
+      "resolvedAt": "2026-10-22T11:29:11.884Z"
     }
   ]
 }
