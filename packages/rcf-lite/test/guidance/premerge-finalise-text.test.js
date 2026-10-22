@@ -83,8 +83,9 @@ function section(text, from, to) {
   const start = text.search(from);
   assert.ok(start !== -1, `the text carries a heading matching ${from}`);
   const rest = text.slice(start);
-  const end = rest.slice(1).search(to);
-  return end === -1 ? rest : rest.slice(0, end + 1);
+  const eol = rest.indexOf('\n') + 1 || rest.length;
+  const end = rest.slice(eol).search(to);
+  return end === -1 ? rest : rest.slice(0, eol + end);
 }
 
 // Every surface AC-19005-10 names, read through bin/rcf.js. `whole` is the
