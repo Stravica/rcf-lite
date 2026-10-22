@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-882",
+  "path": "src/cli/help.js",
+  "implementsAcIds": [
+    "AC-19005-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-22T12:12:06.078Z",
+  "updatedAt": "2026-10-22T12:12:06.078Z"
+}
