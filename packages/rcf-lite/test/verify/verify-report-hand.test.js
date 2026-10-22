@@ -32,10 +32,22 @@ const HANDS = ['test-author', 'builder', 'reviewer', 'verifier', 'stage-keeper']
 const PER_AC_RESULTS = ['pass', 'fail', 'skipped', 'critiqueOnly', 'critiqued'];
 
 // Run bin/rcf.js as a child; never rejects, returns the exit code.
+// FBS-230 (AC-19005-5, ledger 65): a loopback --url with --hand needs
+// --engine and --served-sha, so the targets below are reached under a
+// non-loopback preview name through the FBS-220 host-map preload; the URL a
+// report records keeps that name, as a preview host would.
+const HOST_MAP_PRELOAD = resolve(HERE, '..', 'finalise', 'fixtures', 'host-map-fetch.mjs');
+const hostMap = new Map();
+
 function rcf(args, { cwd } = {}) {
+  const env = {
+    ...process.env,
+    RCF_TEST_HOST_MAP: [...hostMap].map(([name, to]) => `${name}=${to}`).join(','),
+    NODE_OPTIONS: `${process.env.NODE_OPTIONS ?? ''} --import ${HOST_MAP_PRELOAD}`.trim(),
+  };
   return new Promise((res) => {
     execFile(process.execPath, [RCF_BIN, ...args], {
-      cwd, env: process.env, encoding: 'utf8', timeout: 60000,
+      cwd, env, encoding: 'utf8', timeout: 60000,
     }, (err, stdout, stderr) => {
       res({ code: err ? (typeof err.code === 'number' ? err.code : 1) : 0, stdout, stderr });
     });
@@ -64,7 +76,9 @@ async function startTarget(t) {
   });
   await new Promise((r) => server.listen(0, '127.0.0.1', r));
   t.after(() => new Promise((r) => server.close(r)));
-  return { url: `http://127.0.0.1:${server.address().port}`, hits };
+  const name = `preview-${server.address().port}.fbs219.test`;
+  hostMap.set(name, `127.0.0.1:${server.address().port}`);
+  return { url: `http://${name}`, hits };
 }
 
 function ac(id) {
