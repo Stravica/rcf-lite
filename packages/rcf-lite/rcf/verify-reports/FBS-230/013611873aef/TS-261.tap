@@ -1,0 +1,256 @@
+TAP version 13
+# Subtest: AC-19005-1: on a branch other than main or master whose HEAD contains the report head, rcf build finalise <fbs-id> --ci-run <ref> exits 0 with no flag, writes verified on the branch and prints the verified-from line, with no "not a default trunk" refusal, no claim C-26 line and nothing but git spawned
+    # Subtest: branch feature
+    ok 1 - branch feature
+      ---
+      duration_ms: 1100.946
+      type: 'test'
+      ...
+    # Subtest: branch hotfix
+    ok 2 - branch hotfix
+      ---
+      duration_ms: 1091.583
+      type: 'test'
+      ...
+    1..2
+ok 1 - AC-19005-1: on a branch other than main or master whose HEAD contains the report head, rcf build finalise <fbs-id> --ci-run <ref> exits 0 with no flag, writes verified on the branch and prints the verified-from line, with no "not a default trunk" refusal, no claim C-26 line and nothing but git spawned
+  ---
+  duration_ms: 2192.908625
+  type: 'test'
+  ...
+# Subtest: AC-19005-2: a committed VerifyReport with a loopback target naming target.engine, target.port and target.servedSha equal to its headSha, hand verifier, PASS with ship authority, promotes: exit 0, verified, the verified-from line, no "is loopback"
+    # Subtest: http://localhost:5173
+    ok 1 - http://localhost:5173
+      ---
+      duration_ms: 1125.601833
+      type: 'test'
+      ...
+    # Subtest: http://app.localhost:5173
+    ok 2 - http://app.localhost:5173
+      ---
+      duration_ms: 1133.2615
+      type: 'test'
+      ...
+    # Subtest: http://127.0.0.1:8080
+    ok 3 - http://127.0.0.1:8080
+      ---
+      duration_ms: 1095.3895
+      type: 'test'
+      ...
+    # Subtest: http://127.4.5.6:8080
+    ok 4 - http://127.4.5.6:8080
+      ---
+      duration_ms: 1099.32025
+      type: 'test'
+      ...
+    # Subtest: http://[::1]:3000
+    ok 5 - http://[::1]:3000
+      ---
+      duration_ms: 1136.260291
+      type: 'test'
+      ...
+    # Subtest: http://0.0.0.0:8787
+    ok 6 - http://0.0.0.0:8787
+      ---
+      duration_ms: 1106.384916
+      type: 'test'
+      ...
+    1..6
+ok 2 - AC-19005-2: a committed VerifyReport with a loopback target naming target.engine, target.port and target.servedSha equal to its headSha, hand verifier, PASS with ship authority, promotes: exit 0, verified, the verified-from line, no "is loopback"
+  ---
+  duration_ms: 6696.756125
+  type: 'test'
+  ...
+# Subtest: AC-19005-3: a committed loopback VerifyReport lacking target.engine, target.port or target.servedSha refuses exit 4 with "finalise refused: loopback report target <url> names no target.<field>" (first missing in the order engine, port, servedSha), the FBS byte-identical
+    # Subtest: every loopback form with no engine, port or served sha names target.engine
+    ok 1 - every loopback form with no engine, port or served sha names target.engine
+      ---
+      duration_ms: 2264.80075
+      type: 'test'
+      ...
+    # Subtest: each single missing field is named
+    ok 2 - each single missing field is named
+      ---
+      duration_ms: 1583.296292
+      type: 'test'
+      ...
+    # Subtest: guard (green at Define): a non-loopback report with no engine, port or served sha still promotes
+    ok 3 - guard (green at Define): a non-loopback report with no engine, port or served sha still promotes
+      ---
+      duration_ms: 1075.815166
+      type: 'test'
+      ...
+    1..3
+ok 3 - AC-19005-3: a committed loopback VerifyReport lacking target.engine, target.port or target.servedSha refuses exit 4 with "finalise refused: loopback report target <url> names no target.<field>" (first missing in the order engine, port, servedSha), the FBS byte-identical
+  ---
+  duration_ms: 4924.184
+  type: 'test'
+  ...
+# Subtest: AC-19005-4: a committed loopback VerifyReport naming target.engine and target.port whose target.servedSha is not its headSha refuses exit 4 with "finalise refused: report target.servedSha <served sha7> is not the report head <head sha7>", the FBS byte-identical
+ok 4 - AC-19005-4: a committed loopback VerifyReport naming target.engine and target.port whose target.servedSha is not its headSha refuses exit 4 with "finalise refused: report target.servedSha <served sha7> is not the report head <head sha7>", the FBS byte-identical
+  ---
+  duration_ms: 1128.813042
+  type: 'test'
+  ...
+# Subtest: AC-19005-6: a report on disk but not committed in HEAD refuses exit 4 with "finalise refused: verify report <path> is not committed at HEAD", and a committed report whose bytes on disk differ refuses exit 4 with "finalise refused: verify report <path> differs from its committed bytes at HEAD", the FBS byte-identical
+    # Subtest: the newest report is on disk and not committed
+    ok 1 - the newest report is on disk and not committed
+      ---
+      duration_ms: 1028.415834
+      type: 'test'
+      ...
+    # Subtest: the committed report differs on disk from its committed bytes
+    ok 2 - the committed report differs on disk from its committed bytes
+      ---
+      duration_ms: 1035.464083
+      type: 'test'
+      ...
+    # Subtest: --report naming an uncommitted file refuses the same way
+    ok 3 - --report naming an uncommitted file refuses the same way
+      ---
+      duration_ms: 1010.995291
+      type: 'test'
+      ...
+    # Subtest: a committed symlink at the report path pointing at an uncommitted report file refuses "is read through a symlink at <link>"
+    ok 4 - a committed symlink at the report path pointing at an uncommitted report file refuses "is read through a symlink at <link>"
+      ---
+      duration_ms: 1057.085875
+      type: 'test'
+      ...
+    # Subtest: a committed symlink pointing at a committed file whose bytes on disk were then edited refuses the same way
+    ok 5 - a committed symlink pointing at a committed file whose bytes on disk were then edited refuses the same way
+      ---
+      duration_ms: 1044.982542
+      type: 'test'
+      ...
+    # Subtest: --report naming a committed symlink to an uncommitted file refuses the same way
+    ok 6 - --report naming a committed symlink to an uncommitted file refuses the same way
+      ---
+      duration_ms: 1060.029917
+      type: 'test'
+      ...
+    # Subtest: a committed symlinked directory component (rcf/verify-reports/<fbs-id> linking to a directory holding the report) refuses with the link named
+    ok 7 - a committed symlinked directory component (rcf/verify-reports/<fbs-id> linking to a directory holding the report) refuses with the link named
+      ---
+      duration_ms: 1122.526458
+      type: 'test'
+      ...
+    # Subtest: gate r2 BH-1: in a monorepo, --report ../link.json (a committed symlink at the repo root pointing at an uncommitted report file) refuses "finalise refused: verify report link.json is outside the project root"
+    ok 8 - gate r2 BH-1: in a monorepo, --report ../link.json (a committed symlink at the repo root pointing at an uncommitted report file) refuses "finalise refused: verify report link.json is outside the project root"
+      ---
+      duration_ms: 1010.814125
+      type: 'test'
+      ...
+    # Subtest: gate r2 BH-1: in a monorepo, --report through a committed symlink to the project directory (current linking to app) refuses "is read through a symlink at current", the walk starting at the repo root
+    ok 9 - gate r2 BH-1: in a monorepo, --report through a committed symlink to the project directory (current linking to app) refuses "is read through a symlink at current", the walk starting at the repo root
+      ---
+      duration_ms: 1033.369542
+      type: 'test'
+      ...
+    # Subtest: guard (green at Define): the committed, unmodified report promotes
+    ok 10 - guard (green at Define): the committed, unmodified report promotes
+      ---
+      duration_ms: 1123.751834
+      type: 'test'
+      ...
+    1..10
+ok 5 - AC-19005-6: a report on disk but not committed in HEAD refuses exit 4 with "finalise refused: verify report <path> is not committed at HEAD", and a committed report whose bytes on disk differ refuses exit 4 with "finalise refused: verify report <path> differs from its committed bytes at HEAD", the FBS byte-identical
+  ---
+  duration_ms: 10528.154459
+  type: 'test'
+  ...
+# Subtest: AC-19005-7: on a branch other than main or master Finalise keeps provenance: a builder Hand-Id equal to verifierId, a report older than --max-report-age and a report head not contained in HEAD each exit 4 with their message, the FBS byte-identical and nothing but git spawned
+    # Subtest: verifierId equals the Hand-Id of a Hand: builder commit on the branch
+    ok 1 - verifierId equals the Hand-Id of a Hand: builder commit on the branch
+      ---
+      duration_ms: 1087.779209
+      type: 'test'
+      ...
+    # Subtest: verifierId equals the Hand-Id of a Hand: builder commit before a later Hand: test-author report head (the whole branch range, merge-base to the branch head)
+    ok 2 - verifierId equals the Hand-Id of a Hand: builder commit before a later Hand: test-author report head (the whole branch range, merge-base to the branch head)
+      ---
+      duration_ms: 1073.707709
+      type: 'test'
+      ...
+    # Subtest: gate r2 BH-2: in a single-branch clone (no main, master, origin/main or origin/master ref), verifierId equal to the Hand-Id of a Hand: builder commit before a later Hand: test-author report head refuses (all of HEAD's history)
+    ok 3 - gate r2 BH-2: in a single-branch clone (no main, master, origin/main or origin/master ref), verifierId equal to the Hand-Id of a Hand: builder commit before a later Hand: test-author report head refuses (all of HEAD's history)
+      ---
+      duration_ms: 1128.348208
+      type: 'test'
+      ...
+    # Subtest: gate r2 BH-2: on the PR branch head after the branch merged into origin/main (fast-forward), the merge-base with origin/main being HEAD itself, verifierId equal to the builder Hand-Id refuses
+    ok 4 - gate r2 BH-2: on the PR branch head after the branch merged into origin/main (fast-forward), the merge-base with origin/main being HEAD itself, verifierId equal to the builder Hand-Id refuses
+      ---
+      duration_ms: 1098.30125
+      type: 'test'
+      ...
+    # Subtest: gate r2 BH-2: on the PR branch head after the branch merged into origin/main (--no-ff), the merge-base with origin/main being HEAD itself, verifierId equal to the builder Hand-Id refuses
+    ok 5 - gate r2 BH-2: on the PR branch head after the branch merged into origin/main (--no-ff), the merge-base with origin/main being HEAD itself, verifierId equal to the builder Hand-Id refuses
+      ---
+      duration_ms: 1154.961709
+      type: 'test'
+      ...
+    # Subtest: a report older than --max-report-age (default 7 days)
+    ok 6 - a report older than --max-report-age (default 7 days)
+      ---
+      duration_ms: 1293.890542
+      type: 'test'
+      ...
+    # Subtest: a report head not contained in HEAD
+    ok 7 - a report head not contained in HEAD
+      ---
+      duration_ms: 1099.9125
+      type: 'test'
+      ...
+    1..7
+ok 6 - AC-19005-7: on a branch other than main or master Finalise keeps provenance: a builder Hand-Id equal to verifierId, a report older than --max-report-age and a report head not contained in HEAD each exit 4 with their message, the FBS byte-identical and nothing but git spawned
+  ---
+  duration_ms: 7937.477041
+  type: 'test'
+  ...
+# Subtest: AC-19005-8: after Finalise writes verified on the branch and the branch merges into main with --no-ff, rcf build finalise <fbs-id> --ci-run <ref> on main confirms: exit 0, the verified-from line, the FBS byte-identical, a clean tree, nothing but git spawned
+ok 7 - AC-19005-8: after Finalise writes verified on the branch and the branch merges into main with --no-ff, rcf build finalise <fbs-id> --ci-run <ref> on main confirms: exit 0, the verified-from line, the FBS byte-identical, a clean tree, nothing but git spawned
+  ---
+  duration_ms: 1440.746584
+  type: 'test'
+  ...
+# Subtest: AC-19005-9: --allow-pre-merge is accepted and changes nothing: the same exit, write and refusal as without it, exactly one deprecation line on stderr, and no output naming claim C-26 or "records the pre-merge decision"
+    # Subtest: a promoting run on the branch
+    ok 1 - a promoting run on the branch
+      ---
+      duration_ms: 2108.601542
+      type: 'test'
+      ...
+    # Subtest: a refusing run on the branch
+    ok 2 - a refusing run on the branch
+      ---
+      duration_ms: 1260.655041
+      type: 'test'
+      ...
+    1..2
+ok 8 - AC-19005-9: --allow-pre-merge is accepted and changes nothing: the same exit, write and refusal as without it, exactly one deprecation line on stderr, and no output naming claim C-26 or "records the pre-merge decision"
+  ---
+  duration_ms: 3369.491792
+  type: 'test'
+  ...
+# Subtest: AC-19005-1, AC-19005-2 and AC-19005-5 (end to end): a real rcf verify run --hand verifier --url http://127.0.0.1:<port> --engine --served-sha HEAD writes a loopback report naming engine, port and served sha; committed on the feature branch, rcf build finalise <fbs-id> --ci-run <ref> on that branch promotes it to verified
+ok 9 - AC-19005-1, AC-19005-2 and AC-19005-5 (end to end): a real rcf verify run --hand verifier --url http://127.0.0.1:<port> --engine --served-sha HEAD writes a loopback report naming engine, port and served sha; committed on the feature branch, rcf build finalise <fbs-id> --ci-run <ref> on that branch promotes it to verified
+  ---
+  duration_ms: 1178.945458
+  type: 'test'
+  ...
+# Subtest: AC-19005-8 (end to end): the loopback report verified on the feature branch, merged into main with --no-ff, confirms on main with exit 0 and no write
+ok 10 - AC-19005-8 (end to end): the loopback report verified on the feature branch, merged into main with --no-ff, confirms on main with exit 0 and no write
+  ---
+  duration_ms: 1548.259834
+  type: 'test'
+  ...
+1..10
+# tests 40
+# suites 0
+# pass 40
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 41463.08025
