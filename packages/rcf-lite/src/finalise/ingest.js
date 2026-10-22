@@ -8,8 +8,8 @@
 // verdict, it consumes the one verify stamped.
 
 import { execFile } from 'node:child_process';
-import { lstat, readdir, readFile } from 'node:fs/promises';
-import { join, relative, sep } from 'node:path';
+import { lstat, readdir, readFile, realpath } from 'node:fs/promises';
+import { isAbsolute, join, relative, sep } from 'node:path';
 
 /**
  * Load and parse a verify report artifact. Returns the parsed report, or a
@@ -339,14 +339,32 @@ export async function loadVerifyReport({ projectRoot, fbsId, reportPath }, deps 
     paths = names.filter((n) => n.endsWith('.json')).sort().map((n) => join(dir, n));
     if (paths.length === 0) return missing;
   }
+  const git = deps.git ?? ((args) => runGit(projectRoot, args));
+  // The git top level, reached lexically from the project root (it is the
+  // project root unless the project sits in a subdirectory of the repo).
+  const cdup = await git(['rev-parse', '--show-cdup']);
+  const repoRoot = cdup.code === 0 && cdup.stdout ? join(projectRoot, cdup.stdout) : projectRoot;
+  const realRoot = await realpath(projectRoot).catch(() => projectRoot);
   let chosen = null;
   for (const abs of paths) {
     const shown = relative(projectRoot, abs).split(sep).join('/');
+    const fromRepo = relative(repoRoot, abs).split(sep).join('/');
+    // FBS-230 (AC-19005-6): the report must resolve to a file under the
+    // project root, judged before it is read. A path that does not resolve
+    // is left to the walk and the read below.
+    const real = await realpath(abs).catch(() => null);
+    if (real) {
+      const inside = relative(realRoot, real);
+      if (!inside || inside.startsWith('..') || isAbsolute(inside)) {
+        return { ok: false, code: 4, message: `finalise refused: verify report ${fromRepo} is outside the project root` };
+      }
+    }
     // FBS-230 (AC-19005-6): refuse a symlink at, or anywhere above, the
-    // report below the repo root (lstat, never followed), so the checks
-    // and the read below run on the real file only.
-    const link = await firstSymlink(projectRoot, shown);
-    if (link) return { ok: false, code: 4, message: `finalise refused: verify report ${shown} is read through a symlink at ${link}` };
+    // report below the repo root (lstat, never followed, from the git top
+    // level down), so the checks and the read below run on the real file
+    // only.
+    const link = await firstSymlink(repoRoot, fromRepo);
+    if (link) return { ok: false, code: 4, message: `finalise refused: verify report ${fromRepo} is read through a symlink at ${link}` };
     let report;
     try {
       report = JSON.parse(await readFile(abs, 'utf8'));
@@ -360,7 +378,6 @@ export async function loadVerifyReport({ projectRoot, fbsId, reportPath }, deps 
   }
   // FBS-230 (AC-19005-6): the selected report must be the bytes committed
   // at HEAD, read through git lookups only.
-  const git = deps.git ?? ((args) => runGit(projectRoot, args));
   if ((await git(['cat-file', '-e', `HEAD:./${chosen.path}`])).code !== 0) {
     return { ok: false, code: 4, message: `finalise refused: verify report ${chosen.path} is not committed at HEAD` };
   }
@@ -372,8 +389,8 @@ export async function loadVerifyReport({ projectRoot, fbsId, reportPath }, deps 
 
 // The first repo-relative path component of `rel` that is a symbolic link,
 // or null. A component that cannot be lstat'ed ends the walk; the read
-// that follows reports it. Paths outside the root are left to the git
-// checks.
+// that follows reports it. A path outside the repo root is refused above
+// as outside the project root.
 async function firstSymlink(root, rel) {
   const parts = rel.split('/');
   if (parts[0] === '..' || rel.startsWith('/')) return null;
@@ -423,27 +440,20 @@ const TRUNK_REFS = ['origin/main', 'origin/master', 'main', 'master'];
 
 // Hand-Id trailers of `Hand: builder` commits over the whole branch range.
 // On a branch (FBS-230 gate r1 BH-2) the range is the merge-base of HEAD
-// with the trunk to HEAD, whatever commit the report head is. When HEAD is
-// on the trunk (the confirm after a merge) or no trunk ref resolves, it is
-// the merge-base of the report head with the pre-merge trunk to HEAD.
+// with the trunk to HEAD, whatever commit the report head is. When no
+// trunk ref resolves, or the merge-base is HEAD itself (HEAD on the trunk
+// after a merge, or a branch already merged by merge commit or
+// fast-forward), it is all of HEAD's history (gate r2 BH-2).
 async function builderHandIds(git, headSha) {
   const head = (await git(['rev-parse', 'HEAD'])).stdout;
   let base = null;
   for (const ref of TRUNK_REFS) {
     if ((await git(['rev-parse', '--verify', '-q', `${ref}^{commit}`])).code !== 0) continue;
     const fork = await git(['merge-base', 'HEAD', ref]);
-    if (fork.code === 0 && fork.stdout && fork.stdout !== head) base = fork;
+    if (fork.code === 0 && fork.stdout && fork.stdout !== head) base = fork.stdout;
     break;
   }
-  if (!base) {
-    const trunk = (await git(['rev-list', '--first-parent', 'HEAD'])).stdout.split('\n').filter(Boolean);
-    let preMerge = 'HEAD';
-    for (const commit of trunk) {
-      if ((await git(['merge-base', '--is-ancestor', headSha, commit])).code !== 0) { preMerge = commit; break; }
-    }
-    base = await git(['merge-base', preMerge, headSha]);
-  }
-  const revs = base.code === 0 && base.stdout ? ['HEAD', headSha, `^${base.stdout}`] : ['HEAD', headSha];
+  const revs = base ? ['HEAD', headSha, `^${base}`] : ['HEAD', headSha];
   const log = await git(['log', '--format=%(trailers:key=Hand,valueonly,separator=%x2C)%x1f%(trailers:key=Hand-Id,valueonly,separator=%x2C)%x1e', ...revs]);
   const ids = new Set();
   for (const entry of log.stdout.split('\x1e')) {

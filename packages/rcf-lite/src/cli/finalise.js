@@ -146,7 +146,8 @@ Exit codes:
      Nodes, a report that is not a valid VerifyReport v1, write refused)
   4  refused - CI evidence missing, not complete, no report, report not
      committed at HEAD or differing from its committed bytes, a report
-     read through a symlink below the repo root, report head
+     outside the project root, a report read through a symlink below the
+     repo root, report head
      not contained in HEAD, a loopback target naming no target.engine,
      target.port or target.servedSha, or a served sha that is not the
      report head, hand not separate from the builder, report too old,
