@@ -1429,6 +1429,69 @@
       "answer": "a. Recorded by the test-author hand 2026-10-22. OWNERS: builder carries src/finalise/ingest.js, src/cli/finalise.js, src/verify/cli/run.js, src/verify/report/index.js, src/cli/build.js, src/cli/help.js (rcf build --help prints the group help at help.js:223 to 240, finalise entry at line 236), src/build/formatters/markdown.js, guidance/build-cycle.md, guidance/build-cycle-playbook.md, guidance/managed/agent-instructions-block.md and its hash and the generated managed artefacts (scripts/gen-managed-artefacts.mjs), packages/rcf-lite/README.md, docs/verify-reference.md, the 0.36.0 package.json line (Hand: builder), the CHANGELOG lines (Hand: mixed, reasoned), the Code Nodes for AC-19005-1 to -10 and the unbound codeNode count pin; the test-author carries tests, fixtures, goldens, chain records, bindings, record-count pins and ledger entries. BUILD NOTES: rcf verify run records target.engine, target.port and target.servedSha only when --engine or --served-sha is given; a URL run without them records { kind, url } exactly as today (AC-19001-1 deepEquals it). Usage refusals (exit 2) come before the dirty-tree check; the served-sha refusal (exit 4) after HEAD is read and before any probe. Finalise checks the selected report is committed at HEAD (git show HEAD:<path>, byte compare) before the provenance checks; the loopback rule replaces the loopback refusal after head containment; the --allow-pre-merge deprecation line goes to stderr. Guidance wording must not match test/guidance/stage-contract.test.js POST_MERGE_PATTERNS when describing the AC-19005-8 confirm. GOLDENS AFTER BUILD (test-author regenerates): test/build/fixtures/bundle-fbs-001.md (golden: rcf build FBS-001 (bundle md) matches dogfood fixture; Stage 5 text), test/cli/fixtures/bundle-next-029-golden.md (bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the 0.29.0 golden bundle byte-for-byte), test/view/fixtures/phase-3-6-static.html (layout regression: rendered live tree matches the committed baseline byte for byte; 0.36.0 footer and Code Nodes), and the queue and coverage goldens if the Build moves chain records.",
       "answeredAt": "2026-10-22T11:29:11.884Z",
       "resolvedAt": "2026-10-22T11:29:11.884Z"
+    },
+    {
+      "id": 67,
+      "question": "(gate r1 BH-1) Restate AC-19005-6 (FBS-230) to name the symlink refusal? Old text verbatim: \"[failure] Given the report Finalise selects (the newest under rcf/verify-reports/<fbs-id>/, or --report) present on disk but not committed in HEAD, when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \\\"finalise refused: verify report <path> is not committed at HEAD\\\"; given it is committed but its bytes on disk differ from its bytes at HEAD, it exits 4 with stderr \\\"finalise refused: verify report <path> differs from its committed bytes at HEAD\\\"; <path> is the repo-relative report path, and rcf/fbs/<fbs-id>.json is byte-identical to its state before the run in both cases.\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate in place: add the refusal of a report path that is, or sits under, a symbolic link below the repo root (exit 4, \"finalise refused: verify report <path> is read through a symlink at <link>\"), the check and the read on the real file only; \"in both cases\" becomes \"in every case\""
+        },
+        {
+          "letter": "b",
+          "text": "keep the text and rely on the committed-and-clean check"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T14:13:24.745Z",
+      "status": "resolved",
+      "answer": "a. Taken (parent decision, Dave, gate r1 BH-1: refuse symlinks anywhere in the report path, check and read the real file). Wording only; the meaning is unchanged: only the committed bytes may promote. Tests: the four symlink subtests in the AC-19005-6 test of test/finalise/premerge-loopback-finalise.test.js (TC-261-report-committed-at-head).",
+      "answeredAt": "2026-10-22T14:13:31.542Z",
+      "resolvedAt": "2026-10-22T14:13:31.542Z"
+    },
+    {
+      "id": 68,
+      "question": "(gate r1 BH-3) Restate AC-19005-5 (FBS-230) so --engine and --served-sha are refused outside a --url target? Old text verbatim: \"[happy] Given a clean working tree at a committed HEAD and a server on a loopback --url, when rcf verify run --url <loopback-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> --engine <name> --served-sha <sha> runs with <sha> the full sha of the committed HEAD, then the report it writes under rcf/verify-reports/<fbs-id>/<head12>.json records target { kind \\\"url\\\", url, engine <name>, port <the URL's port as an integer, or 80 / 443 by scheme when the URL names none>, servedSha <sha> }. A --served-sha that is not the full sha of the committed HEAD exits 4 with stderr \\\"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\\\"; a loopback --url with --hand and no --engine exits 2 with stderr \\\"[error] usage --engine <name> is required with --hand and a loopback --url\\\"; with --engine and no --served-sha it exits 2 with stderr \\\"[error] usage --served-sha <sha> is required with --hand and a loopback --url\\\". Every refusal writes no report and sends no probe request.\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate in place: outside a --url target (package target mode, --artefact <tgz> or --package <dir> with no --url) each flag exits 2 with \"[error] usage --<flag> applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\", with or without --hand, before any pack or install"
+        },
+        {
+          "letter": "b",
+          "text": "keep the text; package-target runs ignore the two flags"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T14:13:24.948Z",
+      "status": "resolved",
+      "answer": "a. Taken (parent decision, Dave, gate r1 BH-3: reject the loopback flags on any non-URL target regardless of --hand; the run help names them as URL-target-only). Wording adds the refusal; the loopback --url rules are unchanged. Test: the new AC-19005-5 package-target test in test/verify/loopback-target-run.test.js, bound as TC-261-verify-run-loopback-flags-url-only.",
+      "answeredAt": "2026-10-22T14:13:31.744Z",
+      "resolvedAt": "2026-10-22T14:13:31.744Z"
+    },
+    {
+      "id": 69,
+      "question": "(gate r1 BH-2) Does AC-19005-7 need a restatement to say the builder Hand-Ids are collected over the whole branch range (merge-base to the branch head)?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no: \"a Hand: builder commit on the branch\" already names every commit of the branch range, whatever commit the report head is"
+        },
+        {
+          "letter": "b",
+          "text": "restate it to name the merge-base explicitly"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T14:13:25.146Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r1 BH-2: builderHandIds over the whole branch range). AC-19005-7 is not changed; the fixture branchWorld now puts a Hand: test-author commit after the builder commit as the report head, as on this PR, and the AC-19005-7 builder subtests refuse on that shape (TC-261-provenance-kept-pre-merge).",
+      "answeredAt": "2026-10-22T14:13:31.943Z",
+      "resolvedAt": "2026-10-22T14:13:31.943Z"
     }
   ]
 }
