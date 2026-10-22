@@ -1492,6 +1492,69 @@
       "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r1 BH-2: builderHandIds over the whole branch range). AC-19005-7 is not changed; the fixture branchWorld now puts a Hand: test-author commit after the builder commit as the report head, as on this PR, and the AC-19005-7 builder subtests refuse on that shape (TC-261-provenance-kept-pre-merge).",
       "answeredAt": "2026-10-22T14:13:31.943Z",
       "resolvedAt": "2026-10-22T14:13:31.943Z"
+    },
+    {
+      "id": 70,
+      "question": "(gate r2 BH-3) Restate the non-URL sentence of AC-19005-5 so --engine and --served-sha are refused whenever the target is not a --url (directory, tarball or name@version)? Old text verbatim: Outside a --url target (package target mode: --artefact <tgz>, or --package <dir> with no --url), --engine exits 2 with stderr \"[error] usage --engine applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\" and --served-sha exits 2 with stderr \"[error] usage --served-sha applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\", with or without --hand, before any pack or install.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate in place to: Whenever the target is not a --url (a directory, a tarball, or a name@version: --artefact <tgz>, or --package <dir | tarball | name@version> with no --url), --engine exits 2 with stderr \"[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\" and --served-sha exits 2 with stderr \"[error] usage --served-sha applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\", with or without --hand, before any pack, install or engine call."
+        },
+        {
+          "letter": "b",
+          "text": "keep package target mode only"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T16:24:39.410Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-3 ruling 3: decision 3 wins, every non-URL target). Every other sentence of AC-19005-5 is unchanged; TC-261-verify-run-loopback-flags-url-only retargeted to the renamed test, which adds --package <tarball file> and --package <name@version>.",
+      "answeredAt": "2026-10-22T16:24:45.711Z",
+      "resolvedAt": "2026-10-22T16:24:45.711Z"
+    },
+    {
+      "id": 71,
+      "question": "(gate r2 BH-1) Add to AC-19005-6 the refusal of a --report outside the project root that ruling 1 names? Old text: AC-19005-6 named no such refusal; the added clause is inserted before \"; given the report path, or any component of it below the repo root, is a symbolic link\" and the rest stays word for word.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "add in place: given --report names a path that does not resolve to a file under the project root, it exits 4 with stderr \"finalise refused: verify report <path> is outside the project root\" before the file is read"
+        },
+        {
+          "letter": "b",
+          "text": "no wording change"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T16:24:39.609Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-1 ruling 1: the report path must resolve to a file under the project root; outside it exit 4 with a named reason; the lstat walk runs from the repo root). The symlink clause is unchanged; its \"below the repo root\" already names the symlinked project directory component.",
+      "answeredAt": "2026-10-22T16:24:45.907Z",
+      "resolvedAt": "2026-10-22T16:24:45.907Z"
+    },
+    {
+      "id": 72,
+      "question": "(gate r2 BH-2) Does AC-19005-7 need a restatement to cover a single-branch clone with no trunk ref and the PR branch head after the merge into origin/main?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no: \"a Hand: builder commit on the branch\" names the builder commit in both shapes, and both runs are on a branch other than main or master"
+        },
+        {
+          "letter": "b",
+          "text": "restate it"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T16:24:39.804Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-2 ruling 2: with no trunk ref collect over all of HEAD history; a merge into the trunk is covered by the same walk). AC-19005-7 is not changed (TC-261-provenance-kept-pre-merge).",
+      "answeredAt": "2026-10-22T16:24:46.108Z",
+      "resolvedAt": "2026-10-22T16:24:46.108Z"
     }
   ]
 }

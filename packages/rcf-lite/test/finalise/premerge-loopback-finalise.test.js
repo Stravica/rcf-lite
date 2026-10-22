@@ -143,9 +143,12 @@ async function replantReport(world, overrides) {
 // branch `branch` carrying the builder commit, a later test-author commit (the
 // report head, so the builder commit is not the report head), the verifier's
 // report commit and the complete mark, checked out. `report: false` commits no
-// report.
-async function branchWorld({ branch = 'feature', report = true, reportOverrides = {} } = {}) {
-  const root = await scratchDir('rcf-fin230-');
+// report. `subdir` (gate r2 BH-1) puts the rcf project in that subdirectory
+// of the git repository (a monorepo); `world.repo` is the repo root.
+async function branchWorld({ branch = 'feature', report = true, reportOverrides = {}, subdir = null } = {}) {
+  const repo = await scratchDir('rcf-fin230-');
+  const root = subdir ? join(repo, subdir) : repo;
+  if (subdir) await mkdir(root, { recursive: true });
   const remote = await scratchDir('rcf-fin230-remote-');
   await initProject({ projectRoot: root, projectName: 'PreMergeFinalise' });
   await declareUiNoneForTests(root);
@@ -157,7 +160,7 @@ async function branchWorld({ branch = 'feature', report = true, reportOverrides 
   assert.equal(ip.code, 0, `fixture: mark inProgress\n${ip.stderr}`);
 
   git(remote, 'init', '-q', '--bare', '-b', 'main');
-  git(root, 'init', '-q', '-b', 'main');
+  git(repo, 'init', '-q', '-b', 'main');
   const base = commitAll(root, 'chore: base');
   git(root, 'remote', 'add', 'origin', remote);
   git(root, 'push', '-q', 'origin', 'main');
@@ -165,7 +168,7 @@ async function branchWorld({ branch = 'feature', report = true, reportOverrides 
   await writeFile(join(root, 'src', 'save.js'), 'export function save() { return true; }\n', 'utf8');
   const builderSha = commitAll(root, 'feat: save returns true', { Hand: 'builder', 'Hand-Id': BUILDER_ID });
   const headSha = commitAll(root, 'test: goldens after the build', { Hand: 'test-author' });
-  const world = { root, remote, base, branch, builderSha, headSha, reportRel: `rcf/verify-reports/${FBS}/${headSha.slice(0, 12)}.json` };
+  const world = { root, repo, remote, base, branch, builderSha, headSha, reportRel: `rcf/verify-reports/${FBS}/${headSha.slice(0, 12)}.json` };
   if (report) {
     await writeReport(world, verifyReport(world, reportOverrides));
     commitAll(root, 'test: verify report', { Hand: 'verifier', 'Hand-Id': VERIFIER_ID });
@@ -364,6 +367,32 @@ test('AC-19005-6: a report on disk but not committed in HEAD refuses exit 4 with
     await assertRefusal(world, { line: `finalise refused: verify report ${world.reportRel} is read through a symlink at ${dir}`, label: 'symlinked directory component' });
   });
 
+  // FBS-230 gate r2 BH-1: a --report whose real file is outside the project
+  // root is refused before it is read, and the lstat walk starts at the repo
+  // root (the git top level), so a symlinked component above the project
+  // root is caught too. Both worlds are monorepos: the rcf project is the
+  // subdirectory app/ of the git repository.
+  await t.test('gate r2 BH-1: in a monorepo, --report ../link.json (a committed symlink at the repo root pointing at an uncommitted report file) refuses "finalise refused: verify report link.json is outside the project root"', async () => {
+    const world = await branchWorld({ subdir: 'app' });
+    await writeReport(world, verifyReport(world, { finishedAt: isoAgo(60 * 1000) }), '../out/report.json');
+    await symlink('out/report.json', join(world.repo, 'link.json'));
+    git(world.repo, 'add', 'link.json');
+    git(world.repo, 'commit', '-q', '-m', 'test: link a verify report at the repo root\n\nHand: verifier');
+    assert.equal(git(world.repo, 'ls-files', '-s', 'link.json').split(' ')[0], '120000', 'fixture: link.json is a committed symlink at the repo root');
+    assert.match(git(world.repo, 'status', '--porcelain'), /\?\? out\//, 'fixture: the report bytes behind the link are uncommitted');
+    await assertRefusal(world, { line: 'finalise refused: verify report link.json is outside the project root', extra: ['--report', '../link.json'], label: '--report outside the project root' });
+  });
+
+  await t.test('gate r2 BH-1: in a monorepo, --report through a committed symlink to the project directory (current linking to app) refuses "is read through a symlink at current", the walk starting at the repo root', async () => {
+    const world = await branchWorld({ subdir: 'app' });
+    await symlink('app', join(world.repo, 'current'));
+    commitAll(world.repo, 'test: alias the project directory', { Hand: 'verifier' });
+    assert.equal(git(world.repo, 'ls-files', '-s', 'current').split(' ')[0], '120000', 'fixture: current is a committed symlink to the project directory');
+    assert.equal(git(world.repo, 'status', '--porcelain'), '', 'fixture: clean tree');
+    const via = `current/${world.reportRel}`;
+    await assertRefusal(world, { line: `finalise refused: verify report ${via} is read through a symlink at current`, extra: ['--report', `../${via}`], label: 'symlinked project directory component' });
+  });
+
   await t.test('guard (green at Define): the committed, unmodified report promotes', async () => {
     const world = await mergedWorld();
     assert.equal(git(world.root, 'status', '--porcelain'), '', 'fixture: clean tree');
@@ -390,6 +419,39 @@ test('AC-19005-7: on a branch other than main or master Finalise keeps provenanc
     assert.equal(git(world.root, 'merge-base', 'main', 'HEAD'), world.base, 'fixture: the branch range starts at the base commit');
     await assertRefusal(world, { line: `finalise refused: report hand verifier/${BUILDER_ID} is not separate from the builder`, label: 'builder Hand-Id before the report head' });
   });
+
+  // FBS-230 gate r2 BH-2: with no trunk ref the Hand-Ids are collected over
+  // all of HEAD's history, and a branch already merged into the trunk (the
+  // merge-base with the trunk ref is HEAD itself) is covered by the same walk.
+  await t.test('gate r2 BH-2: in a single-branch clone (no main, master, origin/main or origin/master ref), verifierId equal to the Hand-Id of a Hand: builder commit before a later Hand: test-author report head refuses (all of HEAD\'s history)', async () => {
+    const world = await branchWorld({ reportOverrides: { verifierId: BUILDER_ID } });
+    const dir = await scratchDir('rcf-fin230-clone-');
+    const clone = join(dir, 'clone');
+    git(dir, 'clone', '-q', '--single-branch', '--branch', world.branch, world.remote, clone);
+    const refs = git(clone, 'for-each-ref', '--format=%(refname)');
+    assert.ok(!/\/(main|master)$/m.test(refs), `fixture: no trunk ref resolves in the clone\n${refs}`);
+    assert.equal(git(clone, 'rev-parse', '--abbrev-ref', 'HEAD'), world.branch, 'fixture: the clone is on the PR branch');
+    assert.equal(git(clone, 'rev-parse', `${world.headSha}~1`), world.builderSha, 'fixture: the builder commit is the parent of the report head');
+    await assertRefusal({ ...world, root: clone }, { line: `finalise refused: report hand verifier/${BUILDER_ID} is not separate from the builder`, label: 'single-branch clone' });
+  });
+
+  for (const shape of ['fast-forward', '--no-ff']) {
+    await t.test(`gate r2 BH-2: on the PR branch head after the branch merged into origin/main (${shape}), the merge-base with origin/main being HEAD itself, verifierId equal to the builder Hand-Id refuses`, async () => {
+      const world = await branchWorld({ reportOverrides: { verifierId: BUILDER_ID } });
+      if (shape === 'fast-forward') {
+        git(world.root, 'push', '-q', 'origin', `${world.branch}:main`);
+      } else {
+        git(world.root, 'checkout', '-q', 'main');
+        git(world.root, 'merge', '-q', '--no-ff', '-m', `Merge ${world.branch}`, world.branch);
+        git(world.root, 'push', '-q', 'origin', 'main');
+        git(world.root, 'checkout', '-q', world.branch);
+      }
+      git(world.root, 'fetch', '-q', 'origin');
+      assert.equal(git(world.root, 'rev-parse', '--abbrev-ref', 'HEAD'), world.branch, `fixture (${shape}): the PR branch is checked out`);
+      assert.equal(git(world.root, 'merge-base', 'HEAD', 'origin/main'), world.head, `fixture (${shape}): the merge-base with origin/main is HEAD`);
+      await assertRefusal(world, { line: `finalise refused: report hand verifier/${BUILDER_ID} is not separate from the builder`, label: `merged into origin/main, ${shape}` });
+    });
+  }
 
   await t.test('a report older than --max-report-age (default 7 days)', async () => {
     const world = await branchWorld({ reportOverrides: { startedAt: isoAgo(10 * DAY_MS + 2 * 60 * 60 * 1000), finishedAt: isoAgo(10 * DAY_MS + 60 * 60 * 1000) } });

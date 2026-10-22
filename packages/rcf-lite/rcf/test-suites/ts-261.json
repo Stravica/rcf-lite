@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:21:26.487Z",
-  "updatedAt": "2026-10-22T14:13:11.466Z",
+  "updatedAt": "2026-10-22T16:24:21.699Z",
   "purpose": "Bind one red test per criterion of US-19005 (FBS-230), each driving bin/rcf.js over fixture git repositories with a bare local remote and servers on 127.0.0.1, so the Build hand makes them green against the pre-merge Finalise rule of ADR-4151.",
   "testLevel": "integration",
   "acIds": [
@@ -120,9 +120,9 @@
     {
       "id": "TC-261-verify-run-loopback-flags-url-only",
       "acId": "AC-19005-5",
-      "description": "rcf verify run refuses --engine and --served-sha outside a --url target (package target mode, --artefact <tgz> or --package <dir>) with a usage error, exit 2, naming the flag as URL-target-only, with or without --hand, before any pack or install and writing no report (gate r1 BH-3).",
+      "description": "rcf verify run refuses --engine and --served-sha whenever the target is not a --url (a directory, a tarball or a name@version: --artefact <tgz>, --package <dir>, --package <tarball file>, --package <name@version>) with a usage error, exit 2, naming the flag, with or without --hand, before any pack, install or engine call, writing no report",
       "status": "failing",
-      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: outside a --url target (package target mode, --artefact <tgz> or --package <dir>) --engine and --served-sha each exit 2 with \"[error] usage --engine applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\" (and the same for --served-sha), with or without --hand, before any pack or install, writing no report"
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: whenever the target is not a --url (a directory, a tarball or a name@version) --engine and --served-sha each exit 2 with \"[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\" (and the same for --served-sha), with or without --hand, before any pack, install or engine call, writing no report"
     }
   ],
   "status": "draft"

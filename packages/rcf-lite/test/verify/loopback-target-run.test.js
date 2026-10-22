@@ -157,22 +157,27 @@ test('AC-19005-5: a loopback --url with --hand exits 2 with "[error] usage --eng
   });
 });
 
-// FBS-230 gate r1 BH-3: --engine and --served-sha name what a served --url
-// target serves, so outside a --url target (package target mode) each is a
-// usage error before any pack or install, with or without --hand. The npm
-// cache is forced offline so a run that reaches a pack or install never
-// touches the network.
-const NOT_URL_TAIL = 'applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL';
+// FBS-230 gate r1 BH-3, gate r2 BH-3: --engine and --served-sha name what a
+// served --url target serves, so whenever the target is not a --url (a
+// directory, a tarball or a name@version) each is a usage error before any
+// pack, install or engine call, with or without --hand. The npm cache is
+// forced offline so a run that reaches a pack or install never touches the
+// network.
+const NOT_URL_TAIL = 'applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL';
 
-test('AC-19005-5: outside a --url target (package target mode, --artefact <tgz> or --package <dir>) --engine and --served-sha each exit 2 with "[error] usage --engine applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL" (and the same for --served-sha), with or without --hand, before any pack or install, writing no report', async (t) => {
+test('AC-19005-5: whenever the target is not a --url (a directory, a tarball or a name@version) --engine and --served-sha each exit 2 with "[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL" (and the same for --served-sha), with or without --hand, before any pack, install or engine call, writing no report', async (t) => {
+  async function tarball() {
+    const dir = await scratchDir('rcf-fbs230-tgz-');
+    const tgz = join(dir, 'app-1.0.0.tgz');
+    await writeFile(tgz, gzipSync(Buffer.from('not a real package')));
+    return tgz;
+  }
   const forms = [
     ['--package <dir>', async () => ['--package', '.']],
-    ['--artefact <tgz>', async () => {
-      const dir = await scratchDir('rcf-fbs230-tgz-');
-      const tgz = join(dir, 'app-1.0.0.tgz');
-      await writeFile(tgz, gzipSync(Buffer.from('not a real package')));
-      return ['--artefact', tgz];
-    }],
+    ['--artefact <tgz>', async () => ['--artefact', await tarball()]],
+    // Gate r2 BH-3: the version-host forms of --package.
+    ['--package <tarball file>', async () => ['--package', await tarball()]],
+    ['--package <name@version>', async () => ['--package', 'rcf-fixture-app@1.0.0']],
   ];
   for (const [form, target] of forms) {
     for (const flag of ['--engine', '--served-sha']) {
@@ -184,6 +189,7 @@ test('AC-19005-5: outside a --url target (package target mode, --artefact <tgz> 
           const r = await rcf(w.root, ['verify', 'run', ...(await target()), '--fbs', FBS, ...hand, flag, value], { npm_config_offline: 'true' });
           assert.ok(r.stderr.includes(`[error] usage ${flag} ${NOT_URL_TAIL}`), `${form}: the flag is named as URL-target-only\nstderr:\n${r.stderr}`);
           assert.equal(r.code, 2, `${form}: exit 2\nstderr:\n${r.stderr}`);
+          assert.ok(!r.stderr.includes('Verify scope:'), `${form}: refused before any engine call\nstderr:\n${r.stderr}`);
           assertNothingWritten(w, `${form} ${flag}`);
           assert.equal(git(w.root, 'status', '--porcelain'), '', `${form}: the working tree is untouched (no pack, no install)`);
         });
