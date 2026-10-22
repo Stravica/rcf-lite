@@ -24,6 +24,7 @@ import { composeVerifyReport, serialiseReport, VERIFY_HANDS } from '../report/in
 import { normaliseFbsIds } from '../chain/scope.js';
 import { isGzipFile, PACKAGED_ARTEFACT_PROFILE, runSuiteAsProbe } from '../suite/index.js';
 import { packDirectory } from '../suite/pack.js';
+import { isLoopbackUrl } from '../../finalise/ingest.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
 
 const OPTION_SPEC = {
@@ -59,6 +60,10 @@ const OPTION_SPEC = {
   // FBS-226 (US-19302): npm install --offline, from the local npm cache only.
   offline: { type: 'boolean' },
   replace: { type: 'string' },
+  // FBS-230 (AC-19005-5): a loopback --url with --hand names the engine
+  // serving it and the committed HEAD it serves.
+  engine: { type: 'string' },
+  'served-sha': { type: 'string' },
   help: { type: 'boolean' },
 };
 
@@ -188,6 +193,19 @@ Optional:
                             the verb's. Prints
                             "verify report: <path> <verdict> <verified>/<total>".
   --verifier-id <id>        The verifier identity recorded on the report
+  --engine <name>           The engine serving a --url target (free text,
+                            for example "wrangler dev" or "node server");
+                            recorded as target.engine with target.port
+                            (the URL's port, else 80 / 443 by scheme).
+                            Required with --hand and a loopback --url
+                            (localhost, *.localhost, 127.0.0.0/8, ::1,
+                            0.0.0.0), exit 2 otherwise
+  --served-sha <sha>        The full sha of the committed HEAD the --url
+                            target serves, recorded as target.servedSha.
+                            Required with --hand and a loopback --url
+                            (exit 2); any other sha exits 4. rcf build
+                            finalise accepts a loopback report only when it
+                            names the engine, the port and this served sha
   --package <ref>           Version-host target (name@version or tarball):
                             the report records target.kind "package" and
                             target.packageRef; --url is then optional and
@@ -378,6 +396,22 @@ async function runArtefactMode(flags, { stdout, stderr, cwd, env }) {
 // FBS-226 (US-19302): --package naming an existing directory, with no
 // --url, packs the artefact; name@version and a tarball keep FBS-219's
 // record-only path.
+// FBS-230 (AC-19005-5): a URL target; with --engine or --served-sha it also
+// records the engine, the port (the URL's, else 80 / 443 by scheme) and the
+// served sha.
+function urlTarget(flags) {
+  const target = { kind: 'url', url: flags.url };
+  if (flags.url === undefined || (flags.engine === undefined && flags['served-sha'] === undefined)) return target;
+  const url = new URL(flags.url);
+  const port = url.port ? Number(url.port) : (url.protocol === 'https:' ? 443 : 80);
+  return {
+    ...target,
+    ...(flags.engine === undefined ? {} : { engine: flags.engine }),
+    port,
+    ...(flags['served-sha'] === undefined ? {} : { servedSha: flags['served-sha'] }),
+  };
+}
+
 function isPackDirectory(flags, cwd) {
   if (flags.package === undefined || flags.url !== undefined) return false;
   try {
@@ -459,6 +493,16 @@ export async function main(argv, deps = {}) {
       stderr.write('[error] usage --fbs <fbs-id> is required with --hand (exactly one build spec)\n');
       return 2;
     }
+    if (flags.url !== undefined && isLoopbackUrl(flags.url)) {
+      if (!flags.engine) {
+        stderr.write('[error] usage --engine <name> is required with --hand and a loopback --url\n');
+        return 2;
+      }
+      if (!flags['served-sha']) {
+        stderr.write('[error] usage --served-sha <sha> is required with --hand and a loopback --url\n');
+        return 2;
+      }
+    }
     try {
       if (dirtyPathsOutsideReports(cwd).length > 0) {
         stderr.write('verify report refused: working tree is dirty; the report must name a committed head\n');
@@ -468,6 +512,11 @@ export async function main(argv, deps = {}) {
     } catch (err) {
       stderr.write(`[rcf-verify] unexpected failure: could not read the git head: ${err.message}\n`);
       return 1;
+    }
+    const servedSha = flags['served-sha'];
+    if (servedSha !== undefined && servedSha !== headSha) {
+      stderr.write(`verify report refused: --served-sha ${servedSha} is not the committed HEAD ${headSha.slice(0, 7)}\n`);
+      return 4;
     }
     verifyReportPath = `${VERIFY_REPORTS_DIR}/${handFbsIds[0]}/${headSha.slice(0, 12)}.json`;
     if (existsSync(resolvePath(cwd, verifyReportPath)) && !flags.replace) {
@@ -572,7 +621,7 @@ export async function main(argv, deps = {}) {
       headSha,
       target: flags.package !== undefined
         ? { kind: 'package', packageRef: flags.package }
-        : { kind: 'url', url: flags.url },
+        : urlTarget(flags),
       mode,
       hand: flags.hand,
       verifierId: flags['verifier-id'],

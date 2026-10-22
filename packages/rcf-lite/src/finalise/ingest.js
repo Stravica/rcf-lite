@@ -312,15 +312,18 @@ function verifyReportFault(report, fbsId) {
 /**
  * Locate, parse and validate the Test-stage report for one FBS. With no
  * explicit path the newest report (by finishedAt) under
- * rcf/verify-reports/<fbs-id>/ is taken.
+ * rcf/verify-reports/<fbs-id>/ is taken. The selected report must be
+ * committed at HEAD with its bytes on disk unchanged (FBS-230).
  *
  * @param {object} p
  * @param {string} p.projectRoot
  * @param {string} p.fbsId
  * @param {string} [p.reportPath] - absolute path from --report
+ * @param {object} [deps]
+ * @param {(args: string[]) => Promise<{ code: number, stdout: string }>} [deps.git]
  * @returns {Promise<{ ok: true, report: object, path: string } | { ok: false, code: number, message: string }>}
  */
-export async function loadVerifyReport({ projectRoot, fbsId, reportPath }) {
+export async function loadVerifyReport({ projectRoot, fbsId, reportPath }, deps = {}) {
   const missing = {
     ok: false,
     code: 4,
@@ -350,6 +353,15 @@ export async function loadVerifyReport({ projectRoot, fbsId, reportPath }) {
     if (fault) return { ok: false, code: 3, message: `finalise refused: verify report ${shown} is not a valid VerifyReport v1: ${fault}` };
     if (!chosen || Date.parse(report.finishedAt) >= Date.parse(chosen.report.finishedAt)) chosen = { report, path: shown };
   }
+  // FBS-230 (AC-19005-6): the selected report must be the bytes committed
+  // at HEAD, read through git lookups only.
+  const git = deps.git ?? ((args) => runGit(projectRoot, args));
+  if ((await git(['cat-file', '-e', `HEAD:./${chosen.path}`])).code !== 0) {
+    return { ok: false, code: 4, message: `finalise refused: verify report ${chosen.path} is not committed at HEAD` };
+  }
+  if ((await git(['diff', '--quiet', 'HEAD', '--', `./${chosen.path}`])).code !== 0) {
+    return { ok: false, code: 4, message: `finalise refused: verify report ${chosen.path} differs from its committed bytes at HEAD` };
+  }
   return { ok: true, ...chosen };
 }
 
@@ -361,8 +373,9 @@ function runGit(cwd, args) {
   });
 }
 
-// localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0.
-function isLoopbackUrl(url) {
+// localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0. Shared with
+// rcf verify run (FBS-230), so both sides read one loopback rule.
+export function isLoopbackUrl(url) {
   let host;
   try { host = new URL(url).hostname.toLowerCase(); } catch { return false; }
   host = host.replace(/^\[|\]$/g, '');
@@ -408,7 +421,8 @@ async function builderHandIds(git, headSha) {
 /**
  * Provenance of an ingested report against the working tree: head
  * containment (ancestry or tree equality outside rcf/verify-reports/),
- * non-loopback target, hand separation and the age window. Every refusal
+ * a loopback target only when it names its engine, port and served sha
+ * (FBS-230), hand separation and the age window. Every refusal
  * is exit 4.
  *
  * @param {object} p
@@ -425,17 +439,29 @@ export async function checkReportProvenance({ report, cwd, maxReportAgeDays, now
   const refuse = (message) => ({ ok: false, code: 4, message: `finalise refused: ${message}` });
   const head = (await git(['rev-parse', 'HEAD'])).stdout;
   if (!(await headContained(git, report.headSha))) {
-    return refuse(`report head ${report.headSha.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify the merged head`);
+    return refuse(`report head ${report.headSha.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify this head`);
   }
+  // FBS-230 (ADR-4151): a loopback target is accepted when the report names
+  // the engine, the port and the sha it served, and that sha is its head.
   if (report.target.kind === 'url' && isLoopbackUrl(report.target.url)) {
-    return refuse(`report target ${report.target.url} is loopback`);
+    const { engine, port, servedSha } = report.target;
+    const named = {
+      engine: isText(engine),
+      port: Number.isInteger(port) && port >= 1 && port <= 65535,
+      servedSha: isText(servedSha),
+    };
+    const missing = Object.keys(named).find((field) => !named[field]);
+    if (missing) return refuse(`loopback report target ${report.target.url} names no target.${missing}`);
+    if (servedSha !== report.headSha) {
+      return refuse(`report target.servedSha ${servedSha.slice(0, 7)} is not the report head ${report.headSha.slice(0, 7)}`);
+    }
   }
   const notSeparate = refuse(`report hand ${report.hand}/${report.verifierId} is not separate from the builder`);
   if (report.hand !== 'verifier') return notSeparate;
   if ((await builderHandIds(git, report.headSha)).has(report.verifierId)) return notSeparate;
   const ageMs = now - Date.parse(report.finishedAt);
   if (ageMs > maxReportAgeDays * DAY_MS) {
-    return refuse(`report is ${Math.floor(ageMs / DAY_MS)} days old (finished ${report.finishedAt}; --max-report-age ${maxReportAgeDays}); re-verify the merged head`);
+    return refuse(`report is ${Math.floor(ageMs / DAY_MS)} days old (finished ${report.finishedAt}; --max-report-age ${maxReportAgeDays}); re-verify this head`);
   }
   return { ok: true };
 }

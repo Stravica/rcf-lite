@@ -86,7 +86,7 @@ export const VERIFY_HANDS = Object.freeze(['test-author', 'builder', 'reviewer',
  * @param {object} p.report - the run report from buildReport
  * @param {string} p.fbsId
  * @param {string} p.headSha
- * @param {{ kind: 'url', url: string } | { kind: 'package', packageRef: string }} p.target
+ * @param {{ kind: 'url', url: string, engine?: string, port?: number, servedSha?: string } | { kind: 'package', packageRef: string }} p.target - FBS-230: a loopback URL target names engine, port and servedSha
  * @param {string} p.mode
  * @param {string} p.hand
  * @param {string|null} p.verifierId

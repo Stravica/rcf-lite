@@ -2,7 +2,8 @@
 // (FBS-220, US-19002, ADR-4148): verification is a Test-stage act, so
 // Finalise promotes an FBS from `complete` to `verified` by ingesting the
 // VerifyReport v1 the verifier hand committed under
-// rcf/verify-reports/<fbs-id>/ before the merge.
+// rcf/verify-reports/<fbs-id>/. Since FBS-230 (US-19005, ADR-4151) it runs
+// on the PR branch before the merge, and the merge carries `verified`.
 //
 //   rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]
 //
@@ -10,15 +11,15 @@
 //   - Finalise reads the report; it never spawns rcf verify run, the
 //     verifier package or the agent CLI, and never writes under
 //     rcf/verify-reports/. Its only child processes are git lookups;
-//   - preconditions (CI evidence, complete status, Code Nodes, default
-//     branch), the report's VerifyReport v1 shape and its provenance (head
-//     contained in HEAD, non-loopback target, hand separation, age) are
-//     checked before any write; every refusal leaves the FBS byte-identical;
+//   - preconditions (CI evidence, complete status, Code Nodes), the
+//     report's VerifyReport v1 shape, that it is committed at HEAD, and its
+//     provenance (head contained in HEAD, a loopback target naming its
+//     engine, port and served sha, hand separation, age) are checked before
+//     any write; every refusal leaves the FBS byte-identical;
 //   - the ship-authority rule (0.4.0) and the per-AC refusals (0.7.0,
 //     0.20.0, 0.28.0) are kept, read from the ingested report;
 //   - --mode and --url are retired: they belong to rcf verify run.
 
-import { spawn } from 'node:child_process';
 import { resolve as resolvePath } from 'node:path';
 import process from 'node:process';
 import { parseArgs } from 'node:util';
@@ -43,18 +44,6 @@ import {
   writeShipWithoutVerifiedRecord,
 } from '../finalise/index.js';
 
-// Referee-guarantee train (REQ-165 / US-16502, docs claim C-26): the
-// merge-state precondition. Finalise refuses to promote to verified
-// when the git working tree is not on one of these default branches.
-// Kept small and conventional (git init and every hosted git provider
-// default to `main` or `master`); projects on a non-default trunk
-// (rare in modern repos) either rename the trunk to a listed name or
-// pass --allow-pre-merge on every finalise run. The alternative --
-// reading the git remote's default-branch symbolic ref -- adds a
-// network round-trip on every finalise and fails offline; the small
-// name list is deliberately the safer default.
-const DEFAULT_BRANCH_NAMES = new Set(['main', 'master']);
-
 // The finalise gate only makes sense on a built item; verified re-ingest is
 // allowed and confirms the status without a write.
 const FINALISABLE_STATUSES = new Set(['complete', 'verified']);
@@ -63,7 +52,7 @@ const FINALISABLE_STATUSES = new Set(['complete', 'verified']);
 const DEFAULT_MAX_REPORT_AGE_DAYS = 7;
 
 const OPTION_SPEC = {
-  // CI evidence for the merged head (required).
+  // CI evidence for the PR head the report names (required).
   'ci-run': { type: 'string' },
   // An explicit report path instead of rcf/verify-reports/<fbs-id>/.
   report: { type: 'string' },
@@ -82,10 +71,8 @@ const OPTION_SPEC = {
   // (missing reason exits 2); the ack lands on the manifest and the
   // promotion proceeds.
   'ship-without-eval': { type: 'string' },
-  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26):
-  // finalise refuses promotion when the git working tree is not on
-  // the default branch (main / master); --allow-pre-merge is the
-  // deliberate opt-out, logged on stdout.
+  // FBS-230 (AC-19005-9): accepted as a no-op that prints one
+  // deprecation line; Finalise runs on any branch.
   'allow-pre-merge': { type: 'boolean' },
   quiet: { type: 'boolean' },
   help: { type: 'boolean' },
@@ -93,28 +80,38 @@ const OPTION_SPEC = {
 
 export const HELP = `Usage: rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]
 
-Administrative Finalise. Promotes an FBS at status complete to verified by
-ingesting the Test-stage verify report the verifier hand committed before
-the merge (rcf verify run --fbs <fbs-id> --hand verifier writes it to
-rcf/verify-reports/<fbs-id>/<head12>.json). Finalise reads the report and
-spawns nothing but git lookups; it never runs verify itself.
+Administrative Finalise, run on the PR branch before the merge. Promotes an
+FBS at status complete to verified by ingesting the Test-stage verify report
+the verifier hand committed on the PR branch (rcf verify run --fbs <fbs-id>
+--hand verifier writes it to rcf/verify-reports/<fbs-id>/<head12>.json).
+The verified status is written on the branch and the merge carries it; on
+the default branch after a merge commit a re-run is a read-only confirm
+(a squash merge is not promised). Finalise reads the report and spawns
+nothing but git lookups; it never runs verify itself.
 
 Promotion needs every one of:
-  - --ci-run <ref> naming the CI run that passed on the merged head;
-  - the FBS at complete, HEAD on the default branch (main / master) and a
-    Code Node on every bound acceptance criterion;
-  - a valid VerifyReport v1 whose head is contained in HEAD (an ancestor,
-    or tree-equal to a commit HEAD contains outside rcf/verify-reports/),
-    whose target is not loopback, whose hand is verifier with a verifierId
-    no builder commit carries as its Hand-Id, and which finished within
-    --max-report-age days;
+  - --ci-run <ref> naming the CI run that passed on the PR head the report
+    names (recorded on the verified line, never fetched);
+  - the FBS at complete and a Code Node on every bound acceptance
+    criterion;
+  - a valid VerifyReport v1 committed at HEAD with its bytes on disk
+    unchanged, whose head is contained in HEAD (an ancestor, or tree-equal
+    to a commit HEAD contains outside rcf/verify-reports/), whose hand is
+    verifier with a verifierId no builder commit carries as its Hand-Id,
+    and which finished within --max-report-age days;
+  - a loopback target (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0)
+    is accepted only when the report names target.engine (for example
+    "wrangler dev"), target.port and the served sha (target.servedSha)
+    equal to its head; rcf verify run --engine <name> --served-sha <sha>
+    records them;
   - verdict PASS with ship authority and no blocking per-AC verdict
     (MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD,
     UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING, SCOPE-MISMATCH).
 
 Required:
   <fbs-id>                  The FBS item to finalise (must be 'complete')
-  --ci-run <ref>            The CI run that passed on the merged head
+  --ci-run <ref>            The CI run that passed on the PR head the
+                            report names
 
 Options:
   --report <path>           Ingest this report instead of the newest one
@@ -130,9 +127,8 @@ Options:
                             mandatory reason; the ack lands on the
                             manifest under shipWithoutEval[] and the
                             promotion proceeds. A missing reason exits 2.
-  --allow-pre-merge         Promote off the default branch, for a
-                            deliberate pre-merge dry run; the decision is
-                            logged on stdout (Referee-guarantees claim C-26).
+  --allow-pre-merge         Deprecated and changes nothing: Finalise runs
+                            on any branch. Prints one deprecation line.
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
 
@@ -142,69 +138,20 @@ Retired:
                             before the merge. Either flag exits 2.
 
 Exit codes:
-  0  promoted to verified (or an acknowledged ship-without-verified)
+  0  promoted to verified, confirmed already verified with no write, or an
+     acknowledged ship-without-verified
   1  IO / unexpected runtime failure
   2  usage error (bad flags, retired flag, unknown / non-FBS id)
   3  schema validation or broken references (tree unreadable, missing Code
      Nodes, a report that is not a valid VerifyReport v1, write refused)
-  4  refused - CI evidence missing, not complete, off the default branch,
-     no report, report head not contained in HEAD, loopback target, hand
-     not separate from the builder, report too old, verdict not PASS or
-     not ship authority, or a blocking per-AC verdict; the FBS is left
-     unchanged
+  4  refused - CI evidence missing, not complete, no report, report not
+     committed at HEAD or differing from its committed bytes, report head
+     not contained in HEAD, a loopback target naming no target.engine,
+     target.port or target.servedSha, or a served sha that is not the
+     report head, hand not separate from the builder, report too old,
+     verdict not PASS or not ship authority, or a blocking per-AC verdict;
+     the FBS is left unchanged
 `;
-
-/**
- * Referee-guarantee train (REQ-165 / US-16502, docs claim C-26).
- * Resolve the current git branch as an out-of-band read so finalise
- * can refuse promotion when the working tree is not on the default
- * branch. Returns `{ ok: true, branch }` on success, `{ ok: false,
- * reason }` when git is absent or the working tree is not a git
- * checkout (bare tarball deploys, container ephemeral CWD). Never
- * throws; the caller degrades to a warn line rather than a hard fail.
- *
- * Kept out of `#core/store` deliberately: this is a build-lite CLI
- * concern (the ship gate reads the working tree state), not a document
- * store concern. It also keeps the store free of a `spawn` seam.
- *
- * @param {object} args
- * @param {string} args.cwd
- * @param {{ spawn?: typeof spawn }} [args.deps]
- * @returns {Promise<{ ok: true, branch: string } | { ok: false, reason: string }>}
- */
-async function resolveGitBranch({ cwd, deps = {} }) {
-  const spawnFn = deps.spawn ?? spawn;
-  return new Promise((resolveP) => {
-    let stdout = '';
-    let stderr = '';
-    let child;
-    try {
-      child = spawnFn('git', ['rev-parse', '--abbrev-ref', 'HEAD'], {
-        cwd, stdio: ['ignore', 'pipe', 'pipe'],
-      });
-    } catch (err) {
-      resolveP({ ok: false, reason: `git spawn failed: ${err.message}` });
-      return;
-    }
-    child.stdout.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
-    child.stderr.on('data', (chunk) => { stderr += chunk.toString('utf8'); });
-    child.on('error', (err) => {
-      resolveP({ ok: false, reason: `git spawn failed: ${err.message}` });
-    });
-    child.on('close', (code) => {
-      if (code !== 0) {
-        resolveP({ ok: false, reason: `git rev-parse exited ${code}: ${stderr.trim() || 'no output'}` });
-        return;
-      }
-      const branch = stdout.trim();
-      if (!branch) {
-        resolveP({ ok: false, reason: 'git rev-parse returned empty branch name' });
-        return;
-      }
-      resolveP({ ok: true, branch });
-    });
-  });
-}
 
 /**
  * @param {string[]} argv - argv slice after `finalise`
@@ -227,6 +174,12 @@ export async function main(argv, deps = {}) {
   const flags = parsed.values;
   const positionals = parsed.positionals;
   if (flags.help) { stdout.write(HELP); return 0; }
+  // FBS-230 (ADR-4151): Finalise runs on the PR branch before the merge, so
+  // no branch is refused; --allow-pre-merge changes nothing.
+  if (flags['allow-pre-merge']) {
+    stderr.write('[warn] finalise: --allow-pre-merge is deprecated and changes nothing; Finalise runs on the PR branch before the merge\n');
+  }
+
 
   const usage = (message) => {
     stderr.write(`[error] usage finalise: ${message}\n`);
@@ -305,31 +258,12 @@ export async function main(argv, deps = {}) {
 
   const quiet = Boolean(flags.quiet);
 
-  // Referee-guarantee train (REQ-165 / US-16502, docs claim C-26): the
-  // merge-state precondition. `verified` promises a post-merge check, so a
-  // working tree off the default branch is refused unless --allow-pre-merge
-  // records the deliberate dry run. Absent a git working tree the check
-  // degrades to a warn line.
-  const gitBranch = await resolveGitBranch({ cwd, deps });
-  if (!gitBranch.ok) {
-    stderr.write(`[warn] finalise: could not resolve git branch (${gitBranch.reason}); skipping the post-merge precondition. Referee-guarantees claim C-26.\n`);
-  } else if (!DEFAULT_BRANCH_NAMES.has(gitBranch.branch)) {
-    if (!flags['allow-pre-merge']) {
-      stderr.write(`[finalise] gate NOT promoted: git working tree is on branch '${gitBranch.branch}', not a default trunk (${[...DEFAULT_BRANCH_NAMES].join(' / ')}); ${fbsId} left '${currentStatus}'.\n`);
-      stderr.write('The referee-guarantees page promises that verified traces to an actual post-merge runtime check. Merge the branch and re-run finalise, or pass --allow-pre-merge for a deliberate pre-merge dry run (the decision is logged on stdout). Referee-guarantees claim C-26.\n');
-      return 4;
-    }
-    if (!quiet) {
-      stdout.write(`[finalise] --allow-pre-merge: promoting on branch '${gitBranch.branch}' (not a default trunk). Referee-guarantees claim C-26 records the pre-merge decision here.\n`);
-    }
-  }
-
   // --- ingest the Test-stage report (ADR-4148) ----------------------------
   const loaded = await loadVerifyReport({
     projectRoot,
     fbsId,
     reportPath: flags.report === undefined ? undefined : resolvePath(cwd, flags.report),
-  });
+  }, deps);
   if (!loaded.ok) {
     stderr.write(`[error] ${loaded.message}\n`);
     return loaded.code;
