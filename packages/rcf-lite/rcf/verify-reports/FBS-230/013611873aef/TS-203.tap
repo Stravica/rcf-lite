@@ -1,0 +1,126 @@
+TAP version 13
+# Subtest: AC-19002-1: rcf build finalise <fbs-id> --ci-run <ref> with a valid verifier PASS report exits 0, sets executionStatus verified and prints "finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)", spawning nothing but git
+ok 1 - AC-19002-1: rcf build finalise <fbs-id> --ci-run <ref> with a valid verifier PASS report exits 0, sets executionStatus verified and prints "finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)", spawning nothing but git
+  ---
+  duration_ms: 914.154542
+  type: 'test'
+  ...
+# Subtest: AC-19002-2: rcf build finalise <fbs-id> --ci-run <ref> with no report exits 4 with "finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge" and the FBS stays complete
+ok 2 - AC-19002-2: rcf build finalise <fbs-id> --ci-run <ref> with no report exits 4 with "finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge" and the FBS stays complete
+  ---
+  duration_ms: 766.695167
+  type: 'test'
+  ...
+# Subtest: AC-19002-3: rcf build finalise exits 4 with "finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head" or "report is <n> days old"
+    # Subtest: report head not contained in HEAD
+    ok 1 - report head not contained in HEAD
+      ---
+      duration_ms: 940.971958
+      type: 'test'
+      ...
+    # Subtest: report older than --max-report-age (default 7 days)
+    ok 2 - report older than --max-report-age (default 7 days)
+      ---
+      duration_ms: 1372.176375
+      type: 'test'
+      ...
+    1..2
+ok 3 - AC-19002-3: rcf build finalise exits 4 with "finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head" or "report is <n> days old"
+  ---
+  duration_ms: 2313.412875
+  type: 'test'
+  ...
+# Subtest: AC-19002-4: rcf build finalise on a report whose hand is not verifier or whose verifierId matches a builder Hand-Id exits 4 with "finalise refused: report hand <hand>/<id> is not separate from the builder" and the FBS is unchanged
+ok 4 - AC-19002-4: rcf build finalise on a report whose hand is not verifier or whose verifierId matches a builder Hand-Id exits 4 with "finalise refused: report hand <hand>/<id> is not separate from the builder" and the FBS is unchanged
+  ---
+  duration_ms: 1444.219125
+  type: 'test'
+  ...
+# Subtest: AC-19002-5: rcf build finalise exits 4 "ci evidence missing: pass --ci-run <ref>", 4 not-complete and 3 "missing Code Nodes: <ac-ids>"; a report failing VerifyReport v1 exits 3 naming the field
+    # Subtest: --ci-run absent
+    ok 1 - --ci-run absent
+      ---
+      duration_ms: 777.103666
+      type: 'test'
+      ...
+    # Subtest: FBS not at complete
+    ok 2 - FBS not at complete
+      ---
+      duration_ms: 1017.551
+      type: 'test'
+      ...
+    # Subtest: bound AC without a Code Node
+    ok 3 - bound AC without a Code Node
+      ---
+      duration_ms: 1004.018875
+      type: 'test'
+      ...
+    # Subtest: report failing VerifyReport v1 validation
+    ok 4 - report failing VerifyReport v1 validation
+      ---
+      duration_ms: 1255.472666
+      type: 'test'
+      ...
+    1..4
+ok 5 - AC-19002-5: rcf build finalise exits 4 "ci evidence missing: pass --ci-run <ref>", 4 not-complete and 3 "missing Code Nodes: <ac-ids>"; a report failing VerifyReport v1 exits 3 naming the field
+  ---
+  duration_ms: 4054.530542
+  type: 'test'
+  ...
+# Subtest: AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes
+ok 6 - AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes
+  ---
+  duration_ms: 2920.201166
+  type: 'test'
+  ...
+# Subtest: AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with "finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage" and spawns nothing
+ok 7 - AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with "finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage" and spawns nothing
+  ---
+  duration_ms: 1080.490042
+  type: 'test'
+  ...
+# Subtest: AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical
+ok 8 - AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical
+  ---
+  duration_ms: 2714.1585
+  type: 'test'
+  ...
+# Subtest: AC-19002-1 (end to end): a real rcf verify run --hand verifier --fbs <fbs-id> --url <preview> PASS writes a ship-authority report with per-AC verdicts, and rcf build finalise <fbs-id> --ci-run <ref> promotes it to verified
+ok 9 - AC-19002-1 (end to end): a real rcf verify run --hand verifier --fbs <fbs-id> --url <preview> PASS writes a ship-authority report with per-AC verdicts, and rcf build finalise <fbs-id> --ci-run <ref> promotes it to verified
+  ---
+  duration_ms: 1166.515792
+  type: 'test'
+  ...
+# Subtest: AC-19002-6 (end to end): a real verify run whose engine records EVAL-MISSING on an AC writes that verdict into perAc, and rcf build finalise refuses exit 4 with the 0.20.0 message shape, the FBS staying complete
+ok 10 - AC-19002-6 (end to end): a real verify run whose engine records EVAL-MISSING on an AC writes that verdict into perAc, and rcf build finalise refuses exit 4 with the 0.20.0 message shape, the FBS staying complete
+  ---
+  duration_ms: 1113.948583
+  type: 'test'
+  ...
+# Subtest: AC-19002-3 (squash merge): a report head whose tree differs from a commit HEAD contains only under rcf/verify-reports/ is tree-equal, so Finalise accepts it
+ok 11 - AC-19002-3 (squash merge): a report head whose tree differs from a commit HEAD contains only under rcf/verify-reports/ is tree-equal, so Finalise accepts it
+  ---
+  duration_ms: 1194.855875
+  type: 'test'
+  ...
+# Subtest: AC-1601-3 (ingest): an ingested report carrying EVAL-MISSING refuses exit 4 with the spec message; --ship-without-eval <reason> needs a real reason and, given one, promotes and lands a monotonic swe-* record on manifest.shipWithoutEval[]
+ok 12 - AC-1601-3 (ingest): an ingested report carrying EVAL-MISSING refuses exit 4 with the spec message; --ship-without-eval <reason> needs a real reason and, given one, promotes and lands a monotonic swe-* record on manifest.shipWithoutEval[]
+  ---
+  duration_ms: 1343.863125
+  type: 'test'
+  ...
+# Subtest: AC-16502-3 (ingest): rcf build finalise on a non-default branch promotes with no flag and no claim C-26 line, and --allow-pre-merge changes nothing
+ok 13 - AC-16502-3 (ingest): rcf build finalise on a non-default branch promotes with no flag and no claim C-26 line, and --allow-pre-merge changes nothing
+  ---
+  duration_ms: 1832.253541
+  type: 'test'
+  ...
+1..13
+# tests 19
+# suites 0
+# pass 19
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 23042.0805

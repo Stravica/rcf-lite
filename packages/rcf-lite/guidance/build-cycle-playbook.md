@@ -139,6 +139,8 @@ Stage end: commit.
 
 What good looks like:
 
+- The verifier hand, separate from the builder, runs `rcf verify run --fbs <fbs-id> --hand verifier --verifier-id <id>` against the preview or version host serving the reviewed head (`--artefact <tgz>` or `--package <dir>` for a packed artefact), and commits the report the verb writes to `rcf/verify-reports/<fbs-id>/<head12>.json` on the PR branch with the trailer `Hand: verifier`. That report plus the Review MERGE is the merge gate, and it is what Finalise ingests on the PR branch before the merge.
+- A loopback target (localhost, `*.localhost`, 127.0.0.0/8, ::1, 0.0.0.0; for example `wrangler dev` or `node server` serving the PR head) is accepted when the run names the engine and the served sha: `rcf verify run --url <loopback-url> --hand verifier --engine "<engine>" --served-sha <full sha of the committed HEAD>` records `target.engine`, `target.port` and `target.servedSha`. A loopback `--hand` run without them exits 2, and a served sha that is not the committed HEAD exits 4.
 - Every in-scope AC gets a TS / TC pair on the tree and an executable test behind it, named by the TC's `testPointer` (`filePath::testName`). Section 6 of the bundle lists what already exists and what is flagged as missing.
 - The test asserts the AC's observable outcome (its given / when / then), not the implementation's internals.
 - A TC's `status` reflects a run that actually happened.
@@ -179,9 +181,9 @@ Stage end: commit.
 
 What good looks like:
 
-- CI green on the branch; PR raised and merged per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
-- `rcf build mark <fbs-id> complete` after the merge, never before it. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build mark <fbs-id> complete --no-code-nodes` once.
-- `rcf build finalise <fbs-id> --ci-run <ref>` writes `verified` by ingesting the Test-stage report: the verifier hand ran `rcf verify run --fbs <fbs-id> --hand verifier` against the preview or version host before the merge and committed the report it wrote under `rcf/verify-reports/<fbs-id>/`, and `--ci-run` names the CI run that passed on the merged head. Finalise spawns nothing but git lookups; it never runs verify itself. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the report's verdict is PASS with ship authority.
+- Finalise runs on the PR branch before the merge: CI green on the PR head, a Review MERGE and a Test PASS at the same head, the PR raised per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
+- `rcf build mark <fbs-id> complete` on the PR branch. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build mark <fbs-id> complete --no-code-nodes` once.
+- `rcf build finalise <fbs-id> --ci-run <ref>` writes `verified` on the PR branch by ingesting the Test-stage report: the verifier hand ran `rcf verify run --fbs <fbs-id> --hand verifier` against the preview or version host and committed the report it wrote under `rcf/verify-reports/<fbs-id>/`, and `--ci-run` names the CI run that passed on the PR head the report names. The report must be committed at HEAD with its bytes unchanged; a loopback target is accepted only when the report names the engine, the port and the served sha (`target.servedSha`, equal to its head). Commit the verified write on the branch, then merge: the merge carries it. Once merged with a merge commit, a re-run on the default branch is a read-only confirm; a squash merge is not promised. Finalise spawns nothing but git lookups; it never runs verify itself. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the report's verdict is PASS with ship authority.
 - A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
 Referee: CI, the finalise gate, plus the mark commands' own refusals (section 9).
@@ -189,14 +191,14 @@ Referee: CI, the finalise gate, plus the mark commands' own refusals (section 9)
 Failure modes:
 
 - **AC-skipping at the finish line.** Symptom: a section-4 AC has no corresponding diff or test, discovered at PR time or never. Correction: a per-AC checklist pass before this stage ends; every AC id gets a tick against a diff location and a test.
-- **Marking complete pre-merge.** Symptom: `--mark complete` while the PR is still open. Correction: the merge is the event; the mark records it, it does not predict it.
+- **Leaving Finalise for the merge.** Symptom: the PR merges with the FBS still at `complete`, so the default branch carries an unverified spec. Correction: mark complete and run Finalise on the PR branch before the merge; the merge carries `verified`.
 - **Reaching for `--no-code-nodes` out of impatience.** Symptom: the flag on a spec that plainly produced code. Correction: it declares a fact (no traceable code exists), not an escape from the CN-authoring step you skipped in Stage 2 - go back and author the CN instead.
 
 **The finalise gate reads the attestation, not just the exit code.** A passing verify run whose report carries per-AC verdicts in `{MOCK-ONLY-DECLARED, BLOCKED-BY-DECLARATION}` will not promote to `verified`. The gate stays at `complete -> verified` promotion, but a mock-only-declared AC refuses the promotion unless the operator explicitly ships the FBS complete-without-verified via `--ship-without-verified`. The summary always discloses these verdicts (whether the FBS ships or not) so the honest picture reaches the reviewer. Older verify reports without the `perAcVerdicts` field are handled gracefully - verify's train car may land later; older reports flow through with the pre-0.7.0 gate behaviour.
 
 **Browser-verification gate (Track B, UI-bearing FBS only).** Before `--mark complete` on a uiBearing FBS, run `rcf verify browser <fbs-id>` against the local preview or a deployed URL. The verb writes a `browserVerification[]` record on the manifest and aggregates a verdict (pass / warn / block). `--mark complete` refuses when the verdict is `block` (unless the operator uses `--accept-block --reason "..."` per the ship-without-verified escape hatch) or `warn` (unless `operatorAckAt` is populated via `rcf verify browser <fbs-id> --ack`). The `agentScreenshotCritique` mode drives an injectable browser driver over every enumerated route x theme, records the DOM against the versioned `UI_INVARIANTS_V1` set (shared-nav presence, active-nav marker, signed-in-as affordance, theme toggle, default theme, focus rings, structural layout compare), and (when the FBS binds an auth REQ) runs the auth-REQ smoke pack (`GET /login`, `POST /logout`, `GET /login/verify?token=`). The `operatorSession` mode records the operator's ack alone; the ack is the evidence. Screenshots and DOM dumps land under `.rcf/artefacts/<bv-id>/`, gitignored via the 0.6.0 managed block.
 
-Stage end: the merge is the commit.
+Stage end: the verified write is committed on the PR branch, and the merge carries it.
 
 ## 8. Escalation rules
 
@@ -321,7 +323,7 @@ $ rcf build mark FBS-013 inProgress
 marked FBS-013 notStarted -> inProgress
 ```
 
-From here it is the five stages, a commit per stage, `--mark complete` after the merge, `rcf build finalise` to promote to `verified` from the Test-stage report, and back to `rcf build bundle --next`.
+From here it is the five stages, a commit per stage, `--mark complete` and `rcf build finalise` on the PR branch before the merge to promote to `verified` from the Test-stage report, the merge, and back to `rcf build bundle --next`.
 
 ## 11. Driving the whole queue
 
@@ -335,8 +337,8 @@ Sections 3 to 7 deliver one item. This section is the loop around them: how a si
 rcf build queue      -> queue state; a "Next actionable" id means there is work
 rcf build bundle --next     -> bundle for that item
                         run its five stages (sections 3-7), commit per stage
-rcf build mark <fbs-id> complete       (after merge)
-rcf build finalise <fbs-id> --ci-run <ref>  (Test-stage report -> verified)
+rcf build mark <fbs-id> complete       (on the PR branch)
+rcf build finalise <fbs-id> --ci-run <ref>  (Test-stage report -> verified, then merge)
                         then rcf build bundle --next again
 ```
 
@@ -535,7 +537,7 @@ Escalation: if the finding is a spec-level ambiguity (two ACs cannot both hold, 
 What good looks like:
 
 - Every failure mode named in this playbook is a self-check you run before it can turn into a defect. The sections above list them per stage; this subsection is the load-bearing statement that catching them is your job, not the operator's. A defect the operator has to spot in your work is a self-check you did not run.
-- Before each stage-end commit, walk the stage's failure-mode list as a checklist. Stage 1: did the plan restate the FBS summary instead of the AC set; does any planned step trace to an AC id; did I keep the plan inside the bundle's scope. Stage 2: does every diff hunk map to an in-scope AC; did any new dependency arrive without an ADR; are Code Nodes authored as the code lands. Stage 3: did I walk the AC list as the outer loop, not the diff; is any deviation from the bundle documented, not smoothed over. Stage 4: did the referee actually run; does each test assert the AC's observable outcome and not the implementation's internals. Stage 5: is there any AC without a Code Node; am I marking complete before the merge, not after; does every verification claim name its runtime.
+- Before each stage-end commit, walk the stage's failure-mode list as a checklist. Stage 1: did the plan restate the FBS summary instead of the AC set; does any planned step trace to an AC id; did I keep the plan inside the bundle's scope. Stage 2: does every diff hunk map to an in-scope AC; did any new dependency arrive without an ADR; are Code Nodes authored as the code lands. Stage 3: did I walk the AC list as the outer loop, not the diff; is any deviation from the bundle documented, not smoothed over. Stage 4: did the referee actually run; does each test assert the AC's observable outcome and not the implementation's internals. Stage 5: is there any AC without a Code Node; are the complete mark and Finalise run on the PR branch before the merge, so the merge carries verified; does every verification claim name its runtime.
 - The five escalation cases in section 8 are self-triggered too. You do not wait for the operator to notice the plan is stuck on an ambiguous AC; you stop, report the ambiguity in plain language (18.2), and wait.
 - Test-honesty failure modes belong to you first. Editing a test to make it pass is the paradigm case: the referee has caught a real gap between code and spec, and rewriting the assertion hides the finding. When a test fails, the answer is to fix the code or fix the spec (RULE 4), never to fix the test into agreement with the wrong thing. Same for stubbing a broken pointer, deleting a failing assertion, or narrowing an AC to what the code happens to do.
 - Build-scope failure modes belong to you first. Gold-plating past the AC set, silent dependency additions, refactors the bundle did not ask for, docs beyond the spec: the check is "did the bundle ask for this?", answered before the diff lands, not after review flags it.

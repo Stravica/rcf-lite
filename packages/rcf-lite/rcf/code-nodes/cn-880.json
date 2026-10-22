@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-880",
+  "path": "src/verify/cli/run.js#main",
+  "implementsAcIds": [
+    "AC-19005-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-22T12:12:04.959Z",
+  "updatedAt": "2026-10-22T12:12:04.959Z"
+}

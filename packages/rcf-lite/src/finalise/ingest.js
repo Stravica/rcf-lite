@@ -8,8 +8,8 @@
 // verdict, it consumes the one verify stamped.
 
 import { execFile } from 'node:child_process';
-import { readdir, readFile } from 'node:fs/promises';
-import { join, relative, sep } from 'node:path';
+import { lstat, readdir, readFile, realpath } from 'node:fs/promises';
+import { isAbsolute, join, relative, sep } from 'node:path';
 
 /**
  * Load and parse a verify report artifact. Returns the parsed report, or a
@@ -312,15 +312,18 @@ function verifyReportFault(report, fbsId) {
 /**
  * Locate, parse and validate the Test-stage report for one FBS. With no
  * explicit path the newest report (by finishedAt) under
- * rcf/verify-reports/<fbs-id>/ is taken.
+ * rcf/verify-reports/<fbs-id>/ is taken. The selected report must be
+ * committed at HEAD with its bytes on disk unchanged (FBS-230).
  *
  * @param {object} p
  * @param {string} p.projectRoot
  * @param {string} p.fbsId
  * @param {string} [p.reportPath] - absolute path from --report
+ * @param {object} [deps]
+ * @param {(args: string[]) => Promise<{ code: number, stdout: string }>} [deps.git]
  * @returns {Promise<{ ok: true, report: object, path: string } | { ok: false, code: number, message: string }>}
  */
-export async function loadVerifyReport({ projectRoot, fbsId, reportPath }) {
+export async function loadVerifyReport({ projectRoot, fbsId, reportPath }, deps = {}) {
   const missing = {
     ok: false,
     code: 4,
@@ -336,9 +339,32 @@ export async function loadVerifyReport({ projectRoot, fbsId, reportPath }) {
     paths = names.filter((n) => n.endsWith('.json')).sort().map((n) => join(dir, n));
     if (paths.length === 0) return missing;
   }
+  const git = deps.git ?? ((args) => runGit(projectRoot, args));
+  // The git top level, reached lexically from the project root (it is the
+  // project root unless the project sits in a subdirectory of the repo).
+  const cdup = await git(['rev-parse', '--show-cdup']);
+  const repoRoot = cdup.code === 0 && cdup.stdout ? join(projectRoot, cdup.stdout) : projectRoot;
+  const realRoot = await realpath(projectRoot).catch(() => projectRoot);
   let chosen = null;
   for (const abs of paths) {
     const shown = relative(projectRoot, abs).split(sep).join('/');
+    const fromRepo = relative(repoRoot, abs).split(sep).join('/');
+    // FBS-230 (AC-19005-6): the report must resolve to a file under the
+    // project root, judged before it is read. A path that does not resolve
+    // is left to the walk and the read below.
+    const real = await realpath(abs).catch(() => null);
+    if (real) {
+      const inside = relative(realRoot, real);
+      if (!inside || inside.startsWith('..') || isAbsolute(inside)) {
+        return { ok: false, code: 4, message: `finalise refused: verify report ${fromRepo} is outside the project root` };
+      }
+    }
+    // FBS-230 (AC-19005-6): refuse a symlink at, or anywhere above, the
+    // report below the repo root (lstat, never followed, from the git top
+    // level down), so the checks and the read below run on the real file
+    // only.
+    const link = await firstSymlink(repoRoot, fromRepo);
+    if (link) return { ok: false, code: 4, message: `finalise refused: verify report ${fromRepo} is read through a symlink at ${link}` };
     let report;
     try {
       report = JSON.parse(await readFile(abs, 'utf8'));
@@ -350,7 +376,31 @@ export async function loadVerifyReport({ projectRoot, fbsId, reportPath }) {
     if (fault) return { ok: false, code: 3, message: `finalise refused: verify report ${shown} is not a valid VerifyReport v1: ${fault}` };
     if (!chosen || Date.parse(report.finishedAt) >= Date.parse(chosen.report.finishedAt)) chosen = { report, path: shown };
   }
+  // FBS-230 (AC-19005-6): the selected report must be the bytes committed
+  // at HEAD, read through git lookups only.
+  if ((await git(['cat-file', '-e', `HEAD:./${chosen.path}`])).code !== 0) {
+    return { ok: false, code: 4, message: `finalise refused: verify report ${chosen.path} is not committed at HEAD` };
+  }
+  if ((await git(['diff', '--quiet', 'HEAD', '--', `./${chosen.path}`])).code !== 0) {
+    return { ok: false, code: 4, message: `finalise refused: verify report ${chosen.path} differs from its committed bytes at HEAD` };
+  }
   return { ok: true, ...chosen };
+}
+
+// The first repo-relative path component of `rel` that is a symbolic link,
+// or null. A component that cannot be lstat'ed ends the walk; the read
+// that follows reports it. A path outside the repo root is refused above
+// as outside the project root.
+async function firstSymlink(root, rel) {
+  const parts = rel.split('/');
+  if (parts[0] === '..' || rel.startsWith('/')) return null;
+  for (let i = 1; i <= parts.length; i += 1) {
+    const prefix = parts.slice(0, i).join('/');
+    let st;
+    try { st = await lstat(join(root, prefix)); } catch { return null; }
+    if (st.isSymbolicLink()) return prefix;
+  }
+  return null;
 }
 
 function runGit(cwd, args) {
@@ -361,8 +411,9 @@ function runGit(cwd, args) {
   });
 }
 
-// localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0.
-function isLoopbackUrl(url) {
+// localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0. Shared with
+// rcf verify run (FBS-230), so both sides read one loopback rule.
+export function isLoopbackUrl(url) {
   let host;
   try { host = new URL(url).hostname.toLowerCase(); } catch { return false; }
   host = host.replace(/^\[|\]$/g, '');
@@ -385,16 +436,24 @@ async function headContained(git, headSha) {
   return false;
 }
 
-// Hand-Id trailers of `Hand: builder` commits between the merge-base of the
-// report head with the pre-merge trunk and HEAD.
+const TRUNK_REFS = ['origin/main', 'origin/master', 'main', 'master'];
+
+// Hand-Id trailers of `Hand: builder` commits over the whole branch range.
+// On a branch (FBS-230 gate r1 BH-2) the range is the merge-base of HEAD
+// with the trunk to HEAD, whatever commit the report head is. When no
+// trunk ref resolves, or the merge-base is HEAD itself (HEAD on the trunk
+// after a merge, or a branch already merged by merge commit or
+// fast-forward), it is all of HEAD's history (gate r2 BH-2).
 async function builderHandIds(git, headSha) {
-  const trunk = (await git(['rev-list', '--first-parent', 'HEAD'])).stdout.split('\n').filter(Boolean);
-  let preMerge = 'HEAD';
-  for (const commit of trunk) {
-    if ((await git(['merge-base', '--is-ancestor', headSha, commit])).code !== 0) { preMerge = commit; break; }
+  const head = (await git(['rev-parse', 'HEAD'])).stdout;
+  let base = null;
+  for (const ref of TRUNK_REFS) {
+    if ((await git(['rev-parse', '--verify', '-q', `${ref}^{commit}`])).code !== 0) continue;
+    const fork = await git(['merge-base', 'HEAD', ref]);
+    if (fork.code === 0 && fork.stdout && fork.stdout !== head) base = fork.stdout;
+    break;
   }
-  const base = await git(['merge-base', preMerge, headSha]);
-  const revs = base.code === 0 && base.stdout ? ['HEAD', headSha, `^${base.stdout}`] : ['HEAD', headSha];
+  const revs = base ? ['HEAD', headSha, `^${base}`] : ['HEAD', headSha];
   const log = await git(['log', '--format=%(trailers:key=Hand,valueonly,separator=%x2C)%x1f%(trailers:key=Hand-Id,valueonly,separator=%x2C)%x1e', ...revs]);
   const ids = new Set();
   for (const entry of log.stdout.split('\x1e')) {
@@ -408,7 +467,8 @@ async function builderHandIds(git, headSha) {
 /**
  * Provenance of an ingested report against the working tree: head
  * containment (ancestry or tree equality outside rcf/verify-reports/),
- * non-loopback target, hand separation and the age window. Every refusal
+ * a loopback target only when it names its engine, port and served sha
+ * (FBS-230), hand separation and the age window. Every refusal
  * is exit 4.
  *
  * @param {object} p
@@ -425,17 +485,29 @@ export async function checkReportProvenance({ report, cwd, maxReportAgeDays, now
   const refuse = (message) => ({ ok: false, code: 4, message: `finalise refused: ${message}` });
   const head = (await git(['rev-parse', 'HEAD'])).stdout;
   if (!(await headContained(git, report.headSha))) {
-    return refuse(`report head ${report.headSha.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify the merged head`);
+    return refuse(`report head ${report.headSha.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify this head`);
   }
+  // FBS-230 (ADR-4151): a loopback target is accepted when the report names
+  // the engine, the port and the sha it served, and that sha is its head.
   if (report.target.kind === 'url' && isLoopbackUrl(report.target.url)) {
-    return refuse(`report target ${report.target.url} is loopback`);
+    const { engine, port, servedSha } = report.target;
+    const named = {
+      engine: isText(engine),
+      port: Number.isInteger(port) && port >= 1 && port <= 65535,
+      servedSha: isText(servedSha),
+    };
+    const missing = Object.keys(named).find((field) => !named[field]);
+    if (missing) return refuse(`loopback report target ${report.target.url} names no target.${missing}`);
+    if (servedSha !== report.headSha) {
+      return refuse(`report target.servedSha ${servedSha.slice(0, 7)} is not the report head ${report.headSha.slice(0, 7)}`);
+    }
   }
   const notSeparate = refuse(`report hand ${report.hand}/${report.verifierId} is not separate from the builder`);
   if (report.hand !== 'verifier') return notSeparate;
   if ((await builderHandIds(git, report.headSha)).has(report.verifierId)) return notSeparate;
   const ageMs = now - Date.parse(report.finishedAt);
   if (ageMs > maxReportAgeDays * DAY_MS) {
-    return refuse(`report is ${Math.floor(ageMs / DAY_MS)} days old (finished ${report.finishedAt}; --max-report-age ${maxReportAgeDays}); re-verify the merged head`);
+    return refuse(`report is ${Math.floor(ageMs / DAY_MS)} days old (finished ${report.finishedAt}; --max-report-age ${maxReportAgeDays}); re-verify this head`);
   }
   return { ok: true };
 }

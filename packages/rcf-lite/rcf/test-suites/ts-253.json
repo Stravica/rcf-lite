@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:07.089Z",
-  "updatedAt": "2026-10-17T01:35:24.885Z",
+  "updatedAt": "2026-10-22T11:22:29.356Z",
   "purpose": "Declare one test per AC of US-19002 (FBS-220) driving rcf build finalise <fbs-id> --ci-run <ref> through bin/rcf.js, so the FBS-220 Define round turns each declaration into a red test against the report-ingesting Finalise.",
   "testLevel": "integration",
   "acIds": [
@@ -15,7 +15,7 @@
   ],
   "id": "TS-253",
   "usId": "US-19002",
-  "title": "Administrative Finalise: rcf build finalise --ci-run ingests the Test-stage report and promotes to verified, refuses missing, uncontained, loopback, stale, non-separate or blocking reports, retires --mode and --url, spawns nothing",
+  "title": "Administrative Finalise: rcf build finalise --ci-run ingests the Test-stage report and promotes to verified, refuses missing, uncontained, stale, non-separate or blocking reports, retires --mode and --url, spawns nothing",
   "testCases": [
     {
       "id": "TC-253-promotes-verified",
@@ -34,9 +34,9 @@
     {
       "id": "TC-253-head-loopback-age",
       "acId": "AC-19002-3",
-      "description": "rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\", \"report target <url> is loopback\" or \"report is <n> days old\"",
+      "description": "rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\" or \"report is <n> days old\" (the loopback clause moved to AC-19005-2 to -4, ADR-4151)",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-3: rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\", \"report target <url> is loopback\" or \"report is <n> days old\""
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-3: rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\" or \"report is <n> days old\""
     },
     {
       "id": "TC-253-hand-not-separate",
@@ -48,9 +48,9 @@
     {
       "id": "TC-253-preconditions",
       "acId": "AC-19002-5",
-      "description": "rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete, 4 off-trunk and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field",
+      "description": "rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field (the off-trunk clause moved to AC-19005-1, ADR-4151)",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-5: rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete, 4 off-trunk and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field"
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-5: rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field"
     },
     {
       "id": "TC-253-blocking-per-ac-verdicts",

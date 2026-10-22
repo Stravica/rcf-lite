@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-22T11:04:19.719Z",
+  "updatedAt": "2026-10-22T18:51:31.440Z",
+  "summary": "rcf build finalise runs on the PR branch before the merge and accepts a loopback report that names its engine, port and served sha (US-19005, ADR-4151, operator ruling 2026-10-21); rcf verify run records those fields; the ingested report must be committed at HEAD; --allow-pre-merge becomes a no-op; claim C-26 reversed (AC-16502-3 restated and rebound here). Delivers AC-19005-1 to AC-19005-10 and AC-16502-3.",
+  "approach": "Remove the default-branch refusal from src/cli/finalise.js and make --allow-pre-merge a no-op with one deprecation line; in src/finalise/ingest.js replace the unconditional loopback refusal with the engine, port and served-sha rule, add the committed-at-HEAD check on the selected report, and reword the containment and age messages to \"re-verify this head\"; in src/verify/cli/run.js add --engine and --served-sha, record target.engine, target.port and target.servedSha for a URL target, refuse a loopback --hand run without them (exit 2) and a served sha other than the committed HEAD (exit 4); then rewrite the shipped Finalise text (finalise and build HELP, guidance, playbook, managed block, bundle runbook Stage 5, README, verify reference) to the pre-merge rule.",
+  "deliverables": [
+    "src/finalise/ingest.js: conditional loopback rule (target.engine, target.port, target.servedSha equal to headSha), the committed-at-HEAD report check, containment and age messages ending \"re-verify this head\"",
+    "src/cli/finalise.js: no off-trunk refusal, --allow-pre-merge as a no-op with its deprecation line, HELP",
+    "src/verify/cli/run.js and src/verify/report/index.js: --engine and --served-sha, target.engine, target.port and target.servedSha on a URL target, the loopback --hand usage refusals and the served-sha refusal",
+    "src/cli/build.js and src/cli/help.js: HELP (rcf build --help prints the group help in src/cli/help.js)",
+    "src/build/formatters/markdown.js: bundle runbook Stage 5",
+    "guidance/build-cycle.md, guidance/build-cycle-playbook.md (sections 6, 7, 10 and 11), guidance/managed/agent-instructions-block.md and its hash",
+    "packages/rcf-lite/README.md Finalise section; docs/verify-reference.md where it describes the Finalise target rule",
+    "packages/rcf-lite/package.json 0.36.0 (Hand: builder) and CHANGELOG lines (Hand: mixed, reasoned); Code Nodes for AC-19005-1 to AC-19005-10 and AC-16502-3"
+  ],
+  "dependsOnFbsIds": [
+    "FBS-220"
+  ],
+  "contextRequirements": {
+    "tacIds": [
+      "TAC-4148-test-stage-verify-finalise"
+    ],
+    "adrIds": [
+      "ADR-4148-finalise-admin-verify-in-test",
+      "ADR-4151"
+    ]
+  },
+  "riskLevel": "high",
+  "domain": "functional",
+  "estimatedSize": "medium",
+  "notes": "Operator ruling 2026-10-21: Finalise is pre-merge on the PR branch and localhost targets are accepted (reverses claim C-26). buildOrder 226: the brief asked for 230 (a tie with verified FBS-227) but rcf define update refuses a duplicate buildOrder within BS-001 (exit 3, \"Duplicate buildOrder 230 within BS-001\"), so this spec takes 226, the highest free order below FBS-228 (231); it builds ahead of FBS-228 and FBS-229 as intended (ledger). dependsOnFbsIds FBS-220 (the ingest path it changes; verified). Folds in w-2026-10-20-dave-013 (rcf build --help and playbook section 6 still described the pre-0.35.0 Test stage). Tests: TS for US-19005 (one TC per criterion) in test/finalise/premerge-loopback-finalise.test.js, test/verify/loopback-target-run.test.js and test/guidance/premerge-finalise-text.test.js; AC-19002-1, -3 and -5 restated on FBS-220 and their TS-253 TCs retargeted; AC-16502-3 restated, rebound here from FBS-189, and its TS-203 TC retargeted. Release 0.36.0 is cut by a separate release PR. Issue 410 is not fixed here. Commits carry Hand: trailers. No freeze, no ack verbs.",
+  "acIds": [
+    "AC-19005-1",
+    "AC-19005-2",
+    "AC-19005-3",
+    "AC-19005-4",
+    "AC-19005-5",
+    "AC-19005-6",
+    "AC-19005-7",
+    "AC-19005-8",
+    "AC-19005-9",
+    "AC-19005-10",
+    "AC-16502-3"
+  ],
+  "fbsId": "FBS-230",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 226,
+  "executionStatus": "verified",
+  "title": "Pre-merge Finalise on the PR branch and accepted loopback verify targets"
+}

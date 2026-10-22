@@ -232,8 +232,11 @@ Verbs:
   backstop adopt --from <fbs-id>
                            Open the verified backstop window for
                            'bundle --next'.
-  finalise <fbs-id>        Ship gate: ingest the Test-stage verify report
-                           and promote a complete FBS to verified.
+  finalise <fbs-id>        Ship gate, run on the PR branch before the merge:
+                           ingest the Test-stage verify report committed
+                           there and promote a complete FBS to verified.
+                           A loopback report must name its engine, port
+                           and served sha.
   review <fbs-id>          Stage-3-to-Stage-4 audit (test-theatre and
                            mutation-sampling).
   fbs <fbs-id> <verb>      FBS-level operations (depends-on).

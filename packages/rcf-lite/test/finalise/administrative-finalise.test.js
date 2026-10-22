@@ -181,7 +181,7 @@ test('AC-19002-2: rcf build finalise <fbs-id> --ci-run <ref> with no report exit
   assert.equal(await status(world), 'complete');
 });
 
-test('AC-19002-3: rcf build finalise exits 4 with "finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head", "report target <url> is loopback" or "report is <n> days old"', async (t) => {
+test('AC-19002-3: rcf build finalise exits 4 with "finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head" or "report is <n> days old"', async (t) => {
   await t.test('report head not contained in HEAD', async () => {
     const world = await buildWorld({ report: false });
     // A stray branch off base whose tree matches no commit main contains.
@@ -193,20 +193,12 @@ test('AC-19002-3: rcf build finalise exits 4 with "finalise refused: report head
     const head = commitAll(world.root, 'test: verify report', { Hand: 'verifier', 'Hand-Id': VERIFIER_ID });
     const r = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
     assert.equal(r.code, 4, `uncontained head refuses exit 4\nstderr:\n${r.stderr}`);
-    assert.ok(r.stderr.includes(`finalise refused: report head ${stray.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify the merged head`), r.stderr);
+    assert.ok(r.stderr.includes(`finalise refused: report head ${stray.slice(0, 7)} is not contained in HEAD ${head.slice(0, 7)}; re-verify this head`), r.stderr);
     assert.equal(await status(world), 'complete');
   });
 
-  await t.test('loopback target', async () => {
-    const world = await buildWorld();
-    for (const url of ['http://localhost:5173', 'http://app.localhost', 'http://127.0.0.1:8080', 'http://127.4.5.6', 'http://[::1]:3000', 'http://0.0.0.0:8787']) {
-      await replantReport(world, { target: { kind: 'url', url } });
-      const r = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
-      assert.equal(r.code, 4, `${url}: loopback target refuses exit 4\nstderr:\n${r.stderr}`);
-      assert.ok(r.stderr.includes(`finalise refused: report target ${url} is loopback`), `${url}\n${r.stderr}`);
-      assert.equal(await status(world), 'complete');
-    }
-  });
+  // The loopback subtest moved to AC-19005-3 (FBS-230, ADR-4151): a loopback
+  // target is accepted when the report names engine, port and served sha.
 
   await t.test('report older than --max-report-age (default 7 days)', async () => {
     const world = await buildWorld({ reportOverrides: { startedAt: isoAgo(10 * DAY_MS + 2 * 60 * 60 * 1000), finishedAt: isoAgo(10 * DAY_MS + 60 * 60 * 1000) } });
@@ -240,7 +232,7 @@ test('AC-19002-4: rcf build finalise on a report whose hand is not verifier or w
   }
 });
 
-test('AC-19002-5: rcf build finalise exits 4 "ci evidence missing: pass --ci-run <ref>", 4 not-complete, 4 off-trunk and 3 "missing Code Nodes: <ac-ids>"; a report failing VerifyReport v1 exits 3 naming the field', async (t) => {
+test('AC-19002-5: rcf build finalise exits 4 "ci evidence missing: pass --ci-run <ref>", 4 not-complete and 3 "missing Code Nodes: <ac-ids>"; a report failing VerifyReport v1 exits 3 naming the field', async (t) => {
   await t.test('--ci-run absent', async () => {
     const world = await buildWorld();
     const r = await rcf(world.root, ['build', 'finalise', FBS]);
@@ -260,14 +252,8 @@ test('AC-19002-5: rcf build finalise exits 4 "ci evidence missing: pass --ci-run
     assert.equal(await status(world), 'inProgress');
   });
 
-  await t.test('HEAD off the default branch', async () => {
-    const world = await buildWorld();
-    git(world.root, 'checkout', '-q', '-b', 'hotfix');
-    const r = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
-    assert.equal(r.code, 4, `off-trunk refuses exit 4\nstderr:\n${r.stderr}`);
-    assert.ok(r.stderr.includes("git working tree is on branch 'hotfix', not a default trunk (main / master)"), r.stderr);
-    assert.equal(await status(world), 'complete');
-  });
+  // The off-trunk subtest moved to AC-19005-1 (FBS-230, ADR-4151): Finalise
+  // promotes on a hotfix branch with no flag.
 
   await t.test('bound AC without a Code Node', async () => {
     const world = await buildWorld();
@@ -541,18 +527,21 @@ test('AC-1601-3 (ingest): an ingested report carrying EVAL-MISSING refuses exit 
   assert.ok(String(recs[0].reportPath).endsWith(world.reportRel), `reportPath names the ingested report; got ${recs[0].reportPath}`);
 });
 
-test('AC-16502-3 (ingest): rcf build finalise on a non-default branch refuses exit 4 naming the branch and claim C-26, and --allow-pre-merge promotes the ingested report and logs the pre-merge decision with C-26', async () => {
-  const world = await buildWorld();
-  git(world.root, 'checkout', '-q', '-b', 'topic-x');
+test('AC-16502-3 (ingest): rcf build finalise on a non-default branch promotes with no flag and no claim C-26 line, and --allow-pre-merge changes nothing', async () => {
+  // Claim C-26 reversed (operator ruling 2026-10-21, ADR-4151).
+  const plain = await buildWorld();
+  git(plain.root, 'checkout', '-q', '-b', 'topic-x');
+  const ok = await rcf(plain.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
+  assert.doesNotMatch(ok.stderr, /git working tree is on branch/, `no off-trunk refusal\nstderr:\n${ok.stderr}`);
+  assert.equal(ok.code, 0, `promotes on topic-x with no flag\nstderr:\n${ok.stderr}`);
+  assert.doesNotMatch(ok.stdout, /Referee-guarantees claim C-26 records the pre-merge decision here/);
+  assert.equal(await status(plain), 'verified');
 
-  const refused = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF]);
-  assert.equal(refused.code, 4, `off trunk refuses exit 4\nstderr:\n${refused.stderr}`);
-  assert.match(refused.stderr, /git working tree is on branch 'topic-x'/);
-  assert.match(refused.stderr, /C-26/);
-  assert.equal(await status(world), 'complete');
-
-  const ok = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF, '--allow-pre-merge']);
-  assert.equal(ok.code, 0, `--allow-pre-merge promotes the ingested report\nstderr:\n${ok.stderr}`);
-  assert.match(ok.stdout, /Referee-guarantees claim C-26 records the pre-merge decision here/);
-  assert.equal(await status(world), 'verified');
+  const flagged = await buildWorld();
+  git(flagged.root, 'checkout', '-q', '-b', 'topic-x');
+  const same = await rcf(flagged.root, ['build', 'finalise', FBS, '--ci-run', CI_REF, '--allow-pre-merge']);
+  assert.equal(same.code, 0, `--allow-pre-merge changes nothing: exit 0\nstderr:\n${same.stderr}`);
+  assert.doesNotMatch(same.stdout, /Referee-guarantees claim C-26 records the pre-merge decision here/, 'no pre-merge decision line');
+  assert.doesNotMatch(same.stderr, /git working tree is on branch/);
+  assert.equal(await status(flagged), 'verified');
 });

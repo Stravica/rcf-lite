@@ -1198,6 +1198,363 @@
       "answer": "a. Decided by the stage-keeper 2026-10-20: kept as a count pin. Reason: real row growth. Main sat at about 405.5 KB; the first DEFINE round's 21 rows took the index to 410502 bytes; after this round it is 410987 bytes.",
       "answeredAt": "2026-10-20T12:06:20.445Z",
       "resolvedAt": "2026-10-20T12:06:20.445Z"
+    },
+    {
+      "id": 56,
+      "question": "(a) Restate AC-19002-1 (FBS-220) for the ruling of 2026-10-21? Old text verbatim: \"[happy] Given an FBS at complete, HEAD on the default branch containing the report head, every bound AC with a Code Node, and a valid VerifyReport with hand \\\"verifier\\\", a non-loopback target, verdict PASS with ship authority and finishedAt within 7 days, when rcf build finalise <fbs-id> --ci-run <ref> runs, then executionStatus becomes verified, stdout carries \\\"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\\\", it exits 0, and no child process other than git is spawned.\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "narrow in place: drop \"HEAD on the default branch\" (keep HEAD containing the report head) and \"a non-loopback target\" from the Given"
+        },
+        {
+          "letter": "b",
+          "text": "keep it and supersede it"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:18.695Z",
+      "status": "resolved",
+      "answer": "a. Taken (brief, operator ruling 2026-10-21, ADR-4151): narrowed in place, wording only; the reversed clauses move to AC-19005-1 (any branch) and AC-19005-2 (loopback accepted with engine, port and served sha). Its test (administrative-finalise AC-19002-1, a non-loopback report on main) still holds and is a guard.",
+      "answeredAt": "2026-10-22T11:06:18.893Z",
+      "resolvedAt": "2026-10-22T11:06:18.893Z"
+    },
+    {
+      "id": 57,
+      "question": "(b) Restate AC-19002-3 (FBS-220)? Old text verbatim: \"[failure] Given a report whose headSha is neither an ancestor of HEAD nor tree-equal to a commit HEAD contains, when Finalise runs, then it exits 4 with \\\"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\\\"; a target that is loopback (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0) exits 4 with \\\"finalise refused: report target <url> is loopback\\\"; a finishedAt older than --max-report-age (default 7 days) exits 4 with \\\"finalise refused: report is <n> days old\\\".\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "drop the loopback clause, keep containment and age, reword \"re-verify the merged head\" to \"re-verify this head\""
+        },
+        {
+          "letter": "b",
+          "text": "drop the loopback clause and keep the message wording"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:19.094Z",
+      "status": "resolved",
+      "answer": "a. Taken (brief recommendation): the head may now be an unmerged branch, so both messages in checkReportProvenance (containment and age) end \"re-verify this head\". The loopback clause moves to AC-19005-2, -3 and -4. The loopback subtest is retargeted into AC-19005-3 and AC-19005-2 tests.",
+      "answeredAt": "2026-10-22T11:06:19.287Z",
+      "resolvedAt": "2026-10-22T11:06:19.287Z"
+    },
+    {
+      "id": 58,
+      "question": "(c) Restate AC-19002-5 (FBS-220)? Old text verbatim: \"[failure] Given --ci-run absent, the FBS not at complete, HEAD off the default branch, or a bound AC without a Code Node, when Finalise runs, then it exits 4 (\\\"ci evidence missing: pass --ci-run <ref>\\\"), 4 (the existing not-complete message), 4 (the existing off-trunk message) and 3 (\\\"missing Code Nodes: <ac-ids>\\\") respectively; a report that fails VerifyReport v1 validation exits 3 naming the field.\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "drop the off-trunk clause"
+        },
+        {
+          "letter": "b",
+          "text": "keep it"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:19.489Z",
+      "status": "resolved",
+      "answer": "a. Taken (brief, ruling 2026-10-21): the off-trunk clause is dropped; its subtest (HEAD off the default branch, hotfix) is retargeted into the AC-19005-1 test (promotes on hotfix).",
+      "answeredAt": "2026-10-22T11:06:19.689Z",
+      "resolvedAt": "2026-10-22T11:06:19.689Z"
+    },
+    {
+      "id": 59,
+      "question": "(d) Restate AC-16502-3 (FBS-189, owns claim C-26) and rebind it? Old text verbatim: \"`rcf build finalise` refuses promotion when the git working tree is not on a default trunk (main or master). Exit 4, FBS at 'complete', stderr names the branch and the referee-guarantees claim C-26. --allow-pre-merge is the deliberate opt-out: on a non-default branch it promotes and logs the pre-merge decision on stdout including the C-26 claim id.\" Old given: \"the same scaffold with a spawn seam that returns 'feature/x' as the current branch\"; old when: \"`rcf build finalise <fbsId> --url ...` is invoked\"; old then: \"the exit code is 4 and stderr matches /git working tree is on branch 'feature\\\\/x'/; with --allow-pre-merge appended the exit code is 0 and stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/\".",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate to the reversed behaviour (promotes on any branch with no flag; --allow-pre-merge changes nothing), its given, when and then included, and rebind from FBS-189 to FBS-230"
+        },
+        {
+          "letter": "b",
+          "text": "supersede it with a new criterion"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:19.885Z",
+      "status": "resolved",
+      "answer": "a. Taken (brief, ruling 2026-10-21 reversing C-26, ADR-4151): restated in place; removed from FBS-189 acIds and added to FBS-230 acIds through rcf define update. The when no longer names --url (exit 2 since 0.35.0). TS-203 TC-203-merge-state-refusal-and-opt-out retargeted.",
+      "answeredAt": "2026-10-22T11:06:20.080Z",
+      "resolvedAt": "2026-10-22T11:06:20.080Z"
+    },
+    {
+      "id": 60,
+      "question": "(e) Design point 1, pre-merge: where does Finalise run and what confirms the merged head?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Finalise runs at the PR head on the PR branch and writes verified there; the merge carries it; the merged-main re-check is a Finalise-time confirm (AC-19005-8), not a new CI job; after a squash merge the confirm is not promised"
+        },
+        {
+          "letter": "b",
+          "text": "a post-merge CI job re-checks verified on main"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:20.276Z",
+      "status": "resolved",
+      "answer": "a. Taken as settled by the brief. ADR-4148 already records a post-merge second check as a later option. Squash: the marks and goldens change the tree after the report head, so tree equality may fail; a known limit written into AC-19005-8.",
+      "answeredAt": "2026-10-22T11:06:20.473Z",
+      "resolvedAt": "2026-10-22T11:06:20.473Z"
+    },
+    {
+      "id": 61,
+      "question": "(f) Design point 2, loopback targets: when is a loopback report accepted?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "accepted when the report names target.engine (free text), target.port and target.servedSha equal to headSha, hand verifier; without the served sha (or engine or port), or with a different one, refused exit 4; ship-authority rule unchanged; non-loopback private addresses unchanged"
+        },
+        {
+          "letter": "b",
+          "text": "accept every loopback report"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:20.675Z",
+      "status": "resolved",
+      "answer": "a. Taken as settled. AC-19005-2, -3, -4. Messages: \"finalise refused: loopback report target <url> names no target.<field>\" (first missing in the order engine, port, servedSha) and \"finalise refused: report target.servedSha <sha7> is not the report head <sha7>\". rcf verify run flags (AC-19005-5): --engine <name> and --served-sha <sha>; the port is read from the URL (80 / 443 by scheme when absent); a loopback --hand run without --engine or --served-sha exits 2, a served sha other than the full committed HEAD exits 4.",
+      "answeredAt": "2026-10-22T11:06:20.878Z",
+      "resolvedAt": "2026-10-22T11:06:20.878Z"
+    },
+    {
+      "id": 62,
+      "question": "(g) Design point 3, --ci-run: kept?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "kept and required, as evidence of a green CI run on the PR head the report names; on the post-merge confirm it names the merged head run; recorded on the verified line only, never fetched"
+        },
+        {
+          "letter": "b",
+          "text": "optional before the merge"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:21.073Z",
+      "status": "resolved",
+      "answer": "a. Taken as settled. No criterion changes AC-19002-5's ci-evidence clause.",
+      "answeredAt": "2026-10-22T11:06:21.271Z",
+      "resolvedAt": "2026-10-22T11:06:21.271Z"
+    },
+    {
+      "id": 63,
+      "question": "(h) Design point 4, version and owners?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "0.36.0 minor with a CHANGELOG entry and the playbook and managed-block updates; minAgentAction and breaking decided by the release runbook (the managed block hash changes); the builder carries the package.json version line in a Hand: builder commit and the CHANGELOG lines in a reasoned Hand: mixed commit; issue 410 not fixed here"
+        },
+        {
+          "letter": "b",
+          "text": "a patch release"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:21.472Z",
+      "status": "resolved",
+      "answer": "a. Taken as settled. Release 0.36.0 is cut by a separate release PR. AC-19005-10 reads the whole playbook for the forbidden phrases (sections 10 and 11 included), since a hand reads it whole; the positive phrases are required in sections 6 and 7 together.",
+      "answeredAt": "2026-10-22T11:06:21.665Z",
+      "resolvedAt": "2026-10-22T11:06:21.665Z"
+    },
+    {
+      "id": 64,
+      "question": "(i) FBS-230 buildOrder: the brief asked for 230, tying verified FBS-227. rcf define update FBS-230 --set buildOrder=230 refuses: exit 3, \"[error] validation update: refused - the post-write tree would carry new breakage: Duplicate buildOrder 230 within BS-001 on FBS FBS-227; Duplicate buildOrder 230 within BS-001 on FBS FBS-230\" (create refuses too: \"--build-order 230 collides with FBS-227\"). Which order?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "226, the highest free buildOrder below FBS-228 (231); it builds ahead of FBS-228 and FBS-229 as the brief intends"
+        },
+        {
+          "letter": "b",
+          "text": "stop the round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:21.857Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand 2026-10-22: no hand edit; rcf build queue shows FBS-230 at 226, actionable, ahead of FBS-228 (231) and FBS-229 (232).",
+      "answeredAt": "2026-10-22T11:06:22.052Z",
+      "resolvedAt": "2026-10-22T11:06:22.052Z"
+    },
+    {
+      "id": 65,
+      "question": "(j) AC-19005-5 makes a loopback rcf verify run --hand refuse without --engine and --served-sha. test/verify/verify-report-hand.test.js (FBS-219, AC-19001-1, -2, -3 and -6) drives --hand runs against http://127.0.0.1:<port>, which the change would turn red. How?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "point those runs at a non-loopback preview name through the existing host-map preload test/finalise/fixtures/host-map-fetch.mjs (fixture only; every assertion unchanged), green before and after the Build"
+        },
+        {
+          "letter": "b",
+          "text": "add --engine and --served-sha to those runs (red until the Build)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:06:22.250Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-19001-1 names --url <preview-url>; a preview name keeps its meaning and keeps FBS-219's tests independent of AC-19005-5.",
+      "answeredAt": "2026-10-22T11:06:22.449Z",
+      "resolvedAt": "2026-10-22T11:06:22.449Z"
+    },
+    {
+      "id": 66,
+      "question": "(k) FBS-230 owners, Build orientation and goldens after the Build: who carries what, and what turns red when the Build lands?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "as recorded in the answer"
+        },
+        {
+          "letter": "b",
+          "text": "another split"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T11:29:11.688Z",
+      "status": "resolved",
+      "answer": "a. Recorded by the test-author hand 2026-10-22. OWNERS: builder carries src/finalise/ingest.js, src/cli/finalise.js, src/verify/cli/run.js, src/verify/report/index.js, src/cli/build.js, src/cli/help.js (rcf build --help prints the group help at help.js:223 to 240, finalise entry at line 236), src/build/formatters/markdown.js, guidance/build-cycle.md, guidance/build-cycle-playbook.md, guidance/managed/agent-instructions-block.md and its hash and the generated managed artefacts (scripts/gen-managed-artefacts.mjs), packages/rcf-lite/README.md, docs/verify-reference.md, the 0.36.0 package.json line (Hand: builder), the CHANGELOG lines (Hand: mixed, reasoned), the Code Nodes for AC-19005-1 to -10 and the unbound codeNode count pin; the test-author carries tests, fixtures, goldens, chain records, bindings, record-count pins and ledger entries. BUILD NOTES: rcf verify run records target.engine, target.port and target.servedSha only when --engine or --served-sha is given; a URL run without them records { kind, url } exactly as today (AC-19001-1 deepEquals it). Usage refusals (exit 2) come before the dirty-tree check; the served-sha refusal (exit 4) after HEAD is read and before any probe. Finalise checks the selected report is committed at HEAD (git show HEAD:<path>, byte compare) before the provenance checks; the loopback rule replaces the loopback refusal after head containment; the --allow-pre-merge deprecation line goes to stderr. Guidance wording must not match test/guidance/stage-contract.test.js POST_MERGE_PATTERNS when describing the AC-19005-8 confirm. GOLDENS AFTER BUILD (test-author regenerates): test/build/fixtures/bundle-fbs-001.md (golden: rcf build FBS-001 (bundle md) matches dogfood fixture; Stage 5 text), test/cli/fixtures/bundle-next-029-golden.md (bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the 0.29.0 golden bundle byte-for-byte), test/view/fixtures/phase-3-6-static.html (layout regression: rendered live tree matches the committed baseline byte for byte; 0.36.0 footer and Code Nodes), and the queue and coverage goldens if the Build moves chain records.",
+      "answeredAt": "2026-10-22T11:29:11.884Z",
+      "resolvedAt": "2026-10-22T11:29:11.884Z"
+    },
+    {
+      "id": 67,
+      "question": "(gate r1 BH-1) Restate AC-19005-6 (FBS-230) to name the symlink refusal? Old text verbatim: \"[failure] Given the report Finalise selects (the newest under rcf/verify-reports/<fbs-id>/, or --report) present on disk but not committed in HEAD, when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \\\"finalise refused: verify report <path> is not committed at HEAD\\\"; given it is committed but its bytes on disk differ from its bytes at HEAD, it exits 4 with stderr \\\"finalise refused: verify report <path> differs from its committed bytes at HEAD\\\"; <path> is the repo-relative report path, and rcf/fbs/<fbs-id>.json is byte-identical to its state before the run in both cases.\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate in place: add the refusal of a report path that is, or sits under, a symbolic link below the repo root (exit 4, \"finalise refused: verify report <path> is read through a symlink at <link>\"), the check and the read on the real file only; \"in both cases\" becomes \"in every case\""
+        },
+        {
+          "letter": "b",
+          "text": "keep the text and rely on the committed-and-clean check"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T14:13:24.745Z",
+      "status": "resolved",
+      "answer": "a. Taken (parent decision, Dave, gate r1 BH-1: refuse symlinks anywhere in the report path, check and read the real file). Wording only; the meaning is unchanged: only the committed bytes may promote. Tests: the four symlink subtests in the AC-19005-6 test of test/finalise/premerge-loopback-finalise.test.js (TC-261-report-committed-at-head).",
+      "answeredAt": "2026-10-22T14:13:31.542Z",
+      "resolvedAt": "2026-10-22T14:13:31.542Z"
+    },
+    {
+      "id": 68,
+      "question": "(gate r1 BH-3) Restate AC-19005-5 (FBS-230) so --engine and --served-sha are refused outside a --url target? Old text verbatim: \"[happy] Given a clean working tree at a committed HEAD and a server on a loopback --url, when rcf verify run --url <loopback-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> --engine <name> --served-sha <sha> runs with <sha> the full sha of the committed HEAD, then the report it writes under rcf/verify-reports/<fbs-id>/<head12>.json records target { kind \\\"url\\\", url, engine <name>, port <the URL's port as an integer, or 80 / 443 by scheme when the URL names none>, servedSha <sha> }. A --served-sha that is not the full sha of the committed HEAD exits 4 with stderr \\\"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\\\"; a loopback --url with --hand and no --engine exits 2 with stderr \\\"[error] usage --engine <name> is required with --hand and a loopback --url\\\"; with --engine and no --served-sha it exits 2 with stderr \\\"[error] usage --served-sha <sha> is required with --hand and a loopback --url\\\". Every refusal writes no report and sends no probe request.\"",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate in place: outside a --url target (package target mode, --artefact <tgz> or --package <dir> with no --url) each flag exits 2 with \"[error] usage --<flag> applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\", with or without --hand, before any pack or install"
+        },
+        {
+          "letter": "b",
+          "text": "keep the text; package-target runs ignore the two flags"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T14:13:24.948Z",
+      "status": "resolved",
+      "answer": "a. Taken (parent decision, Dave, gate r1 BH-3: reject the loopback flags on any non-URL target regardless of --hand; the run help names them as URL-target-only). Wording adds the refusal; the loopback --url rules are unchanged. Test: the new AC-19005-5 package-target test in test/verify/loopback-target-run.test.js, bound as TC-261-verify-run-loopback-flags-url-only.",
+      "answeredAt": "2026-10-22T14:13:31.744Z",
+      "resolvedAt": "2026-10-22T14:13:31.744Z"
+    },
+    {
+      "id": 69,
+      "question": "(gate r1 BH-2) Does AC-19005-7 need a restatement to say the builder Hand-Ids are collected over the whole branch range (merge-base to the branch head)?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no: \"a Hand: builder commit on the branch\" already names every commit of the branch range, whatever commit the report head is"
+        },
+        {
+          "letter": "b",
+          "text": "restate it to name the merge-base explicitly"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T14:13:25.146Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r1 BH-2: builderHandIds over the whole branch range). AC-19005-7 is not changed; the fixture branchWorld now puts a Hand: test-author commit after the builder commit as the report head, as on this PR, and the AC-19005-7 builder subtests refuse on that shape (TC-261-provenance-kept-pre-merge).",
+      "answeredAt": "2026-10-22T14:13:31.943Z",
+      "resolvedAt": "2026-10-22T14:13:31.943Z"
+    },
+    {
+      "id": 70,
+      "question": "(gate r2 BH-3) Restate the non-URL sentence of AC-19005-5 so --engine and --served-sha are refused whenever the target is not a --url (directory, tarball or name@version)? Old text verbatim: Outside a --url target (package target mode: --artefact <tgz>, or --package <dir> with no --url), --engine exits 2 with stderr \"[error] usage --engine applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\" and --served-sha exits 2 with stderr \"[error] usage --served-sha applies only to a --url target; package target mode (--artefact <tgz> | --package <dir>) has no served URL\", with or without --hand, before any pack or install.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "restate in place to: Whenever the target is not a --url (a directory, a tarball, or a name@version: --artefact <tgz>, or --package <dir | tarball | name@version> with no --url), --engine exits 2 with stderr \"[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\" and --served-sha exits 2 with stderr \"[error] usage --served-sha applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\", with or without --hand, before any pack, install or engine call."
+        },
+        {
+          "letter": "b",
+          "text": "keep package target mode only"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T16:24:39.410Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-3 ruling 3: decision 3 wins, every non-URL target). Every other sentence of AC-19005-5 is unchanged; TC-261-verify-run-loopback-flags-url-only retargeted to the renamed test, which adds --package <tarball file> and --package <name@version>.",
+      "answeredAt": "2026-10-22T16:24:45.711Z",
+      "resolvedAt": "2026-10-22T16:24:45.711Z"
+    },
+    {
+      "id": 71,
+      "question": "(gate r2 BH-1) Add to AC-19005-6 the refusal of a --report outside the project root that ruling 1 names? Old text: AC-19005-6 named no such refusal; the added clause is inserted before \"; given the report path, or any component of it below the repo root, is a symbolic link\" and the rest stays word for word.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "add in place: given --report names a path that does not resolve to a file under the project root, it exits 4 with stderr \"finalise refused: verify report <path> is outside the project root\" before the file is read"
+        },
+        {
+          "letter": "b",
+          "text": "no wording change"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T16:24:39.609Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-1 ruling 1: the report path must resolve to a file under the project root; outside it exit 4 with a named reason; the lstat walk runs from the repo root). The symlink clause is unchanged; its \"below the repo root\" already names the symlinked project directory component.",
+      "answeredAt": "2026-10-22T16:24:45.907Z",
+      "resolvedAt": "2026-10-22T16:24:45.907Z"
+    },
+    {
+      "id": 72,
+      "question": "(gate r2 BH-2) Does AC-19005-7 need a restatement to cover a single-branch clone with no trunk ref and the PR branch head after the merge into origin/main?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no: \"a Hand: builder commit on the branch\" names the builder commit in both shapes, and both runs are on a branch other than main or master"
+        },
+        {
+          "letter": "b",
+          "text": "restate it"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-230",
+      "addedAt": "2026-10-22T16:24:39.804Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-2 ruling 2: with no trunk ref collect over all of HEAD history; a merge into the trunk is covered by the same walk). AC-19005-7 is not changed (TC-261-provenance-kept-pre-merge).",
+      "answeredAt": "2026-10-22T16:24:46.108Z",
+      "resolvedAt": "2026-10-22T16:24:46.108Z"
     }
   ]
 }

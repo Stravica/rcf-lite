@@ -288,7 +288,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // US-19102 and US-19201 (223 -> 230).
   // Suite-as-probe DEFINE (2026-10-19) added US-19301 and US-19302 (230 -> 232).
   // Schemas-090 DEFINE (2026-10-20) added US-19401 (232 -> 233).
-  assert.equal(tree.userStories.length, 233);
+  // Pre-merge Finalise DEFINE (2026-10-22) added US-19005 (233 -> 234).
+  assert.equal(tree.userStories.length, 234);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -375,7 +376,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Per-FBS finalise scope (2026-10-12, REQ-165) added ADR-4147 (70 -> 71).
   // Finalise-admin DEFINE (2026-10-16) added ADR-4148 and ADR-4149 (71 -> 73).
   // Suite-as-probe DEFINE (2026-10-19) added ADR-4150 (73 -> 74).
-  assert.equal(tree.adrs.length, 74);
+  // Pre-merge Finalise DEFINE (2026-10-22) added ADR-4151 (74 -> 75).
+  assert.equal(tree.adrs.length, 75);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -455,7 +457,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Suite-as-probe DEFINE (2026-10-19) added FBS-225 and FBS-226 (114 -> 116).
   // Schemas-090 DEFINE (2026-10-20) added FBS-227 (116 -> 117).
   // Schemas-090 DEFINE close (2026-10-20) split FBS-227 by ledger 52, adding FBS-228 and FBS-229 (117 -> 119).
-  assert.equal(tree.fbsItems.length, 119);
+  // Pre-merge Finalise DEFINE (2026-10-22) added FBS-230 (119 -> 120).
+  assert.equal(tree.fbsItems.length, 120);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -584,7 +587,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // user story, binding the 44 AC skeletons (191 -> 198).
   // Suite-as-probe DEFINE (2026-10-19) added TS-258 and TS-259 (198 -> 200).
   // Schemas-090 DEFINE (2026-10-20) added TS-260 (200 -> 201).
-  assert.equal(tree.testSuites.length, 201);
+  // Pre-merge Finalise DEFINE (2026-10-22) added TS-261 (201 -> 202).
+  assert.equal(tree.testSuites.length, 202);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

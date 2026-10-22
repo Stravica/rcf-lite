@@ -451,14 +451,19 @@ function pushRunbook(lines, bundle) {
   lines.push('Review MERGE and a Test PASS at the same head.', '');
 
   lines.push('### Stage 5 - Finalise', '');
-  lines.push('Hand: stage-keeper. CI green; PR merged per the driving workflow\'s');
-  lines.push('convention. After the merge:', '');
+  lines.push('Hand: stage-keeper. On the PR branch before the merge, with CI green on');
+  lines.push('the PR head and a Review MERGE and a Test PASS at the same head:', '');
   lines.push(`    rcf build mark ${fbsId} complete`, '');
   lines.push('This refuses (exit 3, missingCodeNodes) if any in-scope acceptance');
   lines.push('criterion still carries no Code Node - go back to Stage 2 and author it,');
   lines.push('or, for a genuinely no-code spec (docs-only, config-only), declare:', '');
   lines.push(`    rcf build mark ${fbsId} complete --no-code-nodes`, '');
   lines.push('Then promote complete -> verified by ingesting the committed Test-stage');
-  lines.push('report, naming the CI run that passed on the merged head:', '');
-  lines.push(`    rcf build finalise ${fbsId} --ci-run <ref>`);
+  lines.push('report, naming the CI run that passed on the PR head the report names:', '');
+  lines.push(`    rcf build finalise ${fbsId} --ci-run <ref>`, '');
+  lines.push('A loopback report target (localhost, 127.0.0.0/8, ::1) is accepted when');
+  lines.push('the report names the engine, the port and the served sha');
+  lines.push('(rcf verify run --engine <name> --served-sha <sha>). Commit the verified');
+  lines.push('write on the branch, then merge the PR per the driving workflow\'s');
+  lines.push('convention; the merge carries verified.');
 }

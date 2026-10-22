@@ -1,0 +1,129 @@
+{
+  "createdAt": "2026-10-22T11:21:26.487Z",
+  "updatedAt": "2026-10-22T16:24:21.699Z",
+  "purpose": "Bind one red test per criterion of US-19005 (FBS-230), each driving bin/rcf.js over fixture git repositories with a bare local remote and servers on 127.0.0.1, so the Build hand makes them green against the pre-merge Finalise rule of ADR-4151.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19005-1",
+    "AC-19005-2",
+    "AC-19005-3",
+    "AC-19005-4",
+    "AC-19005-5",
+    "AC-19005-6",
+    "AC-19005-7",
+    "AC-19005-8",
+    "AC-19005-9",
+    "AC-19005-10"
+  ],
+  "id": "TS-261",
+  "usId": "US-19005",
+  "title": "Pre-merge Finalise and loopback targets: rcf build finalise promotes on the PR branch, accepts a loopback report naming engine, port and served sha, refuses an uncommitted report, keeps provenance, confirms on main after a merge commit, keeps --allow-pre-merge as a no-op; rcf verify run records the loopback fields; the shipped text says so",
+  "testCases": [
+    {
+      "id": "TC-261-pre-merge-promotes",
+      "acId": "AC-19005-1",
+      "description": "rcf build finalise <fbs-id> --ci-run <ref> on a feature or hotfix branch whose HEAD contains the report head exits 0 with no flag, writes verified on the branch, prints the verified-from line, no off-trunk refusal, no C-26 line, spawns nothing but git",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-1: on a branch other than main or master whose HEAD contains the report head, rcf build finalise <fbs-id> --ci-run <ref> exits 0 with no flag, writes verified on the branch and prints the verified-from line, with no \"not a default trunk\" refusal, no claim C-26 line and nothing but git spawned"
+    },
+    {
+      "id": "TC-261-loopback-accepted",
+      "acId": "AC-19005-2",
+      "description": "a committed loopback report (each loopback form) naming target.engine, target.port and target.servedSha equal to headSha promotes: exit 0, verified, no \"is loopback\"",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-2: a committed VerifyReport with a loopback target naming target.engine, target.port and target.servedSha equal to its headSha, hand verifier, PASS with ship authority, promotes: exit 0, verified, the verified-from line, no \"is loopback\""
+    },
+    {
+      "id": "TC-261-loopback-missing-field",
+      "acId": "AC-19005-3",
+      "description": "a committed loopback report lacking engine, port or servedSha exits 4 with \"finalise refused: loopback report target <url> names no target.<field>\", FBS byte-identical; guard: a non-loopback report needs none",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-3: a committed loopback VerifyReport lacking target.engine, target.port or target.servedSha refuses exit 4 with \"finalise refused: loopback report target <url> names no target.<field>\" (first missing in the order engine, port, servedSha), the FBS byte-identical"
+    },
+    {
+      "id": "TC-261-served-sha-mismatch",
+      "acId": "AC-19005-4",
+      "description": "a committed loopback report whose target.servedSha is not its headSha exits 4 with \"finalise refused: report target.servedSha <sha7> is not the report head <sha7>\", FBS byte-identical",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-4: a committed loopback VerifyReport naming target.engine and target.port whose target.servedSha is not its headSha refuses exit 4 with \"finalise refused: report target.servedSha <served sha7> is not the report head <head sha7>\", the FBS byte-identical"
+    },
+    {
+      "id": "TC-261-verify-run-records-loopback-fields",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run --hand verifier --url <loopback> --engine <name> --served-sha <HEAD> records target { kind, url, engine, port, servedSha }",
+      "status": "failing",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: rcf verify run --hand verifier --url <loopback-url> --engine <name> --served-sha <committed HEAD> records target { kind \"url\", url, engine, port, servedSha } in rcf/verify-reports/<fbs-id>/<head12>.json"
+    },
+    {
+      "id": "TC-261-verify-run-served-sha-refused",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run --served-sha other than the full committed HEAD exits 4 with \"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\", no report, no probe",
+      "status": "failing",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: a --served-sha that is not the full sha of the committed HEAD exits 4 with \"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\", writing no report and sending no probe"
+    },
+    {
+      "id": "TC-261-verify-run-loopback-usage",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run --hand with a loopback --url and no --engine or no --served-sha exits 2 naming the flag, no report, no probe",
+      "status": "failing",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: a loopback --url with --hand exits 2 with \"[error] usage --engine <name> is required with --hand and a loopback --url\" with no --engine, and \"[error] usage --served-sha <sha> is required with --hand and a loopback --url\" with no --served-sha, writing no report and sending no probe"
+    },
+    {
+      "id": "TC-261-report-committed-at-head",
+      "acId": "AC-19005-6",
+      "description": "a report not committed in HEAD (newest on disk or --report) or differing from its committed bytes exits 4 with the named message, FBS byte-identical; guard: the committed report promotes",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-6: a report on disk but not committed in HEAD refuses exit 4 with \"finalise refused: verify report <path> is not committed at HEAD\", and a committed report whose bytes on disk differ refuses exit 4 with \"finalise refused: verify report <path> differs from its committed bytes at HEAD\", the FBS byte-identical"
+    },
+    {
+      "id": "TC-261-provenance-kept-pre-merge",
+      "acId": "AC-19005-7",
+      "description": "on a branch, a builder Hand-Id equal to verifierId, an over-age report and an uncontained head each exit 4 with their message (\"re-verify this head\"), FBS byte-identical, nothing but git spawned",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-7: on a branch other than main or master Finalise keeps provenance: a builder Hand-Id equal to verifierId, a report older than --max-report-age and a report head not contained in HEAD each exit 4 with their message, the FBS byte-identical and nothing but git spawned"
+    },
+    {
+      "id": "TC-261-merged-main-confirm",
+      "acId": "AC-19005-8",
+      "description": "verified on the branch, merged with --no-ff, rcf build finalise on main confirms: exit 0, verified-from line, FBS byte-identical, clean tree, nothing but git spawned",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-8: after Finalise writes verified on the branch and the branch merges into main with --no-ff, rcf build finalise <fbs-id> --ci-run <ref> on main confirms: exit 0, the verified-from line, the FBS byte-identical, a clean tree, nothing but git spawned"
+    },
+    {
+      "id": "TC-261-allow-pre-merge-no-op",
+      "acId": "AC-19005-9",
+      "description": "rcf build finalise with --allow-pre-merge gives the same exit, write and refusal as without it, one deprecation line, no C-26 output",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-9: --allow-pre-merge is accepted and changes nothing: the same exit, write and refusal as without it, exactly one deprecation line on stderr, and no output naming claim C-26 or \"records the pre-merge decision\""
+    },
+    {
+      "id": "TC-261-shipped-text-pre-merge",
+      "acId": "AC-19005-10",
+      "description": "finalise HELP, build HELP, guidance build-cycle, playbook sections 6 and 7, the managed block and the bundle runbook Stage 5 say \"on the PR branch before the merge\" and name loopback with a served sha; none carries an after-the-merge Finalise shape",
+      "status": "failing",
+      "testPointer": "test/guidance/premerge-finalise-text.test.js::AC-19005-10: rcf build finalise --help, rcf build --help, rcf guidance build-cycle, the playbook (sections 6 and 7), the managed block and the bundle runbook Stage 5 say \"on the PR branch before the merge\" and name loopback targets with a served sha, and none says \"the CI run that passed on the merged head\" or puts mark complete or finalise after the merge"
+    },
+    {
+      "id": "TC-261-e2e-loopback-verify-then-finalise-on-branch",
+      "acId": "AC-19005-1",
+      "description": "End to end: a real rcf verify run --hand verifier against a server on 127.0.0.1 with --engine and --served-sha HEAD writes the loopback report; committed on the feature branch, rcf build finalise on that branch promotes",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-1, AC-19005-2 and AC-19005-5 (end to end): a real rcf verify run --hand verifier --url http://127.0.0.1:<port> --engine --served-sha HEAD writes a loopback report naming engine, port and served sha; committed on the feature branch, rcf build finalise <fbs-id> --ci-run <ref> on that branch promotes it to verified"
+    },
+    {
+      "id": "TC-261-e2e-merge-confirm",
+      "acId": "AC-19005-8",
+      "description": "End to end: the loopback report verified on the feature branch, merged with --no-ff, confirms on main with exit 0 and no write",
+      "status": "failing",
+      "testPointer": "test/finalise/premerge-loopback-finalise.test.js::AC-19005-8 (end to end): the loopback report verified on the feature branch, merged into main with --no-ff, confirms on main with exit 0 and no write"
+    },
+    {
+      "id": "TC-261-verify-run-loopback-flags-url-only",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run refuses --engine and --served-sha whenever the target is not a --url (a directory, a tarball or a name@version: --artefact <tgz>, --package <dir>, --package <tarball file>, --package <name@version>) with a usage error, exit 2, naming the flag, with or without --hand, before any pack, install or engine call, writing no report",
+      "status": "failing",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: whenever the target is not a --url (a directory, a tarball or a name@version) --engine and --served-sha each exit 2 with \"[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\" (and the same for --served-sha), with or without --hand, before any pack, install or engine call, writing no report"
+    }
+  ],
+  "status": "draft"
+}

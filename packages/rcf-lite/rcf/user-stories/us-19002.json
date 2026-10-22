@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:20.312Z",
-  "updatedAt": "2026-10-16T12:48:46.102Z",
+  "updatedAt": "2026-10-22T11:05:08.733Z",
   "description": "User story under REQ-190 for the administrative Finalise (FBS-220). rcf build finalise reads the report, checks preconditions and provenance and writes verified; it spawns no verify subprocess and no agent CLI. Every refusal names its reason, exits 4 (or 3 for validation, 2 for usage) and leaves the FBS unchanged.",
   "asA": "the stage-keeper, or any hand it names, after the merge",
   "iWant": "Finalise to be a deterministic check of recorded evidence that any worker can run",
@@ -11,7 +11,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19002-1",
-      "description": "[happy] Given an FBS at complete, HEAD on the default branch containing the report head, every bound AC with a Code Node, and a valid VerifyReport with hand \"verifier\", a non-loopback target, verdict PASS with ship authority and finishedAt within 7 days, when rcf build finalise <fbs-id> --ci-run <ref> runs, then executionStatus becomes verified, stdout carries \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", it exits 0, and no child process other than git is spawned.",
+      "description": "[happy] Given an FBS at complete, HEAD containing the report head, every bound AC with a Code Node, and a valid VerifyReport with hand \"verifier\", verdict PASS with ship authority and finishedAt within 7 days, when rcf build finalise <fbs-id> --ci-run <ref> runs, then executionStatus becomes verified, stdout carries \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", it exits 0, and no child process other than git is spawned.",
       "testable": true,
       "ownerRef": {
         "tacId": "TAC-4148-test-stage-verify-finalise",
@@ -25,7 +25,7 @@
     },
     {
       "id": "AC-19002-3",
-      "description": "[failure] Given a report whose headSha is neither an ancestor of HEAD nor tree-equal to a commit HEAD contains, when Finalise runs, then it exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify the merged head\"; a target that is loopback (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0) exits 4 with \"finalise refused: report target <url> is loopback\"; a finishedAt older than --max-report-age (default 7 days) exits 4 with \"finalise refused: report is <n> days old\".",
+      "description": "[failure] Given a report whose headSha is neither an ancestor of HEAD nor tree-equal to a commit HEAD contains, when Finalise runs, then it exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\"; a finishedAt older than --max-report-age (default 7 days) exits 4 with \"finalise refused: report is <n> days old\".",
       "testable": true
     },
     {
@@ -35,7 +35,7 @@
     },
     {
       "id": "AC-19002-5",
-      "description": "[failure] Given --ci-run absent, the FBS not at complete, HEAD off the default branch, or a bound AC without a Code Node, when Finalise runs, then it exits 4 (\"ci evidence missing: pass --ci-run <ref>\"), 4 (the existing not-complete message), 4 (the existing off-trunk message) and 3 (\"missing Code Nodes: <ac-ids>\") respectively; a report that fails VerifyReport v1 validation exits 3 naming the field.",
+      "description": "[failure] Given --ci-run absent, the FBS not at complete, or a bound AC without a Code Node, when Finalise runs, then it exits 4 (\"ci evidence missing: pass --ci-run <ref>\"), 4 (the existing not-complete message) and 3 (\"missing Code Nodes: <ac-ids>\") respectively; a report that fails VerifyReport v1 validation exits 3 naming the field.",
       "testable": true
     },
     {

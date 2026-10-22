@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-885",
+  "path": "guidance/build-cycle-playbook.md",
+  "implementsAcIds": [
+    "AC-19005-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-22T12:12:07.789Z",
+  "updatedAt": "2026-10-22T12:12:07.789Z"
+}

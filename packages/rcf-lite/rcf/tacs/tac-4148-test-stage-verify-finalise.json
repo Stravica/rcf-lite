@@ -1,10 +1,10 @@
 {
   "createdAt": "2026-10-16T12:44:24.006Z",
-  "updatedAt": "2026-10-17T05:21:27.869Z",
-  "purpose": "Implement ADR-4148: the verifier hand produces a Test-stage verify report before merge and Finalise ingests it after merge to write verified deterministically, with provenance checks and the bundle --next backstop.",
+  "updatedAt": "2026-10-22T11:05:34.158Z",
+  "purpose": "Implement ADR-4148 as amended by ADR-4151: the verifier hand produces a Test-stage verify report before merge and Finalise ingests it on the PR branch before the merge to write verified deterministically, with provenance checks and the bundle --next backstop.",
   "responsibilities": [
     "src/verify/cli/run.js: --hand <name> stamps the hand and writes a VerifyReport v1 (headSha from git rev-parse HEAD, target, mode, hand, verifierId) to rcf/verify-reports/<fbs-id>/<headSha12>.json, with --fbs naming exactly one build spec; --out is refused with --hand.",
-    "src/finalise/ingest.js: loadVerifyReport and checkReportProvenance (ancestry or tree equality against HEAD, loopback target refusal, hand separation, age window) as pure functions over git lookups.",
+    "src/finalise/ingest.js: loadVerifyReport and checkReportProvenance (the report committed at HEAD with the bytes on disk, ancestry or tree equality against HEAD, a loopback target accepted only with engine, port and servedSha equal to headSha, hand separation, age window) as pure functions over git lookups.",
     "src/cli/finalise.js: the default path reads the report and spawns nothing; --mode agentScreenshotCritique and --mode deterministic leave Finalise (they belong to rcf verify run); every refusal names its reason and exit code.",
     "src/cli/build.js: bundle --next refuses while a merged spec inside the backstop window is complete and not verified; --allow-unverified \"<reason>\" proceeds and records the override."
   ],
@@ -13,12 +13,12 @@
     {
       "name": "rcf verify run (Test stage)",
       "kind": "cliCommand",
-      "description": "usage: rcf verify run --url <preview-or-version-url> --fbs <fbs-id> --mode <deterministic|agentScreenshotCritique> --hand verifier --verifier-id <text> [--parity-env <env>]\nWrites a VerifyReport v1 to rcf/verify-reports/<fbs-id>/<headSha12>.json (--out is refused with --hand) and prints \"verify report: <path> <verdict> <verified>/<total>\". Exit 0 report written and verdict PASS, 4 report written and verdict not PASS, 2 usage, 1 IO."
+      "description": "usage: rcf verify run --url <preview-or-version-url> --fbs <fbs-id> --mode <deterministic|agentScreenshotCritique> --hand verifier --verifier-id <text> [--engine <name> --served-sha <sha>] [--parity-env <env>]\nWrites a VerifyReport v1 to rcf/verify-reports/<fbs-id>/<headSha12>.json (--out is refused with --hand) and prints \"verify report: <path> <verdict> <verified>/<total>\". A URL target records target.engine (--engine), target.port (the URL port, or 80 / 443 by scheme) and target.servedSha (--served-sha) when given; a loopback --url with --hand needs --engine and --served-sha (exit 2 naming the missing flag), and a --served-sha that is not the full sha of the committed HEAD exits 4 (ADR-4151, AC-19005-5). Exit 0 report written and verdict PASS, 4 report written and verdict not PASS or a refusal, 2 usage, 1 IO."
     },
     {
       "name": "rcf build finalise",
       "kind": "cliCommand",
-      "description": "usage: rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]\nIngests the Test-stage verify report for the FBS and writes executionStatus verified when every precondition and provenance check holds. Spawns no verify subprocess and no agent CLI; its only child processes are git lookups. Exit 0 promoted, 4 refused (not complete, not on the default branch, report missing, report head not contained in HEAD, loopback target, verifier hand equals builder hand, report too old, verdict not PASS, ci evidence missing), 3 report or tree fails validation or missing Code Nodes, 2 usage."
+      "description": "usage: rcf build finalise <fbs-id> --ci-run <ref> [--report <path>] [--max-report-age <days>]\nIngests the Test-stage verify report for the FBS and writes executionStatus verified when every precondition and provenance check holds, on any branch: it runs on the PR branch at the PR head before the merge and the merge carries verified; a re-run on the default branch after a merge commit confirms with no write (ADR-4151). --ci-run names a green CI run on the PR head the report names (on the confirm, the merged head run); it is recorded on the verified line only and never fetched. --allow-pre-merge is a no-op that prints one deprecation line. Spawns no verify subprocess and no agent CLI; its only child processes are git lookups. Exit 0 promoted or confirmed, 4 refused (ci evidence missing, not complete, report missing, report not committed at HEAD or differing from its committed bytes, report head not contained in HEAD, loopback target naming no target.engine, target.port or target.servedSha, target.servedSha not the report head, verifier hand equals builder hand, report too old, verdict not PASS or not ship authority, a blocking per-AC verdict), 3 report or tree fails validation or missing Code Nodes, 2 usage."
     },
     {
       "name": "rcf build bundle --next (backstop)",
@@ -33,7 +33,7 @@
     {
       "name": "VerifyReport",
       "kind": "recordShape",
-      "description": "The Test-stage verify report.\nfields: reportVersion (1), fbsId, headSha, target { kind: url | package, url, packageRef }, mode, hand, verifierId, startedAt, finishedAt, rcfLiteVersion, verdict, verdictAuthority, runStats { counts { verified, failed, skipped, total } }, perAc [ { acId, result: pass | fail | skipped | critiqueOnly | critiqued, probe, evidence } ]\nnotes: rcf-lite-local; hand is one of the five estate hands and must be verifier for Finalise to ingest it."
+      "description": "The Test-stage verify report.\nfields: reportVersion (1), fbsId, headSha, target { kind: url | package, url, packageRef, engine, port, servedSha }, mode, hand, verifierId, startedAt, finishedAt, rcfLiteVersion, verdict, verdictAuthority, runStats { counts { verified, failed, skipped, total } }, perAc [ { acId, result: pass | fail | skipped | critiqueOnly | critiqued, probe, evidence } ]\nnotes: rcf-lite-local; hand is one of the five estate hands and must be verifier for Finalise to ingest it. A loopback url target must carry engine (free text, the dev server), port (integer) and servedSha (equal to headSha, the committed HEAD served) for Finalise to ingest it (ADR-4151); a package target carries servedSha HEAD (FBS-226)."
     },
     {
       "name": "rcf/verify-reports/<fbs-id>/<headSha12>.json",
@@ -43,7 +43,7 @@
     {
       "name": "rcf guidance build-cycle",
       "kind": "cliCommand",
-      "description": "usage: rcf guidance build-cycle\nPrints the five-stage contract: Define (test-author), Build (builder), Review (reviewer), Test (verifier, rcf verify run and the committed report), Finalise (stage-keeper, CI green, merge, mark complete, rcf build finalise ingesting the report). Exit 0."
+      "description": "usage: rcf guidance build-cycle\nPrints the five-stage contract: Define (test-author), Build (builder), Review (reviewer), Test (verifier, rcf verify run and the committed report, a loopback target naming its engine, port and served sha), Finalise (stage-keeper, CI green on the PR head, rcf build mark complete and rcf build finalise ingesting the report on the PR branch before the merge, then the merge carrying verified). Exit 0."
     },
     {
       "name": "managed agent-instructions block",
