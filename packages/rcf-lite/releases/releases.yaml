@@ -44,10 +44,11 @@ latest: "0.36.0"
 releases:
   - version: "0.36.0"
     date: "2026-10-22"
-    breaking: false
+    breaking: true
     headlines:
-      - "rcf-lite 0.36.0 runs Finalise on the PR branch before the merge: rcf build finalise <fbs-id> --ci-run <ref> promotes on any branch whose HEAD contains the committed Test-stage report's head, and the merge carries verified. A loopback verify target is accepted when the report names its engine, port and served sha, which rcf verify run --engine <name> --served-sha <sha> records."
-      - "Rerun rcf init after installing, or run rcf doctor --fix: the managed agent-instructions block now says Finalise runs on the PR branch before the merge, so rcf doctor reports a stale hash until the block is refreshed."
+      - "rcf-lite 0.36.0 runs Finalise on the PR branch before the merge: rcf build finalise <fbs-id> --ci-run <ref> promotes on any branch whose HEAD contains the committed Test-stage report's head, and the merge carries verified. A loopback verify target is accepted when the report names its engine, port and served sha, the off-trunk refusal is gone, and --allow-pre-merge is deprecated and changes nothing."
+      - "Breaking: rcf verify run --hand against a loopback --url now needs --engine <name> and --served-sha <sha> (exit 2 without them), so add both to any such invocation in scripts and CI. Finalise now refuses a report that is not committed at HEAD, differs from its committed bytes, lies outside the project root or is read through a symlink, and a report whose verifier id matches a builder's on a merged or fast-forwarded head (exit 4)."
+      - "Rerun rcf init after installing, or run rcf doctor --fix: the managed agent-instructions block now says Finalise runs on the PR branch before the merge, so rcf doctor reports a stale hash until the block is refreshed. The @stravica-ai/rcf-schemas 0.9.0 pin is unchanged and chain files need no migration."
     minAgentAction: rerun-init
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
