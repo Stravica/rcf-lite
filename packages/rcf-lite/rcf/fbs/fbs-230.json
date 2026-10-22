@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:04:19.719Z",
-  "updatedAt": "2026-10-22T11:22:40.505Z",
+  "updatedAt": "2026-10-22T18:51:31.440Z",
   "summary": "rcf build finalise runs on the PR branch before the merge and accepts a loopback report that names its engine, port and served sha (US-19005, ADR-4151, operator ruling 2026-10-21); rcf verify run records those fields; the ingested report must be committed at HEAD; --allow-pre-merge becomes a no-op; claim C-26 reversed (AC-16502-3 restated and rebound here). Delivers AC-19005-1 to AC-19005-10 and AC-16502-3.",
   "approach": "Remove the default-branch refusal from src/cli/finalise.js and make --allow-pre-merge a no-op with one deprecation line; in src/finalise/ingest.js replace the unconditional loopback refusal with the engine, port and served-sha rule, add the committed-at-HEAD check on the selected report, and reword the containment and age messages to \"re-verify this head\"; in src/verify/cli/run.js add --engine and --served-sha, record target.engine, target.port and target.servedSha for a URL target, refuse a loopback --hand run without them (exit 2) and a served sha other than the committed HEAD (exit 4); then rewrite the shipped Finalise text (finalise and build HELP, guidance, playbook, managed block, bundle runbook Stage 5, README, verify reference) to the pre-merge rule.",
   "deliverables": [
@@ -46,6 +46,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 226,
-  "executionStatus": "inProgress",
+  "executionStatus": "verified",
   "title": "Pre-merge Finalise on the PR branch and accepted loopback verify targets"
 }
