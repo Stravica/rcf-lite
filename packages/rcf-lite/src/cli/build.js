@@ -109,8 +109,9 @@ story', use: rcf audit trace <us-id> --forward --format json
 
 Lifecycle (forward-only): notStarted -> inProgress -> complete -> verified.
 The mark ladder caps at 'complete': 'verified' is refused (exit 4)
-because it is written only by the finalise gate (rcf build finalise)
-after an independent verify run. Backward transitions are also refused
+because it is written only by the finalise gate (rcf build finalise),
+which ingests the verifier's committed Test-stage report on the PR branch
+before the merge. Backward transitions are also refused
 (exit 4); the deliberate-correction / manual-override escape hatch is:
 rcf define update <fbs-id> --set executionStatus=<status>
 

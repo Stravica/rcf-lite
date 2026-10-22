@@ -228,8 +228,8 @@ rule is that register applied to findings.
 The failure modes the method exists to guard against are agent-side
 self-checks, not defects for the operator to spot and name. Skipping a
 layer, gold-plating past the AC set, editing a test to pass instead of
-fixing the code, marking complete before the merge, drifting off the
-bundle, inventing a fact the stakeholder never gave you, treating a
+fixing the code, merging before Finalise has written verified on the
+PR branch, drifting off the bundle, inventing a fact the stakeholder never gave you, treating a
 rubber-stamp read as review, marking a stage done without its referee
 output: you catch each one before the stage ends. Before you commit a
 stage, run the self-check: every in-scope AC maps to a diff location;
@@ -366,10 +366,11 @@ tests and their TS / TC bindings (Define), the builder writes production
 code, Code Nodes and code-hygiene unit tests only (Build), the reviewer
 runs the scoped gate and `rcf audit separation` (Review), the verifier
 runs `rcf verify run --fbs <fbs-id> --hand verifier` against the preview
-or version host and commits the report (Test), and the stage-keeper
-merges on a Review MERGE and a Test PASS, then runs
+or version host and commits the report (Test), and the stage-keeper,
+on a Review MERGE and a Test PASS with CI green, runs
 `rcf build mark <fbs-id> complete` and
-`rcf build finalise <fbs-id> --ci-run <ref>` (Finalise). Every stage
+`rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch before the
+merge, then merges; the merge carries `verified` (Finalise). Every stage
 ends in a commit. Drive the whole
 queue, not one item. After each item's Finalise, loop `rcf build bundle --next`
 until it reports the queue complete. If your harness can spawn
@@ -388,7 +389,10 @@ that reads the code. Method: `rcf guidance build-cycle-playbook`,
 section 16. It is the cheap in-loop check between builds, and it is not
 the independent verification gate. `verified` is written only by
 `rcf build finalise`, from the Test-stage report the verifier hand
-committed under `rcf/verify-reports/`.
+committed under `rcf/verify-reports/`. A loopback verify target (a local
+dev server such as `wrangler dev` on localhost) is accepted when the
+report names its engine, port and served sha
+(`rcf verify run --engine <name> --served-sha <sha>`).
 
 If context gets unreliable on a large build, do not stall. Write a
 next-session handover doc (queue state, the in-progress item, the next
