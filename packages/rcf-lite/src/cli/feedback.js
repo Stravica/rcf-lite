@@ -37,6 +37,7 @@ import {
   appendEntry,
   appendState,
   ensureGitignore,
+  mainCheckoutRoot,
   mintUniqueEntryId,
   newEntryId,
   readAskLedger,
@@ -193,21 +194,30 @@ export async function main(argv, deps = {}) {
   const sub = argv[0];
   const rest = argv.slice(1);
   const ctx = { stdout, stderr, cwd, env, now, rng, sessionId };
-  switch (sub) {
-    case 'add':      return handleAdd(rest, ctx);
-    case 'list':     return handleList(rest, ctx);
-    case 'status':   return handleStatus(rest, ctx);
-    case 'defer':    return handleDefer(rest, ctx);
-    case 'discard':  return handleDiscard(rest, ctx);
-    case 'preview':  return handlePreview(rest, ctx);
-    case 'submit':   return handleSubmit(rest, ctx);
-    case 'opt-in':   return handleOptToggle('opt-in', rest, ctx);
-    case 'opt-out':  return handleOptToggle('opt-out', rest, ctx);
-    case 'hook':     return handleHook(rest, ctx);
-    default:
-      stderr.write(`[error] usage unknown feedback sub-verb '${sub}'\n`);
-      stdout.write(HELP);
-      return 2;
+  try {
+    switch (sub) {
+      case 'add':      return await handleAdd(rest, ctx);
+      case 'list':     return await handleList(rest, ctx);
+      case 'status':   return await handleStatus(rest, ctx);
+      case 'defer':    return await handleDefer(rest, ctx);
+      case 'discard':  return await handleDiscard(rest, ctx);
+      case 'preview':  return await handlePreview(rest, ctx);
+      case 'submit':   return await handleSubmit(rest, ctx);
+      case 'opt-in':   return await handleOptToggle('opt-in', rest, ctx);
+      case 'opt-out':  return await handleOptToggle('opt-out', rest, ctx);
+      case 'hook':     return await handleHook(rest, ctx);
+      default:
+        stderr.write(`[error] usage unknown feedback sub-verb '${sub}'\n`);
+        stdout.write(HELP);
+        return 2;
+    }
+  } catch (err) {
+    // AC-16103-4: a worktree's held queue that cannot move into the main
+    // checkout stops every sub-verb (the hooks included) before it reads
+    // or writes the store; the held queue is left as it was.
+    if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED') throw err;
+    stderr.write(`[error] ${err.message}\n`);
+    return 1;
   }
 }
 
@@ -321,13 +331,19 @@ async function handleAdd(argv, ctx) {
 
   // Gitignore pre-write refusal, judged in the checkout that holds the
   // store (a linked worktree's queue lives in the main checkout,
-  // AC-16103-4). --force bypasses.
+  // AC-16103-4). A worktree that still holds a queue of its own (the main
+  // checkout does not ignore the store yet) is judged by the main checkout
+  // too, and refused. --force bypasses.
   if (!flags.force) {
     const holder = storeRoot(projectRoot);
-    const check = await ensureGitignore(holder);
-    if (!check.ok) {
-      const where = holder === projectRoot ? '' : ` in the main checkout ${holder}, which holds this worktree's feedback queue`;
-      stderr.write(`[error] usage ${check.reason}${where}. Run \`rcf doctor --fix\`${holder === projectRoot ? '' : ' there'} to add the managed .gitignore entry (or pass --force to write anyway).\n`);
+    const judged = mainCheckoutRoot(projectRoot) ?? holder;
+    const check = await ensureGitignore(judged);
+    if (!check.ok || judged !== holder) {
+      const reason = check.ok ? 'git does not ignore .rcf/feedback/' : check.reason;
+      const where = judged === projectRoot ? ''
+        : judged === holder ? ` in the main checkout ${judged}, which holds this worktree's feedback queue`
+          : ` in the main checkout ${judged}; this worktree holds a queue of its own, and the held entries move into the main checkout once it ignores .rcf/feedback/`;
+      stderr.write(`[error] usage ${reason}${where}. Run \`rcf doctor --fix\`${judged === projectRoot ? '' : ' there'} to add the managed .gitignore entry (or pass --force to write anyway).\n`);
       return 2;
     }
   }

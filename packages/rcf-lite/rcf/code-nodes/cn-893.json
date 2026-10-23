@@ -6,10 +6,11 @@
   ],
   "dependencies": [
     "CN-894",
-    "CN-895"
+    "CN-895",
+    "CN-897"
   ],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-23T11:15:44.870Z",
-  "updatedAt": "2026-10-23T14:54:55.337Z"
+  "updatedAt": "2026-10-23T16:31:57.000Z"
 }

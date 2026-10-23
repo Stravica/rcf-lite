@@ -73,34 +73,59 @@ export const feedbackGitignoreEntry = Object.freeze({
  * (when the main checkout holds the project, `rcf/manifest.json`), so an
  * entry outlives `git worktree remove`. A queue the worktree already holds
  * in its own `.rcf/feedback/` (as 0.36.0 left it) is moved into the main
- * checkout's store on the first call, once git ignores the store there, so
- * the move never leaves a file the main checkout would commit. Anywhere else
- * (the main checkout, no git, a main checkout without the project) it is
+ * checkout's store on the first call once git ignores the store there, so
+ * the move never leaves a file the main checkout would commit; until then
+ * the worktree keeps its held queue and this returns `projectRoot`. A move
+ * that fails throws (code `RCF_FEEDBACK_MOVE_FAILED`, naming the main
+ * checkout) and leaves the held queue as it was. Anywhere else (the main
+ * checkout, no git, a main checkout without the project) it is
  * `projectRoot` itself.
  *
  * @param {string} projectRoot
  * @returns {string}
  */
 export function storeRoot(projectRoot) {
+  const mainRoot = mainCheckoutRoot(projectRoot);
+  if (mainRoot === null || !existsSync(join(projectRoot, FEEDBACK_DIR))) return mainRoot ?? projectRoot;
+  if (!storeIgnored(mainRoot)) return projectRoot;
+  try {
+    moveHeldQueue(projectRoot, mainRoot);
+  } catch (err) {
+    const failure = new Error(`could not move this worktree's held feedback queue into the main checkout ${mainRoot}: ${err.message}`, { cause: err });
+    failure.code = 'RCF_FEEDBACK_MOVE_FAILED';
+    throw failure;
+  }
+  return mainRoot;
+}
+
+/**
+ * The same project path in the main checkout when `projectRoot` sits in a
+ * linked git worktree whose main checkout holds the project
+ * (`rcf/manifest.json`); null anywhere else (the main checkout itself, no
+ * git, a bare or separate-git-dir worktree, a main checkout without the
+ * project, or a read error).
+ *
+ * @param {string} projectRoot
+ * @returns {string | null}
+ */
+export function mainCheckoutRoot(projectRoot) {
   for (let top = resolve(projectRoot); ; top = dirname(top)) {
     const dotGit = join(top, '.git');
     if (existsSync(dotGit)) {
-      let gitDir;
       try {
-        if (statSync(dotGit).isDirectory()) return projectRoot;
-        gitDir = /^gitdir:\s*(.+)$/m.exec(readFileSync(dotGit, 'utf8'))?.[1]?.trim();
-        if (!gitDir) return projectRoot;
+        if (statSync(dotGit).isDirectory()) return null;
+        let gitDir = /^gitdir:\s*(.+)$/m.exec(readFileSync(dotGit, 'utf8'))?.[1]?.trim();
+        if (!gitDir) return null;
         gitDir = resolve(top, gitDir);
         const common = resolve(gitDir, readFileSync(join(gitDir, 'commondir'), 'utf8').trim());
         const mainRoot = join(dirname(common), relative(top, resolve(projectRoot)));
-        if (basename(common) !== '.git' || !existsSync(join(mainRoot, 'rcf', 'manifest.json'))) return projectRoot;
-        if (existsSync(join(projectRoot, FEEDBACK_DIR)) && storeIgnored(mainRoot)) moveHeldQueue(projectRoot, mainRoot);
+        if (basename(common) !== '.git' || !existsSync(join(mainRoot, 'rcf', 'manifest.json'))) return null;
         return mainRoot;
       } catch {
-        return projectRoot;
+        return null;
       }
     }
-    if (dirname(top) === top) return projectRoot;
+    if (dirname(top) === top) return null;
   }
 }
 
