@@ -46,6 +46,7 @@ import {
   readFeedbackSettings,
   storeExists,
   storeRoot,
+  withStoreLock,
   writeAskLedger,
   writeFeedbackSettings,
 } from '../feedback/store.js';
@@ -152,7 +153,10 @@ Common options:
 Exit codes:
   0  success
   1  a linked worktree's held queue could not move into the main
-     checkout's store (stderr names the error and the main checkout)
+     checkout's store (stderr names the error and the main checkout),
+     or another rcf feedback command still held the store when this
+     command's wait for it ran out (stderr names that command's
+     process id and the checkout; nothing was written)
   2  usage error (bad flags, unknown enum, oversize body, no ignore
      coverage without --force)
   3  add: --kind blueprint AND the target is absent from
@@ -218,7 +222,11 @@ export async function main(argv, deps = {}) {
     // checkout stops every sub-verb (the hooks included) before it reads
     // or writes the store; a held file is removed only once its content is
     // in the main checkout's store, and the next command completes the move.
-    if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED') throw err;
+    // A writer that finds the store lock still held by another running
+    // command once its wait runs out stops the same way, having written
+    // nothing (the message names that command's process id and the store's
+    // checkout).
+    if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED' && err?.code !== 'RCF_FEEDBACK_STORE_BUSY') throw err;
     stderr.write(`[error] ${err.message}\n`);
     return 1;
   }
@@ -404,100 +412,107 @@ async function handleAdd(argv, ctx) {
   }
 
   const recordedAt = ctx.now().toISOString().replace(/\.\d{3}Z$/, 'Z');
-  // F-slice-1-03 / ruling R2: 12-hex id with a uniqueness probe on
-  // the append. mintUniqueEntryId THROWS FEEDBACK_ID_EXHAUSTED if
-  // every attempt collides (fail-closed, fix round 2): a colliding
-  // id would violate R2's "no two rows share an id" shape, so we
-  // refuse the write and surface the fault instead of appending a
-  // duplicate row the reader would fold into a state transition.
-  let id;
-  try {
-    id = await mintUniqueEntryId(projectRoot, ctx.now(), ctx.rng);
-  } catch (err) {
-    if (err && err.code === 'FEEDBACK_ID_EXHAUSTED') {
-      stderr.write(`[error] usage ${err.message}\n`);
-      return 2;
+  // AC-16103-4 (decisions 84 to 86): the id probe, the append, the prune
+  // and the pending count run holding the store lock, so no other command
+  // changes the store between them. A lock another command still holds
+  // once the wait runs out throws RCF_FEEDBACK_STORE_BUSY before anything
+  // is written (the dispatcher exits 1).
+  return withStoreLock(projectRoot, async () => {
+    // F-slice-1-03 / ruling R2: 12-hex id with a uniqueness probe on
+    // the append. mintUniqueEntryId THROWS FEEDBACK_ID_EXHAUSTED if
+    // every attempt collides (fail-closed, fix round 2): a colliding
+    // id would violate R2's "no two rows share an id" shape, so we
+    // refuse the write and surface the fault instead of appending a
+    // duplicate row the reader would fold into a state transition.
+    let id;
+    try {
+      id = await mintUniqueEntryId(projectRoot, ctx.now(), ctx.rng);
+    } catch (err) {
+      if (err && err.code === 'FEEDBACK_ID_EXHAUSTED') {
+        stderr.write(`[error] usage ${err.message}\n`);
+        return 2;
+      }
+      throw err;
     }
-    throw err;
-  }
 
-  const entryPreFingerprint = {
-    id,
-    recordedAt,
-    sessionId: ctx.sessionId,
-    kind,
-    target: {
-      ref: target,
-      ...(kind === 'blueprint' ? {
-        effectiveSlug: record?.slug ?? target,
-        ...blueprintStamp,
-      } : {}),
-    },
-    anchor: flags.anchor ?? null,
-    symptomClass,
-    severity,
-    title,
-    body,
-    evidence: evidence.map((v) => classifyEvidence(v)),
-    environment,
-    askNow: Boolean(flags['ask-now']),
-  };
-  // F-slice-1-12: persist the fingerprint so `list --json`, `status`
-  // and any triage-side tooling can key off it without re-computing.
-  // The persisted value MUST equal what preview and submit compute
-  // from the same entry.
-  const fp = fingerprint(entryPreFingerprint);
-  const entry = {
-    ...entryPreFingerprint,
-    fingerprint: fp,
-    status: 'pending',
-    destination: destinationUnresolved
-      // Preserve the slice-1 shape ({ reason: 'unresolved' }) that
-      // existing tests and the preview-time re-resolve rely on; the
-      // resolver's granular reason (unknown-target vs no-issues-field
-      // vs no-github-source vs no-libraryprefix-record) is recomputed
-      // at preview and submit time.
-      ? { reason: 'unresolved', resolverReason: resolvedDestination.reason ?? 'unresolved' }
-      : {
-        repo: resolvedDestination.repo,
-        visibility: resolvedDestination.visibility,
-        kind: resolvedDestination.kind,
-        derived: resolvedDestination.derived,
-        ...(resolvedDestination.source ? { source: resolvedDestination.source } : {}),
-        ...(resolvedDestination.publisherContact ? { publisherContact: resolvedDestination.publisherContact } : {}),
+    const entryPreFingerprint = {
+      id,
+      recordedAt,
+      sessionId: ctx.sessionId,
+      kind,
+      target: {
+        ref: target,
+        ...(kind === 'blueprint' ? {
+          effectiveSlug: record?.slug ?? target,
+          ...blueprintStamp,
+        } : {}),
       },
-  };
+      anchor: flags.anchor ?? null,
+      symptomClass,
+      severity,
+      title,
+      body,
+      evidence: evidence.map((v) => classifyEvidence(v)),
+      environment,
+      askNow: Boolean(flags['ask-now']),
+    };
+    // F-slice-1-12: persist the fingerprint so `list --json`, `status`
+    // and any triage-side tooling can key off it without re-computing.
+    // The persisted value MUST equal what preview and submit compute
+    // from the same entry.
+    const fp = fingerprint(entryPreFingerprint);
+    const entry = {
+      ...entryPreFingerprint,
+      fingerprint: fp,
+      status: 'pending',
+      destination: destinationUnresolved
+        // Preserve the slice-1 shape ({ reason: 'unresolved' }) that
+        // existing tests and the preview-time re-resolve rely on; the
+        // resolver's granular reason (unknown-target vs no-issues-field
+        // vs no-github-source vs no-libraryprefix-record) is recomputed
+        // at preview and submit time.
+        ? { reason: 'unresolved', resolverReason: resolvedDestination.reason ?? 'unresolved' }
+        : {
+          repo: resolvedDestination.repo,
+          visibility: resolvedDestination.visibility,
+          kind: resolvedDestination.kind,
+          derived: resolvedDestination.derived,
+          ...(resolvedDestination.source ? { source: resolvedDestination.source } : {}),
+          ...(resolvedDestination.publisherContact ? { publisherContact: resolvedDestination.publisherContact } : {}),
+        },
+    };
 
-  await appendEntry(projectRoot, entry);
+    await appendEntry(projectRoot, entry);
 
-  // F-slice-1-09: prune discarded entries older than 30 days so the
-  // log does not grow unbounded (design 3.1 L137). The prune is a
-  // set of state transitions, not a rewrite of the JSONL; a discarded
-  // entry older than the window gains a new `pruned` state line so
-  // the reader's fold-by-id drops it from `list --all` counts too.
-  await pruneOldDiscarded(projectRoot, ctx.now());
+    // F-slice-1-09: prune discarded entries older than 30 days so the
+    // log does not grow unbounded (design 3.1 L137). The prune is a
+    // set of state transitions, not a rewrite of the JSONL; a discarded
+    // entry older than the window gains a new `pruned` state line so
+    // the reader's fold-by-id drops it from `list --all` counts too.
+    await pruneOldDiscarded(projectRoot, ctx.now());
 
-  // Count of pending entries after this write (fold-by-id read).
-  const all = await readEntries(projectRoot);
-  const pending = all.filter((e) => e.status === 'pending').length;
+    // Count of pending entries after this write (fold-by-id read).
+    const all = await readEntries(projectRoot);
+    const pending = all.filter((e) => e.status === 'pending').length;
 
-  stdout.write(`recorded ${id} (${pending} pending). Nothing sent.\n`);
+    stdout.write(`recorded ${id} (${pending} pending). Nothing sent.\n`);
 
-  if (targetUnknown) {
-    // Design 3.1 exit-3: --kind blueprint but the target does not
-    // appear on rcf/manifest.json:blueprints[]. The entry is still
-    // recorded so the operator can rewrite the target and re-preview.
-    stderr.write(`destination unresolved: ${target}\n`);
-    return 3;
-  }
-  if (destinationUnresolved) {
-    // Design 7 case 5: the target resolved to a library whose registry
-    // entry has no issuesRepo and no derivable github source. Entry is
-    // stamped unresolved and stays pending; slice 4 writes the bundle
-    // at submit time and prints the publisher contact.
-    stderr.write(`destination unresolved for library '${record?.libraryPrefix ?? '<unknown>'}': ${resolvedDestination.reason ?? 'unresolved'}. The entry is kept; \`rcf feedback submit\` will write a bundle instead of filing an issue.\n`);
-  }
-  return 0;
+    if (targetUnknown) {
+      // Design 3.1 exit-3: --kind blueprint but the target does not
+      // appear on rcf/manifest.json:blueprints[]. The entry is still
+      // recorded so the operator can rewrite the target and re-preview.
+      stderr.write(`destination unresolved: ${target}\n`);
+      return 3;
+    }
+    if (destinationUnresolved) {
+      // Design 7 case 5: the target resolved to a library whose registry
+      // entry has no issuesRepo and no derivable github source. Entry is
+      // stamped unresolved and stays pending; slice 4 writes the bundle
+      // at submit time and prints the publisher contact.
+      stderr.write(`destination unresolved for library '${record?.libraryPrefix ?? '<unknown>'}': ${resolvedDestination.reason ?? 'unresolved'}. The entry is kept; \`rcf feedback submit\` will write a bundle instead of filing an issue.\n`);
+    }
+    return 0;
+  });
 }
 
 /**
@@ -1688,69 +1703,75 @@ async function handleSubmit(argv, ctx) {
 
   // Write bundle files (whole-destination and per-entry).
   const generatedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
-  for (const [key, bundle] of bundleRowsByKey) {
-    // Round 4 (F-01, design R3c): `submit --dry-run` writes nothing
-    // under `.rcf/feedback/`, including outbox bundles for the
-    // unresolved-destination and whole-destination-fallback branches.
-    // Previously the dry-run gate on the create/comment path (L1340)
-    // let the bundle write path run unconditionally, so an
-    // `unresolved` entry produced a real outbox file on a dry-run.
-    if (flags['dry-run']) {
+  // AC-16001-1, AC-16103-4: the bundle writes and their state lines run
+  // holding the store lock (a dry run writes nothing and takes none).
+  const writeBundles = async () => {
+    for (const [key, bundle] of bundleRowsByKey) {
+      // Round 4 (F-01, design R3c): `submit --dry-run` writes nothing
+      // under `.rcf/feedback/`, including outbox bundles for the
+      // unresolved-destination and whole-destination-fallback branches.
+      // Previously the dry-run gate on the create/comment path (L1340)
+      // let the bundle write path run unconditionally, so an
+      // `unresolved` entry produced a real outbox file on a dry-run.
+      if (flags['dry-run']) {
+        const issuesUrl = bundle.destination.repo
+          ? `https://github.com/${bundle.destination.repo}/issues/new`
+          : '(no repo; paste to the library owner)';
+        const contactLine = bundle.destination.publisherContact
+          ? ` (contact: ${bundle.destination.publisherContact})`
+          : '';
+        stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> dry-run bundle ${issuesUrl}${contactLine}\n`);
+        continue;
+      }
+      let outboxPath;
+      try {
+        outboxPath = await writeBundle(projectRoot, bundle.destination, bundle.rows, {
+          generatedAt,
+          rcfLiteVersion,
+          reasonNotFiled: bundle.reason,
+        });
+      } catch (err) {
+        // Round 3 (AC-15601-4 regression): writeBundle throws
+        // FEEDBACK_BUNDLE_RESIDUAL when the safeguard's whole-bundle
+        // residual scan bites. The uncaught throw propagated all the
+        // way to the dispatcher and turned the exit code into 1; the
+        // documented shape is exit 3 (at least one entry pending),
+        // matching the per-entry residual path. Catch it here, keep
+        // every bundle row PENDING with residual:true, and let
+        // `summary.pending > 0 ? 3 : 0` return the 3.
+        if (/** @type {any} */ (err)?.code === 'FEEDBACK_BUNDLE_RESIDUAL') {
+          stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> pending (bundle-level residual secret; run \`rcf feedback preview\` and rewrite before submit)\n`);
+          stderr.write(`[safeguard] ${err.message}\n`);
+          for (const row of bundle.rows) {
+            await markResidual(projectRoot, row.entry.id, at(now), sessionId);
+            summary.pending += 1;
+          }
+          continue;
+        }
+        throw err;
+      }
       const issuesUrl = bundle.destination.repo
         ? `https://github.com/${bundle.destination.repo}/issues/new`
         : '(no repo; paste to the library owner)';
       const contactLine = bundle.destination.publisherContact
         ? ` (contact: ${bundle.destination.publisherContact})`
         : '';
-      stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> dry-run bundle ${issuesUrl}${contactLine}\n`);
-      continue;
-    }
-    let outboxPath;
-    try {
-      outboxPath = await writeBundle(projectRoot, bundle.destination, bundle.rows, {
-        generatedAt,
-        rcfLiteVersion,
-        reasonNotFiled: bundle.reason,
-      });
-    } catch (err) {
-      // Round 3 (AC-15601-4 regression): writeBundle throws
-      // FEEDBACK_BUNDLE_RESIDUAL when the safeguard's whole-bundle
-      // residual scan bites. The uncaught throw propagated all the
-      // way to the dispatcher and turned the exit code into 1; the
-      // documented shape is exit 3 (at least one entry pending),
-      // matching the per-entry residual path. Catch it here, keep
-      // every bundle row PENDING with residual:true, and let
-      // `summary.pending > 0 ? 3 : 0` return the 3.
-      if (/** @type {any} */ (err)?.code === 'FEEDBACK_BUNDLE_RESIDUAL') {
-        stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> pending (bundle-level residual secret; run \`rcf feedback preview\` and rewrite before submit)\n`);
-        stderr.write(`[safeguard] ${err.message}\n`);
-        for (const row of bundle.rows) {
-          await markResidual(projectRoot, row.entry.id, at(now), sessionId);
-          summary.pending += 1;
-        }
-        continue;
+      stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> bundle ${outboxPath} | ${issuesUrl}${contactLine}\n`);
+      for (const row of bundle.rows) {
+        await appendState(projectRoot, {
+          id: row.entry.id,
+          at: at(now),
+          status: 'bundled',
+          outboxPath,
+          reason: bundle.reason,
+          sessionId,
+        });
+        summary.bundled += 1;
       }
-      throw err;
     }
-    const issuesUrl = bundle.destination.repo
-      ? `https://github.com/${bundle.destination.repo}/issues/new`
-      : '(no repo; paste to the library owner)';
-    const contactLine = bundle.destination.publisherContact
-      ? ` (contact: ${bundle.destination.publisherContact})`
-      : '';
-    stdout.write(`${bundle.rows.map((r) => r.entry.id).join(', ')} -> bundle ${outboxPath} | ${issuesUrl}${contactLine}\n`);
-    for (const row of bundle.rows) {
-      await appendState(projectRoot, {
-        id: row.entry.id,
-        at: at(now),
-        status: 'bundled',
-        outboxPath,
-        reason: bundle.reason,
-        sessionId,
-      });
-      summary.bundled += 1;
-    }
-  }
+  };
+  if (flags['dry-run'] || bundleRowsByKey.size === 0) await writeBundles();
+  else await withStoreLock(projectRoot, writeBundles);
 
   return summary.pending > 0 ? 3 : 0;
 }
@@ -1941,12 +1962,12 @@ async function writeBundle(projectRoot, destination, rows, meta) {
     ? destination.repo.replace(/[^A-Za-z0-9._-]+/g, '-').toLowerCase()
     : 'unresolved';
   // A per-entry fallback bundle (retry-then-fail) uses the entry id as
-  // a disambiguator so two fallbacks in the same second do not
-  // overwrite each other. A whole-destination bundle keeps the base
-  // filename shape.
+  // a disambiguator; a whole-destination bundle keeps the base filename
+  // shape. A name already taken (a second bundle in the same second, a
+  // bundle the held-queue move kept) gets a `+<n>` suffix from
+  // writeNewBundle, so no bundle is ever overwritten (AC-16001-1).
   const tail = rows.length === 1 ? `-${rows[0].entry.id}` : '';
   const filename = `${stampSafe}-${slug}${tail}.md`;
-  const path = resolve(dir, filename);
   const bundleDestination = {
     repo: destination.repo,
     visibility: destination.visibility === 'private' ? 'private' : (destination.repo ? 'public' : 'unresolved'),
@@ -1975,8 +1996,35 @@ async function writeBundle(projectRoot, destination, rows, meta) {
     /** @type {any} */ (err).code = 'FEEDBACK_BUNDLE_RESIDUAL';
     throw err;
   }
-  await writeFile(path, text, 'utf8');
-  return path;
+  return writeNewBundle(dir, filename, filename.length - '.md'.length, text);
+}
+
+/**
+ * Create a bundle file in `dir` by exclusive create, never over an
+ * existing file (AC-16103-1, AC-16001-1): under `name` when that name is
+ * free, else under `name` with `+<n>` (n = 1, 2, ...) inserted at index
+ * `at`. A bundle whose name is free keeps the name its criterion gives
+ * (`<ISO-timestamp>-<repo-slug>.md`, `<ISO-timestamp>-unresolved.md`,
+ * `<stamp>-session-end.md`). The suffix is digits only, so a writer's name
+ * never takes the held-queue move's `+held-<n>` shape. Returns the path
+ * written.
+ *
+ * @param {string} dir
+ * @param {string} name
+ * @param {number} at
+ * @param {string} text
+ * @returns {Promise<string>}
+ */
+async function writeNewBundle(dir, name, at, text) {
+  for (let n = 0; ; n += 1) {
+    const path = resolve(dir, n === 0 ? name : `${name.slice(0, at)}+${n}${name.slice(at)}`);
+    try {
+      await writeFile(path, text, { encoding: 'utf8', flag: 'wx' });
+      return path;
+    } catch (err) {
+      if (err?.code !== 'EEXIST') throw err;
+    }
+  }
 }
 
 /**
@@ -2288,57 +2336,63 @@ async function runStopHook(projectRoot, harness, sessionId, payload, env, now, s
   const envOptOut = env.RCF_FEEDBACK_ASK === '0' || env.RCF_FEEDBACK_DISABLE === '1';
   const optedOut = fileOptOut || envOptOut;
 
-  // AC-16103-3: deferred entries from an earlier sessionId return to
-  // pending here so a defer taken in session A is asked again in
-  // session B whether or not the SessionStart hook fired first.
-  await requeueDeferredForSession(projectRoot, sessionId, now);
+  // AC-16101-2, AC-16103-4: the requeue, the reads and the ledger write
+  // run holding the store lock, so two Stop hooks (or a hook and a move)
+  // never both read the ledger before either writes it.
+  const { decision, pendingCount } = await withStoreLock(projectRoot, async () => {
+    // AC-16103-3: deferred entries from an earlier sessionId return to
+    // pending here so a defer taken in session A is asked again in
+    // session B whether or not the SessionStart hook fired first.
+    await requeueDeferredForSession(projectRoot, sessionId, now);
 
-  const all = await readEntries(projectRoot);
-  const pending = all.filter((e) => e.status === 'pending');
-  const pendingCount = pending.length;
+    const all = await readEntries(projectRoot);
+    const pending = all.filter((e) => e.status === 'pending');
+    const pendingCount = pending.length;
 
-  const ledger = await readAskLedger(projectRoot);
-  const askedThisSession = Boolean(sessionId)
-    && Array.isArray(ledger.asked)
-    && ledger.asked.some((r) => r?.sessionId === sessionId);
+    const ledger = await readAskLedger(projectRoot);
+    const askedThisSession = Boolean(sessionId)
+      && Array.isArray(ledger.asked)
+      && ledger.asked.some((r) => r?.sessionId === sessionId);
 
-  const stopHookActive = payload && (payload.stop_hook_active === true
-    || payload.stopHookActive === true);
+    const stopHookActive = payload && (payload.stop_hook_active === true
+      || payload.stopHookActive === true);
 
-  const nowMs = now().getTime();
-  const ages = pending
-    .map((e) => Date.parse(e.recordedAt ?? ''))
-    .filter((t) => Number.isFinite(t))
-    .map((t) => nowMs - t);
-  const newestPendingAgeMs = ages.length === 0 ? null : Math.min(...ages);
-  const anyAskNow = pending.some((e) => e.askNow === true);
-  const anyCarriedOver = Boolean(sessionId) && pending.some((e) => {
-    const s = typeof e.sessionId === 'string' ? e.sessionId : '';
-    return s !== '' && s !== sessionId;
+    const nowMs = now().getTime();
+    const ages = pending
+      .map((e) => Date.parse(e.recordedAt ?? ''))
+      .filter((t) => Number.isFinite(t))
+      .map((t) => nowMs - t);
+    const newestPendingAgeMs = ages.length === 0 ? null : Math.min(...ages);
+    const anyAskNow = pending.some((e) => e.askNow === true);
+    const anyCarriedOver = Boolean(sessionId) && pending.some((e) => {
+      const s = typeof e.sessionId === 'string' ? e.sessionId : '';
+      return s !== '' && s !== sessionId;
+    });
+    const queueComplete = typeof ledger.queueStateAt === 'string' && ledger.queueStateAt.length > 0;
+
+    const decision = shouldAsk({
+      optedOut,
+      pendingCount,
+      askedThisSession,
+      stopHookActive,
+      anyAskNow,
+      newestPendingAgeMs,
+      quietMinutes: settingsRead.settings.quietMinutes,
+      queueComplete,
+      anyCarriedOver,
+    });
+
+    if (decision === 'ask' && sessionId) {
+      // Ledger first, then emit (design 3.5 crash-safety clause).
+      const askedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
+      const next = {
+        ...ledger,
+        asked: [...(Array.isArray(ledger.asked) ? ledger.asked : []), { sessionId, askedAt }],
+      };
+      await writeAskLedger(projectRoot, next);
+    }
+    return { decision, pendingCount };
   });
-  const queueComplete = typeof ledger.queueStateAt === 'string' && ledger.queueStateAt.length > 0;
-
-  const decision = shouldAsk({
-    optedOut,
-    pendingCount,
-    askedThisSession,
-    stopHookActive,
-    anyAskNow,
-    newestPendingAgeMs,
-    quietMinutes: settingsRead.settings.quietMinutes,
-    queueComplete,
-    anyCarriedOver,
-  });
-
-  if (decision === 'ask' && sessionId) {
-    // Ledger first, then emit (design 3.5 crash-safety clause).
-    const askedAt = now().toISOString().replace(/\.\d{3}Z$/, 'Z');
-    const next = {
-      ...ledger,
-      asked: [...(Array.isArray(ledger.asked) ? ledger.asked : []), { sessionId, askedAt }],
-    };
-    await writeAskLedger(projectRoot, next);
-  }
   const reason = buildAskReason(pendingCount);
   return emitHook(harness, decision, reason, streams);
 }
@@ -2366,42 +2420,49 @@ async function runSessionStartHook(projectRoot, harness, sessionId, now, streams
 }
 
 async function runSessionEndHook(projectRoot, { now }) {
-  const all = await readEntries(projectRoot);
-  const pending = all.filter((e) => e.status === 'pending');
-  if (pending.length === 0) return 0;
-  // Compose a fingerprint-only bundle text (idempotency check reads
-  // the last-written file and compares by content hash). We do not
-  // change entry state on session-end; slice 4's `submit` remains
-  // the terminal step. This is a safety flush of the exact set of
-  // pending titles so a crashed session's findings are pastable.
-  const stampSafe = now().toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[:]/g, '-');
-  const dir = outboxDir(projectRoot);
-  await mkdir(dir, { recursive: true });
-  const filename = `${stampSafe}-session-end.md`;
-  const path = resolve(dir, filename);
-  const body = renderSessionEndBundle(pending, now());
-  // Idempotency: two consecutive runs with the same pending set MUST
-  // produce a single file. The only field that legitimately differs
-  // between the two bodies is the `Generated:` timestamp; a naive
-  // byte-compare therefore flaked whenever the two calls straddled a
-  // second boundary (AC-16103-1 intermittent failure). Compare on a
-  // canonical form that stamps the timestamp with a fixed placeholder,
-  // so the byte-idempotency check honours the design intent (same
-  // pending set = same bundle) regardless of wall-clock drift.
-  const canon = (s) => s.replace(/^Generated: [^\n]*$/m, 'Generated: <stamp>');
-  const bodyCanon = canon(body);
-  try {
-    const entries = await readdir(dir);
-    for (const f of entries) {
-      if (!f.endsWith('-session-end.md')) continue;
-      try {
-        const existing = await readFile(resolve(dir, f), 'utf8');
-        if (canon(existing) === bodyCanon) return 0;
-      } catch { /* ignore */ }
-    }
-  } catch { /* ignore */ }
-  await writeFile(path, body, 'utf8');
-  return 0;
+  // AC-16103-1, AC-16103-4: the read, the idempotency scan and the write
+  // run holding the store lock, so a SessionEnd hook never scans or writes
+  // the outbox while another command changes it.
+  return withStoreLock(projectRoot, async () => {
+    const all = await readEntries(projectRoot);
+    const pending = all.filter((e) => e.status === 'pending');
+    if (pending.length === 0) return 0;
+    // Compose a fingerprint-only bundle text (idempotency check reads
+    // the last-written file and compares by content hash). We do not
+    // change entry state on session-end; slice 4's `submit` remains
+    // the terminal step. This is a safety flush of the exact set of
+    // pending titles so a crashed session's findings are pastable.
+    const stampSafe = now().toISOString().replace(/\.\d{3}Z$/, 'Z').replace(/[:]/g, '-');
+    const dir = outboxDir(projectRoot);
+    await mkdir(dir, { recursive: true });
+    const filename = `${stampSafe}-session-end.md`;
+    const body = renderSessionEndBundle(pending, now());
+    // Idempotency: two consecutive runs with the same pending set MUST
+    // produce a single file. The only field that legitimately differs
+    // between the two bodies is the `Generated:` timestamp; a naive
+    // byte-compare therefore flaked whenever the two calls straddled a
+    // second boundary (AC-16103-1 intermittent failure). Compare on a
+    // canonical form that stamps the timestamp with a fixed placeholder,
+    // so the byte-idempotency check honours the design intent (same
+    // pending set = same bundle) regardless of wall-clock drift.
+    const canon = (s) => s.replace(/^Generated: [^\n]*$/m, 'Generated: <stamp>');
+    const bodyCanon = canon(body);
+    try {
+      const entries = await readdir(dir);
+      for (const f of entries) {
+        if (!f.endsWith('-session-end.md')) continue;
+        try {
+          const existing = await readFile(resolve(dir, f), 'utf8');
+          if (canon(existing) === bodyCanon) return 0;
+        } catch { /* ignore */ }
+      }
+    } catch { /* ignore */ }
+    // A name already taken (a second bundle in the same second, a bundle
+    // the held-queue move kept) gets `+<n>` before `-session-end.md`, so
+    // the scan above still finds every bundle this hook wrote.
+    await writeNewBundle(dir, filename, stampSafe.length, body);
+    return 0;
+  });
 }
 
 function renderSessionEndBundle(pending, when) {

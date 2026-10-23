@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-899",
+  "path": "src/feedback/store.js#readStoreLock",
+  "implementsAcIds": [
+    "AC-16103-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T22:26:43.496Z",
+  "updatedAt": "2026-10-23T22:26:43.496Z"
+}

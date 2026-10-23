@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-902",
+  "path": "src/feedback/store.js#replaceFileSync",
+  "implementsAcIds": [
+    "AC-16103-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T22:26:44.325Z",
+  "updatedAt": "2026-10-23T22:26:44.325Z"
+}
