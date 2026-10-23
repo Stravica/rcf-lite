@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-892",
+  "path": "src/eval/judge.js#spawnAndCollect",
+  "implementsAcIds": [
+    "AC-16102-3"
+  ],
+  "dependencies": [
+    "CN-890"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T11:15:25.547Z",
+  "updatedAt": "2026-10-23T11:15:25.547Z"
+}
