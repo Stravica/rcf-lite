@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-10-23T14:38:39.738Z",
+  "updatedAt": "2026-10-23T14:38:41.265Z",
+  "purpose": "Three integration tests for AC-17302-14 driving rcf define create ac and rcf define read through bin/rcf.js in a fixture project.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17302-14"
+  ],
+  "id": "TS-265",
+  "usId": "US-17302",
+  "title": "rcf define create ac keeps the criterion's scope field from --from-file, on the file-only form, the --description merge form and a same-id replay",
+  "testCases": [
+    {
+      "id": "TC-265-from-file-keeps-scope",
+      "acId": "AC-17302-14",
+      "description": "rcf define create ac --parent <US> --from-file <json> writes the scope the file carries; rcf define read shows it on the criterion",
+      "status": "failing",
+      "testPointer": "test/cli/create-ac-keeps-scope.test.js::AC-17302-14: rcf define create ac --parent <US> --from-file <json> keeps the scope the file carries on the written criterion"
+    },
+    {
+      "id": "TC-265-description-merge-keeps-scope",
+      "acId": "AC-17302-14",
+      "description": "rcf define create ac --parent <US> --description <text> --from-file <json> writes the scope the file carries, the CLI description winning",
+      "status": "failing",
+      "testPointer": "test/cli/create-ac-keeps-scope.test.js::AC-17302-14: rcf define create ac --parent <US> --description <text> --from-file <json> keeps the scope the file carries (CLI fields merged over the file)"
+    },
+    {
+      "id": "TC-265-replay-unchanged",
+      "acId": "AC-17302-14",
+      "description": "a same-id replay of a criterion that carries scope, with identical content, prints unchanged, exits 0 and leaves the US file byte-identical",
+      "status": "failing",
+      "testPointer": "test/cli/create-ac-keeps-scope.test.js::AC-17302-14: a same-id replay (rcf define create ac --id) of a criterion that carries scope, with identical content, is unchanged (exit 0) and does not rewrite the file"
+    }
+  ],
+  "status": "draft"
+}
