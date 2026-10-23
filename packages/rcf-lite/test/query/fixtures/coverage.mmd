@@ -2096,16 +2096,26 @@ flowchart LR
   AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
   AC-16103-4["AC-16103-4"]
   REQ-161 --> AC-16103-4
+  TC-264-held-bundle-collision-kept["TC-264-held-bundle-collision-kept"]
+  AC-16103-4 -.-> TC-264-held-bundle-collision-kept
+  TC-264-held-identical-removed-once["TC-264-held-identical-removed-once"]
+  AC-16103-4 -.-> TC-264-held-identical-removed-once
   TC-264-held-move-fails-after-append["TC-264-held-move-fails-after-append"]
   AC-16103-4 -.-> TC-264-held-move-fails-after-append
+  TC-264-held-move-fails-after-collided-remove["TC-264-held-move-fails-after-collided-remove"]
+  AC-16103-4 -.-> TC-264-held-move-fails-after-collided-remove
   TC-264-held-move-fails-after-remove["TC-264-held-move-fails-after-remove"]
   AC-16103-4 -.-> TC-264-held-move-fails-after-remove
+  TC-264-held-move-fails-on-collided-kept-once["TC-264-held-move-fails-on-collided-kept-once"]
+  AC-16103-4 -.-> TC-264-held-move-fails-on-collided-kept-once
   TC-264-held-move-failure-exits["TC-264-held-move-failure-exits"]
   AC-16103-4 -.-> TC-264-held-move-failure-exits
   TC-264-held-moves-once-ignored["TC-264-held-moves-once-ignored"]
   AC-16103-4 -.-> TC-264-held-moves-once-ignored
   TC-264-held-queue-migrates["TC-264-held-queue-migrates"]
   AC-16103-4 -.-> TC-264-held-queue-migrates
+  TC-264-held-state-merged-own-kept["TC-264-held-state-merged-own-kept"]
+  AC-16103-4 -.-> TC-264-held-state-merged-own-kept
   TC-264-held-unignored-add-refuses["TC-264-held-unignored-add-refuses"]
   AC-16103-4 -.-> TC-264-held-unignored-add-refuses
   TC-264-held-unignored-hook-asks["TC-264-held-unignored-hook-asks"]
@@ -4884,11 +4894,16 @@ flowchart LR
   class TC-197-session-start-requeues-deferred-then-stop-asks tc;
   class TC-197-stop-only-path-requeues-deferred tc;
   class AC-16103-4 ac;
+  class TC-264-held-bundle-collision-kept tc;
+  class TC-264-held-identical-removed-once tc;
   class TC-264-held-move-fails-after-append tc;
+  class TC-264-held-move-fails-after-collided-remove tc;
   class TC-264-held-move-fails-after-remove tc;
+  class TC-264-held-move-fails-on-collided-kept-once tc;
   class TC-264-held-move-failure-exits tc;
   class TC-264-held-moves-once-ignored tc;
   class TC-264-held-queue-migrates tc;
+  class TC-264-held-state-merged-own-kept tc;
   class TC-264-held-unignored-add-refuses tc;
   class TC-264-held-unignored-hook-asks tc;
   class TC-264-held-unignored-lists-own tc;
