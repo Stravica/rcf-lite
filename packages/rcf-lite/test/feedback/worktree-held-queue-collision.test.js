@@ -393,3 +393,50 @@ test('AC-16103-4: when moving the held queue fails after removing a held bundle 
     'after git worktree remove, rcf feedback list --all --json from the main checkout lists every id once with its status');
   assert.deepEqual(feedbackStatusLines(w.main), [], 'git status in the main checkout lists nothing under .rcf/feedback/');
 });
+
+test('AC-16103-4: when moving the held queue fails on a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 and keeps that bundle readable, and the next command completes the move with its bytes exactly once in the main outbox, never copied under a second name', {
+  skip: process.platform === 'darwin' ? false : 'a per-file unlink failure needs chflags uchg (macOS); an unprivileged Linux user has no per-file equivalent',
+}, async (t) => {
+  const w = await collisionWorld('rcf-fbs231-collision-fails-on-');
+  // The held SessionEnd bundle collides with the main checkout's own
+  // SessionEnd bundle and is itself immutable, so the move fails on that
+  // bundle whatever the order it reads the outbox in; the retry must not
+  // keep its bytes a second time.
+  const own = await mainOwnBundles(w);
+  const collided = w.heldBundles.find((n) => n.endsWith('-session-end.md'));
+  const mainAtCollided = collide(w, own.names[0], collided);
+  const stuck = join(w.heldDir, 'outbox', collided);
+  execFileSync('/usr/bin/chflags', ['uchg', stuck]);
+  t.after(() => { try { execFileSync('/usr/bin/chflags', ['nouchg', stuck]); } catch { /* ignore */ } });
+  assert.throws(() => closeSync(openSync(stuck, 'r+')), /EPERM|EACCES/, 'fixture: the collided held bundle is immutable (cannot be written or removed)');
+
+  const list = await rcf(w.lane, ['feedback', 'list', '--all', '--json']);
+  assert.equal(list.code, 1, `rcf feedback list exits 1 when the move fails\nstdout:\n${list.stdout}\nstderr:\n${list.stderr}`);
+  assert.match(list.stderr, /EPERM|operation not permitted/i, `stderr names the error the move hit\nstderr:\n${list.stderr}`);
+  assert.ok(namesDir(list.stderr, w.main), `stderr names the main checkout\nstderr:\n${list.stderr}`);
+  const now = snapshot(w.heldDir);
+  for (const [name, bytes] of Object.entries(w.held)) {
+    if (Object.hasOwn(now, name)) assert.equal(now[name], bytes, `a held file still in the worktree is byte-identical: ${name}`);
+    else assertHeldContentInMainStore(w, name, bytes);
+  }
+  const expected = sortPairs([...w.heldIds, ...own.ids]);
+  assert.deepEqual(await listIn(w.main, ['--all']), expected,
+    'rcf feedback list --all --json from the main checkout lists its own entry and every held entry, each id exactly once with the status it had');
+
+  // The cause is put right; the next command in the worktree completes the move.
+  execFileSync('/usr/bin/chflags', ['nouchg', stuck]);
+  const next = await rcf(w.lane, ['feedback', 'list', '--all', '--json']);
+  assert.equal(next.code, 0, `the next rcf feedback command in the worktree exits 0\nstderr:\n${next.stderr}`);
+  assert.deepEqual(Object.keys(snapshot(w.heldDir)), [], 'the next command completes the move: no held file is left under the worktree .rcf/feedback/');
+  for (const name of w.heldBundles) {
+    assert.equal(namesHolding(w, w.held[`outbox/${name}`]).length, 1,
+      `the held ${name} bytes are in the main checkout outbox exactly once (kept, and never copied under a second name by the retry); the main outbox holds: ${Object.keys(snapshot(join(mainStore(w), 'outbox'))).join(', ')}`);
+  }
+  assert.equal(readFileSync(join(mainStore(w), 'outbox', collided), 'utf8'), mainAtCollided,
+    `the main checkout bundle at ${collided} is byte-identical to before (never overwritten)`);
+
+  removeWorktree(w);
+  assert.deepEqual(await listIn(w.main, ['--all']), expected,
+    'after git worktree remove, rcf feedback list --all --json from the main checkout lists every id once with its status');
+  assert.deepEqual(feedbackStatusLines(w.main), [], 'git status in the main checkout lists nothing under .rcf/feedback/');
+});
