@@ -22,7 +22,10 @@
 import {
   appendFile, mkdir, readFile, stat, writeFile,
 } from 'node:fs/promises';
-import { dirname, join } from 'node:path';
+import { existsSync, readFileSync, statSync } from 'node:fs';
+import {
+  basename, dirname, join, relative, resolve,
+} from 'node:path';
 import { spawn } from 'node:child_process';
 
 /** Absolute path helpers under a project root. */
@@ -62,11 +65,45 @@ export const feedbackGitignoreEntry = Object.freeze({
 });
 
 /**
+ * The project root whose `.rcf/feedback/` holds the queue (AC-16103-4).
+ * In a linked git worktree that is the same project in the main checkout,
+ * so an entry outlives `git worktree remove`; a worktree that already
+ * holds a queue of its own keeps it (no entry orphaned). Anywhere else
+ * (the main checkout, no git, a main checkout without the project) it is
+ * `projectRoot` itself.
+ *
+ * @param {string} projectRoot
+ * @returns {string}
+ */
+export function storeRoot(projectRoot) {
+  if (existsSync(join(projectRoot, FEEDBACK_DIR))) return projectRoot;
+  for (let top = resolve(projectRoot); ; top = dirname(top)) {
+    const dotGit = join(top, '.git');
+    if (existsSync(dotGit)) {
+      let gitDir;
+      try {
+        if (statSync(dotGit).isDirectory()) return projectRoot;
+        gitDir = /^gitdir:\s*(.+)$/m.exec(readFileSync(dotGit, 'utf8'))?.[1]?.trim();
+        if (!gitDir) return projectRoot;
+        gitDir = resolve(top, gitDir);
+        const common = resolve(gitDir, readFileSync(join(gitDir, 'commondir'), 'utf8').trim());
+        const mainRoot = join(dirname(common), relative(top, resolve(projectRoot)));
+        if (basename(common) !== '.git' || !existsSync(mainRoot)) return projectRoot;
+        return mainRoot;
+      } catch {
+        return projectRoot;
+      }
+    }
+    if (dirname(top) === top) return projectRoot;
+  }
+}
+
+/**
  * @param {string} projectRoot
  * @returns {string}
  */
 export function feedbackDir(projectRoot) {
-  return join(projectRoot, FEEDBACK_DIR);
+  return join(storeRoot(projectRoot), FEEDBACK_DIR);
 }
 
 /**
@@ -74,7 +111,7 @@ export function feedbackDir(projectRoot) {
  * @returns {string}
  */
 export function entriesPath(projectRoot) {
-  return join(projectRoot, FEEDBACK_DIR, 'entries.jsonl');
+  return join(feedbackDir(projectRoot), 'entries.jsonl');
 }
 
 /**
@@ -82,7 +119,7 @@ export function entriesPath(projectRoot) {
  * @returns {string}
  */
 export function statePath(projectRoot) {
-  return join(projectRoot, FEEDBACK_DIR, 'state.json');
+  return join(feedbackDir(projectRoot), 'state.json');
 }
 
 /**
@@ -90,7 +127,7 @@ export function statePath(projectRoot) {
  * @returns {string}
  */
 export function outboxDir(projectRoot) {
-  return join(projectRoot, FEEDBACK_DIR, 'outbox');
+  return join(feedbackDir(projectRoot), 'outbox');
 }
 
 /**
