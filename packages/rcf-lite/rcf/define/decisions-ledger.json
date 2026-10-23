@@ -1853,6 +1853,27 @@
       "answer": "a. The stage-keeper's ruling refining decision 85's stale rule (run 3 of the Define; decisions 84 and 85 stay as recorded except this rule). The lock holder refreshes the lock at least every 5 seconds while it works; a lock is stale only when its holder pid is not alive on this host or it has not been refreshed for 60 seconds, so a running move is never broken. Pinned by TC-264-refreshing-mover-not-broken (new, test/feedback/feedback-store-concurrent-writers.test.js, red at 70650af7 and bound failing: a held move whose clock jumps 120 seconds forward works on, and rcf feedback add in the main checkout must wait and exit 1 once its wait runs out, writing nothing) and TC-264-old-mover-holds-nothing (guard, retitled to a move not refreshed for more than 60 seconds; TC id kept). The run 1 tests TC-264-lane-add-during-move-lines-once, TC-264-main-add-during-move-kept, TC-264-main-session-end-before-copy-kept, TC-264-main-session-end-after-copy-kept, TC-264-lane-session-end-during-move-once and TC-264-main-submit-after-copy-kept are re-sequenced (the writer starts while the move is held; the move is let go once the writer has run to its end or found the store busy; then the writer is awaited), titles and TC ids unchanged, each red or green at 70650af7 as before. AC-16103-4 amended in place: its stale sentence says not refreshed for 60 seconds, a sentence adds the refresh, variant 10 adds \"not refreshed since\" where it named the start time, and variant 11 is added; its text names no lock, lock file or lock format.",
       "answeredAt": "2026-10-23T21:51:52.960Z",
       "resolvedAt": "2026-10-23T21:51:52.960Z"
+    },
+    {
+      "id": 87,
+      "question": "(FBS-231 round 7 Define, on top of decisions 84 to 86) The round 6 gate returned FINDINGS at d284cf91 with AC-16103-4 partial: Codex R6-BH1 (the stale-lock break can leave two holders; the reviewer's probe g9 L9, three Stop hooks breaking one dead holder's lock, lost two of three ask records), R6-BH2 (appendEntry and appendState still append in place, so a reader can meet a half-written line, against decision 85), R6-BH3 (the CHANGELOG line is untrue while those stand) and R6-BE1 (AC-16103-4 claims stand while it is partial); the reviewer's R6-1 (the same as R6-BH1) and R6-2 (a busy store after submit has filed an issue exits 1 saying it wrote nothing, so the entry stays pending and the next submit files it twice); the reviewer's P3 note that an opted-out Stop hook waits 10 seconds and exits 1 while the store is busy; and Codex asking that a malformed lock name a pid. The owner questions, quoted: 'Fix R6-1, R6-2 and R6-BH2 now or batch them as P3? Should an opted-out Stop hook skip the lock? Should a malformed lock name a pid (Codex)?'",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling: fix them in round 7. (1) Breaking a stale lock is safe for any number of concurrent breakers: exactly one breaker ends up holding the lock and every other command either waits as a writer or skips as a move; a breaker never deletes a lock it did not judge, and a fresh holder's lock is never removed. (2) Every write to entries.jsonl and state.json (appendEntry and appendState included) replaces the whole file atomically (a temp file in the same directory, then rename), as decision 85 already says, so no reader ever sees a partial line or document. (3) After an external side effect (submit has filed the issue), the write that records it is never abandoned on a busy store: it waits for the lock up to the stale window plus a margin (65 seconds of Date, injectable for tests as RCF_FEEDBACK_LOCK_WAIT_MS is), so a hung holder is broken as stale and the record lands; if it still cannot write, it exits 1 naming the filed issue's URL and the entry id and never says it wrote nothing, and the next submit does not file that entry again (it reads a record of the filing it can trust). (4) A Stop hook that has opted out and writes nothing takes no lock and never waits. (5) A lock file that cannot be parsed is reported by path and age, and is judged stale by its mtime as the build already does."
+        },
+        {
+          "letter": "b",
+          "text": "Batch R6-1, R6-2 and R6-BH2 as P3: release round 6 as it stands and note them for a later round."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T23:30:44.559Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's round 7 ruling (decisions 84, 85 and 86 stay as recorded). Pinned in test/feedback/feedback-store-lock-break.test.js and bound in TS-264: three breakers of one stopped move's hold (TC-264-stale-hold-three-breakers-once), a reader during appendEntry and appendState (TC-264-reader-during-add-whole-lines, TC-264-reader-during-discard-whole-lines), submit after a filed issue on a busy store (TC-264-submit-filed-waits-records, TC-264-submit-filed-breaks-hung-move, TC-264-submit-filed-busy-names-issue), an opted-out Stop hook (TC-264-opted-out-stop-never-waits) and a hold that cannot be parsed (TC-264-unparsed-hold-named-path-age, TC-264-unparsed-hold-judged-by-age). AC-16103-4 amended in place (five sentences and variant 12).",
+      "answeredAt": "2026-10-23T23:30:50.671Z",
+      "resolvedAt": "2026-10-23T23:30:50.671Z"
     }
   ]
 }

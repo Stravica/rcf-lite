@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T21:51:54.095Z",
+  "updatedAt": "2026-10-23T23:30:53.211Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -240,6 +240,69 @@
       "description": "a worktree move whose clock runs 120 seconds behind is held before its first outbox copy, its clock is moved on to the real one (so it started 120 seconds earlier), it is let copy the held bundles and is held again before it removes a held file; rcf feedback add in the main checkout, its wait shortened, exits 1 naming the running command's process id and the main checkout and writes nothing under the main checkout's .rcf/feedback/; after the move finishes and one more command runs in the worktree, each held bundle, entries line and ask record is in the main store exactly once and every id is listed once",
       "status": "failing",
       "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4: a worktree move still running that keeps refreshing is never taken for stopped, however long ago it started: rcf feedback add in the main checkout waits for it, exits 1 once its wait runs out naming the running command and the main checkout, and writes nothing"
+    },
+    {
+      "id": "TC-264-stale-hold-three-breakers-once",
+      "acId": "AC-16103-4",
+      "description": "a worktree move held inside the move is stopped (SIGKILL); three Stop hooks in the main checkout, released together, each judge its hold stopped and are held before they break it; the first is let break it and is held before its ledger write, the second is let go and held just after its break, the third is let go; each Stop hook exits 2, each one's ask record is in the main checkout's state.json exactly once, every held bundle, entries line and ask record lands exactly once after one more worktree command, and no Stop hook completes its read and write while another is inside its own",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4: three Stop hooks that find a stopped move's hold at once and judge it stale break it safely: exactly one command holds the main checkout store at any instant, and each hook's ask record and every held bundle, entry line and ask record land exactly once"
+    },
+    {
+      "id": "TC-264-reader-during-add-whole-lines",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback add in the main checkout is held in the middle of its write of entries.jsonl; rcf feedback list --all --json there reads only whole lines and lists every entry the main checkout held once with its status; the add then exits 0 and every id is listed once after one more worktree command",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback add writes an entry there never reads a partial line, and lists every entry once with its status"
+    },
+    {
+      "id": "TC-264-reader-during-discard-whole-lines",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback discard in the main checkout is held in the middle of its write of entries.jsonl; rcf feedback list --all --json there reads only whole lines and lists every entry once with the status it had before or after the discard; the discard then exits 0 and every id is listed once after one more worktree command",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback discard records a status change there never reads a partial line, and lists every entry once with its status"
+    },
+    {
+      "id": "TC-264-submit-filed-waits-records",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback submit --yes in the main checkout files an issue through the gh double, which holds it; a worktree move then holds the main checkout's store and the filing is let go; submit waits, the move is let go, submit exits 0 recording the filing, and the next submit files that entry no more",
+      "status": "passing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4 guard: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store waits, and records the filing once the move lets the store go; the next submit does not file the entry again"
+    },
+    {
+      "id": "TC-264-submit-filed-breaks-hung-move",
+      "acId": "AC-16103-4",
+      "description": "as TC-264-submit-filed-waits-records, but the move stays held (hung) and submit's clock moves 62 seconds ahead while it waits; submit judges the move stopped, records the filing (exit 0), and the next submit files that entry no more",
+      "status": "passing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4 guard: rcf feedback submit that has filed an issue when a hung worktree move holds the main checkout store records the filing once the move has not been refreshed for 60 seconds by its clock; the next submit does not file the entry again"
+    },
+    {
+      "id": "TC-264-submit-filed-busy-names-issue",
+      "acId": "AC-16103-4",
+      "description": "as TC-264-submit-filed-waits-records with submit's wait shortened and the move held throughout; submit exits 1 with stderr naming the filed issue's URL and the entry's id and never saying it wrote nothing; once the move is let go the next submit files that entry no more and every id is listed once (the filed entries submitted)",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store past its wait exits 1 naming the issue URL and the entry id, never saying it wrote nothing, and the next submit does not file that entry again"
+    },
+    {
+      "id": "TC-264-opted-out-stop-never-waits",
+      "acId": "AC-16103-4",
+      "description": "after rcf feedback opt-out in the main checkout, its Stop hook (with and without RCF_FEEDBACK_ASK=0) run while a worktree move holds the store, its wait shortened, exits as it would alone (exit 0, the same stdout and stderr) and writes nothing under the main checkout's .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4: a Stop hook in the main checkout that does not ask (the operator opted out) and has nothing to write exits as it would alone, without waiting, while a worktree move holds the main checkout store"
+    },
+    {
+      "id": "TC-264-unparsed-hold-named-path-age",
+      "acId": "AC-16103-4",
+      "description": "a worktree move held inside the move is stopped and the file of its hold is cut to nothing; rcf feedback add in the main checkout with its clock 30 seconds after that file's mtime and its wait shortened exits 1 with stderr naming the file's path and its age (about 30 seconds) and writes nothing under the main checkout's .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4: a writer held up by a hold whose file cannot be parsed exits 1 once its wait runs out with stderr naming that file by its path and its age"
+    },
+    {
+      "id": "TC-264-unparsed-hold-judged-by-age",
+      "acId": "AC-16103-4",
+      "description": "as TC-264-unparsed-hold-named-path-age: 30 seconds after the file's mtime rcf feedback add exits 1 and writes nothing; 120 seconds after it rcf feedback add exits 0, its entry is listed once pending, and one more worktree command completes the move with each id once",
+      "status": "passing",
+      "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4 guard: a hold whose file cannot be parsed is judged by the age of its file: 30 seconds old it holds a writer up (exit 1, nothing written), more than 60 seconds old it is stale and the writer proceeds"
     }
   ],
   "status": "draft"
