@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T17:23:12Z",
-  "updatedAt": "2026-09-16T17:23:12Z",
+  "updatedAt": "2026-10-23T20:06:09.032Z",
   "purpose": "Cover AC-16001-1 (four preflight branches each routing to a bundle with a distinct one-line message), AC-16001-2 (create/comment failure retries once without labels and then bundles that entry, other entries continue, exit 0 when every entry ended submitted or bundled), AC-16001-3 (bundled entries are terminal for the ask loop: list default hides them, list --all reports status bundled, submit picks up only pending entries on a subsequent run), and AC-16001-4 (destination unresolved case writes an unresolved-slug bundle with publisher contact on the same line as the outbox path, no gh call for that entry, exit 0).",
   "testLevel": "integration",
   "acIds": [
@@ -61,6 +61,13 @@
       "description": "Cover AC-16001-4 via the CLI test: an applied library whose registry entry carries neither issuesRepo nor a derivable github source, plus publisher.contact 'orphan-owners@example.com'; submit writes .rcf/feedback/outbox/<ISO>-unresolved[-<id>].md, prints publisher.contact on the same line as the outbox path, makes no gh create/comment/search call for that entry, entry state is bundled, exit 0.",
       "status": "pending",
       "testPointer": "test/cli/feedback-submit.test.js::AC-16001-4: unresolved destination writes an unresolved-slug bundle with publisher contact, no gh call"
+    },
+    {
+      "id": "TC-194-submit-same-second-both-kept",
+      "acId": "AC-16001-1",
+      "description": "two rcf feedback submit --yes runs without gh on PATH in one checkout in the same second (clock pinned), each bundling two entries to the same destination: both whole-destination bundles are kept, the first byte-identical, each in exactly one file of the outbox, and every entry is listed once with status bundled",
+      "status": "failing",
+      "testPointer": "test/cli/feedback-bundle-same-second.test.js::AC-16001-1: two rcf feedback submit --yes runs without gh in one checkout in the same second, each bundling two entries to the same destination, keep both bundles, neither overwriting the other"
     }
   ],
   "status": "draft"

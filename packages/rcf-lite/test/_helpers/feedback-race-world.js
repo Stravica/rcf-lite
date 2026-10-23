@@ -342,12 +342,14 @@ export async function heldWorld(prefix, { shape = 'session-end', variants = 0, c
  * without --force, and nothing under .rcf/feedback/ in git status.
  * extra(w) runs after the bundle checks for the path's own writes.
  */
-export async function assertOutcome(w, { expectedIds, extra } = {}) {
-  const next = await rcf(w.lane, ['feedback', 'list', '--all', '--json']);
-  assert.equal(next.code, 0, `one more rcf feedback command in the worktree exits 0\nstderr:\n${next.stderr}`);
+export async function assertOutcome(w, { expectedIds, extra, lanes = [w] } = {}) {
+  for (const l of lanes) {
+    const next = await rcf(l.lane, ['feedback', 'list', '--all', '--json']);
+    assert.equal(next.code, 0, `one more rcf feedback command in the worktree exits 0\nstderr:\n${next.stderr}`);
+  }
   const mainStore = storeOf(w.main);
-  for (const name of w.heldBundles) {
-    const where = namesHolding(mainStore, w.held[`outbox/${name}`]);
+  for (const l of lanes) for (const name of l.heldBundles) {
+    const where = namesHolding(mainStore, l.held[`outbox/${name}`]);
     assert.equal(where.length, 1,
       `each held bundle's bytes are in exactly one file of the main checkout outbox (never duplicated, overwritten or lost): ${name} is in [${where.slice(0, 8).join(', ')}${where.length > 8 ? ', ...' : ''}]`);
   }
@@ -356,22 +358,52 @@ export async function assertOutcome(w, { expectedIds, extra } = {}) {
   }
   if (extra) await extra(w);
   const have = linesIn(mainStore);
-  for (const line of lines(w.held['entries.jsonl'])) {
+  for (const line of lanes.flatMap((l) => lines(l.held['entries.jsonl']))) {
     assert.equal(have.filter((l) => l === line).length, 1, `each held entries line is in the main checkout entries.jsonl exactly once:\n${line}`);
   }
   const asked = askedIn(mainStore);
-  for (const record of JSON.parse(w.held['state.json']).asked ?? []) {
+  for (const record of lanes.flatMap((l) => JSON.parse(l.held['state.json']).asked ?? [])) {
     assert.equal(asked.filter((r) => isDeepStrictEqual(r, record)).length, 1,
       `each held ask record is in the main checkout state.json exactly once (never lost): ${JSON.stringify(record)}`);
   }
-  assert.deepEqual(Object.keys(snapshot(w.heldDir)), [], 'no held file is left under the worktree .rcf/feedback/');
-  const expected = expectedIds ?? sortPairs([...w.heldIds, ...w.ownIds]);
+  for (const l of lanes) assert.deepEqual(Object.keys(snapshot(l.heldDir)), [], `no held file is left under the worktree .rcf/feedback/ (${l.lane})`);
+  const expected = expectedIds ?? sortPairs([...lanes.flatMap((l) => l.heldIds), ...w.ownIds]);
   assert.deepEqual(await listIn(w.main), expected,
     'rcf feedback list --all --json from the main checkout lists every id once with the status it had');
-  let removeError = null;
-  try { git(w.main, 'worktree', 'remove', w.lane); } catch (err) { removeError = String(err.stderr ?? err.message); }
-  assert.equal(removeError, null, `git worktree remove (no --force) succeeds: ${removeError}`);
+  for (const l of lanes) {
+    let removeError = null;
+    try { git(w.main, 'worktree', 'remove', l.lane); } catch (err) { removeError = String(err.stderr ?? err.message); }
+    assert.equal(removeError, null, `git worktree remove (no --force) succeeds: ${removeError}`);
+  }
   assert.deepEqual(feedbackStatusLines(w.main), [], 'git status in the main checkout lists nothing under .rcf/feedback/');
+}
+
+/**
+ * A second linked worktree of the world's main checkout holding a queue of
+ * its own (shape 'session-end', recorded with the CLI in its own seed
+ * checkout with the world's pinned clock, so its SessionEnd bundle takes the
+ * same name as the first worktree's with other bytes).
+ */
+export async function addLane(w, name) {
+  const seed = join(w.base, `${name}-seed`);
+  const lane = join(w.base, name);
+  await mkdir(seed, { recursive: true });
+  await initProject({ projectRoot: seed, projectName: 'RaceSeedTwo' });
+  await writeFile(join(seed, '.gitignore'), '.rcf/feedback/\n', 'utf8');
+  git(seed, 'init', '-q', '-b', 'main');
+  await addEntry(seed, `held in the ${name} worktree, pending`, w.clock);
+  await hook(seed, 'stop', `${name}-seed-session`, 2, w.clock);
+  await hook(seed, 'session-end', `${name}-seed-session`, 0, w.clock);
+  const heldIds = await listIn(seed);
+  git(w.main, 'worktree', 'add', '-q', '-b', name, lane);
+  await cp(storeOf(seed), storeOf(lane), { recursive: true });
+  const heldDir = storeOf(lane);
+  const held = snapshot(heldDir);
+  const heldBundles = Object.keys(held).filter((n) => n.startsWith('outbox/')).map((n) => n.slice('outbox/'.length));
+  assert.deepEqual(heldBundles, [w.seName], `fixture: the ${name} worktree holds one SessionEnd bundle named as the first worktree's`);
+  assert.notEqual(held[`outbox/${w.seName}`], w.held[`outbox/${w.seName}`], 'fixture: the two worktrees hold that name with different bytes');
+  assert.deepEqual(feedbackStatusLines(lane), [], `fixture: the ${name} worktree branch ignores its held queue`);
+  return { lane, heldDir, held, heldBundles, heldIds };
 }
 
 // A plain checkout of a fixture project (no worktree): the rcf project, its

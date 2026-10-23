@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T18:32:23.082Z",
+  "updatedAt": "2026-10-23T20:13:57.524Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -121,6 +121,76 @@
       "description": "the held SessionEnd bundle's name is in the main outbox with different bytes and that held bundle cannot be removed (macOS chflags uchg), so the move fails on it: rcf feedback list in the worktree exits 1 naming the error (EPERM) and the main checkout, every held file is byte-identical in the worktree or has its content in the main store, the main checkout lists every id once; once the flag is cleared the next command exits 0, leaves no held file and keeps each held bundle's bytes exactly once in the main outbox (never copied under a second name by the retry), the main bundle byte-identical, git worktree remove succeeds and git status lists nothing under .rcf/feedback/",
       "status": "failing",
       "testPointer": "test/feedback/worktree-held-queue-collision.test.js::AC-16103-4: when moving the held queue fails on a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 and keeps that bundle readable, and the next command completes the move with its bytes exactly once in the main outbox, never copied under a second name"
+    },
+    {
+      "id": "TC-264-two-moves-copy-once",
+      "acId": "AC-16103-4",
+      "description": "two rcf feedback commands started together in a linked worktree (a barrier) both read the main store before either copies (a pause before the first write into the main outbox), then copy one at a time; after one more command each held bundle is in exactly one file of the main outbox, each held entries line and ask record once, no held file left, every id listed once, and git worktree remove succeeds without --force",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: two rcf feedback commands run at once in a linked worktree move its held queue into the main checkout once, each held bundle in exactly one file of the main outbox"
+    },
+    {
+      "id": "TC-264-eight-moves-copy-once",
+      "acId": "AC-16103-4",
+      "description": "the round 5 gate probe g8 shape: eight rcf feedback commands started together in a linked worktree holding 300 outbox bundles (one CLI-made, 299 fixture variants of its bytes), each forced to read the main store before any copies; after one more command each held bundle is in exactly one file of the main outbox and the queue lands once",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: eight rcf feedback commands run at once in a linked worktree holding 300 outbox bundles move its held queue into the main checkout once, each held bundle in exactly one file of the main outbox"
+    },
+    {
+      "id": "TC-264-lane-add-during-move-lines-once",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback add in a linked worktree (itself a mover) runs while another command there is held inside the move after reading the main entries.jsonl and before writing it; the new entry is listed once pending from the main checkout after git worktree remove and each held entries line is in the main entries.jsonl exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: rcf feedback add in a linked worktree while another command there is moving its held queue records its entry once and moves every held entry line into the main checkout exactly once"
+    },
+    {
+      "id": "TC-264-main-add-during-move-kept",
+      "acId": "AC-16103-4",
+      "description": "guard: rcf feedback add in the main checkout runs while a linked worktree move is held after reading the main entries.jsonl and before writing it; the new entry is kept and listed once pending, and each held entries line lands once",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4 guard: rcf feedback add in the main checkout while a linked worktree moves its held queue keeps the new entry and every held entry line exactly once"
+    },
+    {
+      "id": "TC-264-main-session-end-before-copy-kept",
+      "acId": "AC-16103-4",
+      "description": "guard: the main checkout SessionEnd hook (clock pinned to the held bundle's instant) writes a bundle under the held SessionEnd bundle's name while a worktree move is held before its first write into the main outbox; both bundles are kept, each in exactly one file of the main outbox",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4 guard: when the main checkout SessionEnd hook writes a bundle under a held bundle's name before a running worktree move copies that bundle, both bundles are kept, each in exactly one file of the main outbox"
+    },
+    {
+      "id": "TC-264-main-session-end-after-copy-kept",
+      "acId": "AC-16103-4",
+      "description": "the main checkout SessionEnd hook (clock pinned to the held bundle's instant) writes a bundle under the held SessionEnd bundle's name after a worktree move copied it and before the move removes any held file; both bundles are kept, each in exactly one file of the main outbox",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: when the main checkout SessionEnd hook writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox"
+    },
+    {
+      "id": "TC-264-lane-session-end-during-move-once",
+      "acId": "AC-16103-4",
+      "description": "guard: the SessionEnd hook in a linked worktree (itself a mover) runs while another command there is held after copying the held bundles and before removing any held file; its bundle is in exactly one file of the main outbox and no held bundle is copied a second time",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4 guard: the SessionEnd hook in a linked worktree while another command there is moving its held queue writes its bundle once and copies no held bundle a second time"
+    },
+    {
+      "id": "TC-264-main-stop-during-move-asks-kept",
+      "acId": "AC-16103-4",
+      "description": "the main checkout Stop hook is held after reading its ask ledger and before writing state.json while a linked worktree command moves the held queue; every held ask record and the hook's own ask record are in the main state.json exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: when the main checkout Stop hook writes its ask ledger while a linked worktree moves its held queue, every held ask record and the hook's own ask record are in the main checkout state.json exactly once"
+    },
+    {
+      "id": "TC-264-main-submit-after-copy-kept",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback submit --yes without gh in the main checkout (clock pinned to the held bundle's instant, two entries to the same destination) writes its bundle under the held submit bundle's name after a worktree move copied it and before the move removes any held file; both bundles are kept, each in exactly one file of the main outbox",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: when rcf feedback submit in the main checkout writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox"
+    },
+    {
+      "id": "TC-264-two-lanes-move-at-once-kept",
+      "acId": "AC-16103-4",
+      "description": "two linked worktrees of one main checkout, each holding its own queue (SessionEnd bundles under one name with different bytes), move into the main store at once, each held after reading the main state.json and before writing it; every held ask record, entry line and bundle of both lands in the main store exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: two linked worktrees moving their own held queues into the main checkout at once keep every held ask record, entry line and bundle of both, each exactly once in the main store"
     }
   ],
   "status": "draft"

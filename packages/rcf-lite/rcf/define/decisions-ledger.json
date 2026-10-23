@@ -1790,6 +1790,27 @@
       "answer": "a. Stage-keeper ruling on the round 4 gate (a Build: a collision-safe move), pinned by the round 5 test-author hand in TS-264: probes g6a and g6b as red tests (TC-264-held-bundle-collision-kept, TC-264-held-move-fails-after-collided-remove), a retry after a failure on the collided bundle itself as a red test (TC-264-held-move-fails-on-collided-kept-once), and the sweep of every file class the move touches as guards (TC-264-held-identical-removed-once, TC-264-held-state-merged-own-kept). entries.jsonl and state.json keep their merge (held lines the main log lacks are appended, ask records are united), which keeps the held content without a fresh name. AC-16103-4 unchanged: the sweep found no file class its clause does not cover.",
       "answeredAt": "2026-10-23T18:32:12.609Z",
       "resolvedAt": "2026-10-23T18:32:12.609Z"
+    },
+    {
+      "id": 84,
+      "question": "(FBS-231 round 6, the round 5 gate on AC-16103-4: Codex R5-BH1 and R5-BE1; reviewer R-1 and R-2) moveHeldQueue reads the main outbox's bytes once (src/feedback/store.js:200-202) and copyUnderFreeName moves to the next fresh name on EEXIST without comparing bytes (:236-247), so two moves of one held queue that overlap copy a held bundle twice (the second under <stem>+held-1<ext>) and the slower one exits 1 on its unlink (R5-BH1); R5-BE1: the Code Nodes on AC-16103-4 claim it while it is partial. Probe g8 (8 rcf feedback commands at once in a worktree holding 300 outbox bundles): at 95522fa4 4 of 4 worlds duplicate 192 to 220 bundles and 13 of 32 commands exit 1; at 92ef3dd4 none duplicate. Out of scope at that gate, flagged as suspected harm: the same-second bundle overwrite inside one checkout (src/cli/feedback.js:1978 for submit's bundle, :2403 for the SessionEnd hook's). The gate's owner question: \"Fix R-1 in a round 6 now, or batch it as P3?\" This is the fourth gate in a row to find a new edge in the held-queue move. Decision 83 stays as recorded.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Round 6 now. It fixes the cause, serialising the move with a lock and stopping collisions at the writers, and sweeps every concurrent path that touches the main outbox and the held queue once, instead of patching the race. The writer overwrite joins this round because it is the same class (outbox name collisions) and the source of the collisions the move must handle. The reviewer's P3 (an unreadable main outbox file fails every move, src/feedback/store.js:202) stays as is: failing safe with exit 1 is acceptable, and it is noted for the release notes."
+        },
+        {
+          "letter": "b",
+          "text": "Batch R-1 as a P3 (the gate's alternative): no round 6 now; the concurrent-move duplicate and the writers' same-second overwrite wait for a later batch."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T20:04:17.716Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on the round 5 gate (a Build: a serialised move and collision-free writers), pinned by the round 6 test-author hand. Every concurrent path on the main outbox and the held queue is swept once in test/feedback/worktree-held-queue-concurrent.test.js (TS-264, AC-16103-4): two and eight moves at once (TC-264-two-moves-copy-once, TC-264-eight-moves-copy-once, probe g8 shape), rcf feedback add in the worktree while a move is held (TC-264-lane-add-during-move-lines-once), the main checkout SessionEnd hook, Stop hook and submit writing while a move runs (TC-264-main-session-end-after-copy-kept, TC-264-main-stop-during-move-asks-kept, TC-264-main-submit-after-copy-kept) and two linked worktrees moving their own held queues at once (TC-264-two-lanes-move-at-once-kept), red at 78f9d156 and bound failing; guards TC-264-main-add-during-move-kept, TC-264-main-session-end-before-copy-kept and TC-264-lane-session-end-during-move-once. The writers' same-second overwrite is pinned in test/cli/feedback-bundle-same-second.test.js: TC-197-session-end-same-second-both-kept (AC-16103-1) and TC-194-submit-same-second-both-kept (AC-16001-1), red and bound failing, with the guard TC-197-session-end-idempotent-after-same-second. AC-16103-1 and AC-16001-1 amended in place (they were silent on overwrite); AC-16103-4 amended with variant 9 (a completed concurrent move was not covered by the failure clause). The reviewer's P3 at src/feedback/store.js:202 stays as is and is noted for the release notes. Decision 83 stays as recorded.",
+      "answeredAt": "2026-10-23T20:14:09.003Z",
+      "resolvedAt": "2026-10-23T20:14:09.003Z"
     }
   ]
 }

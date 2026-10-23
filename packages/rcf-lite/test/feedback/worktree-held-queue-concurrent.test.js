@@ -15,6 +15,8 @@
 // 4. The Stop hook in the main checkout writing its ask ledger while a
 //    worktree move runs, and rcf feedback submit in the main checkout writing
 //    its bundle under a held bundle's name after the move copied it.
+// 5. Two linked worktrees of one main checkout moving their own held queues
+//    into its store at once.
 //
 // Every interleaving is forced: the children load the test-side preload
 // test/_helpers/feedback-pause.mjs, which holds a command before a real call
@@ -35,7 +37,7 @@ import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
 
 import {
-  NO_GH_PATH, askedIn, assertOutcome, assertRaceExit, barrier, heldWorld, hookArgs, hookStdin, listIn, namesHolding,
+  NO_GH_PATH, addLane, askedIn, assertOutcome, assertRaceExit, barrier, heldWorld, hookArgs, hookStdin, listIn, namesHolding,
   newOutboxBytes, paused, pausedOrExited, reap, release, rcf, sortPairs, startRcf, storeOf, wholeSecond,
 } from '../_helpers/feedback-race-world.js';
 
@@ -147,7 +149,7 @@ function keptOnce(w, label, bytes) {
   };
 }
 
-test('AC-16103-4 guard: when the main checkout SessionEnd hook writes a bundle under a held bundle\'s name before a running worktree move copies that bundle, both bundles are kept, each in exactly one file of the main outbox', async (t) => {
+test("AC-16103-4 guard: when the main checkout SessionEnd hook writes a bundle under a held bundle's name before a running worktree move copies that bundle, both bundles are kept, each in exactly one file of the main outbox", async (t) => {
   const w = await heldWorld('rcf-fbs231-race-hook-before-', { shape: 'both', clock: wholeSecond() });
   const mover = startRcf(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('mover', ['outbox-write']) });
   reap(t, [mover]);
@@ -160,7 +162,7 @@ test('AC-16103-4 guard: when the main checkout SessionEnd hook writes a bundle u
   await assertOutcome(w, { extra: keptOnce(w, 'the main checkout SessionEnd hook bundle', hookBytes) });
 });
 
-test('AC-16103-4: when the main checkout SessionEnd hook writes a bundle under a held bundle\'s name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox', async (t) => {
+test("AC-16103-4: when the main checkout SessionEnd hook writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox", async (t) => {
   const w = await heldWorld('rcf-fbs231-race-hook-after-', { shape: 'both', clock: wholeSecond() });
   const mover = startRcf(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('mover', ['held-remove']) });
   reap(t, [mover]);
@@ -191,7 +193,7 @@ test('AC-16103-4 guard: the SessionEnd hook in a linked worktree while another c
   await assertOutcome(w, { extra: keptOnce(w, 'the worktree SessionEnd hook bundle', written[0]) });
 });
 
-test('AC-16103-4: when the main checkout Stop hook writes its ask ledger while a linked worktree moves its held queue, every held ask record and the hook\'s own ask record are in the main checkout state.json exactly once', async (t) => {
+test("AC-16103-4: when the main checkout Stop hook writes its ask ledger while a linked worktree moves its held queue, every held ask record and the hook's own ask record are in the main checkout state.json exactly once", async (t) => {
   const w = await heldWorld('rcf-fbs231-race-stop-main-', { shape: 'both', clock: wholeSecond() });
   const stop = startRcf(w.main, hookArgs('stop'), {
     stdin: hookStdin('stop', 'main-stop-session'), race: w.race('stop', ['state-write']),
@@ -215,7 +217,7 @@ test('AC-16103-4: when the main checkout Stop hook writes its ask ledger while a
   });
 });
 
-test('AC-16103-4: when rcf feedback submit in the main checkout writes a bundle under a held bundle\'s name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox', async (t) => {
+test("AC-16103-4: when rcf feedback submit in the main checkout writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox", async (t) => {
   const w = await heldWorld('rcf-fbs231-race-submit-main-', { shape: 'both', clock: wholeSecond() });
   const mover = startRcf(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('mover', ['held-remove']) });
   reap(t, [mover]);
@@ -233,4 +235,20 @@ test('AC-16103-4: when rcf feedback submit in the main checkout writes a bundle 
     expectedIds: sortPairs([...w.heldIds, ...w.ownIds.map(([id]) => [id, 'bundled'])]),
     extra: keptOnce(w, 'the main checkout submit bundle', written[0]),
   });
+});
+
+test('AC-16103-4: two linked worktrees moving their own held queues into the main checkout at once keep every held ask record, entry line and bundle of both, each exactly once in the main store', async (t) => {
+  const w = await heldWorld('rcf-fbs231-race-two-lanes-', { clock: wholeSecond() });
+  const two = await addLane(w, 'lane-two');
+  const first = startRcf(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('mover-1', ['state-write']) });
+  reap(t, [first]);
+  await paused(w.ctrl, first, 'state-write');
+  const second = startRcf(two.lane, ['feedback', 'list', '--all', '--json'], { race: { ...w.race('mover-2', ['state-write']), held: two.lane } });
+  reap(t, [second]);
+  const state = await pausedOrExited(w.ctrl, second, 'state-write');
+  release(w.ctrl, first, 'state-write');
+  assertRaceExit(await first.result, w.main, 'rcf feedback list in the first worktree (racing)');
+  if (state === 'paused') release(w.ctrl, second, 'state-write');
+  assertRaceExit(await second.result, w.main, 'rcf feedback list in the second worktree (racing)');
+  await assertOutcome(w, { lanes: [w, two] });
 });
