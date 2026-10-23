@@ -1702,6 +1702,52 @@
       "answer": "a. Taken by the test-author hand: out of this round's four items; recorded under FURTHER DEFECTS in the round 2 Define commit.",
       "answeredAt": "2026-10-23T14:39:25.930Z",
       "resolvedAt": "2026-10-23T14:39:25.930Z"
+    },
+    {
+      "id": 80,
+      "question": "(FBS-231 round 3, review r2 F1 on AC-16103-4) A linked worktree holds a 0.36.0 queue while the main checkout's .gitignore does not cover .rcf/feedback/ (world e): today the held entries drop out of the worktree's list, the Stop hook stops asking and git worktree remove deletes them. What happens there?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Nothing moves. rcf feedback list and the hooks in the worktree keep reading its own held queue (the Stop hook keeps asking), and rcf feedback add there without --force exits 2 naming .rcf/feedback, rcf doctor --fix and the main checkout's directory and saying 'the held entries move into the main checkout once it ignores .rcf/feedback/'. Once the main checkout ignores the store the next rcf feedback command moves the held queue as round 2 does. A worktree removed before then takes its held queue with it; the add refusal and the Stop ask are what surface it."
+        },
+        {
+          "letter": "b",
+          "text": "Move the held queue into the unignored main checkout and leave a committable file there"
+        },
+        {
+          "letter": "c",
+          "text": "Keep today's behaviour (the held entries drop out of view until the move)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T15:50:20.208Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on review r2 F1 (world e), written into AC-16103-4 by the round 3 test-author hand (variant 5) and bound in TS-264.",
+      "answeredAt": "2026-10-23T15:50:25.936Z",
+      "resolvedAt": "2026-10-23T15:50:25.936Z"
+    },
+    {
+      "id": 81,
+      "question": "(FBS-231 round 3, review r2 BH-1 on AC-16103-4) When moving a worktree's held queue into the main checkout throws, storeRoot swallows the error and returns the worktree, so rcf feedback add exits 0 into a queue that dies with the worktree. What does the command do on a move failure?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "It exits non-zero with stderr naming the error the move hit and the main checkout's directory; nothing is written to the worktree's queue and nothing the worktree already holds is removed."
+        },
+        {
+          "letter": "b",
+          "text": "Fall back to the worktree's own queue and exit 0 (today's behaviour)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T15:50:26.022Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on review r2 BH-1, written into AC-16103-4 by the round 3 test-author hand (variant 6) and bound in TS-264.",
+      "answeredAt": "2026-10-23T15:50:31.302Z",
+      "resolvedAt": "2026-10-23T15:50:31.302Z"
     }
   ]
 }
