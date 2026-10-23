@@ -2096,6 +2096,12 @@ flowchart LR
   AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
   AC-16103-4["AC-16103-4"]
   REQ-161 --> AC-16103-4
+  TC-264-held-queue-migrates["TC-264-held-queue-migrates"]
+  AC-16103-4 -.-> TC-264-held-queue-migrates
+  TC-264-lane-only-no-commit["TC-264-lane-only-no-commit"]
+  AC-16103-4 -.-> TC-264-lane-only-no-commit
+  TC-264-main-unignored-refuses["TC-264-main-unignored-refuses"]
+  AC-16103-4 -.-> TC-264-main-unignored-refuses
   TC-264-worktree-entry-survives["TC-264-worktree-entry-survives"]
   AC-16103-4 -.-> TC-264-worktree-entry-survives
   AC-16104-1["AC-16104-1"]
@@ -2404,6 +2410,14 @@ flowchart LR
   AC-17302-13 -.-> TC-215-r1-create-req-verbatim-replay-unchanged
   TC-215-r1-create-tac-id-unchanged-and-conflict["TC-215-r1-create-tac-id-unchanged-and-conflict"]
   AC-17302-13 -.-> TC-215-r1-create-tac-id-unchanged-and-conflict
+  AC-17302-14["AC-17302-14"]
+  REQ-173 --> AC-17302-14
+  TC-265-description-merge-keeps-scope["TC-265-description-merge-keeps-scope"]
+  AC-17302-14 -.-> TC-265-description-merge-keeps-scope
+  TC-265-from-file-keeps-scope["TC-265-from-file-keeps-scope"]
+  AC-17302-14 -.-> TC-265-from-file-keeps-scope
+  TC-265-replay-unchanged["TC-265-replay-unchanged"]
+  AC-17302-14 -.-> TC-265-replay-unchanged
   REQ-174["REQ-174"]
   AC-17401-1["AC-17401-1"]
   REQ-174 --> AC-17401-1
@@ -4856,6 +4870,9 @@ flowchart LR
   class TC-197-session-start-requeues-deferred-then-stop-asks tc;
   class TC-197-stop-only-path-requeues-deferred tc;
   class AC-16103-4 ac;
+  class TC-264-held-queue-migrates tc;
+  class TC-264-lane-only-no-commit tc;
+  class TC-264-main-unignored-refuses tc;
   class TC-264-worktree-entry-survives tc;
   class AC-16104-1 ac;
   class TC-198-init-bin-path-pins-node tc;
@@ -5014,6 +5031,10 @@ flowchart LR
   class AC-17302-13 ac;
   class TC-215-r1-create-req-verbatim-replay-unchanged tc;
   class TC-215-r1-create-tac-id-unchanged-and-conflict tc;
+  class AC-17302-14 ac;
+  class TC-265-description-merge-keeps-scope tc;
+  class TC-265-from-file-keeps-scope tc;
+  class TC-265-replay-unchanged tc;
   class REQ-174 req;
   class AC-17401-1 ac;
   class TC-216-shape tc;

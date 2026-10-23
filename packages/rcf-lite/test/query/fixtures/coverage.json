@@ -4419,6 +4419,9 @@
           "id": "AC-16103-4",
           "covered": true,
           "testCases": [
+            "TC-264-held-queue-migrates",
+            "TC-264-lane-only-no-commit",
+            "TC-264-main-unignored-refuses",
             "TC-264-worktree-entry-survives"
           ],
           "unresolvedTestCases": []
@@ -4991,6 +4994,16 @@
           "testCases": [
             "TC-215-r1-create-req-verbatim-replay-unchanged",
             "TC-215-r1-create-tac-id-unchanged-and-conflict"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-17302-14",
+          "covered": true,
+          "testCases": [
+            "TC-265-description-merge-keeps-scope",
+            "TC-265-from-file-keeps-scope",
+            "TC-265-replay-unchanged"
           ],
           "unresolvedTestCases": []
         }
