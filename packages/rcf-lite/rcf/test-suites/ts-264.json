@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T14:38:29.241Z",
+  "updatedAt": "2026-10-23T15:51:15.327Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -37,6 +37,41 @@
       "description": "a main checkout without the rcf project: rcf feedback add in a linked worktree leaves nothing under .rcf/feedback/ in the main checkout's git status; an accepted entry is listed from the worktree, a refusal exits 2",
       "status": "failing",
       "testPointer": "test/feedback/worktree-queue-migrates.test.js::AC-16103-4: when the main checkout does not hold the rcf project (adopted on the worktree branch only), rcf feedback add in a linked worktree never leaves a file the main checkout would commit"
+    },
+    {
+      "id": "TC-264-held-unignored-lists-own",
+      "acId": "AC-16103-4",
+      "description": "a linked worktree that holds a queue while the main checkout does not ignore .rcf/feedback/: rcf feedback list --all --json in the worktree lists both held entries with the status they had, the worktree entries.jsonl is byte-identical and nothing is created under the main checkout .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-unignored-main.test.js::AC-16103-4: while the main checkout does not ignore .rcf/feedback/, a linked worktree that holds a queue keeps listing its own held entries with the status they had, and nothing moves"
+    },
+    {
+      "id": "TC-264-held-unignored-hook-asks",
+      "acId": "AC-16103-4",
+      "description": "a linked worktree that holds a queue while the main checkout does not ignore .rcf/feedback/: rcf feedback hook stop --harness claude-code with a new session_id in the worktree exits 2 with the ask counting the held pending entry, and nothing moves",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-unignored-main.test.js::AC-16103-4: while the main checkout does not ignore .rcf/feedback/, the Stop hook in a linked worktree that holds a queue keeps asking about its held pending entries, and nothing moves"
+    },
+    {
+      "id": "TC-264-held-unignored-add-refuses",
+      "acId": "AC-16103-4",
+      "description": "a linked worktree that holds a queue while the main checkout does not ignore .rcf/feedback/: rcf feedback add (no --force) in the worktree exits 2, stderr naming .rcf/feedback, rcf doctor --fix, the main checkout and \"the held entries move into the main checkout once it ignores .rcf/feedback/\", and writes nothing under either checkout's .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-unignored-main.test.js::AC-16103-4: while the main checkout does not ignore .rcf/feedback/, rcf feedback add in a linked worktree that holds a queue exits 2 naming the main checkout, rcf doctor --fix and that the held entries move once it ignores the store, and nothing moves"
+    },
+    {
+      "id": "TC-264-held-moves-once-ignored",
+      "acId": "AC-16103-4",
+      "description": "guard: once the main checkout ignores .rcf/feedback/, the next rcf feedback add in a worktree that held its queue while it did not moves that queue; after git worktree remove the main checkout lists every held entry and the new one, each id once with its status",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-unignored-main.test.js::AC-16103-4 guard: once the main checkout ignores .rcf/feedback/, the next rcf feedback command in a linked worktree that held its queue while it did not moves that queue, and after git worktree remove every entry is listed from the main checkout once with the status it had"
+    },
+    {
+      "id": "TC-264-held-move-failure-exits",
+      "acId": "AC-16103-4",
+      "description": "moving a worktree's held queue fails (the main checkout .rcf/ is not writable): rcf feedback add in the worktree exits non-zero, stderr naming the error (EACCES) and the main checkout, and the worktree .rcf/feedback/ is byte-identical (no new entry, nothing removed)",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-unignored-main.test.js::AC-16103-4: when moving the held queue fails, rcf feedback add in a linked worktree exits non-zero naming the error and the main checkout, writes nothing to the worktree queue and removes nothing it held"
     }
   ],
   "status": "draft"
