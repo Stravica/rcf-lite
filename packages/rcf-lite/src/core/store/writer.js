@@ -1091,6 +1091,9 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     // survives write. Absence is treated as 'deterministic' by every
     // consumer, so we only serialise when the CLI passed a value.
     ...(body?.determinism !== undefined ? { determinism: body.determinism } : {}),
+    // AC-17302-14: the criterion's scope travels in --from-file (no
+    // --scope flag); kept as given, when, then and determinism are.
+    ...(body?.scope !== undefined ? { scope: body.scope } : {}),
   };
   const acReplay = resolveReplay({
     kind: 'ac',

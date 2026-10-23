@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-896",
+  "path": "src/core/store/writer.js#createInlineAc",
+  "implementsAcIds": [
+    "AC-17302-14"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T14:55:51.790Z",
+  "updatedAt": "2026-10-23T14:55:51.790Z"
+}
