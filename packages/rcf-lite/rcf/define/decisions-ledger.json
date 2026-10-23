@@ -1832,6 +1832,27 @@
       "answer": "a. The stage-keeper's ruling on round 6's scope (run 2 of the Define; decision 84 stays as recorded). Pinned in test/feedback/feedback-store-concurrent-writers.test.js: two Stop hooks at once in one checkout (TC-195-two-stops-at-once-both-kept, AC-16101-2, amended in place because it was silent on a second Stop hook running at once), a worktree move reading the main checkout's state.json while the Stop hook is writing it (TC-264-move-reads-whole-state-kept), the Stop hook reading it while a move is writing it (TC-264-stop-reads-whole-state-silent), the main checkout Stop hook writing between a move's read and its write (TC-264-main-stop-mid-move-own-kept) and the main checkout writers held past their wait by a running move (TC-264-writers-wait-runs-out-exit-1), red at f8a54260 and bound failing; guards TC-264-stopped-mover-holds-nothing and TC-264-old-mover-holds-nothing (a move whose process stopped, or that started more than 60 seconds earlier, holds up no later command). AC-16103-4 amended with variant 10; its text names no lock, lock file or lock format. The tests shorten the 10 second wait through RCF_FEEDBACK_LOCK_WAIT_MS (milliseconds), which the build reads.",
       "answeredAt": "2026-10-23T20:48:00.223Z",
       "resolvedAt": "2026-10-23T20:48:00.223Z"
+    },
+    {
+      "id": 86,
+      "question": "(FBS-231 round 6, run 3 of the Define, on top of decisions 84 and 85) The round 6 builder escalated without code: under decision 85 every writer of the main checkout's store waits on the store-wide lock, so the run 1 tests that held a worktree move inside its locked span and then awaited a main checkout writer before letting the move go would hold that writer for its whole 10 second wait (test/feedback/worktree-held-queue-concurrent.test.js, the add, SessionEnd and submit paths), and one of them could not be told apart from the writers-wait-runs-out test of run 2. Decision 85's stale rule also lets a waiting writer break the lock of a move that is still running once it is older than 60 seconds. When is a held lock stale, and how do the tests hold a move while a writer waits on it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling, refining decision 85's stale rule. The lock holder refreshes the lock (rewrites its timestamp) at least every 5 seconds while it works; a lock is stale, and may be broken by exclusive re-create, only when its holder pid is not alive on this host or it has not been refreshed for 60 seconds. A running move is therefore never broken. The run 1 tests that hold a move while a main checkout writer runs start the writer while the move is held, wait until the writer has run to its end or found the store busy, then let the move go, then await the writer. AC-16103-4's stale sentence says not refreshed for 60 seconds in place of started more than 60 seconds earlier."
+        },
+        {
+          "letter": "b",
+          "text": "Keep decision 85's stale rule (older than 60 seconds by its start time): a move still running after 60 seconds may be broken by a waiting writer, and only the test order changes."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T21:51:30.917Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's ruling refining decision 85's stale rule (run 3 of the Define; decisions 84 and 85 stay as recorded except this rule). The lock holder refreshes the lock at least every 5 seconds while it works; a lock is stale only when its holder pid is not alive on this host or it has not been refreshed for 60 seconds, so a running move is never broken. Pinned by TC-264-refreshing-mover-not-broken (new, test/feedback/feedback-store-concurrent-writers.test.js, red at 70650af7 and bound failing: a held move whose clock jumps 120 seconds forward works on, and rcf feedback add in the main checkout must wait and exit 1 once its wait runs out, writing nothing) and TC-264-old-mover-holds-nothing (guard, retitled to a move not refreshed for more than 60 seconds; TC id kept). The run 1 tests TC-264-lane-add-during-move-lines-once, TC-264-main-add-during-move-kept, TC-264-main-session-end-before-copy-kept, TC-264-main-session-end-after-copy-kept, TC-264-lane-session-end-during-move-once and TC-264-main-submit-after-copy-kept are re-sequenced (the writer starts while the move is held; the move is let go once the writer has run to its end or found the store busy; then the writer is awaited), titles and TC ids unchanged, each red or green at 70650af7 as before. AC-16103-4 amended in place: its stale sentence says not refreshed for 60 seconds, a sentence adds the refresh, variant 10 adds \"not refreshed since\" where it named the start time, and variant 11 is added; its text names no lock, lock file or lock format.",
+      "answeredAt": "2026-10-23T21:51:52.960Z",
+      "resolvedAt": "2026-10-23T21:51:52.960Z"
     }
   ]
 }

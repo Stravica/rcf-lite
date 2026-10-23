@@ -348,13 +348,19 @@ export async function assertOutcome(w, { expectedIds, extra, lanes = [w] } = {})
     assert.equal(next.code, 0, `one more rcf feedback command in the worktree exits 0\nstderr:\n${next.stderr}`);
   }
   const mainStore = storeOf(w.main);
+  // The main outbox is read once; the names holding each set of bytes come
+  // from that one read (namesHolding per bundle reread every file, which a
+  // 300 bundle world cannot afford once every bundle is in place).
+  const outboxNow = snapshot(join(mainStore, 'outbox'));
+  const holding = new Map();
+  for (const [n, b] of Object.entries(outboxNow)) holding.set(b, [...(holding.get(b) ?? []), n]);
   for (const l of lanes) for (const name of l.heldBundles) {
-    const where = namesHolding(mainStore, l.held[`outbox/${name}`]);
+    const where = holding.get(l.held[`outbox/${name}`]) ?? [];
     assert.equal(where.length, 1,
       `each held bundle's bytes are in exactly one file of the main checkout outbox (never duplicated, overwritten or lost): ${name} is in [${where.slice(0, 8).join(', ')}${where.length > 8 ? ', ...' : ''}]`);
   }
   for (const [name, bytes] of Object.entries(w.mainBefore)) {
-    assert.equal(snapshot(join(mainStore, 'outbox'))[name], bytes, `a main checkout outbox file that was there before is byte-identical: ${name}`);
+    assert.equal(outboxNow[name], bytes, `a main checkout outbox file that was there before is byte-identical: ${name}`);
   }
   if (extra) await extra(w);
   const have = linesIn(mainStore);

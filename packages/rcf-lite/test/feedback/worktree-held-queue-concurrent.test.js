@@ -30,6 +30,16 @@
 // each held entries line and ask record once, every bundle and entry written
 // during the race kept, no held file left, every id listed once, and the
 // worktree removed without --force.
+//
+// A command that writes the main checkout's store while a move is held (rcf
+// feedback add, the SessionEnd hook, rcf feedback submit) is started while
+// the move is held and is never awaited before the move is let go: the test
+// waits until the writer has either run to its end (nothing made it wait) or
+// found the main checkout's store busy (it wrote contended-<id> through
+// test/_helpers/feedback-lock-pause.mjs, so it is waiting on the held move,
+// decision 85), then releases the move, then awaits the writer. So the same
+// test forces the race where nothing waits and lets a writer that waits on
+// the held move go on once the move is let go (run 3 of the round 6 Define).
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
@@ -40,6 +50,7 @@ import {
   NO_GH_PATH, addLane, askedIn, assertOutcome, assertRaceExit, barrier, heldWorld, hookArgs, hookStdin, listIn, namesHolding,
   newOutboxBytes, paused, pausedOrExited, reap, release, rcf, sortPairs, startRcf, storeOf, wholeSecond,
 } from '../_helpers/feedback-race-world.js';
+import { contendedOrExited, startWatched } from '../_helpers/feedback-lock-world.js';
 
 // Start the movers held at the barrier, release them together, then drive
 // each one held inside the move: all of them first read the main store and
@@ -93,16 +104,21 @@ test('AC-16103-4: eight rcf feedback commands run at once in a linked worktree h
 });
 
 // rcf feedback add while a worktree move is held after reading the main
-// entries.jsonl and before writing it.
+// entries.jsonl and before writing it: the add starts while the move is
+// held; once it has run to its end or found the store busy, the move is let
+// go, then the add is awaited.
 async function addWhileHeld(t, w, addIn) {
   const mover = startRcf(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('mover', ['entries-write']) });
   reap(t, [mover]);
   await paused(w.ctrl, mover, 'entries-write');
-  const add = await rcf(addIn, ['feedback', 'add', '--kind', 'core', '--target', 'rcf verify run', '--anchor', 'AC-101-1',
+  const adding = startWatched(addIn, ['feedback', 'add', '--kind', 'core', '--target', 'rcf verify run', '--anchor', 'AC-101-1',
     '--class', 'verb-error', '--severity', 'minor', '--title', 'recorded while the move runs', '--body', 'fixture entry',
-    '--evidence', 'rcf verify run', '--harness', 'claude-code']);
-  assertRaceExit(add, w.main, 'rcf feedback add (while the move runs)');
+    '--evidence', 'rcf verify run', '--harness', 'claude-code'], { race: w.race('add', []) });
+  reap(t, [adding]);
+  t.diagnostic(`rcf feedback add ${await contendedOrExited(w.ctrl, adding)} while the move is held`);
   release(w.ctrl, mover, 'entries-write');
+  const add = await adding.result;
+  assertRaceExit(add, w.main, 'rcf feedback add (while the move runs)');
   assertRaceExit(await mover.result, w.main, 'rcf feedback list (the held move)');
   if (add.code === 0) return /recorded (fb-[0-9a-z-]+)/.exec(add.stdout)?.[1];
   // The add failed on the move; it records the entry when run again.
@@ -135,11 +151,29 @@ test('AC-16103-4 guard: rcf feedback add in the main checkout while a linked wor
 });
 
 // The main checkout's SessionEnd hook, its clock pinned to the held
-// SessionEnd bundle's instant, so its bundle takes the held bundle's name.
-async function mainSessionEnd(w) {
-  const r = await rcf(w.main, hookArgs('session-end'), { stdin: hookStdin('session-end', 'main-end-session'), clock: w.clock });
+// SessionEnd bundle's instant, so the name it gives its bundle is the held
+// bundle's. It is started while the move is held (see the file comment);
+// sessionEndExits0 awaits it.
+function startMainSessionEnd(w) {
+  return startWatched(w.main, hookArgs('session-end'), {
+    stdin: hookStdin('session-end', 'main-end-session'), clock: w.clock, race: w.race('main-hook', []),
+  });
+}
+
+async function sessionEndExits0(h) {
+  const r = await h.result;
   assert.equal(r.code, 0, `the main checkout SessionEnd hook exits 0\nstderr:\n${r.stderr}`);
   return r;
+}
+
+// The one bundle a writer that ran while the move was held put into the
+// main outbox (bytes none of the known ones). It is read as soon as the
+// writer has exited when nothing made it wait, so an overwrite by the move
+// after that shows; when the writer waited on the move, once both are done.
+function oneNewBundle(w, known, label) {
+  const written = newOutboxBytes(storeOf(w.main), known);
+  assert.equal(written.length, 1, `fixture: ${label} wrote one bundle into the main outbox (new bundles: ${written.length})`);
+  return written[0];
 }
 
 function keptOnce(w, label, bytes) {
@@ -154,12 +188,23 @@ test("AC-16103-4 guard: when the main checkout SessionEnd hook writes a bundle u
   const mover = startRcf(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('mover', ['outbox-write']) });
   reap(t, [mover]);
   await paused(w.ctrl, mover, 'outbox-write');
-  await mainSessionEnd(w);
-  const hookBytes = readFileSync(join(storeOf(w.main), 'outbox', w.seName), 'utf8');
-  assert.notEqual(hookBytes, w.held[`outbox/${w.seName}`], `fixture: the main SessionEnd hook wrote ${w.seName} with bytes other than the held bundle's`);
+  const known = [...w.heldBundles.map((n) => w.held[`outbox/${n}`]), ...Object.values(w.mainBefore)];
+  const hook = startMainSessionEnd(w);
+  reap(t, [hook]);
+  const state = await contendedOrExited(w.ctrl, hook);
+  t.diagnostic(`the main checkout SessionEnd hook ${state} while the move is held`);
+  let written = null;
+  if (state === 'exited') {
+    // Nothing made the hook wait: it wrote its bundle under the held
+    // bundle's name before the held move copies that bundle.
+    written = oneNewBundle(w, known, 'the main SessionEnd hook');
+    assert.equal(readFileSync(join(storeOf(w.main), 'outbox', w.seName), 'utf8'), written, `fixture: the main SessionEnd hook wrote ${w.seName}, the held bundle's name`);
+  }
   release(w.ctrl, mover, 'outbox-write');
+  await sessionEndExits0(hook);
   assertRaceExit(await mover.result, w.main, 'rcf feedback list (the held move)');
-  await assertOutcome(w, { extra: keptOnce(w, 'the main checkout SessionEnd hook bundle', hookBytes) });
+  written ??= oneNewBundle(w, known, 'the main SessionEnd hook');
+  await assertOutcome(w, { extra: keptOnce(w, 'the main checkout SessionEnd hook bundle', written) });
 });
 
 test("AC-16103-4: when the main checkout SessionEnd hook writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox", async (t) => {
@@ -169,12 +214,16 @@ test("AC-16103-4: when the main checkout SessionEnd hook writes a bundle under a
   await paused(w.ctrl, mover, 'held-remove');
   assert.equal(namesHolding(storeOf(w.main), w.held[`outbox/${w.seName}`]).length, 1, 'fixture: the held move has copied the SessionEnd bundle into the main outbox');
   const known = w.heldBundles.map((n) => w.held[`outbox/${n}`]);
-  await mainSessionEnd(w);
-  const written = newOutboxBytes(storeOf(w.main), known);
-  assert.equal(written.length, 1, 'fixture: the main SessionEnd hook wrote one bundle');
+  const hook = startMainSessionEnd(w);
+  reap(t, [hook]);
+  const state = await contendedOrExited(w.ctrl, hook);
+  t.diagnostic(`the main checkout SessionEnd hook ${state} while the move is held`);
+  let written = state === 'exited' ? oneNewBundle(w, known, 'the main SessionEnd hook') : null;
   release(w.ctrl, mover, 'held-remove');
+  await sessionEndExits0(hook);
   assertRaceExit(await mover.result, w.main, 'rcf feedback list (the held move)');
-  await assertOutcome(w, { extra: keptOnce(w, 'the main checkout SessionEnd hook bundle', written[0]) });
+  written ??= oneNewBundle(w, known, 'the main SessionEnd hook');
+  await assertOutcome(w, { extra: keptOnce(w, 'the main checkout SessionEnd hook bundle', written) });
 });
 
 test('AC-16103-4 guard: the SessionEnd hook in a linked worktree while another command there is moving its held queue writes its bundle once and copies no held bundle a second time', async (t) => {
@@ -183,14 +232,21 @@ test('AC-16103-4 guard: the SessionEnd hook in a linked worktree while another c
   reap(t, [mover]);
   await paused(w.ctrl, mover, 'held-remove');
   const known = w.heldBundles.map((n) => w.held[`outbox/${n}`]);
-  const later = new Date(Date.parse(w.clock) + 3_600_000).toISOString();
-  const r = await rcf(w.lane, hookArgs('session-end'), { stdin: hookStdin('session-end', 'lane-end-session'), clock: later });
-  assertRaceExit(r, w.main, 'the worktree SessionEnd hook (while the move runs)');
-  const written = newOutboxBytes(storeOf(w.main), known);
-  assert.equal(written.length, 1, `fixture: the worktree SessionEnd hook wrote one bundle into the main outbox (new bundles: ${written.length})`);
+  // Two seconds after the held bundles' instant: a name of its own, and a
+  // clock that never reads the running move as more than 60 seconds old.
+  const later = new Date(Date.parse(w.clock) + 2000).toISOString();
+  const hook = startWatched(w.lane, hookArgs('session-end'), {
+    stdin: hookStdin('session-end', 'lane-end-session'), clock: later, race: w.race('lane-hook', []),
+  });
+  reap(t, [hook]);
+  const state = await contendedOrExited(w.ctrl, hook);
+  t.diagnostic(`the worktree SessionEnd hook ${state} while the move is held`);
+  let written = state === 'exited' ? oneNewBundle(w, known, 'the worktree SessionEnd hook') : null;
   release(w.ctrl, mover, 'held-remove');
+  assertRaceExit(await hook.result, w.main, 'the worktree SessionEnd hook (while the move runs)');
   assertRaceExit(await mover.result, w.main, 'rcf feedback list (the held move)');
-  await assertOutcome(w, { extra: keptOnce(w, 'the worktree SessionEnd hook bundle', written[0]) });
+  written ??= oneNewBundle(w, known, 'the worktree SessionEnd hook');
+  await assertOutcome(w, { extra: keptOnce(w, 'the worktree SessionEnd hook bundle', written) });
 });
 
 test("AC-16103-4: when the main checkout Stop hook writes its ask ledger while a linked worktree moves its held queue, every held ask record and the hook's own ask record are in the main checkout state.json exactly once", async (t) => {
@@ -224,16 +280,24 @@ test("AC-16103-4: when rcf feedback submit in the main checkout writes a bundle 
   await paused(w.ctrl, mover, 'held-remove');
   assert.equal(namesHolding(storeOf(w.main), w.held[`outbox/${w.submitName}`]).length, 1, 'fixture: the held move has copied the submit bundle into the main outbox');
   const known = w.heldBundles.map((n) => w.held[`outbox/${n}`]);
-  const submit = await rcf(w.main, ['feedback', 'submit', '--yes'], { path: NO_GH_PATH, clock: w.clock });
-  assert.equal(submit.code, 0, `rcf feedback submit --yes without gh exits 0 in the main checkout\nstdout:\n${submit.stdout}\nstderr:\n${submit.stderr}`);
-  assert.ok(submit.stdout.includes(w.submitName), `fixture: submit bundled the main checkout's two entries under the held bundle's name ${w.submitName}\nstdout:\n${submit.stdout}`);
-  const written = newOutboxBytes(storeOf(w.main), known);
-  assert.equal(written.length, 1, 'fixture: submit wrote one bundle');
+  const submitting = startWatched(w.main, ['feedback', 'submit', '--yes'], { path: NO_GH_PATH, clock: w.clock, race: w.race('submit', []) });
+  reap(t, [submitting]);
+  const state = await contendedOrExited(w.ctrl, submitting);
+  t.diagnostic(`rcf feedback submit ${state} while the move is held`);
+  let written = null;
+  if (state === 'exited') {
+    // Nothing made submit wait: it named its bundle as the held one.
+    assert.ok(submitting.stdout.includes(w.submitName), `fixture: submit bundled the main checkout's two entries under the held bundle's name ${w.submitName}\nstdout:\n${submitting.stdout}`);
+    written = oneNewBundle(w, known, 'submit');
+  }
   release(w.ctrl, mover, 'held-remove');
+  const submit = await submitting.result;
+  assert.equal(submit.code, 0, `rcf feedback submit --yes without gh exits 0 in the main checkout\nstdout:\n${submit.stdout}\nstderr:\n${submit.stderr}`);
   assertRaceExit(await mover.result, w.main, 'rcf feedback list (the held move)');
+  written ??= oneNewBundle(w, known, 'submit');
   await assertOutcome(w, {
     expectedIds: sortPairs([...w.heldIds, ...w.ownIds.map(([id]) => [id, 'bundled'])]),
-    extra: keptOnce(w, 'the main checkout submit bundle', written[0]),
+    extra: keptOnce(w, 'the main checkout submit bundle', written),
   });
 });
 

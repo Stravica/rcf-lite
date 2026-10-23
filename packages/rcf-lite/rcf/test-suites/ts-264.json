@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T20:48:03.339Z",
+  "updatedAt": "2026-10-23T21:51:54.095Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -232,7 +232,14 @@
       "acId": "AC-16103-4",
       "description": "a worktree move (clock pinned) is held before its first outbox copy while rcf feedback add runs in the main checkout with its clock 120 seconds later: the add exits 0 and its entry is listed once with status pending; after the held move's process is stopped the next command completes the move with each id once",
       "status": "passing",
-      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4 guard: a worktree move that started more than 60 seconds earlier holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once"
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4 guard: a worktree move that has not been refreshed for more than 60 seconds holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once"
+    },
+    {
+      "id": "TC-264-refreshing-mover-not-broken",
+      "acId": "AC-16103-4",
+      "description": "a worktree move whose clock runs 120 seconds behind is held before its first outbox copy, its clock is moved on to the real one (so it started 120 seconds earlier), it is let copy the held bundles and is held again before it removes a held file; rcf feedback add in the main checkout, its wait shortened, exits 1 naming the running command's process id and the main checkout and writes nothing under the main checkout's .rcf/feedback/; after the move finishes and one more command runs in the worktree, each held bundle, entries line and ask record is in the main store exactly once and every id is listed once",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4: a worktree move still running that keeps refreshing is never taken for stopped, however long ago it started: rcf feedback add in the main checkout waits for it, exits 1 once its wait runs out naming the running command and the main checkout, and writes nothing"
     }
   ],
   "status": "draft"

@@ -120,3 +120,20 @@ export async function pausedContendedOrExited(ctrl, h, point) {
     await delay(5);
   }
 }
+
+const clockJumpPreload = pathToFileURL(join(here, 'feedback-clock-jump.mjs')).href;
+
+/**
+ * Run 3 (decision 86): the options that load test/_helpers/feedback-clock-jump.mjs
+ * into a startWatched child beside the pause preload. The child's clock runs
+ * behindMs behind the real clock until the fixture writes `file`, then reads
+ * the real clock, so it jumps forward behindMs at once. Pass `env` as
+ * startWatched's opts.env.
+ */
+export function clockJump(ctrl, id, behindMs) {
+  const file = join(ctrl, `clock-jump-${id}`);
+  return {
+    file,
+    env: { NODE_OPTIONS: `--import=${clockJumpPreload}`, RCF_TEST_CLOCK_BEHIND_MS: String(behindMs), RCF_TEST_CLOCK_CATCH_UP: file },
+  };
+}

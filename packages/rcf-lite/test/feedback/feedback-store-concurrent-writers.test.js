@@ -15,8 +15,11 @@
 //    writer there (add, the Stop and SessionEnd hooks, submit) whose wait
 //    runs out exits 1 naming the running command's process id and the main
 //    checkout, and writes nothing.
-// E. A move whose process stopped without finishing, or that started more
-//    than 60 seconds earlier, holds up no later command.
+// E. A move whose process stopped without finishing, or that has not been
+//    refreshed for 60 seconds, holds up no later command (decision 86).
+// F. A move still running that keeps refreshing is never taken for stopped,
+//    however long ago it started: a writer waiting on it exits 1 once its
+//    wait runs out (decision 86, run 3).
 //
 // Every interleaving is forced: the children load the test-side preload
 // test/_helpers/feedback-lock-pause.mjs, which holds a command at a named
@@ -27,10 +30,13 @@
 // releases a held command once the other command has either finished or
 // found the store busy, so the same test forces the race at the shipped tree
 // and lets a writer that waits go on. No sleep, timer or retry decides an
-// outcome. D shortens the writers' 10 second wait through
-// RCF_FEEDBACK_LOCK_WAIT_MS so the test stays inside its budget.
+// outcome. D and F shorten the writers' 10 second wait through
+// RCF_FEEDBACK_LOCK_WAIT_MS so the test stays inside its budget. F also
+// loads test/_helpers/feedback-clock-jump.mjs into the held move, whose
+// clock runs 120 seconds behind until the test lets it jump to the real one.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { writeFileSync } from 'node:fs';
 import { mkdir } from 'node:fs/promises';
 import { join } from 'node:path';
 import { isDeepStrictEqual } from 'node:util';
@@ -40,7 +46,7 @@ import {
   namesDir, paused, plainCheckout, reap, release, snapshot, sortPairs, storeOf, wholeSecond,
 } from '../_helpers/feedback-race-world.js';
 import {
-  SHORT_WAIT_MS, contendedOrExited, killHeld, pausedContendedOrExited, runWatched, startWatched,
+  SHORT_WAIT_MS, clockJump, contendedOrExited, killHeld, pausedContendedOrExited, runWatched, startWatched,
 } from '../_helpers/feedback-lock-world.js';
 
 const ADD_ARGS = (title) => ['feedback', 'add', '--kind', 'core', '--target', 'rcf verify run', '--anchor', 'AC-101-1',
@@ -201,16 +207,42 @@ test('AC-16103-4 guard: a worktree move whose process stopped without finishing 
     'rcf feedback list --all --json from the main checkout lists every id once with its status, the new entry pending');
 });
 
-test('AC-16103-4 guard: a worktree move that started more than 60 seconds earlier holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once', async (t) => {
+test('AC-16103-4 guard: a worktree move that has not been refreshed for more than 60 seconds holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once', async (t) => {
   const w = await heldWorld('rcf-fbs231-lock-old-mover-', { shape: 'both', clock: wholeSecond() });
   const holder = startWatched(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('holder', ['outbox-write']), clock: w.clock });
   reap(t, [holder]);
   await paused(w.ctrl, holder, 'outbox-write');
   const later = new Date(Date.parse(w.clock) + 120_000).toISOString();
   const r = await runWatched(w.main, ADD_ARGS('recorded 120 seconds after the move started'), { clock: later, env: { RCF_FEEDBACK_LOCK_WAIT_MS: SHORT_WAIT_MS } });
-  assert.equal(r.code, 0, `rcf feedback add in the main checkout proceeds (exit 0) past a move that started 120 seconds earlier\nstderr:\n${r.stderr}`);
+  assert.equal(r.code, 0, `rcf feedback add in the main checkout proceeds (exit 0) past a move that started 120 seconds earlier and has not been refreshed since\nstderr:\n${r.stderr}`);
   const id = recordedId(r);
   assert.ok(id, `rcf feedback add records an entry\nstdout:\n${r.stdout}`);
   await killHeld(holder);
   await assertOutcome(w, { expectedIds: sortPairs([...w.heldIds, ...w.ownIds, [id, 'pending']]) });
+});
+
+test('AC-16103-4: a worktree move still running that keeps refreshing is never taken for stopped, however long ago it started: rcf feedback add in the main checkout waits for it, exits 1 once its wait runs out naming the running command and the main checkout, and writes nothing', async (t) => {
+  const w = await heldWorld('rcf-fbs231-lock-refreshing-mover-', { shape: 'both', clock: wholeSecond() });
+  const jump = clockJump(w.ctrl, 'holder', 120_000);
+  const holder = startWatched(w.lane, ['feedback', 'list', '--all', '--json'], { race: w.race('holder', ['outbox-write', 'held-remove']), env: jump.env });
+  reap(t, [holder]);
+  await paused(w.ctrl, holder, 'outbox-write');
+  // The held move's clock jumps 120 seconds forward: everything it did before
+  // this pause it did 120 seconds ago. Let go, it works on (copies the held
+  // bundles) and is held again before it removes a held file.
+  writeFileSync(jump.file, 'now');
+  release(w.ctrl, holder, 'outbox-write');
+  await paused(w.ctrl, holder, 'held-remove');
+  const mainStore = storeOf(w.main);
+  const held = snapshot(mainStore);
+  const r = await runWatched(w.main, ADD_ARGS('recorded while a long move runs'), { env: { RCF_FEEDBACK_LOCK_WAIT_MS: SHORT_WAIT_MS } });
+  const pid = String(holder.child.pid);
+  assert.equal(r.code, 1,
+    `rcf feedback add in the main checkout waits for a move still running that started 120 seconds earlier and has worked since, and exits 1 once its wait runs out (the move is never taken for stopped)\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`);
+  assert.ok(r.stderr.includes(pid), `rcf feedback add names the running command (process ${pid}) on stderr\nstderr:\n${r.stderr}`);
+  assert.ok(namesDir(r.stderr, w.main), `rcf feedback add names the main checkout on stderr\nstderr:\n${r.stderr}`);
+  assert.deepEqual(snapshot(mainStore), held, 'a writer whose wait runs out writes nothing under the main checkout .rcf/feedback/ (nothing half-done, the running move never broken)');
+  release(w.ctrl, holder, 'held-remove');
+  assertRaceExit(await holder.result, w.main, 'rcf feedback list in the worktree (the held move)');
+  await assertOutcome(w);
 });
