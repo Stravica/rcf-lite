@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:17.390Z",
-  "updatedAt": "2026-10-16T22:46:19.629Z",
+  "updatedAt": "2026-10-23T10:48:29.216Z",
   "description": "User story under REQ-190 for the Test-stage report writer (FBS-219). The verifier hand runs rcf verify run against the preview or version host and commits the VerifyReport on the PR branch; the report is the evidence the merge gate reads and Finalise later ingests. Committing the report is evidence, not an edit to production code, tests or criteria.",
   "asA": "the verifier hand at the Test stage of one build spec",
   "iWant": "one command that verifies the spec's criteria through the real entry point and writes a report naming the head, the target, the hand and every per-AC result",
@@ -41,6 +41,11 @@
     {
       "id": "AC-19001-6",
       "description": "[must-not] rcf verify run --hand verifier never writes outside rcf/verify-reports/<fbs-id>/: after a run, git status lists no change under src/, test/ or any chain document directory, and an existing report for the same head is never overwritten (a second run exits 4 with \"verify report exists for head <sha7>; pass --replace \\\"<reason>\\\"\").",
+      "testable": true
+    },
+    {
+      "id": "AC-19001-7",
+      "description": "[failure] rcf verify run --out takes a file path. Given --out naming an existing directory (with or without a trailing path separator) on a --url run without --hand, when rcf verify run is invoked, then it exits 2 before any request reaches the target, stderr carries \"--out must be a file path, not a directory\" (as \"[error] usage --out must be a file path, not a directory: <value>\"), and nothing is written inside the directory; rcf verify run --help describes --out as a file path and says a directory is refused (exit 2). A --out naming a file path still writes the report there.",
       "testable": true
     }
   ],

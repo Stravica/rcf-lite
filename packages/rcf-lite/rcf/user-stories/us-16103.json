@@ -35,8 +35,16 @@
       "then": "SessionStart appends one { status: pending } transition (no sessionId field) so the entry returns to pending with its sessionId still A; the carry-over line prints to stdout naming the count and RULE 17; the following Stop exits 2 with the ask on stderr and appends exactly one asked record for session B; a second SessionStart in session B is a no-op (no new transition, silent stdout); a further SessionStart in a fresh session_id C after a Stop-only path (no SessionStart wired) still requeues on the Stop hook so the ask fires there",
       "testable": true,
       "scope": "runtime"
+    },
+    {
+      "id": "AC-16103-4",
+      "description": "[must-not] A feedback entry recorded in a linked git worktree is never lost with the worktree: after git worktree remove, the entry is still offered from the main checkout. Where the queue is stored so that it survives (the git common dir, a per-repo user state dir, the main checkout's own .rcf/feedback/, or another per-repo location outside the worktree) is the builder's choice; AC-15501-1 is unchanged.",
+      "testable": true,
+      "given": "a git repository holding an rcf project whose .gitignore covers .rcf/feedback/, and a linked worktree made with git worktree add",
+      "when": "rcf feedback add records one entry from the worktree, then the worktree is removed with git worktree remove (no --force)",
+      "then": "rcf feedback list --json run from the main checkout lists that entry by id with status pending, and rcf feedback list there prints its id"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-17T03:30:00Z"
+  "updatedAt": "2026-10-23T10:48:29.805Z"
 }

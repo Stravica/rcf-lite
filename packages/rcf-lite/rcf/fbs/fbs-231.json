@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-10-23T10:48:45.619Z",
+  "updatedAt": "2026-10-23T10:48:45.619Z",
+  "summary": "Three findings from a downstream report, confirmed against rcf-lite 0.36.0 main: the feedback Stop hook asks inside the headless agent session rcf verify run spawns, so a queued entry becomes the session's final output and the run ends LAUNCH-FAILURE (AC-16102-3); rcf verify run --out <dir>/ runs the whole verify and then fails with EISDIR, exit 1 (AC-19001-7); a feedback entry recorded in a linked git worktree is lost when the worktree is removed (AC-16103-4).",
+  "approach": "Spawn every headless agent session with RCF_FEEDBACK_ASK=0; refuse a directory --out on rcf verify run as a usage error (exit 2) before the run and say file path in --help; keep the feedback queue recoverable from the main checkout after a worktree is removed, storage location the builder's choice with AC-15501-1 unchanged.",
+  "deliverables": [
+    "src/verify/engine/launcher.js or src/core/isolation/index.js: RCF_FEEDBACK_ASK=0 in the spawned agent env (and spawnVerify, the llmJudge eval spawn)",
+    "src/verify/cli/run.js: the directory --out usage refusal and the --out help line",
+    "src/feedback/store.js (and the project-root resolution it is called with): a queue that survives git worktree remove",
+    "Code Nodes for AC-16102-3, AC-19001-7 and AC-16103-4; CHANGELOG lines for 0.36.1"
+  ],
+  "riskLevel": "low",
+  "domain": "functional",
+  "estimatedSize": "small",
+  "notes": "Define round w-2026-10-23-dave-015 (test-author hand). Tests: TS for US-16102 in test/verify/headless-session-feedback-ask.test.js, TS for US-19001 in test/verify/out-directory-refused.test.js, TS for US-16103 in test/feedback/worktree-queue-survives.test.js. Finding 2 reading: refuse a directory with exit 2 (the smaller change; no default report file name is introduced). Finding 3: the behaviour is pinned, the storage choice is the builder's. Commits carry Hand: trailers.",
+  "acIds": [
+    "AC-16102-3",
+    "AC-19001-7",
+    "AC-16103-4"
+  ],
+  "fbsId": "FBS-231",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 233,
+  "executionStatus": "notStarted",
+  "title": "Headless agent sessions run with the feedback ask off, verify run --out refuses a directory, and the feedback queue survives a removed worktree",
+  "dependsOnFbsIds": []
+}
