@@ -262,6 +262,7 @@ test('AC-16103-4: when moving the held queue fails after removing some held file
     else assertContentInMainStore(w, name, bytes);
   }
   assert.deepEqual(Object.keys(now).filter((n) => !Object.hasOwn(w.held, n)), [], 'nothing new is written under the worktree .rcf/feedback/');
+  assert.ok(Object.keys(w.held).some((n) => !Object.hasOwn(now, n)), `the failed move removed at least one held file from the worktree (it fails after removing some held files); still held: ${Object.keys(now).join(', ')}`);
   assert.deepEqual(await listIn(w.main, ['--all']), heldExpected(w),
     'rcf feedback list --all --json from the main checkout lists every held entry, each id exactly once with the status it had');
 
