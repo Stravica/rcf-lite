@@ -33,9 +33,10 @@
       "testable": true,
       "given": "a project whose .claude/settings.json carries the rcf feedback Stop hook (pinned-bin form) and one pending entry recorded with rcf feedback add --ask-now, and an agent CLI on PATH that runs the project's Stop hook at the end of its turn",
       "when": "rcf verify run --repo <project> --profile local-dev --url <url> --out <file> --fbs <fbs-id> runs in its default agent mode",
-      "then": "the agent CLI receives RCF_FEEDBACK_ASK=0 and no RCF_FEEDBACK_DISABLE; the Stop hook run inside the session exits 0 with empty stderr; the report written to --out carries the agent's findings (verdict is not LAUNCH-FAILURE and no launchFailure); the entry is still listed pending by rcf feedback list --json"
+      "then": "the agent CLI receives RCF_FEEDBACK_ASK=0 and no RCF_FEEDBACK_DISABLE; the Stop hook run inside the session exits 0 with empty stderr; the report written to --out carries the agent's findings (verdict is not LAUNCH-FAILURE and no launchFailure); the entry is still listed pending by rcf feedback list --json",
+      "scope": "runtime"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-10-23T10:48:28.636Z"
+  "updatedAt": "2026-10-23T14:37:59.752Z"
 }

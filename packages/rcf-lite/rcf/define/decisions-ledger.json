@@ -1618,6 +1618,90 @@
       "answer": "a. Taken by the test-author hand: AC-16103-4 pins recovery from the main checkout; storage is the builder's choice; AC-15501-1 is not changed (TC-264-worktree-entry-survives).",
       "answeredAt": "2026-10-23T10:49:46.520Z",
       "resolvedAt": "2026-10-23T10:49:46.520Z"
+    },
+    {
+      "id": 76,
+      "question": "(FBS-231 round 2, review gate 1 findings R2/BH-1 at store.js:79 and R1/BH-2 at store.js:90 with feedback.js:321-327) How does AC-16103-4 close the held worktree queue that is lost on removal and the entry written where the main checkout does not ignore it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "amend AC-16103-4: the next rcf feedback command run in the worktree moves a held queue into the main checkout's store (ids once, statuses kept); the store of a linked worktree is the main checkout's .rcf/feedback/ (the round 1 choice); the gitignore pre-write check runs against the checkout that holds the store and refuses as AC-15501-2 refuses (exit 2, naming the main checkout); a main checkout without the rcf project never receives a committable entry (reviewer probe c4, keep-in-worktree or refuse is the builder's); bare and separate-git-dir worktrees out of scope"
+        },
+        {
+          "letter": "b",
+          "text": "write the entry only where git ignores it and still offer it from the main checkout"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:01.829Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: refusal is the smaller reading consistent with AC-15501-2 and the never-lost clause (nothing is accepted, so nothing is lost); storage pinned to the main checkout's .rcf/feedback/ because the refusal reading needs it; probe c4 covered by a must-not test (TC-264-lane-only-no-commit); tests TC-264-held-queue-migrates and TC-264-main-unignored-refuses; TC-264-worktree-entry-survives unchanged.",
+      "answeredAt": "2026-10-23T14:39:08.626Z",
+      "resolvedAt": "2026-10-23T14:39:08.626Z"
+    },
+    {
+      "id": 77,
+      "question": "(FBS-231 round 2) Where does the fix for rcf define create ac dropping the criterion's scope field sit?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a new criterion AC-17302-14 on US-17302 (the story whose AC-17302-10 to AC-17302-13 pin the define create replays), covering the --from-file form, the --description merge form and a same-id replay; no new --scope flag (the help lists none); create us --from-file kept as a guard"
+        },
+        {
+          "letter": "b",
+          "text": "amend an existing criterion"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:01.916Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-17302-14 on US-17302, TS-265 (TC-265-from-file-keeps-scope, TC-265-description-merge-keeps-scope, TC-265-replay-unchanged); no other create form drops scope at the branch head.",
+      "answeredAt": "2026-10-23T14:39:08.713Z",
+      "resolvedAt": "2026-10-23T14:39:08.713Z"
+    },
+    {
+      "id": 78,
+      "question": "(FBS-231 round 2) AC-16102-3 and AC-16103-4 were written by the defective create verb and carry no scope; how is it set?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "rcf define update <AC> --set scope=runtime on AC-16102-3, AC-16103-4 and the new AC-17302-14 (the create verb drops it); wording and meaning unchanged"
+        },
+        {
+          "letter": "b",
+          "text": "leave them unscoped"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:02.003Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand on the stage-keeper's note: scope runtime set through rcf define update on AC-16102-3, AC-16103-4 and AC-17302-14.",
+      "answeredAt": "2026-10-23T14:39:08.800Z",
+      "resolvedAt": "2026-10-23T14:39:08.800Z"
+    },
+    {
+      "id": 79,
+      "question": "(FBS-231 round 2) rcf define create tc drops a test case's scope field the same way (src/core/store/writer.js:1244-1250, createInlineTc); is it in this round?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no: named as a further defect, untested, for a later round; decision 77's 'no other create form' covers the forms that write a criterion (create ac, create us)"
+        },
+        {
+          "letter": "b",
+          "text": "fix it in this round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:25.844Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: out of this round's four items; recorded under FURTHER DEFECTS in the round 2 Define commit.",
+      "answeredAt": "2026-10-23T14:39:25.930Z",
+      "resolvedAt": "2026-10-23T14:39:25.930Z"
     }
   ]
 }
