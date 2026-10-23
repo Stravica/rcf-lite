@@ -4298,7 +4298,8 @@
             "TC-194-preflight-auth-off",
             "TC-194-preflight-gh-missing",
             "TC-194-preflight-issues-disabled",
-            "TC-194-preflight-private-none"
+            "TC-194-preflight-private-none",
+            "TC-194-submit-same-second-both-kept"
           ],
           "unresolvedTestCases": []
         },
@@ -4346,7 +4347,8 @@
           "covered": true,
           "testCases": [
             "TC-195-hook-stop-claude-code",
-            "TC-195-hook-stop-codex"
+            "TC-195-hook-stop-codex",
+            "TC-195-two-stops-at-once-both-kept"
           ],
           "unresolvedTestCases": []
         },
@@ -4391,6 +4393,8 @@
           "id": "AC-16103-1",
           "covered": true,
           "testCases": [
+            "TC-197-session-end-idempotent-after-same-second",
+            "TC-197-session-end-same-second-both-kept",
             "TC-197-session-end-writes-idempotent-bundle"
           ],
           "unresolvedTestCases": []
@@ -4419,6 +4423,7 @@
           "id": "AC-16103-4",
           "covered": true,
           "testCases": [
+            "TC-264-eight-moves-copy-once",
             "TC-264-held-bundle-collision-kept",
             "TC-264-held-identical-removed-once",
             "TC-264-held-move-fails-after-append",
@@ -4432,9 +4437,25 @@
             "TC-264-held-unignored-add-refuses",
             "TC-264-held-unignored-hook-asks",
             "TC-264-held-unignored-lists-own",
+            "TC-264-lane-add-during-move-lines-once",
             "TC-264-lane-only-no-commit",
+            "TC-264-lane-session-end-during-move-once",
+            "TC-264-main-add-during-move-kept",
+            "TC-264-main-session-end-after-copy-kept",
+            "TC-264-main-session-end-before-copy-kept",
+            "TC-264-main-stop-during-move-asks-kept",
+            "TC-264-main-stop-mid-move-own-kept",
+            "TC-264-main-submit-after-copy-kept",
             "TC-264-main-unignored-refuses",
-            "TC-264-worktree-entry-survives"
+            "TC-264-move-reads-whole-state-kept",
+            "TC-264-old-mover-holds-nothing",
+            "TC-264-refreshing-mover-not-broken",
+            "TC-264-stop-reads-whole-state-silent",
+            "TC-264-stopped-mover-holds-nothing",
+            "TC-264-two-lanes-move-at-once-kept",
+            "TC-264-two-moves-copy-once",
+            "TC-264-worktree-entry-survives",
+            "TC-264-writers-wait-runs-out-exit-1"
           ],
           "unresolvedTestCases": []
         },
