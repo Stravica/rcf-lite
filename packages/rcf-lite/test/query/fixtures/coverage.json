@@ -4419,6 +4419,8 @@
           "id": "AC-16103-4",
           "covered": true,
           "testCases": [
+            "TC-264-held-move-fails-after-append",
+            "TC-264-held-move-fails-after-remove",
             "TC-264-held-move-failure-exits",
             "TC-264-held-moves-once-ignored",
             "TC-264-held-queue-migrates",
