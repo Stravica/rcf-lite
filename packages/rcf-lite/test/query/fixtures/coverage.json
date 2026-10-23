@@ -4419,7 +4419,12 @@
           "id": "AC-16103-4",
           "covered": true,
           "testCases": [
+            "TC-264-held-move-failure-exits",
+            "TC-264-held-moves-once-ignored",
             "TC-264-held-queue-migrates",
+            "TC-264-held-unignored-add-refuses",
+            "TC-264-held-unignored-hook-asks",
+            "TC-264-held-unignored-lists-own",
             "TC-264-lane-only-no-commit",
             "TC-264-main-unignored-refuses",
             "TC-264-worktree-entry-survives"

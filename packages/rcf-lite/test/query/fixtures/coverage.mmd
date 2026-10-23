@@ -2096,8 +2096,18 @@ flowchart LR
   AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
   AC-16103-4["AC-16103-4"]
   REQ-161 --> AC-16103-4
+  TC-264-held-move-failure-exits["TC-264-held-move-failure-exits"]
+  AC-16103-4 -.-> TC-264-held-move-failure-exits
+  TC-264-held-moves-once-ignored["TC-264-held-moves-once-ignored"]
+  AC-16103-4 -.-> TC-264-held-moves-once-ignored
   TC-264-held-queue-migrates["TC-264-held-queue-migrates"]
   AC-16103-4 -.-> TC-264-held-queue-migrates
+  TC-264-held-unignored-add-refuses["TC-264-held-unignored-add-refuses"]
+  AC-16103-4 -.-> TC-264-held-unignored-add-refuses
+  TC-264-held-unignored-hook-asks["TC-264-held-unignored-hook-asks"]
+  AC-16103-4 -.-> TC-264-held-unignored-hook-asks
+  TC-264-held-unignored-lists-own["TC-264-held-unignored-lists-own"]
+  AC-16103-4 -.-> TC-264-held-unignored-lists-own
   TC-264-lane-only-no-commit["TC-264-lane-only-no-commit"]
   AC-16103-4 -.-> TC-264-lane-only-no-commit
   TC-264-main-unignored-refuses["TC-264-main-unignored-refuses"]
@@ -4870,7 +4880,12 @@ flowchart LR
   class TC-197-session-start-requeues-deferred-then-stop-asks tc;
   class TC-197-stop-only-path-requeues-deferred tc;
   class AC-16103-4 ac;
+  class TC-264-held-move-failure-exits tc;
+  class TC-264-held-moves-once-ignored tc;
   class TC-264-held-queue-migrates tc;
+  class TC-264-held-unignored-add-refuses tc;
+  class TC-264-held-unignored-hook-asks tc;
+  class TC-264-held-unignored-lists-own tc;
   class TC-264-lane-only-no-commit tc;
   class TC-264-main-unignored-refuses tc;
   class TC-264-worktree-entry-survives tc;
