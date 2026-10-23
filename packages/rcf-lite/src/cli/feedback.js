@@ -151,6 +151,8 @@ Common options:
 
 Exit codes:
   0  success
+  1  a linked worktree's held queue could not move into the main
+     checkout's store (stderr names the error and the main checkout)
   2  usage error (bad flags, unknown enum, oversize body, no ignore
      coverage without --force)
   3  add: --kind blueprint AND the target is absent from
@@ -214,7 +216,8 @@ export async function main(argv, deps = {}) {
   } catch (err) {
     // AC-16103-4: a worktree's held queue that cannot move into the main
     // checkout stops every sub-verb (the hooks included) before it reads
-    // or writes the store; the held queue is left as it was.
+    // or writes the store; a held file is removed only once its content is
+    // in the main checkout's store, and the next command completes the move.
     if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED') throw err;
     stderr.write(`[error] ${err.message}\n`);
     return 1;

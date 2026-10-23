@@ -27,7 +27,7 @@ import {
   readFileSync, rmdirSync, statSync, unlinkSync, writeFileSync,
 } from 'node:fs';
 import {
-  basename, dirname, join, relative, resolve,
+  basename, dirname, extname, join, relative, resolve,
 } from 'node:path';
 import { spawn, spawnSync } from 'node:child_process';
 
@@ -77,9 +77,10 @@ export const feedbackGitignoreEntry = Object.freeze({
  * the move never leaves a file the main checkout would commit; until then
  * the worktree keeps its held queue and this returns `projectRoot`. A move
  * that fails throws (code `RCF_FEEDBACK_MOVE_FAILED`, naming the main
- * checkout) and leaves the held queue as it was. Anywhere else (the main
- * checkout, no git, a main checkout without the project) it is
- * `projectRoot` itself.
+ * checkout) having removed a held file only once its content is in the main
+ * checkout's store, so nothing is lost or duplicated and the next call
+ * completes the move. Anywhere else (the main checkout, no git, a main
+ * checkout without the project) it is `projectRoot` itself.
  *
  * @param {string} projectRoot
  * @returns {string}
@@ -148,9 +149,13 @@ function storeIgnored(root) {
  * (AC-16103-4). Entry lines the main log does not already carry are
  * appended in order (fold-by-id keeps each id once with its status, and
  * a rerun after an interrupted move appends nothing twice); the ask
- * ledgers merge (asked sessions united, the later `queueStateAt`);
- * outbox bundles the main outbox lacks are copied. The moved files are
- * then removed from the worktree, so nothing is left for
+ * ledgers merge (asked sessions united, the later `queueStateAt`).
+ * An outbox bundle is compared by bytes with every file of the main
+ * outbox: bytes already there are not copied again (so a rerun after an
+ * interrupted move copies nothing twice); other bytes are copied under
+ * the bundle's own name, or, when the main outbox already uses that name,
+ * under a fresh one (`copyUnderFreeName`), never over a main file. The
+ * moved files are then removed from the worktree, so nothing is left for
  * `git worktree remove` to drop.
  *
  * @param {string} fromRoot
@@ -190,18 +195,54 @@ function moveHeldQueue(fromRoot, toRoot) {
   }
   const fromOutbox = join(from, 'outbox');
   if (existsSync(fromOutbox)) {
-    mkdirSync(join(to, 'outbox'), { recursive: true });
+    const toOutbox = join(to, 'outbox');
+    mkdirSync(toOutbox, { recursive: true });
+    const have = readdirSync(toOutbox, { withFileTypes: true })
+      .filter((d) => d.isFile())
+      .map((d) => readFileSync(join(toOutbox, d.name)));
     for (const dirent of readdirSync(fromOutbox, { withFileTypes: true })) {
       if (!dirent.isFile()) continue;
       const src = join(fromOutbox, dirent.name);
-      const dst = join(to, 'outbox', dirent.name);
-      if (!existsSync(dst)) copyFileSync(src, dst, constants.COPYFILE_EXCL);
+      const bytes = readFileSync(src);
+      if (!have.some((b) => b.equals(bytes))) {
+        copyUnderFreeName(src, toOutbox, dirent.name);
+        have.push(bytes);
+      }
       moved.push(src);
     }
   }
   for (const p of moved) unlinkSync(p);
   for (const d of [fromOutbox, from]) {
     try { rmdirSync(d); } catch { /* not empty or absent: a sibling the store does not own stays */ }
+  }
+}
+
+/**
+ * Copy `src` into `dir` under `name`, or, when `dir` already holds that
+ * name, under the first free `<stem>+held-<n><ext>` (n = 1, 2, ...).
+ * COPYFILE_EXCL makes every attempt fail rather than replace an existing
+ * file, so no file in `dir` is ever overwritten. The `+` is outside the
+ * alphabet of the bundle writers' names (`writeBundle`'s
+ * `<stamp>-<slug>[-<id>].md`, the SessionEnd hook's
+ * `<stamp>-session-end.md`), so a later write never lands on a fresh name
+ * and the SessionEnd hook's `-session-end.md` scan never reads one as its
+ * own.
+ *
+ * @param {string} src
+ * @param {string} dir
+ * @param {string} name
+ * @returns {void}
+ */
+function copyUnderFreeName(src, dir, name) {
+  const ext = extname(name);
+  const stem = name.slice(0, name.length - ext.length);
+  for (let n = 0; ; n += 1) {
+    try {
+      copyFileSync(src, join(dir, n === 0 ? name : `${stem}+held-${n}${ext}`), constants.COPYFILE_EXCL);
+      return;
+    } catch (err) {
+      if (err?.code !== 'EEXIST') throw err;
+    }
   }
 }
 
