@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T15:51:15.327Z",
+  "updatedAt": "2026-10-23T17:27:04.169Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -72,6 +72,20 @@
       "description": "moving a worktree's held queue fails (the main checkout .rcf/ is not writable): rcf feedback add in the worktree exits non-zero, stderr naming the error (EACCES) and the main checkout, and the worktree .rcf/feedback/ is byte-identical (no new entry, nothing removed)",
       "status": "failing",
       "testPointer": "test/feedback/worktree-held-queue-unignored-main.test.js::AC-16103-4: when moving the held queue fails, rcf feedback add in a linked worktree exits non-zero naming the error and the main checkout, writes nothing to the worktree queue and removes nothing it held"
+    },
+    {
+      "id": "TC-264-held-move-fails-after-append",
+      "acId": "AC-16103-4",
+      "description": "moving a worktree's held queue fails after appending to the main queue (the main checkout .rcf/feedback/state.json is read-only): rcf feedback add in the worktree exits 1, stderr naming the error (EACCES) and the main checkout, the worktree .rcf/feedback/ is byte-identical, the main checkout lists its own entry and every held entry once with its status; once the mode is restored the next command completes the move, and after git worktree remove every id is listed once and each held line is in the main entries.jsonl exactly once",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-partial-move.test.js::AC-16103-4: when moving the held queue fails after appending to the main queue, rcf feedback add in a linked worktree exits 1 naming the error and the main checkout, the worktree keeps every file it held, the main checkout lists each id once, and the next command completes the move with each id once"
+    },
+    {
+      "id": "TC-264-held-move-fails-after-remove",
+      "acId": "AC-16103-4",
+      "description": "moving a worktree's held queue fails after removing some held files (the worktree .rcf/feedback/outbox/ is read-only): rcf feedback list in the worktree exits 1, stderr naming the error (EACCES) and the main checkout, every held file it removed has its content in the main store, every file still held is byte-identical, the main checkout lists every held entry once with its status; once the mode is restored the next command completes the move, and after git worktree remove every id is listed once",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-partial-move.test.js::AC-16103-4: when moving the held queue fails after removing some held files, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every removed held file has its content in the main store, every file still held is byte-identical, and the next command completes the move with each id once"
     }
   ],
   "status": "draft"
