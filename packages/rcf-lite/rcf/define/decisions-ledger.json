@@ -1769,6 +1769,27 @@
       "answer": "a. Stage-keeper ruling on the round 3 gate (spec-rooted: back to Define, no Build), written into the AC-16103-4 failure clause by the round 4 test-author hand (variants 7 and 8, probes g1 and g2) and bound in TS-264; the CN-893 and CN-897 claims stand once the amended criterion is met (no Code Node change).",
       "answeredAt": "2026-10-23T17:26:13.493Z",
       "resolvedAt": "2026-10-23T17:26:13.493Z"
+    },
+    {
+      "id": 83,
+      "question": "(FBS-231 round 5, the round 4 gate on AC-16103-4: Codex R4-BH1, R4-BE1 and R3-BE-BH; reviewer R-1 and R-2) moveHeldQueue skips the copy whenever the main outbox already holds a file of the same name (src/feedback/store.js:198) and still removes the held file (:199, :202); the SessionEnd hook names a bundle from the time rounded to the second, so the main checkout and a linked worktree can hold the same bundle name with different bytes. Probe g6a (a held SessionEnd bundle and a main one written in the same second, same name, different bytes; the next worktree command moves the queue): the command exits 0, the held bundle is gone from the worktree, its bytes are nowhere in the main outbox, the main copy at that name is unchanged. Probe g6b (as g6a plus a second held bundle made immutable so its unlink fails): the move exits 1 naming EPERM and the main checkout, the collided held bundle is removed and its bytes are not in the main outbox. The gate's owner question: \"Should outbox bundles, which are derived flushes of pending titles, fall outside the per-file guarantee (Define amend), or should store.js:198 compare bytes (Build)?\" This is the third consecutive gate to find a new edge in the same move function, read as a design gap rather than another edge to patch, so round 5 sweeps every file class the move touches (entries.jsonl, state.json, each outbox bundle) and builds a collision-safe move. Decision 82 stays as recorded.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Compare bytes. Identical content already in the main store means the held file is removed and nothing is copied twice; different content under the same name in the main store means the held content is kept under a fresh name in the main store (never overwritten, never lost) before the held file is removed. Because an outbox bundle is the feedback a session flushed for submission, the guarantee does not depend on whether a file is derived."
+        },
+        {
+          "letter": "b",
+          "text": "A Define amendment: outbox bundles, as derived flushes of pending titles, fall outside the per-file guarantee, and store.js:198 stays as it is."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T18:24:26.105Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on the round 4 gate (a Build: a collision-safe move), pinned by the round 5 test-author hand in TS-264: probes g6a and g6b as red tests (TC-264-held-bundle-collision-kept, TC-264-held-move-fails-after-collided-remove), a retry after a failure on the collided bundle itself as a red test (TC-264-held-move-fails-on-collided-kept-once), and the sweep of every file class the move touches as guards (TC-264-held-identical-removed-once, TC-264-held-state-merged-own-kept). entries.jsonl and state.json keep their merge (held lines the main log lacks are appended, ask records are united), which keeps the held content without a fresh name. AC-16103-4 unchanged: the sweep found no file class its clause does not cover.",
+      "answeredAt": "2026-10-23T18:32:12.609Z",
+      "resolvedAt": "2026-10-23T18:32:12.609Z"
     }
   ]
 }

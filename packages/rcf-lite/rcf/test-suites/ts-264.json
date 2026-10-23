@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T17:27:04.169Z",
+  "updatedAt": "2026-10-23T18:32:23.082Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -86,6 +86,41 @@
       "description": "moving a worktree's held queue fails after removing some held files (the worktree .rcf/feedback/outbox/ is read-only): rcf feedback list in the worktree exits 1, stderr naming the error (EACCES) and the main checkout, every held file it removed has its content in the main store, every file still held is byte-identical, the main checkout lists every held entry once with its status; once the mode is restored the next command completes the move, and after git worktree remove every id is listed once",
       "status": "passing",
       "testPointer": "test/feedback/worktree-held-queue-partial-move.test.js::AC-16103-4: when moving the held queue fails after removing some held files, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every removed held file has its content in the main store, every file still held is byte-identical, and the next command completes the move with each id once"
+    },
+    {
+      "id": "TC-264-held-identical-removed-once",
+      "acId": "AC-16103-4",
+      "description": "guard: the main checkout already holds the same entries.jsonl, state.json and outbox bundles (a SessionEnd bundle and a submit fallback bundle) as a linked worktree; the next rcf feedback command there exits 0 and removes every held file, each held line is in the main entries.jsonl once, each held ask record in the main state.json once, and each held bundle in the main outbox once at its own name under no second name",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-collision.test.js::AC-16103-4 guard: when the main checkout already holds the same entries.jsonl, state.json and outbox bundles (from the SessionEnd hook and from submit) as a linked worktree, the next rcf feedback command there removes every held file and copies nothing twice"
+    },
+    {
+      "id": "TC-264-held-state-merged-own-kept",
+      "acId": "AC-16103-4",
+      "description": "guard: the main checkout holds an entry and a state.json of its own; the next rcf feedback command in a linked worktree exits 0, removes the held state.json, keeps every ask record the main checkout had once and adds every held ask record once, and the main checkout lists every id once with its status",
+      "status": "passing",
+      "testPointer": "test/feedback/worktree-held-queue-collision.test.js::AC-16103-4 guard: when the main checkout holds a state.json of its own, the next rcf feedback command in a linked worktree merges every held ask record into the main state.json once and keeps every ask record the main checkout had"
+    },
+    {
+      "id": "TC-264-held-bundle-collision-kept",
+      "acId": "AC-16103-4",
+      "description": "the main checkout outbox holds the name of each held bundle (the SessionEnd bundle and the submit fallback bundle) with different bytes: the next rcf feedback command in a linked worktree exits 0, each held bundle is in the main outbox exactly once under a fresh name, each main bundle at the colliding name is byte-identical to before, no held file is left, the main checkout lists every id once with its status, git worktree remove succeeds and git status there lists nothing under .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-collision.test.js::AC-16103-4: when the main checkout outbox already holds the name of each held bundle (the SessionEnd and the submit fallback bundle) with different bytes, the next rcf feedback command in a linked worktree exits 0, keeps each held bundle under a fresh name in the main outbox, leaves each main bundle byte-identical and removes every held file"
+    },
+    {
+      "id": "TC-264-held-move-fails-after-collided-remove",
+      "acId": "AC-16103-4",
+      "description": "as the bundle collision, plus a second held bundle that cannot be removed (macOS chflags uchg) so the move fails after removing the collided held bundle: rcf feedback list in the worktree exits 1 naming the error (EPERM) and the main checkout, every held file is byte-identical in the worktree or has its content in the main store (a removed bundle by its bytes under any name), the main checkout lists every id once; once the flag is cleared the next command exits 0, completes the move with each held bundle once in the main outbox and the main bundle byte-identical, git worktree remove succeeds and git status lists nothing under .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-collision.test.js::AC-16103-4: when moving the held queue fails after removing a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every held byte stays readable from one of the two checkouts, and the next command completes the move with each held bundle once in the main outbox"
+    },
+    {
+      "id": "TC-264-held-move-fails-on-collided-kept-once",
+      "acId": "AC-16103-4",
+      "description": "the held SessionEnd bundle's name is in the main outbox with different bytes and that held bundle cannot be removed (macOS chflags uchg), so the move fails on it: rcf feedback list in the worktree exits 1 naming the error (EPERM) and the main checkout, every held file is byte-identical in the worktree or has its content in the main store, the main checkout lists every id once; once the flag is cleared the next command exits 0, leaves no held file and keeps each held bundle's bytes exactly once in the main outbox (never copied under a second name by the retry), the main bundle byte-identical, git worktree remove succeeds and git status lists nothing under .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-held-queue-collision.test.js::AC-16103-4: when moving the held queue fails on a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 and keeps that bundle readable, and the next command completes the move with its bytes exactly once in the main outbox, never copied under a second name"
     }
   ],
   "status": "draft"
