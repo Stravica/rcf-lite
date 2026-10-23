@@ -1748,6 +1748,27 @@
       "answer": "a. Stage-keeper ruling on review r2 BH-1, written into AC-16103-4 by the round 3 test-author hand (variant 6) and bound in TS-264.",
       "answeredAt": "2026-10-23T15:50:31.302Z",
       "resolvedAt": "2026-10-23T15:50:31.302Z"
+    },
+    {
+      "id": 82,
+      "question": "(FBS-231 round 4, the round 3 gate on AC-16103-4: Codex R3-BH1, R3-BE1 and R3-BE2; reviewer R-1 and R-2) moveHeldQueue can fail partway with no rollback. Probe g1 (the main checkout's .rcf/feedback/state.json mode 0444): rcf feedback add in the worktree exits 1 naming EACCES and the main checkout after the held entry was already appended to the main log; the worktree's entries.jsonl is byte-identical; once the mode is restored the next worktree command completes the move and the main checkout lists each id once. Probe g2 (the worktree's .rcf/feedback/outbox/ mode 0555): rcf feedback list in the worktree exits 1 on EACCES at unlink after entries.jsonl and state.json were already removed from the worktree, their content already in the main store; the held entry is listed pending from the main checkout. The gate's owner questions: \"Must a failed move leave the main queue untouched, or is an append the retry dedups acceptable? May a failure after a complete copy remove the copied files?\" The finding is spec-rooted (the criterion over-specified atomicity the design does not need), so it goes back to Define, not to a Build. This decision narrows decision 81's \"nothing the worktree already holds is removed\"; decision 81 stays as recorded otherwise.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "An append to the main queue that the next command folds by id is acceptable, because the move is idempotent; a failure after a complete copy may remove the copied files, per file only after that file's content is present in the main store. A failed move exits 1, loses nothing and duplicates nothing, every entry the worktree held stays readable from the worktree or the main checkout, and the next command completes the move with each id once."
+        },
+        {
+          "letter": "b",
+          "text": "A failure-atomic move: a failed move leaves the main queue untouched and removes nothing the worktree holds."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T17:26:07.806Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on the round 3 gate (spec-rooted: back to Define, no Build), written into the AC-16103-4 failure clause by the round 4 test-author hand (variants 7 and 8, probes g1 and g2) and bound in TS-264; the CN-893 and CN-897 claims stand once the amended criterion is met (no Code Node change).",
+      "answeredAt": "2026-10-23T17:26:13.493Z",
+      "resolvedAt": "2026-10-23T17:26:13.493Z"
     }
   ]
 }
