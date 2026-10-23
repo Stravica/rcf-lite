@@ -4380,6 +4380,14 @@
           "unresolvedTestCases": []
         },
         {
+          "id": "AC-16102-3",
+          "covered": true,
+          "testCases": [
+            "TC-262-ask-off-in-headless-session"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
           "id": "AC-16103-1",
           "covered": true,
           "testCases": [
@@ -4404,6 +4412,14 @@
             "TC-197-session-start-idempotent-same-session",
             "TC-197-session-start-requeues-deferred-then-stop-asks",
             "TC-197-stop-only-path-requeues-deferred"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-16103-4",
+          "covered": true,
+          "testCases": [
+            "TC-264-worktree-entry-survives"
           ],
           "unresolvedTestCases": []
         },
@@ -6923,6 +6939,15 @@
           "testCases": [
             "TC-252-hand-refuses-out",
             "TC-252-writes-only-reports"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19001-7",
+          "covered": true,
+          "testCases": [
+            "TC-263-out-directory-refused",
+            "TC-263-out-help-says-file-path"
           ],
           "unresolvedTestCases": []
         },

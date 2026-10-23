@@ -2070,6 +2070,10 @@ flowchart LR
   AC-16102-2 -.-> TC-196-precedence-order
   TC-196-status-reports-optout-source["TC-196-status-reports-optout-source"]
   AC-16102-2 -.-> TC-196-status-reports-optout-source
+  AC-16102-3["AC-16102-3"]
+  REQ-161 --> AC-16102-3
+  TC-262-ask-off-in-headless-session["TC-262-ask-off-in-headless-session"]
+  AC-16102-3 -.-> TC-262-ask-off-in-headless-session
   AC-16103-1["AC-16103-1"]
   REQ-161 --> AC-16103-1
   TC-197-session-end-writes-idempotent-bundle["TC-197-session-end-writes-idempotent-bundle"]
@@ -2090,6 +2094,10 @@ flowchart LR
   AC-16103-3 -.-> TC-197-session-start-requeues-deferred-then-stop-asks
   TC-197-stop-only-path-requeues-deferred["TC-197-stop-only-path-requeues-deferred"]
   AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
+  AC-16103-4["AC-16103-4"]
+  REQ-161 --> AC-16103-4
+  TC-264-worktree-entry-survives["TC-264-worktree-entry-survives"]
+  AC-16103-4 -.-> TC-264-worktree-entry-survives
   AC-16104-1["AC-16104-1"]
   REQ-161 --> AC-16104-1
   TC-198-init-bin-path-pins-node["TC-198-init-bin-path-pins-node"]
@@ -3362,6 +3370,12 @@ flowchart LR
   AC-19001-6 -.-> TC-252-hand-refuses-out
   TC-252-writes-only-reports["TC-252-writes-only-reports"]
   AC-19001-6 -.-> TC-252-writes-only-reports
+  AC-19001-7["AC-19001-7"]
+  REQ-190 --> AC-19001-7
+  TC-263-out-directory-refused["TC-263-out-directory-refused"]
+  AC-19001-7 -.-> TC-263-out-directory-refused
+  TC-263-out-help-says-file-path["TC-263-out-help-says-file-path"]
+  AC-19001-7 -.-> TC-263-out-help-says-file-path
   AC-19002-1["AC-19002-1"]
   REQ-190 --> AC-19002-1
   TC-253-e2e-verify-then-finalise["TC-253-e2e-verify-then-finalise"]
@@ -4829,6 +4843,8 @@ flowchart LR
   class TC-196-env-disable-no-ops-add tc;
   class TC-196-precedence-order tc;
   class TC-196-status-reports-optout-source tc;
+  class AC-16102-3 ac;
+  class TC-262-ask-off-in-headless-session tc;
   class AC-16103-1 ac;
   class TC-197-session-end-writes-idempotent-bundle tc;
   class AC-16103-2 ac;
@@ -4839,6 +4855,8 @@ flowchart LR
   class TC-197-session-start-idempotent-same-session tc;
   class TC-197-session-start-requeues-deferred-then-stop-asks tc;
   class TC-197-stop-only-path-requeues-deferred tc;
+  class AC-16103-4 ac;
+  class TC-264-worktree-entry-survives tc;
   class AC-16104-1 ac;
   class TC-198-init-bin-path-pins-node tc;
   class TC-198-init-idempotent tc;
@@ -5486,6 +5504,9 @@ flowchart LR
   class AC-19001-6 ac;
   class TC-252-hand-refuses-out tc;
   class TC-252-writes-only-reports tc;
+  class AC-19001-7 ac;
+  class TC-263-out-directory-refused tc;
+  class TC-263-out-help-says-file-path tc;
   class AC-19002-1 ac;
   class TC-253-e2e-verify-then-finalise tc;
   class TC-253-promotes-verified tc;
