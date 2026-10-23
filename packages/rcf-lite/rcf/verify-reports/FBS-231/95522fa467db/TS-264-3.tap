@@ -1,0 +1,40 @@
+TAP version 13
+# Subtest: AC-16103-4: while the main checkout does not ignore .rcf/feedback/, a linked worktree that holds a queue keeps listing its own held entries with the status they had, and nothing moves
+ok 1 - AC-16103-4: while the main checkout does not ignore .rcf/feedback/, a linked worktree that holds a queue keeps listing its own held entries with the status they had, and nothing moves
+  ---
+  duration_ms: 789.450375
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: while the main checkout does not ignore .rcf/feedback/, the Stop hook in a linked worktree that holds a queue keeps asking about its held pending entries, and nothing moves
+ok 2 - AC-16103-4: while the main checkout does not ignore .rcf/feedback/, the Stop hook in a linked worktree that holds a queue keeps asking about its held pending entries, and nothing moves
+  ---
+  duration_ms: 640.964125
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: while the main checkout does not ignore .rcf/feedback/, rcf feedback add in a linked worktree that holds a queue exits 2 naming the main checkout, rcf doctor --fix and that the held entries move once it ignores the store, and nothing moves
+ok 3 - AC-16103-4: while the main checkout does not ignore .rcf/feedback/, rcf feedback add in a linked worktree that holds a queue exits 2 naming the main checkout, rcf doctor --fix and that the held entries move once it ignores the store, and nothing moves
+  ---
+  duration_ms: 589.149291
+  type: 'test'
+  ...
+# Subtest: AC-16103-4 guard: once the main checkout ignores .rcf/feedback/, the next rcf feedback command in a linked worktree that held its queue while it did not moves that queue, and after git worktree remove every entry is listed from the main checkout once with the status it had
+ok 4 - AC-16103-4 guard: once the main checkout ignores .rcf/feedback/, the next rcf feedback command in a linked worktree that held its queue while it did not moves that queue, and after git worktree remove every entry is listed from the main checkout once with the status it had
+  ---
+  duration_ms: 804.819917
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: when moving the held queue fails, rcf feedback add in a linked worktree exits non-zero naming the error and the main checkout, writes nothing to the worktree queue and removes nothing it held
+ok 5 - AC-16103-4: when moving the held queue fails, rcf feedback add in a linked worktree exits non-zero naming the error and the main checkout, writes nothing to the worktree queue and removes nothing it held
+  ---
+  duration_ms: 549.358792
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 3458.2195
