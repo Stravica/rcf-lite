@@ -1,0 +1,29 @@
+{
+  "createdAt": "2026-10-23T10:49:19.796Z",
+  "updatedAt": "2026-10-23T10:49:31.341Z",
+  "purpose": "Integration tests for AC-19001-7 driving rcf verify run --mode deterministic and rcf verify run --help through bin/rcf.js against a local server that counts requests.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19001-7"
+  ],
+  "id": "TS-263",
+  "usId": "US-19001",
+  "title": "rcf verify run --out takes a file path: a directory is refused with exit 2 before the run, and --help says file path",
+  "testCases": [
+    {
+      "id": "TC-263-out-directory-refused",
+      "acId": "AC-19001-7",
+      "description": "rcf verify run --out <existing directory>, with or without a trailing slash, exits 2 with \"--out must be a file path, not a directory\" before any request reaches the target and writes nothing in the directory",
+      "status": "failing",
+      "testPointer": "test/verify/out-directory-refused.test.js::AC-19001-7: rcf verify run --url <url> --out <existing directory> (with or without a trailing slash) exits 2 with \"--out must be a file path, not a directory\" before any request reaches the target and writes nothing in the directory"
+    },
+    {
+      "id": "TC-263-out-help-says-file-path",
+      "acId": "AC-19001-7",
+      "description": "rcf verify run --help describes --out as a file path and says a directory is refused (exit 2)",
+      "status": "failing",
+      "testPointer": "test/verify/out-directory-refused.test.js::AC-19001-7: rcf verify run --help describes --out as a file path and says a directory is refused (exit 2)"
+    }
+  ],
+  "status": "draft"
+}

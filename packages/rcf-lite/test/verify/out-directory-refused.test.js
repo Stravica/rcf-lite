@@ -59,7 +59,7 @@ function verifyRun(w, out) {
     '--mode', 'deterministic', '--url', w.url, '--fbs', 'FBS-001', '--out', out]);
 }
 
-test(`AC-19001-7: rcf verify run --url <url> --out <existing directory> (with or without a trailing slash) exits 2 with "${REFUSAL}" before any request reaches the target and writes nothing in the directory`, async (t) => {
+test('AC-19001-7: rcf verify run --url <url> --out <existing directory> (with or without a trailing slash) exits 2 with "--out must be a file path, not a directory" before any request reaches the target and writes nothing in the directory', async (t) => {
   for (const shape of ['trailing slash', 'no trailing slash']) {
     await t.test(shape, async () => {
       const w = await world(t);

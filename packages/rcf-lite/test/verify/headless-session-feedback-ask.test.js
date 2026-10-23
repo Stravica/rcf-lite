@@ -30,8 +30,6 @@ import { scratchDir } from '../_helpers/scratch.js';
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
 
-const TITLE = 'AC-16102-3: rcf verify run in its default agent mode spawns the agent session with RCF_FEEDBACK_ASK=0, so the project\'s feedback Stop hook exits 0 silently inside it, a pending --ask-now entry stays pending, and the report carries the agent\'s findings instead of LAUNCH-FAILURE';
-
 // The stand-in agent CLI. It never calls a model and never touches the network.
 function standInSource(recordPath) {
   return `#!${process.execPath}
@@ -107,7 +105,7 @@ async function world(t) {
   return { root, base, server, recordPath, env };
 }
 
-test(TITLE, async (t) => {
+test("AC-16102-3: rcf verify run in its default agent mode spawns the agent session with RCF_FEEDBACK_ASK=0, so the project's feedback Stop hook exits 0 silently inside it, a pending --ask-now entry stays pending, and the report carries the agent's findings instead of LAUNCH-FAILURE", async (t) => {
   const w = await world(t);
   const add = await rcf(w.root, ['feedback', 'add', '--kind', 'core', '--target', 'rcf verify run', '--anchor', 'AC-101-1',
     '--class', 'verb-error', '--severity', 'minor', '--title', 'queued before the verify run', '--body', 'fixture entry',

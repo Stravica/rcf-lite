@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-23T10:49:19.223Z",
+  "updatedAt": "2026-10-23T10:49:30.171Z",
+  "purpose": "One integration test for AC-16102-3 driving rcf verify run in its default agent mode through bin/rcf.js against a stand-in agent CLI that runs the project's feedback Stop hook.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16102-3"
+  ],
+  "id": "TS-262",
+  "usId": "US-16102",
+  "title": "Headless agent session feedback ask: rcf verify run spawns the agent with RCF_FEEDBACK_ASK=0 so a queued entry cannot become its final output",
+  "testCases": [
+    {
+      "id": "TC-262-ask-off-in-headless-session",
+      "acId": "AC-16102-3",
+      "description": "rcf verify run in its default agent mode spawns the agent with RCF_FEEDBACK_ASK=0; the project's Stop hook exits 0 silently inside the session, the --ask-now entry stays pending and the report carries the agent's findings, not LAUNCH-FAILURE",
+      "status": "failing",
+      "testPointer": "test/verify/headless-session-feedback-ask.test.js::AC-16102-3: rcf verify run in its default agent mode spawns the agent session with RCF_FEEDBACK_ASK=0, so the project's feedback Stop hook exits 0 silently inside it, a pending --ask-now entry stays pending, and the report carries the agent's findings instead of LAUNCH-FAILURE"
+    }
+  ],
+  "status": "draft"
+}

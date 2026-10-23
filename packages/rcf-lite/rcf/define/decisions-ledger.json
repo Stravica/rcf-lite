@@ -1555,6 +1555,69 @@
       "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-2 ruling 2: with no trunk ref collect over all of HEAD history; a merge into the trunk is covered by the same walk). AC-19005-7 is not changed (TC-261-provenance-kept-pre-merge).",
       "answeredAt": "2026-10-22T16:24:46.108Z",
       "resolvedAt": "2026-10-22T16:24:46.108Z"
+    },
+    {
+      "id": 73,
+      "question": "(FBS-231 finding 1) Which env silences the feedback ask in a headless agent session rcf-lite spawns?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "RCF_FEEDBACK_ASK=0 (the Stop hook goes silent; rcf feedback add keeps working inside the session)"
+        },
+        {
+          "letter": "b",
+          "text": "RCF_FEEDBACK_DISABLE=1 (also turns rcf feedback add into a no-op)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T10:49:39.361Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-16102-3 names RCF_FEEDBACK_ASK=0 and asserts RCF_FEEDBACK_DISABLE is not set by rcf-lite (TC-262-ask-off-in-headless-session).",
+      "answeredAt": "2026-10-23T10:49:46.119Z",
+      "resolvedAt": "2026-10-23T10:49:46.119Z"
+    },
+    {
+      "id": 74,
+      "question": "(FBS-231 finding 2) rcf verify run --out <dir>/: accept a directory or refuse it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "refuse a directory --out with exit 2 and \"--out must be a file path, not a directory\" before any request, and say file path in --help (smaller: no default report file name is introduced, one shape for --out)"
+        },
+        {
+          "letter": "b",
+          "text": "accept a directory and write a default report file name inside it"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T10:49:39.565Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: the refusal is the smaller, consistent reading (no new default file name, --out keeps one meaning); AC-19001-7 (TC-263-out-directory-refused, TC-263-out-help-says-file-path).",
+      "answeredAt": "2026-10-23T10:49:46.318Z",
+      "resolvedAt": "2026-10-23T10:49:46.318Z"
+    },
+    {
+      "id": 75,
+      "question": "(FBS-231 finding 3) How does AC-16103-4 make the feedback queue survive a removed worktree?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "pin the behaviour (the entry listed pending from the main checkout after git worktree remove) and leave the storage location to the builder, AC-15501-1 unchanged"
+        },
+        {
+          "letter": "b",
+          "text": "a loud count of unsent entries on every rcf feedback run in the worktree"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T10:49:39.765Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-16103-4 pins recovery from the main checkout; storage is the builder's choice; AC-15501-1 is not changed (TC-264-worktree-entry-survives).",
+      "answeredAt": "2026-10-23T10:49:46.520Z",
+      "resolvedAt": "2026-10-23T10:49:46.520Z"
     }
   ]
 }

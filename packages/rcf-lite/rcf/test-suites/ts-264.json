@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-23T10:49:20.402Z",
+  "updatedAt": "2026-10-23T10:49:31.934Z",
+  "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-16103-4"
+  ],
+  "id": "TS-264",
+  "usId": "US-16103",
+  "title": "The feedback queue survives a removed git worktree: an entry recorded in a linked worktree is listed from the main checkout after git worktree remove",
+  "testCases": [
+    {
+      "id": "TC-264-worktree-entry-survives",
+      "acId": "AC-16103-4",
+      "description": "an entry rcf feedback add records in a linked git worktree is listed pending by rcf feedback list --json from the main checkout after git worktree remove",
+      "status": "failing",
+      "testPointer": "test/feedback/worktree-queue-survives.test.js::AC-16103-4: an entry rcf feedback add records in a linked git worktree is still listed pending by rcf feedback list from the main checkout after git worktree remove"
+    }
+  ],
+  "status": "draft"
+}
