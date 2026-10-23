@@ -44,6 +44,7 @@ import {
   readEntries,
   readFeedbackSettings,
   storeExists,
+  storeRoot,
   writeAskLedger,
   writeFeedbackSettings,
 } from '../feedback/store.js';
@@ -318,11 +319,15 @@ async function handleAdd(argv, ctx) {
     return 2;
   }
 
-  // Gitignore pre-write refusal. --force bypasses.
+  // Gitignore pre-write refusal, judged in the checkout that holds the
+  // store (a linked worktree's queue lives in the main checkout,
+  // AC-16103-4). --force bypasses.
   if (!flags.force) {
-    const check = await ensureGitignore(projectRoot);
+    const holder = storeRoot(projectRoot);
+    const check = await ensureGitignore(holder);
     if (!check.ok) {
-      stderr.write(`[error] usage ${check.reason}. Run \`rcf doctor --fix\` to add the managed .gitignore entry (or pass --force to write anyway).\n`);
+      const where = holder === projectRoot ? '' : ` in the main checkout ${holder}, which holds this worktree's feedback queue`;
+      stderr.write(`[error] usage ${check.reason}${where}. Run \`rcf doctor --fix\`${holder === projectRoot ? '' : ' there'} to add the managed .gitignore entry (or pass --force to write anyway).\n`);
       return 2;
     }
   }
@@ -2113,6 +2118,10 @@ async function handleOptToggle(which, argv, ctx) {
     return 2;
   }
 
+  // AC-16103-4: a queue a linked worktree holds moves into the main
+  // checkout on any rcf feedback command; this sub-verb never reaches the
+  // store otherwise.
+  storeRoot(projectRoot);
   const ask = which === 'opt-in';
   const result = await writeFeedbackSettings(projectRoot, { ask });
   if (flags.json) {

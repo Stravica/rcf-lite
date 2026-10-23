@@ -22,11 +22,14 @@
 import {
   appendFile, mkdir, readFile, stat, writeFile,
 } from 'node:fs/promises';
-import { existsSync, readFileSync, statSync } from 'node:fs';
+import {
+  appendFileSync, constants, copyFileSync, existsSync, mkdirSync, readdirSync,
+  readFileSync, rmdirSync, statSync, unlinkSync, writeFileSync,
+} from 'node:fs';
 import {
   basename, dirname, join, relative, resolve,
 } from 'node:path';
-import { spawn } from 'node:child_process';
+import { spawn, spawnSync } from 'node:child_process';
 
 /** Absolute path helpers under a project root. */
 const FEEDBACK_DIR = '.rcf/feedback';
@@ -66,9 +69,12 @@ export const feedbackGitignoreEntry = Object.freeze({
 
 /**
  * The project root whose `.rcf/feedback/` holds the queue (AC-16103-4).
- * In a linked git worktree that is the same project in the main checkout,
- * so an entry outlives `git worktree remove`; a worktree that already
- * holds a queue of its own keeps it (no entry orphaned). Anywhere else
+ * In a linked git worktree that is the same project in the main checkout
+ * (when the main checkout holds the project, `rcf/manifest.json`), so an
+ * entry outlives `git worktree remove`. A queue the worktree already holds
+ * in its own `.rcf/feedback/` (as 0.36.0 left it) is moved into the main
+ * checkout's store on the first call, once git ignores the store there, so
+ * the move never leaves a file the main checkout would commit. Anywhere else
  * (the main checkout, no git, a main checkout without the project) it is
  * `projectRoot` itself.
  *
@@ -76,7 +82,6 @@ export const feedbackGitignoreEntry = Object.freeze({
  * @returns {string}
  */
 export function storeRoot(projectRoot) {
-  if (existsSync(join(projectRoot, FEEDBACK_DIR))) return projectRoot;
   for (let top = resolve(projectRoot); ; top = dirname(top)) {
     const dotGit = join(top, '.git');
     if (existsSync(dotGit)) {
@@ -88,13 +93,90 @@ export function storeRoot(projectRoot) {
         gitDir = resolve(top, gitDir);
         const common = resolve(gitDir, readFileSync(join(gitDir, 'commondir'), 'utf8').trim());
         const mainRoot = join(dirname(common), relative(top, resolve(projectRoot)));
-        if (basename(common) !== '.git' || !existsSync(mainRoot)) return projectRoot;
+        if (basename(common) !== '.git' || !existsSync(join(mainRoot, 'rcf', 'manifest.json'))) return projectRoot;
+        if (existsSync(join(projectRoot, FEEDBACK_DIR)) && storeIgnored(mainRoot)) moveHeldQueue(projectRoot, mainRoot);
         return mainRoot;
       } catch {
         return projectRoot;
       }
     }
     if (dirname(top) === top) return projectRoot;
+  }
+}
+
+/**
+ * Does git ignore the feedback store in `root`? Synchronous
+ * `git check-ignore` (exit 0 only); any other answer is no.
+ *
+ * @param {string} root
+ * @returns {boolean}
+ */
+function storeIgnored(root) {
+  const r = spawnSync('git', ['check-ignore', '-q', join(FEEDBACK_DIR, 'entries.jsonl')], {
+    cwd: root, env: process.env, stdio: 'ignore',
+  });
+  return r.status === 0;
+}
+
+/**
+ * Move a worktree's held queue into the main checkout's store
+ * (AC-16103-4). Entry lines the main log does not already carry are
+ * appended in order (fold-by-id keeps each id once with its status, and
+ * a rerun after an interrupted move appends nothing twice); the ask
+ * ledgers merge (asked sessions united, the later `queueStateAt`);
+ * outbox bundles the main outbox lacks are copied. The moved files are
+ * then removed from the worktree, so nothing is left for
+ * `git worktree remove` to drop.
+ *
+ * @param {string} fromRoot
+ * @param {string} toRoot
+ * @returns {void}
+ */
+function moveHeldQueue(fromRoot, toRoot) {
+  const from = join(fromRoot, FEEDBACK_DIR);
+  const to = join(toRoot, FEEDBACK_DIR);
+  mkdirSync(to, { recursive: true });
+  const moved = [];
+  const fromEntries = join(from, 'entries.jsonl');
+  if (existsSync(fromEntries)) {
+    const toEntries = join(to, 'entries.jsonl');
+    const have = existsSync(toEntries) ? readFileSync(toEntries, 'utf8') : '';
+    const seen = new Set(have.split('\n').map((l) => l.trim()));
+    const lines = readFileSync(fromEntries, 'utf8').split('\n').map((l) => l.trim()).filter((l) => l !== '' && !seen.has(l));
+    if (lines.length > 0) {
+      appendFileSync(toEntries, `${have === '' || have.endsWith('\n') ? '' : '\n'}${lines.join('\n')}\n`, 'utf8');
+    }
+    moved.push(fromEntries);
+  }
+  const fromState = join(from, 'state.json');
+  if (existsSync(fromState)) {
+    const toState = join(to, 'state.json');
+    const parse = (p) => { try { return JSON.parse(readFileSync(p, 'utf8')) ?? {}; } catch { return {}; } };
+    const held = parse(fromState);
+    const own = existsSync(toState) ? parse(toState) : {};
+    const asked = Array.isArray(own.asked) ? [...own.asked] : [];
+    const keys = new Set(asked.map((a) => `${a?.sessionId}|${a?.askedAt}`));
+    for (const a of Array.isArray(held.asked) ? held.asked : []) {
+      if (!keys.has(`${a?.sessionId}|${a?.askedAt}`)) asked.push(a);
+    }
+    const stamps = [held.queueStateAt, own.queueStateAt].filter((s) => typeof s === 'string' && s !== '').sort();
+    writeFileSync(toState, `${JSON.stringify({ ...held, ...own, asked, queueStateAt: stamps.at(-1) ?? null }, null, 2)}\n`, 'utf8');
+    moved.push(fromState);
+  }
+  const fromOutbox = join(from, 'outbox');
+  if (existsSync(fromOutbox)) {
+    mkdirSync(join(to, 'outbox'), { recursive: true });
+    for (const dirent of readdirSync(fromOutbox, { withFileTypes: true })) {
+      if (!dirent.isFile()) continue;
+      const src = join(fromOutbox, dirent.name);
+      const dst = join(to, 'outbox', dirent.name);
+      if (!existsSync(dst)) copyFileSync(src, dst, constants.COPYFILE_EXCL);
+      moved.push(src);
+    }
+  }
+  for (const p of moved) unlinkSync(p);
+  for (const d of [fromOutbox, from]) {
+    try { rmdirSync(d); } catch { /* not empty or absent: a sibling the store does not own stays */ }
   }
 }
 
