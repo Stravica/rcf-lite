@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T20:13:57.524Z",
+  "updatedAt": "2026-10-23T20:48:03.339Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -191,6 +191,48 @@
       "description": "two linked worktrees of one main checkout, each holding its own queue (SessionEnd bundles under one name with different bytes), move into the main store at once, each held after reading the main state.json and before writing it; every held ask record, entry line and bundle of both lands in the main store exactly once",
       "status": "failing",
       "testPointer": "test/feedback/worktree-held-queue-concurrent.test.js::AC-16103-4: two linked worktrees moving their own held queues into the main checkout at once keep every held ask record, entry line and bundle of both, each exactly once in the main store"
+    },
+    {
+      "id": "TC-264-move-reads-whole-state-kept",
+      "acId": "AC-16103-4",
+      "description": "the main checkout Stop hook is held in the middle of its write of the main checkout's state.json while a worktree command's move reads it; after one more command every ask record the main checkout held before, the Stop hook's own record and every held ask record are in the main state.json exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4: a worktree move that reads the main checkout's state.json while the main checkout Stop hook is writing it reads a whole document, so every ask record the main checkout held before is kept exactly once"
+    },
+    {
+      "id": "TC-264-stop-reads-whole-state-silent",
+      "acId": "AC-16103-4",
+      "description": "a worktree move is held in the middle of its write of the main checkout's state.json while the main checkout Stop hook runs in a session that already asked: the hook stays silent (exit 0, nothing on stderr), and after one more command every ask record is kept exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4: the main checkout Stop hook in a session that already asked stays silent (exit 0) when it reads the main checkout's state.json while a worktree move is writing it"
+    },
+    {
+      "id": "TC-264-main-stop-mid-move-own-kept",
+      "acId": "AC-16103-4",
+      "description": "a worktree move is held between its read and its write of the main checkout's state.json while the main checkout Stop hook asks (exit 2); after one more command the hook's own ask record and every held ask record are in the main state.json exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4: when the main checkout Stop hook writes its ask record while a worktree move is between its read and its write of the main checkout's state.json, the hook's own ask record and every held ask record are kept exactly once"
+    },
+    {
+      "id": "TC-264-writers-wait-runs-out-exit-1",
+      "acId": "AC-16103-4",
+      "description": "a worktree move is held while rcf feedback add, the Stop hook, the SessionEnd hook and rcf feedback submit --yes (no gh) run in the main checkout with their wait shortened: each exits 1 naming the running command's process id and the main checkout, the main checkout store is byte-identical, and once the move is let finish the outcome of variant 9 holds",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4: while a worktree move is still changing the main checkout store, rcf feedback add, the Stop hook, the SessionEnd hook and rcf feedback submit in the main checkout each exit 1 once their wait runs out, naming the running command and the main checkout, and write nothing"
+    },
+    {
+      "id": "TC-264-stopped-mover-holds-nothing",
+      "acId": "AC-16103-4",
+      "description": "a worktree move is held before its first outbox copy and its process is stopped (SIGKILL); the next rcf feedback command in the worktree completes the move with each id once and rcf feedback add in the main checkout exits 0",
+      "status": "passing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4 guard: a worktree move whose process stopped without finishing holds up no later command: the next rcf feedback command in the worktree completes the move with each id once, and rcf feedback add in the main checkout proceeds"
+    },
+    {
+      "id": "TC-264-old-mover-holds-nothing",
+      "acId": "AC-16103-4",
+      "description": "a worktree move (clock pinned) is held before its first outbox copy while rcf feedback add runs in the main checkout with its clock 120 seconds later: the add exits 0 and its entry is listed once with status pending; after the held move's process is stopped the next command completes the move with each id once",
+      "status": "passing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16103-4 guard: a worktree move that started more than 60 seconds earlier holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once"
     }
   ],
   "status": "draft"

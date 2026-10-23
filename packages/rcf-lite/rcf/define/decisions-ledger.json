@@ -1811,6 +1811,27 @@
       "answer": "a. Stage-keeper ruling on the round 5 gate (a Build: a serialised move and collision-free writers), pinned by the round 6 test-author hand. Every concurrent path on the main outbox and the held queue is swept once in test/feedback/worktree-held-queue-concurrent.test.js (TS-264, AC-16103-4): two and eight moves at once (TC-264-two-moves-copy-once, TC-264-eight-moves-copy-once, probe g8 shape), rcf feedback add in the worktree while a move is held (TC-264-lane-add-during-move-lines-once), the main checkout SessionEnd hook, Stop hook and submit writing while a move runs (TC-264-main-session-end-after-copy-kept, TC-264-main-stop-during-move-asks-kept, TC-264-main-submit-after-copy-kept) and two linked worktrees moving their own held queues at once (TC-264-two-lanes-move-at-once-kept), red at 78f9d156 and bound failing; guards TC-264-main-add-during-move-kept, TC-264-main-session-end-before-copy-kept and TC-264-lane-session-end-during-move-once. The writers' same-second overwrite is pinned in test/cli/feedback-bundle-same-second.test.js: TC-197-session-end-same-second-both-kept (AC-16103-1) and TC-194-submit-same-second-both-kept (AC-16001-1), red and bound failing, with the guard TC-197-session-end-idempotent-after-same-second. AC-16103-1 and AC-16001-1 amended in place (they were silent on overwrite); AC-16103-4 amended with variant 9 (a completed concurrent move was not covered by the failure clause). The reviewer's P3 at src/feedback/store.js:202 stays as is and is noted for the release notes. Decision 83 stays as recorded.",
       "answeredAt": "2026-10-23T20:14:09.003Z",
       "resolvedAt": "2026-10-23T20:14:09.003Z"
+    },
+    {
+      "id": 85,
+      "question": "(FBS-231 round 6, run 2 of the Define, on top of decision 84) The round 6 sweep pins every concurrent path on the held queue and the main outbox; three paths its Define named under further defects lose ask records in the main checkout's own state.json: two Stop hooks in one checkout at once (src/cli/feedback.js:2300 reads the ledger, :2340 rewrites it whole, so the later write drops the earlier record), a move's whole-file rewrite of the main state.json dropping an ask record the main checkout's Stop hook wrote between the move's read and its write (src/feedback/store.js:186, :193), and a state.json read while another command is mid-write (src/feedback/store.js:184 parses it as {} and the move rewrites state.json without the main checkout's records; readAskLedger at :431 throws on it and the Stop hook fails). How does round 6 serialise the commands that write the main checkout's feedback store, and what does a command do that finds the store busy?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling. The main checkout's feedback store is a shared resource, so every writer of it takes one store-wide lock for its whole read-modify-write span: the held-queue move, rcf feedback add, the Stop hook's ledger write, the SessionEnd bundle write and the submit bundle write. The lock is a file in the main store, created with exclusive create, holding the pid, the hostname and the start time; it is stale, and may be broken by exclusive re-create, when the holder pid is not alive on this host or it is older than 60 seconds. The move, finding the lock held by a live holder, skips (as ruled before). Every other writer waits for the lock, polling briefly, for up to 10 seconds; if it still cannot take it, it exits 1 naming the lock holder and the main checkout and writes nothing (nothing half-done). state.json and entries.jsonl are replaced atomically (a temp file in the same directory, then rename), so no reader ever sees a half-written file; bundles are created with exclusive create, with a unique suffix only on collision."
+        },
+        {
+          "letter": "b",
+          "text": "Serialise the move only and leave the other writers as they are: rcf feedback add, the Stop hook, the SessionEnd hook and submit keep an unlocked read-modify-write, so the three paths above stay open and are batched as P3."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T20:47:55.737Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's ruling on round 6's scope (run 2 of the Define; decision 84 stays as recorded). Pinned in test/feedback/feedback-store-concurrent-writers.test.js: two Stop hooks at once in one checkout (TC-195-two-stops-at-once-both-kept, AC-16101-2, amended in place because it was silent on a second Stop hook running at once), a worktree move reading the main checkout's state.json while the Stop hook is writing it (TC-264-move-reads-whole-state-kept), the Stop hook reading it while a move is writing it (TC-264-stop-reads-whole-state-silent), the main checkout Stop hook writing between a move's read and its write (TC-264-main-stop-mid-move-own-kept) and the main checkout writers held past their wait by a running move (TC-264-writers-wait-runs-out-exit-1), red at f8a54260 and bound failing; guards TC-264-stopped-mover-holds-nothing and TC-264-old-mover-holds-nothing (a move whose process stopped, or that started more than 60 seconds earlier, holds up no later command). AC-16103-4 amended with variant 10; its text names no lock, lock file or lock format. The tests shorten the 10 second wait through RCF_FEEDBACK_LOCK_WAIT_MS (milliseconds), which the build reads.",
+      "answeredAt": "2026-10-23T20:48:00.223Z",
+      "resolvedAt": "2026-10-23T20:48:00.223Z"
     }
   ]
 }
