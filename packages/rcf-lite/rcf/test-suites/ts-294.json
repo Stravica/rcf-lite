@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:00:51.771Z",
-  "updatedAt": "2026-10-24T19:02:03.644Z",
+  "updatedAt": "2026-10-24T21:06:32.944Z",
   "purpose": "FBS-240: the testOnly criteria of US-20301, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-240's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -37,9 +37,9 @@
     {
       "id": "TC-294-over-the-named-readiness-fixture-trees",
       "acId": "AC-20301-4",
-      "description": "over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb",
+      "description": "over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb as the own-chain golden records it",
       "status": "pending",
-      "testPointer": "test/define/readiness-own-chain.test.js::AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb"
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb as the own-chain golden records it"
     }
   ],
   "status": "draft"

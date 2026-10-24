@@ -2698,6 +2698,65 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"F2 (AC-20401-6): assert that a role is named inside each stage's own section of the playbook.\" So the AC-20401-6 test finds each stage's own section of the playbook (below the title and outside fenced code, the first heading naming that stage and no other of the five) and asserts that a sentence inside it names \"role\" with the role AC-20401-1 gives that stage (test-author, builder, reviewer, verifier, stage-keeper).",
       "answeredAt": "2026-10-24T20:59:04.114Z",
       "resolvedAt": "2026-10-24T20:59:04.114Z"
+    },
+    {
+      "id": 124,
+      "question": "(rcf-lite 0.37.0 DEFINE) The own-chain half of the AC-20301-4 test and the AC-20302-3 test read the 639f07bb commit, which the depth-1 CI test checkout lacks once FBS-240's markers drop: how do these two halves run in CI? Source: stage-keeper ruling on part B3's open question 1, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a golden captured in FBS-240's round DEFINE (the notApplicable stages, and the live criteria's texts at 639f07bb), so no history is needed"
+        },
+        {
+          "letter": "b",
+          "text": "both run only at TEST on the verifier's full clone, like the pin-move timing test"
+        },
+        {
+          "letter": "c",
+          "text": "a workflow change that fetches full history, which ruling 6 has already set aside for AC-19501-5"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T21:07:31.849Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"The AC-20301-4 own-chain half and the AC-20302-3 test read 639f07bb from history. Reading (a), golden, the same as rulings 6 and 8. FBS-240's round DEFINE captures this repo's own-chain readiness result at the round base as a committed golden, and both tests compare against it. CI workflows are not changed.\" So both tests compare against the own-chain golden test/fixtures/own-chain/at-639f07bb.json, holding the 639f07bb values reading (a) names, which FBS-240's round DEFINE records from a full clone with node test/_harness/goldens.js own-chain test/fixtures/own-chain/at-639f07bb.json; neither test reads git history.",
+      "answeredAt": "2026-10-24T21:07:31.937Z",
+      "resolvedAt": "2026-10-24T21:07:31.937Z"
+    },
+    {
+      "id": 125,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's notes do not carry the GR-54 step that its round DEFINE reclassifies REQ-196, REQ-198 and REQ-204 first. Source: stage-keeper ruling C4 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "add the reclassify step for REQ-196, REQ-198 and REQ-204 to FBS-240's notes"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T21:07:32.024Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C4 (GR-54): add the reclassify step for REQ-196, REQ-198 and REQ-204 to FBS-240's notes.\" So FBS-240's notes say its round DEFINE reclassifies REQ-196, REQ-198 and REQ-204 first (the 14 concern pairs may be scan artefacts), worded from GR-54's ruling.",
+      "answeredAt": "2026-10-24T21:07:32.112Z",
+      "resolvedAt": "2026-10-24T21:07:32.112Z"
+    },
+    {
+      "id": 126,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's deliverables[1] and ADR-4160's decision say the operator's D1 profile answers are recorded through the CLI, while ruling 9 records them in rcf/.identity/profile.md by the shipped write-back and no verb records them. Source: stage-keeper ruling C5 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "reword FBS-240 deliverables[1] and ADR-4160's decision to \"by the shipped write-back\""
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T21:07:32.203Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C5: reword FBS-240 deliverables[1] and ADR-4160's decision to \"by the shipped write-back\".\" So FBS-240's deliverables[1] reads \"The operator's D1 profile answers, recorded by the shipped write-back\" and ADR-4160's D1 clause reads \"recorded by the test-author by the shipped write-back;\".",
+      "answeredAt": "2026-10-24T21:07:32.290Z",
+      "resolvedAt": "2026-10-24T21:07:32.290Z"
     }
   ]
 }

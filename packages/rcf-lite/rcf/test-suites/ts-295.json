@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:01:13.683Z",
-  "updatedAt": "2026-10-24T18:01:14.752Z",
+  "updatedAt": "2026-10-24T21:06:33.224Z",
   "purpose": "FBS-240: the testOnly criteria of US-20302, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-240's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -30,9 +30,9 @@
     {
       "id": "TC-295-no-criterion-live-on-main-at-639f07bb",
       "acId": "AC-20302-3",
-      "description": "no criterion live on main at 639f07bb has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor",
+      "description": "no criterion live on main at 639f07bb, as the own-chain golden records it, has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor",
       "status": "pending",
-      "testPointer": "test/define/readiness-own-chain.test.js::AC-20302-3: no criterion live on main at 639f07bb has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor"
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20302-3: no criterion live on main at 639f07bb, as the own-chain golden records it, has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor"
     },
     {
       "id": "TC-295-define-readiness-check-all-over-the-own",

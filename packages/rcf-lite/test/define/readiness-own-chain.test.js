@@ -9,8 +9,15 @@
 // round DEFINE commits, the golden captured from the round-base bin with
 // node test/_harness/goldens.js readiness-chips test/fixtures/readiness/chips.json
 // (the stage-keeper's ruling 8 on the Part B summary's stops, reading b in
-// golden form). Its own-chain half, like AC-20302-3, reads 639f07bb, so
-// it needs a full-depth checkout.
+// golden form). Its own-chain half and AC-20302-3 compare against the
+// own-chain golden test/fixtures/own-chain/at-639f07bb.json, which
+// FBS-240's round DEFINE records from a full clone with
+// node test/_harness/goldens.js own-chain test/fixtures/own-chain/at-639f07bb.json
+// (the stage-keeper's ruling on part B3's open question 1, reading a), so
+// neither reads git history. No test in this file reads git history beyond
+// HEAD (the stage-keeper's rule on the independent check), except
+// AC-20303-3, which stays as at 136c51e5: its rewrite under ruling F3 is
+// stopped and returned to the stage-keeper as a question.
 //
 // Every test is a node:test todo case ("FBS-240 round DEFINE", GR-35): it
 // runs and is red until FBS-240's round DEFINE drops the marker. Each
@@ -32,14 +39,13 @@ import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { lines, rcf, run } from '../_harness/spawn.js';
-import { commit, git, gitTry, initRepo, sha, showAt } from '../_harness/git.js';
+import { lines, rcf } from '../_harness/spawn.js';
+import { commit, gitTry, initRepo, sha } from '../_harness/git.js';
 import { baseSuiteRecord, checkoutPackage, checkoutRoot, scratch, writeJson } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
-import { readinessChips, readinessTrees } from '../_harness/goldens.js';
+import { MAIN_0361, readinessChips, readinessTrees } from '../_harness/goldens.js';
 
 const TODO = { todo: 'FBS-240 round DEFINE' };
-const MAIN_0361 = '639f07bb99ac70bd93c298be3b15bea4eb8a38b1';
 const PROFILE = 'rcf/.identity/profile.md';
 
 const pkg = () => checkoutPackage();
@@ -115,19 +121,26 @@ const CHIP_GOLDEN = 'test/fixtures/readiness/chips.json';
 const READINESS_TREES = ['clean', 'd0-discovery', 'd1-brief', 'd2-skeleton', 'd3-shapes', 'd4-stories', 'd5-crosscut', 'd6-consistency', 'd7-decisions', 'd8-freeze'];
 const ROUND_DEFINE_STEP = `FBS-240's round DEFINE commits the readiness fixture trees under ${READINESS_DIR}/ and captures the chip golden (node test/_harness/goldens.js readiness-chips ${CHIP_GOLDEN})`;
 
-// A temporary worktree at rev with that tree's own dependencies installed;
-// returns packages/rcf-lite inside it.
-function worktreeAt(t, root, rev) {
-  const dir = join(scratch(t, 'rcf-h-wt-'), 'wt');
-  git(root, 'worktree', 'add', '--detach', '--quiet', dir, rev);
-  t.after(() => { gitTry(root, 'worktree', 'remove', '--force', dir); gitTry(root, 'worktree', 'prune'); });
-  const inst = run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'], { cwd: dir, env: { PATH: process.env.PATH } });
-  assert.equal(inst.code, 0, `pnpm install in the worktree at ${rev}\n${inst.stdout.slice(-1000)}${inst.stderr.slice(-1000)}`);
-  return join(dir, 'packages', 'rcf-lite');
+// The own-chain golden (the stage-keeper's ruling on part B3's open
+// question 1, reading a): what AC-20301-4's own-chain half and AC-20302-3
+// compare against at 639f07bb, as { "rev", "notApplicableStages",
+// "liveCriteria" }, recorded by FBS-240's round DEFINE from a full clone,
+// from packages/rcf-lite, with
+//   node test/_harness/goldens.js own-chain test/fixtures/own-chain/at-639f07bb.json
+// While it is absent the reading test fails naming that step, never skips.
+const OWN_CHAIN_GOLDEN = 'test/fixtures/own-chain/at-639f07bb.json';
+const OWN_CHAIN_STEP = `FBS-240's round DEFINE records the own-chain golden from a full clone (node test/_harness/goldens.js own-chain ${OWN_CHAIN_GOLDEN})`;
+function ownChainGolden() {
+  const file = join(pkg(), OWN_CHAIN_GOLDEN);
+  assert.ok(existsSync(file), `${OWN_CHAIN_STEP}: ${OWN_CHAIN_GOLDEN} is absent`);
+  const golden = JSON.parse(readFileSync(file, 'utf8'));
+  assert.equal(golden.rev, MAIN_0361, `${OWN_CHAIN_GOLDEN} is the golden of 639f07bb`);
+  assert.ok(Array.isArray(golden.notApplicableStages) && golden.liveCriteria && typeof golden.liveCriteria === 'object', `${OWN_CHAIN_GOLDEN} holds notApplicableStages and liveCriteria`);
+  return golden;
 }
 const notApplicableStages = (doc) => doc.stages.filter((s) => s.state === 'notApplicable').map((s) => s.stage);
 
-test('AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb', TODO, async (t) => {
+test('AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb as the own-chain golden records it', TODO, async () => {
   const trees = join(pkg(), READINESS_DIR);
   assert.ok(existsSync(trees), `${ROUND_DEFINE_STEP}: ${READINESS_DIR}/ is absent`);
   assert.deepEqual(readinessTrees(trees), [...READINESS_TREES].sort(), `${ROUND_DEFINE_STEP}: the named trees`);
@@ -138,11 +151,7 @@ test('AC-20301-4: over the named readiness fixture trees under test/fixtures/rea
   for (const name of READINESS_TREES) {
     assert.equal(await readinessChips(join(trees, name)), chips[name], `${name}: the Chips line at the current head equals the chip golden`);
   }
-  const root = checkoutRoot();
-  assert.equal(gitTry(root, 'cat-file', '-e', `${MAIN_0361}^{commit}`).code, 0, 'the 0.36.1 main commit is in the history (full-depth checkout)');
-  const then = worktreeAt(t, root, MAIN_0361);
-  const was = json((await rcf(['define', 'readiness', '--json'], { cwd: then, bin: join(then, 'bin', 'rcf.js') })).stdout);
-  const wasNotApplicable = new Set(notApplicableStages(was));
+  const wasNotApplicable = new Set(ownChainGolden().notApplicableStages);
   const now = await readinessJson(pkg());
   assert.deepEqual(notApplicableStages(now).filter((s) => !wasNotApplicable.has(s)), [], 'no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb');
 });
@@ -197,15 +206,9 @@ test('AC-20302-2: every defineD4:failure and defineD4:mustNot opt-out in rcf/man
   assert.deepEqual(unreasoned, [], 'every waived concern carries a reason');
 });
 
-test('AC-20302-3: no criterion live on main at 639f07bb has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor', TODO, () => {
-  const root = checkoutRoot();
-  assert.equal(gitTry(root, 'cat-file', '-e', `${MAIN_0361}^{commit}`).code, 0, 'the 0.36.1 main commit is in the history (full-depth checkout)');
-  const STORIES = 'packages/rcf-lite/rcf/user-stories';
-  const paths = git(root, 'ls-tree', '--name-only', `${MAIN_0361}:${STORIES}`).split('\n').filter(Boolean).map((f) => `${STORIES}/${f}`);
-  const then = new Map();
-  for (const text of showAt(root, MAIN_0361, paths).values()) {
-    for (const a of JSON.parse(text).acceptanceCriteria ?? []) if (!a.supersededBy) then.set(a.id, a);
-  }
+test('AC-20302-3: no criterion live on main at 639f07bb, as the own-chain golden records it, has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor', TODO, () => {
+  const then = new Map(Object.entries(ownChainGolden().liveCriteria));
+  assert.ok(then.size > 0, `${OWN_CHAIN_GOLDEN} records the criteria live at 639f07bb`);
   const dir = join(pkg(), 'rcf', 'user-stories');
   const now = new Map(readdirSync(dir).flatMap((f) => (JSON.parse(readFileSync(join(dir, f), 'utf8')).acceptanceCriteria ?? []).map((a) => [a.id, a])));
   const rewritten = [];
