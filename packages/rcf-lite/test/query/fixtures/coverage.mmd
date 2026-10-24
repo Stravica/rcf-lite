@@ -2104,10 +2104,18 @@ flowchart LR
   AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
   AC-16103-4["AC-16103-4"]
   REQ-161 --> AC-16103-4
+  TC-264-busy-after-filing-names-it["TC-264-busy-after-filing-names-it"]
+  AC-16103-4 -.-> TC-264-busy-after-filing-names-it
+  TC-264-dead-claim-removed["TC-264-dead-claim-removed"]
+  AC-16103-4 -.-> TC-264-dead-claim-removed
+  TC-264-dry-run-skips-kept-filing["TC-264-dry-run-skips-kept-filing"]
+  AC-16103-4 -.-> TC-264-dry-run-skips-kept-filing
   TC-264-eight-moves-copy-once["TC-264-eight-moves-copy-once"]
   AC-16103-4 -.-> TC-264-eight-moves-copy-once
   TC-264-held-bundle-collision-kept["TC-264-held-bundle-collision-kept"]
   AC-16103-4 -.-> TC-264-held-bundle-collision-kept
+  TC-264-held-filing-moves-once["TC-264-held-filing-moves-once"]
+  AC-16103-4 -.-> TC-264-held-filing-moves-once
   TC-264-held-identical-removed-once["TC-264-held-identical-removed-once"]
   AC-16103-4 -.-> TC-264-held-identical-removed-once
   TC-264-held-move-fails-after-append["TC-264-held-move-fails-after-append"]
@@ -2138,6 +2146,10 @@ flowchart LR
   AC-16103-4 -.-> TC-264-lane-only-no-commit
   TC-264-lane-session-end-during-move-once["TC-264-lane-session-end-during-move-once"]
   AC-16103-4 -.-> TC-264-lane-session-end-during-move-once
+  TC-264-live-claim-never-passed["TC-264-live-claim-never-passed"]
+  AC-16103-4 -.-> TC-264-live-claim-never-passed
+  TC-264-lost-hold-writes-nothing["TC-264-lost-hold-writes-nothing"]
+  AC-16103-4 -.-> TC-264-lost-hold-writes-nothing
   TC-264-main-add-during-move-kept["TC-264-main-add-during-move-kept"]
   AC-16103-4 -.-> TC-264-main-add-during-move-kept
   TC-264-main-session-end-after-copy-kept["TC-264-main-session-end-after-copy-kept"]
@@ -4958,8 +4970,12 @@ flowchart LR
   class TC-197-session-start-requeues-deferred-then-stop-asks tc;
   class TC-197-stop-only-path-requeues-deferred tc;
   class AC-16103-4 ac;
+  class TC-264-busy-after-filing-names-it tc;
+  class TC-264-dead-claim-removed tc;
+  class TC-264-dry-run-skips-kept-filing tc;
   class TC-264-eight-moves-copy-once tc;
   class TC-264-held-bundle-collision-kept tc;
+  class TC-264-held-filing-moves-once tc;
   class TC-264-held-identical-removed-once tc;
   class TC-264-held-move-fails-after-append tc;
   class TC-264-held-move-fails-after-collided-remove tc;
@@ -4975,6 +4991,8 @@ flowchart LR
   class TC-264-lane-add-during-move-lines-once tc;
   class TC-264-lane-only-no-commit tc;
   class TC-264-lane-session-end-during-move-once tc;
+  class TC-264-live-claim-never-passed tc;
+  class TC-264-lost-hold-writes-nothing tc;
   class TC-264-main-add-during-move-kept tc;
   class TC-264-main-session-end-after-copy-kept tc;
   class TC-264-main-session-end-before-copy-kept tc;
