@@ -8379,7 +8379,8 @@
           "id": "AC-19803-5",
           "covered": true,
           "testCases": [
-            "TC-280-over-the-chain-of-this-repository-at-the"
+            "TC-280-over-the-chain-of-this-repository-at-the",
+            "TC-280-timing-ratio-measured-at-test-with-rcf-perf"
           ],
           "unresolvedTestCases": []
         },

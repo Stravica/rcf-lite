@@ -909,7 +909,7 @@ REQ-198      yes      AC-19801-1   yes         TC-276-with-head-adding-ac-101-2-
                       AC-19803-2   yes         TC-279-with-fbs-001-at-verified-the-testonly-ac
                       AC-19803-3   yes         TC-279-in-format-table-the-unflagged-ac-101-3
                       AC-19803-4   yes         TC-279-audit-coverage-strict-exits-with-the
-                      AC-19803-5   yes         TC-280-over-the-chain-of-this-repository-at-the
+                      AC-19803-5   yes         TC-280-over-the-chain-of-this-repository-at-the, TC-280-t...
                       AC-19803-6   yes         TC-279-a-hand-edited-verification-sometimes-on
                       AC-19804-1   yes         TC-281-at-the-slice-head-no-user-story-tag
                       AC-19804-2   yes         TC-281-for-every-criterion-the-move-commit
