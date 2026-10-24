@@ -2858,6 +2858,23 @@
       "answer": "b. The stage-keeper, 2026-10-24: \"The AC-20201-6 and AC-20201-8 tests run base-suite with node on a PATH that has no node. Reading (b): the tests pass toolPath(['node']), the same harness helper AC-20201-1 uses. base-suite gains no PATH behaviour, because a consumer's environment is theirs.\" So every rcf build base-suite run in the AC-20201-6 test (three) and the AC-20201-8 test (two) passes { PATH: toolPath(['node']) }, as the AC-20201-1 run does, written now in part C; nothing else in either test changes.",
       "answeredAt": "2026-10-24T21:17:55.059Z",
       "resolvedAt": "2026-10-24T21:17:55.059Z"
+    },
+    {
+      "id": 132,
+      "question": "(rcf-lite 0.37.0 DEFINE) ADR-4162's decision says part B's tests reach main in files holding one slice's criteria each, while FBS-228's AC-19401-12 test stays in FBS-227's file test/verify/probe-assertion-0-9-0.test.js under the stage-keeper's ruling on part B1's stop 4, and the ADR does not name that exception. Source: stage-keeper ruling C6 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "ADR-4162 names the AC-19401-12 exception"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-228",
+      "addedAt": "2026-10-24T21:18:50.900Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C6: ADR-4162 names the AC-19401-12 exception.\" So ADR-4162's decision now reads \"Part B's tests reach main as node:test todo cases in files holding one slice's criteria each (the exception: FBS-228's AC-19401-12 test stays in FBS-227's file test/verify/probe-assertion-0-9-0.test.js, because one file per slice applies only to new files); ...\", from the ruling on part B1's stop 4, reading a (\"One file per slice\" applies only to new files).",
+      "answeredAt": "2026-10-24T21:18:50.985Z",
+      "resolvedAt": "2026-10-24T21:18:50.985Z"
     }
   ]
 }
