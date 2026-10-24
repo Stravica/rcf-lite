@@ -2156,16 +2156,34 @@ flowchart LR
   AC-16103-4 -.-> TC-264-move-reads-whole-state-kept
   TC-264-old-mover-holds-nothing["TC-264-old-mover-holds-nothing"]
   AC-16103-4 -.-> TC-264-old-mover-holds-nothing
+  TC-264-opted-out-stop-never-waits["TC-264-opted-out-stop-never-waits"]
+  AC-16103-4 -.-> TC-264-opted-out-stop-never-waits
+  TC-264-reader-during-add-whole-lines["TC-264-reader-during-add-whole-lines"]
+  AC-16103-4 -.-> TC-264-reader-during-add-whole-lines
+  TC-264-reader-during-discard-whole-lines["TC-264-reader-during-discard-whole-lines"]
+  AC-16103-4 -.-> TC-264-reader-during-discard-whole-lines
   TC-264-refreshing-mover-not-broken["TC-264-refreshing-mover-not-broken"]
   AC-16103-4 -.-> TC-264-refreshing-mover-not-broken
+  TC-264-stale-hold-three-breakers-once["TC-264-stale-hold-three-breakers-once"]
+  AC-16103-4 -.-> TC-264-stale-hold-three-breakers-once
   TC-264-stop-reads-whole-state-silent["TC-264-stop-reads-whole-state-silent"]
   AC-16103-4 -.-> TC-264-stop-reads-whole-state-silent
   TC-264-stopped-mover-holds-nothing["TC-264-stopped-mover-holds-nothing"]
   AC-16103-4 -.-> TC-264-stopped-mover-holds-nothing
+  TC-264-submit-filed-breaks-hung-move["TC-264-submit-filed-breaks-hung-move"]
+  AC-16103-4 -.-> TC-264-submit-filed-breaks-hung-move
+  TC-264-submit-filed-busy-names-issue["TC-264-submit-filed-busy-names-issue"]
+  AC-16103-4 -.-> TC-264-submit-filed-busy-names-issue
+  TC-264-submit-filed-waits-records["TC-264-submit-filed-waits-records"]
+  AC-16103-4 -.-> TC-264-submit-filed-waits-records
   TC-264-two-lanes-move-at-once-kept["TC-264-two-lanes-move-at-once-kept"]
   AC-16103-4 -.-> TC-264-two-lanes-move-at-once-kept
   TC-264-two-moves-copy-once["TC-264-two-moves-copy-once"]
   AC-16103-4 -.-> TC-264-two-moves-copy-once
+  TC-264-unparsed-hold-judged-by-age["TC-264-unparsed-hold-judged-by-age"]
+  AC-16103-4 -.-> TC-264-unparsed-hold-judged-by-age
+  TC-264-unparsed-hold-named-path-age["TC-264-unparsed-hold-named-path-age"]
+  AC-16103-4 -.-> TC-264-unparsed-hold-named-path-age
   TC-264-worktree-entry-survives["TC-264-worktree-entry-survives"]
   AC-16103-4 -.-> TC-264-worktree-entry-survives
   TC-264-writers-wait-runs-out-exit-1["TC-264-writers-wait-runs-out-exit-1"]
@@ -4966,11 +4984,20 @@ flowchart LR
   class TC-264-main-unignored-refuses tc;
   class TC-264-move-reads-whole-state-kept tc;
   class TC-264-old-mover-holds-nothing tc;
+  class TC-264-opted-out-stop-never-waits tc;
+  class TC-264-reader-during-add-whole-lines tc;
+  class TC-264-reader-during-discard-whole-lines tc;
   class TC-264-refreshing-mover-not-broken tc;
+  class TC-264-stale-hold-three-breakers-once tc;
   class TC-264-stop-reads-whole-state-silent tc;
   class TC-264-stopped-mover-holds-nothing tc;
+  class TC-264-submit-filed-breaks-hung-move tc;
+  class TC-264-submit-filed-busy-names-issue tc;
+  class TC-264-submit-filed-waits-records tc;
   class TC-264-two-lanes-move-at-once-kept tc;
   class TC-264-two-moves-copy-once tc;
+  class TC-264-unparsed-hold-judged-by-age tc;
+  class TC-264-unparsed-hold-named-path-age tc;
   class TC-264-worktree-entry-survives tc;
   class TC-264-writers-wait-runs-out-exit-1 tc;
   class AC-16104-1 ac;
