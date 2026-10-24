@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-909",
+  "path": "src/feedback/store.js#appendWhole",
+  "implementsAcIds": [
+    "AC-16103-4"
+  ],
+  "dependencies": [
+    "CN-902"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-24T00:02:54.052Z",
+  "updatedAt": "2026-10-24T00:02:54.052Z"
+}

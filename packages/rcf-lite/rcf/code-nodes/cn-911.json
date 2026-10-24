@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-911",
+  "path": "src/feedback/store.js#foldFilingReceipts",
+  "implementsAcIds": [
+    "AC-16103-4"
+  ],
+  "dependencies": [
+    "CN-906"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-24T00:02:54.611Z",
+  "updatedAt": "2026-10-24T00:02:54.611Z"
+}

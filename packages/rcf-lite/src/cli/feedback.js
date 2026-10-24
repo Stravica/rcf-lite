@@ -37,6 +37,7 @@ import {
   appendEntry,
   appendState,
   ensureGitignore,
+  foldFilingReceipts,
   mainCheckoutRoot,
   mintUniqueEntryId,
   newEntryId,
@@ -44,6 +45,7 @@ import {
   readDiscardTimestamps,
   readEntries,
   readFeedbackSettings,
+  recordFiling,
   storeExists,
   storeRoot,
   withStoreLock,
@@ -156,7 +158,11 @@ Exit codes:
      checkout's store (stderr names the error and the main checkout),
      or another rcf feedback command still held the store when this
      command's wait for it ran out (stderr names that command's
-     process id and the checkout; nothing was written)
+     process id, or the store's lock file and its age when that file
+     cannot be parsed, and the checkout; nothing was written), or
+     submit filed an issue the store could not record in time (stderr
+     names the issue URL and the entry id; the next submit records it
+     without filing it again)
   2  usage error (bad flags, unknown enum, oversize body, no ignore
      coverage without --force)
   3  add: --kind blueprint AND the target is absent from
@@ -225,8 +231,12 @@ export async function main(argv, deps = {}) {
     // A writer that finds the store lock still held by another running
     // command once its wait runs out stops the same way, having written
     // nothing (the message names that command's process id and the store's
-    // checkout).
-    if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED' && err?.code !== 'RCF_FEEDBACK_STORE_BUSY') throw err;
+    // checkout, or the lock file and its age when it cannot be parsed).
+    // Submit that filed an issue and still cannot record it after its
+    // longer wait stops the same way, naming the issue URL and the entry
+    // id; the next submit records that filing and never files it again.
+    if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED' && err?.code !== 'RCF_FEEDBACK_STORE_BUSY'
+      && err?.code !== 'RCF_FEEDBACK_FILING_UNRECORDED') throw err;
     stderr.write(`[error] ${err.message}\n`);
     return 1;
   }
@@ -1442,6 +1452,14 @@ async function handleSubmit(argv, ctx) {
     }
   }
 
+  // AC-16103-4 (decision 87): a filing an earlier submit made but could not
+  // record is recorded first, so that entry is never filed again.
+  if (!flags['dry-run']) {
+    for (const t of await foldFilingReceipts(projectRoot)) {
+      stdout.write(`${t.id} -> recorded as submitted ${t.issueUrl} (filed by an earlier rcf feedback submit)\n`);
+    }
+  }
+
   const all = await readEntries(projectRoot);
   const pending = all.filter((e) => e.status === 'pending');
   const wantedIds = new Set(parsed.positionals);
@@ -1661,7 +1679,9 @@ async function handleSubmit(argv, ctx) {
       }
 
       if (result.ok) {
-        await appendState(projectRoot, {
+        // AC-16103-4 (decision 87): the issue is filed, so its record waits
+        // for a busy store (65 seconds) instead of being abandoned.
+        await recordFiling(projectRoot, {
           id: e.id,
           at: at(now),
           status: 'submitted',
@@ -2335,6 +2355,16 @@ async function runStopHook(projectRoot, harness, sessionId, payload, env, now, s
   const fileOptOut = settingsRead.settings.ask === false;
   const envOptOut = env.RCF_FEEDBACK_ASK === '0' || env.RCF_FEEDBACK_DISABLE === '1';
   const optedOut = fileOptOut || envOptOut;
+
+  // AC-16103-4 (decision 87): an opted-out Stop hook never asks, so unless
+  // it has deferred entries of an earlier session to requeue it writes
+  // nothing: it takes no store lock and never waits for another command.
+  if (optedOut) {
+    const all = await readEntries(projectRoot);
+    const requeue = Boolean(sessionId) && all.some((e) => e.status === 'deferredUntilSession'
+      && typeof e.sessionId === 'string' && e.sessionId !== '' && e.sessionId !== sessionId);
+    if (!requeue) return emitHook(harness, 'silent', buildAskReason(all.filter((e) => e.status === 'pending').length), streams);
+  }
 
   // AC-16101-2, AC-16103-4: the requeue, the reads and the ledger write
   // run holding the store lock, so two Stop hooks (or a hook and a move)

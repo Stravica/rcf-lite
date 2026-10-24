@@ -20,10 +20,10 @@
 // hand.
 
 import {
-  appendFile, mkdir, readFile, stat, writeFile,
+  mkdir, readFile, stat, writeFile,
 } from 'node:fs/promises';
 import {
-  accessSync, constants, copyFileSync, existsSync, linkSync, mkdirSync, readdirSync,
+  accessSync, constants, copyFileSync, existsSync, mkdirSync, readdirSync,
   readFileSync, renameSync, rmdirSync, statSync, unlinkSync, writeFileSync,
 } from 'node:fs';
 import { randomBytes } from 'node:crypto';
@@ -79,9 +79,10 @@ export const feedbackGitignoreEntry = Object.freeze({
  * the move never leaves a file the main checkout would commit; until then
  * the worktree keeps its held queue and this returns `projectRoot`. The
  * move runs only while it holds the main checkout's store lock
- * (`takeStoreLock`): when another live command holds it, this call does not
- * move, leaves the held queue where it is for the next command and returns
- * the main checkout, so two moves never overlap. A move that fails throws
+ * (`takeStoreLock`): when another live command holds it (or is breaking a
+ * stale one), this call does not move, leaves the held queue where it is
+ * for the next command and returns the main checkout, so two moves never
+ * overlap. A move that fails throws
  * (code `RCF_FEEDBACK_MOVE_FAILED`, naming the main checkout) having removed
  * a held file only once its content is in the main checkout's store, so
  * nothing is lost or duplicated and the next call completes the move; the
@@ -98,7 +99,7 @@ export function storeRoot(projectRoot) {
   if (!storeIgnored(mainRoot)) return projectRoot;
   let lock = null;
   try {
-    lock = takeStoreLock(mainRoot, false);
+    lock = takeStoreLock(mainRoot, 'move');
     if (lock !== null) moveHeldQueue(projectRoot, mainRoot, lock.keep);
   } catch (err) {
     const failure = new Error(`could not move this worktree's held feedback queue into the main checkout ${mainRoot}: ${err.message}`, { cause: err });
@@ -294,14 +295,30 @@ function copyUnderFreeName(src, bytes, dir, name) {
  * running is never stale, however long ago it started, and its lock is
  * never broken (a holder stopped for more than 60 seconds, a laptop asleep
  * say, can lose it: `keep` then throws rather than write over the new
- * holder's lock). A lock whose content cannot be read yet (an exclusive
- * create a breath before its write) is judged by its file's age instead.
+ * holder's lock). A lock whose content cannot be parsed (an exclusive
+ * create a breath before its write, or a holder stopped between the two)
+ * is judged by its file's age instead.
+ *
+ * Breaking (decision 87): the lock file is replaced or removed only by a
+ * command holding the claim on that one lock (`claimStoreLock`), after it
+ * has read the lock again under the claim and found exactly what it
+ * judged; the holder refreshes and removes its own lock under the same
+ * claim. A breaker replaces the stale lock with its own in one rename, so
+ * the store is never left unheld between the stopped holder and the next.
+ * So any number of commands that judge one stale lock at once break it
+ * once: one of them takes the store, every other one waits (a writer) or
+ * leaves the held queue (a move), and no command removes a lock it did not
+ * judge or a fresh holder's lock.
  */
 const STORE_LOCK = 'store.lock';
 const LOCK_STALE_MS = 60_000;
 const LOCK_REFRESH_MS = 1_000;
 const LOCK_POLL_MS = 25;
 const LOCK_WAIT_MS = 10_000;
+/** The wait of the write that records a filed issue: the stale window and a margin (decision 87). */
+const FILED_WAIT_MS = 65_000;
+/** Where submit keeps a filing it could not record (`recordFiling`), under `.rcf/feedback/`. */
+const FILED_DIR = 'filed';
 /** @type {Map<string, { depth: number, text: string, lock: object, refreshed: number, handle: { keep: () => void, release: () => void } }>} */
 const heldLocks = new Map();
 const lockPause = new Int32Array(new SharedArrayBuffer(4));
@@ -309,19 +326,22 @@ const lockPause = new Int32Array(new SharedArrayBuffer(4));
 /**
  * Run `fn` holding the store lock of the store that `projectRoot` writes
  * (the main checkout's for a linked worktree). A held lock is waited for,
- * polling, for up to `RCF_FEEDBACK_LOCK_WAIT_MS` milliseconds (10 seconds
- * by default); if it is still held then, this throws
- * `RCF_FEEDBACK_STORE_BUSY` naming the holder's pid and the store's
+ * polling, for up to `RCF_FEEDBACK_LOCK_WAIT_MS` milliseconds (by default
+ * 10 seconds, or, with `filed`, 65 seconds of Date: the write that records
+ * an issue submit has already filed); if it is still held then, this
+ * throws `RCF_FEEDBACK_STORE_BUSY` naming the holder (its pid, or the lock
+ * file's path and age when that file cannot be parsed) and the store's
  * checkout before `fn` writes anything. Nested calls in one process share
  * the lock.
  *
  * @template T
  * @param {string} projectRoot
  * @param {() => Promise<T>} fn
+ * @param {{ filed?: boolean }} [opts]
  * @returns {Promise<T>}
  */
-export async function withStoreLock(projectRoot, fn) {
-  const lock = takeStoreLock(storeRoot(projectRoot), true);
+export async function withStoreLock(projectRoot, fn, { filed = false } = {}) {
+  const lock = takeStoreLock(storeRoot(projectRoot), filed ? 'filed' : 'write');
   try {
     return await fn();
   } finally {
@@ -333,16 +353,18 @@ export async function withStoreLock(projectRoot, fn) {
  * Take the store lock of `root`'s `.rcf/feedback/`. Returns its handle
  * (`keep` refreshes it, `release` removes it once the outermost holder in
  * this process is done, and only while it is still this holder's), or,
- * when another live command holds it: null for a caller that does not
- * wait (the move skips), else, once the wait runs out, an
- * `RCF_FEEDBACK_STORE_BUSY` error. A stale lock is broken and the create
- * retried.
+ * when another live command holds it (or holds the claim on a stale one):
+ * null for the move (`mode` 'move' does not wait: it skips), else, once
+ * the wait runs out, an `RCF_FEEDBACK_STORE_BUSY` error. A stale lock is
+ * broken (`breakStoreLock`) and this command holds the store in its place.
+ * The writers' wait (`mode` 'write') runs on the monotonic clock, the
+ * filing record's (`mode` 'filed') on Date, as decision 87 words it.
  *
  * @param {string} root
- * @param {boolean} wait
+ * @param {'move' | 'write' | 'filed'} mode
  * @returns {{ keep: () => void, release: () => void } | null}
  */
-function takeStoreLock(root, wait) {
+function takeStoreLock(root, mode) {
   const dir = join(root, FEEDBACK_DIR);
   const path = join(dir, STORE_LOCK);
   const mine = heldLocks.get(path);
@@ -352,29 +374,35 @@ function takeStoreLock(root, wait) {
   }
   mkdirSync(dir, { recursive: true });
   const raw = process.env.RCF_FEEDBACK_LOCK_WAIT_MS ?? '';
-  const waitMs = !wait ? 0 : /^\d+$/.test(raw) ? Number(raw) : LOCK_WAIT_MS;
-  const start = performance.now();
+  const waitMs = mode === 'move' ? 0 : /^\d+$/.test(raw) ? Number(raw) : mode === 'filed' ? FILED_WAIT_MS : LOCK_WAIT_MS;
+  const clock = mode === 'filed' ? () => Date.now() : () => performance.now();
+  const start = clock();
   for (;;) {
-    const at = new Date().toISOString();
-    const lock = { pid: process.pid, hostname: hostname(), startedAt: at, refreshedAt: at, token: randomBytes(8).toString('hex') };
-    const text = `${JSON.stringify(lock)}\n`;
+    const fresh = newStoreLock();
     try {
-      writeFileSync(path, text, { encoding: 'utf8', flag: 'wx' });
-      return holdStoreLock(path, lock, text);
+      writeFileSync(path, fresh.text, { encoding: 'utf8', flag: 'wx' });
+      return holdStoreLock(path, fresh.lock, fresh.text);
     } catch (err) {
       if (err?.code !== 'EEXIST') throw err;
     }
     const seen = readStoreLock(path);
     if (seen === null) continue;
-    if (storeLockStale(path, seen.lock)) {
-      breakStoreLock(path, seen.text);
-      continue;
+    if (storeLockStale(seen)) {
+      const took = breakStoreLock(path, seen, fresh);
+      if (took) return took;
+      if (took === false) continue;
     }
-    if (performance.now() - start >= waitMs) {
-      if (!wait) return null;
-      const holder = seen.lock;
-      const busy = new Error(`the feedback store in ${root} is busy: another rcf feedback command (process ${holder?.pid ?? 'unknown'} on ${holder?.hostname ?? 'unknown host'}, running since ${holder?.startedAt ?? 'an unknown time'}) is still changing it, so this command wrote nothing; run it again once that command finishes`);
+    if (clock() - start >= waitMs) {
+      if (mode === 'move') return null;
+      const holder = seen.lock === null
+        ? `a lock file ${path} that cannot be parsed, ${Math.max(0, Math.floor((Date.now() - seen.mtimeMs) / 1000))} seconds old (it counts as stopped once it is more than 60 seconds old)`
+        : `another rcf feedback command (process ${seen.lock.pid ?? 'unknown'} on ${seen.lock.hostname ?? 'unknown host'}, running since ${seen.lock.startedAt ?? 'an unknown time'})`;
+      const busy = new Error(seen.lock === null
+        ? `the feedback store in ${root} is busy: it holds ${holder}, so this command wrote nothing; run it again once that lock is gone or stale`
+        : `the feedback store in ${root} is busy: ${holder} is still changing it, so this command wrote nothing; run it again once that command finishes`);
       busy.code = 'RCF_FEEDBACK_STORE_BUSY';
+      busy.root = root;
+      busy.holder = holder;
       throw busy;
     }
     Atomics.wait(lockPause, 0, 0, LOCK_POLL_MS);
@@ -382,11 +410,25 @@ function takeStoreLock(root, wait) {
 }
 
 /**
- * Record a lock this process just created and build its handle. `keep`
- * rewrites `refreshedAt` (whole, by rename) once a second at most, after
- * checking the lock is still this holder's; a lock another command broke
- * (this holder stalled for more than 60 seconds) is never written over,
- * `keep` throws instead. A timer calls `keep` while the holder awaits.
+ * A new lock (or claim) for this process: its content and the text written.
+ *
+ * @returns {{ lock: { pid: number, hostname: string, startedAt: string, refreshedAt: string, token: string }, text: string }}
+ */
+function newStoreLock() {
+  const at = new Date().toISOString();
+  const lock = { pid: process.pid, hostname: hostname(), startedAt: at, refreshedAt: at, token: randomBytes(8).toString('hex') };
+  return { lock, text: `${JSON.stringify(lock)}\n` };
+}
+
+/**
+ * Record a lock this process just created (or took over) and build its
+ * handle. `keep` rewrites `refreshedAt` (whole, by rename) once a second at
+ * most, under the claim on this lock and after checking the lock is still
+ * this holder's; a lock another command broke or is breaking (this holder
+ * stalled for more than 60 seconds) is never written over, `keep` throws
+ * instead. `release` removes the lock under the same claim, and leaves it
+ * to a command that holds the claim. A timer calls `keep` while the holder
+ * awaits.
  *
  * @param {string} path
  * @param {object} lock
@@ -395,18 +437,25 @@ function takeStoreLock(root, wait) {
  */
 function holdStoreLock(path, lock, text) {
   const state = { depth: 1, text, lock, refreshed: Date.now(), handle: null };
+  const lost = () => {
+    const err = new Error(`the feedback store lock ${path} was taken over by another command after this one stopped refreshing it`);
+    err.code = 'RCF_FEEDBACK_LOCK_LOST';
+    return err;
+  };
   const keep = () => {
     const now = Date.now();
     if (Math.abs(now - state.refreshed) < LOCK_REFRESH_MS) return;
-    if (readStoreLock(path)?.text !== state.text) {
-      const lost = new Error(`the feedback store lock ${path} was taken over by another command after this one stopped refreshing it`);
-      lost.code = 'RCF_FEEDBACK_LOCK_LOST';
-      throw lost;
+    const give = claimStoreLock(path, lock.token);
+    if (give === null) throw lost();
+    try {
+      if (readStoreLock(path)?.text !== state.text) throw lost();
+      state.lock = { ...state.lock, refreshedAt: new Date(now).toISOString() };
+      state.text = `${JSON.stringify(state.lock)}\n`;
+      replaceFileSync(path, state.text);
+      state.refreshed = now;
+    } finally {
+      give();
     }
-    state.lock = { ...state.lock, refreshedAt: new Date(now).toISOString() };
-    state.text = `${JSON.stringify(state.lock)}\n`;
-    replaceFileSync(path, state.text);
-    state.refreshed = now;
   };
   const timer = setInterval(() => {
     try { keep(); } catch { clearInterval(timer); }
@@ -420,7 +469,13 @@ function holdStoreLock(path, lock, text) {
       clearInterval(timer);
       heldLocks.delete(path);
       try {
-        if (readStoreLock(path)?.text === state.text) unlinkSync(path);
+        const give = claimStoreLock(path, lock.token);
+        if (give === null) return;
+        try {
+          if (readStoreLock(path)?.text === state.text) unlinkSync(path);
+        } finally {
+          give();
+        }
       } catch { /* gone already: nothing of this holder's is left */ }
     },
   };
@@ -429,35 +484,45 @@ function holdStoreLock(path, lock, text) {
 }
 
 /**
+ * Read a lock (or claim) file: its text, its content when it parses as a
+ * JSON object (else null), its inode and mtime, and its key (the token, or,
+ * for a file that cannot be parsed, its inode and mtime).
+ *
  * @param {string} path
- * @returns {{ text: string, lock: any } | null} null when there is no lock file
+ * @returns {{ text: string, lock: any, ino: number, mtimeMs: number, key: string } | null} null when there is no such file
  */
 function readStoreLock(path) {
   let text;
+  let st;
   try {
     text = readFileSync(path, 'utf8');
+    st = statSync(path);
   } catch (err) {
     if (err?.code === 'ENOENT') return null;
     throw err;
   }
+  let lock = null;
   try {
-    return { text, lock: JSON.parse(text) };
-  } catch {
-    return { text, lock: null };
-  }
+    const parsed = JSON.parse(text);
+    if (parsed !== null && typeof parsed === 'object') lock = parsed;
+  } catch { /* cannot be parsed: judged by its file's age */ }
+  const key = typeof lock?.token === 'string' && /^[0-9a-f]{1,64}$/.test(lock.token)
+    ? lock.token
+    : `${st.ino}-${Math.trunc(st.mtimeMs)}`;
+  return { text, lock, ino: st.ino, mtimeMs: st.mtimeMs, key };
 }
 
 /**
  * The stale rule (decision 86; see the lock's comment above): the holder's
  * pid is not alive on this host, or the lock has not been refreshed for 60
- * seconds by this process's clock. A refresh time ahead of this clock is
- * not stale.
+ * seconds by this process's clock (a lock that cannot be parsed: its file's
+ * mtime). A refresh time ahead of this clock is not stale.
  *
- * @param {string} path
- * @param {any} lock - the parsed lock, or null when its content is unreadable
+ * @param {{ lock: any, mtimeMs: number }} seen - as `readStoreLock` read it
  * @returns {boolean}
  */
-function storeLockStale(path, lock) {
+function storeLockStale(seen) {
+  const lock = seen.lock;
   if (lock?.hostname === hostname() && Number.isInteger(lock?.pid) && lock.pid > 0) {
     try {
       process.kill(lock.pid, 0);
@@ -466,37 +531,70 @@ function storeLockStale(path, lock) {
     }
   }
   let refreshed = Date.parse(lock?.refreshedAt ?? '');
-  if (!Number.isFinite(refreshed)) {
-    try { refreshed = statSync(path).mtimeMs; } catch { return false; }
-  }
+  if (!Number.isFinite(refreshed)) refreshed = seen.mtimeMs;
   return Date.now() - refreshed > LOCK_STALE_MS;
 }
 
 /**
- * Break the stale lock whose content was `seen`: rename it aside, and
- * remove it only when the file renamed is that stale lock. When a holder
- * refreshed or took the lock after it was judged (the content differs),
- * the file is linked back under the lock's name (exclusive, so it never
- * replaces a lock taken meanwhile) and nothing is broken.
+ * Break the stale lock `seen` (decision 87): under the claim on that lock,
+ * read it again and, only when it is still the lock that was judged (the
+ * same bytes, inode and mtime), replace it with this command's lock
+ * `fresh` in one rename, so the store is held throughout and a lock taken
+ * after the judgement is never touched. Returns this command's handle once
+ * it holds the store; false when the lock changed after it was judged
+ * (look again); null when another command holds the claim (it is breaking,
+ * refreshing or removing that lock: wait for it).
  *
  * @param {string} path
- * @param {string} seen
- * @returns {void}
+ * @param {{ text: string, ino: number, mtimeMs: number, key: string }} seen
+ * @param {{ lock: object, text: string }} fresh
+ * @returns {{ keep: () => void, release: () => void } | false | null}
  */
-function breakStoreLock(path, seen) {
-  const aside = `${path}.${process.pid}.stale`;
+function breakStoreLock(path, seen, fresh) {
+  const give = claimStoreLock(path, seen.key);
+  if (give === null) return null;
   try {
-    renameSync(path, aside);
-  } catch (err) {
-    if (err?.code === 'ENOENT') return;
-    throw err;
+    const now = readStoreLock(path);
+    if (now === null || now.text !== seen.text || now.ino !== seen.ino || now.mtimeMs !== seen.mtimeMs) return false;
+    const temp = `${path}.${process.pid}.tmp`;
+    writeFileSync(temp, fresh.text, 'utf8');
+    renameSync(temp, path);
+    return holdStoreLock(path, fresh.lock, fresh.text);
+  } finally {
+    give();
   }
-  let text = null;
-  try { text = readFileSync(aside, 'utf8'); } catch { /* gone: nothing to put back */ }
-  if (text !== null && text !== seen) {
-    try { linkSync(aside, path); } catch { /* the name was taken meanwhile: that holder's lock stands */ }
+}
+
+/**
+ * Take the claim on the lock whose key is `key` (decision 87): the one
+ * right to replace or remove that lock, by exclusive create of
+ * `store.lock.<key>.claim`. A claim whose holder is stale by the lock's own
+ * rule (its pid not alive on this host, or more than 60 seconds old) is
+ * passed by the next level (`.claim-1`, `.claim-2`, ...), so a command
+ * stopped inside a claim never keeps a stale lock from being broken.
+ * Returns the function that gives the claim up (it removes this command's
+ * claim file only), or null when a live command holds the claim.
+ *
+ * @param {string} path
+ * @param {string} key
+ * @returns {(() => void) | null}
+ */
+function claimStoreLock(path, key) {
+  for (let n = 0; ;) {
+    const claim = `${path}.${key}.claim${n === 0 ? '' : `-${n}`}`;
+    try {
+      writeFileSync(claim, newStoreLock().text, { encoding: 'utf8', flag: 'wx' });
+      return () => {
+        try { unlinkSync(claim); } catch { /* gone already */ }
+      };
+    } catch (err) {
+      if (err?.code !== 'EEXIST') throw err;
+    }
+    const held = readStoreLock(claim);
+    if (held === null) continue;
+    if (!storeLockStale(held)) return null;
+    n += 1;
   }
-  try { unlinkSync(aside); } catch { /* gone already */ }
 }
 
 /**
@@ -514,6 +612,26 @@ function replaceFileSync(path, text) {
   const temp = `${path}.${process.pid}.tmp`;
   writeFileSync(temp, text, 'utf8');
   renameSync(temp, path);
+}
+
+/**
+ * Add `line` at the end of `path` by replacing the whole file
+ * (`replaceFileSync`, decision 87): the file ends with the same bytes an
+ * append would leave, and a reader reads it as it was before or after,
+ * never a partial line. The caller holds the store lock.
+ *
+ * @param {string} path
+ * @param {string} line
+ * @returns {void}
+ */
+function appendWhole(path, line) {
+  let have = '';
+  try {
+    have = readFileSync(path, 'utf8');
+  } catch (err) {
+    if (err?.code !== 'ENOENT') throw err;
+  }
+  replaceFileSync(path, `${have}${line}`);
 }
 
 /**
@@ -621,7 +739,9 @@ export async function readEntries(projectRoot) {
 
 /**
  * Append one entry to the JSONL log, holding the store lock
- * (`withStoreLock`; a caller already holding it shares it). Ensures the
+ * (`withStoreLock`; a caller already holding it shares it), by replacing
+ * the whole file (`appendWhole`), so a reader never reads a partial line.
+ * Ensures the
  * parent directory exists (mkdir recursive) so the first call on a fresh
  * project does not require a separate init step.
  *
@@ -633,7 +753,7 @@ export async function appendEntry(projectRoot, entry) {
   await withStoreLock(projectRoot, async () => {
     await mkdir(feedbackDir(projectRoot), { recursive: true });
     const line = `${JSON.stringify(entry)}\n`;
-    await appendFile(entriesPath(projectRoot), line, 'utf8');
+    appendWhole(entriesPath(projectRoot), line);
   });
 }
 
@@ -679,7 +799,7 @@ export async function readDiscardTimestamps(projectRoot) {
  * Append one state-transition line for an existing id. Callers pass a
  * SHAPE that the reader's fold-by-id merges over the base entry; state
  * transitions are additive, never destructive rewrites. Holds the store
- * lock as `appendEntry` does.
+ * lock and replaces the whole file as `appendEntry` does.
  *
  * @param {string} projectRoot
  * @param {StateTransition} transition
@@ -689,7 +809,7 @@ export async function appendState(projectRoot, transition) {
   await withStoreLock(projectRoot, async () => {
     await mkdir(feedbackDir(projectRoot), { recursive: true });
     const line = `${JSON.stringify(transition)}\n`;
-    await appendFile(entriesPath(projectRoot), line, 'utf8');
+    appendWhole(entriesPath(projectRoot), line);
   });
 }
 
@@ -732,6 +852,85 @@ export async function writeAskLedger(projectRoot, ledger) {
   await withStoreLock(projectRoot, async () => {
     await mkdir(feedbackDir(projectRoot), { recursive: true });
     replaceFileSync(statePath(projectRoot), `${JSON.stringify(ledger, null, 2)}\n`);
+  });
+}
+
+/**
+ * Record an issue `rcf feedback submit` has already filed or commented on
+ * (its `submitted` state line, AC-16103-4, decision 87). The write is never
+ * abandoned on a busy store: it waits for the store lock up to 65 seconds
+ * of Date (`RCF_FEEDBACK_LOCK_WAIT_MS` overrides), so a hung holder is
+ * broken as stale and the record lands. If the store is still held then,
+ * the filing is kept whole in `.rcf/feedback/filed/<entry id>.json` (none
+ * of the store's queue files, and no reader takes it for one) and this
+ * throws `RCF_FEEDBACK_FILING_UNRECORDED`, naming the issue's URL and the
+ * entry's id; the next submit records the kept filing
+ * (`foldFilingReceipts`) and never files that entry again.
+ *
+ * @param {string} projectRoot
+ * @param {StateTransition} transition - status submitted, with issueUrl
+ * @returns {Promise<void>}
+ */
+export async function recordFiling(projectRoot, transition) {
+  try {
+    await withStoreLock(projectRoot, () => appendState(projectRoot, transition), { filed: true });
+    return;
+  } catch (err) {
+    if (err?.code !== 'RCF_FEEDBACK_STORE_BUSY') throw err;
+    let next;
+    try {
+      if (!/^[\w.-]+$/.test(transition.id)) throw new Error(`the entry id ${transition.id} is not a file name`);
+      const dir = join(feedbackDir(projectRoot), FILED_DIR);
+      mkdirSync(dir, { recursive: true });
+      const kept = join(dir, `${transition.id}.json`);
+      const temp = `${kept}.${process.pid}.tmp`;
+      writeFileSync(temp, `${JSON.stringify(transition)}\n`, 'utf8');
+      renameSync(temp, kept);
+      next = `the filing is kept in ${kept}, and the next rcf feedback submit records ${transition.id} as submitted without filing it again`;
+    } catch (keepErr) {
+      next = `keeping a record of the filing failed too (${keepErr.message}), so the next rcf feedback submit may file ${transition.id} again`;
+    }
+    const unrecorded = new Error(`rcf feedback submit filed ${transition.id} as ${transition.issueUrl}, but ${err.holder} still held the feedback store in ${err.root} when this command's wait for it ran out, so the store does not show ${transition.id} as submitted yet; ${next}`, { cause: err });
+    unrecorded.code = 'RCF_FEEDBACK_FILING_UNRECORDED';
+    throw unrecorded;
+  }
+}
+
+/**
+ * Record the filings an earlier submit kept (`recordFiling`) before this
+ * submit reads its pending entries, holding the store lock: an entry still
+ * pending or deferred gets the kept `submitted` state line, any other keeps
+ * its status, and each kept file is removed once read, so no entry is filed
+ * twice. Returns the transitions recorded.
+ *
+ * @param {string} projectRoot
+ * @returns {Promise<StateTransition[]>}
+ */
+export async function foldFilingReceipts(projectRoot) {
+  const dir = join(feedbackDir(projectRoot), FILED_DIR);
+  if (!existsSync(dir)) return [];
+  return withStoreLock(projectRoot, async () => {
+    const status = new Map((await readEntries(projectRoot)).map((e) => [e.id, e.status]));
+    const recorded = [];
+    for (const name of readdirSync(dir)) {
+      if (!name.endsWith('.json')) continue;
+      const kept = join(dir, name);
+      let transition;
+      try {
+        transition = JSON.parse(readFileSync(kept, 'utf8'));
+      } catch {
+        continue;
+      }
+      if (typeof transition?.id !== 'string' || typeof transition?.issueUrl !== 'string') continue;
+      const now = status.get(transition.id);
+      if (now === 'pending' || now === 'deferredUntilSession') {
+        await appendState(projectRoot, transition);
+        recorded.push(transition);
+      }
+      unlinkSync(kept);
+    }
+    try { rmdirSync(dir); } catch { /* not empty: a file it did not read stays */ }
+    return recorded;
   });
 }
 

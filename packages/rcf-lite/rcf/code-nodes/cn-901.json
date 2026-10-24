@@ -4,9 +4,13 @@
   "implementsAcIds": [
     "AC-16103-4"
   ],
-  "dependencies": [],
+  "dependencies": [
+    "CN-899",
+    "CN-905",
+    "CN-908"
+  ],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-23T22:26:44.057Z",
-  "updatedAt": "2026-10-23T22:26:44.057Z"
+  "updatedAt": "2026-10-24T00:03:00.842Z"
 }
