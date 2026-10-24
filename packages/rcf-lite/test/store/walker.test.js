@@ -458,7 +458,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Schemas-090 DEFINE (2026-10-20) added FBS-227 (116 -> 117).
   // Schemas-090 DEFINE close (2026-10-20) split FBS-227 by ledger 52, adding FBS-228 and FBS-229 (117 -> 119).
   // Pre-merge Finalise DEFINE (2026-10-22) added FBS-230 (119 -> 120).
-  assert.equal(tree.fbsItems.length, 120);
+  // Downstream findings DEFINE (2026-10-23) added FBS-231 (120 -> 121).
+  assert.equal(tree.fbsItems.length, 121);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -588,7 +589,9 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Suite-as-probe DEFINE (2026-10-19) added TS-258 and TS-259 (198 -> 200).
   // Schemas-090 DEFINE (2026-10-20) added TS-260 (200 -> 201).
   // Pre-merge Finalise DEFINE (2026-10-22) added TS-261 (201 -> 202).
-  assert.equal(tree.testSuites.length, 202);
+  // Downstream findings DEFINE (2026-10-23) added TS-262, TS-263 and TS-264 (202 -> 205).
+  // Downstream findings DEFINE round 2 (2026-10-23) added TS-265 (205 -> 206).
+  assert.equal(tree.testSuites.length, 206);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

@@ -7,11 +7,11 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 120,
+    "items": 121,
     "notStarted": 58,
     "inProgress": 2,
     "complete": 34,
-    "verified": 26,
+    "verified": 27,
     "actionable": 41,
     "blocked": 17
   },
@@ -71,7 +71,8 @@
         "FBS-207",
         "FBS-209",
         "FBS-210",
-        "FBS-218"
+        "FBS-218",
+        "FBS-231"
       ]
     },
     {
@@ -1586,6 +1587,16 @@
       "blockedBy": [
         "FBS-228"
       ]
+    },
+    {
+      "fbsId": "FBS-231",
+      "buildOrder": 233,
+      "tier": 0,
+      "title": "Headless agent sessions run with the feedback ask off, verify run --out refuses a directory, and the feedback queue survives a removed worktree",
+      "executionStatus": "verified",
+      "dependsOnFbsIds": [],
+      "state": "verified",
+      "blockedBy": []
     }
   ],
   "journeyApplicable": false,

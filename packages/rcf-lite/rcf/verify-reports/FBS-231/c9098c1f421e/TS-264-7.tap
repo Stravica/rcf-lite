@@ -1,0 +1,62 @@
+TAP version 13
+# Subtest: AC-16101-2: two Stop hooks running at once in one checkout, each for its own session_id, both ask and both keep their asked records in state.json exactly once, neither overwriting the other
+ok 1 - AC-16101-2: two Stop hooks running at once in one checkout, each for its own session_id, both ask and both keep their asked records in state.json exactly once, neither overwriting the other
+  ---
+  duration_ms: 460.777583
+  type: 'test'
+  ...
+# the second Stop hook contended while the first is held
+# Subtest: AC-16103-4: a worktree move that reads the main checkout's state.json while the main checkout Stop hook is writing it reads a whole document, so every ask record the main checkout held before is kept exactly once
+ok 2 - AC-16103-4: a worktree move that reads the main checkout's state.json while the main checkout Stop hook is writing it reads a whole document, so every ask record the main checkout held before is kept exactly once
+  ---
+  duration_ms: 1772.716417
+  type: 'test'
+  ...
+# the worktree command contended while the Stop hook is held mid-write
+# Subtest: AC-16103-4: the main checkout Stop hook in a session that already asked stays silent (exit 0) when it reads the main checkout's state.json while a worktree move is writing it
+ok 3 - AC-16103-4: the main checkout Stop hook in a session that already asked stays silent (exit 0) when it reads the main checkout's state.json while a worktree move is writing it
+  ---
+  duration_ms: 1763.057667
+  type: 'test'
+  ...
+# the Stop hook contended while the move is held mid-write
+# Subtest: AC-16103-4: when the main checkout Stop hook writes its ask record while a worktree move is between its read and its write of the main checkout's state.json, the hook's own ask record and every held ask record are kept exactly once
+ok 4 - AC-16103-4: when the main checkout Stop hook writes its ask record while a worktree move is between its read and its write of the main checkout's state.json, the hook's own ask record and every held ask record are kept exactly once
+  ---
+  duration_ms: 1738.351958
+  type: 'test'
+  ...
+# the Stop hook contended while the move is held
+# Subtest: AC-16103-4: while a worktree move is still changing the main checkout store, rcf feedback add, the Stop hook, the SessionEnd hook and rcf feedback submit in the main checkout each exit 1 once their wait runs out, naming the running command and the main checkout, and write nothing
+ok 5 - AC-16103-4: while a worktree move is still changing the main checkout store, rcf feedback add, the Stop hook, the SessionEnd hook and rcf feedback submit in the main checkout each exit 1 once their wait runs out, naming the running command and the main checkout, and write nothing
+  ---
+  duration_ms: 2517.020875
+  type: 'test'
+  ...
+# Subtest: AC-16103-4 guard: a worktree move whose process stopped without finishing holds up no later command: the next rcf feedback command in the worktree completes the move with each id once, and rcf feedback add in the main checkout proceeds
+ok 6 - AC-16103-4 guard: a worktree move whose process stopped without finishing holds up no later command: the next rcf feedback command in the worktree completes the move with each id once, and rcf feedback add in the main checkout proceeds
+  ---
+  duration_ms: 1800.588583
+  type: 'test'
+  ...
+# Subtest: AC-16103-4 guard: a worktree move that has not been refreshed for more than 60 seconds holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once
+ok 7 - AC-16103-4 guard: a worktree move that has not been refreshed for more than 60 seconds holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once
+  ---
+  duration_ms: 1656.779417
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: a worktree move still running that keeps refreshing is never taken for stopped, however long ago it started: rcf feedback add in the main checkout waits for it, exits 1 once its wait runs out naming the running command and the main checkout, and writes nothing
+ok 8 - AC-16103-4: a worktree move still running that keeps refreshing is never taken for stopped, however long ago it started: rcf feedback add in the main checkout waits for it, exits 1 once its wait runs out naming the running command and the main checkout, and writes nothing
+  ---
+  duration_ms: 2480.20025
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 14290.95325

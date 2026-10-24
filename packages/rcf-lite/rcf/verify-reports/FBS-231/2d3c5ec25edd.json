@@ -1,0 +1,133 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-231",
+  "headSha": "2d3c5ec25edd98827416a84d8a59f73ae71f7a67",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.36.0.tgz",
+    "name": "rcf-lite",
+    "version": "0.36.0",
+    "sha256": "908207d1da326c6f2fcfaf2ffdb1ab599926cb4f32cf3ac3f68194384ce3a0e0",
+    "servedSha": "2d3c5ec25edd98827416a84d8a59f73ae71f7a67"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-lite-dex-findings-test",
+  "startedAt": "2026-10-23T11:24:29.195Z",
+  "finishedAt": "2026-10-23T11:24:35.073Z",
+  "rcfLiteVersion": "0.36.0",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "pack": {
+    "command": "npm pack --pack-destination /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-fwXP5l/out --json",
+    "exitCode": 0
+  },
+  "install": {
+    "command": "npm install --no-audit --no-fund /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-fwXP5l/out/rcf-lite-0.36.0.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-231/2d3c5ec25edd/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-262",
+      "file": "test/verify/headless-session-feedback-ask.test.js",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/2d3c5ec25edd/TS-262.tap"
+    },
+    {
+      "testSuite": "TS-263",
+      "file": "test/verify/out-directory-refused.test.js",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/2d3c5ec25edd/TS-263.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-queue-survives.test.js",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/2d3c5ec25edd/TS-264.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 3,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 3
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-16102-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-262",
+        "file": "test/verify/headless-session-feedback-ask.test.js",
+        "tests": [
+          {
+            "tcId": "TC-262-ask-off-in-headless-session",
+            "title": "AC-16102-3: rcf verify run in its default agent mode spawns the agent session with RCF_FEEDBACK_ASK=0, so the project's feedback Stop hook exits 0 silently inside it, a pending --ask-now entry stays pending, and the report carries the agent's findings instead of LAUNCH-FAILURE",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-16103-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-264",
+        "file": "test/feedback/worktree-queue-survives.test.js",
+        "tests": [
+          {
+            "tcId": "TC-264-worktree-entry-survives",
+            "title": "AC-16103-4: an entry rcf feedback add records in a linked git worktree is still listed pending by rcf feedback list from the main checkout after git worktree remove",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19001-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-263",
+        "file": "test/verify/out-directory-refused.test.js",
+        "tests": [
+          {
+            "tcId": "TC-263-out-directory-refused",
+            "title": "AC-19001-7: rcf verify run --url <url> --out <existing directory> (with or without a trailing slash) exits 2 with \"--out must be a file path, not a directory\" before any request reaches the target and writes nothing in the directory",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-263-out-help-says-file-path",
+            "title": "AC-19001-7: rcf verify run --help describes --out as a file path and says a directory is refused (exit 2)",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

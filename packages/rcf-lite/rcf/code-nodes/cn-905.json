@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-905",
+  "path": "src/feedback/store.js#holdStoreLock",
+  "implementsAcIds": [
+    "AC-16103-4"
+  ],
+  "dependencies": [
+    "CN-899",
+    "CN-902",
+    "CN-908"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T22:27:18.108Z",
+  "updatedAt": "2026-10-24T01:35:24.972Z"
+}

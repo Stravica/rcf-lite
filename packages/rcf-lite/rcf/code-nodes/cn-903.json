@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-903",
+  "path": "src/cli/feedback.js#writeNewBundle",
+  "implementsAcIds": [
+    "AC-16103-1",
+    "AC-16001-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T22:26:51.517Z",
+  "updatedAt": "2026-10-23T22:26:51.517Z"
+}

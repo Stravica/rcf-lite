@@ -121,7 +121,8 @@ Required:
   --repo <path-or-ref>      RCF chain source (the acceptance contract)
   --profile <p>             Runtime profile: deployed | ci | local-dev
   --url <app-url>           The running app for this profile
-  --out <report-path>       Where to write the structured report artifact
+  --out <report-path>       The file path to write the structured report
+                            artifact to; a directory is refused (exit 2)
 
 Optional:
   --chain <PRD/ref>         Which PRD/chain to verify against (default: the repo's)
@@ -425,6 +426,14 @@ function isPackDirectory(flags, cwd) {
   }
 }
 
+function isDirectory(path) {
+  try {
+    return statSync(path).isDirectory();
+  } catch {
+    return false;
+  }
+}
+
 function exitForError(err) {
   switch (err.kind) {
     case 'usage': return 2;
@@ -539,6 +548,9 @@ export async function main(argv, deps = {}) {
     }
   } else if (!flags.out) {
     stderr.write('[error] usage --out <report-path> is required\n');
+    return 2;
+  } else if (isDirectory(resolvePath(cwd, flags.out))) {
+    stderr.write(`[error] usage --out must be a file path, not a directory: ${flags.out}\n`);
     return 2;
   }
   // Dash-footgun (§3 rule 3, mirrors build's --body-file discipline): a

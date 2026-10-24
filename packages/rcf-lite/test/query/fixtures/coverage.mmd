@@ -2025,6 +2025,8 @@ flowchart LR
   AC-16001-1 -.-> TC-194-preflight-issues-disabled
   TC-194-preflight-private-none["TC-194-preflight-private-none"]
   AC-16001-1 -.-> TC-194-preflight-private-none
+  TC-194-submit-same-second-both-kept["TC-194-submit-same-second-both-kept"]
+  AC-16001-1 -.-> TC-194-submit-same-second-both-kept
   AC-16001-2["AC-16001-2"]
   REQ-160 --> AC-16001-2
   TC-194-retry-without-labels-then-bundle["TC-194-retry-without-labels-then-bundle"]
@@ -2048,6 +2050,8 @@ flowchart LR
   AC-16101-2 -.-> TC-195-hook-stop-claude-code
   TC-195-hook-stop-codex["TC-195-hook-stop-codex"]
   AC-16101-2 -.-> TC-195-hook-stop-codex
+  TC-195-two-stops-at-once-both-kept["TC-195-two-stops-at-once-both-kept"]
+  AC-16101-2 -.-> TC-195-two-stops-at-once-both-kept
   AC-16101-3["AC-16101-3"]
   REQ-161 --> AC-16101-3
   TC-195-hook-same-session-silent-then-fresh-reasks["TC-195-hook-same-session-silent-then-fresh-reasks"]
@@ -2070,8 +2074,16 @@ flowchart LR
   AC-16102-2 -.-> TC-196-precedence-order
   TC-196-status-reports-optout-source["TC-196-status-reports-optout-source"]
   AC-16102-2 -.-> TC-196-status-reports-optout-source
+  AC-16102-3["AC-16102-3"]
+  REQ-161 --> AC-16102-3
+  TC-262-ask-off-in-headless-session["TC-262-ask-off-in-headless-session"]
+  AC-16102-3 -.-> TC-262-ask-off-in-headless-session
   AC-16103-1["AC-16103-1"]
   REQ-161 --> AC-16103-1
+  TC-197-session-end-idempotent-after-same-second["TC-197-session-end-idempotent-after-same-second"]
+  AC-16103-1 -.-> TC-197-session-end-idempotent-after-same-second
+  TC-197-session-end-same-second-both-kept["TC-197-session-end-same-second-both-kept"]
+  AC-16103-1 -.-> TC-197-session-end-same-second-both-kept
   TC-197-session-end-writes-idempotent-bundle["TC-197-session-end-writes-idempotent-bundle"]
   AC-16103-1 -.-> TC-197-session-end-writes-idempotent-bundle
   AC-16103-2["AC-16103-2"]
@@ -2090,6 +2102,104 @@ flowchart LR
   AC-16103-3 -.-> TC-197-session-start-requeues-deferred-then-stop-asks
   TC-197-stop-only-path-requeues-deferred["TC-197-stop-only-path-requeues-deferred"]
   AC-16103-3 -.-> TC-197-stop-only-path-requeues-deferred
+  AC-16103-4["AC-16103-4"]
+  REQ-161 --> AC-16103-4
+  TC-264-busy-after-filing-names-it["TC-264-busy-after-filing-names-it"]
+  AC-16103-4 -.-> TC-264-busy-after-filing-names-it
+  TC-264-dead-claim-removed["TC-264-dead-claim-removed"]
+  AC-16103-4 -.-> TC-264-dead-claim-removed
+  TC-264-dry-run-skips-kept-filing["TC-264-dry-run-skips-kept-filing"]
+  AC-16103-4 -.-> TC-264-dry-run-skips-kept-filing
+  TC-264-eight-moves-copy-once["TC-264-eight-moves-copy-once"]
+  AC-16103-4 -.-> TC-264-eight-moves-copy-once
+  TC-264-held-bundle-collision-kept["TC-264-held-bundle-collision-kept"]
+  AC-16103-4 -.-> TC-264-held-bundle-collision-kept
+  TC-264-held-filing-moves-once["TC-264-held-filing-moves-once"]
+  AC-16103-4 -.-> TC-264-held-filing-moves-once
+  TC-264-held-identical-removed-once["TC-264-held-identical-removed-once"]
+  AC-16103-4 -.-> TC-264-held-identical-removed-once
+  TC-264-held-move-fails-after-append["TC-264-held-move-fails-after-append"]
+  AC-16103-4 -.-> TC-264-held-move-fails-after-append
+  TC-264-held-move-fails-after-collided-remove["TC-264-held-move-fails-after-collided-remove"]
+  AC-16103-4 -.-> TC-264-held-move-fails-after-collided-remove
+  TC-264-held-move-fails-after-remove["TC-264-held-move-fails-after-remove"]
+  AC-16103-4 -.-> TC-264-held-move-fails-after-remove
+  TC-264-held-move-fails-on-collided-kept-once["TC-264-held-move-fails-on-collided-kept-once"]
+  AC-16103-4 -.-> TC-264-held-move-fails-on-collided-kept-once
+  TC-264-held-move-failure-exits["TC-264-held-move-failure-exits"]
+  AC-16103-4 -.-> TC-264-held-move-failure-exits
+  TC-264-held-moves-once-ignored["TC-264-held-moves-once-ignored"]
+  AC-16103-4 -.-> TC-264-held-moves-once-ignored
+  TC-264-held-queue-migrates["TC-264-held-queue-migrates"]
+  AC-16103-4 -.-> TC-264-held-queue-migrates
+  TC-264-held-state-merged-own-kept["TC-264-held-state-merged-own-kept"]
+  AC-16103-4 -.-> TC-264-held-state-merged-own-kept
+  TC-264-held-unignored-add-refuses["TC-264-held-unignored-add-refuses"]
+  AC-16103-4 -.-> TC-264-held-unignored-add-refuses
+  TC-264-held-unignored-hook-asks["TC-264-held-unignored-hook-asks"]
+  AC-16103-4 -.-> TC-264-held-unignored-hook-asks
+  TC-264-held-unignored-lists-own["TC-264-held-unignored-lists-own"]
+  AC-16103-4 -.-> TC-264-held-unignored-lists-own
+  TC-264-lane-add-during-move-lines-once["TC-264-lane-add-during-move-lines-once"]
+  AC-16103-4 -.-> TC-264-lane-add-during-move-lines-once
+  TC-264-lane-only-no-commit["TC-264-lane-only-no-commit"]
+  AC-16103-4 -.-> TC-264-lane-only-no-commit
+  TC-264-lane-session-end-during-move-once["TC-264-lane-session-end-during-move-once"]
+  AC-16103-4 -.-> TC-264-lane-session-end-during-move-once
+  TC-264-live-claim-never-passed["TC-264-live-claim-never-passed"]
+  AC-16103-4 -.-> TC-264-live-claim-never-passed
+  TC-264-lost-hold-writes-nothing["TC-264-lost-hold-writes-nothing"]
+  AC-16103-4 -.-> TC-264-lost-hold-writes-nothing
+  TC-264-main-add-during-move-kept["TC-264-main-add-during-move-kept"]
+  AC-16103-4 -.-> TC-264-main-add-during-move-kept
+  TC-264-main-session-end-after-copy-kept["TC-264-main-session-end-after-copy-kept"]
+  AC-16103-4 -.-> TC-264-main-session-end-after-copy-kept
+  TC-264-main-session-end-before-copy-kept["TC-264-main-session-end-before-copy-kept"]
+  AC-16103-4 -.-> TC-264-main-session-end-before-copy-kept
+  TC-264-main-stop-during-move-asks-kept["TC-264-main-stop-during-move-asks-kept"]
+  AC-16103-4 -.-> TC-264-main-stop-during-move-asks-kept
+  TC-264-main-stop-mid-move-own-kept["TC-264-main-stop-mid-move-own-kept"]
+  AC-16103-4 -.-> TC-264-main-stop-mid-move-own-kept
+  TC-264-main-submit-after-copy-kept["TC-264-main-submit-after-copy-kept"]
+  AC-16103-4 -.-> TC-264-main-submit-after-copy-kept
+  TC-264-main-unignored-refuses["TC-264-main-unignored-refuses"]
+  AC-16103-4 -.-> TC-264-main-unignored-refuses
+  TC-264-move-reads-whole-state-kept["TC-264-move-reads-whole-state-kept"]
+  AC-16103-4 -.-> TC-264-move-reads-whole-state-kept
+  TC-264-old-mover-holds-nothing["TC-264-old-mover-holds-nothing"]
+  AC-16103-4 -.-> TC-264-old-mover-holds-nothing
+  TC-264-opted-out-stop-never-waits["TC-264-opted-out-stop-never-waits"]
+  AC-16103-4 -.-> TC-264-opted-out-stop-never-waits
+  TC-264-reader-during-add-whole-lines["TC-264-reader-during-add-whole-lines"]
+  AC-16103-4 -.-> TC-264-reader-during-add-whole-lines
+  TC-264-reader-during-discard-whole-lines["TC-264-reader-during-discard-whole-lines"]
+  AC-16103-4 -.-> TC-264-reader-during-discard-whole-lines
+  TC-264-refreshing-mover-not-broken["TC-264-refreshing-mover-not-broken"]
+  AC-16103-4 -.-> TC-264-refreshing-mover-not-broken
+  TC-264-stale-hold-three-breakers-once["TC-264-stale-hold-three-breakers-once"]
+  AC-16103-4 -.-> TC-264-stale-hold-three-breakers-once
+  TC-264-stop-reads-whole-state-silent["TC-264-stop-reads-whole-state-silent"]
+  AC-16103-4 -.-> TC-264-stop-reads-whole-state-silent
+  TC-264-stopped-mover-holds-nothing["TC-264-stopped-mover-holds-nothing"]
+  AC-16103-4 -.-> TC-264-stopped-mover-holds-nothing
+  TC-264-submit-filed-breaks-hung-move["TC-264-submit-filed-breaks-hung-move"]
+  AC-16103-4 -.-> TC-264-submit-filed-breaks-hung-move
+  TC-264-submit-filed-busy-names-issue["TC-264-submit-filed-busy-names-issue"]
+  AC-16103-4 -.-> TC-264-submit-filed-busy-names-issue
+  TC-264-submit-filed-waits-records["TC-264-submit-filed-waits-records"]
+  AC-16103-4 -.-> TC-264-submit-filed-waits-records
+  TC-264-two-lanes-move-at-once-kept["TC-264-two-lanes-move-at-once-kept"]
+  AC-16103-4 -.-> TC-264-two-lanes-move-at-once-kept
+  TC-264-two-moves-copy-once["TC-264-two-moves-copy-once"]
+  AC-16103-4 -.-> TC-264-two-moves-copy-once
+  TC-264-unparsed-hold-judged-by-age["TC-264-unparsed-hold-judged-by-age"]
+  AC-16103-4 -.-> TC-264-unparsed-hold-judged-by-age
+  TC-264-unparsed-hold-named-path-age["TC-264-unparsed-hold-named-path-age"]
+  AC-16103-4 -.-> TC-264-unparsed-hold-named-path-age
+  TC-264-worktree-entry-survives["TC-264-worktree-entry-survives"]
+  AC-16103-4 -.-> TC-264-worktree-entry-survives
+  TC-264-writers-wait-runs-out-exit-1["TC-264-writers-wait-runs-out-exit-1"]
+  AC-16103-4 -.-> TC-264-writers-wait-runs-out-exit-1
   AC-16104-1["AC-16104-1"]
   REQ-161 --> AC-16104-1
   TC-198-init-bin-path-pins-node["TC-198-init-bin-path-pins-node"]
@@ -2396,6 +2506,14 @@ flowchart LR
   AC-17302-13 -.-> TC-215-r1-create-req-verbatim-replay-unchanged
   TC-215-r1-create-tac-id-unchanged-and-conflict["TC-215-r1-create-tac-id-unchanged-and-conflict"]
   AC-17302-13 -.-> TC-215-r1-create-tac-id-unchanged-and-conflict
+  AC-17302-14["AC-17302-14"]
+  REQ-173 --> AC-17302-14
+  TC-265-description-merge-keeps-scope["TC-265-description-merge-keeps-scope"]
+  AC-17302-14 -.-> TC-265-description-merge-keeps-scope
+  TC-265-from-file-keeps-scope["TC-265-from-file-keeps-scope"]
+  AC-17302-14 -.-> TC-265-from-file-keeps-scope
+  TC-265-replay-unchanged["TC-265-replay-unchanged"]
+  AC-17302-14 -.-> TC-265-replay-unchanged
   REQ-174["REQ-174"]
   AC-17401-1["AC-17401-1"]
   REQ-174 --> AC-17401-1
@@ -3362,6 +3480,12 @@ flowchart LR
   AC-19001-6 -.-> TC-252-hand-refuses-out
   TC-252-writes-only-reports["TC-252-writes-only-reports"]
   AC-19001-6 -.-> TC-252-writes-only-reports
+  AC-19001-7["AC-19001-7"]
+  REQ-190 --> AC-19001-7
+  TC-263-out-directory-refused["TC-263-out-directory-refused"]
+  AC-19001-7 -.-> TC-263-out-directory-refused
+  TC-263-out-help-says-file-path["TC-263-out-help-says-file-path"]
+  AC-19001-7 -.-> TC-263-out-help-says-file-path
   AC-19002-1["AC-19002-1"]
   REQ-190 --> AC-19002-1
   TC-253-e2e-verify-then-finalise["TC-253-e2e-verify-then-finalise"]
@@ -4806,6 +4930,7 @@ flowchart LR
   class TC-194-preflight-gh-missing tc;
   class TC-194-preflight-issues-disabled tc;
   class TC-194-preflight-private-none tc;
+  class TC-194-submit-same-second-both-kept tc;
   class AC-16001-2 ac;
   class TC-194-retry-without-labels-then-bundle tc;
   class AC-16001-3 ac;
@@ -4818,6 +4943,7 @@ flowchart LR
   class AC-16101-2 ac;
   class TC-195-hook-stop-claude-code tc;
   class TC-195-hook-stop-codex tc;
+  class TC-195-two-stops-at-once-both-kept tc;
   class AC-16101-3 ac;
   class TC-195-hook-same-session-silent-then-fresh-reasks tc;
   class TC-195-hook-stop-hook-active-silent tc;
@@ -4829,7 +4955,11 @@ flowchart LR
   class TC-196-env-disable-no-ops-add tc;
   class TC-196-precedence-order tc;
   class TC-196-status-reports-optout-source tc;
+  class AC-16102-3 ac;
+  class TC-262-ask-off-in-headless-session tc;
   class AC-16103-1 ac;
+  class TC-197-session-end-idempotent-after-same-second tc;
+  class TC-197-session-end-same-second-both-kept tc;
   class TC-197-session-end-writes-idempotent-bundle tc;
   class AC-16103-2 ac;
   class TC-197-session-start-claude-code-line tc;
@@ -4839,6 +4969,55 @@ flowchart LR
   class TC-197-session-start-idempotent-same-session tc;
   class TC-197-session-start-requeues-deferred-then-stop-asks tc;
   class TC-197-stop-only-path-requeues-deferred tc;
+  class AC-16103-4 ac;
+  class TC-264-busy-after-filing-names-it tc;
+  class TC-264-dead-claim-removed tc;
+  class TC-264-dry-run-skips-kept-filing tc;
+  class TC-264-eight-moves-copy-once tc;
+  class TC-264-held-bundle-collision-kept tc;
+  class TC-264-held-filing-moves-once tc;
+  class TC-264-held-identical-removed-once tc;
+  class TC-264-held-move-fails-after-append tc;
+  class TC-264-held-move-fails-after-collided-remove tc;
+  class TC-264-held-move-fails-after-remove tc;
+  class TC-264-held-move-fails-on-collided-kept-once tc;
+  class TC-264-held-move-failure-exits tc;
+  class TC-264-held-moves-once-ignored tc;
+  class TC-264-held-queue-migrates tc;
+  class TC-264-held-state-merged-own-kept tc;
+  class TC-264-held-unignored-add-refuses tc;
+  class TC-264-held-unignored-hook-asks tc;
+  class TC-264-held-unignored-lists-own tc;
+  class TC-264-lane-add-during-move-lines-once tc;
+  class TC-264-lane-only-no-commit tc;
+  class TC-264-lane-session-end-during-move-once tc;
+  class TC-264-live-claim-never-passed tc;
+  class TC-264-lost-hold-writes-nothing tc;
+  class TC-264-main-add-during-move-kept tc;
+  class TC-264-main-session-end-after-copy-kept tc;
+  class TC-264-main-session-end-before-copy-kept tc;
+  class TC-264-main-stop-during-move-asks-kept tc;
+  class TC-264-main-stop-mid-move-own-kept tc;
+  class TC-264-main-submit-after-copy-kept tc;
+  class TC-264-main-unignored-refuses tc;
+  class TC-264-move-reads-whole-state-kept tc;
+  class TC-264-old-mover-holds-nothing tc;
+  class TC-264-opted-out-stop-never-waits tc;
+  class TC-264-reader-during-add-whole-lines tc;
+  class TC-264-reader-during-discard-whole-lines tc;
+  class TC-264-refreshing-mover-not-broken tc;
+  class TC-264-stale-hold-three-breakers-once tc;
+  class TC-264-stop-reads-whole-state-silent tc;
+  class TC-264-stopped-mover-holds-nothing tc;
+  class TC-264-submit-filed-breaks-hung-move tc;
+  class TC-264-submit-filed-busy-names-issue tc;
+  class TC-264-submit-filed-waits-records tc;
+  class TC-264-two-lanes-move-at-once-kept tc;
+  class TC-264-two-moves-copy-once tc;
+  class TC-264-unparsed-hold-judged-by-age tc;
+  class TC-264-unparsed-hold-named-path-age tc;
+  class TC-264-worktree-entry-survives tc;
+  class TC-264-writers-wait-runs-out-exit-1 tc;
   class AC-16104-1 ac;
   class TC-198-init-bin-path-pins-node tc;
   class TC-198-init-idempotent tc;
@@ -4996,6 +5175,10 @@ flowchart LR
   class AC-17302-13 ac;
   class TC-215-r1-create-req-verbatim-replay-unchanged tc;
   class TC-215-r1-create-tac-id-unchanged-and-conflict tc;
+  class AC-17302-14 ac;
+  class TC-265-description-merge-keeps-scope tc;
+  class TC-265-from-file-keeps-scope tc;
+  class TC-265-replay-unchanged tc;
   class REQ-174 req;
   class AC-17401-1 ac;
   class TC-216-shape tc;
@@ -5486,6 +5669,9 @@ flowchart LR
   class AC-19001-6 ac;
   class TC-252-hand-refuses-out tc;
   class TC-252-writes-only-reports tc;
+  class AC-19001-7 ac;
+  class TC-263-out-directory-refused tc;
+  class TC-263-out-help-says-file-path tc;
   class AC-19002-1 ac;
   class TC-253-e2e-verify-then-finalise tc;
   class TC-253-promotes-verified tc;

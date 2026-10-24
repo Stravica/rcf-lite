@@ -1555,6 +1555,346 @@
       "answer": "a. Taken by the test-author hand (parent decision, Dave, gate r2 BH-2 ruling 2: with no trunk ref collect over all of HEAD history; a merge into the trunk is covered by the same walk). AC-19005-7 is not changed (TC-261-provenance-kept-pre-merge).",
       "answeredAt": "2026-10-22T16:24:46.108Z",
       "resolvedAt": "2026-10-22T16:24:46.108Z"
+    },
+    {
+      "id": 73,
+      "question": "(FBS-231 finding 1) Which env silences the feedback ask in a headless agent session rcf-lite spawns?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "RCF_FEEDBACK_ASK=0 (the Stop hook goes silent; rcf feedback add keeps working inside the session)"
+        },
+        {
+          "letter": "b",
+          "text": "RCF_FEEDBACK_DISABLE=1 (also turns rcf feedback add into a no-op)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T10:49:39.361Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-16102-3 names RCF_FEEDBACK_ASK=0 and asserts RCF_FEEDBACK_DISABLE is not set by rcf-lite (TC-262-ask-off-in-headless-session).",
+      "answeredAt": "2026-10-23T10:49:46.119Z",
+      "resolvedAt": "2026-10-23T10:49:46.119Z"
+    },
+    {
+      "id": 74,
+      "question": "(FBS-231 finding 2) rcf verify run --out <dir>/: accept a directory or refuse it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "refuse a directory --out with exit 2 and \"--out must be a file path, not a directory\" before any request, and say file path in --help (smaller: no default report file name is introduced, one shape for --out)"
+        },
+        {
+          "letter": "b",
+          "text": "accept a directory and write a default report file name inside it"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T10:49:39.565Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: the refusal is the smaller, consistent reading (no new default file name, --out keeps one meaning); AC-19001-7 (TC-263-out-directory-refused, TC-263-out-help-says-file-path).",
+      "answeredAt": "2026-10-23T10:49:46.318Z",
+      "resolvedAt": "2026-10-23T10:49:46.318Z"
+    },
+    {
+      "id": 75,
+      "question": "(FBS-231 finding 3) How does AC-16103-4 make the feedback queue survive a removed worktree?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "pin the behaviour (the entry listed pending from the main checkout after git worktree remove) and leave the storage location to the builder, AC-15501-1 unchanged"
+        },
+        {
+          "letter": "b",
+          "text": "a loud count of unsent entries on every rcf feedback run in the worktree"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T10:49:39.765Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-16103-4 pins recovery from the main checkout; storage is the builder's choice; AC-15501-1 is not changed (TC-264-worktree-entry-survives).",
+      "answeredAt": "2026-10-23T10:49:46.520Z",
+      "resolvedAt": "2026-10-23T10:49:46.520Z"
+    },
+    {
+      "id": 76,
+      "question": "(FBS-231 round 2, review gate 1 findings R2/BH-1 at store.js:79 and R1/BH-2 at store.js:90 with feedback.js:321-327) How does AC-16103-4 close the held worktree queue that is lost on removal and the entry written where the main checkout does not ignore it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "amend AC-16103-4: the next rcf feedback command run in the worktree moves a held queue into the main checkout's store (ids once, statuses kept); the store of a linked worktree is the main checkout's .rcf/feedback/ (the round 1 choice); the gitignore pre-write check runs against the checkout that holds the store and refuses as AC-15501-2 refuses (exit 2, naming the main checkout); a main checkout without the rcf project never receives a committable entry (reviewer probe c4, keep-in-worktree or refuse is the builder's); bare and separate-git-dir worktrees out of scope"
+        },
+        {
+          "letter": "b",
+          "text": "write the entry only where git ignores it and still offer it from the main checkout"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:01.829Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: refusal is the smaller reading consistent with AC-15501-2 and the never-lost clause (nothing is accepted, so nothing is lost); storage pinned to the main checkout's .rcf/feedback/ because the refusal reading needs it; probe c4 covered by a must-not test (TC-264-lane-only-no-commit); tests TC-264-held-queue-migrates and TC-264-main-unignored-refuses; TC-264-worktree-entry-survives unchanged.",
+      "answeredAt": "2026-10-23T14:39:08.626Z",
+      "resolvedAt": "2026-10-23T14:39:08.626Z"
+    },
+    {
+      "id": 77,
+      "question": "(FBS-231 round 2) Where does the fix for rcf define create ac dropping the criterion's scope field sit?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a new criterion AC-17302-14 on US-17302 (the story whose AC-17302-10 to AC-17302-13 pin the define create replays), covering the --from-file form, the --description merge form and a same-id replay; no new --scope flag (the help lists none); create us --from-file kept as a guard"
+        },
+        {
+          "letter": "b",
+          "text": "amend an existing criterion"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:01.916Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: AC-17302-14 on US-17302, TS-265 (TC-265-from-file-keeps-scope, TC-265-description-merge-keeps-scope, TC-265-replay-unchanged); no other create form drops scope at the branch head.",
+      "answeredAt": "2026-10-23T14:39:08.713Z",
+      "resolvedAt": "2026-10-23T14:39:08.713Z"
+    },
+    {
+      "id": 78,
+      "question": "(FBS-231 round 2) AC-16102-3 and AC-16103-4 were written by the defective create verb and carry no scope; how is it set?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "rcf define update <AC> --set scope=runtime on AC-16102-3, AC-16103-4 and the new AC-17302-14 (the create verb drops it); wording and meaning unchanged"
+        },
+        {
+          "letter": "b",
+          "text": "leave them unscoped"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:02.003Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand on the stage-keeper's note: scope runtime set through rcf define update on AC-16102-3, AC-16103-4 and AC-17302-14.",
+      "answeredAt": "2026-10-23T14:39:08.800Z",
+      "resolvedAt": "2026-10-23T14:39:08.800Z"
+    },
+    {
+      "id": 79,
+      "question": "(FBS-231 round 2) rcf define create tc drops a test case's scope field the same way (src/core/store/writer.js:1244-1250, createInlineTc); is it in this round?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no: named as a further defect, untested, for a later round; decision 77's 'no other create form' covers the forms that write a criterion (create ac, create us)"
+        },
+        {
+          "letter": "b",
+          "text": "fix it in this round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T14:39:25.844Z",
+      "status": "resolved",
+      "answer": "a. Taken by the test-author hand: out of this round's four items; recorded under FURTHER DEFECTS in the round 2 Define commit.",
+      "answeredAt": "2026-10-23T14:39:25.930Z",
+      "resolvedAt": "2026-10-23T14:39:25.930Z"
+    },
+    {
+      "id": 80,
+      "question": "(FBS-231 round 3, review r2 F1 on AC-16103-4) A linked worktree holds a 0.36.0 queue while the main checkout's .gitignore does not cover .rcf/feedback/ (world e): today the held entries drop out of the worktree's list, the Stop hook stops asking and git worktree remove deletes them. What happens there?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Nothing moves. rcf feedback list and the hooks in the worktree keep reading its own held queue (the Stop hook keeps asking), and rcf feedback add there without --force exits 2 naming .rcf/feedback, rcf doctor --fix and the main checkout's directory and saying 'the held entries move into the main checkout once it ignores .rcf/feedback/'. Once the main checkout ignores the store the next rcf feedback command moves the held queue as round 2 does. A worktree removed before then takes its held queue with it; the add refusal and the Stop ask are what surface it."
+        },
+        {
+          "letter": "b",
+          "text": "Move the held queue into the unignored main checkout and leave a committable file there"
+        },
+        {
+          "letter": "c",
+          "text": "Keep today's behaviour (the held entries drop out of view until the move)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T15:50:20.208Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on review r2 F1 (world e), written into AC-16103-4 by the round 3 test-author hand (variant 5) and bound in TS-264.",
+      "answeredAt": "2026-10-23T15:50:25.936Z",
+      "resolvedAt": "2026-10-23T15:50:25.936Z"
+    },
+    {
+      "id": 81,
+      "question": "(FBS-231 round 3, review r2 BH-1 on AC-16103-4) When moving a worktree's held queue into the main checkout throws, storeRoot swallows the error and returns the worktree, so rcf feedback add exits 0 into a queue that dies with the worktree. What does the command do on a move failure?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "It exits non-zero with stderr naming the error the move hit and the main checkout's directory; nothing is written to the worktree's queue and nothing the worktree already holds is removed."
+        },
+        {
+          "letter": "b",
+          "text": "Fall back to the worktree's own queue and exit 0 (today's behaviour)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T15:50:26.022Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on review r2 BH-1, written into AC-16103-4 by the round 3 test-author hand (variant 6) and bound in TS-264.",
+      "answeredAt": "2026-10-23T15:50:31.302Z",
+      "resolvedAt": "2026-10-23T15:50:31.302Z"
+    },
+    {
+      "id": 82,
+      "question": "(FBS-231 round 4, the round 3 gate on AC-16103-4: Codex R3-BH1, R3-BE1 and R3-BE2; reviewer R-1 and R-2) moveHeldQueue can fail partway with no rollback. Probe g1 (the main checkout's .rcf/feedback/state.json mode 0444): rcf feedback add in the worktree exits 1 naming EACCES and the main checkout after the held entry was already appended to the main log; the worktree's entries.jsonl is byte-identical; once the mode is restored the next worktree command completes the move and the main checkout lists each id once. Probe g2 (the worktree's .rcf/feedback/outbox/ mode 0555): rcf feedback list in the worktree exits 1 on EACCES at unlink after entries.jsonl and state.json were already removed from the worktree, their content already in the main store; the held entry is listed pending from the main checkout. The gate's owner questions: \"Must a failed move leave the main queue untouched, or is an append the retry dedups acceptable? May a failure after a complete copy remove the copied files?\" The finding is spec-rooted (the criterion over-specified atomicity the design does not need), so it goes back to Define, not to a Build. This decision narrows decision 81's \"nothing the worktree already holds is removed\"; decision 81 stays as recorded otherwise.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "An append to the main queue that the next command folds by id is acceptable, because the move is idempotent; a failure after a complete copy may remove the copied files, per file only after that file's content is present in the main store. A failed move exits 1, loses nothing and duplicates nothing, every entry the worktree held stays readable from the worktree or the main checkout, and the next command completes the move with each id once."
+        },
+        {
+          "letter": "b",
+          "text": "A failure-atomic move: a failed move leaves the main queue untouched and removes nothing the worktree holds."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T17:26:07.806Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on the round 3 gate (spec-rooted: back to Define, no Build), written into the AC-16103-4 failure clause by the round 4 test-author hand (variants 7 and 8, probes g1 and g2) and bound in TS-264; the CN-893 and CN-897 claims stand once the amended criterion is met (no Code Node change).",
+      "answeredAt": "2026-10-23T17:26:13.493Z",
+      "resolvedAt": "2026-10-23T17:26:13.493Z"
+    },
+    {
+      "id": 83,
+      "question": "(FBS-231 round 5, the round 4 gate on AC-16103-4: Codex R4-BH1, R4-BE1 and R3-BE-BH; reviewer R-1 and R-2) moveHeldQueue skips the copy whenever the main outbox already holds a file of the same name (src/feedback/store.js:198) and still removes the held file (:199, :202); the SessionEnd hook names a bundle from the time rounded to the second, so the main checkout and a linked worktree can hold the same bundle name with different bytes. Probe g6a (a held SessionEnd bundle and a main one written in the same second, same name, different bytes; the next worktree command moves the queue): the command exits 0, the held bundle is gone from the worktree, its bytes are nowhere in the main outbox, the main copy at that name is unchanged. Probe g6b (as g6a plus a second held bundle made immutable so its unlink fails): the move exits 1 naming EPERM and the main checkout, the collided held bundle is removed and its bytes are not in the main outbox. The gate's owner question: \"Should outbox bundles, which are derived flushes of pending titles, fall outside the per-file guarantee (Define amend), or should store.js:198 compare bytes (Build)?\" This is the third consecutive gate to find a new edge in the same move function, read as a design gap rather than another edge to patch, so round 5 sweeps every file class the move touches (entries.jsonl, state.json, each outbox bundle) and builds a collision-safe move. Decision 82 stays as recorded.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Compare bytes. Identical content already in the main store means the held file is removed and nothing is copied twice; different content under the same name in the main store means the held content is kept under a fresh name in the main store (never overwritten, never lost) before the held file is removed. Because an outbox bundle is the feedback a session flushed for submission, the guarantee does not depend on whether a file is derived."
+        },
+        {
+          "letter": "b",
+          "text": "A Define amendment: outbox bundles, as derived flushes of pending titles, fall outside the per-file guarantee, and store.js:198 stays as it is."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T18:24:26.105Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on the round 4 gate (a Build: a collision-safe move), pinned by the round 5 test-author hand in TS-264: probes g6a and g6b as red tests (TC-264-held-bundle-collision-kept, TC-264-held-move-fails-after-collided-remove), a retry after a failure on the collided bundle itself as a red test (TC-264-held-move-fails-on-collided-kept-once), and the sweep of every file class the move touches as guards (TC-264-held-identical-removed-once, TC-264-held-state-merged-own-kept). entries.jsonl and state.json keep their merge (held lines the main log lacks are appended, ask records are united), which keeps the held content without a fresh name. AC-16103-4 unchanged: the sweep found no file class its clause does not cover.",
+      "answeredAt": "2026-10-23T18:32:12.609Z",
+      "resolvedAt": "2026-10-23T18:32:12.609Z"
+    },
+    {
+      "id": 84,
+      "question": "(FBS-231 round 6, the round 5 gate on AC-16103-4: Codex R5-BH1 and R5-BE1; reviewer R-1 and R-2) moveHeldQueue reads the main outbox's bytes once (src/feedback/store.js:200-202) and copyUnderFreeName moves to the next fresh name on EEXIST without comparing bytes (:236-247), so two moves of one held queue that overlap copy a held bundle twice (the second under <stem>+held-1<ext>) and the slower one exits 1 on its unlink (R5-BH1); R5-BE1: the Code Nodes on AC-16103-4 claim it while it is partial. Probe g8 (8 rcf feedback commands at once in a worktree holding 300 outbox bundles): at 95522fa4 4 of 4 worlds duplicate 192 to 220 bundles and 13 of 32 commands exit 1; at 92ef3dd4 none duplicate. Out of scope at that gate, flagged as suspected harm: the same-second bundle overwrite inside one checkout (src/cli/feedback.js:1978 for submit's bundle, :2403 for the SessionEnd hook's). The gate's owner question: \"Fix R-1 in a round 6 now, or batch it as P3?\" This is the fourth gate in a row to find a new edge in the held-queue move. Decision 83 stays as recorded.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Round 6 now. It fixes the cause, serialising the move with a lock and stopping collisions at the writers, and sweeps every concurrent path that touches the main outbox and the held queue once, instead of patching the race. The writer overwrite joins this round because it is the same class (outbox name collisions) and the source of the collisions the move must handle. The reviewer's P3 (an unreadable main outbox file fails every move, src/feedback/store.js:202) stays as is: failing safe with exit 1 is acceptable, and it is noted for the release notes."
+        },
+        {
+          "letter": "b",
+          "text": "Batch R-1 as a P3 (the gate's alternative): no round 6 now; the concurrent-move duplicate and the writers' same-second overwrite wait for a later batch."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T20:04:17.716Z",
+      "status": "resolved",
+      "answer": "a. Stage-keeper ruling on the round 5 gate (a Build: a serialised move and collision-free writers), pinned by the round 6 test-author hand. Every concurrent path on the main outbox and the held queue is swept once in test/feedback/worktree-held-queue-concurrent.test.js (TS-264, AC-16103-4): two and eight moves at once (TC-264-two-moves-copy-once, TC-264-eight-moves-copy-once, probe g8 shape), rcf feedback add in the worktree while a move is held (TC-264-lane-add-during-move-lines-once), the main checkout SessionEnd hook, Stop hook and submit writing while a move runs (TC-264-main-session-end-after-copy-kept, TC-264-main-stop-during-move-asks-kept, TC-264-main-submit-after-copy-kept) and two linked worktrees moving their own held queues at once (TC-264-two-lanes-move-at-once-kept), red at 78f9d156 and bound failing; guards TC-264-main-add-during-move-kept, TC-264-main-session-end-before-copy-kept and TC-264-lane-session-end-during-move-once. The writers' same-second overwrite is pinned in test/cli/feedback-bundle-same-second.test.js: TC-197-session-end-same-second-both-kept (AC-16103-1) and TC-194-submit-same-second-both-kept (AC-16001-1), red and bound failing, with the guard TC-197-session-end-idempotent-after-same-second. AC-16103-1 and AC-16001-1 amended in place (they were silent on overwrite); AC-16103-4 amended with variant 9 (a completed concurrent move was not covered by the failure clause). The reviewer's P3 at src/feedback/store.js:202 stays as is and is noted for the release notes. Decision 83 stays as recorded.",
+      "answeredAt": "2026-10-23T20:14:09.003Z",
+      "resolvedAt": "2026-10-23T20:14:09.003Z"
+    },
+    {
+      "id": 85,
+      "question": "(FBS-231 round 6, run 2 of the Define, on top of decision 84) The round 6 sweep pins every concurrent path on the held queue and the main outbox; three paths its Define named under further defects lose ask records in the main checkout's own state.json: two Stop hooks in one checkout at once (src/cli/feedback.js:2300 reads the ledger, :2340 rewrites it whole, so the later write drops the earlier record), a move's whole-file rewrite of the main state.json dropping an ask record the main checkout's Stop hook wrote between the move's read and its write (src/feedback/store.js:186, :193), and a state.json read while another command is mid-write (src/feedback/store.js:184 parses it as {} and the move rewrites state.json without the main checkout's records; readAskLedger at :431 throws on it and the Stop hook fails). How does round 6 serialise the commands that write the main checkout's feedback store, and what does a command do that finds the store busy?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling. The main checkout's feedback store is a shared resource, so every writer of it takes one store-wide lock for its whole read-modify-write span: the held-queue move, rcf feedback add, the Stop hook's ledger write, the SessionEnd bundle write and the submit bundle write. The lock is a file in the main store, created with exclusive create, holding the pid, the hostname and the start time; it is stale, and may be broken by exclusive re-create, when the holder pid is not alive on this host or it is older than 60 seconds. The move, finding the lock held by a live holder, skips (as ruled before). Every other writer waits for the lock, polling briefly, for up to 10 seconds; if it still cannot take it, it exits 1 naming the lock holder and the main checkout and writes nothing (nothing half-done). state.json and entries.jsonl are replaced atomically (a temp file in the same directory, then rename), so no reader ever sees a half-written file; bundles are created with exclusive create, with a unique suffix only on collision."
+        },
+        {
+          "letter": "b",
+          "text": "Serialise the move only and leave the other writers as they are: rcf feedback add, the Stop hook, the SessionEnd hook and submit keep an unlocked read-modify-write, so the three paths above stay open and are batched as P3."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T20:47:55.737Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's ruling on round 6's scope (run 2 of the Define; decision 84 stays as recorded). Pinned in test/feedback/feedback-store-concurrent-writers.test.js: two Stop hooks at once in one checkout (TC-195-two-stops-at-once-both-kept, AC-16101-2, amended in place because it was silent on a second Stop hook running at once), a worktree move reading the main checkout's state.json while the Stop hook is writing it (TC-264-move-reads-whole-state-kept), the Stop hook reading it while a move is writing it (TC-264-stop-reads-whole-state-silent), the main checkout Stop hook writing between a move's read and its write (TC-264-main-stop-mid-move-own-kept) and the main checkout writers held past their wait by a running move (TC-264-writers-wait-runs-out-exit-1), red at f8a54260 and bound failing; guards TC-264-stopped-mover-holds-nothing and TC-264-old-mover-holds-nothing (a move whose process stopped, or that started more than 60 seconds earlier, holds up no later command). AC-16103-4 amended with variant 10; its text names no lock, lock file or lock format. The tests shorten the 10 second wait through RCF_FEEDBACK_LOCK_WAIT_MS (milliseconds), which the build reads.",
+      "answeredAt": "2026-10-23T20:48:00.223Z",
+      "resolvedAt": "2026-10-23T20:48:00.223Z"
+    },
+    {
+      "id": 86,
+      "question": "(FBS-231 round 6, run 3 of the Define, on top of decisions 84 and 85) The round 6 builder escalated without code: under decision 85 every writer of the main checkout's store waits on the store-wide lock, so the run 1 tests that held a worktree move inside its locked span and then awaited a main checkout writer before letting the move go would hold that writer for its whole 10 second wait (test/feedback/worktree-held-queue-concurrent.test.js, the add, SessionEnd and submit paths), and one of them could not be told apart from the writers-wait-runs-out test of run 2. Decision 85's stale rule also lets a waiting writer break the lock of a move that is still running once it is older than 60 seconds. When is a held lock stale, and how do the tests hold a move while a writer waits on it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling, refining decision 85's stale rule. The lock holder refreshes the lock (rewrites its timestamp) at least every 5 seconds while it works; a lock is stale, and may be broken by exclusive re-create, only when its holder pid is not alive on this host or it has not been refreshed for 60 seconds. A running move is therefore never broken. The run 1 tests that hold a move while a main checkout writer runs start the writer while the move is held, wait until the writer has run to its end or found the store busy, then let the move go, then await the writer. AC-16103-4's stale sentence says not refreshed for 60 seconds in place of started more than 60 seconds earlier."
+        },
+        {
+          "letter": "b",
+          "text": "Keep decision 85's stale rule (older than 60 seconds by its start time): a move still running after 60 seconds may be broken by a waiting writer, and only the test order changes."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T21:51:30.917Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's ruling refining decision 85's stale rule (run 3 of the Define; decisions 84 and 85 stay as recorded except this rule). The lock holder refreshes the lock at least every 5 seconds while it works; a lock is stale only when its holder pid is not alive on this host or it has not been refreshed for 60 seconds, so a running move is never broken. Pinned by TC-264-refreshing-mover-not-broken (new, test/feedback/feedback-store-concurrent-writers.test.js, red at 70650af7 and bound failing: a held move whose clock jumps 120 seconds forward works on, and rcf feedback add in the main checkout must wait and exit 1 once its wait runs out, writing nothing) and TC-264-old-mover-holds-nothing (guard, retitled to a move not refreshed for more than 60 seconds; TC id kept). The run 1 tests TC-264-lane-add-during-move-lines-once, TC-264-main-add-during-move-kept, TC-264-main-session-end-before-copy-kept, TC-264-main-session-end-after-copy-kept, TC-264-lane-session-end-during-move-once and TC-264-main-submit-after-copy-kept are re-sequenced (the writer starts while the move is held; the move is let go once the writer has run to its end or found the store busy; then the writer is awaited), titles and TC ids unchanged, each red or green at 70650af7 as before. AC-16103-4 amended in place: its stale sentence says not refreshed for 60 seconds, a sentence adds the refresh, variant 10 adds \"not refreshed since\" where it named the start time, and variant 11 is added; its text names no lock, lock file or lock format.",
+      "answeredAt": "2026-10-23T21:51:52.960Z",
+      "resolvedAt": "2026-10-23T21:51:52.960Z"
+    },
+    {
+      "id": 87,
+      "question": "(FBS-231 round 7 Define, on top of decisions 84 to 86) The round 6 gate returned FINDINGS at d284cf91 with AC-16103-4 partial: Codex R6-BH1 (the stale-lock break can leave two holders; the reviewer's probe g9 L9, three Stop hooks breaking one dead holder's lock, lost two of three ask records), R6-BH2 (appendEntry and appendState still append in place, so a reader can meet a half-written line, against decision 85), R6-BH3 (the CHANGELOG line is untrue while those stand) and R6-BE1 (AC-16103-4 claims stand while it is partial); the reviewer's R6-1 (the same as R6-BH1) and R6-2 (a busy store after submit has filed an issue exits 1 saying it wrote nothing, so the entry stays pending and the next submit files it twice); the reviewer's P3 note that an opted-out Stop hook waits 10 seconds and exits 1 while the store is busy; and Codex asking that a malformed lock name a pid. The owner questions, quoted: 'Fix R6-1, R6-2 and R6-BH2 now or batch them as P3? Should an opted-out Stop hook skip the lock? Should a malformed lock name a pid (Codex)?'",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling: fix them in round 7. (1) Breaking a stale lock is safe for any number of concurrent breakers: exactly one breaker ends up holding the lock and every other command either waits as a writer or skips as a move; a breaker never deletes a lock it did not judge, and a fresh holder's lock is never removed. (2) Every write to entries.jsonl and state.json (appendEntry and appendState included) replaces the whole file atomically (a temp file in the same directory, then rename), as decision 85 already says, so no reader ever sees a partial line or document. (3) After an external side effect (submit has filed the issue), the write that records it is never abandoned on a busy store: it waits for the lock up to the stale window plus a margin (65 seconds of Date, injectable for tests as RCF_FEEDBACK_LOCK_WAIT_MS is), so a hung holder is broken as stale and the record lands; if it still cannot write, it exits 1 naming the filed issue's URL and the entry id and never says it wrote nothing, and the next submit does not file that entry again (it reads a record of the filing it can trust). (4) A Stop hook that has opted out and writes nothing takes no lock and never waits. (5) A lock file that cannot be parsed is reported by path and age, and is judged stale by its mtime as the build already does."
+        },
+        {
+          "letter": "b",
+          "text": "Batch R6-1, R6-2 and R6-BH2 as P3: release round 6 as it stands and note them for a later round."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-23T23:30:44.559Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's round 7 ruling (decisions 84, 85 and 86 stay as recorded). Pinned in test/feedback/feedback-store-lock-break.test.js and bound in TS-264: three breakers of one stopped move's hold (TC-264-stale-hold-three-breakers-once), a reader during appendEntry and appendState (TC-264-reader-during-add-whole-lines, TC-264-reader-during-discard-whole-lines), submit after a filed issue on a busy store (TC-264-submit-filed-waits-records, TC-264-submit-filed-breaks-hung-move, TC-264-submit-filed-busy-names-issue), an opted-out Stop hook (TC-264-opted-out-stop-never-waits) and a hold that cannot be parsed (TC-264-unparsed-hold-named-path-age, TC-264-unparsed-hold-judged-by-age). AC-16103-4 amended in place (five sentences and variant 12).",
+      "answeredAt": "2026-10-23T23:30:50.671Z",
+      "resolvedAt": "2026-10-23T23:30:50.671Z"
+    },
+    {
+      "id": 88,
+      "question": "(FBS-231 round 8 Define, on top of decisions 84 to 87) The round 7 gate returned FINDINGS at c9098c1f with AC-16103-4 partial by Codex and met by the reviewer: Codex 1 (a claimant still running whose claim is more than 60 seconds old by a later command's clock is passed, so two commands replace the lock), Codex 2 (a holder that lost its lock while stopped or behind another command's clock keeps writing: the reviewer's probe g9 L11, one clock 120 seconds ahead, lost an ask record), Codex 3 (a kept filing in a worktree's own held store does not move with the held queue, so a later submit can file that entry again), Codex 4 (a busy exit after submit has filed and recorded an issue still says it wrote nothing), Codex 5 (the CHANGELOG line is untrue while these stand) and Codex 6 (AC-16103-4 claims kept while it is partial); the reviewer's P3 notes that submit --dry-run lists an entry already filed and that a dead claimant's claim stays. The owner questions, quoted: 'Fix Codex 1 to 4 now or batch as P3? Fence a holder that lost its lock?'",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling: fix them in round 8, the last round on FBS-231's store corners (round cap: anything a later gate finds that loses no record in normal use goes to a follow-up item, not round 9). (1) A claim whose claimant process is alive on this host is never passed, whatever its age; age passes a claim only when the process cannot be checked (another host, say). (2) Fencing: a holder re-reads its lock token immediately before every rename or replace it makes under the lock, and if the lock is no longer its own it writes nothing more and exits 1 naming the lost lock, so a holder paused past the stale window, or with its clock behind, can never overwrite a later holder's write. (3) A kept filing (filed/ receipt) in a worktree's held store moves to the main store with the held queue, exactly once, so the next submit in either checkout never files that entry again. (4) Every busy exit after submit has filed or recorded anything names what it filed or recorded and never says it wrote nothing. (5) submit --dry-run does not list an entry a kept filing shows as filed. (6) A dead claimant's claim file is removed when it is passed."
+        },
+        {
+          "letter": "b",
+          "text": "Batch Codex 1 to 4 and the reviewer notes as P3: release round 7 as it stands and note them for a follow-up item."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-24T01:10:22.785Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's round 8 ruling, the last round on FBS-231's store corners (decisions 84 to 87 stay as recorded). Pinned in test/feedback/feedback-store-fence.test.js and bound in TS-264: a live claimant never passed by age (TC-264-live-claim-never-passed), a holder judged stopped writes nothing more (TC-264-lost-hold-writes-nothing, probe g9 L11 and a holder held past the stale window), a worktree's kept filing moves once (TC-264-held-filing-moves-once), a busy exit after a filing names it (TC-264-busy-after-filing-names-it), the dry run skips a kept filing (TC-264-dry-run-skips-kept-filing) and a dead claimant's claim removed (TC-264-dead-claim-removed). AC-16103-4 amended in place (five sentences and variant 13).",
+      "answeredAt": "2026-10-24T01:10:31.014Z",
+      "resolvedAt": "2026-10-24T01:10:31.014Z"
     }
   ]
 }

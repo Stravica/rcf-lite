@@ -11,8 +11,17 @@
 // (report.run.verifierIsolation) so the isolation is provenance, not a claim.
 
 /**
+ * Env every headless agent session rcf-lite spawns carries (AC-16102-3):
+ * the feedback ask off. Not RCF_FEEDBACK_DISABLE, so `rcf feedback add`
+ * keeps working inside the session.
+ *
+ * @type {Readonly<Record<string, string>>}
+ */
+export const HEADLESS_FEEDBACK_ENV = Object.freeze({ RCF_FEEDBACK_ASK: '0' });
+
+/**
  * Canonical isolation-env recipe. `autoMemory:false` mirrors the harness
- * config toggle; the two env vars are the process-level enforcement.
+ * config toggle; the two CLAUDE_CODE_ env vars are the process-level enforcement.
  * Frozen so no caller can mutate the shared recipe in place.
  *
  * @type {{ autoMemory: boolean, env: Readonly<Record<string, string>> }}
@@ -22,6 +31,9 @@ export const ISOLATION_RECIPE = Object.freeze({
   env: Object.freeze({
     CLAUDE_CODE_DISABLE_AUTO_MEMORY: '1',
     CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC: '1',
+    // A headless session never asks for feedback: a project's Stop hook
+    // stays silent, so a queued entry cannot become the session's output.
+    ...HEADLESS_FEEDBACK_ENV,
   }),
 });
 

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-890",
+  "path": "src/core/isolation/index.js#HEADLESS_FEEDBACK_ENV",
+  "implementsAcIds": [
+    "AC-16102-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T11:15:21.895Z",
+  "updatedAt": "2026-10-23T11:15:21.895Z"
+}

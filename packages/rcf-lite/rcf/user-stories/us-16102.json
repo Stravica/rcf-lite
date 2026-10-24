@@ -26,8 +26,17 @@
       "then": "env DISABLE suppresses add entirely; env ASK=0 keeps add working but silences the hook; file ask false silences the hook and add still works",
       "testable": true,
       "scope": "library"
+    },
+    {
+      "id": "AC-16102-3",
+      "description": "[must-not] Every headless agent session rcf-lite spawns runs with RCF_FEEDBACK_ASK=0 in its environment (RCF_FEEDBACK_DISABLE is not set by rcf-lite, so rcf feedback add keeps working inside the session), so a project's feedback Stop hook stays silent there and a queued feedback entry can never become the session's final output. Today that session is the verify engine's default launcher (rcf verify run with --url and no --mode deterministic); spawnVerify and the llmJudge eval spawn take the same environment.",
+      "testable": true,
+      "given": "a project whose .claude/settings.json carries the rcf feedback Stop hook (pinned-bin form) and one pending entry recorded with rcf feedback add --ask-now, and an agent CLI on PATH that runs the project's Stop hook at the end of its turn",
+      "when": "rcf verify run --repo <project> --profile local-dev --url <url> --out <file> --fbs <fbs-id> runs in its default agent mode",
+      "then": "the agent CLI receives RCF_FEEDBACK_ASK=0 and no RCF_FEEDBACK_DISABLE; the Stop hook run inside the session exits 0 with empty stderr; the report written to --out carries the agent's findings (verdict is not LAUNCH-FAILURE and no launchFailure); the entry is still listed pending by rcf feedback list --json",
+      "scope": "runtime"
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T14:14:36Z"
+  "updatedAt": "2026-10-23T14:37:59.752Z"
 }

@@ -20,10 +20,10 @@
     },
     {
       "id": "AC-16101-2",
-      "description": "On Claude Code (--harness claude-code default when CLAUDECODE is set), the stop hook exits 2 with the reason text on stderr. The reason names the exact next-step verbs (\"rcf feedback preview\", \"rcf feedback submit --yes\", \"rcf feedback defer\", \"rcf feedback opt-out\") and says \"Do not ask again this session.\" On Codex (--harness codex), the hook emits stdout JSON { \"decision\": \"block\", \"reason\": \"<same text>\" } with exit 0. Both branches append the asked record to state.json exactly once per session_id.",
-      "given": "a fixture project with one pending entry, and two mock harness JSON inputs on stdin (Claude Code and Codex shapes)",
-      "when": "rcf feedback hook stop --harness claude-code and --harness codex are run",
-      "then": "Claude Code run: exit code 2, stderr carries the four verb names and the \"do not ask again this session\" clause; Codex run: exit 0, stdout parses to { decision: \"block\", reason: ... } with the same clause; state.json in both cases gained exactly one asked record for the input session_id",
+      "description": "On Claude Code (--harness claude-code default when CLAUDECODE is set), the stop hook exits 2 with the reason text on stderr. The reason names the exact next-step verbs (\"rcf feedback preview\", \"rcf feedback submit --yes\", \"rcf feedback defer\", \"rcf feedback opt-out\") and says \"Do not ask again this session.\" On Codex (--harness codex), the hook emits stdout JSON { \"decision\": \"block\", \"reason\": \"<same text>\" } with exit 0. Both branches append the asked record to state.json exactly once per session_id. Two stop hooks running at once in one checkout, each for its own session_id, both keep their asked records: neither overwrites the other, and each record is in state.json exactly once.",
+      "given": "a fixture project with one pending entry, and two mock harness JSON inputs on stdin (Claude Code and Codex shapes); for the concurrent case, a fixture project with two pending entries and two Claude Code inputs with different session_ids",
+      "when": "rcf feedback hook stop --harness claude-code and --harness codex are run; for the concurrent case, rcf feedback hook stop --harness claude-code is run twice at the same time, once per session_id",
+      "then": "Claude Code run: exit code 2, stderr carries the four verb names and the \"do not ask again this session\" clause; Codex run: exit 0, stdout parses to { decision: \"block\", reason: ... } with the same clause; state.json in both cases gained exactly one asked record for the input session_id; in the concurrent case both runs exit 2 and state.json holds each session_id's asked record exactly once",
       "testable": true,
       "scope": "library"
     },
@@ -38,5 +38,5 @@
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T13:45:23.000Z"
+  "updatedAt": "2026-10-23T20:48:01.084Z"
 }

@@ -11,10 +11,10 @@
   "acceptanceCriteria": [
     {
       "id": "AC-16001-1",
-      "description": "Preflight order (per destination): gh on PATH -> gh auth status non-zero -> gh repo view viewerPermission NONE on a private repo -> gh repo view hasIssuesEnabled false. The first failure routes to a bundle for that destination without any further gh call. The bundle path <cwd>/.rcf/feedback/outbox/<ISO-timestamp>-<repo-slug>.md is printed on its own line next to the destination issues/new URL. Each failure kind maps to a distinct one-line message (naming gh, naming \"run gh auth login\", naming private-access with the library contact, naming issues-disabled).",
-      "given": "four fixture cases: gh missing on PATH; gh present but auth status non-zero; repo private with viewerPermission NONE; repo with hasIssuesEnabled false",
-      "when": "submit --yes is run once per case with one pending entry",
-      "then": "each run writes the bundle under outbox with the expected filename shape and prints the URL and path on one line together; entry state is bundled with outboxPath; exit code 0",
+      "description": "Preflight order (per destination): gh on PATH -> gh auth status non-zero -> gh repo view viewerPermission NONE on a private repo -> gh repo view hasIssuesEnabled false. The first failure routes to a bundle for that destination without any further gh call. The bundle path <cwd>/.rcf/feedback/outbox/<ISO-timestamp>-<repo-slug>.md is printed on its own line next to the destination issues/new URL. Each failure kind maps to a distinct one-line message (naming gh, naming \"run gh auth login\", naming private-access with the library contact, naming issues-disabled). Two bundles submit writes for the same destination in the same second are both kept: neither overwrites the other, and each one's bytes are in exactly one file of the outbox.",
+      "given": "four fixture cases: gh missing on PATH; gh present but auth status non-zero; repo private with viewerPermission NONE; repo with hasIssuesEnabled false; for the same-second case, gh missing on PATH with the clock stubbed to one second",
+      "when": "submit --yes is run once per case with one pending entry; for the same-second case, submit --yes is run twice in that second, each run with two pending entries for the same destination",
+      "then": "each run writes the bundle under outbox with the expected filename shape and prints the URL and path on one line together; entry state is bundled with outboxPath; exit code 0; in the same-second case both bundles are kept, neither overwriting the other, each one's bytes in exactly one file of the outbox",
       "testable": true,
       "scope": "library"
     },
@@ -47,5 +47,5 @@
     }
   ],
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-16T14:14:36Z"
+  "updatedAt": "2026-10-23T20:06:05.374Z"
 }

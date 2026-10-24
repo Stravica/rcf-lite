@@ -1,0 +1,34 @@
+TAP version 13
+# Subtest: AC-17302-14: rcf define create ac --parent <US> --from-file <json> keeps the scope the file carries on the written criterion
+ok 1 - AC-17302-14: rcf define create ac --parent <US> --from-file <json> keeps the scope the file carries on the written criterion
+  ---
+  duration_ms: 326.541708
+  type: 'test'
+  ...
+# Subtest: AC-17302-14: rcf define create ac --parent <US> --description <text> --from-file <json> keeps the scope the file carries (CLI fields merged over the file)
+ok 2 - AC-17302-14: rcf define create ac --parent <US> --description <text> --from-file <json> keeps the scope the file carries (CLI fields merged over the file)
+  ---
+  duration_ms: 329.776209
+  type: 'test'
+  ...
+# Subtest: AC-17302-14: a same-id replay (rcf define create ac --id) of a criterion that carries scope, with identical content, is unchanged (exit 0) and does not rewrite the file
+ok 3 - AC-17302-14: a same-id replay (rcf define create ac --id) of a criterion that carries scope, with identical content, is unchanged (exit 0) and does not rewrite the file
+  ---
+  duration_ms: 496.100459
+  type: 'test'
+  ...
+# Subtest: AC-17302-14 guard: rcf define create us --from-file keeps the scope of the criteria in its body
+ok 4 - AC-17302-14 guard: rcf define create us --from-file keeps the scope of the criteria in its body
+  ---
+  duration_ms: 336.805375
+  type: 'test'
+  ...
+1..4
+# tests 4
+# suites 0
+# pass 4
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1524.612125

@@ -21,6 +21,7 @@ import Ajv2020 from 'ajv/dist/2020.js';
 import addFormats from 'ajv-formats';
 
 import { rcfError } from '#core/errors';
+import { HEADLESS_FEEDBACK_ENV } from '#core/isolation';
 
 const RESPONSE_ENVELOPE_HINT = {
   type: 'object',
@@ -281,7 +282,7 @@ export function spawnAndCollect(invoker, argv, stdinText, { spawnImpl = spawn, t
   return new Promise((resolve) => {
     let child;
     try {
-      child = spawnImpl(invoker, argv, { stdio: ['pipe', 'pipe', 'pipe'] });
+      child = spawnImpl(invoker, argv, { stdio: ['pipe', 'pipe', 'pipe'], env: { ...process.env, ...HEADLESS_FEEDBACK_ENV } });
     } catch (err) {
       resolve(rcfError({
         kind: 'ioFailure',

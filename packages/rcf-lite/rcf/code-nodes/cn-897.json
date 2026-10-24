@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-897",
+  "path": "src/feedback/store.js#mainCheckoutRoot",
+  "implementsAcIds": [
+    "AC-16103-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-23T16:31:52.542Z",
+  "updatedAt": "2026-10-23T16:31:52.542Z"
+}

@@ -1,0 +1,534 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-231",
+  "headSha": "e3847af4319d82ba179d0d18acb56c7457adb7e5",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.36.0.tgz",
+    "name": "rcf-lite",
+    "version": "0.36.0",
+    "sha256": "0bb69da33650963f2ba55713a62a939362dc273a4f31dbaf22da9a3ee85fdc77",
+    "servedSha": "e3847af4319d82ba179d0d18acb56c7457adb7e5"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-lite-dex-findings-test",
+  "startedAt": "2026-10-24T01:55:23.402Z",
+  "finishedAt": "2026-10-24T01:56:56.661Z",
+  "rcfLiteVersion": "0.36.0",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "pack": {
+    "command": "npm pack --pack-destination /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-1q14Vn/out --json",
+    "exitCode": 0
+  },
+  "install": {
+    "command": "npm install --no-audit --no-fund /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-1q14Vn/out/rcf-lite-0.36.0.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-231/e3847af4319d/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-262",
+      "file": "test/verify/headless-session-feedback-ask.test.js",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-262.tap"
+    },
+    {
+      "testSuite": "TS-263",
+      "file": "test/verify/out-directory-refused.test.js",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-263.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-queue-survives.test.js",
+      "tests": 1,
+      "pass": 1,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-queue-migrates.test.js",
+      "tests": 3,
+      "pass": 3,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-2.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-held-queue-unignored-main.test.js",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-3.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-held-queue-partial-move.test.js",
+      "tests": 2,
+      "pass": 2,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-4.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-held-queue-collision.test.js",
+      "tests": 5,
+      "pass": 5,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-5.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/worktree-held-queue-concurrent.test.js",
+      "tests": 10,
+      "pass": 10,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-6.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/feedback-store-concurrent-writers.test.js",
+      "tests": 8,
+      "pass": 8,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-7.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/feedback-store-lock-break.test.js",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-8.tap"
+    },
+    {
+      "testSuite": "TS-264",
+      "file": "test/feedback/feedback-store-fence.test.js",
+      "tests": 6,
+      "pass": 6,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-264-9.tap"
+    },
+    {
+      "testSuite": "TS-265",
+      "file": "test/cli/create-ac-keeps-scope.test.js",
+      "tests": 4,
+      "pass": 4,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-231/e3847af4319d/TS-265.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 4,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 4
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-16102-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-262",
+        "file": "test/verify/headless-session-feedback-ask.test.js",
+        "tests": [
+          {
+            "tcId": "TC-262-ask-off-in-headless-session",
+            "title": "AC-16102-3: rcf verify run in its default agent mode spawns the agent session with RCF_FEEDBACK_ASK=0, so the project's feedback Stop hook exits 0 silently inside it, a pending --ask-now entry stays pending, and the report carries the agent's findings instead of LAUNCH-FAILURE",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-16103-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-264",
+        "file": "test/feedback/worktree-queue-survives.test.js",
+        "tests": [
+          {
+            "tcId": "TC-264-worktree-entry-survives",
+            "title": "AC-16103-4: an entry rcf feedback add records in a linked git worktree is still listed pending by rcf feedback list from the main checkout after git worktree remove",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-queue-migrates",
+            "title": "AC-16103-4: a queue a linked worktree already holds is moved into the main checkout by the next rcf feedback command run there, and after git worktree remove every entry, old and new, is listed from the main checkout exactly once with the status it had",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-unignored-refuses",
+            "title": "AC-16103-4: when the main checkout does not ignore .rcf/feedback/ (the worktree branch does), rcf feedback add in a linked worktree refuses as AC-15501-2 refuses, names the main checkout, and writes nothing under either checkout",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-lane-only-no-commit",
+            "title": "AC-16103-4: when the main checkout does not hold the rcf project (adopted on the worktree branch only), rcf feedback add in a linked worktree never leaves a file the main checkout would commit",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-unignored-lists-own",
+            "title": "AC-16103-4: while the main checkout does not ignore .rcf/feedback/, a linked worktree that holds a queue keeps listing its own held entries with the status they had, and nothing moves",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-unignored-hook-asks",
+            "title": "AC-16103-4: while the main checkout does not ignore .rcf/feedback/, the Stop hook in a linked worktree that holds a queue keeps asking about its held pending entries, and nothing moves",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-unignored-add-refuses",
+            "title": "AC-16103-4: while the main checkout does not ignore .rcf/feedback/, rcf feedback add in a linked worktree that holds a queue exits 2 naming the main checkout, rcf doctor --fix and that the held entries move once it ignores the store, and nothing moves",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-moves-once-ignored",
+            "title": "AC-16103-4 guard: once the main checkout ignores .rcf/feedback/, the next rcf feedback command in a linked worktree that held its queue while it did not moves that queue, and after git worktree remove every entry is listed from the main checkout once with the status it had",
+            "testNumber": 4,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-move-failure-exits",
+            "title": "AC-16103-4: when moving the held queue fails, rcf feedback add in a linked worktree exits non-zero naming the error and the main checkout, writes nothing to the worktree queue and removes nothing it held",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-move-fails-after-append",
+            "title": "AC-16103-4: when moving the held queue fails after appending to the main queue, rcf feedback add in a linked worktree exits 1 naming the error and the main checkout, the worktree keeps every file it held, the main checkout lists each id once, and the next command completes the move with each id once",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-move-fails-after-remove",
+            "title": "AC-16103-4: when moving the held queue fails after removing some held files, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every removed held file has its content in the main store, every file still held is byte-identical, and the next command completes the move with each id once",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-identical-removed-once",
+            "title": "AC-16103-4 guard: when the main checkout already holds the same entries.jsonl, state.json and outbox bundles (from the SessionEnd hook and from submit) as a linked worktree, the next rcf feedback command there removes every held file and copies nothing twice",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-state-merged-own-kept",
+            "title": "AC-16103-4 guard: when the main checkout holds a state.json of its own, the next rcf feedback command in a linked worktree merges every held ask record into the main state.json once and keeps every ask record the main checkout had",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-bundle-collision-kept",
+            "title": "AC-16103-4: when the main checkout outbox already holds the name of each held bundle (the SessionEnd and the submit fallback bundle) with different bytes, the next rcf feedback command in a linked worktree exits 0, keeps each held bundle under a fresh name in the main outbox, leaves each main bundle byte-identical and removes every held file",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-move-fails-after-collided-remove",
+            "title": "AC-16103-4: when moving the held queue fails after removing a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every held byte stays readable from one of the two checkouts, and the next command completes the move with each held bundle once in the main outbox",
+            "testNumber": 4,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-move-fails-on-collided-kept-once",
+            "title": "AC-16103-4: when moving the held queue fails on a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 and keeps that bundle readable, and the next command completes the move with its bytes exactly once in the main outbox, never copied under a second name",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-two-moves-copy-once",
+            "title": "AC-16103-4: two rcf feedback commands run at once in a linked worktree move its held queue into the main checkout once, each held bundle in exactly one file of the main outbox",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-eight-moves-copy-once",
+            "title": "AC-16103-4: eight rcf feedback commands run at once in a linked worktree holding 300 outbox bundles move its held queue into the main checkout once, each held bundle in exactly one file of the main outbox",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-lane-add-during-move-lines-once",
+            "title": "AC-16103-4: rcf feedback add in a linked worktree while another command there is moving its held queue records its entry once and moves every held entry line into the main checkout exactly once",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-add-during-move-kept",
+            "title": "AC-16103-4 guard: rcf feedback add in the main checkout while a linked worktree moves its held queue keeps the new entry and every held entry line exactly once",
+            "testNumber": 4,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-session-end-before-copy-kept",
+            "title": "AC-16103-4 guard: when the main checkout SessionEnd hook writes a bundle under a held bundle's name before a running worktree move copies that bundle, both bundles are kept, each in exactly one file of the main outbox",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-session-end-after-copy-kept",
+            "title": "AC-16103-4: when the main checkout SessionEnd hook writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox",
+            "testNumber": 6,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-lane-session-end-during-move-once",
+            "title": "AC-16103-4 guard: the SessionEnd hook in a linked worktree while another command there is moving its held queue writes its bundle once and copies no held bundle a second time",
+            "testNumber": 7,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-stop-during-move-asks-kept",
+            "title": "AC-16103-4: when the main checkout Stop hook writes its ask ledger while a linked worktree moves its held queue, every held ask record and the hook's own ask record are in the main checkout state.json exactly once",
+            "testNumber": 8,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-submit-after-copy-kept",
+            "title": "AC-16103-4: when rcf feedback submit in the main checkout writes a bundle under a held bundle's name after a running worktree move copied that bundle, both bundles are kept, each in exactly one file of the main outbox",
+            "testNumber": 9,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-two-lanes-move-at-once-kept",
+            "title": "AC-16103-4: two linked worktrees moving their own held queues into the main checkout at once keep every held ask record, entry line and bundle of both, each exactly once in the main store",
+            "testNumber": 10,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-move-reads-whole-state-kept",
+            "title": "AC-16103-4: a worktree move that reads the main checkout's state.json while the main checkout Stop hook is writing it reads a whole document, so every ask record the main checkout held before is kept exactly once",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-stop-reads-whole-state-silent",
+            "title": "AC-16103-4: the main checkout Stop hook in a session that already asked stays silent (exit 0) when it reads the main checkout's state.json while a worktree move is writing it",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-main-stop-mid-move-own-kept",
+            "title": "AC-16103-4: when the main checkout Stop hook writes its ask record while a worktree move is between its read and its write of the main checkout's state.json, the hook's own ask record and every held ask record are kept exactly once",
+            "testNumber": 4,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-writers-wait-runs-out-exit-1",
+            "title": "AC-16103-4: while a worktree move is still changing the main checkout store, rcf feedback add, the Stop hook, the SessionEnd hook and rcf feedback submit in the main checkout each exit 1 once their wait runs out, naming the running command and the main checkout, and write nothing",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-stopped-mover-holds-nothing",
+            "title": "AC-16103-4 guard: a worktree move whose process stopped without finishing holds up no later command: the next rcf feedback command in the worktree completes the move with each id once, and rcf feedback add in the main checkout proceeds",
+            "testNumber": 6,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-old-mover-holds-nothing",
+            "title": "AC-16103-4 guard: a worktree move that has not been refreshed for more than 60 seconds holds up no later command: rcf feedback add in the main checkout records its entry, and the next rcf feedback command in the worktree completes the move with each id once",
+            "testNumber": 7,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-refreshing-mover-not-broken",
+            "title": "AC-16103-4: a worktree move still running that keeps refreshing is never taken for stopped, however long ago it started: rcf feedback add in the main checkout waits for it, exits 1 once its wait runs out naming the running command and the main checkout, and writes nothing",
+            "testNumber": 8,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-stale-hold-three-breakers-once",
+            "title": "AC-16103-4: three Stop hooks that find a stopped move's hold at once and judge it stale break it safely: exactly one command holds the main checkout store at any instant, and each hook's ask record and every held bundle, entry line and ask record land exactly once",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-reader-during-add-whole-lines",
+            "title": "AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback add writes an entry there never reads a partial line, and lists every entry once with its status",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-reader-during-discard-whole-lines",
+            "title": "AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback discard records a status change there never reads a partial line, and lists every entry once with its status",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-submit-filed-waits-records",
+            "title": "AC-16103-4 guard: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store waits, and records the filing once the move lets the store go; the next submit does not file the entry again",
+            "testNumber": 4,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-submit-filed-breaks-hung-move",
+            "title": "AC-16103-4 guard: rcf feedback submit that has filed an issue when a hung worktree move holds the main checkout store records the filing once the move has not been refreshed for 60 seconds by its clock; the next submit does not file the entry again",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-submit-filed-busy-names-issue",
+            "title": "AC-16103-4: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store past its wait exits 1 naming the issue URL and the entry id, never saying it wrote nothing, and the next submit does not file that entry again",
+            "testNumber": 6,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-opted-out-stop-never-waits",
+            "title": "AC-16103-4: a Stop hook in the main checkout that does not ask (the operator opted out) and has nothing to write exits as it would alone, without waiting, while a worktree move holds the main checkout store",
+            "testNumber": 7,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-unparsed-hold-named-path-age",
+            "title": "AC-16103-4: a writer held up by a hold whose file cannot be parsed exits 1 once its wait runs out with stderr naming that file by its path and its age",
+            "testNumber": 8,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-unparsed-hold-judged-by-age",
+            "title": "AC-16103-4 guard: a hold whose file cannot be parsed is judged by the age of its file: 30 seconds old it holds a writer up (exit 1, nothing written), more than 60 seconds old it is stale and the writer proceeds",
+            "testNumber": 9,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-live-claim-never-passed",
+            "title": "AC-16103-4: a Stop hook still running on this host that is taking over a stopped move's hold is never set aside, however old its claim looks by a later command's clock: the later Stop hook waits, exactly one command holds the main checkout store at any instant, and each hook's ask record lands exactly once",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-lost-hold-writes-nothing",
+            "title": "AC-16103-4: a Stop hook that holds the main checkout store and is judged stopped by a later Stop hook (its clock behind the later one, the probe g9 L11 shape, or held past the stale window) never writes over the later hook's write: it exits 1 naming the hold it lost, and both hooks' ask records are kept",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-held-filing-moves-once",
+            "title": "AC-16103-4: a filing that rcf feedback submit in a worktree could not record (the main checkout did not ignore the store yet) moves into the main checkout store with the held queue exactly once, and the next submit in either checkout does not file that entry again",
+            "testNumber": 3,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-busy-after-filing-names-it",
+            "title": "AC-16103-4: rcf feedback submit that has filed and recorded an issue and then finds the main checkout store busy for a later write of the same run (its outbox bundle) exits 1 naming the entry and the issue it filed, never saying it wrote nothing",
+            "testNumber": 4,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-dry-run-skips-kept-filing",
+            "title": "AC-16103-4: rcf feedback submit --dry-run does not list an entry an earlier submit filed but could not record among those it would file, comment on or bundle, and writes nothing",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-264-dead-claim-removed",
+            "title": "AC-16103-4: a Stop hook that stopped while it was taking over a stopped move's hold leaves no claim behind: the next command passes it, removes the claim it left and proceeds, and each held bundle, entry line and ask record lands exactly once",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-17302-14",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-265",
+        "file": "test/cli/create-ac-keeps-scope.test.js",
+        "tests": [
+          {
+            "tcId": "TC-265-from-file-keeps-scope",
+            "title": "AC-17302-14: rcf define create ac --parent <US> --from-file <json> keeps the scope the file carries on the written criterion",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-265-description-merge-keeps-scope",
+            "title": "AC-17302-14: rcf define create ac --parent <US> --description <text> --from-file <json> keeps the scope the file carries (CLI fields merged over the file)",
+            "testNumber": 2,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-265-replay-unchanged",
+            "title": "AC-17302-14: a same-id replay (rcf define create ac --id) of a criterion that carries scope, with identical content, is unchanged (exit 0) and does not rewrite the file",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19001-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-263",
+        "file": "test/verify/out-directory-refused.test.js",
+        "tests": [
+          {
+            "tcId": "TC-263-out-directory-refused",
+            "title": "AC-19001-7: rcf verify run --url <url> --out <existing directory> (with or without a trailing slash) exits 2 with \"--out must be a file path, not a directory\" before any request reaches the target and writes nothing in the directory",
+            "testNumber": 1,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-263-out-help-says-file-path",
+            "title": "AC-19001-7: rcf verify run --help describes --out as a file path and says a directory is refused (exit 2)",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

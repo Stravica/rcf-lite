@@ -1,0 +1,42 @@
+TAP version 13
+# Subtest: AC-16103-4 guard: when the main checkout already holds the same entries.jsonl, state.json and outbox bundles (from the SessionEnd hook and from submit) as a linked worktree, the next rcf feedback command there removes every held file and copies nothing twice
+ok 1 - AC-16103-4 guard: when the main checkout already holds the same entries.jsonl, state.json and outbox bundles (from the SessionEnd hook and from submit) as a linked worktree, the next rcf feedback command there removes every held file and copies nothing twice
+  ---
+  duration_ms: 1179.157209
+  type: 'test'
+  ...
+# Subtest: AC-16103-4 guard: when the main checkout holds a state.json of its own, the next rcf feedback command in a linked worktree merges every held ask record into the main state.json once and keeps every ask record the main checkout had
+ok 2 - AC-16103-4 guard: when the main checkout holds a state.json of its own, the next rcf feedback command in a linked worktree merges every held ask record into the main state.json once and keeps every ask record the main checkout had
+  ---
+  duration_ms: 1574.5165
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: when the main checkout outbox already holds the name of each held bundle (the SessionEnd and the submit fallback bundle) with different bytes, the next rcf feedback command in a linked worktree exits 0, keeps each held bundle under a fresh name in the main outbox, leaves each main bundle byte-identical and removes every held file
+ok 3 - AC-16103-4: when the main checkout outbox already holds the name of each held bundle (the SessionEnd and the submit fallback bundle) with different bytes, the next rcf feedback command in a linked worktree exits 0, keeps each held bundle under a fresh name in the main outbox, leaves each main bundle byte-identical and removes every held file
+  ---
+  duration_ms: 1520.651334
+  type: 'test'
+  ...
+# chflags: /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-fbs231-collision-fails-lhXlYW/lane/.rcf/feedback/outbox/2026-10-23T19-09-22Z-stravica-rcf-lite-fb-20261023-ffcd14f2b064.md: No such file or directory
+# Subtest: AC-16103-4: when moving the held queue fails after removing a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every held byte stays readable from one of the two checkouts, and the next command completes the move with each held bundle once in the main outbox
+ok 4 - AC-16103-4: when moving the held queue fails after removing a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every held byte stays readable from one of the two checkouts, and the next command completes the move with each held bundle once in the main outbox
+  ---
+  duration_ms: 1719.7835
+  type: 'test'
+  ...
+# chflags: /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-fbs231-collision-fails-on-sp2tXi/lane/.rcf/feedback/outbox/2026-10-23T19-09-24Z-session-end.md: No such file or directory
+# Subtest: AC-16103-4: when moving the held queue fails on a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 and keeps that bundle readable, and the next command completes the move with its bytes exactly once in the main outbox, never copied under a second name
+ok 5 - AC-16103-4: when moving the held queue fails on a held bundle whose name the main outbox already holds with different bytes, rcf feedback list in a linked worktree exits 1 and keeps that bundle readable, and the next command completes the move with its bytes exactly once in the main outbox, never copied under a second name
+  ---
+  duration_ms: 1703.659917
+  type: 'test'
+  ...
+1..5
+# tests 5
+# suites 0
+# pass 5
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 7780.200875

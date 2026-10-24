@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T19:20:00Z",
-  "updatedAt": "2026-09-16T19:20:00Z",
+  "updatedAt": "2026-10-23T20:48:01.667Z",
   "purpose": "Cover AC-16101-1 (shouldAsk applies the design-3.5 quiet rule: silent unless not-opted-out + pending + not-asked-this-session + stop-hook-inactive AND one of ask-now/older-than-quietMinutes/queue-complete/carried-over), AC-16101-2 (Stop on Claude Code exits 2 with the ask on stderr; Stop on Codex emits { decision: 'block', reason } on stdout with exit 0; the asked ledger is appended in both cases) and AC-16101-3 (a same-session second Stop is silent, a fresh session_id re-asks, and a Stop with stop_hook_active is silent even on a fresh session).",
   "testLevel": "integration",
   "acIds": [
@@ -46,6 +46,13 @@
       "description": "Cover AC-16101-3 (stop_hook_active branch) via the CLI test: a Stop payload with stop_hook_active: true and a fresh session_id and a pending --ask-now entry still exits 0 with no reason emitted; the loop-guard fires even when every other trigger would.",
       "status": "pending",
       "testPointer": "test/cli/feedback-hook.test.js::AC-16101-3: Stop with stop_hook_active is silent even on a fresh session"
+    },
+    {
+      "id": "TC-195-two-stops-at-once-both-kept",
+      "acId": "AC-16101-2",
+      "description": "two rcf feedback hook stop runs in one checkout at once, each for its own session_id: the first is held after its read of state.json and before its write (an injected pause), the second runs while it is held; both ask (exit 2) and state.json holds each asked record exactly once",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-concurrent-writers.test.js::AC-16101-2: two Stop hooks running at once in one checkout, each for its own session_id, both ask and both keep their asked records in state.json exactly once, neither overwriting the other"
     }
   ],
   "status": "draft"

@@ -1,0 +1,16 @@
+TAP version 13
+# Subtest: AC-16103-4: an entry rcf feedback add records in a linked git worktree is still listed pending by rcf feedback list from the main checkout after git worktree remove
+ok 1 - AC-16103-4: an entry rcf feedback add records in a linked git worktree is still listed pending by rcf feedback list from the main checkout after git worktree remove
+  ---
+  duration_ms: 511.619792
+  type: 'test'
+  ...
+1..1
+# tests 1
+# suites 0
+# pass 1
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 549.070417

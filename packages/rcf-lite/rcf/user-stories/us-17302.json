@@ -74,6 +74,15 @@
       "id": "AC-17302-13",
       "description": "[happy] (R1 create extension, PR 293 landing review) given rcf define create req --parent PRD-001 --id REQ-050 --title T --description D whose first run persisted a classifier-owned shapeClassification block, when the identical command is replayed, then it exits 0 and stdout reads 'REQ-050: unchanged (rcf/requirements/req-050.json)' and the file is not rewritten: the replay compare ignores every writer- and classifier-owned field (createdAt, updatedAt, shapeClassification; one exported REPLAY_IGNORE_FIELDS list in src/core/store/writer.js); given the same verb with a different --description, it exits 3 naming description and the file is not rewritten.",
       "testable": true
+    },
+    {
+      "id": "AC-17302-14",
+      "description": "[happy] (FBS-231 round 2) rcf define create ac keeps the criterion's scope field. A scope given in the --from-file body (a scopeTag value: library, runtime, deployed or unclassified) reaches the written criterion, as given, when, then and determinism do, whether the body carries the description or the CLI passes --description (CLI fields merged over the file, CLI wins); a same-id replay (--id, AC-17302-10) of a criterion that carries scope, with identical content, is unchanged (exit 0) and the file is not rewritten. rcf define create has no --scope flag: scope travels in --from-file. rcf define create us --from-file already keeps the scope of the criteria in its body.",
+      "testable": true,
+      "given": "a fixture project holding US-101, and a --from-file JSON body carrying scope beside given, when, then and (in the first form) description",
+      "when": "rcf define create ac --parent US-101 --from-file <json> runs; rcf define create ac --parent US-101 --description <text> --from-file <json> runs; rcf define create ac --parent US-101 --id AC-101-1 --from-file <json> replays a criterion that already carries the same scope and content",
+      "then": "rcf define read US-101 shows the written criterion carrying the scope from the file (runtime in the first form, library in the second), with description, given, when and then as given and the CLI description winning; the replay exits 0, stdout reads 'AC-101-1: unchanged (rcf/user-stories/us-101.json)' and the US file is byte-identical",
+      "scope": "runtime"
     }
   ],
   "tacIds": [
@@ -81,5 +90,5 @@
   ],
   "tags": [],
   "createdAt": "2026-10-02T16:40:00Z",
-  "updatedAt": "2026-10-05T19:00:00Z"
+  "updatedAt": "2026-10-23T14:38:00.304Z"
 }

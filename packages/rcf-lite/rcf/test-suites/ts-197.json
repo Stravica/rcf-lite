@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T19:20:00Z",
-  "updatedAt": "2026-09-17T03:30:00Z",
+  "updatedAt": "2026-10-23T20:06:08.751Z",
   "purpose": "Cover AC-16103-1 (rcf feedback hook session-end writes a byte-idempotent outbox bundle for the pending set and completes in well under the shared Claude Code 1.5s SessionEnd budget), AC-16103-2 (rcf feedback hook session-start on Claude Code prints a single carry-over context line; on Codex emits the additionalContext JSON shape; state.json is not mutated on session-start; with no carried-over entries the hook is silent) and AC-16103-3 (defer means \"not now, ask again next session\": deferredUntilSession entries carried over from a prior sessionId return to pending on SessionStart and on Stop; idempotent per session).",
   "testLevel": "integration",
   "acIds": [
@@ -60,6 +60,20 @@
       "description": "Cover AC-16103-3 (idempotency per session) via the CLI test: add one entry and defer it in session A; run rcf feedback hook session-start --harness claude-code with session_id A (same as the defer's session); no requeue transition is written and stdout is empty. A second SessionStart in session B requeues once; a third SessionStart also in session B is a no-op (no new transition, silent stdout).",
       "status": "pending",
       "testPointer": "test/cli/feedback-hook.test.js::AC-16103-3: SessionStart is a no-op when the deferred session id matches the incoming session id"
+    },
+    {
+      "id": "TC-197-session-end-same-second-both-kept",
+      "acId": "AC-16103-1",
+      "description": "two rcf feedback hook session-end runs in one checkout in the same second (clock pinned) with different pending sets: both bundles are kept, the first byte-identical, each in exactly one file of the outbox, and every entry is listed once with its status",
+      "status": "failing",
+      "testPointer": "test/cli/feedback-bundle-same-second.test.js::AC-16103-1: two rcf feedback hook session-end runs in one checkout in the same second with different pending sets keep both bundles, neither overwriting the other"
+    },
+    {
+      "id": "TC-197-session-end-idempotent-after-same-second",
+      "acId": "AC-16103-1",
+      "description": "guard: after two SessionEnd bundles in the same second, a third run with the same pending set as the second adds no file and rewrites none (byte-idempotent)",
+      "status": "passing",
+      "testPointer": "test/cli/feedback-bundle-same-second.test.js::AC-16103-1 guard: after two SessionEnd bundles in the same second, a third rcf feedback hook session-end run with the same pending set as the second writes nothing new"
     }
   ],
   "status": "draft"
