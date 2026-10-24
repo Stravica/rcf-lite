@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:37:22.487Z",
-  "updatedAt": "2026-10-24T11:37:24.603Z",
+  "updatedAt": "2026-10-24T15:03:12.769Z",
   "asA": "stage-keeper preparing a Build dispatch",
   "iWant": "every bundle to refuse unless the RCF suite is recorded green on the base head",
   "soThat": "no Build starts on a red base, and verified never blocks a Build",
@@ -17,7 +17,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20201-1",
-      "description": "[happy] Given a fixture project at a clean committed HEAD B whose FBS-002 is next actionable and whose FBS-001 is complete and not verified, and a record from rcf build base-suite --command \"node --test test/rcf\" --out <scratch>/base.json reading green at B, when rcf build bundle --next --base-suite <scratch>/base.json runs, then it exits 0 and emits the FBS-002 bundle: a complete-not-verified spec never holds the queue.",
+      "description": "[happy] Given a fixture project at a clean committed HEAD B whose FBS-002 is next actionable and whose FBS-001 is complete and not verified, and a record from rcf build base-suite --command \"node --test test/rcf\" --out <scratch>/base.json reading green at B, when rcf build bundle --next --base-suite <scratch>/base.json runs, then it exits 0 and emits the FBS-002 bundle: a complete-not-verified spec never holds the queue; given a fixture branch whose HEAD is a DEFINE: commit adding a failing RCF test after the trunk tip B, the same green record at B bundles, because the record names the base (git merge-base of HEAD with the trunk), not HEAD.",
       "testable": true
     },
     {
@@ -27,7 +27,7 @@
     },
     {
       "id": "AC-20201-3",
-      "description": "[failure] Given a green record made at commit A and HEAD now at B (a later commit), rcf build bundle --next --base-suite <file> exits 4 with stderr \"backstop: base suite recorded at <A7>, base is <B7>; record it again\".",
+      "description": "[failure] Given a green record made at commit A and a base now at B (git merge-base of HEAD with the trunk, a later commit than A), rcf build bundle --next --base-suite <file> exits 4 with stderr \"backstop: base suite recorded at <A7>, base is <B7>; record it again\".",
       "testable": true
     },
     {
@@ -42,12 +42,17 @@
     },
     {
       "id": "AC-20201-6",
-      "description": "[edge] Given a dirty working tree, rcf build base-suite exits 4 with stderr \"base-suite refused: working tree is dirty; record the suite on a committed base\"; given --out rcf/base.json it exits 2 (a record never lands in the chain tree); given a suite command printing no TAP, the record carries tap null and green follows the exit code alone.",
+      "description": "[edge] Given a dirty working tree, rcf build base-suite exits 4 with stderr \"base-suite refused: working tree is dirty; record the suite on a committed base\"; given --out rcf/base.json it exits 2 (a record never lands in the chain tree); given a suite command printing no TAP, the record carries tap null, green follows the exit code alone, and stderr carries one line \"[warn] base-suite: no TAP summary; green follows the exit code alone\".",
       "testable": true
     },
     {
       "id": "AC-20201-7",
-      "description": "[non-functional] Given a green record for HEAD, rcf build bundle --next adds no more than 100 milliseconds to the same bundle without the backstop and never spawns the suite command (a spawn seam records none), so the suite's cost (166 seconds for this repository's suite at concurrency 6, the typical case) is paid once per base head by rcf build base-suite.",
+      "description": "[non-functional] Given a green record for the base, rcf build bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command (a spawn seam records none), so the suite's cost (166 seconds for this repository's suite at concurrency 6, the typical case) is paid once per base head by rcf build base-suite.",
+      "testable": true
+    },
+    {
+      "id": "AC-20201-8",
+      "description": "[failure] Given rcf/test-strength.json declaring suiteCommand \"node --test --test-reporter=tap test/rcf\", rcf build base-suite --out <scratch>/b.json with no --command runs that command and records it as the record's command; with --command \"node --test test/rcf/a.test.js\" it exits 2 with stderr \"[error] usage --command differs from rcf/test-strength.json suiteCommand\" and writes nothing.",
       "testable": true
     }
   ],
@@ -58,6 +63,7 @@
     "verification:AC-20201-4=external",
     "verification:AC-20201-5=external",
     "verification:AC-20201-6=external",
-    "verification:AC-20201-7=external"
+    "verification:AC-20201-7=external",
+    "verification:AC-20201-8=external"
   ]
 }

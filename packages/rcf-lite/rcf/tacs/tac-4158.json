@@ -1,10 +1,10 @@
 {
   "createdAt": "2026-10-24T11:37:21.635Z",
-  "updatedAt": "2026-10-24T11:37:21.635Z",
+  "updatedAt": "2026-10-24T15:03:11.982Z",
   "purpose": "Stops any Build while the RCF suite is not green on the base, judged from a recorded run on the base head and never from verified, and serves an amend round on a complete or verified spec scoped to the criteria it touches.",
   "responsibilities": [
     "rcf build base-suite runs the project's RCF suite command at a clean HEAD and writes BaseSuiteRecord v1 to a named file",
-    "rcf build bundle (--next, an explicit id, or an amend round) refuses unless --base-suite names a record for the current HEAD with exit code 0 and no failing test",
+    "rcf build bundle (--next, an explicit id, or an amend round) refuses unless --base-suite names a record for the base (git merge-base of HEAD with the trunk, the first of origin/main, origin/master, main and master that resolves; HEAD itself on the trunk) with exit code 0 and no failing test",
     "rcf build bundle <fbs-id> --acs <ids> emits an amend-round bundle for a complete or verified spec, listing only the touched criteria",
     "retire rcf/define/backstop.json, rcf build backstop adopt and --allow-unverified"
   ],
@@ -12,12 +12,12 @@
     {
       "name": "rcf build base-suite",
       "kind": "cliCommand",
-      "description": "usage: rcf build base-suite --command \"<RCF suite command>\" --out <file>\nRefuses a dirty working tree (exit 4 \"base-suite refused: working tree is dirty; record the suite on a committed base\"). Runs the command in the project root, captures its exit code and, when its stdout carries a TAP summary, the counts; writes BaseSuiteRecord v1 to <file> and prints \"base-suite: <green|red> at <h7> (exit <c>, <pass> pass, <fail> fail) recorded to <file>\". Exit 0 when recorded (whatever the suite result), 2 usage (missing --command or --out; --out inside rcf/), 1 IO."
+      "description": "usage: rcf build base-suite [--command \"<RCF suite command>\"] --out <file>\nWithout --command it runs rcf/test-strength.json suiteCommand; a --command that differs from a declared suiteCommand exits 2 \"[error] usage --command differs from rcf/test-strength.json suiteCommand\"; neither declared nor given exits 2. A run with no TAP summary prints \"[warn] base-suite: no TAP summary; green follows the exit code alone\".\nRefuses a dirty working tree (exit 4 \"base-suite refused: working tree is dirty; record the suite on a committed base\"). Runs the command in the project root, captures its exit code and, when its stdout carries a TAP summary, the counts; writes BaseSuiteRecord v1 to <file> and prints \"base-suite: <green|red> at <h7> (exit <c>, <pass> pass, <fail> fail) recorded to <file>\". Exit 0 when recorded (whatever the suite result), 2 usage (missing --command or --out; --out inside rcf/), 1 IO."
     },
     {
       "name": "rcf build bundle backstop",
       "kind": "cliCommand",
-      "description": "usage: rcf build bundle (--next | <fbs-id> [--acs <AC id>[,...]]) --base-suite <file> [--format md|json] [--override \"<reason>\"]\nBefore any other gate: no --base-suite: exit 4 \"backstop: base suite not recorded; run rcf build base-suite --command \\\"<suite>\\\" --out <file> on the base and pass --base-suite <file>\"; record head not HEAD: exit 4 \"backstop: base suite recorded at <a7>, base is <b7>; record it again\"; red record (exit code not 0, or TAP fail above 0): exit 4 \"backstop: base suite red at <b7>: exit <c>, <k> failing; no Build starts until the RCF suite is green on the base\"; unreadable or malformed record: exit 2 naming the file. --override satisfies only the freeze gate, never the backstop. Retired: rcf build backstop adopt (exit 2 \"[error] usage backstop adopt is retired in 0.37.0; the backstop is the base suite (rcf build base-suite)\"), --allow-unverified (exit 2 \"[error] usage --allow-unverified is retired in 0.37.0; no override lets a Build start on a red base\"); an existing rcf/define/backstop.json is ignored with one \"[warn] backstop: rcf/define/backstop.json is retired in 0.37.0 and ignored; the backstop is the base suite\" line."
+      "description": "usage: rcf build bundle (--next | <fbs-id> [--acs <AC id>[,...]]) --base-suite <file> [--format md|json] [--override \"<reason>\"]\nBefore any other gate: no --base-suite: exit 4 \"backstop: base suite not recorded; run rcf build base-suite --command \\\"<suite>\\\" --out <file> on the base and pass --base-suite <file>\"; record head not the base: exit 4 \"backstop: base suite recorded at <a7>, base is <b7>; record it again\"; red record (exit code not 0, or TAP fail above 0): exit 4 \"backstop: base suite red at <b7>: exit <c>, <k> failing; no Build starts until the RCF suite is green on the base\"; unreadable or malformed record: exit 2 naming the file. --override satisfies only the freeze gate, never the backstop. Retired: rcf build backstop adopt (exit 2 \"[error] usage backstop adopt is retired in 0.37.0; the backstop is the base suite (rcf build base-suite)\"), --allow-unverified (exit 2 \"[error] usage --allow-unverified is retired in 0.37.0; no override lets a Build start on a red base\"); an existing rcf/define/backstop.json is ignored with one \"[warn] backstop: rcf/define/backstop.json is retired in 0.37.0 and ignored; the backstop is the base suite\" line."
     },
     {
       "name": "rcf build bundle amend round",
