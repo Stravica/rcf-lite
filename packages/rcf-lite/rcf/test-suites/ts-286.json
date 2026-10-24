@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T17:34:50.634Z",
+  "updatedAt": "2026-10-24T17:34:51.966Z",
+  "purpose": "FBS-237: the external criteria of US-20002, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-237's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20002-1",
+    "AC-20002-2",
+    "AC-20002-3",
+    "AC-20002-4",
+    "AC-20002-5"
+  ],
+  "id": "TS-286",
+  "usId": "US-20002",
+  "title": "US-20002 external criteria (FBS-237)",
+  "testCases": [
+    {
+      "id": "TC-286-with-no-test-strength-record-at-h",
+      "acId": "AC-20002-1",
+      "description": "with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\"",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-1: with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\""
+    },
+    {
+      "id": "TC-286-when-the-reviewverdict-touches-only-ac",
+      "acId": "AC-20002-2",
+      "description": "when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\"",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\""
+    },
+    {
+      "id": "TC-286-with-no-ci-run-finalise-exits-4-ci",
+      "acId": "AC-20002-3",
+      "description": "with no --ci-run finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", with AC-101-2 lacking a Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-2\", and an untouched criterion of the spec with no Code Node does not refuse",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-3: with no --ci-run finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", with AC-101-2 lacking a Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-2\", and an untouched criterion of the spec with no Code Node does not refuse"
+    },
+    {
+      "id": "TC-286-an-earlier-build-tests-commit-touching",
+      "acId": "AC-20002-4",
+      "description": "an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
+    },
+    {
+      "id": "TC-286-over-the-happy-run-a-spawn-seam-rcf",
+      "acId": "AC-20002-5",
+      "description": "over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
+    }
+  ],
+  "status": "draft"
+}

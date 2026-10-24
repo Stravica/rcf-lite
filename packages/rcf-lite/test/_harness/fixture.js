@@ -177,3 +177,13 @@ export function testStrengthReport(head, { scope = 'reviewVerdict', failing = []
     wallMs: 10, node: process.version,
   };
 }
+
+// BaseSuiteRecord v1 (TAC-4158), keyed by the caller to the head the
+// criterion names (GR-38): the base for the bundle backstop (FBS-239),
+// the merge head M for Finalise --merge-suite (FBS-237). green follows
+// exitCode 0 and tap.fail 0 (or tap null) unless given.
+export function baseSuiteRecord(head, { exitCode = 0, tap, green, command = 'node --test --test-reporter=tap', node = process.version } = {}) {
+  const t = tap === undefined ? { pass: 3, fail: exitCode === 0 ? 0 : 1, skip: 0, todo: 0, cancelled: 0 } : tap;
+  const g = green ?? (exitCode === 0 && (t === null || t.fail === 0));
+  return { version: 1, head, command, exitCode, tap: t, green: g, startedAt: '2026-10-24T00:00:00.000Z', finishedAt: '2026-10-24T00:00:05.000Z', node };
+}

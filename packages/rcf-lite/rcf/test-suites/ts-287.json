@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T17:34:52.232Z",
+  "updatedAt": "2026-10-24T17:34:53.553Z",
+  "purpose": "FBS-237: the external criteria of US-20003, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-237's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20003-1",
+    "AC-20003-2",
+    "AC-20003-3",
+    "AC-20003-4",
+    "AC-20003-5"
+  ],
+  "id": "TS-287",
+  "usId": "US-20003",
+  "title": "US-20003 external criteria (FBS-237)",
+  "testCases": [
+    {
+      "id": "TC-287-each-retired-flag-report-max-report-age",
+      "acId": "AC-20003-1",
+      "description": "each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
+    },
+    {
+      "id": "TC-287-a-committed-fail-or-malformed",
+      "acId": "AC-20003-2",
+      "description": "a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
+    },
+    {
+      "id": "TC-287-rcf-build-mark-fbs-001-complete-at",
+      "acId": "AC-20003-3",
+      "description": "rcf build mark FBS-001 complete at inProgress exits 4 \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4"
+    },
+    {
+      "id": "TC-287-an-amend-round-on-fbs-001-at-verified",
+      "acId": "AC-20003-4",
+      "description": "an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write, and with an external criterion touched it writes complete",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write, and with an external criterion touched it writes complete"
+    },
+    {
+      "id": "TC-287-across-the-fixtures-of-us-20003-no",
+      "acId": "AC-20003-5",
+      "description": "across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination"
+    }
+  ],
+  "status": "draft"
+}
