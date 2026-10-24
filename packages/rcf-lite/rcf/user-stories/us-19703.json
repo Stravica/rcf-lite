@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:38.538Z",
-  "updatedAt": "2026-10-24T11:27:40.924Z",
+  "updatedAt": "2026-10-24T15:01:08.164Z",
   "asA": "test-author starting a new round, and the stage-keeper judging the branch",
   "iWant": "rcf audit separation to refuse any stage regression except a new round right after a failed verdict",
   "soThat": "every fix round re-runs all five stages and no BUILD or DEFINE commit slips in after a passed review",
@@ -37,12 +37,12 @@
     },
     {
       "id": "AC-19703-5",
-      "description": "[failure] Given a REVIEW: commit whose review.json head is not its parent, and a TEST: commit whose test.json head is not the round's reviewed head, when rcf audit separation runs, then it exits 4 with \"<s7> REVIEW: verdict head <x7> is not its parent <p7>\" and \"<s7> TEST: verdict head <x7> is not the reviewed head <H7>\".",
+      "description": "[failure] Given a REVIEW: commit whose review.json head is not its parent, and a TEST: commit whose test.json head is not the round's reviewed head, when rcf audit separation runs, then it exits 4 with \"<s7> REVIEW: verdict head <x7> is not its parent <p7>\" and \"<s7> TEST: verdict head <x7> is not the reviewed head <H7>\"; the one exception is a TEST: commit adding a FAIL test.json whose head is the commit's own parent, after a TEST PASS at H in the same round (stage-keeper ruling 3), which passes and closes the round.",
       "testable": true
     },
     {
       "id": "AC-19703-6",
-      "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS), TEST: (PASS), FINALISE: (a clean merge of main), FINALISE: (rcf/fbs/ only), when rcf audit separation runs, then it exits 0; given the same branch with a further \"DEFINE: amend\" or \"TEST: rerun\" after the FINALISE: commits, it exits 4 with \"<s7> DEFINE: after FINALISE: without a failed verdict (stage order is monotonic within a round)\" or the same item for TEST:.",
+      "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS), TEST: (PASS), FINALISE: (a clean merge of main), FINALISE: (rcf/fbs/ only), when rcf audit separation runs, then it exits 0; given the same branch with a further \"DEFINE: amend\", or a \"TEST: rerun\" adding a PASS test.json, after the FINALISE: commits, it exits 4 with \"<s7> DEFINE: after FINALISE: without a failed verdict (stage order is monotonic within a round)\" or the same item for TEST:; given instead \"TEST: merge head red\" adding a FAIL test.json whose head is its parent (the FINALISE: merge) and then \"DEFINE: triage\", it exits 0: the FAIL closes the round and the next round starts at DEFINE: on the same branch (stage-keeper ruling 3).",
       "testable": true
     },
     {
@@ -52,7 +52,22 @@
     },
     {
       "id": "AC-19703-8",
-      "description": "[non-functional] Given a fixture range of 6 rounds (30 or more commits, each REVIEW: and TEST: adding a verdict file), when rcf audit separation runs, then the round judgement adds no more than one git process per verdict commit to the budget of the per-commit judgement and the run finishes within 5 seconds on a CI-class runner.",
+      "description": "[non-functional] Given a fixture range of 6 rounds (30 or more commits, each REVIEW: and TEST: adding a verdict file), when rcf audit separation runs, then the round judgement adds no more than one git process per verdict commit to the budget of the per-commit judgement and the run finishes within 5 seconds on the host the suite runs on (the test prints os.cpus().length and process.version).",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-9",
+      "description": "[failure] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS for its parent H) and a second \"REVIEW: codex\" adding a review.json for its own parent, when rcf audit separation runs, then it exits 4 with \"<s7> REVIEW: after a passed REVIEW verdict (one REVIEW verdict per round)\"; a REVIEW: commit adding no review.json before the verdict commit passes.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-10",
+      "description": "[failure] Given a fixture branch BUILD: then \"TEST: verdict\" adding a PASS test.json, with no REVIEW: commit in the range, rcf audit separation exits 4 with \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; the same branch whose TEST: commit adds only rcf/verify-reports/FBS-001/a.json exits 0 and counts that commit as no verdict.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-11",
+      "description": "[edge] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS), TEST: (PASS at H), \"TEST: strength\" adding rcf/verdicts/<H12>/test-strength.json with result fail, then \"DEFINE: triage\", rcf audit separation exits 0: the failing record closes the round; the same branch with \"BUILD: fix\" after the failing record exits 4 with \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\".",
       "testable": true
     }
   ],
@@ -64,6 +79,9 @@
     "verification:AC-19703-5=external",
     "verification:AC-19703-6=external",
     "verification:AC-19703-7=external",
-    "verification:AC-19703-8=external"
+    "verification:AC-19703-8=external",
+    "verification:AC-19703-9=external",
+    "verification:AC-19703-10=external",
+    "verification:AC-19703-11=external"
   ]
 }

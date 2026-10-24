@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:36.705Z",
-  "updatedAt": "2026-10-24T11:27:38.286Z",
+  "updatedAt": "2026-10-24T15:01:02.970Z",
   "asA": "verifier at the TEST stage",
   "iWant": "to record PASS or FAIL for the reviewed head from the TAP summary of the full RCF suite",
   "soThat": "the TEST pass is a branch commit that names the code it tested",
@@ -32,12 +32,27 @@
     },
     {
       "id": "AC-19702-4",
-      "description": "[edge] Given a branch whose rcf/verdicts/<H12>/test.json already records PASS, a second rcf build verdict test for the same head exits 4 with stderr \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\" and the file is byte-identical afterwards; given no test verdict yet, --result FAIL --reason \"the suite hangs on the packed head\" with a TAP summary of 0 failing writes result \"FAIL\" with that reason, and FAIL with 0 failing and no --reason exits 2.",
+      "description": "[edge] Given a branch whose rcf/verdicts/<H12>/test.json already records PASS, a second rcf build verdict test for the same head exits 4 with stderr \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\" and the file is byte-identical afterwards; given no test verdict yet, --result FAIL --reason \"the suite hangs on the packed head\" with a TAP summary of 0 failing writes result \"FAIL\" with that reason, and FAIL with 0 failing and no --reason exits 2; the one-verdict rule is per head, so a FAIL recorded after the PASS at H names HEAD and is not refused (stage-keeper ruling 3).",
       "testable": true
     },
     {
       "id": "AC-19702-5",
       "description": "[must-not] rcf build verdict test never runs the suite itself, never deploys or contacts a host, never writes outside rcf/verdicts/<H12>/ and never commits: a spawn seam records only git, and git status --porcelain after a run lists at most the one new file.",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-6",
+      "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS for H), TEST: (PASS at H) and \"FINALISE: merge main\" (a clean merge) at head M, when rcf build verdict test --fbs FBS-001 --result FAIL --tap <a TAP file with 1 failing> --runtime \"fixture app\" runs, then it exits 0, stdout is \"verdict: test FAIL at <M7> (0 pass, 1 fail, 0 skip, 0 todo) written to rcf/verdicts/<M12>/test.json\", that file's head is the full sha of M, and rcf/verdicts/<H12>/test.json is byte-identical; the same with --result PASS at M exits 4 with \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-7",
+      "description": "[failure] Given a fixture at H whose rcf/verdicts/<H12>/test-strength.json records result fail for AC-101-2 and a TAP summary of 0 failing, rcf build verdict test --fbs FBS-001 --result PASS exits 4 with stderr \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\" and writes nothing; --result FAIL --reason \"test strength fails\" writes result FAIL; with no test-strength record at H, PASS is not refused for that reason.",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-8",
+      "description": "[failure] Given a review.json for H with fbsIds [\"FBS-001\", \"FBS-002\"], rcf build verdict test --fbs FBS-001 --result PASS exits 2 with stderr \"[error] usage --fbs FBS-001 differs from the REVIEW verdict's fbsIds FBS-001,FBS-002\" and writes nothing; with --fbs FBS-002,FBS-001 it writes the verdict; given --by omitted, the review verdict's recordedBy reads \"reviewer\" and the test verdict's \"verifier\".",
       "testable": true
     }
   ],
@@ -46,6 +61,9 @@
     "verification:AC-19702-2=external",
     "verification:AC-19702-3=external",
     "verification:AC-19702-4=external",
-    "verification:AC-19702-5=external"
+    "verification:AC-19702-5=external",
+    "verification:AC-19702-6=external",
+    "verification:AC-19702-7=external",
+    "verification:AC-19702-8=external"
   ]
 }
