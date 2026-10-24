@@ -395,6 +395,9 @@ test('AC-19603-6: a clean "FINALISE: merge main" and a "FINALISE: merge main aga
   assert.ok(r1 && r2, 'both merges are rows of the range');
   for (const row of [r1, r2]) { assert.equal(row.merge, true); assert.equal(row.stage, 'FINALISE'); }
   assert.deepEqual(r2.paths, ['pnpm-lock.yaml']);
+  // First-parent range (section 8.1): the commits main brought in are never rows.
+  const fromMain = git(dir, 'rev-list', 'main', `^${base}`).split('\n').filter(Boolean);
+  assert.deepEqual(rows.filter((x) => fromMain.includes(x.sha)).map((x) => x.subject), [], 'no row for a commit reachable only through a merge');
   const plain = await sep(dir, ['--base', base]);
   assert.match(plain.stdout, /, merges 2, /, plain.stdout);
 });
@@ -481,9 +484,12 @@ test('AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name t
     const { dir, base } = repo(t);
     commit(dir, 'DEFINE: config', { 'rcf/separation.json': { classes } });
     const c = commit(dir, 'BUILD: code', { 'spec/a.js': 'a\n' });
+    // Class precedence (section 8.1): a nested CHANGELOG.md still classes release, owned by FINALISE.
+    const notes = commit(dir, 'FINALISE: notes', { 'packages/x/CHANGELOG.md': '# x\n' });
     const r = await sep(dir, ['--base', base]);
     assert.equal(r.code, 4, `${JSON.stringify(classes)}\n${r.stdout}${r.stderr}`);
     assert.ok(r.stdout.includes(`${s7(c)} BUILD: touches spec/a.js (class rcfTest, owned by DEFINE)`), r.stdout);
+    assert.ok(!r.stdout.includes(s7(notes)), `packages/x/CHANGELOG.md classes release, so the FINALISE: commit has no item\n${r.stdout}`);
     if (warn) assert.ok(r.stderr.split('\n').includes(warn), r.stderr);
   }
   const bogus = repo(t);
