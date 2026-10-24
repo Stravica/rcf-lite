@@ -194,16 +194,16 @@ test('AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses
   const { dir, B } = await queue(t);
   writeText(dir, 'src/dirty.js', 'export const dirty = 1;\n');
   const out = join(scratch(t, 'rcf-h-out-'), 'b.json');
-  const d = await baseSuite(dir, ['--command', 'node --test test/rcf/us-101.test.js', '--out', out]);
+  const d = await baseSuite(dir, ['--command', 'node --test test/rcf/us-101.test.js', '--out', out], { PATH: toolPath(['node']) });
   assert.equal(d.code, 4, `${d.stdout}${d.stderr}`);
   errHas(d, 'base-suite refused: working tree is dirty; record the suite on a committed base');
   assert.ok(!existsSync(out), 'no record written');
   git(dir, 'clean', '-fq', 'src/dirty.js');
-  const inTree = await baseSuite(dir, ['--command', 'node --test test/rcf/us-101.test.js', '--out', 'rcf/base.json']);
+  const inTree = await baseSuite(dir, ['--command', 'node --test test/rcf/us-101.test.js', '--out', 'rcf/base.json'], { PATH: toolPath(['node']) });
   assert.equal(inTree.code, 2, `${inTree.stdout}${inTree.stderr}`);
   assert.ok(!existsSync(join(dir, 'rcf', 'base.json')), 'a record never lands in the chain tree');
   // A piped node --test prints the spec reporter, no TAP summary (probe b-02).
-  const r = await baseSuite(dir, ['--command', 'node --test test/rcf/us-101.test.js', '--out', out]);
+  const r = await baseSuite(dir, ['--command', 'node --test test/rcf/us-101.test.js', '--out', out], { PATH: toolPath(['node']) });
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   assert.equal(count(r.stderr, '[warn] base-suite: no TAP summary; green follows the exit code alone'), 1, `one warn line\n${r.stderr}`);
   const rec = JSON.parse(readFileSync(out, 'utf8'));
@@ -236,13 +236,13 @@ test('AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build 
   const config = { entry: [{ kind: 'bin', path: 'bin/app.js' }], harness: ['test/_harness/**'], edge: [], suiteCommand };
   const { dir, B } = await queue(t, { extra: (d) => { writeJson(d, 'rcf/test-strength.json', config); writeText(d, 'bin/app.js', '#!/usr/bin/env node\n'); } });
   const out = join(scratch(t, 'rcf-h-out-'), 'b.json');
-  const r = await baseSuite(dir, ['--out', out]);
+  const r = await baseSuite(dir, ['--out', out], { PATH: toolPath(['node']) });
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   const rec = JSON.parse(readFileSync(out, 'utf8'));
   assert.equal(rec.command, suiteCommand, 'the declared suiteCommand is the record command');
   assert.equal(rec.head, B);
   const out2 = join(scratch(t, 'rcf-h-out-'), 'b2.json');
-  const d = await baseSuite(dir, ['--command', 'node --test test/rcf/a.test.js', '--out', out2]);
+  const d = await baseSuite(dir, ['--command', 'node --test test/rcf/a.test.js', '--out', out2], { PATH: toolPath(['node']) });
   assert.equal(d.code, 2, `${d.stdout}${d.stderr}`);
   errHas(d, '[error] usage --command differs from rcf/test-strength.json suiteCommand');
   assert.ok(!existsSync(out2), 'writes nothing');

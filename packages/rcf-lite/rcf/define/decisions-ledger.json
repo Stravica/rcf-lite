@@ -2833,6 +2833,31 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"C2 (US-19901 PASS cases, US-19902, US-19903): every mutant-running case passes { PATH: toolPath(['node']) }.\" So the 24 runs that reach the mutants, in 16 of the file's 21 tests, pass PATH from toolPath(['node']), as the AC-20201-1 test does; the runs that end before any mutant (usage refusals, structural findings, the max-mutants refusal and the --record refusals), including all of AC-19901-2, AC-19901-3, AC-19901-5, AC-19901-6 and AC-19902-2, keep the harness PATH.",
       "answeredAt": "2026-10-24T21:16:49.811Z",
       "resolvedAt": "2026-10-24T21:16:49.811Z"
+    },
+    {
+      "id": 131,
+      "question": "(rcf-lite 0.37.0 DEFINE) Two of B2's tests (AC-20201-6 and AC-20201-8) run rcf build base-suite with a command that starts node, under the harness PATH, which holds only git's directory: what makes node resolvable for those runs? Source: stage-keeper ruling on part B3's open question 2, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "base-suite runs its command with the running node's directory on PATH (product behaviour, which TAC-4158 would need to state)"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-239's round DEFINE gives those two runs the PATH from toolPath(['node']), as the new AC-20201-1 test does"
+        },
+        {
+          "letter": "c",
+          "text": "the commands name node by an absolute path"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-239",
+      "addedAt": "2026-10-24T21:17:54.970Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"The AC-20201-6 and AC-20201-8 tests run base-suite with node on a PATH that has no node. Reading (b): the tests pass toolPath(['node']), the same harness helper AC-20201-1 uses. base-suite gains no PATH behaviour, because a consumer's environment is theirs.\" So every rcf build base-suite run in the AC-20201-6 test (three) and the AC-20201-8 test (two) passes { PATH: toolPath(['node']) }, as the AC-20201-1 run does, written now in part C; nothing else in either test changes.",
+      "answeredAt": "2026-10-24T21:17:55.059Z",
+      "resolvedAt": "2026-10-24T21:17:55.059Z"
     }
   ]
 }
