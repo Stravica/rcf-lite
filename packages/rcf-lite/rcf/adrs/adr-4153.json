@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-24T11:24:53.309Z",
+  "updatedAt": "2026-10-24T11:24:53.309Z",
+  "status": "proposed",
+  "context": "ADR-4149 judged each commit by a Hand: trailer over five hands plus mixed. The operator ruled (10:40Z, Q-02 and refinements; D-12 amended) that each commit message starts with its stage name in the strict form DEFINE: / BUILD: / REVIEW: / TEST: / FINALISE:, the audit derives the role from the stage, and a FINALISE: commit may carry a merge from main, a lockfile, artefacts from a declared generator command and chain status records, anything else failing; re-recording goldens or fixtures stays with the test-author and source with BUILD. Q-01 a (D-13 amended): builder unit tests are hygiene outside the RCF suite. Today any file under a test directory classes test (src/audit/separation.js:127) and merges are skipped (:273-274); Hand: mixed with Separation-Reason (:152-155) became the routine chore escape (register WA-04).",
+  "decision": "The audit reads the strict prefix on every subject (merges included) and derives the role; the class table and owners are TAC TAC-4153. Neutral paths apply to DEFINE and BUILD only; REVIEW, TEST and FINALISE own exactly their classes. Hygiene tests are told apart by path convention (a hygiene/ directory directly under a test root, or *.hygiene.test.*), overridable through rcf/separation.json classes.hygieneTest; coverage never counts a hygiene test and validate warns on a test case that points into one. Declared generators live in rcf/separation.json generators[] with id, command, outputs and checkedBy; a FINALISE: commit may touch a declared output only when a Generated-By: <id> trailer names that generator; the audit stays git-only and never runs the command, and content fidelity is proven by the checkedBy test in CI on the final head, which Finalise requires green. A golden whose regeneration is a declared generator (for example the queue goldens and the phase 3 to 6 view baseline, which move when Finalise writes a status) may therefore be re-produced in FINALISE; the test-author owns the declaration and every hand-recorded golden. A merge is judged by its combined-diff paths under its own subject's stage; a clean merge passes in any stage; a FINALISE: merge whose resolution touches anything outside FINALISE classes fails, because a merge that needs a code fix goes back to BUILD. The release cut is a FINALISE: commit: the release class (CHANGELOG*, RELEASE*, releases/releases.yaml) and the version line of package.json. Hand: mixed does not survive (D-14): with chores committed as FINALISE: there is no exception for Finalise to list. Transition: a prefixed commit that also carries Hand: passes only when the trailer agrees with the derived role (counted under transition); the trailer is read through 0.37.x and ignored from 0.38.0; a commit with no prefix or a malformed one fails.",
+  "consequences": "One marker per commit, visible in git log, replaces the trailer vocabulary (the 09:20Z \"rename hand to role\" item is replaced, redesign :149). Builders may write hygiene tests in hygiene/ directories; a downstream override such as classing test/hygiene/** as production (register WA-09) can be deleted. GitHub's Update branch button writes \"Merge branch ...\" with no prefix and fails; merges are made with git merge -m \"<STAGE>: merge main\". rcf-lite's own rcf/separation.json (declaring its queue and view-baseline generators) is a test-author deliverable of this slice's round. CHANGELOG lines stay with BUILD and the release heading with FINALISE.",
+  "alternativesConsidered": [
+    {
+      "name": "Keep the trailer, renamed Role:",
+      "summary": "The 09:20Z item: rename Hand to Role and keep judging trailers.",
+      "reasonNotChosen": "Replaced by the 10:40Z refinement: the stage prefix is the one marker and the role follows from it."
+    },
+    {
+      "name": "Hygiene tests told apart by binding absence",
+      "summary": "A test file no test case points at is hygiene.",
+      "reasonNotChosen": "The audit reads no chain, and a red RCF test written at DEFINE before its binding lands would class as hygiene and pass a BUILD commit touching it."
+    },
+    {
+      "name": "The audit runs each declared generator and compares",
+      "summary": "Prove generator output by re-running the command.",
+      "reasonNotChosen": "The audit is git-only and read-only; running commands from it breaks that and makes it as slow as the generators. The checkedBy test in CI gives the same proof."
+    },
+    {
+      "name": "Keep Hand: mixed for named chores",
+      "summary": "Q-02 option c: chores get their own exception.",
+      "reasonNotChosen": "The operator answered Q-02 with chores committed as FINALISE:; a kept escape is the routine workaround the register names (WA-04)."
+    }
+  ],
+  "adrId": "ADR-4153",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "The stage prefix replaces the Hand trailer; per-stage file classes, a builder hygiene class, declared generators and judged merges; Hand: mixed retires"
+}
