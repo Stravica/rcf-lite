@@ -139,7 +139,9 @@ leaves the machine.
 
 ## Store layout
 
-Everything under `.rcf/feedback/` in the project root:
+Everything under `.rcf/feedback/` in the project root. In a linked git
+worktree the store is the main checkout's `.rcf/feedback/` for the same
+project (see Linked worktrees below).
 
 - `entries.jsonl`: append-only JSON Lines. State transitions
   (`submitted`, `bundled`, `deferredUntilSession`, `discarded`) are
@@ -148,11 +150,106 @@ Everything under `.rcf/feedback/` in the project root:
 - `state.json`: per-session ask ledger (slice 5).
 - `outbox/<ISO-timestamp>-<repo-slug>.md`: bundle files written by
   slice 4 when the submit path cannot land the entry directly.
+- `filed/<entry id>.json`: a filing `rcf feedback submit` made but could
+  not record in time; the next submit records it (see Concurrent use).
+- `store.lock`: the store lock, present while a command writes the
+  store or left behind by one that stopped (see Concurrent use).
 
 The directory is gitignored via the 0.6.0 managed-block aggregator; a
 fresh `rcf init` writes the entry into `.gitignore` automatically. On a
 pre-upgrade project without the entry, `rcf feedback add` refuses with a
 one-line pointer at `rcf doctor --fix` (or pass `--force` to bypass).
+
+## Linked worktrees
+
+In a linked git worktree every `rcf feedback` sub-verb and hook reads
+and writes the main checkout's `.rcf/feedback/` for the same project,
+so an entry recorded in the worktree is still listed by
+`rcf feedback list` in the main checkout after `git worktree remove`.
+When the main checkout does not hold the rcf project, the worktree
+keeps its own store.
+
+`rcf feedback add` in a worktree judges the main checkout's
+`.gitignore`: when it does not cover `.rcf/feedback/`, the add exits 2,
+names the main checkout, points at `rcf doctor --fix` and writes
+nothing (`--force` writes anyway).
+
+A worktree can still hold a queue in its own `.rcf/feedback/`. While
+the main checkout does not ignore `.rcf/feedback/`, that queue stays
+where it is: `rcf feedback list` and the hooks in the worktree keep
+reading it, the Stop hook keeps asking about its pending entries, and
+`rcf feedback add` there refuses as above, adding that the held entries
+move into the main checkout once it ignores `.rcf/feedback/`. Removing
+the worktree in that state loses the held queue, so run
+`rcf doctor --fix` in the main checkout first. Once the main checkout
+ignores the store, the next `rcf feedback` command in the worktree (any
+sub-verb or hook) moves the held queue into it:
+
+- entry lines the main log does not already carry are added, so each
+  entry keeps its id and its status and is listed once;
+- the ask records in `state.json` are merged;
+- each outbox bundle and kept filing is compared by bytes with the main
+  store's files: bytes already there are not copied again, and a file
+  whose name the main store already uses for different bytes is kept as
+  `<stem>+held-<n><ext>`, so no main file is overwritten;
+- the moved files are then removed from the worktree.
+
+A move that fails (the main checkout's `.rcf/` is not writable, for
+example) exits 1 naming the error and the main checkout. It loses
+nothing and duplicates nothing: a held file is removed only once its
+content is in the main store, and the next `rcf feedback` command in
+the worktree, once the cause is put right, completes the move.
+
+## Concurrent use
+
+Every writer of a store (`rcf feedback add`, the Stop hook's ask
+record, the SessionEnd and submit bundles, every status change and the
+held-queue move) holds the store lock, `.rcf/feedback/store.lock`,
+while it reads, changes and writes. The lock is created exclusively and
+names its holder's process id, host and start time; the holder
+refreshes it about once a second while it works. `entries.jsonl` and
+`state.json` are replaced whole in one rename, so a reader never sees a
+partial line or a half-written document.
+
+- **Waiting.** A writer that finds the store locked waits for up to 10
+  seconds. If the holder is still running then, the writer exits 1,
+  names the holder's process id (or, when the lock file cannot be
+  parsed, its path and age) and the checkout, and writes nothing. A
+  held-queue move does not wait: it leaves the queue for the next
+  command.
+- **Stopped holders.** A lock is stale once its holder is no longer
+  running on this host, or once it has not been refreshed for 60
+  seconds (a lock file that cannot be parsed is judged by its age). The
+  next command breaks a stale lock and holds the store in its place.
+  When several commands find one stale lock at once, exactly one of
+  them takes the store, and none of them passes another that is still
+  running on this host.
+- **Lost lock.** A holder held up for more than 60 seconds (a laptop
+  asleep, say), or whose clock is behind another command's, can find
+  that command has taken the store over. It then writes nothing more and
+  exits 1 naming the lock file it lost, and every write the other
+  command made is kept.
+- **Filing receipts.** Once `rcf feedback submit` has filed an issue or
+  comment, the write that records it waits for up to 65 seconds. If the
+  store is still busy then, submit keeps the filing in
+  `.rcf/feedback/filed/<entry id>.json` and exits 1 naming the issue
+  URL and the entry id; the next `rcf feedback submit` records the
+  filing first and never files that entry again. A worktree's kept
+  filings move into the main checkout with its held queue.
+  `rcf feedback submit --dry-run` writes nothing and lists a kept
+  filing as already filed, never as one it would file. When submit has
+  already filed or recorded entries in a run and a later write finds
+  the store busy, it exits 1 naming each of them by its id and issue
+  URL (or bundle).
+- **Bundles.** Two bundles written to one outbox in the same second are
+  both kept: a bundle takes its usual name when it is free, and a taken
+  name gets a `+<n>` suffix.
+- **Opted out.** A Stop hook in a project that has opted out of the
+  ask, with no deferred entries to requeue, takes no lock and exits at
+  once.
+
+`RCF_FEEDBACK_LOCK_WAIT_MS` replaces both waits (10 and 65 seconds)
+with its value in milliseconds.
 
 ## Sub-verbs (slice 1)
 
@@ -300,6 +397,9 @@ refused so a bespoke variant is never silently overwritten.
   For locked-down environments where even a local log is unwanted.
 - `RCF_FEEDBACK_SESSION_ID` overrides the session id stamped on new
   entries (defaults to `unknown` when the harness does not export one).
+- `RCF_FEEDBACK_LOCK_WAIT_MS` sets how long, in milliseconds, a writer
+  waits for the store lock (default 10000; the write that records a
+  filed issue defaults to 65000). See Concurrent use.
 
 ## Related
 

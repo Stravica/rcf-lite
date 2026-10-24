@@ -204,16 +204,49 @@ function rootReadme() {
   return assert.fail(`no repository root with README.md and packages/rcf-lite/package.json above ${starts.join(', ')}`);
 }
 
-// The release feed entry for the installed package's version (the top
-// entry, by validate-releases invariant 3), read line by line.
-function releaseEntry() {
-  const { version } = JSON.parse(readFileSync(join(PACKAGE_ROOT, 'package.json'), 'utf8'));
+// One sentence of a feed entry's notes saying the managed block is
+// unchanged since an earlier release, as every patch that keeps the block
+// says ("the managed agent-instructions block and the ... pin are unchanged
+// since 0.36.0."). A dot followed by a non-space (a version number) does
+// not end the sentence.
+const BLOCK_UNCHANGED_SINCE = /managed agent-instructions block\b(?:[^\n".]|\.(?=\S))*?\bunchanged since (\d+\.\d+\.\d+)\b/i;
+
+// The release feed, newest first, read line by line.
+function feedEntries() {
   const feed = readFileSync(join(PACKAGE_ROOT, 'releases', 'releases.yaml'), 'utf8');
-  const blocks = feed.split(/^ {2}- version: /m).slice(1);
-  const block = blocks.find((b) => b.startsWith(`"${version}"`) || b.startsWith(`${version}\n`));
-  assert.ok(block, `releases/releases.yaml carries an entry for the installed version ${version}`);
-  const action = /^ {4}minAgentAction: *(.*)$/m.exec(block)?.[1]?.trim();
-  return { version, block, minAgentAction: action === undefined || action === 'null' || action === '' ? null : action };
+  return feed.split(/^ {2}- version: /m).slice(1).map((block) => {
+    const version = block.split('\n', 1)[0].trim().replace(/^"(.*)"$/, '$1');
+    const action = /^ {4}minAgentAction: *(.*)$/m.exec(block)?.[1]?.trim();
+    return { version, block, minAgentAction: action === undefined || action === 'null' || action === '' ? null : action };
+  });
+}
+
+// The feed entry of the release that first shipped the managed block the
+// installed package carries. Reading (AC-19004-4, 2026-10-24): "the
+// release notes" are those of the release that changed the block, not of
+// every later release, since a patch that leaves the block unchanged
+// rightly carries a null minAgentAction (feed header rule 5). The repo
+// records only the current block hash, not one per release, so the walk
+// reads the feed: start at the installed version's entry and, while an
+// entry's notes say the managed block is unchanged since <version>, move
+// to that version's entry. The first entry that does not say so shipped
+// the current block. The walk reads only the newer entries' pointers,
+// never the minAgentAction, rcf doctor or managed-block wording the test
+// asserts of the entry it lands on, so a fault there cannot move it.
+function blockReleaseEntry() {
+  const { version } = JSON.parse(readFileSync(join(PACKAGE_ROOT, 'package.json'), 'utf8'));
+  const entries = feedEntries();
+  let at = entries.findIndex((e) => e.version === version);
+  assert.ok(at !== -1, `releases/releases.yaml carries an entry for the installed version ${version}`);
+  const walk = [version];
+  for (;;) {
+    const since = BLOCK_UNCHANGED_SINCE.exec(entries[at].block)?.[1];
+    if (!since) return { ...entries[at], installed: version, walk };
+    const next = entries.findIndex((e) => e.version === since);
+    assert.ok(next > at, `release ${entries[at].version} says the managed block is unchanged since ${since}, an older release the feed carries`);
+    at = next;
+    walk.push(since);
+  }
 }
 
 function attestAsVerbOrStage(text) {
@@ -328,10 +361,11 @@ test('AC-19004-4: rcf guidance managed/agent-instructions-block states verified 
   });
 
   await t.test('the release notes for the installed version carry a non-null minAgentAction and tell agents to refresh the block with rcf doctor', () => {
-    const entry = releaseEntry();
-    assert.notEqual(entry.minAgentAction, null, `release ${entry.version} carries a non-null minAgentAction`);
-    assert.match(entry.block, /rcf doctor/, `release ${entry.version}'s notes tell agents to refresh the block with rcf doctor`);
-    assert.match(entry.block, /managed agent-instructions block|managed block/i, `release ${entry.version}'s notes name the managed block`);
+    const entry = blockReleaseEntry();
+    const which = `release ${entry.version} (shipped the managed block ${entry.installed} carries; feed walk ${entry.walk.join(' to ')})`;
+    assert.notEqual(entry.minAgentAction, null, `${which} carries a non-null minAgentAction`);
+    assert.match(entry.block, /rcf doctor/, `${which}: its notes tell agents to refresh the block with rcf doctor`);
+    assert.match(entry.block, /managed agent-instructions block|managed block/i, `${which}: its notes name the managed block`);
   });
 
   await t.test('rcf doctor reports the pre-change block as drifted', async (st) => {
