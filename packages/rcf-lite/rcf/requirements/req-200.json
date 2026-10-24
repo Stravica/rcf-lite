@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-10-24T11:33:42.972Z",
+  "updatedAt": "2026-10-24T11:33:43.062Z",
+  "description": "On the PR branch before the merge, rcf build finalise <fbs-id> --ci-run <ref> checks the last round's REVIEW verdict (MERGE with test adequacy PASS at the reviewed head H), that only REVIEW:, TEST: and FINALISE: commits follow H, the TEST PASS and the test-strength record at H for every touched criterion, that the touched criteria cover every criterion changed since the base, Code Nodes for every touched criterion, and the separation audit, then writes complete. It spawns nothing but git, never reads rcf/verify-reports/, never writes verified, and refuses each failed check with one line and its exit code. rcf build mark refuses complete. The retired report flags exit 2.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Redesign change 1 and the Finalise check list (:24, :34-42, :84), the rounds rule (:166), Q-05 b; D-01, D-02 and D-14 (audit section 5) and F-01, F-05, F-12, F-13, F-33. Today Finalise ingests a Test-stage report (src/finalise/ingest.js:326-388) to write verified.",
+  "tags": [
+    "capability:build",
+    "capability:finalise"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4156"
+  },
+  "reqId": "REQ-200",
+  "prdId": "PRD-001",
+  "title": "rcf build finalise writes complete from the last round's recorded checks and never reads a verify report",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:33:43.061Z"
+  }
+}

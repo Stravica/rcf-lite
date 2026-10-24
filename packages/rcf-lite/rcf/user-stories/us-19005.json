@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:03:09.684Z",
-  "updatedAt": "2026-10-22T16:24:21.138Z",
+  "updatedAt": "2026-10-24T11:33:53.238Z",
   "description": "User story under REQ-190 for the pre-merge Finalise ruling (operator ruling 2026-10-21): rcf build finalise runs on the PR branch at the PR head before the merge and writes verified there, the merge carries it, and a later run on the default branch confirms it without a write. A loopback target is accepted when the report names the engine, the port and a served sha equal to its head; rcf verify run records those fields. Provenance (head containment, hand separation, the age bound) and the committed-report rule hold on any branch. Reverses claim C-26 (AC-16502-3, restated).",
   "asA": "the stage-keeper finalising a spec on its PR branch, or a verifier serving the PR head on a local dev server",
   "iWant": "Finalise to promote on the PR branch before the merge and to accept a loopback report that names the engine, the port and the sha it served",
@@ -15,22 +15,34 @@
     {
       "id": "AC-19005-1",
       "description": "[happy] Given a git working tree on a branch other than main or master whose HEAD contains the report head, the FBS at complete with a Code Node on every bound AC, and a committed valid VerifyReport with hand \"verifier\" and verdict PASS with ship authority, when rcf build finalise <fbs-id> --ci-run <ref> runs with no other flag, then it exits 0, executionStatus becomes verified on that branch, stdout carries \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", stderr carries no \"not a default trunk\" refusal, no output names claim C-26, and no child process other than git is spawned.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20001-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: pre-merge Finalise stays, but it writes complete from verdicts, not verified from a report (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-2",
       "description": "[happy] Given a committed VerifyReport whose target is loopback (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0) and names target.engine (non-empty text), target.port (an integer 1 to 65535) and target.servedSha equal to its headSha, with hand \"verifier\" and verdict PASS with ship authority, when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 0, executionStatus becomes verified, stdout carries the verified-from line and no output carries \"is loopback\".",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: Finalise reads no report, loopback or not; TEST runs the suite against a locally running app and records a verdict (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-3",
       "description": "[failure] Given a committed VerifyReport whose target is loopback and lacks target.engine, target.port or target.servedSha, when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \"finalise refused: loopback report target <url> names no target.<field>\" naming the first missing field in the order engine, port, servedSha, and rcf/fbs/<fbs-id>.json is byte-identical to its state before the run.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: loopback report fields are no longer Finalise inputs (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-4",
       "description": "[failure] Given a committed loopback VerifyReport naming target.engine and target.port whose target.servedSha is not equal to its headSha, when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \"finalise refused: report target.servedSha <served sha7> is not the report head <head sha7>\" and rcf/fbs/<fbs-id>.json is byte-identical to its state before the run.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the served-sha check on a report is no longer a Finalise input (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-5",
@@ -40,22 +52,34 @@
     {
       "id": "AC-19005-6",
       "description": "[failure] Given the report Finalise selects (the newest under rcf/verify-reports/<fbs-id>/, or --report) present on disk but not committed in HEAD, when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \"finalise refused: verify report <path> is not committed at HEAD\"; given it is committed but its bytes on disk differ from its bytes at HEAD, it exits 4 with stderr \"finalise refused: verify report <path> differs from its committed bytes at HEAD\"; given --report names a path that does not resolve to a file under the project root, it exits 4 with stderr \"finalise refused: verify report <path> is outside the project root\" before the file is read; given the report path, or any component of it below the repo root, is a symbolic link (checked with lstat, never followed), it exits 4 with stderr \"finalise refused: verify report <path> is read through a symlink at <link>\", <link> the repo-relative path of the first such component, so the committed-and-clean check and the read run on the real file only; <path> is the repo-relative report path, and rcf/fbs/<fbs-id>.json is byte-identical to its state before the run in every case.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: Finalise selects no report, committed or not (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-7",
       "description": "[must-not] On a branch other than main or master, Finalise never relaxes provenance: a report whose verifierId equals the Hand-Id trailer of a Hand: builder commit on the branch exits 4 with \"finalise refused: report hand verifier/<id> is not separate from the builder\", a report that finished longer ago than --max-report-age (default 7 days) exits 4 with \"finalise refused: report is <n> days old\", and a report whose head is not contained in HEAD exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\"; each refusal leaves rcf/fbs/<fbs-id>.json byte-identical to its state before the run and spawns no child process other than git.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20002-4",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: report provenance on a branch is replaced by the separation audit inside Finalise (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-8",
       "description": "[happy] Given an FBS written verified by rcf build finalise on a branch, that write committed, and the branch merged into main with a merge commit (git merge --no-ff), when rcf build finalise <fbs-id> --ci-run <ref> runs again on main, then it exits 0, stdout carries \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\" naming the same report, rcf/fbs/<fbs-id>.json is byte-identical before and after the run (no write), git status --porcelain stays empty and no child process other than git is spawned. A confirm after a squash merge is not promised.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20001-5",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the read-only confirm after a merge becomes the unchanged re-run at the same reviewed head (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-9",
       "description": "[must-not] Given --allow-pre-merge, when rcf build finalise <fbs-id> --ci-run <ref> --allow-pre-merge runs, then it exits with the same code, writes the same executionStatus and prints the same refusal as the same run without the flag, stderr carries exactly one line \"[warn] finalise: --allow-pre-merge is deprecated and changes nothing; Finalise runs on the PR branch before the merge\", and no output names claim C-26 or \"records the pre-merge decision\".",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: --allow-pre-merge is now a retired flag that exits 2 with the other report flags (ADR ADR-4157)."
     },
     {
       "id": "AC-19005-10",

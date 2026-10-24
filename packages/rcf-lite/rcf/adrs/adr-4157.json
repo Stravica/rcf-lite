@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:33:42.710Z",
+  "updatedAt": "2026-10-24T11:33:42.710Z",
+  "status": "proposed",
+  "context": "ADR-4148 made Finalise administrative and moved verification into the Test stage, and ADR-4151 moved Finalise before the merge with loopback reports accepted; both still had Finalise write verified from a Test-stage verify report, which the verify engine could not produce for a logged-in app (redesign :12-14). The redesign (:24, :34-42, :84) ends the cycle at complete: Finalise checks the Review MERGE and test-adequacy verdict, the TEST pass, CI green on the head, the separation audit, Code Nodes for every touched criterion (slice scope, the operator) and test strength for every touched criterion, then writes complete. The rounds rule: Finalise judges the last round only.",
+  "decision": "rcf build finalise <fbs-id> --ci-run <ref> runs on the PR branch before the merge from the stage-keeper's session and spawns nothing but git. It finds the last round from the newest ReviewVerdict naming the spec, checks the list in TAC TAC-4156 in a fixed order, and writes complete. CI evidence stays as today: the stage-keeper names the run that passed on the head and Finalise records it without fetching (no network); with a merge from main after H, that run on the final head is the suite evidence and Finalise says so. Touched criteria come from the REVIEW verdict and must include every criterion whose description, given, when, then or test bindings changed between the merge-base and H. An amend round on a verified spec writes complete when any touched criterion is external (it needs the next release Verify) and leaves verified when all are testOnly. complete has one writer: rcf build mark refuses it. Separation exceptions (D-14) do not exist any more (Hand: mixed retired), so Finalise lists none. Superseded: ADR-4148 (verification inside the Test stage feeding Finalise) and ADR-4151 (a loopback report accepted by Finalise); kept from them: administrative, pre-merge on the PR branch, git-only.",
+  "consequences": "A spec is done for the build cycle at complete; verified belongs to the release Verify. Every Finalise failure names one check and its exit code. Tests and runbooks that call rcf build mark complete before Finalise change. The released 0.36.x Finalise still finalises 0.37.0's own specs (ADR self-hosting).",
+  "alternativesConsidered": [
+    {
+      "name": "Finalise fetches the CI run itself",
+      "summary": "Query the CI provider for the head's conclusion.",
+      "reasonNotChosen": "Needs the network and a provider login inside a git-only administrative step; the named run is recorded as today and the stage-keeper preflights it."
+    },
+    {
+      "name": "Finalise runs the suite or test strength",
+      "summary": "Do the checks rather than read their records.",
+      "reasonNotChosen": "Finalise is light and tool-checked (the operator); the verifier records both at TEST against the reviewed head."
+    },
+    {
+      "name": "Keep rcf build mark complete",
+      "summary": "Let the stage-keeper mark complete before Finalise as in 0.36.x.",
+      "reasonNotChosen": "A second writer of complete bypasses every Finalise check."
+    }
+  ],
+  "adrId": "ADR-4157",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Finalise writes complete from recorded checks of the last round, never reads a verify report, and is the only writer of complete"
+}

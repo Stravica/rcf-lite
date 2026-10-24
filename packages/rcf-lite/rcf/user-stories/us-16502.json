@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T22:38:04Z",
-  "updatedAt": "2026-10-22T11:05:09.276Z",
+  "updatedAt": "2026-10-24T11:33:53.493Z",
   "asA": "beta reader trusting the referee-guarantees page's verified-invariant promise",
   "iWant": "`rcf define update` to refuse writing FBS.executionStatus=verified by default, and `rcf build finalise` to refuse promotion when the git working tree is not on a default trunk",
   "soThat": "a chain that says verified traces to an actual post-merge runtime check by construction, and a mid-branch dev-loop finalise cannot stamp verified without the operator's deliberate opt-out",
@@ -36,7 +36,10 @@
       "when": "`rcf build finalise <fbsId> --ci-run <ref>` is invoked, and on a second identical project with --allow-pre-merge appended",
       "then": "both runs exit 0 with executionStatus verified; neither stderr matches /git working tree is on branch/ and neither stdout matches /Referee-guarantees claim C-26 records the pre-merge decision here/",
       "testable": true,
-      "scope": "runtime"
+      "scope": "runtime",
+      "supersededBy": "AC-20001-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: Finalise still runs on any branch before the merge, but it promotes to complete from verdicts, not to verified from a report (ADR ADR-4157)."
     }
   ],
   "tacIds": [

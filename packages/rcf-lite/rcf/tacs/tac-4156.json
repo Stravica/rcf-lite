@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:33:42.445Z",
+  "updatedAt": "2026-10-24T11:33:42.445Z",
+  "purpose": "Ends the build cycle at complete: on the PR branch before the merge, from the stage-keeper's session, Finalise checks the last round's recorded verdicts, the CI run named for the head, the separation audit, Code Nodes and test strength for every touched criterion, then writes complete. It runs nothing but git and never reads a verify report.",
+  "responsibilities": [
+    "find the last round: the newest ReviewVerdict reachable from HEAD whose fbsIds include the spec; its head is H",
+    "check, in a fixed order, REVIEW passed at H, only REVIEW:, TEST: and FINALISE: commits after H, TEST PASS at H, test strength at H for every touched criterion, touched criteria cover every criterion changed since the base, Code Nodes for every touched criterion, the separation audit over the range, and --ci-run present",
+    "write executionStatus complete (or keep verified when every touched criterion is testOnly) and print one line",
+    "refuse rcf build mark <fbs-id> complete: complete is written only by Finalise"
+  ],
+  "interfaces": [
+    {
+      "name": "rcf build finalise",
+      "kind": "cliCommand",
+      "description": "usage: rcf build finalise <fbs-id> --ci-run <ref>\nChecks in this order and exits on the first refusal: retired flags (--report, --max-report-age, --mode, --url, --allow-pre-merge: exit 2 \"finalise no longer reads a verify report; Finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts (rcf guidance build-cycle)\"); tree validation (exit 3); --ci-run absent (exit 4 \"ci evidence missing: pass --ci-run <ref>\"); no ReviewVerdict for the spec reachable from HEAD (exit 4 \"finalise refused: no REVIEW verdict for <fbs-id> on the branch\"); REVIEW failed at H (exit 4 \"finalise refused: REVIEW at <H7> is <code>/<adequacy>; a failed verdict closes the round\"); a DEFINE:, BUILD: or unprefixed commit after H (exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\"); TEST verdict missing or FAIL (exit 4 \"finalise refused: no TEST verdict at <H7>\" / \"finalise refused: TEST at <H7> is FAIL\"); test strength missing, failing or partial (exit 4 \"finalise refused: no test-strength record at <H7>\" / \"finalise refused: test-strength at <H7> fails for <ids>\" / \"finalise refused: test-strength at <H7> omits <ids>\"); touched criteria short (exit 4 \"finalise refused: touched criteria omit <ids> changed since <base7>\"); a touched criterion with no Code Node (exit 3 \"finalise refused: missing Code Node for <ids>\"); separation (exit 4 \"finalise refused: separation FAIL: <the audit items>\"). Success: writes executionStatus complete and prints \"finalise: <fbs-id> complete at <head7> (reviewed <H7>, ci <ref>, touched <n> criteria)\", exit 0; with a merge from main after H also \"[info] finalise: merge from main after the reviewed head; ci <ref> on <head7> is the suite evidence\"; already complete for the same H: \"finalise: <fbs-id> complete (unchanged)\", no write; spec verified and every touched criterion testOnly: \"finalise: <fbs-id> verified (unchanged: touched criteria are testOnly)\", no write."
+    },
+    {
+      "name": "rcf build mark (complete refused)",
+      "kind": "cliCommand",
+      "description": "usage: rcf build mark <fbs-id> notStarted|inProgress\nrcf build mark <fbs-id> complete exits 4 with \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\"; verified stays refused (exit 4) as today."
+    }
+  ],
+  "notes": "Replaces the report ingestion of TAC-4148 (src/finalise/index.js:1-7 header, src/finalise/ingest.js loadVerifyReport :326-388, headContained :427-437, builderHandIds :447-465, checkReportProvenance :483-513). Keeps the administrative shape of ADR-4148 and ADR-4151: pre-merge on the PR branch, from the stage-keeper's session, spawning nothing but git.",
+  "tacId": "TAC-4156",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Light Finalise: rcf build finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts of the last round"
+}
