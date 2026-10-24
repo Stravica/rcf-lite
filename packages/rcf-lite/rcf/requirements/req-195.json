@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-10-24T11:21:39.910Z",
+  "updatedAt": "2026-10-24T11:21:39.998Z",
+  "description": "The acceptance criterion in rcf-schemas gains an optional verification property, enum external | testOnly, in a minor release (0.10.0) with additionalProperties still false, and rcf-lite moves its pin to that release. rcf define create ac carries verification from --from-file, rcf define update <AC id> --set verification=<value> writes it, a value outside the enum exits 3, and rcf define validate over this repository's own chain still exits 0 after the pin moves. The requirement rule (validate requires the flag on new and amended criteria) and coverage end states are the flag slice, not this one.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Redesign change 2 and status model (redesign :71, :85): the flag must be a field so validate, Review and coverage can read it. At rcf-schemas 906b6682 the criterion object is closed with no verification property (read at 0.9.0 in node_modules), so the field needs a schema release first; the REQ-194 precedent is the consumer side of an rcf-schemas release riding one record's Build.",
+  "tags": [
+    "capability:requirements-authoring",
+    "capability:schemas"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4152"
+  },
+  "reqId": "REQ-195",
+  "prdId": "PRD-001",
+  "title": "rcf-schemas carries the AC verification flag (external or testOnly) and rcf-lite consumes it",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:21:39.997Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "rationale",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "rationale",
+        "shape": "persistence",
+        "match": "schema"
+      },
+      {
+        "source": "rationale",
+        "shape": "persistence",
+        "match": "schema"
+      }
+    ]
+  }
+}

@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-10-24T11:21:39.409Z",
+  "updatedAt": "2026-10-24T11:21:39.409Z",
+  "purpose": "Carries the per-criterion verification flag (external or testOnly) from rcf-schemas through the rcf-lite writer, rcf define validate and rcf audit coverage, so each criterion and each spec shows the end state it must reach and where it is now.",
+  "responsibilities": [
+    "rcf-schemas user-story.schema.json $defs.acceptanceCriterion.properties.verification: enum external | testOnly, optional at schema level, additionalProperties stays false",
+    "the rcf-lite writer carries verification on define create ac (from --from-file, like scope) and define update <AC id> --set verification=<value>",
+    "rcf define validate requires the flag on criteria new or amended since a base ref and reports every live criterion without it",
+    "rcf audit coverage adds verification, expectedEnd and now per criterion and expectedEnd and now per spec"
+  ],
+  "interfaces": [
+    {
+      "name": "AcceptanceCriterion.verification",
+      "kind": "recordShape",
+      "description": "fields: verification (string enum external | testOnly; optional at schema level; required by rcf define validate on criteria new or amended since the base). external: observable through the release Verify target (for rcf-lite the packed artefact installed cold); ends at verified. testOnly: observable only by the RCF suite; ends at complete. Absent on a live criterion: reported as unflagged."
+    },
+    {
+      "name": "rcf define validate (verification rule)",
+      "kind": "cliCommand",
+      "description": "usage: rcf define validate [--base <ref>] [--report verification] [--json]\nExit 0 clean; 3 when a criterion new or amended since the base lacks verification (one \"[error] verification AC-x is new|amended since <base7> and carries no verification flag (external | testOnly)\" line each). Base: --base <ref>, else the merge-base with origin/main; no base resolvable and no --base: one \"[warn] verification: no base ref; new and amended criteria not checked\" line and the rule is report-only. --base naming a missing ref: exit 2 \"[error] usage --base <ref> does not resolve\". --report verification: prints one line per live unflagged criterion \"<AC id>\\t<US id>\\t<FBS id or ->\\t<first 80 characters of the description>\" then \"verification: <k> of <n> live criteria unflagged\" and exits 0 whatever k is."
+    },
+    {
+      "name": "CoverageRow end-state columns",
+      "kind": "recordShape",
+      "description": "fields: per criterion verification (external | testOnly | unflagged), expectedEnd (verified | complete | unknown when unflagged), now (notStarted | inProgress | complete | verified | retired); per spec expectedEnd (verified when any live criterion is external, else complete; unknown when any live criterion is unflagged and none is external) and now (the FBS executionStatus). A criterion now never exceeds its expectedEnd: a testOnly criterion on a verified spec reads complete. Table columns flag, end, now; JSON keys verification, expectedEnd, now; Mermaid unchanged."
+    },
+    {
+      "name": "Interim flag tag (WORKAROUND)",
+      "kind": "fileFormat",
+      "description": "format: a user story tags[] entry \"verification:<AC id>=<external|testOnly>\", one per criterion on its own story, written by the 0.37.0 DEFINE through rcf define create us and rcf define update. WORKAROUND: rcf-schemas 0.9.0 has no verification field. Root-cause item: the rcf-schemas slice (FBS of REQ-195). Review-by: the 0.37.0 release. Moved onto the field and deleted by the flag slice's DEFINE round."
+    }
+  ],
+  "notes": "Read at rcf-lite 639f07bb and rcf-schemas 906b6682 (0.9.0): $defs.acceptanceCriterion is additionalProperties false with no verification property, so no criterion can carry the flag as a field until the pin moves.",
+  "tacId": "TAC-4152",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "AC verification flag and end state: the schema field, its writers, validate and coverage"
+}

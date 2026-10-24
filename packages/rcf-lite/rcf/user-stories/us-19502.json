@@ -1,0 +1,33 @@
+{
+  "createdAt": "2026-10-24T11:21:42.592Z",
+  "updatedAt": "2026-10-24T11:21:43.424Z",
+  "asA": "builder on the schema slice, with the stage-keeper who releases it",
+  "iWant": "the rcf-schemas change released before the rcf-lite pin moves, and the rcf-lite round to carry Code Nodes only on rcf-lite consumer seams",
+  "soThat": "the slice is one Build in rcf-lite whose Finalise can run, even though rcf-schemas has no chain",
+  "description": "Cross-repository mechanics for the schema slice.",
+  "tacIds": [
+    "TAC-4152"
+  ],
+  "usId": "US-19502",
+  "prdId": "PRD-001",
+  "reqId": "REQ-195",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A builder and the stage-keeper ship the schema change across rcf-schemas and rcf-lite",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19502-1",
+      "description": "[failure] Given packages/rcf-lite/package.json pinning an rcf-schemas version that is not published on the npm registry, when pnpm install --frozen-lockfile runs in this repository, then it exits non-zero; the slice's pull request therefore moves the pin only to a published rcf-schemas release, and pnpm-lock.yaml at the slice head resolves \"@stravica-ai/rcf-schemas\" to that same version.",
+      "testable": true
+    },
+    {
+      "id": "AC-19502-2",
+      "description": "[must-not] No Code Node recorded for a criterion of this story names a path outside this repository: every rcf/code-nodes/ record whose implementsAcIds names a criterion of REQ-195 has a path that resolves under packages/rcf-lite/ (the writer and schema-loading seams), and none names node_modules/ or a path in the rcf-schemas repository.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19502-1=testOnly",
+    "verification:AC-19502-2=testOnly"
+  ]
+}
