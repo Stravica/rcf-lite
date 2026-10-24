@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:03:09.684Z",
-  "updatedAt": "2026-10-24T11:33:53.238Z",
+  "updatedAt": "2026-10-24T11:41:48.611Z",
   "description": "User story under REQ-190 for the pre-merge Finalise ruling (operator ruling 2026-10-21): rcf build finalise runs on the PR branch at the PR head before the merge and writes verified there, the merge carries it, and a later run on the default branch confirms it without a write. A loopback target is accepted when the report names the engine, the port and a served sha equal to its head; rcf verify run records those fields. Provenance (head containment, hand separation, the age bound) and the committed-report rule hold on any branch. Reverses claim C-26 (AC-16502-3, restated).",
   "asA": "the stage-keeper finalising a spec on its PR branch, or a verifier serving the PR head on a local dev server",
   "iWant": "Finalise to promote on the PR branch before the merge and to accept a loopback report that names the engine, the port and the sha it served",
@@ -84,7 +84,10 @@
     {
       "id": "AC-19005-10",
       "description": "[happy] When rcf build finalise --help, rcf build --help, rcf guidance build-cycle, rcf guidance build-cycle-playbook (sections 6 and 7 together), the managed block rcf init writes into CLAUDE.md and the rcf build bundle --next --format md runbook (its Stage 5 section) are read, then each contains \"on the PR branch before the merge\", the word \"loopback\", and \"served sha\" or \"servedSha\"; and none of rcf build finalise --help, rcf build --help, rcf guidance build-cycle, the whole rcf guidance build-cycle-playbook, the managed block or the whole bundle runbook contains \"the CI run that passed on the merged head\", a mark-complete step after the merge (\"mark\" then \"complete\" then \"after merge\" or \"after the merge\" within one sentence), \"After the merge\" followed by an rcf build mark or rcf build finalise command, or \"marking complete before the merge\" or \"marking complete pre-merge\".",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20401-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: guidance no longer speaks of loopback reports or served shas for Finalise; FINALISE is before the merge and writes complete (ADR ADR-4161, ADR ADR-4157)."
     }
   ],
   "tacIds": [

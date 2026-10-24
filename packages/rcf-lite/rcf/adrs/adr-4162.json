@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:41:42.442Z",
+  "updatedAt": "2026-10-24T11:41:42.442Z",
+  "status": "proposed",
+  "context": "The DEFINE default: 0.37.0's own specs are finalised by the released 0.36.1 Finalise with --ci-run, as FBS-231 was, and the new model applies from the first spec after 0.37.0 ships. Three facts read at 639f07bb bear on it: the 0.36.1 Finalise exits 3 on any tree that fails validation (src/cli/finalise.js:228-236), and with rcf-schemas 0.9.0 a criterion carrying verification fails validation; the 0.36.1 Finalise reads Hand: and Hand-Id: trailers for report provenance (src/finalise/ingest.js:447-465); CI's separation job runs the PR head's own audit, so once the stage-prefix slice lands on main the new audit judges every later 0.37.0 pull request.",
+  "decision": "The schema slice is finalised by the released 0.36.1 Finalise in the 0.36.1 flow (a Test-stage report from the head's rcf verify run --package . --fbs <id> --hand verifier, then the released bin's rcf build mark complete and rcf build finalise --ci-run). The stage-keeper then cuts 0.36.2 carrying only the pin move, so every later 0.37.0 spec is finalised by the released 0.36.2 Finalise in the same flow, which accepts the field once the flag slice moves the 0.37.0 criteria onto it. The flag slice is the slice whose own change breaks the 0.36.1 Finalise; without 0.36.2 every spec after it would be refused. From the stage-prefix slice on, every 0.37.0 commit carries its stage prefix and an agreeing Hand: trailer (the 0.36.x Finalise still reads Hand: builder and Hand-Id:); the 0.36.x flow maps onto the new classes: the verifier's report commit is TEST:, the marks are FINALISE:, and the post-mark regeneration of the queue goldens and the phase 3 to 6 view baseline is FINALISE: with Generated-By:, declared in this repository's rcf/separation.json in the stage-prefix slice's round. From the rounds slice on, REVIEW verdicts are recorded as REVIEW: commits so a fix round passes the round order. The audit reads the trailer (agreement only) through 0.37.x and ignores it from 0.38.0. The new Finalise (complete) and release Verify (verified) apply from the first spec after 0.37.0 ships; 0.37.0's own specs end at verified in the 0.36.x shape.",
+  "consequences": "One extra patch release (0.36.2) before the flag slice merges. The Test-stage report mode of rcf verify run (--hand verifier) must keep working through the train, which the Verify slice keeps unchanged. WA-08 (explicit-id bundling) covers the 0.37.0 Builds, and after the backstop slice lands each such bundle also needs a green base-suite record.",
+  "alternativesConsidered": [
+    {
+      "name": "Keep the flags as tags until after the release",
+      "summary": "Move them onto the field in the first round after 0.37.0.",
+      "reasonNotChosen": "The flag slice's validate rule would then refuse every later 0.37.0 pull request that adds or amends a criterion without the field, and the WORKAROUND would outlive its review-by."
+    },
+    {
+      "name": "Finalise later 0.37.0 specs with the head's own Finalise",
+      "summary": "Use the new Finalise as it lands.",
+      "reasonNotChosen": "A spec would be finalised by the code it ships, and the new Finalise needs verdict records and test strength that earlier slices of the same train had not shipped yet."
+    },
+    {
+      "name": "Order the flag slice last",
+      "summary": "Delay the field until every other slice is finalised.",
+      "reasonNotChosen": "Verify, Finalise and coverage depend on the field to tell external from testOnly."
+    }
+  ],
+  "adrId": "ADR-4162",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Self-hosting 0.37.0: its own specs are finalised by the released 0.36.x Finalise, the pin move ships first as 0.36.2, and the separation audit accepts an agreeing trailer through 0.37.x"
+}
