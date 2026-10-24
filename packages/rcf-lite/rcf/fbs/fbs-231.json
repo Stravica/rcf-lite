@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:48:45.619Z",
-  "updatedAt": "2026-10-23T14:38:13.464Z",
+  "updatedAt": "2026-10-24T02:18:22.615Z",
   "summary": "Three findings from a downstream report, confirmed against rcf-lite 0.36.0 main: the feedback Stop hook asks inside the headless agent session rcf verify run spawns, so a queued entry becomes the session's final output and the run ends LAUNCH-FAILURE (AC-16102-3); rcf verify run --out <dir>/ runs the whole verify and then fails with EISDIR, exit 1 (AC-19001-7); a feedback entry recorded in a linked git worktree is lost when the worktree is removed (AC-16103-4). Round 2 (the first review gate and a second downstream report): a queue a linked worktree already holds stays in the worktree and is lost when the worktree is removed; the entry written into the main checkout skips that checkout's gitignore check, so it can be committed (AC-16103-4, amended); rcf define create ac drops the criterion's scope field from --from-file (AC-17302-14).",
   "approach": "Spawn every headless agent session with RCF_FEEDBACK_ASK=0; refuse a directory --out on rcf verify run as a usage error (exit 2) before the run and say file path in --help; keep the feedback queue recoverable from the main checkout after a worktree is removed, storage location the builder's choice with AC-15501-1 unchanged. Round 2: the next rcf feedback command run in a worktree moves the worktree's held queue into the main checkout's store; the gitignore pre-write check runs against the checkout that holds the store and refuses (exit 2) as AC-15501-2 refuses when the main checkout does not cover .rcf/feedback/; a main checkout without the rcf project never receives a committable entry; rcf define create ac carries scope from the --from-file body.",
   "deliverables": [
@@ -25,7 +25,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 233,
-  "executionStatus": "notStarted",
+  "executionStatus": "verified",
   "title": "Headless agent sessions run with the feedback ask off, verify run --out refuses a directory, and the feedback queue survives a removed worktree",
   "dependsOnFbsIds": []
 }
