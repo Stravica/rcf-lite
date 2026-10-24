@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:35:46.360Z",
+  "updatedAt": "2026-10-24T11:35:46.360Z",
+  "status": "proposed",
+  "context": "The redesign moves Verify out of the build cycle (:44-49, change 4): after the deploy to preview and before the promote, the same E2E journey tests TEST runs, pointed at the target, covering every external criterion in the release scope (the specs changed since the last release, plus a core-journey smoke run, 09:20Z answer 3); --record (release mode) writes verified; by default nothing is recorded; ad hoc runs never touch statuses; catalog and agent modes stay optional probes and are never a precondition; live integrations are out of scope (open question 4). Q-07 a: for a CLI or library the target is the packed artefact installed cold.",
+  "decision": "Release mode is rcf verify run --release <label> --since <ref> with exactly one target and --record. Scope: the specs whose FBS record, criteria or bindings changed in <since>..HEAD; inside them only live external criteria, tested only by cases of e2e-level suites; plus every smoke suite rcf/release-verify.json declares. A spec in scope with no external criterion stays at complete (its end) and is listed testOnlyOnly; an external criterion with no bound e2e case is blocked; a spec not yet complete in scope is blocked. verified is written only on a spec whose live external criteria all passed and only when the smoke run passed. Cold means: a fresh scratch project under the OS temp directory, an empty npm cache directory inside it, HOME and the npm user config pointed into it, and an environment reduced to PATH plus the target variables, so the install resolves dependencies exactly as a new consumer would; --offline is refused in release mode because an empty cache cannot install offline. Without --record the run prints and, with --out, writes a report file, but never a status and never under rcf/verify-reports/releases/. The record is committed by a FINALISE: commit (releaseEvidence and chainStatus classes); Verify is run by the operating engineer, the stage-keeper's role. The ad hoc --fbs --hand verifier report mode stays as it is for the 0.37.0 train.",
+  "consequences": "A spec reaches verified only through a release Verify, never in a build round. For rcf-lite the release Verify runs the packed release head installed cold before the publish. A downstream web app runs it against its preview URL before the promote; preview points at sandbox. The --hand flag on the ad hoc report mode is kept (the rename item is replaced by the stage prefix); whether to retire that mode after 0.37.0 is an open question.",
+  "alternativesConsidered": [
+    {
+      "name": "Keep verified inside Finalise",
+      "summary": "Finalise ingests a Verify report as in 0.36.x.",
+      "reasonNotChosen": "The redesign's first cause: the engine could check 3 of 152 criteria of a logged-in app, and verification re-proved what TEST proved."
+    },
+    {
+      "name": "Install with the developer's cache and environment",
+      "summary": "Today's package target install.",
+      "reasonNotChosen": "A warm cache, a user npmrc or a leaked variable can make an install pass that fails for a new consumer; the operator chose cold."
+    },
+    {
+      "name": "Run every bound test of the release scope",
+      "summary": "Include unit and integration levels.",
+      "reasonNotChosen": "Verify points the E2E journeys at the target; lower levels were proved at TEST and do not observe the target."
+    }
+  ],
+  "adrId": "ADR-4158",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Verify is the production gate outside the cycle: release mode over external criteria's bound E2E tests, the packed artefact installed cold for a CLI or library, ad hoc runs never touch statuses"
+}

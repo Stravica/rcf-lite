@@ -1,0 +1,40 @@
+{
+  "createdAt": "2026-10-24T11:35:52.032Z",
+  "updatedAt": "2026-10-24T11:35:52.032Z",
+  "summary": "rcf verify run gains release mode (--release, --since, one target, --record): scope from <since>..HEAD plus declared smoke suites, e2e-level cases of live external criteria only, cold install for package targets, ReleaseVerifyReport v1 and verified written only with --record when smoke passes. Probe modes stay ad hoc and are refused in release mode.",
+  "approach": "A release scope resolver over git and the chain; reuse the suite-as-probe runner with an e2e filter and a cold installer (fresh cache, HOME and npm user config in scratch, reduced env); the release report writer and the status write behind --record; verify run help and docs/verify-reference.md follow (the docs line is the guidance slice's).",
+  "deliverables": [
+    "src/verify/ (scope resolver, cold installer, release report) and src/verify/cli/run.js",
+    "Code Nodes for every criterion of this REQ; CHANGELOG lines",
+    "rcf/release-verify.json for this repository naming its core-journey smoke suites (test-author, in this round's DEFINE)"
+  ],
+  "notes": "DEFINE part A, 2026-10-24 (test-author). Needs the field-level flags (flag slice) to tell external from testOnly. Live integrations are out of scope (09:20Z, open question 4). Flags: US tags (WORKAROUND, ADR ADR-4152).",
+  "dependsOnFbsIds": [
+    "FBS-235",
+    "FBS-237"
+  ],
+  "riskLevel": "high",
+  "estimatedSize": "large",
+  "domain": "functional",
+  "acIds": [
+    "AC-20101-1",
+    "AC-20101-2",
+    "AC-20101-3",
+    "AC-20101-4",
+    "AC-20101-5",
+    "AC-20101-6",
+    "AC-20102-1",
+    "AC-20102-2",
+    "AC-20102-3",
+    "AC-20102-4",
+    "AC-20103-1",
+    "AC-20103-2",
+    "AC-20103-3"
+  ],
+  "fbsId": "FBS-238",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 240,
+  "executionStatus": "notStarted",
+  "title": "Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold"
+}
