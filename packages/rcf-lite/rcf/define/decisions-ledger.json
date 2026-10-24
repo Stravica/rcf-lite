@@ -2301,6 +2301,257 @@
       "answer": "a. The operator, 2026-10-24 about 14:20Z: \"(a). A branch carrying an order or class breach is closed. A fresh branch from main starts at DEFINE and cherry-picks only the legal commits, and the old PR stays as the record. This is 0.38.0 scope; the later item's title stands.\"",
       "answeredAt": "2026-10-24T14:58:25.132Z",
       "resolvedAt": "2026-10-24T14:58:25.132Z"
+    },
+    {
+      "id": 107,
+      "question": "(rcf-lite 0.37.0 DEFINE) The dogfood view index (test/view/id-lookup.test.js) is past the 450 KB envelope (470338 bytes at cb44169b): move the envelope, or shrink what the index holds? Source: stage-keeper ruling 1, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "part B moves the envelope to 500 KB as a count pin, as ledger decision 55 moved it from 400 KB"
+        },
+        {
+          "letter": "b",
+          "text": "slim the index rows: a code change with its own criterion and ADR, added to a 0.37.0 slice"
+        },
+        {
+          "letter": "c",
+          "text": "both: move the envelope now and add the slimming as a later criterion"
+        }
+      ],
+      "default": "c",
+      "blocks": "the 0.37.0 DEFINE part B (WA-16)",
+      "addedAt": "2026-10-24T15:58:06.770Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-24, overriding the worker's pick (a): \"(c), recorded as a WORKAROUND. Part B moves the envelope to 500 KB. The new envelope is registered as WA-16 in the workaround register, with its root-cause item (slim or shard the index, sized on a heavy consumer repo, not on rcf-lite's own chain) and a review-by date. It is not a silent count pin.\" Reason: \"This is the second fixed-byte bump (ledger 55 was the first). A cap that is raised every release is sized to the tests, not to real usage (the operator 2026-10-12, realistic sizing), and the operator's process rule says a workaround is never written as a rule.\"",
+      "answeredAt": "2026-10-24T15:58:06.860Z",
+      "resolvedAt": "2026-10-24T15:58:06.860Z"
+    },
+    {
+      "id": 108,
+      "question": "(rcf-lite 0.37.0 DEFINE) Which stage carries the release cut (version line, CHANGELOG heading, releases.yaml) under the stage prefix? Source: stage-keeper ruling 2, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FINALISE, through the release class and the package.json version line (encoded in ADR-4153)"
+        },
+        {
+          "letter": "b",
+          "text": "FINALISE only through a declared release generator"
+        },
+        {
+          "letter": "c",
+          "text": "release pull requests outside the audit"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-241",
+      "addedAt": "2026-10-24T15:58:06.950Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) FINALISE, through the release class and the version line.\" Reason: \"Matches the operator's Q-02 answer: chores commit under FINALISE within their file class.\"",
+      "answeredAt": "2026-10-24T15:58:07.042Z",
+      "resolvedAt": "2026-10-24T15:58:07.042Z"
+    },
+    {
+      "id": 109,
+      "question": "(rcf-lite 0.37.0 DEFINE) When are rcf-lite's own pre-0.37.0 criteria (about 827) given the verification flag? Source: stage-keeper ruling 4, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a one-off sweep in the first round after 0.37.0 ships, from validate's worklist"
+        },
+        {
+          "letter": "b",
+          "text": "inside FBS-235's DEFINE"
+        },
+        {
+          "letter": "c",
+          "text": "only when a round touches them"
+        }
+      ],
+      "default": "a",
+      "blocks": "none in 0.37.0 (the first round after 0.37.0 ships)",
+      "addedAt": "2026-10-24T15:58:07.132Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) A one-off sweep in the first round after 0.37.0 ships. It is scheduled in the HQ upgrade step, not left to \"when touched\".\" Reason: \"The field does not exist before 0.37.0. The operator's \"flag everything now, no debt\" (a downstream product, Q1 of the redesign) applies as soon as it can.\"",
+      "answeredAt": "2026-10-24T15:58:07.222Z",
+      "resolvedAt": "2026-10-24T15:58:07.222Z"
+    },
+    {
+      "id": 110,
+      "question": "(rcf-lite 0.37.0 DEFINE) How do 0.37.0 specs after FBS-235 get finalised, when a Finalise pinned to rcf-schemas 0.9.0 refuses criteria carrying the verification field? Source: stage-keeper ruling 5, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "cut 0.36.2 with the pin move only, right after FBS-232"
+        },
+        {
+          "letter": "b",
+          "text": "keep the tags until after 0.37.0"
+        },
+        {
+          "letter": "c",
+          "text": "order the flag slice last"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-232, FBS-235",
+      "addedAt": "2026-10-24T15:58:07.312Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Cut 0.36.2 (pin move only) straight after FBS-232.\" Reason: \"One small release keeps every later spec on a working 0.36.x Finalise, and the WORKAROUND ends inside the release.\"",
+      "answeredAt": "2026-10-24T15:58:07.402Z",
+      "resolvedAt": "2026-10-24T15:58:07.402Z"
+    },
+    {
+      "id": 111,
+      "question": "(rcf-lite 0.37.0 DEFINE) Retired criteria leave coverage only once FBS-228 (notStarted) is built: build it before the retiring slices? Source: stage-keeper ruling 6, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, build FBS-228 first under WA-08 (a dependency of FBS-233, FBS-237, FBS-239, FBS-241)"
+        },
+        {
+          "letter": "b",
+          "text": "no, keep retired criteria's old tests green until it lands"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-237, FBS-239, FBS-241",
+      "addedAt": "2026-10-24T15:58:07.493Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Yes, under WA-08.\" Reason: \"Without it, coverage goes red on retired criteria that nobody may rewrite.\"",
+      "answeredAt": "2026-10-24T15:58:07.586Z",
+      "resolvedAt": "2026-10-24T15:58:07.586Z"
+    },
+    {
+      "id": 112,
+      "question": "(rcf-lite 0.37.0 DEFINE) Does the ad hoc report mode, rcf verify run --fbs <id> --hand verifier, survive 0.37.0? Source: stage-keeper ruling 7, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "keep it unchanged through 0.37.x as ad hoc evidence"
+        },
+        {
+          "letter": "b",
+          "text": "retire it in 0.37.0"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-238",
+      "addedAt": "2026-10-24T15:58:07.676Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Keep it through 0.37.x and retire it at 0.38.0, together with the trailer.\" Reason: \"The 0.36.x Finalise that judges 0.37.0's own specs needs it.\"",
+      "answeredAt": "2026-10-24T15:58:07.770Z",
+      "resolvedAt": "2026-10-24T15:58:07.770Z"
+    },
+    {
+      "id": 113,
+      "question": "(rcf-lite 0.37.0 DEFINE) Is a recorded local run the only evidence that the base suite is green? Source: stage-keeper ruling 8, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, rcf build base-suite at the base head (encoded)"
+        },
+        {
+          "letter": "b",
+          "text": "also accept a named CI run on the base"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-239",
+      "addedAt": "2026-10-24T15:58:07.862Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) A recorded local run (rcf build base-suite at the base head).\" Reason: \"A downstream CI may not run the RCF suite.\"",
+      "answeredAt": "2026-10-24T15:58:07.952Z",
+      "resolvedAt": "2026-10-24T15:58:07.952Z"
+    },
+    {
+      "id": 114,
+      "question": "(rcf-lite 0.37.0 DEFINE) When does the separation audit stop checking an agreeing Hand: trailer? Source: stage-keeper ruling 9, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "from 0.38.0"
+        },
+        {
+          "letter": "b",
+          "text": "never; keep the agreement check"
+        },
+        {
+          "letter": "c",
+          "text": "at 0.37.0"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233",
+      "addedAt": "2026-10-24T15:58:08.042Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) From 0.38.0.\" Reason: \"In-flight branches carry the trailer through 0.37.x.\"",
+      "answeredAt": "2026-10-24T15:58:08.132Z",
+      "resolvedAt": "2026-10-24T15:58:08.132Z"
+    },
+    {
+      "id": 115,
+      "question": "(rcf-lite 0.37.0 DEFINE) May BUILD go back to DEFINE without a failed verdict when a spec fault is found mid-BUILD? Source: stage-keeper ruling 10, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no; the reviewer records FINDINGS with locus spec, which closes the round (encoded)"
+        },
+        {
+          "letter": "b",
+          "text": "yes, allow BUILD to DEFINE within a round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-234",
+      "addedAt": "2026-10-24T15:58:08.222Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) The builder stops and returns. The reviewer records FINDINGS with a spec locus, which closes the round.\" Reason: \"The operator's rounds rule: a regression only after a recorded failed verdict.\"",
+      "answeredAt": "2026-10-24T15:58:08.313Z",
+      "resolvedAt": "2026-10-24T15:58:08.313Z"
+    },
+    {
+      "id": 116,
+      "question": "(rcf-lite 0.37.0 DEFINE) May a golden re-produced by a declared generator land in a FINALISE: commit, given that re-recording goldens stays with the test-author? Source: stage-keeper ruling 11, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, only through a declared generator with Generated-By:; the test-author owns the declaration and every hand-recorded golden (encoded in ADR-4153)"
+        },
+        {
+          "letter": "b",
+          "text": "no; every golden change is a DEFINE: commit"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233",
+      "addedAt": "2026-10-24T15:58:08.403Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Only goldens that a declared generator reproduces (Generated-By:). The test-author owns the declarations and every hand-recorded golden.\" Reason: \"Consistent with refinement 1 (FINALISE file classes): a status-only golden is mechanical, and anything else stays with the test-author.\"",
+      "answeredAt": "2026-10-24T15:58:08.493Z",
+      "resolvedAt": "2026-10-24T15:58:08.493Z"
+    },
+    {
+      "id": 117,
+      "question": "(rcf-lite 0.37.0 DEFINE) Who writes rcf/separation.json, rcf/test-strength.json and rcf/release-verify.json for rcf-lite itself, since part A may not create them? Source: stage-keeper ruling 12, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the test-author in each slice's round DEFINE (FBS-233, FBS-236, FBS-238)"
+        },
+        {
+          "letter": "b",
+          "text": "the builder with the code that reads them"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-236, FBS-238",
+      "addedAt": "2026-10-24T15:58:08.583Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) The test-author, in each slice's round DEFINE.\" Reason: \"They declare what the gates check, which is criteria-class work.\"",
+      "answeredAt": "2026-10-24T15:58:08.673Z",
+      "resolvedAt": "2026-10-24T15:58:08.673Z"
     }
   ]
 }
