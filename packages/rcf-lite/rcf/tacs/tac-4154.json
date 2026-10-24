@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-10-24T11:27:34.032Z",
+  "updatedAt": "2026-10-24T11:27:34.032Z",
+  "purpose": "Records the REVIEW and TEST verdicts of a round as files committed by REVIEW: and TEST: commits, and judges stage order within a round, so round boundaries show in git and Finalise can judge the last round only.",
+  "responsibilities": [
+    "write rcf/verdicts/<h12>/review.json from rcf build verdict review at the reviewed head H (the committed HEAD)",
+    "write rcf/verdicts/<h12>/test.json from rcf build verdict test for the reviewed head H, from a TAP summary of the full RCF suite run locally",
+    "judge round order in rcf audit separation: stages monotonic within a round, a regression to DEFINE: legal only as the commit right after a failed verdict, verdict heads checked"
+  ],
+  "interfaces": [
+    {
+      "name": "rcf build verdict review",
+      "kind": "cliCommand",
+      "description": "usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...] --code MERGE|FINDINGS --adequacy PASS|FINDINGS [--finding \"<spec|build>:<AC id|->:<text>\"]... [--by <text>]\nWrites rcf/verdicts/<first 12 of HEAD>/review.json for the committed HEAD (the reviewed head H) and prints \"verdict: review <code>/<adequacy> at <h7> written to rcf/verdicts/<h12>/review.json\"; never commits. Exit 0 written; 4 refused (\"verdict refused: working tree is dirty; a verdict names a committed head\" for any change outside rcf/verdicts/; \"verdict refused: a review verdict for <h7> already exists at <path>\"); 3 broken reference (\"[error] brokenReference <AC id> is not scoped by <fbs ids>\", unknown FBS); 2 usage (FINDINGS on either axis with no --finding: \"[error] usage FINDINGS needs at least one --finding\"; a --finding not matching <spec|build>:<AC id|->:<text>; --code or --adequacy outside its pair)."
+    },
+    {
+      "name": "rcf build verdict test",
+      "kind": "cliCommand",
+      "description": "usage: rcf build verdict test --fbs <id>[,...] --result PASS|FAIL --tap <file> --runtime \"<text>\" [--reason <text>] [--by <text>]\nFinds the reviewed head H from the newest rcf/verdicts/*/review.json reachable from HEAD and writes rcf/verdicts/<h12>/test.json; prints \"verdict: test <result> at <H7> (<pass> pass, <fail> fail, <skip> skip, <todo> todo) written to rcf/verdicts/<h12>/test.json\". Exit 0 written; 4 refused (\"verdict refused: no REVIEW MERGE with adequacy PASS recorded for <H7>\" unless --result FAIL; \"verdict refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\"; \"verdict refused: the TAP summary reports <k> failing; record --result FAIL\"; \"verdict refused: the TAP summary does not include bound test <pointer> of <AC id>\"; dirty tree); 2 usage (\"[error] usage --tap <file> carries no TAP summary\"; FAIL with zero failing tests and no --reason)."
+    },
+    {
+      "name": "ReviewVerdict v1",
+      "kind": "recordShape",
+      "description": "fields: verdictVersion (1), stage (\"review\"), head (40-hex reviewed head H), fbsIds (array), touchedAcIds (array; every id scoped by one of fbsIds), code (MERGE | FINDINGS), adequacy (PASS | FINDINGS), findings (array of { id \"F-<n>\", locus spec | build, acId (AC id or null), text }), recordedBy (string), recordedAt (ISO time). Passed when code is MERGE and adequacy is PASS; failed otherwise (a failed verdict closes the round)."
+    },
+    {
+      "name": "TestVerdict v1",
+      "kind": "recordShape",
+      "description": "fields: verdictVersion (1), stage (\"test\"), head (40-hex reviewed head H), fbsIds (array), result (PASS | FAIL), suite ({ pass, fail, skip, todo, cancelled } integers from the TAP summary), runtime (free text naming the locally running app, for example \"node bin/rcf.js from the packed head installed in a scratch project\"), node (process.version of the verb), reason (string or null), recordedBy, recordedAt. FAIL closes the round."
+    },
+    {
+      "name": "Round state machine",
+      "kind": "other",
+      "description": "States DEFINE, BUILD, REVIEW, TEST, FINALISE (stage index 1 to 5). A commit may stay in the current stage or move to any later one. Closing events: a REVIEW: commit adding a failed ReviewVerdict, and a TEST: commit adding a FAIL TestVerdict. A FINALISE: commit is never followed by DEFINE:, BUILD:, REVIEW: or TEST: in the same round (how a base move that needs a code fix closes the round is an open question in the DEFINE summary; until it is ruled such a merge is not committed). After a closing commit the next commit must be DEFINE: (a new round); any other regression fails \"<sha7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)\"; a non-DEFINE commit right after a closing verdict fails \"<sha7> <STAGE>: after a failed verdict; the next round starts at DEFINE:\". A REVIEW: commit's verdict head must be its parent (\"<sha7> REVIEW: verdict head <x7> is not its parent <p7>\"); a TEST: verdict head must be the round's reviewed head (\"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\"). A range may start in any stage (its DEFINE merged earlier)."
+    }
+  ],
+  "notes": "Answers D-02 (audit section 5) under Q-05 b: the TEST pass is a branch commit; Finalise accepts the reviewed head H plus TEST: and FINALISE: commits within their file classes. The 0.36.x verify report under rcf/verify-reports/<fbs-id>/ stays verifierEvidence (TEST) for the transition.",
+  "tacId": "TAC-4154",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Rounds and verdict records: rcf build verdict review and test, the verdict files and the round state machine"
+}

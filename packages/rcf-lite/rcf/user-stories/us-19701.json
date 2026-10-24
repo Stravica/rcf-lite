@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-24T11:27:34.872Z",
+  "updatedAt": "2026-10-24T11:27:36.455Z",
+  "asA": "reviewer (with Codex) at the REVIEW stage",
+  "iWant": "to record one verdict with a code axis and a test-adequacy axis, the touched criteria and each finding with its locus",
+  "soThat": "Finalise and the next round read my verdict from the branch, not from a message",
+  "description": "rcf build verdict review and ReviewVerdict v1.",
+  "tacIds": [
+    "TAC-4154"
+  ],
+  "usId": "US-19701",
+  "prdId": "PRD-001",
+  "reqId": "REQ-197",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A reviewer records the REVIEW verdict, code and test adequacy, at the reviewed head",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19701-1",
+      "description": "[happy] Given a fixture project at a clean committed HEAD H whose FBS-001 scopes AC-101-1 and AC-101-2, when rcf build verdict review --fbs FBS-001 --acs AC-101-1,AC-101-2 --code MERGE --adequacy PASS --by \"reviewer and codex\" runs, then it exits 0, stdout is \"verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json\", and that file parses as ReviewVerdict v1 with head equal to the full sha of H, fbsIds [\"FBS-001\"], touchedAcIds [\"AC-101-1\", \"AC-101-2\"], findings [] and recordedBy \"reviewer and codex\"; no commit is made.",
+      "testable": true
+    },
+    {
+      "id": "AC-19701-2",
+      "description": "[happy] Given the same fixture, when rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy FINDINGS --finding \"spec:AC-101-1:the then clause names no exit code\" --finding \"build:-:the CHANGELOG line is missing\" runs, then it exits 0 and the file records adequacy \"FINDINGS\" with findings [{ id \"F-1\", locus \"spec\", acId \"AC-101-1\", text \"the then clause names no exit code\" }, { id \"F-2\", locus \"build\", acId null, text \"the CHANGELOG line is missing\" }].",
+      "testable": true
+    },
+    {
+      "id": "AC-19701-3",
+      "description": "[failure] Given the same fixture, when the verb runs with --code FINDINGS and no --finding it exits 2 with stderr \"[error] usage FINDINGS needs at least one --finding\"; with --finding \"maybe:AC-101-1:x\" it exits 2 naming the expected form <spec|build>:<AC id|->:<text>; with --acs AC-999-1 it exits 3 with stderr \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; and in each case no file appears under rcf/verdicts/.",
+      "testable": true
+    },
+    {
+      "id": "AC-19701-4",
+      "description": "[failure] Given an uncommitted change to src/x.js, the verb exits 4 with stderr \"verdict refused: working tree is dirty; a verdict names a committed head\"; given rcf/verdicts/<H12>/review.json already present, a second run exits 4 with stderr \"verdict refused: a review verdict for <H7> already exists at rcf/verdicts/<H12>/review.json\" and the existing file is byte-identical afterwards.",
+      "testable": true
+    },
+    {
+      "id": "AC-19701-5",
+      "description": "[must-not] rcf build verdict review never writes outside rcf/verdicts/<H12>/, never commits, never edits an existing verdict file and never spawns anything but git: after any run, git status --porcelain lists at most that one new file.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19701-1=external",
+    "verification:AC-19701-2=external",
+    "verification:AC-19701-3=external",
+    "verification:AC-19701-4=external",
+    "verification:AC-19701-5=external"
+  ]
+}

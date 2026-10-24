@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-10-24T11:27:38.538Z",
+  "updatedAt": "2026-10-24T11:27:40.924Z",
+  "asA": "test-author starting a new round, and the stage-keeper judging the branch",
+  "iWant": "rcf audit separation to refuse any stage regression except a new round right after a failed verdict",
+  "soThat": "every fix round re-runs all five stages and no BUILD or DEFINE commit slips in after a passed review",
+  "description": "The round state machine inside rcf audit separation.",
+  "tacIds": [
+    "TAC-4154"
+  ],
+  "usId": "US-19703",
+  "prdId": "PRD-001",
+  "reqId": "REQ-197",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The test-author and the stage-keeper see round order judged in the audit, with a failed verdict as the only road back to DEFINE",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19703-1",
+      "description": "[happy] Given a fixture branch DEFINE:, BUILD:, REVIEW: (a passed review.json for its parent H), TEST: (a PASS test.json for H) and FINALISE: (rcf/fbs/ only), when rcf audit separation runs, then it exits 0 with \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-2",
+      "description": "[happy] Given a fixture branch DEFINE:, BUILD:, REVIEW: (code FINDINGS), DEFINE: (the test-author's triage), BUILD:, REVIEW: (MERGE/PASS), TEST: (PASS), when rcf audit separation runs, then it exits 0: the regression to DEFINE: right after the failed verdict starts round two.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-3",
+      "description": "[failure] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS), BUILD: (a further code change), when rcf audit separation runs, then it exits 4 with the item \"<s7> BUILD: after REVIEW: without a failed verdict (stage order is monotonic within a round)\"; the same holds for a DEFINE: after a passed REVIEW: or after a TEST: PASS, and for a DEFINE: after BUILD: with no verdict between.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-4",
+      "description": "[failure] Given a fixture branch whose REVIEW: commit records FINDINGS and whose next commit is \"BUILD: quick fix\", when rcf audit separation runs, then it exits 4 with the item \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\"; the same holds for a TEST: right after a TEST: FAIL.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-5",
+      "description": "[failure] Given a REVIEW: commit whose review.json head is not its parent, and a TEST: commit whose test.json head is not the round's reviewed head, when rcf audit separation runs, then it exits 4 with \"<s7> REVIEW: verdict head <x7> is not its parent <p7>\" and \"<s7> TEST: verdict head <x7> is not the reviewed head <H7>\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-6",
+      "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS), TEST: (PASS), FINALISE: (a clean merge of main), FINALISE: (rcf/fbs/ only), when rcf audit separation runs, then it exits 0; given the same branch with a further \"DEFINE: amend\" or \"TEST: rerun\" after the FINALISE: commits, it exits 4 with \"<s7> DEFINE: after FINALISE: without a failed verdict (stage order is monotonic within a round)\" or the same item for TEST:.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-7",
+      "description": "[must-not] No commit message text changes a round verdict: a REVIEW: commit whose subject says MERGE but whose review.json records FINDINGS closes the round; a REVIEW: commit with no review.json is judged on classes and counts as no verdict, so it never opens TEST; and the audit never reads a verdict from anywhere but the file the commit adds.",
+      "testable": true
+    },
+    {
+      "id": "AC-19703-8",
+      "description": "[non-functional] Given a fixture range of 6 rounds (30 or more commits, each REVIEW: and TEST: adding a verdict file), when rcf audit separation runs, then the round judgement adds no more than one git process per verdict commit to the budget of the per-commit judgement and the run finishes within 5 seconds on a CI-class runner.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19703-1=external",
+    "verification:AC-19703-2=external",
+    "verification:AC-19703-3=external",
+    "verification:AC-19703-4=external",
+    "verification:AC-19703-5=external",
+    "verification:AC-19703-6=external",
+    "verification:AC-19703-7=external",
+    "verification:AC-19703-8=external"
+  ]
+}

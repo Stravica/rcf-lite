@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-24T11:27:34.282Z",
+  "updatedAt": "2026-10-24T11:27:34.282Z",
+  "status": "proposed",
+  "context": "The operator ruled (Q-05 b, 10:40Z) that the TEST pass is a branch commit and (rounds rule, about 10:50Z) that REVIEW and TEST verdicts are REVIEW: / TEST: commits, a failed REVIEW or TEST closes the round, the next round starts at DEFINE, stage order is monotonic within a round, and Finalise judges the last round only: REVIEW MERGE at head H, only TEST: and FINALISE: commits after H within their file classes, and a TEST PASS. Where the record lives, its shape and its file class were left to this DEFINE. Today a verifier report commit moves the head a gate judged (register WA-15, audit F-36).",
+  "decision": "Each verdict is a JSON file the stage's own commit adds: rcf/verdicts/<first 12 of H>/review.json (ReviewVerdict v1, class reviewVerdict, REVIEW only) and rcf/verdicts/<first 12 of H>/test.json (TestVerdict v1, class testVerdict, TEST only), written by rcf build verdict review and rcf build verdict test, never by hand. Both are keyed by the reviewed head H, so the TEST verdict names the code it tested even though the REVIEW: commit sits between. The REVIEW verdict carries touchedAcIds, the round's declared touched criteria; Finalise checks them against what changed (Finalise ADR). One review.json per head: a second reviewer's view (Codex and the reviewer) is combined into one verdict before it is recorded. rcf audit separation judges round order with the state machine in TAC TAC-4154, reading each verdict file through git at the commit that adds it. The TEST verdict reads a TAP summary of the full RCF suite run against a locally running app (never a deployment) and refuses PASS when any bound test of a touched criterion is missing from it. Mid-BUILD there is no road back to DEFINE: a builder who finds a spec fault stops, and the reviewer records FINDINGS with locus spec, which closes the round.",
+  "consequences": "Round boundaries are visible in git with no round number. A verdict is reviewable as data in the chain tree; the walker ignores rcf/verdicts/ (it lists only kind directories), so a Finalise from 0.36.x does not choke on it. Every round, even a pure build bug, starts at DEFINE: the test-author triages each finding (spec-rooted amends criteria, build-rooted gets a red test or a recorded note naming the test that already pins it). GitHub review approvals are not RCF verdicts.",
+  "alternativesConsidered": [
+    {
+      "name": "Empty commits whose trailers carry the verdict",
+      "summary": "git commit --allow-empty with Verdict: and Reviewed-Head: trailers.",
+      "reasonNotChosen": "Trailers are not schema-checked, chain tools cannot show them, and an empty commit touches no file class for the audit to judge."
+    },
+    {
+      "name": "A CI artefact or check run",
+      "summary": "Q-05 option a: the TEST pass lives outside the tree.",
+      "reasonNotChosen": "The operator chose b; Finalise is git-only and would need the network to read it."
+    },
+    {
+      "name": "The pull request body",
+      "summary": "Q-05 option c.",
+      "reasonNotChosen": "Not in git, editable after the fact, and invisible to the audit."
+    },
+    {
+      "name": "Verdicts keyed by FBS id",
+      "summary": "rcf/verdicts/<fbs-id>/<stage>.json.",
+      "reasonNotChosen": "A round often bundles several specs (batched rounds); keying by the reviewed head gives one verdict per round and names the code judged."
+    }
+  ],
+  "adrId": "ADR-4154",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Verdicts are commits: REVIEW and TEST verdict records under rcf/verdicts/<h12>/, a monotonic round state machine, and touched criteria named on the REVIEW verdict"
+}
