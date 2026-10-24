@@ -2731,6 +2731,10 @@
         {
           "letter": "a",
           "text": "add the reclassify step for REQ-196, REQ-198 and REQ-204 to FBS-240's notes"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-240's notes stay as at 136c51e5, and the step stays only in the part B worklist (item 5) and GR-54's ruling"
         }
       ],
       "default": "a",
@@ -2748,6 +2752,14 @@
         {
           "letter": "a",
           "text": "reword FBS-240 deliverables[1] and ADR-4160's decision to \"by the shipped write-back\""
+        },
+        {
+          "letter": "b",
+          "text": "the text stays, read as the shipped write-back (reading c of part B2's stop 9)"
+        },
+        {
+          "letter": "c",
+          "text": "FBS-240's BUILD adds a verb that records and clears the answers, so BUILD is no longer empty (reading b of part B2's stop 9)"
         }
       ],
       "default": "a",
@@ -2807,6 +2819,10 @@
         {
           "letter": "a",
           "text": "the ledger-118 treatment: the Given says it is measured at TEST on the verifier's host, and it runs only with RCF_PERF=1"
+        },
+        {
+          "letter": "b",
+          "text": "the parent run keeps git archive of the parent commit and passes toolPath([tar]) (the check's proposed fix for F5, if tar remains)"
         }
       ],
       "default": "a",
@@ -2824,6 +2840,10 @@
         {
           "letter": "a",
           "text": "every mutant-running case passes { PATH: toolPath(['node']) }"
+        },
+        {
+          "letter": "b",
+          "text": "the cases keep the harness PATH, holding git's directory alone, as at 136c51e5"
         }
       ],
       "default": "a",
@@ -2866,6 +2886,10 @@
         {
           "letter": "a",
           "text": "ADR-4162 names the AC-19401-12 exception"
+        },
+        {
+          "letter": "b",
+          "text": "the declaration moves to a FBS-228 file (reading b of part B1's stop 4), so ADR-4162 needs no exception"
         }
       ],
       "default": "a",
