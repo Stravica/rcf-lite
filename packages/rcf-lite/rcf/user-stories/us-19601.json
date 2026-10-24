@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:24:53.899Z",
-  "updatedAt": "2026-10-24T11:24:56.498Z",
+  "updatedAt": "2026-10-24T14:59:36.647Z",
   "asA": "stage-keeper or reviewer judging a pull request on a product built with rcf-lite",
   "iWant": "rcf audit separation to judge every commit by its stage prefix and the file classes that stage owns",
   "soThat": "separation of duties shows in git log and a commit that crosses stages fails with the path named",
@@ -32,7 +32,7 @@
     },
     {
       "id": "AC-19601-4",
-      "description": "[failure] Given seven fixture commits whose subjects start \"define: x\", \"Define: x\", \"DEFINE:x\", \"DEFINE - x\", \"[DEFINE] x\", \"DEFINE(FBS-1): x\" and \"VERIFY: x\", each touching only rcf/user-stories/us-1.json, when rcf audit separation runs over them, then it exits 4 and the FAIL line carries one item per commit \"<s7> malformed stage prefix \\\"<first token>\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" where <first token> is the subject up to its first space (\"define:\", \"Define:\", \"DEFINE:x\", \"DEFINE\", \"[DEFINE]\", \"DEFINE(FBS-1):\", \"VERIFY:\").",
+      "description": "[failure] Given seven fixture commits whose subjects start \"define: x\", \"Define: x\", \"DEFINE:x\", \"DEFINE - x\", \"[DEFINE] x\", \"DEFINE(FBS-1): x\" and \"VERIFY: x\", each touching only rcf/user-stories/us-1.json, when rcf audit separation runs over them, then it exits 4 and the FAIL line carries one item for each commit \"<s7> malformed stage prefix \\\"<first token>\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" where <first token> is the subject up to its first space (\"define:\", \"Define:\", \"DEFINE:x\", \"DEFINE\", \"[DEFINE]\", \"DEFINE(FBS-1):\", \"VERIFY:\").",
       "testable": true
     },
     {
@@ -57,7 +57,12 @@
     },
     {
       "id": "AC-19601-9",
-      "description": "[non-functional] Given a fixture range of 200 commits, each prefixed and touching 20 paths across four classes (several times the longest single round the redesign records, whose specs held 152 criteria while the round touched 8), when rcf audit separation --base <base> runs on a CI-class runner, then it finishes within 10 seconds and spawns no more than 4 git processes plus one per merge commit in the range, because paths, subjects and trailers come from one git log pass.",
+      "description": "[non-functional] Given a fixture range of 200 commits, each prefixed and touching 20 paths across four classes (several times the longest single round the redesign records, whose specs held 152 criteria while the round touched 8), when rcf audit separation --base <base> runs on the host the suite runs on (the test prints os.cpus().length and process.version), then it finishes within 10 seconds and spawns no more than 4 git processes plus one per merge commit in the range, because paths, subjects and trailers come from one git log pass.",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-10",
+      "description": "[edge] Given a fixture commit \"BUILD: mixed\" carrying Hand: test-author and touching rcf/user-stories/us-1.json and test/a.test.js, followed by a commit \"define: x\" touching src/x.js, when rcf audit separation runs, then it exits 4 and stdout is \"separation: FAIL 2 of 2 commits (base <b7>, head <h7>): <s7> Hand: test-author disagrees with BUILD: (role builder); <s7> BUILD: touches rcf/user-stories/us-1.json (class criteria, owned by DEFINE); <s7> BUILD: touches test/a.test.js (class rcfTest, owned by DEFINE); <s7> malformed stage prefix \\\"define:\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\": each cause is its own item in check order, commits in range order, and a malformed prefix is that commit's only item.",
       "testable": true
     }
   ],
@@ -70,6 +75,7 @@
     "verification:AC-19601-6=external",
     "verification:AC-19601-7=external",
     "verification:AC-19601-8=external",
-    "verification:AC-19601-9=external"
+    "verification:AC-19601-9=external",
+    "verification:AC-19601-10=external"
   ]
 }

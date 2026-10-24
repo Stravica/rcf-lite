@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:25:01.193Z",
-  "updatedAt": "2026-10-24T11:25:03.275Z",
+  "updatedAt": "2026-10-24T14:59:34.859Z",
   "asA": "chain author or stage-keeper on a downstream product upgrading from rcf-lite 0.36.x",
   "iWant": "commits that carry both the stage prefix and an agreeing Hand: trailer to pass while the trailer retires, and every old escape to fail with the replacement named",
   "soThat": "in-flight branches keep working through 0.37.x without any commit passing on a trailer alone",
@@ -47,7 +47,7 @@
     },
     {
       "id": "AC-19604-7",
-      "description": "[edge] Given a fixture branch whose first commit is \"BUILD: code\" touching src/x.js followed by \"TEST: verdict\" touching rcf/verdicts/<h12>/test.json (the round's DEFINE merged earlier in its own pull request), when rcf audit separation runs, then it exits 0 on classes alone with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\".",
+      "description": "[edge] Given a fixture branch whose first commit is \"BUILD: code\" touching src/x.js followed by \"TEST: evidence\" touching only rcf/verify-reports/FBS-001/a.json, with no verdict file (the range starts after the round's DEFINE), when rcf audit separation runs, then it exits 0 on classes alone with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\".",
       "testable": true
     }
   ],

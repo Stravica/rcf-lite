@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:24:58.594Z",
-  "updatedAt": "2026-10-24T11:25:00.941Z",
+  "updatedAt": "2026-10-24T14:59:34.351Z",
   "asA": "stage-keeper running Finalise and the release cut",
   "iWant": "merges from main, lockfiles, declared-generator outputs, status records and the release cut to pass as FINALISE: commits, and anything else to fail",
   "soThat": "chores never need a separation exception and a code change can never ride in as a chore",
@@ -47,7 +47,7 @@
     },
     {
       "id": "AC-19603-7",
-      "description": "[failure] Given a fixture merge commit \"FINALISE: merge main\" whose conflict resolution edits src/a.js (src/a.js in its combined diff), and a merge commit \"Merge branch 'main' into feature\" with no prefix, when rcf audit separation runs, then it exits 4 with \"<s7> FINALISE: merge resolution touches src/a.js (class production); a merge that needs a code fix goes back to BUILD in a new round\" and \"<s7> no stage prefix\".",
+      "description": "[failure] Given a fixture merge commit \"FINALISE: merge main\" whose conflict resolution edits src/a.js (src/a.js in its combined diff), and a merge commit \"Merge branch 'main' into feature\" with no prefix, when rcf audit separation runs, then it exits 4 with \"<s7> FINALISE: merge resolution touches src/a.js (class production); a merge that needs a code fix is not committed in FINALISE: record TEST FAIL and merge main in the next round\" and \"<s7> no stage prefix\".",
       "testable": true
     },
     {
