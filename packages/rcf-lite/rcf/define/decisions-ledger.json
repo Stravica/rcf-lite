@@ -2652,6 +2652,31 @@
       "answer": "b. The stage-keeper, 2026-10-24: \"AC-20301-4: reading (b), in golden form, so no history is needed. FBS-240's round DEFINE commits a small set of named readiness fixture trees under packages/rcf-lite/test/fixtures/readiness/: a clean tree, plus one per D-check it can fail. In the same DEFINE, the round captures each tree's chip verdicts from the round-base bin as a golden. The test compares HEAD's chips against that golden. B3 rewords the criterion to that set and method, binds the test (todo), and records a ledger decision. The trees and the golden are FBS-240's round DEFINE work, named in that slice's notes.\"",
       "answeredAt": "2026-10-24T19:02:23.112Z",
       "resolvedAt": "2026-10-24T19:02:23.112Z"
+    },
+    {
+      "id": 122,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-20303-1 and AC-20303-2 say the profile answers are recorded and removed \"through the CLI\", but the shipped write-back for both D1 profile questions is an edit of rcf/.identity/profile.md and no verb records or removes them: how is \"through the CLI\" met? Source: stage-keeper ruling 9, 2026-10-24, on part B2 at 4c8baede.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the words go, as a process rule for the hand (as AC-19804-2's clause did)"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-240's BUILD adds a verb that records and clears the answers, so BUILD is no longer empty"
+        },
+        {
+          "letter": "c",
+          "text": "the text stays, read as the shipped write-back, which is what the bound tests do now"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T19:04:22.646Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"AC-20303-1 and AC-20303-2 (\"through the CLI\"): reading (a). The words leave both criteria as a process rule for the hand, the same treatment AC-19804-2's clause got. The profile answers are the operator's GR-55 answers from 2026-10-24 (surface \"the running app\", register \"product owner\"). FBS-240's round DEFINE records them in rcf/.identity/profile.md, the shipped write-back. B3 rewords and records a ledger decision.\"",
+      "answeredAt": "2026-10-24T19:04:22.732Z",
+      "resolvedAt": "2026-10-24T19:04:22.732Z"
     }
   ]
 }
