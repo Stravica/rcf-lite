@@ -6,12 +6,12 @@
 // backstop's pieces retire with their replacement named.
 //
 // Criteria: 17, all external (US-20201 8, US-20202 5, US-20203 4).
-// Tested here: 16. AC-20201-1 is not written: its record comes from
-// rcf build base-suite --command "node --test test/rcf" and must read
-// green, but on Node 24 node --test does not expand a directory argument
-// (it runs test/rcf as one file and fails), so the record it names is red
-// whatever the fixture holds; returned as a question in this slice's
-// DEFINE commit and left unbound.
+// Tested here: 17. AC-20201-1's record comes from rcf build base-suite
+// --command 'node --test "test/rcf/**/*.test.js"', a glob Node 24 expands
+// itself (the stage-keeper's ruling 7 on the Part B summary's stops:
+// base-suite gains no directory expansion, a consumer's command is
+// theirs); its base-suite run puts node's directory on PATH so the
+// command can start.
 //
 // Every test is a node:test todo case ("FBS-239 round DEFINE", GR-35): it
 // runs and is red until FBS-239's round DEFINE drops the marker and BUILD
@@ -32,7 +32,7 @@ import assert from 'node:assert/strict';
 import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { lines, rcf } from '../_harness/spawn.js';
+import { lines, rcf, toolPath } from '../_harness/spawn.js';
 import { commit, git, initRepo, porcelain, s7, sha } from '../_harness/git.js';
 import { baseSuiteRecord, criterion, editStory, project, readJson, readText, scratch, writeJson, writeText } from '../_harness/fixture.js';
 import { commandName, hostFacts, readSpawnLog, spawnLog } from '../_harness/capture.js';
@@ -111,6 +111,29 @@ const isBundleOf = (r, id) => lines(r.stdout).some((l) => l.startsWith(`# Spec b
 const acIdsIn = (text, us = '101') => [...new Set(text.match(new RegExp(`AC-${us}-\\d+`, 'g')) ?? [])].sort();
 
 // ---------------------------------------------------------------- US-20201
+
+// The suite command of AC-20201-1 as the criterion quotes it (ruling 7).
+const GLOB_COMMAND = 'node --test "test/rcf/**/*.test.js"';
+
+test('AC-20201-1: a record from rcf build base-suite --command node --test "test/rcf/**/*.test.js" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B', TODO, async (t) => {
+  const { dir, B } = await queue(t);
+  assert.equal(porcelain(dir).trim(), '', 'given: a clean committed HEAD B');
+  assert.equal(readJson(dir, 'rcf/fbs/fbs-001.json').executionStatus, 'complete', 'given: FBS-001 is complete and not verified');
+  assert.equal(readJson(dir, 'rcf/fbs/fbs-002.json').executionStatus, 'notStarted', 'given: FBS-002 is next actionable');
+  const out = join(scratch(t, 'rcf-h-out-'), 'base.json');
+  const r = await baseSuite(dir, ['--command', GLOB_COMMAND, '--out', out], { PATH: toolPath(['node']) });
+  assert.equal(r.code, 0, `base-suite records the run\n${r.stdout}${r.stderr}`);
+  const rec = JSON.parse(readFileSync(out, 'utf8'));
+  assert.equal(rec.head, B, 'the record is made at B');
+  assert.equal(rec.green, true, `the record reads green at B\n${JSON.stringify(rec)}`);
+  const onTrunk = await bundle(dir, ['--next', '--base-suite', out]);
+  assert.equal(onTrunk.code, 0, `${onTrunk.stdout.slice(0, 500)}${onTrunk.stderr}`);
+  assert.ok(isBundleOf(onTrunk, 'FBS-002'), 'the FBS-002 bundle: a complete-not-verified spec never holds the queue');
+  redBranch(dir); // HEAD a DEFINE: commit adding a failing RCF test after B; the base is the merge-base B
+  const offTrunk = await bundle(dir, ['--next', '--base-suite', out]);
+  assert.equal(offTrunk.code, 0, `the same green record at B bundles from the branch\n${offTrunk.stdout.slice(0, 500)}${offTrunk.stderr}`);
+  assert.ok(isBundleOf(offTrunk, 'FBS-002'), 'the FBS-002 bundle from the branch');
+});
 
 test('AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file', TODO, async (t) => {
   const { dir } = await queue(t);

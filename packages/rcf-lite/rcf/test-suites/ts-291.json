@@ -1,9 +1,10 @@
 {
   "createdAt": "2026-10-24T17:56:07.734Z",
-  "updatedAt": "2026-10-24T17:56:09.879Z",
+  "updatedAt": "2026-10-24T18:59:05.476Z",
   "purpose": "FBS-239: the external criteria of US-20201, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-239's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
+    "AC-20201-1",
     "AC-20201-2",
     "AC-20201-3",
     "AC-20201-4",
@@ -64,6 +65,13 @@
       "description": "with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing",
       "status": "pending",
       "testPointer": "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing"
+    },
+    {
+      "id": "TC-291-a-record-from-rcf-build-base-suite",
+      "acId": "AC-20201-1",
+      "description": "a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
     }
   ],
   "status": "draft"

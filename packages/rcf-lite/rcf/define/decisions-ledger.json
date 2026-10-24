@@ -2602,6 +2602,31 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"Drop that clause from the criterion. It is a process rule for the hand doing the sweep, and it belongs in the sweep round's brief, not in a criterion. The byte-identical part stays and is tested.\" The clause's new home is the brief of the sweep round, FBS-235's round, which moves every interim tag onto the field (US-19804).",
       "answeredAt": "2026-10-24T17:21:45.330Z",
       "resolvedAt": "2026-10-24T17:21:45.330Z"
+    },
+    {
+      "id": 120,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-20201-1's base-suite record comes from rcf build base-suite --command \"node --test test/rcf\", which Node 24 runs as one file and fails, so the record can never read green: how should the criterion's command read? Source: stage-keeper ruling 7, 2026-10-24, on part B2 at 4c8baede.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a glob form that Node 24 expands, for example node --test \"test/rcf/**/*.test.js\""
+        },
+        {
+          "letter": "b",
+          "text": "the same command, with the fixture's test/rcf as one extensionless test file"
+        },
+        {
+          "letter": "c",
+          "text": "rcf build base-suite expands a directory argument itself (new product behaviour)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-239",
+      "addedAt": "2026-10-24T18:59:23.339Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"AC-20201-1: reading (a). The criterion's command becomes node --test \"test/rcf/**/*.test.js\", a glob that Node 24 expands. rcf build base-suite gains no directory expansion, because a consumer's command is theirs. B3 rewords the criterion through rcf define update, binds its test, and records a ledger decision.\"",
+      "answeredAt": "2026-10-24T18:59:23.425Z",
+      "resolvedAt": "2026-10-24T18:59:23.425Z"
     }
   ]
 }

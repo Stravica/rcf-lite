@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:37:22.487Z",
-  "updatedAt": "2026-10-24T15:03:12.769Z",
+  "updatedAt": "2026-10-24T18:58:12.226Z",
   "asA": "stage-keeper preparing a Build dispatch",
   "iWant": "every bundle to refuse unless the RCF suite is recorded green on the base head",
   "soThat": "no Build starts on a red base, and verified never blocks a Build",
@@ -17,7 +17,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20201-1",
-      "description": "[happy] Given a fixture project at a clean committed HEAD B whose FBS-002 is next actionable and whose FBS-001 is complete and not verified, and a record from rcf build base-suite --command \"node --test test/rcf\" --out <scratch>/base.json reading green at B, when rcf build bundle --next --base-suite <scratch>/base.json runs, then it exits 0 and emits the FBS-002 bundle: a complete-not-verified spec never holds the queue; given a fixture branch whose HEAD is a DEFINE: commit adding a failing RCF test after the trunk tip B, the same green record at B bundles, because the record names the base (git merge-base of HEAD with the trunk), not HEAD.",
+      "description": "[happy] Given a fixture project at a clean committed HEAD B whose FBS-002 is next actionable and whose FBS-001 is complete and not verified, and a record from rcf build base-suite --command 'node --test \"test/rcf/**/*.test.js\"' --out <scratch>/base.json reading green at B, when rcf build bundle --next --base-suite <scratch>/base.json runs, then it exits 0 and emits the FBS-002 bundle: a complete-not-verified spec never holds the queue; given a fixture branch whose HEAD is a DEFINE: commit adding a failing RCF test after the trunk tip B, the same green record at B bundles, because the record names the base (git merge-base of HEAD with the trunk), not HEAD.",
       "testable": true
     },
     {
