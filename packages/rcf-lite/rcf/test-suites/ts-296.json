@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:01:15.019Z",
-  "updatedAt": "2026-10-24T18:01:15.824Z",
+  "updatedAt": "2026-10-24T18:17:42.510Z",
   "purpose": "FBS-240: the testOnly criteria of US-20303, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-240's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -15,9 +15,9 @@
     {
       "id": "TC-296-define-readiness-level-intent-check",
       "acId": "AC-20303-1",
-      "description": "define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the recorded answers are the operator ones (surface the running app, register product owner) with their source named",
+      "description": "define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source",
       "status": "pending",
-      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the recorded answers are the operator ones (surface the running app, register product owner) with their source named"
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source"
     },
     {
       "id": "TC-296-in-a-scratch-copy-at-the-current-head",

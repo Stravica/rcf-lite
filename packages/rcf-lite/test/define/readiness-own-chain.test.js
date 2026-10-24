@@ -18,8 +18,11 @@
 // needs a scratch copy copies the package's rcf/ and test/ trees and
 // package.json into a scratch git repository and runs the bin there: rcf
 // define freeze and record changes run only inside that copy, never on
-// the checkout. The timing test prints the host facts (GR-45). Imports:
-// Node builtins and test/_harness/ only (GR-40).
+// the checkout. The timing test prints the host facts (GR-45). The two
+// profile answers are the operator's input (GR-55), collected before
+// FBS-240's round DEFINE records them: the US-20303 tests read whichever
+// answers are recorded and never presume them. Imports: Node builtins and
+// test/_harness/ only (GR-40).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -107,16 +110,30 @@ const NAMED = {
   'define.consistency': ['consistency:contradictions', 'consistency:unsatisfiable', 'consistency:orphanInterfaces'],
 };
 
+// The check lines of one stage section in the text report, as
+// "  [ok] <name> (<scope>, <persona>): <pass>/<total>".
+function checkLines(stdout, gate) {
+  const ls = lines(stdout);
+  const at = ls.findIndex((l) => l.includes(`(${gate}):`));
+  if (at === -1) return null;
+  const out = [];
+  for (const l of ls.slice(at + 1)) {
+    const m = /^\s+\[([^\]]+)\] (\S+) \(/.exec(l);
+    if (m) out.push({ mark: m[1], name: m[2] });
+    else if (/^\S/.test(l)) break;
+  }
+  return out;
+}
+
 test('AC-20302-1: at the current head each of define readiness --check skeleton, shapes, stories, crosscut and consistency exits 0 with every one of its checks ok, the thirteen named checks included', TODO, async () => {
-  for (const stage of ['skeleton', 'shapes', 'stories', 'crosscut', 'consistency']) {
+  for (const [gate, names] of Object.entries(NAMED)) {
+    const stage = gate.slice('define.'.length);
     const r = await readiness(pkg(), ['--check', stage]);
     assert.equal(r.code, 0, `--check ${stage} exits 0\n${r.stdout.slice(0, 1500)}`);
-  }
-  const doc = await readinessJson(pkg());
-  for (const [gate, names] of Object.entries(NAMED)) {
-    const checks = stageOf(doc, gate)?.checks ?? [];
-    assert.deepEqual(checks.filter((k) => !k.ok).map((k) => `${k.name}: ${k.failing.slice(0, 3).map((x) => x.id).join(', ')}`), [], `${gate}: every check ok`);
-    for (const n of names) assert.ok(checks.some((k) => k.name === n && k.ok), `${gate}: ${n} is reported ok`);
+    const checks = checkLines(r.stdout, gate);
+    assert.ok(checks && checks.length > 0, `--check ${stage} reports its checks\n${r.stdout.slice(0, 1500)}`);
+    assert.deepEqual(checks.filter((k) => k.mark !== 'ok').map((k) => `[${k.mark}] ${k.name}`), [], `--check ${stage}: each of its checks [ok]`);
+    for (const n of names) assert.ok(checks.some((k) => k.name === n && k.mark === 'ok'), `--check ${stage} reports [ok] ${n}`);
   }
 });
 
@@ -168,7 +185,14 @@ test('AC-20302-4: define readiness --check all over the own chain (about 1300 do
 
 // ---------------------------------------------------------------- US-20303
 
-test('AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the recorded answers are the operator ones (surface the running app, register product owner) with their source named', TODO, async () => {
+// The recorded profile answers: one marker of each set, read as whole
+// words, and the plain words a commit body may quote them by.
+const SURFACE = { viewer: /viewer|web page/i, runningApp: /runningApp|running app/i, prDiff: /prDiff|PR diff|code review diff/i };
+const REGISTER = { productOwner: /productOwner|product owner/i, engineer: /engineer/i, unstated: /unstated/i };
+const chosen = (text, set) => Object.keys(set).filter((m) => new RegExp(`\\b${m}\\b`).test(text));
+const DATE = /\b\d{4}-\d{2}-\d{2}\b/;
+
+test('AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source', TODO, async () => {
   const r = await readiness(pkg(), ['--level', 'intent', '--check', 'brief']);
   assert.equal(r.code, 0, `${r.stdout.slice(0, 1500)}`);
   const check = (stageOf(await readinessJson(pkg()), 'define.brief')?.checks ?? []).find((k) => k.name === 'brief:profile');
@@ -176,9 +200,9 @@ test('AC-20303-1: define readiness --level intent --check brief exits 0 with bri
   const file = join(pkg(), PROFILE);
   assert.ok(existsSync(file), `the answers are recorded in ${PROFILE}`);
   const text = readFileSync(file, 'utf8');
-  assert.ok(text.includes('runningApp'), 'profile:surface is the running app (the operator answer)');
-  assert.ok(text.includes('productOwner'), 'profile:register is product owner (the operator answer)');
-  assert.ok(/operator/i.test(text) && text.includes('2026-10-24'), 'the ruling source (the operator, 2026-10-24) is named');
+  assert.equal(chosen(text, SURFACE).length, 1, `one profile:surface answer is recorded: ${chosen(text, SURFACE).join(', ') || 'none'}`);
+  assert.equal(chosen(text, REGISTER).length, 1, `one profile:register answer is recorded: ${chosen(text, REGISTER).join(', ') || 'none'}`);
+  assert.ok(/\bthe operator\b/i.test(text) && DATE.test(text), 'the ruling source (the operator and the date of the answer) is named');
 });
 
 test('AC-20303-2: in a scratch copy at the current head with the profile answers removed, define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner questions', TODO, async (t) => {
@@ -202,8 +226,14 @@ test('AC-20303-3: the DEFINE commit that recorded the profile answers quotes the
   assert.ok(last.trim(), `${rel} is committed`);
   const [, subject, body] = last.split('\0');
   assert.ok(subject.startsWith('DEFINE: '), `the recording commit is a DEFINE: commit: ${subject}`);
-  assert.ok(/running app/i.test(body) && /product owner/i.test(body), 'the commit quotes the operator answers');
-  assert.ok(body.includes('2026-10-24'), 'the commit names the answer date');
   const text = readFileSync(join(pkg(), PROFILE), 'utf8');
-  assert.ok(/operator/i.test(text) && text.includes('2026-10-24'), 'the profile names its source');
+  const [surface] = chosen(text, SURFACE);
+  const [register] = chosen(text, REGISTER);
+  assert.ok(surface && register, 'the profile records both answers');
+  assert.ok(/\bthe operator\b/i.test(text), 'the profile names the operator as the source');
+  const date = DATE.exec(text)?.[0];
+  assert.ok(date, 'the profile names the date of the answer');
+  assert.ok(/\bthe operator\b/i.test(body), 'the commit names the operator');
+  assert.ok(SURFACE[surface].test(body) && REGISTER[register].test(body), `the commit quotes both recorded answers (${surface}, ${register})`);
+  assert.ok(body.includes(date), `the commit names the answer date ${date}`);
 });
