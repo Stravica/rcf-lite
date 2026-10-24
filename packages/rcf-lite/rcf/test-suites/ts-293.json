@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-24T17:56:11.748Z",
+  "updatedAt": "2026-10-24T17:56:12.859Z",
+  "purpose": "FBS-239: the external criteria of US-20203, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-239's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20203-1",
+    "AC-20203-2",
+    "AC-20203-3",
+    "AC-20203-4"
+  ],
+  "id": "TS-293",
+  "usId": "US-20203",
+  "title": "US-20203 external criteria (FBS-239)",
+  "testCases": [
+    {
+      "id": "TC-293-with-rcf-define-backstop-json",
+      "acId": "AC-20203-1",
+      "description": "with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line"
+    },
+    {
+      "id": "TC-293-rcf-build-backstop-adopt-from-fbs-001",
+      "acId": "AC-20203-2",
+      "description": "rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file"
+    },
+    {
+      "id": "TC-293-bundle-next-allow-unverified-hotfix-base",
+      "acId": "AC-20203-3",
+      "description": "bundle --next --allow-unverified \"hotfix\" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-3: bundle --next --allow-unverified \"hotfix\" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle"
+    },
+    {
+      "id": "TC-293-across-the-runs-of-this-story-an",
+      "acId": "AC-20203-4",
+      "description": "across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one"
+    }
+  ],
+  "status": "draft"
+}
