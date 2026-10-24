@@ -1,11 +1,11 @@
 {
-  "ok": false,
+  "ok": true,
   "strict": true,
   "totals": {
     "requirements": 135,
-    "covered": 133,
+    "covered": 135,
     "coveredUnresolved": 0,
-    "uncovered": 2
+    "uncovered": 0
   },
   "requirements": [
     {
@@ -8872,13 +8872,15 @@
     },
     {
       "id": "REQ-202",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-20201-1",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-291-a-record-from-rcf-build-base-suite"
+          ],
           "unresolvedTestCases": []
         },
         {
@@ -9013,8 +9015,8 @@
     },
     {
       "id": "REQ-203",
-      "covered": false,
-      "coverageClass": "uncovered",
+      "covered": true,
+      "coverageClass": "covered",
       "acs": [
         {
           "id": "AC-20301-1",
@@ -9042,8 +9044,10 @@
         },
         {
           "id": "AC-20301-4",
-          "covered": false,
-          "testCases": [],
+          "covered": true,
+          "testCases": [
+            "TC-294-over-the-named-readiness-fixture-trees"
+          ],
           "unresolvedTestCases": []
         },
         {

@@ -4430,6 +4430,8 @@ flowchart LR
   REQ-202["REQ-202"]
   AC-20201-1["AC-20201-1"]
   REQ-202 --> AC-20201-1
+  TC-291-a-record-from-rcf-build-base-suite["TC-291-a-record-from-rcf-build-base-suite"]
+  AC-20201-1 -.-> TC-291-a-record-from-rcf-build-base-suite
   AC-20201-2["AC-20201-2"]
   REQ-202 --> AC-20201-2
   TC-291-with-no-base-suite-rcf-build-bundle-next["TC-291-with-no-base-suite-rcf-build-bundle-next"]
@@ -4509,6 +4511,8 @@ flowchart LR
   AC-20301-3 -.-> TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4
   AC-20301-4["AC-20301-4"]
   REQ-203 --> AC-20301-4
+  TC-294-over-the-named-readiness-fixture-trees["TC-294-over-the-named-readiness-fixture-trees"]
+  AC-20301-4 -.-> TC-294-over-the-named-readiness-fixture-trees
   AC-20302-1["AC-20302-1"]
   REQ-203 --> AC-20302-1
   TC-295-at-the-current-head-each-of-define["TC-295-at-the-current-head-each-of-define"]
@@ -6860,6 +6864,7 @@ flowchart LR
   class TC-290-the-pass-fixture-of-the-release-story tc;
   class REQ-202 req;
   class AC-20201-1 ac;
+  class TC-291-a-record-from-rcf-build-base-suite tc;
   class AC-20201-2 ac;
   class TC-291-with-no-base-suite-rcf-build-bundle-next tc;
   class AC-20201-3 ac;
@@ -6900,6 +6905,7 @@ flowchart LR
   class AC-20301-3 ac;
   class TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4 tc;
   class AC-20301-4 ac;
+  class TC-294-over-the-named-readiness-fixture-trees tc;
   class AC-20302-1 ac;
   class TC-295-at-the-current-head-each-of-define tc;
   class AC-20302-2 ac;

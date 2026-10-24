@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 135  covered: 133  covered-unresolved: 0  uncovered: 2
+Requirements: 135  covered: 135  covered-unresolved: 0  uncovered: 0
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -968,7 +968,7 @@ REQ-201      yes      AC-20101-1   yes         TC-288-with-fbs-001-changed-after
                       AC-20103-1   yes         TC-290-with-rcf-verify-catalog-json-and-a-local
                       AC-20103-2   yes         TC-290-record-with-mode-deterministic-or-mode
                       AC-20103-3   yes         TC-290-the-pass-fixture-of-the-release-story
-REQ-202      no       AC-20201-1   no          -
+REQ-202      yes      AC-20201-1   yes         TC-291-a-record-from-rcf-build-base-suite
                       AC-20201-2   yes         TC-291-with-no-base-suite-rcf-build-bundle-next
                       AC-20201-3   yes         TC-291-a-green-record-made-at-commit-a-while
                       AC-20201-4   yes         TC-291-a-record-at-b-with-exitcode-1-and-tap
@@ -985,10 +985,10 @@ REQ-202      no       AC-20201-1   no          -
                       AC-20203-2   yes         TC-293-rcf-build-backstop-adopt-from-fbs-001
                       AC-20203-3   yes         TC-293-bundle-next-allow-unverified-hotfix-base
                       AC-20203-4   yes         TC-293-across-the-runs-of-this-story-an
-REQ-203      no       AC-20301-1   yes         TC-294-at-the-current-head-node-bin-rcf-js
+REQ-203      yes      AC-20301-1   yes         TC-294-at-the-current-head-node-bin-rcf-js
                       AC-20301-2   yes         TC-294-in-a-scratch-copy-at-the-current-head
                       AC-20301-3   yes         TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4
-                      AC-20301-4   no          -
+                      AC-20301-4   yes         TC-294-over-the-named-readiness-fixture-trees
                       AC-20302-1   yes         TC-295-at-the-current-head-each-of-define
                       AC-20302-2   yes         TC-295-every-defined4-failure-and-defined4
                       AC-20302-3   yes         TC-295-no-criterion-live-on-main-at-639f07bb
