@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:05:03.420Z",
-  "updatedAt": "2026-10-24T18:05:05.257Z",
+  "updatedAt": "2026-10-24T20:59:37.982Z",
   "purpose": "FBS-241: the external criteria of US-20401, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-241's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -54,9 +54,9 @@
     {
       "id": "TC-297-the-finalise-line-of-rcf-guidance",
       "acId": "AC-20401-6",
-      "description": "the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and rcf guidance build-cycle-playbook names role for who does each stage and never uses hand as a process concept",
+      "description": "the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept",
       "status": "pending",
-      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and rcf guidance build-cycle-playbook names role for who does each stage and never uses hand as a process concept"
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept"
     },
     {
       "id": "TC-297-in-a-project-initialised-by-the-bin",

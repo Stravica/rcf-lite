@@ -2677,6 +2677,27 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"AC-20303-1 and AC-20303-2 (\"through the CLI\"): reading (a). The words leave both criteria as a process rule for the hand, the same treatment AC-19804-2's clause got. The profile answers are the operator's GR-55 answers from 2026-10-24 (surface \"the running app\", register \"product owner\"). FBS-240's round DEFINE records them in rcf/.identity/profile.md, the shipped write-back. B3 rewords and records a ledger decision.\"",
       "answeredAt": "2026-10-24T19:04:22.732Z",
       "resolvedAt": "2026-10-24T19:04:22.732Z"
+    },
+    {
+      "id": 123,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-20401-6 test checks the playbook half with one whole-word \"role\" anywhere in rcf guidance build-cycle-playbook, so a playbook that names the role for one stage or for none passes: how does the test read \"names \"role\" for who does each stage's work\"? Source: stage-keeper ruling F2 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "assert that a role is named inside each stage's own section of the playbook"
+        },
+        {
+          "letter": "b",
+          "text": "parse the five stage sections and assert that each names the role responsible for that stage"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-24T20:58:56.650Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"F2 (AC-20401-6): assert that a role is named inside each stage's own section of the playbook.\" So the AC-20401-6 test finds each stage's own section of the playbook (below the title and outside fenced code, the first heading naming that stage and no other of the five) and asserts that a sentence inside it names \"role\" with the role AC-20401-1 gives that stage (test-author, builder, reviewer, verifier, stage-keeper).",
+      "answeredAt": "2026-10-24T20:59:04.114Z",
+      "resolvedAt": "2026-10-24T20:59:04.114Z"
     }
   ]
 }

@@ -172,13 +172,49 @@ test('AC-20401-5: no guidance topic, no part of the managed block and no bundle 
   assert.deepEqual(hits, [], 'no forbidden form');
 });
 
-test('AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no "CI green, merge, then record", and rcf guidance build-cycle-playbook names role for who does each stage and never uses hand as a process concept', TODO, async () => {
+// The five stages and the role that does each stage's work, as the stage
+// headings of AC-20401-1 name them.
+const STAGE_ROLES = [['DEFINE', 'test-author'], ['BUILD', 'builder'], ['REVIEW', 'reviewer'], ['TEST', 'verifier'], ['FINALISE', 'stage-keeper']];
+// A heading names a stage when the stage word stands alone in it, in any
+// case, not joined by a hyphen ("Build-cycle", "self-review" name none).
+const namesStage = (text, stage) => new RegExp(`(^|[^\\w-])${stage}([^\\w-]|$)`, 'i').test(text);
+
+// Each stage's own section of the playbook (the stage-keeper's ruling F2
+// on the independent check): outside fenced code and below the document
+// title, the first heading that names that stage and no other of the five,
+// running to the next heading of the same or a higher level. Returns
+// [stage, heading text, section text], with null for a stage no heading names.
+function stageSections(text) {
+  const ls = lines(text);
+  let fenced = false;
+  const hs = [];
+  ls.forEach((l, i) => {
+    if (/^\s*(```|~~~)/.test(l)) { fenced = !fenced; return; }
+    const m = fenced ? null : headingOf(l);
+    if (m) hs.push({ i, level: m[1].length, text: m[2] });
+  });
+  const body = hs.length && hs[0].level === 1 ? hs.slice(1) : hs;
+  return STAGE_ROLES.map(([stage]) => {
+    const h = body.find((x) => namesStage(x.text, stage) && STAGE_ROLES.every(([o]) => o === stage || !namesStage(x.text, o)));
+    if (!h) return [stage, null, null];
+    const next = hs.find((x) => x.i > h.i && x.level <= h.level);
+    return [stage, h.text, ls.slice(h.i + 1, next ? next.i : undefined).join('\n')];
+  });
+}
+
+test('AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no "CI green, merge, then record", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept', TODO, async () => {
   const overview = await guidance('overview');
   assert.ok(!overview.includes('CI green, merge, then record'), 'no "CI green, merge, then record"');
   const fin = lines(overview).filter((l) => /Finalise|FINALISE/.test(l));
   assert.ok(fin.some((l) => /before the merge|pre-merge/.test(l) && /writes complete/.test(l)), `a Finalise line reads as a pre-merge step writing complete\n${fin.join('\n')}`);
   const playbook = await guidance('build-cycle-playbook');
-  assert.ok(/\brole\b/.test(playbook), 'the playbook names role for who does each stage');
+  const secs = stageSections(playbook);
+  assert.deepEqual(secs.filter(([, h]) => h === null).map(([s]) => s), [], 'the playbook has its own section for each stage (a heading naming that stage)');
+  const roleless = secs.filter(([stage, , sec]) => {
+    const role = STAGE_ROLES.find(([s]) => s === stage)[1];
+    return !sentences(sec).some((s) => /\brole\b/i.test(s) && new RegExp(`(^|[^\\w-])${role}([^\\w-]|$)`).test(s));
+  }).map(([stage, h]) => `${stage} ("${h}"): no sentence names "role" with ${STAGE_ROLES.find(([s]) => s === stage)[1]}`);
+  assert.deepEqual(roleless, [], 'each stage\'s own section names "role" for who does that stage\'s work');
   const hands = sentences(playbook).filter((s) => /\bhands?\b/i.test(s.replace(/\bby hand\b/gi, '')));
   assert.deepEqual(hands, [], 'hand is never a process concept (the "by hand" idiom excepted)');
 });
