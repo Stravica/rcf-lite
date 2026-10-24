@@ -1,5 +1,5 @@
 Coverage mode: strict (per-AC)
-Requirements: 125  covered: 125  covered-unresolved: 0  uncovered: 0
+Requirements: 135  covered: 125  covered-unresolved: 0  uncovered: 10
 
 Requirement  Covered  AC           AC covered  Test cases
 -----------  -------  -----------  ----------  ------------------------------------------------------------
@@ -830,3 +830,179 @@ REQ-194      yes      AC-19401-1   yes         TC-260-validate-own-chain-0-9-0
                       AC-19401-15  yes         TC-260-non-compiling-pattern-fails
                       AC-19401-16  yes         TC-260-match-anything-never-passes
                       AC-19401-17  yes         TC-260-one-canary-and-header-substring
+REQ-195      no       AC-19501-1   no          -
+                      AC-19501-2   no          -
+                      AC-19501-3   no          -
+                      AC-19501-4   no          -
+                      AC-19501-5   no          -
+                      AC-19501-6   no          -
+                      AC-19501-7   no          -
+                      AC-19502-1   no          -
+                      AC-19502-2   no          -
+REQ-196      no       AC-19601-1   no          -
+                      AC-19601-2   no          -
+                      AC-19601-3   no          -
+                      AC-19601-4   no          -
+                      AC-19601-5   no          -
+                      AC-19601-6   no          -
+                      AC-19601-7   no          -
+                      AC-19601-8   no          -
+                      AC-19601-9   no          -
+                      AC-19601-10  no          -
+                      AC-19602-1   no          -
+                      AC-19602-2   no          -
+                      AC-19602-3   no          -
+                      AC-19602-4   no          -
+                      AC-19602-5   no          -
+                      AC-19603-1   no          -
+                      AC-19603-2   no          -
+                      AC-19603-3   no          -
+                      AC-19603-4   no          -
+                      AC-19603-5   no          -
+                      AC-19603-6   no          -
+                      AC-19603-7   no          -
+                      AC-19603-8   no          -
+                      AC-19604-1   no          -
+                      AC-19604-2   no          -
+                      AC-19604-3   no          -
+                      AC-19604-4   no          -
+                      AC-19604-5   no          -
+                      AC-19604-6   no          -
+                      AC-19604-7   no          -
+REQ-197      no       AC-19701-1   no          -
+                      AC-19701-2   no          -
+                      AC-19701-3   no          -
+                      AC-19701-4   no          -
+                      AC-19701-5   no          -
+                      AC-19701-6   no          -
+                      AC-19702-1   no          -
+                      AC-19702-2   no          -
+                      AC-19702-3   no          -
+                      AC-19702-4   no          -
+                      AC-19702-5   no          -
+                      AC-19702-6   no          -
+                      AC-19702-7   no          -
+                      AC-19702-8   no          -
+                      AC-19703-1   no          -
+                      AC-19703-2   no          -
+                      AC-19703-3   no          -
+                      AC-19703-4   no          -
+                      AC-19703-5   no          -
+                      AC-19703-6   no          -
+                      AC-19703-7   no          -
+                      AC-19703-8   no          -
+                      AC-19703-9   no          -
+                      AC-19703-10  no          -
+                      AC-19703-11  no          -
+REQ-198      no       AC-19801-1   no          -
+                      AC-19801-2   no          -
+                      AC-19801-3   no          -
+                      AC-19801-4   no          -
+                      AC-19801-5   no          -
+                      AC-19801-6   no          -
+                      AC-19802-1   no          -
+                      AC-19802-2   no          -
+                      AC-19802-3   no          -
+                      AC-19802-4   no          -
+                      AC-19802-5   no          -
+                      AC-19803-1   no          -
+                      AC-19803-2   no          -
+                      AC-19803-3   no          -
+                      AC-19803-4   no          -
+                      AC-19803-5   no          -
+                      AC-19803-6   no          -
+                      AC-19804-1   no          -
+                      AC-19804-2   no          -
+                      AC-19804-3   no          -
+REQ-199      no       AC-19901-1   no          -
+                      AC-19901-2   no          -
+                      AC-19901-3   no          -
+                      AC-19901-4   no          -
+                      AC-19901-5   no          -
+                      AC-19901-6   no          -
+                      AC-19901-7   no          -
+                      AC-19901-8   no          -
+                      AC-19902-1   no          -
+                      AC-19902-2   no          -
+                      AC-19902-3   no          -
+                      AC-19902-4   no          -
+                      AC-19902-5   no          -
+                      AC-19902-6   no          -
+                      AC-19902-7   no          -
+                      AC-19902-8   no          -
+                      AC-19903-1   no          -
+                      AC-19903-2   no          -
+                      AC-19903-3   no          -
+                      AC-19903-4   no          -
+                      AC-19903-5   no          -
+REQ-200      no       AC-20001-1   no          -
+                      AC-20001-2   no          -
+                      AC-20001-3   no          -
+                      AC-20001-4   no          -
+                      AC-20001-5   no          -
+                      AC-20001-6   no          -
+                      AC-20001-7   no          -
+                      AC-20001-8   no          -
+                      AC-20001-9   no          -
+                      AC-20002-1   no          -
+                      AC-20002-2   no          -
+                      AC-20002-3   no          -
+                      AC-20002-4   no          -
+                      AC-20002-5   no          -
+                      AC-20003-1   no          -
+                      AC-20003-2   no          -
+                      AC-20003-3   no          -
+                      AC-20003-4   no          -
+                      AC-20003-5   no          -
+REQ-201      no       AC-20101-1   no          -
+                      AC-20101-2   no          -
+                      AC-20101-3   no          -
+                      AC-20101-4   no          -
+                      AC-20101-5   no          -
+                      AC-20101-6   no          -
+                      AC-20101-7   no          -
+                      AC-20102-1   no          -
+                      AC-20102-2   no          -
+                      AC-20102-3   no          -
+                      AC-20102-4   no          -
+                      AC-20103-1   no          -
+                      AC-20103-2   no          -
+                      AC-20103-3   no          -
+REQ-202      no       AC-20201-1   no          -
+                      AC-20201-2   no          -
+                      AC-20201-3   no          -
+                      AC-20201-4   no          -
+                      AC-20201-5   no          -
+                      AC-20201-6   no          -
+                      AC-20201-7   no          -
+                      AC-20201-8   no          -
+                      AC-20202-1   no          -
+                      AC-20202-2   no          -
+                      AC-20202-3   no          -
+                      AC-20202-4   no          -
+                      AC-20202-5   no          -
+                      AC-20203-1   no          -
+                      AC-20203-2   no          -
+                      AC-20203-3   no          -
+                      AC-20203-4   no          -
+REQ-203      no       AC-20301-1   no          -
+                      AC-20301-2   no          -
+                      AC-20301-3   no          -
+                      AC-20301-4   no          -
+                      AC-20302-1   no          -
+                      AC-20302-2   no          -
+                      AC-20302-3   no          -
+                      AC-20302-4   no          -
+                      AC-20303-1   no          -
+                      AC-20303-2   no          -
+                      AC-20303-3   no          -
+REQ-204      no       AC-20401-1   no          -
+                      AC-20401-2   no          -
+                      AC-20401-3   no          -
+                      AC-20401-4   no          -
+                      AC-20401-5   no          -
+                      AC-20401-6   no          -
+                      AC-20401-7   no          -
+                      AC-20402-2   no          -
+                      AC-20402-3   no          -
+                      AC-20402-4   no          -
