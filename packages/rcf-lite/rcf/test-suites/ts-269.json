@@ -1,0 +1,94 @@
+{
+  "createdAt": "2026-10-24T16:27:45.094Z",
+  "updatedAt": "2026-10-24T16:28:04.883Z",
+  "purpose": "FBS-233: the external criteria of US-19601, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19601-1",
+    "AC-19601-2",
+    "AC-19601-3",
+    "AC-19601-4",
+    "AC-19601-5",
+    "AC-19601-6",
+    "AC-19601-7",
+    "AC-19601-8",
+    "AC-19601-9",
+    "AC-19601-10"
+  ],
+  "id": "TS-269",
+  "usId": "US-19601",
+  "title": "US-19601 external criteria (FBS-233)",
+  "testCases": [
+    {
+      "id": "TC-269-rcf-audit-separation-over-a-define-build",
+      "acId": "AC-19601-1",
+      "description": "rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\""
+    },
+    {
+      "id": "TC-269-a-build-add-test-commit-touching-test-x",
+      "acId": "AC-19601-2",
+      "description": "a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\""
+    },
+    {
+      "id": "TC-269-a-commit-with-no-stage-prefix-exits-4",
+      "acId": "AC-19601-3",
+      "description": "a commit with no stage prefix exits 4 with \"<s7> no stage prefix\" as its only item, also when it touches only Markdown outside rcf/",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-3: a commit with no stage prefix exits 4 with \"<s7> no stage prefix\" as its only item, also when it touches only Markdown outside rcf/"
+    },
+    {
+      "id": "TC-269-seven-malformed-prefixes-each-fail-with",
+      "acId": "AC-19601-4",
+      "description": "seven malformed prefixes each fail with \"<s7> malformed stage prefix \\\\\"<first token>\\\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" and exit 4",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-4: seven malformed prefixes each fail with \"<s7> malformed stage prefix \\\\\"<first token>\\\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" and exit 4"
+    },
+    {
+      "id": "TC-269-a-bad-base-ref-exits-2-separation-bad",
+      "acId": "AC-19601-5",
+      "description": "a bad --base ref exits 2 \"separation: bad ref <ref>\", outside a git repository exits 1 \"separation: not a git repository\", a shallow clone exits 2 with the shallow line, each with nothing on stdout",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-5: a bad --base ref exits 2 \"separation: bad ref <ref>\", outside a git repository exits 1 \"separation: not a git repository\", a shallow clone exits 2 with the shallow line, each with nothing on stdout"
+    },
+    {
+      "id": "TC-269-json-over-the-five-commit-branch-plus-a",
+      "acId": "AC-19601-6",
+      "description": "--json over the five-commit branch plus a clean \"FINALISE: merge main\" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-6: --json over the five-commit branch plus a clean \"FINALISE: merge main\" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []"
+    },
+    {
+      "id": "TC-269-review-test-and-finalise-commits-outside",
+      "acId": "AC-19601-7",
+      "description": "REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only"
+    },
+    {
+      "id": "TC-269-rcf-audit-separation-never-writes-reads",
+      "acId": "AC-19601-8",
+      "description": "rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git"
+    },
+    {
+      "id": "TC-269-over-200-prefixed-commits-touching-20",
+      "acId": "AC-19601-9",
+      "description": "over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge"
+    },
+    {
+      "id": "TC-269-a-build-mixed-commit-with-hand-test",
+      "acId": "AC-19601-10",
+      "description": "a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as that commit\\",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-10: a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as that commit\\"
+    }
+  ],
+  "status": "draft"
+}

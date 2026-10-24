@@ -64,3 +64,28 @@ export const s12 = (s) => s.slice(0, 12);
 export function porcelain(dir) {
   return execFileSync('git', ['status', '--porcelain'], { cwd: dir, env: baseEnv(), encoding: 'utf8' });
 }
+
+/**
+ * Append a linear run of commits on the current branch through one
+ * git fast-import (for large fixture ranges). commits: [{ subject, files:
+ * { path: content } }]. Returns the new HEAD sha.
+ */
+export function fastImport(dir, commits, { branch = 'refs/heads/main' } = {}) {
+  const parent = git(dir, 'rev-parse', 'HEAD');
+  const chunks = [];
+  let t = 1_700_000_000;
+  commits.forEach((c, i) => {
+    const msg = Buffer.from(c.subject + (c.trailers?.length ? `\n\n${c.trailers.map(([k, v]) => `${k}: ${v}`).join('\n')}` : '') + '\n');
+    chunks.push(`commit ${branch}\nmark :${i + 1}\nauthor Fixture <fixture@example.com> ${t} +0000\ncommitter Fixture <fixture@example.com> ${t} +0000\ndata ${msg.length}\n${msg}`);
+    if (i === 0) chunks.push(`from ${parent}\n`);
+    for (const [p, content] of Object.entries(c.files)) {
+      const body = Buffer.from(content);
+      chunks.push(`M 100644 inline ${p}\ndata ${body.length}\n${body}\n`);
+    }
+    chunks.push('\n');
+    t += 60;
+  });
+  execFileSync('git', ['fast-import', '--quiet'], { cwd: dir, env: baseEnv(), input: chunks.join(''), stdio: ['pipe', 'pipe', 'pipe'] });
+  git(dir, 'reset', '-q', '--hard', branch);
+  return git(dir, 'rev-parse', 'HEAD');
+}

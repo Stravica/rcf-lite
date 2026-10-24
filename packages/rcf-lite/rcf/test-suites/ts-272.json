@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-24T16:28:09.039Z",
+  "updatedAt": "2026-10-24T16:28:10.860Z",
+  "purpose": "FBS-233: the external criteria of US-19604, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19604-1",
+    "AC-19604-2",
+    "AC-19604-3",
+    "AC-19604-4",
+    "AC-19604-5",
+    "AC-19604-6",
+    "AC-19604-7"
+  ],
+  "id": "TS-272",
+  "usId": "US-19604",
+  "title": "US-19604 external criteria (FBS-233)",
+  "testCases": [
+    {
+      "id": "TC-272-define-with-hand-test-author-and-build",
+      "acId": "AC-19604-1",
+      "description": "DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with \"DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2\" and each --json row names its handTrailer",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with \"DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2\" and each --json row names its handTrailer"
+    },
+    {
+      "id": "TC-272-a-build-code-commit-carrying-hand-test",
+      "acId": "AC-19604-2",
+      "description": "a \"BUILD: code\" commit carrying Hand: test-author exits 4 with \"<s7> Hand: test-author disagrees with BUILD: (role builder)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-2: a \"BUILD: code\" commit carrying Hand: test-author exits 4 with \"<s7> Hand: test-author disagrees with BUILD: (role builder)\""
+    },
+    {
+      "id": "TC-272-a-hand-mixed-trailer-fails-s7-hand-mixed",
+      "acId": "AC-19604-3",
+      "description": "a Hand: mixed trailer fails \"<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\" with or without Separation-Reason, whatever the commit touches",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-3: a Hand: mixed trailer fails \"<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\" with or without Separation-Reason, whatever the commit touches"
+    },
+    {
+      "id": "TC-272-rcf-audit-separation-require-hand-exits",
+      "acId": "AC-19604-4",
+      "description": "rcf audit separation --require-hand exits 2 with \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-4: rcf audit separation --require-hand exits 2 with \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout"
+    },
+    {
+      "id": "TC-272-configured-classes-win-rcftest-on-spec",
+      "acId": "AC-19604-5",
+      "description": "configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2"
+    },
+    {
+      "id": "TC-272-no-trailer-turns-a-failing-commit-into-a",
+      "acId": "AC-19604-6",
+      "description": "no trailer turns a failing commit into a pass: \"BUILD: add test\" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails \"no stage prefix\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-6: no trailer turns a failing commit into a pass: \"BUILD: add test\" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails \"no stage prefix\""
+    },
+    {
+      "id": "TC-272-a-branch-starting-at-build-code-followed",
+      "acId": "AC-19604-7",
+      "description": "a branch starting at \"BUILD: code\" followed by an evidence-only \"TEST: evidence\" with no verdict file passes on classes with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-7: a branch starting at \"BUILD: code\" followed by an evidence-only \"TEST: evidence\" with no verdict file passes on classes with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\""
+    }
+  ],
+  "status": "draft"
+}

@@ -143,3 +143,37 @@ export function bindTests(dir, cases, { tsId = 'TS-001', usId = 'US-101', testLe
 }
 
 export { PACKAGE_ROOT };
+
+// Verdict fixtures (GR-38): well-formed ReviewVerdict v1, TestVerdict v1
+// and TestStrengthReport v1 documents (TAC-4154, TAC-4155), keyed by the
+// caller to the right heads: a review.json's head is its REVIEW: commit's
+// parent; a test.json's head is that reviewed head, or its own parent for
+// a FAIL recorded after a TEST PASS.
+
+export const verdictPath = (head, file) => `rcf/verdicts/${head.slice(0, 12)}/${file}`;
+
+export function reviewVerdict(head, { fbsIds = ['FBS-001'], touchedAcIds = ['AC-101-1'], code = 'MERGE', adequacy = 'PASS', findings, recordedBy = 'reviewer' } = {}) {
+  const f = findings ?? (code === 'MERGE' && adequacy === 'PASS' ? [] : [{ id: 'F-1', locus: 'build', acId: null, text: 'fixture finding' }]);
+  return { verdictVersion: 1, stage: 'review', head, fbsIds, touchedAcIds, code, adequacy, findings: f, recordedBy, recordedAt: '2026-10-24T00:00:00.000Z' };
+}
+
+export function testVerdict(head, { fbsIds = ['FBS-001'], result = 'PASS', suite, runtime = 'fixture app on localhost', reason = null, recordedBy = 'verifier' } = {}) {
+  const s = suite ?? (result === 'PASS' ? { pass: 3, fail: 0, skip: 0, todo: 0, cancelled: 0 } : { pass: 2, fail: 1, skip: 0, todo: 0, cancelled: 0 });
+  return { verdictVersion: 1, stage: 'test', head, fbsIds, result, suite: s, runtime, node: process.version, reason: result === 'FAIL' ? (reason ?? 'fixture failure') : reason, recordedBy, recordedAt: '2026-10-24T00:00:00.000Z' };
+}
+
+export function testStrengthReport(head, { scope = 'reviewVerdict', failing = [], passing = ['AC-101-1'] } = {}) {
+  const crit = (acId, ok) => ({
+    acId,
+    structural: { result: 'pass', findings: [] },
+    mutants: [{ symbol: 'src/x.js#run', operator: 'noOp', result: ok ? 'killed' : 'survived', killedBy: ok ? ['test/rcf/a.test.js::fixture'] : [] }],
+    result: ok ? 'pass' : 'fail',
+  });
+  const criteria = [...passing.map((a) => crit(a, true)), ...failing.map((a) => crit(a, false))];
+  const killed = passing.length;
+  return {
+    version: 1, head, scope, criteria, result: failing.length ? 'fail' : 'pass',
+    totals: { criteria: criteria.length, structuralPassed: criteria.length, mutants: criteria.length, killed, survived: failing.length, timeout: 0, notApplicable: 0 },
+    wallMs: 10, node: process.version,
+  };
+}
