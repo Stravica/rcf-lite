@@ -1944,7 +1944,7 @@
       "options": [
         {
           "letter": "a",
-          "text": "As recommended: stub-to-throw, no-op and call removal on Code Node symbols only, no general mutation testing; release scope is the specs changed since the last release plus a core-journey smoke run"
+          "text": "As recommended: stub-to-throw, no-op and call removal on Code Node symbols only, no general mutation testing; release scope is the specs changed since the last release plus a core-journey smoke run; amended 2026-10-24 by decision 103 (the operator's answer (c)): a fourth operator, fileBlank, on file-level Code Nodes of non-source paths"
         },
         {
           "letter": "b",
@@ -2180,6 +2180,127 @@
       "answer": "a. The operator-marked lines of the redesign: \"The cycle ends at complete.\" TEST: \"The full RCF suite passes against a locally running app. No deployments (the operator).\" FINALISE: \"Light and tool-checked (the operator). Then merge.\" \"Code Nodes exist for every AC the slice touched (the operator: slice scope)\". \"VERIFY: the production gate, outside the build cycle (the operator)\", \"Preview always points at sandbox (the operator)\", \"What it writes: verified. Ad hoc runs, such as a post-deploy smoke test, never touch RCF statuses (the operator).\" \"No new Build until the full RCF suite is green on the base (the operator). Specs cannot be verified mid-build.\" \"Mutation proof (tool, in v1, the operator).\" \"Bad passing tests cascade through testing and traceability (the operator).\" \"AC: carries verification: external | testOnly, set at DEFINE and checked at Review (the operator).\" One way of building across products \"is a must (the operator).\"",
       "answeredAt": "2026-10-24T11:43:21.410Z",
       "resolvedAt": "2026-10-24T11:43:21.410Z"
+    },
+    {
+      "id": 102,
+      "question": "(rcf-lite 0.37.0 DEFINE) A merge from main in FINALISE that needs a code fix, or CI or the full suite red on the merge head: how does the round close? Source: stage-keeper ruling 3, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a second TEST verdict, FAIL, keyed by the merge head"
+        },
+        {
+          "letter": "b",
+          "text": "a new FINALISE failure verdict kind"
+        },
+        {
+          "letter": "c",
+          "text": "the branch closes unmerged and a new branch from main starts at DEFINE (cherry-picking the round)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-234, FBS-237",
+      "addedAt": "2026-10-24T14:58:24.344Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24, overriding the worker's pick (c): \"When the full suite or CI goes red on the merge head, the stage-keeper does not fix it. A TEST run at the merge head records FAIL. That verdict closes the round, and the next round starts at DEFINE on the same branch. No new verdict kind, and no closing the branch.\" Reason: the operator, \"we are supposed to re-enter the 5-stage cycle\". A merge whose resolution needs a code fix is never committed in FINALISE; the FAIL is then keyed to HEAD.",
+      "answeredAt": "2026-10-24T14:58:24.431Z",
+      "resolvedAt": "2026-10-24T14:58:24.431Z"
+    },
+    {
+      "id": 103,
+      "question": "(rcf-lite 0.37.0 DEFINE) How do touched criteria that no code symbol implements (guidance, docs, CI, chain state) pass test strength and the Code Node check? Source: pre-freeze gate rulings 2026-10-24, GR-19.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "criterion-level exemption declared at DEFINE, judged at Review"
+        },
+        {
+          "letter": "b",
+          "text": "such checks leave RCF criteria"
+        },
+        {
+          "letter": "c",
+          "text": "a fourth operator, fileBlank, on file-level Code Nodes of non-source paths"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-236, FBS-237, FBS-240, FBS-241",
+      "addedAt": "2026-10-24T14:58:24.518Z",
+      "status": "resolved",
+      "answer": "c. The operator, 2026-10-24 about 14:20Z: \"(c). Add a fourth operator, fileBlank, on file-level Code Nodes of non-source paths. Apply section 7.14's GR-19 text, and set ledger 91's operator list to four. The a-74 ledger entry is ruled (c).\"",
+      "answeredAt": "2026-10-24T14:58:24.607Z",
+      "resolvedAt": "2026-10-24T14:58:24.607Z"
+    },
+    {
+      "id": 104,
+      "question": "(rcf-lite 0.37.0 DEFINE) Where a-27 and a-29 (GR-18, not a supported source) and the fourth operator (GR-19, fileBlank) both rule on paths outside .js, .mjs and .cjs, which paths exit 2 and which get fileBlank? Source: the stage-keeper's ruling on the GR-18 and GR-19 overlap, 2026-10-24, before the DEFINE part A re-entry.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "exit 2 only for bound tests and symbol-level Code Nodes, with every file-level Code Node outside .js, .mjs and .cjs going to fileBlank"
+        },
+        {
+          "letter": "b",
+          "text": "fileBlank only for paths that are not source in any language, with a declared list of what counts as source"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-236",
+      "addedAt": "2026-10-24T14:58:24.695Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24, before the part A re-entry: \"A path's outcome under rcf audit test-strength is decided in this order: 1. A symbol-level Code Node (path#symbol) must be on a .js, .mjs or .cjs file. The three symbol operators apply. On any other file it exits 2 \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\". 2. A file-level Code Node on a .js, .mjs or .cjs file keeps failing, as AC-19902-2 says today, because source code needs symbol granularity. 3. A file-level Code Node on a code file in another language also exits 2 \"not a supported source\". An example is a TypeScript source file, as a-29 says. The fixed list of code extensions is .ts .tsx .jsx .py .rb .go .java .kt .rs .php .cs .swift. TAC-4155 states the list. 4. A file-level Code Node on any other path gets fileBlank: the file is blanked, the criterion's bound tests run, and one must go red. Examples: docs, JSON, YAML, .github/ workflows, chain records. 5. A bound test file must be .js, .mjs or .cjs, else exit 2, as a-29 says.\" a-27's sources clause is worded to match rules 1, 3 and 5, section 7.14's \"outside the declared source extensions\" is worded as rule 4's \"any other path\", and GR-19's docs criterion stands.",
+      "answeredAt": "2026-10-24T14:58:24.784Z",
+      "resolvedAt": "2026-10-24T14:58:24.784Z"
+    },
+    {
+      "id": 105,
+      "question": "(rcf-lite 0.37.0 DEFINE) Where does the 0.37.0 release cut land so AC-20402-1 is observed at TEST? Source: GR-33.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "in FBS-241's BUILD; versionField gains BUILD"
+        },
+        {
+          "letter": "b",
+          "text": "a TEST: PASS keyed to the FINALISE: release commit"
+        },
+        {
+          "letter": "c",
+          "text": "the feed-entry clause moves to the release tooling's checks"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-24T14:58:24.871Z",
+      "status": "resolved",
+      "answer": "c. The operator, 2026-10-24 about 14:20Z: \"(c), departing from the worker's (a). The feed-entry clause leaves FBS-241's criteria. The changes: AC-20402-1 drops the \"releases.yaml 0.37.0 entry and package.json at 0.37.0\" clause and keeps any other clause. If nothing else remains, retire it and succeed it with no successor, with the reason stated. The 0.37.0 cut lands as FINALISE: commits on FBS-241's PR (ruling 2, Q-02), and ADR-4153 stays unchanged. The existing release check, test/scripts/validate-releases.test.js, runs in CI on the final head. That proves the entry and the version agree, and GR-21's --ci-run names the passing run on HEAD at Finalise time, so the cut commit is covered. FBS-241's deliverables say the cut is FINALISE. Section 7.14's GR-33 (a) text is not applied. The a-74 ledger entry is ruled (c).\"",
+      "answeredAt": "2026-10-24T14:58:24.957Z",
+      "resolvedAt": "2026-10-24T14:58:24.957Z"
+    },
+    {
+      "id": 106,
+      "question": "(rcf-lite 0.37.0 DEFINE) How does a branch carrying a committed order or class breach pass again? Source: GR-49.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "new branch from main at DEFINE, cherry-picking the legal commits"
+        },
+        {
+          "letter": "b",
+          "text": "a failed REVIEW verdict closes the round and the audit judges the last round only"
+        },
+        {
+          "letter": "c",
+          "text": "a recorded force push dropping the commit"
+        }
+      ],
+      "default": "a",
+      "blocks": "none in 0.37.0 (a 0.38.0 DEFINE item)",
+      "addedAt": "2026-10-24T14:58:25.045Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 about 14:20Z: \"(a). A branch carrying an order or class breach is closed. A fresh branch from main starts at DEFINE and cherry-picks only the legal commits, and the old PR stays as the record. This is 0.38.0 scope; the later item's title stands.\"",
+      "answeredAt": "2026-10-24T14:58:25.132Z",
+      "resolvedAt": "2026-10-24T14:58:25.132Z"
     }
   ]
 }
