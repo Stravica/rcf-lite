@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:39:13.186Z",
-  "updatedAt": "2026-10-24T11:39:14.535Z",
+  "updatedAt": "2026-10-24T15:03:26.441Z",
   "asA": "stage-keeper starting the first Build after 0.37.0",
   "iWant": "readiness green and the tree frozen on main",
   "soThat": "Builds come from rcf build bundle --next again and the explicit-id workaround ends",
@@ -17,22 +17,22 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20301-1",
-      "description": "[happy] Given this repository at the 0.37.0 release head, when node bin/rcf.js define readiness --check all runs from packages/rcf-lite, then it exits 0, its Chips line reads \"D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:passed\" and it prints \"Freezeable: yes\".",
+      "description": "[happy] Given this repository at this slice's reviewed head or any later head of the 0.37.0 train, when node bin/rcf.js define readiness --check all runs from packages/rcf-lite, then it exits 0, its Chips line reads \"D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:passed\" and it prints \"Freezeable: yes\".",
       "testable": true
     },
     {
       "id": "AC-20301-2",
-      "description": "[happy] Given the freeze recorded at the release head by the stage-keeper, when node bin/rcf.js build bundle --next --base-suite <a green record for that head> runs without --override, then it exits 0 and emits the next actionable bundle, and node bin/rcf.js define readiness no longer prints \"Unfrozen\".",
+      "description": "[happy] Given a scratch copy of this repository at this slice's reviewed head or any later head, with the freeze recorded in the copy by node bin/rcf.js define freeze, when node bin/rcf.js build bundle --next --base-suite <a green record for that head> runs in the copy without --override, then it exits 0 and emits the next actionable bundle, and node bin/rcf.js define readiness in the copy no longer prints \"Unfrozen\".",
       "testable": true
     },
     {
       "id": "AC-20301-3",
-      "description": "[failure] Given a scratch copy of this repository at the release head with one new requirement created through rcf define create req and given no shape classification, no story and no concern entries, when node bin/rcf.js define readiness --check all runs in the copy, then it exits 4 naming that requirement under the D2 and D4 checks it fails, so the green state is held by the checks and not by an exemption.",
+      "description": "[failure] Given a scratch copy of this repository at this slice's reviewed head or any later head with one new requirement created through rcf define create req and given no shape classification, no story and no concern entries, when node bin/rcf.js define readiness --check all runs in the copy, then it exits 4 naming that requirement under the D2 and D4 checks it fails, so the green state is held by the checks and not by an exemption.",
       "testable": true
     },
     {
       "id": "AC-20301-4",
-      "description": "[must-not] No readiness check is weakened to reach green: the readiness check code under src/query/gates.js and src/cli/readiness.js gives the same chip verdicts at the release head as at 639f07bb over every readiness fixture tree under packages/rcf-lite/test/, and no check in this repository's own chain is marked notApplicable that was applicable at 639f07bb.",
+      "description": "[must-not] No readiness check is weakened to reach green: the readiness check code under src/query/gates.js and src/cli/readiness.js gives the same chip verdicts at this slice's reviewed head and every later head as at 639f07bb over every readiness fixture tree under packages/rcf-lite/test/, and no check in this repository's own chain is marked notApplicable that was applicable at 639f07bb.",
       "testable": true
     }
   ],

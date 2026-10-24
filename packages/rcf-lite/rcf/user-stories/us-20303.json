@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:39:16.395Z",
-  "updatedAt": "2026-10-24T11:39:17.493Z",
+  "updatedAt": "2026-10-24T15:03:29.547Z",
   "asA": "the operator as product owner of rcf-lite",
   "iWant": "to be asked the profile questions once, in plain words, and have my answers recorded",
   "soThat": "D1 passes on my answers, not on a guess",
@@ -17,12 +17,12 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20303-1",
-      "description": "[happy] Given this repository at the release head, when node bin/rcf.js define readiness --level intent --check brief runs, then it exits 0, brief:profile reads 2/2, and the recorded answers for profile:surface and profile:register are the operator's, recorded through the CLI by the test-author with the ruling's source named.",
+      "description": "[happy] Given this repository at this slice's reviewed head or any later head, when node bin/rcf.js define readiness --level intent --check brief runs, then it exits 0, brief:profile reads 2/2, and the recorded answers for profile:surface and profile:register are the operator's, recorded through the CLI by the test-author with the ruling's source named.",
       "testable": true
     },
     {
       "id": "AC-20303-2",
-      "description": "[failure] Given a scratch copy of the release head with the profile answers removed through the CLI, node bin/rcf.js define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner's questions.",
+      "description": "[failure] Given a scratch copy of this slice's reviewed head or any later head with the profile answers removed through the CLI, node bin/rcf.js define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner's questions.",
       "testable": true
     },
     {
