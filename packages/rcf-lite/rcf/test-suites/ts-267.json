@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-24T16:22:20.592Z",
+  "updatedAt": "2026-10-24T16:22:20.850Z",
+  "purpose": "FBS-232: the testOnly criteria of US-19501, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19501-6"
+  ],
+  "id": "TS-267",
+  "usId": "US-19501",
+  "title": "US-19501 testOnly criteria (FBS-232)",
+  "testCases": [
+    {
+      "id": "TC-267-the-installed-rcf-schemas-at-the-new-pin",
+      "acId": "AC-19501-6",
+      "description": "the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly [\"external\", \"testOnly\"], not required, with additionalProperties still false",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly [\"external\", \"testOnly\"], not required, with additionalProperties still false"
+    }
+  ],
+  "status": "draft"
+}

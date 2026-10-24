@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T16:22:21.108Z",
+  "updatedAt": "2026-10-24T16:22:21.622Z",
+  "purpose": "FBS-232: the testOnly criteria of US-19502, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19502-1",
+    "AC-19502-2"
+  ],
+  "id": "TS-268",
+  "usId": "US-19502",
+  "title": "US-19502 testOnly criteria (FBS-232)",
+  "testCases": [
+    {
+      "id": "TC-268-the-pnpm-lock-yaml-importer-entry-for",
+      "acId": "AC-19502-1",
+      "description": "the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins"
+    },
+    {
+      "id": "TC-268-every-code-node-implementing-a-criterion",
+      "acId": "AC-19502-2",
+      "description": "every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository"
+    }
+  ],
+  "status": "draft"
+}

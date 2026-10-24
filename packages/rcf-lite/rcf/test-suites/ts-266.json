@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-24T16:22:19.310Z",
+  "updatedAt": "2026-10-24T16:22:20.335Z",
+  "purpose": "FBS-232: the external criteria of US-19501, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-232's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19501-1",
+    "AC-19501-2",
+    "AC-19501-3",
+    "AC-19501-4"
+  ],
+  "id": "TS-266",
+  "usId": "US-19501",
+  "title": "US-19501 external criteria (FBS-232)",
+  "testCases": [
+    {
+      "id": "TC-266-rcf-define-create-ac-parent-us-101-from",
+      "acId": "AC-19501-1",
+      "description": "rcf define create ac --parent US-101 --from-file with \"verification\": \"external\" exits 0, define read shows the criterion with \"verification\": \"external\", and define validate exits 0",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-1: rcf define create ac --parent US-101 --from-file with \"verification\": \"external\" exits 0, define read shows the criterion with \"verification\": \"external\", and define validate exits 0"
+    },
+    {
+      "id": "TC-266-rcf-define-update-ac-101-1-set",
+      "acId": "AC-19501-2",
+      "description": "rcf define update AC-101-1 --set verification=testOnly exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\", leaves the criterion text byte-identical, and define validate exits 0",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\", leaves the criterion text byte-identical, and define validate exits 0"
+    },
+    {
+      "id": "TC-266-a-verification-value-outside-external",
+      "acId": "AC-19501-3",
+      "description": "a verification value outside external and testOnly exits 3 with an \"[error] validation\" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying \"deployed\"",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-3: a verification value outside external and testOnly exits 3 with an \"[error] validation\" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying \"deployed\""
+    },
+    {
+      "id": "TC-266-after-the-pin-move-rcf-define-validate",
+      "acId": "AC-19501-4",
+      "description": "after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no \"[error]\" line naming verification (the field stays optional at schema level)",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-4: after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no \"[error]\" line naming verification (the field stays optional at schema level)"
+    }
+  ],
+  "status": "draft"
+}
