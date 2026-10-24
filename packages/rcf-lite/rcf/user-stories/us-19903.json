@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-10-24T11:31:47.040Z",
+  "updatedAt": "2026-10-24T15:01:47.245Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -22,7 +22,7 @@
     },
     {
       "id": "AC-19903-2",
-      "description": "[failure] Given an uncommitted change to src/x.js, rcf audit test-strength --record exits 4 with stderr \"test-strength: refused: working tree is dirty; a record names a committed head\"; given a \"BUILD:\" commit after H that changed src/x.js, it exits 4 with \"test-strength: refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/ and rcf/verify-reports/\"; neither writes a file.",
+      "description": "[failure] Given an uncommitted change to src/x.js, rcf audit test-strength --record exits 4 with stderr \"test-strength: refused: working tree is dirty; a record names a committed head\"; given a \"BUILD:\" commit after H that changed src/x.js, it exits 4 with \"test-strength: refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\"; given no REVIEW verdict reachable from HEAD, with or without --acs or --fbs, it exits 2 with \"test-strength: --record needs a REVIEW verdict reachable from HEAD\"; none writes a file, and a FINALISE: commit inside FINALISE classes after H does not refuse.",
       "testable": true
     },
     {

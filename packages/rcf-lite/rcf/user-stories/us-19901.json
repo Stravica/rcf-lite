@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:41.237Z",
-  "updatedAt": "2026-10-24T11:31:43.092Z",
+  "updatedAt": "2026-10-24T15:01:49.818Z",
   "asA": "verifier at the TEST stage, with the reviewer reading the result",
   "iWant": "a tool that fails any bound test reaching around the app entry, mocking an internal module, or relying on a silently defaulted logger, emitter or sender",
   "soThat": "a green suite means production as wired does what the criteria say",
@@ -44,6 +44,16 @@
       "id": "AC-19901-6",
       "description": "[must-not] The structural check never executes a test, the entry or any product module: it reads bound test files and Code Node sources as text, so a bound test file that would throw on import still yields its import findings, and a structural-only failure is reported without running a single mutant.",
       "testable": true
+    },
+    {
+      "id": "AC-19901-7",
+      "description": "[edge] Given --acs AC-101-1,AC-101-2 where AC-101-1's bound test imports src/store.js and AC-101-2 passes the structural check, rcf audit test-strength runs the structural check for both first, runs mutants for AC-101-2 only, exits 4 naming AC-101-1's imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1.",
+      "testable": true
+    },
+    {
+      "id": "AC-19901-8",
+      "description": "[failure] Given a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, rcf audit test-strength exits 2 with stderr \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\" and runs no mutant; bound tests and Code Nodes in .js, .mjs and .cjs files are read.",
+      "testable": true
     }
   ],
   "tags": [
@@ -52,6 +62,8 @@
     "verification:AC-19901-3=external",
     "verification:AC-19901-4=external",
     "verification:AC-19901-5=external",
-    "verification:AC-19901-6=external"
+    "verification:AC-19901-6=external",
+    "verification:AC-19901-7=external",
+    "verification:AC-19901-8=external"
   ]
 }
