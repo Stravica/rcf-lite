@@ -14,22 +14,29 @@
 // turns it green. External tests drive bin/rcf.js against fixture
 // projects made by its own rcf init (in git where the criterion needs a
 // base). TestOnly tests read this repository through RCF_CHECKOUT
-// (GR-34) and its git history, which the CI test job has once this slice
-// checks out with fetch-depth 0 (AC-19801-6). Timing tests print the host
-// facts (GR-45). Imports: Node builtins, js-yaml and test/_harness/ only
+// (GR-34) at the current head and no git history: AC-19803-5's row half,
+// AC-19804-1 and AC-19804-2 compare with the pre-move goldens FBS-235's
+// round DEFINE records (the stage-keeper's rulings F5, F6 and F7 on the
+// independent check), and AC-19804-3 runs in a fixture repository the
+// harness builds with its own base commit (ruling F8). The one exception
+// is AC-19803-5's timing ratio (ruling C3), which runs only with
+// RCF_PERF=1, at TEST on the verifier's full clone, against a temporary
+// worktree at the parent commit, and is skipped otherwise. Timing tests
+// print the host facts (GR-45). Imports: Node builtins, js-yaml and test/_harness/ only
 // (GR-40).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
-import { readFileSync, readdirSync, symlinkSync } from 'node:fs';
+import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import yaml from 'js-yaml';
 
 import { lines, rcf, run } from '../_harness/spawn.js';
-import { commit, git, gitTry, porcelain, s7, showAt } from '../_harness/git.js';
-import { bindTests, checkoutPackage, checkoutRoot, criterion, editFbs, editStory, project, readJson, scratch, writeJson, writeText } from '../_harness/fixture.js';
+import { commit, git, gitTry, porcelain, s7 } from '../_harness/git.js';
+import { bindTests, checkoutPackage, checkoutRoot, criterion, editFbs, editStory, project, readJson, scratch, writeJson } from '../_harness/fixture.js';
 import { hostFacts, json, median, objectsIn, tables } from '../_harness/capture.js';
+import { MOVE_TEXT_FIELDS, coverageRows, readStories } from '../_harness/goldens.js';
 
 const TODO = { todo: 'FBS-235 round DEFINE' };
 const NOFLAG = '(external | testOnly)';
@@ -366,18 +373,70 @@ test('AC-19803-4: audit coverage --strict exits with the same code and the same 
   }
 });
 
-test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json finishes within 1.25 times the same command at the parent commit (median of three runs) and each criterion row grows by the three fields only', TODO, async (t) => {
+// The pre-move goldens FBS-235's round DEFINE records (the stage-keeper's
+// rulings F5, F6 and F7 on the independent check), from packages/rcf-lite,
+// immediately before the move commit, on the tree that is the move
+// commit's parent, with the round-base bin:
+//   node test/_harness/goldens.js coverage-rows test/fixtures/flag-move/coverage-rows-before.json
+//   node test/_harness/goldens.js flag-tags test/fixtures/flag-move/tags-before.json
+//   node test/_harness/goldens.js flag-texts test/fixtures/flag-move/criteria-before.json
+// While one is absent the test reading it fails naming that step, never skips.
+const ROWS_GOLDEN = 'test/fixtures/flag-move/coverage-rows-before.json';
+const TAGS_GOLDEN = 'test/fixtures/flag-move/tags-before.json';
+const TEXTS_GOLDEN = 'test/fixtures/flag-move/criteria-before.json';
+const MOVE_STEP = (kind, path) => `FBS-235's round DEFINE records ${path} immediately before the move commit (node test/_harness/goldens.js ${kind} ${path})`;
+function moveGolden(kind, path) {
+  const file = join(checkoutPackage(), path);
+  assert.ok(existsSync(file), `${MOVE_STEP(kind, path)}: ${path} is absent`);
+  return JSON.parse(readFileSync(file, 'utf8'));
+}
+// The typical case of AC-19803-5's Given, at the current head.
+function assertTypicalChain(pkg, rowCount) {
+  const specs = readdirSync(join(pkg, 'rcf', 'fbs')).filter((f) => f.endsWith('.json')).length;
+  assert.ok(rowCount >= 827 && specs >= 121, `the typical case: ${rowCount} criteria, ${specs} specs`);
+}
+const PERF = process.env.RCF_PERF === '1';
+
+test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', TODO, async () => {
+  const pkg = checkoutPackage();
+  const was = moveGolden('coverage-rows', ROWS_GOLDEN);
+  assert.ok(Number.isInteger(was.exitCode) && was.rows && typeof was.rows === 'object', `${ROWS_GOLDEN} holds { "exitCode", "rows" }`);
+  const now = await coverageRows(pkg);
+  assertTypicalChain(pkg, Object.keys(now.rows).length);
+  assert.equal(now.exitCode, was.exitCode, `audit coverage --format json exits ${now.exitCode} at the head and ${was.exitCode} in ${ROWS_GOLDEN}`);
+  const added = ['verification', 'expectedEnd', 'now'];
+  const grown = [];
+  for (const [id, keys] of Object.entries(now.rows)) {
+    const before = was.rows[id];
+    if (!before) continue;
+    const want = [...new Set([...before, ...added])].sort();
+    if (JSON.stringify(keys) !== JSON.stringify(want)) grown.push(`${id}: ${keys.join(',')}`);
+  }
+  assert.ok(Object.keys(was.rows).some((id) => now.rows[id]), `${ROWS_GOLDEN} and the head share criterion rows`);
+  assert.deepEqual(grown.slice(0, 10), [], 'each row carries the golden row keys plus verification, expectedEnd and now, and nothing else');
+});
+
+// The timing ratio of AC-19803-5 (the stage-keeper's ruling C3 on the
+// independent check: the ledger-118 treatment): measured only with
+// RCF_PERF=1, at TEST on the verifier's full clone, against a temporary
+// worktree at the parent commit (decision 118's method, which the
+// stage-keeper keeps for the two timing tests); skipped otherwise.
+function worktreeAt(t, root, rev) {
+  const dir = join(scratch(t, 'rcf-h-parentwt-'), 'wt');
+  git(root, 'worktree', 'add', '--detach', '--quiet', dir, rev);
+  t.after(() => { gitTry(root, 'worktree', 'remove', '--force', dir); gitTry(root, 'worktree', 'prune'); });
+  const inst = run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'], { cwd: dir, env: { PATH: process.env.PATH } });
+  assert.equal(inst.code, 0, `pnpm install in the worktree at ${rev}\n${inst.stdout.slice(-1000)}${inst.stderr.slice(-1000)}`);
+  return join(dir, 'packages', 'rcf-lite');
+}
+
+test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1', { todo: 'FBS-235 round DEFINE', skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
   hostFacts(t);
   const root = checkoutRoot();
   const pkg = checkoutPackage();
+  assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the parent commit is not there (the measurement runs at TEST on the verifier\'s full clone)');
   const parent = git(root, 'rev-parse', 'HEAD^');
-  const work = scratch(t, 'rcf-h-parent-');
-  const tar = join(work, 'parent.tar');
-  git(root, 'archive', '--format=tar', '-o', tar, parent, 'packages/rcf-lite');
-  const ex = run('tar', ['-xf', tar, '-C', work]);
-  assert.equal(ex.code, 0, ex.stderr);
-  const parentPkg = join(work, 'packages', 'rcf-lite');
-  symlinkSync(join(pkg, 'node_modules'), join(parentPkg, 'node_modules'), 'dir');
+  const parentPkg = worktreeAt(t, root, parent);
   const cmd = ['audit', 'coverage', '--format', 'json'];
   const headMs = [];
   const parentMs = [];
@@ -390,20 +449,7 @@ test('AC-19803-5: over the chain of this repository at the slice head, audit cov
     parentMs.push(p.ms);
   }
   assert.equal(h.code, p.code, `the same exit at the head and at the parent ${s7(parent)}`);
-  const rows = (r) => new Map(acRows(json(r.stdout)).map((a) => [a.id, a]));
-  const hr = rows(h);
-  const pr = rows(p);
-  const specs = readdirSync(join(pkg, 'rcf', 'fbs')).filter((f) => f.endsWith('.json')).length;
-  assert.ok(hr.size >= 827 && specs >= 121, `the typical case: ${hr.size} criteria, ${specs} specs`);
-  const added = ['verification', 'expectedEnd', 'now'];
-  const grown = [];
-  for (const [id, row] of hr) {
-    const was = pr.get(id);
-    if (!was) continue;
-    const want = [...new Set([...Object.keys(was), ...added])].sort();
-    if (JSON.stringify(Object.keys(row).sort()) !== JSON.stringify(want)) grown.push(`${id}: ${Object.keys(row).sort().join(',')}`);
-  }
-  assert.deepEqual(grown.slice(0, 10), [], 'each row carries the parent\'s keys plus verification, expectedEnd and now, and nothing else');
+  assertTypicalChain(pkg, acRows(json(h.stdout)).length);
   const ratio = median(headMs) / median(parentMs);
   t.diagnostic(`median head ${Math.round(median(headMs))} ms, median parent ${Math.round(median(parentMs))} ms, ratio ${ratio.toFixed(2)}`);
   assert.ok(ratio <= 1.25, `within 1.25 times the parent (ratio ${ratio.toFixed(2)})`);
@@ -420,84 +466,43 @@ test('AC-19803-6: a hand-edited "verification": "sometimes" on AC-101-1 makes au
 
 // ---------------------------------------------------------------- US-19804
 
-const STORIES = 'packages/rcf-lite/rcf/user-stories';
-const TAG = '"verification:AC-';
-
-test('AC-19804-1: at the slice head no user story tag starts "verification:", every criterion tagged at the parent of the move commit carries verification equal to its tag, and node bin/rcf.js define validate exits 0', TODO, async () => {
-  const root = checkoutRoot();
+test('AC-19804-1: at the slice head no user story tag starts "verification:", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0', TODO, async () => {
   const pkg = checkoutPackage();
-  const dir = join(pkg, 'rcf', 'user-stories');
-  const stories = readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')));
+  const stories = readStories(join(pkg, 'rcf', 'user-stories'));
   assert.deepEqual(stories.flatMap((s) => (s.tags ?? []).filter((x) => x.startsWith('verification:')).map((x) => `${s.usId} ${x}`)), [], 'no tags entry starts "verification:"');
-  // The move commit: the newest commit that changes the count of interim tags in the stories.
-  const move = git(root, 'log', '-1', '--format=%H', '-S', TAG, 'HEAD', '--', STORIES);
-  assert.match(move, /^[0-9a-f]{40}$/, 'the move commit is in the history (full-depth checkout)');
-  assert.equal(gitTry(root, 'grep', '-l', '-F', '-e', TAG, move, '--', STORIES).stdout.trim(), '', 'the move commit leaves no interim tag');
-  const paths = gitTry(root, 'grep', '-l', '-F', '-e', TAG, `${move}^`, '--', STORIES).stdout.split('\n').filter(Boolean).map((l) => l.slice(l.indexOf(':') + 1));
-  const want = new Map();
-  for (const text of showAt(root, `${move}^`, paths).values()) {
-    for (const tag of JSON.parse(text).tags ?? []) {
-      const m = /^verification:(AC-\d+-\d+)=(external|testOnly)$/.exec(tag);
-      if (m) want.set(m[1], m[2]);
-    }
-  }
-  assert.ok(want.size > 0, 'the parent of the move commit carried interim tags');
+  const want = moveGolden('flag-tags', TAGS_GOLDEN);
+  assert.ok(Object.keys(want).length > 0, `${TAGS_GOLDEN} records the interim tags before the move`);
   const now = new Map(stories.flatMap((s) => (s.acceptanceCriteria ?? []).map((a) => [a.id, a])));
-  const wrong = [...want].filter(([id, f]) => now.get(id)?.verification !== f).map(([id, f]) => `${id}: tag ${f}, field ${now.get(id)?.verification}`);
+  const wrong = Object.entries(want).filter(([id, f]) => now.get(id)?.verification !== f).map(([id, f]) => `${id}: tag ${f}, field ${now.get(id)?.verification}`);
   assert.deepEqual(wrong, [], 'every tagged criterion carries its flag on the field');
   const v = await rcf(['define', 'validate'], { cwd: pkg });
   assert.equal(v.code, 0, `${v.stdout.slice(-2000)}${v.stderr.slice(-2000)}`);
 });
 
-// Criterion text fields compared across the move (US-19804, AC-19804-2).
-const TEXT_FIELDS = ['description', 'given', 'when', 'then', 'testable', 'supersededBy', 'supersededOn', 'supersessionNote'];
-
-test('AC-19804-2: for every criterion the move commit moved, its description, given, when, then, testable and supersession fields are byte-identical at the move commit and at its parent', TODO, () => {
-  const root = checkoutRoot();
-  // The move commit, found as AC-19804-1 finds it.
-  const move = git(root, 'log', '-1', '--format=%H', '-S', TAG, 'HEAD', '--', STORIES);
-  assert.match(move, /^[0-9a-f]{40}$/, 'the move commit is in the history (full-depth checkout)');
-  const paths = gitTry(root, 'grep', '-l', '-F', '-e', TAG, `${move}^`, '--', STORIES).stdout.split('\n').filter(Boolean).map((l) => l.slice(l.indexOf(':') + 1));
-  const before = showAt(root, `${move}^`, paths);
-  const after = showAt(root, move, paths);
-  let moved = 0;
+test('AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move', TODO, () => {
+  const was = moveGolden('flag-texts', TEXTS_GOLDEN);
+  assert.ok(Object.keys(was).length > 0, `${TEXTS_GOLDEN} records the tagged criteria before the move`);
+  const now = new Map(readStories(join(checkoutPackage(), 'rcf', 'user-stories')).flatMap((s) => (s.acceptanceCriteria ?? []).map((a) => [a.id, a])));
   const changed = [];
-  for (const p of paths) {
-    const was = JSON.parse(before.get(p));
-    const tagged = new Set((was.tags ?? []).map((x) => /^verification:(AC-\d+-\d+)=(external|testOnly)$/.exec(x)?.[1]).filter(Boolean));
-    const now = new Map((after.has(p) ? JSON.parse(after.get(p)).acceptanceCriteria ?? [] : []).map((a) => [a.id, a]));
-    for (const ac of was.acceptanceCriteria ?? []) {
-      if (!tagged.has(ac.id)) continue;
-      moved += 1;
-      const next = now.get(ac.id);
-      if (!next) { changed.push(`${ac.id}: not in ${p} at the move commit`); continue; }
-      for (const field of TEXT_FIELDS) {
-        if (JSON.stringify(next[field]) !== JSON.stringify(ac[field])) changed.push(`${ac.id}.${field}`);
-      }
-    }
+  for (const [id, fields] of Object.entries(was)) {
+    const cur = now.get(id);
+    if (!cur) { changed.push(`${id}: not at the slice head`); continue; }
+    for (const field of MOVE_TEXT_FIELDS) if (JSON.stringify(cur[field]) !== JSON.stringify(fields[field])) changed.push(`${id}.${field}`);
   }
-  assert.ok(moved > 0, 'the parent of the move commit carried interim tags');
   assert.deepEqual(changed, [], 'moving the flags changes no criterion text');
 });
 
-// git merge-base of the 0.37.0 DEFINE branch with main: 0.36.1 on main.
-const MERGE_BASE = '639f07bb99ac70bd93c298be3b15bea4eb8a38b1';
-
-test('AC-19804-3: a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag', TODO, async (t) => {
-  const root = checkoutRoot();
-  assert.equal(gitTry(root, 'cat-file', '-e', `${MERGE_BASE}^{commit}`).code, 0, 'the merge-base is in the history (full-depth checkout)');
-  const head = git(root, 'rev-parse', 'HEAD');
-  const clone = join(scratch(t, 'rcf-h-move-'), 'repo');
-  git(root, 'clone', '-q', '--shared', '--no-checkout', root, clone);
-  git(clone, 'checkout', '-q', '--detach', head);
-  const rel = `${STORIES}/us-19501.json`;
-  const story = JSON.parse(readFileSync(join(clone, rel), 'utf8'));
-  const ac = story.acceptanceCriteria.find((a) => a.id === 'AC-19501-1');
-  assert.ok(ac?.verification, 'AC-19501-1 carries the field after the move');
-  delete ac.verification;
-  writeText(clone, rel, `${JSON.stringify(story, null, 2)}\n`);
-  git(clone, 'commit', '-q', '-am', 'fixture: AC-19501-1 left without the field');
-  const r = await validate(join(clone, 'packages', 'rcf-lite'), ['--base', MERGE_BASE]);
+test('AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag', TODO, async (t) => {
+  // The fixture's main holds the base (AC-101-1, from before 0.37.0); the
+  // DEFINE branch off it adds AC-101-2 moved onto the field and AC-101-3
+  // left without it (the stage-keeper's ruling F8 on the independent check).
+  const { dir, base } = await baseRepo(t);
+  git(dir, 'checkout', '-q', '-b', 'define/fixture-0-37-0');
+  setCriteria(dir, [gwt('AC-101-1'), gwt('AC-101-2', { verification: 'external' }), gwt('AC-101-3')]);
+  commit(dir, 'DEFINE: the move leaves AC-101-3 without the field');
+  const mergeBase = git(dir, 'merge-base', 'main', 'HEAD');
+  assert.equal(mergeBase, base, 'fixture: the merge-base of the branch with main is the base commit');
+  const r = await validate(dir, ['--base', mergeBase]);
   assert.equal(r.code, 3, `${r.stdout.slice(-2000)}${r.stderr.slice(-2000)}`);
-  assert.ok(outLines(r).includes(errNew('AC-19501-1', MERGE_BASE)), `${r.stdout.slice(-2000)}${r.stderr.slice(-2000)}`);
+  assert.ok(outLines(r).includes(errNew('AC-101-3', mergeBase)), `${r.stdout.slice(-2000)}${r.stderr.slice(-2000)}`);
 });

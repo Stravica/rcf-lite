@@ -30,8 +30,25 @@
 //     given, when and then (those present) of every criterion live at
 //     639f07bb, by id. This recorder reads 639f07bb from the git history,
 //     so it runs from a full clone; the tests read only the golden.
+//
+//   node test/_harness/goldens.js coverage-rows test/fixtures/flag-move/coverage-rows-before.json
+//   node test/_harness/goldens.js flag-tags test/fixtures/flag-move/tags-before.json
+//   node test/_harness/goldens.js flag-texts test/fixtures/flag-move/criteria-before.json
+//     FBS-235 (AC-19803-5's row half, AC-19804-1 and AC-19804-2, the
+//     stage-keeper's rulings F5, F6 and F7 on the independent check): the
+//     pre-move tree state, recorded in that slice's round DEFINE immediately
+//     before the move commit, on the tree that is the move commit's parent,
+//     with the round-base bin. coverage-rows: the exit code of
+//     node bin/rcf.js audit coverage --format json and each criterion row's
+//     keys, as { "exitCode", "rows": { "<AC id>": ["<key>", ...] } };
+//     flag-tags: every "verification:<AC id>=<flag>" tag in
+//     rcf/user-stories/, as { "<AC id>": "<external|testOnly>" };
+//     flag-texts: the description, given, when, then, testable,
+//     supersededBy, supersededOn and supersessionNote (those present) of
+//     every tagged criterion, as { "<AC id>": { "<field>": <value> } }.
+//     Each reads the working tree only.
 
-import { cpSync, mkdirSync, mkdtempSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -118,6 +135,54 @@ export async function ownChainAt(rev = MAIN_0361) {
   }
 }
 
+/**
+ * node bin/rcf.js audit coverage --format json in cwd, read as
+ * { exitCode, rows }: the exit code, and each criterion row's keys,
+ * sorted, by criterion id.
+ */
+export async function coverageRows(cwd, { bin = BIN } = {}) {
+  const r = await rcf(['audit', 'coverage', '--format', 'json'], { cwd, bin, timeout: 300_000 });
+  const doc = json(r.stdout);
+  const rows = {};
+  for (const a of doc.requirements.flatMap((q) => q.acs)) rows[a.id] = Object.keys(a).sort();
+  return { exitCode: r.code, rows: Object.fromEntries(Object.keys(rows).sort().map((id) => [id, rows[id]])) };
+}
+
+/** The user stories under storiesDir (rcf/user-stories), parsed, by file name order. */
+export function readStories(storiesDir) {
+  return readdirSync(storiesDir).filter((n) => n.endsWith('.json')).sort().map((n) => JSON.parse(readFileSync(join(storiesDir, n), 'utf8')));
+}
+
+/** The interim flag tags: { "<AC id>": "<external|testOnly>" } from every "verification:<AC id>=<flag>" story tag. */
+export function flagTags(storiesDir) {
+  const tags = {};
+  for (const us of readStories(storiesDir)) {
+    for (const tag of us.tags ?? []) {
+      const m = /^verification:(AC-\d+-\d+)=(external|testOnly)$/.exec(tag);
+      if (m) tags[m[1]] = m[2];
+    }
+  }
+  return Object.fromEntries(Object.keys(tags).sort().map((id) => [id, tags[id]]));
+}
+
+/** The criterion text fields AC-19804-2 compares across the move. */
+export const MOVE_TEXT_FIELDS = ['description', 'given', 'when', 'then', 'testable', 'supersededBy', 'supersededOn', 'supersessionNote'];
+
+/** The text fields (those present) of every criterion an interim flag tag names: { "<AC id>": { "<field>": <value> } }. */
+export function flagTexts(storiesDir) {
+  const out = {};
+  for (const us of readStories(storiesDir)) {
+    const tagged = new Set((us.tags ?? []).map((tag) => /^verification:(AC-\d+-\d+)=(external|testOnly)$/.exec(tag)?.[1]).filter(Boolean));
+    for (const a of us.acceptanceCriteria ?? []) {
+      if (!tagged.has(a.id)) continue;
+      const fields = {};
+      for (const k of MOVE_TEXT_FIELDS) if (a[k] !== undefined) fields[k] = a[k];
+      out[a.id] = fields;
+    }
+  }
+  return Object.fromEntries(Object.keys(out).sort().map((id) => [id, out[id]]));
+}
+
 function writeGolden(out, value) {
   const abs = resolve(process.cwd(), out);
   mkdirSync(dirname(abs), { recursive: true });
@@ -134,6 +199,9 @@ const RECORDERS = {
     writeGolden(out, chips);
   },
   'own-chain': async (out) => writeGolden(out, await ownChainAt(MAIN_0361)),
+  'coverage-rows': async (out) => writeGolden(out, await coverageRows(process.cwd())),
+  'flag-tags': async (out) => writeGolden(out, flagTags(join(process.cwd(), 'rcf', 'user-stories'))),
+  'flag-texts': async (out) => writeGolden(out, flagTexts(join(process.cwd(), 'rcf', 'user-stories'))),
 };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

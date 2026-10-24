@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:47:30.505Z",
-  "updatedAt": "2026-10-24T17:23:11.205Z",
+  "updatedAt": "2026-10-24T21:13:21.920Z",
   "purpose": "FBS-235: the testOnly criteria of US-19804, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -15,23 +15,23 @@
     {
       "id": "TC-281-at-the-slice-head-no-user-story-tag",
       "acId": "AC-19804-1",
-      "description": "at the slice head no user story tag starts \"verification:\", every criterion tagged at the parent of the move commit carries verification equal to its tag, and node bin/rcf.js define validate exits 0",
+      "description": "at the slice head no user story tag starts \"verification:\", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0",
       "status": "pending",
-      "testPointer": "test/define/verification-end-state.test.js::AC-19804-1: at the slice head no user story tag starts \"verification:\", every criterion tagged at the parent of the move commit carries verification equal to its tag, and node bin/rcf.js define validate exits 0"
+      "testPointer": "test/define/verification-end-state.test.js::AC-19804-1: at the slice head no user story tag starts \"verification:\", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0"
     },
     {
       "id": "TC-281-a-0-37-0-criterion-left-without-the",
       "acId": "AC-19804-3",
-      "description": "a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag",
+      "description": "in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag",
       "status": "pending",
-      "testPointer": "test/define/verification-end-state.test.js::AC-19804-3: a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag"
+      "testPointer": "test/define/verification-end-state.test.js::AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag"
     },
     {
       "id": "TC-281-for-every-criterion-the-move-commit",
       "acId": "AC-19804-2",
-      "description": "for every criterion the move commit moved, its description, given, when, then, testable and supersession fields are byte-identical at the move commit and at its parent",
+      "description": "for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move",
       "status": "pending",
-      "testPointer": "test/define/verification-end-state.test.js::AC-19804-2: for every criterion the move commit moved, its description, given, when, then, testable and supersession fields are byte-identical at the move commit and at its parent"
+      "testPointer": "test/define/verification-end-state.test.js::AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move"
     }
   ],
   "status": "draft"

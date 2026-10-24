@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:47:29.977Z",
-  "updatedAt": "2026-10-24T16:47:30.239Z",
+  "updatedAt": "2026-10-24T21:13:09.370Z",
   "purpose": "FBS-235: the testOnly criteria of US-19803, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -13,9 +13,16 @@
     {
       "id": "TC-280-over-the-chain-of-this-repository-at-the",
       "acId": "AC-19803-5",
-      "description": "over the chain of this repository at the slice head, audit coverage --format json finishes within 1.25 times the same command at the parent commit (median of three runs) and each criterion row grows by the three fields only",
+      "description": "over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else",
       "status": "pending",
-      "testPointer": "test/define/verification-end-state.test.js::AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json finishes within 1.25 times the same command at the parent commit (median of three runs) and each criterion row grows by the three fields only"
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else"
+    },
+    {
+      "id": "TC-280-timing-ratio-measured-at-test-with-rcf-perf",
+      "acId": "AC-19803-5",
+      "description": "over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1"
     }
   ],
   "status": "draft"

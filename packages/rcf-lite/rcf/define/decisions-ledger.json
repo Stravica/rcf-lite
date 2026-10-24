@@ -2757,6 +2757,65 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"C5: reword FBS-240 deliverables[1] and ADR-4160's decision to \"by the shipped write-back\".\" So FBS-240's deliverables[1] reads \"The operator's D1 profile answers, recorded by the shipped write-back\" and ADR-4160's D1 clause reads \"recorded by the test-author by the shipped write-back;\".",
       "answeredAt": "2026-10-24T21:07:32.290Z",
       "resolvedAt": "2026-10-24T21:07:32.290Z"
+    },
+    {
+      "id": 127,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-19803-5 test (F5, its history half) reads HEAD^ with git archive and tar, and the AC-19804-1 (F6) and AC-19804-2 (F7) tests find the move commit with git log -S and read it and its parent, so in a depth-1 checkout all three fail before testing the behaviour: what do they compare against? Source: stage-keeper rulings F5, F6 and F7 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FBS-235's round DEFINE captures the pre-move tree state as goldens, and the tests compare against them"
+        },
+        {
+          "letter": "b",
+          "text": "the check's proposed fixes: record the parent output and row shape as a round golden, or add an explicit fixture, and if tar remains pass toolPath([tar]) (F5); commit a round golden mapping moved criterion ids to flags and compare HEAD against it without checkout history (F6); have FBS-235's round DEFINE commit a before-move field golden and compare HEAD records with that golden (F7)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T21:14:09.098Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"F5 (history half), F6, F7 (AC-19803-5, AC-19804-1, AC-19804-2): FBS-235's round DEFINE captures the pre-move tree state as goldens, and the tests compare against them.\" So FBS-235's round DEFINE records test/fixtures/flag-move/coverage-rows-before.json, tags-before.json and criteria-before.json immediately before the move commit (node test/_harness/goldens.js coverage-rows, flag-tags and flag-texts), and the AC-19803-5 row test, the AC-19804-1 test and the AC-19804-2 test compare the head with them; none reads git history.",
+      "answeredAt": "2026-10-24T21:14:09.185Z",
+      "resolvedAt": "2026-10-24T21:14:09.185Z"
+    },
+    {
+      "id": 128,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-19804-3 test asserts that the fixed merge-base 639f07bb is in the history and clones the checkout, so in a depth-1 checkout it fails before it builds the missing-field case. Source: stage-keeper ruling F8 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a fixture repo the harness builds with its own base commit"
+        },
+        {
+          "letter": "b",
+          "text": "the check's proposed fix: build the fixture repository with its own base and head commits, avoiding any fixed commit from the checkout history"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T21:14:09.272Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"F8 (AC-19804-3): a fixture repo the harness builds with its own base commit.\" So the AC-19804-3 test builds a fixture repository whose main holds the base and whose DEFINE branch leaves a 0.37.0 criterion without the field, and runs node bin/rcf.js define validate --base <the merge-base of that branch with main> there; it reads no commit of the checkout.",
+      "answeredAt": "2026-10-24T21:14:09.359Z",
+      "resolvedAt": "2026-10-24T21:14:09.359Z"
+    },
+    {
+      "id": 129,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-19803-5's timing ratio compares audit coverage at the slice head with the same command at the parent commit on the same host, a before that a golden cannot hold and that shared CI hosts make noise: how is it observed? Source: stage-keeper ruling C3 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the ledger-118 treatment: the Given says it is measured at TEST on the verifier's host, and it runs only with RCF_PERF=1"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T21:14:09.446Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C3 (AC-19803-5's timing ratio): gets the ledger-118 treatment. The Given says it is measured at TEST on the verifier's host, and it runs only with RCF_PERF=1.\" And, on the part C brief: \"The two timing tests, AC-19501-7 and C3's AC-19803-5, are exempt. They run only when RCF_PERF=1 is set, at TEST, on the verifier's full clone, so their parent-worktree method (ledger 118) stands.\" So AC-19803-5's Given gains \"measured at the Test stage on the verifier's host\" after its chain clause, the timing ratio is its own case, skipped unless RCF_PERF=1 with the reason \"measured at TEST by the verifier (RCF_PERF=1)\", and its parent run is a temporary worktree at the parent commit; the row half is the golden case of decision 127.",
+      "answeredAt": "2026-10-24T21:14:09.532Z",
+      "resolvedAt": "2026-10-24T21:14:09.532Z"
     }
   ]
 }
