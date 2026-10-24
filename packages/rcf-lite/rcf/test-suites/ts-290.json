@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-24T17:50:41.563Z",
+  "updatedAt": "2026-10-24T17:50:42.472Z",
+  "purpose": "FBS-238: the external criteria of US-20103, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20103-1",
+    "AC-20103-2",
+    "AC-20103-3"
+  ],
+  "id": "TS-290",
+  "usId": "US-20103",
+  "title": "US-20103 external criteria (FBS-238)",
+  "testCases": [
+    {
+      "id": "TC-290-with-rcf-verify-catalog-json-and-a-local",
+      "acId": "AC-20103-1",
+      "description": "with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical"
+    },
+    {
+      "id": "TC-290-record-with-mode-deterministic-or-mode",
+      "acId": "AC-20103-2",
+      "description": "--record with --mode deterministic or --mode agentScreenshotCritique exits 2 \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCritique exits 2 \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing"
+    },
+    {
+      "id": "TC-290-the-pass-fixture-of-the-release-story",
+      "acId": "AC-20103-3",
+      "description": "the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20103-3: the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI"
+    }
+  ],
+  "status": "draft"
+}

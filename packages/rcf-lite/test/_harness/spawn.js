@@ -86,3 +86,20 @@ export function run(cmd, args, { cwd, env = {}, timeout = 300_000 } = {}) {
 export function lines(text) {
   return text.split('\n').filter((l, i, a) => !(i === a.length - 1 && l === ''));
 }
+
+/**
+ * A PATH that reaches git plus the directories holding each named tool
+ * (for example npm, for a cold package install), and no agent CLI.
+ * Refuses loudly if a tool is missing or a directory holds a claude.
+ */
+export function toolPath(tools = [], inherited = process.env.PATH ?? '') {
+  const dirs = inherited.split(delimiter).filter(Boolean);
+  const out = [claudeFreePath(inherited)];
+  for (const tool of tools) {
+    const dir = dirs.find((d) => existsSync(join(d, tool)));
+    if (!dir) throw new Error(`harness: no ${tool} on the inherited PATH`);
+    if (existsSync(join(dir, 'claude'))) throw new Error(`harness: ${tool} sits beside an agent CLI in ${dir}`);
+    if (!out.includes(dir)) out.push(dir);
+  }
+  return out.join(delimiter);
+}
