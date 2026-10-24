@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:45.421Z",
-  "updatedAt": "2026-10-24T11:41:46.785Z",
+  "updatedAt": "2026-10-24T15:07:15.102Z",
   "asA": "operator upgrading a product from rcf-lite 0.36.x to 0.37.0",
   "iWant": "the release to tell my agents to refresh the managed block, and the docs to describe the new Finalise and Verify",
   "soThat": "the upgrade lands in every consumer and nobody runs a retired command from the docs",
@@ -22,12 +22,12 @@
     },
     {
       "id": "AC-20402-2",
-      "description": "[happy] Given packages/rcf-lite/docs/verify-reference.md at the release head, then its finalise synopsis reads \"rcf build finalise <fbs-id> --ci-run <ref>\", its modes section names release mode (--release, --since, --record) and calls the catalog and agent modes optional probes that are never a precondition, and the forward catalog contract no longer says the deterministic engine feeds Finalise.",
+      "description": "[happy] Given packages/rcf-lite/docs/verify-reference.md at this slice's reviewed head or any later head, then its finalise synopsis reads \"rcf build finalise <fbs-id> --ci-run <ref>\", its modes section names release mode (--release, --since, --record) and calls the catalog and agent modes optional probes that are never a precondition, and the forward catalog contract no longer says the deterministic engine feeds Finalise.",
       "testable": true
     },
     {
       "id": "AC-20402-3",
-      "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at the release head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, or a sentence saying a spec is verified at Finalise or by the Test stage finds nothing; any such line fails this criterion.",
+      "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at this slice's reviewed head or any later head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, or a sentence saying a spec is verified at Finalise or by the Test stage finds nothing; any such line fails this criterion.",
       "testable": true
     },
     {

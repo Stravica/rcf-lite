@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:41.938Z",
-  "updatedAt": "2026-10-24T11:41:41.938Z",
+  "updatedAt": "2026-10-24T15:07:16.261Z",
   "purpose": "Every text rcf-lite ships or prints about the build cycle states the 0.37.0 model: five stages named by commit prefix, TEST on a locally running app, Finalise light and pre-merge writing complete, Verify outside the cycle writing verified, rounds that restart at DEFINE after a failed verdict, and dispatches named by stage.",
   "responsibilities": [
     "guidance/build-cycle.md, guidance/build-cycle-playbook.md and guidance/overview.md",
@@ -18,7 +18,7 @@
     {
       "name": "Bundle closing runbook (0.37.0)",
       "kind": "fileFormat",
-      "description": "format: the last section of rcf build bundle --format md, and completionContract in --format json. Lists the five stages in order, each with its dispatch name \"<Stage> <fbs-id>: <title>\", its commit prefix and its commands: DEFINE (criteria and RCF tests, rcf define validate), BUILD (rcf build base-suite on the base before dispatch), REVIEW (rcf build verdict review), TEST (the RCF suite run, rcf audit test-strength --record, rcf build verdict test), FINALISE (rcf build finalise <fbs-id> --ci-run <ref>, then merge); then \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"."
+      "description": "format: the last section of rcf build bundle --format md, and completionContract in --format json. Lists the five stages in order, each with its dispatch name \"<Stage> <fbs-id>: <title>\", its commit prefix and its commands: DEFINE (rcf build mark <fbs-id> inProgress in the round's first DEFINE: commit when the spec is notStarted, criteria and RCF tests, rcf define validate), BUILD (rcf build base-suite on the base before dispatch), REVIEW (rcf build verdict review), TEST (the RCF suite run, rcf audit test-strength --record, rcf build verdict test), FINALISE (rcf build finalise <fbs-id> --ci-run <ref>, then merge); then \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"."
     },
     {
       "name": "Release feed entry 0.37.0",

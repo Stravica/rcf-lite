@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:43.042Z",
-  "updatedAt": "2026-10-24T11:41:45.167Z",
+  "updatedAt": "2026-10-24T15:07:14.058Z",
   "asA": "test-author, builder, reviewer, verifier or stage-keeper reading rcf-lite's guidance in an agent session",
   "iWant": "the stage I am in named by its commit prefix with exactly what it does and what it records",
   "soThat": "no session follows the 0.36.x shape of verifying inside the cycle",
@@ -32,7 +32,7 @@
     },
     {
       "id": "AC-20401-4",
-      "description": "[happy] When rcf build bundle FBS-001 --base-suite <a green record> --format md runs over a fixture tree, then its closing runbook lists the five stages in order, each with a dispatch name of the form \"<Stage> FBS-001: <title>\", its commit prefix, and the commands rcf build base-suite, rcf build verdict review, rcf audit test-strength --record, rcf build verdict test and rcf build finalise FBS-001 --ci-run <ref>, and ends with \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"; --format json carries the same in completionContract.",
+      "description": "[happy] When rcf build bundle FBS-001 --base-suite <a green record> --format md runs over a fixture tree, then its closing runbook lists the five stages in order, each with a dispatch name of the form \"<Stage> FBS-001: <title>\", its commit prefix, and the commands rcf build mark FBS-001 inProgress (DEFINE), rcf build base-suite, rcf build verdict review, rcf audit test-strength --record, rcf build verdict test and rcf build finalise FBS-001 --ci-run <ref>, and ends with \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"; --format json carries the same in completionContract.",
       "testable": true
     },
     {

@@ -1,13 +1,13 @@
 {
   "createdAt": "2026-10-24T11:41:47.066Z",
-  "updatedAt": "2026-10-24T11:45:17.627Z",
+  "updatedAt": "2026-10-24T15:07:15.655Z",
   "summary": "Rewrite build-cycle, the playbook, the overview, the managed agent-instructions block (build loop, RULE 7, RULE 13, RULE 16) and the bundle's closing runbook to the 0.37.0 model with dispatches named by stage; fix docs/verify-reference.md and the READMEs; regenerate the block's hash and fragment; the 0.37.0 feed entry carries minAgentAction rerun-init.",
   "approach": "Text changes in guidance/ and docs/, src/build/bundle.js completionContract and its formatters, scripts/gen-managed-artefacts.mjs run as the declared generator for the hash and fragment, and the release feed entry at the release cut (FINALISE). Last in the order because it describes every earlier slice.",
   "deliverables": [
     "guidance/build-cycle.md, guidance/build-cycle-playbook.md, guidance/overview.md, guidance/managed/agent-instructions-block.md and its .hash and harness fragment",
     "src/build/bundle.js and src/build/formatters/: the 0.37.0 runbook",
     "docs/verify-reference.md, packages/rcf-lite/README.md, the root README.md",
-    "releases/releases.yaml 0.37.0 entry with minAgentAction rerun-init (release cut)",
+    "releases/releases.yaml 0.37.0 entry with minAgentAction rerun-init (release cut: FINALISE: commits on this slice's pull request, through the release class and the version line; stage-keeper ruling 2 and the operator's answer (c) to decision 105; test/scripts/validate-releases.test.js checks the entry against the version in CI on the final head)",
     "Code Nodes for every criterion of this REQ; CHANGELOG lines"
   ],
   "notes": "DEFINE part A, 2026-10-24 (test-author). Self-hosting for the whole release is ADR ADR-4162. Flags: US tags (WORKAROUND, ADR ADR-4152).",
