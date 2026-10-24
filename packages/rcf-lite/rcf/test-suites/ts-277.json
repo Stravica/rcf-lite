@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-24T16:47:26.293Z",
+  "updatedAt": "2026-10-24T16:47:26.551Z",
+  "purpose": "FBS-235: the testOnly criteria of US-19801, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19801-6"
+  ],
+  "id": "TS-277",
+  "usId": "US-19801",
+  "title": "US-19801 testOnly criteria (FBS-235)",
+  "testCases": [
+    {
+      "id": "TC-277-the-ci-test-job-checks-out-with-fetch",
+      "acId": "AC-19801-6",
+      "description": "the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push"
+    }
+  ],
+  "status": "draft"
+}

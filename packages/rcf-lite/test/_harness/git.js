@@ -89,3 +89,24 @@ export function fastImport(dir, commits, { branch = 'refs/heads/main' } = {}) {
   git(dir, 'reset', '-q', '--hard', branch);
   return git(dir, 'rev-parse', 'HEAD');
 }
+
+/**
+ * The contents of paths at a revision through one git cat-file --batch.
+ * Returns Map(path -> text); a path missing at rev is left out.
+ */
+export function showAt(dir, rev, paths) {
+  if (!paths.length) return new Map();
+  const outBuf = execFileSync('git', ['cat-file', '--batch'], { cwd: dir, env: baseEnv(), input: paths.map((p) => `${rev}:${p}\n`).join(''), maxBuffer: 256 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] });
+  const files = new Map();
+  let at = 0;
+  for (const p of paths) {
+    const nl = outBuf.indexOf(10, at);
+    const header = outBuf.subarray(at, nl).toString('utf8');
+    at = nl + 1;
+    if (header.endsWith(' missing')) continue;
+    const size = Number(header.split(' ')[2]);
+    files.set(p, outBuf.subarray(at, at + size).toString('utf8'));
+    at += size + 1;
+  }
+  return files;
+}

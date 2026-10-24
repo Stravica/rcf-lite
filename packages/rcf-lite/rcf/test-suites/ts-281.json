@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T16:47:30.505Z",
+  "updatedAt": "2026-10-24T16:47:31.027Z",
+  "purpose": "FBS-235: the testOnly criteria of US-19804, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19804-1",
+    "AC-19804-3"
+  ],
+  "id": "TS-281",
+  "usId": "US-19804",
+  "title": "US-19804 testOnly criteria (FBS-235)",
+  "testCases": [
+    {
+      "id": "TC-281-at-the-slice-head-no-user-story-tag",
+      "acId": "AC-19804-1",
+      "description": "at the slice head no user story tag starts \"verification:\", every criterion tagged at the parent of the move commit carries verification equal to its tag, and node bin/rcf.js define validate exits 0",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19804-1: at the slice head no user story tag starts \"verification:\", every criterion tagged at the parent of the move commit carries verification equal to its tag, and node bin/rcf.js define validate exits 0"
+    },
+    {
+      "id": "TC-281-a-0-37-0-criterion-left-without-the",
+      "acId": "AC-19804-3",
+      "description": "a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19804-3: a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag"
+    }
+  ],
+  "status": "draft"
+}

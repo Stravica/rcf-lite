@@ -73,3 +73,32 @@ export function median(xs) {
   const s = [...xs].sort((a, b) => a - b);
   return s[Math.floor(s.length / 2)];
 }
+
+/**
+ * The aligned tables in a CLI's text output: each is a header line over a
+ * line of dash runs; the dash runs fix the columns, and rows run to the
+ * next blank line. Returns [{ headers, rows: [{ <header>: cell }] }].
+ */
+export function tables(text) {
+  const ls = text.split('\n');
+  const out = [];
+  for (let i = 1; i < ls.length; i++) {
+    if (!/^-+(\s+-+)*\s*$/.test(ls[i]) || !ls[i - 1].trim()) continue;
+    const cols = [...ls[i].matchAll(/-+/g)].map((m) => m.index);
+    const cell = (line, k) => line.slice(cols[k], k + 1 < cols.length ? cols[k + 1] : undefined).trim();
+    const headers = cols.map((_, k) => cell(ls[i - 1], k));
+    const rows = [];
+    for (let j = i + 1; j < ls.length && ls[j].trim(); j++) {
+      rows.push(Object.fromEntries(headers.map((h, k) => [h, cell(ls[j], k)])));
+    }
+    out.push({ headers, rows });
+  }
+  return out;
+}
+
+/** Every object inside a parsed JSON value (depth first), for shape-free lookups. */
+export function objectsIn(value, acc = []) {
+  if (Array.isArray(value)) for (const v of value) objectsIn(v, acc);
+  else if (value && typeof value === 'object') { acc.push(value); for (const v of Object.values(value)) objectsIn(v, acc); }
+  return acc;
+}
