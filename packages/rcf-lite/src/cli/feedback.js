@@ -159,10 +159,14 @@ Exit codes:
      or another rcf feedback command still held the store when this
      command's wait for it ran out (stderr names that command's
      process id, or the store's lock file and its age when that file
-     cannot be parsed, and the checkout; nothing was written), or
-     submit filed an issue the store could not record in time (stderr
-     names the issue URL and the entry id; the next submit records it
-     without filing it again)
+     cannot be parsed, and the checkout; nothing was written, unless
+     submit had already filed or recorded entries, which stderr then
+     names by id and issue URL), or submit filed an issue the store
+     could not record in time (stderr names the issue URL and the
+     entry id; the next submit records it without filing it again), or
+     another command took the store over after judging this one
+     stopped (stderr names the lock file this command lost; it wrote
+     nothing more)
   2  usage error (bad flags, unknown enum, oversize body, no ignore
      coverage without --force)
   3  add: --kind blueprint AND the target is absent from
@@ -205,7 +209,9 @@ export async function main(argv, deps = {}) {
 
   const sub = argv[0];
   const rest = argv.slice(1);
-  const ctx = { stdout, stderr, cwd, env, now, rng, sessionId };
+  // `recorded`: what submit has filed or recorded so far in this run, so a
+  // later failure names it (decision 88).
+  const ctx = { stdout, stderr, cwd, env, now, rng, sessionId, recorded: [] };
   try {
     switch (sub) {
       case 'add':      return await handleAdd(rest, ctx);
@@ -235,9 +241,21 @@ export async function main(argv, deps = {}) {
     // Submit that filed an issue and still cannot record it after its
     // longer wait stops the same way, naming the issue URL and the entry
     // id; the next submit records that filing and never files it again.
+    // A command whose store lock another command took over (it was judged
+    // stopped) stops before writing anything more, naming the lock it lost
+    // (decision 88). Once submit has filed or recorded anything, the
+    // message names each entry by its id and issue URL (or bundle) and
+    // never says the run wrote nothing.
     if (err?.code !== 'RCF_FEEDBACK_MOVE_FAILED' && err?.code !== 'RCF_FEEDBACK_STORE_BUSY'
-      && err?.code !== 'RCF_FEEDBACK_FILING_UNRECORDED') throw err;
-    stderr.write(`[error] ${err.message}\n`);
+      && err?.code !== 'RCF_FEEDBACK_FILING_UNRECORDED' && err?.code !== 'RCF_FEEDBACK_LOCK_LOST') throw err;
+    if (ctx.recorded.length === 0) {
+      stderr.write(`[error] ${err.message}\n`);
+      return 1;
+    }
+    const why = err.code === 'RCF_FEEDBACK_STORE_BUSY'
+      ? `then the feedback store in ${err.root} was busy: ${err.holder} was still changing it when this command's wait for it ran out, so the rest of this run is not recorded and its entries stay pending for the next rcf feedback submit`
+      : `then ${err.message}`;
+    stderr.write(`[error] rcf feedback submit filed or recorded ${ctx.recorded.join('; ')}; ${why}\n`);
     return 1;
   }
 }
@@ -1452,16 +1470,22 @@ async function handleSubmit(argv, ctx) {
     }
   }
 
-  // AC-16103-4 (decision 87): a filing an earlier submit made but could not
-  // record is recorded first, so that entry is never filed again.
-  if (!flags['dry-run']) {
-    for (const t of await foldFilingReceipts(projectRoot)) {
+  // AC-16103-4 (decisions 87, 88): a filing an earlier submit made but could
+  // not record is recorded first, so that entry is never filed again; a dry
+  // run records nothing and lists no such entry among those it would file.
+  const kept = new Set();
+  for (const t of await foldFilingReceipts(projectRoot, { dryRun: Boolean(flags['dry-run']) })) {
+    kept.add(t.id);
+    if (flags['dry-run']) {
+      stdout.write(`${t.id} -> already filed ${t.issueUrl} by an earlier rcf feedback submit (the next submit records it as submitted)\n`);
+    } else {
+      ctx.recorded.push(`${t.id} as ${t.issueUrl}`);
       stdout.write(`${t.id} -> recorded as submitted ${t.issueUrl} (filed by an earlier rcf feedback submit)\n`);
     }
   }
 
   const all = await readEntries(projectRoot);
-  const pending = all.filter((e) => e.status === 'pending');
+  const pending = all.filter((e) => e.status === 'pending' && !kept.has(e.id));
   const wantedIds = new Set(parsed.positionals);
   const entries = wantedIds.size > 0
     ? pending.filter((e) => wantedIds.has(e.id))
@@ -1527,6 +1551,7 @@ async function handleSubmit(argv, ctx) {
         const built = await buildEntryPayload(e, context, rcfLiteVersion);
         if (built.residual.length > 0) {
           await markResidual(projectRoot, e.id, at(now), sessionId);
+          ctx.recorded.push(`${e.id} as pending (residual secret)`);
           stdout.write(`${e.id} -> pending (residual secret in body; run \`rcf feedback preview\` and rewrite)\n`);
           summary.pending += 1;
           continue;
@@ -1543,6 +1568,7 @@ async function handleSubmit(argv, ctx) {
       const built = await buildEntryPayload(e, context, rcfLiteVersion);
       if (built.residual.length > 0) {
         await markResidual(projectRoot, e.id, at(now), sessionId);
+        ctx.recorded.push(`${e.id} as pending (residual secret)`);
         stdout.write(`${e.id} -> pending (residual secret in body; run \`rcf feedback preview\` and rewrite)\n`);
         summary.pending += 1;
         continue;
@@ -1690,6 +1716,7 @@ async function handleSubmit(argv, ctx) {
           droppedLabels,
           sessionId,
         });
+        ctx.recorded.push(`${e.id} as ${result.url}`);
         // 0.28.2 (issue #234): row shape names the outcome and the
         // matched issue's title so a wrong fold is visible on the
         // same line a human already sees. The create path prints the
@@ -1764,6 +1791,7 @@ async function handleSubmit(argv, ctx) {
           stderr.write(`[safeguard] ${err.message}\n`);
           for (const row of bundle.rows) {
             await markResidual(projectRoot, row.entry.id, at(now), sessionId);
+            ctx.recorded.push(`${row.entry.id} as pending (residual secret)`);
             summary.pending += 1;
           }
           continue;
@@ -1786,6 +1814,7 @@ async function handleSubmit(argv, ctx) {
           reason: bundle.reason,
           sessionId,
         });
+        ctx.recorded.push(`${row.entry.id} in ${outboxPath}`);
         summary.bundled += 1;
       }
     }
