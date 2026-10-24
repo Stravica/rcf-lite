@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:12.049Z",
-  "updatedAt": "2026-10-24T11:29:12.890Z",
+  "updatedAt": "2026-10-24T11:31:39.865Z",
   "asA": "test-author in this slice's DEFINE round",
   "iWant": "every 0.37.0 criterion's flag moved from its interim user-story tag onto the verification field",
   "soThat": "the WORKAROUND recorded at DEFINE ends inside the release that created it",
@@ -24,10 +24,16 @@
       "id": "AC-19804-2",
       "description": "[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move, and the move is made through rcf define update only.",
       "testable": true
+    },
+    {
+      "id": "AC-19804-3",
+      "description": "[failure] Given a 0.37.0 criterion left without the field after the move, when node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> runs, then it exits 3 naming that criterion as new since the base with no verification flag, so a missed move fails CI.",
+      "testable": true
     }
   ],
   "tags": [
     "verification:AC-19804-1=testOnly",
-    "verification:AC-19804-2=testOnly"
+    "verification:AC-19804-2=testOnly",
+    "verification:AC-19804-3=testOnly"
   ]
 }

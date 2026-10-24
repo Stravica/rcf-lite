@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:31:40.641Z",
+  "updatedAt": "2026-10-24T11:31:40.641Z",
+  "status": "proposed",
+  "context": "The redesign (:59-67) makes test adequacy three layers: structural (a bound test enters only through the app entry, stand-ins only at the network edge and the clock, assertions on captured logs and outbound calls, factories never silently default a logger, emitter or sender), the mutation proof (break each Code Node symbol of a touched criterion: stub to throw, no-op, remove the call; at least one bound test must go red), and Review's judgement. The operator kept mutation in v1 with exactly those three operators and no general mutation testing (09:20Z answer 2). Q-07 a needs the app entry defined for a CLI or library. Cause 3 of the redesign: tests built the app's parts themselves.",
+  "decision": "A project declares its entry, harness, edge and clock in rcf/test-strength.json (test-author, criteria class); no declaration exits 2 rather than guessing. For a CLI the entry is its bin spawned as a child process (rcf-lite: bin/rcf.js, through the shared harness, or the packed artefact); for a library, its package exports imported by package name; for a Worker-style app, the module its deploy configuration names as main, built as production builds it and called through the harness. The structural check is static: every import in a bound test file resolves to a Node builtin, a third-party dependency, the harness or the entry (any other product file is a finding); a module mock is allowed only on a declared edge or clock specifier; a Code Node symbol whose parameter or destructured option named logger, log, emitter, events, sender, mailer or notifier has a default value is a silent-default finding. Whether a test asserts on the captured logs and outbound calls the criterion names is Review's judgement, not the tool's. Mutants are applied in a scratch git worktree under the OS temp directory at HEAD, one at a time per job, and only the touched criterion's bound tests run against each; a mutant that times out counts as killed and is listed as timeout; call removal with no statement-level call site is notApplicable. A criterion whose Code Nodes are all file-level fails with \"no symbol-level Code Node\". The verifier records the result at TEST with --record, beside the TEST verdict, and Finalise reads it.",
+  "consequences": "Test strength costs symbols times three operators times the bound tests' run time, and slice scope keeps it cheap: a round touching 8 criteria of a 152-criterion spec mutates only those 8 criteria's symbols. rcf-lite's own pre-0.37.0 tests that import src/ internals would fail the structural check, which bites only on criteria a later round touches; the 0.37.0 tests part B writes go through bin/rcf.js. Code Nodes earn their keep: a criterion with none cannot pass.",
+  "alternativesConsidered": [
+    {
+      "name": "Infer the entry from package.json",
+      "summary": "Take bin or main as the entry without a declaration.",
+      "reasonNotChosen": "A Worker's entry is in its deploy configuration and a monorepo has several packages; a wrong guess would pass or fail tests silently."
+    },
+    {
+      "name": "General mutation testing",
+      "summary": "Operator sets such as Stryker's over all code.",
+      "reasonNotChosen": "Ruled out by the operator (09:20Z answer 2); cost scales with the codebase rather than the round."
+    },
+    {
+      "name": "Run the tool in CI on every push",
+      "summary": "CI runs test strength instead of the verifier.",
+      "reasonNotChosen": "Its cost belongs to the touched criteria of one round; recording it at TEST beside the suite run ties it to the reviewed head Finalise judges."
+    }
+  ],
+  "adrId": "ADR-4156",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Test strength v1: a declared entry and harness, three mutation operators on symbol-level Code Nodes, mutants in a scratch worktree, recorded at TEST"
+}

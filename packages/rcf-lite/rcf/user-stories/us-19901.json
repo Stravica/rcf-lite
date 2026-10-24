@@ -1,0 +1,57 @@
+{
+  "createdAt": "2026-10-24T11:31:41.237Z",
+  "updatedAt": "2026-10-24T11:31:43.092Z",
+  "asA": "verifier at the TEST stage, with the reviewer reading the result",
+  "iWant": "a tool that fails any bound test reaching around the app entry, mocking an internal module, or relying on a silently defaulted logger, emitter or sender",
+  "soThat": "a green suite means production as wired does what the criteria say",
+  "description": "Layer 1, structural.",
+  "tacIds": [
+    "TAC-4155"
+  ],
+  "usId": "US-19901",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The verifier runs the structural check over the bound tests of the touched criteria",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19901-1",
+      "description": "[happy] Given a fixture project whose rcf/test-strength.json declares entry [{\"kind\": \"bin\", \"path\": \"bin/app.js\"}] and harness [\"test/_harness/**\"], and whose AC-101-1 is bound to test/rcf/a.test.js importing only node:test, node:assert and test/_harness/run.js (which spawns bin/app.js), with a symbol-level Code Node whose mutants all fail that test, when rcf audit test-strength --acs AC-101-1 runs, then it exits 0 and stdout is \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 3/3 (timeout 0, notApplicable 0)\" (or killed 2/2 with notApplicable 1 when call removal finds no call site).",
+      "testable": true
+    },
+    {
+      "id": "AC-19901-2",
+      "description": "[failure] Given the same fixture with test/rcf/a.test.js also importing src/store.js (a product file that is not the entry), when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 and stdout is \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19901-3",
+      "description": "[failure] Given the same fixture with test/rcf/a.test.js calling mock.module(\"../../src/mailer.js\", ...) and rcf/test-strength.json declaring edge [\"node:https\"], the verb exits 4 with \"AC-101-1 mocks ../../src/mailer.js (not a declared edge)\"; a mock.module(\"node:https\", ...) in the same test is not a finding.",
+      "testable": true
+    },
+    {
+      "id": "AC-19901-4",
+      "description": "[failure] Given a Code Node src/notify.js#makeNotifier implementing AC-101-1 whose function is makeNotifier({ sender = consoleSender } = {}), when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 with \"AC-101-1 silent default sender in src/notify.js#makeNotifier\"; a parameter named sender with no default is not a finding.",
+      "testable": true
+    },
+    {
+      "id": "AC-19901-5",
+      "description": "[edge] Given a fixture project with no rcf/test-strength.json, rcf audit test-strength --acs AC-101-1 exits 2 with stderr \"test-strength: no rcf/test-strength.json; declare entry and harness\"; given no --acs, no --fbs and no REVIEW verdict reachable from HEAD, it exits 2 with \"test-strength: no scope; pass --acs or --fbs, or record a REVIEW verdict\"; given --acs AC-999-1 it exits 2 naming AC-999-1.",
+      "testable": true
+    },
+    {
+      "id": "AC-19901-6",
+      "description": "[must-not] The structural check never executes a test, the entry or any product module: it reads bound test files and Code Node sources as text, so a bound test file that would throw on import still yields its import findings, and a structural-only failure is reported without running a single mutant.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19901-1=external",
+    "verification:AC-19901-2=external",
+    "verification:AC-19901-3=external",
+    "verification:AC-19901-4=external",
+    "verification:AC-19901-5=external",
+    "verification:AC-19901-6=external"
+  ]
+}

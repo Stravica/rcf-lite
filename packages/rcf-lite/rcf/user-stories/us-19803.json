@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:10.197Z",
-  "updatedAt": "2026-10-24T11:29:11.794Z",
+  "updatedAt": "2026-10-24T11:31:39.360Z",
   "asA": "stage-keeper planning a release, or the operator running Verify",
   "iWant": "coverage to show, per criterion and per spec, the end state it must reach and where it is now",
   "soThat": "I can see which specs still need a release Verify and which are done at complete",
@@ -39,6 +39,11 @@
       "id": "AC-19803-5",
       "description": "[non-functional] Given this repository's own chain at the slice head (the typical case: 827 or more criteria, 121 or more specs), when node bin/rcf.js audit coverage --format json runs, then it finishes within 1.25 times the same command at the parent commit on the same host (median of three runs), and each criterion row grows by the three fields only.",
       "testable": true
+    },
+    {
+      "id": "AC-19803-6",
+      "description": "[failure] Given a fixture tree whose AC-101-1 carries \"verification\": \"sometimes\" (a hand-edited value outside the enum), when rcf audit coverage runs, then it exits 3 with a line naming AC-101-1 and the field verification and prints no coverage rows, rather than guessing an end state.",
+      "testable": true
     }
   ],
   "tags": [
@@ -46,6 +51,7 @@
     "verification:AC-19803-2=external",
     "verification:AC-19803-3=external",
     "verification:AC-19803-4=external",
-    "verification:AC-19803-5=testOnly"
+    "verification:AC-19803-5=testOnly",
+    "verification:AC-19803-6=external"
   ]
 }

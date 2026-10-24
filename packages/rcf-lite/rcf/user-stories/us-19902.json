@@ -1,0 +1,57 @@
+{
+  "createdAt": "2026-10-24T11:31:43.345Z",
+  "updatedAt": "2026-10-24T11:31:45.200Z",
+  "asA": "verifier at the TEST stage",
+  "iWant": "each symbol implementing a touched criterion stubbed to throw, made a no-op and its calls removed, with the criterion's bound tests run against each",
+  "soThat": "a criterion whose tests stay green against broken code is reported vacuous before Finalise",
+  "description": "Layer 2, the v1 mutation proof.",
+  "tacIds": [
+    "TAC-4155"
+  ],
+  "usId": "US-19902",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The verifier runs the mutation proof over the Code Node symbols of each touched criterion",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19902-1",
+      "description": "[failure] Given a fixture whose AC-101-1 is bound to a test that asserts only that the CLI exits 0, and whose Code Node src/audit.js#writeAudit is called once per run but its output is never asserted, when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 with \"AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests\" (and the same for callRemoval), and --json lists those mutants with result \"survived\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19902-2",
+      "description": "[failure] Given AC-101-2 with no Code Node, AC-101-3 whose only Code Node is file-level (src/x.js with no #symbol) and AC-101-4 with no bound test case, when rcf audit test-strength --acs AC-101-2,AC-101-3,AC-101-4 runs, then it exits 4 with \"AC-101-2 no Code Node\", \"AC-101-3 no symbol-level Code Node\" and \"AC-101-4 unbound\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19902-3",
+      "description": "[edge] Given a symbol whose no-op mutant makes its bound test hang past --mutant-timeout 5, when rcf audit test-strength --acs AC-101-1 --mutant-timeout 5 runs, then that mutant is recorded result \"timeout\", counts as killed, and the PASS line reports it under timeout; a symbol with no statement-level call site records callRemoval as \"notApplicable\" and the criterion still passes on its other two operators.",
+      "testable": true
+    },
+    {
+      "id": "AC-19902-4",
+      "description": "[must-not] rcf audit test-strength never mutates the working tree and never mutates a symbol of an untouched criterion: over a fixture whose FBS-001 scopes AC-101-1 and AC-101-2 and whose REVIEW verdict touches only AC-101-1, a run with no --acs applies mutants only to AC-101-1's symbols, git status --porcelain and every tracked file's hash are unchanged after the run, and no scratch worktree is left registered (git worktree list shows only the main one).",
+      "testable": true
+    },
+    {
+      "id": "AC-19902-5",
+      "description": "[failure] Given a scope whose Code Node symbols would yield 240 mutants, when rcf audit test-strength runs with the default --max-mutants, then it exits 2 before running any test with stderr \"test-strength: 240 mutants exceed --max-mutants 200; narrow the scope\"; with --max-mutants 300 it runs.",
+      "testable": true
+    },
+    {
+      "id": "AC-19902-6",
+      "description": "[non-functional] Given a fixture round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants, the redesign's heavy round of 8 touched criteria in a 152-criterion spec) and bound test files that each run in about 2 seconds, when rcf audit test-strength runs with --jobs 4 on a 4-core CI-class runner, then it finishes within 5 minutes, runs only the 8 criteria's bound test files (never the whole suite), and the json totals report mutants 48 and the wall time in wallMs.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19902-1=external",
+    "verification:AC-19902-2=external",
+    "verification:AC-19902-3=external",
+    "verification:AC-19902-4=external",
+    "verification:AC-19902-5=external",
+    "verification:AC-19902-6=external"
+  ]
+}
