@@ -282,7 +282,7 @@ function passedThenMerged(dir, H) {
   return sha(dir);
 }
 
-test('AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves H\'s test.json byte-identical; --result PASS at M refuses on H\'s verdict', TODO, async (t) => {
+test('AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H', TODO, async (t) => {
   const { dir, H } = await verdictProject(t);
   const M = passedThenMerged(dir, H);
   const hBytes = readText(dir, verdictPath(H, 'test.json'));
@@ -313,7 +313,7 @@ test('AC-19702-7: a failing test-strength record at H refuses --result PASS (exi
   assert.equal(ok.code, 0, `with no test-strength record PASS is not refused\n${ok.stdout}${ok.stderr}`);
 });
 
-test('AC-19702-8: --fbs must equal the REVIEW verdict\'s fbsIds as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test', TODO, async (t) => {
+test('AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test', TODO, async (t) => {
   const { dir, H } = await verdictProject(t, { fbs002: true });
   const rv = await review(dir, ['--fbs', 'FBS-001,FBS-002', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'PASS']);
   assert.equal(rv.code, 0, `${rv.stdout}${rv.stderr}`);
@@ -398,7 +398,7 @@ test('AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a
   }
 });
 
-test('AC-19703-5: a review.json whose head is not its commit\'s parent and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round', TODO, async (t) => {
+test('AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round', TODO, async (t) => {
   {
     const { dir, base } = repo(t); const d = D(dir); const h = B(dir);
     const c = commit(dir, 'REVIEW: verdict', { [verdictPath(d, 'review.json')]: reviewVerdict(d) });

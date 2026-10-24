@@ -84,7 +84,7 @@ test('AC-19601-3: a commit with no stage prefix exits 4 with "<s7> no stage pref
   assert.equal(one(r2.stdout), failLine(1, 1, md.base, m, [`${s7(m)} no stage prefix`]));
 });
 
-test('AC-19601-4: seven malformed prefixes each fail with "<s7> malformed stage prefix \\"<first token>\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:" and exit 4', TODO, async (t) => {
+test('AC-19601-4: seven malformed prefixes each fail exit 4, each with the item "<s7> malformed stage prefix" naming its first token in double quotes, then "; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:"', TODO, async (t) => {
   const { dir, base } = repo(t);
   const subjects = ['define: x', 'Define: x', 'DEFINE:x', 'DEFINE - x', '[DEFINE] x', 'DEFINE(FBS-1): x', 'VERIFY: x'];
   const tokens = ['define:', 'Define:', 'DEFINE:x', 'DEFINE', '[DEFINE]', 'DEFINE(FBS-1):', 'VERIFY:'];
@@ -210,7 +210,7 @@ test('AC-19601-9: over 200 prefixed commits touching 20 paths each across four c
   assert.ok(gits.length <= 4, `spawns no more than 4 git processes with no merge in the range (spawned ${gits.length})`);
 });
 
-test('AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching criteria and an RCF test, then a malformed "define: x", print each cause as its own item in check order and the malformed prefix as that commit\'s only item', TODO, async (t) => {
+test('AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching criteria and an RCF test, then a malformed "define: x", print each cause as its own item in check order and the malformed prefix as the only item of that commit', TODO, async (t) => {
   const { dir, base } = repo(t);
   const a = commit(dir, 'BUILD: mixed', { 'rcf/user-stories/us-1.json': '{"id":"US-1"}\n', 'test/a.test.js': "test('a', () => {});\n" }, { trailers: [['Hand', 'test-author']] });
   const b = commit(dir, 'define: x', { 'src/x.js': 'export const x = 3;\n' });

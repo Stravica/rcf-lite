@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:05.043Z",
-  "updatedAt": "2026-10-24T16:35:07.138Z",
+  "updatedAt": "2026-10-24T16:46:06.680Z",
   "purpose": "FBS-234: the external criteria of US-19702, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -55,9 +55,9 @@
     {
       "id": "TC-274-after-review-merge-pass-test-pass-at-h",
       "acId": "AC-19702-6",
-      "description": "after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves H\\",
+      "description": "after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H",
       "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves H\\"
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H"
     },
     {
       "id": "TC-274-a-failing-test-strength-record-at-h",
@@ -69,9 +69,9 @@
     {
       "id": "TC-274-fbs-must-equal-the-review-verdict",
       "acId": "AC-19702-8",
-      "description": "--fbs must equal the REVIEW verdict\\",
+      "description": "--fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is \"reviewer\" for review and \"verifier\" for test",
       "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19702-8: --fbs must equal the REVIEW verdict\\"
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is \"reviewer\" for review and \"verifier\" for test"
     }
   ],
   "status": "draft"

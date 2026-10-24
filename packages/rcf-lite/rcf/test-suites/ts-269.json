@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:27:45.094Z",
-  "updatedAt": "2026-10-24T16:28:04.883Z",
+  "updatedAt": "2026-10-24T16:46:06.166Z",
   "purpose": "FBS-233: the external criteria of US-19601, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -43,9 +43,9 @@
     {
       "id": "TC-269-seven-malformed-prefixes-each-fail-with",
       "acId": "AC-19601-4",
-      "description": "seven malformed prefixes each fail with \"<s7> malformed stage prefix \\\\\"<first token>\\\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" and exit 4",
+      "description": "seven malformed prefixes each fail exit 4, each with the item \"<s7> malformed stage prefix\" naming its first token in double quotes, then \"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\"",
       "status": "pending",
-      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-4: seven malformed prefixes each fail with \"<s7> malformed stage prefix \\\\\"<first token>\\\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" and exit 4"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-4: seven malformed prefixes each fail exit 4, each with the item \"<s7> malformed stage prefix\" naming its first token in double quotes, then \"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\""
     },
     {
       "id": "TC-269-a-bad-base-ref-exits-2-separation-bad",
@@ -85,9 +85,9 @@
     {
       "id": "TC-269-a-build-mixed-commit-with-hand-test",
       "acId": "AC-19601-10",
-      "description": "a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as that commit\\",
+      "description": "a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as the only item of that commit",
       "status": "pending",
-      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-10: a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as that commit\\"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-10: a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as the only item of that commit"
     }
   ],
   "status": "draft"

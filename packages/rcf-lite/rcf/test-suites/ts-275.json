@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:07.403Z",
-  "updatedAt": "2026-10-24T16:35:10.314Z",
+  "updatedAt": "2026-10-24T16:46:06.938Z",
   "purpose": "FBS-234: the external criteria of US-19703, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -51,9 +51,9 @@
     {
       "id": "TC-275-a-review-json-whose-head-is-not-its",
       "acId": "AC-19703-5",
-      "description": "a review.json whose head is not its commit\\",
+      "description": "a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round",
       "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-5: a review.json whose head is not its commit\\"
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round"
     },
     {
       "id": "TC-275-review-test-finalise-merge-and-finalise",
