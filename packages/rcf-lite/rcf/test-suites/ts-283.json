@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-24T16:56:39.806Z",
+  "updatedAt": "2026-10-24T16:56:41.868Z",
+  "purpose": "FBS-236: the external criteria of US-19902, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19902-1",
+    "AC-19902-2",
+    "AC-19902-3",
+    "AC-19902-4",
+    "AC-19902-5",
+    "AC-19902-6",
+    "AC-19902-7",
+    "AC-19902-8"
+  ],
+  "id": "TS-283",
+  "usId": "US-19902",
+  "title": "US-19902 external criteria (FBS-236)",
+  "testCases": [
+    {
+      "id": "TC-283-a-bound-test-asserting-only-that-the-cli",
+      "acId": "AC-19902-1",
+      "description": "a bound test asserting only that the CLI exits 0 over src/audit.js#writeAudit, called once per run and never asserted, exits 4 with \"AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests\" and the same for callRemoval, and --json lists those mutants survived",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js#writeAudit, called once per run and never asserted, exits 4 with \"AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests\" and the same for callRemoval, and --json lists those mutants survived"
+    },
+    {
+      "id": "TC-283-ac-101-2-with-no-code-node-ac-101-3-with",
+      "acId": "AC-19902-2",
+      "description": "AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with \"AC-101-2 no Code Node\", \"AC-101-3 no symbol-level Code Node\" and \"AC-101-4 unbound\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with \"AC-101-2 no Code Node\", \"AC-101-3 no symbol-level Code Node\" and \"AC-101-4 unbound\""
+    },
+    {
+      "id": "TC-283-a-no-op-mutant-that-hangs-its-bound-test",
+      "acId": "AC-19902-3",
+      "description": "a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded \"timeout\" and counted as killed, and a symbol with no statement-level call site records callRemoval \"notApplicable\" while the criterion passes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded \"timeout\" and counted as killed, and a symbol with no statement-level call site records callRemoval \"notApplicable\" while the criterion passes"
+    },
+    {
+      "id": "TC-283-with-no-acs-the-scope-is-the-touched-ac",
+      "acId": "AC-19902-4",
+      "description": "with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree"
+    },
+    {
+      "id": "TC-283-a-scope-of-240-mutants-exits-2-before",
+      "acId": "AC-19902-5",
+      "description": "a scope of 240 mutants exits 2 before running any test with \"test-strength: 240 mutants exceed --max-mutants 200; narrow the scope\"; with --max-mutants 300 it runs",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-5: a scope of 240 mutants exits 2 before running any test with \"test-strength: 240 mutants exceed --max-mutants 200; narrow the scope\"; with --max-mutants 300 it runs"
+    },
+    {
+      "id": "TC-283-a-round-touching-8-criteria-with-2",
+      "acId": "AC-19902-6",
+      "description": "a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs"
+    },
+    {
+      "id": "TC-283-a-class-symbol-expands-to-its-methods",
+      "acId": "AC-19902-7",
+      "description": "a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail \"no mutable symbol <path#symbol>\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-7: a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail \"no mutable symbol <path#symbol>\""
+    },
+    {
+      "id": "TC-283-a-file-level-code-node-docs-x-md-is",
+      "acId": "AC-19902-8",
+      "description": "a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 \"AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 \"AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\""
+    }
+  ],
+  "status": "draft"
+}
