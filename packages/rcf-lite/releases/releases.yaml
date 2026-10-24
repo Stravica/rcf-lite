@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.36.0"
+latest: "0.36.1"
 releases:
+  - version: "0.36.1"
+    date: "2026-10-23"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.36.1 fixes the feedback surface and rcf verify run: a headless agent session rcf-lite spawns no longer asks for feedback, rcf verify run --out refuses a directory before the run instead of failing after it, a feedback entry recorded in a linked git worktree lives in the main checkout's store and outlives the worktree, feedback commands run at the same time keep every entry, and rcf define create ac keeps a criterion's scope field."
+      - "Known issue: removing a linked worktree before the main checkout's .gitignore covers .rcf/feedback/ still loses the queue that worktree holds. Run rcf doctor --fix in the main checkout first, then any rcf feedback command in the worktree so its queue moves across; until then rcf feedback add in that worktree refuses with exit 2 and points at rcf doctor --fix."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block and the @stravica-ai/rcf-schemas 0.9.0 pin are unchanged since 0.36.0. Criteria an earlier rcf define create ac --from-file wrote without their scope are not repaired, so check whether any of them need their scope added back."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.36.0"
     date: "2026-10-22"
     breaking: true
