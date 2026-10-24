@@ -2899,6 +2899,31 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"C6: ADR-4162 names the AC-19401-12 exception.\" So ADR-4162's decision now reads \"Part B's tests reach main as node:test todo cases in files holding one slice's criteria each (the exception: FBS-228's AC-19401-12 test stays in FBS-227's file test/verify/probe-assertion-0-9-0.test.js, because one file per slice applies only to new files); ...\", from the ruling on part B1's stop 4, reading a (\"One file per slice\" applies only to new files).",
       "answeredAt": "2026-10-24T21:18:50.985Z",
       "resolvedAt": "2026-10-24T21:18:50.985Z"
+    },
+    {
+      "id": 133,
+      "question": "(rcf-lite 0.37.0 DEFINE) ADR-4162's decision says testOnly tests read repository files (.github/, git history, scripts/, docs, the root README) through RCF_CHECKOUT, while after part C only the two RCF_PERF timing cases and the stopped AC-20303-3 test read git history: does the clause stay as written? Source: stage-keeper ruling on the ADR-4162 line, part C's open item, 2026-10-24, at 0377c33b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the clause stays, since the timing cases still read history at TEST"
+        },
+        {
+          "letter": "b",
+          "text": "a later DEFINE narrows it to the RCF_PERF timing cases"
+        },
+        {
+          "letter": "c",
+          "text": "the clause is reworded now to the checkout at HEAD and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-228",
+      "addedAt": "2026-10-24T22:03:55.242Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-24: \"ADR-4162 still lists \"git history\" among what testOnly tests read. It is reworded to: the checkout at HEAD and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone.\" So ADR-4162's decision now reads \"testOnly tests read the checkout at HEAD (.github/, scripts/, docs, the root README) through it and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone\".",
+      "answeredAt": "2026-10-24T22:04:05.409Z",
+      "resolvedAt": "2026-10-24T22:04:05.409Z"
     }
   ]
 }
