@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-24T18:00:51.771Z",
+  "updatedAt": "2026-10-24T18:01:13.414Z",
+  "purpose": "FBS-240: the testOnly criteria of US-20301, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-240's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-20301-1",
+    "AC-20301-2",
+    "AC-20301-3"
+  ],
+  "id": "TS-294",
+  "usId": "US-20301",
+  "title": "US-20301 testOnly criteria (FBS-240)",
+  "testCases": [
+    {
+      "id": "TC-294-at-the-current-head-node-bin-rcf-js",
+      "acId": "AC-20301-1",
+      "description": "at the current head node bin/rcf.js define readiness --check all from packages/rcf-lite exits 0, its Chips line reads D0:notApplicable and D1 to D8 passed, and it prints \"Freezeable: yes\"",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20301-1: at the current head node bin/rcf.js define readiness --check all from packages/rcf-lite exits 0, its Chips line reads D0:notApplicable and D1 to D8 passed, and it prints \"Freezeable: yes\""
+    },
+    {
+      "id": "TC-294-in-a-scratch-copy-at-the-current-head",
+      "acId": "AC-20301-2",
+      "description": "in a scratch copy at the current head with the freeze recorded by define freeze, build bundle --next --base-suite <a green record for that head> exits 0 without --override and emits the next bundle, and readiness no longer prints \"Unfrozen\"",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20301-2: in a scratch copy at the current head with the freeze recorded by define freeze, build bundle --next --base-suite <a green record for that head> exits 0 without --override and emits the next bundle, and readiness no longer prints \"Unfrozen\""
+    },
+    {
+      "id": "TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4",
+      "acId": "AC-20301-3",
+      "description": "in a scratch copy at the current head, one new requirement created through rcf define create req with no shape, story or concern entries makes define readiness --check all exit 4 naming it under the D2 and D4 checks it fails",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20301-3: in a scratch copy at the current head, one new requirement created through rcf define create req with no shape, story or concern entries makes define readiness --check all exit 4 naming it under the D2 and D4 checks it fails"
+    }
+  ],
+  "status": "draft"
+}
