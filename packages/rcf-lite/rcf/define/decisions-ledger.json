@@ -3020,6 +3020,27 @@
       "answer": "c. The stage-keeper, 2026-10-24: \"A new criterion on the readiness story US-20303 (FBS-240), verification: external. One shared profile reader in src/ resolves profile:surface and profile:register. Every consumer resolves through it: the D1 brief:profile check, rcf readiness, the viewer, rcf questions and the MCP tool. It takes only the bare value line under the key's section. brief:profile fails a section with no bare value line or with two. Its bound test (todo, FBS-240 round DEFINE) drives the real entry points over four fixture profiles: (i) the unedited seed: the defaults prDiff and unstated resolve, and brief:profile passes, since seeded defaults are answers by the seed's design; (ii) the seed with both bare lines deleted: every reader says unanswered, and brief:profile fails both keys; (iii) two bare lines in one section: unanswered; (iv) menu text only: unanswered. All five consumers must agree on every fixture.\" With the stage-keeper's ruling 2 before part C3, the criterion names the observable: rcf define readiness --json reports profile: { surface, register }, each value the resolved marker word or unanswered; the register consumers act on unanswered exactly as on unstated; surface is observed only through the JSON field and brief:profile. Minted as AC-20303-4 (tag verification:AC-20303-4=external), bound by TC-299-over-the-four-fixture-profiles-of-test in TS-299.",
       "answeredAt": "2026-10-24T22:55:47.141Z",
       "resolvedAt": "2026-10-24T22:55:47.141Z"
+    },
+    {
+      "id": 138,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's notes name no BUILD deliverable and no ledger source entries for the operator's profile answers, which part C2 left unnamed while F3 was stopped: what do the notes say? Source: stage-keeper ruling 3 on part C2's stop, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the notes stay as at ff90753f (the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the notes gain two sentences: this slice's BUILD delivers the shared reader, and its round DEFINE mints the two operator source entries for rcf-lite's own profile"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:57:45.501Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"FBS-240's notes: its BUILD delivers the shared reader, and its round DEFINE mints the two operator source entries for rcf-lite's own profile.\" The two sentences name the reader by AC-20303-4 and give the entries' form and the add and resolve commands, the form the AC-20303-3 test reads at HEAD.",
+      "answeredAt": "2026-10-24T22:57:45.586Z",
+      "resolvedAt": "2026-10-24T22:57:45.586Z"
     }
   ]
 }
