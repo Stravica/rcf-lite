@@ -1,0 +1,28 @@
+TAP version 13
+# Subtest: AC-16103-4: a queue a linked worktree already holds is moved into the main checkout by the next rcf feedback command run there, and after git worktree remove every entry, old and new, is listed from the main checkout exactly once with the status it had
+ok 1 - AC-16103-4: a queue a linked worktree already holds is moved into the main checkout by the next rcf feedback command run there, and after git worktree remove every entry, old and new, is listed from the main checkout exactly once with the status it had
+  ---
+  duration_ms: 944.836208
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: when the main checkout does not ignore .rcf/feedback/ (the worktree branch does), rcf feedback add in a linked worktree refuses as AC-15501-2 refuses, names the main checkout, and writes nothing under either checkout
+ok 2 - AC-16103-4: when the main checkout does not ignore .rcf/feedback/ (the worktree branch does), rcf feedback add in a linked worktree refuses as AC-15501-2 refuses, names the main checkout, and writes nothing under either checkout
+  ---
+  duration_ms: 238.320584
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: when the main checkout does not hold the rcf project (adopted on the worktree branch only), rcf feedback add in a linked worktree never leaves a file the main checkout would commit
+ok 3 - AC-16103-4: when the main checkout does not hold the rcf project (adopted on the worktree branch only), rcf feedback add in a linked worktree never leaves a file the main checkout would commit
+  ---
+  duration_ms: 332.237791
+  type: 'test'
+  ...
+1..3
+# tests 3
+# suites 0
+# pass 3
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1571.762583

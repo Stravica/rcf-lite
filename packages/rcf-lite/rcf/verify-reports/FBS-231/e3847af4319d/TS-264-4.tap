@@ -1,0 +1,22 @@
+TAP version 13
+# Subtest: AC-16103-4: when moving the held queue fails after appending to the main queue, rcf feedback add in a linked worktree exits 1 naming the error and the main checkout, the worktree keeps every file it held, the main checkout lists each id once, and the next command completes the move with each id once
+ok 1 - AC-16103-4: when moving the held queue fails after appending to the main queue, rcf feedback add in a linked worktree exits 1 naming the error and the main checkout, the worktree keeps every file it held, the main checkout lists each id once, and the next command completes the move with each id once
+  ---
+  duration_ms: 1272.636084
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: when moving the held queue fails after removing some held files, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every removed held file has its content in the main store, every file still held is byte-identical, and the next command completes the move with each id once
+ok 2 - AC-16103-4: when moving the held queue fails after removing some held files, rcf feedback list in a linked worktree exits 1 naming the error and the main checkout, every removed held file has its content in the main store, every file still held is byte-identical, and the next command completes the move with each id once
+  ---
+  duration_ms: 1059.204375
+  type: 'test'
+  ...
+1..2
+# tests 2
+# suites 0
+# pass 2
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 2382.567708
