@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-24T18:05:05.520Z",
+  "updatedAt": "2026-10-24T18:05:06.309Z",
+  "purpose": "FBS-241: the testOnly criteria of US-20402, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-241's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-20402-2",
+    "AC-20402-3",
+    "AC-20402-4"
+  ],
+  "id": "TS-298",
+  "usId": "US-20402",
+  "title": "US-20402 testOnly criteria (FBS-241)",
+  "testCases": [
+    {
+      "id": "TC-298-docs-verify-reference-md-has-the",
+      "acId": "AC-20402-2",
+      "description": "docs/verify-reference.md has the finalise synopsis rcf build finalise <fbs-id> --ci-run <ref>, a modes section naming release mode and calling the catalog and agent modes optional probes that are never a precondition, and a forward catalog contract that no longer says the deterministic engine feeds Finalise",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20402-2: docs/verify-reference.md has the finalise synopsis rcf build finalise <fbs-id> --ci-run <ref>, a modes section naming release mode and calling the catalog and agent modes optional probes that are never a precondition, and a forward catalog contract that no longer says the deterministic engine feeds Finalise"
+    },
+    {
+      "id": "TC-298-no-file-under-packages-rcf-lite-docs",
+      "acId": "AC-20402-3",
+      "description": "no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage"
+    },
+    {
+      "id": "TC-298-the-root-readme-md-and-packages-rcf-lite",
+      "acId": "AC-20402-4",
+      "description": "the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20402-4: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build"
+    }
+  ],
+  "status": "draft"
+}
