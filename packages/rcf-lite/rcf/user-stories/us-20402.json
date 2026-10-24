@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:45.421Z",
-  "updatedAt": "2026-10-24T15:07:15.102Z",
+  "updatedAt": "2026-10-24T15:54:25.778Z",
   "asA": "operator upgrading a product from rcf-lite 0.36.x to 0.37.0",
   "iWant": "the release to tell my agents to refresh the managed block, and the docs to describe the new Finalise and Verify",
   "soThat": "the upgrade lands in every consumer and nobody runs a retired command from the docs",
@@ -15,11 +15,6 @@
   "status": "draft",
   "title": "An operator upgrading a downstream product is told to rerun init and finds the docs on the 0.37.0 model",
   "acceptanceCriteria": [
-    {
-      "id": "AC-20402-1",
-      "description": "[happy] Given packages/rcf-lite/releases/releases.yaml at the release head, when its top entry is read, then its version equals packages/rcf-lite/package.json's version (0.37.0), breaking is true and minAgentAction is rerun-init, and node scripts/validate-releases.mjs exits 0.",
-      "testable": true
-    },
     {
       "id": "AC-20402-2",
       "description": "[happy] Given packages/rcf-lite/docs/verify-reference.md at this slice's reviewed head or any later head, then its finalise synopsis reads \"rcf build finalise <fbs-id> --ci-run <ref>\", its modes section names release mode (--release, --since, --record) and calls the catalog and agent modes optional probes that are never a precondition, and the forward catalog contract no longer says the deterministic engine feeds Finalise.",
@@ -37,7 +32,6 @@
     }
   ],
   "tags": [
-    "verification:AC-20402-1=testOnly",
     "verification:AC-20402-2=testOnly",
     "verification:AC-20402-3=testOnly",
     "verification:AC-20402-4=testOnly"

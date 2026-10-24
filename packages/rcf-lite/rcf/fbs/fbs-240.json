@@ -1,12 +1,11 @@
 {
   "createdAt": "2026-10-24T11:39:17.746Z",
-  "updatedAt": "2026-10-24T11:39:17.746Z",
-  "summary": "Clear every failing readiness check on this repository's chain by records written through the CLI (the operator answering the two D1 questions), record the freeze, and end the explicit-id bundling workaround (WA-08) at the 0.37.0 release.",
+  "updatedAt": "2026-10-24T15:55:36.507Z",
+  "summary": "Clear every failing readiness check on this repository's chain by records written through the CLI (the operator answering the two D1 questions), and end the explicit-id bundling workaround (WA-08) at the 0.37.0 release. FBS-241's round DEFINE records the freeze (GR-31).",
   "approach": "A chain-authoring round: the DEFINE stage (test-author) writes the records check by check, driven by node bin/rcf.js define readiness --check <stage> output; BUILD is expected to be empty unless a check is shown wrong for a CLI product, in which case its fix is a new criterion with an ADR first. The stage-keeper records the freeze after D1 to D6 pass.",
   "deliverables": [
     "Chain records: REQ shape classifications, TAD data and security architecture, a Deploy target ADR, TAC interfaces and settled drafts, failure and must-not criteria or reasoned defineD4 opt-outs, closed sets, concern-ledger entries, recordShape fields, ownerRefs (test-author)",
-    "The operator's D1 profile answers, recorded through the CLI",
-    "The freeze record (stage-keeper)"
+    "The operator's D1 profile answers, recorded through the CLI"
   ],
   "notes": "DEFINE part A, 2026-10-24 (test-author). Readiness at START: exit 4, chips D1-D6 and D8 failing, about 900 findings (readiness-start output, summarised in ADR ADR-4160). Flags: US tags (WORKAROUND, ADR ADR-4152); every criterion here is testOnly.",
   "dependsOnFbsIds": [
@@ -33,5 +32,5 @@
   "bsId": "BS-001",
   "buildOrder": 242,
   "executionStatus": "notStarted",
-  "title": "Readiness D1 to D6 and D8 green on rcf-lite main, then the freeze: frozen --next is the default again"
+  "title": "Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once FBS-241's round DEFINE records the freeze (GR-31)"
 }

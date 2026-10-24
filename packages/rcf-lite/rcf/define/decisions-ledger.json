@@ -2273,9 +2273,9 @@
       "blocks": "FBS-241",
       "addedAt": "2026-10-24T14:58:24.871Z",
       "status": "resolved",
-      "answer": "c. The operator, 2026-10-24 about 14:20Z: \"(c), departing from the worker's (a). The feed-entry clause leaves FBS-241's criteria. The changes: AC-20402-1 drops the \"releases.yaml 0.37.0 entry and package.json at 0.37.0\" clause and keeps any other clause. If nothing else remains, retire it and succeed it with no successor, with the reason stated. The 0.37.0 cut lands as FINALISE: commits on FBS-241's PR (ruling 2, Q-02), and ADR-4153 stays unchanged. The existing release check, test/scripts/validate-releases.test.js, runs in CI on the final head. That proves the entry and the version agree, and GR-21's --ci-run names the passing run on HEAD at Finalise time, so the cut commit is covered. FBS-241's deliverables say the cut is FINALISE. Section 7.14's GR-33 (a) text is not applied. The a-74 ledger entry is ruled (c).\"",
-      "answeredAt": "2026-10-24T14:58:24.957Z",
-      "resolvedAt": "2026-10-24T14:58:24.957Z"
+      "answer": "c. The operator, 2026-10-24 about 14:20Z: \"(c), departing from the worker's (a). The feed-entry clause leaves FBS-241's criteria. The changes: AC-20402-1 drops the \"releases.yaml 0.37.0 entry and package.json at 0.37.0\" clause and keeps any other clause. If nothing else remains, retire it and succeed it with no successor, with the reason stated. The 0.37.0 cut lands as FINALISE: commits on FBS-241's PR (ruling 2, Q-02), and ADR-4153 stays unchanged. The existing release check, test/scripts/validate-releases.test.js, runs in CI on the final head. That proves the entry and the version agree, and GR-21's --ci-run names the passing run on HEAD at Finalise time, so the cut commit is covered. FBS-241's deliverables say the cut is FINALISE. Section 7.14's GR-33 (a) text is not applied. The a-74 ledger entry is ruled (c).\"\nremoved rather than retired: minted on the DEFINE branch, never merged (schema 0.9.0 requires supersededBy for a retirement)",
+      "answeredAt": "2026-10-24T15:54:43.421Z",
+      "resolvedAt": "2026-10-24T15:54:43.421Z"
     },
     {
       "id": 106,
