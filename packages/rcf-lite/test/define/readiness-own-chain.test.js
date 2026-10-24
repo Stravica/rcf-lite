@@ -2,8 +2,8 @@
 // on this repository's own chain, frozen --next again, every failing check
 // cleared by chain records, and the operator's two D1 profile answers.
 //
-// Criteria: 11, all testOnly (US-20301 4, US-20302 4, US-20303 3).
-// Tested here: 11. AC-20301-4 compares the Chips line over the named
+// Criteria: 12 (US-20301 4, US-20302 4, US-20303 4): 11 testOnly and one
+// external, AC-20303-4. Tested here: 12. AC-20301-4 compares the Chips line over the named
 // readiness fixture trees under test/fixtures/readiness/ with the chip
 // golden test/fixtures/readiness/chips.json, both of which FBS-240's
 // round DEFINE commits, the golden captured from the round-base bin with
@@ -24,8 +24,8 @@
 //
 // Every test is a node:test todo case ("FBS-240 round DEFINE", GR-35): it
 // runs and is red until FBS-240's round DEFINE drops the marker. Each
-// reads this repository through RCF_CHECKOUT when it is set, else from
-// this file's location (GR-34), and asserts at the current head ("this
+// testOnly test reads this repository through RCF_CHECKOUT when it is set,
+// else from this file's location (GR-34), and asserts at the current head ("this
 // slice's reviewed head or any later head", section 8.1
 // readiness-at-slice-head), so it is red today by design. A test that
 // needs a scratch copy copies the package's rcf/ and test/ trees and
@@ -34,17 +34,23 @@
 // the checkout. The timing test prints the host facts (GR-45). The two
 // profile answers are the operator's input (GR-55), collected before
 // FBS-240's round DEFINE records them: the US-20303 tests read whichever
-// answers are recorded and never presume them. Imports: Node builtins and
-// test/_harness/ only (GR-40).
+// answers are recorded and never presume them. The external test,
+// AC-20303-4, reads no file of this repository but its fixture profiles
+// under test/fixtures/profile/: it drives bin/rcf.js against projects made
+// by rcf init in scratch directories and reaches all five consumers (the
+// D1 check, define readiness, define questions, the MCP tool over stdio and
+// the viewer over loopback), stopping every server it starts. Imports:
+// Node builtins and test/_harness/ only (GR-40).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { lines, rcf } from '../_harness/spawn.js';
+import { PACKAGE_ROOT, lines, rcf } from '../_harness/spawn.js';
+import { mcpCall, viewerPage } from '../_harness/servers.js';
 import { commit, gitTry, initRepo, sha, showAt } from '../_harness/git.js';
-import { baseSuiteRecord, checkoutPackage, checkoutRoot, scratch, writeJson } from '../_harness/fixture.js';
+import { baseSuiteRecord, checkoutPackage, checkoutRoot, project, scratch, writeJson, writeText } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
 import { MAIN_0361, readinessChips, readinessTrees } from '../_harness/goldens.js';
 
@@ -352,4 +358,72 @@ test('AC-20303-3: rcf/.identity/profile.md is committed, each answer it records 
     });
     assert.ok(sources.length > 0, `${SOURCE_STEP}: no ledger source quotes the operator for ${key} = ${answer}`);
   }
+});
+
+// AC-20303-4 (external; the stage-keeper's ruling 2 on part C2's stop and
+// ruling 2 before part C3): one shared profile reader that every consumer
+// resolves through, over the four fixture profiles of test/fixtures/profile/
+// (how each was made: its README.md). Each fixture is written as
+// rcf/.identity/profile.md of a project made by rcf init in a scratch
+// directory. The oracle is the field define readiness --json reports,
+// profile: { surface, register }, each value the resolved marker word or
+// unanswered, which FBS-240's BUILD adds with the reader. The register
+// consumers agree when each acts on the resolved register, and on
+// unanswered exactly as on unstated: the persona order define readiness
+// prints, the default persona of define questions --json and of the MCP
+// tool rcf_define_questions, and the viewer's data-rcf-register (one page
+// of rcf audit view, the server stopped). Surface is observed only through
+// the JSON field and brief:profile, since no other consumer prints it.
+const PROFILE_FIXTURES = join(PACKAGE_ROOT, 'test', 'fixtures', 'profile');
+const RULED = {
+  'i-unedited-seed.md': { surface: 'prDiff', register: 'unstated', failing: [] },
+  'ii-no-bare-lines.md': { surface: 'unanswered', register: 'unanswered', failing: ['profile:register', 'profile:surface'] },
+  'iii-two-bare-lines.md': { surface: 'prDiff', register: 'unanswered', failing: ['profile:register'] },
+  'iv-menu-only.md': { surface: 'unanswered', register: 'unanswered', failing: ['profile:register', 'profile:surface'] },
+};
+const BUILD_STEP = 'FBS-240\'s BUILD delivers the shared profile reader (AC-20303-4) and every consumer resolves through it';
+// What each register consumer shows for a resolved register.
+const acted = (register) => (register === 'unanswered' ? 'unstated' : register);
+const personaFor = (register) => (acted(register) === 'engineer' ? 'engineer' : 'productOwner');
+function personaOrder(stdout) {
+  const ls = lines(stdout);
+  const po = ls.findIndex((l) => /^Product owner: /.test(l));
+  const en = ls.findIndex((l) => /^Engineer: /.test(l));
+  if (po === -1 || en === -1) return null;
+  return po < en ? 'productOwner' : 'engineer';
+}
+
+test('AC-20303-4: over the four fixture profiles of test/fixtures/profile/, written into projects made by rcf init, define readiness --json reports the profile the shared reader resolves, brief:profile fails each key whose section holds no bare value line or two, and the persona order of define readiness, the default persona of define questions and of the MCP tool and the data-rcf-register of the viewer all agree with it', TODO, async (t) => {
+  assert.deepEqual(readdirSync(PROFILE_FIXTURES).filter((f) => f !== 'README.md').sort(), Object.keys(RULED).sort(), 'the four fixture profiles');
+  const owed = [];
+  for (const [name, ruled] of Object.entries(RULED)) {
+    const dir = await project(t, { name: 'profile' });
+    writeText(dir, PROFILE, readFileSync(join(PROFILE_FIXTURES, name), 'utf8'));
+    const doc = await readinessJson(dir);
+    const oracle = doc.profile;
+    if (!oracle || typeof oracle !== 'object') owed.push(`${name}: define readiness --json reports no profile field (ruled { surface: ${ruled.surface}, register: ${ruled.register} })`);
+    else {
+      if (oracle.surface !== ruled.surface) owed.push(`${name}: define readiness --json profile.surface ${oracle.surface}, ruled ${ruled.surface}`);
+      if (oracle.register !== ruled.register) owed.push(`${name}: define readiness --json profile.register ${oracle.register}, ruled ${ruled.register}`);
+    }
+    const check = (stageOf(doc, 'define.brief')?.checks ?? []).find((k) => k.name === 'brief:profile');
+    const failing = (check?.failing ?? []).map((x) => x.id).sort();
+    if (!check) owed.push(`${name}: define readiness --json reports no brief:profile check`);
+    else if (JSON.stringify(failing) !== JSON.stringify(ruled.failing)) owed.push(`${name}: brief:profile fails [${failing.join(', ')}], ruled [${ruled.failing.join(', ')}]`);
+    const brief = await readiness(dir, ['--level', 'intent', '--check', 'brief']);
+    const mark = lines(brief.stdout).map((l) => /^\s+\[([^\]]+)\] brief:profile \(/.exec(l)?.[1]).find(Boolean);
+    if ((mark === 'ok') !== (ruled.failing.length === 0)) owed.push(`${name}: define readiness --level intent --check brief prints [${mark}] brief:profile, ruled ${ruled.failing.length ? 'failing' : '[ok]'}`);
+    const order = personaOrder((await readiness(dir, [])).stdout);
+    if (order !== personaFor(ruled.register)) owed.push(`${name}: define readiness prints the ${order} block first, ruled ${personaFor(ruled.register)} first (register ${ruled.register})`);
+    const q = await rcf(['define', 'questions', '--json'], { cwd: dir });
+    const qPersona = q.code === 0 ? json(q.stdout).persona : `exit ${q.code}`;
+    if (qPersona !== personaFor(ruled.register)) owed.push(`${name}: define questions defaults to persona ${qPersona}, ruled ${personaFor(ruled.register)} (register ${ruled.register})`);
+    const m = await mcpCall(dir, 'rcf_define_questions', {});
+    const mPersona = m?.structuredContent?.persona;
+    if (mPersona !== personaFor(ruled.register)) owed.push(`${name}: the MCP tool rcf_define_questions defaults to persona ${mPersona}, ruled ${personaFor(ruled.register)} (register ${ruled.register})`);
+    const v = await viewerPage(dir, '/');
+    const vRegister = /class="rcf-readiness-panel" data-rcf-register="([^"]*)"/.exec(v.html)?.[1];
+    if (v.status !== 200 || vRegister !== acted(ruled.register)) owed.push(`${name}: the viewer prints data-rcf-register="${vRegister}" (status ${v.status}), ruled "${acted(ruled.register)}" (register ${ruled.register})`);
+  }
+  assert.deepEqual(owed, [], `${BUILD_STEP}:\n${owed.join('\n')}`);
 });

@@ -2995,6 +2995,31 @@
       "answer": "d. The stage-keeper, 2026-10-24: \"F3 (AC-20303-3). The test parses the documented answer form itself. Under ## Surface and under ## Register, the answer is the single bare line that reads only one marker word. Menu bullets and prose never count, and a section with no bare value line, or with two, is unanswered. Scope: every rcf/ records tree. Source: as ruled in Part C. A ledger entry whose question asks for the key's value and whose answer opens \"The operator, <YYYY-MM-DD>:\" with the verbatim quote, matching through the seed's marker-to-plain-words text, ignoring case. HEAD only, still a todo that names FBS-240's round DEFINE.\" The earlier ruling that named src/verify/profile/index.js is withdrawn, and, by the stage-keeper's ruling 1 before part C3, the plain words come from the SURFACE and REGISTER maps in test/define/readiness-own-chain.test.js, not the seed. The test reads HEAD only, so part C2's stop 3 (the ADR-4162 line one test ahead of the file) closes with it.",
       "answeredAt": "2026-10-24T22:51:32.926Z",
       "resolvedAt": "2026-10-24T22:51:32.926Z"
+    },
+    {
+      "id": 137,
+      "question": "(rcf-lite 0.37.0 DEFINE) The D1 check brief:profile passes the unedited seed and the seed with both answer lines deleted, and define readiness, the viewer, define questions and the MCP tool each parse the register their own way: does US-20303 gain a criterion for one shared profile reader, built in FBS-240? Source: stage-keeper ruling 2 on part C2's stop, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "US-20303 stays at its three criteria and FBS-240's BUILD stays empty (the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the D1 check brief:profile, read through the bin, stays the oracle, and its pass on the unedited seed is the defect the AC-20303-3 test waits on (reading a of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "c",
+          "text": "a new criterion on US-20303 (FBS-240), verification external: one shared profile reader in src/ resolves profile:surface and profile:register, every consumer resolves through it, it takes only the bare value line under the key's section, brief:profile fails a section with no bare value line or with two, and its bound todo test drives the real entry points over four fixture profiles on which all five consumers agree"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:55:47.055Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-24: \"A new criterion on the readiness story US-20303 (FBS-240), verification: external. One shared profile reader in src/ resolves profile:surface and profile:register. Every consumer resolves through it: the D1 brief:profile check, rcf readiness, the viewer, rcf questions and the MCP tool. It takes only the bare value line under the key's section. brief:profile fails a section with no bare value line or with two. Its bound test (todo, FBS-240 round DEFINE) drives the real entry points over four fixture profiles: (i) the unedited seed: the defaults prDiff and unstated resolve, and brief:profile passes, since seeded defaults are answers by the seed's design; (ii) the seed with both bare lines deleted: every reader says unanswered, and brief:profile fails both keys; (iii) two bare lines in one section: unanswered; (iv) menu text only: unanswered. All five consumers must agree on every fixture.\" With the stage-keeper's ruling 2 before part C3, the criterion names the observable: rcf define readiness --json reports profile: { surface, register }, each value the resolved marker word or unanswered; the register consumers act on unanswered exactly as on unstated; surface is observed only through the JSON field and brief:profile. Minted as AC-20303-4 (tag verification:AC-20303-4=external), bound by TC-299-over-the-four-fixture-profiles-of-test in TS-299.",
+      "answeredAt": "2026-10-24T22:55:47.141Z",
+      "resolvedAt": "2026-10-24T22:55:47.141Z"
     }
   ]
 }
