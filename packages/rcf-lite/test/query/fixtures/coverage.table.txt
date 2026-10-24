@@ -996,6 +996,7 @@ REQ-203      yes      AC-20301-1   yes         TC-294-at-the-current-head-node-b
                       AC-20303-1   yes         TC-296-define-readiness-level-intent-check
                       AC-20303-2   yes         TC-296-in-a-scratch-copy-at-the-current-head
                       AC-20303-3   yes         TC-296-the-define-commit-that-recorded-the
+                      AC-20303-4   yes         TC-299-over-the-four-fixture-profiles-of-test
 REQ-204      yes      AC-20401-1   yes         TC-297-rcf-guidance-build-cycle-carries-the
                       AC-20401-2   yes         TC-297-the-rounds-section-of-rcf-guidance-build
                       AC-20401-3   yes         TC-297-the-managed-block-names-the-five-stages

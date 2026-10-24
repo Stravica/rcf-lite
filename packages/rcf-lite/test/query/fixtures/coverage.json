@@ -9106,6 +9106,14 @@
             "TC-296-the-define-commit-that-recorded-the"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-20303-4",
+          "covered": true,
+          "testCases": [
+            "TC-299-over-the-four-fixture-profiles-of-test"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },

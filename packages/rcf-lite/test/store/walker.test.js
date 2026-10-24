@@ -381,7 +381,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Suite-as-probe DEFINE (2026-10-19) added ADR-4150 (73 -> 74).
   // Pre-merge Finalise DEFINE (2026-10-22) added ADR-4151 (74 -> 75).
   // rcf-lite 0.37.0 DEFINE (2026-10-24) added ADR-4152..ADR-4162 (75 -> 86).
-  assert.equal(tree.adrs.length, 86);
+  // rcf-lite 0.37.0 DEFINE part C3 (2026-10-24) added ADR-4163, the shared profile reader of FBS-240 (86 -> 87).
+  assert.equal(tree.adrs.length, 87);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core
@@ -597,7 +598,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Downstream findings DEFINE (2026-10-23) added TS-262, TS-263 and TS-264 (202 -> 205).
   // Downstream findings DEFINE round 2 (2026-10-23) added TS-265 (205 -> 206).
   // rcf-lite 0.37.0 DEFINE part B (2026-10-24) added TS-266 to TS-298 (206 -> 239).
-  assert.equal(tree.testSuites.length, 239);
+  // rcf-lite 0.37.0 DEFINE part C3 (2026-10-24) added TS-299, the external suite of US-20303 binding AC-20303-4 (239 -> 240).
+  assert.equal(tree.testSuites.length, 240);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
