@@ -8,7 +8,9 @@
 // bin/rcf.js audit test-strength as a child process over a fixture
 // project made by the bin's own rcf init, committed to git, holding a
 // small app (bin/app.js, src/), its own shared harness, rcf/
-// test-strength.json, Code Node records and bound test cases. Markers
+// test-strength.json, Code Node records and bound test cases. Every run
+// that reaches the mutants passes PATH from toolPath(['node']) (the
+// stage-keeper's ruling C2 on the independent check). Markers
 // written by fixture modules on import show what ran. Verdict files are
 // well-formed records keyed to their heads (GR-38); the timing test
 // prints the host facts (GR-45). Imports: Node builtins and
@@ -21,7 +23,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { lines, rcf } from '../_harness/spawn.js';
+import { lines, rcf, toolPath } from '../_harness/spawn.js';
 import { commit, git, gitTry, initRepo, s7, sha } from '../_harness/git.js';
 import { bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
@@ -104,6 +106,11 @@ async function strengthProject(t, {
 }
 
 const strength = (dir, args = [], env = {}) => rcf(['audit', 'test-strength', ...args], { cwd: dir, env, timeout: 600_000 });
+// A run that reaches the mutants starts the bound test files under
+// node --test, so it gets git's and node's directories on PATH, as the
+// AC-20201-1 test does (the stage-keeper's ruling C2 on the independent
+// check); a run that ends before any mutant keeps the harness PATH.
+const nodeEnv = () => ({ PATH: toolPath(['node']) });
 const out = (r) => r.stdout.replace(/\n$/, '');
 const passLine = (h, n, k, total, timeout = 0, na = 0) => `test-strength: PASS ${n} criteria at ${s7(h)}: structural ${n}/${n}, mutants killed ${k}/${total} (timeout ${timeout}, notApplicable ${na})`;
 const failLine = (h, k, n, items) => `test-strength: FAIL ${k} of ${n} criteria at ${s7(h)}: ${items.join('; ')}`;
@@ -122,11 +129,11 @@ function reviewed(dir, touchedAcIds = ['AC-101-1']) {
 
 test('AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line', TODO, async (t) => {
   const { dir, H } = await strengthProject(t);
-  const r = await strength(dir, ['--acs', 'AC-101-1']);
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   assert.ok([passLine(H, 1, 3, 3), passLine(H, 1, 2, 2, 0, 1)].includes(out(r)), `stdout is the PASS line (3/3, or 2/2 with notApplicable 1)\n${r.stdout}`);
   // Totals (section 8.1): totals.mutants counts notApplicable; the PASS total excludes it.
-  const { totals } = json((await strength(dir, ['--acs', 'AC-101-1', '--json'])).stdout);
+  const { totals } = json((await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv())).stdout);
   assert.equal(totals.mutants, 3, 'three operators on one symbol');
   assert.equal(out(r), passLine(H, 1, totals.killed, totals.mutants - totals.notApplicable, totals.timeout, totals.notApplicable), 'the PASS total is mutants less notApplicable');
 });
@@ -162,7 +169,7 @@ test('AC-19901-4: a Code Node src/notify.js#makeNotifier written makeNotifier({ 
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
   has(r, 'AC-101-1 silent default sender in src/notify.js#makeNotifier');
   const plain = await strengthProject(t, { files: { 'src/notify.js': notify('{ sender } = {}') }, nodes: [['src/notify.js#makeNotifier', ['AC-101-1']]] });
-  const p = await strength(plain.dir, ['--acs', 'AC-101-1']);
+  const p = await strength(plain.dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.ok(!p.stdout.includes('silent default'), `a parameter with no default is not a finding\n${p.stdout}${p.stderr}`);
 });
 
@@ -215,10 +222,10 @@ test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.
     nodes: [['src/greet.js#greet', ['AC-101-1', 'AC-101-2']]],
     bind: [['AC-101-1', 'test/rcf/a.test.js', GREETS.name], ['AC-101-2', 'test/rcf/b.test.js', second.name]],
   });
-  const r = await strength(dir, ['--acs', 'AC-101-1,AC-101-2']);
+  const r = await strength(dir, ['--acs', 'AC-101-1,AC-101-2'], nodeEnv());
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
   has(r, 'AC-101-1 imports src/store.js (not the app entry or the harness)');
-  const report = json((await strength(dir, ['--acs', 'AC-101-1,AC-101-2', '--json'])).stdout);
+  const report = json((await strength(dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv())).stdout);
   assert.equal(crit(report, 'AC-101-1').structural.result, 'fail');
   assert.equal(crit(report, 'AC-101-2').structural.result, 'pass');
   assert.deepEqual(crit(report, 'AC-101-1').mutants, [], 'no mutant for AC-101-1');
@@ -249,7 +256,7 @@ test('AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.
     nodes: [['src/greet.mjs#greet', ['AC-101-1']], ['src/legacy.cjs#triple', ['AC-101-1']]],
     bind: [['AC-101-1', 'test/rcf/a.test.mjs', GREETS.name]],
   });
-  const c = await strength(mjs.dir, ['--acs', 'AC-101-1']);
+  const c = await strength(mjs.dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.notEqual(c.code, 2, `.mjs and .cjs sources are read\n${c.stdout}${c.stderr}`);
   assert.doesNotMatch(c.stderr, /not a supported source/);
 });
@@ -266,10 +273,10 @@ const vacuous = (t, extra = {}) => strengthProject(t, {
 
 test('AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js#writeAudit, called once per run and never asserted, exits 4 with "AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests" and the same for callRemoval, and --json lists those mutants survived', TODO, async (t) => {
   const { dir } = await vacuous(t);
-  const r = await strength(dir, ['--acs', 'AC-101-1']);
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
   for (const op of ['noOp', 'callRemoval']) has(r, `AC-101-1 vacuous: ${op} on src/audit.js#writeAudit survived 1 bound tests`);
-  const report = json((await strength(dir, ['--acs', 'AC-101-1', '--json'])).stdout);
+  const report = json((await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv())).stdout);
   const ms = crit(report, 'AC-101-1').mutants;
   for (const op of ['noOp', 'callRemoval']) {
     assert.equal(ms.find((x) => x.operator === op && x.symbol === 'src/audit.js#writeAudit')?.result, 'survived', `${op} survived`);
@@ -298,10 +305,10 @@ test('AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout
     },
     nodes: [['src/wait.js#ready', ['AC-101-1']]], bind: [['AC-101-1', 'test/rcf/a.test.js', 'AC-101-1 is ready']],
   });
-  const r = await strength(dir, ['--acs', 'AC-101-1', '--mutant-timeout', '5']);
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--mutant-timeout', '5'], nodeEnv());
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   assert.equal(out(r), passLine(H, 1, 2, 2, 1, 1));
-  const report = json((await strength(dir, ['--acs', 'AC-101-1', '--mutant-timeout', '5', '--json'])).stdout);
+  const report = json((await strength(dir, ['--acs', 'AC-101-1', '--mutant-timeout', '5', '--json'], nodeEnv())).stdout);
   const by = Object.fromEntries(crit(report, 'AC-101-1').mutants.map((x) => [x.operator, x.result]));
   assert.deepEqual(by, { stubToThrow: 'killed', noOp: 'timeout', callRemoval: 'notApplicable' });
 });
@@ -317,7 +324,7 @@ test('AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW 
   reviewed(dir, ['AC-101-1']);
   const hashes = () => Object.fromEntries(git(dir, 'ls-files').split('\n').map((p) => [p, createHash('sha256').update(readFileSync(join(dir, p))).digest('hex')]));
   const before = { status: gitTry(dir, 'status', '--porcelain').stdout, hashes: hashes() };
-  const r = await strength(dir, ['--json']);
+  const r = await strength(dir, ['--json'], nodeEnv());
   assert.ok([0, 4].includes(r.code), `${r.stdout}${r.stderr}`);
   const report = json(r.stdout);
   assert.deepEqual(report.criteria.map((c) => c.acId), ['AC-101-1']);
@@ -340,7 +347,7 @@ test('AC-19902-5: a scope of 240 mutants exits 2 before running any test with "t
   assert.equal(r.code, 2, `${r.stdout}${r.stderr}`);
   assert.ok(lines(r.stderr).includes('test-strength: 240 mutants exceed --max-mutants 200; narrow the scope'), r.stderr);
   assert.equal(existsSync(ran), false, 'no test ran');
-  const more = await strength(dir, ['--acs', 'AC-101-1', '--max-mutants', '300', '--json']);
+  const more = await strength(dir, ['--acs', 'AC-101-1', '--max-mutants', '300', '--json'], nodeEnv());
   assert.notEqual(more.code, 2, `${more.stdout.slice(0, 500)}${more.stderr}`);
   assert.equal(json(more.stdout).totals.mutants, 240);
 });
@@ -366,7 +373,7 @@ test('AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes eac
     bind.push([ac, `test/rcf/c${k}.test.js`, `${ac} runs`]);
   }
   const { dir } = await strengthProject(t, { acs, files, nodes, bind });
-  const r = await strength(dir, ['--acs', acs.join(','), '--jobs', '4', '--json']);
+  const r = await strength(dir, ['--acs', acs.join(','), '--jobs', '4', '--json'], nodeEnv());
   assert.ok([0, 4].includes(r.code), `${r.stdout.slice(0, 800)}${r.stderr}`);
   assert.ok(r.ms <= 300_000, `finishes within 5 minutes (took ${Math.round(r.ms / 1000)} s)`);
   const report = json(r.stdout);
@@ -401,10 +408,10 @@ test('AC-19902-7: a class symbol expands to its methods (three operators each), 
     },
     nodes: ['src/a.js#Store', 'src/a.js#LIMIT', 'src/a.js#api', 'src/index.js#run', 'src/a.js#f'].map((p) => [p, ['AC-101-1']]),
   });
-  const r = await strength(dir, ['--acs', 'AC-101-1']);
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
   for (const p of ['src/a.js#LIMIT', 'src/a.js#api', 'src/index.js#run']) has(r, `AC-101-1 no mutable symbol ${p}`);
-  const ms = crit(json((await strength(dir, ['--acs', 'AC-101-1', '--json'])).stdout), 'AC-101-1').mutants;
+  const ms = crit(json((await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv())).stdout), 'AC-101-1').mutants;
   const store = ms.filter((x) => x.symbol.startsWith('src/a.js#Store'));
   assert.equal(store.length, 6, 'three operators on each of the two methods');
   for (const op of ['stubToThrow', 'noOp', 'callRemoval']) assert.equal(store.filter((x) => x.operator === op).length, 2, `${op} once per method`);
@@ -420,11 +427,11 @@ test('AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch wor
       files: { 'docs/x.md': 'x\n', 'test/rcf/a.test.js': testFile([body], { imports: ["import { readFileSync } from 'node:fs';"] }) },
       nodes: [['docs/x.md', ['AC-101-5']]], bind: [['AC-101-5', 'test/rcf/a.test.js', body.name]],
     });
-    const r = await strength(dir, ['--acs', 'AC-101-5']);
+    const r = await strength(dir, ['--acs', 'AC-101-5'], nodeEnv());
     assert.equal(r.code, code, `${label}\n${r.stdout}${r.stderr}`);
     if (code === 0) {
       assert.equal(out(r), passLine(H, 1, 1, 1));
-      const ms = crit(json((await strength(dir, ['--acs', 'AC-101-5', '--json'])).stdout), 'AC-101-5').mutants;
+      const ms = crit(json((await strength(dir, ['--acs', 'AC-101-5', '--json'], nodeEnv())).stdout), 'AC-101-5').mutants;
       assert.deepEqual(ms.map((x) => ({ symbol: x.symbol, operator: x.operator, result: x.result })), [{ symbol: 'docs/x.md', operator: 'fileBlank', result: 'killed' }]);
       assert.equal(readText(dir, 'docs/x.md'), 'x\n', 'the working tree copy is untouched');
     } else {
@@ -441,7 +448,7 @@ const TOTAL_KEYS = ['criteria', 'structuralPassed', 'mutants', 'killed', 'surviv
 test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4', TODO, async (t) => {
   const passing = await strengthProject(t);
   const H = reviewed(passing.dir);
-  const r = await strength(passing.dir, ['--record']);
+  const r = await strength(passing.dir, ['--record'], nodeEnv());
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   const rep = readJson(passing.dir, verdictPath(H, 'test-strength.json'));
   assert.deepEqual(Object.keys(rep).sort(), [...REPORT_KEYS].sort());
@@ -456,7 +463,7 @@ test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --recor
 
   const failing = await vacuous(t);
   const F = reviewed(failing.dir);
-  const f = await strength(failing.dir, ['--record']);
+  const f = await strength(failing.dir, ['--record'], nodeEnv());
   assert.equal(f.code, 4, `${f.stdout}${f.stderr}`);
   assert.equal(readJson(failing.dir, verdictPath(F, 'test-strength.json')).result, 'fail');
 });
@@ -495,7 +502,7 @@ test('AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to 
     const H = reviewed(dir);
     editFbs(dir, 'FBS-001', (f) => { f.executionStatus = 'complete'; });
     commit(dir, 'FINALISE: status');
-    const r = await strength(dir, ['--record']);
+    const r = await strength(dir, ['--record'], nodeEnv());
     assert.equal(r.code, 0, `a FINALISE: commit inside its classes does not refuse\n${r.stdout}${r.stderr}`);
     assert.ok(existsSync(join(dir, verdictPath(H, 'test-strength.json'))));
   }
@@ -514,7 +521,7 @@ test('AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/ha
   const direct = L("import { test } from 'node:test';", "import assert from 'node:assert';", "import { pay } from '../../src/routes/pay.js';", "test('AC-101-1 pays', async () => {", "  assert.strictEqual(await pay({ OUT: { fetch: async () => new Response('paid') } }), 'paid');", '});');
   const common = { config, nodes: [['src/routes/pay.js#pay', ['AC-101-1']]], bind: [['AC-101-1', 'test/rcf/a.test.js', 'AC-101-1 pays']] };
   const good = await strengthProject(t, { ...common, files: { ...worker, 'test/rcf/a.test.js': viaHarness } });
-  const r = await strength(good.dir, ['--acs', 'AC-101-1', '--json']);
+  const r = await strength(good.dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
   assert.notEqual(r.code, 2, `${r.stdout}${r.stderr}`);
   assert.equal(crit(json(r.stdout), 'AC-101-1').structural.result, 'pass', 'the structural check passes');
   const bad = await strengthProject(t, { ...common, files: { ...worker, 'test/rcf/a.test.js': direct } });
@@ -540,7 +547,7 @@ test('AC-19903-4: a library (entry module src/index.js) passes the structural ch
   });
   for (const spec of ['fixture-lib', '../src/index.js']) {
     const { dir } = await make(spec);
-    const r = await strength(dir, ['--acs', 'AC-101-1', '--json']);
+    const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
     assert.notEqual(r.code, 2, `${spec}\n${r.stdout}${r.stderr}`);
     assert.equal(crit(json(r.stdout), 'AC-101-1').structural.result, 'pass', `${spec} is the entry`);
   }
@@ -569,11 +576,11 @@ test('AC-19903-5: rcf audit test-strength never deploys, opens no network connec
   const pkg = `${q({ name: 'fixture-app', version: '1.0.0', type: 'module', private: true, scripts: { deploy: 'node deploy.js' } }, null, 2)}\n`;
   const deploy = L("import { writeFileSync } from 'node:fs';", `writeFileSync(${q(deployed)}, 'deployed');`);
   const { dir, H } = await strengthProject(t, { files: { 'package.json': pkg, 'deploy.js': deploy } });
-  const plain = await strength(dir, ['--acs', 'AC-101-1'], env);
+  const plain = await strength(dir, ['--acs', 'AC-101-1'], { ...env, ...nodeEnv() });
   assert.equal(plain.code, 0, `${plain.stdout}${plain.stderr}`);
   assert.deepEqual(statusPaths(dir), [], 'without --record nothing is written');
   reviewed(dir);
-  const rec = await strength(dir, ['--record'], env);
+  const rec = await strength(dir, ['--record'], { ...env, ...nodeEnv() });
   assert.equal(rec.code, 0, `${rec.stdout}${rec.stderr}`);
   assert.deepEqual(statusPaths(dir), [verdictPath(H, 'test-strength.json')], 'with --record only the record is written');
   assert.equal(existsSync(deployed), false, 'nothing is deployed');

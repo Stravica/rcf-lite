@@ -2816,6 +2816,23 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"C3 (AC-19803-5's timing ratio): gets the ledger-118 treatment. The Given says it is measured at TEST on the verifier's host, and it runs only with RCF_PERF=1.\" And, on the part C brief: \"The two timing tests, AC-19501-7 and C3's AC-19803-5, are exempt. They run only when RCF_PERF=1 is set, at TEST, on the verifier's full clone, so their parent-worktree method (ledger 118) stands.\" So AC-19803-5's Given gains \"measured at the Test stage on the verifier's host\" after its chain clause, the timing ratio is its own case, skipped unless RCF_PERF=1 with the reason \"measured at TEST by the verifier (RCF_PERF=1)\", and its parent run is a temporary worktree at the parent commit; the row half is the golden case of decision 127.",
       "answeredAt": "2026-10-24T21:14:09.532Z",
       "resolvedAt": "2026-10-24T21:14:09.532Z"
+    },
+    {
+      "id": 130,
+      "question": "(rcf-lite 0.37.0 DEFINE) The mutant-running cases of test/cli/audit-test-strength.test.js (US-19901's PASS cases, US-19902 and US-19903) run rcf audit test-strength under the harness PATH, which holds git's directory alone, so the bound test files its mutants run under node --test cannot start. Source: stage-keeper ruling C2 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "every mutant-running case passes { PATH: toolPath(['node']) }"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-236",
+      "addedAt": "2026-10-24T21:16:49.724Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C2 (US-19901 PASS cases, US-19902, US-19903): every mutant-running case passes { PATH: toolPath(['node']) }.\" So the 24 runs that reach the mutants, in 16 of the file's 21 tests, pass PATH from toolPath(['node']), as the AC-20201-1 test does; the runs that end before any mutant (usage refusals, structural findings, the max-mutants refusal and the --record refusals), including all of AC-19901-2, AC-19901-3, AC-19901-5, AC-19901-6 and AC-19902-2, keep the harness PATH.",
+      "answeredAt": "2026-10-24T21:16:49.811Z",
+      "resolvedAt": "2026-10-24T21:16:49.811Z"
     }
   ]
 }
