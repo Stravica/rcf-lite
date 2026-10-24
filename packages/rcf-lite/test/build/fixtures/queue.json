@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 121,
-    "notStarted": 59,
+    "notStarted": 58,
     "inProgress": 2,
     "complete": 34,
-    "verified": 26,
-    "actionable": 42,
+    "verified": 27,
+    "actionable": 41,
     "blocked": 17
   },
   "nextActionable": "FBS-013",
@@ -1593,9 +1593,9 @@
       "buildOrder": 233,
       "tier": 0,
       "title": "Headless agent sessions run with the feedback ask off, verify run --out refuses a directory, and the feedback queue survives a removed worktree",
-      "executionStatus": "notStarted",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "verified",
       "blockedBy": []
     }
   ],
