@@ -2627,6 +2627,31 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"AC-20201-1: reading (a). The criterion's command becomes node --test \"test/rcf/**/*.test.js\", a glob that Node 24 expands. rcf build base-suite gains no directory expansion, because a consumer's command is theirs. B3 rewords the criterion through rcf define update, binds its test, and records a ledger decision.\"",
       "answeredAt": "2026-10-24T18:59:23.425Z",
       "resolvedAt": "2026-10-24T18:59:23.425Z"
+    },
+    {
+      "id": 121,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-20301-4 compares chip verdicts \"over every readiness fixture tree under packages/rcf-lite/test/\", but no such tree exists on disk, because the readiness tests build their fixtures in code: what set does the test run over? Source: stage-keeper ruling 8, 2026-10-24, on part B2 at 4c8baede.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the readiness test files as they stand at 639f07bb run unchanged against this head's source and pass"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-240's round DEFINE commits named fixture trees, and the test compares chips from a 639f07bb worktree's bin and this head's bin"
+        },
+        {
+          "letter": "c",
+          "text": "the fixture clause leaves the criterion, and the own-chain notApplicable clause stays"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T19:02:23.018Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"AC-20301-4: reading (b), in golden form, so no history is needed. FBS-240's round DEFINE commits a small set of named readiness fixture trees under packages/rcf-lite/test/fixtures/readiness/: a clean tree, plus one per D-check it can fail. In the same DEFINE, the round captures each tree's chip verdicts from the round-base bin as a golden. The test compares HEAD's chips against that golden. B3 rewords the criterion to that set and method, binds the test (todo), and records a ledger decision. The trees and the golden are FBS-240's round DEFINE work, named in that slice's notes.\"",
+      "answeredAt": "2026-10-24T19:02:23.112Z",
+      "resolvedAt": "2026-10-24T19:02:23.112Z"
     }
   ]
 }

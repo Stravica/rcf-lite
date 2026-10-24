@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:39:13.186Z",
-  "updatedAt": "2026-10-24T15:03:26.441Z",
+  "updatedAt": "2026-10-24T19:00:48.541Z",
   "asA": "stage-keeper starting the first Build after 0.37.0",
   "iWant": "readiness green and the tree frozen on main",
   "soThat": "Builds come from rcf build bundle --next again and the explicit-id workaround ends",
@@ -32,7 +32,7 @@
     },
     {
       "id": "AC-20301-4",
-      "description": "[must-not] No readiness check is weakened to reach green: the readiness check code under src/query/gates.js and src/cli/readiness.js gives the same chip verdicts at this slice's reviewed head and every later head as at 639f07bb over every readiness fixture tree under packages/rcf-lite/test/, and no check in this repository's own chain is marked notApplicable that was applicable at 639f07bb.",
+      "description": "[must-not] No readiness check is weakened to reach green: the readiness check code under src/query/gates.js and src/cli/readiness.js gives the same chip verdicts at this slice's reviewed head and every later head as the chip golden that FBS-240's round DEFINE captures from the round-base bin, over the named readiness fixture trees under packages/rcf-lite/test/fixtures/readiness/ (a clean tree, plus one per D-check a tree can fail), and no check in this repository's own chain is marked notApplicable that was applicable at 639f07bb.",
       "testable": true
     }
   ],

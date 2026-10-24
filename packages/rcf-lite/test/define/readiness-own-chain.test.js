@@ -3,11 +3,14 @@
 // cleared by chain records, and the operator's two D1 profile answers.
 //
 // Criteria: 11, all testOnly (US-20301 4, US-20302 4, US-20303 3).
-// Tested here: 10. AC-20301-4 is not written: it compares chip verdicts
-// "over every readiness fixture tree under packages/rcf-lite/test/", and
-// no such tree exists on disk (the readiness tests build their fixtures
-// in code through src/), so the set it names is undefined; returned as a
-// question in this slice's DEFINE commit and left unbound.
+// Tested here: 11. AC-20301-4 compares the Chips line over the named
+// readiness fixture trees under test/fixtures/readiness/ with the chip
+// golden test/fixtures/readiness/chips.json, both of which FBS-240's
+// round DEFINE commits, the golden captured from the round-base bin with
+// node test/_harness/goldens.js readiness-chips test/fixtures/readiness/chips.json
+// (the stage-keeper's ruling 8 on the Part B summary's stops, reading b in
+// golden form). Its own-chain half, like AC-20302-3, reads 639f07bb, so
+// it needs a full-depth checkout.
 //
 // Every test is a node:test todo case ("FBS-240 round DEFINE", GR-35): it
 // runs and is red until FBS-240's round DEFINE drops the marker. Each
@@ -29,10 +32,11 @@ import assert from 'node:assert/strict';
 import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-import { lines, rcf } from '../_harness/spawn.js';
+import { lines, rcf, run } from '../_harness/spawn.js';
 import { commit, git, gitTry, initRepo, sha, showAt } from '../_harness/git.js';
 import { baseSuiteRecord, checkoutPackage, checkoutRoot, scratch, writeJson } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
+import { readinessChips, readinessTrees } from '../_harness/goldens.js';
 
 const TODO = { todo: 'FBS-240 round DEFINE' };
 const MAIN_0361 = '639f07bb99ac70bd93c298be3b15bea4eb8a38b1';
@@ -98,6 +102,49 @@ test('AC-20301-3: in a scratch copy at the current head, one new requirement cre
   assert.ok(failingIn('define.skeleton').length > 0, `${reqId} is named under a failing D2 check`);
   assert.ok(failingIn('define.stories').length > 0, `${reqId} is named under a failing D4 check`);
   assert.ok(r.stdout.includes(reqId), `the text output names ${reqId}`);
+});
+
+// The named readiness fixture trees and the chip golden (the stage-keeper's
+// ruling 8 on the Part B summary's stops): FBS-240's round DEFINE commits a
+// clean tree plus one tree per D-check, D0 to D8, each built to fail that
+// check, and captures each tree's Chips line from the round-base bin, from
+// packages/rcf-lite, with
+//   node test/_harness/goldens.js readiness-chips test/fixtures/readiness/chips.json
+const READINESS_DIR = 'test/fixtures/readiness';
+const CHIP_GOLDEN = 'test/fixtures/readiness/chips.json';
+const READINESS_TREES = ['clean', 'd0-discovery', 'd1-brief', 'd2-skeleton', 'd3-shapes', 'd4-stories', 'd5-crosscut', 'd6-consistency', 'd7-decisions', 'd8-freeze'];
+const ROUND_DEFINE_STEP = `FBS-240's round DEFINE commits the readiness fixture trees under ${READINESS_DIR}/ and captures the chip golden (node test/_harness/goldens.js readiness-chips ${CHIP_GOLDEN})`;
+
+// A temporary worktree at rev with that tree's own dependencies installed;
+// returns packages/rcf-lite inside it.
+function worktreeAt(t, root, rev) {
+  const dir = join(scratch(t, 'rcf-h-wt-'), 'wt');
+  git(root, 'worktree', 'add', '--detach', '--quiet', dir, rev);
+  t.after(() => { gitTry(root, 'worktree', 'remove', '--force', dir); gitTry(root, 'worktree', 'prune'); });
+  const inst = run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'], { cwd: dir, env: { PATH: process.env.PATH } });
+  assert.equal(inst.code, 0, `pnpm install in the worktree at ${rev}\n${inst.stdout.slice(-1000)}${inst.stderr.slice(-1000)}`);
+  return join(dir, 'packages', 'rcf-lite');
+}
+const notApplicableStages = (doc) => doc.stages.filter((s) => s.state === 'notApplicable').map((s) => s.stage);
+
+test('AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb', TODO, async (t) => {
+  const trees = join(pkg(), READINESS_DIR);
+  assert.ok(existsSync(trees), `${ROUND_DEFINE_STEP}: ${READINESS_DIR}/ is absent`);
+  assert.deepEqual(readinessTrees(trees), [...READINESS_TREES].sort(), `${ROUND_DEFINE_STEP}: the named trees`);
+  const golden = join(pkg(), CHIP_GOLDEN);
+  assert.ok(existsSync(golden), `${ROUND_DEFINE_STEP}: ${CHIP_GOLDEN} is absent`);
+  const chips = JSON.parse(readFileSync(golden, 'utf8'));
+  assert.deepEqual(Object.keys(chips).sort(), [...READINESS_TREES].sort(), `${CHIP_GOLDEN} holds one Chips line per named tree`);
+  for (const name of READINESS_TREES) {
+    assert.equal(await readinessChips(join(trees, name)), chips[name], `${name}: the Chips line at the current head equals the chip golden`);
+  }
+  const root = checkoutRoot();
+  assert.equal(gitTry(root, 'cat-file', '-e', `${MAIN_0361}^{commit}`).code, 0, 'the 0.36.1 main commit is in the history (full-depth checkout)');
+  const then = worktreeAt(t, root, MAIN_0361);
+  const was = json((await rcf(['define', 'readiness', '--json'], { cwd: then, bin: join(then, 'bin', 'rcf.js') })).stdout);
+  const wasNotApplicable = new Set(notApplicableStages(was));
+  const now = await readinessJson(pkg());
+  assert.deepEqual(notApplicableStages(now).filter((s) => !wasNotApplicable.has(s)), [], 'no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb');
 });
 
 // ---------------------------------------------------------------- US-20302
