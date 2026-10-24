@@ -2966,6 +2966,35 @@
       "answer": "b. The stage-keeper, 2026-10-24: \"Then: reword ADR-4162's FBS-240 sentence (verified: \"The readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec)\") through the CLI to match, citing the new ADR. Give each a ledger decision.\" So ADR-4162's sentence now reads \"The readiness slice is marked complete with its Code Nodes, not --no-code-nodes, because its BUILD delivers the shared profile reader (ADR-4163).\"",
       "answeredAt": "2026-10-24T22:48:30.100Z",
       "resolvedAt": "2026-10-24T22:48:30.100Z"
+    },
+    {
+      "id": 136,
+      "question": "(rcf-lite 0.37.0 DEFINE) Part C2 stopped the AC-20303-3 test because no shipped reader decides whether a file answers profile:surface or profile:register (src/verify/profile/index.js reads no file, and the D1 check brief:profile passes the unedited seed): what counts as an answer, and how does the test read its source? Source: stage-keeper ruling 1 on part C2's stop, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the D1 check brief:profile, read through the bin, is the oracle, and its pass on the unedited seed is the product defect the test waits on (reading a of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "b",
+          "text": "the F3 ruling's form with no shipped reader behind it: a Surface or Register section carrying that key's marker words, parsed by the test itself (reading b of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "c",
+          "text": "the path as written: no file then answers either key, and the halves that read answers are empty (reading c of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "d",
+          "text": "the test parses the documented answer form itself: under ## Surface and under ## Register the answer is the single bare line that reads only one marker word, menu bullets and prose never count, and a section with no bare value line, or with two, is unanswered; scope every rcf/ records tree; the source as ruled in Part C; HEAD only, still a todo naming FBS-240's round DEFINE"
+        }
+      ],
+      "default": "d",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:51:32.840Z",
+      "status": "resolved",
+      "answer": "d. The stage-keeper, 2026-10-24: \"F3 (AC-20303-3). The test parses the documented answer form itself. Under ## Surface and under ## Register, the answer is the single bare line that reads only one marker word. Menu bullets and prose never count, and a section with no bare value line, or with two, is unanswered. Scope: every rcf/ records tree. Source: as ruled in Part C. A ledger entry whose question asks for the key's value and whose answer opens \"The operator, <YYYY-MM-DD>:\" with the verbatim quote, matching through the seed's marker-to-plain-words text, ignoring case. HEAD only, still a todo that names FBS-240's round DEFINE.\" The earlier ruling that named src/verify/profile/index.js is withdrawn, and, by the stage-keeper's ruling 1 before part C3, the plain words come from the SURFACE and REGISTER maps in test/define/readiness-own-chain.test.js, not the seed. The test reads HEAD only, so part C2's stop 3 (the ADR-4162 line one test ahead of the file) closes with it.",
+      "answeredAt": "2026-10-24T22:51:32.926Z",
+      "resolvedAt": "2026-10-24T22:51:32.926Z"
     }
   ]
 }

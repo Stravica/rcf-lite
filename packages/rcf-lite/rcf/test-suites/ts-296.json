@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:01:15.019Z",
-  "updatedAt": "2026-10-24T18:17:42.510Z",
+  "updatedAt": "2026-10-24T22:51:16.974Z",
   "purpose": "FBS-240: the testOnly criteria of US-20303, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-240's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -29,9 +29,9 @@
     {
       "id": "TC-296-the-define-commit-that-recorded-the",
       "acId": "AC-20303-3",
-      "description": "the DEFINE commit that recorded the profile answers quotes the operator answer and its date, and the recorded profile names that source",
+      "description": "rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date",
       "status": "pending",
-      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-3: the DEFINE commit that recorded the profile answers quotes the operator answer and its date, and the recorded profile names that source"
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-3: rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date"
     }
   ],
   "status": "draft"

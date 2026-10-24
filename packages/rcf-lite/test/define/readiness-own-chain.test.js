@@ -15,9 +15,12 @@
 // node test/_harness/goldens.js own-chain test/fixtures/own-chain/at-639f07bb.json
 // (the stage-keeper's ruling on part B3's open question 1, reading a), so
 // neither reads git history. No test in this file reads git history beyond
-// HEAD (the stage-keeper's rule on the independent check), except
-// AC-20303-3, which stays as at 136c51e5: its rewrite under ruling F3 is
-// stopped and returned to the stage-keeper as a question.
+// HEAD (the stage-keeper's rule on the independent check): AC-20303-3
+// reads the profile, the rcf/ trees and the ledger at HEAD and parses the
+// documented answer form itself (the stage-keeper's ruling 1 on part C2's
+// stop). Decision 122 is the known non-answer mention: its answer names the
+// operator's answers as context, and its question asks for no key's value
+// (the stage-keeper's ruling 3 before part C2).
 //
 // Every test is a node:test todo case ("FBS-240 round DEFINE", GR-35): it
 // runs and is red until FBS-240's round DEFINE drops the marker. Each
@@ -40,7 +43,7 @@ import { cpSync, existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync
 import { join } from 'node:path';
 
 import { lines, rcf } from '../_harness/spawn.js';
-import { commit, gitTry, initRepo, sha } from '../_harness/git.js';
+import { commit, gitTry, initRepo, sha, showAt } from '../_harness/git.js';
 import { baseSuiteRecord, checkoutPackage, checkoutRoot, scratch, writeJson } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
 import { MAIN_0361, readinessChips, readinessTrees } from '../_harness/goldens.js';
@@ -269,21 +272,84 @@ test('AC-20303-2: in a scratch copy at the current head with the profile answers
   for (const id of ['profile:surface', 'profile:register']) assert.ok(section.includes(id), `${id} is named as a product owner question\n${section}`);
 });
 
-test('AC-20303-3: the DEFINE commit that recorded the profile answers quotes the operator answer and its date, and the recorded profile names that source', TODO, () => {
+// The documented answer form (the stage-keeper's ruling 1 on part C2's
+// stop): under "## Surface" and under "## Register" the answer is the
+// single bare line that reads only one marker word of that key. Menu
+// bullets and prose never count, and a section with no bare value line,
+// or with two, is unanswered. The test parses the form itself, with this
+// one parser for every file the scan reaches.
+const PROFILE_KEYS = {
+  'profile:surface': { heading: '## Surface', plain: SURFACE },
+  'profile:register': { heading: '## Register', plain: REGISTER },
+};
+function answerSections(text) {
+  const ls = text.split(/\r?\n/);
+  const out = [];
+  ls.forEach((l, i) => {
+    const key = Object.keys(PROFILE_KEYS).find((k) => l.trim() === PROFILE_KEYS[k].heading);
+    if (!key) return;
+    const bare = [];
+    for (let j = i + 1; j < ls.length && !/^#{1,6}\s/.test(ls[j].trim()); j++) {
+      if (Object.keys(PROFILE_KEYS[key].plain).includes(ls[j].trim())) bare.push(ls[j].trim());
+    }
+    out.push({ key, answer: bare.length === 1 ? bare[0] : null });
+  });
+  return out;
+}
+const stringsIn = (v, acc = []) => {
+  if (typeof v === 'string') acc.push(v);
+  else if (Array.isArray(v)) v.forEach((x) => stringsIn(x, acc));
+  else if (v && typeof v === 'object') Object.values(v).forEach((x) => stringsIn(x, acc));
+  return acc;
+};
+// Every answer in the documented form in one file: its raw text, and, for a
+// JSON file, every string inside it.
+function answersIn(path, text) {
+  const texts = [text];
+  if (path.endsWith('.json')) { try { texts.push(...stringsIn(JSON.parse(text))); } catch { /* raw text only */ } }
+  return texts.flatMap((x) => answerSections(x)).filter((s) => s.answer);
+}
+// The source of an answer (the stage-keeper's ruling in Part C, with
+// rulings 2 and 3 before part C2): a decisions-ledger entry whose question
+// asks for the value of that key and whose answer opens
+// "The operator, <YYYY-MM-DD>:" followed by the operator's verbatim quote,
+// the quote matching the answer's marker through the plain words of
+// SURFACE and REGISTER above, ignoring case. FBS-240's round DEFINE mints
+// the two entries with the profile, before this marker drops.
+const asksValueOf = (d, key) => String(d.question ?? '').includes(`the value of ${key}`);
+const SOURCE = /^The operator, (\d{4}-\d{2}-\d{2}): (\S[\s\S]*)$/;
+const PROFILE_STEP = `FBS-240's round DEFINE records the operator's answers in ${PROFILE} and commits it`;
+const SOURCE_STEP = 'FBS-240\'s round DEFINE mints the two operator source entries (node bin/rcf.js define ledger decisions add, then resolve: a question asking for the value of profile:surface or profile:register, an answer opening "The operator, 2026-10-24:" and quoting the operator)';
+
+test('AC-20303-3: rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date', TODO, async (t) => {
   const root = checkoutRoot();
   const rel = `packages/rcf-lite/${PROFILE}`;
-  const last = gitTry(root, 'log', '-1', '--format=%H%x00%s%x00%b', '--', rel).stdout;
-  assert.ok(last.trim(), `${rel} is committed`);
-  const [, subject, body] = last.split('\0');
-  assert.ok(subject.startsWith('DEFINE: '), `the recording commit is a DEFINE: commit: ${subject}`);
-  const text = readFileSync(join(pkg(), PROFILE), 'utf8');
-  const [surface] = chosen(text, SURFACE);
-  const [register] = chosen(text, REGISTER);
-  assert.ok(surface && register, 'the profile records both answers');
-  assert.ok(/\bthe operator\b/i.test(text), 'the profile names the operator as the source');
-  const date = DATE.exec(text)?.[0];
-  assert.ok(date, 'the profile names the date of the answer');
-  assert.ok(/\bthe operator\b/i.test(body), 'the commit names the operator');
-  assert.ok(SURFACE[surface].test(body) && REGISTER[register].test(body), `the commit quotes both recorded answers (${surface}, ${register})`);
-  assert.ok(body.includes(date), `the commit names the answer date ${date}`);
+  // Every rcf/ records tree at HEAD (one at the time of writing,
+  // packages/rcf-lite/rcf/); mentions of the keys in criteria, cases, TACs
+  // and Code Nodes are not answers, so only the answer form is flagged.
+  const tracked = gitTry(root, 'ls-tree', '-r', '--name-only', 'HEAD');
+  assert.equal(tracked.code, 0, `git ls-tree HEAD in ${root}: ${tracked.stderr}`);
+  const inTrees = tracked.stdout.split('\n').filter((p) => /(^|\/)rcf\//.test(p));
+  const elsewhere = [];
+  for (const [p, text] of showAt(root, 'HEAD', inTrees.filter((p) => p !== rel))) {
+    for (const s of answersIn(p, text)) elsewhere.push(`${p}: ${s.key} = ${s.answer}`);
+  }
+  t.diagnostic(`scan: ${inTrees.length} files in rcf/ trees at HEAD; answers outside ${rel}: ${elsewhere.length}`);
+  assert.deepEqual(elsewhere, [], 'no answer occurrence exists in any other file');
+  const l = await rcf(['define', 'ledger', 'decisions', 'list', '--json'], { cwd: pkg() });
+  assert.equal(l.code, 0, l.stderr);
+  const decisions = json(l.stdout).decisions ?? [];
+  const mentions = decisions.filter((d) => /profile:(surface|register)|\.identity\/profile\.md/.test(JSON.stringify(d)));
+  t.diagnostic(`ledger: entries naming the profile or a profile key: ${mentions.map((d) => `${d.id} (${Object.keys(PROFILE_KEYS).filter((k) => asksValueOf(d, k)).join(', ') || 'asks for no value'})`).join('; ') || 'none'}`);
+  const unsourced = decisions.filter((d) => Object.keys(PROFILE_KEYS).some((k) => asksValueOf(d, k)) && !SOURCE.test(String(d.answer ?? '')));
+  assert.deepEqual(unsourced.map((d) => d.id), [], 'no ledger entry answers either key without the operator and a date');
+  assert.equal(gitTry(root, 'cat-file', '-e', `HEAD:${rel}`).code, 0, `${PROFILE_STEP}: ${rel} is not committed at HEAD`);
+  const answers = answerSections(readFileSync(join(pkg(), PROFILE), 'utf8')).filter((s) => s.answer);
+  for (const { key, answer } of answers) {
+    const sources = decisions.filter((d) => asksValueOf(d, key)).filter((d) => {
+      const m = SOURCE.exec(String(d.answer ?? ''));
+      return m && PROFILE_KEYS[key].plain[answer].test(m[2]);
+    });
+    assert.ok(sources.length > 0, `${SOURCE_STEP}: no ledger source quotes the operator for ${key} = ${answer}`);
+  }
 });
