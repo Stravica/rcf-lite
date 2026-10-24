@@ -1,0 +1,67 @@
+TAP version 13
+# Subtest: AC-16103-4: three Stop hooks that find a stopped move's hold at once and judge it stale break it safely: exactly one command holds the main checkout store at any instant, and each hook's ask record and every held bundle, entry line and ask record land exactly once
+ok 1 - AC-16103-4: three Stop hooks that find a stopped move's hold at once and judge it stale break it safely: exactly one command holds the main checkout store at any instant, and each hook's ask record and every held bundle, entry line and ask record land exactly once
+  ---
+  duration_ms: 1742.006292
+  type: 'test'
+  ...
+# after the barrier: polling, lock-break, polling
+# first polling, second lock-broken, third polling
+# Subtest: AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback add writes an entry there never reads a partial line, and lists every entry once with its status
+ok 2 - AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback add writes an entry there never reads a partial line, and lists every entry once with its status
+  ---
+  duration_ms: 1677.590459
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback discard records a status change there never reads a partial line, and lists every entry once with its status
+ok 3 - AC-16103-4: a command that reads the main checkout's entries.jsonl while rcf feedback discard records a status change there never reads a partial line, and lists every entry once with its status
+  ---
+  duration_ms: 1644.009959
+  type: 'test'
+  ...
+# Subtest: AC-16103-4 guard: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store waits, and records the filing once the move lets the store go; the next submit does not file the entry again
+ok 4 - AC-16103-4 guard: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store waits, and records the filing once the move lets the store go; the next submit does not file the entry again
+  ---
+  duration_ms: 1818.10325
+  type: 'test'
+  ...
+# submit polling while the move holds the store
+# Subtest: AC-16103-4 guard: rcf feedback submit that has filed an issue when a hung worktree move holds the main checkout store records the filing once the move has not been refreshed for 60 seconds by its clock; the next submit does not file the entry again
+ok 5 - AC-16103-4 guard: rcf feedback submit that has filed an issue when a hung worktree move holds the main checkout store records the filing once the move has not been refreshed for 60 seconds by its clock; the next submit does not file the entry again
+  ---
+  duration_ms: 1824.885959
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store past its wait exits 1 naming the issue URL and the entry id, never saying it wrote nothing, and the next submit does not file that entry again
+ok 6 - AC-16103-4: rcf feedback submit that has filed an issue when a worktree move holds the main checkout store past its wait exits 1 naming the issue URL and the entry id, never saying it wrote nothing, and the next submit does not file that entry again
+  ---
+  duration_ms: 2602.242917
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: a Stop hook in the main checkout that does not ask (the operator opted out) and has nothing to write exits as it would alone, without waiting, while a worktree move holds the main checkout store
+ok 7 - AC-16103-4: a Stop hook in the main checkout that does not ask (the operator opted out) and has nothing to write exits as it would alone, without waiting, while a worktree move holds the main checkout store
+  ---
+  duration_ms: 2000.33125
+  type: 'test'
+  ...
+# Subtest: AC-16103-4: a writer held up by a hold whose file cannot be parsed exits 1 once its wait runs out with stderr naming that file by its path and its age
+ok 8 - AC-16103-4: a writer held up by a hold whose file cannot be parsed exits 1 once its wait runs out with stderr naming that file by its path and its age
+  ---
+  duration_ms: 2237.403792
+  type: 'test'
+  ...
+# Subtest: AC-16103-4 guard: a hold whose file cannot be parsed is judged by the age of its file: 30 seconds old it holds a writer up (exit 1, nothing written), more than 60 seconds old it is stale and the writer proceeds
+ok 9 - AC-16103-4 guard: a hold whose file cannot be parsed is judged by the age of its file: 30 seconds old it holds a writer up (exit 1, nothing written), more than 60 seconds old it is stale and the writer proceeds
+  ---
+  duration_ms: 2801.48325
+  type: 'test'
+  ...
+1..9
+# tests 9
+# suites 0
+# pass 9
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 18480.567125
