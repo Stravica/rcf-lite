@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-24T11:29:06.415Z",
+  "updatedAt": "2026-10-24T11:29:06.504Z",
+  "description": "rcf define validate exits 3 when a live criterion new or amended since the base ref (--base, else the merge-base with origin/main) has no verification flag, and reports every other live unflagged criterion; --report verification prints the worklist. rcf audit coverage shows per criterion its verification flag, expected end state (verified for external, complete for testOnly, unknown when unflagged) and where it is now, and per spec its expected end and current status, in table and json. CI passes --base on pull requests. The 0.37.0 criteria move from their interim tags onto the field.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Redesign change 2, change 6 and the status model (redesign :71-73, :85, :92); operator answer 09:20Z to open question 1 (sweep now, so the report must work as a worklist); D-03 and D-10 (audit section 5).",
+  "tags": [
+    "capability:requirements-authoring",
+    "capability:coverage"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4152"
+  },
+  "reqId": "REQ-198",
+  "prdId": "PRD-001",
+  "title": "rcf define validate requires the verification flag on new and amended criteria, reports unflagged ones as a worklist, and coverage shows each end state",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:29:06.503Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "shows"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "shows"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      }
+    ]
+  }
+}

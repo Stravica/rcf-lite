@@ -1,0 +1,57 @@
+{
+  "createdAt": "2026-10-24T11:29:06.757Z",
+  "updatedAt": "2026-10-24T11:29:08.600Z",
+  "asA": "test-author writing or amending criteria at DEFINE",
+  "iWant": "rcf define validate to refuse a new or amended criterion that carries no verification flag",
+  "soThat": "every criterion a round touches says how it will be verified before BUILD starts",
+  "description": "The validate rule against a base ref.",
+  "tacIds": [
+    "TAC-4152"
+  ],
+  "usId": "US-19801",
+  "prdId": "PRD-001",
+  "reqId": "REQ-198",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A test-author cannot add or amend a criterion without its verification flag",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19801-1",
+      "description": "[happy] Given a fixture git repository whose base commit holds US-101 with AC-101-1 (no verification) and whose HEAD adds AC-101-2 with \"verification\": \"external\", when rcf define validate --base <base> runs, then it exits 0, prints no \"[error]\" line, and stderr carries no verification line for AC-101-2.",
+      "testable": true
+    },
+    {
+      "id": "AC-19801-2",
+      "description": "[failure] Given the same base and a HEAD that adds AC-101-2 with no verification, when rcf define validate --base <base> runs, then it exits 3 with the line \"[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19801-3",
+      "description": "[failure] Given the same base and a HEAD that changes only the then text of AC-101-1 (still unflagged), when rcf define validate --base <base> runs, then it exits 3 with the line \"[error] verification AC-101-1 is amended since <base7> and carries no verification flag (external | testOnly)\"; a HEAD that changes only AC-101-1's testable or ownerRef (not description, given, when or then) does not make it amended and validate exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19801-4",
+      "description": "[edge] Given a fixture project that is not a git repository, or a git repository with no origin/main and no --base, when rcf define validate runs over an unflagged new criterion, then it exits 0 and stderr carries exactly one line \"[warn] verification: no base ref; new and amended criteria not checked\"; given --base naming a ref that does not resolve it exits 2 with \"[error] usage --base <ref> does not resolve\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19801-5",
+      "description": "[must-not] A retired criterion (carrying supersededBy) is never required to carry verification and never appears in the verification report, whether it is new or amended since the base; and the verification rule never changes validate's exit code for any other finding.",
+      "testable": true
+    },
+    {
+      "id": "AC-19801-6",
+      "description": "[happy] Given this repository's .github/workflows/ci.yml after the slice, when its pull_request test job is read, then it checks out with fetch-depth 0 and runs \"node bin/rcf.js define validate --base origin/${{ github.base_ref }}\" from packages/rcf-lite.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19801-1=external",
+    "verification:AC-19801-2=external",
+    "verification:AC-19801-3=external",
+    "verification:AC-19801-4=external",
+    "verification:AC-19801-5=external",
+    "verification:AC-19801-6=testOnly"
+  ]
+}

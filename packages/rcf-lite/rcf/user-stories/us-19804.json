@@ -1,0 +1,33 @@
+{
+  "createdAt": "2026-10-24T11:29:12.049Z",
+  "updatedAt": "2026-10-24T11:29:12.890Z",
+  "asA": "test-author in this slice's DEFINE round",
+  "iWant": "every 0.37.0 criterion's flag moved from its interim user-story tag onto the verification field",
+  "soThat": "the WORKAROUND recorded at DEFINE ends inside the release that created it",
+  "description": "Retiring the interim tag location (WORKAROUND, ADR ADR-4152).",
+  "tacIds": [
+    "TAC-4152"
+  ],
+  "usId": "US-19804",
+  "prdId": "PRD-001",
+  "reqId": "REQ-198",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The test-author moves the 0.37.0 interim flag tags onto the field and deletes them",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19804-1",
+      "description": "[happy] Given this repository's chain at the slice head, when every user story is read, then no tags entry starts \"verification:\", and every criterion that carried a \"verification:<AC id>=<flag>\" tag at the parent of the move commit carries \"verification\" equal to that flag; node bin/rcf.js define validate exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19804-2",
+      "description": "[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move, and the move is made through rcf define update only.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19804-1=testOnly",
+    "verification:AC-19804-2=testOnly"
+  ]
+}
