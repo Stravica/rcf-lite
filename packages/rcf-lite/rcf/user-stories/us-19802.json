@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:08.852Z",
-  "updatedAt": "2026-10-24T11:31:38.856Z",
+  "updatedAt": "2026-10-24T11:47:00.052Z",
   "asA": "chain author running a one-off flag sweep on a downstream product",
   "iWant": "one command that lists every live criterion without a flag, with its story and spec",
   "soThat": "the sweep reads the chain only and ends when the count reaches zero",
@@ -17,7 +17,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19802-1",
-      "description": "[happy] Given a fixture project with 3 live criteria, 1 flagged and 2 unflagged, and FBS-001 scoping one of the unflagged ones, when rcf define validate --report verification runs, then it exits 0 and stdout holds two worklist lines \"<AC id>\\t<US id>\\t<FBS id or ->\\t<first 80 characters of the description>\" in id order (FBS-001 on the scoped one, - on the other) followed by \"verification: 2 of 3 live criteria unflagged\".",
+      "description": "[happy] Given a fixture project with 3 live criteria, 1 flagged and 2 unflagged, and FBS-001 scoping the first unflagged criterion, when rcf define validate --report verification runs, then it exits 0 and stdout holds two worklist lines \"<AC id>\\t<US id>\\t<FBS id or ->\\t<first 80 characters of the description>\" in id order (FBS-001 on the scoped one, - on the other) followed by \"verification: 2 of 3 live criteria unflagged\".",
       "testable": true
     },
     {

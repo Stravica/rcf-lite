@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:33:47.541Z",
-  "updatedAt": "2026-10-24T11:33:49.143Z",
+  "updatedAt": "2026-10-24T11:47:00.551Z",
   "asA": "stage-keeper or chain author upgrading from 0.36.x",
   "iWant": "the old report path and the second writer of complete to refuse with the new contract named",
   "soThat": "no runbook or habit reintroduces verification inside the build cycle",
@@ -17,7 +17,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20003-1",
-      "description": "[failure] When rcf build finalise FBS-001 --ci-run run-7 runs with any of --report <path>, --max-report-age 7, --mode deterministic, --url http://localhost:8787 or --allow-pre-merge, then it exits 2 with stderr \"finalise no longer reads a verify report; Finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts (rcf guidance build-cycle)\", spawns nothing and writes nothing.",
+      "description": "[failure] When rcf build finalise FBS-001 --ci-run run-7 runs with each flag of [--report <path>, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge] in turn, then it exits 2 with stderr \"finalise no longer reads a verify report; Finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts (rcf guidance build-cycle)\", spawns nothing and writes nothing.",
       "testable": true
     },
     {

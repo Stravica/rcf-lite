@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:37:28.340Z",
-  "updatedAt": "2026-10-24T11:37:28.340Z",
+  "updatedAt": "2026-10-24T11:45:16.862Z",
   "summary": "Replace the verified backstop with a recorded RCF suite run on the base head, checked before every bundle with no override; add rcf build bundle <fbs-id> --acs for amend rounds on complete or verified specs; retire backstop.json, backstop adopt and --allow-unverified.",
   "approach": "New src/build/base-suite.js (runner and BaseSuiteRecord writer); src/build/backstop.js reads the record against HEAD; src/build/bundle.js gains the amend scope and the round and touchedAcIds fields; src/cli/build.js wires flags, retirements and help.",
   "deliverables": [
@@ -9,6 +9,7 @@
   ],
   "notes": "DEFINE part A, 2026-10-24 (test-author). Register WA-10 retires when this lands. Flags: US tags (WORKAROUND, ADR ADR-4152).",
   "dependsOnFbsIds": [
+    "FBS-228",
     "FBS-234",
     "FBS-237"
   ],

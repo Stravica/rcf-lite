@@ -1,14 +1,13 @@
 {
   "createdAt": "2026-10-24T11:27:34.533Z",
-  "updatedAt": "2026-10-24T11:27:34.621Z",
+  "updatedAt": "2026-10-24T11:51:34.581Z",
   "description": "rcf build verdict review and rcf build verdict test write ReviewVerdict and TestVerdict records under rcf/verdicts/<h12>/ for the reviewed head, committed by REVIEW: and TEST: commits. A failed verdict (REVIEW FINDINGS on code or test adequacy, or TEST FAIL) closes the round and the next commit starts a new round at DEFINE:. rcf audit separation enforces monotonic stage order within a round, allows a regression to DEFINE: only right after a failed verdict, and checks each verdict names the right head. The REVIEW verdict names the round's touched criteria.",
   "category": "functional",
   "domain": "functional",
   "priority": "must",
   "rationale": "Operator rulings Q-05 b (10:40Z) and the rounds rule (about 10:50Z), redesign :154 and :158-166; D-02 (audit section 5) and register WA-15. Today REVIEW verdicts are not in git and a verifier report commit moves the reviewed head.",
   "tags": [
-    "capability:build",
-    "capability:separation"
+    "capability:build-sequence"
   ],
   "deliveredBy": {
     "tacId": "TAC-4154"

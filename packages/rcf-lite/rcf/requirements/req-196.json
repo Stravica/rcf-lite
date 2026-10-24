@@ -1,14 +1,14 @@
 {
   "createdAt": "2026-10-24T11:24:53.560Z",
-  "updatedAt": "2026-10-24T11:24:53.647Z",
+  "updatedAt": "2026-10-24T11:51:34.323Z",
   "description": "Every commit in a pull-request range carries a strict stage prefix (DEFINE:, BUILD:, REVIEW:, TEST:, FINALISE:) and the separation audit judges the paths it touches against that stage's file classes, the role derived from the stage. Builder hygiene tests have their own builder-owned class outside the RCF suite. FINALISE: carries only a merge from main, lockfiles, declared-generator outputs named by Generated-By:, chain status records, release evidence and the release cut. Merges are judged by their resolution. Hand: mixed and --require-hand retire. During the transition a Hand: trailer that agrees with the derived role is accepted and one that disagrees fails.",
   "category": "functional",
   "domain": "functional",
   "priority": "must",
   "rationale": "Operator rulings 10:40Z Q-01 a and Q-02 with its refinements (redesign :146-151), D-12 and D-13 as amended in the DEFINE spec, D-14 (audit section 5). Today the trailer is the marker (src/audit/separation.js:264-267), test directories are test-author only (:127), merges are skipped (:273-274) and Hand: mixed is the routine chore escape (:152-155, register WA-04).",
   "tags": [
-    "capability:audit",
-    "capability:separation"
+    "capability:build-sequence",
+    "capability:verify"
   ],
   "deliveredBy": {
     "tacId": "TAC-4153"

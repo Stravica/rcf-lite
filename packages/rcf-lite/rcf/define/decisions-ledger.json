@@ -1895,6 +1895,291 @@
       "answer": "a. The stage-keeper's round 8 ruling, the last round on FBS-231's store corners (decisions 84 to 87 stay as recorded). Pinned in test/feedback/feedback-store-fence.test.js and bound in TS-264: a live claimant never passed by age (TC-264-live-claim-never-passed), a holder judged stopped writes nothing more (TC-264-lost-hold-writes-nothing, probe g9 L11 and a holder held past the stale window), a worktree's kept filing moves once (TC-264-held-filing-moves-once), a busy exit after a filing names it (TC-264-busy-after-filing-names-it), the dry run skips a kept filing (TC-264-dry-run-skips-kept-filing) and a dead claimant's claim removed (TC-264-dead-claim-removed). AC-16103-4 amended in place (five sentences and variant 13).",
       "answeredAt": "2026-10-24T01:10:31.014Z",
       "resolvedAt": "2026-10-24T01:10:31.014Z"
+    },
+    {
+      "id": 89,
+      "question": "(rcf-lite 0.37.0 DEFINE) How are RCF dispatches named, and what remains of the hand vocabulary? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :129).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Dispatches are named by RCF stage; the role a stage is done by appears only in commits"
+        },
+        {
+          "letter": "b",
+          "text": "Keep hand-named dispatches and the hand vocabulary"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-241",
+      "addedAt": "2026-10-24T11:43:19.277Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Dispatch naming: dispatches are named by RCF stage, so it is easy to see what is going on at any time. The hand (the role a stage's work is done by: test-author, builder, reviewer, verifier, stage-keeper) stays only as the commit trailer the separation audit reads. ... Rename it to \"role\" in rcf-lite as part of 0.37.0.\" The trailer and the rename are replaced by the stage prefix under the 10:40Z refinement recorded in the Q-02 decision (redesign note 2026-10-24 :149).",
+      "answeredAt": "2026-10-24T11:43:19.362Z",
+      "resolvedAt": "2026-10-24T11:43:19.362Z"
+    },
+    {
+      "id": 90,
+      "question": "(rcf-lite 0.37.0 DEFINE) Open question 1: what happens to criteria that exist today without a verification flag? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :131, :137).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "A one-off flag sweep now; validate reports unflagged criteria so the sweep has a worklist"
+        },
+        {
+          "letter": "b",
+          "text": "validate reports them and they are flagged when a batch touches them"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T11:43:19.447Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Open question 1: do the [downstream product's] flag sweep (all ACs flagged now; leaving them would only become debt).\" rcf define validate --report verification is the worklist (REQ-198).",
+      "answeredAt": "2026-10-24T11:43:19.532Z",
+      "resolvedAt": "2026-10-24T11:43:19.532Z"
+    },
+    {
+      "id": 91,
+      "question": "(rcf-lite 0.37.0 DEFINE) Open questions 2 and 3: which mutation operators ship in v1, and what is the release Verify scope? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :132, :138-139).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "As recommended: stub-to-throw, no-op and call removal on Code Node symbols only, no general mutation testing; release scope is the specs changed since the last release plus a core-journey smoke run"
+        },
+        {
+          "letter": "b",
+          "text": "General mutation testing and a whole-chain release Verify"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-236, FBS-238",
+      "addedAt": "2026-10-24T11:43:19.618Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Open questions 2 and 3: agreed as recommended.\" The recommendations as asked: \"Mutation operators in v1. Recommended: stub-to-throw, no-op and call removal on Code Node symbols only. No general mutation testing.\" and \"Release Verify scope. Recommended: the specs changed since the last release, plus a core-journey smoke run.\"",
+      "answeredAt": "2026-10-24T11:43:19.703Z",
+      "resolvedAt": "2026-10-24T11:43:19.703Z"
+    },
+    {
+      "id": 92,
+      "question": "(rcf-lite 0.37.0 DEFINE) Open question 4: does release Verify cover the live integrations? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :49, :133).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "No; verifying live integrations is a separate discussion and out of scope here"
+        },
+        {
+          "letter": "b",
+          "text": "Release Verify covers the live integrations"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-238",
+      "addedAt": "2026-10-24T11:43:19.789Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Open question 4: a separate discussion. Keep the focus tight.\" and the model: \"Out of scope here: verifying the live integrations. That is a separate discussion; ready-for-prod comes first (the operator).\"",
+      "answeredAt": "2026-10-24T11:43:19.874Z",
+      "resolvedAt": "2026-10-24T11:43:19.874Z"
+    },
+    {
+      "id": 93,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-01: does BUILD still write code-hygiene unit tests, and how does rcf-lite class them? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :146), and the DEFINE spec's D-13 amendment.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Keep them; rcf-lite gives them a builder class outside the RCF suite"
+        },
+        {
+          "letter": "b",
+          "text": "Drop them; every test comes from DEFINE"
+        },
+        {
+          "letter": "c",
+          "text": "Keep the downstream override as a registered workaround"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-239",
+      "addedAt": "2026-10-24T11:43:19.959Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Builder unit tests (Q-01: a). Unit tests are basic code hygiene. Whether they link to ACs or not does not matter to RCF; they are not part of the RCF E2E test suites (the operator). rcf-lite classes them as builder-owned and outside the RCF suite, the separation audit leaves them alone, and \"full suite green\" means the RCF suites.\" D-13 as amended: \"D-13 classes builder unit tests as hygiene outside the RCF suite.\"",
+      "answeredAt": "2026-10-24T11:43:20.044Z",
+      "resolvedAt": "2026-10-24T11:43:20.044Z"
+    },
+    {
+      "id": 94,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-02: how are chore commits made, and what marks a commit's stage? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z, with the four refinements that go into the 0.37.0 DEFINE unless the operator objects (redesign note 2026-10-24 :147-151), and the DEFINE spec's D-12 amendment.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Chores are committed as part of FINALISE; every commit starts with its stage name; per-stage file classes; the stage prefix replaces the role trailer; a merge from main inside FINALISE needs CI and the full RCF suite green on the final head"
+        },
+        {
+          "letter": "b",
+          "text": "Any separation exception fails Finalise"
+        },
+        {
+          "letter": "c",
+          "text": "Named chores get their own role"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-234, FBS-237",
+      "addedAt": "2026-10-24T11:43:20.129Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Chore commits (Q-02). They are committed as part of FINALISE. A stage may have several commits, and each commit message starts with its stage name (the operator: \"shout if disagree\").\" Refinements: \"Per-stage file classes. A FINALISE: commit may carry a merge from main, a lockfile, artefacts from a declared generator command and chain status records. Anything else fails. Re-recording goldens or fixtures stays with the test-author, and source stays with BUILD.\" \"The stage prefix replaces the role trailer. One marker, in the strict form DEFINE: / BUILD: / REVIEW: / TEST: / FINALISE:. The audit derives the role from the stage. This replaces the \"rename hand to role\" item.\" \"A merge from main inside FINALISE. CI and the full RCF suite must be green on the final head. A merge that needs a code fix is not a chore and goes back to BUILD.\" D-12 as amended: \"D-12 becomes the stage-name commit prefix (DEFINE: / BUILD: / REVIEW: / TEST: / FINALISE:), which replaces the Hand trailer. Stage order is monotonic within a round, a regression to DEFINE is legal only after a recorded failed verdict, and Finalise judges the last round only.\" Refinement 3 is recorded, as corrected, in the rounds decision.",
+      "answeredAt": "2026-10-24T11:43:20.215Z",
+      "resolvedAt": "2026-10-24T11:43:20.215Z"
+    },
+    {
+      "id": 95,
+      "question": "(rcf-lite 0.37.0 DEFINE) What happens when REVIEW or TEST fails, and how is stage order judged within a round? Source: the operator, 2026-10-24 about 10:50Z, correcting refinement 3 of Q-02 (redesign note 2026-10-24 :158-166).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "A failed REVIEW or TEST closes the round; every round starts at DEFINE; stage order is monotonic; verdicts are commits; Finalise judges the last round only"
+        },
+        {
+          "letter": "b",
+          "text": "After the reviewed head, DEFINE: or BUILD: commits reopen REVIEW within the same round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-234, FBS-237, FBS-241",
+      "addedAt": "2026-10-24T11:43:20.300Z",
+      "status": "resolved",
+      "answer": "a. The operator: \"dont forget what may happen if review fails - we are supposed to re-enter the 5-stage cycle are we not?\" Recorded as: \"A failed REVIEW (FINDINGS) or a failed TEST closes the round. The next round starts at DEFINE and runs all five stages again.\" \"Every round starts at DEFINE, even for a pure build bug. The test-author triages each finding: spec-rooted findings amend the criteria; build-rooted findings get a red test that pins them, or a recorded note naming the existing test that already pins them. BUILD follows. This is the 2026-10-13 ruling that fixes get full separation.\" \"Stage order within a round is monotonic. Going back from REVIEW or TEST to DEFINE: is legal only immediately after a recorded failed verdict.\" \"Verdicts are commits. REVIEW and TEST verdicts are recorded as REVIEW: / TEST: commits on the branch, so round boundaries are visible in git with no round number in the message.\" \"Finalise judges the last round only. It requires REVIEW MERGE at head H, only TEST: and FINALISE: commits after H (within their file classes), and a TEST PASS. Earlier rounds are history.\"",
+      "answeredAt": "2026-10-24T11:43:20.385Z",
+      "resolvedAt": "2026-10-24T11:43:20.385Z"
+    },
+    {
+      "id": 96,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-03: what replaces the merge-without-Finalise-verdict approval entry, which rcf-lite's guidance must describe? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :152).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Relabel the entry to the redesign"
+        },
+        {
+          "letter": "b",
+          "text": "Retire it; add one entry for merge without a Finalise complete and one for promote without Verify"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-24T11:43:20.471Z",
+      "status": "resolved",
+      "answer": "b. The operator, 2026-10-24 10:40Z: \"Envelope (Q-03: b). Retire rcf-merge-without-finalise-verdict. Add \"merge without Finalise complete\" and \"promote without Verify\".\" rcf-lite's guidance states both gates: merge only after Finalise writes complete; promote only after a release Verify.",
+      "answeredAt": "2026-10-24T11:43:20.556Z",
+      "resolvedAt": "2026-10-24T11:43:20.556Z"
+    },
+    {
+      "id": 97,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-04: is an amend round on complete specs a Build the bundle must serve? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :153).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Yes; 0.37.0 bundles amend rounds by touched criterion"
+        },
+        {
+          "letter": "b",
+          "text": "No; the stage-keeper assembles it under a registered workaround"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-239, FBS-237",
+      "addedAt": "2026-10-24T11:43:20.641Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Fix rounds on complete specs (Q-04: a). 0.37.0 bundles amend rounds by touched AC.\"",
+      "answeredAt": "2026-10-24T11:43:20.727Z",
+      "resolvedAt": "2026-10-24T11:43:20.727Z"
+    },
+    {
+      "id": 98,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-05: where does the TEST pass live so Finalise checks it at the reviewed head? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :154).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Outside the tree (a CI artefact or check run)"
+        },
+        {
+          "letter": "b",
+          "text": "A branch commit, with Finalise judging the reviewed head plus later commits within their classes"
+        },
+        {
+          "letter": "c",
+          "text": "The pull request body"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-234, FBS-237",
+      "addedAt": "2026-10-24T11:43:20.812Z",
+      "status": "resolved",
+      "answer": "b. The operator, 2026-10-24 10:40Z: \"TEST pass record (Q-05: b). A branch commit. Finalise accepts the reviewed head plus TEST: and FINALISE: commits within their file classes.\"",
+      "answeredAt": "2026-10-24T11:43:20.898Z",
+      "resolvedAt": "2026-10-24T11:43:20.898Z"
+    },
+    {
+      "id": 99,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-06: may Builds proceed unfrozen while rcf-lite readiness is red? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :155).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "No; fix D1 to D6 and D8 first"
+        },
+        {
+          "letter": "b",
+          "text": "Yes for the 0.37.0 Build only, as a registered workaround that expires at the 0.37.0 release; the readiness fix is inside 0.37.0"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T11:43:20.983Z",
+      "status": "resolved",
+      "answer": "b. The operator, 2026-10-24 10:40Z: \"Readiness red (Q-06: b). The 0.37.0 Build may bundle by explicit spec id, as a registered workaround (WA-08) that expires at the 0.37.0 release. The readiness fix is inside 0.37.0, so the next release uses --next.\"",
+      "answeredAt": "2026-10-24T11:43:21.068Z",
+      "resolvedAt": "2026-10-24T11:43:21.068Z"
+    },
+    {
+      "id": 100,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-07: how does Verify target a CLI or library such as rcf-lite, when change 4 names a URL? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :156).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The packed artefact installed cold is the Verify target"
+        },
+        {
+          "letter": "b",
+          "text": "Such products carry only testOnly criteria"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-238, FBS-236",
+      "addedAt": "2026-10-24T11:43:21.153Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Verify for a CLI or library (Q-07: a). The packed artefact, installed cold, is the Verify target.\"",
+      "answeredAt": "2026-10-24T11:43:21.239Z",
+      "resolvedAt": "2026-10-24T11:43:21.239Z"
+    },
+    {
+      "id": 101,
+      "question": "(rcf-lite 0.37.0 DEFINE) The redesign's model rulings: where does the build cycle end, what do TEST and Finalise do, where does Verify sit, what is the backstop, and how strict is test adequacy? Source: the operator-marked lines of the redesign note reviewed 2026-10-24 09:20Z (redesign note 2026-10-24 :20-73).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The cycle ends at complete; TEST runs the full RCF suite locally with no deployments; Finalise is light and tool-checked with Code Nodes in slice scope; Verify is the production gate outside the cycle writing verified; no Build until the RCF suite is green on the base; mutation proof in v1; one way of building"
+        },
+        {
+          "letter": "b",
+          "text": "Keep the 0.36.x shape: verification inside the Test stage and Finalise writing verified"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-232 to FBS-241 (rcf-lite 0.37.0)",
+      "addedAt": "2026-10-24T11:43:21.324Z",
+      "status": "resolved",
+      "answer": "a. The operator-marked lines of the redesign: \"The cycle ends at complete.\" TEST: \"The full RCF suite passes against a locally running app. No deployments (the operator).\" FINALISE: \"Light and tool-checked (the operator). Then merge.\" \"Code Nodes exist for every AC the slice touched (the operator: slice scope)\". \"VERIFY: the production gate, outside the build cycle (the operator)\", \"Preview always points at sandbox (the operator)\", \"What it writes: verified. Ad hoc runs, such as a post-deploy smoke test, never touch RCF statuses (the operator).\" \"No new Build until the full RCF suite is green on the base (the operator). Specs cannot be verified mid-build.\" \"Mutation proof (tool, in v1, the operator).\" \"Bad passing tests cascade through testing and traceability (the operator).\" \"AC: carries verification: external | testOnly, set at DEFINE and checked at Review (the operator).\" One way of building across products \"is a must (the operator).\"",
+      "answeredAt": "2026-10-24T11:43:21.410Z",
+      "resolvedAt": "2026-10-24T11:43:21.410Z"
     }
   ]
 }

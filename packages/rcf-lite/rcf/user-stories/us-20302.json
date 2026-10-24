@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:39:14.790Z",
-  "updatedAt": "2026-10-24T11:39:16.141Z",
+  "updatedAt": "2026-10-24T11:47:01.048Z",
   "asA": "test-author writing the readiness slice's records",
   "iWant": "each failing check cleared by the record it asks for, with reasons on every opt-out and waiver",
   "soThat": "the green state says something true about the chain",
@@ -17,7 +17,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20302-1",
-      "description": "[happy] Given this repository at the release head, when node bin/rcf.js define readiness --check skeleton, --check shapes, --check stories, --check crosscut and --check consistency run, then each exits 0 and reports every one of its checks [ok], including skeleton:reqShape, skeleton:tadPersistence, skeleton:deployAdr, shapes:tacHasInterface, shapes:draftSettled, shapes:templateMarkers, stories:usFloors, stories:closedSets, crosscut:securityArchitecture, crosscut:catalogue, consistency:contradictions, consistency:unsatisfiable and consistency:orphanInterfaces.",
+      "description": "[happy] Given this repository at the release head, when node bin/rcf.js define readiness --check skeleton, --check shapes, --check stories, --check crosscut and --check consistency run, then each exits 0 and reports each of its checks [ok], including skeleton:reqShape, skeleton:tadPersistence, skeleton:deployAdr, shapes:tacHasInterface, shapes:draftSettled, shapes:templateMarkers, stories:usFloors, stories:closedSets, crosscut:securityArchitecture, crosscut:catalogue, consistency:contradictions, consistency:unsatisfiable and consistency:orphanInterfaces.",
       "testable": true
     },
     {

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:35:46.615Z",
-  "updatedAt": "2026-10-24T11:35:46.705Z",
+  "updatedAt": "2026-10-24T11:51:35.614Z",
   "description": "rcf verify run --release <label> --since <ref> with one target (--url, --artefact or --package) runs the cases of e2e-level suites bound to the live external criteria of the specs changed since the last release, plus the declared core-journey smoke suites, against the target. A package target is installed cold. With --record it writes ReleaseVerifyReport v1 under rcf/verify-reports/releases/ and executionStatus verified on each in-scope spec whose external criteria all passed when the smoke run passed; without --record it writes no status and no release report. Catalog and agent modes stay optional ad hoc probes and are refused in release mode.",
   "category": "functional",
   "domain": "functional",
