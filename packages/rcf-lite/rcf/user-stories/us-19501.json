@@ -1,0 +1,63 @@
+{
+  "createdAt": "2026-10-24T11:21:40.250Z",
+  "updatedAt": "2026-10-24T17:21:08.499Z",
+  "asA": "test-author writing criteria at DEFINE on a product built with rcf-lite",
+  "iWant": "to set verification external or testOnly on each criterion through rcf define create ac and rcf define update",
+  "soThat": "the flag is a validated field that Review, coverage and Verify read, not a convention in prose",
+  "description": "Consumer side of the rcf-schemas verification field: the writer carries it, validate accepts the enum and refuses anything else.",
+  "tacIds": [
+    "TAC-4152"
+  ],
+  "usId": "US-19501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-195",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A test-author writes the verification flag on a criterion through the CLI once the pin carries it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19501-1",
+      "description": "[happy] Given rcf-lite installed with its rcf-schemas pin at the release carrying verification, and an initialised fixture project whose US-101 holds one criterion, when rcf define create ac --parent US-101 --from-file <body> runs with a body {\"description\": \"[happy] fixture\", \"testable\": true, \"verification\": \"external\"}, then it exits 0, rcf define read US-101 --field acceptanceCriteria shows the new criterion with \"verification\": \"external\", and rcf define validate exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19501-2",
+      "description": "[happy] Given the same fixture project with AC-101-1 carrying no verification, when rcf define update AC-101-1 --set verification=testOnly runs, then it exits 0, stdout reads \"AC-101-1 updated at rcf/user-stories/us-101.json\", the criterion reads \"verification\": \"testOnly\" with its description, given, when and then byte-identical, and rcf define validate exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-19501-3",
+      "description": "[failure] Given the same fixture project, when rcf define update AC-101-1 --set verification=manual runs (a value outside external and testOnly), then it exits 3, stderr carries a line beginning \"[error] validation\" that names AC-101-1 and the field verification, and rcf/user-stories/us-101.json is byte-identical to its state before the command; the same holds for a create ac body carrying \"verification\": \"deployed\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19501-4",
+      "description": "[must-not] Given the pin move, when rcf define validate runs over a fixture project whose criteria carry no verification at all, then it exits 0 and prints no \"[error]\" line naming verification: the field stays optional at schema level, and making it required is the flag slice's validate rule, never a schema requirement.",
+      "testable": true
+    },
+    {
+      "id": "AC-19501-5",
+      "description": "[happy] Given packages/rcf-lite/package.json after the slice, when its dependencies are read, then \"@stravica-ai/rcf-schemas\" names the rcf-schemas release that carries verification (0.10.0 or the version that release takes), node bin/rcf.js define validate over this repository's own chain from packages/rcf-lite exits 0, and node bin/rcf.js audit coverage --strict exits with the same code and the same gap list as before the pin move.",
+      "testable": true
+    },
+    {
+      "id": "AC-19501-6",
+      "description": "[happy] Given the installed rcf-schemas package at the new pin, when node_modules/@stravica-ai/rcf-schemas/schemas/user-story.schema.json is read, then $defs.acceptanceCriterion.properties.verification is an enum of exactly [\"external\", \"testOnly\"], verification is not in $defs.acceptanceCriterion.required, and $defs.acceptanceCriterion.additionalProperties is still false.",
+      "testable": true
+    },
+    {
+      "id": "AC-19501-7",
+      "description": "[non-functional] Given this repository's own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), measured at the Test stage on the verifier's host, when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19501-1=external",
+    "verification:AC-19501-2=external",
+    "verification:AC-19501-3=external",
+    "verification:AC-19501-4=external",
+    "verification:AC-19501-5=testOnly",
+    "verification:AC-19501-6=testOnly",
+    "verification:AC-19501-7=testOnly"
+  ]
+}

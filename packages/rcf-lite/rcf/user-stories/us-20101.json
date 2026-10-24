@@ -1,0 +1,63 @@
+{
+  "createdAt": "2026-10-24T11:35:46.960Z",
+  "updatedAt": "2026-10-24T15:02:56.315Z",
+  "asA": "operator (the operating engineer) running Verify before the promote",
+  "iWant": "one command that runs the external criteria's E2E tests for the release scope plus the core journeys and records verified",
+  "soThat": "verified means the release target passed, and nothing inside a build round can write it",
+  "description": "Release scope, the record and the verdict.",
+  "tacIds": [
+    "TAC-4157"
+  ],
+  "usId": "US-20101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-201",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The operator runs the release Verify and records verified on the specs whose external criteria pass",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20101-1",
+      "description": "[happy] Given a fixture repository tagged v1.0.0 at commit R, then FBS-001 (complete) changed after R scoping AC-101-1 (external, bound by an e2e-level case that passes against the target) and AC-101-2 (testOnly), FBS-002 unchanged since R, rcf/release-verify.json declaring smoke [\"TS-900\"] whose case passes, and a clean tree, when rcf verify run --release 1.1.0 --since v1.0.0 --url <local fixture server> --record runs, then it exits 0, prints \"AC-101-1 FBS-001 pass\", \"verify: release 1.1.0 PASS 1/1 external criteria, smoke 1/1 (target <url>)\" and \"verify: recorded rcf/verify-reports/releases/1.1.0.json; verified FBS-001\", FBS-001 reads verified, FBS-002 is untouched, and the report parses as ReleaseVerifyReport v1 whose perAc holds AC-101-1 only.",
+      "testable": true
+    },
+    {
+      "id": "AC-20101-2",
+      "description": "[failure] Given the same fixture with the e2e case of AC-101-1 failing against the target, the run exits 4, prints \"AC-101-1 FBS-001 fail\" and a FAIL line, records the report with verdict FAIL and verifiedFbsIds [], and FBS-001 stays complete; given the smoke case failing and AC-101-1 passing, it exits 4 and no spec is written verified; given two in-scope specs where FBS-001's external case passes and FBS-002's fails, with smoke green, it exits 4, records verdict FAIL and verifiedFbsIds [\"FBS-001\"], and FBS-001 reads verified while FBS-002 stays complete.",
+      "testable": true
+    },
+    {
+      "id": "AC-20101-3",
+      "description": "[edge] Given an in-scope FBS-003 at complete scoping only testOnly criteria, it is listed in the report's testOnlyOnly, stays complete, and runs no test; given an in-scope external criterion AC-104-1 bound only by a unit-level case, it prints \"AC-104-1 FBS-004 blocked\", the reason reads \"no bound e2e test\", and FBS-004 is not verified; given an in-scope FBS-005 at inProgress, its criteria are blocked with reason \"spec not complete\"; given an in-scope FBS-006 at complete with one external and one unflagged live criterion, its criteria are blocked with reason \"unflagged criteria\", it is listed in the report's unflagged array and is not verified; given an in-scope FBS-007 already verified whose external case passes, it is run like a complete spec and stays verified; given FBS-008 at notStarted whose criteria changed since the release, or any spec whose only change since the release is a verification flag, a supersession field or its FBS record, it is not in scope.",
+      "testable": true
+    },
+    {
+      "id": "AC-20101-4",
+      "description": "[failure] Given --record without --release or --since, the verb exits 2 with \"[error] usage --record needs --release <label> and --since <ref>\"; given no rcf/release-verify.json, --record exits 2 with \"verify: no core-journey smoke declared in rcf/release-verify.json\"; given an uncommitted change outside rcf/verify-reports/, --record exits 4 with \"verify report refused: working tree is dirty; the report must name a committed head\"; none writes a file.",
+      "testable": true
+    },
+    {
+      "id": "AC-20101-5",
+      "description": "[must-not] Without --record, a release-scoped run (or any ad hoc run, post-deploy smoke included) never writes executionStatus and never writes under rcf/verify-reports/releases/: after the PASS fixture run without --record, every rcf/fbs/ file is byte-identical and git status --porcelain is unchanged (with --out <file> outside the tree, only that file appears).",
+      "testable": true
+    },
+    {
+      "id": "AC-20101-6",
+      "description": "[non-functional] Given a fixture release scope of 12 changed specs holding 40 external criteria, each bound by one e2e case of about 1 second, among 150 specs and 800 criteria in the chain (the typical size of this repository's own chain), when the release Verify runs against a local URL target, then it runs exactly the 40 bound e2e cases plus the smoke suites (never a case of an unchanged spec or a testOnly criterion) and adds no more than 10 seconds of its own overhead, measured as the run's wall time minus the durations the TAP output reports for the cases it ran.",
+      "testable": true
+    },
+    {
+      "id": "AC-20101-7",
+      "description": "[failure] Given --since naming a ref that does not resolve to a commit (a missing ref, a tree or a blob), rcf verify run --release 1.1.0 --since <ref> --url <server> --record exits 2 with stderr \"[error] usage --since <ref> does not resolve to a commit\"; given a commit that is not an ancestor of HEAD it exits 2 with \"[error] usage --since <ref> is not an ancestor of HEAD\"; none writes a file.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20101-1=external",
+    "verification:AC-20101-2=external",
+    "verification:AC-20101-3=external",
+    "verification:AC-20101-4=external",
+    "verification:AC-20101-5=external",
+    "verification:AC-20101-6=external",
+    "verification:AC-20101-7=external"
+  ]
+}

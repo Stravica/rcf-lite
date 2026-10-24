@@ -1,0 +1,69 @@
+{
+  "createdAt": "2026-10-24T11:27:36.705Z",
+  "updatedAt": "2026-10-24T15:01:02.970Z",
+  "asA": "verifier at the TEST stage",
+  "iWant": "to record PASS or FAIL for the reviewed head from the TAP summary of the full RCF suite",
+  "soThat": "the TEST pass is a branch commit that names the code it tested",
+  "description": "rcf build verdict test and TestVerdict v1.",
+  "tacIds": [
+    "TAC-4154"
+  ],
+  "usId": "US-19702",
+  "prdId": "PRD-001",
+  "reqId": "REQ-197",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A verifier records the TEST verdict from the full RCF suite run against a locally running app",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19702-1",
+      "description": "[happy] Given a fixture branch whose HEAD is a REVIEW: commit adding a MERGE/PASS review.json for H, and a TAP file from node --test whose summary reads 12 pass, 0 fail, 1 skip, 0 todo and which includes every bound test of the touched criteria, when rcf build verdict test --fbs FBS-001 --result PASS --tap <file> --runtime \"fixture app on localhost:8787\" runs, then it exits 0, stdout is \"verdict: test PASS at <H7> (12 pass, 0 fail, 1 skip, 0 todo) written to rcf/verdicts/<H12>/test.json\", and the file parses as TestVerdict v1 with head the full sha of H and node equal to the running Node version.",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-2",
+      "description": "[failure] Given the same branch and a TAP summary with 2 failing tests, --result PASS exits 4 with stderr \"verdict refused: the TAP summary reports 2 failing; record --result FAIL\"; given a TAP file lacking the bound test of AC-101-2, --result PASS exits 4 with stderr \"verdict refused: the TAP summary does not include bound test <pointer> of AC-101-2\"; given a file with no TAP summary it exits 2 with stderr \"[error] usage --tap <file> carries no TAP summary\"; no test.json is written in any case.",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-3",
+      "description": "[failure] Given a branch whose newest review.json for H records code FINDINGS, or none at all, --result PASS exits 4 with stderr \"verdict refused: no REVIEW MERGE with adequacy PASS recorded for <H7>\"; given a later \"BUILD: fix\" commit that changed src/x.js after H, it exits 4 with stderr \"verdict refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-4",
+      "description": "[edge] Given a branch whose rcf/verdicts/<H12>/test.json already records PASS, a second rcf build verdict test for the same head exits 4 with stderr \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\" and the file is byte-identical afterwards; given no test verdict yet, --result FAIL --reason \"the suite hangs on the packed head\" with a TAP summary of 0 failing writes result \"FAIL\" with that reason, and FAIL with 0 failing and no --reason exits 2; the one-verdict rule is per head, so a FAIL recorded after the PASS at H names HEAD and is not refused (stage-keeper ruling 3).",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-5",
+      "description": "[must-not] rcf build verdict test never runs the suite itself, never deploys or contacts a host, never writes outside rcf/verdicts/<H12>/ and never commits: a spawn seam records only git, and git status --porcelain after a run lists at most the one new file.",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-6",
+      "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS for H), TEST: (PASS at H) and \"FINALISE: merge main\" (a clean merge) at head M, when rcf build verdict test --fbs FBS-001 --result FAIL --tap <a TAP file with 1 failing> --runtime \"fixture app\" runs, then it exits 0, stdout is \"verdict: test FAIL at <M7> (0 pass, 1 fail, 0 skip, 0 todo) written to rcf/verdicts/<M12>/test.json\", that file's head is the full sha of M, and rcf/verdicts/<H12>/test.json is byte-identical; the same with --result PASS at M exits 4 with \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-7",
+      "description": "[failure] Given a fixture at H whose rcf/verdicts/<H12>/test-strength.json records result fail for AC-101-2 and a TAP summary of 0 failing, rcf build verdict test --fbs FBS-001 --result PASS exits 4 with stderr \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\" and writes nothing; --result FAIL --reason \"test strength fails\" writes result FAIL; with no test-strength record at H, PASS is not refused for that reason.",
+      "testable": true
+    },
+    {
+      "id": "AC-19702-8",
+      "description": "[failure] Given a review.json for H with fbsIds [\"FBS-001\", \"FBS-002\"], rcf build verdict test --fbs FBS-001 --result PASS exits 2 with stderr \"[error] usage --fbs FBS-001 differs from the REVIEW verdict's fbsIds FBS-001,FBS-002\" and writes nothing; with --fbs FBS-002,FBS-001 it writes the verdict; given --by omitted, the review verdict's recordedBy reads \"reviewer\" and the test verdict's \"verifier\".",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19702-1=external",
+    "verification:AC-19702-2=external",
+    "verification:AC-19702-3=external",
+    "verification:AC-19702-4=external",
+    "verification:AC-19702-5=external",
+    "verification:AC-19702-6=external",
+    "verification:AC-19702-7=external",
+    "verification:AC-19702-8=external"
+  ]
+}

@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-10-24T11:37:22.141Z",
+  "updatedAt": "2026-10-24T15:55:37.029Z",
+  "description": "rcf build base-suite records the RCF suite's result on the committed base head; rcf build bundle (--next, an explicit id, or an amend round) refuses with exit 4 unless --base-suite names a green record for the base (git merge-base of HEAD with the trunk; HEAD itself on the trunk), never consults verified, and has no override. rcf build bundle <fbs-id> --acs <ids> emits an amend-round bundle on a complete or verified spec listing only the touched criteria. rcf/define/backstop.json, rcf build backstop adopt and --allow-unverified retire.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Redesign backstop (:51-53) and change 5 (:91); Q-01 a and Q-04 a (10:40Z); D-07 and D-08 (audit section 5), F-15, F-17, F-30, F-31, F-35; register WA-10.",
+  "tags": [
+    "capability:build-sequence"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4158"
+  },
+  "reqId": "REQ-202",
+  "prdId": "PRD-001",
+  "title": "rcf build bundle refuses any Build while the RCF suite is not green on the base, and bundles amend rounds by touched criterion",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:37:22.231Z"
+  }
+}

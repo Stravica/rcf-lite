@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-10-24T11:41:41.938Z",
+  "updatedAt": "2026-10-24T15:07:16.261Z",
+  "purpose": "Every text rcf-lite ships or prints about the build cycle states the 0.37.0 model: five stages named by commit prefix, TEST on a locally running app, Finalise light and pre-merge writing complete, Verify outside the cycle writing verified, rounds that restart at DEFINE after a failed verdict, and dispatches named by stage.",
+  "responsibilities": [
+    "guidance/build-cycle.md, guidance/build-cycle-playbook.md and guidance/overview.md",
+    "guidance/managed/agent-instructions-block.md (the build loop, RULE 7, RULE 13, RULE 16) and its hash and harness fragment from scripts/gen-managed-artefacts.mjs",
+    "the bundle's closing runbook (src/build/bundle.js completionContract) in md and json",
+    "docs/verify-reference.md (the finalise synopsis, the modes section and the forward catalog contract) and the two READMEs",
+    "releases/releases.yaml: the 0.37.0 entry with minAgentAction rerun-init"
+  ],
+  "interfaces": [
+    {
+      "name": "rcf guidance build-cycle (0.37.0 text)",
+      "kind": "fileFormat",
+      "description": "format: Markdown. One section per stage headed \"DEFINE (commit prefix DEFINE:, role test-author)\", \"BUILD (BUILD:, builder)\", \"REVIEW (REVIEW:, reviewer)\", \"TEST (TEST:, verifier)\", \"FINALISE (FINALISE:, stage-keeper)\"; TEST names \"the full RCF suite against a locally running app\" and \"nothing is deployed\"; FINALISE names \"before the merge\" and \"writes complete\"; a section \"VERIFY (outside the build cycle)\" names rcf verify run --record and \"writes verified\"; a section \"Rounds\" names the failed-verdict rule."
+    },
+    {
+      "name": "Bundle closing runbook (0.37.0)",
+      "kind": "fileFormat",
+      "description": "format: the last section of rcf build bundle --format md, and completionContract in --format json. Lists the five stages in order, each with its dispatch name \"<Stage> <fbs-id>: <title>\", its commit prefix and its commands: DEFINE (rcf build mark <fbs-id> inProgress in the round's first DEFINE: commit when the spec is notStarted, criteria and RCF tests, rcf define validate), BUILD (rcf build base-suite on the base before dispatch), REVIEW (rcf build verdict review), TEST (the RCF suite run, rcf audit test-strength --record, rcf build verdict test), FINALISE (rcf build finalise <fbs-id> --ci-run <ref>, then merge); then \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"."
+    },
+    {
+      "name": "Release feed entry 0.37.0",
+      "kind": "fileFormat",
+      "description": "format: YAML entry in releases/releases.yaml, version 0.37.0 matching package.json, breaking true, minAgentAction rerun-init (one of the validator's set: rewrite-shell-invocations, rerun-init, regenerate-chain, schema-migration), summary naming the managed block change."
+    }
+  ],
+  "notes": "Text sources at 639f07bb: guidance/build-cycle.md (the five stages :7-20, the lifecycle :30-32), the managed block build loop :348-382 with RULE 7 :145-156, RULE 13 :213-227 and RULE 16 :295-307, the playbook, overview :38, bundle completionContract src/build/bundle.js:198-202, docs/verify-reference.md :69-147 (synopsis :73). The FBS-224 DEFINE review explains how the block, its hash, doctor, the feed and the bundle goldens interact.",
+  "tacId": "TAC-4159",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "The 0.37.0 stage contract in text: guidance topics, the managed agent-instructions block, the bundle runbook, the docs and the release feed"
+}

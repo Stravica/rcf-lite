@@ -18,6 +18,7 @@ import { enrichRowsWithCategories, groupRowsByCategory, listBlueprints } from '.
 import { removeBlueprint } from '../../src/blueprint/remove.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { ensurePackagedShelfStaged as stagePackagedShelf } from '../_helpers/packaged-shelf.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -25,15 +26,10 @@ const here = dirname(fileURLToPath(import.meta.url));
 // See cli.test.js's helper of the same name: the packaged shelf under
 // `packages/rcf-lite/blueprints/` is populated by prepack (or the
 // `stage:blueprints` script) from the repo-root shelf. CI checks out
-// the repo-root copy only.
+// the repo-root copy only. The shared helper stages it atomically, so a
+// concurrent reader in another file never sees a partial shelf.
 async function ensurePackagedShelfStaged() {
-  const packageRoot = resolve(here, '..', '..');
-  const shelfDir = join(packageRoot, 'blueprints');
-  const stageScript = join(packageRoot, 'scripts', 'stage-blueprint-shelf.mjs');
-  const entries = await readdir(shelfDir, { withFileTypes: true }).catch(() => []);
-  const populated = entries.filter((e) => e.isDirectory()).length > 0;
-  if (populated) return;
-  await exec(process.execPath, [stageScript], { cwd: packageRoot, encoding: 'utf8' });
+  await stagePackagedShelf();
 }
 
 async function scaffoldProject() {

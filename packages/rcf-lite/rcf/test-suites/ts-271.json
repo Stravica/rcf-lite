@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-24T16:28:06.701Z",
+  "updatedAt": "2026-10-24T16:28:08.775Z",
+  "purpose": "FBS-233: the external criteria of US-19603, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19603-1",
+    "AC-19603-2",
+    "AC-19603-3",
+    "AC-19603-4",
+    "AC-19603-5",
+    "AC-19603-6",
+    "AC-19603-7",
+    "AC-19603-8"
+  ],
+  "id": "TS-271",
+  "usId": "US-19603",
+  "title": "US-19603 external criteria (FBS-233)",
+  "testCases": [
+    {
+      "id": "TC-271-a-finalise-release-1-1-0-commit-touching",
+      "acId": "AC-19603-1",
+      "description": "a \"FINALISE: release 1.1.0\" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-1: a \"FINALISE: release 1.1.0\" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField"
+    },
+    {
+      "id": "TC-271-finalise-commits-changing-a-package-json",
+      "acId": "AC-19603-2",
+      "description": "FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-2: FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items"
+    },
+    {
+      "id": "TC-271-a-finalise-regenerate-queue-goldens",
+      "acId": "AC-19603-3",
+      "description": "a \"FINALISE: regenerate queue goldens\" commit with \"Generated-By: queue-goldens\" touching a declared output and rcf/fbs/ passes with classes [\"chainStatus\", \"generatorOutput\"] and generators [\"queue-goldens\"]",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-3: a \"FINALISE: regenerate queue goldens\" commit with \"Generated-By: queue-goldens\" touching a declared output and rcf/fbs/ passes with classes [\"chainStatus\", \"generatorOutput\"] and generators [\"queue-goldens\"]"
+    },
+    {
+      "id": "TC-271-a-declared-output-with-no-generated-by",
+      "acId": "AC-19603-4",
+      "description": "a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-4: a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items"
+    },
+    {
+      "id": "TC-271-a-generator-lacking-checkedby-with",
+      "acId": "AC-19603-5",
+      "description": "a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line"
+    },
+    {
+      "id": "TC-271-a-clean-finalise-merge-main-and-a",
+      "acId": "AC-19603-6",
+      "description": "a clean \"FINALISE: merge main\" and a \"FINALISE: merge main again\" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths [\"pnpm-lock.yaml\"], and the PASS line counts merges 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-6: a clean \"FINALISE: merge main\" and a \"FINALISE: merge main again\" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths [\"pnpm-lock.yaml\"], and the PASS line counts merges 2"
+    },
+    {
+      "id": "TC-271-a-finalise-merge-whose-resolution-edits",
+      "acId": "AC-19603-7",
+      "description": "a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and \"<s7> no stage prefix\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and \"<s7> no stage prefix\""
+    },
+    {
+      "id": "TC-271-over-the-passing-generator-fixture-the",
+      "acId": "AC-19603-8",
+      "description": "over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker"
+    }
+  ],
+  "status": "draft"
+}

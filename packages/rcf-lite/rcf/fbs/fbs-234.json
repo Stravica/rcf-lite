@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-24T11:27:41.176Z",
+  "updatedAt": "2026-10-24T15:01:08.685Z",
+  "summary": "Add rcf build verdict review and rcf build verdict test writing ReviewVerdict v1 and TestVerdict v1 under rcf/verdicts/<h12>/, and judge round order in rcf audit separation: monotonic stages, a regression to DEFINE: only right after a failed verdict, verdict heads checked.",
+  "approach": "New src/build/verdict.js with the two writers (git-only reads, TAP summary parse, bound-test presence from the chain); src/audit/separation.js gains the round state machine over the row stream, reading verdict files with git show at their commits. Help for rcf build and rcf audit separation follows.",
+  "deliverables": [
+    "src/build/verdict.js and src/cli/build.js: rcf build verdict review and test",
+    "src/audit/separation.js: the round state machine and verdict head checks",
+    "Code Nodes for every criterion of this REQ; CHANGELOG lines"
+  ],
+  "notes": "DEFINE part A, 2026-10-24 (test-author). From this slice on, 0.37.0 rounds record their REVIEW verdicts as REVIEW: commits with this verb, so a fix round after FINDINGS passes the new audit (ADR self-hosting). Flags: US tags (WORKAROUND, ADR ADR-4152).",
+  "dependsOnFbsIds": [
+    "FBS-233"
+  ],
+  "riskLevel": "high",
+  "estimatedSize": "medium",
+  "domain": "functional",
+  "acIds": [
+    "AC-19701-1",
+    "AC-19701-2",
+    "AC-19701-3",
+    "AC-19701-4",
+    "AC-19701-5",
+    "AC-19701-6",
+    "AC-19702-1",
+    "AC-19702-2",
+    "AC-19702-3",
+    "AC-19702-4",
+    "AC-19702-5",
+    "AC-19702-6",
+    "AC-19702-7",
+    "AC-19702-8",
+    "AC-19703-1",
+    "AC-19703-2",
+    "AC-19703-3",
+    "AC-19703-4",
+    "AC-19703-5",
+    "AC-19703-6",
+    "AC-19703-7",
+    "AC-19703-8",
+    "AC-19703-9",
+    "AC-19703-10",
+    "AC-19703-11"
+  ],
+  "fbsId": "FBS-234",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 236,
+  "executionStatus": "notStarted",
+  "title": "Rounds: REVIEW and TEST verdict records (rcf build verdict) and round order in the separation audit"
+}

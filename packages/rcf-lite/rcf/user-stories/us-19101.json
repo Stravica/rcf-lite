@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:26.713Z",
-  "updatedAt": "2026-10-16T22:46:30.049Z",
+  "updatedAt": "2026-10-24T11:25:05.045Z",
   "description": "User story under REQ-191 for the separation verb (FBS-222). Range from the merge-base with origin/main to HEAD, merge commits skipped, Hand: trailer over the five estate hands, default path classes at any depth, one quotable line and --json rows.",
   "asA": "a gate reviewer reading a build pull request",
   "iWant": "one line that says whether any commit crossed hands",
@@ -16,32 +16,50 @@
       "ownerRef": {
         "tacId": "TAC-4149-audit-separation",
         "field": "interfaces[rcf audit separation]"
-      }
+      },
+      "supersededBy": "AC-19601-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the stage prefix replaces the Hand trailer (ADR ADR-4153; operator ruling Q-02 refinement 2, ledger). Successor judges prefixed commits against per-stage classes."
     },
     {
       "id": "AC-19101-2",
       "description": "[failure] Given a Hand: builder commit that touches test/x.test.js, when rcf audit separation runs, then it exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\"; the same holds for a Hand: test-author commit touching src/, and for a Hand: builder commit touching rcf/user-stories/.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19601-2",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: a builder crossing into tests is now judged by the BUILD: prefix and the rcfTest class (ADR ADR-4153)."
     },
     {
       "id": "AC-19101-3",
       "description": "[edge] Given an undeclared commit touching only src/ and another touching only test/, when the verb runs, then both pass and are counted under undeclared; an undeclared commit touching both src/ and test/ fails exit 4 naming both paths.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19601-3",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: undeclared commits no longer pass; every commit needs a stage prefix (ADR ADR-4153)."
     },
     {
       "id": "AC-19101-4",
       "description": "[failure] Given --base naming a ref that does not exist, the verb exits 2 with \"separation: bad ref <ref>\"; run outside a git repository it exits 1 with \"separation: not a git repository\"; a Hand: value outside the five hands and mixed is reported as a violation with reason \"unknown hand <value>\".",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19601-5",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the Hand: value check is gone with the trailer; the bad ref, not-a-repository and shallow refusals carry over in the successor (ADR ADR-4153)."
     },
     {
       "id": "AC-19101-5",
       "description": "[happy] Given the same branch as the PASS case, when rcf audit separation --json runs, then stdout is a JSON array with one SeparationRow per non-merge commit { sha, subject, hand, declared, classes, verdict, reason, paths } and merge commits in the range are absent.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19601-6",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: SeparationRow v2 replaces hand and declared with stage, role and handTrailer, and lists merges (ADR ADR-4153)."
     },
     {
       "id": "AC-19101-6",
       "description": "[must-not] rcf audit separation never writes a file, never reads the network and never reads the chain: two runs over the same range print byte-identical output and leave git status unchanged.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19601-8",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the audit now reads verdict records and rcf/separation.json through git at commits in the range; the successor states the read-only, git-only rule in those terms (ADR ADR-4153)."
     },
     {
       "id": "AC-19101-7",

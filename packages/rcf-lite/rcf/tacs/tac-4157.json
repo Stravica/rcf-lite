@@ -1,0 +1,36 @@
+{
+  "createdAt": "2026-10-24T11:35:46.107Z",
+  "updatedAt": "2026-10-24T15:02:55.028Z",
+  "purpose": "The production gate outside the build cycle: after the deploy to preview and before the promote (for a CLI or library, before the publish), run the same E2E journey tests TEST runs, scoped to the external criteria of the specs changed since the last release plus a core-journey smoke run, against the target, and write verified only in release mode.",
+  "responsibilities": [
+    "resolve the release scope: specs at inProgress, complete or verified whose criteria's description, given, when or then, or whose test bindings, changed in <since>..HEAD, or whose executionStatus moved to complete or verified there, plus the declared core-journey smoke suites; a change to a verification flag, a supersession field or the FBS record alone scopes nothing, and a notStarted spec is never in scope",
+    "run only test cases of e2e-level suites bound to live external criteria of in-scope specs, and the smoke suites, against the target",
+    "install a package target cold: a fresh scratch project, an empty npm cache, an isolated HOME and user npmrc, and a reduced environment",
+    "with --record, write rcf/verify-reports/releases/<release>.json and executionStatus verified on each in-scope spec whose live external criteria all passed, only when the smoke run passed",
+    "without --record, never write a status or a release report (ad hoc runs)"
+  ],
+  "interfaces": [
+    {
+      "name": "rcf verify run (release mode)",
+      "kind": "cliCommand",
+      "description": "usage: rcf verify run --release <label> --since <ref> (--url <target-url> | --artefact <tgz> | --package <dir>) [--record] [--out <file>]\nTarget: --url (tests read RCF_TARGET_URL) or a package target installed cold (tests run inside the installed copy with RCF_TARGET_KIND=package). Prints one line per in-scope criterion \"<AC id> <FBS id> <pass|fail|blocked>\" then \"verify: release <label> <PASS|FAIL> <passed>/<total> external criteria, smoke <passed>/<total> (target <url | name@version sha256:<12>>)\"; with --record adds \"verify: recorded rcf/verify-reports/releases/<label>.json; verified <ids | none>\". Exit 0 PASS, 4 FAIL (any fail or blocked, or smoke red), 2 usage (\"[error] usage --record needs --release <label> and --since <ref>\"; \"[error] usage --since <ref> does not resolve to a commit\"; \"[error] usage --since <ref> is not an ancestor of HEAD\"; \"[error] usage give exactly one target: --url, --artefact or --package\"; \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\"; \"[error] usage --offline cannot install cold\"; \"verify: no core-journey smoke declared in rcf/release-verify.json\"), 1 IO (install failure, no report written). --record refuses a dirty working tree (exit 4 \"verify report refused: working tree is dirty; the report must name a committed head\")."
+    },
+    {
+      "name": "ReleaseVerifyReport v1",
+      "kind": "recordShape",
+      "description": "fields: version (1), release (label), head (40 hex), since (40 hex), target ({ kind url, url } or { kind package, name, version, sha256, cold true }), scope ({ fbsIds, smokeSuites }), perAc (array of { acId, fbsId, result pass | fail | blocked, reason, tests [pointer] }), smoke (array of { tsId, result pass | fail, tests }), testOnlyOnly (array of FBS ids in scope whose live criteria are all testOnly; left at their status), unflagged (array of FBS ids in scope with any unflagged live criterion; their criteria blocked with reason \"unflagged criteria\", never verified), verdict (PASS | FAIL), verifiedFbsIds (array), startedAt, finishedAt, node. Path rcf/verify-reports/releases/<label>.json (class releaseEvidence, committed by a FINALISE: commit, FAIL included). A later --record run with the same label overwrites the file; git keeps the earlier one. A verified in-scope spec is run like a complete one; Verify never lowers a status."
+    },
+    {
+      "name": "rcf/release-verify.json",
+      "kind": "fileFormat",
+      "description": "format: JSON { \"smoke\": [TS id, ...] (one or more test suites whose cases walk the core journeys) }. Written by the test-author (criteria class). Required by --record."
+    }
+  ],
+  "notes": "Builds on the package target mode of TAC-4151 (src/verify/suite/index.js installArtefact :66-79, stageRun :92-100, runSuiteFile :111-117, runSuiteAsProbe :178-258, target kind package with sha256 and servedSha :238-241). The ad hoc --fbs <id> --hand verifier report mode (US-19001, US-19301, US-19302) stays unchanged as an ad hoc run, used by the 0.36.x Finalise during the 0.37.0 train.",
+  "tacId": "TAC-4157",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Release Verify: rcf verify run --record over the bound E2E tests of external criteria, against a URL or the packed artefact installed cold"
+}

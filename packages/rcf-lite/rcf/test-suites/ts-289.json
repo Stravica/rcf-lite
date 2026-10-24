@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-10-24T17:50:40.196Z",
+  "updatedAt": "2026-10-24T17:50:41.295Z",
+  "purpose": "FBS-238: the external criteria of US-20102, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20102-1",
+    "AC-20102-2",
+    "AC-20102-3",
+    "AC-20102-4"
+  ],
+  "id": "TS-289",
+  "usId": "US-20102",
+  "title": "US-20102 external criteria (FBS-238)",
+  "testCases": [
+    {
+      "id": "TC-289-a-cold-package-release-verify-runs-the",
+      "acId": "AC-20102-1",
+      "description": "a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20102-1: a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true"
+    },
+    {
+      "id": "TC-289-offline-in-release-mode-exits-2-error",
+      "acId": "AC-20102-2",
+      "description": "--offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20102-2: --offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report"
+    },
+    {
+      "id": "TC-289-a-user-npmrc-at-the-caller-home-setting",
+      "acId": "AC-20102-3",
+      "description": "a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration"
+    },
+    {
+      "id": "TC-289-a-cold-release-verify-writes-in-the",
+      "acId": "AC-20102-4",
+      "description": "a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory"
+    }
+  ],
+  "status": "draft"
+}

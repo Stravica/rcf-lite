@@ -118,7 +118,7 @@ test('buildViewIndex snippet is whitespace-collapsed and capped at 110 chars', a
   assert.ok(prd.snippet.length <= 110);
 });
 
-test('serialiseViewIndex returns a JSON string under 450 KB on the dogfood tree', async () => {
+test('serialiseViewIndex returns a JSON string under 500 KB on the dogfood tree', async () => {
   const model = await builtModel();
   const json = serialiseViewIndex(model);
   assert.equal(typeof json, 'string');
@@ -132,7 +132,15 @@ test('serialiseViewIndex returns a JSON string under 450 KB on the dogfood tree'
   // US-19401 and its 17 criteria, FBS-227, TS-260) took the index to
   // 410502 bytes, past 400 KB; the envelope moves to 450 KB as a count pin
   // (ledger decision 55, kept by the stage-keeper 2026-10-20).
-  assert.ok(bytes < 450 * 1024, `expected index JSON under 450 KB, got ${bytes} bytes`);
+  // rcf-lite 0.37.0 DEFINE part B (2026-10-24): the 0.37.0 chain (REQ-195
+  // to REQ-204, 30 stories, their criteria and test suites) took the index
+  // to 473736 bytes, past 450 KB; the envelope moves to 500 KB as the
+  // registered WORKAROUND WA-16 (ledger decision 107, the stage-keeper's
+  // part A ruling 1), root-cause item w-2026-10-24-dave-013 (slim or shard
+  // the index, sized on a heavy consumer repo), review-by 2026-11-07. This
+  // is the second fixed-byte bump after ledger decision 55, and it is not a
+  // count pin: never move it again without the root-cause item.
+  assert.ok(bytes < 500 * 1024, `expected index JSON under 500 KB, got ${bytes} bytes`);
 });
 
 test('renderSearchButton emits a <button> with the data-rcf-search hook and the Cmd/Ctrl+F mnemonic', () => {

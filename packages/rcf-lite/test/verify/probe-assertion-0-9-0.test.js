@@ -19,6 +19,8 @@ import { fileURLToPath } from 'node:url';
 
 import { scaffoldChain } from './helpers/chain.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { rcf as harnessRcf } from '../_harness/spawn.js';
+import { criterion, editFbs, editStory, project as harnessProject, scratch as harnessScratch } from '../_harness/fixture.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // The package under test: in the clone packages/rcf-lite, inside
@@ -251,4 +253,36 @@ test('AC-19401-4: at rcf-schemas 0.9.0 an AC-level probe { "path": "/" } already
   });
 });
 
-test.todo('AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes');
+// FBS-228 (US-19401), AC-19401-12: written in place (FBS-228's notes keep
+// this declaration here so TC-260-verify-skips-retired-probe does not
+// move; the stage-keeper's ruling before part B1). Todo until FBS-228's
+// round DEFINE (GR-35). Its body uses only the shared harness
+// (test/_harness/, GR-40): the bin's rcf init fixture and a recording
+// HTTP target.
+test('AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes', { todo: 'FBS-228 round DEFINE' }, async (t) => {
+  const dir = await harnessProject(t, { name: 'verify-retired' });
+  editStory(dir, 'US-101', (us) => {
+    us.acceptanceCriteria = [
+      criterion('AC-101-1', '[happy] the retired page answers', {
+        supersededBy: 'AC-101-2', supersededOn: '2026-10-20', supersessionNote: 'replaced by AC-101-2',
+        probe: { path: '/retired', expectStatus: 200 },
+      }),
+      criterion('AC-101-2', '[happy] the home page answers', { probe: { path: '/', expectStatus: 200 } }),
+    ];
+  });
+  editFbs(dir, 'FBS-001', (f) => { f.acIds = ['AC-101-1', 'AC-101-2']; f.executionStatus = 'inProgress'; });
+  const target = await startTarget(t);
+  const out = join(harnessScratch(t, 'rcf-verify-retired-out-'), 'report.json');
+  const r = await harnessRcf(['verify', 'run', '--repo', dir, '--profile', 'ci', '--url', target.url,
+    '--out', out, '--provision-mode', 'skip', '--mode', 'deterministic', '--fbs', 'FBS-001'], { cwd: dir });
+  assert.ok(!target.hits.includes('/retired'), `the server never receives a request for /retired; hits: ${target.hits.join(', ')}`);
+  const report = JSON.parse(await readFile(out, 'utf8'));
+  const one = perAc(report, 'AC-101-1');
+  assert.equal(one.result, 'retired', 'AC-101-1 is recorded "retired", never "pass" or "fail"');
+  assert.equal(one.evidence?.supersededBy, 'AC-101-2');
+  const two = perAc(report, 'AC-101-2');
+  assert.equal(two.result, 'pass', 'AC-101-2 passes');
+  assert.equal(report.runStats.counts.verified, 1, 'runStats.counts.verified counts AC-101-2 only, never AC-101-1');
+  assert.equal(report.runStats.counts.failed, 0, 'runStats.counts.failed never counts AC-101-1');
+  assert.equal(r.code, 0, `with AC-101-2 passing the command exits 0\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`);
+});

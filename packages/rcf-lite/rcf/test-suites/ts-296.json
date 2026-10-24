@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-10-24T18:01:15.019Z",
+  "updatedAt": "2026-10-24T18:17:42.510Z",
+  "purpose": "FBS-240: the testOnly criteria of US-20303, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-240's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-20303-1",
+    "AC-20303-2",
+    "AC-20303-3"
+  ],
+  "id": "TS-296",
+  "usId": "US-20303",
+  "title": "US-20303 testOnly criteria (FBS-240)",
+  "testCases": [
+    {
+      "id": "TC-296-define-readiness-level-intent-check",
+      "acId": "AC-20303-1",
+      "description": "define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source"
+    },
+    {
+      "id": "TC-296-in-a-scratch-copy-at-the-current-head",
+      "acId": "AC-20303-2",
+      "description": "in a scratch copy at the current head with the profile answers removed, define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner questions",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-2: in a scratch copy at the current head with the profile answers removed, define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner questions"
+    },
+    {
+      "id": "TC-296-the-define-commit-that-recorded-the",
+      "acId": "AC-20303-3",
+      "description": "the DEFINE commit that recorded the profile answers quotes the operator answer and its date, and the recorded profile names that source",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-3: the DEFINE commit that recorded the profile answers quotes the operator answer and its date, and the recorded profile names that source"
+    }
+  ],
+  "status": "draft"
+}

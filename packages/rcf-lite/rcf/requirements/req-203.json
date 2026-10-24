@@ -1,0 +1,27 @@
+{
+  "createdAt": "2026-10-24T11:39:12.841Z",
+  "updatedAt": "2026-10-24T11:51:36.133Z",
+  "description": "At the 0.37.0 release head, node bin/rcf.js define readiness --check all exits 0 with chips D1 to D8 passed (D0 notApplicable), the stage-keeper records the freeze, and rcf build bundle --next works without --override. Every failing check at 639f07bb is cleared by chain records written through the CLI (the operator answering the two D1 profile questions); no readiness check is disabled, skipped or loosened, and every defineD4 opt-out and every waived concern carries a reason.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Operator ruling Q-06 b (10:40Z): WA-08 sanctioned for the 0.37.0 Build only, expiring at the release; the readiness fix is inside 0.37.0. D-09 (audit section 5), F-22; rcf-lite-build-mechanics section 3. The failing set is in the START readiness output of this DEFINE.",
+  "tags": [
+    "capability:define-detection"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4122-define-gates"
+  },
+  "reqId": "REQ-203",
+  "prdId": "PRD-001",
+  "title": "Readiness D1 to D6 and D8 pass on rcf-lite main and the tree freezes, so the next release bundles with --next",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:39:12.930Z"
+  }
+}

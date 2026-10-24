@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-10-24T16:35:03.169Z",
+  "updatedAt": "2026-10-24T16:35:04.779Z",
+  "purpose": "FBS-234: the external criteria of US-19701, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19701-1",
+    "AC-19701-2",
+    "AC-19701-3",
+    "AC-19701-4",
+    "AC-19701-5",
+    "AC-19701-6"
+  ],
+  "id": "TS-273",
+  "usId": "US-19701",
+  "title": "US-19701 external criteria (FBS-234)",
+  "testCases": [
+    {
+      "id": "TC-273-rcf-build-verdict-review-code-merge",
+      "acId": "AC-19701-1",
+      "description": "rcf build verdict review --code MERGE --adequacy PASS --by \"reviewer and codex\" at a clean HEAD exits 0, prints \"verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json\" and writes a ReviewVerdict v1 for H without committing",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by \"reviewer and codex\" at a clean HEAD exits 0, prints \"verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json\" and writes a ReviewVerdict v1 for H without committing"
+    },
+    {
+      "id": "TC-273-adequacy-findings-with-a-spec-and-a",
+      "acId": "AC-19701-2",
+      "description": "--adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)"
+    },
+    {
+      "id": "TC-273-findings-with-no-finding-exits-2-a",
+      "acId": "AC-19701-3",
+      "description": "FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file"
+    },
+    {
+      "id": "TC-273-a-dirty-tree-refuses-with-exit-4-verdict",
+      "acId": "AC-19701-4",
+      "description": "a dirty tree refuses with exit 4 \"verdict refused: working tree is dirty; a verdict names a committed head\", and a second review for the same head refuses with exit 4 leaving the first file byte-identical",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-4: a dirty tree refuses with exit 4 \"verdict refused: working tree is dirty; a verdict names a committed head\", and a second review for the same head refuses with exit 4 leaving the first file byte-identical"
+    },
+    {
+      "id": "TC-273-rcf-build-verdict-review-writes-only-rcf",
+      "acId": "AC-19701-5",
+      "description": "rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git"
+    },
+    {
+      "id": "TC-273-at-inprogress-the-review-verdict-must",
+      "acId": "AC-19701-6",
+      "description": "at inProgress the review verdict must touch every live criterion of the spec (exit 3 \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\", nothing written); at complete the same command writes (an amend round)",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\", nothing written); at complete the same command writes (an amend round)"
+    }
+  ],
+  "status": "draft"
+}

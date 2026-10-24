@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-24T11:31:47.295Z",
+  "updatedAt": "2026-10-24T15:01:53.421Z",
+  "summary": "A new audit verb: static structural check of bound tests (entry and harness imports only, mocks only at the declared edge and clock, no silent logger, emitter or sender defaults) and the mutation proof (stub-to-throw, no-op, call removal on symbol-level Code Nodes of touched criteria, in a scratch worktree), with --record writing TestStrengthReport v1 beside the TEST verdict.",
+  "approach": "src/audit/test-strength/ with a static import and mock scanner, the silent-default scan over Code Node symbols, a mutant applier (AST-level function body and call-statement rewrites) and a bounded job runner over a scratch git worktree; scope from --acs, the newest REVIEW verdict or --fbs; rcf/test-strength.json loader; rcf audit help.",
+  "deliverables": [
+    "src/audit/test-strength/ and src/cli/test-strength.js: the verb",
+    "docs/code-nodes.md: the mutation proof answers \"Semantic drift is invisible\" (:129)",
+    "Code Nodes for every criterion of this REQ; CHANGELOG lines",
+    "rcf/test-strength.json for this repository (entry [{\"kind\": \"bin\", \"path\": \"bin/rcf.js\"}], harness [\"test/_harness/**\"], suiteCommand \"node --test --test-reporter=tap --test-concurrency=1 'test/**/*.test.js'\" run from packages/rcf-lite; test-author, in this round's DEFINE)"
+  ],
+  "notes": "DEFINE part A, 2026-10-24 (test-author). Depends on the rounds slice for the reviewed head and touched criteria. Flags: US tags (WORKAROUND, ADR ADR-4152).",
+  "dependsOnFbsIds": [
+    "FBS-234"
+  ],
+  "riskLevel": "high",
+  "estimatedSize": "large",
+  "domain": "functional",
+  "acIds": [
+    "AC-19901-1",
+    "AC-19901-2",
+    "AC-19901-3",
+    "AC-19901-4",
+    "AC-19901-5",
+    "AC-19901-6",
+    "AC-19901-7",
+    "AC-19901-8",
+    "AC-19902-1",
+    "AC-19902-2",
+    "AC-19902-3",
+    "AC-19902-4",
+    "AC-19902-5",
+    "AC-19902-6",
+    "AC-19902-7",
+    "AC-19902-8",
+    "AC-19903-1",
+    "AC-19903-2",
+    "AC-19903-3",
+    "AC-19903-4",
+    "AC-19903-5"
+  ],
+  "fbsId": "FBS-236",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 238,
+  "executionStatus": "notStarted",
+  "title": "rcf audit test-strength: structural check and the v1 mutation proof over Code Node symbols of touched criteria"
+}

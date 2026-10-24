@@ -17,12 +17,17 @@ import { applyBlueprint } from '../../src/blueprint/apply.js';
 import { resolveCompanionRole, setCompanionPin } from '../../src/blueprint/companions.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { ensurePackagedShelfStaged } from '../_helpers/packaged-shelf.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const REPO_ROOT = resolve(here, '..', '..', '..', '..');
 const LOGGING_SHELF = join(REPO_ROOT, 'blueprints', 'observability-logging');
 
 test('resolver returns shelf-fallback when only the core shelf provides the role', async () => {
+  // The resolver reads the packaged shelf (packages/rcf-lite/blueprints/),
+  // a generated directory: stage it here instead of relying on another
+  // file having staged it, and never read it mid-stage (packaged-shelf.js).
+  await ensurePackagedShelfStaged();
   const root = await scratchDir('rcf-resolver-shelf-');
   await initProject({ projectRoot: root, projectName: 'shelf' });
   await declareUiNoneForTests(root);

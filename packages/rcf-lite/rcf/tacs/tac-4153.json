@@ -1,0 +1,47 @@
+{
+  "createdAt": "2026-10-24T11:24:53.058Z",
+  "updatedAt": "2026-10-24T14:59:35.364Z",
+  "purpose": "Judges every commit in a range by the stage prefix on its subject (DEFINE:, BUILD:, REVIEW:, TEST:, FINALISE:) against the file classes that stage owns, deriving the role from the stage, so the separation of duties is one marker a reader sees in git log.",
+  "responsibilities": [
+    "parse the strict stage prefix on every commit subject, merges included, and derive the role (DEFINE test-author, BUILD builder, REVIEW reviewer, TEST verifier, FINALISE stage-keeper)",
+    "class every touched path and judge it against the stage's owned classes (neutral applies to DEFINE and BUILD only)",
+    "judge a merge commit by the paths its resolution changed (combined diff), under the merge subject's stage",
+    "accept a FINALISE: declared-generator output only when the commit names the generator in a Generated-By: trailer and rcf/separation.json declares it",
+    "during the transition, read a Hand: trailer only to check it agrees with the derived role; Hand: mixed fails",
+    "read files only through git at commits in the range; never write, never spawn anything but git, never touch the network"
+  ],
+  "interfaces": [
+    {
+      "name": "rcf audit separation",
+      "kind": "cliCommand",
+      "description": "usage: rcf audit separation [--base <ref>] [--head <ref>] [--json]\nRange: walked with --first-parent from HEAD (or --head) to the merge-base with origin/main (or --base), merges included; a commit reachable only through a merge's second parent is never a row, and the merge is judged by its combined diff. Items: each cause of a failing commit is its own item, in check order (stage prefix, Hand: trailer agreement, Hand: mixed, then each touched path in git's path order, a merge's combined-diff paths in their place, then each Generated-By id); a missing or malformed prefix is that commit's only item; commits print in range order and items are joined by \"; \". PASS line: \"separation: PASS <n> commits (base <sha7>, head <sha7>): DEFINE <n>, BUILD <n>, REVIEW <n>, TEST <n>, FINALISE <n>, merges <n>, transition <n>\" (merges and transition also count inside their stage). FAIL line: \"separation: FAIL <k> of <n> commits (base <sha7>, head <sha7>): <item>[; <item>...]\" with items \"<sha7> no stage prefix\", \"<sha7> malformed stage prefix \\\"<first token>\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\", \"<sha7> <STAGE>: touches <path> (class <class>, owned by <STAGE list>)\", \"<sha7> FINALISE: changes package.json beyond its \\\"version\\\" line (class production, owned by BUILD)\", \"<sha7> FINALISE: merge resolution touches <path> (class <class>); a merge that needs a code fix is not committed in FINALISE: record TEST FAIL and merge main in the next round\", \"<sha7> Hand: <value> disagrees with <STAGE>: (role <role>)\", \"<sha7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\", \"<sha7> Generated-By: <id> is not declared in rcf/separation.json\". Exit 0 PASS, 4 FAIL, 2 usage (bad ref \"separation: bad ref <ref>\", shallow \"separation: shallow repository, the history from <ref> is missing (fetch with full depth)\", malformed config \"separation: malformed rcf/separation.json: <detail>\", retired flag \"[error] usage --require-hand is retired; every commit needs a stage prefix\"), 1 \"separation: not a git repository\"."
+    },
+    {
+      "name": "SeparationRow v2",
+      "kind": "recordShape",
+      "description": "fields: sha (40 hex), subject, merge (boolean), stage (DEFINE | BUILD | REVIEW | TEST | FINALISE | null), role (test-author | builder | reviewer | verifier | stage-keeper | null), handTrailer (string | null), classes (array of class names touched), generators (array of Generated-By ids), verdict (pass | fail), reason (string, empty on pass), paths (array; for a merge, the combined-diff paths). --json prints an array with one row per commit in range order."
+    },
+    {
+      "name": "Default path classes and owners",
+      "kind": "recordShape",
+      "description": "fields: criteria (rcf/ except the paths below; DEFINE), rcfTest (test/, tests/, __tests__/, e2e/ directories and *.test.* / *.spec.* files, at any depth, except hygieneTest; DEFINE), hygieneTest (a hygiene/ directory directly under test/, tests/ or __tests__/ at any depth, and *.hygiene.test.* files; BUILD), production (everything else, and rcf/code-nodes/; BUILD), reviewVerdict (rcf/verdicts/<h12>/review.json; REVIEW), testVerdict (rcf/verdicts/<h12>/test.json and test-strength.json; TEST), verifierEvidence (rcf/verify-reports/ except releases/; TEST), releaseEvidence (rcf/verify-reports/releases/; FINALISE), chainStatus (rcf/fbs/; DEFINE and FINALISE), release (CHANGELOG*, RELEASE*, releases/releases.yaml; BUILD and FINALISE), versionField (package.json when its diff touches only the \"version\" line; FINALISE), lockfile (the 0.36.1 lockfile set; DEFINE, BUILD and FINALISE), neutral (rcf/manifest.json, Markdown outside rcf/, .github/; DEFINE and BUILD), generatorOutput (a declared output named by Generated-By:; FINALISE). REVIEW and TEST own only their verdict and evidence classes. Precedence: configured classes from rcf/separation.json first, in the order the file lists them, each glob tried against every path tail, first match wins; then the defaults, every default pattern matching at any depth, in this order: generatorOutput (only when a Generated-By: trailer names a generator declaring the path), rcf/manifest.json (neutral), reviewVerdict, testVerdict, releaseEvidence, verifierEvidence, chainStatus, production for rcf/code-nodes/, criteria (the rest of rcf/), neutral for .github/, lockfile, versionField, release, neutral Markdown outside rcf/, hygieneTest, rcfTest, production (as classifyPath orders its 0.36.x classes today, src/audit/separation.js:103-129)."
+    },
+    {
+      "name": "rcf/separation.json v2",
+      "kind": "fileFormat",
+      "description": "format: JSON, read from the head commit through git. Its classes extend the defaults and take precedence over them (see Default path classes). { \"classes\": { <class>: [glob, ...] }, \"generators\": [ { \"id\": <kebab id>, \"command\": <shell text>, \"outputs\": [glob, ...] (one or more), \"checkedBy\": <repo-relative test file that compares the output with fresh output; must exist at head> } ] }. 0.36.x class names test, criteria, production, verifierEvidence, stageKeeper and neutral are read as rcfTest, criteria, production, verifierEvidence, release and neutral with one \"[warn] separation: class <old> is read as <new>\" line on stderr. The file itself classes criteria. Malformed JSON, an unknown class, a generator without id, command, a non-empty outputs list or checkedBy, or a checkedBy path missing at head: exit 2 naming generators[<i>].<field> or the class."
+    },
+    {
+      "name": "Spawn log seam",
+      "kind": "other",
+      "description": "RCF_SPAWN_LOG=<file>: when set, every child process any rcf verb starts appends one line to <file>, a JSON object {\"command\": <argv[0]>, \"args\": [<argv[1..]>]}; when unset nothing is written. Every criterion that says \"a spawn seam that records child processes\" reads this file (AC-19601-8, AC-19603-8, AC-19701-5, AC-19702-5, AC-20002-5, AC-20103-3, AC-20201-7)."
+    }
+  ],
+  "notes": "Replaces the Hand-trailer judgement of TAC-4149 (src/audit/separation.js:13-24 HANDS and OWNED, :103-129 classifyPath, :143-187 judgeCommit, :264-267 the trailer read, :273-274 merges skipped). Round order (monotonic stages, failed-verdict regression) is the rounds slice, judged by the same verb.",
+  "tacId": "TAC-4153",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "rcf audit separation by stage prefix: per-stage file classes, hygiene tests, declared generators, merges and the transition"
+}

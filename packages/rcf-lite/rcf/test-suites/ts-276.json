@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T16:47:24.673Z",
+  "updatedAt": "2026-10-24T16:47:26.029Z",
+  "purpose": "FBS-235: the external criteria of US-19801, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-235's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19801-1",
+    "AC-19801-2",
+    "AC-19801-3",
+    "AC-19801-4",
+    "AC-19801-5"
+  ],
+  "id": "TS-276",
+  "usId": "US-19801",
+  "title": "US-19801 external criteria (FBS-235)",
+  "testCases": [
+    {
+      "id": "TC-276-with-head-adding-ac-101-2-flagged",
+      "acId": "AC-19801-1",
+      "description": "with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no \"[error]\" line and no verification line for AC-101-2 on stderr",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no \"[error]\" line and no verification line for AC-101-2 on stderr"
+    },
+    {
+      "id": "TC-276-with-head-adding-ac-101-2-with-no",
+      "acId": "AC-19801-2",
+      "description": "with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with \"[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)\"",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with \"[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)\""
+    },
+    {
+      "id": "TC-276-a-head-changing-only-the-then-text-of",
+      "acId": "AC-19801-3",
+      "description": "a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its \"is amended since <base7>\" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its \"is amended since <base7>\" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0"
+    },
+    {
+      "id": "TC-276-outside-git-or-in-git-with-no-origin",
+      "acId": "AC-19801-4",
+      "description": "outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one \"[warn] verification: no base ref; new and amended criteria not checked\" line; --base naming a missing ref exits 2 \"[error] usage --base <ref> does not resolve\"",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-4: outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one \"[warn] verification: no base ref; new and amended criteria not checked\" line; --base naming a missing ref exits 2 \"[error] usage --base <ref> does not resolve\""
+    },
+    {
+      "id": "TC-276-a-retired-criterion-is-never-required-to",
+      "acId": "AC-19801-5",
+      "description": "a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-5: a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding"
+    }
+  ],
+  "status": "draft"
+}

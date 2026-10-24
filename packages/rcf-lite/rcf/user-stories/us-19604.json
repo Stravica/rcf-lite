@@ -1,0 +1,63 @@
+{
+  "createdAt": "2026-10-24T11:25:01.193Z",
+  "updatedAt": "2026-10-24T14:59:34.859Z",
+  "asA": "chain author or stage-keeper on a downstream product upgrading from rcf-lite 0.36.x",
+  "iWant": "commits that carry both the stage prefix and an agreeing Hand: trailer to pass while the trailer retires, and every old escape to fail with the replacement named",
+  "soThat": "in-flight branches keep working through 0.37.x without any commit passing on a trailer alone",
+  "description": "Transition rules, retired escapes and the class override file.",
+  "tacIds": [
+    "TAC-4153"
+  ],
+  "usId": "US-19604",
+  "prdId": "PRD-001",
+  "reqId": "REQ-196",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A chain author on a downstream product moves to the stage prefix through a transition that never loosens a check",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19604-1",
+      "description": "[happy] Given fixture commits \"DEFINE: criteria\" with trailer Hand: test-author touching rcf/user-stories/us-1.json and \"BUILD: code\" with trailers Hand: builder and Hand-Id: b-1 touching src/x.js, when rcf audit separation runs, then it exits 0, the PASS line reads \"DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2\", and each --json row carries handTrailer naming its trailer value.",
+      "testable": true
+    },
+    {
+      "id": "AC-19604-2",
+      "description": "[failure] Given a fixture commit \"BUILD: code\" carrying Hand: test-author and touching src/x.js, when rcf audit separation runs, then it exits 4 with the item \"<s7> Hand: test-author disagrees with BUILD: (role builder)\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19604-3",
+      "description": "[failure] Given fixture commits \"FINALISE: chores\" carrying Hand: mixed with \"Separation-Reason: release regeneration\" and \"BUILD: rename\" carrying Hand: mixed with no Separation-Reason, when rcf audit separation runs, then it exits 4 with the item \"<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\" for each, whatever paths they touch.",
+      "testable": true
+    },
+    {
+      "id": "AC-19604-4",
+      "description": "[failure] When rcf audit separation --require-hand runs in any fixture repository, then it exits 2 with stderr \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout.",
+      "testable": true
+    },
+    {
+      "id": "AC-19604-5",
+      "description": "[happy] Given rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head, a \"BUILD: code\" commit touching spec/a.js fails exit 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\"; given {\"classes\": {\"test\": [\"spec/**\"]}} (a 0.36.x name) the same commit fails the same way and stderr carries \"[warn] separation: class test is read as rcfTest\"; given {\"classes\": {\"bogus\": [\"x/**\"]}} the verb exits 2 with \"separation: malformed rcf/separation.json: unknown class bogus\"; given unparsable JSON it exits 2 naming rcf/separation.json.",
+      "testable": true
+    },
+    {
+      "id": "AC-19604-6",
+      "description": "[must-not] No trailer turns a failing commit into a pass: a \"BUILD: add test\" commit touching test/x.test.js fails with the class item whether it carries no trailer, Hand: test-author or Hand: mixed with a non-empty Separation-Reason; and a commit whose only marker is a Hand: trailer (no prefix) fails \"no stage prefix\" whatever the trailer says.",
+      "testable": true
+    },
+    {
+      "id": "AC-19604-7",
+      "description": "[edge] Given a fixture branch whose first commit is \"BUILD: code\" touching src/x.js followed by \"TEST: evidence\" touching only rcf/verify-reports/FBS-001/a.json, with no verdict file (the range starts after the round's DEFINE), when rcf audit separation runs, then it exits 0 on classes alone with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\".",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19604-1=external",
+    "verification:AC-19604-2=external",
+    "verification:AC-19604-3=external",
+    "verification:AC-19604-4=external",
+    "verification:AC-19604-5=external",
+    "verification:AC-19604-6=external",
+    "verification:AC-19604-7=external"
+  ]
+}

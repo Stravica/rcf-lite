@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-24T11:33:47.541Z",
+  "updatedAt": "2026-10-24T15:02:31.273Z",
+  "asA": "stage-keeper or chain author upgrading from 0.36.x",
+  "iWant": "the old report path and the second writer of complete to refuse with the new contract named",
+  "soThat": "no runbook or habit reintroduces verification inside the build cycle",
+  "description": "Retired flags, the mark refusal and the must-nots.",
+  "tacIds": [
+    "TAC-4156"
+  ],
+  "usId": "US-20003",
+  "prdId": "PRD-001",
+  "reqId": "REQ-200",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Finalise is the only writer of complete, never reads a verify report and never writes verified",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20003-1",
+      "description": "[failure] When rcf build finalise FBS-001 --ci-run run-7 runs with each flag of [--report <path>, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge] in turn, then it exits 2 with stderr \"finalise no longer reads a verify report; Finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts (rcf guidance build-cycle)\", spawns nothing and writes nothing.",
+      "testable": true
+    },
+    {
+      "id": "AC-20003-2",
+      "description": "[must-not] Given the happy fixture plus a committed VerifyReport under rcf/verify-reports/FBS-001/ whose verdict is FAIL (or one that is malformed), when Finalise runs, then it exits 0 with the same output as without the report: Finalise never opens a file under rcf/verify-reports/, and a passing report never stands in for a missing TEST verdict (the TEST-less fixture with a PASS report still exits 4 \"no TEST verdict\").",
+      "testable": true
+    },
+    {
+      "id": "AC-20003-3",
+      "description": "[failure] Given a fixture FBS-001 at inProgress, when rcf build mark FBS-001 complete runs, then it exits 4 with stderr \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" and rcf/fbs/fbs-001.json is byte-identical; rcf build mark FBS-001 inProgress from notStarted still works, and every backward mark (complete to inProgress, inProgress to notStarted) stays refused with exit 4 as today.",
+      "testable": true
+    },
+    {
+      "id": "AC-20003-4",
+      "description": "[edge] Given an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria, Finalise exits 0 with stdout \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write; when any touched criterion is external, it writes complete and stdout is the complete line.",
+      "testable": true
+    },
+    {
+      "id": "AC-20003-5",
+      "description": "[must-not] rcf build finalise never writes executionStatus verified in any mode or flag combination: across every fixture of this requirement, rcf/fbs/<fbs-id>.json never gains verified from a Finalise run.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20003-1=external",
+    "verification:AC-20003-2=external",
+    "verification:AC-20003-3=external",
+    "verification:AC-20003-4=external",
+    "verification:AC-20003-5=external"
+  ]
+}

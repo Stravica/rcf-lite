@@ -1,0 +1,112 @@
+// Shared test harness (GR-40): git fixture helpers. Builds fixture
+// repositories with the system git in the harness environment; imports
+// Node builtins and the harness only.
+
+import { execFileSync } from 'node:child_process';
+import { mkdirSync, rmSync, writeFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+
+import { baseEnv } from './spawn.js';
+
+/** Run git in dir; returns trimmed stdout, throws on a non-zero exit. */
+export function git(dir, ...args) {
+  return execFileSync('git', args, { cwd: dir, env: baseEnv(), encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, stdio: ['ignore', 'pipe', 'pipe'] }).trim();
+}
+
+/** Run git in dir; returns { code, stdout, stderr } without throwing. */
+export function gitTry(dir, ...args) {
+  try {
+    return { code: 0, stdout: execFileSync('git', args, { cwd: dir, env: baseEnv(), encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] }), stderr: '' };
+  } catch (err) {
+    return { code: err.status ?? 1, stdout: err.stdout ?? '', stderr: err.stderr ?? '' };
+  }
+}
+
+/** git init -b main in dir. */
+export function initRepo(dir) {
+  mkdirSync(dir, { recursive: true });
+  git(dir, 'init', '-q', '-b', 'main');
+  return dir;
+}
+
+/**
+ * Write files (path -> string content, or null to delete) and commit them
+ * with the subject and optional body and trailers. Returns the full sha.
+ * trailers: [['Hand', 'builder'], ...] land in the last paragraph.
+ */
+export function commit(dir, subject, files = {}, { trailers = [], body = '', allowEmpty = false } = {}) {
+  for (const [rel, content] of Object.entries(files)) {
+    const abs = join(dir, rel);
+    if (content === null) { rmSync(abs, { force: true }); continue; }
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, typeof content === 'string' ? content : `${JSON.stringify(content, null, 2)}\n`);
+  }
+  git(dir, 'add', '-A');
+  const parts = [subject];
+  if (body) parts.push(body);
+  if (trailers.length) parts.push(trailers.map(([k, v]) => `${k}: ${v}`).join('\n'));
+  const args = ['commit', '-q', '-m', parts.join('\n\n')];
+  if (allowEmpty) args.push('--allow-empty');
+  git(dir, ...args);
+  return git(dir, 'rev-parse', 'HEAD');
+}
+
+/** The full sha of a ref. */
+export function sha(dir, ref = 'HEAD') {
+  return git(dir, 'rev-parse', ref);
+}
+
+/** First 7 and first 12 characters of a sha. */
+export const s7 = (s) => s.slice(0, 7);
+export const s12 = (s) => s.slice(0, 12);
+
+/** git status --porcelain (raw, untrimmed lines kept in order). */
+export function porcelain(dir) {
+  return execFileSync('git', ['status', '--porcelain'], { cwd: dir, env: baseEnv(), encoding: 'utf8' });
+}
+
+/**
+ * Append a linear run of commits on the current branch through one
+ * git fast-import (for large fixture ranges). commits: [{ subject, files:
+ * { path: content } }]. Returns the new HEAD sha.
+ */
+export function fastImport(dir, commits, { branch = 'refs/heads/main' } = {}) {
+  const parent = git(dir, 'rev-parse', 'HEAD');
+  const chunks = [];
+  let t = 1_700_000_000;
+  commits.forEach((c, i) => {
+    const msg = Buffer.from(c.subject + (c.trailers?.length ? `\n\n${c.trailers.map(([k, v]) => `${k}: ${v}`).join('\n')}` : '') + '\n');
+    chunks.push(`commit ${branch}\nmark :${i + 1}\nauthor Fixture <fixture@example.com> ${t} +0000\ncommitter Fixture <fixture@example.com> ${t} +0000\ndata ${msg.length}\n${msg}`);
+    if (i === 0) chunks.push(`from ${parent}\n`);
+    for (const [p, content] of Object.entries(c.files)) {
+      const body = Buffer.from(content);
+      chunks.push(`M 100644 inline ${p}\ndata ${body.length}\n${body}\n`);
+    }
+    chunks.push('\n');
+    t += 60;
+  });
+  execFileSync('git', ['fast-import', '--quiet'], { cwd: dir, env: baseEnv(), input: chunks.join(''), stdio: ['pipe', 'pipe', 'pipe'] });
+  git(dir, 'reset', '-q', '--hard', branch);
+  return git(dir, 'rev-parse', 'HEAD');
+}
+
+/**
+ * The contents of paths at a revision through one git cat-file --batch.
+ * Returns Map(path -> text); a path missing at rev is left out.
+ */
+export function showAt(dir, rev, paths) {
+  if (!paths.length) return new Map();
+  const outBuf = execFileSync('git', ['cat-file', '--batch'], { cwd: dir, env: baseEnv(), input: paths.map((p) => `${rev}:${p}\n`).join(''), maxBuffer: 256 * 1024 * 1024, stdio: ['pipe', 'pipe', 'pipe'] });
+  const files = new Map();
+  let at = 0;
+  for (const p of paths) {
+    const nl = outBuf.indexOf(10, at);
+    const header = outBuf.subarray(at, nl).toString('utf8');
+    at = nl + 1;
+    if (header.endsWith(' missing')) continue;
+    const size = Number(header.split(' ')[2]);
+    files.set(p, outBuf.subarray(at, at + size).toString('utf8'));
+    at += size + 1;
+  }
+  return files;
+}

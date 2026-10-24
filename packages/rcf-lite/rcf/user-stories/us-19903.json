@@ -1,0 +1,51 @@
+{
+  "createdAt": "2026-10-24T11:31:45.453Z",
+  "updatedAt": "2026-10-24T15:01:47.245Z",
+  "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
+  "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
+  "soThat": "Finalise reads test strength for the reviewed head without running anything",
+  "description": "Declaration kinds and --record.",
+  "tacIds": [
+    "TAC-4155"
+  ],
+  "usId": "US-19903",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A chain author on a downstream product declares its entry and harness and the verifier records the result for Finalise",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19903-1",
+      "description": "[happy] Given a fixture branch whose HEAD is a REVIEW: commit adding a MERGE/PASS review.json for H touching AC-101-1, and a passing test-strength run, when rcf audit test-strength --record runs, then it exits 0 and writes rcf/verdicts/<H12>/test-strength.json parsing as TestStrengthReport v1 with head the full sha of H, scope \"reviewVerdict\" and criteria [AC-101-1]; a FAIL run with --record writes the report too (result fail) and exits 4.",
+      "testable": true
+    },
+    {
+      "id": "AC-19903-2",
+      "description": "[failure] Given an uncommitted change to src/x.js, rcf audit test-strength --record exits 4 with stderr \"test-strength: refused: working tree is dirty; a record names a committed head\"; given a \"BUILD:\" commit after H that changed src/x.js, it exits 4 with \"test-strength: refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\"; given no REVIEW verdict reachable from HEAD, with or without --acs or --fbs, it exits 2 with \"test-strength: --record needs a REVIEW verdict reachable from HEAD\"; none writes a file, and a FINALISE: commit inside FINALISE classes after H does not refuse.",
+      "testable": true
+    },
+    {
+      "id": "AC-19903-3",
+      "description": "[happy] Given a fixture Worker-style app whose rcf/test-strength.json declares entry [{\"kind\": \"worker\", \"path\": \"src/index.js\"}], harness [\"test/harness/**\"] and edge [\"undici\"], and a bound test that imports test/harness/worker.js (which imports src/index.js and calls its fetch with an outbound stand-in), when rcf audit test-strength --acs AC-101-1 runs, then the structural check passes; a bound test importing src/routes/pay.js directly fails with \"imports src/routes/pay.js (not the app entry or the harness)\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19903-4",
+      "description": "[edge] Given a fixture library whose rcf/test-strength.json declares entry [{\"kind\": \"module\", \"path\": \"src/index.js\"}] and whose bound test imports the package by its own name (resolved through its exports map to src/index.js), the structural check passes; the same test importing ../src/index.js by relative path also passes (it is the entry), and importing ../src/internal.js fails with the imports finding.",
+      "testable": true
+    },
+    {
+      "id": "AC-19903-5",
+      "description": "[must-not] rcf audit test-strength never deploys, never opens a network connection of its own and never writes outside rcf/verdicts/<H12>/ in the project, with or without --record; a malformed rcf/test-strength.json (unparsable, an entry kind outside bin, module and worker, or an empty harness list) exits 2 naming the field and runs no test.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19903-1=external",
+    "verification:AC-19903-2=external",
+    "verification:AC-19903-3=external",
+    "verification:AC-19903-4=external",
+    "verification:AC-19903-5=external"
+  ]
+}

@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-10-24T11:31:40.895Z",
+  "updatedAt": "2026-10-24T11:51:35.095Z",
+  "description": "A new verb rcf audit test-strength runs, for the criteria a round touches, the structural check (bound tests import only the declared app entry and shared harness; module mocks only at the declared network edge and clock; no silent logger, emitter or sender defaults in the Code Node symbols) and the mutation proof (stub-to-throw, no-op and call removal on each symbol-level Code Node, at least one bound test red per mutant). It prints one verdict line, emits json, and with --record writes TestStrengthReport v1 beside the TEST verdict. A project declares its entry, harness, edge and clock in rcf/test-strength.json.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Redesign change 3 and the test-adequacy section (:59-67, :86); operator answer 09:20Z 2 (three operators, no general mutation testing); Q-07 a (the entry for a CLI or library); D-04 (audit section 5) and F-24. Cause 3 of the redesign (:16): AC tests injected stand-ins production never wired.",
+  "tags": [
+    "capability:verify",
+    "capability:build-sequence"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4155"
+  },
+  "reqId": "REQ-199",
+  "prdId": "PRD-001",
+  "title": "rcf audit test-strength proves each touched criterion's bound tests enter through the app entry and go red against broken Code Node symbols",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:31:40.982Z"
+  }
+}

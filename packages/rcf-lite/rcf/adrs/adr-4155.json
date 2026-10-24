@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:29:06.164Z",
+  "updatedAt": "2026-10-24T11:29:06.164Z",
+  "status": "proposed",
+  "context": "Redesign change 2: rcf define validate requires verification on new and amended criteria and reports criteria that lack it. The operator (09:20Z, open question 1) chose a one-off flag sweep of the downstream product's criteria now, so validate's report must serve as that sweep's worklist. Change 6: coverage shows each criterion's expected end state and where it is now, per criterion and per spec. Validate reads the tree only today (src/cli/validate.js:139-157); coverage is strict by default and exits 4 on any gap (src/cli/coverage.js:144, :194).",
+  "decision": "\"New\" means the criterion id is absent at the base; \"amended\" means its description, given, when or then differs from the same id at the base; the base is --base <ref>, else the merge-base with origin/main, read through git. A live new or amended criterion without verification is an error (exit 3); every other live unflagged criterion is reported, and --report verification prints the worklist one line per criterion with its story and spec, so a sweep is mechanical. With no base resolvable and no --base, the rule is report-only with one warning, and CI passes --base origin/<base ref> on a full-depth checkout so the rule always bites on a pull request. Retired criteria are never required to carry the flag. Coverage derives expectedEnd from the flag (external ends at verified, testOnly at complete, unflagged is unknown) and now from the scoping spec's executionStatus capped at the criterion's expectedEnd; a spec's expectedEnd is verified when any live criterion is external. Coverage exit codes and gap rules do not change: the end state is information, not a new gate.",
+  "consequences": "A pull request that adds or rewrites a criterion cannot merge unflagged. The worklist is the same command on any product. The 0.37.0 release's own criteria move from the interim tags onto the field in this slice's DEFINE round, which needs the pin from the schema slice on main first. Coverage output grows by three fields per criterion row; the coverage goldens move (part B re-records them).",
+  "alternativesConsidered": [
+    {
+      "name": "Require the flag on every live criterion at once",
+      "summary": "Make the field mandatory in validate for the whole tree.",
+      "reasonNotChosen": "Every product with history would fail validate on upgrade; the redesign scopes the requirement to new and amended criteria and the sweep to a worklist."
+    },
+    {
+      "name": "Compare against the last freeze record",
+      "summary": "Use rcf define freeze's record as the base.",
+      "reasonNotChosen": "Trees that never froze (this repository today) would have no base; a git ref works everywhere CI runs."
+    },
+    {
+      "name": "Make end state a coverage gate",
+      "summary": "Exit 4 when a criterion is short of its end state.",
+      "reasonNotChosen": "A complete spec with external criteria is short of verified until a release Verify by design; gating on it would fail every build round."
+    }
+  ],
+  "adrId": "ADR-4155",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Validate requires the verification flag on criteria new or amended since a base ref, reports the rest as a sweep worklist, and coverage derives each end state"
+}

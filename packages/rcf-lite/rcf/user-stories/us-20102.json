@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-10-24T11:35:49.074Z",
+  "updatedAt": "2026-10-24T11:35:50.428Z",
+  "asA": "operator verifying a CLI or library release (rcf-lite itself)",
+  "iWant": "the packed artefact installed as a brand-new consumer would install it",
+  "soThat": "a release passes Verify only if it works with nothing borrowed from the developer's machine",
+  "description": "The cold package target (Q-07 a).",
+  "tacIds": [
+    "TAC-4157"
+  ],
+  "usId": "US-20102",
+  "prdId": "PRD-001",
+  "reqId": "REQ-201",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The operator verifies a CLI or library against its packed artefact installed cold",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20102-1",
+      "description": "[happy] Given a fixture package whose bound e2e test prints process.env.HOME, the npm cache path (npm config get cache run by the test) and whether a variable FIXTURE_LEAK set in the caller's environment is visible, when rcf verify run --release 1.1.0 --since v1.0.0 --package . --record runs, then the test observes a HOME and an npm cache inside the run's scratch directory under the OS temp directory, an empty cache before the install, and no FIXTURE_LEAK, and the report target reads kind \"package\", name, version, sha256 of the tarball and cold true.",
+      "testable": true
+    },
+    {
+      "id": "AC-20102-2",
+      "description": "[failure] Given --offline in release mode, the verb exits 2 with \"[error] usage --offline cannot install cold\"; given both --url and --artefact (or none of --url, --artefact and --package), it exits 2 with \"[error] usage give exactly one target: --url, --artefact or --package\"; given an artefact whose dependency resolves nowhere, it exits 1 naming the install command and writes no report.",
+      "testable": true
+    },
+    {
+      "id": "AC-20102-3",
+      "description": "[edge] Given a user npmrc at the caller's HOME that sets a registry the fixture cannot reach, when the cold release Verify runs, then the install ignores that npmrc and resolves from the default registry configuration, so a developer setting never changes the release result.",
+      "testable": true
+    },
+    {
+      "id": "AC-20102-4",
+      "description": "[must-not] A cold release Verify never writes in the project outside rcf/verify-reports/releases/ and rcf/fbs/ (and only with --record), never leaves a tarball, node_modules change or lockfile change in the project, and removes its scratch directory after the run.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20102-1=external",
+    "verification:AC-20102-2=external",
+    "verification:AC-20102-3=external",
+    "verification:AC-20102-4=external"
+  ]
+}

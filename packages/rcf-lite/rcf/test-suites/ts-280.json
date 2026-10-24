@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-24T16:47:29.977Z",
+  "updatedAt": "2026-10-24T16:47:30.239Z",
+  "purpose": "FBS-235: the testOnly criteria of US-19803, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-19803-5"
+  ],
+  "id": "TS-280",
+  "usId": "US-19803",
+  "title": "US-19803 testOnly criteria (FBS-235)",
+  "testCases": [
+    {
+      "id": "TC-280-over-the-chain-of-this-repository-at-the",
+      "acId": "AC-19803-5",
+      "description": "over the chain of this repository at the slice head, audit coverage --format json finishes within 1.25 times the same command at the parent commit (median of three runs) and each criterion row grows by the three fields only",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json finishes within 1.25 times the same command at the parent commit (median of three runs) and each criterion row grows by the three fields only"
+    }
+  ],
+  "status": "draft"
+}
