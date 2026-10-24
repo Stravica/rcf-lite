@@ -13,6 +13,7 @@ import { promisify } from 'node:util';
 
 import { initProject } from '#core/store';
 import { scratchDir } from '../_helpers/scratch.js';
+import { ensurePackagedShelfStaged as stagePackagedShelf } from '../_helpers/packaged-shelf.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -561,17 +562,10 @@ test('conflict enrichment is symmetric: incoming side carries title + decision r
 // Ensure the packaged shelf is staged inside `packages/rcf-lite/blueprints/`
 // before running the bare-slug regression - CI checks out the shelf at the
 // repo root only; the packaged copy is produced by `scripts/stage-blueprint-shelf.mjs`
-// (also fired by `prepack`). Idempotent: staging a second time is a fast
-// wipe-and-recopy.
+// (also fired by `prepack`). The shared helper stages it atomically, so a
+// concurrent reader in another file never sees a partial shelf.
 async function ensurePackagedShelfStaged() {
-  const packageRoot = resolve(here, '..', '..');
-  const shelfDir = join(packageRoot, 'blueprints');
-  const stageScript = join(packageRoot, 'scripts', 'stage-blueprint-shelf.mjs');
-  const { readdir } = await import('node:fs/promises');
-  const entries = await readdir(shelfDir, { withFileTypes: true }).catch(() => []);
-  const populated = entries.filter((e) => e.isDirectory()).length > 0;
-  if (populated) return;
-  await exec(process.execPath, [stageScript], { cwd: packageRoot, encoding: 'utf8' });
+  await stagePackagedShelf();
 }
 
 test('rcf define blueprint add <bare-shelf-slug> records the RESOLVED ABSOLUTE PATH on the manifest source (F1 regression)', async () => {
