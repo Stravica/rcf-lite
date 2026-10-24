@@ -1,10 +1,11 @@
 {
   "createdAt": "2026-10-24T16:47:30.505Z",
-  "updatedAt": "2026-10-24T16:47:31.027Z",
+  "updatedAt": "2026-10-24T17:23:11.205Z",
   "purpose": "FBS-235: the testOnly criteria of US-19804, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
   "testLevel": "integration",
   "acIds": [
     "AC-19804-1",
+    "AC-19804-2",
     "AC-19804-3"
   ],
   "id": "TS-281",
@@ -24,6 +25,13 @@
       "description": "a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag",
       "status": "pending",
       "testPointer": "test/define/verification-end-state.test.js::AC-19804-3: a 0.37.0 criterion left without the field after the move makes node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> exit 3, naming it as new since the base with no verification flag"
+    },
+    {
+      "id": "TC-281-for-every-criterion-the-move-commit",
+      "acId": "AC-19804-2",
+      "description": "for every criterion the move commit moved, its description, given, when, then, testable and supersession fields are byte-identical at the move commit and at its parent",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19804-2: for every criterion the move commit moved, its description, given, when, then, testable and supersession fields are byte-identical at the move commit and at its parent"
     }
   ],
   "status": "draft"

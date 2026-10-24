@@ -1,10 +1,12 @@
 {
   "createdAt": "2026-10-24T16:22:20.592Z",
-  "updatedAt": "2026-10-24T16:22:20.850Z",
+  "updatedAt": "2026-10-24T17:23:03.028Z",
   "purpose": "FBS-232: the testOnly criteria of US-19501, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
   "testLevel": "integration",
   "acIds": [
-    "AC-19501-6"
+    "AC-19501-5",
+    "AC-19501-6",
+    "AC-19501-7"
   ],
   "id": "TS-267",
   "usId": "US-19501",
@@ -16,6 +18,20 @@
       "description": "the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly [\"external\", \"testOnly\"], not required, with additionalProperties still false",
       "status": "pending",
       "testPointer": "test/define/verification-field.test.js::AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly [\"external\", \"testOnly\"], not required, with additionalProperties still false"
+    },
+    {
+      "id": "TC-267-the-rcf-schemas-pin-names-the-release",
+      "acId": "AC-19501-5",
+      "description": "the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as in a worktree at the parent of the pin-move commit",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as in a worktree at the parent of the pin-move commit"
+    },
+    {
+      "id": "TC-267-define-validate-over-the-own-chain-at",
+      "acId": "AC-19501-7",
+      "description": "define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1",
+      "status": "pending",
+      "testPointer": "test/define/verification-field.test.js::AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1"
     }
   ],
   "status": "draft"

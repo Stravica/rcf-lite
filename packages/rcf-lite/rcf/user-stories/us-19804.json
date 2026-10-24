@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:12.049Z",
-  "updatedAt": "2026-10-24T11:31:39.865Z",
+  "updatedAt": "2026-10-24T17:21:09.026Z",
   "asA": "test-author in this slice's DEFINE round",
   "iWant": "every 0.37.0 criterion's flag moved from its interim user-story tag onto the verification field",
   "soThat": "the WORKAROUND recorded at DEFINE ends inside the release that created it",
@@ -22,7 +22,7 @@
     },
     {
       "id": "AC-19804-2",
-      "description": "[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move, and the move is made through rcf define update only.",
+      "description": "[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move.",
       "testable": true
     },
     {

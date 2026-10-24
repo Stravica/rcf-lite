@@ -1,12 +1,15 @@
 // FBS-232 (US-19501, US-19502): the rcf-schemas verification field
 // (external | testOnly) and the rcf-lite pin move.
 //
-// Criteria: 9 in the slice; 7 tested here, 4 external (AC-19501-1 to
-// AC-19501-4) and 3 testOnly (AC-19501-6, AC-19502-1, AC-19502-2).
-// AC-19501-5 and AC-19501-7 are not written: each compares this
-// repository's state "before the pin move" (git history the required CI
-// test job, a depth-1 checkout, does not have), returned as a question to
-// the stage-keeper and left unbound so the gap stays visible.
+// Criteria: 9 in the slice, all tested here: 4 external (AC-19501-1 to
+// AC-19501-4) and 5 testOnly (AC-19501-5 to AC-19501-7, AC-19502-1,
+// AC-19502-2). AC-19501-5 and AC-19501-7 compare this repository with its
+// state before the pin move, read from a temporary worktree at the parent
+// of the pin-move commit (the stage-keeper's rulings 1 and 2 on part B1's
+// stops), so they need a full-depth checkout (ruling 1 sets fetch-depth 0
+// on the CI test job); a shallow clone fails them. AC-19501-7 is
+// measured only with RCF_PERF=1 (at TEST, by the verifier) and is skipped
+// otherwise, since timing ratios on shared CI hosts are noise.
 //
 // Every test is a node:test todo case ("FBS-232 round DEFINE", GR-35): it
 // runs and is red until FBS-232's round DEFINE drops the marker and BUILD
@@ -23,8 +26,10 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 import yaml from 'js-yaml';
 
-import { BIN, rcf } from '../_harness/spawn.js';
+import { BIN, rcf, run } from '../_harness/spawn.js';
 import { checkoutPackage, checkoutRoot, project, readJson, readText, scratch, writeJson } from '../_harness/fixture.js';
+import { git, gitTry } from '../_harness/git.js';
+import { hostFacts, json, median } from '../_harness/capture.js';
 
 const TODO = { todo: 'FBS-232 round DEFINE' };
 
@@ -104,6 +109,84 @@ test('AC-19501-4: after the pin move rcf define validate over a fixture whose cr
   assert.equal(v.code, 0, `${v.stdout}${v.stderr}`);
   const out = `${v.stdout}\n${v.stderr}`;
   assert.equal(out.split('\n').filter((l) => l.includes('[error]') && l.includes('verification')).length, 0, 'no "[error]" line names verification');
+});
+
+// "Before the pin move" (the stage-keeper's ruling 1 on part B1's stops):
+// the pin-move commit is the newest first-parent commit that changes the
+// @stravica-ai/rcf-schemas dependency in packages/rcf-lite/package.json,
+// and the state before it is a temporary worktree at its first parent with
+// that tree's own dependencies installed. A shallow clone fails, never skips.
+const PKG_JSON = 'packages/rcf-lite/package.json';
+const PIN = '@stravica-ai/rcf-schemas';
+const PERF = process.env.RCF_PERF === '1';
+
+function pinAt(root, rev) {
+  const r = gitTry(root, 'show', `${rev}:${PKG_JSON}`);
+  return r.code === 0 ? (JSON.parse(r.stdout).dependencies?.[PIN] ?? null) : null;
+}
+function pinMoveCommit(root) {
+  assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the history before the pin move is not there (the CI test job checks out with fetch-depth 0)');
+  const candidates = git(root, 'log', '--first-parent', '--format=%H', 'HEAD', '--', PKG_JSON).split('\n').filter(Boolean);
+  const move = candidates.find((c) => pinAt(root, c) !== pinAt(root, `${c}^1`));
+  assert.ok(move, `a first-parent commit changes the ${PIN} dependency in ${PKG_JSON}`);
+  return move;
+}
+function worktreeAt(t, root, rev) {
+  const dir = join(scratch(t, 'rcf-h-pinwt-'), 'wt');
+  git(root, 'worktree', 'add', '--detach', '--quiet', dir, rev);
+  t.after(() => { gitTry(root, 'worktree', 'remove', '--force', dir); gitTry(root, 'worktree', 'prune'); });
+  const inst = run('pnpm', ['install', '--frozen-lockfile', '--prefer-offline', '--ignore-scripts'], { cwd: dir, env: { PATH: process.env.PATH } });
+  assert.equal(inst.code, 0, `pnpm install in the worktree at ${rev}\n${inst.stdout.slice(-1000)}${inst.stderr.slice(-1000)}`);
+  return join(dir, 'packages', 'rcf-lite');
+}
+function assertPinIsVerificationRelease() {
+  const pin = JSON.parse(readFileSync(join(checkoutPackage(), 'package.json'), 'utf8')).dependencies[PIN];
+  const schema = JSON.parse(readFileSync(join(checkoutPackage(), 'node_modules', '@stravica-ai', 'rcf-schemas', 'schemas', 'user-story.schema.json'), 'utf8'));
+  assert.ok(schema.$defs.acceptanceCriterion.properties.verification, `the pin ${pin} names the rcf-schemas release carrying verification`);
+}
+async function coverageGaps(cwd, bin) {
+  const r = await rcf(['audit', 'coverage', '--strict', '--format', 'json'], { cwd, bin });
+  const doc = json(r.stdout);
+  return { code: r.code, gaps: doc.requirements.flatMap((q) => q.acs.filter((a) => !a.covered).map((a) => a.id)).sort() };
+}
+
+test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as in a worktree at the parent of the pin-move commit', TODO, async (t) => {
+  assertPinIsVerificationRelease();
+  const root = checkoutRoot();
+  const pkg = checkoutPackage();
+  const v = await rcf(['define', 'validate'], { cwd: pkg });
+  assert.equal(v.code, 0, `define validate over the own chain exits 0\n${v.stdout.slice(-1500)}${v.stderr.slice(-1500)}`);
+  const move = pinMoveCommit(root);
+  const before = worktreeAt(t, root, `${move}^1`);
+  const was = await coverageGaps(before, join(before, 'bin', 'rcf.js'));
+  const now = await coverageGaps(pkg, BIN);
+  assert.equal(now.code, was.code, `audit coverage --strict exits ${now.code} at HEAD and ${was.code} before the pin move`);
+  assert.deepEqual(now.gaps, was.gaps, 'the same gap list as before the pin move');
+});
+
+test('AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1', { todo: 'FBS-232 round DEFINE', skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
+  hostFacts(t);
+  const root = checkoutRoot();
+  const pkg = checkoutPackage();
+  const dir = join(pkg, 'rcf', 'user-stories');
+  const stories = readdirSync(dir).filter((f) => f.endsWith('.json')).map((f) => JSON.parse(readFileSync(join(dir, f), 'utf8')));
+  const criteria = stories.reduce((n, s) => n + (s.acceptanceCriteria ?? []).length, 0);
+  assert.ok(stories.length >= 234 && criteria >= 827, `given: 827 or more criteria across 234 or more user stories (${criteria} across ${stories.length})`);
+  const move = pinMoveCommit(root);
+  const before = worktreeAt(t, root, `${move}^1`);
+  const beforeMs = [];
+  const afterMs = [];
+  for (let i = 0; i < 3; i++) {
+    const b = await rcf(['define', 'validate'], { cwd: before, bin: join(before, 'bin', 'rcf.js') });
+    assert.equal(b.code, 0, `before the pin move: define validate exits 0\n${b.stderr.slice(-1000)}`);
+    beforeMs.push(b.ms);
+    const a = await rcf(['define', 'validate'], { cwd: pkg });
+    assert.equal(a.code, 0, `after the pin move: define validate exits 0\n${a.stderr.slice(-1000)}`);
+    afterMs.push(a.ms);
+  }
+  const ratio = median(afterMs) / median(beforeMs);
+  t.diagnostic(`median after ${Math.round(median(afterMs))} ms, median before ${Math.round(median(beforeMs))} ms, ratio ${ratio.toFixed(2)}`);
+  assert.ok(ratio <= 1.25, `the run after takes at most 1.25 times the run before (ratio ${ratio.toFixed(2)})`);
 });
 
 test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly ["external", "testOnly"], not required, with additionalProperties still false', TODO, () => {

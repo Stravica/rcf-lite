@@ -2552,6 +2552,56 @@
       "answer": "a. The stage-keeper, 2026-10-24: \"(a) The test-author, in each slice's round DEFINE.\" Reason: \"They declare what the gates check, which is criteria-class work.\"",
       "answeredAt": "2026-10-24T15:58:08.673Z",
       "resolvedAt": "2026-10-24T15:58:08.673Z"
+    },
+    {
+      "id": 118,
+      "question": "(rcf-lite 0.37.0 DEFINE) How is AC-19501-7 (define validate after the pin move within 1.25 times the run before it, median of three) observed, when the depth-1 CI test checkout has no history before the pin move and timing ratios on shared CI hosts are noise? Source: stage-keeper ruling 2, 2026-10-24, on part B1 at dfee49b2.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FBS-232 also sets fetch-depth 0 on the test job and the test compares HEAD with the commit before the pin move"
+        },
+        {
+          "letter": "b",
+          "text": "the comparison becomes the verifier's Test-stage evidence, reworded"
+        },
+        {
+          "letter": "c",
+          "text": "the timing ratio is the verifier's, and the pre-move gap list a golden recorded in FBS-232's round DEFINE"
+        },
+        {
+          "letter": "d",
+          "text": "the bound test compares HEAD with a temporary worktree at the parent of the pin-move commit, runs only with RCF_PERF=1 and is skipped otherwise; the verifier runs it at the Test stage"
+        }
+      ],
+      "default": "d",
+      "blocks": "FBS-232",
+      "addedAt": "2026-10-24T17:21:36.812Z",
+      "status": "resolved",
+      "answer": "d. The stage-keeper, 2026-10-24: \"The bound test measures exactly as the criterion says, using the same parent-worktree method, but only when RCF_PERF=1 is set. Otherwise it is skipped with the reason 'measured at TEST by the verifier (RCF_PERF=1)', because timing ratios in shared CI are noise. FBS-232's Test-stage brief runs it with RCF_PERF=1 on the platform and records the ratio. Reword the criterion's Given to say the measurement runs at the Test stage on the verifier's host.\" AC-19501-5 takes reading (a) under ruling 1, which also sets fetch-depth 0 on the CI test job.",
+      "answeredAt": "2026-10-24T17:24:39.862Z",
+      "resolvedAt": "2026-10-24T17:24:39.862Z"
+    },
+    {
+      "id": 119,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-19804-2 ends \"and the move is made through rcf define update only\", which names how a commit was made and which no test can observe in the tree or its history: how is that clause handled? Source: stage-keeper ruling 3, 2026-10-24, on part B1 at dfee49b2.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the clause leaves the criterion as a process rule, and the test asserts the byte-identical fields only"
+        },
+        {
+          "letter": "b",
+          "text": "it is restated as: every story file the move commit changes equals what rcf define update writes when replayed over the parent's tree, updatedAt aside"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T17:21:36.899Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"Drop that clause from the criterion. It is a process rule for the hand doing the sweep, and it belongs in the sweep round's brief, not in a criterion. The byte-identical part stays and is tested.\" The clause's new home is the brief of the sweep round, FBS-235's round, which moves every interim tag onto the field (US-19804).",
+      "answeredAt": "2026-10-24T17:21:45.330Z",
+      "resolvedAt": "2026-10-24T17:21:45.330Z"
     }
   ]
 }

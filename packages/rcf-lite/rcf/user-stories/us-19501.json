@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:40.250Z",
-  "updatedAt": "2026-10-24T11:21:42.338Z",
+  "updatedAt": "2026-10-24T17:21:08.499Z",
   "asA": "test-author writing criteria at DEFINE on a product built with rcf-lite",
   "iWant": "to set verification external or testOnly on each criterion through rcf define create ac and rcf define update",
   "soThat": "the flag is a validated field that Review, coverage and Verify read, not a convention in prose",
@@ -47,7 +47,7 @@
     },
     {
       "id": "AC-19501-7",
-      "description": "[non-functional] Given this repository's own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.",
+      "description": "[non-functional] Given this repository's own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), measured at the Test stage on the verifier's host, when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.",
       "testable": true
     }
   ],

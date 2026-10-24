@@ -3,12 +3,11 @@
 // criterion's and each spec's expected and current end state; the 0.37.0
 // interim flag tags move onto the field.
 //
-// Criteria: 20; 15 external, 5 testOnly. Tested here: 19 (15 external,
-// 4 testOnly: AC-19801-6, AC-19803-5, AC-19804-1, AC-19804-3).
-// AC-19804-2 is not written: its "the move is made through rcf define
-// update only" names how a commit was made, which no test can observe in
-// the tree or its history; it is returned as a question in this slice's
-// DEFINE commit and left unbound.
+// Criteria: 20; 15 external, 5 testOnly, all tested here (testOnly:
+// AC-19801-6, AC-19803-5, AC-19804-1 to AC-19804-3). AC-19804-2 asserts
+// the byte-identical fields only: the stage-keeper's ruling 3 on part
+// B1's stops dropped its "made through rcf define update only" clause, a
+// process rule that now lives in the sweep round's brief.
 //
 // Every test is a node:test todo case ("FBS-235 round DEFINE", GR-35): it
 // runs and is red until FBS-235's round DEFINE drops the marker and BUILD
@@ -448,6 +447,37 @@ test('AC-19804-1: at the slice head no user story tag starts "verification:", ev
   assert.deepEqual(wrong, [], 'every tagged criterion carries its flag on the field');
   const v = await rcf(['define', 'validate'], { cwd: pkg });
   assert.equal(v.code, 0, `${v.stdout.slice(-2000)}${v.stderr.slice(-2000)}`);
+});
+
+// Criterion text fields compared across the move (US-19804, AC-19804-2).
+const TEXT_FIELDS = ['description', 'given', 'when', 'then', 'testable', 'supersededBy', 'supersededOn', 'supersessionNote'];
+
+test('AC-19804-2: for every criterion the move commit moved, its description, given, when, then, testable and supersession fields are byte-identical at the move commit and at its parent', TODO, () => {
+  const root = checkoutRoot();
+  // The move commit, found as AC-19804-1 finds it.
+  const move = git(root, 'log', '-1', '--format=%H', '-S', TAG, 'HEAD', '--', STORIES);
+  assert.match(move, /^[0-9a-f]{40}$/, 'the move commit is in the history (full-depth checkout)');
+  const paths = gitTry(root, 'grep', '-l', '-F', '-e', TAG, `${move}^`, '--', STORIES).stdout.split('\n').filter(Boolean).map((l) => l.slice(l.indexOf(':') + 1));
+  const before = showAt(root, `${move}^`, paths);
+  const after = showAt(root, move, paths);
+  let moved = 0;
+  const changed = [];
+  for (const p of paths) {
+    const was = JSON.parse(before.get(p));
+    const tagged = new Set((was.tags ?? []).map((x) => /^verification:(AC-\d+-\d+)=(external|testOnly)$/.exec(x)?.[1]).filter(Boolean));
+    const now = new Map((after.has(p) ? JSON.parse(after.get(p)).acceptanceCriteria ?? [] : []).map((a) => [a.id, a]));
+    for (const ac of was.acceptanceCriteria ?? []) {
+      if (!tagged.has(ac.id)) continue;
+      moved += 1;
+      const next = now.get(ac.id);
+      if (!next) { changed.push(`${ac.id}: not in ${p} at the move commit`); continue; }
+      for (const field of TEXT_FIELDS) {
+        if (JSON.stringify(next[field]) !== JSON.stringify(ac[field])) changed.push(`${ac.id}.${field}`);
+      }
+    }
+  }
+  assert.ok(moved > 0, 'the parent of the move commit carried interim tags');
+  assert.deepEqual(changed, [], 'moving the flags changes no criterion text');
 });
 
 // git merge-base of the 0.37.0 DEFINE branch with main: 0.36.1 on main.
