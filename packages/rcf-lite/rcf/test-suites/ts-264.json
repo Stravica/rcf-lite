@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-23T10:49:20.402Z",
-  "updatedAt": "2026-10-23T23:30:53.211Z",
+  "updatedAt": "2026-10-24T01:10:32.946Z",
   "purpose": "One integration test for AC-16103-4 driving rcf feedback add and rcf feedback list through bin/rcf.js in a real git repository with a linked worktree.",
   "testLevel": "integration",
   "acIds": [
@@ -303,6 +303,48 @@
       "description": "as TC-264-unparsed-hold-named-path-age: 30 seconds after the file's mtime rcf feedback add exits 1 and writes nothing; 120 seconds after it rcf feedback add exits 0, its entry is listed once pending, and one more worktree command completes the move with each id once",
       "status": "passing",
       "testPointer": "test/feedback/feedback-store-lock-break.test.js::AC-16103-4 guard: a hold whose file cannot be parsed is judged by the age of its file: 30 seconds old it holds a writer up (exit 1, nothing written), more than 60 seconds old it is stale and the writer proceeds"
+    },
+    {
+      "id": "TC-264-live-claim-never-passed",
+      "acId": "AC-16103-4",
+      "description": "a worktree move held inside the move is stopped (SIGKILL); a Stop hook in the main checkout judges its hold stopped and is held inside its claim just before it breaks it; a second Stop hook with its clock 120 seconds ahead starts and is held where it waits or before its ledger write; the first is let go and runs to its end, then the second; each exits 2, each one's ask record is in the main checkout's state.json exactly once, every held bundle, entries line and ask record lands exactly once after one more worktree command, and the first never takes the store while the second is inside its own read and write",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-fence.test.js::AC-16103-4: a Stop hook still running on this host that is taking over a stopped move's hold is never set aside, however old its claim looks by a later command's clock: the later Stop hook waits, exactly one command holds the main checkout store at any instant, and each hook's ask record lands exactly once"
+    },
+    {
+      "id": "TC-264-lost-hold-writes-nothing",
+      "acId": "AC-16103-4",
+      "description": "twice (probe g9 L11, and a holder held past the stale window): a Stop hook in the main checkout takes the store and is held just after it reads its ask ledger; a second Stop hook whose clock is 120 seconds ahead (in the second case the first one's clock also moves on 120 seconds) runs to its end; the first is let go; then each first hook runs once more for its session; every hook's ask record is in the main checkout's state.json exactly once, each later hook exits 2, each set-aside hook exits 1 with stderr naming the path of its hold",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-fence.test.js::AC-16103-4: a Stop hook that holds the main checkout store and is judged stopped by a later Stop hook (its clock behind the later one, the probe g9 L11 shape, or held past the stale window) never writes over the later hook's write: it exits 1 naming the hold it lost, and both hooks' ask records are kept"
+    },
+    {
+      "id": "TC-264-held-filing-moves-once",
+      "acId": "AC-16103-4",
+      "description": "a main checkout whose .gitignore does not cover .rcf/feedback/ yet and a worktree holding one pending entry; a Stop hook in the worktree holds its store; rcf feedback submit --yes there files the entry through the gh double and, its wait shortened, exits 1 naming the issue and the entry; the main checkout's .gitignore gains .rcf/feedback/, rcf feedback list --all --json runs in the worktree, then rcf feedback submit --yes runs in the main checkout and in the worktree; the entry is filed exactly once, each submit exits 0, no held file is left under the worktree's .rcf/feedback/, the entry is listed once submitted, git worktree remove (no --force) succeeds and git status lists nothing under .rcf/feedback/",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-fence.test.js::AC-16103-4: a filing that rcf feedback submit in a worktree could not record (the main checkout did not ignore the store yet) moves into the main checkout store with the held queue exactly once, and the next submit in either checkout does not file that entry again"
+    },
+    {
+      "id": "TC-264-busy-after-filing-names-it",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback submit --yes in the main checkout files the first entry through the gh double, records it, and is held before it takes the store again for the second entry's outbox bundle (the double fails that entry's create twice); a worktree move then holds the store and submit, its wait shortened, is let go; it never says it wrote nothing, and if it exits 1 its stderr names the filed entry's id and the issue's URL; the next submit files that entry no more and every id is listed once",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-fence.test.js::AC-16103-4: rcf feedback submit that has filed and recorded an issue and then finds the main checkout store busy for a later write of the same run (its outbox bundle) exits 1 naming the entry and the issue it filed, never saying it wrote nothing"
+    },
+    {
+      "id": "TC-264-dry-run-skips-kept-filing",
+      "acId": "AC-16103-4",
+      "description": "rcf feedback submit --yes in the main checkout files the first entry while a worktree move holds the store past its shortened wait (exit 1, the filing kept, not recorded); the move is let go; rcf feedback submit --dry-run --yes lists that entry among none it would file, comment on or bundle and writes nothing under the main checkout's .rcf/feedback/; the next submit files that entry no more and every id is listed once, the main checkout's entries submitted",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-fence.test.js::AC-16103-4: rcf feedback submit --dry-run does not list an entry an earlier submit filed but could not record among those it would file, comment on or bundle, and writes nothing"
+    },
+    {
+      "id": "TC-264-dead-claim-removed",
+      "acId": "AC-16103-4",
+      "description": "a worktree move held inside the move is stopped (SIGKILL); a Stop hook in the main checkout judges its hold stopped, takes its claim and is stopped (SIGKILL) just before it breaks it; the next Stop hook exits 2, the claim the stopped hook left is gone from the main checkout's store, its ask record is in state.json exactly once, and every held bundle, entries line and ask record lands exactly once after one more worktree command",
+      "status": "failing",
+      "testPointer": "test/feedback/feedback-store-fence.test.js::AC-16103-4: a Stop hook that stopped while it was taking over a stopped move's hold leaves no claim behind: the next command passes it, removes the claim it left and proceeds, and each held bundle, entry line and ask record lands exactly once"
     }
   ],
   "status": "draft"

@@ -149,7 +149,7 @@ test("AC-16103-4: a Stop hook still running on this host that is taking over a s
     'exactly one command holds the main checkout store at any instant: the first Stop hook never takes the store while the later one, which set its running claim aside, is held inside its own read and write');
 });
 
-test('AC-16103-4: a Stop hook that holds the main checkout store and is judged stopped by a later Stop hook (its clock behind the later one, the probe g9 L11 shape, or held past the stale window) never writes over the later hook\'s write: it exits 1 naming the hold it lost, and both hooks\' ask records are kept', async (t) => {
+test("AC-16103-4: a Stop hook that holds the main checkout store and is judged stopped by a later Stop hook (its clock behind the later one, the probe g9 L11 shape, or held past the stale window) never writes over the later hook's write: it exits 1 naming the hold it lost, and both hooks' ask records are kept", async (t) => {
   const w = await heldWorld('rcf-fbs231-fence-lost-hold-', { shape: 'both', clock: wholeSecond() });
   const shapes = [
     { name: 'its clock 120 seconds behind the later hook (probe g9 L11)', jump: false },

@@ -1874,6 +1874,27 @@
       "answer": "a. The stage-keeper's round 7 ruling (decisions 84, 85 and 86 stay as recorded). Pinned in test/feedback/feedback-store-lock-break.test.js and bound in TS-264: three breakers of one stopped move's hold (TC-264-stale-hold-three-breakers-once), a reader during appendEntry and appendState (TC-264-reader-during-add-whole-lines, TC-264-reader-during-discard-whole-lines), submit after a filed issue on a busy store (TC-264-submit-filed-waits-records, TC-264-submit-filed-breaks-hung-move, TC-264-submit-filed-busy-names-issue), an opted-out Stop hook (TC-264-opted-out-stop-never-waits) and a hold that cannot be parsed (TC-264-unparsed-hold-named-path-age, TC-264-unparsed-hold-judged-by-age). AC-16103-4 amended in place (five sentences and variant 12).",
       "answeredAt": "2026-10-23T23:30:50.671Z",
       "resolvedAt": "2026-10-23T23:30:50.671Z"
+    },
+    {
+      "id": 88,
+      "question": "(FBS-231 round 8 Define, on top of decisions 84 to 87) The round 7 gate returned FINDINGS at c9098c1f with AC-16103-4 partial by Codex and met by the reviewer: Codex 1 (a claimant still running whose claim is more than 60 seconds old by a later command's clock is passed, so two commands replace the lock), Codex 2 (a holder that lost its lock while stopped or behind another command's clock keeps writing: the reviewer's probe g9 L11, one clock 120 seconds ahead, lost an ask record), Codex 3 (a kept filing in a worktree's own held store does not move with the held queue, so a later submit can file that entry again), Codex 4 (a busy exit after submit has filed and recorded an issue still says it wrote nothing), Codex 5 (the CHANGELOG line is untrue while these stand) and Codex 6 (AC-16103-4 claims kept while it is partial); the reviewer's P3 notes that submit --dry-run lists an entry already filed and that a dead claimant's claim stays. The owner questions, quoted: 'Fix Codex 1 to 4 now or batch as P3? Fence a holder that lost its lock?'",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The stage-keeper's ruling: fix them in round 8, the last round on FBS-231's store corners (round cap: anything a later gate finds that loses no record in normal use goes to a follow-up item, not round 9). (1) A claim whose claimant process is alive on this host is never passed, whatever its age; age passes a claim only when the process cannot be checked (another host, say). (2) Fencing: a holder re-reads its lock token immediately before every rename or replace it makes under the lock, and if the lock is no longer its own it writes nothing more and exits 1 naming the lost lock, so a holder paused past the stale window, or with its clock behind, can never overwrite a later holder's write. (3) A kept filing (filed/ receipt) in a worktree's held store moves to the main store with the held queue, exactly once, so the next submit in either checkout never files that entry again. (4) Every busy exit after submit has filed or recorded anything names what it filed or recorded and never says it wrote nothing. (5) submit --dry-run does not list an entry a kept filing shows as filed. (6) A dead claimant's claim file is removed when it is passed."
+        },
+        {
+          "letter": "b",
+          "text": "Batch Codex 1 to 4 and the reviewer notes as P3: release round 7 as it stands and note them for a follow-up item."
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-231",
+      "addedAt": "2026-10-24T01:10:22.785Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper's round 8 ruling, the last round on FBS-231's store corners (decisions 84 to 87 stay as recorded). Pinned in test/feedback/feedback-store-fence.test.js and bound in TS-264: a live claimant never passed by age (TC-264-live-claim-never-passed), a holder judged stopped writes nothing more (TC-264-lost-hold-writes-nothing, probe g9 L11 and a holder held past the stale window), a worktree's kept filing moves once (TC-264-held-filing-moves-once), a busy exit after a filing names it (TC-264-busy-after-filing-names-it), the dry run skips a kept filing (TC-264-dry-run-skips-kept-filing) and a dead claimant's claim removed (TC-264-dead-claim-removed). AC-16103-4 amended in place (five sentences and variant 13).",
+      "answeredAt": "2026-10-24T01:10:31.014Z",
+      "resolvedAt": "2026-10-24T01:10:31.014Z"
     }
   ]
 }
