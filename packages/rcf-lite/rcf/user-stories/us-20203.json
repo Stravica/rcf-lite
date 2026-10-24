@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-10-24T11:37:26.723Z",
+  "updatedAt": "2026-10-24T11:37:28.084Z",
+  "asA": "chain author or stage-keeper on a product that used the 0.36.x verified backstop",
+  "iWant": "backstop.json, backstop adopt and --allow-unverified to refuse or warn with the new backstop named",
+  "soThat": "no runbook keeps waiting on verified to start a Build",
+  "description": "Retirement of the verified backstop.",
+  "tacIds": [
+    "TAC-4158"
+  ],
+  "usId": "US-20203",
+  "prdId": "PRD-001",
+  "reqId": "REQ-202",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A chain author upgrading from 0.36.x sees the verified backstop's pieces retire with their replacement named",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20203-1",
+      "description": "[edge] Given a fixture tree carrying rcf/define/backstop.json with fromBuildOrder 1 and a complete-not-verified FBS above it, and a green base-suite record, rcf build bundle --next --base-suite <file> exits 0, emits the bundle, and stderr carries exactly one line \"[warn] backstop: rcf/define/backstop.json is retired in 0.37.0 and ignored; the backstop is the base suite\".",
+      "testable": true
+    },
+    {
+      "id": "AC-20203-2",
+      "description": "[failure] When rcf build backstop adopt --from FBS-001 runs, it exits 2 with stderr \"[error] usage backstop adopt is retired in 0.37.0; the backstop is the base suite (rcf build base-suite)\" and writes no file.",
+      "testable": true
+    },
+    {
+      "id": "AC-20203-3",
+      "description": "[failure] When rcf build bundle --next --allow-unverified \"hotfix\" --base-suite <file> runs, it exits 2 with stderr \"[error] usage --allow-unverified is retired in 0.37.0; no override lets a Build start on a red base\" and emits no bundle.",
+      "testable": true
+    },
+    {
+      "id": "AC-20203-4",
+      "description": "[must-not] No 0.37.0 command writes or reads backstop.overrides: after any run of this story's fixtures, an existing rcf/define/backstop.json is byte-identical and no new one is created.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20203-1=external",
+    "verification:AC-20203-2=external",
+    "verification:AC-20203-3=external",
+    "verification:AC-20203-4=external"
+  ]
+}
