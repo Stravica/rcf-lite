@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:42.592Z",
-  "updatedAt": "2026-10-24T11:21:43.424Z",
+  "updatedAt": "2026-10-24T14:59:23.432Z",
   "asA": "builder on the schema slice, with the stage-keeper who releases it",
   "iWant": "the rcf-schemas change released before the rcf-lite pin moves, and the rcf-lite round to carry Code Nodes only on rcf-lite consumer seams",
   "soThat": "the slice is one Build in rcf-lite whose Finalise can run, even though rcf-schemas has no chain",
@@ -17,7 +17,7 @@
   "acceptanceCriteria": [
     {
       "id": "AC-19502-1",
-      "description": "[failure] Given packages/rcf-lite/package.json pinning an rcf-schemas version that is not published on the npm registry, when pnpm install --frozen-lockfile runs in this repository, then it exits non-zero; the slice's pull request therefore moves the pin only to a published rcf-schemas release, and pnpm-lock.yaml at the slice head resolves \"@stravica-ai/rcf-schemas\" to that same version.",
+      "description": "[failure] Given packages/rcf-lite/package.json and pnpm-lock.yaml at the slice head, when the lockfile's importer entry for packages/rcf-lite is read, then it resolves \"@stravica-ai/rcf-schemas\" to exactly the version package.json pins; a lockfile resolving any other version fails this criterion. Whether the pinned version is published on the npm registry is the stage-keeper's Finalise preflight (npm view @stravica-ai/rcf-schemas@<pin> version), not a test.",
       "testable": true
     },
     {
