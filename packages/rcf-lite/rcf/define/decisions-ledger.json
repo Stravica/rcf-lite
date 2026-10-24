@@ -2578,9 +2578,9 @@
       "blocks": "FBS-232",
       "addedAt": "2026-10-24T17:21:36.812Z",
       "status": "resolved",
-      "answer": "d. The stage-keeper, 2026-10-24: \"The bound test measures exactly as the criterion says, using the same parent-worktree method, but only when RCF_PERF=1 is set. Otherwise it is skipped with the reason 'measured at TEST by the verifier (RCF_PERF=1)', because timing ratios in shared CI are noise. FBS-232's Test-stage brief runs it with RCF_PERF=1 on the platform and records the ratio. Reword the criterion's Given to say the measurement runs at the Test stage on the verifier's host.\" AC-19501-5 takes reading (a) under ruling 1, which also sets fetch-depth 0 on the CI test job.",
-      "answeredAt": "2026-10-24T17:24:39.862Z",
-      "resolvedAt": "2026-10-24T17:24:39.862Z"
+      "answer": "d. The stage-keeper, 2026-10-24: \"The bound test measures exactly as the criterion says, using the same parent-worktree method, but only when RCF_PERF=1 is set. Otherwise it is skipped with the reason 'measured at TEST by the verifier (RCF_PERF=1)', because timing ratios in shared CI are noise. FBS-232's Test-stage brief runs it with RCF_PERF=1 on the platform and records the ratio. Reword the criterion's Given to say the measurement runs at the Test stage on the verifier's host.\" AC-19501-5 takes the golden method of option c under the stage-keeper's re-ruling (ruling 6, 2026-10-24, on part B2 at 4c8baede): \"Reading (c) replaces reading (a): FBS-232's round DEFINE: the test-author records node bin/rcf.js audit coverage --strict at the round's base (the exit code and the gap list) as a committed golden under test/fixtures, before BUILD moves the pin. The bound test compares HEAD's run against that golden. No history is needed, and ci.yml is unchanged.\" and \"The ci.yml patch is dropped and nobody pushes it.\" So the AC-19501-5 test compares HEAD with the golden FBS-232's round DEFINE records at the round's base, ci.yml is unchanged, and the fetch-depth 0 change is dropped.",
+      "answeredAt": "2026-10-24T18:57:20.509Z",
+      "resolvedAt": "2026-10-24T18:57:20.509Z"
     },
     {
       "id": 119,

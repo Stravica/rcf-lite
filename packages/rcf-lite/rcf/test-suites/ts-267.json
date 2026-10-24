@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:22:20.592Z",
-  "updatedAt": "2026-10-24T17:23:03.028Z",
+  "updatedAt": "2026-10-24T18:56:49.055Z",
   "purpose": "FBS-232: the testOnly criteria of US-19501, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -22,9 +22,9 @@
     {
       "id": "TC-267-the-rcf-schemas-pin-names-the-release",
       "acId": "AC-19501-5",
-      "description": "the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as in a worktree at the parent of the pin-move commit",
+      "description": "the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move",
       "status": "pending",
-      "testPointer": "test/define/verification-field.test.js::AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as in a worktree at the parent of the pin-move commit"
+      "testPointer": "test/define/verification-field.test.js::AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move"
     },
     {
       "id": "TC-267-define-validate-over-the-own-chain-at",

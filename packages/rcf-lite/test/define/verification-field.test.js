@@ -3,13 +3,16 @@
 //
 // Criteria: 9 in the slice, all tested here: 4 external (AC-19501-1 to
 // AC-19501-4) and 5 testOnly (AC-19501-5 to AC-19501-7, AC-19502-1,
-// AC-19502-2). AC-19501-5 and AC-19501-7 compare this repository with its
-// state before the pin move, read from a temporary worktree at the parent
-// of the pin-move commit (the stage-keeper's rulings 1 and 2 on part B1's
-// stops), so they need a full-depth checkout (ruling 1 sets fetch-depth 0
-// on the CI test job); a shallow clone fails them. AC-19501-7 is
-// measured only with RCF_PERF=1 (at TEST, by the verifier) and is skipped
-// otherwise, since timing ratios on shared CI hosts are noise.
+// AC-19502-2). AC-19501-5 compares audit coverage --strict at HEAD with
+// the golden FBS-232's round DEFINE records at the round's base before
+// BUILD moves the pin (the stage-keeper's ruling 6 on the Part B summary's
+// stops, reading c), so it reads no git history. AC-19501-7 compares this
+// repository with its state before the pin move, read from a temporary
+// worktree at the parent of the pin-move commit (the stage-keeper's
+// ruling 2 on part B1's stops), so it needs a full-depth checkout and a
+// shallow clone fails it; it is measured only with RCF_PERF=1, at TEST
+// on the verifier's full clone, and is skipped otherwise, since timing
+// ratios on shared CI hosts are noise.
 //
 // Every test is a node:test todo case ("FBS-232 round DEFINE", GR-35): it
 // runs and is red until FBS-232's round DEFINE drops the marker and BUILD
@@ -29,7 +32,8 @@ import yaml from 'js-yaml';
 import { BIN, rcf, run } from '../_harness/spawn.js';
 import { checkoutPackage, checkoutRoot, project, readJson, readText, scratch, writeJson } from '../_harness/fixture.js';
 import { git, gitTry } from '../_harness/git.js';
-import { hostFacts, json, median } from '../_harness/capture.js';
+import { hostFacts, median } from '../_harness/capture.js';
+import { coverageResult } from '../_harness/goldens.js';
 
 const TODO = { todo: 'FBS-232 round DEFINE' };
 
@@ -125,7 +129,7 @@ function pinAt(root, rev) {
   return r.code === 0 ? (JSON.parse(r.stdout).dependencies?.[PIN] ?? null) : null;
 }
 function pinMoveCommit(root) {
-  assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the history before the pin move is not there (the CI test job checks out with fetch-depth 0)');
+  assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the history before the pin move is not there (the measurement runs at TEST on the verifier\'s full clone)');
   const candidates = git(root, 'log', '--first-parent', '--format=%H', 'HEAD', '--', PKG_JSON).split('\n').filter(Boolean);
   const move = candidates.find((c) => pinAt(root, c) !== pinAt(root, `${c}^1`));
   assert.ok(move, `a first-parent commit changes the ${PIN} dependency in ${PKG_JSON}`);
@@ -144,24 +148,27 @@ function assertPinIsVerificationRelease() {
   const schema = JSON.parse(readFileSync(join(checkoutPackage(), 'node_modules', '@stravica-ai', 'rcf-schemas', 'schemas', 'user-story.schema.json'), 'utf8'));
   assert.ok(schema.$defs.acceptanceCriterion.properties.verification, `the pin ${pin} names the rcf-schemas release carrying verification`);
 }
-async function coverageGaps(cwd, bin) {
-  const r = await rcf(['audit', 'coverage', '--strict', '--format', 'json'], { cwd, bin });
-  const doc = json(r.stdout);
-  return { code: r.code, gaps: doc.requirements.flatMap((q) => q.acs.filter((a) => !a.covered).map((a) => a.id)).sort() };
-}
+// "Before the pin move" for AC-19501-5 (the stage-keeper's ruling 6 on
+// the Part B summary's stops, reading c): FBS-232's round DEFINE records
+// audit coverage --strict at the round's base, before BUILD moves the pin,
+// as this golden (the exit code and the sorted gap list), written from
+// packages/rcf-lite with
+//   node test/_harness/goldens.js coverage test/fixtures/pin-move/coverage-at-base.json
+// and the test compares HEAD's run with it. No git history is read.
+const PIN_MOVE_GOLDEN = 'test/fixtures/pin-move/coverage-at-base.json';
 
-test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as in a worktree at the parent of the pin-move commit', TODO, async (t) => {
-  assertPinIsVerificationRelease();
-  const root = checkoutRoot();
+test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', TODO, async () => {
   const pkg = checkoutPackage();
+  const golden = join(pkg, PIN_MOVE_GOLDEN);
+  assert.ok(existsSync(golden), `FBS-232's round DEFINE records the coverage golden at the round's base: ${PIN_MOVE_GOLDEN} is absent (node test/_harness/goldens.js coverage ${PIN_MOVE_GOLDEN})`);
+  const was = JSON.parse(readFileSync(golden, 'utf8'));
+  assert.ok(Number.isInteger(was.exitCode) && Array.isArray(was.gaps), `${PIN_MOVE_GOLDEN} holds { "exitCode", "gaps" }`);
+  assertPinIsVerificationRelease();
   const v = await rcf(['define', 'validate'], { cwd: pkg });
   assert.equal(v.code, 0, `define validate over the own chain exits 0\n${v.stdout.slice(-1500)}${v.stderr.slice(-1500)}`);
-  const move = pinMoveCommit(root);
-  const before = worktreeAt(t, root, `${move}^1`);
-  const was = await coverageGaps(before, join(before, 'bin', 'rcf.js'));
-  const now = await coverageGaps(pkg, BIN);
-  assert.equal(now.code, was.code, `audit coverage --strict exits ${now.code} at HEAD and ${was.code} before the pin move`);
-  assert.deepEqual(now.gaps, was.gaps, 'the same gap list as before the pin move');
+  const now = await coverageResult(pkg);
+  assert.equal(now.exitCode, was.exitCode, `audit coverage --strict exits ${now.exitCode} at HEAD and ${was.exitCode} in the golden recorded before the pin move`);
+  assert.deepEqual(now.gaps, was.gaps, 'the same gap list as the golden recorded before the pin move');
 });
 
 test('AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1', { todo: 'FBS-232 round DEFINE', skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {

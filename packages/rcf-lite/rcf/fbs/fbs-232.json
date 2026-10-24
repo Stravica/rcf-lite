@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:43.676Z",
-  "updatedAt": "2026-10-24T14:59:23.942Z",
+  "updatedAt": "2026-10-24T18:57:05.549Z",
   "summary": "Add verification (enum external | testOnly, optional) to the rcf-schemas acceptance criterion in a minor release, move the rcf-lite pin to it, and carry the field through define create ac and define update. First in the 0.37.0 dependency order, ahead of the flag slice.",
   "approach": "Build opens the rcf-schemas change first (schemas/user-story.schema.json, its tests and CHANGELOG, a minor release 0.10.0 through the rcf-schemas repository's own process), then in rcf-lite bumps the pin and lockfile, carries verification in createInlineAc like scope, and records Code Nodes on the rcf-lite seams. Finalised in rcf-lite by the released 0.36.1 Finalise (ADR self-hosting); the stage-keeper then cuts 0.36.2 from main after this slice merges, through the normal release PR, carrying FBS-228 and this slice and no other 0.37.0 slice (no breaking 0.37.0 change), so later 0.37.0 specs are finalised by a Finalise that accepts the field.",
   "deliverables": [
@@ -9,7 +9,7 @@
     "src/core/store/writer.js createInlineAc: verification carried from the --from-file body",
     "Code Nodes for the criteria of REQ-195 on rcf-lite paths only; CHANGELOG lines"
   ],
-  "notes": "DEFINE part A, 2026-10-24 (test-author). Flags for this slice's criteria are the interim US tags (WORKAROUND, ADR ADR-4152). Release 0.36.2 after this slice is the self-hosting pick, an open question in the DEFINE summary.",
+  "notes": "DEFINE part A, 2026-10-24 (test-author). Flags for this slice's criteria are the interim US tags (WORKAROUND, ADR ADR-4152). Release 0.36.2 after this slice is the self-hosting pick, an open question in the DEFINE summary. DEFINE part B3, 2026-10-24 (test-author, stage-keeper ruling 6): this slice's round DEFINE records the coverage golden test/fixtures/pin-move/coverage-at-base.json at the round's base before BUILD moves the pin, as { \"exitCode\", \"gaps\" } (the exit code and the sorted gap list of node bin/rcf.js audit coverage --strict), written from packages/rcf-lite with node test/_harness/goldens.js coverage test/fixtures/pin-move/coverage-at-base.json, and the AC-19501-5 test compares HEAD against it.",
   "dependsOnFbsIds": [],
   "riskLevel": "medium",
   "estimatedSize": "small",
