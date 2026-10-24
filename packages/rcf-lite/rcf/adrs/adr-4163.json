@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-10-24T22:47:41.078Z",
+  "updatedAt": "2026-10-24T22:47:41.078Z",
+  "status": "proposed",
+  "context": "The D1 check in src/query/gates.js :1067 to :1078 is a substring presence test that the seed's menu satisfies, and five consumers parse the profile differently.",
+  "decision": "One shared profile reader in src/, with the bare value line as the only answer form, delivered by FBS-240's BUILD.",
+  "consequences": "FBS-240 has a code BUILD, and is marked complete with its Code Nodes, not --no-code-nodes.",
+  "adrId": "ADR-4163",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "One shared profile reader in src/, the bare value line as the only answer form, delivered by FBS-240's BUILD"
+}

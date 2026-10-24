@@ -2924,6 +2924,48 @@
       "answer": "c. The stage-keeper, 2026-10-24: \"ADR-4162 still lists \"git history\" among what testOnly tests read. It is reworded to: the checkout at HEAD and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone.\" So ADR-4162's decision now reads \"testOnly tests read the checkout at HEAD (.github/, scripts/, docs, the root README) through it and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone\".",
       "answeredAt": "2026-10-24T22:04:05.409Z",
       "resolvedAt": "2026-10-24T22:04:05.409Z"
+    },
+    {
+      "id": 134,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's approach says its BUILD is expected to be empty unless a check is shown wrong for a CLI product, in which case its fix is a new criterion with an ADR first, and part C2's stop showed the D1 check brief:profile passing the unedited seed while five consumers parse the profile differently: is an ADR written first? Source: stage-keeper ruling 4 before part C3, on the briefer's possible stop 4, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no ADR: the records stay as written (FBS-240's approach, ADR-4160 and ADR-4162 describe an empty or no-code BUILD)"
+        },
+        {
+          "letter": "b",
+          "text": "a new ADR first, through the CLI: one shared profile reader in src/, with the bare value line as the only answer form, delivered by FBS-240's BUILD"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:48:29.419Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"This is FBS-240's own named exception, so an ADR comes first. FBS-240's approach says (verified): \"BUILD is expected to be empty unless a check is shown wrong for a CLI product, in which case its fix is a new criterion with an ADR first.\" First commit of C3: mint a new ADR through the CLI. Context: the D1 check in src/query/gates.js :1067 to :1078 is a substring presence test that the seed's menu satisfies, and five consumers parse the profile differently. Decision: one shared profile reader in src/, with the bare value line as the only answer form, delivered by FBS-240's BUILD. Consequences: FBS-240 has a code BUILD, and is marked complete with its Code Nodes, not --no-code-nodes.\" Minted as ADR-4163; FBS-240's approach and ADR-4160 are unchanged.",
+      "answeredAt": "2026-10-24T22:48:29.504Z",
+      "resolvedAt": "2026-10-24T22:48:29.504Z"
+    },
+    {
+      "id": 135,
+      "question": "(rcf-lite 0.37.0 DEFINE) ADR-4162's decision says the readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec), while ADR-4163 gives FBS-240 a code BUILD: does the sentence change? Source: stage-keeper ruling 4 before part C3, on the briefer's possible stop 4, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the sentence stays: \"The readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec).\""
+        },
+        {
+          "letter": "b",
+          "text": "the sentence is reworded through the CLI to match ADR-4163, citing it"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:48:30.014Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"Then: reword ADR-4162's FBS-240 sentence (verified: \"The readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec)\") through the CLI to match, citing the new ADR. Give each a ledger decision.\" So ADR-4162's sentence now reads \"The readiness slice is marked complete with its Code Nodes, not --no-code-nodes, because its BUILD delivers the shared profile reader (ADR-4163).\"",
+      "answeredAt": "2026-10-24T22:48:30.100Z",
+      "resolvedAt": "2026-10-24T22:48:30.100Z"
     }
   ]
 }
