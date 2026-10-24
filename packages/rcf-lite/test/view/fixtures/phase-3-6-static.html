@@ -266,9 +266,9 @@
 </section>
 <section id="pm-group-trace" class="pm-group" data-pm-group="trace" role="tabpanel" hidden data-pm-lazy="true">
   <h3 class="pm-group-heading">By trace coverage</h3>
-  <nav class="pm-jump-nav" aria-label="Buckets in this grouping" data-pm-jump-group="trace"><button type="button" class="pm-jump-chip" data-pm-jump="missing-component" data-pm-jump-total="73" title="Missing component owner"><span class="pm-jump-label">Missing component owner</span><span class="pm-jump-count">73</span></button><button type="button" class="pm-jump-chip" data-pm-jump="missing-tests" data-pm-jump-total="10" title="Missing tests"><span class="pm-jump-label">Missing tests</span><span class="pm-jump-count">10</span></button><button type="button" class="pm-jump-chip" data-pm-jump="complete" data-pm-jump-total="52" title="Complete"><span class="pm-jump-label">Complete</span><span class="pm-jump-count">52</span></button></nav><div class="pm-empty-roll" hidden><button type="button" class="pm-empty-toggle">Show <span class="pm-empty-count">0</span> empty buckets</button></div><details class="pm-bucket" data-pm-bucket-id="missing-component" data-doc-id="pm-bucket:trace:missing-component"><summary class="pm-bucket-heading"><span class="pm-bucket-label" title="Missing component owner">Missing component owner</span> <span class="pm-bucket-count">(73)</span> <span class="pm-mini-row"><span class="pm-mini pm-mini-draft" title="draft: 66">66</span><span class="pm-mini pm-mini-approved" title="approved: 7">7</span></span><span class="pm-bucket-anchor" aria-hidden="true"> missing-component</span></summary><div class="pm-bucket-body"></div></details>
-<details class="pm-bucket" data-pm-bucket-id="missing-tests" data-doc-id="pm-bucket:trace:missing-tests"><summary class="pm-bucket-heading"><span class="pm-bucket-label" title="Missing tests">Missing tests</span> <span class="pm-bucket-count">(10)</span> <span class="pm-bucket-anchor" aria-hidden="true"> missing-tests</span></summary><div class="pm-bucket-body"></div></details>
-<details class="pm-bucket" data-pm-bucket-id="complete" data-doc-id="pm-bucket:trace:complete"><summary class="pm-bucket-heading"><span class="pm-bucket-label" title="Complete">Complete</span> <span class="pm-bucket-count">(52)</span> <span class="pm-bucket-anchor" aria-hidden="true"> complete</span></summary><div class="pm-bucket-body"></div></details>
+  <nav class="pm-jump-nav" aria-label="Buckets in this grouping" data-pm-jump-group="trace"><button type="button" class="pm-jump-chip" data-pm-jump="missing-component" data-pm-jump-total="73" title="Missing component owner"><span class="pm-jump-label">Missing component owner</span><span class="pm-jump-count">73</span></button><button type="button" class="pm-jump-chip" data-pm-jump="missing-tests" data-pm-jump-total="2" title="Missing tests"><span class="pm-jump-label">Missing tests</span><span class="pm-jump-count">2</span></button><button type="button" class="pm-jump-chip" data-pm-jump="complete" data-pm-jump-total="60" title="Complete"><span class="pm-jump-label">Complete</span><span class="pm-jump-count">60</span></button></nav><div class="pm-empty-roll" hidden><button type="button" class="pm-empty-toggle">Show <span class="pm-empty-count">0</span> empty buckets</button></div><details class="pm-bucket" data-pm-bucket-id="missing-component" data-doc-id="pm-bucket:trace:missing-component"><summary class="pm-bucket-heading"><span class="pm-bucket-label" title="Missing component owner">Missing component owner</span> <span class="pm-bucket-count">(73)</span> <span class="pm-mini-row"><span class="pm-mini pm-mini-draft" title="draft: 66">66</span><span class="pm-mini pm-mini-approved" title="approved: 7">7</span></span><span class="pm-bucket-anchor" aria-hidden="true"> missing-component</span></summary><div class="pm-bucket-body"></div></details>
+<details class="pm-bucket" data-pm-bucket-id="missing-tests" data-doc-id="pm-bucket:trace:missing-tests"><summary class="pm-bucket-heading"><span class="pm-bucket-label" title="Missing tests">Missing tests</span> <span class="pm-bucket-count">(2)</span> <span class="pm-bucket-anchor" aria-hidden="true"> missing-tests</span></summary><div class="pm-bucket-body"></div></details>
+<details class="pm-bucket" data-pm-bucket-id="complete" data-doc-id="pm-bucket:trace:complete"><summary class="pm-bucket-heading"><span class="pm-bucket-label" title="Complete">Complete</span> <span class="pm-bucket-count">(60)</span> <span class="pm-bucket-anchor" aria-hidden="true"> complete</span></summary><div class="pm-bucket-body"></div></details>
 </section>
 <section id="pm-group-capability" class="pm-group" data-pm-group="capability" role="tabpanel" hidden data-pm-lazy="true">
   <h3 class="pm-group-heading">By capability</h3>
@@ -22564,13 +22564,13 @@
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-232">FBS-232</a></p></li>
 <li id="AC-19501-6" class="ac-item"><strong>AC-19501-6</strong> - [happy] Given the installed rcf-schemas package at the new pin, when node_modules/@stravica-ai/rcf-schemas/schemas/user-story.schema.json is read, then $defs.acceptanceCriterion.properties.verification is an enum of exactly [&quot;external&quot;, &quot;testOnly&quot;], verification is not in $defs.acceptanceCriterion.required, and $defs.acceptanceCriterion.additionalProperties is still false.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-232">FBS-232</a></p></li>
-<li id="AC-19501-7" class="ac-item"><strong>AC-19501-7</strong> - [non-functional] Given this repository&#39;s own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.
+<li id="AC-19501-7" class="ac-item"><strong>AC-19501-7</strong> - [non-functional] Given this repository&#39;s own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), measured at the Test stage on the verifier&#39;s host, when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-232">FBS-232</a></p></li>
     </ul>
   </section>
   <details class="raw-json" data-doc-id="US-19501::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-24T11:21:40.250Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-24T11:21:42.338Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-24T17:21:08.499Z&quot;,
   &quot;asA&quot;: &quot;test-author writing criteria at DEFINE on a product built with rcf-lite&quot;,
   &quot;iWant&quot;: &quot;to set verification external or testOnly on each criterion through rcf define create ac and rcf define update&quot;,
   &quot;soThat&quot;: &quot;the flag is a validated field that Review, coverage and Verify read, not a convention in prose&quot;,
@@ -22617,7 +22617,7 @@
     },
     {
       &quot;id&quot;: &quot;AC-19501-7&quot;,
-      &quot;description&quot;: &quot;[non-functional] Given this repository&#39;s own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.&quot;,
+      &quot;description&quot;: &quot;[non-functional] Given this repository&#39;s own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), measured at the Test stage on the verifier&#39;s host, when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.&quot;,
       &quot;testable&quot;: true
     }
   ],
@@ -23878,7 +23878,7 @@
     <ul class="ac-list">
       <li id="AC-19804-1" class="ac-item"><strong>AC-19804-1</strong> - [happy] Given this repository&#39;s chain at the slice head, when every user story is read, then no tags entry starts &quot;verification:&quot;, and every criterion that carried a &quot;verification:&lt;AC id&gt;=&lt;flag&gt;&quot; tag at the parent of the move commit carries &quot;verification&quot; equal to that flag; node bin/rcf.js define validate exits 0.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-235">FBS-235</a></p></li>
-<li id="AC-19804-2" class="ac-item"><strong>AC-19804-2</strong> - [must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move, and the move is made through rcf define update only.
+<li id="AC-19804-2" class="ac-item"><strong>AC-19804-2</strong> - [must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-235">FBS-235</a></p></li>
 <li id="AC-19804-3" class="ac-item"><strong>AC-19804-3</strong> - [failure] Given a 0.37.0 criterion left without the field after the move, when node bin/rcf.js define validate --base &lt;the merge-base of the DEFINE branch with main&gt; runs, then it exits 3 naming that criterion as new since the base with no verification flag, so a missed move fails CI.
 <p class="ac-meta"><strong>Testable:</strong> true - Covered by <a href="#FBS-235">FBS-235</a></p></li>
@@ -23886,7 +23886,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19804::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-24T11:29:12.049Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-24T11:31:39.865Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-24T17:21:09.026Z&quot;,
   &quot;asA&quot;: &quot;test-author in this slice&#39;s DEFINE round&quot;,
   &quot;iWant&quot;: &quot;every 0.37.0 criterion&#39;s flag moved from its interim user-story tag onto the verification field&quot;,
   &quot;soThat&quot;: &quot;the WORKAROUND recorded at DEFINE ends inside the release that created it&quot;,
@@ -23908,7 +23908,7 @@
     },
     {
       &quot;id&quot;: &quot;AC-19804-2&quot;,
-      &quot;description&quot;: &quot;[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move, and the move is made through rcf define update only.&quot;,
+      &quot;description&quot;: &quot;[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move.&quot;,
       &quot;testable&quot;: true
     },
     {

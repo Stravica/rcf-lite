@@ -596,7 +596,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Pre-merge Finalise DEFINE (2026-10-22) added TS-261 (201 -> 202).
   // Downstream findings DEFINE (2026-10-23) added TS-262, TS-263 and TS-264 (202 -> 205).
   // Downstream findings DEFINE round 2 (2026-10-23) added TS-265 (205 -> 206).
-  assert.equal(tree.testSuites.length, 206);
+  // rcf-lite 0.37.0 DEFINE part B (2026-10-24) added TS-266 to TS-298 (206 -> 239).
+  assert.equal(tree.testSuites.length, 239);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
