@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-20T12:03:51.929Z",
-  "updatedAt": "2026-10-25T15:14:01.375Z",
+  "updatedAt": "2026-10-25T20:25:03.341Z",
   "acIds": [
     "AC-19401-5",
     "AC-19401-6",
@@ -16,7 +16,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 231,
-  "executionStatus": "notStarted",
+  "executionStatus": "verified",
   "title": "rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify",
   "summary": "rcf-lite carries the rcf-schemas 0.9.0 retired-criterion rule (US-19401): retired criteria in rcf audit coverage, rcf audit eval coverage and deterministic verify. Delivers AC-19401-5 to AC-19401-12.",
   "dependsOnFbsIds": [
