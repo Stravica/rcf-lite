@@ -35,8 +35,6 @@ import { git, gitTry } from '../_harness/git.js';
 import { hostFacts, median } from '../_harness/capture.js';
 import { coverageResult } from '../_harness/goldens.js';
 
-const TODO = { todo: 'FBS-232 round DEFINE' };
-
 // The rcf-schemas user-story schema the artefact under test loads (its
 // installed dependency, resolved from the bin), for the "given the pin
 // carries verification" precondition of the external criteria.
@@ -51,7 +49,7 @@ function assertPinCarriesVerification() {
 
 const story = (dir) => readJson(dir, 'rcf/user-stories/us-101.json');
 
-test('AC-19501-1: rcf define create ac --parent US-101 --from-file with "verification": "external" exits 0, define read shows the criterion with "verification": "external", and define validate exits 0', TODO, async (t) => {
+test('AC-19501-1: rcf define create ac --parent US-101 --from-file with "verification": "external" exits 0, define read shows the criterion with "verification": "external", and define validate exits 0', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-create' });
   const bodyDir = scratch(t, 'rcf-h-body-');
@@ -68,7 +66,7 @@ test('AC-19501-1: rcf define create ac --parent US-101 --from-file with "verific
   assert.equal(v.code, 0, `define validate exits 0\n${v.stdout}${v.stderr}`);
 });
 
-test('AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0, prints "AC-101-1 updated at rcf/user-stories/us-101.json", leaves the criterion text byte-identical, and define validate exits 0', TODO, async (t) => {
+test('AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0, prints "AC-101-1 updated at rcf/user-stories/us-101.json", leaves the criterion text byte-identical, and define validate exits 0', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-update' });
   const before = story(dir).acceptanceCriteria.find((a) => a.id === 'AC-101-1');
@@ -85,7 +83,7 @@ test('AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0
   assert.equal(v.code, 0, `define validate exits 0\n${v.stdout}${v.stderr}`);
 });
 
-test('AC-19501-3: a verification value outside external and testOnly exits 3 with an "[error] validation" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying "deployed"', TODO, async (t) => {
+test('AC-19501-3: a verification value outside external and testOnly exits 3 with an "[error] validation" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying "deployed"', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-bad' });
   const bytes = readText(dir, 'rcf/user-stories/us-101.json');
@@ -105,7 +103,7 @@ test('AC-19501-3: a verification value outside external and testOnly exits 3 wit
   assert.equal(readText(dir, 'rcf/user-stories/us-101.json'), bytes, 'us-101.json is byte-identical after the refused create');
 });
 
-test('AC-19501-4: after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no "[error]" line naming verification (the field stays optional at schema level)', TODO, async (t) => {
+test('AC-19501-4: after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no "[error]" line naming verification (the field stays optional at schema level)', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-optional' });
   assert.ok(story(dir).acceptanceCriteria.every((a) => !('verification' in a)), 'given: no criterion carries verification');
@@ -116,12 +114,15 @@ test('AC-19501-4: after the pin move rcf define validate over a fixture whose cr
 });
 
 // "Before the pin move" (the stage-keeper's ruling 1 on part B1's stops):
-// the pin-move commit is the newest first-parent commit that changes the
-// @stravica-ai/rcf-schemas dependency in packages/rcf-lite/package.json,
-// and the state before it is a temporary worktree at its first parent with
-// that tree's own dependencies installed. A shallow clone fails, never skips.
+// the pin-move commit is the first-parent commit that moves the
+// @stravica-ai/rcf-schemas dependency in packages/rcf-lite/package.json to
+// PIN_TARGET (the stage-keeper's ruling 8), and the state before it is a
+// temporary worktree at its first parent with that tree's own dependencies
+// installed. A shallow clone fails, never skips.
 const PKG_JSON = 'packages/rcf-lite/package.json';
 const PIN = '@stravica-ai/rcf-schemas';
+// The release FBS-232's record names for the pin move (stage-keeper ruling 8).
+const PIN_TARGET = '0.10.0';
 const PERF = process.env.RCF_PERF === '1';
 
 function pinAt(root, rev) {
@@ -131,8 +132,8 @@ function pinAt(root, rev) {
 function pinMoveCommit(root) {
   assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the history before the pin move is not there (the measurement runs at TEST on the verifier\'s full clone)');
   const candidates = git(root, 'log', '--first-parent', '--format=%H', 'HEAD', '--', PKG_JSON).split('\n').filter(Boolean);
-  const move = candidates.find((c) => pinAt(root, c) !== pinAt(root, `${c}^1`));
-  assert.ok(move, `a first-parent commit changes the ${PIN} dependency in ${PKG_JSON}`);
+  const move = candidates.find((c) => pinAt(root, c) === PIN_TARGET && pinAt(root, `${c}^1`) !== PIN_TARGET);
+  assert.ok(move, `a first-parent commit moves the ${PIN} dependency in ${PKG_JSON} to ${PIN_TARGET}`);
   return move;
 }
 function worktreeAt(t, root, rev) {
@@ -157,7 +158,7 @@ function assertPinIsVerificationRelease() {
 // and the test compares HEAD's run with it. No git history is read.
 const PIN_MOVE_GOLDEN = 'test/fixtures/pin-move/coverage-at-base.json';
 
-test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', TODO, async () => {
+test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', async () => {
   const pkg = checkoutPackage();
   const golden = join(pkg, PIN_MOVE_GOLDEN);
   assert.ok(existsSync(golden), `FBS-232's round DEFINE records the coverage golden at the round's base: ${PIN_MOVE_GOLDEN} is absent (node test/_harness/goldens.js coverage ${PIN_MOVE_GOLDEN})`);
@@ -171,7 +172,7 @@ test('AC-19501-5: the rcf-schemas pin names the release carrying verification, d
   assert.deepEqual(now.gaps, was.gaps, 'the same gap list as the golden recorded before the pin move');
 });
 
-test('AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1', { todo: 'FBS-232 round DEFINE', skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
+test('AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1', { skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
   hostFacts(t);
   const root = checkoutRoot();
   const pkg = checkoutPackage();
@@ -196,7 +197,7 @@ test('AC-19501-7: define validate over the own chain at the slice head takes at 
   assert.ok(ratio <= 1.25, `the run after takes at most 1.25 times the run before (ratio ${ratio.toFixed(2)})`);
 });
 
-test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly ["external", "testOnly"], not required, with additionalProperties still false', TODO, () => {
+test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly ["external", "testOnly"], not required, with additionalProperties still false', () => {
   const pkg = JSON.parse(readFileSync(join(checkoutPackage(), 'package.json'), 'utf8'));
   const pin = pkg.dependencies['@stravica-ai/rcf-schemas'];
   const installed = join(checkoutPackage(), 'node_modules', '@stravica-ai', 'rcf-schemas');
@@ -209,7 +210,7 @@ test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCri
   assert.equal(ac.additionalProperties, false);
 });
 
-test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins', TODO, () => {
+test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins', () => {
   const pkg = JSON.parse(readFileSync(join(checkoutPackage(), 'package.json'), 'utf8'));
   const pin = pkg.dependencies['@stravica-ai/rcf-schemas'];
   const lock = yaml.load(readFileSync(join(checkoutRoot(), 'pnpm-lock.yaml'), 'utf8'));
@@ -222,7 +223,7 @@ test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolv
   assert.ok(schema.$defs.acceptanceCriterion.properties.verification, `the pinned release ${pin} carries verification`);
 });
 
-test('AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository', TODO, () => {
+test('AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository', () => {
   const pkgDir = checkoutPackage();
   const storyIds = readdirSync(join(pkgDir, 'rcf', 'user-stories'))
     .map((f) => JSON.parse(readFileSync(join(pkgDir, 'rcf', 'user-stories', f), 'utf8')))
