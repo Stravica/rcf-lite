@@ -86,7 +86,8 @@ import { testCaseKey } from '#core/store';
  * `implemented-and-covered` / `implemented-uncovered` / `unimplemented`
  * (deterministic edge counting via `tree.cnByAcId` / `tree.tcsByAcId`,
  * with the covered leg gated on pointer resolution per w-2026-07-28-005),
- * plus a tree-wide `codeNodeOrphans` list (CN docs with empty
+ * or `retired` for a criterion carrying `supersededBy`, which counts
+ * toward no code total (AC-19401-18), plus a tree-wide `codeNodeOrphans` list (CN docs with empty
  * `implementsAcIds`). None of this blocks - `ok` / exit code are
  * unaffected by the code axis (spec D11: the mark-complete gate, not
  * coverage, is where CN completeness is enforced).
@@ -291,7 +292,8 @@ function selectRequirements(tree, scopeId) {
  * `cnIds` and the D11 `codeClass` (the covered leg is resolution-gated
  * too - a stub TC never manufactures 'implemented-and-covered').
  * FBS-228: a criterion carrying `supersededBy` gets state 'retired' and
- * its successor; its TCs stay listed but it never reads covered.
+ * its successor; its TCs stay listed but it never reads covered, and
+ * under `withCode` its `codeClass` reads 'retired' (AC-19401-18).
  *
  * @param {TreeModel} tree
  * @param {string} reqId
@@ -341,11 +343,15 @@ function collectAcs(tree, reqId, opts = {}) {
       if (withCode) {
         const cnIds = [...(tree.cnByAcId?.get(ac.id) ?? [])].sort();
         entry.cnIds = cnIds;
-        entry.codeClass = cnIds.length === 0
-          ? 'unimplemented'
-          : entry.covered
-            ? 'implemented-and-covered'
-            : 'implemented-uncovered';
+        // AC-19401-18: retirement is independent of the mode; a retired
+        // criterion reads 'retired' whether or not a Code Node names it.
+        entry.codeClass = isRetired
+          ? 'retired'
+          : cnIds.length === 0
+            ? 'unimplemented'
+            : entry.covered
+              ? 'implemented-and-covered'
+              : 'implemented-uncovered';
       }
       acs.push(entry);
     }

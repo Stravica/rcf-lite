@@ -98,7 +98,8 @@ Options:
                             by default; opt-in via CI.
   --with-code               Layer the code axis onto every AC: one of
                             implemented-and-covered / implemented-uncovered
-                            / unimplemented, plus a tree-wide list of
+                            / unimplemented, or retired for a retired
+                            criterion, plus a tree-wide list of
                             CN-orphaned code nodes. INFORMATIONAL ONLY -
                             never blocks or affects the exit code (D11;
                             the mark-complete gate is where CN
