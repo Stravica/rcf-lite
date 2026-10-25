@@ -1,0 +1,110 @@
+TAP version 13
+# Subtest: AC-19501-5: with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0
+    # Subtest: Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+    ok 1 - Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+      ---
+      duration_ms: 1.569542
+      type: 'test'
+      ...
+    # Subtest: guard: node bin/rcf.js define validate over the own chain exits 0 with no "[error]" line
+    ok 2 - guard: node bin/rcf.js define validate over the own chain exits 0 with no "[error]" line
+      ---
+      duration_ms: 296.471084
+      type: 'test'
+      ...
+    # Subtest: guard: node bin/rcf.js audit coverage --strict over the own chain exits 0
+    ok 3 - guard: node bin/rcf.js audit coverage --strict over the own chain exits 0
+      ---
+      duration_ms: 353.127667
+      type: 'test'
+      ...
+    1..3
+ok 1 - AC-19501-5: with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0
+  ---
+  duration_ms: 652.230166
+  type: 'test'
+  ...
+# Subtest: AC-19502-3: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} at rcf-schemas 0.10.0 exits 3 with a stderr line naming AC-101-1 and "missing assertion" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical
+    # Subtest: Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+    ok 1 - Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+      ---
+      duration_ms: 0.803792
+      type: 'test'
+      ...
+    # Subtest: a path-only --probe is refused with exit 3, one stderr line naming AC-101-1, "missing assertion" and the four fields, and the story bytes unchanged
+    ok 2 - a path-only --probe is refused with exit 3, one stderr line naming AC-101-1, "missing assertion" and the four fields, and the story bytes unchanged
+      ---
+      duration_ms: 166.099
+      type: 'test'
+      ...
+    1..2
+ok 2 - AC-19502-3: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} at rcf-schemas 0.10.0 exits 3 with a stderr line naming AC-101-1 and "missing assertion" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical
+  ---
+  duration_ms: 167.154209
+  type: 'test'
+  ...
+# Subtest: AC-19502-4: at rcf-schemas 0.10.0 an rcf/verify-catalog.json entry { "path": "/" } resolves "fail" with failedExpectation "missing assertion" (never "expectStatus"), never "pass", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key
+    # Subtest: Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+    ok 1 - Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+      ---
+      duration_ms: 0.496542
+      type: 'test'
+      ...
+    # Subtest: guard at 0.8.0, red under the bump: verify run --mode deterministic exits 4, AC-101-1 "fail" with failedExpectation exactly "missing assertion", failed counts it, verified counts AC-101-2 only
+    ok 2 - guard at 0.8.0, red under the bump: verify run --mode deterministic exits 4, AC-101-1 "fail" with failedExpectation exactly "missing assertion", failed counts it, verified counts AC-101-2 only
+      ---
+      duration_ms: 185.162584
+      type: 'test'
+      ...
+    # Subtest: guard: rcf define validate exits 3 naming the key AC-101-1
+    ok 3 - guard: rcf define validate exits 3 naming the key AC-101-1
+      ---
+      duration_ms: 161.0755
+      type: 'test'
+      ...
+    1..3
+ok 3 - AC-19502-4: at rcf-schemas 0.10.0 an rcf/verify-catalog.json entry { "path": "/" } resolves "fail" with failedExpectation "missing assertion" (never "expectStatus"), never "pass", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key
+  ---
+  duration_ms: 352.709208
+  type: 'test'
+  ...
+# Subtest: AC-19502-5: at rcf-schemas 0.10.0 an AC-level probe { "path": "/" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it "fail" with failedExpectation "missing assertion", never "pass", exit 4
+    # Subtest: Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+    ok 1 - Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0
+      ---
+      duration_ms: 0.412
+      type: 'test'
+      ...
+    # Subtest: rcf define validate exits 3 with a line naming AC-101-1 and its probe
+    ok 2 - rcf define validate exits 3 with a line naming AC-101-1 and its probe
+      ---
+      duration_ms: 156.923417
+      type: 'test'
+      ...
+    # Subtest: guard at 0.8.0, red under the bump: verify run --mode deterministic records AC-101-1 "fail" with failedExpectation exactly "missing assertion" and exits 4
+    ok 3 - guard at 0.8.0, red under the bump: verify run --mode deterministic records AC-101-1 "fail" with failedExpectation exactly "missing assertion" and exits 4
+      ---
+      duration_ms: 180.519459
+      type: 'test'
+      ...
+    1..3
+ok 4 - AC-19502-5: at rcf-schemas 0.10.0 an AC-level probe { "path": "/" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it "fail" with failedExpectation "missing assertion", never "pass", exit 4
+  ---
+  duration_ms: 342.081708
+  type: 'test'
+  ...
+# Subtest: AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes
+ok 5 - AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes
+  ---
+  duration_ms: 368.484291
+  type: 'test'
+  ...
+1..5
+# tests 16
+# suites 0
+# pass 16
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 1940.183125

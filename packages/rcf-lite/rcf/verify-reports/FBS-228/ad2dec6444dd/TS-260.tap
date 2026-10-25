@@ -1,0 +1,58 @@
+TAP version 13
+# Subtest: AC-19401-5: rcf audit coverage with AC-101-1 superseded by AC-101-2 (no TC) and AC-101-2 bound to a resolving TC exits 0, the row reads "retired (AC-101-2)", json state "retired" supersededBy "AC-101-2" covered false totals.retiredAcs 1, mermaid "AC-101-1 -. supersededBy .-> AC-101-2", shallow-any exits 0
+ok 1 - AC-19401-5: rcf audit coverage with AC-101-1 superseded by AC-101-2 (no TC) and AC-101-2 bound to a resolving TC exits 0, the row reads "retired (AC-101-2)", json state "retired" supersededBy "AC-101-2" covered false totals.retiredAcs 1, mermaid "AC-101-1 -. supersededBy .-> AC-101-2", shallow-any exits 0
+  ---
+  duration_ms: 797.590792
+  type: 'test'
+  ...
+# Subtest: AC-19401-6: rcf audit coverage with AC-101-1 supersededBy AC-101-9 absent from the chain exits 4 printing "supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain"; --mode shallow-any prints it and exits 0; rcf define validate exits 0
+ok 2 - AC-19401-6: rcf audit coverage with AC-101-1 supersededBy AC-101-9 absent from the chain exits 4 printing "supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain"; --mode shallow-any prints it and exits 0; rcf define validate exits 0
+  ---
+  duration_ms: 473.44025
+  type: 'test'
+  ...
+# Subtest: AC-19401-7: rcf audit coverage with AC-101-1 supersededBy AC-101-1 exits 4 printing "supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself"; --mode shallow-any prints it and exits 0; rcf define validate exits 0
+ok 3 - AC-19401-7: rcf audit coverage with AC-101-1 supersededBy AC-101-1 exits 4 printing "supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself"; --mode shallow-any prints it and exits 0; rcf define validate exits 0
+  ---
+  duration_ms: 491.948333
+  type: 'test'
+  ...
+# Subtest: AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each other exits 4 printing one line "supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1"; --mode shallow-any prints it and exits 0; rcf define validate exits 0
+ok 4 - AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each other exits 4 printing one line "supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1"; --mode shallow-any prints it and exits 0; rcf define validate exits 0
+  ---
+  duration_ms: 487.696125
+  type: 'test'
+  ...
+# Subtest: AC-19401-9: rcf audit coverage with a resolving TC still bound to retired AC-101-1 and no TC on AC-101-2 exits 4 with REQ-001 uncovered; the AC-101-1 row reads "retired (AC-101-2)" and lists the TC, json keeps it in testCases, and it counts toward nothing
+ok 5 - AC-19401-9: rcf audit coverage with a resolving TC still bound to retired AC-101-1 and no TC on AC-101-2 exits 4 with REQ-001 uncovered; the AC-101-1 row reads "retired (AC-101-2)" and lists the TC, json keeps it in testCases, and it counts toward nothing
+  ---
+  duration_ms: 322.235958
+  type: 'test'
+  ...
+# Subtest: AC-19401-10: rcf audit coverage with retired AC-101-1, covered AC-101-2 and uncovered AC-101-3 exits 4 with REQ-001 uncovered and AC-101-3 "no"; AC-101-1 never reads "yes" or covered true in strict or shallow-any mode
+ok 6 - AC-19401-10: rcf audit coverage with retired AC-101-1, covered AC-101-2 and uncovered AC-101-3 exits 4 with REQ-001 uncovered and AC-101-3 "no"; AC-101-1 never reads "yes" or covered true in strict or shallow-any mode
+  ---
+  duration_ms: 1113.468916
+  type: 'test'
+  ...
+# Subtest: AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministic AC-101-1 and no EVAL exits 0 reading outcome "retired" supersededBy "AC-101-2" and missingCount 0; a live nonDeterministic AC-101-3 with no EVAL still reads "missing" and exits 4
+ok 7 - AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministic AC-101-1 and no EVAL exits 0 reading outcome "retired" supersededBy "AC-101-2" and missingCount 0; a live nonDeterministic AC-101-3 with no EVAL still reads "missing" and exits 4
+  ---
+  duration_ms: 339.090916
+  type: 'test'
+  ...
+# Subtest: AC-19401-18: rcf audit coverage --with-code with retired AC-101-1 (named by a Code Node) and retired AC-101-3 (none), both superseded by covered AC-101-2, exits 0 as without --with-code, both rows read "retired (AC-101-2)" with Code "retired", json codeClass "retired" and codeTotals 1, 0, 0
+ok 8 - AC-19401-18: rcf audit coverage --with-code with retired AC-101-1 (named by a Code Node) and retired AC-101-3 (none), both superseded by covered AC-101-2, exits 0 as without --with-code, both rows read "retired (AC-101-2)" with Code "retired", json codeClass "retired" and codeTotals 1, 0, 0
+  ---
+  duration_ms: 842.385042
+  type: 'test'
+  ...
+1..8
+# tests 8
+# suites 0
+# pass 8
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 4896.770041

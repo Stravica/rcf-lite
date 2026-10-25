@@ -1,0 +1,306 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-232",
+  "headSha": "ad2dec6444ddcf5cdb0c58cdcde0b72a2af9a869",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.36.1.tgz",
+    "name": "rcf-lite",
+    "version": "0.36.1",
+    "sha256": "67536817c18b257ea4c43d8c593e08841567758908cdad297ee9d7e25ecc7162",
+    "servedSha": "ad2dec6444ddcf5cdb0c58cdcde0b72a2af9a869"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-lite-round-a-fix2-test3",
+  "startedAt": "2026-10-25T19:54:51.554Z",
+  "finishedAt": "2026-10-25T19:55:17.119Z",
+  "rcfLiteVersion": "0.36.1",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "pack": {
+    "command": "npm pack --pack-destination /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-gSCx61/out --json",
+    "exitCode": 0
+  },
+  "install": {
+    "command": "npm install --no-audit --no-fund /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-gSCx61/out/rcf-lite-0.36.1.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-232/ad2dec6444dd/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-266",
+      "file": "test/define/verification-field.test.js",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-232/ad2dec6444dd/TS-266.tap"
+    },
+    {
+      "testSuite": "TS-267",
+      "file": "test/define/verification-field.test.js",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-232/ad2dec6444dd/TS-267.tap"
+    },
+    {
+      "testSuite": "TS-267",
+      "file": "test/verify/probe-assertion-0-9-0.test.js",
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-232/ad2dec6444dd/TS-267-2.tap"
+    },
+    {
+      "testSuite": "TS-268",
+      "file": "test/define/verification-field.test.js",
+      "tests": 9,
+      "pass": 9,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-232/ad2dec6444dd/TS-268.tap"
+    },
+    {
+      "testSuite": "TS-268",
+      "file": "test/verify/probe-assertion-0-9-0.test.js",
+      "tests": 16,
+      "pass": 16,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-232/ad2dec6444dd/TS-268-2.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 12,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 12
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19501-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-266",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-266-rcf-define-create-ac-parent-us-101-from",
+            "title": "AC-19501-1: rcf define create ac --parent US-101 --from-file with \"verification\": \"external\" exits 0, define read shows the criterion with \"verification\": \"external\", and define validate exits 0",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19501-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-266",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-266-rcf-define-update-ac-101-1-set",
+            "title": "AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\", leaves the criterion text byte-identical, and define validate exits 0",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19501-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-266",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-266-a-verification-value-outside-external",
+            "title": "AC-19501-3: a verification value outside external and testOnly exits 3 with an \"[error] validation\" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying \"deployed\"",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19501-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-266",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-266-after-the-pin-move-rcf-define-validate",
+            "title": "AC-19501-4: after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no \"[error]\" line naming verification (the field stays optional at schema level)",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19501-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-267",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-267-the-rcf-schemas-pin-names-the-release",
+            "title": "AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move",
+            "testNumber": 5,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-267-validate-own-chain-0-10-0",
+            "title": "AC-19501-5: with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19501-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-267",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-267-the-installed-rcf-schemas-at-the-new-pin",
+            "title": "AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly [\"external\", \"testOnly\"], not required, with additionalProperties still false",
+            "testNumber": 7,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19501-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-267",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-267-define-validate-over-the-own-chain-at",
+            "title": "AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19502-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-268",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-268-the-pnpm-lock-yaml-importer-entry-for",
+            "title": "AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins",
+            "testNumber": 8,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19502-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-268",
+        "file": "test/define/verification-field.test.js",
+        "tests": [
+          {
+            "tcId": "TC-268-every-code-node-implementing-a-criterion",
+            "title": "AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository",
+            "testNumber": 9,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19502-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-268",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-268-update-probe-path-only-refused",
+            "title": "AC-19502-3: rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.10.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19502-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-268",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-268-catalog-path-only-still-fails",
+            "title": "AC-19502-4: at rcf-schemas 0.10.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19502-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-268",
+        "file": "test/verify/probe-assertion-0-9-0.test.js",
+        "tests": [
+          {
+            "tcId": "TC-268-ac-level-path-only-refused",
+            "title": "AC-19502-5: at rcf-schemas 0.10.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}
