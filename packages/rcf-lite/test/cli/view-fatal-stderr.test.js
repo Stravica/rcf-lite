@@ -32,9 +32,11 @@ function makeStartServerSpy() {
     return fakeServer;
   }
   const handlers = {};
-  function onSignal(sig, handler) { handlers[sig] = handler; }
+  let markRegistered;
+  const registered = new Promise((r) => { markRegistered = r; });
+  function onSignal(sig, handler) { handlers[sig] = handler; if (sig === 'SIGINT') markRegistered(); }
   function trigger(sig = 'SIGINT') { if (handlers[sig]) handlers[sig](); }
-  return { captured, startServerImpl, onSignal, trigger };
+  return { captured, startServerImpl, onSignal, trigger, registered };
 }
 
 async function runCli(args, projectRoot) {
@@ -50,10 +52,11 @@ async function runCli(args, projectRoot) {
     onSignal: spy.onSignal,
     startServerImpl: spy.startServerImpl,
   });
-  // Give the CLI two microtask ticks to register its SIGINT handler, then
-  // trigger the signal to drive main to resolution.
-  await new Promise((r) => setImmediate(r));
-  await new Promise((r) => setImmediate(r));
+  // Wait until the CLI has registered its SIGINT handler (or main has
+  // returned without one), then trigger the signal to drive main to
+  // resolution. A fixed count of event-loop turns races the stat walk
+  // main awaits first, and a trigger with no handler left main pending.
+  await Promise.race([spy.registered, run]);
   spy.trigger('SIGINT');
   const code = await run;
   return { code, options: spy.captured.options, readStderr: () => stderrBuf.join('') };
