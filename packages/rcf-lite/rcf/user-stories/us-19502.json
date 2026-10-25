@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:42.592Z",
-  "updatedAt": "2026-10-25T11:25:19.701Z",
+  "updatedAt": "2026-10-25T15:10:28.965Z",
   "asA": "builder on the schema slice, with the stage-keeper who releases it",
   "iWant": "the rcf-schemas change released before the rcf-lite pin moves, and the rcf-lite round to carry Code Nodes only on rcf-lite consumer seams",
   "soThat": "the slice is one Build in rcf-lite whose Finalise can run, even though rcf-schemas has no chain",
@@ -43,6 +43,9 @@
   ],
   "tags": [
     "verification:AC-19502-1=testOnly",
-    "verification:AC-19502-2=testOnly"
+    "verification:AC-19502-2=testOnly",
+    "verification:AC-19502-3=external",
+    "verification:AC-19502-4=external",
+    "verification:AC-19502-5=external"
   ]
 }

@@ -19,15 +19,15 @@
 // turns it green. External criteria drive bin/rcf.js (or the packed
 // artefact) against a fixture project made by its own rcf init; testOnly
 // criteria read this repository through RCF_CHECKOUT when it is set, else
-// from this file's location (GR-34). Imports: Node builtins, js-yaml and
-// test/_harness/ only (GR-40).
+// from this file's location (GR-34). Imports: Node builtins and
+// test/_harness/ only (GR-40), no devDependency, so the file also loads in
+// the packed-artefact run, which installs the runtime dependencies only.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import yaml from 'js-yaml';
 
 import { BIN, rcf, run } from '../_harness/spawn.js';
 import { checkoutPackage, checkoutRoot, project, readJson, readText, scratch, writeJson } from '../_harness/fixture.js';
@@ -210,10 +210,46 @@ test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCri
   assert.equal(ac.additionalProperties, false);
 });
 
+// pnpm-lock.yaml read with Node builtins only: a YAML library is a
+// devDependency, absent from the packed artefact the Test stage installs.
+// The lockfile is block-style YAML, mappings nested by indentation with
+// plain or quoted scalar keys and values; this reads that shape into the
+// nested objects a YAML parser returns for it (an empty flow mapping {}
+// reads {}, another flow value its text, a sequence item is skipped), so
+// the importer entry below is read exactly as a YAML parser reads it.
+function lockScalar(text) {
+  if (text === '{}') return {};
+  if (/^'.*'$/.test(text)) return text.slice(1, -1).replaceAll("''", "'");
+  if (/^".*"$/.test(text)) return JSON.parse(text);
+  return text;
+}
+function readLockfile(text) {
+  const root = {};
+  const open = [{ indent: -1, map: root }];
+  for (const line of text.split(/\r?\n/)) {
+    const body = line.trimStart();
+    if (body === '' || body.startsWith('#') || body.startsWith('-')) continue;
+    const m = /^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^'"\s][^:]*?):(?:\s+(.*))?$/.exec(body);
+    if (!m) continue;
+    const indent = line.length - body.length;
+    while (open.at(-1).indent >= indent) open.pop();
+    const parent = open.at(-1).map;
+    const key = lockScalar(m[1]);
+    const value = (m[2] ?? '').trim();
+    if (value === '') {
+      parent[key] = {};
+      open.push({ indent, map: parent[key] });
+    } else {
+      parent[key] = lockScalar(value);
+    }
+  }
+  return root;
+}
+
 test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins', () => {
   const pkg = JSON.parse(readFileSync(join(checkoutPackage(), 'package.json'), 'utf8'));
   const pin = pkg.dependencies['@stravica-ai/rcf-schemas'];
-  const lock = yaml.load(readFileSync(join(checkoutRoot(), 'pnpm-lock.yaml'), 'utf8'));
+  const lock = readLockfile(readFileSync(join(checkoutRoot(), 'pnpm-lock.yaml'), 'utf8'));
   const entry = lock.importers?.['packages/rcf-lite']?.dependencies?.['@stravica-ai/rcf-schemas'];
   assert.ok(entry, 'the lockfile importer entry for packages/rcf-lite lists @stravica-ai/rcf-schemas');
   const resolved = String(entry.version).split('(')[0];
