@@ -2286,6 +2286,7 @@ flowchart LR
   AC-16502-2 -.-> TC-203-writer-accepts-with-override
   AC-16502-3["AC-16502-3"]
   REQ-165 --> AC-16502-3
+  AC-16502-3 -. supersededBy .-> AC-20001-1
   TC-203-merge-state-refusal-and-opt-out["TC-203-merge-state-refusal-and-opt-out"]
   AC-16502-3 -.-> TC-203-merge-state-refusal-and-opt-out
   AC-16503-1["AC-16503-1"]
@@ -3488,36 +3489,43 @@ flowchart LR
   AC-19001-7 -.-> TC-263-out-help-says-file-path
   AC-19002-1["AC-19002-1"]
   REQ-190 --> AC-19002-1
+  AC-19002-1 -. supersededBy .-> AC-20001-1
   TC-253-e2e-verify-then-finalise["TC-253-e2e-verify-then-finalise"]
   AC-19002-1 -.-> TC-253-e2e-verify-then-finalise
   TC-253-promotes-verified["TC-253-promotes-verified"]
   AC-19002-1 -.-> TC-253-promotes-verified
   AC-19002-2["AC-19002-2"]
   REQ-190 --> AC-19002-2
+  AC-19002-2 -. supersededBy .-> AC-20001-2
   TC-253-no-report["TC-253-no-report"]
   AC-19002-2 -.-> TC-253-no-report
   AC-19002-3["AC-19002-3"]
   REQ-190 --> AC-19002-3
+  AC-19002-3 -. supersededBy .-> AC-20001-4
   TC-253-head-loopback-age["TC-253-head-loopback-age"]
   AC-19002-3 -.-> TC-253-head-loopback-age
   TC-253-squash-tree-equal["TC-253-squash-tree-equal"]
   AC-19002-3 -.-> TC-253-squash-tree-equal
   AC-19002-4["AC-19002-4"]
   REQ-190 --> AC-19002-4
+  AC-19002-4 -. supersededBy .-> AC-20002-4
   TC-253-hand-not-separate["TC-253-hand-not-separate"]
   AC-19002-4 -.-> TC-253-hand-not-separate
   AC-19002-5["AC-19002-5"]
   REQ-190 --> AC-19002-5
+  AC-19002-5 -. supersededBy .-> AC-20002-3
   TC-253-preconditions["TC-253-preconditions"]
   AC-19002-5 -.-> TC-253-preconditions
   AC-19002-6["AC-19002-6"]
   REQ-190 --> AC-19002-6
+  AC-19002-6 -. supersededBy .-> AC-20001-3
   TC-253-blocking-per-ac-verdicts["TC-253-blocking-per-ac-verdicts"]
   AC-19002-6 -.-> TC-253-blocking-per-ac-verdicts
   TC-253-e2e-per-ac-refusal["TC-253-e2e-per-ac-refusal"]
   AC-19002-6 -.-> TC-253-e2e-per-ac-refusal
   AC-19002-7["AC-19002-7"]
   REQ-190 --> AC-19002-7
+  AC-19002-7 -. supersededBy .-> AC-20003-1
   TC-253-retired-flags["TC-253-retired-flags"]
   AC-19002-7 -.-> TC-253-retired-flags
   AC-19002-8["AC-19002-8"]
@@ -3526,40 +3534,49 @@ flowchart LR
   AC-19002-8 -.-> TC-253-no-spawn-no-mutation
   AC-19003-1["AC-19003-1"]
   REQ-190 --> AC-19003-1
+  AC-19003-1 -. supersededBy .-> AC-20201-4
   TC-254-e2e-finalise-clears-backstop["TC-254-e2e-finalise-clears-backstop"]
   AC-19003-1 -.-> TC-254-e2e-finalise-clears-backstop
   TC-254-refuses-unverified["TC-254-refuses-unverified"]
   AC-19003-1 -.-> TC-254-refuses-unverified
   AC-19003-2["AC-19003-2"]
   REQ-190 --> AC-19003-2
+  AC-19003-2 -. supersededBy .-> AC-20203-3
   TC-254-override-recorded["TC-254-override-recorded"]
   AC-19003-2 -.-> TC-254-override-recorded
   AC-19003-3["AC-19003-3"]
   REQ-190 --> AC-19003-3
+  AC-19003-3 -. supersededBy .-> AC-20203-1
   TC-254-inert-without-backstop["TC-254-inert-without-backstop"]
   AC-19003-3 -.-> TC-254-inert-without-backstop
   AC-19003-4["AC-19003-4"]
   REQ-190 --> AC-19003-4
+  AC-19003-4 -. supersededBy .-> AC-20203-2
   TC-254-adopt["TC-254-adopt"]
   AC-19003-4 -.-> TC-254-adopt
   AC-19003-5["AC-19003-5"]
   REQ-190 --> AC-19003-5
+  AC-19003-5 -. supersededBy .-> AC-20201-5
   TC-254-no-silent-bypass["TC-254-no-silent-bypass"]
   AC-19003-5 -.-> TC-254-no-silent-bypass
   AC-19004-1["AC-19004-1"]
   REQ-190 --> AC-19004-1
+  AC-19004-1 -. supersededBy .-> AC-20401-1
   TC-257-test-and-finalise-stages["TC-257-test-and-finalise-stages"]
   AC-19004-1 -.-> TC-257-test-and-finalise-stages
   AC-19004-2["AC-19004-2"]
   REQ-190 --> AC-19004-2
+  AC-19004-2 -. supersededBy .-> AC-20401-1
   TC-257-define-and-build-hands["TC-257-define-and-build-hands"]
   AC-19004-2 -.-> TC-257-define-and-build-hands
   AC-19004-3["AC-19004-3"]
   REQ-190 --> AC-19004-3
+  AC-19004-3 -. supersededBy .-> AC-20401-4
   TC-257-bundle-runbook["TC-257-bundle-runbook"]
   AC-19004-3 -.-> TC-257-bundle-runbook
   AC-19004-4["AC-19004-4"]
   REQ-190 --> AC-19004-4
+  AC-19004-4 -. supersededBy .-> AC-20401-3
   TC-257-managed-block["TC-257-managed-block"]
   AC-19004-4 -.-> TC-257-managed-block
   AC-19004-5["AC-19004-5"]
@@ -3572,24 +3589,29 @@ flowchart LR
   AC-19004-6 -.-> TC-257-doctor-drift
   AC-19004-7["AC-19004-7"]
   REQ-190 --> AC-19004-7
+  AC-19004-7 -. supersededBy .-> AC-20401-5
   TC-257-no-post-merge-verify["TC-257-no-post-merge-verify"]
   AC-19004-7 -.-> TC-257-no-post-merge-verify
   AC-19005-1["AC-19005-1"]
   REQ-190 --> AC-19005-1
+  AC-19005-1 -. supersededBy .-> AC-20001-1
   TC-261-e2e-loopback-verify-then-finalise-on-branch["TC-261-e2e-loopback-verify-then-finalise-on-branch"]
   AC-19005-1 -.-> TC-261-e2e-loopback-verify-then-finalise-on-branch
   TC-261-pre-merge-promotes["TC-261-pre-merge-promotes"]
   AC-19005-1 -.-> TC-261-pre-merge-promotes
   AC-19005-2["AC-19005-2"]
   REQ-190 --> AC-19005-2
+  AC-19005-2 -. supersededBy .-> AC-20003-2
   TC-261-loopback-accepted["TC-261-loopback-accepted"]
   AC-19005-2 -.-> TC-261-loopback-accepted
   AC-19005-3["AC-19005-3"]
   REQ-190 --> AC-19005-3
+  AC-19005-3 -. supersededBy .-> AC-20003-2
   TC-261-loopback-missing-field["TC-261-loopback-missing-field"]
   AC-19005-3 -.-> TC-261-loopback-missing-field
   AC-19005-4["AC-19005-4"]
   REQ-190 --> AC-19005-4
+  AC-19005-4 -. supersededBy .-> AC-20003-2
   TC-261-served-sha-mismatch["TC-261-served-sha-mismatch"]
   AC-19005-4 -.-> TC-261-served-sha-mismatch
   AC-19005-5["AC-19005-5"]
@@ -3604,33 +3626,40 @@ flowchart LR
   AC-19005-5 -.-> TC-261-verify-run-served-sha-refused
   AC-19005-6["AC-19005-6"]
   REQ-190 --> AC-19005-6
+  AC-19005-6 -. supersededBy .-> AC-20003-2
   TC-261-report-committed-at-head["TC-261-report-committed-at-head"]
   AC-19005-6 -.-> TC-261-report-committed-at-head
   AC-19005-7["AC-19005-7"]
   REQ-190 --> AC-19005-7
+  AC-19005-7 -. supersededBy .-> AC-20002-4
   TC-261-provenance-kept-pre-merge["TC-261-provenance-kept-pre-merge"]
   AC-19005-7 -.-> TC-261-provenance-kept-pre-merge
   AC-19005-8["AC-19005-8"]
   REQ-190 --> AC-19005-8
+  AC-19005-8 -. supersededBy .-> AC-20001-5
   TC-261-e2e-merge-confirm["TC-261-e2e-merge-confirm"]
   AC-19005-8 -.-> TC-261-e2e-merge-confirm
   TC-261-merged-main-confirm["TC-261-merged-main-confirm"]
   AC-19005-8 -.-> TC-261-merged-main-confirm
   AC-19005-9["AC-19005-9"]
   REQ-190 --> AC-19005-9
+  AC-19005-9 -. supersededBy .-> AC-20003-1
   TC-261-allow-pre-merge-no-op["TC-261-allow-pre-merge-no-op"]
   AC-19005-9 -.-> TC-261-allow-pre-merge-no-op
   AC-19005-10["AC-19005-10"]
   REQ-190 --> AC-19005-10
+  AC-19005-10 -. supersededBy .-> AC-20401-1
   TC-261-shipped-text-pre-merge["TC-261-shipped-text-pre-merge"]
   AC-19005-10 -.-> TC-261-shipped-text-pre-merge
   REQ-191["REQ-191"]
   AC-19101-1["AC-19101-1"]
   REQ-191 --> AC-19101-1
+  AC-19101-1 -. supersededBy .-> AC-19601-1
   TC-255-pass-line["TC-255-pass-line"]
   AC-19101-1 -.-> TC-255-pass-line
   AC-19101-2["AC-19101-2"]
   REQ-191 --> AC-19101-2
+  AC-19101-2 -. supersededBy .-> AC-19601-2
   TC-255-fail-line["TC-255-fail-line"]
   AC-19101-2 -.-> TC-255-fail-line
   TC-255-lockfiles-neutral["TC-255-lockfiles-neutral"]
@@ -3639,18 +3668,22 @@ flowchart LR
   AC-19101-2 -.-> TC-255-multi-extension-test-file
   AC-19101-3["AC-19101-3"]
   REQ-191 --> AC-19101-3
+  AC-19101-3 -. supersededBy .-> AC-19601-3
   TC-255-undeclared["TC-255-undeclared"]
   AC-19101-3 -.-> TC-255-undeclared
   AC-19101-4["AC-19101-4"]
   REQ-191 --> AC-19101-4
+  AC-19101-4 -. supersededBy .-> AC-19601-5
   TC-255-bad-ref-and-repo["TC-255-bad-ref-and-repo"]
   AC-19101-4 -.-> TC-255-bad-ref-and-repo
   AC-19101-5["AC-19101-5"]
   REQ-191 --> AC-19101-5
+  AC-19101-5 -. supersededBy .-> AC-19601-6
   TC-255-json-rows["TC-255-json-rows"]
   AC-19101-5 -.-> TC-255-json-rows
   AC-19101-6["AC-19101-6"]
   REQ-191 --> AC-19101-6
+  AC-19101-6 -. supersededBy .-> AC-19601-8
   TC-255-read-only["TC-255-read-only"]
   AC-19101-6 -.-> TC-255-read-only
   AC-19101-7["AC-19101-7"]
@@ -3659,14 +3692,17 @@ flowchart LR
   AC-19101-7 -.-> TC-255-verify-reports-class
   AC-19102-1["AC-19102-1"]
   REQ-191 --> AC-19102-1
+  AC-19102-1 -. supersededBy .-> AC-19604-3
   TC-256-mixed-exception["TC-256-mixed-exception"]
   AC-19102-1 -.-> TC-256-mixed-exception
   AC-19102-2["AC-19102-2"]
   REQ-191 --> AC-19102-2
+  AC-19102-2 -. supersededBy .-> AC-19604-5
   TC-256-class-override["TC-256-class-override"]
   AC-19102-2 -.-> TC-256-class-override
   AC-19102-3["AC-19102-3"]
   REQ-191 --> AC-19102-3
+  AC-19102-3 -. supersededBy .-> AC-19604-4
   TC-256-require-hand["TC-256-require-hand"]
   AC-19102-3 -.-> TC-256-require-hand
   TC-256-require-hand-builder-breach["TC-256-require-hand-builder-breach"]
@@ -3679,6 +3715,7 @@ flowchart LR
   AC-19102-4 -.-> TC-256-ci-pull-request-step
   AC-19102-5["AC-19102-5"]
   REQ-191 --> AC-19102-5
+  AC-19102-5 -. supersededBy .-> AC-19604-6
   TC-256-no-empty-reason-no-shallow["TC-256-no-empty-reason-no-shallow"]
   AC-19102-5 -.-> TC-256-no-empty-reason-no-shallow
   REQ-192["REQ-192"]
@@ -3763,6 +3800,7 @@ flowchart LR
   AC-19301-8 -.-> TC-258-writes-only-report-dir
   AC-19301-9["AC-19301-9"]
   REQ-193 --> AC-19301-9
+  AC-19301-9 -. supersededBy .-> AC-20001-1
   TC-258-finalise-end-to-end["TC-258-finalise-end-to-end"]
   AC-19301-9 -.-> TC-258-finalise-end-to-end
   AC-19302-1["AC-19302-1"]
