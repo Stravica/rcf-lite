@@ -95,11 +95,19 @@ test('AC-19501-3: a verification value outside external and testOnly exits 3 wit
   assert.equal(readText(dir, 'rcf/user-stories/us-101.json'), bytes, 'us-101.json is byte-identical');
 
   const bodyDir = scratch(t, 'rcf-h-body-');
+  // The criterion the refused create would make, read from the same
+  // create with an allowed value as a dry run (here the fixture's seeded
+  // AC-101-1, which a create replaces in place).
+  writeJson(bodyDir, 'allowed.json', { description: '[happy] fixture', testable: true, verification: 'external' });
+  const dry = await rcf(['define', 'create', 'ac', '--parent', 'US-101', '--from-file', join(bodyDir, 'allowed.json'), '--dry-run'], { cwd: dir });
+  const createdId = /would create (AC-\d+-\d+) /.exec(dry.stdout)?.[1];
+  assert.ok(createdId, `the dry run names the criterion a create makes\n${dry.stdout}${dry.stderr}`);
   writeJson(bodyDir, 'ac.json', { description: '[happy] fixture', testable: true, verification: 'deployed' });
   const c = await rcf(['define', 'create', 'ac', '--parent', 'US-101', '--from-file', join(bodyDir, 'ac.json')], { cwd: dir });
   assert.equal(c.code, 3, `${c.stdout}${c.stderr}`);
   const cline = c.stderr.split('\n').find((l) => l.startsWith('[error] validation'));
   assert.ok(cline && cline.includes('verification'), `create: an "[error] validation" line names the field verification\n${c.stderr}`);
+  assert.ok(cline.includes(createdId), `create: the line names the criterion ${createdId} the create would make: ${cline}`);
   assert.equal(readText(dir, 'rcf/user-stories/us-101.json'), bytes, 'us-101.json is byte-identical after the refused create');
 });
 

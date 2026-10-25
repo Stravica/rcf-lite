@@ -45,6 +45,18 @@ async function assertPinGiven() {
   assert.equal(installed, '0.10.0', `the ${SCHEMAS} that bin/rcf.js resolves (${schemasPkg}) is 0.10.0`);
 }
 
+// AC-19401-12's Given "the pin at rcf-schemas 0.9.0 or later" (stage-keeper
+// ruling B, fix 1): the rcf-schemas that bin/rcf.js resolves at run time,
+// read as assertPinGiven reads it, is 0.9.0 or later.
+async function assertPinAtLeast090() {
+  const schemasPkg = createRequire(RCF_BIN).resolve(`${SCHEMAS}/package.json`);
+  const { version } = JSON.parse(await readFile(schemasPkg, 'utf8'));
+  const [a, b] = [version.split('-')[0].split('.').map(Number), [0, 9, 0]];
+  const i = [0, 1, 2].find((k) => a[k] !== b[k]);
+  const later = i === undefined ? !version.includes('-') : a[i] > b[i];
+  assert.ok(later, `given: the pin at rcf-schemas 0.9.0 or later; bin/rcf.js resolves ${SCHEMAS} ${version} (${schemasPkg})`);
+}
+
 // This repository's packages/rcf-lite, the directory AC-19401-1 runs its
 // commands from. In the clone it is PKG_ROOT. Inside `rcf verify run
 // --artefact` this file runs from a scratch copy of the installed package,
@@ -263,6 +275,7 @@ test('AC-19502-5: at rcf-schemas 0.10.0 an AC-level probe { "path": "/" } alread
 // (test/_harness/, GR-40): the bin's rcf init fixture and a recording
 // HTTP target.
 test('AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes', async (t) => {
+  await assertPinAtLeast090();
   const dir = await harnessProject(t, { name: 'verify-retired' });
   editStory(dir, 'US-101', (us) => {
     us.acceptanceCriteria = [
