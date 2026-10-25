@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-24T16:56:37.476Z",
+  "updatedAt": "2026-10-24T16:56:39.543Z",
+  "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19901-1",
+    "AC-19901-2",
+    "AC-19901-3",
+    "AC-19901-4",
+    "AC-19901-5",
+    "AC-19901-6",
+    "AC-19901-7",
+    "AC-19901-8"
+  ],
+  "id": "TS-282",
+  "usId": "US-19901",
+  "title": "US-19901 external criteria (FBS-236)",
+  "testCases": [
+    {
+      "id": "TC-282-over-a-bin-entry-a-harness-glob-and-ac",
+      "acId": "AC-19901-1",
+      "description": "over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line"
+    },
+    {
+      "id": "TC-282-a-bound-test-also-importing-src-store-js",
+      "acId": "AC-19901-2",
+      "description": "a bound test also importing src/store.js exits 4 with \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-2: a bound test also importing src/store.js exits 4 with \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)\""
+    },
+    {
+      "id": "TC-282-mock-module-src-mailer-js-with-edge-node",
+      "acId": "AC-19901-3",
+      "description": "mock.module(\"../../src/mailer.js\") with edge [\"node:https\"] exits 4 with \"AC-101-1 mocks ../../src/mailer.js (not a declared edge)\"; mock.module(\"node:https\") in the same test is not a finding",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-3: mock.module(\"../../src/mailer.js\") with edge [\"node:https\"] exits 4 with \"AC-101-1 mocks ../../src/mailer.js (not a declared edge)\"; mock.module(\"node:https\") in the same test is not a finding"
+    },
+    {
+      "id": "TC-282-a-code-node-src-notify-js-makenotifier",
+      "acId": "AC-19901-4",
+      "description": "a Code Node src/notify.js#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with \"AC-101-1 silent default sender in src/notify.js#makeNotifier\"; a parameter named sender with no default is not a finding",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-4: a Code Node src/notify.js#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with \"AC-101-1 silent default sender in src/notify.js#makeNotifier\"; a parameter named sender with no default is not a finding"
+    },
+    {
+      "id": "TC-282-no-rcf-test-strength-json-exits-2-with",
+      "acId": "AC-19901-5",
+      "description": "no rcf/test-strength.json exits 2 with \"test-strength: no rcf/test-strength.json; declare entry and harness\"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-5: no rcf/test-strength.json exits 2 with \"test-strength: no rcf/test-strength.json; declare entry and harness\"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1"
+    },
+    {
+      "id": "TC-282-the-structural-check-never-executes-a",
+      "acId": "AC-19901-6",
+      "description": "the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-6: the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run"
+    },
+    {
+      "id": "TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101",
+      "acId": "AC-19901-7",
+      "description": "with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1"
+    },
+    {
+      "id": "TC-282-a-bound-test-file-test-rcf-a-test-ts-or",
+      "acId": "AC-19901-8",
+      "description": "a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\" and runs no mutant; .js, .mjs and .cjs files are read",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\" and runs no mutant; .js, .mjs and .cjs files are read"
+    }
+  ],
+  "status": "draft"
+}

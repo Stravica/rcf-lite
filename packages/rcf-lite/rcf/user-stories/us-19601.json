@@ -1,0 +1,81 @@
+{
+  "createdAt": "2026-10-24T11:24:53.899Z",
+  "updatedAt": "2026-10-24T14:59:36.647Z",
+  "asA": "stage-keeper or reviewer judging a pull request on a product built with rcf-lite",
+  "iWant": "rcf audit separation to judge every commit by its stage prefix and the file classes that stage owns",
+  "soThat": "separation of duties shows in git log and a commit that crosses stages fails with the path named",
+  "description": "Per-commit judgement by stage prefix and per-stage classes.",
+  "tacIds": [
+    "TAC-4153"
+  ],
+  "usId": "US-19601",
+  "prdId": "PRD-001",
+  "reqId": "REQ-196",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The stage-keeper and the reviewer read each commit's stage and classes in one audit line",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19601-1",
+      "description": "[happy] Given a fixture git repository with a base commit and five commits on a branch: \"DEFINE: criteria\" touching test/x.test.js and rcf/user-stories/us-1.json, \"BUILD: code\" touching src/x.js, rcf/code-nodes/cn-1.json and test/hygiene/x.test.js, \"REVIEW: verdict\" touching rcf/verdicts/<h12>/review.json, \"TEST: verdict\" touching rcf/verdicts/<h12>/test.json and rcf/verify-reports/FBS-001/a.json, and \"FINALISE: status\" touching rcf/fbs/fbs-001.json and pnpm-lock.yaml, when rcf audit separation --base <base> runs, then it exits 0 and stdout is exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-2",
+      "description": "[failure] Given a fixture branch whose one commit \"BUILD: add test\" touches test/x.test.js, when rcf audit separation --base <base> runs, then it exits 4 and stdout is \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-3",
+      "description": "[failure] Given a fixture branch whose commits are \"DEFINE: criteria\" touching rcf/user-stories/us-1.json and \"fix things\" (no prefix) touching only src/x.js, when rcf audit separation --base <base> runs, then it exits 4 and stdout is \"separation: FAIL 1 of 2 commits (base <b7>, head <h7>): <s7> no stage prefix\", where <s7> is the second commit; a commit touching only Markdown outside rcf/ with no prefix fails the same way.",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-4",
+      "description": "[failure] Given seven fixture commits whose subjects start \"define: x\", \"Define: x\", \"DEFINE:x\", \"DEFINE - x\", \"[DEFINE] x\", \"DEFINE(FBS-1): x\" and \"VERIFY: x\", each touching only rcf/user-stories/us-1.json, when rcf audit separation runs over them, then it exits 4 and the FAIL line carries one item for each commit \"<s7> malformed stage prefix \\\"<first token>\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" where <first token> is the subject up to its first space (\"define:\", \"Define:\", \"DEFINE:x\", \"DEFINE\", \"[DEFINE]\", \"DEFINE(FBS-1):\", \"VERIFY:\").",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-5",
+      "description": "[failure] Given --base naming a ref that does not exist, rcf audit separation exits 2 with stderr \"separation: bad ref <ref>\"; run outside a git repository it exits 1 with stderr \"separation: not a git repository\"; run in a shallow clone it exits 2 with stderr \"separation: shallow repository, the history from <ref> is missing (fetch with full depth)\"; each prints nothing on stdout.",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-6",
+      "description": "[happy] Given the five-commit fixture of the PASS case plus a clean merge commit \"FINALISE: merge main\", when rcf audit separation --base <base> --json runs, then it exits 0 and stdout is a JSON array of six SeparationRow v2 objects in range order, each with exactly the keys sha, subject, merge, stage, role, handTrailer, classes, generators, verdict, reason and paths; the BUILD row reads stage \"BUILD\", role \"builder\" and classes containing \"production\" and \"hygieneTest\"; the merge row reads merge true, stage \"FINALISE\" and paths [].",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-7",
+      "description": "[edge] Given three fixture commits \"REVIEW: notes\" touching docs/review.md, \"TEST: log\" touching test/x.test.js and \"FINALISE: tidy\" touching README.md, when rcf audit separation runs, then it exits 4 naming each: \"<s7> REVIEW: touches docs/review.md (class neutral, owned by DEFINE, BUILD)\", \"<s7> TEST: touches test/x.test.js (class rcfTest, owned by DEFINE)\" and \"<s7> FINALISE: touches README.md (class neutral, owned by DEFINE, BUILD)\": neutral paths are open to DEFINE and BUILD only.",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-8",
+      "description": "[must-not] rcf audit separation never writes a file, never opens a network connection and reads repository files only through git at commits in the range (rcf/separation.json at the head commit, verdict records at the commits that add them): two runs over the same fixture range print byte-identical stdout, git status --porcelain is unchanged by a run, a run with --head <sha> at a commit other than HEAD judges that range without checking anything out, and a spawn seam that records child processes records only git.",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-9",
+      "description": "[non-functional] Given a fixture range of 200 commits, each prefixed and touching 20 paths across four classes (several times the longest single round the redesign records, whose specs held 152 criteria while the round touched 8), when rcf audit separation --base <base> runs on the host the suite runs on (the test prints os.cpus().length and process.version), then it finishes within 10 seconds and spawns no more than 4 git processes plus one per merge commit in the range, because paths, subjects and trailers come from one git log pass.",
+      "testable": true
+    },
+    {
+      "id": "AC-19601-10",
+      "description": "[edge] Given a fixture commit \"BUILD: mixed\" carrying Hand: test-author and touching rcf/user-stories/us-1.json and test/a.test.js, followed by a commit \"define: x\" touching src/x.js, when rcf audit separation runs, then it exits 4 and stdout is \"separation: FAIL 2 of 2 commits (base <b7>, head <h7>): <s7> Hand: test-author disagrees with BUILD: (role builder); <s7> BUILD: touches rcf/user-stories/us-1.json (class criteria, owned by DEFINE); <s7> BUILD: touches test/a.test.js (class rcfTest, owned by DEFINE); <s7> malformed stage prefix \\\"define:\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\": each cause is its own item in check order, commits in range order, and a malformed prefix is that commit's only item.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19601-1=external",
+    "verification:AC-19601-2=external",
+    "verification:AC-19601-3=external",
+    "verification:AC-19601-4=external",
+    "verification:AC-19601-5=external",
+    "verification:AC-19601-6=external",
+    "verification:AC-19601-7=external",
+    "verification:AC-19601-8=external",
+    "verification:AC-19601-9=external",
+    "verification:AC-19601-10=external"
+  ]
+}

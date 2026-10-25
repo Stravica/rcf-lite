@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T16:28:05.145Z",
+  "updatedAt": "2026-10-24T16:28:06.438Z",
+  "purpose": "FBS-233: the external criteria of US-19602, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19602-1",
+    "AC-19602-2",
+    "AC-19602-3",
+    "AC-19602-4",
+    "AC-19602-5"
+  ],
+  "id": "TS-270",
+  "usId": "US-19602",
+  "title": "US-19602 external criteria (FBS-233)",
+  "testCases": [
+    {
+      "id": "TC-270-a-build-hygiene-commit-touching-src-a-js",
+      "acId": "AC-19602-1",
+      "description": "a \"BUILD: hygiene\" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19602-1: a \"BUILD: hygiene\" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only"
+    },
+    {
+      "id": "TC-270-a-define-tests-commit-touching-test",
+      "acId": "AC-19602-2",
+      "description": "a \"DEFINE: tests\" commit touching test/hygiene/a.test.js exits 4 with \"<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19602-2: a \"DEFINE: tests\" commit touching test/hygiene/a.test.js exits 4 with \"<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)\""
+    },
+    {
+      "id": "TC-270-audit-coverage-strict-reports-ac-101-1",
+      "acId": "AC-19602-3",
+      "description": "audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with \"hygiene test, outside the RCF suite: test/hygiene/a.test.js\" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with \"hygiene test, outside the RCF suite: test/hygiene/a.test.js\" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0"
+    },
+    {
+      "id": "TC-270-define-validate-over-a-hygiene-bound",
+      "acId": "AC-19602-4",
+      "description": "define validate over a hygiene-bound chain exits 0 with exactly one \"[warn] TC-<id> points into a hygiene test\" line, and no hygiene test counts toward coverage in table, json or mermaid",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactly one \"[warn] TC-<id> points into a hygiene test\" line, and no hygiene test counts toward coverage in table, json or mermaid"
+    },
+    {
+      "id": "TC-270-rcf-separation-json-declaring",
+      "acId": "AC-19602-5",
+      "description": "rcf/separation.json declaring hygieneTest [\"spec/unit/**\"] makes a \"DEFINE: spec\" commit on spec/unit/b.js fail with \"(class hygieneTest, owned by BUILD)\" while the \"BUILD: unit\" commit on spec/unit/a.js passes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19602-5: rcf/separation.json declaring hygieneTest [\"spec/unit/**\"] makes a \"DEFINE: spec\" commit on spec/unit/b.js fail with \"(class hygieneTest, owned by BUILD)\" while the \"BUILD: unit\" commit on spec/unit/a.js passes"
+    }
+  ],
+  "status": "draft"
+}

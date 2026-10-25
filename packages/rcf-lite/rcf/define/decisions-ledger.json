@@ -1895,6 +1895,1244 @@
       "answer": "a. The stage-keeper's round 8 ruling, the last round on FBS-231's store corners (decisions 84 to 87 stay as recorded). Pinned in test/feedback/feedback-store-fence.test.js and bound in TS-264: a live claimant never passed by age (TC-264-live-claim-never-passed), a holder judged stopped writes nothing more (TC-264-lost-hold-writes-nothing, probe g9 L11 and a holder held past the stale window), a worktree's kept filing moves once (TC-264-held-filing-moves-once), a busy exit after a filing names it (TC-264-busy-after-filing-names-it), the dry run skips a kept filing (TC-264-dry-run-skips-kept-filing) and a dead claimant's claim removed (TC-264-dead-claim-removed). AC-16103-4 amended in place (five sentences and variant 13).",
       "answeredAt": "2026-10-24T01:10:31.014Z",
       "resolvedAt": "2026-10-24T01:10:31.014Z"
+    },
+    {
+      "id": 89,
+      "question": "(rcf-lite 0.37.0 DEFINE) How are RCF dispatches named, and what remains of the hand vocabulary? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :129).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Dispatches are named by RCF stage; the role a stage is done by appears only in commits"
+        },
+        {
+          "letter": "b",
+          "text": "Keep hand-named dispatches and the hand vocabulary"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-241",
+      "addedAt": "2026-10-24T11:43:19.277Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Dispatch naming: dispatches are named by RCF stage, so it is easy to see what is going on at any time. The hand (the role a stage's work is done by: test-author, builder, reviewer, verifier, stage-keeper) stays only as the commit trailer the separation audit reads. ... Rename it to \"role\" in rcf-lite as part of 0.37.0.\" The trailer and the rename are replaced by the stage prefix under the 10:40Z refinement recorded in the Q-02 decision (redesign note 2026-10-24 :149).",
+      "answeredAt": "2026-10-24T11:43:19.362Z",
+      "resolvedAt": "2026-10-24T11:43:19.362Z"
+    },
+    {
+      "id": 90,
+      "question": "(rcf-lite 0.37.0 DEFINE) Open question 1: what happens to criteria that exist today without a verification flag? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :131, :137).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "A one-off flag sweep now; validate reports unflagged criteria so the sweep has a worklist"
+        },
+        {
+          "letter": "b",
+          "text": "validate reports them and they are flagged when a batch touches them"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T11:43:19.447Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Open question 1: do the [downstream product's] flag sweep (all ACs flagged now; leaving them would only become debt).\" rcf define validate --report verification is the worklist (REQ-198).",
+      "answeredAt": "2026-10-24T11:43:19.532Z",
+      "resolvedAt": "2026-10-24T11:43:19.532Z"
+    },
+    {
+      "id": 91,
+      "question": "(rcf-lite 0.37.0 DEFINE) Open questions 2 and 3: which mutation operators ship in v1, and what is the release Verify scope? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :132, :138-139).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "As recommended: stub-to-throw, no-op and call removal on Code Node symbols only, no general mutation testing; release scope is the specs changed since the last release plus a core-journey smoke run; amended 2026-10-24 by decision 103 (the operator's answer (c)): a fourth operator, fileBlank, on file-level Code Nodes of non-source paths"
+        },
+        {
+          "letter": "b",
+          "text": "General mutation testing and a whole-chain release Verify"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-236, FBS-238",
+      "addedAt": "2026-10-24T11:43:19.618Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Open questions 2 and 3: agreed as recommended.\" The recommendations as asked: \"Mutation operators in v1. Recommended: stub-to-throw, no-op and call removal on Code Node symbols only. No general mutation testing.\" and \"Release Verify scope. Recommended: the specs changed since the last release, plus a core-journey smoke run.\"",
+      "answeredAt": "2026-10-24T11:43:19.703Z",
+      "resolvedAt": "2026-10-24T11:43:19.703Z"
+    },
+    {
+      "id": 92,
+      "question": "(rcf-lite 0.37.0 DEFINE) Open question 4: does release Verify cover the live integrations? Source: the operator's answers of 2026-10-24 09:20Z (redesign note 2026-10-24 :49, :133).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "No; verifying live integrations is a separate discussion and out of scope here"
+        },
+        {
+          "letter": "b",
+          "text": "Release Verify covers the live integrations"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-238",
+      "addedAt": "2026-10-24T11:43:19.789Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 09:20Z: \"Open question 4: a separate discussion. Keep the focus tight.\" and the model: \"Out of scope here: verifying the live integrations. That is a separate discussion; ready-for-prod comes first (the operator).\"",
+      "answeredAt": "2026-10-24T11:43:19.874Z",
+      "resolvedAt": "2026-10-24T11:43:19.874Z"
+    },
+    {
+      "id": 93,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-01: does BUILD still write code-hygiene unit tests, and how does rcf-lite class them? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :146), and the DEFINE spec's D-13 amendment.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Keep them; rcf-lite gives them a builder class outside the RCF suite"
+        },
+        {
+          "letter": "b",
+          "text": "Drop them; every test comes from DEFINE"
+        },
+        {
+          "letter": "c",
+          "text": "Keep the downstream override as a registered workaround"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-239",
+      "addedAt": "2026-10-24T11:43:19.959Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Builder unit tests (Q-01: a). Unit tests are basic code hygiene. Whether they link to ACs or not does not matter to RCF; they are not part of the RCF E2E test suites (the operator). rcf-lite classes them as builder-owned and outside the RCF suite, the separation audit leaves them alone, and \"full suite green\" means the RCF suites.\" D-13 as amended: \"D-13 classes builder unit tests as hygiene outside the RCF suite.\"",
+      "answeredAt": "2026-10-24T11:43:20.044Z",
+      "resolvedAt": "2026-10-24T11:43:20.044Z"
+    },
+    {
+      "id": 94,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-02: how are chore commits made, and what marks a commit's stage? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z, with the four refinements that go into the 0.37.0 DEFINE unless the operator objects (redesign note 2026-10-24 :147-151), and the DEFINE spec's D-12 amendment.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Chores are committed as part of FINALISE; every commit starts with its stage name; per-stage file classes; the stage prefix replaces the role trailer; a merge from main inside FINALISE needs CI and the full RCF suite green on the final head"
+        },
+        {
+          "letter": "b",
+          "text": "Any separation exception fails Finalise"
+        },
+        {
+          "letter": "c",
+          "text": "Named chores get their own role"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-234, FBS-237",
+      "addedAt": "2026-10-24T11:43:20.129Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Chore commits (Q-02). They are committed as part of FINALISE. A stage may have several commits, and each commit message starts with its stage name (the operator: \"shout if disagree\").\" Refinements: \"Per-stage file classes. A FINALISE: commit may carry a merge from main, a lockfile, artefacts from a declared generator command and chain status records. Anything else fails. Re-recording goldens or fixtures stays with the test-author, and source stays with BUILD.\" \"The stage prefix replaces the role trailer. One marker, in the strict form DEFINE: / BUILD: / REVIEW: / TEST: / FINALISE:. The audit derives the role from the stage. This replaces the \"rename hand to role\" item.\" \"A merge from main inside FINALISE. CI and the full RCF suite must be green on the final head. A merge that needs a code fix is not a chore and goes back to BUILD.\" D-12 as amended: \"D-12 becomes the stage-name commit prefix (DEFINE: / BUILD: / REVIEW: / TEST: / FINALISE:), which replaces the Hand trailer. Stage order is monotonic within a round, a regression to DEFINE is legal only after a recorded failed verdict, and Finalise judges the last round only.\" Refinement 3 is recorded, as corrected, in the rounds decision.",
+      "answeredAt": "2026-10-24T11:43:20.215Z",
+      "resolvedAt": "2026-10-24T11:43:20.215Z"
+    },
+    {
+      "id": 95,
+      "question": "(rcf-lite 0.37.0 DEFINE) What happens when REVIEW or TEST fails, and how is stage order judged within a round? Source: the operator, 2026-10-24 about 10:50Z, correcting refinement 3 of Q-02 (redesign note 2026-10-24 :158-166).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "A failed REVIEW or TEST closes the round; every round starts at DEFINE; stage order is monotonic; verdicts are commits; Finalise judges the last round only"
+        },
+        {
+          "letter": "b",
+          "text": "After the reviewed head, DEFINE: or BUILD: commits reopen REVIEW within the same round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-234, FBS-237, FBS-241",
+      "addedAt": "2026-10-24T11:43:20.300Z",
+      "status": "resolved",
+      "answer": "a. The operator: \"dont forget what may happen if review fails - we are supposed to re-enter the 5-stage cycle are we not?\" Recorded as: \"A failed REVIEW (FINDINGS) or a failed TEST closes the round. The next round starts at DEFINE and runs all five stages again.\" \"Every round starts at DEFINE, even for a pure build bug. The test-author triages each finding: spec-rooted findings amend the criteria; build-rooted findings get a red test that pins them, or a recorded note naming the existing test that already pins them. BUILD follows. This is the 2026-10-13 ruling that fixes get full separation.\" \"Stage order within a round is monotonic. Going back from REVIEW or TEST to DEFINE: is legal only immediately after a recorded failed verdict.\" \"Verdicts are commits. REVIEW and TEST verdicts are recorded as REVIEW: / TEST: commits on the branch, so round boundaries are visible in git with no round number in the message.\" \"Finalise judges the last round only. It requires REVIEW MERGE at head H, only TEST: and FINALISE: commits after H (within their file classes), and a TEST PASS. Earlier rounds are history.\"",
+      "answeredAt": "2026-10-24T11:43:20.385Z",
+      "resolvedAt": "2026-10-24T11:43:20.385Z"
+    },
+    {
+      "id": 96,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-03: what replaces the merge-without-Finalise-verdict approval entry, which rcf-lite's guidance must describe? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :152).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Relabel the entry to the redesign"
+        },
+        {
+          "letter": "b",
+          "text": "Retire it; add one entry for merge without a Finalise complete and one for promote without Verify"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-24T11:43:20.471Z",
+      "status": "resolved",
+      "answer": "b. The operator, 2026-10-24 10:40Z: \"Envelope (Q-03: b). Retire rcf-merge-without-finalise-verdict. Add \"merge without Finalise complete\" and \"promote without Verify\".\" rcf-lite's guidance states both gates: merge only after Finalise writes complete; promote only after a release Verify.",
+      "answeredAt": "2026-10-24T11:43:20.556Z",
+      "resolvedAt": "2026-10-24T11:43:20.556Z"
+    },
+    {
+      "id": 97,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-04: is an amend round on complete specs a Build the bundle must serve? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :153).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Yes; 0.37.0 bundles amend rounds by touched criterion"
+        },
+        {
+          "letter": "b",
+          "text": "No; the stage-keeper assembles it under a registered workaround"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-239, FBS-237",
+      "addedAt": "2026-10-24T11:43:20.641Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Fix rounds on complete specs (Q-04: a). 0.37.0 bundles amend rounds by touched AC.\"",
+      "answeredAt": "2026-10-24T11:43:20.727Z",
+      "resolvedAt": "2026-10-24T11:43:20.727Z"
+    },
+    {
+      "id": 98,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-05: where does the TEST pass live so Finalise checks it at the reviewed head? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :154).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Outside the tree (a CI artefact or check run)"
+        },
+        {
+          "letter": "b",
+          "text": "A branch commit, with Finalise judging the reviewed head plus later commits within their classes"
+        },
+        {
+          "letter": "c",
+          "text": "The pull request body"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-234, FBS-237",
+      "addedAt": "2026-10-24T11:43:20.812Z",
+      "status": "resolved",
+      "answer": "b. The operator, 2026-10-24 10:40Z: \"TEST pass record (Q-05: b). A branch commit. Finalise accepts the reviewed head plus TEST: and FINALISE: commits within their file classes.\"",
+      "answeredAt": "2026-10-24T11:43:20.898Z",
+      "resolvedAt": "2026-10-24T11:43:20.898Z"
+    },
+    {
+      "id": 99,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-06: may Builds proceed unfrozen while rcf-lite readiness is red? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :155).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "No; fix D1 to D6 and D8 first"
+        },
+        {
+          "letter": "b",
+          "text": "Yes for the 0.37.0 Build only, as a registered workaround that expires at the 0.37.0 release; the readiness fix is inside 0.37.0"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T11:43:20.983Z",
+      "status": "resolved",
+      "answer": "b. The operator, 2026-10-24 10:40Z: \"Readiness red (Q-06: b). The 0.37.0 Build may bundle by explicit spec id, as a registered workaround (WA-08) that expires at the 0.37.0 release. The readiness fix is inside 0.37.0, so the next release uses --next.\"",
+      "answeredAt": "2026-10-24T11:43:21.068Z",
+      "resolvedAt": "2026-10-24T11:43:21.068Z"
+    },
+    {
+      "id": 100,
+      "question": "(rcf-lite 0.37.0 DEFINE) Q-07: how does Verify target a CLI or library such as rcf-lite, when change 4 names a URL? Source: the operator's answers to the workaround audit, 2026-10-24 10:40Z (redesign note 2026-10-24 :156).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The packed artefact installed cold is the Verify target"
+        },
+        {
+          "letter": "b",
+          "text": "Such products carry only testOnly criteria"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-238, FBS-236",
+      "addedAt": "2026-10-24T11:43:21.153Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 10:40Z: \"Verify for a CLI or library (Q-07: a). The packed artefact, installed cold, is the Verify target.\"",
+      "answeredAt": "2026-10-24T11:43:21.239Z",
+      "resolvedAt": "2026-10-24T11:43:21.239Z"
+    },
+    {
+      "id": 101,
+      "question": "(rcf-lite 0.37.0 DEFINE) The redesign's model rulings: where does the build cycle end, what do TEST and Finalise do, where does Verify sit, what is the backstop, and how strict is test adequacy? Source: the operator-marked lines of the redesign note reviewed 2026-10-24 09:20Z (redesign note 2026-10-24 :20-73).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "The cycle ends at complete; TEST runs the full RCF suite locally with no deployments; Finalise is light and tool-checked with Code Nodes in slice scope; Verify is the production gate outside the cycle writing verified; no Build until the RCF suite is green on the base; mutation proof in v1; one way of building"
+        },
+        {
+          "letter": "b",
+          "text": "Keep the 0.36.x shape: verification inside the Test stage and Finalise writing verified"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-232 to FBS-241 (rcf-lite 0.37.0)",
+      "addedAt": "2026-10-24T11:43:21.324Z",
+      "status": "resolved",
+      "answer": "a. The operator-marked lines of the redesign: \"The cycle ends at complete.\" TEST: \"The full RCF suite passes against a locally running app. No deployments (the operator).\" FINALISE: \"Light and tool-checked (the operator). Then merge.\" \"Code Nodes exist for every AC the slice touched (the operator: slice scope)\". \"VERIFY: the production gate, outside the build cycle (the operator)\", \"Preview always points at sandbox (the operator)\", \"What it writes: verified. Ad hoc runs, such as a post-deploy smoke test, never touch RCF statuses (the operator).\" \"No new Build until the full RCF suite is green on the base (the operator). Specs cannot be verified mid-build.\" \"Mutation proof (tool, in v1, the operator).\" \"Bad passing tests cascade through testing and traceability (the operator).\" \"AC: carries verification: external | testOnly, set at DEFINE and checked at Review (the operator).\" One way of building across products \"is a must (the operator).\"",
+      "answeredAt": "2026-10-24T11:43:21.410Z",
+      "resolvedAt": "2026-10-24T11:43:21.410Z"
+    },
+    {
+      "id": 102,
+      "question": "(rcf-lite 0.37.0 DEFINE) A merge from main in FINALISE that needs a code fix, or CI or the full suite red on the merge head: how does the round close? Source: stage-keeper ruling 3, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a second TEST verdict, FAIL, keyed by the merge head"
+        },
+        {
+          "letter": "b",
+          "text": "a new FINALISE failure verdict kind"
+        },
+        {
+          "letter": "c",
+          "text": "the branch closes unmerged and a new branch from main starts at DEFINE (cherry-picking the round)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-234, FBS-237",
+      "addedAt": "2026-10-24T14:58:24.344Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24, overriding the worker's pick (c): \"When the full suite or CI goes red on the merge head, the stage-keeper does not fix it. A TEST run at the merge head records FAIL. That verdict closes the round, and the next round starts at DEFINE on the same branch. No new verdict kind, and no closing the branch.\" Reason: the operator, \"we are supposed to re-enter the 5-stage cycle\". A merge whose resolution needs a code fix is never committed in FINALISE; the FAIL is then keyed to HEAD.",
+      "answeredAt": "2026-10-24T14:58:24.431Z",
+      "resolvedAt": "2026-10-24T14:58:24.431Z"
+    },
+    {
+      "id": 103,
+      "question": "(rcf-lite 0.37.0 DEFINE) How do touched criteria that no code symbol implements (guidance, docs, CI, chain state) pass test strength and the Code Node check? Source: pre-freeze gate rulings 2026-10-24, GR-19.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "criterion-level exemption declared at DEFINE, judged at Review"
+        },
+        {
+          "letter": "b",
+          "text": "such checks leave RCF criteria"
+        },
+        {
+          "letter": "c",
+          "text": "a fourth operator, fileBlank, on file-level Code Nodes of non-source paths"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-236, FBS-237, FBS-240, FBS-241",
+      "addedAt": "2026-10-24T14:58:24.518Z",
+      "status": "resolved",
+      "answer": "c. The operator, 2026-10-24 about 14:20Z: \"(c). Add a fourth operator, fileBlank, on file-level Code Nodes of non-source paths. Apply section 7.14's GR-19 text, and set ledger 91's operator list to four. The a-74 ledger entry is ruled (c).\"",
+      "answeredAt": "2026-10-24T14:58:24.607Z",
+      "resolvedAt": "2026-10-24T14:58:24.607Z"
+    },
+    {
+      "id": 104,
+      "question": "(rcf-lite 0.37.0 DEFINE) Where a-27 and a-29 (GR-18, not a supported source) and the fourth operator (GR-19, fileBlank) both rule on paths outside .js, .mjs and .cjs, which paths exit 2 and which get fileBlank? Source: the stage-keeper's ruling on the GR-18 and GR-19 overlap, 2026-10-24, before the DEFINE part A re-entry.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "exit 2 only for bound tests and symbol-level Code Nodes, with every file-level Code Node outside .js, .mjs and .cjs going to fileBlank"
+        },
+        {
+          "letter": "b",
+          "text": "fileBlank only for paths that are not source in any language, with a declared list of what counts as source"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-236",
+      "addedAt": "2026-10-24T14:58:24.695Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24, before the part A re-entry: \"A path's outcome under rcf audit test-strength is decided in this order: 1. A symbol-level Code Node (path#symbol) must be on a .js, .mjs or .cjs file. The three symbol operators apply. On any other file it exits 2 \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\". 2. A file-level Code Node on a .js, .mjs or .cjs file keeps failing, as AC-19902-2 says today, because source code needs symbol granularity. 3. A file-level Code Node on a code file in another language also exits 2 \"not a supported source\". An example is a TypeScript source file, as a-29 says. The fixed list of code extensions is .ts .tsx .jsx .py .rb .go .java .kt .rs .php .cs .swift. TAC-4155 states the list. 4. A file-level Code Node on any other path gets fileBlank: the file is blanked, the criterion's bound tests run, and one must go red. Examples: docs, JSON, YAML, .github/ workflows, chain records. 5. A bound test file must be .js, .mjs or .cjs, else exit 2, as a-29 says.\" a-27's sources clause is worded to match rules 1, 3 and 5, section 7.14's \"outside the declared source extensions\" is worded as rule 4's \"any other path\", and GR-19's docs criterion stands.",
+      "answeredAt": "2026-10-24T14:58:24.784Z",
+      "resolvedAt": "2026-10-24T14:58:24.784Z"
+    },
+    {
+      "id": 105,
+      "question": "(rcf-lite 0.37.0 DEFINE) Where does the 0.37.0 release cut land so AC-20402-1 is observed at TEST? Source: GR-33.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "in FBS-241's BUILD; versionField gains BUILD"
+        },
+        {
+          "letter": "b",
+          "text": "a TEST: PASS keyed to the FINALISE: release commit"
+        },
+        {
+          "letter": "c",
+          "text": "the feed-entry clause moves to the release tooling's checks"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-24T14:58:24.871Z",
+      "status": "resolved",
+      "answer": "c. The operator, 2026-10-24 about 14:20Z: \"(c), departing from the worker's (a). The feed-entry clause leaves FBS-241's criteria. The changes: AC-20402-1 drops the \"releases.yaml 0.37.0 entry and package.json at 0.37.0\" clause and keeps any other clause. If nothing else remains, retire it and succeed it with no successor, with the reason stated. The 0.37.0 cut lands as FINALISE: commits on FBS-241's PR (ruling 2, Q-02), and ADR-4153 stays unchanged. The existing release check, test/scripts/validate-releases.test.js, runs in CI on the final head. That proves the entry and the version agree, and GR-21's --ci-run names the passing run on HEAD at Finalise time, so the cut commit is covered. FBS-241's deliverables say the cut is FINALISE. Section 7.14's GR-33 (a) text is not applied. The a-74 ledger entry is ruled (c).\"\nremoved rather than retired: minted on the DEFINE branch, never merged (schema 0.9.0 requires supersededBy for a retirement)",
+      "answeredAt": "2026-10-24T15:54:43.421Z",
+      "resolvedAt": "2026-10-24T15:54:43.421Z"
+    },
+    {
+      "id": 106,
+      "question": "(rcf-lite 0.37.0 DEFINE) How does a branch carrying a committed order or class breach pass again? Source: GR-49.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "new branch from main at DEFINE, cherry-picking the legal commits"
+        },
+        {
+          "letter": "b",
+          "text": "a failed REVIEW verdict closes the round and the audit judges the last round only"
+        },
+        {
+          "letter": "c",
+          "text": "a recorded force push dropping the commit"
+        }
+      ],
+      "default": "a",
+      "blocks": "none in 0.37.0 (a 0.38.0 DEFINE item)",
+      "addedAt": "2026-10-24T14:58:25.045Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-24 about 14:20Z: \"(a). A branch carrying an order or class breach is closed. A fresh branch from main starts at DEFINE and cherry-picks only the legal commits, and the old PR stays as the record. This is 0.38.0 scope; the later item's title stands.\"",
+      "answeredAt": "2026-10-24T14:58:25.132Z",
+      "resolvedAt": "2026-10-24T14:58:25.132Z"
+    },
+    {
+      "id": 107,
+      "question": "(rcf-lite 0.37.0 DEFINE) The dogfood view index (test/view/id-lookup.test.js) is past the 450 KB envelope (470338 bytes at cb44169b): move the envelope, or shrink what the index holds? Source: stage-keeper ruling 1, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "part B moves the envelope to 500 KB as a count pin, as ledger decision 55 moved it from 400 KB"
+        },
+        {
+          "letter": "b",
+          "text": "slim the index rows: a code change with its own criterion and ADR, added to a 0.37.0 slice"
+        },
+        {
+          "letter": "c",
+          "text": "both: move the envelope now and add the slimming as a later criterion"
+        }
+      ],
+      "default": "c",
+      "blocks": "the 0.37.0 DEFINE part B (WA-16)",
+      "addedAt": "2026-10-24T15:58:06.770Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-24, overriding the worker's pick (a): \"(c), recorded as a WORKAROUND. Part B moves the envelope to 500 KB. The new envelope is registered as WA-16 in the workaround register, with its root-cause item (slim or shard the index, sized on a heavy consumer repo, not on rcf-lite's own chain) and a review-by date. It is not a silent count pin.\" Reason: \"This is the second fixed-byte bump (ledger 55 was the first). A cap that is raised every release is sized to the tests, not to real usage (the operator 2026-10-12, realistic sizing), and the operator's process rule says a workaround is never written as a rule.\"",
+      "answeredAt": "2026-10-24T15:58:06.860Z",
+      "resolvedAt": "2026-10-24T15:58:06.860Z"
+    },
+    {
+      "id": 108,
+      "question": "(rcf-lite 0.37.0 DEFINE) Which stage carries the release cut (version line, CHANGELOG heading, releases.yaml) under the stage prefix? Source: stage-keeper ruling 2, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FINALISE, through the release class and the package.json version line (encoded in ADR-4153)"
+        },
+        {
+          "letter": "b",
+          "text": "FINALISE only through a declared release generator"
+        },
+        {
+          "letter": "c",
+          "text": "release pull requests outside the audit"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-241",
+      "addedAt": "2026-10-24T15:58:06.950Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) FINALISE, through the release class and the version line.\" Reason: \"Matches the operator's Q-02 answer: chores commit under FINALISE within their file class.\"",
+      "answeredAt": "2026-10-24T15:58:07.042Z",
+      "resolvedAt": "2026-10-24T15:58:07.042Z"
+    },
+    {
+      "id": 109,
+      "question": "(rcf-lite 0.37.0 DEFINE) When are rcf-lite's own pre-0.37.0 criteria (about 827) given the verification flag? Source: stage-keeper ruling 4, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a one-off sweep in the first round after 0.37.0 ships, from validate's worklist"
+        },
+        {
+          "letter": "b",
+          "text": "inside FBS-235's DEFINE"
+        },
+        {
+          "letter": "c",
+          "text": "only when a round touches them"
+        }
+      ],
+      "default": "a",
+      "blocks": "none in 0.37.0 (the first round after 0.37.0 ships)",
+      "addedAt": "2026-10-24T15:58:07.132Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) A one-off sweep in the first round after 0.37.0 ships. It is scheduled in the HQ upgrade step, not left to \"when touched\".\" Reason: \"The field does not exist before 0.37.0. The operator's \"flag everything now, no debt\" (a downstream product, Q1 of the redesign) applies as soon as it can.\"",
+      "answeredAt": "2026-10-24T15:58:07.222Z",
+      "resolvedAt": "2026-10-24T15:58:07.222Z"
+    },
+    {
+      "id": 110,
+      "question": "(rcf-lite 0.37.0 DEFINE) How do 0.37.0 specs after FBS-235 get finalised, when a Finalise pinned to rcf-schemas 0.9.0 refuses criteria carrying the verification field? Source: stage-keeper ruling 5, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "cut 0.36.2 with the pin move only, right after FBS-232"
+        },
+        {
+          "letter": "b",
+          "text": "keep the tags until after 0.37.0"
+        },
+        {
+          "letter": "c",
+          "text": "order the flag slice last"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-232, FBS-235",
+      "addedAt": "2026-10-24T15:58:07.312Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Cut 0.36.2 (pin move only) straight after FBS-232.\" Reason: \"One small release keeps every later spec on a working 0.36.x Finalise, and the WORKAROUND ends inside the release.\"",
+      "answeredAt": "2026-10-24T15:58:07.402Z",
+      "resolvedAt": "2026-10-24T15:58:07.402Z"
+    },
+    {
+      "id": 111,
+      "question": "(rcf-lite 0.37.0 DEFINE) Retired criteria leave coverage only once FBS-228 (notStarted) is built: build it before the retiring slices? Source: stage-keeper ruling 6, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, build FBS-228 first under WA-08 (a dependency of FBS-233, FBS-237, FBS-239, FBS-241)"
+        },
+        {
+          "letter": "b",
+          "text": "no, keep retired criteria's old tests green until it lands"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-237, FBS-239, FBS-241",
+      "addedAt": "2026-10-24T15:58:07.493Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Yes, under WA-08.\" Reason: \"Without it, coverage goes red on retired criteria that nobody may rewrite.\"",
+      "answeredAt": "2026-10-24T15:58:07.586Z",
+      "resolvedAt": "2026-10-24T15:58:07.586Z"
+    },
+    {
+      "id": 112,
+      "question": "(rcf-lite 0.37.0 DEFINE) Does the ad hoc report mode, rcf verify run --fbs <id> --hand verifier, survive 0.37.0? Source: stage-keeper ruling 7, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "keep it unchanged through 0.37.x as ad hoc evidence"
+        },
+        {
+          "letter": "b",
+          "text": "retire it in 0.37.0"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-238",
+      "addedAt": "2026-10-24T15:58:07.676Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Keep it through 0.37.x and retire it at 0.38.0, together with the trailer.\" Reason: \"The 0.36.x Finalise that judges 0.37.0's own specs needs it.\"",
+      "answeredAt": "2026-10-24T15:58:07.770Z",
+      "resolvedAt": "2026-10-24T15:58:07.770Z"
+    },
+    {
+      "id": 113,
+      "question": "(rcf-lite 0.37.0 DEFINE) Is a recorded local run the only evidence that the base suite is green? Source: stage-keeper ruling 8, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, rcf build base-suite at the base head (encoded)"
+        },
+        {
+          "letter": "b",
+          "text": "also accept a named CI run on the base"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-239",
+      "addedAt": "2026-10-24T15:58:07.862Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) A recorded local run (rcf build base-suite at the base head).\" Reason: \"A downstream CI may not run the RCF suite.\"",
+      "answeredAt": "2026-10-24T15:58:07.952Z",
+      "resolvedAt": "2026-10-24T15:58:07.952Z"
+    },
+    {
+      "id": 114,
+      "question": "(rcf-lite 0.37.0 DEFINE) When does the separation audit stop checking an agreeing Hand: trailer? Source: stage-keeper ruling 9, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "from 0.38.0"
+        },
+        {
+          "letter": "b",
+          "text": "never; keep the agreement check"
+        },
+        {
+          "letter": "c",
+          "text": "at 0.37.0"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233",
+      "addedAt": "2026-10-24T15:58:08.042Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) From 0.38.0.\" Reason: \"In-flight branches carry the trailer through 0.37.x.\"",
+      "answeredAt": "2026-10-24T15:58:08.132Z",
+      "resolvedAt": "2026-10-24T15:58:08.132Z"
+    },
+    {
+      "id": 115,
+      "question": "(rcf-lite 0.37.0 DEFINE) May BUILD go back to DEFINE without a failed verdict when a spec fault is found mid-BUILD? Source: stage-keeper ruling 10, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no; the reviewer records FINDINGS with locus spec, which closes the round (encoded)"
+        },
+        {
+          "letter": "b",
+          "text": "yes, allow BUILD to DEFINE within a round"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-234",
+      "addedAt": "2026-10-24T15:58:08.222Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) The builder stops and returns. The reviewer records FINDINGS with a spec locus, which closes the round.\" Reason: \"The operator's rounds rule: a regression only after a recorded failed verdict.\"",
+      "answeredAt": "2026-10-24T15:58:08.313Z",
+      "resolvedAt": "2026-10-24T15:58:08.313Z"
+    },
+    {
+      "id": 116,
+      "question": "(rcf-lite 0.37.0 DEFINE) May a golden re-produced by a declared generator land in a FINALISE: commit, given that re-recording goldens stays with the test-author? Source: stage-keeper ruling 11, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes, only through a declared generator with Generated-By:; the test-author owns the declaration and every hand-recorded golden (encoded in ADR-4153)"
+        },
+        {
+          "letter": "b",
+          "text": "no; every golden change is a DEFINE: commit"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233",
+      "addedAt": "2026-10-24T15:58:08.403Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) Only goldens that a declared generator reproduces (Generated-By:). The test-author owns the declarations and every hand-recorded golden.\" Reason: \"Consistent with refinement 1 (FINALISE file classes): a status-only golden is mechanical, and anything else stays with the test-author.\"",
+      "answeredAt": "2026-10-24T15:58:08.493Z",
+      "resolvedAt": "2026-10-24T15:58:08.493Z"
+    },
+    {
+      "id": 117,
+      "question": "(rcf-lite 0.37.0 DEFINE) Who writes rcf/separation.json, rcf/test-strength.json and rcf/release-verify.json for rcf-lite itself, since part A may not create them? Source: stage-keeper ruling 12, 2026-10-24, on part A at cb44169b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the test-author in each slice's round DEFINE (FBS-233, FBS-236, FBS-238)"
+        },
+        {
+          "letter": "b",
+          "text": "the builder with the code that reads them"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233, FBS-236, FBS-238",
+      "addedAt": "2026-10-24T15:58:08.583Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"(a) The test-author, in each slice's round DEFINE.\" Reason: \"They declare what the gates check, which is criteria-class work.\"",
+      "answeredAt": "2026-10-24T15:58:08.673Z",
+      "resolvedAt": "2026-10-24T15:58:08.673Z"
+    },
+    {
+      "id": 118,
+      "question": "(rcf-lite 0.37.0 DEFINE) How is AC-19501-7 (define validate after the pin move within 1.25 times the run before it, median of three) observed, when the depth-1 CI test checkout has no history before the pin move and timing ratios on shared CI hosts are noise? Source: stage-keeper ruling 2, 2026-10-24, on part B1 at dfee49b2.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FBS-232 also sets fetch-depth 0 on the test job and the test compares HEAD with the commit before the pin move"
+        },
+        {
+          "letter": "b",
+          "text": "the comparison becomes the verifier's Test-stage evidence, reworded"
+        },
+        {
+          "letter": "c",
+          "text": "the timing ratio is the verifier's, and the pre-move gap list a golden recorded in FBS-232's round DEFINE"
+        },
+        {
+          "letter": "d",
+          "text": "the bound test compares HEAD with a temporary worktree at the parent of the pin-move commit, runs only with RCF_PERF=1 and is skipped otherwise; the verifier runs it at the Test stage"
+        }
+      ],
+      "default": "d",
+      "blocks": "FBS-232",
+      "addedAt": "2026-10-24T17:21:36.812Z",
+      "status": "resolved",
+      "answer": "d. The stage-keeper, 2026-10-24: \"The bound test measures exactly as the criterion says, using the same parent-worktree method, but only when RCF_PERF=1 is set. Otherwise it is skipped with the reason 'measured at TEST by the verifier (RCF_PERF=1)', because timing ratios in shared CI are noise. FBS-232's Test-stage brief runs it with RCF_PERF=1 on the platform and records the ratio. Reword the criterion's Given to say the measurement runs at the Test stage on the verifier's host.\" AC-19501-5 takes the golden method of option c under the stage-keeper's re-ruling (ruling 6, 2026-10-24, on part B2 at 4c8baede): \"Reading (c) replaces reading (a): FBS-232's round DEFINE: the test-author records node bin/rcf.js audit coverage --strict at the round's base (the exit code and the gap list) as a committed golden under test/fixtures, before BUILD moves the pin. The bound test compares HEAD's run against that golden. No history is needed, and ci.yml is unchanged.\" and \"The ci.yml patch is dropped and nobody pushes it.\" So the AC-19501-5 test compares HEAD with the golden FBS-232's round DEFINE records at the round's base, ci.yml is unchanged, and the fetch-depth 0 change is dropped.",
+      "answeredAt": "2026-10-24T18:57:20.509Z",
+      "resolvedAt": "2026-10-24T18:57:20.509Z"
+    },
+    {
+      "id": 119,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-19804-2 ends \"and the move is made through rcf define update only\", which names how a commit was made and which no test can observe in the tree or its history: how is that clause handled? Source: stage-keeper ruling 3, 2026-10-24, on part B1 at dfee49b2.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the clause leaves the criterion as a process rule, and the test asserts the byte-identical fields only"
+        },
+        {
+          "letter": "b",
+          "text": "it is restated as: every story file the move commit changes equals what rcf define update writes when replayed over the parent's tree, updatedAt aside"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T17:21:36.899Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"Drop that clause from the criterion. It is a process rule for the hand doing the sweep, and it belongs in the sweep round's brief, not in a criterion. The byte-identical part stays and is tested.\" The clause's new home is the brief of the sweep round, FBS-235's round, which moves every interim tag onto the field (US-19804).",
+      "answeredAt": "2026-10-24T17:21:45.330Z",
+      "resolvedAt": "2026-10-24T17:21:45.330Z"
+    },
+    {
+      "id": 120,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-20201-1's base-suite record comes from rcf build base-suite --command \"node --test test/rcf\", which Node 24 runs as one file and fails, so the record can never read green: how should the criterion's command read? Source: stage-keeper ruling 7, 2026-10-24, on part B2 at 4c8baede.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a glob form that Node 24 expands, for example node --test \"test/rcf/**/*.test.js\""
+        },
+        {
+          "letter": "b",
+          "text": "the same command, with the fixture's test/rcf as one extensionless test file"
+        },
+        {
+          "letter": "c",
+          "text": "rcf build base-suite expands a directory argument itself (new product behaviour)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-239",
+      "addedAt": "2026-10-24T18:59:23.339Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"AC-20201-1: reading (a). The criterion's command becomes node --test \"test/rcf/**/*.test.js\", a glob that Node 24 expands. rcf build base-suite gains no directory expansion, because a consumer's command is theirs. B3 rewords the criterion through rcf define update, binds its test, and records a ledger decision.\"",
+      "answeredAt": "2026-10-24T18:59:23.425Z",
+      "resolvedAt": "2026-10-24T18:59:23.425Z"
+    },
+    {
+      "id": 121,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-20301-4 compares chip verdicts \"over every readiness fixture tree under packages/rcf-lite/test/\", but no such tree exists on disk, because the readiness tests build their fixtures in code: what set does the test run over? Source: stage-keeper ruling 8, 2026-10-24, on part B2 at 4c8baede.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the readiness test files as they stand at 639f07bb run unchanged against this head's source and pass"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-240's round DEFINE commits named fixture trees, and the test compares chips from a 639f07bb worktree's bin and this head's bin"
+        },
+        {
+          "letter": "c",
+          "text": "the fixture clause leaves the criterion, and the own-chain notApplicable clause stays"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T19:02:23.018Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"AC-20301-4: reading (b), in golden form, so no history is needed. FBS-240's round DEFINE commits a small set of named readiness fixture trees under packages/rcf-lite/test/fixtures/readiness/: a clean tree, plus one per D-check it can fail. In the same DEFINE, the round captures each tree's chip verdicts from the round-base bin as a golden. The test compares HEAD's chips against that golden. B3 rewords the criterion to that set and method, binds the test (todo), and records a ledger decision. The trees and the golden are FBS-240's round DEFINE work, named in that slice's notes.\"",
+      "answeredAt": "2026-10-24T19:02:23.112Z",
+      "resolvedAt": "2026-10-24T19:02:23.112Z"
+    },
+    {
+      "id": 122,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-20303-1 and AC-20303-2 say the profile answers are recorded and removed \"through the CLI\", but the shipped write-back for both D1 profile questions is an edit of rcf/.identity/profile.md and no verb records or removes them: how is \"through the CLI\" met? Source: stage-keeper ruling 9, 2026-10-24, on part B2 at 4c8baede.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the words go, as a process rule for the hand (as AC-19804-2's clause did)"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-240's BUILD adds a verb that records and clears the answers, so BUILD is no longer empty"
+        },
+        {
+          "letter": "c",
+          "text": "the text stays, read as the shipped write-back, which is what the bound tests do now"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T19:04:22.646Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"AC-20303-1 and AC-20303-2 (\"through the CLI\"): reading (a). The words leave both criteria as a process rule for the hand, the same treatment AC-19804-2's clause got. The profile answers are the operator's GR-55 answers from 2026-10-24 (surface \"the running app\", register \"product owner\"). FBS-240's round DEFINE records them in rcf/.identity/profile.md, the shipped write-back. B3 rewords and records a ledger decision.\"",
+      "answeredAt": "2026-10-24T19:04:22.732Z",
+      "resolvedAt": "2026-10-24T19:04:22.732Z"
+    },
+    {
+      "id": 123,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-20401-6 test checks the playbook half with one whole-word \"role\" anywhere in rcf guidance build-cycle-playbook, so a playbook that names the role for one stage or for none passes: how does the test read \"names \"role\" for who does each stage's work\"? Source: stage-keeper ruling F2 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "assert that a role is named inside each stage's own section of the playbook"
+        },
+        {
+          "letter": "b",
+          "text": "parse the five stage sections and assert that each names the role responsible for that stage"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-24T20:58:56.650Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"F2 (AC-20401-6): assert that a role is named inside each stage's own section of the playbook.\" So the AC-20401-6 test finds each stage's own section of the playbook (below the title and outside fenced code, the first heading naming that stage and no other of the five) and asserts that a sentence inside it names \"role\" with the role AC-20401-1 gives that stage (test-author, builder, reviewer, verifier, stage-keeper).",
+      "answeredAt": "2026-10-24T20:59:04.114Z",
+      "resolvedAt": "2026-10-24T20:59:04.114Z"
+    },
+    {
+      "id": 124,
+      "question": "(rcf-lite 0.37.0 DEFINE) The own-chain half of the AC-20301-4 test and the AC-20302-3 test read the 639f07bb commit, which the depth-1 CI test checkout lacks once FBS-240's markers drop: how do these two halves run in CI? Source: stage-keeper ruling on part B3's open question 1, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a golden captured in FBS-240's round DEFINE (the notApplicable stages, and the live criteria's texts at 639f07bb), so no history is needed"
+        },
+        {
+          "letter": "b",
+          "text": "both run only at TEST on the verifier's full clone, like the pin-move timing test"
+        },
+        {
+          "letter": "c",
+          "text": "a workflow change that fetches full history, which ruling 6 has already set aside for AC-19501-5"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T21:07:31.849Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"The AC-20301-4 own-chain half and the AC-20302-3 test read 639f07bb from history. Reading (a), golden, the same as rulings 6 and 8. FBS-240's round DEFINE captures this repo's own-chain readiness result at the round base as a committed golden, and both tests compare against it. CI workflows are not changed.\" So both tests compare against the own-chain golden test/fixtures/own-chain/at-639f07bb.json, holding the 639f07bb values reading (a) names, which FBS-240's round DEFINE records from a full clone with node test/_harness/goldens.js own-chain test/fixtures/own-chain/at-639f07bb.json; neither test reads git history.",
+      "answeredAt": "2026-10-24T21:07:31.937Z",
+      "resolvedAt": "2026-10-24T21:07:31.937Z"
+    },
+    {
+      "id": 125,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's notes do not carry the GR-54 step that its round DEFINE reclassifies REQ-196, REQ-198 and REQ-204 first. Source: stage-keeper ruling C4 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "add the reclassify step for REQ-196, REQ-198 and REQ-204 to FBS-240's notes"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-240's notes stay as at 136c51e5, and the step stays only in the part B worklist (item 5) and GR-54's ruling"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T21:07:32.024Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C4 (GR-54): add the reclassify step for REQ-196, REQ-198 and REQ-204 to FBS-240's notes.\" So FBS-240's notes say its round DEFINE reclassifies REQ-196, REQ-198 and REQ-204 first (the 14 concern pairs may be scan artefacts), worded from GR-54's ruling.",
+      "answeredAt": "2026-10-24T21:07:32.112Z",
+      "resolvedAt": "2026-10-24T21:07:32.112Z"
+    },
+    {
+      "id": 126,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's deliverables[1] and ADR-4160's decision say the operator's D1 profile answers are recorded through the CLI, while ruling 9 records them in rcf/.identity/profile.md by the shipped write-back and no verb records them. Source: stage-keeper ruling C5 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "reword FBS-240 deliverables[1] and ADR-4160's decision to \"by the shipped write-back\""
+        },
+        {
+          "letter": "b",
+          "text": "the text stays, read as the shipped write-back (reading c of part B2's stop 9)"
+        },
+        {
+          "letter": "c",
+          "text": "FBS-240's BUILD adds a verb that records and clears the answers, so BUILD is no longer empty (reading b of part B2's stop 9)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T21:07:32.203Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C5: reword FBS-240 deliverables[1] and ADR-4160's decision to \"by the shipped write-back\".\" So FBS-240's deliverables[1] reads \"The operator's D1 profile answers, recorded by the shipped write-back\" and ADR-4160's D1 clause reads \"recorded by the test-author by the shipped write-back;\".",
+      "answeredAt": "2026-10-24T21:07:32.290Z",
+      "resolvedAt": "2026-10-24T21:07:32.290Z"
+    },
+    {
+      "id": 127,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-19803-5 test (F5, its history half) reads HEAD^ with git archive and tar, and the AC-19804-1 (F6) and AC-19804-2 (F7) tests find the move commit with git log -S and read it and its parent, so in a depth-1 checkout all three fail before testing the behaviour: what do they compare against? Source: stage-keeper rulings F5, F6 and F7 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "FBS-235's round DEFINE captures the pre-move tree state as goldens, and the tests compare against them"
+        },
+        {
+          "letter": "b",
+          "text": "the check's proposed fixes: record the parent output and row shape as a round golden, or add an explicit fixture, and if tar remains pass toolPath([tar]) (F5); commit a round golden mapping moved criterion ids to flags and compare HEAD against it without checkout history (F6); have FBS-235's round DEFINE commit a before-move field golden and compare HEAD records with that golden (F7)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T21:14:09.098Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"F5 (history half), F6, F7 (AC-19803-5, AC-19804-1, AC-19804-2): FBS-235's round DEFINE captures the pre-move tree state as goldens, and the tests compare against them.\" So FBS-235's round DEFINE records test/fixtures/flag-move/coverage-rows-before.json, tags-before.json and criteria-before.json immediately before the move commit (node test/_harness/goldens.js coverage-rows, flag-tags and flag-texts), and the AC-19803-5 row test, the AC-19804-1 test and the AC-19804-2 test compare the head with them; none reads git history.",
+      "answeredAt": "2026-10-24T21:14:09.185Z",
+      "resolvedAt": "2026-10-24T21:14:09.185Z"
+    },
+    {
+      "id": 128,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-19804-3 test asserts that the fixed merge-base 639f07bb is in the history and clones the checkout, so in a depth-1 checkout it fails before it builds the missing-field case. Source: stage-keeper ruling F8 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a fixture repo the harness builds with its own base commit"
+        },
+        {
+          "letter": "b",
+          "text": "the check's proposed fix: build the fixture repository with its own base and head commits, avoiding any fixed commit from the checkout history"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T21:14:09.272Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"F8 (AC-19804-3): a fixture repo the harness builds with its own base commit.\" So the AC-19804-3 test builds a fixture repository whose main holds the base and whose DEFINE branch leaves a 0.37.0 criterion without the field, and runs node bin/rcf.js define validate --base <the merge-base of that branch with main> there; it reads no commit of the checkout.",
+      "answeredAt": "2026-10-24T21:14:09.359Z",
+      "resolvedAt": "2026-10-24T21:14:09.359Z"
+    },
+    {
+      "id": 129,
+      "question": "(rcf-lite 0.37.0 DEFINE) AC-19803-5's timing ratio compares audit coverage at the slice head with the same command at the parent commit on the same host, a before that a golden cannot hold and that shared CI hosts make noise: how is it observed? Source: stage-keeper ruling C3 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the ledger-118 treatment: the Given says it is measured at TEST on the verifier's host, and it runs only with RCF_PERF=1"
+        },
+        {
+          "letter": "b",
+          "text": "the parent run keeps git archive of the parent commit and passes toolPath([tar]) (the check's proposed fix for F5, if tar remains)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-24T21:14:09.446Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C3 (AC-19803-5's timing ratio): gets the ledger-118 treatment. The Given says it is measured at TEST on the verifier's host, and it runs only with RCF_PERF=1.\" And, on the part C brief: \"The two timing tests, AC-19501-7 and C3's AC-19803-5, are exempt. They run only when RCF_PERF=1 is set, at TEST, on the verifier's full clone, so their parent-worktree method (ledger 118) stands.\" So AC-19803-5's Given gains \"measured at the Test stage on the verifier's host\" after its chain clause, the timing ratio is its own case, skipped unless RCF_PERF=1 with the reason \"measured at TEST by the verifier (RCF_PERF=1)\", and its parent run is a temporary worktree at the parent commit; the row half is the golden case of decision 127.",
+      "answeredAt": "2026-10-24T21:14:09.532Z",
+      "resolvedAt": "2026-10-24T21:14:09.532Z"
+    },
+    {
+      "id": 130,
+      "question": "(rcf-lite 0.37.0 DEFINE) The mutant-running cases of test/cli/audit-test-strength.test.js (US-19901's PASS cases, US-19902 and US-19903) run rcf audit test-strength under the harness PATH, which holds git's directory alone, so the bound test files its mutants run under node --test cannot start. Source: stage-keeper ruling C2 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "every mutant-running case passes { PATH: toolPath(['node']) }"
+        },
+        {
+          "letter": "b",
+          "text": "the cases keep the harness PATH, holding git's directory alone, as at 136c51e5"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-236",
+      "addedAt": "2026-10-24T21:16:49.724Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C2 (US-19901 PASS cases, US-19902, US-19903): every mutant-running case passes { PATH: toolPath(['node']) }.\" So the 24 runs that reach the mutants, in 16 of the file's 21 tests, pass PATH from toolPath(['node']), as the AC-20201-1 test does; the runs that end before any mutant (usage refusals, structural findings, the max-mutants refusal and the --record refusals), including all of AC-19901-2, AC-19901-3, AC-19901-5, AC-19901-6 and AC-19902-2, keep the harness PATH.",
+      "answeredAt": "2026-10-24T21:16:49.811Z",
+      "resolvedAt": "2026-10-24T21:16:49.811Z"
+    },
+    {
+      "id": 131,
+      "question": "(rcf-lite 0.37.0 DEFINE) Two of B2's tests (AC-20201-6 and AC-20201-8) run rcf build base-suite with a command that starts node, under the harness PATH, which holds only git's directory: what makes node resolvable for those runs? Source: stage-keeper ruling on part B3's open question 2, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "base-suite runs its command with the running node's directory on PATH (product behaviour, which TAC-4158 would need to state)"
+        },
+        {
+          "letter": "b",
+          "text": "FBS-239's round DEFINE gives those two runs the PATH from toolPath(['node']), as the new AC-20201-1 test does"
+        },
+        {
+          "letter": "c",
+          "text": "the commands name node by an absolute path"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-239",
+      "addedAt": "2026-10-24T21:17:54.970Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"The AC-20201-6 and AC-20201-8 tests run base-suite with node on a PATH that has no node. Reading (b): the tests pass toolPath(['node']), the same harness helper AC-20201-1 uses. base-suite gains no PATH behaviour, because a consumer's environment is theirs.\" So every rcf build base-suite run in the AC-20201-6 test (three) and the AC-20201-8 test (two) passes { PATH: toolPath(['node']) }, as the AC-20201-1 run does, written now in part C; nothing else in either test changes.",
+      "answeredAt": "2026-10-24T21:17:55.059Z",
+      "resolvedAt": "2026-10-24T21:17:55.059Z"
+    },
+    {
+      "id": 132,
+      "question": "(rcf-lite 0.37.0 DEFINE) ADR-4162's decision says part B's tests reach main in files holding one slice's criteria each, while FBS-228's AC-19401-12 test stays in FBS-227's file test/verify/probe-assertion-0-9-0.test.js under the stage-keeper's ruling on part B1's stop 4, and the ADR does not name that exception. Source: stage-keeper ruling C6 on the independent check, 2026-10-24, at 136c51e5.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "ADR-4162 names the AC-19401-12 exception"
+        },
+        {
+          "letter": "b",
+          "text": "the declaration moves to a FBS-228 file (reading b of part B1's stop 4), so ADR-4162 needs no exception"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-228",
+      "addedAt": "2026-10-24T21:18:50.900Z",
+      "status": "resolved",
+      "answer": "a. The stage-keeper, 2026-10-24: \"C6: ADR-4162 names the AC-19401-12 exception.\" So ADR-4162's decision now reads \"Part B's tests reach main as node:test todo cases in files holding one slice's criteria each (the exception: FBS-228's AC-19401-12 test stays in FBS-227's file test/verify/probe-assertion-0-9-0.test.js, because one file per slice applies only to new files); ...\", from the ruling on part B1's stop 4, reading a (\"One file per slice\" applies only to new files).",
+      "answeredAt": "2026-10-24T21:18:50.985Z",
+      "resolvedAt": "2026-10-24T21:18:50.985Z"
+    },
+    {
+      "id": 133,
+      "question": "(rcf-lite 0.37.0 DEFINE) ADR-4162's decision says testOnly tests read repository files (.github/, git history, scripts/, docs, the root README) through RCF_CHECKOUT, while after part C only the two RCF_PERF timing cases and the stopped AC-20303-3 test read git history: does the clause stay as written? Source: stage-keeper ruling on the ADR-4162 line, part C's open item, 2026-10-24, at 0377c33b.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the clause stays, since the timing cases still read history at TEST"
+        },
+        {
+          "letter": "b",
+          "text": "a later DEFINE narrows it to the RCF_PERF timing cases"
+        },
+        {
+          "letter": "c",
+          "text": "the clause is reworded now to the checkout at HEAD and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-228",
+      "addedAt": "2026-10-24T22:03:55.242Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-24: \"ADR-4162 still lists \"git history\" among what testOnly tests read. It is reworded to: the checkout at HEAD and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone.\" So ADR-4162's decision now reads \"testOnly tests read the checkout at HEAD (.github/, scripts/, docs, the root README) through it and harness-built fixture repos, with git history read only by the RCF_PERF timing runs at TEST on the verifier's full clone\".",
+      "answeredAt": "2026-10-24T22:04:05.409Z",
+      "resolvedAt": "2026-10-24T22:04:05.409Z"
+    },
+    {
+      "id": 134,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's approach says its BUILD is expected to be empty unless a check is shown wrong for a CLI product, in which case its fix is a new criterion with an ADR first, and part C2's stop showed the D1 check brief:profile passing the unedited seed while five consumers parse the profile differently: is an ADR written first? Source: stage-keeper ruling 4 before part C3, on the briefer's possible stop 4, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "no ADR: the records stay as written (FBS-240's approach, ADR-4160 and ADR-4162 describe an empty or no-code BUILD)"
+        },
+        {
+          "letter": "b",
+          "text": "a new ADR first, through the CLI: one shared profile reader in src/, with the bare value line as the only answer form, delivered by FBS-240's BUILD"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:48:29.419Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"This is FBS-240's own named exception, so an ADR comes first. FBS-240's approach says (verified): \"BUILD is expected to be empty unless a check is shown wrong for a CLI product, in which case its fix is a new criterion with an ADR first.\" First commit of C3: mint a new ADR through the CLI. Context: the D1 check in src/query/gates.js :1067 to :1078 is a substring presence test that the seed's menu satisfies, and five consumers parse the profile differently. Decision: one shared profile reader in src/, with the bare value line as the only answer form, delivered by FBS-240's BUILD. Consequences: FBS-240 has a code BUILD, and is marked complete with its Code Nodes, not --no-code-nodes.\" Minted as ADR-4163; FBS-240's approach and ADR-4160 are unchanged.",
+      "answeredAt": "2026-10-24T22:48:29.504Z",
+      "resolvedAt": "2026-10-24T22:48:29.504Z"
+    },
+    {
+      "id": 135,
+      "question": "(rcf-lite 0.37.0 DEFINE) ADR-4162's decision says the readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec), while ADR-4163 gives FBS-240 a code BUILD: does the sentence change? Source: stage-keeper ruling 4 before part C3, on the briefer's possible stop 4, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the sentence stays: \"The readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec).\""
+        },
+        {
+          "letter": "b",
+          "text": "the sentence is reworded through the CLI to match ADR-4163, citing it"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:48:30.014Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"Then: reword ADR-4162's FBS-240 sentence (verified: \"The readiness slice is marked complete with rcf build mark FBS-240 complete --no-code-nodes (a genuinely no-code spec)\") through the CLI to match, citing the new ADR. Give each a ledger decision.\" So ADR-4162's sentence now reads \"The readiness slice is marked complete with its Code Nodes, not --no-code-nodes, because its BUILD delivers the shared profile reader (ADR-4163).\"",
+      "answeredAt": "2026-10-24T22:48:30.100Z",
+      "resolvedAt": "2026-10-24T22:48:30.100Z"
+    },
+    {
+      "id": 136,
+      "question": "(rcf-lite 0.37.0 DEFINE) Part C2 stopped the AC-20303-3 test because no shipped reader decides whether a file answers profile:surface or profile:register (src/verify/profile/index.js reads no file, and the D1 check brief:profile passes the unedited seed): what counts as an answer, and how does the test read its source? Source: stage-keeper ruling 1 on part C2's stop, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the D1 check brief:profile, read through the bin, is the oracle, and its pass on the unedited seed is the product defect the test waits on (reading a of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "b",
+          "text": "the F3 ruling's form with no shipped reader behind it: a Surface or Register section carrying that key's marker words, parsed by the test itself (reading b of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "c",
+          "text": "the path as written: no file then answers either key, and the halves that read answers are empty (reading c of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "d",
+          "text": "the test parses the documented answer form itself: under ## Surface and under ## Register the answer is the single bare line that reads only one marker word, menu bullets and prose never count, and a section with no bare value line, or with two, is unanswered; scope every rcf/ records tree; the source as ruled in Part C; HEAD only, still a todo naming FBS-240's round DEFINE"
+        }
+      ],
+      "default": "d",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:51:32.840Z",
+      "status": "resolved",
+      "answer": "d. The stage-keeper, 2026-10-24: \"F3 (AC-20303-3). The test parses the documented answer form itself. Under ## Surface and under ## Register, the answer is the single bare line that reads only one marker word. Menu bullets and prose never count, and a section with no bare value line, or with two, is unanswered. Scope: every rcf/ records tree. Source: as ruled in Part C. A ledger entry whose question asks for the key's value and whose answer opens \"The operator, <YYYY-MM-DD>:\" with the verbatim quote, matching through the seed's marker-to-plain-words text, ignoring case. HEAD only, still a todo that names FBS-240's round DEFINE.\" The earlier ruling that named src/verify/profile/index.js is withdrawn, and, by the stage-keeper's ruling 1 before part C3, the plain words come from the SURFACE and REGISTER maps in test/define/readiness-own-chain.test.js, not the seed. The test reads HEAD only, so part C2's stop 3 (the ADR-4162 line one test ahead of the file) closes with it.",
+      "answeredAt": "2026-10-24T22:51:32.926Z",
+      "resolvedAt": "2026-10-24T22:51:32.926Z"
+    },
+    {
+      "id": 137,
+      "question": "(rcf-lite 0.37.0 DEFINE) The D1 check brief:profile passes the unedited seed and the seed with both answer lines deleted, and define readiness, the viewer, define questions and the MCP tool each parse the register their own way: does US-20303 gain a criterion for one shared profile reader, built in FBS-240? Source: stage-keeper ruling 2 on part C2's stop, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "US-20303 stays at its three criteria and FBS-240's BUILD stays empty (the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the D1 check brief:profile, read through the bin, stays the oracle, and its pass on the unedited seed is the defect the AC-20303-3 test waits on (reading a of the Part C2 summary's stop 1)"
+        },
+        {
+          "letter": "c",
+          "text": "a new criterion on US-20303 (FBS-240), verification external: one shared profile reader in src/ resolves profile:surface and profile:register, every consumer resolves through it, it takes only the bare value line under the key's section, brief:profile fails a section with no bare value line or with two, and its bound todo test drives the real entry points over four fixture profiles on which all five consumers agree"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:55:47.055Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-24: \"A new criterion on the readiness story US-20303 (FBS-240), verification: external. One shared profile reader in src/ resolves profile:surface and profile:register. Every consumer resolves through it: the D1 brief:profile check, rcf readiness, the viewer, rcf questions and the MCP tool. It takes only the bare value line under the key's section. brief:profile fails a section with no bare value line or with two. Its bound test (todo, FBS-240 round DEFINE) drives the real entry points over four fixture profiles: (i) the unedited seed: the defaults prDiff and unstated resolve, and brief:profile passes, since seeded defaults are answers by the seed's design; (ii) the seed with both bare lines deleted: every reader says unanswered, and brief:profile fails both keys; (iii) two bare lines in one section: unanswered; (iv) menu text only: unanswered. All five consumers must agree on every fixture.\" With the stage-keeper's ruling 2 before part C3, the criterion names the observable: rcf define readiness --json reports profile: { surface, register }, each value the resolved marker word or unanswered; the register consumers act on unanswered exactly as on unstated; surface is observed only through the JSON field and brief:profile. Minted as AC-20303-4 (tag verification:AC-20303-4=external), bound by TC-299-over-the-four-fixture-profiles-of-test in TS-299.",
+      "answeredAt": "2026-10-24T22:55:47.141Z",
+      "resolvedAt": "2026-10-24T22:55:47.141Z"
+    },
+    {
+      "id": 138,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's notes name no BUILD deliverable and no ledger source entries for the operator's profile answers, which part C2 left unnamed while F3 was stopped: what do the notes say? Source: stage-keeper ruling 3 on part C2's stop, 2026-10-24, at ff90753f.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the notes stay as at ff90753f (the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the notes gain two sentences: this slice's BUILD delivers the shared reader, and its round DEFINE mints the two operator source entries for rcf-lite's own profile"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-24T22:57:45.501Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-24: \"FBS-240's notes: its BUILD delivers the shared reader, and its round DEFINE mints the two operator source entries for rcf-lite's own profile.\" The two sentences name the reader by AC-20303-4 and give the entries' form and the add and resolve commands, the form the AC-20303-3 test reads at HEAD.",
+      "answeredAt": "2026-10-24T22:57:45.586Z",
+      "resolvedAt": "2026-10-24T22:57:45.586Z"
+    },
+    {
+      "id": 139,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-19803-5 row test skips a head row the coverage-rows golden lacks (test/define/verification-end-state.test.js :411, if (!before) continue;) and never asserts that a golden row is still at the head, so a head that drops golden rows passes: what does the row test assert about golden rows missing at the head? Source: stage-keeper ruling 1 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the row test stays as at f916a6f7: it skips a head row the golden lacks and asserts only that the golden and the head share rows (the test text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "assert every golden row id exists at the head before comparing exact keys (the focused re-check's proposed fix for D2)"
+        },
+        {
+          "letter": "c",
+          "text": "also assert that every golden row whose criterion is live at the head has a head row, so a dropped row fails (the ruled reading)"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-25T00:59:54.378Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-25: \"D2 (P1), AC-19803-5 row case (test/define/verification-end-state.test.js :411, if (!before) continue;): also assert that every golden row whose criterion is live at the head has a head row, so a dropped row fails.\" The assertion sits in the row test after the shared-rows check and before the per-row key comparison, so it can be observed failing while that comparison waits on the BUILD; a criterion is live at the head when it is in a story under rcf/user-stories at the head and has no supersededBy, as the own-chain recorder reads it; if (!before) continue; and every other assertion stay as written.",
+      "answeredAt": "2026-10-25T01:00:04.134Z",
+      "resolvedAt": "2026-10-25T01:00:04.134Z"
+    },
+    {
+      "id": 140,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-20303-3 source match (test/define/readiness-own-chain.test.js :326, SOURCE) accepts any non-blank remainder after \"The operator, <YYYY-MM-DD>: \", so an unquoted or negated remainder holding the plain words passes as the operator's quote: what form must a source answer take? Source: stage-keeper ruling 2 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "SOURCE stays as at f916a6f7: any non-blank remainder after \"The operator, <YYYY-MM-DD>: \" (the test text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "require the quoted answer form and compare the complete normalized quote to the ruled plain words (the focused re-check's proposed fix for D1)"
+        },
+        {
+          "letter": "c",
+          "text": "require the double-quoted remainder after \"The operator, <YYYY-MM-DD>: \", the form FBS-240's notes name, the text inside the quotes still matched through the plain words of SURFACE and REGISTER (the ruled reading)"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-25T01:03:31.042Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-25: \"D1 (P3), the AC-20303-3 source match (test/define/readiness-own-chain.test.js :326): require the double-quoted remainder after \"The operator, <YYYY-MM-DD>: \", the form FBS-240's notes name.\" SOURCE is now /^The operator, (\\d{4}-\\d{2}-\\d{2}): \"([^\"]+)\"$/: the remainder is one double-quoted string with no double quote inside it and nothing after the closing quote, the form of the add and resolve commands in FBS-240's notes; the text inside the quotes is matched through the plain words of SURFACE and REGISTER, as the stage-keeper ruled before part C3, and both uses keep the one SOURCE.",
+      "answeredAt": "2026-10-25T01:03:41.017Z",
+      "resolvedAt": "2026-10-25T01:03:41.017Z"
+    },
+    {
+      "id": 141,
+      "question": "(rcf-lite 0.37.0 DEFINE) B3 ruling 9's sentence in FBS-240's notes still ends \"and the DEFINE: commit that records it quotes both answers and that date (AC-20303-3)\", while the AC-20303-3 test reads ledger source entries, not a commit: does that clause change? Source: stage-keeper ruling 3 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the clause stays as a process step for the round DEFINE commit (reading a of the Part C3 summary's stop 5; the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the clause is reworded to the ledger sources: the sentence no longer says the DEFINE commit quotes the answers, and the sources are the ledger entries the AC-20303-3 test reads (reading b of the Part C3 summary's stop 5, the ruled reading)"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-25T01:05:12.481Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-25: \"B3 ruling 9's FBS-240 note: reword so it no longer says the DEFINE commit quotes the answers. The sources are the ledger entries the AC-20303-3 test reads.\" With the stage-keeper's ruling on the part D brief's possible stop 2 (reading b), \"which the AC-20303-1 and AC-20303-3 tests read\" also becomes \"which the AC-20303-1 test reads\", since only the AC-20303-1 test reads the profile's naming of its source. The sentence now ends \"naming the operator and that date as their source, which the AC-20303-1 test reads, and the sources are the ledger entries the AC-20303-3 test reads.\"; its lead, every other clause and every other sentence of the notes are unchanged.",
+      "answeredAt": "2026-10-25T01:05:12.569Z",
+      "resolvedAt": "2026-10-25T01:05:12.569Z"
+    },
+    {
+      "id": 142,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's deliverables list chain records and the operator's D1 profile answers, not the shared profile reader or the profile field of define readiness --json that its BUILD delivers (AC-20303-4, ADR-4163): do the deliverables gain them? Source: stage-keeper ruling 4 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the deliverables stay as at f916a6f7, since the notes and ADR-4163 are enough (reading a of the Part C3 summary's stop 6; the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the deliverables gain the shared profile reader (AC-20303-4, ADR-4163) and the define readiness --json profile field (reading b of the Part C3 summary's stop 6, the ruled reading)"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-25T01:06:25.399Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-25: \"FBS-240's deliverables: add the shared profile reader (AC-20303-4, ADR-4163) and the readiness --json profile field.\" Appended as two entries after the two existing ones, each naming the builder hand: \"The shared profile reader (AC-20303-4, ADR-4163): one reader in src/ that every consumer of profile:surface and profile:register resolves through (builder)\" and \"The profile field of rcf define readiness --json (AC-20303-4): profile: { surface, register }, each value the resolved marker word or unanswered (builder)\", the second in AC-20303-4's words; the two existing entries and every other field of FBS-240 are unchanged.",
+      "answeredAt": "2026-10-25T01:06:25.487Z",
+      "resolvedAt": "2026-10-25T01:06:25.487Z"
     }
   ]
 }

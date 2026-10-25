@@ -1,0 +1,86 @@
+{
+  "createdAt": "2026-10-24T17:34:47.999Z",
+  "updatedAt": "2026-10-24T17:34:50.368Z",
+  "purpose": "FBS-237: the external criteria of US-20001, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-237's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20001-1",
+    "AC-20001-2",
+    "AC-20001-3",
+    "AC-20001-4",
+    "AC-20001-5",
+    "AC-20001-6",
+    "AC-20001-7",
+    "AC-20001-8",
+    "AC-20001-9"
+  ],
+  "id": "TS-285",
+  "usId": "US-20001",
+  "title": "US-20001 external criteria (FBS-237)",
+  "testCases": [
+    {
+      "id": "TC-285-over-define-build-review-merge-pass-at-h",
+      "acId": "AC-20001-1",
+      "description": "over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
+    },
+    {
+      "id": "TC-285-with-no-review-commit-finalise-exits-4",
+      "acId": "AC-20001-2",
+      "description": "with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\"",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\""
+    },
+    {
+      "id": "TC-285-with-the-test-commit-absent-finalise",
+      "acId": "AC-20001-3",
+      "description": "with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\"",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\""
+    },
+    {
+      "id": "TC-285-a-build-late-fix-or-a-define-amend-after",
+      "acId": "AC-20001-4",
+      "description": "a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse"
+    },
+    {
+      "id": "TC-285-run-again-at-the-same-head-or-after-a",
+      "acId": "AC-20001-5",
+      "description": "run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+    },
+    {
+      "id": "TC-285-after-a-clean-finalise-merge-main",
+      "acId": "AC-20001-6",
+      "description": "after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only"
+    },
+    {
+      "id": "TC-285-on-every-refusal-finalise-leaves-rcf-fbs",
+      "acId": "AC-20001-7",
+      "description": "on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named"
+    },
+    {
+      "id": "TC-285-after-a-clean-finalise-merge-main-at-m",
+      "acId": "AC-20001-8",
+      "description": "after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite"
+    },
+    {
+      "id": "TC-285-with-fbs-001-at-notstarted-finalise",
+      "acId": "AC-20001-9",
+      "description": "with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round"
+    }
+  ],
+  "status": "draft"
+}

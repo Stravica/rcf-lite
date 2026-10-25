@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-24T17:50:16.015Z",
+  "updatedAt": "2026-10-24T17:50:39.928Z",
+  "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20101-1",
+    "AC-20101-2",
+    "AC-20101-3",
+    "AC-20101-4",
+    "AC-20101-5",
+    "AC-20101-6",
+    "AC-20101-7"
+  ],
+  "id": "TS-288",
+  "usId": "US-20101",
+  "title": "US-20101 external criteria (FBS-238)",
+  "testCases": [
+    {
+      "id": "TC-288-with-fbs-001-changed-after-v1-0-0-and",
+      "acId": "AC-20101-1",
+      "description": "with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only"
+    },
+    {
+      "id": "TC-288-a-failing-e2e-case-of-ac-101-1-exits-4",
+      "acId": "AC-20101-2",
+      "description": "a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds [\"FBS-001\"]",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds [\"FBS-001\"]"
+    },
+    {
+      "id": "TC-288-testonly-only-unit-bound-inprogress",
+      "acId": "AC-20101-3",
+      "description": "testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope"
+    },
+    {
+      "id": "TC-288-record-without-release-or-since-exits-2",
+      "acId": "AC-20101-4",
+      "description": "--record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-4: --record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file"
+    },
+    {
+      "id": "TC-288-without-record-the-pass-fixture-run",
+      "acId": "AC-20101-5",
+      "description": "without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-5: without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears"
+    },
+    {
+      "id": "TC-288-over-150-specs-and-800-criteria-with-12",
+      "acId": "AC-20101-6",
+      "description": "over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations"
+    },
+    {
+      "id": "TC-288-since-naming-a-missing-ref-a-tree-or-a",
+      "acId": "AC-20101-7",
+      "description": "--since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,57 @@
+{
+  "createdAt": "2026-10-24T11:29:10.197Z",
+  "updatedAt": "2026-10-24T21:12:53.642Z",
+  "asA": "stage-keeper planning a release, or the operator running Verify",
+  "iWant": "coverage to show, per criterion and per spec, the end state it must reach and where it is now",
+  "soThat": "I can see which specs still need a release Verify and which are done at complete",
+  "description": "End-state columns in rcf audit coverage (change 6).",
+  "tacIds": [
+    "TAC-4152"
+  ],
+  "usId": "US-19803",
+  "prdId": "PRD-001",
+  "reqId": "REQ-198",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The stage-keeper and the operator read each criterion's and each spec's end state in coverage",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19803-1",
+      "description": "[happy] Given a fixture chain whose FBS-001 (executionStatus complete) scopes AC-101-1 (external) and AC-101-2 (testOnly), both bound, when rcf audit coverage --format json runs, then it exits 0, the AC-101-1 row carries verification \"external\", expectedEnd \"verified\" and now \"complete\", the AC-101-2 row carries verification \"testOnly\", expectedEnd \"complete\" and now \"complete\", and the FBS-001 spec entry carries expectedEnd \"verified\" and now \"complete\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19803-2",
+      "description": "[edge] Given the same chain with FBS-001 at verified, the AC-101-2 row reads now \"complete\" (a testOnly criterion never reads past its end) and AC-101-1 reads now \"verified\"; given FBS-002 scoping only testOnly criteria, its spec entry reads expectedEnd \"complete\".",
+      "testable": true
+    },
+    {
+      "id": "AC-19803-3",
+      "description": "[edge] Given an unflagged live criterion AC-101-3 on FBS-001 and a retired criterion AC-101-4, when rcf audit coverage --format table runs, then the AC-101-3 row shows flag unflagged, end unknown and now complete, the AC-101-4 row shows now retired with no end, and a spec with any unflagged criterion and no external one shows end unknown.",
+      "testable": true
+    },
+    {
+      "id": "AC-19803-4",
+      "description": "[must-not] Adding the end-state fields never changes coverage's verdict: over the same fixture chain, rcf audit coverage --strict exits with the same code and lists the same gaps before and after a criterion's flag or its spec's status changes, and a criterion short of its end state is never a gap.",
+      "testable": true
+    },
+    {
+      "id": "AC-19803-5",
+      "description": "[non-functional] Given this repository's own chain at the slice head (the typical case: 827 or more criteria, 121 or more specs), measured at the Test stage on the verifier's host, when node bin/rcf.js audit coverage --format json runs, then it finishes within 1.25 times the same command at the parent commit on the same host (median of three runs), and each criterion row grows by the three fields only.",
+      "testable": true
+    },
+    {
+      "id": "AC-19803-6",
+      "description": "[failure] Given a fixture tree whose AC-101-1 carries \"verification\": \"sometimes\" (a hand-edited value outside the enum), when rcf audit coverage runs, then it exits 3 with a line naming AC-101-1 and the field verification and prints no coverage rows, rather than guessing an end state.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-19803-1=external",
+    "verification:AC-19803-2=external",
+    "verification:AC-19803-3=external",
+    "verification:AC-19803-4=external",
+    "verification:AC-19803-5=testOnly",
+    "verification:AC-19803-6=external"
+  ]
+}

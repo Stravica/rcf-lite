@@ -1,0 +1,35 @@
+{
+  "createdAt": "2026-10-24T11:41:42.697Z",
+  "updatedAt": "2026-10-24T11:51:36.390Z",
+  "description": "rcf guidance build-cycle, the playbook, the overview, the managed agent-instructions block and the rcf build bundle closing runbook name the five stages by commit prefix and role, TEST on a locally running app with nothing deployed, Finalise light and pre-merge writing complete, Verify outside the cycle writing verified with --record, the rounds rule, and dispatches named by stage; none tells anyone to verify inside the cycle, to pass a verify report to Finalise or to use a Hand trailer. docs/verify-reference.md drops the retired finalise synopsis and describes release mode with probes optional. The 0.37.0 release feed entry carries minAgentAction rerun-init.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Redesign change 7 (:93) and the 09:20Z dispatch-naming answer; D-11 and D-15 (audit section 5), F-12, F-13, F-14, F-44 to F-47; the FBS-224 DEFINE review for the block, hash, doctor and feed mechanics.",
+  "tags": [
+    "capability:build-sequence",
+    "capability:project-init"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4159"
+  },
+  "reqId": "REQ-204",
+  "prdId": "PRD-001",
+  "title": "Guidance, the managed agent-instructions block, the bundle runbook and the docs state the 0.37.0 model, and the release asks agents to rerun init",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-24T11:41:42.786Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      }
+    ]
+  }
+}

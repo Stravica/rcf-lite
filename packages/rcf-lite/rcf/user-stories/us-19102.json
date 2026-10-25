@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:29.677Z",
-  "updatedAt": "2026-10-16T12:48:47.782Z",
+  "updatedAt": "2026-10-24T11:25:06.056Z",
   "description": "User story under REQ-191 for the separation wiring (FBS-223): Hand: mixed with Separation-Reason:, rcf/separation.json, --require-hand, the Hand-Id trailer, and the pull_request CI step in this repository.",
   "asA": "the owner of a repository adopting the separation check",
   "iWant": "one recorded escape, a way to adjust classes that a builder cannot use, and the check running on every pull request",
@@ -16,17 +16,26 @@
       "ownerRef": {
         "tacId": "TAC-4149-audit-separation",
         "field": "interfaces[rcf audit separation]"
-      }
+      },
+      "supersededBy": "AC-19604-3",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: Hand: mixed does not survive; chores commit as FINALISE: within its file classes (operator ruling Q-02, D-14, ADR ADR-4153)."
     },
     {
       "id": "AC-19102-2",
       "description": "[happy] Given rcf/separation.json { classes: { test: [\"spec/**\"] } }, when a Hand: builder commit touches spec/a.js, then the verb fails exit 4 naming spec/a.js; a malformed rcf/separation.json exits 2 naming the file; a Hand: builder commit that edits rcf/separation.json itself fails as a criteria-class touch.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19604-5",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the class override file keeps working under the v2 class names; the successor judges a BUILD: commit and reads 0.36.x names with a warning (ADR ADR-4153)."
     },
     {
       "id": "AC-19102-3",
       "description": "[failure] Given --require-hand, when any non-merge commit in the range carries no Hand: trailer, or a Hand: builder commit carries no Hand-Id: trailer, then the verb exits 4 naming the commit and the missing trailer.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19604-4",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: --require-hand retires with the trailer; every commit needs a stage prefix (ADR ADR-4153)."
     },
     {
       "id": "AC-19102-4",
@@ -36,7 +45,10 @@
     {
       "id": "AC-19102-5",
       "description": "[must-not] a Separation-Reason: trailer that is empty or whitespace-only never turns Hand: mixed into a pass, and the CI step never runs with a shallow checkout (fetch-depth other than 0 makes the verb exit 2 naming the missing base).",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19604-6",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: with Hand: mixed retired, no trailer can turn a failing commit into a pass; the shallow-checkout refusal carries over in AC-19601-5 (ADR ADR-4153)."
     }
   ],
   "usId": "US-19102",

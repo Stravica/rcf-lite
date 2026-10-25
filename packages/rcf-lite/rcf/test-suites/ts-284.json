@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T16:56:42.133Z",
+  "updatedAt": "2026-10-24T16:56:43.423Z",
+  "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19903-1",
+    "AC-19903-2",
+    "AC-19903-3",
+    "AC-19903-4",
+    "AC-19903-5"
+  ],
+  "id": "TS-284",
+  "usId": "US-19903",
+  "title": "US-19903 external criteria (FBS-236)",
+  "testCases": [
+    {
+      "id": "TC-284-at-a-review-commit-for-h-touching-ac-101",
+      "acId": "AC-19903-1",
+      "description": "at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4"
+    },
+    {
+      "id": "TC-284-record-refuses-a-dirty-tree-exit-4-and-a",
+      "acId": "AC-19903-2",
+      "description": "--record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H"
+    },
+    {
+      "id": "TC-284-a-worker-style-app-entry-worker-src",
+      "acId": "AC-19903-3",
+      "description": "a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with \"imports src/routes/pay.js (not the app entry or the harness)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with \"imports src/routes/pay.js (not the app entry or the harness)\""
+    },
+    {
+      "id": "TC-284-a-library-entry-module-src-index-js",
+      "acId": "AC-19903-4",
+      "description": "a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-4: a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js"
+    },
+    {
+      "id": "TC-284-rcf-audit-test-strength-never-deploys",
+      "acId": "AC-19903-5",
+      "description": "rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test"
+    }
+  ],
+  "status": "draft"
+}

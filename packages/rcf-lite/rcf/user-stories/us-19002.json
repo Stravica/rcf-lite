@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:20.312Z",
-  "updatedAt": "2026-10-22T11:05:08.733Z",
+  "updatedAt": "2026-10-24T11:33:51.195Z",
   "description": "User story under REQ-190 for the administrative Finalise (FBS-220). rcf build finalise reads the report, checks preconditions and provenance and writes verified; it spawns no verify subprocess and no agent CLI. Every refusal names its reason, exits 4 (or 3 for validation, 2 for usage) and leaves the FBS unchanged.",
   "asA": "the stage-keeper, or any hand it names, after the merge",
   "iWant": "Finalise to be a deterministic check of recorded evidence that any worker can run",
@@ -16,37 +16,58 @@
       "ownerRef": {
         "tacId": "TAC-4148-test-stage-verify-finalise",
         "field": "interfaces[rcf build finalise]"
-      }
+      },
+      "supersededBy": "AC-20001-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: Finalise no longer ingests a Test-stage report to write verified; it writes complete from the recorded verdicts of the last round (ADR ADR-4157, redesign change 1)."
     },
     {
       "id": "AC-19002-2",
       "description": "[failure] Given no report under rcf/verify-reports/<fbs-id>/ (and no --report), when rcf build finalise <fbs-id> --ci-run <ref> runs, then it exits 4 with stderr \"finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge\" and the FBS stays complete.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20001-2",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the missing-report refusal becomes the missing REVIEW verdict refusal (ADR ADR-4157)."
     },
     {
       "id": "AC-19002-3",
       "description": "[failure] Given a report whose headSha is neither an ancestor of HEAD nor tree-equal to a commit HEAD contains, when Finalise runs, then it exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\"; a finishedAt older than --max-report-age (default 7 days) exits 4 with \"finalise refused: report is <n> days old\".",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20001-4",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: report head containment is replaced by the reviewed head H and the rule that only REVIEW:, TEST: and FINALISE: commits follow it (ADR ADR-4157, rounds rule)."
     },
     {
       "id": "AC-19002-4",
       "description": "[failure] Given a report whose hand is not \"verifier\", or whose verifierId equals the Hand-Id trailer of any Hand: builder commit between the merge-base and HEAD, when Finalise runs, then it exits 4 with \"finalise refused: report hand <hand>/<id> is not separate from the builder\" and the FBS is unchanged.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20002-4",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: report hand and Hand-Id provenance are replaced by the separation audit over the range (ADR ADR-4157, ADR ADR-4153)."
     },
     {
       "id": "AC-19002-5",
       "description": "[failure] Given --ci-run absent, the FBS not at complete, or a bound AC without a Code Node, when Finalise runs, then it exits 4 (\"ci evidence missing: pass --ci-run <ref>\"), 4 (the existing not-complete message) and 3 (\"missing Code Nodes: <ac-ids>\") respectively; a report that fails VerifyReport v1 validation exits 3 naming the field.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20002-3",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the not-complete precondition is gone (Finalise writes complete); the --ci-run and Code Node refusals carry over, slice-scoped (ADR ADR-4157)."
     },
     {
       "id": "AC-19002-6",
       "description": "[failure] Given a valid report whose perAc rows carry any verdict from [MOCK-ONLY-DECLARED | EVAL-MISSING | EVAL-BELOW-THRESHOLD | UI-BASELINE-UNMET | BROWSER-VERIFICATION-MISSING | SCOPE-MISMATCH], or whose verdict is not PASS or verdictAuthority is not ship, when Finalise runs, then it refuses exit 4 with the same message shapes 0.20.0 and 0.28.0 defined, read from the ingested report, and the FBS stays complete.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20001-3",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: blocking per-criterion report verdicts are replaced by the TEST verdict and the test-strength record (ADR ADR-4157)."
     },
     {
       "id": "AC-19002-7",
       "description": "[failure] Given the retired flags, when rcf build finalise <fbs-id> --mode <any> or --url <url> runs, then it exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-1",
+      "supersededOn": "2026-10-24",
+      "supersessionNote": "Retired 2026-10-24: the retired-flag message now names the recorded verdicts instead of a Test-stage verify run (ADR ADR-4157)."
     },
     {
       "id": "AC-19002-8",

@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:21:39.660Z",
+  "updatedAt": "2026-10-24T11:21:39.660Z",
+  "status": "proposed",
+  "context": "The redesign status model gives every criterion verification external or testOnly, set at DEFINE and checked at Review; an external criterion ends at verified, a testOnly one at complete. rcf-schemas 0.9.0 (the rcf-lite pin at 639f07bb) closes the criterion object (additionalProperties false) with no verification property, so rcf define validate refuses the field today, and the released 0.36.1 Finalise exits 3 on any tree that fails validation (src/cli/finalise.js:228-236). rcf-schemas has no rcf/ chain of its own.",
+  "decision": "rcf-schemas gains verification (enum external | testOnly, optional at schema level) in its own minor release 0.10.0; rcf-lite moves its pin in the schema slice and its writer carries the field like scope. Until the pin moves, the 0.37.0 DEFINE records each flag as one user-story tag \"verification:<AC id>=<flag>\" on the criterion's own story: CLI-writable, accepted by validate, machine-readable, and it leaves every criterion's text unchanged. The flag slice's DEFINE round moves every tag onto the field with rcf define update and deletes the tags. Flag rule: external when an operator can observe the behaviour by running the rcf bin of the packed artefact installed cold against a fixture project (the Verify target for rcf-lite, Q-07 a); testOnly when it lives only in this repository's own tree, CI configuration or chain state, or in rcf-schemas' own package. The schema slice crosses two repositories: its Build opens and releases the rcf-schemas change first (rcf-schemas reviews and publishes through its own repository process, with no chain), then the rcf-lite round bumps the pin and carries Code Nodes on the rcf-lite consumer seams only; its Finalise runs in rcf-lite.",
+  "consequences": "The tag is a WORKAROUND by the redesign rule: root-cause item the schema slice, review-by the 0.37.0 release; nothing reads the tag in code. Once any criterion on main carries the field, a Finalise pinned to rcf-schemas 0.9.0 refuses the tree, so the self-hosting ADR ships the pin move as its own patch release before later 0.37.0 specs are finalised. This repository's pre-0.37.0 criteria stay unflagged until a sweep (an open question); validate reports them and coverage shows them unflagged with end unknown.",
+  "alternativesConsidered": [
+    {
+      "name": "Put the flag in the criterion scope field",
+      "summary": "Reuse scope (library, runtime, deployed, unclassified).",
+      "reasonNotChosen": "scope already governs which test scopes count as coverage, so reusing it changes coverage meaning for every criterion."
+    },
+    {
+      "name": "Append the flag to the criterion text",
+      "summary": "A bracketed suffix such as [external] in the description.",
+      "reasonNotChosen": "It changes criterion text, which a DEFINE that retires and succeeds criteria must never do in place, and a parser over prose is not machine-readable."
+    },
+    {
+      "name": "A sidecar file under rcf/define/",
+      "summary": "A flags JSON beside the ledgers.",
+      "reasonNotChosen": "No CLI verb writes it and validate does not read it, so it would be hand-edited chain JSON."
+    }
+  ],
+  "adrId": "ADR-4152",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "The AC verification flag: an rcf-schemas field, an interim tag until the pin moves, and the honest-flag rule"
+}

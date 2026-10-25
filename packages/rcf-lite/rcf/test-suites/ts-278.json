@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T16:47:26.815Z",
+  "updatedAt": "2026-10-24T16:47:28.143Z",
+  "purpose": "FBS-235: the external criteria of US-19802, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-235's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19802-1",
+    "AC-19802-2",
+    "AC-19802-3",
+    "AC-19802-4",
+    "AC-19802-5"
+  ],
+  "id": "TS-278",
+  "usId": "US-19802",
+  "title": "US-19802 external criteria (FBS-235)",
+  "testCases": [
+    {
+      "id": "TC-278-rcf-define-validate-report-verification",
+      "acId": "AC-19802-1",
+      "description": "rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then \"verification: 2 of 3 live criteria unflagged\"",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19802-1: rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then \"verification: 2 of 3 live criteria unflagged\""
+    },
+    {
+      "id": "TC-278-with-every-live-criterion-flagged-the",
+      "acId": "AC-19802-2",
+      "description": "with every live criterion flagged the report prints only \"verification: 0 of <n> live criteria unflagged\" and --json prints {\"unflagged\": [], \"live\": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19802-2: with every live criterion flagged the report prints only \"verification: 0 of <n> live criteria unflagged\" and --json prints {\"unflagged\": [], \"live\": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }"
+    },
+    {
+      "id": "TC-278-over-1000-unflagged-live-criteria-across",
+      "acId": "AC-19802-3",
+      "description": "over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19802-3: over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines"
+    },
+    {
+      "id": "TC-278-rcf-define-validate-report-flags-exits-2",
+      "acId": "AC-19802-4",
+      "description": "rcf define validate --report flags exits 2 with \"[error] usage --report takes verification\" and prints no worklist line",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19802-4: rcf define validate --report flags exits 2 with \"[error] usage --report takes verification\" and prints no worklist line"
+    },
+    {
+      "id": "TC-278-the-worklist-never-writes-every-file",
+      "acId": "AC-19802-5",
+      "description": "the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19802-5: the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag"
+    }
+  ],
+  "status": "draft"
+}

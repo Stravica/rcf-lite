@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T17:56:10.148Z",
+  "updatedAt": "2026-10-24T17:56:11.480Z",
+  "purpose": "FBS-239: the external criteria of US-20202, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-239's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20202-1",
+    "AC-20202-2",
+    "AC-20202-3",
+    "AC-20202-4",
+    "AC-20202-5"
+  ],
+  "id": "TS-292",
+  "usId": "US-20202",
+  "title": "US-20202 external criteria (FBS-239)",
+  "testCases": [
+    {
+      "id": "TC-292-bundle-fbs-001-acs-ac-101-2-ac-101-5-on",
+      "acId": "AC-20202-1",
+      "description": "bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+    },
+    {
+      "id": "TC-292-acs-on-an-inprogress-spec-exits-2-an-ac",
+      "acId": "AC-20202-2",
+      "description": "--acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor"
+    },
+    {
+      "id": "TC-292-an-amend-bundle-on-a-verified-spec-is",
+      "acId": "AC-20202-3",
+      "description": "an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round"
+    },
+    {
+      "id": "TC-292-an-amend-bundle-names-no-criterion-of",
+      "acId": "AC-20202-4",
+      "description": "an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical"
+    },
+    {
+      "id": "TC-292-an-amend-bundle-naming-8-criteria-of-a",
+      "acId": "AC-20202-5",
+      "description": "an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec"
+    }
+  ],
+  "status": "draft"
+}

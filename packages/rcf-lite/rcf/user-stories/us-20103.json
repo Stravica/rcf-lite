@@ -1,0 +1,39 @@
+{
+  "createdAt": "2026-10-24T11:35:50.682Z",
+  "updatedAt": "2026-10-24T11:35:51.777Z",
+  "asA": "chain author or operator using rcf verify probes",
+  "iWant": "deterministic catalog and agent screenshot probes to keep working as ad hoc runs",
+  "soThat": "probes stay useful for exploration but never stand in for, or block, the release Verify",
+  "description": "Catalog and agent modes are optional (change 4).",
+  "tacIds": [
+    "TAC-4157"
+  ],
+  "usId": "US-20103",
+  "prdId": "PRD-001",
+  "reqId": "REQ-201",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A chain author keeps the catalog and agent probes as optional ad hoc runs, never a precondition of release Verify",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20103-1",
+      "description": "[happy] Given a fixture with rcf/verify-catalog.json and a local server, rcf verify run --url <server> --fbs FBS-001 --mode deterministic still runs as an ad hoc probe with its 0.36.x output and exit codes, and leaves every rcf/fbs/ file byte-identical.",
+      "testable": true
+    },
+    {
+      "id": "AC-20103-2",
+      "description": "[failure] Given --record with --mode deterministic or --mode agentScreenshotCritique, the verb exits 2 with \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing.",
+      "testable": true
+    },
+    {
+      "id": "AC-20103-3",
+      "description": "[must-not] Release Verify never requires rcf/verify-catalog.json, an agent CLI or a probe on any criterion: the PASS fixture of the release story has neither a catalog nor any probe field and still records verified, and a spawn seam over that run records no agent CLI.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20103-1=external",
+    "verification:AC-20103-2=external",
+    "verification:AC-20103-3=external"
+  ]
+}

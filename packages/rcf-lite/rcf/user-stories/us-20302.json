@@ -1,0 +1,45 @@
+{
+  "createdAt": "2026-10-24T11:39:14.790Z",
+  "updatedAt": "2026-10-24T15:03:28.508Z",
+  "asA": "test-author writing the readiness slice's records",
+  "iWant": "each failing check cleared by the record it asks for, with reasons on every opt-out and waiver",
+  "soThat": "the green state says something true about the chain",
+  "description": "Chain authoring by check (D2 to D6).",
+  "tacIds": [
+    "TAC-4122-define-gates"
+  ],
+  "usId": "US-20302",
+  "prdId": "PRD-001",
+  "reqId": "REQ-203",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The test-author clears each failing readiness check with chain records",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20302-1",
+      "description": "[happy] Given this repository at this slice's reviewed head or any later head, when node bin/rcf.js define readiness --check skeleton, --check shapes, --check stories, --check crosscut and --check consistency run, then each exits 0 and reports each of its checks [ok], including skeleton:reqShape, skeleton:tadPersistence, skeleton:deployAdr, shapes:tacHasInterface, shapes:draftSettled, shapes:templateMarkers, stories:usFloors, stories:closedSets, crosscut:securityArchitecture, crosscut:catalogue, consistency:contradictions, consistency:unsatisfiable and consistency:orphanInterfaces.",
+      "testable": true
+    },
+    {
+      "id": "AC-20302-2",
+      "description": "[failure] Given rcf/manifest.json at this slice's reviewed head or any later head, when every defineD4:failure and defineD4:mustNot opt-out is read, then each names its REQ and carries a non-empty reason; and every concern-ledger entry with disposition waived carries a non-empty reason (node bin/rcf.js define ledger concerns list --json shows none without one). An opt-out or waiver with an empty reason fails this criterion.",
+      "testable": true
+    },
+    {
+      "id": "AC-20302-3",
+      "description": "[must-not] No criterion text in this repository changes meaning to clear a readiness finding: a criterion whose wording a check flags (closedSets, unsatisfiable, contradictions) is retired and succeeded with the rcf-schemas supersession fields, or the record the check asks for (a closed set owner, a recordShape field) is added; git diff 639f07bb..<this slice's reviewed head or any later head> shows no description, given, when or then rewritten in place on a live criterion.",
+      "testable": true
+    },
+    {
+      "id": "AC-20302-4",
+      "description": "[non-functional] Given this repository's chain at this slice's reviewed head or any later head (about 1300 documents or more, the typical case), node bin/rcf.js define readiness --check all finishes within 2 seconds on the host the suite runs on (the test prints os.cpus().length and process.version) (it reported 29 ms compute at 639f07bb).",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20302-1=testOnly",
+    "verification:AC-20302-2=testOnly",
+    "verification:AC-20302-3=testOnly",
+    "verification:AC-20302-4=testOnly"
+  ]
+}

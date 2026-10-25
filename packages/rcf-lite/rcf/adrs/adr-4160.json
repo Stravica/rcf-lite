@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-24T11:39:12.588Z",
+  "updatedAt": "2026-10-24T21:06:53.604Z",
+  "status": "proposed",
+  "context": "At 639f07bb, node bin/rcf.js define readiness --check all exits 4: chips D1 to D6 and D8 failing (D0 notApplicable, D7 passed). The failing checks, read at START: D1 brief:profile 0/2 (profile:surface, profile:register: a product-owner question); D2 skeleton:reqShape 89/125, skeleton:tadPersistence 0/2, skeleton:deployAdr 0/1; D3 shapes:tacHasInterface 37/66, shapes:draftSettled 208/250, shapes:templateMarkers 150/184; D4 stories:usFloors 0/234 (503 findings: stories without a failure or must-not criterion and no defineD4 opt-out on their REQ), stories:closedSets 809/827; D5 crosscut:securityArchitecture 0/1, crosscut:catalogue 0/193; D6 consistency:contradictions 146/147 (US-19001), consistency:unsatisfiable 67/77, consistency:orphanInterfaces 61/184; D8 freeze:priorGates 2/8. The operator ruled (Q-06 b) that the 0.37.0 Build may bundle by explicit id as a registered workaround (WA-08) expiring at the 0.37.0 release, and that the readiness fix is inside 0.37.0 so the next release uses --next.",
+  "decision": "Every failing check is cleared by chain records, not code: D1 by the operator's answers to the two profile questions, recorded by the test-author by the shipped write-back; D2 by rcf define req classify on the 36 unclassified requirements, the TAD data architecture (this repository's file stores and core entities), and one Deploy target ADR (the npm package published from a tag); D3 by interfaces with their per-kind markers on the 29 interface-less TACs and settling the 42 draft interfaces; D4 by failure and must-not criteria where a story genuinely has them, otherwise a defineD4 opt-out on the REQ in rcf/manifest.json carrying its reason, and by closed sets or owners on the 18 flagged criteria; D5 by TAD.securityArchitecture and one concern-ledger entry (applied, or waived with a reason) per flagged REQ and concern; D6 by reconciling US-19001's two criteria, recordShape fields for the 10 unsatisfiable thens, and an ownerRef or deliveredBy for each orphan interface; then D8 follows and the stage-keeper freezes. The readiness check code does not change in this slice; if a check proves wrong for a CLI product, the fix is its own criterion with an ADR, never an edit made to get to green. The test-author hand writes all of it; the operator answers D1 only. Criteria of this slice are testOnly: they are this repository's own chain state.",
+  "consequences": "The slice is mostly chain authoring at scale (over 900 findings across about 1300 documents), sized as a large DEFINE round with a small or empty BUILD. After it lands and the freeze is recorded, rcf build bundle --next works without --override on main and WA-08 is retired at the release. Records from this DEFINE were written to the story-floor and interface-marker rules (every story carries failure and must-not criteria; every new interface carries its per-kind marker); any readiness finding they still raise is in this slice's scope like the rest.",
+  "alternativesConsidered": [
+    {
+      "name": "Turn the failing checks off for rcf-lite",
+      "summary": "Mark D2 to D6 notApplicable for this repository.",
+      "reasonNotChosen": "That is a workaround written as a rule; the checks are what rcf-lite asks of every product."
+    },
+    {
+      "name": "Keep bundling by explicit id after 0.37.0",
+      "summary": "Leave WA-08 in place.",
+      "reasonNotChosen": "The operator set its expiry at the 0.37.0 release (Q-06 b)."
+    },
+    {
+      "name": "Opt out of D4 floors for every legacy story",
+      "summary": "One blanket opt-out per REQ.",
+      "reasonNotChosen": "An opt-out without a reason per REQ hides real missing failure cases; each opt-out names why that requirement has none."
+    }
+  ],
+  "adrId": "ADR-4160",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Readiness goes green on rcf-lite main by chain authoring, not by loosening a check; frozen --next is the default again and WA-08 expires at the 0.37.0 release"
+}

@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-24T18:05:03.420Z",
+  "updatedAt": "2026-10-24T20:59:37.982Z",
+  "purpose": "FBS-241: the external criteria of US-20401, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-241's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20401-1",
+    "AC-20401-2",
+    "AC-20401-3",
+    "AC-20401-4",
+    "AC-20401-5",
+    "AC-20401-6",
+    "AC-20401-7"
+  ],
+  "id": "TS-297",
+  "usId": "US-20401",
+  "title": "US-20401 external criteria (FBS-241)",
+  "testCases": [
+    {
+      "id": "TC-297-rcf-guidance-build-cycle-carries-the",
+      "acId": "AC-20401-1",
+      "description": "rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified"
+    },
+    {
+      "id": "TC-297-the-rounds-section-of-rcf-guidance-build",
+      "acId": "AC-20401-2",
+      "description": "the Rounds section of rcf guidance build-cycle states, each in its own sentence, that a failed REVIEW (FINDINGS) or TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-2: the Rounds section of rcf guidance build-cycle states, each in its own sentence, that a failed REVIEW (FINDINGS) or TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only"
+    },
+    {
+      "id": "TC-297-the-managed-block-names-the-five-stages",
+      "acId": "AC-20401-3",
+      "description": "the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-3: the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch"
+    },
+    {
+      "id": "TC-297-the-closing-runbook-of-rcf-build-bundle",
+      "acId": "AC-20401-4",
+      "description": "the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+    },
+    {
+      "id": "TC-297-no-guidance-topic-no-part-of-the-managed",
+      "acId": "AC-20401-5",
+      "description": "no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified"
+    },
+    {
+      "id": "TC-297-the-finalise-line-of-rcf-guidance",
+      "acId": "AC-20401-6",
+      "description": "the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept"
+    },
+    {
+      "id": "TC-297-in-a-project-initialised-by-the-bin",
+      "acId": "AC-20401-7",
+      "description": "in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean"
+    }
+  ],
+  "status": "draft"
+}

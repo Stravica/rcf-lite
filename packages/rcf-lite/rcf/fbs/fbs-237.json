@@ -1,0 +1,48 @@
+{
+  "createdAt": "2026-10-24T11:33:49.398Z",
+  "updatedAt": "2026-10-24T15:02:35.510Z",
+  "summary": "rcf build finalise reads the last round from rcf/verdicts/, checks the list in TAC TAC-4156 in a fixed order and writes complete; never reads rcf/verify-reports/, never writes verified, spawns only git; the retired report flags exit 2; rcf build mark refuses complete.",
+  "approach": "Replace src/finalise/ingest.js report ingestion with a verdict reader over git (newest ReviewVerdict naming the spec, TestVerdict and TestStrengthReport at H), reuse the separation judgement in-process over merge-base..HEAD, compute changed criteria between the merge-base and H from git show of rcf/user-stories/ and rcf/test-suites/, and keep the Code Node check slice-scoped. Help, the barrel header and src/cli/finalise.js follow.",
+  "deliverables": [
+    "src/finalise/ and src/cli/finalise.js: the new check list and output",
+    "src/cli/build.js: rcf build mark refuses complete",
+    "Code Nodes for every criterion of this REQ; CHANGELOG lines"
+  ],
+  "notes": "DEFINE part A, 2026-10-24 (test-author). 0.37.0's own specs are still finalised by the released 0.36.x Finalise (ADR self-hosting); this slice's new Finalise applies from the first spec after 0.37.0 ships. Flags: US tags (WORKAROUND, ADR ADR-4152).",
+  "dependsOnFbsIds": [
+    "FBS-228",
+    "FBS-234",
+    "FBS-235",
+    "FBS-236"
+  ],
+  "riskLevel": "high",
+  "estimatedSize": "large",
+  "domain": "functional",
+  "acIds": [
+    "AC-20001-1",
+    "AC-20001-2",
+    "AC-20001-3",
+    "AC-20001-4",
+    "AC-20001-5",
+    "AC-20001-6",
+    "AC-20001-7",
+    "AC-20001-8",
+    "AC-20001-9",
+    "AC-20002-1",
+    "AC-20002-2",
+    "AC-20002-3",
+    "AC-20002-4",
+    "AC-20002-5",
+    "AC-20003-1",
+    "AC-20003-2",
+    "AC-20003-3",
+    "AC-20003-4",
+    "AC-20003-5"
+  ],
+  "fbsId": "FBS-237",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 239,
+  "executionStatus": "notStarted",
+  "title": "Light Finalise: complete from the last round's recorded REVIEW, TEST and test-strength verdicts; no verify report; mark refuses complete"
+}

@@ -125,12 +125,22 @@ Generation strategy: dependencyFirst
 | 231 | 10 | FBS-228 | rcf-schemas 0.9.0 consumer side B: retired criteria in coverage, EVAL coverage and deterministic verify | notStarted | actionable |  |
 | 232 | 11 | FBS-229 | rcf-schemas 0.9.0 consumer side C: the expectBody.matches canary rule | notStarted | blocked | FBS-228 |
 | 233 | 0 | FBS-231 | Headless agent sessions run with the feedback ask off, verify run --out refuses a directory, and the feedback queue survives a removed worktree | verified | verified |  |
+| 234 | 0 | FBS-232 | rcf-schemas verification field (external | testOnly) and the rcf-lite pin move | notStarted | actionable |  |
+| 235 | 11 | FBS-233 | Stage-prefix separation audit: per-stage file classes, hygiene tests, declared generators, judged merges, Hand: mixed retired | notStarted | blocked | FBS-228 |
+| 236 | 12 | FBS-234 | Rounds: REVIEW and TEST verdict records (rcf build verdict) and round order in the separation audit | notStarted | blocked | FBS-233 |
+| 237 | 1 | FBS-235 | Validate requires the verification flag on new and amended criteria; coverage shows expected and current end state | notStarted | blocked | FBS-232 |
+| 238 | 13 | FBS-236 | rcf audit test-strength: structural check and the v1 mutation proof over Code Node symbols of touched criteria | notStarted | blocked | FBS-234 |
+| 239 | 14 | FBS-237 | Light Finalise: complete from the last round's recorded REVIEW, TEST and test-strength verdicts; no verify report; mark refuses complete | notStarted | blocked | FBS-228, FBS-234, FBS-235, FBS-236 |
+| 240 | 15 | FBS-238 | Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold | notStarted | blocked | FBS-235, FBS-237 |
+| 241 | 15 | FBS-239 | Suite-green backstop (rcf build base-suite, --base-suite on every bundle) and amend rounds bundled by touched criterion | notStarted | blocked | FBS-228, FBS-234, FBS-237 |
+| 242 | 16 | FBS-240 | Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once FBS-241's round DEFINE records the freeze (GR-31) | notStarted | blocked | FBS-239 |
+| 243 | 16 | FBS-241 | Guidance, the managed block, the bundle runbook and docs on the 0.37.0 model; release feed minAgentAction rerun-init | notStarted | blocked | FBS-228, FBS-233, FBS-234, FBS-235, FBS-236, FBS-237, FBS-238, FBS-239 |
 
-Totals: items 121 | notStarted 58 | inProgress 2 | complete 34 | verified 27 | actionable 41 | blocked 17
+Totals: items 131 | notStarted 68 | inProgress 2 | complete 34 | verified 27 | actionable 42 | blocked 26
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
-- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218, FBS-231
-- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216, FBS-219
+- tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218, FBS-231, FBS-232
+- tier 1: FBS-002, FBS-017, FBS-019, FBS-025, FBS-042, FBS-064, FBS-181, FBS-191, FBS-193, FBS-195, FBS-205, FBS-211, FBS-212, FBS-216, FBS-219, FBS-235
 - tier 2: FBS-003, FBS-004, FBS-005, FBS-008, FBS-026, FBS-043, FBS-182, FBS-196, FBS-206, FBS-213, FBS-217, FBS-220
 - tier 3: FBS-006, FBS-009, FBS-010, FBS-027, FBS-060, FBS-044, FBS-183, FBS-197, FBS-208, FBS-214, FBS-221, FBS-230
 - tier 4: FBS-007, FBS-011, FBS-012, FBS-028, FBS-045, FBS-184, FBS-198, FBS-199, FBS-215, FBS-225
@@ -140,6 +150,11 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 - tier 8: FBS-032, FBS-224
 - tier 9: FBS-033, FBS-227
 - tier 10: FBS-034, FBS-228
-- tier 11: FBS-229
+- tier 11: FBS-229, FBS-233
+- tier 12: FBS-234
+- tier 13: FBS-236
+- tier 14: FBS-237
+- tier 15: FBS-238, FBS-239
+- tier 16: FBS-240, FBS-241
 
 Next actionable: FBS-013

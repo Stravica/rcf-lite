@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-24T22:55:12.524Z",
+  "updatedAt": "2026-10-24T22:55:20.643Z",
+  "purpose": "FBS-240: the external criteria of US-20303, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-240's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20303-4"
+  ],
+  "id": "TS-299",
+  "usId": "US-20303",
+  "title": "US-20303 external criteria (FBS-240)",
+  "testCases": [
+    {
+      "id": "TC-299-over-the-four-fixture-profiles-of-test",
+      "acId": "AC-20303-4",
+      "description": "over the four fixture profiles of test/fixtures/profile/, written into projects made by rcf init, define readiness --json reports the profile the shared reader resolves, brief:profile fails each key whose section holds no bare value line or two, and the persona order of define readiness, the default persona of define questions and of the MCP tool and the data-rcf-register of the viewer all agree with it",
+      "status": "pending",
+      "testPointer": "test/define/readiness-own-chain.test.js::AC-20303-4: over the four fixture profiles of test/fixtures/profile/, written into projects made by rcf init, define readiness --json reports the profile the shared reader resolves, brief:profile fails each key whose section holds no bare value line or two, and the persona order of define readiness, the default persona of define questions and of the MCP tool and the data-rcf-register of the viewer all agree with it"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,54 @@
+{
+  "createdAt": "2026-10-24T16:47:28.408Z",
+  "updatedAt": "2026-10-24T16:47:29.711Z",
+  "purpose": "FBS-235: the external criteria of US-19803, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-235's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19803-1",
+    "AC-19803-2",
+    "AC-19803-3",
+    "AC-19803-4",
+    "AC-19803-6"
+  ],
+  "id": "TS-279",
+  "usId": "US-19803",
+  "title": "US-19803 external criteria (FBS-235)",
+  "testCases": [
+    {
+      "id": "TC-279-over-fbs-001-complete-scoping-ac-101-1",
+      "acId": "AC-19803-1",
+      "description": "over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete"
+    },
+    {
+      "id": "TC-279-with-fbs-001-at-verified-the-testonly-ac",
+      "acId": "AC-19803-2",
+      "description": "with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete"
+    },
+    {
+      "id": "TC-279-in-format-table-the-unflagged-ac-101-3",
+      "acId": "AC-19803-3",
+      "description": "in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown"
+    },
+    {
+      "id": "TC-279-audit-coverage-strict-exits-with-the",
+      "acId": "AC-19803-4",
+      "description": "audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap"
+    },
+    {
+      "id": "TC-279-a-hand-edited-verification-sometimes-on",
+      "acId": "AC-19803-6",
+      "description": "a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19803-6: a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows"
+    }
+  ],
+  "status": "draft"
+}

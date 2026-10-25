@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:03:59.635Z",
-  "updatedAt": "2026-10-22T11:03:59.635Z",
+  "updatedAt": "2026-10-24T11:33:54.255Z",
   "context": "ADR-4148 (0.35.0) made Finalise administrative and moved verification to the Test stage, but kept two pre-0.35.0 rules: Finalise runs after the merge with HEAD on the default branch (claim C-26, ADR-4112 and AC-16502-3, with --allow-pre-merge as a dry-run opt-out), and a report whose target is loopback is refused. Together they mean a spec is merged before it can be verified, and a local-first verification (a dev server on localhost serving the PR head) can never promote, which blocks local-first verification estate-wide. The operator ruled on 2026-10-21: Finalise is pre-merge on the PR branch and localhost targets are accepted, reversing claim C-26.",
   "decision": "Finalise runs on the PR branch at the PR head before the merge: with CI green on the PR head, rcf build mark <fbs> complete and rcf build finalise <fbs> --ci-run <ref> write verified on the branch, and the merge carries it. Finalise no longer checks the branch; --allow-pre-merge is kept as a no-op that prints one deprecation line. A report whose target is loopback (localhost, *.localhost, 127.0.0.0/8, ::1, 0.0.0.0) is accepted when it names target.engine (free text such as \"wrangler dev\" or \"node server\"), target.port and target.servedSha equal to its headSha (the committed HEAD the verifier served), with hand verifier; without any of them, or with a different served sha, it is refused exit 4. rcf verify run --hand records those fields from --engine, the URL's port and --served-sha, refuses a served sha that is not the committed HEAD (exit 4) and refuses a loopback --hand run without --engine or --served-sha (exit 2). The report Finalise ingests must be committed at HEAD with the same bytes as on disk. Head containment, hand separation, the age bound, the ship-authority rule and the per-AC refusals are unchanged and hold on any branch. --ci-run stays required and names a green CI run on the PR head the report names; on a re-run on the default branch after a merge commit (a confirm, exit 0, no write) it names the merged head's run; Finalise records it on the verified line only and never fetches it. Supersedes these ADR-4148 clauses: \"HEAD is on the default branch\", \"its target is not loopback\", and \"After merge\" as the Finalise entry. Reverses claim C-26 (ADR-4112 part b). ADR-4148 and ADR-4112 stay as history.",
   "consequences": "A spec reaches verified before it merges, so no merge waits on a post-merge step and a refused Finalise blocks the merge rather than surfacing after it. Local-first verification of the PR head promotes when the report proves which sha the local server served. Non-loopback private addresses keep their current behaviour. The ship-authority rule is unchanged: a deterministic PASS carries ship; a critique-mode loopback report carries ship only with --parity-env. A confirm on the default branch after a merge commit exits 0 with no write; after a squash merge the confirm is not promised, because the marks and goldens change the tree after the report head (a known limit). A post-merge second check stays a later option (ADR-4148), not a new CI job. The managed agent-instructions block changes, so the release (0.36.0, minor) records minAgentAction per the release runbook.",
@@ -21,10 +21,11 @@
       "reasonNotChosen": "A Finalise-time confirm on the default branch costs no new job; ADR-4148 already records a post-merge second check as a later option."
     }
   ],
-  "status": "proposed",
+  "status": "superseded",
   "adrId": "ADR-4151",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
   "version": "0.1.0",
-  "title": "Finalise runs on the PR branch before the merge and accepts a loopback report naming its engine, port and served sha"
+  "title": "Finalise runs on the PR branch before the merge and accepts a loopback report naming its engine, port and served sha",
+  "supersededBy": "ADR-4157"
 }

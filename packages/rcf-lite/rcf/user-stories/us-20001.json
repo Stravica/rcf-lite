@@ -1,0 +1,75 @@
+{
+  "createdAt": "2026-10-24T11:33:43.317Z",
+  "updatedAt": "2026-10-24T15:02:34.982Z",
+  "asA": "stage-keeper on the PR branch before the merge",
+  "iWant": "rcf build finalise to write complete when the last round's REVIEW, TEST and test-strength records hold at the reviewed head",
+  "soThat": "the merge carries complete and no verify report is ever needed inside the cycle",
+  "description": "The last-round checks and the success line.",
+  "tacIds": [
+    "TAC-4156"
+  ],
+  "usId": "US-20001",
+  "prdId": "PRD-001",
+  "reqId": "REQ-200",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The stage-keeper finalises a spec to complete from the last round's verdicts",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20001-1",
+      "description": "[happy] Given a fixture branch holding FBS-001 (inProgress) scoping AC-101-1 and AC-101-2 with Code Nodes, commits DEFINE:, BUILD:, REVIEW: (ReviewVerdict MERGE/PASS at H touching both), TEST: (TestVerdict PASS at H and a passing test-strength record at H), and no rcf/verify-reports/ directory at all, when rcf build finalise FBS-001 --ci-run run-7 runs, then it exits 0, stdout is \"finalise: FBS-001 complete at <head7> (reviewed <H7>, ci run-7, touched 2 criteria)\", rcf/fbs/fbs-001.json reads executionStatus \"complete\", and nothing else in the tree changes.",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-2",
+      "description": "[failure] Given the same fixture with no REVIEW: commit, Finalise exits 4 with stderr \"finalise refused: no REVIEW verdict for FBS-001 on the branch\"; given a REVIEW verdict code MERGE with adequacy FINDINGS, it exits 4 with \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\".",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-3",
+      "description": "[failure] Given the happy fixture with the TEST: commit absent, Finalise exits 4 with stderr \"finalise refused: no TEST verdict at <H7>\"; given a TestVerdict FAIL at H, it exits 4 with \"finalise refused: TEST at <H7> is FAIL\"; given a TEST PASS at H followed by a TEST: commit adding a FAIL TestVerdict at a later head M, it exits 4 with \"finalise refused: TEST at <M7> is FAIL; a failed verdict closes the round\".",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-4",
+      "description": "[failure] Given the happy fixture plus a \"BUILD: late fix\" commit after the TEST: commit, Finalise exits 4 with stderr \"finalise refused: REVIEW reopened by <s7> BUILD: after the reviewed head <H7>\"; a \"DEFINE: amend\" after H refuses the same way, while extra FINALISE: commits inside FINALISE classes (a clean merge of main, a lockfile) do not refuse.",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-5",
+      "description": "[edge] Given the happy fixture finalised once (FBS-001 complete), when rcf build finalise FBS-001 --ci-run run-7 runs again at the same head or after a further FINALISE: commit, then it exits 0, stdout is \"finalise: FBS-001 complete (unchanged)\" and rcf/fbs/fbs-001.json is byte-identical; given an earlier round (REVIEW FINDINGS, then DEFINE:, BUILD:, REVIEW: MERGE/PASS, TEST: PASS), Finalise judges only the last round and exits 0.",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-6",
+      "description": "[edge] Given the happy fixture with a \"FINALISE: merge main\" commit after the TEST: commit whose resolution is clean, Finalise run with --merge-suite <a green BaseSuiteRecord whose head is that merge commit M> exits 0 and stderr carries \"[info] finalise: merge from main after the reviewed head; base suite green at <M7> is the suite evidence, ci run-7 on <head7>\"; given a two-spec round whose ReviewVerdict fbsIds are [\"FBS-001\", \"FBS-002\"], finalising each spec writes complete on that spec only.",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-7",
+      "description": "[must-not] On every refusal, rcf build finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named.",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-8",
+      "description": "[failure] Given the happy fixture plus a clean \"FINALISE: merge main\" at M after the TEST: commit, rcf build finalise FBS-001 --ci-run run-7 without --merge-suite exits 4 with stderr \"finalise refused: merge from main after the reviewed head; pass --merge-suite <a green base-suite record at <M7>>\"; with a record whose head is not M it exits 4 with \"finalise refused: base suite recorded at <x7>, merge head is <M7>\"; with a red record at M it exits 4 with \"finalise refused: base suite red at <M7>; the verifier records TEST FAIL at the merge head\"; a FINALISE: status commit with no merge needs no --merge-suite; every refusal leaves rcf/fbs/fbs-001.json byte-identical.",
+      "testable": true
+    },
+    {
+      "id": "AC-20001-9",
+      "description": "[failure] Given the happy fixture with FBS-001 at notStarted, rcf build finalise FBS-001 --ci-run run-7 exits 4 with stderr \"finalise refused: FBS-001 is notStarted; the round's DEFINE: marks it inProgress\" and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round.",
+      "testable": true
+    }
+  ],
+  "tags": [
+    "verification:AC-20001-1=external",
+    "verification:AC-20001-2=external",
+    "verification:AC-20001-3=external",
+    "verification:AC-20001-4=external",
+    "verification:AC-20001-5=external",
+    "verification:AC-20001-6=external",
+    "verification:AC-20001-7=external",
+    "verification:AC-20001-8=external",
+    "verification:AC-20001-9=external"
+  ]
+}

@@ -1,0 +1,78 @@
+{
+  "createdAt": "2026-10-24T17:56:07.734Z",
+  "updatedAt": "2026-10-24T18:59:05.476Z",
+  "purpose": "FBS-239: the external criteria of US-20201, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-239's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20201-1",
+    "AC-20201-2",
+    "AC-20201-3",
+    "AC-20201-4",
+    "AC-20201-5",
+    "AC-20201-6",
+    "AC-20201-7",
+    "AC-20201-8"
+  ],
+  "id": "TS-291",
+  "usId": "US-20201",
+  "title": "US-20201 external criteria (FBS-239)",
+  "testCases": [
+    {
+      "id": "TC-291-with-no-base-suite-rcf-build-bundle-next",
+      "acId": "AC-20201-2",
+      "description": "with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file"
+    },
+    {
+      "id": "TC-291-a-green-record-made-at-commit-a-while",
+      "acId": "AC-20201-3",
+      "description": "a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\"",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\""
+    },
+    {
+      "id": "TC-291-a-record-at-b-with-exitcode-1-and-tap",
+      "acId": "AC-20201-4",
+      "description": "a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\"",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\""
+    },
+    {
+      "id": "TC-291-no-flag-emits-a-bundle-on-a-red-or",
+      "acId": "AC-20201-5",
+      "description": "no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles"
+    },
+    {
+      "id": "TC-291-rcf-build-base-suite-refuses-a-dirty",
+      "acId": "AC-20201-6",
+      "description": "rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line"
+    },
+    {
+      "id": "TC-291-with-a-green-record-for-the-base-bundle",
+      "acId": "AC-20201-7",
+      "description": "with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command"
+    },
+    {
+      "id": "TC-291-with-rcf-test-strength-json-declaring",
+      "acId": "AC-20201-8",
+      "description": "with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing"
+    },
+    {
+      "id": "TC-291-a-record-from-rcf-build-base-suite",
+      "acId": "AC-20201-1",
+      "description": "a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B",
+      "status": "pending",
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+    }
+  ],
+  "status": "draft"
+}

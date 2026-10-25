@@ -1,0 +1,102 @@
+{
+  "createdAt": "2026-10-24T16:35:07.403Z",
+  "updatedAt": "2026-10-24T16:46:06.938Z",
+  "purpose": "FBS-234: the external criteria of US-19703, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19703-1",
+    "AC-19703-2",
+    "AC-19703-3",
+    "AC-19703-4",
+    "AC-19703-5",
+    "AC-19703-6",
+    "AC-19703-7",
+    "AC-19703-8",
+    "AC-19703-9",
+    "AC-19703-10",
+    "AC-19703-11"
+  ],
+  "id": "TS-275",
+  "usId": "US-19703",
+  "title": "US-19703 external criteria (FBS-234)",
+  "testCases": [
+    {
+      "id": "TC-275-define-build-review-passed-for-its",
+      "acId": "AC-19703-1",
+      "description": "DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with \"DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\"",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with \"DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\""
+    },
+    {
+      "id": "TC-275-a-review-with-code-findings-followed-by",
+      "acId": "AC-19703-2",
+      "description": "a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0"
+    },
+    {
+      "id": "TC-275-build-after-a-passed-review-define-after",
+      "acId": "AC-19703-3",
+      "description": "BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail \"<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)\"",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail \"<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)\""
+    },
+    {
+      "id": "TC-275-build-right-after-a-review-findings-and",
+      "acId": "AC-19703-4",
+      "description": "BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail \"<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:\"",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail \"<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:\""
+    },
+    {
+      "id": "TC-275-a-review-json-whose-head-is-not-its",
+      "acId": "AC-19703-5",
+      "description": "a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round"
+    },
+    {
+      "id": "TC-275-review-test-finalise-merge-and-finalise",
+      "acId": "AC-19703-6",
+      "description": "REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)"
+    },
+    {
+      "id": "TC-275-only-the-verdict-file-a-commit-adds",
+      "acId": "AC-19703-7",
+      "description": "only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:"
+    },
+    {
+      "id": "TC-275-over-6-rounds-30-or-more-commits-every",
+      "acId": "AC-19703-8",
+      "description": "over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds"
+    },
+    {
+      "id": "TC-275-a-second-review-codex-adding-a-review",
+      "acId": "AC-19703-9",
+      "description": "a second \"REVIEW: codex\" adding a review.json after a passed REVIEW verdict fails \"(one REVIEW verdict per round)\"; a REVIEW: commit adding no review.json before the verdict commit passes",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-9: a second \"REVIEW: codex\" adding a review.json after a passed REVIEW verdict fails \"(one REVIEW verdict per round)\"; a REVIEW: commit adding no review.json before the verdict commit passes"
+    },
+    {
+      "id": "TC-275-a-test-commit-adding-a-pass-test-json",
+      "acId": "AC-19703-10",
+      "description": "a TEST: commit adding a PASS test.json with no REVIEW: in the range fails \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; one adding only rcf/verify-reports/ evidence passes as no verdict",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; one adding only rcf/verify-reports/ evidence passes as no verdict"
+    },
+    {
+      "id": "TC-275-a-test-strength-adding-a-failing-test",
+      "acId": "AC-19703-11",
+      "description": "a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\"",
+      "status": "pending",
+      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-11: a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\""
+    }
+  ],
+  "status": "draft"
+}
