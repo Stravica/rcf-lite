@@ -813,10 +813,10 @@ REQ-193      yes      AC-19301-1   yes                   TC-258-pass-all
                       AC-19302-3   yes                   TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
                       AC-19302-4   yes                   TC-259-offline-and-default-registry, TC-259-offline-outsi...
                       AC-19302-5   yes                   TC-259-no-tarball-left, TC-259-package-outside-repo-refus...
-REQ-194      yes      AC-19401-1   retired (AC-19501-5)  TC-260-validate-own-chain-0-9-0[unresolved]
-                      AC-19401-2   retired (AC-19502-3)  TC-260-update-probe-path-only-refused[unresolved]
-                      AC-19401-3   retired (AC-19502-4)  TC-260-catalog-path-only-still-fails[unresolved]
-                      AC-19401-4   retired (AC-19502-5)  TC-260-ac-level-path-only-refused[unresolved]
+REQ-194      yes      AC-19401-1   retired (AC-19501-5)  TC-260-validate-own-chain-0-9-0
+                      AC-19401-2   retired (AC-19502-3)  TC-260-update-probe-path-only-refused
+                      AC-19401-3   retired (AC-19502-4)  TC-260-catalog-path-only-still-fails
+                      AC-19401-4   retired (AC-19502-5)  TC-260-ac-level-path-only-refused
                       AC-19401-5   yes                   TC-260-retired-state-with-successor
                       AC-19401-6   yes                   TC-260-successor-missing
                       AC-19401-7   yes                   TC-260-self-supersession
@@ -1010,9 +1010,3 @@ REQ-204      yes      AC-20401-1   yes                   TC-297-rcf-guidance-bui
                       AC-20402-2   yes                   TC-298-docs-verify-reference-md-has-the
                       AC-20402-3   yes                   TC-298-no-file-under-packages-rcf-lite-docs
                       AC-20402-4   yes                   TC-298-the-root-readme-md-and-packages-rcf-lite
-
-Unresolved test pointers (never counted as coverage):
-  TC-260-ac-level-path-only-refused (TS-260): test/verify/probe-assertion-0-9-0.test.js::AC-19401-4: at rcf-schemas 0.9.0 an AC-level probe { "path": "/" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it "fail" with failedExpectation "missing assertion", never "pass", exit 4 - test-missing
-  TC-260-catalog-path-only-still-fails (TS-260): test/verify/probe-assertion-0-9-0.test.js::AC-19401-3: at rcf-schemas 0.9.0 an rcf/verify-catalog.json entry { "path": "/" } resolves "fail" with failedExpectation "missing assertion" (never "expectStatus"), never "pass", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key - test-missing
-  TC-260-update-probe-path-only-refused (TS-260): test/verify/probe-assertion-0-9-0.test.js::AC-19401-2: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} at rcf-schemas 0.9.0 exits 3 with a stderr line naming AC-101-1 and "missing assertion" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical - test-missing
-  TC-260-validate-own-chain-0-9-0 (TS-260): test/verify/probe-assertion-0-9-0.test.js::AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0 - test-missing
