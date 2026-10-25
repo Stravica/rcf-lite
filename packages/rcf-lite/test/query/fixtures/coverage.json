@@ -5,7 +5,8 @@
     "requirements": 135,
     "covered": 135,
     "coveredUnresolved": 0,
-    "uncovered": 0
+    "uncovered": 0,
+    "retiredAcs": 42
   },
   "requirements": [
     {
@@ -4634,7 +4635,9 @@
         },
         {
           "id": "AC-16502-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-1",
+          "covered": false,
           "testCases": [
             "TC-203-merge-state-refusal-and-opt-out"
           ],
@@ -7014,7 +7017,9 @@
         },
         {
           "id": "AC-19002-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-1",
+          "covered": false,
           "testCases": [
             "TC-253-e2e-verify-then-finalise",
             "TC-253-promotes-verified"
@@ -7023,7 +7028,9 @@
         },
         {
           "id": "AC-19002-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-2",
+          "covered": false,
           "testCases": [
             "TC-253-no-report"
           ],
@@ -7031,7 +7038,9 @@
         },
         {
           "id": "AC-19002-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-4",
+          "covered": false,
           "testCases": [
             "TC-253-head-loopback-age",
             "TC-253-squash-tree-equal"
@@ -7040,7 +7049,9 @@
         },
         {
           "id": "AC-19002-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20002-4",
+          "covered": false,
           "testCases": [
             "TC-253-hand-not-separate"
           ],
@@ -7048,7 +7059,9 @@
         },
         {
           "id": "AC-19002-5",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20002-3",
+          "covered": false,
           "testCases": [
             "TC-253-preconditions"
           ],
@@ -7056,7 +7069,9 @@
         },
         {
           "id": "AC-19002-6",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-3",
+          "covered": false,
           "testCases": [
             "TC-253-blocking-per-ac-verdicts",
             "TC-253-e2e-per-ac-refusal"
@@ -7065,7 +7080,9 @@
         },
         {
           "id": "AC-19002-7",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20003-1",
+          "covered": false,
           "testCases": [
             "TC-253-retired-flags"
           ],
@@ -7081,7 +7098,9 @@
         },
         {
           "id": "AC-19003-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20201-4",
+          "covered": false,
           "testCases": [
             "TC-254-e2e-finalise-clears-backstop",
             "TC-254-refuses-unverified"
@@ -7090,7 +7109,9 @@
         },
         {
           "id": "AC-19003-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20203-3",
+          "covered": false,
           "testCases": [
             "TC-254-override-recorded"
           ],
@@ -7098,7 +7119,9 @@
         },
         {
           "id": "AC-19003-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20203-1",
+          "covered": false,
           "testCases": [
             "TC-254-inert-without-backstop"
           ],
@@ -7106,7 +7129,9 @@
         },
         {
           "id": "AC-19003-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20203-2",
+          "covered": false,
           "testCases": [
             "TC-254-adopt"
           ],
@@ -7114,7 +7139,9 @@
         },
         {
           "id": "AC-19003-5",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20201-5",
+          "covered": false,
           "testCases": [
             "TC-254-no-silent-bypass"
           ],
@@ -7122,7 +7149,9 @@
         },
         {
           "id": "AC-19004-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20401-1",
+          "covered": false,
           "testCases": [
             "TC-257-test-and-finalise-stages"
           ],
@@ -7130,7 +7159,9 @@
         },
         {
           "id": "AC-19004-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20401-1",
+          "covered": false,
           "testCases": [
             "TC-257-define-and-build-hands"
           ],
@@ -7138,7 +7169,9 @@
         },
         {
           "id": "AC-19004-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20401-4",
+          "covered": false,
           "testCases": [
             "TC-257-bundle-runbook"
           ],
@@ -7146,7 +7179,9 @@
         },
         {
           "id": "AC-19004-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20401-3",
+          "covered": false,
           "testCases": [
             "TC-257-managed-block"
           ],
@@ -7170,7 +7205,9 @@
         },
         {
           "id": "AC-19004-7",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20401-5",
+          "covered": false,
           "testCases": [
             "TC-257-no-post-merge-verify"
           ],
@@ -7178,7 +7215,9 @@
         },
         {
           "id": "AC-19005-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-1",
+          "covered": false,
           "testCases": [
             "TC-261-e2e-loopback-verify-then-finalise-on-branch",
             "TC-261-pre-merge-promotes"
@@ -7187,7 +7226,9 @@
         },
         {
           "id": "AC-19005-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20003-2",
+          "covered": false,
           "testCases": [
             "TC-261-loopback-accepted"
           ],
@@ -7195,7 +7236,9 @@
         },
         {
           "id": "AC-19005-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20003-2",
+          "covered": false,
           "testCases": [
             "TC-261-loopback-missing-field"
           ],
@@ -7203,7 +7246,9 @@
         },
         {
           "id": "AC-19005-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20003-2",
+          "covered": false,
           "testCases": [
             "TC-261-served-sha-mismatch"
           ],
@@ -7222,7 +7267,9 @@
         },
         {
           "id": "AC-19005-6",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20003-2",
+          "covered": false,
           "testCases": [
             "TC-261-report-committed-at-head"
           ],
@@ -7230,7 +7277,9 @@
         },
         {
           "id": "AC-19005-7",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20002-4",
+          "covered": false,
           "testCases": [
             "TC-261-provenance-kept-pre-merge"
           ],
@@ -7238,7 +7287,9 @@
         },
         {
           "id": "AC-19005-8",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-5",
+          "covered": false,
           "testCases": [
             "TC-261-e2e-merge-confirm",
             "TC-261-merged-main-confirm"
@@ -7247,7 +7298,9 @@
         },
         {
           "id": "AC-19005-9",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20003-1",
+          "covered": false,
           "testCases": [
             "TC-261-allow-pre-merge-no-op"
           ],
@@ -7255,7 +7308,9 @@
         },
         {
           "id": "AC-19005-10",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20401-1",
+          "covered": false,
           "testCases": [
             "TC-261-shipped-text-pre-merge"
           ],
@@ -7270,7 +7325,9 @@
       "acs": [
         {
           "id": "AC-19101-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19601-1",
+          "covered": false,
           "testCases": [
             "TC-255-pass-line"
           ],
@@ -7278,7 +7335,9 @@
         },
         {
           "id": "AC-19101-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19601-2",
+          "covered": false,
           "testCases": [
             "TC-255-fail-line",
             "TC-255-lockfiles-neutral",
@@ -7288,7 +7347,9 @@
         },
         {
           "id": "AC-19101-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19601-3",
+          "covered": false,
           "testCases": [
             "TC-255-undeclared"
           ],
@@ -7296,7 +7357,9 @@
         },
         {
           "id": "AC-19101-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19601-5",
+          "covered": false,
           "testCases": [
             "TC-255-bad-ref-and-repo"
           ],
@@ -7304,7 +7367,9 @@
         },
         {
           "id": "AC-19101-5",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19601-6",
+          "covered": false,
           "testCases": [
             "TC-255-json-rows"
           ],
@@ -7312,7 +7377,9 @@
         },
         {
           "id": "AC-19101-6",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19601-8",
+          "covered": false,
           "testCases": [
             "TC-255-read-only"
           ],
@@ -7328,7 +7395,9 @@
         },
         {
           "id": "AC-19102-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19604-3",
+          "covered": false,
           "testCases": [
             "TC-256-mixed-exception"
           ],
@@ -7336,7 +7405,9 @@
         },
         {
           "id": "AC-19102-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19604-5",
+          "covered": false,
           "testCases": [
             "TC-256-class-override"
           ],
@@ -7344,7 +7415,9 @@
         },
         {
           "id": "AC-19102-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19604-4",
+          "covered": false,
           "testCases": [
             "TC-256-require-hand",
             "TC-256-require-hand-builder-breach",
@@ -7362,7 +7435,9 @@
         },
         {
           "id": "AC-19102-5",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19604-6",
+          "covered": false,
           "testCases": [
             "TC-256-no-empty-reason-no-shallow"
           ],
@@ -7519,7 +7594,9 @@
         },
         {
           "id": "AC-19301-9",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20001-1",
+          "covered": false,
           "testCases": [
             "TC-258-finalise-end-to-end"
           ],
@@ -7581,7 +7658,9 @@
       "acs": [
         {
           "id": "AC-19401-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19501-5",
+          "covered": false,
           "testCases": [
             "TC-260-validate-own-chain-0-9-0"
           ],
@@ -7589,7 +7668,9 @@
         },
         {
           "id": "AC-19401-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19502-3",
+          "covered": false,
           "testCases": [
             "TC-260-update-probe-path-only-refused"
           ],
@@ -7597,7 +7678,9 @@
         },
         {
           "id": "AC-19401-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19502-4",
+          "covered": false,
           "testCases": [
             "TC-260-catalog-path-only-still-fails"
           ],
@@ -7605,7 +7688,9 @@
         },
         {
           "id": "AC-19401-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19502-5",
+          "covered": false,
           "testCases": [
             "TC-260-ac-level-path-only-refused"
           ],
@@ -7714,6 +7799,14 @@
             "TC-260-one-canary-and-header-substring"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-18",
+          "covered": true,
+          "testCases": [
+            "TC-260-retired-codeclass-with-code"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
@@ -7758,7 +7851,8 @@
           "id": "AC-19501-5",
           "covered": true,
           "testCases": [
-            "TC-267-the-rcf-schemas-pin-names-the-release"
+            "TC-267-the-rcf-schemas-pin-names-the-release",
+            "TC-267-validate-own-chain-0-10-0"
           ],
           "unresolvedTestCases": []
         },
@@ -7791,6 +7885,30 @@
           "covered": true,
           "testCases": [
             "TC-268-every-code-node-implementing-a-criterion"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19502-3",
+          "covered": true,
+          "testCases": [
+            "TC-268-update-probe-path-only-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19502-4",
+          "covered": true,
+          "testCases": [
+            "TC-268-catalog-path-only-still-fails"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19502-5",
+          "covered": true,
+          "testCases": [
+            "TC-268-ac-level-path-only-refused"
           ],
           "unresolvedTestCases": []
         }

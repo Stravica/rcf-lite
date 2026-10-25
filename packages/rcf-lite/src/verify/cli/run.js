@@ -180,10 +180,13 @@ Optional:
                                  rcf/verify-catalog.json) to pass, fail or
                                  skipped with evidence on report.perAc[];
                                  an AC with no probe is 'critiqueOnly' on
-                                 blockedAcs[]. Stamps runStats.counts =
+                                 blockedAcs[]; a retired AC (supersededBy)
+                                 is 'retired', never probed and never
+                                 counted. Stamps runStats.counts =
                                  { verified, failed, skipped, critiqueOnly,
-                                 total }. Exits 0 only when every in-scope
-                                 AC passed, 4 otherwise.
+                                 total }, total counting live ACs only.
+                                 Exits 0 only when every in-scope live AC
+                                 passed, 4 otherwise.
   --hand <hand>             Test-stage verify report (FBS-219): stamp the
                             hand (test-author | builder | reviewer | verifier |
                             stage-keeper) and write VerifyReport v1 to
@@ -688,6 +691,8 @@ export async function main(argv, deps = {}) {
 
   // FBS-218: deterministic mode exits 0 only when every in-scope AC
   // passed its probe, 4 otherwise (a fail, a skip or a critique-only AC).
+  // FBS-228: a retired AC is outside counts.total, so it never holds the
+  // exit at 4.
   if (mode === 'deterministic') {
     const counts = report?.run?.runStats?.counts;
     return counts && counts.total > 0 && counts.verified === counts.total ? 0 : 4;

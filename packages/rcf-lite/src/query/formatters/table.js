@@ -25,13 +25,16 @@ export function formatTable(result, verb) {
 
 // w-2026-07-28-005: three-state cell vocabulary. 'unresolved' = TC rows
 // exist but none of their pointers resolves to a real test - the stub-TC
-// state, shown as its own word rather than folded into yes/no.
+// state, shown as its own word rather than folded into yes/no. FBS-228:
+// a retired criterion reads 'retired (<successor>)' instead, whatever its
+// TCs.
 function reqCoveredCell(req) {
   if (req.covered) return 'yes';
   return req.coverageClass === 'covered-unresolved' ? 'unresolved' : 'no';
 }
 
 function acCoveredCell(ac) {
+  if (ac.state === 'retired') return `retired (${ac.supersededBy})`;
   if (ac.covered) return 'yes';
   return ac.testCases.length > 0 ? 'unresolved' : 'no';
 }
@@ -81,6 +84,12 @@ function formatCoverageTable(result) {
     }
   }
   lines.push(renderTable(rows));
+  // FBS-228: one line per supersession error, each exactly as computed.
+  const supersessionErrors = result.supersessionErrors ?? [];
+  if (supersessionErrors.length > 0) {
+    lines.push('');
+    for (const e of supersessionErrors) lines.push(e.message);
+  }
   const unresolvedPointers = result.unresolvedTestPointers ?? [];
   if (unresolvedPointers.length > 0) {
     lines.push('');

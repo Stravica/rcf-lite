@@ -20,6 +20,15 @@
 // capture the REQ's intent?" - that non-deterministic question belongs
 // to a later prompting + MCP resources phase (Phase 7+).
 //
+// FBS-228 (US-19401): a criterion carrying `supersededBy` is RETIRED. It
+// keeps its row (state 'retired', its successor named, any bound TC
+// still listed) but leaves the requirement decision in both modes: its
+// TCs count toward neither its requirement nor its successor, it never
+// reads covered, and `totals.retiredAcs` counts it. A successor missing
+// from the chain, a criterion superseding itself and a supersession cycle
+// are each reported once on `supersessionErrors` and fail `ok`. A chain
+// with no retired criterion gets none of these fields.
+//
 // Phase 5 §D10 scoping: no positional -> tree-wide; positional PRD id
 // -> scope to REQs whose prdId matches; positional REQ id -> scope to
 // that REQ; positional US id -> scope to the REQ that owns that US.
@@ -38,6 +47,8 @@ import { testCaseKey } from '#core/store';
  * @property {boolean} covered - at least one TC whose pointer RESOLVES
  * @property {string[]} testCases - all TC ids that cross-reference this AC
  * @property {string[]} unresolvedTestCases - the subset whose pointer does not resolve
+ * @property {'retired'} [state] - FBS-228: present only on a retired criterion
+ * @property {string} [supersededBy] - FBS-228: the successor of a retired criterion
  */
 
 /**
@@ -53,12 +64,17 @@ import { testCaseKey } from '#core/store';
 /**
  * @typedef {object} CoverageResult
  * @property {boolean} ok - true when every requirement in scope is covered
- *   by RESOLVING test cases (covered-unresolved is a gap, not a pass)
+ *   by RESOLVING test cases (covered-unresolved is a gap, not a pass) and
+ *   no supersession error was found
  * @property {boolean} strict - the --strict flag echoed in the envelope
- * @property {{requirements: number, covered: number, coveredUnresolved: number, uncovered: number}} totals
+ * @property {{requirements: number, covered: number, coveredUnresolved: number, uncovered: number, retiredAcs?: number}} totals -
+ *   retiredAcs only when a criterion in scope is retired (FBS-228)
  * @property {ReqCoverage[]} requirements
  * @property {Array<{tsId: string, tcId: string, testPointer: string|null, reason: string}>} unresolvedTestPointers -
  *   every in-scope TC whose pointer failed to resolve, with why
+ * @property {Array<{acId: string, supersededBy: string, problem: 'successorMissing'|'selfSupersession'|'cycle', message: string}>} [supersessionErrors] -
+ *   FBS-228: present only when a retired criterion in scope has a missing
+ *   successor, supersedes itself or sits in a cycle
  */
 
 /**
@@ -70,7 +86,8 @@ import { testCaseKey } from '#core/store';
  * `implemented-and-covered` / `implemented-uncovered` / `unimplemented`
  * (deterministic edge counting via `tree.cnByAcId` / `tree.tcsByAcId`,
  * with the covered leg gated on pointer resolution per w-2026-07-28-005),
- * plus a tree-wide `codeNodeOrphans` list (CN docs with empty
+ * or `retired` for a criterion carrying `supersededBy`, which counts
+ * toward no code total (AC-19401-18), plus a tree-wide `codeNodeOrphans` list (CN docs with empty
  * `implementsAcIds`). None of this blocks - `ok` / exit code are
  * unaffected by the code axis (spec D11: the mark-complete gate, not
  * coverage, is where CN completeness is enforced).
@@ -100,15 +117,22 @@ export function computeCoverage(tree, opts = {}) {
   let covered = 0;
   let coveredUnresolved = 0;
   let uncovered = 0;
+  let retiredAcs = 0;
+  /** @type {AcCoverage[]} */
+  const retired = [];
 
   for (const req of reqs) {
     const acs = collectAcs(tree, req.reqId, { withCode, testPointers, unresolvedByKey });
     // The real verdict counts only resolving TCs; the structural verdict
     // is the pre-w-2026-07-28-005 rule (a TC row exists). A REQ that
     // passes structurally but not really is 'covered-unresolved' - the
-    // stub-TC state, made visible instead of counted.
-    const isCovered = decideReqCoverage(acs, strict, (ac) => ac.covered);
-    const structurallyCovered = decideReqCoverage(acs, strict, (ac) => ac.testCases.length > 0);
+    // stub-TC state, made visible instead of counted. FBS-228: retired
+    // criteria leave both verdicts, in strict and shallow-any alike.
+    const live = acs.filter((ac) => ac.state !== 'retired');
+    for (const ac of acs) if (ac.state === 'retired') retired.push(ac);
+    retiredAcs += acs.length - live.length;
+    const isCovered = decideReqCoverage(live, strict, (ac) => ac.covered);
+    const structurallyCovered = decideReqCoverage(live, strict, (ac) => ac.testCases.length > 0);
     const coverageClass = isCovered ? 'covered' : structurallyCovered ? 'covered-unresolved' : 'uncovered';
     if (coverageClass === 'covered') covered += 1;
     else if (coverageClass === 'covered-unresolved') coveredUnresolved += 1;
@@ -116,19 +140,23 @@ export function computeCoverage(tree, opts = {}) {
     requirements.push({ id: req.reqId, covered: isCovered, coverageClass, acs });
   }
 
+  const supersessionErrors = collectSupersessionErrors(tree, retired);
+
   const result = {
-    ok: coveredUnresolved === 0 && uncovered === 0,
+    ok: coveredUnresolved === 0 && uncovered === 0 && supersessionErrors.length === 0,
     strict,
     totals: {
       requirements: requirements.length,
       covered,
       coveredUnresolved,
       uncovered,
+      ...(retiredAcs > 0 ? { retiredAcs } : {}),
     },
     requirements,
     unresolvedTestPointers: [...unresolvedByKey.values()]
       .sort((a, b) => (a.tsId + a.tcId).localeCompare(b.tsId + b.tcId)),
   };
+  if (supersessionErrors.length > 0) result.supersessionErrors = supersessionErrors;
 
   if (withCode) {
     result.withCode = true;
@@ -137,6 +165,62 @@ export function computeCoverage(tree, opts = {}) {
   }
 
   return result;
+}
+
+/** Criterion ids in numeric order (AC-101-2 before AC-101-10). */
+function compareAcIds(a, b) {
+  return a.localeCompare(b, 'en', { numeric: true });
+}
+
+/**
+ * FBS-228 (US-19401): the supersession checks over the retired criteria
+ * in scope. Successors are looked up across the whole tree. Each problem
+ * is reported once: a missing successor and a self-supersession on the
+ * criterion itself, a cycle once for the whole cycle, starting at its
+ * lowest id.
+ *
+ * @param {TreeModel} tree
+ * @param {AcCoverage[]} retired - the retired criteria in scope
+ * @returns {Array<{acId: string, supersededBy: string, problem: string, message: string}>}
+ */
+function collectSupersessionErrors(tree, retired) {
+  if (retired.length === 0) return [];
+  /** @type {Map<string, string|undefined>} */
+  const successorOf = new Map();
+  for (const us of tree.userStories ?? []) {
+    for (const ac of us.acceptanceCriteria ?? []) {
+      if (ac?.id) successorOf.set(ac.id, ac.supersededBy);
+    }
+  }
+  const errors = [];
+  const reportedCycles = new Set();
+  const line = (acId, supersededBy, what) => `supersession: ${acId} supersededBy ${supersededBy}: ${what}`;
+  for (const ac of [...retired].sort((a, b) => compareAcIds(a.id, b.id))) {
+    const next = ac.supersededBy;
+    if (next === ac.id) {
+      errors.push({ acId: ac.id, supersededBy: next, problem: 'selfSupersession', message: line(ac.id, next, 'a criterion cannot supersede itself') });
+      continue;
+    }
+    if (!successorOf.has(next)) {
+      errors.push({ acId: ac.id, supersededBy: next, problem: 'successorMissing', message: line(ac.id, next, 'successor not found in the chain') });
+      continue;
+    }
+    // Follow the successors until the chain ends, repeats or comes back.
+    const path = [ac.id];
+    let cursor = next;
+    while (cursor !== undefined && cursor !== ac.id && !path.includes(cursor)) {
+      path.push(cursor);
+      cursor = successorOf.get(cursor);
+    }
+    if (cursor !== ac.id) continue;
+    const lowest = [...path].sort(compareAcIds)[0];
+    if (reportedCycles.has(lowest)) continue;
+    reportedCycles.add(lowest);
+    const start = path.indexOf(lowest);
+    const cycle = [...path.slice(start), ...path.slice(0, start), lowest];
+    errors.push({ acId: lowest, supersededBy: cycle[1], problem: 'cycle', message: line(lowest, cycle[1], `cycle ${cycle.join(' -> ')}`) });
+  }
+  return errors;
 }
 
 /**
@@ -207,6 +291,9 @@ function selectRequirements(tree, scopeId) {
  * `unresolvedByKey` detail map. Phase 10: when `withCode`, also attaches
  * `cnIds` and the D11 `codeClass` (the covered leg is resolution-gated
  * too - a stub TC never manufactures 'implemented-and-covered').
+ * FBS-228: a criterion carrying `supersededBy` gets state 'retired' and
+ * its successor; its TCs stay listed but it never reads covered, and
+ * under `withCode` its `codeClass` reads 'retired' (AC-19401-18).
  *
  * @param {TreeModel} tree
  * @param {string} reqId
@@ -245,20 +332,26 @@ function collectAcs(tree, reqId, opts = {}) {
           }
         }
       }
+      const isRetired = typeof ac.supersededBy === 'string';
       const entry = {
         id: ac.id,
-        covered: resolvedTcs.length > 0,
+        ...(isRetired ? { state: 'retired', supersededBy: ac.supersededBy } : {}),
+        covered: !isRetired && resolvedTcs.length > 0,
         testCases: tcEntries.map((e) => e.tcId).sort(),
         unresolvedTestCases: [...unresolvedTcs].sort(),
       };
       if (withCode) {
         const cnIds = [...(tree.cnByAcId?.get(ac.id) ?? [])].sort();
         entry.cnIds = cnIds;
-        entry.codeClass = cnIds.length === 0
-          ? 'unimplemented'
-          : resolvedTcs.length > 0
-            ? 'implemented-and-covered'
-            : 'implemented-uncovered';
+        // AC-19401-18: retirement is independent of the mode; a retired
+        // criterion reads 'retired' whether or not a Code Node names it.
+        entry.codeClass = isRetired
+          ? 'retired'
+          : cnIds.length === 0
+            ? 'unimplemented'
+            : entry.covered
+              ? 'implemented-and-covered'
+              : 'implemented-uncovered';
       }
       acs.push(entry);
     }
@@ -269,7 +362,8 @@ function collectAcs(tree, reqId, opts = {}) {
 /**
  * shallow-any: any one AC passing = REQ passing.
  * strict: every AC passing = REQ passing. REQ with zero ACs is uncovered
- * under either mode (no chain to walk). The per-AC predicate is supplied
+ * under either mode (no chain to walk). Callers pass the live ACs only
+ * (FBS-228: retired criteria leave the decision). The per-AC predicate is supplied
  * by the caller so the same rule serves both the resolution-gated verdict
  * and the structural (TC-row-exists) verdict.
  *

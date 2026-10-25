@@ -68,7 +68,8 @@ function renderCoverageMermaid(result) {
   const seenIds = new Set();
   // w-2026-07-28-005: TCs whose pointer does not resolve carry the
   // `broken` class on top of `tc` - dashed red stroke, so a stub TC is
-  // visibly not the same thing as a resolving one.
+  // visibly not the same thing as a resolving one. FBS-228: a retired
+  // criterion carries a dotted supersededBy edge to its successor.
   const unresolvedTcIds = new Set();
   const declare = (id) => {
     if (seenIds.has(id)) return;
@@ -80,6 +81,7 @@ function renderCoverageMermaid(result) {
     for (const ac of req.acs) {
       declare(ac.id);
       lines.push(`  ${req.id} --> ${ac.id}`);
+      if (ac.state === 'retired') lines.push(`  ${ac.id} -. supersededBy .-> ${ac.supersededBy}`);
       const unresolved = new Set(ac.unresolvedTestCases ?? []);
       for (const tc of ac.testCases) {
         declare(tc);

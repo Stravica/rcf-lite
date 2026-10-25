@@ -9,10 +9,11 @@
 // EVAL, mirroring the resolving-TC rule on `rcf audit coverage`).
 //
 // Exit codes: 0 clean, 2 usage refusal, 3 tree drift, 4 strict-gate
-// refusal (any nonDeterministic AC without a resolving EVAL).
+// refusal (any live nonDeterministic AC without a resolving EVAL).
 //
-// Deterministic ACs never trigger the strict gate. A subtree with zero
-// nonDeterministic ACs passes trivially. Presence of a resolving EVAL
+// Deterministic ACs never trigger the strict gate, and neither does a
+// retired nonDeterministic AC (FBS-228: outcome `retired`). A subtree
+// with zero nonDeterministic ACs passes trivially. Presence of a resolving EVAL
 // on a deterministic AC is reported as `covered-optional`, never as a
 // defect.
 
@@ -47,16 +48,19 @@ resolving-TC rule on \`rcf audit coverage\`).
 
 Deterministic ACs never trigger the strict gate. Presence of a
 resolving EVAL on a deterministic AC is reported as covered-optional,
-never as a defect.
+never as a defect. A retired nonDeterministic AC (one carrying
+supersededBy) reads outcome retired with its successor, never
+missing, and never triggers the strict gate.
 
 Positional:
   scope-id                  Optional PRD / REQ / US id to scope the
                             audit to a subtree. Below-AC ids exit 2.
 
 Options:
-  --strict                  Per-AC-strict mode; exits 4 on any
+  --strict                  Per-AC-strict mode; exits 4 on any live
                             nonDeterministic AC without a resolving
-                            EVAL. Deterministic ACs are never gated.
+                            EVAL. Deterministic and retired ACs are
+                            never gated.
   --require-approved        Extra --strict gate: refuse any EVAL still
                             at authoringStatus 'draft'.
   --format <format>         table (default) | json | mermaid

@@ -10,7 +10,9 @@
 // deterministic ACs are never gated by this audit. `--strict` refuses
 // only when a nonDeterministic AC lacks a resolving EVAL. Presence of
 // an EVAL on a deterministic AC is reported as `covered-optional`,
-// never as a defect.
+// never as a defect. FBS-228 (US-19401): a retired nonDeterministic AC
+// (one carrying `supersededBy`) reads `retired` with its successor,
+// never `missing`, and is outside missingCount and coveredCount.
 //
 // This module is pure and synchronous; the CLI layer walks the tree
 // and formats.
@@ -35,19 +37,21 @@
  * @property {EvalStatus} evalStatus
  * @property {string|null} evalId - the resolving EVAL, if any; else null
  * @property {string[]} evalIds - all EVALs whose acIds[] name this AC
- * @property {'covered'|'covered-optional'|'missing'|'not-required'} outcome
+ * @property {'covered'|'covered-optional'|'missing'|'not-required'|'retired'} outcome
  *   - 'covered': nonDeterministic + resolving EVAL
  *   - 'covered-optional': deterministic + resolving EVAL (informational)
  *   - 'missing': nonDeterministic + no resolving EVAL
  *   - 'not-required': deterministic + no EVAL
+ *   - 'retired': nonDeterministic + supersededBy (FBS-228), whatever its EVALs
+ * @property {string} [supersededBy] - the successor, on a 'retired' entry only
  */
 
 /**
  * @typedef {object} EvalCoverageReport
  * @property {AcEvalStatus[]} acs - flat per-AC entries within scope
  * @property {number} nonDeterministicCount
- * @property {number} coveredCount - nonDeterministic with resolving EVAL
- * @property {number} missingCount - nonDeterministic without resolving EVAL
+ * @property {number} coveredCount - live nonDeterministic with resolving EVAL
+ * @property {number} missingCount - live nonDeterministic without resolving EVAL
  * @property {boolean} ok - true when strict-gate passes: missingCount === 0
  * @property {string|null} scopeId - null when tree-wide
  */
@@ -117,6 +121,7 @@ export function computeEvalCoverage(tree, { scopeId = null } = {}) {
           outcome = determinism === 'nonDeterministic' ? 'missing' : 'not-required';
         }
       }
+      const retired = determinism === 'nonDeterministic' && typeof ac.supersededBy === 'string';
       acs.push({
         acId: ac.id,
         usId,
@@ -124,13 +129,14 @@ export function computeEvalCoverage(tree, { scopeId = null } = {}) {
         evalStatus,
         evalId: resolvingId,
         evalIds,
-        outcome,
+        outcome: retired ? 'retired' : outcome,
+        ...(retired ? { supersededBy: ac.supersededBy } : {}),
       });
     }
   }
   const nonDeterministicCount = acs.filter((a) => a.determinism === 'nonDeterministic').length;
   const missingCount = acs.filter((a) => a.outcome === 'missing').length;
-  const coveredCount = nonDeterministicCount - missingCount;
+  const coveredCount = acs.filter((a) => a.outcome === 'covered').length;
   return {
     acs,
     nonDeterministicCount,

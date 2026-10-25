@@ -11,6 +11,11 @@
 // existing CI invocations, blueprints and dogfood scripts stay green;
 // `--mode shallow-any --strict` (or the inverse) is a usage refusal.
 //
+// FBS-228 (US-19401): retired criteria and the supersession checks are
+// computed in query/coverage.js and printed by the formatters; a
+// supersession error clears `ok`, so strict mode exits 4 on it and
+// shallow-any prints it and exits 0.
+//
 // Phase-boundary reminder (§D2, §1.4): this verb is a MECHANICAL /
 // DETERMINISTIC structural check. It does NOT answer "does the AC
 // set adequately capture the REQ's intent?" - that non-deterministic
@@ -61,6 +66,12 @@ counted as coverage. Strict-by-default (per-AC: every AC has resolving
 TC coverage); --mode shallow-any is the explicit opt-out (any AC
 covered by any resolving TC = REQ covered) and always exits 0.
 
+A retired AC (one carrying supersededBy) reads 'retired (<successor>)',
+keeps its TCs listed and leaves the requirement decision in both
+modes; it never counts as coverage. A successor missing from the
+chain, an AC superseding itself or a supersession cycle prints one
+'supersession:' line and fails strict mode.
+
 This is a mechanical / deterministic structural check. It does NOT
 answer 'does the AC set adequately capture the REQ's intent?' - that
 non-deterministic question is out of scope for Phase 5 (belongs to a
@@ -87,7 +98,8 @@ Options:
                             by default; opt-in via CI.
   --with-code               Layer the code axis onto every AC: one of
                             implemented-and-covered / implemented-uncovered
-                            / unimplemented, plus a tree-wide list of
+                            / unimplemented, or retired for a retired
+                            criterion, plus a tree-wide list of
                             CN-orphaned code nodes. INFORMATIONAL ONLY -
                             never blocks or affects the exit code (D11;
                             the mark-complete gate is where CN
@@ -190,7 +202,8 @@ export async function main(argv, deps = {}) {
   else output = formatTable(result, 'coverage');
   stdout.write(output);
 
-  // Strict mode on any gap = exit 4 (CI-gate friendly). Otherwise 0.
+  // Strict mode on any gap or supersession error = exit 4 (CI-gate
+  // friendly). Otherwise 0.
   if (strict && !result.ok) return 4;
 
   // 0.7.0 verification-integrity extension: strict mode also runs the

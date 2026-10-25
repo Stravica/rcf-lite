@@ -277,6 +277,9 @@ export async function readChain({ repo, chainRef } = {}) {
         // 0.7.1 $defs/acProbe); deterministic verify resolves it and it
         // wins over a rcf/verify-catalog.json entry for the same AC.
         ...(ac.probe !== undefined ? { probe: ac.probe } : {}),
+        // FBS-228 (US-19401): a retired criterion's successor; deterministic
+        // verify records it retired and never probes it.
+        ...(ac.supersededBy !== undefined ? { supersededBy: ac.supersededBy } : {}),
       });
     }
   }

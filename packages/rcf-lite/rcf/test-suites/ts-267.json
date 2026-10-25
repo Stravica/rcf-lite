@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:22:20.592Z",
-  "updatedAt": "2026-10-24T18:56:49.055Z",
+  "updatedAt": "2026-10-25T11:25:36.759Z",
   "purpose": "FBS-232: the testOnly criteria of US-19501, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -32,6 +32,13 @@
       "description": "define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1",
       "status": "pending",
       "testPointer": "test/define/verification-field.test.js::AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1"
+    },
+    {
+      "id": "TC-267-validate-own-chain-0-10-0",
+      "acId": "AC-19501-5",
+      "description": "with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19501-5: with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0"
     }
   ],
   "status": "draft"

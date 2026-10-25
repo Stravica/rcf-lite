@@ -272,7 +272,9 @@ export function reportHasBrowserVerificationMissing(report) {
 // only child processes are git lookups.
 
 const VERIFY_REPORTS_DIR = join('rcf', 'verify-reports');
-const PER_AC_RESULTS = new Set(['pass', 'fail', 'skipped', 'critiqueOnly', 'critiqued']);
+// FBS-228 (US-19401): 'retired' is deterministic verify's result for a
+// criterion carrying supersededBy.
+const PER_AC_RESULTS = new Set(['pass', 'fail', 'skipped', 'critiqueOnly', 'critiqued', 'retired']);
 const DAY_MS = 24 * 60 * 60 * 1000;
 
 const isText = (v) => typeof v === 'string' && v.length > 0;

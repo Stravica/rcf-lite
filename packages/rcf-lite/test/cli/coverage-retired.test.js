@@ -11,16 +11,36 @@
 // through test/_harness/ (GR-40); its chain records are then shaped by
 // writing their JSON. AC-19401-12's test stays in
 // test/verify/probe-assertion-0-9-0.test.js (FBS-228's notes).
+// AC-19401-18 (fix 1, stage-keeper ruling C): a retired criterion reads
+// retired under --with-code too. The Given "the pin at rcf-schemas 0.9.0
+// or later" (ruling B) is asserted, not assumed: see pinGiven below.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { readFileSync } from 'node:fs';
+import { createRequire } from 'node:module';
 
-import { rcf } from '../_harness/spawn.js';
+import { BIN, rcf } from '../_harness/spawn.js';
 import { bindTests, criterion, editFbs, editStory, project, writeJson } from '../_harness/fixture.js';
 import { json } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-228 round DEFINE' };
 const RETIRED = { supersededOn: '2026-10-20', supersessionNote: 'replaced by AC-101-2' };
+
+// The Given "the pin at rcf-schemas 0.9.0 or later" (stage-keeper ruling
+// B, fix 1): the @stravica-ai/rcf-schemas that rcf-lite resolves at run
+// time, read through createRequire from the package under test's bin. It
+// is a runtime dependency, so this holds in the packed-artefact run too.
+function atLeast(version, min) {
+  const parts = (v) => v.split('-')[0].split('.').map(Number);
+  const [a, b] = [parts(version), parts(min)];
+  for (let i = 0; i < 3; i += 1) if (a[i] !== b[i]) return a[i] > b[i];
+  return !version.includes('-');
+}
+function pinGiven() {
+  const file = createRequire(BIN).resolve('@stravica-ai/rcf-schemas/package.json');
+  const { version } = JSON.parse(readFileSync(file, 'utf8'));
+  assert.ok(atLeast(version, '0.9.0'), `given: the pin at rcf-schemas 0.9.0 or later; rcf-lite resolves @stravica-ai/rcf-schemas ${version} (${file})`);
+}
 
 // US-101 holds exactly `acs`; FBS-001 scopes them all.
 async function world(t, acs) {
@@ -40,7 +60,8 @@ function tableRow(stdout, acId) {
   return stdout.split('\n').find((l) => new RegExp(`(^|\\s)${acId}\\s`).test(l)) ?? '';
 }
 
-test('AC-19401-5: rcf audit coverage with AC-101-1 superseded by AC-101-2 (no TC) and AC-101-2 bound to a resolving TC exits 0, the row reads "retired (AC-101-2)", json state "retired" supersededBy "AC-101-2" covered false totals.retiredAcs 1, mermaid "AC-101-1 -. supersededBy .-> AC-101-2", shallow-any exits 0', TODO, async (t) => {
+test('AC-19401-5: rcf audit coverage with AC-101-1 superseded by AC-101-2 (no TC) and AC-101-2 bound to a resolving TC exits 0, the row reads "retired (AC-101-2)", json state "retired" supersededBy "AC-101-2" covered false totals.retiredAcs 1, mermaid "AC-101-1 -. supersededBy .-> AC-101-2", shallow-any exits 0', async (t) => {
+  pinGiven();
   const dir = await world(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour'),
@@ -99,21 +120,24 @@ async function supersessionError(t, acs, line) {
   return strict;
 }
 
-test('AC-19401-6: rcf audit coverage with AC-101-1 supersededBy AC-101-9 absent from the chain exits 4 printing "supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', TODO, async (t) => {
+test('AC-19401-6: rcf audit coverage with AC-101-1 supersededBy AC-101-9 absent from the chain exits 4 printing "supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', async (t) => {
+  pinGiven();
   await supersessionError(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-9', ...RETIRED, supersessionNote: 'replaced by AC-101-9' }),
     criterion('AC-101-2', '[happy] another behaviour'),
   ], 'supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain');
 });
 
-test('AC-19401-7: rcf audit coverage with AC-101-1 supersededBy AC-101-1 exits 4 printing "supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', TODO, async (t) => {
+test('AC-19401-7: rcf audit coverage with AC-101-1 supersededBy AC-101-1 exits 4 printing "supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', async (t) => {
+  pinGiven();
   await supersessionError(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-1', ...RETIRED, supersessionNote: 'replaced by itself' }),
     criterion('AC-101-2', '[happy] another behaviour'),
   ], 'supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself');
 });
 
-test('AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each other exits 4 printing one line "supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', TODO, async (t) => {
+test('AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each other exits 4 printing one line "supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', async (t) => {
+  pinGiven();
   const line = 'supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1';
   const strict = await supersessionError(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
@@ -123,7 +147,8 @@ test('AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each
   assert.deepEqual(cycleLines, [line], 'exactly one line for the cycle, starting at the lowest id');
 });
 
-test('AC-19401-9: rcf audit coverage with a resolving TC still bound to retired AC-101-1 and no TC on AC-101-2 exits 4 with REQ-001 uncovered; the AC-101-1 row reads "retired (AC-101-2)" and lists the TC, json keeps it in testCases, and it counts toward nothing', TODO, async (t) => {
+test('AC-19401-9: rcf audit coverage with a resolving TC still bound to retired AC-101-1 and no TC on AC-101-2 exits 4 with REQ-001 uncovered; the AC-101-1 row reads "retired (AC-101-2)" and lists the TC, json keeps it in testCases, and it counts toward nothing', async (t) => {
+  pinGiven();
   const dir = await world(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour'),
@@ -149,7 +174,8 @@ test('AC-19401-9: rcf audit coverage with a resolving TC still bound to retired 
   assert.deepEqual(two.ac.testCases, []);
 });
 
-test('AC-19401-10: rcf audit coverage with retired AC-101-1, covered AC-101-2 and uncovered AC-101-3 exits 4 with REQ-001 uncovered and AC-101-3 "no"; AC-101-1 never reads "yes" or covered true in strict or shallow-any mode', TODO, async (t) => {
+test('AC-19401-10: rcf audit coverage with retired AC-101-1, covered AC-101-2 and uncovered AC-101-3 exits 4 with REQ-001 uncovered and AC-101-3 "no"; AC-101-1 never reads "yes" or covered true in strict or shallow-any mode', async (t) => {
+  pinGiven();
   const acs = [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour'),
@@ -191,7 +217,7 @@ function evalDoc(id, acIds) {
   };
 }
 
-test('AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministic AC-101-1 and no EVAL exits 0 reading outcome "retired" supersededBy "AC-101-2" and missingCount 0; a live nonDeterministic AC-101-3 with no EVAL still reads "missing" and exits 4', TODO, async (t) => {
+test('AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministic AC-101-1 and no EVAL exits 0 reading outcome "retired" supersededBy "AC-101-2" and missingCount 0; a live nonDeterministic AC-101-3 with no EVAL still reads "missing" and exits 4', async (t) => {
   const base = [
     criterion('AC-101-1', '[happy] the first behaviour', { determinism: 'nonDeterministic', supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour', { determinism: 'nonDeterministic' }),
@@ -211,4 +237,45 @@ test('AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministi
   const r3 = await rcf(['audit', 'eval', 'coverage', '--strict', '--format', 'json'], { cwd: third });
   assert.equal(r3.code, 4);
   assert.equal(json(r3.stdout).acs.find((a) => a.acId === 'AC-101-3').outcome, 'missing');
+});
+
+// AC-19401-18 (fix 1, stage-keeper ruling C): retirement is independent of
+// the --with-code mode. A retired row's codeClass reads "retired" whether
+// or not a Code Node names it, never an implementation gap, and it counts
+// toward no code total. The Code Nodes are made by the bin's own
+// rcf define create cn.
+test('AC-19401-18: rcf audit coverage --with-code with retired AC-101-1 (named by a Code Node) and retired AC-101-3 (none), both superseded by covered AC-101-2, exits 0 as without --with-code, both rows read "retired (AC-101-2)" with Code "retired", json codeClass "retired" and codeTotals 1, 0, 0', async (t) => {
+  pinGiven();
+  const dir = await world(t, [
+    criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
+    criterion('AC-101-2', '[happy] the replacement behaviour'),
+    criterion('AC-101-3', '[happy] a third behaviour, also replaced', { supersededBy: 'AC-101-2', ...RETIRED }),
+  ]);
+  bindTests(dir, [{ acId: 'AC-101-2', pointer: 'test/rcf/a.test.js::replacement holds' }]);
+  for (const [path, acs] of [['src/first.js#first', 'AC-101-1'], ['src/replacement.js#replacement', 'AC-101-2']]) {
+    const cn = await rcf(['define', 'create', 'cn', '--path', path, '--acs', acs], { cwd: dir });
+    assert.equal(cn.code, 0, `given: a Code Node names ${acs}\n${cn.stdout}${cn.stderr}`);
+  }
+
+  const plain = await rcf(['audit', 'coverage'], { cwd: dir });
+  const table = await rcf(['audit', 'coverage', '--with-code'], { cwd: dir });
+  assert.equal(table.code, 0, `--with-code exits 0\n${table.stdout}${table.stderr}`);
+  assert.equal(table.code, plain.code, 'the exit code is the same as without --with-code');
+  assert.match(table.stdout, /^REQ-001\s+yes\b/m, 'REQ-001 reads covered');
+  for (const acId of ['AC-101-1', 'AC-101-3']) {
+    const row = tableRow(table.stdout, acId);
+    assert.match(row, new RegExp(`${acId}\\s+retired \\(AC-101-2\\)`), `the ${acId} row reads "retired (AC-101-2)" in the AC covered column\n${row}`);
+    assert.equal(row.trim().split(/\s+/).at(-1), 'retired', `the ${acId} row reads "retired" in the Code column\n${row}`);
+  }
+
+  const j = await rcf(['audit', 'coverage', '--with-code', '--format', 'json'], { cwd: dir });
+  assert.equal(j.code, plain.code, 'the json run exits as without --with-code');
+  const body = json(j.stdout);
+  for (const acId of ['AC-101-1', 'AC-101-3']) {
+    assert.equal(acRow(body, acId).ac.codeClass, 'retired', `${acId} codeClass reads "retired", never an implementation gap`);
+  }
+  assert.equal(acRow(body, 'AC-101-2').ac.codeClass, 'implemented-and-covered');
+  const { implementedAndCovered, implementedUncovered, unimplemented } = body.codeTotals;
+  assert.deepEqual({ implementedAndCovered, implementedUncovered, unimplemented }, { implementedAndCovered: 1, implementedUncovered: 0, unimplemented: 0 },
+    'the retired criteria count toward no code total: no implementation gap and no denominator');
 });

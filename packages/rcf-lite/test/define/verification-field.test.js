@@ -19,23 +19,21 @@
 // turns it green. External criteria drive bin/rcf.js (or the packed
 // artefact) against a fixture project made by its own rcf init; testOnly
 // criteria read this repository through RCF_CHECKOUT when it is set, else
-// from this file's location (GR-34). Imports: Node builtins, js-yaml and
-// test/_harness/ only (GR-40).
+// from this file's location (GR-34). Imports: Node builtins and
+// test/_harness/ only (GR-40), no devDependency, so the file also loads in
+// the packed-artefact run, which installs the runtime dependencies only.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync, readdirSync, existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
 import { join } from 'node:path';
-import yaml from 'js-yaml';
 
 import { BIN, rcf, run } from '../_harness/spawn.js';
 import { checkoutPackage, checkoutRoot, project, readJson, readText, scratch, writeJson } from '../_harness/fixture.js';
 import { git, gitTry } from '../_harness/git.js';
 import { hostFacts, median } from '../_harness/capture.js';
 import { coverageResult } from '../_harness/goldens.js';
-
-const TODO = { todo: 'FBS-232 round DEFINE' };
 
 // The rcf-schemas user-story schema the artefact under test loads (its
 // installed dependency, resolved from the bin), for the "given the pin
@@ -51,7 +49,7 @@ function assertPinCarriesVerification() {
 
 const story = (dir) => readJson(dir, 'rcf/user-stories/us-101.json');
 
-test('AC-19501-1: rcf define create ac --parent US-101 --from-file with "verification": "external" exits 0, define read shows the criterion with "verification": "external", and define validate exits 0', TODO, async (t) => {
+test('AC-19501-1: rcf define create ac --parent US-101 --from-file with "verification": "external" exits 0, define read shows the criterion with "verification": "external", and define validate exits 0', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-create' });
   const bodyDir = scratch(t, 'rcf-h-body-');
@@ -68,7 +66,7 @@ test('AC-19501-1: rcf define create ac --parent US-101 --from-file with "verific
   assert.equal(v.code, 0, `define validate exits 0\n${v.stdout}${v.stderr}`);
 });
 
-test('AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0, prints "AC-101-1 updated at rcf/user-stories/us-101.json", leaves the criterion text byte-identical, and define validate exits 0', TODO, async (t) => {
+test('AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0, prints "AC-101-1 updated at rcf/user-stories/us-101.json", leaves the criterion text byte-identical, and define validate exits 0', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-update' });
   const before = story(dir).acceptanceCriteria.find((a) => a.id === 'AC-101-1');
@@ -85,7 +83,7 @@ test('AC-19501-2: rcf define update AC-101-1 --set verification=testOnly exits 0
   assert.equal(v.code, 0, `define validate exits 0\n${v.stdout}${v.stderr}`);
 });
 
-test('AC-19501-3: a verification value outside external and testOnly exits 3 with an "[error] validation" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying "deployed"', TODO, async (t) => {
+test('AC-19501-3: a verification value outside external and testOnly exits 3 with an "[error] validation" line naming the criterion and the field, and leaves us-101.json byte-identical, for update --set verification=manual and for a create ac body carrying "deployed"', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-bad' });
   const bytes = readText(dir, 'rcf/user-stories/us-101.json');
@@ -97,15 +95,23 @@ test('AC-19501-3: a verification value outside external and testOnly exits 3 wit
   assert.equal(readText(dir, 'rcf/user-stories/us-101.json'), bytes, 'us-101.json is byte-identical');
 
   const bodyDir = scratch(t, 'rcf-h-body-');
+  // The criterion the refused create would make, read from the same
+  // create with an allowed value as a dry run (here the fixture's seeded
+  // AC-101-1, which a create replaces in place).
+  writeJson(bodyDir, 'allowed.json', { description: '[happy] fixture', testable: true, verification: 'external' });
+  const dry = await rcf(['define', 'create', 'ac', '--parent', 'US-101', '--from-file', join(bodyDir, 'allowed.json'), '--dry-run'], { cwd: dir });
+  const createdId = /would create (AC-\d+-\d+) /.exec(dry.stdout)?.[1];
+  assert.ok(createdId, `the dry run names the criterion a create makes\n${dry.stdout}${dry.stderr}`);
   writeJson(bodyDir, 'ac.json', { description: '[happy] fixture', testable: true, verification: 'deployed' });
   const c = await rcf(['define', 'create', 'ac', '--parent', 'US-101', '--from-file', join(bodyDir, 'ac.json')], { cwd: dir });
   assert.equal(c.code, 3, `${c.stdout}${c.stderr}`);
   const cline = c.stderr.split('\n').find((l) => l.startsWith('[error] validation'));
   assert.ok(cline && cline.includes('verification'), `create: an "[error] validation" line names the field verification\n${c.stderr}`);
+  assert.ok(cline.includes(createdId), `create: the line names the criterion ${createdId} the create would make: ${cline}`);
   assert.equal(readText(dir, 'rcf/user-stories/us-101.json'), bytes, 'us-101.json is byte-identical after the refused create');
 });
 
-test('AC-19501-4: after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no "[error]" line naming verification (the field stays optional at schema level)', TODO, async (t) => {
+test('AC-19501-4: after the pin move rcf define validate over a fixture whose criteria carry no verification exits 0 with no "[error]" line naming verification (the field stays optional at schema level)', async (t) => {
   assertPinCarriesVerification();
   const dir = await project(t, { name: 'flag-optional' });
   assert.ok(story(dir).acceptanceCriteria.every((a) => !('verification' in a)), 'given: no criterion carries verification');
@@ -116,12 +122,15 @@ test('AC-19501-4: after the pin move rcf define validate over a fixture whose cr
 });
 
 // "Before the pin move" (the stage-keeper's ruling 1 on part B1's stops):
-// the pin-move commit is the newest first-parent commit that changes the
-// @stravica-ai/rcf-schemas dependency in packages/rcf-lite/package.json,
-// and the state before it is a temporary worktree at its first parent with
-// that tree's own dependencies installed. A shallow clone fails, never skips.
+// the pin-move commit is the first-parent commit that moves the
+// @stravica-ai/rcf-schemas dependency in packages/rcf-lite/package.json to
+// PIN_TARGET (the stage-keeper's ruling 8), and the state before it is a
+// temporary worktree at its first parent with that tree's own dependencies
+// installed. A shallow clone fails, never skips.
 const PKG_JSON = 'packages/rcf-lite/package.json';
 const PIN = '@stravica-ai/rcf-schemas';
+// The release FBS-232's record names for the pin move (stage-keeper ruling 8).
+const PIN_TARGET = '0.10.0';
 const PERF = process.env.RCF_PERF === '1';
 
 function pinAt(root, rev) {
@@ -131,8 +140,8 @@ function pinAt(root, rev) {
 function pinMoveCommit(root) {
   assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the history before the pin move is not there (the measurement runs at TEST on the verifier\'s full clone)');
   const candidates = git(root, 'log', '--first-parent', '--format=%H', 'HEAD', '--', PKG_JSON).split('\n').filter(Boolean);
-  const move = candidates.find((c) => pinAt(root, c) !== pinAt(root, `${c}^1`));
-  assert.ok(move, `a first-parent commit changes the ${PIN} dependency in ${PKG_JSON}`);
+  const move = candidates.find((c) => pinAt(root, c) === PIN_TARGET && pinAt(root, `${c}^1`) !== PIN_TARGET);
+  assert.ok(move, `a first-parent commit moves the ${PIN} dependency in ${PKG_JSON} to ${PIN_TARGET}`);
   return move;
 }
 function worktreeAt(t, root, rev) {
@@ -157,7 +166,7 @@ function assertPinIsVerificationRelease() {
 // and the test compares HEAD's run with it. No git history is read.
 const PIN_MOVE_GOLDEN = 'test/fixtures/pin-move/coverage-at-base.json';
 
-test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', TODO, async () => {
+test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', async () => {
   const pkg = checkoutPackage();
   const golden = join(pkg, PIN_MOVE_GOLDEN);
   assert.ok(existsSync(golden), `FBS-232's round DEFINE records the coverage golden at the round's base: ${PIN_MOVE_GOLDEN} is absent (node test/_harness/goldens.js coverage ${PIN_MOVE_GOLDEN})`);
@@ -171,7 +180,7 @@ test('AC-19501-5: the rcf-schemas pin names the release carrying verification, d
   assert.deepEqual(now.gaps, was.gaps, 'the same gap list as the golden recorded before the pin move');
 });
 
-test('AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1', { todo: 'FBS-232 round DEFINE', skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
+test('AC-19501-7: define validate over the own chain at the slice head takes at most 1.25 times its run in a worktree at the parent of the pin-move commit, median of three runs each, measured at TEST with RCF_PERF=1', { skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
   hostFacts(t);
   const root = checkoutRoot();
   const pkg = checkoutPackage();
@@ -196,7 +205,7 @@ test('AC-19501-7: define validate over the own chain at the slice head takes at 
   assert.ok(ratio <= 1.25, `the run after takes at most 1.25 times the run before (ratio ${ratio.toFixed(2)})`);
 });
 
-test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly ["external", "testOnly"], not required, with additionalProperties still false', TODO, () => {
+test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCriterion.properties.verification as an enum of exactly ["external", "testOnly"], not required, with additionalProperties still false', () => {
   const pkg = JSON.parse(readFileSync(join(checkoutPackage(), 'package.json'), 'utf8'));
   const pin = pkg.dependencies['@stravica-ai/rcf-schemas'];
   const installed = join(checkoutPackage(), 'node_modules', '@stravica-ai', 'rcf-schemas');
@@ -209,10 +218,169 @@ test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCri
   assert.equal(ac.additionalProperties, false);
 });
 
-test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins', TODO, () => {
+// pnpm-lock.yaml read with Node builtins only: a YAML library is a
+// devDependency, absent from the packed artefact the Test stage installs.
+// AC-19502-1 is about the lockfile pnpm writes, and "any other version
+// fails" holds for every input (the stage-keeper's ruling E), so this
+// reads the subset of YAML pnpm writes and throws on everything else,
+// anywhere in the file. The subset: block mappings nested by indentation
+// (spaces only, each mapping's keys at one indentation), plain or quoted
+// scalar keys and values written whole on their line, {} as a value (read
+// {}), a one-line flow collection as the value of a key pnpm writes in
+// flow style (resolution, engines, cpu, os, libc) outside importers (read
+// as its text), and block sequence items holding one scalar (skipped). It
+// reads that into the nested objects a YAML parser returns for it (every
+// key an own property, as a YAML parser stores __proto__). A block scalar
+// indicator, an anchor, an alias, a tag, a flow collection where a block
+// value is expected, a document marker after the first line, a complex
+// key, a tab in indentation, a duplicate key, a line off its mapping's
+// indentation (a multi-line scalar's continuation, say) and any other
+// line or scalar outside the subset throw an error naming the line and
+// the construct, which fails the test.
+const LOCK_FLOW_KEYS = new Set(['resolution', 'engines', 'cpu', 'os', 'libc']);
+const LOCK_FLOW = 'a flow collection ({ or [) where a block value is expected';
+const LOCK_FLOW_OPEN = 'a flow collection that is not whole on its line';
+function lockScalar(text) {
+  if (text === '{}') return {};
+  if (/^'.*'$/.test(text)) return text.slice(1, -1).replaceAll("''", "'");
+  if (/^".*"$/.test(text)) return JSON.parse(text);
+  return text;
+}
+// The construct a node's first character opens when it is not a plain or
+// quoted scalar, else null.
+function lockIndicator(text) {
+  const c = text[0];
+  if (c === '|' || c === '>') return 'a block scalar indicator (| or >)';
+  if (c === '&') return 'an anchor (&)';
+  if (c === '*') return 'an alias (*)';
+  if (c === '!') return 'a tag (!)';
+  if ('{[]},'.includes(c)) return LOCK_FLOW;
+  if (c === '?' && /^\?(\s|$)/.test(text)) return 'a complex key (?)';
+  if ('@`%#'.includes(c)) return `an indicator (${c}) that cannot open a plain scalar`;
+  return null;
+}
+// Why a one-line key, value or sequence item is not a plain or quoted
+// scalar pnpm writes, else null.
+function lockScalarConstruct(text) {
+  if (text[0] === "'" || text[0] === '"') {
+    return /^(?:'(?:[^']|'')*'|"(?:[^"\\]|\\.)*")$/.test(text) ? null : 'a quoted scalar that does not close on its line';
+  }
+  const indicator = lockIndicator(text);
+  if (indicator) return indicator;
+  if (/^-(\s|$)/.test(text)) return 'a block sequence where a scalar is expected';
+  if (/:(\s|$)/.test(text)) return 'a plain scalar holding ": "';
+  if (/\s$/.test(text)) return 'a space before a key\'s colon';
+  return null;
+}
+// Why a flow value is not one whole flow collection of plain or quoted
+// scalars on its line, else null.
+function lockFlowConstruct(text) {
+  let depth = 0;
+  let quote = null;
+  let start = true;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quote) {
+      if (quote === '"' && c === '\\') i++;
+      else if (c === quote && quote === "'" && text[i + 1] === "'") i++;
+      else if (c === quote) quote = null;
+      continue;
+    }
+    if (c === ' ') continue;
+    if (c === '#' && text[i - 1] === ' ') return LOCK_FLOW_OPEN;
+    if (start && (c === "'" || c === '"')) {
+      quote = c;
+      start = false;
+      continue;
+    }
+    if (start && !'{[]}'.includes(c)) {
+      const indicator = lockIndicator(text.slice(i));
+      if (indicator && indicator !== LOCK_FLOW) return indicator;
+    }
+    start = false;
+    if (c === '{' || c === '[') {
+      depth++;
+      start = true;
+    } else if (c === '}' || c === ']') {
+      depth--;
+      if (depth < 0 || (depth === 0 && i !== text.length - 1)) return LOCK_FLOW_OPEN;
+    } else if (c === ',' || (c === ':' && /\s/.test(text[i + 1] ?? ' '))) {
+      start = true;
+    }
+  }
+  return depth === 0 && quote === null ? null : LOCK_FLOW_OPEN;
+}
+function readLockfile(text) {
+  const root = {};
+  // An open node: its key's indentation (-1 for the document), its object,
+  // and, once its first child is read, that child's indentation and kind.
+  const open = [{ indent: -1, map: root, childIndent: null, seq: false }];
+  let section = null;
+  text.split(/\r?\n/).forEach((line, i) => {
+    const refuse = (construct) => {
+      throw new Error(`pnpm-lock.yaml line ${i + 1}: ${construct}, outside the YAML pnpm writes, so the lockfile reader refuses it: ${line.trim()}`);
+    };
+    const lead = /^[ \t]*/.exec(line)[0];
+    if (lead.includes('\t')) refuse('a tab in indentation');
+    const body = line.slice(lead.length).trimEnd();
+    if (body === '' || body.startsWith('#')) return;
+    if (/^(---|\.\.\.)(\s|$)/.test(line)) {
+      if (i === 0 && /^---\s*(#.*)?$/.test(line)) return;
+      refuse('a document marker (--- after the first line, or ...)');
+    }
+    const indent = lead.length;
+    while (open.at(-1).indent >= indent) open.pop();
+    const node = open.at(-1);
+    const item = /^-(\s|$)/.test(body);
+    if (node.childIndent === null) {
+      node.childIndent = indent;
+      node.seq = item;
+    } else if (node.childIndent !== indent) {
+      refuse('a line off its mapping\'s indentation (a multi-line scalar\'s continuation or a mis-indented key)');
+    } else if (node.seq !== item) {
+      refuse(item ? 'a sequence item beside mapping keys' : 'a mapping key beside sequence items');
+    }
+    if (item) {
+      const content = body.slice(1).trim();
+      const construct = content === '' ? 'a sequence item with no scalar on its line' : lockScalarConstruct(content);
+      if (construct) refuse(construct);
+      return;
+    }
+    const indicator = lockIndicator(body);
+    if (indicator) refuse(indicator);
+    const m = /^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^'"\s][^:]*?):(?:\s+(.*))?$/.exec(body);
+    if (!m) refuse('a line that is not a key with its value or a sequence item');
+    const keyConstruct = lockScalarConstruct(m[1]);
+    if (keyConstruct) refuse(keyConstruct);
+    const key = lockScalar(m[1]);
+    if (Object.hasOwn(node.map, key)) refuse('a duplicate key');
+    if (node === open[0]) section = key;
+    const value = (m[2] ?? '').trim();
+    let read;
+    if (value === '') {
+      read = {};
+      open.push({ indent, map: read, childIndent: null, seq: false });
+    } else if (value === '{}') {
+      read = {};
+    } else if (value[0] === '{' || value[0] === '[') {
+      if (!LOCK_FLOW_KEYS.has(key) || section === 'importers') refuse(LOCK_FLOW);
+      const construct = lockFlowConstruct(value);
+      if (construct) refuse(construct);
+      read = value;
+    } else {
+      const construct = lockScalarConstruct(value);
+      if (construct) refuse(construct);
+      read = lockScalar(value);
+    }
+    Object.defineProperty(node.map, key, { value: read, enumerable: true, writable: true, configurable: true });
+  });
+  return root;
+}
+
+test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolves @stravica-ai/rcf-schemas to exactly the version packages/rcf-lite/package.json pins', () => {
   const pkg = JSON.parse(readFileSync(join(checkoutPackage(), 'package.json'), 'utf8'));
   const pin = pkg.dependencies['@stravica-ai/rcf-schemas'];
-  const lock = yaml.load(readFileSync(join(checkoutRoot(), 'pnpm-lock.yaml'), 'utf8'));
+  const lock = readLockfile(readFileSync(join(checkoutRoot(), 'pnpm-lock.yaml'), 'utf8'));
   const entry = lock.importers?.['packages/rcf-lite']?.dependencies?.['@stravica-ai/rcf-schemas'];
   assert.ok(entry, 'the lockfile importer entry for packages/rcf-lite lists @stravica-ai/rcf-schemas');
   const resolved = String(entry.version).split('(')[0];
@@ -222,7 +390,7 @@ test('AC-19502-1: the pnpm-lock.yaml importer entry for packages/rcf-lite resolv
   assert.ok(schema.$defs.acceptanceCriterion.properties.verification, `the pinned release ${pin} carries verification`);
 });
 
-test('AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository', TODO, () => {
+test('AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository', () => {
   const pkgDir = checkoutPackage();
   const storyIds = readdirSync(join(pkgDir, 'rcf', 'user-stories'))
     .map((f) => JSON.parse(readFileSync(join(pkgDir, 'rcf', 'user-stories', f), 'utf8')))

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-915",
+  "path": "src/query/formatters/table.js#acCoveredCell",
+  "implementsAcIds": [
+    "AC-19401-5",
+    "AC-19401-9",
+    "AC-19401-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-25T09:46:09.016Z",
+  "updatedAt": "2026-10-25T09:46:09.016Z"
+}

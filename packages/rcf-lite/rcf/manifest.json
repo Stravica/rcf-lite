@@ -13,5 +13,34 @@
   "bs": {
     "id": "BS-001",
     "path": "build-sequence.json"
-  }
+  },
+  "baselineAcOptOuts": [
+    {
+      "id": "boo-2026-10-25-001",
+      "createdAt": "2026-10-25T14:03:04.726Z",
+      "baselineKey": "persistence.backupObservable",
+      "scope": "req",
+      "reason": "REQ-195 adds one optional enum field to the criterion schema and moves a dependency pin; it has no backup or retention behaviour to observe.",
+      "operatorAckAt": "2026-10-25T14:03:04.726Z",
+      "reqId": "REQ-195"
+    },
+    {
+      "id": "boo-2026-10-25-002",
+      "createdAt": "2026-10-25T14:03:04.998Z",
+      "baselineKey": "persistence.crashSafety",
+      "scope": "req",
+      "reason": "FBS-232 adds no new write path or process state; it extends the existing define create and update writes with one optional field.",
+      "operatorAckAt": "2026-10-25T14:03:04.998Z",
+      "reqId": "REQ-195"
+    },
+    {
+      "id": "boo-2026-10-25-003",
+      "createdAt": "2026-10-25T14:03:05.272Z",
+      "baselineKey": "persistence.schemaMigration",
+      "scope": "req",
+      "reason": "Additive and optional: AC-19501-4 proves chains without the field still validate and AC-19501-5 proves the own chain validates at the new pin, so no data migration exists.",
+      "operatorAckAt": "2026-10-25T14:03:05.272Z",
+      "reqId": "REQ-195"
+    }
+  ]
 }

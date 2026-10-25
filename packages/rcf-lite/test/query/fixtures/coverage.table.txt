@@ -1,1009 +1,1013 @@
 Coverage mode: strict (per-AC)
 Requirements: 135  covered: 135  covered-unresolved: 0  uncovered: 0
 
-Requirement  Covered  AC           AC covered  Test cases
------------  -------  -----------  ----------  ------------------------------------------------------------
-REQ-001      yes      AC-101-1     yes         TC-001-init-clean-tree-roots
-                      AC-101-2     yes         TC-001-init-refuses-overwrite
-                      AC-101-3     yes         TC-001-children-discoverable-from-roots
-                      AC-102-1     yes         TC-002-walk-loads-every-document
-                      AC-102-2     yes         TC-002-parse-failure-structured-no-crash
-                      AC-102-3     yes         TC-002-broken-reference-reported
-REQ-002      yes      AC-201-1     yes         TC-003-one-subdiagram-per-req, TC-003-per-req-subdiagram-...
-                      AC-201-2     yes         TC-003-broken-node-marked-visibly
-                      AC-201-3     yes         TC-003-diagram-emitted-as-source
-                      AC-202-1     yes         TC-004-served-live-no-files-written, TC-004-valid-html5-page
-                      AC-202-2     yes         TC-004-curated-fields-not-raw-json
-                      AC-202-3     yes         TC-004-doc-links-navigate-to-sections
-                      AC-202-4     yes         TC-004-name-min-width-zero, TC-004-product-yields-first, ...
-                      AC-202-5     yes         TC-004-name-title-absent-on-collapse, TC-004-name-title-a...
-                      AC-202-6     yes         TC-004-manifest-fallback, TC-004-prd-productname-wins, TC...
-                      AC-203-1     yes         TC-005-edit-present-after-regenerate
-                      AC-203-2     yes         TC-005-no-cached-prior-state
-                      AC-204-1     yes         TC-224-depth-columns
-                      AC-204-2     yes         TC-224-closures-upstream-downstream
-                      AC-204-3     yes         TC-224-inspector-payload
-                      AC-204-4     yes         TC-224-hash-round-trip
-                      AC-204-5     yes         TC-224-filters-keep-selection
-                      AC-204-6     yes         TC-224-cycle-handling
-                      AC-204-7     yes         TC-224-no-outbound-postmessage
-                      AC-205-1     yes         TC-225-id-exact-prefix-first
-                      AC-205-2     yes         TC-225-word-title-above-snippet
-                      AC-205-3     yes         TC-225-single-char-ids-only
-                      AC-205-4     yes         TC-225-pick-writes-hash
-                      AC-205-5     yes         TC-225-mount-url-round-trip
-                      AC-205-6     yes         TC-225-embed-theme-preserved
-                      AC-205-7     yes         TC-225-empty-state-on-fetch-failure
-                      AC-205-8     yes         TC-225-no-outbound-side-effects
-                      AC-205-9     yes         TC-225-search-button-contrast
-                      AC-206-1     yes         TC-229-fixture-shell, TC-229-test-host-http-roundtrip
-                      AC-206-2     yes         TC-229-reinit-keeps-host-theme, TC-229-theme-postmessage-...
-                      AC-206-3     yes         TC-229-hash-nav-embed-preserved
-                      AC-206-4     yes         TC-229-cross-origin-ignored
-                      AC-206-5     yes         TC-229-lint-framing, TC-229-lint-localstorage-namespace, ...
-                      AC-206-6     yes         TC-229-no-new-outbound-postmessage-shape
-                      AC-206-7     yes         TC-229-theme-control-renders-non-embed
-                      AC-206-8     yes         TC-229-theme-control-persists
-                      AC-206-9     yes         TC-229-theme-control-absent-embed
-                      AC-206-10    yes         TC-229-reinit-keeps-control-choice, TC-229-theme-control-...
-                      AC-207-1     yes         TC-236-aa-enumerates-all-pairs, TC-236-state-merge-and-bo...
-                      AC-207-2     yes         TC-236-aa-failure-message
-                      AC-208-1     yes         TC-240-208-1-happy
-                      AC-208-2     yes         TC-240-208-2-happy
-                      AC-208-3     yes         TC-240-208-3-happy
-                      AC-208-4     yes         TC-240-208-4-failure
-                      AC-208-5     yes         TC-240-208-5-mustnot
-                      AC-208-6     yes         TC-240-208-6-edge
-                      AC-208-7     yes         TC-240-208-7-failure
-                      AC-209-1     yes         TC-241-209-1-happy
-                      AC-209-2     yes         TC-241-209-2-happy
-                      AC-209-3     yes         TC-241-209-3-happy
-                      AC-209-4     yes         TC-241-209-4-edge
-                      AC-209-5     yes         TC-241-209-5-mustnot
-                      AC-209-6     yes         TC-241-209-6-failure
-                      AC-209-7     yes         TC-241-209-7-edge
-REQ-003      yes      AC-301-1     yes         TC-006-read-reports-valid
-                      AC-301-2     yes         TC-006-read-unknown-id-not-found
-                      AC-301-3     yes         TC-006-read-invalid-content-plus-errors
-                      AC-302-1     yes         TC-007-create-leaves-prd-untouched, TC-007-create-writes-...
-                      AC-302-2     yes         TC-007-create-id-collision-refused
-                      AC-302-3     yes         TC-007-create-invalid-writes-nothing
-                      AC-303-1     yes         TC-008-valid-update-persists-updatedat
-                      AC-303-2     yes         TC-008-invalid-update-refused
-                      AC-303-3     yes         TC-008-update-unknown-id-not-found
-                      AC-304-1     yes         TC-009-delete-refused-with-dependents
-                      AC-304-2     yes         TC-009-cascade-removes-subtree
-                      AC-304-3     yes         TC-009-leaf-delete-removes-file
-REQ-004      yes      AC-401-1     yes         TC-010-req-without-us-uncovered
-                      AC-401-2     yes         TC-010-ac-without-tc-uncovered
-                      AC-401-3     yes         TC-010-full-coverage-no-gaps
-                      AC-402-1     yes         TC-011-trace-forward-req-subtree
-                      AC-402-2     yes         TC-011-trace-back-ac-ancestry
-                      AC-402-3     yes         TC-011-backward-intent-chain-only, TC-011-forward-fbs-cro...
-                      AC-403-1     yes         TC-012-req-impact-includes-fbs-slots
-                      AC-403-2     yes         TC-012-adr-impact-reaches-fbs
-                      AC-403-3     yes         TC-012-no-dependents-empty-impact
-REQ-005      yes      AC-501-1     yes         TC-013-bundle-ac-gwt-ancestry
-                      AC-501-2     yes         TC-013-bundle-inlines-tacs-adrs
-                      AC-501-3     yes         TC-013-bundle-single-markdown-document
-                      AC-502-1     yes         TC-014-dependency-precedes-dependent
-                      AC-502-2     yes         TC-014-independent-items-share-tier
-                      AC-502-3     yes         TC-014-cycle-detected-reported
-                      AC-503-1     yes         TC-015-mark-advances-status
-                      AC-503-2     yes         TC-015-mark-unknown-id-not-found
-                      AC-503-3     yes         TC-015-mark-touches-status-only
-REQ-006      yes      AC-601-1     yes         TC-016-tools-list-structured-schemas
-                      AC-601-2     yes         TC-016-mcp-coverage-cli-parity
-                      AC-601-3     yes         TC-016-stdio-only-no-listener
-                      AC-602-1     yes         TC-017-mcp-create-cli-validation
-                      AC-602-2     yes         TC-017-mcp-build-returns-bundle
-                      AC-602-3     yes         TC-017-mcp-invalid-write-refused
-REQ-007      yes      AC-701-1     yes         TC-018-invalid-write-writes-nothing
-                      AC-701-2     yes         TC-018-written-doc-validates
-                      AC-701-3     yes         TC-018-registered-bundle-no-drift
-                      AC-702-1     yes         TC-019-failure-names-field-and-rule
-                      AC-702-2     yes         TC-019-multi-failures-returned-together
-                      AC-702-3     yes         TC-019-mcp-errors-structured
-REQ-008      yes      AC-801-1     yes         TC-020-preview-in-definition-of-done
-                      AC-801-2     yes         TC-020-single-start-command
-                      AC-801-3     yes         TC-020-preview-hosting-independent
-                      AC-801-4     yes         TC-020-seeded-data-required
-                      AC-802-1     yes         TC-021-deploy-target-question-early
-                      AC-802-2     yes         TC-021-stack-constrained-by-target
-                      AC-802-3     yes         TC-021-target-captured-as-adr
-                      AC-802-4     yes         TC-021-fragment-forbids-early-stack
-                      AC-803-1     yes         TC-022-walkthrough-not-silent-choice
-                      AC-803-2     yes         TC-022-plain-language-options
-                      AC-803-3     yes         TC-022-human-steps-named-honestly
-                      AC-803-4     yes         TC-022-covers-account-configuration
-                      AC-804-1     yes         TC-023-claims-name-runtime
-                      AC-804-2     yes         TC-023-no-implied-deploy-verification
-                      AC-804-3     yes         TC-023-pr-section-runtime-label
-                      AC-804-4     yes         TC-023-labelled-claim-example
-                      AC-805-1     yes         TC-024-periodic-fresh-context-review
-                      AC-805-2     yes         TC-024-reviewer-drives-the-app
-                      AC-805-3     yes         TC-024-names-defect-classes
-                      AC-805-4     yes         TC-024-in-loop-not-the-gate
-REQ-009      yes      AC-901-1     yes         TC-025-verify-group-routes-per-subverb, TC-025-verify-hel...
-                      AC-901-2     yes         TC-025-top-level-help-lists-verify-group
-                      AC-901-3     yes         TC-025-alias-bin-deleted-file, TC-025-alias-bin-deleted-p...
-REQ-010      yes      AC-1001-1    yes         TC-026-add-writes-manifest
-                      AC-1001-2    yes         TC-026-list-in-apply-order
-                      AC-1001-3    yes         TC-026-remove-refuses-on-referring
-                      AC-1001-4    yes         TC-026-add-idempotent-reapply
-                      AC-1001-5    yes         TC-026-help-advertises-blueprint
-                      AC-1002-1    yes         TC-027-prefix-namespacing, TC-027-suffix-namespacing
-                      AC-1002-2    yes         TC-027-global-adr-conflict-surfaced
-                      AC-1002-3    yes         TC-027-conflict-report-shape
-                      AC-1002-4    yes         TC-027-nonglobal-namespaced-no-conflict
-                      AC-1002-5    yes         TC-027-shipped-blueprints-option-3-executable
-                      AC-1002-6    yes         TC-027-add-reason-persists, TC-027-add-reason-whitespace-...
-                      AC-1002-7    yes         TC-027-add-resolve-dedupes-with-warn, TC-027-add-resolve-...
-                      AC-1002-8    yes         TC-027-conflict-enrichment-symmetric
-                      AC-1002-9    yes         TC-027-topic-free-label-camelcase-verbatim
-                      AC-1002-10   yes         TC-027-supersede-no-double-prefix
-                      AC-1003-1    yes         TC-028-add-writes-manifest-entry
-                      AC-1003-2    yes         TC-028-inrepo-referenced-in-place
-                      AC-1003-3    yes         TC-028-outofroot-copied-in
-                      AC-1003-4    yes         TC-028-manifest-validates
-                      AC-1004-1    yes         TC-029-agentic-selection
-                      AC-1004-2    yes         TC-029-operator-override
-                      AC-1004-3    yes         TC-029-empty-never-blocks
-                      AC-1004-4    yes         TC-029-deterministic
-REQ-011      yes      AC-1101-1    yes         TC-030-default-config-uses-pin, TC-030-pin-constant-exported
-                      AC-1101-2    yes         TC-030-preflight-line
-                      AC-1101-3    yes         TC-030-override-non-semver-refused, TC-030-override-notice
-                      AC-1101-4    yes         TC-030-default-pin-on-report
-                      AC-1102-1    yes         TC-031-spa-version-and-flag
-                      AC-1102-2    yes         TC-031-spa-us-and-template
-                      AC-1102-3    yes         TC-031-ci-us-6124
-                      AC-1102-4    yes         TC-031-illustrative-workflow-and-notes
-                      AC-1102-5    yes         TC-031-manifest-validates
-                      AC-1103-1    yes         TC-032-peer-deps-optional
-                      AC-1103-2    yes         TC-032-fix-lines
-                      AC-1103-3    yes         TC-032-skip-line
-                      AC-1103-4    yes         TC-032-check-override
-                      AC-1104-1    yes         TC-033-project-scope-signature-left-alone
-                      AC-1104-2    yes         TC-033-probe-found-leaves-alone, TC-033-probe-inconclusiv...
-                      AC-1104-3    yes         TC-033-distinct-entry-shape
-                      AC-1104-4    yes         TC-033-no-playwright-mcp-suppresses-write
-                      AC-1104-5    yes         TC-033-redundant-fires-browser-facing, TC-033-redundant-q...
-REQ-012      yes      AC-1201-1    yes         TC-034-permutations-no-globaladr-conflict
-                      AC-1201-2    yes         TC-034-one-owner-per-topic
-                      AC-1202-1    yes         TC-035-no-literal-path-in-applied-tree
-                      AC-1203-1    yes         TC-036-probe-endpoints-optional-startup
-                      AC-1203-2    yes         TC-036-essentials-no-dual-handler, TC-036-essentials-no-s...
-                      AC-1203-3    yes         TC-036-api-rest-auth-exempt-list, TC-036-api-rest-startup...
-                      AC-1204-1    yes         TC-037-help-lists-verb, TC-037-idempotent-second-run, TC-...
-REQ-013      yes      AC-1301-1    yes         TC-038-blueprint-json-fields
-                      AC-1301-2    yes         TC-038-clean-apply
-                      AC-1301-3    yes         TC-038-anatomy-and-topics
-                      AC-1302-1    yes         TC-039-blueprint-json-fields
-                      AC-1302-2    yes         TC-039-clean-apply
-                      AC-1302-3    yes         TC-039-topics-distinct
-REQ-014      yes      AC-1401-1    yes         TC-040-loader-accepts-both
-                      AC-1401-2    yes         TC-040-refuse-bad-camelcase, TC-040-refuse-em-dash-and-em...
-                      AC-1401-3    yes         TC-040-paired-adr-required
-                      AC-1402-1    yes         TC-041-no-suggestions-flag, TC-041-suggestion-block
-                      AC-1402-2    yes         TC-041-companion-flag-non-provider, TC-041-companion-flag...
-                      AC-1402-3    yes         TC-041-pin-file-shape-and-overwrite
-                      AC-1403-1    yes         TC-042-companions-slug-not-applied, TC-042-companions-slu...
-                      AC-1403-2    yes         TC-042-companions-set-refuses-non-provider, TC-042-compan...
-                      AC-1403-3    yes         TC-042-companions-json-envelope
-                      AC-1404-1    yes         TC-043-resolver-tier-ladder
-                      AC-1404-2    yes         TC-043-two-libraries-on-companions-verb, TC-043-two-libra...
-                      AC-1404-3    yes         TC-043-validate-refuses-unresolvable-pin
-REQ-015      yes      AC-1501-1    yes         TC-044-loader-accepts-standards-fields
-                      AC-1501-2    yes         TC-044-loader-refuses-missing-clause
-                      AC-1501-3    yes         TC-044-no-cross-check-and-sentinel
-REQ-016      yes      AC-1601-1    yes         TC-045-computeevalcoverage-across-the-four
-                      AC-1601-2    yes         TC-045-per-ac-verdicts-carries-the-two-new-eval
-                      AC-1601-3    yes         TC-045-findevalrefusalacs-and
-                      AC-1601-4    yes         TC-045-runonecase-spawns-the-invoker-claude-or
-REQ-017      yes      AC-1701-1    yes         TC-046-pack-loader-loads-both-pack-js-and-pack
-                      AC-1701-2    yes         TC-046-applicability-predicate-source-scan
-                      AC-1701-3    yes         TC-046-loader-refuses-at-exit-2-a-pack-whose
-                      AC-1701-4    yes         TC-046-runner-pack-pass-invokes-each-check-s
-                      AC-1701-5    yes         TC-046-cli-probe-pack-option-restricts-to-one
-                      AC-1701-6    yes         TC-046-prechecks-runs-before-browser-checks-a
-                      AC-1701-7    yes         TC-046-pack-browser-evaluate-parser
-                      AC-1701-8    yes         TC-046-boot-skips-when-runtime-reachable
-REQ-018      yes      AC-1801-1    yes         TC-047-blueprint-json-declares-slug-application
-                      AC-1801-2    yes         TC-047-fresh-init-project-applies-the-blueprint
-                      AC-1801-3    yes         TC-047-every-pack-check-id-resolves-to-an-ac-id
-                      AC-1801-4    yes         TC-047-sample-app-fixture-startserver-serves
-                      AC-1801-5    yes         TC-047-pack-loader-against-blueprint-discovers
-REQ-019      yes      AC-1901-1    yes         TC-048-blueprint-json-shape
-                      AC-1901-2    yes         TC-048-applies-clean
-                      AC-1901-3    yes         TC-048-pack-checks-cross-check
-                      AC-1901-4    yes         TC-048-fixture-charts-render
-                      AC-1901-5    yes         TC-048-negative-runs
-REQ-020      yes      AC-2001-1    yes         TC-049-blueprint-json-shape
-                      AC-2001-2    yes         TC-049-applies-clean
-                      AC-2001-3    yes         TC-049-guidance-asset
-                      AC-2001-4    yes         TC-049-pack-checks-cross-check
-                      AC-2001-5    yes         TC-049-fixture-dashboard-render
-                      AC-2001-6    yes         TC-049-negative-runs
-                      AC-2001-7    yes         TC-049-resize-seam
-REQ-021      yes      AC-2101-1    yes         TC-050-blueprint-json-shape
-                      AC-2101-2    yes         TC-050-applies-clean
-                      AC-2101-3    yes         TC-050-pack-checks-cross-check
-                      AC-2101-4    yes         TC-050-fixture-acknowledge, TC-050-fixture-preseeding
-                      AC-2101-5    yes         TC-050-negative-runs
-                      AC-2101-6    yes         TC-050-family-prefix-reservation
-REQ-022      yes      AC-2201-1    yes         TC-051-loader-capabilities-shape
-                      AC-2201-2    yes         TC-051-loader-elicits-shape
-                      AC-2201-3    yes         TC-051-loader-requires-shape
-                      AC-2201-4    yes         TC-051-apply-discovery-refuse
-                      AC-2201-5    yes         TC-051-apply-allow-skip
-                      AC-2201-6    yes         TC-051-elicit-answers
-                      AC-2201-7    yes         TC-051-sidecar-write
-                      AC-2201-8    yes         TC-051-auth-minors
-                      AC-2201-9    yes         TC-051-docs-section-6a
-REQ-023      yes      AC-2301-1    yes         TC-052-blueprint-json-shape
-                      AC-2301-2    yes         TC-052-applies-clean-with-override
-                      AC-2301-3    yes         TC-052-refuses-bare-spa
-                      AC-2301-4    yes         TC-052-capability-discovery
-                      AC-2301-5    yes         TC-052-pack-checks-cross-check
-                      AC-2301-6    yes         TC-052-fixture-surfaces
-                      AC-2301-7    yes         TC-052-negative-runs
-REQ-024      yes      AC-2401-1    yes         TC-053-blueprint-json-shape
-                      AC-2401-2    yes         TC-053-applies-clean
-                      AC-2401-3    yes         TC-053-pack-checks-cross-check
-                      AC-2401-4    yes         TC-053-fixture-serves-states
-                      AC-2401-5    yes         TC-053-negative-runs
-                      AC-2401-6    yes         TC-053-state-enumeration-parity
-                      AC-2401-7    yes         TC-053-readme-gaps-and-changelog
-REQ-025      yes      AC-2501-1    yes         TC-054-blueprint-json-shape
-                      AC-2501-2    yes         TC-054-applies-clean
-                      AC-2501-3    yes         TC-054-pack-checks-cross-check
-                      AC-2501-4    yes         TC-054-fixture-serves-transports
-                      AC-2501-5    yes         TC-054-negative-runs
-                      AC-2501-6    yes         TC-054-state-and-transport-parity
-                      AC-2501-7    yes         TC-054-readme-gaps-and-changelog
-REQ-026      yes      AC-2601-1    yes         TC-055-blueprint-json-shape
-                      AC-2601-2    yes         TC-055-applies-clean
-                      AC-2601-3    yes         TC-055-pack-checks-cross-check, TC-055-pack-loader-discovers
-                      AC-2601-4    yes         TC-055-fixture-serves-surfaces
-                      AC-2601-5    yes         TC-055-negative-runs
-                      AC-2601-6    yes         TC-055-vocabulary-and-transport-parity
-                      AC-2601-7    yes         TC-055-readme-gaps-and-changelog
-REQ-027      yes      AC-2701-1    yes         TC-056-blueprint-json-shape
-                      AC-2701-2    yes         TC-056-applies-clean
-                      AC-2701-3    yes         TC-056-apply-refusal-and-override
-                      AC-2701-4    yes         TC-056-pack-checks-cross-check
-                      AC-2701-5    yes         TC-056-fixture-and-switches
-                      AC-2701-6    yes         TC-056-negative-runs
-                      AC-2701-7    yes         TC-056-shelf-doc-consistency
-                      AC-2701-8    yes         TC-056-q3-refusal
-REQ-028      yes      AC-2801-1    yes         TC-057-blueprint-json-shape
-                      AC-2801-2    yes         TC-057-adr-shape
-                      AC-2801-3    yes         TC-057-applies-clean
-                      AC-2801-4    yes         TC-057-pack-checks-cross-check
-                      AC-2801-5    yes         TC-057-fixture-and-switches
-                      AC-2801-6    yes         TC-057-negative-runs
-                      AC-2801-7    yes         TC-057-shelf-doc-consistency
-                      AC-2801-8    yes         TC-057-changelog-guide-and-mechanism-reach
-REQ-029      yes      AC-2901-1    yes         TC-073-blueprint-json-shape
-                      AC-2901-2    yes         TC-073-probe-module-and-scan-pass
-                      AC-2901-3    yes         TC-073-chain-slice-cross-check
-                      AC-2902-1    yes         TC-074-elicits-shape
-                      AC-2902-2    yes         TC-074-cf-platform-fixture-files
-REQ-030      yes      AC-3001-1    yes         TC-075-adr-1306-body-and-clause
-                      AC-3001-2    yes         TC-075-guide-section-and-urls
-                      AC-3001-3    yes         TC-075-probed-spa-fallback-shape
-REQ-040      yes      AC-4001-1    yes         TC-070-blueprint-json-shape
-                      AC-4001-2    yes         TC-070-applies-clean-no-persistence
-                      AC-4001-3    yes         TC-070-conflict-with-d1
-                      AC-4001-4    yes         TC-070-probe-anchor-ids-cross-check
-                      AC-4001-5    yes         TC-070-fixture-and-switches
-                      AC-4001-6    yes         TC-070-shelf-doc-consistency
-REQ-041      yes      AC-4101-1    yes         TC-071-blueprint-json-shape
-                      AC-4101-2    yes         TC-071-applies-clean-with-secrets
-                      AC-4101-3    yes         TC-071-apply-refusal-and-override
-                      AC-4101-4    yes         TC-071-probe-anchor-ids-cross-check
-                      AC-4101-5    yes         TC-071-fixture-and-switches
-                      AC-4101-6    yes         TC-071-shelf-doc-consistency
-REQ-042      yes      AC-4201-1    yes         TC-072-blueprint-json-shape
-                      AC-4201-2    yes         TC-072-applies-clean
-                      AC-4201-3    yes         TC-072-dlq-req-grep
-                      AC-4201-4    yes         TC-072-probe-anchor-ids-cross-check
-                      AC-4201-5    yes         TC-072-fixture-and-switches
-                      AC-4201-6    yes         TC-072-shelf-doc-consistency
-REQ-043      yes      AC-4301-1    yes         TC-076-blueprint-json-shape
-                      AC-4301-2    yes         TC-076-bare-refusal
-                      AC-4301-3    yes         TC-076-override-sidecar
-                      AC-4301-4    yes         TC-076-happy-path-caps
-                      AC-4301-5    yes         TC-076-probe-anchor-ids-cross-check
-                      AC-4301-6    yes         TC-076-fixture-and-switches
-                      AC-4301-7    yes         TC-076-shelf-doc-consistency
-REQ-050      yes      AC-5001-1    yes         TC-080-ac-5001-1-facade-ready
-                      AC-5002-1    yes         TC-081-ac-5002-1-sole-reader
-REQ-051      yes      AC-5101-1    yes         TC-082-ac-5101-1-round-trip
-                      AC-5101-2    yes         TC-082-ac-5101-2-delete-then-null
-                      AC-5102-1    yes         TC-083-ac-5102-1-list-prefix
-REQ-052      yes      AC-5201-1    yes         TC-084-ac-5201-1-hit-within-ttl
-                      AC-5201-2    yes         TC-084-ac-5201-2-miss-past-ttl
-REQ-053      yes      AC-5301-1    yes         TC-085-ac-5301-1-metadata-only
-                      AC-5302-1    yes         TC-086-ac-5302-1-event-secrecy
-REQ-054      yes      AC-5401-1    yes         TC-087-ac-5401-1-real-account-smoke
-REQ-060      yes      AC-6001-1    yes         TC-090-scheduled-ready
-                      AC-6002-1    yes         TC-091-wrangler-test-scheduled
-                      AC-6003-1    yes         TC-092-real-account-smoke-skip
-REQ-061      yes      AC-6101-1    yes         TC-093-dispatch-matched
-                      AC-6101-2    yes         TC-093-dispatch-unmatched
-REQ-062      yes      AC-6201-1    yes         TC-094-skew-on-time
-                      AC-6201-2    yes         TC-094-skew-outside
-REQ-063      yes      AC-6301-1    yes         TC-095-soft-budget-fires
-                      AC-6301-2    yes         TC-095-soft-budget-continues
-                      AC-6302-1    yes         TC-096-event-secrecy
-REQ-070      yes      AC-7001-1    yes         TC-100-do-facade-ready
-                      AC-7002-1    yes         TC-109-real-account-skip
-REQ-071      yes      AC-7101-1    yes         TC-101-single-cell-concurrent
-REQ-072      yes      AC-7201-1    yes         TC-102-storage-round-trip
-REQ-073      yes      AC-7301-1    yes         TC-103-alarm-fires-once
-REQ-074      yes      AC-7401-1    yes         TC-104-hub-broadcast
-                      AC-7402-1    yes         TC-105-hibernate-wake
-REQ-075      yes      AC-7501-1    yes         TC-106-event-secrecy
-REQ-076      yes      AC-7601-1    yes         TC-107-sole-reader-scan
-REQ-077      yes      AC-7701-1    yes         TC-108-wrangler-do-bindings
-REQ-080      yes      AC-8001-1    yes         TC-110-jwt-validator-pass
-                      AC-8002-1    yes         TC-111-jwt-validator-reject
-                      AC-8003-1    yes         TC-112-sole-reader-boundary
-REQ-081      yes      AC-8101-1    yes         TC-113-elicits-application-declaration
-REQ-082      yes      AC-8201-1    yes         TC-114-guide-policy-issuance
-REQ-083      yes      AC-8301-1    yes         TC-115-audit-metadata-secrecy
-REQ-084      yes      AC-8401-1    yes         TC-116-break-glass-bypass
-REQ-085      yes      AC-8501-1    yes         TC-117-admin-console-gate-surface
-                      AC-8502-1    yes         TC-119-real-account-gated-url-skipped
-REQ-086      yes      AC-8601-1    yes         TC-118-admin-console-gated-pack-check
-                      AC-8602-1    yes         TC-119-admin-console-fallback
-REQ-090      yes      AC-9001-1    yes         TC-120-widget-mount-pass
-                      AC-9002-1    yes         TC-121-secret-shape-scan
-REQ-091      yes      AC-9101-1    yes         TC-122-siteverify-pass
-                      AC-9102-1    yes         TC-123-siteverify-fail-secrecy
-REQ-092      yes      AC-9201-1    yes         TC-124-guard-shape-refuse
-REQ-093      yes      AC-9301-1    yes         TC-125-composition-wire
-                      AC-9302-1    yes         TC-126-magic-link-guard-refuse
-REQ-094      yes      AC-9401-1    yes         TC-127-widget-mode-enum
-REQ-100      yes      AC-10001-1   yes         TC-130-manifest-presence-pass
-                      AC-10601-1   yes         TC-135-manifest-schema-validate-pass-and-fail
-                      AC-10801-1   yes         TC-137-manifest-presence-missing-fail
-REQ-101      yes      AC-10101-1   yes         TC-131-guide-management-surface-doc
-REQ-102      yes      AC-10201-1   yes         TC-132-real-account-burst-and-429-or-skipped
-REQ-103      yes      AC-10301-1   yes         TC-133-drift-audit-runner-diff
-                      AC-10701-1   yes         TC-136-event-secrecy-pass-and-leak
-REQ-104      yes      AC-10401-1   yes         TC-134-composition-guide-section
-REQ-110      yes      AC-11001-1   yes         TC-140-provisioner-boot-and-sole-reader
-REQ-111      yes      AC-11101-1   yes         TC-140-manifest-schema-shape-valid
-                      AC-11102-1   yes         TC-140-manifest-applies-mocked-provision
-REQ-112      yes      AC-11201-1   yes         TC-140-cloud-init-render-baseline-present
-                      AC-11202-1   yes         TC-140-cloud-init-hardened-account-bound-probe
-REQ-113      yes      AC-11301-1   yes         TC-140-firewall-shape-valid-and-refuses-open-ssh
-REQ-114      yes      AC-11401-1   yes         TC-140-snapshot-cadence-enum
-                      AC-11402-1   yes         TC-140-snapshot-on-demand-account-bound-probe
-REQ-115      yes      AC-11501-1   yes         TC-140-lifecycle-events-metadata-only
-REQ-120      yes      AC-12001-1   yes         TC-150-compose-layout-shape-valid
-REQ-121      yes      AC-12101-1   yes         TC-150-secrets-file-mount-shape
-                      AC-12102-1   yes         TC-150-secrets-scan-fails-on-plaintext
-REQ-122      yes      AC-12201-1   yes         TC-150-compose-config-lint-refuses-missing-healthcheck
-                      AC-12202-1   yes         TC-150-real-account-minimal-stack-up-declared-and-skipped...
-REQ-123      yes      AC-12301-1   yes         TC-150-restart-discipline-lint-refuses-unclassified
-REQ-124      yes      AC-12401-1   yes         TC-150-caddyfile-validate-refuses-invalid-directive
-                      AC-12402-1   yes         TC-150-real-account-reload-burst-declared-and-skipped-shape
-REQ-125      yes      AC-12501-1   yes         TC-150-log-driver-classification
-REQ-130      yes      AC-13001-1   yes         TC-160-connector-shape-variants-shipped
-                      AC-13002-1   yes         TC-160-real-account-connector-healthy-declared-and-skippe...
-REQ-131      yes      AC-13101-1   yes         TC-160-manifest-schema-validate-refuses-invalid
-                      AC-13102-1   yes         TC-160-cloudflared-config-lint-passes-and-refuses-invalid...
-REQ-132      yes      AC-13201-1   yes         TC-160-no-public-origin-port-refused
-REQ-133      yes      AC-13301-1   yes         TC-160-aud-presence-flip-on-both-fixture-variants
-                      AC-13302-1   yes         TC-160-aud-presence-check-refuses-on-drift
-REQ-134      yes      AC-13401-1   yes         TC-160-credentials-discipline-and-event-secrecy
-REQ-140      yes      AC-14001-1   yes         TC-170-hetzner-endpoint-round-trip-and-skipped-shape
-REQ-145      yes      AC-14501-1   yes         TC-175-mock-consumes-rendered-file-and-probe-purity
-REQ-150      yes      AC-15001-1   yes         TC-180-no-ac-5xxx-after-re-anchor
-                      AC-15001-2   yes         TC-180-shipped-kv-ac-coverage-union
-REQ-151      yes      AC-15101-1   yes         TC-181-do-real-storage-round-trip-driver
-                      AC-15101-2   yes         TC-181-do-thirteen-ac-coverage-union
-REQ-152      yes      AC-15201-1   yes         TC-182-queue-real-concurrency-500-msg
-REQ-153      yes      AC-15301-1   yes         TC-183-tunnel-connector-healthy-real-driver
-                      AC-15301-2   yes         TC-183-tunnel-hostname-routes-real-driver
-                      AC-15301-3   yes         TC-183-manifest-schema-fail-with-pointer
-REQ-154      yes      AC-15401-1   yes         TC-184-simulate-purity-four-blueprints
-                      AC-15401-2   yes         TC-184-envelope-hygiene-four-blueprints
-                      AC-15401-3   yes         TC-184-marker-hygiene-four-blueprints
-REQ-155      yes      AC-15501-1   yes         TC-185-add-writes-one-jsonl-line-and-stamps-env
-                      AC-15501-2   yes         TC-185-add-refuses-without-gitignore
-                      AC-15501-3   yes         TC-185-add-blueprint-unresolved-exits-3
-                      AC-15501-4   yes         TC-185-add-rejects-bad-class
-                      AC-15501-5   yes         TC-185-add-blueprint-stamps
-                      AC-15502-1   yes         TC-186-list-default-hides-non-pending, TC-186-list-json-a...
-                      AC-15502-2   yes         TC-186-status-json-shape, TC-186-status-optout-env-ask, T...
-                      AC-15503-1   yes         TC-187-defer-appends-state-lines
-                      AC-15503-2   yes         TC-187-discard-all-marks-every-pending, TC-187-discard-by...
-REQ-156      yes      AC-15601-1   yes         TC-188-preview-renders-full-vocabulary-ledger, TC-188-r4-...
-                      AC-15601-2   yes         TC-188-preview-residual-secret-refusal
-                      AC-15601-3   yes         TC-188-preview-store-byte-invariant
-                      AC-15601-4   yes         TC-188-dryrun-writes-nothing, TC-188-r4-residual-safeguar...
-                      AC-15601-5   yes         TC-188-redact-operator-identity-stopword-guard
-                      AC-15601-6   yes         TC-188-redact-filename-extensions-allowlist
-REQ-157      yes      AC-15701-1   yes         TC-188-fingerprint-canonical-input, TC-188-preview-finger...
-                      AC-15701-2   yes         TC-191-submit-anchor-mismatch-creates, TC-191-submit-fing...
-                      AC-15701-3   yes         TC-191-submit-closed-reference, TC-191-submit-search-unch...
-REQ-158      yes      AC-15801-1   yes         TC-189-library-add-snapshots-issues-and-prints-review-line
-                      AC-15801-2   yes         TC-189-resolver-four-fixture-walk
-                      AC-15801-3   yes         TC-189-doctor-feedback-destinations-warn-only
-                      AC-15801-4   yes         TC-189-resolver-library-slug-inference-ambiguous, TC-189-...
-                      AC-15802-1   yes         TC-190-core-repo-pinned-to-bugs-url
-                      AC-15802-2   yes         TC-190-core-kind-ignores-library-manifest-content
-REQ-159      yes      AC-15901-1   yes         TC-192-submit-yes-happy-path
-                      AC-15901-2   yes         TC-192-submit-no-token-synthesised, TC-192-submit-refuses...
-                      AC-15902-1   yes         TC-193-label-precheck-drops-missing
-                      AC-15902-2   yes         TC-193-bootstrap-creates-six, TC-193-bootstrap-idempotent...
-                      AC-15902-3   yes         TC-193-title-prefix-and-fingerprint-twin
-                      AC-15902-4   yes         TC-193-labels-catalogue-single-source
-REQ-160      yes      AC-16001-1   yes         TC-194-preflight-auth-off, TC-194-preflight-gh-missing, T...
-                      AC-16001-2   yes         TC-194-retry-without-labels-then-bundle
-                      AC-16001-3   yes         TC-194-bundled-terminal-for-ask
-                      AC-16001-4   yes         TC-194-unresolved-destination-bundle
-REQ-161      yes      AC-16101-1   yes         TC-195-quiet-rule-truth-table
-                      AC-16101-2   yes         TC-195-hook-stop-claude-code, TC-195-hook-stop-codex, TC-...
-                      AC-16101-3   yes         TC-195-hook-same-session-silent-then-fresh-reasks, TC-195...
-                      AC-16102-1   yes         TC-196-optin-restores-ask-true, TC-196-optout-writes-sett...
-                      AC-16102-2   yes         TC-196-env-ask-silences-hook-only, TC-196-env-disable-no-...
-                      AC-16102-3   yes         TC-262-ask-off-in-headless-session
-                      AC-16103-1   yes         TC-197-session-end-idempotent-after-same-second, TC-197-s...
-                      AC-16103-2   yes         TC-197-session-start-claude-code-line, TC-197-session-sta...
-                      AC-16103-3   yes         TC-197-session-start-idempotent-same-session, TC-197-sess...
-                      AC-16103-4   yes         TC-264-busy-after-filing-names-it, TC-264-dead-claim-remo...
-                      AC-16104-1   yes         TC-198-init-bin-path-pins-node, TC-198-init-idempotent, T...
-                      AC-16104-2   yes         TC-198-init-no-feedback-hooks
-                      AC-16104-3   yes         TC-198-doctor-clean-tree-no-writes, TC-198-doctor-fix-ins...
-REQ-162      yes      AC-16201-1   yes         TC-199-rule-17-names-verbs-and-redaction-posture, TC-199-...
-                      AC-16201-2   yes         TC-199-existing-project-picks-up-rule-17-on-doctor-fix, T...
-REQ-163      yes      AC-16301-1   yes         TC-200-superseded-by-broken
-                      AC-16301-2   yes         TC-200-related-adrs-silent
-REQ-164      yes      AC-16401-1   yes         TC-201-strict-by-default-exit-4
-                      AC-16401-2   yes         TC-201-shallow-any-opt-out
-                      AC-16401-3   yes         TC-201-conflicting-flags-exit-2
-REQ-165      yes      AC-16501-1   yes         TC-202-ui-baseline-unmet-refusal
-                      AC-16501-2   yes         TC-202-browser-verification-missing-refusal
-                      AC-16501-3   yes         TC-202-scope-mismatch-refusal
-                      AC-16502-1   yes         TC-203-writer-refuses-manual-verified
-                      AC-16502-2   yes         TC-203-writer-accepts-with-override
-                      AC-16502-3   yes         TC-203-merge-state-refusal-and-opt-out
-                      AC-16503-1   yes         TC-242-16503-1-happy
-                      AC-16503-2   yes         TC-242-16503-2-refuse
-                      AC-16503-3   yes         TC-242-16503-3-abort
-                      AC-16503-4   yes         TC-242-16503-4-usage
-                      AC-16504-1   yes         TC-249-16504-1-scope
-                      AC-16504-2   yes         TC-249-16504-2-default
-                      AC-16504-3   yes         TC-249-16504-3-invariant
-                      AC-16504-4   yes         TC-249-16504-4-help
-                      AC-16505-1   yes         TC-250-16505-1-args, TC-250-16505-1-forward
-                      AC-16505-2   yes         TC-250-16505-2-help
-                      AC-16505-3   yes         TC-250-16505-3-stamp
-                      AC-16505-4   yes         TC-250-16505-4-remedy
-                      AC-16505-5   yes         TC-250-16505-5-detect, TC-250-16505-5-path-fallback, TC-2...
-REQ-170      yes      AC-17001-1   yes         TC-204-shape-buckets-present
-                      AC-17001-2   yes         TC-204-shape-drill-req-us-ac
-                      AC-17002-1   yes         TC-205-status-filter-control
-                      AC-17003-1   yes         TC-206-component-tad-root
-                      AC-17004-1   yes         TC-207-trace-coverage-buckets
-                      AC-17005-1   yes         TC-208-capability-buckets
-                      AC-17006-1   yes         TC-211-interaction-model-buckets
-                      AC-17007-1   yes         TC-212-lazy-skeletons
-                      AC-17008-1   yes         TC-213-badge, TC-213-buckets, TC-213-capability-second-le...
-REQ-171      yes      AC-17101-1   yes         TC-209-every-req-has-capability-tag
-                      AC-17102-1   yes         TC-210-taxonomy-doc-present
-REQ-172      yes      AC-17201-1   yes         TC-214-delta-shape, TC-214-unchanged
-                      AC-17201-2   yes         TC-214-canonical, TC-214-hash-shape
-                      AC-17201-3   yes         TC-214-freeze-missing, TC-214-freeze-schema
-                      AC-17201-4   yes         TC-214-refuse-invalid-write, TC-214-roundtrip
-REQ-173      yes      AC-17301-1   yes         TC-215-brief-add-text, TC-215-brief-refuse-mixed
-                      AC-17301-2   yes         TC-215-decisions-list-241, TC-215-list-json
-                      AC-17301-3   yes         TC-215-brief-from-file, TC-215-parse-brief-bullets
-                      AC-17301-4   yes         TC-215-walker-invisible
-                      AC-17302-1   yes         TC-215-brief-update-fields-and-preserve-id
-                      AC-17302-2   yes         TC-215-decisions-update-wellformed
-                      AC-17302-3   yes         TC-215-resolvedby-grammar-each-form
-                      AC-17302-4   yes         TC-215-update-refuses-nongrammar
-                      AC-17302-5   yes         TC-215-d2-dangling-pointer-fails
-                      AC-17302-6   yes         TC-215-d2-title-hit-dropped
-                      AC-17302-7   yes         TC-215-r1-add-same-id-same-content-unchanged
-                      AC-17302-8   yes         TC-215-r1-add-same-id-diff-content-exit-3
-                      AC-17302-9   yes         TC-215-r1-add-no-id-mints-next
-                      AC-17302-10  yes         TC-215-r1-create-ac-id-unchanged-and-conflict
-                      AC-17302-11  yes         TC-215-r1-create-tc-id-unchanged-and-conflict
-                      AC-17302-12  yes         TC-215-r1-create-cn-id-unchanged-and-conflict
-                      AC-17302-13  yes         TC-215-r1-create-req-verbatim-replay-unchanged, TC-215-r1...
-                      AC-17302-14  yes         TC-265-description-merge-keeps-scope, TC-265-from-file-ke...
-REQ-174      yes      AC-17401-1   yes         TC-216-shape
-                      AC-17401-2   yes         TC-216-blocking-vs-warn
-                      AC-17401-3   yes         TC-216-not-applicable
-                      AC-17401-4   yes         TC-216-d4-floors
-                      AC-17401-5   yes         TC-216-d3-shapes
-                      AC-17401-6   yes         TC-216-d5-crosscut
-                      AC-17401-7   yes         TC-216-d6-consistency
-                      AC-17401-8   yes         TC-216-d8-freeze, TC-216-d8-freeze-all-built, TC-216-d8-f...
-                      AC-17401-9   yes         TC-216-d2-data-architecture
-                      AC-17401-10  yes         TC-216-identity-seed-surface
-                      AC-17401-11  yes         TC-216-r13-crosscut-security-tree-wide
-                      AC-17401-12  yes         TC-216-r13-crosscut-operational-tree-wide
-                      AC-17402-1   yes         TC-219-every-check-has-persona-and-question
-                      AC-17402-2   yes         TC-219-d1-personas
-                      AC-17402-3   yes         TC-219-d2-personas
-                      AC-17402-4   yes         TC-219-d4-d7-personas
-                      AC-17402-5   yes         TC-219-engineer-stages
-                      AC-17402-6   yes         TC-219-persona-vocabulary-closed
-                      AC-17402-7   yes         TC-219-not-applicable-placeholder-persona
-                      AC-17402-8   yes         TC-219-r13-deploy-adr-tree-wide
-                      AC-17403-1   yes         TC-220-todo-no-shapes-fails-both
-                      AC-17403-2   yes         TC-220-shapes-no-domain-fails-req-intent-only
-                      AC-17403-3   yes         TC-220-draft-fails-draft-settled
-                      AC-17403-4   yes         TC-220-marker-removed-passes-draft-settled
-                      AC-17403-5   yes         TC-220-draft-kind-vocabulary-still-applies
-                      AC-17403-6   yes         TC-220-enumerated-passes-well-formed-fails-all-answered
-                      AC-17403-7   yes         TC-220-one-option-no-default-fails-well-formed
-                      AC-17403-8   yes         TC-220-no-req-fields-emitted
-                      AC-17403-9   yes         TC-220-r2-draft-tree-wide-under-narrowed-scope
-                      AC-17403-10  yes         TC-220-r13-failing-envelope-reason-drops
-                      AC-17404-1   yes         TC-230-templatemarkers-draft-recordshape, TC-230-template...
-                      AC-17404-2   yes         TC-230-templatemarkers-missing
-                      AC-17404-3   yes         TC-230-entityjoin-ok-and-twice
-                      AC-17404-4   yes         TC-230-pathsresolve-resolved-and-authored
-                      AC-17404-5   yes         TC-230-ackable-exactly-d3-d5-d6, TC-230-cli-check-shapes-...
-                      AC-17404-6   yes         TC-230-freeze-ack-blocking-stages-exit-2
-                      AC-17404-7   yes         TC-230-r5-entityjoin-under-narrowed-scope
-                      AC-17404-8   yes         TC-230-r6-bare-paths-whitelist
-                      AC-17404-9   yes         TC-230-r13-helper-foldstate-delegation
-                      AC-17405-1   yes         TC-231-closedsets-cue-without-list, TC-231-closedsets-quo...
-                      AC-17405-2   yes         TC-231-ownerref-resolves-and-missing
-                      AC-17405-3   yes         TC-231-cli-check-crosscut-exit-matrix, TC-231-concern-cat...
-                      AC-17405-4   yes         TC-231-crosscut-catalogue-missing-pair
-                      AC-17405-5   yes         TC-231-r8-standards-applied-waived-or-cited, TC-231-stand...
-                      AC-17405-6   yes         TC-231-validate-no-missing-marker-finding
-                      AC-17405-7   yes         TC-231-ownerref-r11-widened
-                      AC-17405-8   yes         TC-231-ownerref-dotted-refused
-                      AC-17405-9   yes         TC-231-r7-standards-under-narrowed-d2-scope
-                      AC-17406-1   yes         TC-232-contradictions-same-when-negated-then
-                      AC-17406-2   yes         TC-232-unsatisfiable-undefined-field
-                      AC-17406-3   yes         TC-232-unsatisfiable-draft-recordshape
-                      AC-17406-4   yes         TC-232-duplicates-across-stories
-                      AC-17406-5   yes         TC-232-orphan-interfaces
-                      AC-17406-6   yes         TC-232-contradictions-quoted-negation-guard
-REQ-175      yes      AC-17501-1   yes         TC-217-shape
-                      AC-17501-2   yes         TC-217-fanout
-                      AC-17501-3   yes         TC-217-coverage
-                      AC-17501-4   yes         TC-217-next-action
-                      AC-17501-5   yes         TC-217-cli
-                      AC-17501-6   yes         TC-217-load-all-ledgers
-                      AC-17502-1   yes         TC-221-po-ok-engineer-failing
-                      AC-17502-2   yes         TC-221-freezeable-implies-l1
-                      AC-17502-3   yes         TC-221-brief-profile-l1-blocker
-                      AC-17502-4   yes         TC-221-acknowledged-absent-from-l2
-                      AC-17502-5   yes         TC-221-personas-mirror-levels
-                      AC-17502-6   yes         TC-221-persona-next-action-picks-first-failing-stage
-                      AC-17502-7   yes         TC-221-no-write-on-invocation
-                      AC-17502-8   yes         TC-221-backwards-compat-fields
-                      AC-17503-1   yes         TC-222-exit-matrix, TC-222-verdict-lines-four-strings
-                      AC-17503-2   yes         TC-222-level-intent-pass
-                      AC-17503-3   yes         TC-222-level-intent-fail
-                      AC-17503-4   yes         TC-222-level-build-strict-ack
-                      AC-17503-5   yes         TC-222-check-all-unchanged
-                      AC-17503-6   yes         TC-222-persona-collapses-other
-                      AC-17503-7   yes         TC-222-unknown-values-exit-2-level, TC-222-unknown-values...
-                      AC-17503-8   yes         TC-222-json-meta-level
-                      AC-17503-9   yes         TC-222-text-persona-grouping
-                      AC-17504-1   yes         TC-232-probe-runner-injects-findings
-                      AC-17504-2   yes         TC-232-no-probe-runner-matches-pre-pr
-                      AC-17504-3   yes         TC-232-litmus-reader-count
-                      AC-17504-4   yes         TC-232-cli-litmus-shortfall-exits-4, TC-232-parse-litmus-...
-                      AC-17504-5   yes         TC-232-cli-litmus-no-process-spawn
-REQ-176      yes      AC-17601-1   yes         TC-218-happy
-                      AC-17601-2   yes         TC-218-refuse
-                      AC-17601-3   yes         TC-218-ack
-                      AC-17601-4   yes         TC-218-summary
-                      AC-17601-5   yes         TC-218-status
-                      AC-17601-6   yes         TC-218-admissibility
-                      AC-17601-7   yes         TC-218-override
-                      AC-17601-8   yes         TC-218-hygiene
-REQ-177      yes      AC-17702-1   yes         TC-233-bundle-refuses-without-freeze
-                      AC-17702-2   yes         TC-233-bundle-override-writes-freeze-override
-                      AC-17702-3   yes         TC-233-bundle-skips-impacted-fbs
-                      AC-17702-4   yes         TC-233-bundle-all-impacted-refuses
-                      AC-17702-5   yes         TC-233-bundle-empty-delta-unchanged
-                      AC-17702-6   yes         TC-233-override-by-order
-REQ-178      yes      AC-17802-1   yes         TC-234-validate-interface-kind-finding, TC-234-validate-t...
-                      AC-17802-2   yes         TC-234-validate-ac-class-prefix-finding
-                      AC-17802-3   yes         TC-234-validate-dogfood-clean
-                      AC-17802-4   yes         TC-234-validate-no-finding-for-missing-class
-REQ-179      yes      AC-17902-1   yes         TC-235-ruleset-nvdl-shape
-                      AC-17902-2   yes         TC-235-admissibility-wrap-refuses-on-unfrozen-tree
-                      AC-17902-3   yes         TC-235-admissibility-wrap-accepts-with-override
-                      AC-17902-4   yes         TC-235-readiness-compute-unchanged-under-refusal
-                      AC-17902-5   yes         TC-235-wrap-cites-define-stages
-REQ-180      yes      AC-18001-1   yes         TC-223-tab-order-and-rename
-                      AC-18001-2   yes         TC-223-verdict-pills-match-cli
-                      AC-18001-3   yes         TC-223-po-blockers-as-findings-list
-                      AC-18001-4   yes         TC-223-register-orders-persona-groups
-                      AC-18001-5   yes         TC-223-no-blocker-id-omitted
-                      AC-18001-6   yes         TC-223-freeze-now-disabled
-                      AC-18001-7   yes         TC-223-ids-on-tab-match-cli-json
-                      AC-18001-8   yes         TC-223-swap-preserves-readiness, TC-223-swap-product-map-...
-                      AC-18002-1   yes         TC-227-groups-and-asks
-                      AC-18002-2   yes         TC-227-empty-questions-verdict
-                      AC-18002-3   yes         TC-227-engineer-dom-preserved
-                      AC-18003-1   yes         TC-237-18003-1-happy
-                      AC-18003-2   yes         TC-237-18003-2-edge
-                      AC-18003-3   yes         TC-237-18003-3-happy
-                      AC-18003-4   yes         TC-237-18003-4-edge
-                      AC-18003-5   yes         TC-237-18003-5-happy
-                      AC-18003-6   yes         TC-237-18003-6-failure
-                      AC-18003-7   yes         TC-237-18003-7-mustnot
-                      AC-18003-8   yes         TC-237-18003-8-happy
-                      AC-18004-1   yes         TC-238-18004-1-happy
-                      AC-18004-2   yes         TC-238-18004-2-happy
-                      AC-18004-3   yes         TC-238-18004-3-happy
-                      AC-18004-4   yes         TC-238-18004-4-happy
-                      AC-18004-5   yes         TC-238-18004-5-happy
-                      AC-18004-6   yes         TC-238-18004-6-failure
-                      AC-18004-7   yes         TC-238-18004-7-mustnot
-                      AC-18005-1   yes         TC-239-18005-1-happy
-                      AC-18005-2   yes         TC-239-18005-2-happy
-                      AC-18005-3   yes         TC-239-18005-3-happy
-                      AC-18005-4   yes         TC-239-18005-4-happy
-                      AC-18005-5   yes         TC-239-18005-5-happy
-                      AC-18005-6   yes         TC-239-18005-6-edge
-                      AC-18005-7   yes         TC-239-18005-7-mustnot
-                      AC-18005-8   yes         TC-239-18005-8-failure
-REQ-181      yes      AC-18101-1   yes         TC-223-pill-vocabulary
-                      AC-18101-2   yes         TC-223-findings-list-markup
-                      AC-18101-3   yes         TC-223-no-existing-tab-tests-change
-REQ-182      yes      AC-18202-1   yes         TC-228-guidance-prints
-                      AC-18202-2   yes         TC-228-manifest-prompts
-                      AC-18202-3   yes         TC-228-register-scan-em-dash
-                      AC-18202-4   yes         TC-228-managed-block-preserves-rules
-REQ-186      yes      AC-18601-1   yes         TC-226-q-shape
-                      AC-18601-2   yes         TC-226-q-deterministic
-                      AC-18601-3   yes         TC-226-q-optional-decisions
-                      AC-18601-4   yes         TC-226-q-empty-when-ok
-                      AC-18601-5   yes         TC-226-q-engineer-persona
-                      AC-18601-6   yes         TC-226-q-usage-error
-                      AC-18601-7   yes         TC-226-q-writes-nothing
-                      AC-18602-1   yes         TC-226-cli-json
-                      AC-18602-2   yes         TC-226-cli-persona-default
-                      AC-18602-3   yes         TC-226-cli-stage-limit
-                      AC-18602-4   yes         TC-226-mcp-parity
-                      AC-18602-5   yes         TC-226-cli-usage-persona
-                      AC-18602-6   yes         TC-226-cli-writes-nothing
-                      AC-18603-1   yes         TC-226-loop-convergence
-                      AC-18603-2   yes         TC-226-loop-new-req
-                      AC-18603-3   yes         TC-226-loop-l1-draft-stable
-                      AC-18603-4   yes         TC-226-loop-decision-wellformed
-                      AC-18603-5   yes         TC-226-loop-engineer-isolation
-REQ-187      yes      AC-18701-1   yes         TC-215-markers-kind-and-source
-                      AC-18701-2   yes         TC-215-defaults-from-flags
-                      AC-18701-3   yes         TC-215-question-heuristic
-                      AC-18701-4   yes         TC-215-029-line-per-statement-unchanged
-                      AC-18701-5   yes         TC-215-unknown-kind-exits-2
-                      AC-18701-6   yes         TC-215-dry-run-no-write
-                      AC-18702-1   yes         TC-215-scan-mints-openquestion
-                      AC-18702-2   yes         TC-215-findings-mints-openquestions
-                      AC-18702-3   yes         TC-215-scans-compare-every-existing
-                      AC-18702-4   yes         TC-215-json-emits-added-and-findings
-                      AC-18702-5   yes         TC-215-no-scan-plus-findings-exits-2
-                      AC-18702-6   yes         TC-215-text-runs-no-scan
-REQ-188      yes      AC-18801-1   yes         TC-228-draft-coreentity
-                      AC-18801-2   yes         TC-228-draft-tac-purpose
-                      AC-18801-3   yes         TC-228-draft-cleared
-                      AC-18801-4   yes         TC-228-draft-template-markers
-                      AC-18801-5   yes         TC-228-draft-no-po-read
-REQ-189      yes      AC-18901-1   yes         TC-243-18901-1-happy
-                      AC-18901-2   yes         TC-243-18901-2-happy
-                      AC-18901-3   yes         TC-243-18901-3-happy
-                      AC-18901-4   yes         TC-243-18901-4-failure
-                      AC-18901-5   yes         TC-243-18901-5-edge
-                      AC-18901-6   yes         TC-243-18901-6-edge
-                      AC-18901-7   yes         TC-243-18901-7-mustnot
-                      AC-18902-1   yes         TC-244-18902-1-happy
-                      AC-18902-2   yes         TC-244-18902-2-happy
-                      AC-18902-3   yes         TC-244-18902-3-happy
-                      AC-18902-4   yes         TC-244-18902-4-happy
-                      AC-18902-5   yes         TC-244-18902-5-failure
-                      AC-18902-6   yes         TC-244-18902-6-edge
-                      AC-18902-7   yes         TC-244-18902-7-mustnot
-                      AC-18903-1   yes         TC-245-18903-1-happy
-                      AC-18903-2   yes         TC-245-18903-2-happy
-                      AC-18903-3   yes         TC-245-18903-3-happy
-                      AC-18903-4   yes         TC-245-18903-4-happy
-                      AC-18903-5   yes         TC-245-18903-5-failure
-                      AC-18903-6   yes         TC-245-18903-6-edge
-                      AC-18903-7   yes         TC-245-18903-7-mustnot
-                      AC-18903-8   yes         TC-245-18903-8-failure
-                      AC-18904-1   yes         TC-246-18904-1-happy
-                      AC-18904-2   yes         TC-246-18904-2-happy
-                      AC-18904-3   yes         TC-246-18904-3-failure
-                      AC-18904-4   yes         TC-246-18904-4-edge
-                      AC-18904-5   yes         TC-246-18904-5-mustnot
-                      AC-18905-1   yes         TC-247-18905-1-happy
-                      AC-18905-2   yes         TC-247-18905-2-happy
-                      AC-18905-3   yes         TC-247-18905-3-edge
-                      AC-18905-4   yes         TC-247-18905-4-failure
-                      AC-18905-5   yes         TC-247-18905-5-happy
-                      AC-18905-6   yes         TC-247-18905-6-mustnot
-                      AC-18905-7   yes         TC-247-18905-7-mustnot
-                      AC-18905-8   yes         TC-247-18905-8-happy
-                      AC-18905-9   yes         TC-247-18905-9-failure
-                      AC-18906-1   yes         TC-248-18906-1-happy
-                      AC-18906-2   yes         TC-248-18906-2-happy
-                      AC-18906-3   yes         TC-248-18906-3-happy
-                      AC-18906-4   yes         TC-248-18906-4-failure
-                      AC-18906-5   yes         TC-248-18906-5-edge
-                      AC-18906-6   yes         TC-248-18906-6-mustnot
-REQ-190      yes      AC-19001-1   yes         TC-252-report-written
-                      AC-19001-2   yes         TC-252-dirty-tree-refused
-                      AC-19001-3   yes         TC-252-bad-hand-flags
-                      AC-19001-4   yes         TC-252-package-target
-                      AC-19001-5   yes         TC-252-reports-not-chain
-                      AC-19001-6   yes         TC-252-hand-refuses-out, TC-252-writes-only-reports
-                      AC-19001-7   yes         TC-263-out-directory-refused, TC-263-out-help-says-file-path
-                      AC-19002-1   yes         TC-253-e2e-verify-then-finalise, TC-253-promotes-verified
-                      AC-19002-2   yes         TC-253-no-report
-                      AC-19002-3   yes         TC-253-head-loopback-age, TC-253-squash-tree-equal
-                      AC-19002-4   yes         TC-253-hand-not-separate
-                      AC-19002-5   yes         TC-253-preconditions
-                      AC-19002-6   yes         TC-253-blocking-per-ac-verdicts, TC-253-e2e-per-ac-refusal
-                      AC-19002-7   yes         TC-253-retired-flags
-                      AC-19002-8   yes         TC-253-no-spawn-no-mutation
-                      AC-19003-1   yes         TC-254-e2e-finalise-clears-backstop, TC-254-refuses-unver...
-                      AC-19003-2   yes         TC-254-override-recorded
-                      AC-19003-3   yes         TC-254-inert-without-backstop
-                      AC-19003-4   yes         TC-254-adopt
-                      AC-19003-5   yes         TC-254-no-silent-bypass
-                      AC-19004-1   yes         TC-257-test-and-finalise-stages
-                      AC-19004-2   yes         TC-257-define-and-build-hands
-                      AC-19004-3   yes         TC-257-bundle-runbook
-                      AC-19004-4   yes         TC-257-managed-block
-                      AC-19004-5   yes         TC-257-audit-fifth-verb
-                      AC-19004-6   yes         TC-257-doctor-drift
-                      AC-19004-7   yes         TC-257-no-post-merge-verify
-                      AC-19005-1   yes         TC-261-e2e-loopback-verify-then-finalise-on-branch, TC-26...
-                      AC-19005-2   yes         TC-261-loopback-accepted
-                      AC-19005-3   yes         TC-261-loopback-missing-field
-                      AC-19005-4   yes         TC-261-served-sha-mismatch
-                      AC-19005-5   yes         TC-261-verify-run-loopback-flags-url-only, TC-261-verify-...
-                      AC-19005-6   yes         TC-261-report-committed-at-head
-                      AC-19005-7   yes         TC-261-provenance-kept-pre-merge
-                      AC-19005-8   yes         TC-261-e2e-merge-confirm, TC-261-merged-main-confirm
-                      AC-19005-9   yes         TC-261-allow-pre-merge-no-op
-                      AC-19005-10  yes         TC-261-shipped-text-pre-merge
-REQ-191      yes      AC-19101-1   yes         TC-255-pass-line
-                      AC-19101-2   yes         TC-255-fail-line, TC-255-lockfiles-neutral, TC-255-multi-...
-                      AC-19101-3   yes         TC-255-undeclared
-                      AC-19101-4   yes         TC-255-bad-ref-and-repo
-                      AC-19101-5   yes         TC-255-json-rows
-                      AC-19101-6   yes         TC-255-read-only
-                      AC-19101-7   yes         TC-255-verify-reports-class
-                      AC-19102-1   yes         TC-256-mixed-exception
-                      AC-19102-2   yes         TC-256-class-override
-                      AC-19102-3   yes         TC-256-require-hand, TC-256-require-hand-builder-breach, ...
-                      AC-19102-4   yes         TC-256-ci-pull-request-step
-                      AC-19102-5   yes         TC-256-no-empty-reason-no-shallow
-REQ-192      yes      AC-19201-1   yes         TC-251-probe-pass
-                      AC-19201-2   yes         TC-251-probe-fail
-                      AC-19201-3   yes         TC-251-critique-only-and-unreachable
-                      AC-19201-4   yes         TC-251-probe-source
-                      AC-19201-5   yes         TC-251-parity-env
-                      AC-19201-6   yes         TC-251-probe-schema
-                      AC-19201-7   yes         TC-251-no-probe-no-pass
-                      AC-19201-8   yes         TC-251-ac-level-empty-assertion-refused, TC-251-ac-level-...
-REQ-193      yes      AC-19301-1   yes         TC-258-pass-all
-                      AC-19301-2   yes         TC-258-fail-one
-                      AC-19301-3   yes         TC-258-unbound-critique-only
-                      AC-19301-4   yes         TC-258-to-do-skip-and-not-run
-                      AC-19301-5   yes         TC-258-probe-not-run-and-evidence
-                      AC-19301-6   yes         TC-258-flag-refusals
-                      AC-19301-7   yes         TC-258-fbs-219-rules-kept
-                      AC-19301-8   yes         TC-258-writes-only-report-dir
-                      AC-19301-9   yes         TC-258-finalise-end-to-end
-                      AC-19302-1   yes         TC-259-ignored-content-not-packed, TC-259-pack-from-head,...
-                      AC-19302-2   yes         TC-259-given-tarball-no-pack
-                      AC-19302-3   yes         TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
-                      AC-19302-4   yes         TC-259-offline-and-default-registry, TC-259-offline-outsi...
-                      AC-19302-5   yes         TC-259-no-tarball-left, TC-259-package-outside-repo-refus...
-REQ-194      yes      AC-19401-1   yes         TC-260-validate-own-chain-0-9-0
-                      AC-19401-2   yes         TC-260-update-probe-path-only-refused
-                      AC-19401-3   yes         TC-260-catalog-path-only-still-fails
-                      AC-19401-4   yes         TC-260-ac-level-path-only-refused
-                      AC-19401-5   yes         TC-260-retired-state-with-successor
-                      AC-19401-6   yes         TC-260-successor-missing
-                      AC-19401-7   yes         TC-260-self-supersession
-                      AC-19401-8   yes         TC-260-supersession-cycle
-                      AC-19401-9   yes         TC-260-retired-tc-listed-not-counted
-                      AC-19401-10  yes         TC-260-live-gap-beside-retired
-                      AC-19401-11  yes         TC-260-eval-coverage-retired
-                      AC-19401-12  yes         TC-260-verify-skips-retired-probe
-                      AC-19401-13  yes         TC-260-specific-pattern-passes
-                      AC-19401-14  yes         TC-260-vacuous-pattern-fails
-                      AC-19401-15  yes         TC-260-non-compiling-pattern-fails
-                      AC-19401-16  yes         TC-260-match-anything-never-passes
-                      AC-19401-17  yes         TC-260-one-canary-and-header-substring
-REQ-195      yes      AC-19501-1   yes         TC-266-rcf-define-create-ac-parent-us-101-from
-                      AC-19501-2   yes         TC-266-rcf-define-update-ac-101-1-set
-                      AC-19501-3   yes         TC-266-a-verification-value-outside-external
-                      AC-19501-4   yes         TC-266-after-the-pin-move-rcf-define-validate
-                      AC-19501-5   yes         TC-267-the-rcf-schemas-pin-names-the-release
-                      AC-19501-6   yes         TC-267-the-installed-rcf-schemas-at-the-new-pin
-                      AC-19501-7   yes         TC-267-define-validate-over-the-own-chain-at
-                      AC-19502-1   yes         TC-268-the-pnpm-lock-yaml-importer-entry-for
-                      AC-19502-2   yes         TC-268-every-code-node-implementing-a-criterion
-REQ-196      yes      AC-19601-1   yes         TC-269-rcf-audit-separation-over-a-define-build
-                      AC-19601-2   yes         TC-269-a-build-add-test-commit-touching-test-x
-                      AC-19601-3   yes         TC-269-a-commit-with-no-stage-prefix-exits-4
-                      AC-19601-4   yes         TC-269-seven-malformed-prefixes-each-fail-with
-                      AC-19601-5   yes         TC-269-a-bad-base-ref-exits-2-separation-bad
-                      AC-19601-6   yes         TC-269-json-over-the-five-commit-branch-plus-a
-                      AC-19601-7   yes         TC-269-review-test-and-finalise-commits-outside
-                      AC-19601-8   yes         TC-269-rcf-audit-separation-never-writes-reads
-                      AC-19601-9   yes         TC-269-over-200-prefixed-commits-touching-20
-                      AC-19601-10  yes         TC-269-a-build-mixed-commit-with-hand-test
-                      AC-19602-1   yes         TC-270-a-build-hygiene-commit-touching-src-a-js
-                      AC-19602-2   yes         TC-270-a-define-tests-commit-touching-test
-                      AC-19602-3   yes         TC-270-audit-coverage-strict-reports-ac-101-1
-                      AC-19602-4   yes         TC-270-define-validate-over-a-hygiene-bound
-                      AC-19602-5   yes         TC-270-rcf-separation-json-declaring
-                      AC-19603-1   yes         TC-271-a-finalise-release-1-1-0-commit-touching
-                      AC-19603-2   yes         TC-271-finalise-commits-changing-a-package-json
-                      AC-19603-3   yes         TC-271-a-finalise-regenerate-queue-goldens
-                      AC-19603-4   yes         TC-271-a-declared-output-with-no-generated-by
-                      AC-19603-5   yes         TC-271-a-generator-lacking-checkedby-with
-                      AC-19603-6   yes         TC-271-a-clean-finalise-merge-main-and-a
-                      AC-19603-7   yes         TC-271-a-finalise-merge-whose-resolution-edits
-                      AC-19603-8   yes         TC-271-over-the-passing-generator-fixture-the
-                      AC-19604-1   yes         TC-272-define-with-hand-test-author-and-build
-                      AC-19604-2   yes         TC-272-a-build-code-commit-carrying-hand-test
-                      AC-19604-3   yes         TC-272-a-hand-mixed-trailer-fails-s7-hand-mixed
-                      AC-19604-4   yes         TC-272-rcf-audit-separation-require-hand-exits
-                      AC-19604-5   yes         TC-272-configured-classes-win-rcftest-on-spec
-                      AC-19604-6   yes         TC-272-no-trailer-turns-a-failing-commit-into-a
-                      AC-19604-7   yes         TC-272-a-branch-starting-at-build-code-followed
-REQ-197      yes      AC-19701-1   yes         TC-273-rcf-build-verdict-review-code-merge
-                      AC-19701-2   yes         TC-273-adequacy-findings-with-a-spec-and-a
-                      AC-19701-3   yes         TC-273-findings-with-no-finding-exits-2-a
-                      AC-19701-4   yes         TC-273-a-dirty-tree-refuses-with-exit-4-verdict
-                      AC-19701-5   yes         TC-273-rcf-build-verdict-review-writes-only-rcf
-                      AC-19701-6   yes         TC-273-at-inprogress-the-review-verdict-must
-                      AC-19702-1   yes         TC-274-rcf-build-verdict-test-result-pass-over
-                      AC-19702-2   yes         TC-274-result-pass-refuses-a-tap-with-2-failing
-                      AC-19702-3   yes         TC-274-result-pass-refuses-with-no-review-merge
-                      AC-19702-4   yes         TC-274-one-test-verdict-per-head-a-second
-                      AC-19702-5   yes         TC-274-rcf-build-verdict-test-never-runs-the
-                      AC-19702-6   yes         TC-274-after-review-merge-pass-test-pass-at-h
-                      AC-19702-7   yes         TC-274-a-failing-test-strength-record-at-h
-                      AC-19702-8   yes         TC-274-fbs-must-equal-the-review-verdict
-                      AC-19703-1   yes         TC-275-define-build-review-passed-for-its
-                      AC-19703-2   yes         TC-275-a-review-with-code-findings-followed-by
-                      AC-19703-3   yes         TC-275-build-after-a-passed-review-define-after
-                      AC-19703-4   yes         TC-275-build-right-after-a-review-findings-and
-                      AC-19703-5   yes         TC-275-a-review-json-whose-head-is-not-its
-                      AC-19703-6   yes         TC-275-review-test-finalise-merge-and-finalise
-                      AC-19703-7   yes         TC-275-only-the-verdict-file-a-commit-adds
-                      AC-19703-8   yes         TC-275-over-6-rounds-30-or-more-commits-every
-                      AC-19703-9   yes         TC-275-a-second-review-codex-adding-a-review
-                      AC-19703-10  yes         TC-275-a-test-commit-adding-a-pass-test-json
-                      AC-19703-11  yes         TC-275-a-test-strength-adding-a-failing-test
-REQ-198      yes      AC-19801-1   yes         TC-276-with-head-adding-ac-101-2-flagged
-                      AC-19801-2   yes         TC-276-with-head-adding-ac-101-2-with-no
-                      AC-19801-3   yes         TC-276-a-head-changing-only-the-then-text-of
-                      AC-19801-4   yes         TC-276-outside-git-or-in-git-with-no-origin
-                      AC-19801-5   yes         TC-276-a-retired-criterion-is-never-required-to
-                      AC-19801-6   yes         TC-277-the-ci-test-job-checks-out-with-fetch
-                      AC-19802-1   yes         TC-278-rcf-define-validate-report-verification
-                      AC-19802-2   yes         TC-278-with-every-live-criterion-flagged-the
-                      AC-19802-3   yes         TC-278-over-1000-unflagged-live-criteria-across
-                      AC-19802-4   yes         TC-278-rcf-define-validate-report-flags-exits-2
-                      AC-19802-5   yes         TC-278-the-worklist-never-writes-every-file
-                      AC-19803-1   yes         TC-279-over-fbs-001-complete-scoping-ac-101-1
-                      AC-19803-2   yes         TC-279-with-fbs-001-at-verified-the-testonly-ac
-                      AC-19803-3   yes         TC-279-in-format-table-the-unflagged-ac-101-3
-                      AC-19803-4   yes         TC-279-audit-coverage-strict-exits-with-the
-                      AC-19803-5   yes         TC-280-over-the-chain-of-this-repository-at-the, TC-280-t...
-                      AC-19803-6   yes         TC-279-a-hand-edited-verification-sometimes-on
-                      AC-19804-1   yes         TC-281-at-the-slice-head-no-user-story-tag
-                      AC-19804-2   yes         TC-281-for-every-criterion-the-move-commit
-                      AC-19804-3   yes         TC-281-a-0-37-0-criterion-left-without-the
-REQ-199      yes      AC-19901-1   yes         TC-282-over-a-bin-entry-a-harness-glob-and-ac
-                      AC-19901-2   yes         TC-282-a-bound-test-also-importing-src-store-js
-                      AC-19901-3   yes         TC-282-mock-module-src-mailer-js-with-edge-node
-                      AC-19901-4   yes         TC-282-a-code-node-src-notify-js-makenotifier
-                      AC-19901-5   yes         TC-282-no-rcf-test-strength-json-exits-2-with
-                      AC-19901-6   yes         TC-282-the-structural-check-never-executes-a
-                      AC-19901-7   yes         TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101
-                      AC-19901-8   yes         TC-282-a-bound-test-file-test-rcf-a-test-ts-or
-                      AC-19902-1   yes         TC-283-a-bound-test-asserting-only-that-the-cli
-                      AC-19902-2   yes         TC-283-ac-101-2-with-no-code-node-ac-101-3-with
-                      AC-19902-3   yes         TC-283-a-no-op-mutant-that-hangs-its-bound-test
-                      AC-19902-4   yes         TC-283-with-no-acs-the-scope-is-the-touched-ac
-                      AC-19902-5   yes         TC-283-a-scope-of-240-mutants-exits-2-before
-                      AC-19902-6   yes         TC-283-a-round-touching-8-criteria-with-2
-                      AC-19902-7   yes         TC-283-a-class-symbol-expands-to-its-methods
-                      AC-19902-8   yes         TC-283-a-file-level-code-node-docs-x-md-is
-                      AC-19903-1   yes         TC-284-at-a-review-commit-for-h-touching-ac-101
-                      AC-19903-2   yes         TC-284-record-refuses-a-dirty-tree-exit-4-and-a
-                      AC-19903-3   yes         TC-284-a-worker-style-app-entry-worker-src
-                      AC-19903-4   yes         TC-284-a-library-entry-module-src-index-js
-                      AC-19903-5   yes         TC-284-rcf-audit-test-strength-never-deploys
-REQ-200      yes      AC-20001-1   yes         TC-285-over-define-build-review-merge-pass-at-h
-                      AC-20001-2   yes         TC-285-with-no-review-commit-finalise-exits-4
-                      AC-20001-3   yes         TC-285-with-the-test-commit-absent-finalise
-                      AC-20001-4   yes         TC-285-a-build-late-fix-or-a-define-amend-after
-                      AC-20001-5   yes         TC-285-run-again-at-the-same-head-or-after-a
-                      AC-20001-6   yes         TC-285-after-a-clean-finalise-merge-main
-                      AC-20001-7   yes         TC-285-on-every-refusal-finalise-leaves-rcf-fbs
-                      AC-20001-8   yes         TC-285-after-a-clean-finalise-merge-main-at-m
-                      AC-20001-9   yes         TC-285-with-fbs-001-at-notstarted-finalise
-                      AC-20002-1   yes         TC-286-with-no-test-strength-record-at-h
-                      AC-20002-2   yes         TC-286-when-the-reviewverdict-touches-only-ac
-                      AC-20002-3   yes         TC-286-with-no-ci-run-finalise-exits-4-ci
-                      AC-20002-4   yes         TC-286-an-earlier-build-tests-commit-touching
-                      AC-20002-5   yes         TC-286-over-the-happy-run-a-spawn-seam-rcf
-                      AC-20003-1   yes         TC-287-each-retired-flag-report-max-report-age
-                      AC-20003-2   yes         TC-287-a-committed-fail-or-malformed
-                      AC-20003-3   yes         TC-287-rcf-build-mark-fbs-001-complete-at
-                      AC-20003-4   yes         TC-287-an-amend-round-on-fbs-001-at-verified
-                      AC-20003-5   yes         TC-287-across-the-fixtures-of-us-20003-no
-REQ-201      yes      AC-20101-1   yes         TC-288-with-fbs-001-changed-after-v1-0-0-and
-                      AC-20101-2   yes         TC-288-a-failing-e2e-case-of-ac-101-1-exits-4
-                      AC-20101-3   yes         TC-288-testonly-only-unit-bound-inprogress
-                      AC-20101-4   yes         TC-288-record-without-release-or-since-exits-2
-                      AC-20101-5   yes         TC-288-without-record-the-pass-fixture-run
-                      AC-20101-6   yes         TC-288-over-150-specs-and-800-criteria-with-12
-                      AC-20101-7   yes         TC-288-since-naming-a-missing-ref-a-tree-or-a
-                      AC-20102-1   yes         TC-289-a-cold-package-release-verify-runs-the
-                      AC-20102-2   yes         TC-289-offline-in-release-mode-exits-2-error
-                      AC-20102-3   yes         TC-289-a-user-npmrc-at-the-caller-home-setting
-                      AC-20102-4   yes         TC-289-a-cold-release-verify-writes-in-the
-                      AC-20103-1   yes         TC-290-with-rcf-verify-catalog-json-and-a-local
-                      AC-20103-2   yes         TC-290-record-with-mode-deterministic-or-mode
-                      AC-20103-3   yes         TC-290-the-pass-fixture-of-the-release-story
-REQ-202      yes      AC-20201-1   yes         TC-291-a-record-from-rcf-build-base-suite
-                      AC-20201-2   yes         TC-291-with-no-base-suite-rcf-build-bundle-next
-                      AC-20201-3   yes         TC-291-a-green-record-made-at-commit-a-while
-                      AC-20201-4   yes         TC-291-a-record-at-b-with-exitcode-1-and-tap
-                      AC-20201-5   yes         TC-291-no-flag-emits-a-bundle-on-a-red-or
-                      AC-20201-6   yes         TC-291-rcf-build-base-suite-refuses-a-dirty
-                      AC-20201-7   yes         TC-291-with-a-green-record-for-the-base-bundle
-                      AC-20201-8   yes         TC-291-with-rcf-test-strength-json-declaring
-                      AC-20202-1   yes         TC-292-bundle-fbs-001-acs-ac-101-2-ac-101-5-on
-                      AC-20202-2   yes         TC-292-acs-on-an-inprogress-spec-exits-2-an-ac
-                      AC-20202-3   yes         TC-292-an-amend-bundle-on-a-verified-spec-is
-                      AC-20202-4   yes         TC-292-an-amend-bundle-names-no-criterion-of
-                      AC-20202-5   yes         TC-292-an-amend-bundle-naming-8-criteria-of-a
-                      AC-20203-1   yes         TC-293-with-rcf-define-backstop-json
-                      AC-20203-2   yes         TC-293-rcf-build-backstop-adopt-from-fbs-001
-                      AC-20203-3   yes         TC-293-bundle-next-allow-unverified-hotfix-base
-                      AC-20203-4   yes         TC-293-across-the-runs-of-this-story-an
-REQ-203      yes      AC-20301-1   yes         TC-294-at-the-current-head-node-bin-rcf-js
-                      AC-20301-2   yes         TC-294-in-a-scratch-copy-at-the-current-head
-                      AC-20301-3   yes         TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4
-                      AC-20301-4   yes         TC-294-over-the-named-readiness-fixture-trees
-                      AC-20302-1   yes         TC-295-at-the-current-head-each-of-define
-                      AC-20302-2   yes         TC-295-every-defined4-failure-and-defined4
-                      AC-20302-3   yes         TC-295-no-criterion-live-on-main-at-639f07bb
-                      AC-20302-4   yes         TC-295-define-readiness-check-all-over-the-own
-                      AC-20303-1   yes         TC-296-define-readiness-level-intent-check
-                      AC-20303-2   yes         TC-296-in-a-scratch-copy-at-the-current-head
-                      AC-20303-3   yes         TC-296-the-define-commit-that-recorded-the
-                      AC-20303-4   yes         TC-299-over-the-four-fixture-profiles-of-test
-REQ-204      yes      AC-20401-1   yes         TC-297-rcf-guidance-build-cycle-carries-the
-                      AC-20401-2   yes         TC-297-the-rounds-section-of-rcf-guidance-build
-                      AC-20401-3   yes         TC-297-the-managed-block-names-the-five-stages
-                      AC-20401-4   yes         TC-297-the-closing-runbook-of-rcf-build-bundle
-                      AC-20401-5   yes         TC-297-no-guidance-topic-no-part-of-the-managed
-                      AC-20401-6   yes         TC-297-the-finalise-line-of-rcf-guidance
-                      AC-20401-7   yes         TC-297-in-a-project-initialised-by-the-bin
-                      AC-20402-2   yes         TC-298-docs-verify-reference-md-has-the
-                      AC-20402-3   yes         TC-298-no-file-under-packages-rcf-lite-docs
-                      AC-20402-4   yes         TC-298-the-root-readme-md-and-packages-rcf-lite
+Requirement  Covered  AC           AC covered            Test cases
+-----------  -------  -----------  --------------------  ------------------------------------------------------------
+REQ-001      yes      AC-101-1     yes                   TC-001-init-clean-tree-roots
+                      AC-101-2     yes                   TC-001-init-refuses-overwrite
+                      AC-101-3     yes                   TC-001-children-discoverable-from-roots
+                      AC-102-1     yes                   TC-002-walk-loads-every-document
+                      AC-102-2     yes                   TC-002-parse-failure-structured-no-crash
+                      AC-102-3     yes                   TC-002-broken-reference-reported
+REQ-002      yes      AC-201-1     yes                   TC-003-one-subdiagram-per-req, TC-003-per-req-subdiagram-...
+                      AC-201-2     yes                   TC-003-broken-node-marked-visibly
+                      AC-201-3     yes                   TC-003-diagram-emitted-as-source
+                      AC-202-1     yes                   TC-004-served-live-no-files-written, TC-004-valid-html5-page
+                      AC-202-2     yes                   TC-004-curated-fields-not-raw-json
+                      AC-202-3     yes                   TC-004-doc-links-navigate-to-sections
+                      AC-202-4     yes                   TC-004-name-min-width-zero, TC-004-product-yields-first, ...
+                      AC-202-5     yes                   TC-004-name-title-absent-on-collapse, TC-004-name-title-a...
+                      AC-202-6     yes                   TC-004-manifest-fallback, TC-004-prd-productname-wins, TC...
+                      AC-203-1     yes                   TC-005-edit-present-after-regenerate
+                      AC-203-2     yes                   TC-005-no-cached-prior-state
+                      AC-204-1     yes                   TC-224-depth-columns
+                      AC-204-2     yes                   TC-224-closures-upstream-downstream
+                      AC-204-3     yes                   TC-224-inspector-payload
+                      AC-204-4     yes                   TC-224-hash-round-trip
+                      AC-204-5     yes                   TC-224-filters-keep-selection
+                      AC-204-6     yes                   TC-224-cycle-handling
+                      AC-204-7     yes                   TC-224-no-outbound-postmessage
+                      AC-205-1     yes                   TC-225-id-exact-prefix-first
+                      AC-205-2     yes                   TC-225-word-title-above-snippet
+                      AC-205-3     yes                   TC-225-single-char-ids-only
+                      AC-205-4     yes                   TC-225-pick-writes-hash
+                      AC-205-5     yes                   TC-225-mount-url-round-trip
+                      AC-205-6     yes                   TC-225-embed-theme-preserved
+                      AC-205-7     yes                   TC-225-empty-state-on-fetch-failure
+                      AC-205-8     yes                   TC-225-no-outbound-side-effects
+                      AC-205-9     yes                   TC-225-search-button-contrast
+                      AC-206-1     yes                   TC-229-fixture-shell, TC-229-test-host-http-roundtrip
+                      AC-206-2     yes                   TC-229-reinit-keeps-host-theme, TC-229-theme-postmessage-...
+                      AC-206-3     yes                   TC-229-hash-nav-embed-preserved
+                      AC-206-4     yes                   TC-229-cross-origin-ignored
+                      AC-206-5     yes                   TC-229-lint-framing, TC-229-lint-localstorage-namespace, ...
+                      AC-206-6     yes                   TC-229-no-new-outbound-postmessage-shape
+                      AC-206-7     yes                   TC-229-theme-control-renders-non-embed
+                      AC-206-8     yes                   TC-229-theme-control-persists
+                      AC-206-9     yes                   TC-229-theme-control-absent-embed
+                      AC-206-10    yes                   TC-229-reinit-keeps-control-choice, TC-229-theme-control-...
+                      AC-207-1     yes                   TC-236-aa-enumerates-all-pairs, TC-236-state-merge-and-bo...
+                      AC-207-2     yes                   TC-236-aa-failure-message
+                      AC-208-1     yes                   TC-240-208-1-happy
+                      AC-208-2     yes                   TC-240-208-2-happy
+                      AC-208-3     yes                   TC-240-208-3-happy
+                      AC-208-4     yes                   TC-240-208-4-failure
+                      AC-208-5     yes                   TC-240-208-5-mustnot
+                      AC-208-6     yes                   TC-240-208-6-edge
+                      AC-208-7     yes                   TC-240-208-7-failure
+                      AC-209-1     yes                   TC-241-209-1-happy
+                      AC-209-2     yes                   TC-241-209-2-happy
+                      AC-209-3     yes                   TC-241-209-3-happy
+                      AC-209-4     yes                   TC-241-209-4-edge
+                      AC-209-5     yes                   TC-241-209-5-mustnot
+                      AC-209-6     yes                   TC-241-209-6-failure
+                      AC-209-7     yes                   TC-241-209-7-edge
+REQ-003      yes      AC-301-1     yes                   TC-006-read-reports-valid
+                      AC-301-2     yes                   TC-006-read-unknown-id-not-found
+                      AC-301-3     yes                   TC-006-read-invalid-content-plus-errors
+                      AC-302-1     yes                   TC-007-create-leaves-prd-untouched, TC-007-create-writes-...
+                      AC-302-2     yes                   TC-007-create-id-collision-refused
+                      AC-302-3     yes                   TC-007-create-invalid-writes-nothing
+                      AC-303-1     yes                   TC-008-valid-update-persists-updatedat
+                      AC-303-2     yes                   TC-008-invalid-update-refused
+                      AC-303-3     yes                   TC-008-update-unknown-id-not-found
+                      AC-304-1     yes                   TC-009-delete-refused-with-dependents
+                      AC-304-2     yes                   TC-009-cascade-removes-subtree
+                      AC-304-3     yes                   TC-009-leaf-delete-removes-file
+REQ-004      yes      AC-401-1     yes                   TC-010-req-without-us-uncovered
+                      AC-401-2     yes                   TC-010-ac-without-tc-uncovered
+                      AC-401-3     yes                   TC-010-full-coverage-no-gaps
+                      AC-402-1     yes                   TC-011-trace-forward-req-subtree
+                      AC-402-2     yes                   TC-011-trace-back-ac-ancestry
+                      AC-402-3     yes                   TC-011-backward-intent-chain-only, TC-011-forward-fbs-cro...
+                      AC-403-1     yes                   TC-012-req-impact-includes-fbs-slots
+                      AC-403-2     yes                   TC-012-adr-impact-reaches-fbs
+                      AC-403-3     yes                   TC-012-no-dependents-empty-impact
+REQ-005      yes      AC-501-1     yes                   TC-013-bundle-ac-gwt-ancestry
+                      AC-501-2     yes                   TC-013-bundle-inlines-tacs-adrs
+                      AC-501-3     yes                   TC-013-bundle-single-markdown-document
+                      AC-502-1     yes                   TC-014-dependency-precedes-dependent
+                      AC-502-2     yes                   TC-014-independent-items-share-tier
+                      AC-502-3     yes                   TC-014-cycle-detected-reported
+                      AC-503-1     yes                   TC-015-mark-advances-status
+                      AC-503-2     yes                   TC-015-mark-unknown-id-not-found
+                      AC-503-3     yes                   TC-015-mark-touches-status-only
+REQ-006      yes      AC-601-1     yes                   TC-016-tools-list-structured-schemas
+                      AC-601-2     yes                   TC-016-mcp-coverage-cli-parity
+                      AC-601-3     yes                   TC-016-stdio-only-no-listener
+                      AC-602-1     yes                   TC-017-mcp-create-cli-validation
+                      AC-602-2     yes                   TC-017-mcp-build-returns-bundle
+                      AC-602-3     yes                   TC-017-mcp-invalid-write-refused
+REQ-007      yes      AC-701-1     yes                   TC-018-invalid-write-writes-nothing
+                      AC-701-2     yes                   TC-018-written-doc-validates
+                      AC-701-3     yes                   TC-018-registered-bundle-no-drift
+                      AC-702-1     yes                   TC-019-failure-names-field-and-rule
+                      AC-702-2     yes                   TC-019-multi-failures-returned-together
+                      AC-702-3     yes                   TC-019-mcp-errors-structured
+REQ-008      yes      AC-801-1     yes                   TC-020-preview-in-definition-of-done
+                      AC-801-2     yes                   TC-020-single-start-command
+                      AC-801-3     yes                   TC-020-preview-hosting-independent
+                      AC-801-4     yes                   TC-020-seeded-data-required
+                      AC-802-1     yes                   TC-021-deploy-target-question-early
+                      AC-802-2     yes                   TC-021-stack-constrained-by-target
+                      AC-802-3     yes                   TC-021-target-captured-as-adr
+                      AC-802-4     yes                   TC-021-fragment-forbids-early-stack
+                      AC-803-1     yes                   TC-022-walkthrough-not-silent-choice
+                      AC-803-2     yes                   TC-022-plain-language-options
+                      AC-803-3     yes                   TC-022-human-steps-named-honestly
+                      AC-803-4     yes                   TC-022-covers-account-configuration
+                      AC-804-1     yes                   TC-023-claims-name-runtime
+                      AC-804-2     yes                   TC-023-no-implied-deploy-verification
+                      AC-804-3     yes                   TC-023-pr-section-runtime-label
+                      AC-804-4     yes                   TC-023-labelled-claim-example
+                      AC-805-1     yes                   TC-024-periodic-fresh-context-review
+                      AC-805-2     yes                   TC-024-reviewer-drives-the-app
+                      AC-805-3     yes                   TC-024-names-defect-classes
+                      AC-805-4     yes                   TC-024-in-loop-not-the-gate
+REQ-009      yes      AC-901-1     yes                   TC-025-verify-group-routes-per-subverb, TC-025-verify-hel...
+                      AC-901-2     yes                   TC-025-top-level-help-lists-verify-group
+                      AC-901-3     yes                   TC-025-alias-bin-deleted-file, TC-025-alias-bin-deleted-p...
+REQ-010      yes      AC-1001-1    yes                   TC-026-add-writes-manifest
+                      AC-1001-2    yes                   TC-026-list-in-apply-order
+                      AC-1001-3    yes                   TC-026-remove-refuses-on-referring
+                      AC-1001-4    yes                   TC-026-add-idempotent-reapply
+                      AC-1001-5    yes                   TC-026-help-advertises-blueprint
+                      AC-1002-1    yes                   TC-027-prefix-namespacing, TC-027-suffix-namespacing
+                      AC-1002-2    yes                   TC-027-global-adr-conflict-surfaced
+                      AC-1002-3    yes                   TC-027-conflict-report-shape
+                      AC-1002-4    yes                   TC-027-nonglobal-namespaced-no-conflict
+                      AC-1002-5    yes                   TC-027-shipped-blueprints-option-3-executable
+                      AC-1002-6    yes                   TC-027-add-reason-persists, TC-027-add-reason-whitespace-...
+                      AC-1002-7    yes                   TC-027-add-resolve-dedupes-with-warn, TC-027-add-resolve-...
+                      AC-1002-8    yes                   TC-027-conflict-enrichment-symmetric
+                      AC-1002-9    yes                   TC-027-topic-free-label-camelcase-verbatim
+                      AC-1002-10   yes                   TC-027-supersede-no-double-prefix
+                      AC-1003-1    yes                   TC-028-add-writes-manifest-entry
+                      AC-1003-2    yes                   TC-028-inrepo-referenced-in-place
+                      AC-1003-3    yes                   TC-028-outofroot-copied-in
+                      AC-1003-4    yes                   TC-028-manifest-validates
+                      AC-1004-1    yes                   TC-029-agentic-selection
+                      AC-1004-2    yes                   TC-029-operator-override
+                      AC-1004-3    yes                   TC-029-empty-never-blocks
+                      AC-1004-4    yes                   TC-029-deterministic
+REQ-011      yes      AC-1101-1    yes                   TC-030-default-config-uses-pin, TC-030-pin-constant-exported
+                      AC-1101-2    yes                   TC-030-preflight-line
+                      AC-1101-3    yes                   TC-030-override-non-semver-refused, TC-030-override-notice
+                      AC-1101-4    yes                   TC-030-default-pin-on-report
+                      AC-1102-1    yes                   TC-031-spa-version-and-flag
+                      AC-1102-2    yes                   TC-031-spa-us-and-template
+                      AC-1102-3    yes                   TC-031-ci-us-6124
+                      AC-1102-4    yes                   TC-031-illustrative-workflow-and-notes
+                      AC-1102-5    yes                   TC-031-manifest-validates
+                      AC-1103-1    yes                   TC-032-peer-deps-optional
+                      AC-1103-2    yes                   TC-032-fix-lines
+                      AC-1103-3    yes                   TC-032-skip-line
+                      AC-1103-4    yes                   TC-032-check-override
+                      AC-1104-1    yes                   TC-033-project-scope-signature-left-alone
+                      AC-1104-2    yes                   TC-033-probe-found-leaves-alone, TC-033-probe-inconclusiv...
+                      AC-1104-3    yes                   TC-033-distinct-entry-shape
+                      AC-1104-4    yes                   TC-033-no-playwright-mcp-suppresses-write
+                      AC-1104-5    yes                   TC-033-redundant-fires-browser-facing, TC-033-redundant-q...
+REQ-012      yes      AC-1201-1    yes                   TC-034-permutations-no-globaladr-conflict
+                      AC-1201-2    yes                   TC-034-one-owner-per-topic
+                      AC-1202-1    yes                   TC-035-no-literal-path-in-applied-tree
+                      AC-1203-1    yes                   TC-036-probe-endpoints-optional-startup
+                      AC-1203-2    yes                   TC-036-essentials-no-dual-handler, TC-036-essentials-no-s...
+                      AC-1203-3    yes                   TC-036-api-rest-auth-exempt-list, TC-036-api-rest-startup...
+                      AC-1204-1    yes                   TC-037-help-lists-verb, TC-037-idempotent-second-run, TC-...
+REQ-013      yes      AC-1301-1    yes                   TC-038-blueprint-json-fields
+                      AC-1301-2    yes                   TC-038-clean-apply
+                      AC-1301-3    yes                   TC-038-anatomy-and-topics
+                      AC-1302-1    yes                   TC-039-blueprint-json-fields
+                      AC-1302-2    yes                   TC-039-clean-apply
+                      AC-1302-3    yes                   TC-039-topics-distinct
+REQ-014      yes      AC-1401-1    yes                   TC-040-loader-accepts-both
+                      AC-1401-2    yes                   TC-040-refuse-bad-camelcase, TC-040-refuse-em-dash-and-em...
+                      AC-1401-3    yes                   TC-040-paired-adr-required
+                      AC-1402-1    yes                   TC-041-no-suggestions-flag, TC-041-suggestion-block
+                      AC-1402-2    yes                   TC-041-companion-flag-non-provider, TC-041-companion-flag...
+                      AC-1402-3    yes                   TC-041-pin-file-shape-and-overwrite
+                      AC-1403-1    yes                   TC-042-companions-slug-not-applied, TC-042-companions-slu...
+                      AC-1403-2    yes                   TC-042-companions-set-refuses-non-provider, TC-042-compan...
+                      AC-1403-3    yes                   TC-042-companions-json-envelope
+                      AC-1404-1    yes                   TC-043-resolver-tier-ladder
+                      AC-1404-2    yes                   TC-043-two-libraries-on-companions-verb, TC-043-two-libra...
+                      AC-1404-3    yes                   TC-043-validate-refuses-unresolvable-pin
+REQ-015      yes      AC-1501-1    yes                   TC-044-loader-accepts-standards-fields
+                      AC-1501-2    yes                   TC-044-loader-refuses-missing-clause
+                      AC-1501-3    yes                   TC-044-no-cross-check-and-sentinel
+REQ-016      yes      AC-1601-1    yes                   TC-045-computeevalcoverage-across-the-four
+                      AC-1601-2    yes                   TC-045-per-ac-verdicts-carries-the-two-new-eval
+                      AC-1601-3    yes                   TC-045-findevalrefusalacs-and
+                      AC-1601-4    yes                   TC-045-runonecase-spawns-the-invoker-claude-or
+REQ-017      yes      AC-1701-1    yes                   TC-046-pack-loader-loads-both-pack-js-and-pack
+                      AC-1701-2    yes                   TC-046-applicability-predicate-source-scan
+                      AC-1701-3    yes                   TC-046-loader-refuses-at-exit-2-a-pack-whose
+                      AC-1701-4    yes                   TC-046-runner-pack-pass-invokes-each-check-s
+                      AC-1701-5    yes                   TC-046-cli-probe-pack-option-restricts-to-one
+                      AC-1701-6    yes                   TC-046-prechecks-runs-before-browser-checks-a
+                      AC-1701-7    yes                   TC-046-pack-browser-evaluate-parser
+                      AC-1701-8    yes                   TC-046-boot-skips-when-runtime-reachable
+REQ-018      yes      AC-1801-1    yes                   TC-047-blueprint-json-declares-slug-application
+                      AC-1801-2    yes                   TC-047-fresh-init-project-applies-the-blueprint
+                      AC-1801-3    yes                   TC-047-every-pack-check-id-resolves-to-an-ac-id
+                      AC-1801-4    yes                   TC-047-sample-app-fixture-startserver-serves
+                      AC-1801-5    yes                   TC-047-pack-loader-against-blueprint-discovers
+REQ-019      yes      AC-1901-1    yes                   TC-048-blueprint-json-shape
+                      AC-1901-2    yes                   TC-048-applies-clean
+                      AC-1901-3    yes                   TC-048-pack-checks-cross-check
+                      AC-1901-4    yes                   TC-048-fixture-charts-render
+                      AC-1901-5    yes                   TC-048-negative-runs
+REQ-020      yes      AC-2001-1    yes                   TC-049-blueprint-json-shape
+                      AC-2001-2    yes                   TC-049-applies-clean
+                      AC-2001-3    yes                   TC-049-guidance-asset
+                      AC-2001-4    yes                   TC-049-pack-checks-cross-check
+                      AC-2001-5    yes                   TC-049-fixture-dashboard-render
+                      AC-2001-6    yes                   TC-049-negative-runs
+                      AC-2001-7    yes                   TC-049-resize-seam
+REQ-021      yes      AC-2101-1    yes                   TC-050-blueprint-json-shape
+                      AC-2101-2    yes                   TC-050-applies-clean
+                      AC-2101-3    yes                   TC-050-pack-checks-cross-check
+                      AC-2101-4    yes                   TC-050-fixture-acknowledge, TC-050-fixture-preseeding
+                      AC-2101-5    yes                   TC-050-negative-runs
+                      AC-2101-6    yes                   TC-050-family-prefix-reservation
+REQ-022      yes      AC-2201-1    yes                   TC-051-loader-capabilities-shape
+                      AC-2201-2    yes                   TC-051-loader-elicits-shape
+                      AC-2201-3    yes                   TC-051-loader-requires-shape
+                      AC-2201-4    yes                   TC-051-apply-discovery-refuse
+                      AC-2201-5    yes                   TC-051-apply-allow-skip
+                      AC-2201-6    yes                   TC-051-elicit-answers
+                      AC-2201-7    yes                   TC-051-sidecar-write
+                      AC-2201-8    yes                   TC-051-auth-minors
+                      AC-2201-9    yes                   TC-051-docs-section-6a
+REQ-023      yes      AC-2301-1    yes                   TC-052-blueprint-json-shape
+                      AC-2301-2    yes                   TC-052-applies-clean-with-override
+                      AC-2301-3    yes                   TC-052-refuses-bare-spa
+                      AC-2301-4    yes                   TC-052-capability-discovery
+                      AC-2301-5    yes                   TC-052-pack-checks-cross-check
+                      AC-2301-6    yes                   TC-052-fixture-surfaces
+                      AC-2301-7    yes                   TC-052-negative-runs
+REQ-024      yes      AC-2401-1    yes                   TC-053-blueprint-json-shape
+                      AC-2401-2    yes                   TC-053-applies-clean
+                      AC-2401-3    yes                   TC-053-pack-checks-cross-check
+                      AC-2401-4    yes                   TC-053-fixture-serves-states
+                      AC-2401-5    yes                   TC-053-negative-runs
+                      AC-2401-6    yes                   TC-053-state-enumeration-parity
+                      AC-2401-7    yes                   TC-053-readme-gaps-and-changelog
+REQ-025      yes      AC-2501-1    yes                   TC-054-blueprint-json-shape
+                      AC-2501-2    yes                   TC-054-applies-clean
+                      AC-2501-3    yes                   TC-054-pack-checks-cross-check
+                      AC-2501-4    yes                   TC-054-fixture-serves-transports
+                      AC-2501-5    yes                   TC-054-negative-runs
+                      AC-2501-6    yes                   TC-054-state-and-transport-parity
+                      AC-2501-7    yes                   TC-054-readme-gaps-and-changelog
+REQ-026      yes      AC-2601-1    yes                   TC-055-blueprint-json-shape
+                      AC-2601-2    yes                   TC-055-applies-clean
+                      AC-2601-3    yes                   TC-055-pack-checks-cross-check, TC-055-pack-loader-discovers
+                      AC-2601-4    yes                   TC-055-fixture-serves-surfaces
+                      AC-2601-5    yes                   TC-055-negative-runs
+                      AC-2601-6    yes                   TC-055-vocabulary-and-transport-parity
+                      AC-2601-7    yes                   TC-055-readme-gaps-and-changelog
+REQ-027      yes      AC-2701-1    yes                   TC-056-blueprint-json-shape
+                      AC-2701-2    yes                   TC-056-applies-clean
+                      AC-2701-3    yes                   TC-056-apply-refusal-and-override
+                      AC-2701-4    yes                   TC-056-pack-checks-cross-check
+                      AC-2701-5    yes                   TC-056-fixture-and-switches
+                      AC-2701-6    yes                   TC-056-negative-runs
+                      AC-2701-7    yes                   TC-056-shelf-doc-consistency
+                      AC-2701-8    yes                   TC-056-q3-refusal
+REQ-028      yes      AC-2801-1    yes                   TC-057-blueprint-json-shape
+                      AC-2801-2    yes                   TC-057-adr-shape
+                      AC-2801-3    yes                   TC-057-applies-clean
+                      AC-2801-4    yes                   TC-057-pack-checks-cross-check
+                      AC-2801-5    yes                   TC-057-fixture-and-switches
+                      AC-2801-6    yes                   TC-057-negative-runs
+                      AC-2801-7    yes                   TC-057-shelf-doc-consistency
+                      AC-2801-8    yes                   TC-057-changelog-guide-and-mechanism-reach
+REQ-029      yes      AC-2901-1    yes                   TC-073-blueprint-json-shape
+                      AC-2901-2    yes                   TC-073-probe-module-and-scan-pass
+                      AC-2901-3    yes                   TC-073-chain-slice-cross-check
+                      AC-2902-1    yes                   TC-074-elicits-shape
+                      AC-2902-2    yes                   TC-074-cf-platform-fixture-files
+REQ-030      yes      AC-3001-1    yes                   TC-075-adr-1306-body-and-clause
+                      AC-3001-2    yes                   TC-075-guide-section-and-urls
+                      AC-3001-3    yes                   TC-075-probed-spa-fallback-shape
+REQ-040      yes      AC-4001-1    yes                   TC-070-blueprint-json-shape
+                      AC-4001-2    yes                   TC-070-applies-clean-no-persistence
+                      AC-4001-3    yes                   TC-070-conflict-with-d1
+                      AC-4001-4    yes                   TC-070-probe-anchor-ids-cross-check
+                      AC-4001-5    yes                   TC-070-fixture-and-switches
+                      AC-4001-6    yes                   TC-070-shelf-doc-consistency
+REQ-041      yes      AC-4101-1    yes                   TC-071-blueprint-json-shape
+                      AC-4101-2    yes                   TC-071-applies-clean-with-secrets
+                      AC-4101-3    yes                   TC-071-apply-refusal-and-override
+                      AC-4101-4    yes                   TC-071-probe-anchor-ids-cross-check
+                      AC-4101-5    yes                   TC-071-fixture-and-switches
+                      AC-4101-6    yes                   TC-071-shelf-doc-consistency
+REQ-042      yes      AC-4201-1    yes                   TC-072-blueprint-json-shape
+                      AC-4201-2    yes                   TC-072-applies-clean
+                      AC-4201-3    yes                   TC-072-dlq-req-grep
+                      AC-4201-4    yes                   TC-072-probe-anchor-ids-cross-check
+                      AC-4201-5    yes                   TC-072-fixture-and-switches
+                      AC-4201-6    yes                   TC-072-shelf-doc-consistency
+REQ-043      yes      AC-4301-1    yes                   TC-076-blueprint-json-shape
+                      AC-4301-2    yes                   TC-076-bare-refusal
+                      AC-4301-3    yes                   TC-076-override-sidecar
+                      AC-4301-4    yes                   TC-076-happy-path-caps
+                      AC-4301-5    yes                   TC-076-probe-anchor-ids-cross-check
+                      AC-4301-6    yes                   TC-076-fixture-and-switches
+                      AC-4301-7    yes                   TC-076-shelf-doc-consistency
+REQ-050      yes      AC-5001-1    yes                   TC-080-ac-5001-1-facade-ready
+                      AC-5002-1    yes                   TC-081-ac-5002-1-sole-reader
+REQ-051      yes      AC-5101-1    yes                   TC-082-ac-5101-1-round-trip
+                      AC-5101-2    yes                   TC-082-ac-5101-2-delete-then-null
+                      AC-5102-1    yes                   TC-083-ac-5102-1-list-prefix
+REQ-052      yes      AC-5201-1    yes                   TC-084-ac-5201-1-hit-within-ttl
+                      AC-5201-2    yes                   TC-084-ac-5201-2-miss-past-ttl
+REQ-053      yes      AC-5301-1    yes                   TC-085-ac-5301-1-metadata-only
+                      AC-5302-1    yes                   TC-086-ac-5302-1-event-secrecy
+REQ-054      yes      AC-5401-1    yes                   TC-087-ac-5401-1-real-account-smoke
+REQ-060      yes      AC-6001-1    yes                   TC-090-scheduled-ready
+                      AC-6002-1    yes                   TC-091-wrangler-test-scheduled
+                      AC-6003-1    yes                   TC-092-real-account-smoke-skip
+REQ-061      yes      AC-6101-1    yes                   TC-093-dispatch-matched
+                      AC-6101-2    yes                   TC-093-dispatch-unmatched
+REQ-062      yes      AC-6201-1    yes                   TC-094-skew-on-time
+                      AC-6201-2    yes                   TC-094-skew-outside
+REQ-063      yes      AC-6301-1    yes                   TC-095-soft-budget-fires
+                      AC-6301-2    yes                   TC-095-soft-budget-continues
+                      AC-6302-1    yes                   TC-096-event-secrecy
+REQ-070      yes      AC-7001-1    yes                   TC-100-do-facade-ready
+                      AC-7002-1    yes                   TC-109-real-account-skip
+REQ-071      yes      AC-7101-1    yes                   TC-101-single-cell-concurrent
+REQ-072      yes      AC-7201-1    yes                   TC-102-storage-round-trip
+REQ-073      yes      AC-7301-1    yes                   TC-103-alarm-fires-once
+REQ-074      yes      AC-7401-1    yes                   TC-104-hub-broadcast
+                      AC-7402-1    yes                   TC-105-hibernate-wake
+REQ-075      yes      AC-7501-1    yes                   TC-106-event-secrecy
+REQ-076      yes      AC-7601-1    yes                   TC-107-sole-reader-scan
+REQ-077      yes      AC-7701-1    yes                   TC-108-wrangler-do-bindings
+REQ-080      yes      AC-8001-1    yes                   TC-110-jwt-validator-pass
+                      AC-8002-1    yes                   TC-111-jwt-validator-reject
+                      AC-8003-1    yes                   TC-112-sole-reader-boundary
+REQ-081      yes      AC-8101-1    yes                   TC-113-elicits-application-declaration
+REQ-082      yes      AC-8201-1    yes                   TC-114-guide-policy-issuance
+REQ-083      yes      AC-8301-1    yes                   TC-115-audit-metadata-secrecy
+REQ-084      yes      AC-8401-1    yes                   TC-116-break-glass-bypass
+REQ-085      yes      AC-8501-1    yes                   TC-117-admin-console-gate-surface
+                      AC-8502-1    yes                   TC-119-real-account-gated-url-skipped
+REQ-086      yes      AC-8601-1    yes                   TC-118-admin-console-gated-pack-check
+                      AC-8602-1    yes                   TC-119-admin-console-fallback
+REQ-090      yes      AC-9001-1    yes                   TC-120-widget-mount-pass
+                      AC-9002-1    yes                   TC-121-secret-shape-scan
+REQ-091      yes      AC-9101-1    yes                   TC-122-siteverify-pass
+                      AC-9102-1    yes                   TC-123-siteverify-fail-secrecy
+REQ-092      yes      AC-9201-1    yes                   TC-124-guard-shape-refuse
+REQ-093      yes      AC-9301-1    yes                   TC-125-composition-wire
+                      AC-9302-1    yes                   TC-126-magic-link-guard-refuse
+REQ-094      yes      AC-9401-1    yes                   TC-127-widget-mode-enum
+REQ-100      yes      AC-10001-1   yes                   TC-130-manifest-presence-pass
+                      AC-10601-1   yes                   TC-135-manifest-schema-validate-pass-and-fail
+                      AC-10801-1   yes                   TC-137-manifest-presence-missing-fail
+REQ-101      yes      AC-10101-1   yes                   TC-131-guide-management-surface-doc
+REQ-102      yes      AC-10201-1   yes                   TC-132-real-account-burst-and-429-or-skipped
+REQ-103      yes      AC-10301-1   yes                   TC-133-drift-audit-runner-diff
+                      AC-10701-1   yes                   TC-136-event-secrecy-pass-and-leak
+REQ-104      yes      AC-10401-1   yes                   TC-134-composition-guide-section
+REQ-110      yes      AC-11001-1   yes                   TC-140-provisioner-boot-and-sole-reader
+REQ-111      yes      AC-11101-1   yes                   TC-140-manifest-schema-shape-valid
+                      AC-11102-1   yes                   TC-140-manifest-applies-mocked-provision
+REQ-112      yes      AC-11201-1   yes                   TC-140-cloud-init-render-baseline-present
+                      AC-11202-1   yes                   TC-140-cloud-init-hardened-account-bound-probe
+REQ-113      yes      AC-11301-1   yes                   TC-140-firewall-shape-valid-and-refuses-open-ssh
+REQ-114      yes      AC-11401-1   yes                   TC-140-snapshot-cadence-enum
+                      AC-11402-1   yes                   TC-140-snapshot-on-demand-account-bound-probe
+REQ-115      yes      AC-11501-1   yes                   TC-140-lifecycle-events-metadata-only
+REQ-120      yes      AC-12001-1   yes                   TC-150-compose-layout-shape-valid
+REQ-121      yes      AC-12101-1   yes                   TC-150-secrets-file-mount-shape
+                      AC-12102-1   yes                   TC-150-secrets-scan-fails-on-plaintext
+REQ-122      yes      AC-12201-1   yes                   TC-150-compose-config-lint-refuses-missing-healthcheck
+                      AC-12202-1   yes                   TC-150-real-account-minimal-stack-up-declared-and-skipped...
+REQ-123      yes      AC-12301-1   yes                   TC-150-restart-discipline-lint-refuses-unclassified
+REQ-124      yes      AC-12401-1   yes                   TC-150-caddyfile-validate-refuses-invalid-directive
+                      AC-12402-1   yes                   TC-150-real-account-reload-burst-declared-and-skipped-shape
+REQ-125      yes      AC-12501-1   yes                   TC-150-log-driver-classification
+REQ-130      yes      AC-13001-1   yes                   TC-160-connector-shape-variants-shipped
+                      AC-13002-1   yes                   TC-160-real-account-connector-healthy-declared-and-skippe...
+REQ-131      yes      AC-13101-1   yes                   TC-160-manifest-schema-validate-refuses-invalid
+                      AC-13102-1   yes                   TC-160-cloudflared-config-lint-passes-and-refuses-invalid...
+REQ-132      yes      AC-13201-1   yes                   TC-160-no-public-origin-port-refused
+REQ-133      yes      AC-13301-1   yes                   TC-160-aud-presence-flip-on-both-fixture-variants
+                      AC-13302-1   yes                   TC-160-aud-presence-check-refuses-on-drift
+REQ-134      yes      AC-13401-1   yes                   TC-160-credentials-discipline-and-event-secrecy
+REQ-140      yes      AC-14001-1   yes                   TC-170-hetzner-endpoint-round-trip-and-skipped-shape
+REQ-145      yes      AC-14501-1   yes                   TC-175-mock-consumes-rendered-file-and-probe-purity
+REQ-150      yes      AC-15001-1   yes                   TC-180-no-ac-5xxx-after-re-anchor
+                      AC-15001-2   yes                   TC-180-shipped-kv-ac-coverage-union
+REQ-151      yes      AC-15101-1   yes                   TC-181-do-real-storage-round-trip-driver
+                      AC-15101-2   yes                   TC-181-do-thirteen-ac-coverage-union
+REQ-152      yes      AC-15201-1   yes                   TC-182-queue-real-concurrency-500-msg
+REQ-153      yes      AC-15301-1   yes                   TC-183-tunnel-connector-healthy-real-driver
+                      AC-15301-2   yes                   TC-183-tunnel-hostname-routes-real-driver
+                      AC-15301-3   yes                   TC-183-manifest-schema-fail-with-pointer
+REQ-154      yes      AC-15401-1   yes                   TC-184-simulate-purity-four-blueprints
+                      AC-15401-2   yes                   TC-184-envelope-hygiene-four-blueprints
+                      AC-15401-3   yes                   TC-184-marker-hygiene-four-blueprints
+REQ-155      yes      AC-15501-1   yes                   TC-185-add-writes-one-jsonl-line-and-stamps-env
+                      AC-15501-2   yes                   TC-185-add-refuses-without-gitignore
+                      AC-15501-3   yes                   TC-185-add-blueprint-unresolved-exits-3
+                      AC-15501-4   yes                   TC-185-add-rejects-bad-class
+                      AC-15501-5   yes                   TC-185-add-blueprint-stamps
+                      AC-15502-1   yes                   TC-186-list-default-hides-non-pending, TC-186-list-json-a...
+                      AC-15502-2   yes                   TC-186-status-json-shape, TC-186-status-optout-env-ask, T...
+                      AC-15503-1   yes                   TC-187-defer-appends-state-lines
+                      AC-15503-2   yes                   TC-187-discard-all-marks-every-pending, TC-187-discard-by...
+REQ-156      yes      AC-15601-1   yes                   TC-188-preview-renders-full-vocabulary-ledger, TC-188-r4-...
+                      AC-15601-2   yes                   TC-188-preview-residual-secret-refusal
+                      AC-15601-3   yes                   TC-188-preview-store-byte-invariant
+                      AC-15601-4   yes                   TC-188-dryrun-writes-nothing, TC-188-r4-residual-safeguar...
+                      AC-15601-5   yes                   TC-188-redact-operator-identity-stopword-guard
+                      AC-15601-6   yes                   TC-188-redact-filename-extensions-allowlist
+REQ-157      yes      AC-15701-1   yes                   TC-188-fingerprint-canonical-input, TC-188-preview-finger...
+                      AC-15701-2   yes                   TC-191-submit-anchor-mismatch-creates, TC-191-submit-fing...
+                      AC-15701-3   yes                   TC-191-submit-closed-reference, TC-191-submit-search-unch...
+REQ-158      yes      AC-15801-1   yes                   TC-189-library-add-snapshots-issues-and-prints-review-line
+                      AC-15801-2   yes                   TC-189-resolver-four-fixture-walk
+                      AC-15801-3   yes                   TC-189-doctor-feedback-destinations-warn-only
+                      AC-15801-4   yes                   TC-189-resolver-library-slug-inference-ambiguous, TC-189-...
+                      AC-15802-1   yes                   TC-190-core-repo-pinned-to-bugs-url
+                      AC-15802-2   yes                   TC-190-core-kind-ignores-library-manifest-content
+REQ-159      yes      AC-15901-1   yes                   TC-192-submit-yes-happy-path
+                      AC-15901-2   yes                   TC-192-submit-no-token-synthesised, TC-192-submit-refuses...
+                      AC-15902-1   yes                   TC-193-label-precheck-drops-missing
+                      AC-15902-2   yes                   TC-193-bootstrap-creates-six, TC-193-bootstrap-idempotent...
+                      AC-15902-3   yes                   TC-193-title-prefix-and-fingerprint-twin
+                      AC-15902-4   yes                   TC-193-labels-catalogue-single-source
+REQ-160      yes      AC-16001-1   yes                   TC-194-preflight-auth-off, TC-194-preflight-gh-missing, T...
+                      AC-16001-2   yes                   TC-194-retry-without-labels-then-bundle
+                      AC-16001-3   yes                   TC-194-bundled-terminal-for-ask
+                      AC-16001-4   yes                   TC-194-unresolved-destination-bundle
+REQ-161      yes      AC-16101-1   yes                   TC-195-quiet-rule-truth-table
+                      AC-16101-2   yes                   TC-195-hook-stop-claude-code, TC-195-hook-stop-codex, TC-...
+                      AC-16101-3   yes                   TC-195-hook-same-session-silent-then-fresh-reasks, TC-195...
+                      AC-16102-1   yes                   TC-196-optin-restores-ask-true, TC-196-optout-writes-sett...
+                      AC-16102-2   yes                   TC-196-env-ask-silences-hook-only, TC-196-env-disable-no-...
+                      AC-16102-3   yes                   TC-262-ask-off-in-headless-session
+                      AC-16103-1   yes                   TC-197-session-end-idempotent-after-same-second, TC-197-s...
+                      AC-16103-2   yes                   TC-197-session-start-claude-code-line, TC-197-session-sta...
+                      AC-16103-3   yes                   TC-197-session-start-idempotent-same-session, TC-197-sess...
+                      AC-16103-4   yes                   TC-264-busy-after-filing-names-it, TC-264-dead-claim-remo...
+                      AC-16104-1   yes                   TC-198-init-bin-path-pins-node, TC-198-init-idempotent, T...
+                      AC-16104-2   yes                   TC-198-init-no-feedback-hooks
+                      AC-16104-3   yes                   TC-198-doctor-clean-tree-no-writes, TC-198-doctor-fix-ins...
+REQ-162      yes      AC-16201-1   yes                   TC-199-rule-17-names-verbs-and-redaction-posture, TC-199-...
+                      AC-16201-2   yes                   TC-199-existing-project-picks-up-rule-17-on-doctor-fix, T...
+REQ-163      yes      AC-16301-1   yes                   TC-200-superseded-by-broken
+                      AC-16301-2   yes                   TC-200-related-adrs-silent
+REQ-164      yes      AC-16401-1   yes                   TC-201-strict-by-default-exit-4
+                      AC-16401-2   yes                   TC-201-shallow-any-opt-out
+                      AC-16401-3   yes                   TC-201-conflicting-flags-exit-2
+REQ-165      yes      AC-16501-1   yes                   TC-202-ui-baseline-unmet-refusal
+                      AC-16501-2   yes                   TC-202-browser-verification-missing-refusal
+                      AC-16501-3   yes                   TC-202-scope-mismatch-refusal
+                      AC-16502-1   yes                   TC-203-writer-refuses-manual-verified
+                      AC-16502-2   yes                   TC-203-writer-accepts-with-override
+                      AC-16502-3   retired (AC-20001-1)  TC-203-merge-state-refusal-and-opt-out
+                      AC-16503-1   yes                   TC-242-16503-1-happy
+                      AC-16503-2   yes                   TC-242-16503-2-refuse
+                      AC-16503-3   yes                   TC-242-16503-3-abort
+                      AC-16503-4   yes                   TC-242-16503-4-usage
+                      AC-16504-1   yes                   TC-249-16504-1-scope
+                      AC-16504-2   yes                   TC-249-16504-2-default
+                      AC-16504-3   yes                   TC-249-16504-3-invariant
+                      AC-16504-4   yes                   TC-249-16504-4-help
+                      AC-16505-1   yes                   TC-250-16505-1-args, TC-250-16505-1-forward
+                      AC-16505-2   yes                   TC-250-16505-2-help
+                      AC-16505-3   yes                   TC-250-16505-3-stamp
+                      AC-16505-4   yes                   TC-250-16505-4-remedy
+                      AC-16505-5   yes                   TC-250-16505-5-detect, TC-250-16505-5-path-fallback, TC-2...
+REQ-170      yes      AC-17001-1   yes                   TC-204-shape-buckets-present
+                      AC-17001-2   yes                   TC-204-shape-drill-req-us-ac
+                      AC-17002-1   yes                   TC-205-status-filter-control
+                      AC-17003-1   yes                   TC-206-component-tad-root
+                      AC-17004-1   yes                   TC-207-trace-coverage-buckets
+                      AC-17005-1   yes                   TC-208-capability-buckets
+                      AC-17006-1   yes                   TC-211-interaction-model-buckets
+                      AC-17007-1   yes                   TC-212-lazy-skeletons
+                      AC-17008-1   yes                   TC-213-badge, TC-213-buckets, TC-213-capability-second-le...
+REQ-171      yes      AC-17101-1   yes                   TC-209-every-req-has-capability-tag
+                      AC-17102-1   yes                   TC-210-taxonomy-doc-present
+REQ-172      yes      AC-17201-1   yes                   TC-214-delta-shape, TC-214-unchanged
+                      AC-17201-2   yes                   TC-214-canonical, TC-214-hash-shape
+                      AC-17201-3   yes                   TC-214-freeze-missing, TC-214-freeze-schema
+                      AC-17201-4   yes                   TC-214-refuse-invalid-write, TC-214-roundtrip
+REQ-173      yes      AC-17301-1   yes                   TC-215-brief-add-text, TC-215-brief-refuse-mixed
+                      AC-17301-2   yes                   TC-215-decisions-list-241, TC-215-list-json
+                      AC-17301-3   yes                   TC-215-brief-from-file, TC-215-parse-brief-bullets
+                      AC-17301-4   yes                   TC-215-walker-invisible
+                      AC-17302-1   yes                   TC-215-brief-update-fields-and-preserve-id
+                      AC-17302-2   yes                   TC-215-decisions-update-wellformed
+                      AC-17302-3   yes                   TC-215-resolvedby-grammar-each-form
+                      AC-17302-4   yes                   TC-215-update-refuses-nongrammar
+                      AC-17302-5   yes                   TC-215-d2-dangling-pointer-fails
+                      AC-17302-6   yes                   TC-215-d2-title-hit-dropped
+                      AC-17302-7   yes                   TC-215-r1-add-same-id-same-content-unchanged
+                      AC-17302-8   yes                   TC-215-r1-add-same-id-diff-content-exit-3
+                      AC-17302-9   yes                   TC-215-r1-add-no-id-mints-next
+                      AC-17302-10  yes                   TC-215-r1-create-ac-id-unchanged-and-conflict
+                      AC-17302-11  yes                   TC-215-r1-create-tc-id-unchanged-and-conflict
+                      AC-17302-12  yes                   TC-215-r1-create-cn-id-unchanged-and-conflict
+                      AC-17302-13  yes                   TC-215-r1-create-req-verbatim-replay-unchanged, TC-215-r1...
+                      AC-17302-14  yes                   TC-265-description-merge-keeps-scope, TC-265-from-file-ke...
+REQ-174      yes      AC-17401-1   yes                   TC-216-shape
+                      AC-17401-2   yes                   TC-216-blocking-vs-warn
+                      AC-17401-3   yes                   TC-216-not-applicable
+                      AC-17401-4   yes                   TC-216-d4-floors
+                      AC-17401-5   yes                   TC-216-d3-shapes
+                      AC-17401-6   yes                   TC-216-d5-crosscut
+                      AC-17401-7   yes                   TC-216-d6-consistency
+                      AC-17401-8   yes                   TC-216-d8-freeze, TC-216-d8-freeze-all-built, TC-216-d8-f...
+                      AC-17401-9   yes                   TC-216-d2-data-architecture
+                      AC-17401-10  yes                   TC-216-identity-seed-surface
+                      AC-17401-11  yes                   TC-216-r13-crosscut-security-tree-wide
+                      AC-17401-12  yes                   TC-216-r13-crosscut-operational-tree-wide
+                      AC-17402-1   yes                   TC-219-every-check-has-persona-and-question
+                      AC-17402-2   yes                   TC-219-d1-personas
+                      AC-17402-3   yes                   TC-219-d2-personas
+                      AC-17402-4   yes                   TC-219-d4-d7-personas
+                      AC-17402-5   yes                   TC-219-engineer-stages
+                      AC-17402-6   yes                   TC-219-persona-vocabulary-closed
+                      AC-17402-7   yes                   TC-219-not-applicable-placeholder-persona
+                      AC-17402-8   yes                   TC-219-r13-deploy-adr-tree-wide
+                      AC-17403-1   yes                   TC-220-todo-no-shapes-fails-both
+                      AC-17403-2   yes                   TC-220-shapes-no-domain-fails-req-intent-only
+                      AC-17403-3   yes                   TC-220-draft-fails-draft-settled
+                      AC-17403-4   yes                   TC-220-marker-removed-passes-draft-settled
+                      AC-17403-5   yes                   TC-220-draft-kind-vocabulary-still-applies
+                      AC-17403-6   yes                   TC-220-enumerated-passes-well-formed-fails-all-answered
+                      AC-17403-7   yes                   TC-220-one-option-no-default-fails-well-formed
+                      AC-17403-8   yes                   TC-220-no-req-fields-emitted
+                      AC-17403-9   yes                   TC-220-r2-draft-tree-wide-under-narrowed-scope
+                      AC-17403-10  yes                   TC-220-r13-failing-envelope-reason-drops
+                      AC-17404-1   yes                   TC-230-templatemarkers-draft-recordshape, TC-230-template...
+                      AC-17404-2   yes                   TC-230-templatemarkers-missing
+                      AC-17404-3   yes                   TC-230-entityjoin-ok-and-twice
+                      AC-17404-4   yes                   TC-230-pathsresolve-resolved-and-authored
+                      AC-17404-5   yes                   TC-230-ackable-exactly-d3-d5-d6, TC-230-cli-check-shapes-...
+                      AC-17404-6   yes                   TC-230-freeze-ack-blocking-stages-exit-2
+                      AC-17404-7   yes                   TC-230-r5-entityjoin-under-narrowed-scope
+                      AC-17404-8   yes                   TC-230-r6-bare-paths-whitelist
+                      AC-17404-9   yes                   TC-230-r13-helper-foldstate-delegation
+                      AC-17405-1   yes                   TC-231-closedsets-cue-without-list, TC-231-closedsets-quo...
+                      AC-17405-2   yes                   TC-231-ownerref-resolves-and-missing
+                      AC-17405-3   yes                   TC-231-cli-check-crosscut-exit-matrix, TC-231-concern-cat...
+                      AC-17405-4   yes                   TC-231-crosscut-catalogue-missing-pair
+                      AC-17405-5   yes                   TC-231-r8-standards-applied-waived-or-cited, TC-231-stand...
+                      AC-17405-6   yes                   TC-231-validate-no-missing-marker-finding
+                      AC-17405-7   yes                   TC-231-ownerref-r11-widened
+                      AC-17405-8   yes                   TC-231-ownerref-dotted-refused
+                      AC-17405-9   yes                   TC-231-r7-standards-under-narrowed-d2-scope
+                      AC-17406-1   yes                   TC-232-contradictions-same-when-negated-then
+                      AC-17406-2   yes                   TC-232-unsatisfiable-undefined-field
+                      AC-17406-3   yes                   TC-232-unsatisfiable-draft-recordshape
+                      AC-17406-4   yes                   TC-232-duplicates-across-stories
+                      AC-17406-5   yes                   TC-232-orphan-interfaces
+                      AC-17406-6   yes                   TC-232-contradictions-quoted-negation-guard
+REQ-175      yes      AC-17501-1   yes                   TC-217-shape
+                      AC-17501-2   yes                   TC-217-fanout
+                      AC-17501-3   yes                   TC-217-coverage
+                      AC-17501-4   yes                   TC-217-next-action
+                      AC-17501-5   yes                   TC-217-cli
+                      AC-17501-6   yes                   TC-217-load-all-ledgers
+                      AC-17502-1   yes                   TC-221-po-ok-engineer-failing
+                      AC-17502-2   yes                   TC-221-freezeable-implies-l1
+                      AC-17502-3   yes                   TC-221-brief-profile-l1-blocker
+                      AC-17502-4   yes                   TC-221-acknowledged-absent-from-l2
+                      AC-17502-5   yes                   TC-221-personas-mirror-levels
+                      AC-17502-6   yes                   TC-221-persona-next-action-picks-first-failing-stage
+                      AC-17502-7   yes                   TC-221-no-write-on-invocation
+                      AC-17502-8   yes                   TC-221-backwards-compat-fields
+                      AC-17503-1   yes                   TC-222-exit-matrix, TC-222-verdict-lines-four-strings
+                      AC-17503-2   yes                   TC-222-level-intent-pass
+                      AC-17503-3   yes                   TC-222-level-intent-fail
+                      AC-17503-4   yes                   TC-222-level-build-strict-ack
+                      AC-17503-5   yes                   TC-222-check-all-unchanged
+                      AC-17503-6   yes                   TC-222-persona-collapses-other
+                      AC-17503-7   yes                   TC-222-unknown-values-exit-2-level, TC-222-unknown-values...
+                      AC-17503-8   yes                   TC-222-json-meta-level
+                      AC-17503-9   yes                   TC-222-text-persona-grouping
+                      AC-17504-1   yes                   TC-232-probe-runner-injects-findings
+                      AC-17504-2   yes                   TC-232-no-probe-runner-matches-pre-pr
+                      AC-17504-3   yes                   TC-232-litmus-reader-count
+                      AC-17504-4   yes                   TC-232-cli-litmus-shortfall-exits-4, TC-232-parse-litmus-...
+                      AC-17504-5   yes                   TC-232-cli-litmus-no-process-spawn
+REQ-176      yes      AC-17601-1   yes                   TC-218-happy
+                      AC-17601-2   yes                   TC-218-refuse
+                      AC-17601-3   yes                   TC-218-ack
+                      AC-17601-4   yes                   TC-218-summary
+                      AC-17601-5   yes                   TC-218-status
+                      AC-17601-6   yes                   TC-218-admissibility
+                      AC-17601-7   yes                   TC-218-override
+                      AC-17601-8   yes                   TC-218-hygiene
+REQ-177      yes      AC-17702-1   yes                   TC-233-bundle-refuses-without-freeze
+                      AC-17702-2   yes                   TC-233-bundle-override-writes-freeze-override
+                      AC-17702-3   yes                   TC-233-bundle-skips-impacted-fbs
+                      AC-17702-4   yes                   TC-233-bundle-all-impacted-refuses
+                      AC-17702-5   yes                   TC-233-bundle-empty-delta-unchanged
+                      AC-17702-6   yes                   TC-233-override-by-order
+REQ-178      yes      AC-17802-1   yes                   TC-234-validate-interface-kind-finding, TC-234-validate-t...
+                      AC-17802-2   yes                   TC-234-validate-ac-class-prefix-finding
+                      AC-17802-3   yes                   TC-234-validate-dogfood-clean
+                      AC-17802-4   yes                   TC-234-validate-no-finding-for-missing-class
+REQ-179      yes      AC-17902-1   yes                   TC-235-ruleset-nvdl-shape
+                      AC-17902-2   yes                   TC-235-admissibility-wrap-refuses-on-unfrozen-tree
+                      AC-17902-3   yes                   TC-235-admissibility-wrap-accepts-with-override
+                      AC-17902-4   yes                   TC-235-readiness-compute-unchanged-under-refusal
+                      AC-17902-5   yes                   TC-235-wrap-cites-define-stages
+REQ-180      yes      AC-18001-1   yes                   TC-223-tab-order-and-rename
+                      AC-18001-2   yes                   TC-223-verdict-pills-match-cli
+                      AC-18001-3   yes                   TC-223-po-blockers-as-findings-list
+                      AC-18001-4   yes                   TC-223-register-orders-persona-groups
+                      AC-18001-5   yes                   TC-223-no-blocker-id-omitted
+                      AC-18001-6   yes                   TC-223-freeze-now-disabled
+                      AC-18001-7   yes                   TC-223-ids-on-tab-match-cli-json
+                      AC-18001-8   yes                   TC-223-swap-preserves-readiness, TC-223-swap-product-map-...
+                      AC-18002-1   yes                   TC-227-groups-and-asks
+                      AC-18002-2   yes                   TC-227-empty-questions-verdict
+                      AC-18002-3   yes                   TC-227-engineer-dom-preserved
+                      AC-18003-1   yes                   TC-237-18003-1-happy
+                      AC-18003-2   yes                   TC-237-18003-2-edge
+                      AC-18003-3   yes                   TC-237-18003-3-happy
+                      AC-18003-4   yes                   TC-237-18003-4-edge
+                      AC-18003-5   yes                   TC-237-18003-5-happy
+                      AC-18003-6   yes                   TC-237-18003-6-failure
+                      AC-18003-7   yes                   TC-237-18003-7-mustnot
+                      AC-18003-8   yes                   TC-237-18003-8-happy
+                      AC-18004-1   yes                   TC-238-18004-1-happy
+                      AC-18004-2   yes                   TC-238-18004-2-happy
+                      AC-18004-3   yes                   TC-238-18004-3-happy
+                      AC-18004-4   yes                   TC-238-18004-4-happy
+                      AC-18004-5   yes                   TC-238-18004-5-happy
+                      AC-18004-6   yes                   TC-238-18004-6-failure
+                      AC-18004-7   yes                   TC-238-18004-7-mustnot
+                      AC-18005-1   yes                   TC-239-18005-1-happy
+                      AC-18005-2   yes                   TC-239-18005-2-happy
+                      AC-18005-3   yes                   TC-239-18005-3-happy
+                      AC-18005-4   yes                   TC-239-18005-4-happy
+                      AC-18005-5   yes                   TC-239-18005-5-happy
+                      AC-18005-6   yes                   TC-239-18005-6-edge
+                      AC-18005-7   yes                   TC-239-18005-7-mustnot
+                      AC-18005-8   yes                   TC-239-18005-8-failure
+REQ-181      yes      AC-18101-1   yes                   TC-223-pill-vocabulary
+                      AC-18101-2   yes                   TC-223-findings-list-markup
+                      AC-18101-3   yes                   TC-223-no-existing-tab-tests-change
+REQ-182      yes      AC-18202-1   yes                   TC-228-guidance-prints
+                      AC-18202-2   yes                   TC-228-manifest-prompts
+                      AC-18202-3   yes                   TC-228-register-scan-em-dash
+                      AC-18202-4   yes                   TC-228-managed-block-preserves-rules
+REQ-186      yes      AC-18601-1   yes                   TC-226-q-shape
+                      AC-18601-2   yes                   TC-226-q-deterministic
+                      AC-18601-3   yes                   TC-226-q-optional-decisions
+                      AC-18601-4   yes                   TC-226-q-empty-when-ok
+                      AC-18601-5   yes                   TC-226-q-engineer-persona
+                      AC-18601-6   yes                   TC-226-q-usage-error
+                      AC-18601-7   yes                   TC-226-q-writes-nothing
+                      AC-18602-1   yes                   TC-226-cli-json
+                      AC-18602-2   yes                   TC-226-cli-persona-default
+                      AC-18602-3   yes                   TC-226-cli-stage-limit
+                      AC-18602-4   yes                   TC-226-mcp-parity
+                      AC-18602-5   yes                   TC-226-cli-usage-persona
+                      AC-18602-6   yes                   TC-226-cli-writes-nothing
+                      AC-18603-1   yes                   TC-226-loop-convergence
+                      AC-18603-2   yes                   TC-226-loop-new-req
+                      AC-18603-3   yes                   TC-226-loop-l1-draft-stable
+                      AC-18603-4   yes                   TC-226-loop-decision-wellformed
+                      AC-18603-5   yes                   TC-226-loop-engineer-isolation
+REQ-187      yes      AC-18701-1   yes                   TC-215-markers-kind-and-source
+                      AC-18701-2   yes                   TC-215-defaults-from-flags
+                      AC-18701-3   yes                   TC-215-question-heuristic
+                      AC-18701-4   yes                   TC-215-029-line-per-statement-unchanged
+                      AC-18701-5   yes                   TC-215-unknown-kind-exits-2
+                      AC-18701-6   yes                   TC-215-dry-run-no-write
+                      AC-18702-1   yes                   TC-215-scan-mints-openquestion
+                      AC-18702-2   yes                   TC-215-findings-mints-openquestions
+                      AC-18702-3   yes                   TC-215-scans-compare-every-existing
+                      AC-18702-4   yes                   TC-215-json-emits-added-and-findings
+                      AC-18702-5   yes                   TC-215-no-scan-plus-findings-exits-2
+                      AC-18702-6   yes                   TC-215-text-runs-no-scan
+REQ-188      yes      AC-18801-1   yes                   TC-228-draft-coreentity
+                      AC-18801-2   yes                   TC-228-draft-tac-purpose
+                      AC-18801-3   yes                   TC-228-draft-cleared
+                      AC-18801-4   yes                   TC-228-draft-template-markers
+                      AC-18801-5   yes                   TC-228-draft-no-po-read
+REQ-189      yes      AC-18901-1   yes                   TC-243-18901-1-happy
+                      AC-18901-2   yes                   TC-243-18901-2-happy
+                      AC-18901-3   yes                   TC-243-18901-3-happy
+                      AC-18901-4   yes                   TC-243-18901-4-failure
+                      AC-18901-5   yes                   TC-243-18901-5-edge
+                      AC-18901-6   yes                   TC-243-18901-6-edge
+                      AC-18901-7   yes                   TC-243-18901-7-mustnot
+                      AC-18902-1   yes                   TC-244-18902-1-happy
+                      AC-18902-2   yes                   TC-244-18902-2-happy
+                      AC-18902-3   yes                   TC-244-18902-3-happy
+                      AC-18902-4   yes                   TC-244-18902-4-happy
+                      AC-18902-5   yes                   TC-244-18902-5-failure
+                      AC-18902-6   yes                   TC-244-18902-6-edge
+                      AC-18902-7   yes                   TC-244-18902-7-mustnot
+                      AC-18903-1   yes                   TC-245-18903-1-happy
+                      AC-18903-2   yes                   TC-245-18903-2-happy
+                      AC-18903-3   yes                   TC-245-18903-3-happy
+                      AC-18903-4   yes                   TC-245-18903-4-happy
+                      AC-18903-5   yes                   TC-245-18903-5-failure
+                      AC-18903-6   yes                   TC-245-18903-6-edge
+                      AC-18903-7   yes                   TC-245-18903-7-mustnot
+                      AC-18903-8   yes                   TC-245-18903-8-failure
+                      AC-18904-1   yes                   TC-246-18904-1-happy
+                      AC-18904-2   yes                   TC-246-18904-2-happy
+                      AC-18904-3   yes                   TC-246-18904-3-failure
+                      AC-18904-4   yes                   TC-246-18904-4-edge
+                      AC-18904-5   yes                   TC-246-18904-5-mustnot
+                      AC-18905-1   yes                   TC-247-18905-1-happy
+                      AC-18905-2   yes                   TC-247-18905-2-happy
+                      AC-18905-3   yes                   TC-247-18905-3-edge
+                      AC-18905-4   yes                   TC-247-18905-4-failure
+                      AC-18905-5   yes                   TC-247-18905-5-happy
+                      AC-18905-6   yes                   TC-247-18905-6-mustnot
+                      AC-18905-7   yes                   TC-247-18905-7-mustnot
+                      AC-18905-8   yes                   TC-247-18905-8-happy
+                      AC-18905-9   yes                   TC-247-18905-9-failure
+                      AC-18906-1   yes                   TC-248-18906-1-happy
+                      AC-18906-2   yes                   TC-248-18906-2-happy
+                      AC-18906-3   yes                   TC-248-18906-3-happy
+                      AC-18906-4   yes                   TC-248-18906-4-failure
+                      AC-18906-5   yes                   TC-248-18906-5-edge
+                      AC-18906-6   yes                   TC-248-18906-6-mustnot
+REQ-190      yes      AC-19001-1   yes                   TC-252-report-written
+                      AC-19001-2   yes                   TC-252-dirty-tree-refused
+                      AC-19001-3   yes                   TC-252-bad-hand-flags
+                      AC-19001-4   yes                   TC-252-package-target
+                      AC-19001-5   yes                   TC-252-reports-not-chain
+                      AC-19001-6   yes                   TC-252-hand-refuses-out, TC-252-writes-only-reports
+                      AC-19001-7   yes                   TC-263-out-directory-refused, TC-263-out-help-says-file-path
+                      AC-19002-1   retired (AC-20001-1)  TC-253-e2e-verify-then-finalise, TC-253-promotes-verified
+                      AC-19002-2   retired (AC-20001-2)  TC-253-no-report
+                      AC-19002-3   retired (AC-20001-4)  TC-253-head-loopback-age, TC-253-squash-tree-equal
+                      AC-19002-4   retired (AC-20002-4)  TC-253-hand-not-separate
+                      AC-19002-5   retired (AC-20002-3)  TC-253-preconditions
+                      AC-19002-6   retired (AC-20001-3)  TC-253-blocking-per-ac-verdicts, TC-253-e2e-per-ac-refusal
+                      AC-19002-7   retired (AC-20003-1)  TC-253-retired-flags
+                      AC-19002-8   yes                   TC-253-no-spawn-no-mutation
+                      AC-19003-1   retired (AC-20201-4)  TC-254-e2e-finalise-clears-backstop, TC-254-refuses-unver...
+                      AC-19003-2   retired (AC-20203-3)  TC-254-override-recorded
+                      AC-19003-3   retired (AC-20203-1)  TC-254-inert-without-backstop
+                      AC-19003-4   retired (AC-20203-2)  TC-254-adopt
+                      AC-19003-5   retired (AC-20201-5)  TC-254-no-silent-bypass
+                      AC-19004-1   retired (AC-20401-1)  TC-257-test-and-finalise-stages
+                      AC-19004-2   retired (AC-20401-1)  TC-257-define-and-build-hands
+                      AC-19004-3   retired (AC-20401-4)  TC-257-bundle-runbook
+                      AC-19004-4   retired (AC-20401-3)  TC-257-managed-block
+                      AC-19004-5   yes                   TC-257-audit-fifth-verb
+                      AC-19004-6   yes                   TC-257-doctor-drift
+                      AC-19004-7   retired (AC-20401-5)  TC-257-no-post-merge-verify
+                      AC-19005-1   retired (AC-20001-1)  TC-261-e2e-loopback-verify-then-finalise-on-branch, TC-26...
+                      AC-19005-2   retired (AC-20003-2)  TC-261-loopback-accepted
+                      AC-19005-3   retired (AC-20003-2)  TC-261-loopback-missing-field
+                      AC-19005-4   retired (AC-20003-2)  TC-261-served-sha-mismatch
+                      AC-19005-5   yes                   TC-261-verify-run-loopback-flags-url-only, TC-261-verify-...
+                      AC-19005-6   retired (AC-20003-2)  TC-261-report-committed-at-head
+                      AC-19005-7   retired (AC-20002-4)  TC-261-provenance-kept-pre-merge
+                      AC-19005-8   retired (AC-20001-5)  TC-261-e2e-merge-confirm, TC-261-merged-main-confirm
+                      AC-19005-9   retired (AC-20003-1)  TC-261-allow-pre-merge-no-op
+                      AC-19005-10  retired (AC-20401-1)  TC-261-shipped-text-pre-merge
+REQ-191      yes      AC-19101-1   retired (AC-19601-1)  TC-255-pass-line
+                      AC-19101-2   retired (AC-19601-2)  TC-255-fail-line, TC-255-lockfiles-neutral, TC-255-multi-...
+                      AC-19101-3   retired (AC-19601-3)  TC-255-undeclared
+                      AC-19101-4   retired (AC-19601-5)  TC-255-bad-ref-and-repo
+                      AC-19101-5   retired (AC-19601-6)  TC-255-json-rows
+                      AC-19101-6   retired (AC-19601-8)  TC-255-read-only
+                      AC-19101-7   yes                   TC-255-verify-reports-class
+                      AC-19102-1   retired (AC-19604-3)  TC-256-mixed-exception
+                      AC-19102-2   retired (AC-19604-5)  TC-256-class-override
+                      AC-19102-3   retired (AC-19604-4)  TC-256-require-hand, TC-256-require-hand-builder-breach, ...
+                      AC-19102-4   yes                   TC-256-ci-pull-request-step
+                      AC-19102-5   retired (AC-19604-6)  TC-256-no-empty-reason-no-shallow
+REQ-192      yes      AC-19201-1   yes                   TC-251-probe-pass
+                      AC-19201-2   yes                   TC-251-probe-fail
+                      AC-19201-3   yes                   TC-251-critique-only-and-unreachable
+                      AC-19201-4   yes                   TC-251-probe-source
+                      AC-19201-5   yes                   TC-251-parity-env
+                      AC-19201-6   yes                   TC-251-probe-schema
+                      AC-19201-7   yes                   TC-251-no-probe-no-pass
+                      AC-19201-8   yes                   TC-251-ac-level-empty-assertion-refused, TC-251-ac-level-...
+REQ-193      yes      AC-19301-1   yes                   TC-258-pass-all
+                      AC-19301-2   yes                   TC-258-fail-one
+                      AC-19301-3   yes                   TC-258-unbound-critique-only
+                      AC-19301-4   yes                   TC-258-to-do-skip-and-not-run
+                      AC-19301-5   yes                   TC-258-probe-not-run-and-evidence
+                      AC-19301-6   yes                   TC-258-flag-refusals
+                      AC-19301-7   yes                   TC-258-fbs-219-rules-kept
+                      AC-19301-8   yes                   TC-258-writes-only-report-dir
+                      AC-19301-9   retired (AC-20001-1)  TC-258-finalise-end-to-end
+                      AC-19302-1   yes                   TC-259-ignored-content-not-packed, TC-259-pack-from-head,...
+                      AC-19302-2   yes                   TC-259-given-tarball-no-pack
+                      AC-19302-3   yes                   TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
+                      AC-19302-4   yes                   TC-259-offline-and-default-registry, TC-259-offline-outsi...
+                      AC-19302-5   yes                   TC-259-no-tarball-left, TC-259-package-outside-repo-refus...
+REQ-194      yes      AC-19401-1   retired (AC-19501-5)  TC-260-validate-own-chain-0-9-0
+                      AC-19401-2   retired (AC-19502-3)  TC-260-update-probe-path-only-refused
+                      AC-19401-3   retired (AC-19502-4)  TC-260-catalog-path-only-still-fails
+                      AC-19401-4   retired (AC-19502-5)  TC-260-ac-level-path-only-refused
+                      AC-19401-5   yes                   TC-260-retired-state-with-successor
+                      AC-19401-6   yes                   TC-260-successor-missing
+                      AC-19401-7   yes                   TC-260-self-supersession
+                      AC-19401-8   yes                   TC-260-supersession-cycle
+                      AC-19401-9   yes                   TC-260-retired-tc-listed-not-counted
+                      AC-19401-10  yes                   TC-260-live-gap-beside-retired
+                      AC-19401-11  yes                   TC-260-eval-coverage-retired
+                      AC-19401-12  yes                   TC-260-verify-skips-retired-probe
+                      AC-19401-13  yes                   TC-260-specific-pattern-passes
+                      AC-19401-14  yes                   TC-260-vacuous-pattern-fails
+                      AC-19401-15  yes                   TC-260-non-compiling-pattern-fails
+                      AC-19401-16  yes                   TC-260-match-anything-never-passes
+                      AC-19401-17  yes                   TC-260-one-canary-and-header-substring
+                      AC-19401-18  yes                   TC-260-retired-codeclass-with-code
+REQ-195      yes      AC-19501-1   yes                   TC-266-rcf-define-create-ac-parent-us-101-from
+                      AC-19501-2   yes                   TC-266-rcf-define-update-ac-101-1-set
+                      AC-19501-3   yes                   TC-266-a-verification-value-outside-external
+                      AC-19501-4   yes                   TC-266-after-the-pin-move-rcf-define-validate
+                      AC-19501-5   yes                   TC-267-the-rcf-schemas-pin-names-the-release, TC-267-vali...
+                      AC-19501-6   yes                   TC-267-the-installed-rcf-schemas-at-the-new-pin
+                      AC-19501-7   yes                   TC-267-define-validate-over-the-own-chain-at
+                      AC-19502-1   yes                   TC-268-the-pnpm-lock-yaml-importer-entry-for
+                      AC-19502-2   yes                   TC-268-every-code-node-implementing-a-criterion
+                      AC-19502-3   yes                   TC-268-update-probe-path-only-refused
+                      AC-19502-4   yes                   TC-268-catalog-path-only-still-fails
+                      AC-19502-5   yes                   TC-268-ac-level-path-only-refused
+REQ-196      yes      AC-19601-1   yes                   TC-269-rcf-audit-separation-over-a-define-build
+                      AC-19601-2   yes                   TC-269-a-build-add-test-commit-touching-test-x
+                      AC-19601-3   yes                   TC-269-a-commit-with-no-stage-prefix-exits-4
+                      AC-19601-4   yes                   TC-269-seven-malformed-prefixes-each-fail-with
+                      AC-19601-5   yes                   TC-269-a-bad-base-ref-exits-2-separation-bad
+                      AC-19601-6   yes                   TC-269-json-over-the-five-commit-branch-plus-a
+                      AC-19601-7   yes                   TC-269-review-test-and-finalise-commits-outside
+                      AC-19601-8   yes                   TC-269-rcf-audit-separation-never-writes-reads
+                      AC-19601-9   yes                   TC-269-over-200-prefixed-commits-touching-20
+                      AC-19601-10  yes                   TC-269-a-build-mixed-commit-with-hand-test
+                      AC-19602-1   yes                   TC-270-a-build-hygiene-commit-touching-src-a-js
+                      AC-19602-2   yes                   TC-270-a-define-tests-commit-touching-test
+                      AC-19602-3   yes                   TC-270-audit-coverage-strict-reports-ac-101-1
+                      AC-19602-4   yes                   TC-270-define-validate-over-a-hygiene-bound
+                      AC-19602-5   yes                   TC-270-rcf-separation-json-declaring
+                      AC-19603-1   yes                   TC-271-a-finalise-release-1-1-0-commit-touching
+                      AC-19603-2   yes                   TC-271-finalise-commits-changing-a-package-json
+                      AC-19603-3   yes                   TC-271-a-finalise-regenerate-queue-goldens
+                      AC-19603-4   yes                   TC-271-a-declared-output-with-no-generated-by
+                      AC-19603-5   yes                   TC-271-a-generator-lacking-checkedby-with
+                      AC-19603-6   yes                   TC-271-a-clean-finalise-merge-main-and-a
+                      AC-19603-7   yes                   TC-271-a-finalise-merge-whose-resolution-edits
+                      AC-19603-8   yes                   TC-271-over-the-passing-generator-fixture-the
+                      AC-19604-1   yes                   TC-272-define-with-hand-test-author-and-build
+                      AC-19604-2   yes                   TC-272-a-build-code-commit-carrying-hand-test
+                      AC-19604-3   yes                   TC-272-a-hand-mixed-trailer-fails-s7-hand-mixed
+                      AC-19604-4   yes                   TC-272-rcf-audit-separation-require-hand-exits
+                      AC-19604-5   yes                   TC-272-configured-classes-win-rcftest-on-spec
+                      AC-19604-6   yes                   TC-272-no-trailer-turns-a-failing-commit-into-a
+                      AC-19604-7   yes                   TC-272-a-branch-starting-at-build-code-followed
+REQ-197      yes      AC-19701-1   yes                   TC-273-rcf-build-verdict-review-code-merge
+                      AC-19701-2   yes                   TC-273-adequacy-findings-with-a-spec-and-a
+                      AC-19701-3   yes                   TC-273-findings-with-no-finding-exits-2-a
+                      AC-19701-4   yes                   TC-273-a-dirty-tree-refuses-with-exit-4-verdict
+                      AC-19701-5   yes                   TC-273-rcf-build-verdict-review-writes-only-rcf
+                      AC-19701-6   yes                   TC-273-at-inprogress-the-review-verdict-must
+                      AC-19702-1   yes                   TC-274-rcf-build-verdict-test-result-pass-over
+                      AC-19702-2   yes                   TC-274-result-pass-refuses-a-tap-with-2-failing
+                      AC-19702-3   yes                   TC-274-result-pass-refuses-with-no-review-merge
+                      AC-19702-4   yes                   TC-274-one-test-verdict-per-head-a-second
+                      AC-19702-5   yes                   TC-274-rcf-build-verdict-test-never-runs-the
+                      AC-19702-6   yes                   TC-274-after-review-merge-pass-test-pass-at-h
+                      AC-19702-7   yes                   TC-274-a-failing-test-strength-record-at-h
+                      AC-19702-8   yes                   TC-274-fbs-must-equal-the-review-verdict
+                      AC-19703-1   yes                   TC-275-define-build-review-passed-for-its
+                      AC-19703-2   yes                   TC-275-a-review-with-code-findings-followed-by
+                      AC-19703-3   yes                   TC-275-build-after-a-passed-review-define-after
+                      AC-19703-4   yes                   TC-275-build-right-after-a-review-findings-and
+                      AC-19703-5   yes                   TC-275-a-review-json-whose-head-is-not-its
+                      AC-19703-6   yes                   TC-275-review-test-finalise-merge-and-finalise
+                      AC-19703-7   yes                   TC-275-only-the-verdict-file-a-commit-adds
+                      AC-19703-8   yes                   TC-275-over-6-rounds-30-or-more-commits-every
+                      AC-19703-9   yes                   TC-275-a-second-review-codex-adding-a-review
+                      AC-19703-10  yes                   TC-275-a-test-commit-adding-a-pass-test-json
+                      AC-19703-11  yes                   TC-275-a-test-strength-adding-a-failing-test
+REQ-198      yes      AC-19801-1   yes                   TC-276-with-head-adding-ac-101-2-flagged
+                      AC-19801-2   yes                   TC-276-with-head-adding-ac-101-2-with-no
+                      AC-19801-3   yes                   TC-276-a-head-changing-only-the-then-text-of
+                      AC-19801-4   yes                   TC-276-outside-git-or-in-git-with-no-origin
+                      AC-19801-5   yes                   TC-276-a-retired-criterion-is-never-required-to
+                      AC-19801-6   yes                   TC-277-the-ci-test-job-checks-out-with-fetch
+                      AC-19802-1   yes                   TC-278-rcf-define-validate-report-verification
+                      AC-19802-2   yes                   TC-278-with-every-live-criterion-flagged-the
+                      AC-19802-3   yes                   TC-278-over-1000-unflagged-live-criteria-across
+                      AC-19802-4   yes                   TC-278-rcf-define-validate-report-flags-exits-2
+                      AC-19802-5   yes                   TC-278-the-worklist-never-writes-every-file
+                      AC-19803-1   yes                   TC-279-over-fbs-001-complete-scoping-ac-101-1
+                      AC-19803-2   yes                   TC-279-with-fbs-001-at-verified-the-testonly-ac
+                      AC-19803-3   yes                   TC-279-in-format-table-the-unflagged-ac-101-3
+                      AC-19803-4   yes                   TC-279-audit-coverage-strict-exits-with-the
+                      AC-19803-5   yes                   TC-280-over-the-chain-of-this-repository-at-the, TC-280-t...
+                      AC-19803-6   yes                   TC-279-a-hand-edited-verification-sometimes-on
+                      AC-19804-1   yes                   TC-281-at-the-slice-head-no-user-story-tag
+                      AC-19804-2   yes                   TC-281-for-every-criterion-the-move-commit
+                      AC-19804-3   yes                   TC-281-a-0-37-0-criterion-left-without-the
+REQ-199      yes      AC-19901-1   yes                   TC-282-over-a-bin-entry-a-harness-glob-and-ac
+                      AC-19901-2   yes                   TC-282-a-bound-test-also-importing-src-store-js
+                      AC-19901-3   yes                   TC-282-mock-module-src-mailer-js-with-edge-node
+                      AC-19901-4   yes                   TC-282-a-code-node-src-notify-js-makenotifier
+                      AC-19901-5   yes                   TC-282-no-rcf-test-strength-json-exits-2-with
+                      AC-19901-6   yes                   TC-282-the-structural-check-never-executes-a
+                      AC-19901-7   yes                   TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101
+                      AC-19901-8   yes                   TC-282-a-bound-test-file-test-rcf-a-test-ts-or
+                      AC-19902-1   yes                   TC-283-a-bound-test-asserting-only-that-the-cli
+                      AC-19902-2   yes                   TC-283-ac-101-2-with-no-code-node-ac-101-3-with
+                      AC-19902-3   yes                   TC-283-a-no-op-mutant-that-hangs-its-bound-test
+                      AC-19902-4   yes                   TC-283-with-no-acs-the-scope-is-the-touched-ac
+                      AC-19902-5   yes                   TC-283-a-scope-of-240-mutants-exits-2-before
+                      AC-19902-6   yes                   TC-283-a-round-touching-8-criteria-with-2
+                      AC-19902-7   yes                   TC-283-a-class-symbol-expands-to-its-methods
+                      AC-19902-8   yes                   TC-283-a-file-level-code-node-docs-x-md-is
+                      AC-19903-1   yes                   TC-284-at-a-review-commit-for-h-touching-ac-101
+                      AC-19903-2   yes                   TC-284-record-refuses-a-dirty-tree-exit-4-and-a
+                      AC-19903-3   yes                   TC-284-a-worker-style-app-entry-worker-src
+                      AC-19903-4   yes                   TC-284-a-library-entry-module-src-index-js
+                      AC-19903-5   yes                   TC-284-rcf-audit-test-strength-never-deploys
+REQ-200      yes      AC-20001-1   yes                   TC-285-over-define-build-review-merge-pass-at-h
+                      AC-20001-2   yes                   TC-285-with-no-review-commit-finalise-exits-4
+                      AC-20001-3   yes                   TC-285-with-the-test-commit-absent-finalise
+                      AC-20001-4   yes                   TC-285-a-build-late-fix-or-a-define-amend-after
+                      AC-20001-5   yes                   TC-285-run-again-at-the-same-head-or-after-a
+                      AC-20001-6   yes                   TC-285-after-a-clean-finalise-merge-main
+                      AC-20001-7   yes                   TC-285-on-every-refusal-finalise-leaves-rcf-fbs
+                      AC-20001-8   yes                   TC-285-after-a-clean-finalise-merge-main-at-m
+                      AC-20001-9   yes                   TC-285-with-fbs-001-at-notstarted-finalise
+                      AC-20002-1   yes                   TC-286-with-no-test-strength-record-at-h
+                      AC-20002-2   yes                   TC-286-when-the-reviewverdict-touches-only-ac
+                      AC-20002-3   yes                   TC-286-with-no-ci-run-finalise-exits-4-ci
+                      AC-20002-4   yes                   TC-286-an-earlier-build-tests-commit-touching
+                      AC-20002-5   yes                   TC-286-over-the-happy-run-a-spawn-seam-rcf
+                      AC-20003-1   yes                   TC-287-each-retired-flag-report-max-report-age
+                      AC-20003-2   yes                   TC-287-a-committed-fail-or-malformed
+                      AC-20003-3   yes                   TC-287-rcf-build-mark-fbs-001-complete-at
+                      AC-20003-4   yes                   TC-287-an-amend-round-on-fbs-001-at-verified
+                      AC-20003-5   yes                   TC-287-across-the-fixtures-of-us-20003-no
+REQ-201      yes      AC-20101-1   yes                   TC-288-with-fbs-001-changed-after-v1-0-0-and
+                      AC-20101-2   yes                   TC-288-a-failing-e2e-case-of-ac-101-1-exits-4
+                      AC-20101-3   yes                   TC-288-testonly-only-unit-bound-inprogress
+                      AC-20101-4   yes                   TC-288-record-without-release-or-since-exits-2
+                      AC-20101-5   yes                   TC-288-without-record-the-pass-fixture-run
+                      AC-20101-6   yes                   TC-288-over-150-specs-and-800-criteria-with-12
+                      AC-20101-7   yes                   TC-288-since-naming-a-missing-ref-a-tree-or-a
+                      AC-20102-1   yes                   TC-289-a-cold-package-release-verify-runs-the
+                      AC-20102-2   yes                   TC-289-offline-in-release-mode-exits-2-error
+                      AC-20102-3   yes                   TC-289-a-user-npmrc-at-the-caller-home-setting
+                      AC-20102-4   yes                   TC-289-a-cold-release-verify-writes-in-the
+                      AC-20103-1   yes                   TC-290-with-rcf-verify-catalog-json-and-a-local
+                      AC-20103-2   yes                   TC-290-record-with-mode-deterministic-or-mode
+                      AC-20103-3   yes                   TC-290-the-pass-fixture-of-the-release-story
+REQ-202      yes      AC-20201-1   yes                   TC-291-a-record-from-rcf-build-base-suite
+                      AC-20201-2   yes                   TC-291-with-no-base-suite-rcf-build-bundle-next
+                      AC-20201-3   yes                   TC-291-a-green-record-made-at-commit-a-while
+                      AC-20201-4   yes                   TC-291-a-record-at-b-with-exitcode-1-and-tap
+                      AC-20201-5   yes                   TC-291-no-flag-emits-a-bundle-on-a-red-or
+                      AC-20201-6   yes                   TC-291-rcf-build-base-suite-refuses-a-dirty
+                      AC-20201-7   yes                   TC-291-with-a-green-record-for-the-base-bundle
+                      AC-20201-8   yes                   TC-291-with-rcf-test-strength-json-declaring
+                      AC-20202-1   yes                   TC-292-bundle-fbs-001-acs-ac-101-2-ac-101-5-on
+                      AC-20202-2   yes                   TC-292-acs-on-an-inprogress-spec-exits-2-an-ac
+                      AC-20202-3   yes                   TC-292-an-amend-bundle-on-a-verified-spec-is
+                      AC-20202-4   yes                   TC-292-an-amend-bundle-names-no-criterion-of
+                      AC-20202-5   yes                   TC-292-an-amend-bundle-naming-8-criteria-of-a
+                      AC-20203-1   yes                   TC-293-with-rcf-define-backstop-json
+                      AC-20203-2   yes                   TC-293-rcf-build-backstop-adopt-from-fbs-001
+                      AC-20203-3   yes                   TC-293-bundle-next-allow-unverified-hotfix-base
+                      AC-20203-4   yes                   TC-293-across-the-runs-of-this-story-an
+REQ-203      yes      AC-20301-1   yes                   TC-294-at-the-current-head-node-bin-rcf-js
+                      AC-20301-2   yes                   TC-294-in-a-scratch-copy-at-the-current-head
+                      AC-20301-3   yes                   TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4
+                      AC-20301-4   yes                   TC-294-over-the-named-readiness-fixture-trees
+                      AC-20302-1   yes                   TC-295-at-the-current-head-each-of-define
+                      AC-20302-2   yes                   TC-295-every-defined4-failure-and-defined4
+                      AC-20302-3   yes                   TC-295-no-criterion-live-on-main-at-639f07bb
+                      AC-20302-4   yes                   TC-295-define-readiness-check-all-over-the-own
+                      AC-20303-1   yes                   TC-296-define-readiness-level-intent-check
+                      AC-20303-2   yes                   TC-296-in-a-scratch-copy-at-the-current-head
+                      AC-20303-3   yes                   TC-296-the-define-commit-that-recorded-the
+                      AC-20303-4   yes                   TC-299-over-the-four-fixture-profiles-of-test
+REQ-204      yes      AC-20401-1   yes                   TC-297-rcf-guidance-build-cycle-carries-the
+                      AC-20401-2   yes                   TC-297-the-rounds-section-of-rcf-guidance-build
+                      AC-20401-3   yes                   TC-297-the-managed-block-names-the-five-stages
+                      AC-20401-4   yes                   TC-297-the-closing-runbook-of-rcf-build-bundle
+                      AC-20401-5   yes                   TC-297-no-guidance-topic-no-part-of-the-managed
+                      AC-20401-6   yes                   TC-297-the-finalise-line-of-rcf-guidance
+                      AC-20401-7   yes                   TC-297-in-a-project-initialised-by-the-bin
+                      AC-20402-2   yes                   TC-298-docs-verify-reference-md-has-the
+                      AC-20402-3   yes                   TC-298-no-file-under-packages-rcf-lite-docs
+                      AC-20402-4   yes                   TC-298-the-root-readme-md-and-packages-rcf-lite

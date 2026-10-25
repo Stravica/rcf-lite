@@ -1,15 +1,18 @@
 {
   "createdAt": "2026-10-24T16:22:21.108Z",
-  "updatedAt": "2026-10-24T16:22:21.622Z",
+  "updatedAt": "2026-10-25T15:50:05.555Z",
   "purpose": "FBS-232: the testOnly criteria of US-19502, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
   "testLevel": "integration",
   "acIds": [
     "AC-19502-1",
-    "AC-19502-2"
+    "AC-19502-2",
+    "AC-19502-3",
+    "AC-19502-4",
+    "AC-19502-5"
   ],
   "id": "TS-268",
   "usId": "US-19502",
-  "title": "US-19502 testOnly criteria (FBS-232)",
+  "title": "US-19502 criteria (FBS-232)",
   "testCases": [
     {
       "id": "TC-268-the-pnpm-lock-yaml-importer-entry-for",
@@ -24,6 +27,27 @@
       "description": "every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository",
       "status": "pending",
       "testPointer": "test/define/verification-field.test.js::AC-19502-2: every Code Node implementing a criterion of REQ-195 names a path that resolves under packages/rcf-lite/, never node_modules/ or the rcf-schemas repository"
+    },
+    {
+      "id": "TC-268-update-probe-path-only-refused",
+      "acId": "AC-19502-3",
+      "description": "rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.10.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19502-3: rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.10.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical"
+    },
+    {
+      "id": "TC-268-catalog-path-only-still-fails",
+      "acId": "AC-19502-4",
+      "description": "at rcf-schemas 0.10.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19502-4: at rcf-schemas 0.10.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key"
+    },
+    {
+      "id": "TC-268-ac-level-path-only-refused",
+      "acId": "AC-19502-5",
+      "description": "at rcf-schemas 0.10.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19502-5: at rcf-schemas 0.10.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4"
     }
   ],
   "status": "draft"
