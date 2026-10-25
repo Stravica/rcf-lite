@@ -3041,6 +3041,31 @@
       "answer": "b. The stage-keeper, 2026-10-24: \"FBS-240's notes: its BUILD delivers the shared reader, and its round DEFINE mints the two operator source entries for rcf-lite's own profile.\" The two sentences name the reader by AC-20303-4 and give the entries' form and the add and resolve commands, the form the AC-20303-3 test reads at HEAD.",
       "answeredAt": "2026-10-24T22:57:45.586Z",
       "resolvedAt": "2026-10-24T22:57:45.586Z"
+    },
+    {
+      "id": 139,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-19803-5 row test skips a head row the coverage-rows golden lacks (test/define/verification-end-state.test.js :411, if (!before) continue;) and never asserts that a golden row is still at the head, so a head that drops golden rows passes: what does the row test assert about golden rows missing at the head? Source: stage-keeper ruling 1 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the row test stays as at f916a6f7: it skips a head row the golden lacks and asserts only that the golden and the head share rows (the test text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "assert every golden row id exists at the head before comparing exact keys (the focused re-check's proposed fix for D2)"
+        },
+        {
+          "letter": "c",
+          "text": "also assert that every golden row whose criterion is live at the head has a head row, so a dropped row fails (the ruled reading)"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-235",
+      "addedAt": "2026-10-25T00:59:54.378Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-25: \"D2 (P1), AC-19803-5 row case (test/define/verification-end-state.test.js :411, if (!before) continue;): also assert that every golden row whose criterion is live at the head has a head row, so a dropped row fails.\" The assertion sits in the row test after the shared-rows check and before the per-row key comparison, so it can be observed failing while that comparison waits on the BUILD; a criterion is live at the head when it is in a story under rcf/user-stories at the head and has no supersededBy, as the own-chain recorder reads it; if (!before) continue; and every other assertion stay as written.",
+      "answeredAt": "2026-10-25T01:00:04.134Z",
+      "resolvedAt": "2026-10-25T01:00:04.134Z"
     }
   ]
 }

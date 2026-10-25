@@ -413,6 +413,12 @@ test('AC-19803-5: over the chain of this repository at the slice head, audit cov
     if (JSON.stringify(keys) !== JSON.stringify(want)) grown.push(`${id}: ${keys.join(',')}`);
   }
   assert.ok(Object.keys(was.rows).some((id) => now.rows[id]), `${ROWS_GOLDEN} and the head share criterion rows`);
+  // The stage-keeper's item 1 on the focused re-check (D2): every golden row
+  // whose criterion is live at the head (in a story at the head, with no
+  // supersededBy) has a head row, so a dropped row fails.
+  const live = new Set(readStories(join(pkg, 'rcf', 'user-stories')).flatMap((s) => (s.acceptanceCriteria ?? []).filter((a) => !a.supersededBy).map((a) => a.id)));
+  const dropped = Object.keys(was.rows).filter((id) => live.has(id) && !now.rows[id]);
+  assert.deepEqual(dropped.slice(0, 10), [], `golden rows whose criterion is live at the head have no head row: ${dropped.slice(0, 10).join(', ')}`);
   assert.deepEqual(grown.slice(0, 10), [], 'each row carries the golden row keys plus verification, expectedEnd and now, and nothing else');
 });
 
