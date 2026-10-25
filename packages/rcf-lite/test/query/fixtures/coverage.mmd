@@ -3910,6 +3910,10 @@ flowchart LR
   REQ-194 --> AC-19401-17
   TC-260-one-canary-and-header-substring["TC-260-one-canary-and-header-substring"]
   AC-19401-17 -.-> TC-260-one-canary-and-header-substring
+  AC-19401-18["AC-19401-18"]
+  REQ-194 --> AC-19401-18
+  TC-260-retired-codeclass-with-code["TC-260-retired-codeclass-with-code"]
+  AC-19401-18 -.-> TC-260-retired-codeclass-with-code
   REQ-195["REQ-195"]
   AC-19501-1["AC-19501-1"]
   REQ-195 --> AC-19501-1
@@ -6641,6 +6645,8 @@ flowchart LR
   class TC-260-match-anything-never-passes tc;
   class AC-19401-17 ac;
   class TC-260-one-canary-and-header-substring tc;
+  class AC-19401-18 ac;
+  class TC-260-retired-codeclass-with-code tc;
   class REQ-195 req;
   class AC-19501-1 ac;
   class TC-266-rcf-define-create-ac-parent-us-101-from tc;

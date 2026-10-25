@@ -830,6 +830,7 @@ REQ-194      yes      AC-19401-1   retired (AC-19501-5)  TC-260-validate-own-cha
                       AC-19401-15  yes                   TC-260-non-compiling-pattern-fails
                       AC-19401-16  yes                   TC-260-match-anything-never-passes
                       AC-19401-17  yes                   TC-260-one-canary-and-header-substring
+                      AC-19401-18  yes                   TC-260-retired-codeclass-with-code
 REQ-195      yes      AC-19501-1   yes                   TC-266-rcf-define-create-ac-parent-us-101-from
                       AC-19501-2   yes                   TC-266-rcf-define-update-ac-101-1-set
                       AC-19501-3   yes                   TC-266-a-verification-value-outside-external

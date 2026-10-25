@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:22:21.108Z",
-  "updatedAt": "2026-10-25T11:25:37.548Z",
+  "updatedAt": "2026-10-25T15:50:05.555Z",
   "purpose": "FBS-232: the testOnly criteria of US-19502, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
   "testLevel": "integration",
   "acIds": [
@@ -12,7 +12,7 @@
   ],
   "id": "TS-268",
   "usId": "US-19502",
-  "title": "US-19502 testOnly criteria (FBS-232)",
+  "title": "US-19502 criteria (FBS-232)",
   "testCases": [
     {
       "id": "TC-268-the-pnpm-lock-yaml-importer-entry-for",

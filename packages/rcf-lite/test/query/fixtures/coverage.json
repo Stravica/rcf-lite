@@ -7799,6 +7799,14 @@
             "TC-260-one-canary-and-header-substring"
           ],
           "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19401-18",
+          "covered": true,
+          "testCases": [
+            "TC-260-retired-codeclass-with-code"
+          ],
+          "unresolvedTestCases": []
         }
       ]
     },
