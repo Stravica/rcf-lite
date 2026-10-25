@@ -1055,9 +1055,9 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
   // the seed), we REPLACE that phantom instead of appending after it -
   // so the operator's first real AC lands at -1 and audit coverage /
   // trace no longer count the seed as an unmet criterion. Any operator
-  // edit to the seed (custom given/when/then/scope/provenance, different
-  // description, testable=false) disqualifies it from replacement and
-  // the append path runs as before.
+  // edit to the seed (custom given/when/then/scope/verification/
+  // provenance, different description, testable=false) disqualifies it
+  // from replacement and the append path runs as before.
   const currentAcs = Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : [];
   const seedIndex = detectSeededPhantomAcIndex(currentAcs, parentUsId);
   const replacingPhantom = seedIndex !== -1 && !options.id;
@@ -1094,6 +1094,10 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     // AC-17302-14: the criterion's scope travels in --from-file (no
     // --scope flag); kept as given, when, then and determinism are.
     ...(body?.scope !== undefined ? { scope: body.scope } : {}),
+    // FBS-232 (AC-19501-1): the criterion's verification flag (rcf-schemas
+    // 0.10.0, external | testOnly) travels in --from-file like scope; the
+    // schema check below refuses any other value.
+    ...(body?.verification !== undefined ? { verification: body.verification } : {}),
   };
   const acReplay = resolveReplay({
     kind: 'ac',
@@ -1170,6 +1174,10 @@ function detectSeededPhantomAcIndex(acs, parentUsId) {
   if (ac.when !== undefined) return -1;
   if (ac.then !== undefined) return -1;
   if (ac.scope !== undefined) return -1;
+  // FBS-232: a verification flag set on the seed (define update --set
+  // verification=...) is operator-authored like scope; replacing the seed
+  // would drop it.
+  if (ac.verification !== undefined) return -1;
   if (ac.provenance !== undefined) return -1;
   return 0;
 }

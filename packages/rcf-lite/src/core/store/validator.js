@@ -147,6 +147,26 @@ function detailOf(e) {
 }
 
 /**
+ * Where an error sits, for the message: Ajv's instance path, except that
+ * an error on a criterion's verification flag (rcf-schemas 0.10.0) names
+ * the criterion by id, so `define update <ac-id>` and `define create ac`,
+ * whose error line carries no document id, say which criterion and which
+ * field were refused (FBS-232, AC-19501-3). Every other path is unchanged.
+ *
+ * @param {object} e - an Ajv error object
+ * @param {object} doc - the document validated
+ * @param {DocKind} kind
+ * @returns {string}
+ */
+function locationOf(e, doc, kind) {
+  const path = e?.instancePath || '/';
+  if (kind !== 'userStory') return path;
+  const m = /^\/acceptanceCriteria\/(\d+)\/verification$/.exec(path);
+  const acId = m ? doc?.acceptanceCriteria?.[Number(m[1])]?.id : undefined;
+  return typeof acId === 'string' ? `${acId} verification` : path;
+}
+
+/**
  * Validate a document against its schema.
  *
  * @param {object} args
@@ -181,7 +201,7 @@ export function validateDocument({ doc, kind, filePath, allowAssertionFreeProbe 
   const field = first.instancePath?.replace(/^\//, '').replace(/\//g, '.') || undefined;
   const rule = first.keyword || undefined;
   const message = ajvErrors
-    .map((e) => `${e.instancePath || '/'} ${e.message ?? 'invalid'}${detailOf(e)}`)
+    .map((e) => `${locationOf(e, doc, kind)} ${e.message ?? 'invalid'}${detailOf(e)}`)
     .join('; ');
   const documentId = documentIdOf(doc, kind) ?? undefined;
   return rcfError({
