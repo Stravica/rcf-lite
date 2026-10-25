@@ -20,6 +20,12 @@
 // as a BROKEN finding. `runStats.counts` gains `critiqueOnly` and the
 // report carries `perAc[] { acId, result, evidence }`.
 //
+// Retired criteria (FBS-228, US-19401): an AC carrying `supersededBy` is
+// recorded on perAc[] as `retired` with `evidence.supersededBy`, before
+// any probe is selected, so its probe path is never requested. It is no
+// finding, never pass or fail, and leaves `runStats.counts`: total counts
+// the live testable ACs only, and verified and failed never count it.
+//
 // Shared-parent-state note: this module uses `globalThis.fetch`
 // (injectable via `deps.fetchImpl`) and never spawns a child
 // process for an HTTP probe, so it cannot leak the parent's Playwright
@@ -199,7 +205,8 @@ export async function snapshotSelector({ url, selector }) {
  * Run the deterministic verify pass. Pure in-process; no agent CLI and
  * no MCP. Each testable AC resolves through its probe (AC-level first,
  * then the catalog) to pass, fail or skipped with evidence; an AC with
- * no probe is critique-only. Skipped and critique-only ACs land on
+ * no probe is critique-only; a retired AC (supersededBy) is recorded
+ * retired and never probed. Skipped and critique-only ACs land on
  * `blockedAcs[]`, which the caller MERGES with the provisioning-side
  * list; passes and fails land as findings.
  *
@@ -221,7 +228,8 @@ export async function runDeterministic({ url, acs = [], catalog = { probes: {} }
   const findings = [];
   const blockedAcs = [];
   const perAc = [];
-  const counts = { total: testable.length, verified: 0, failed: 0, skipped: 0, critiqueOnly: 0 };
+  const live = testable.filter((a) => typeof a.supersededBy !== 'string');
+  const counts = { total: live.length, verified: 0, failed: 0, skipped: 0, critiqueOnly: 0 };
   const skip = (acId, evidence, reason) => {
     counts.skipped += 1;
     perAc.push({ acId, result: 'skipped', evidence });
@@ -229,6 +237,10 @@ export async function runDeterministic({ url, acs = [], catalog = { probes: {} }
   };
 
   for (const ac of testable) {
+    if (typeof ac.supersededBy === 'string') {
+      perAc.push({ acId: ac.acId, result: 'retired', evidence: { supersededBy: ac.supersededBy } });
+      continue;
+    }
     const selected = selectProbe(ac, catalog);
     if (!selected) {
       counts.critiqueOnly += 1;

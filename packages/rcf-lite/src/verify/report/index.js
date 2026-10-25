@@ -67,7 +67,8 @@ export function buildReport(p) {
     }));
   }
   // FBS-218 (issue 349): deterministic mode's per-AC probe results
-  // ({ acId, result: pass|fail|skipped|critiqueOnly, evidence }).
+  // ({ acId, result: pass|fail|skipped|critiqueOnly|retired, evidence });
+  // FBS-228: a retired AC carries evidence.supersededBy.
   // Present-only, so agent-mode reports are unchanged.
   if (Array.isArray(p.perAc)) report.perAc = p.perAc;
   // Defence-in-depth: never let a secret reach the report body (§10).
