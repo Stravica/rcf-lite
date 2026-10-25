@@ -3112,6 +3112,27 @@
       "answer": "b. The stage-keeper, 2026-10-25: \"B3 ruling 9's FBS-240 note: reword so it no longer says the DEFINE commit quotes the answers. The sources are the ledger entries the AC-20303-3 test reads.\" With the stage-keeper's ruling on the part D brief's possible stop 2 (reading b), \"which the AC-20303-1 and AC-20303-3 tests read\" also becomes \"which the AC-20303-1 test reads\", since only the AC-20303-1 test reads the profile's naming of its source. The sentence now ends \"naming the operator and that date as their source, which the AC-20303-1 test reads, and the sources are the ledger entries the AC-20303-3 test reads.\"; its lead, every other clause and every other sentence of the notes are unchanged.",
       "answeredAt": "2026-10-25T01:05:12.569Z",
       "resolvedAt": "2026-10-25T01:05:12.569Z"
+    },
+    {
+      "id": 142,
+      "question": "(rcf-lite 0.37.0 DEFINE) FBS-240's deliverables list chain records and the operator's D1 profile answers, not the shared profile reader or the profile field of define readiness --json that its BUILD delivers (AC-20303-4, ADR-4163): do the deliverables gain them? Source: stage-keeper ruling 4 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the deliverables stay as at f916a6f7, since the notes and ADR-4163 are enough (reading a of the Part C3 summary's stop 6; the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the deliverables gain the shared profile reader (AC-20303-4, ADR-4163) and the define readiness --json profile field (reading b of the Part C3 summary's stop 6, the ruled reading)"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-25T01:06:25.399Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-25: \"FBS-240's deliverables: add the shared profile reader (AC-20303-4, ADR-4163) and the readiness --json profile field.\" Appended as two entries after the two existing ones, each naming the builder hand: \"The shared profile reader (AC-20303-4, ADR-4163): one reader in src/ that every consumer of profile:surface and profile:register resolves through (builder)\" and \"The profile field of rcf define readiness --json (AC-20303-4): profile: { surface, register }, each value the resolved marker word or unanswered (builder)\", the second in AC-20303-4's words; the two existing entries and every other field of FBS-240 are unchanged.",
+      "answeredAt": "2026-10-25T01:06:25.487Z",
+      "resolvedAt": "2026-10-25T01:06:25.487Z"
     }
   ]
 }
