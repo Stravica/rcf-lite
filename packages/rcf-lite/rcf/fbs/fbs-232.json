@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:43.676Z",
-  "updatedAt": "2026-10-24T18:57:05.549Z",
+  "updatedAt": "2026-10-25T11:25:28.314Z",
   "summary": "Add verification (enum external | testOnly, optional) to the rcf-schemas acceptance criterion in a minor release, move the rcf-lite pin to it, and carry the field through define create ac and define update. First in the 0.37.0 dependency order, ahead of the flag slice.",
   "approach": "Build opens the rcf-schemas change first (schemas/user-story.schema.json, its tests and CHANGELOG, a minor release 0.10.0 through the rcf-schemas repository's own process), then in rcf-lite bumps the pin and lockfile, carries verification in createInlineAc like scope, and records Code Nodes on the rcf-lite seams. Finalised in rcf-lite by the released 0.36.1 Finalise (ADR self-hosting); the stage-keeper then cuts 0.36.2 from main after this slice merges, through the normal release PR, carrying FBS-228 and this slice and no other 0.37.0 slice (no breaking 0.37.0 change), so later 0.37.0 specs are finalised by a Finalise that accepts the field.",
   "deliverables": [
@@ -23,7 +23,10 @@
     "AC-19501-6",
     "AC-19501-7",
     "AC-19502-1",
-    "AC-19502-2"
+    "AC-19502-2",
+    "AC-19502-3",
+    "AC-19502-4",
+    "AC-19502-5"
   ],
   "fbsId": "FBS-232",
   "prdId": "PRD-001",

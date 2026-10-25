@@ -3840,18 +3840,22 @@ flowchart LR
   REQ-194["REQ-194"]
   AC-19401-1["AC-19401-1"]
   REQ-194 --> AC-19401-1
+  AC-19401-1 -. supersededBy .-> AC-19501-5
   TC-260-validate-own-chain-0-9-0["TC-260-validate-own-chain-0-9-0"]
   AC-19401-1 -.-> TC-260-validate-own-chain-0-9-0
   AC-19401-2["AC-19401-2"]
   REQ-194 --> AC-19401-2
+  AC-19401-2 -. supersededBy .-> AC-19502-3
   TC-260-update-probe-path-only-refused["TC-260-update-probe-path-only-refused"]
   AC-19401-2 -.-> TC-260-update-probe-path-only-refused
   AC-19401-3["AC-19401-3"]
   REQ-194 --> AC-19401-3
+  AC-19401-3 -. supersededBy .-> AC-19502-4
   TC-260-catalog-path-only-still-fails["TC-260-catalog-path-only-still-fails"]
   AC-19401-3 -.-> TC-260-catalog-path-only-still-fails
   AC-19401-4["AC-19401-4"]
   REQ-194 --> AC-19401-4
+  AC-19401-4 -. supersededBy .-> AC-19502-5
   TC-260-ac-level-path-only-refused["TC-260-ac-level-path-only-refused"]
   AC-19401-4 -.-> TC-260-ac-level-path-only-refused
   AC-19401-5["AC-19401-5"]
@@ -3927,6 +3931,8 @@ flowchart LR
   REQ-195 --> AC-19501-5
   TC-267-the-rcf-schemas-pin-names-the-release["TC-267-the-rcf-schemas-pin-names-the-release"]
   AC-19501-5 -.-> TC-267-the-rcf-schemas-pin-names-the-release
+  TC-267-validate-own-chain-0-10-0["TC-267-validate-own-chain-0-10-0"]
+  AC-19501-5 -.-> TC-267-validate-own-chain-0-10-0
   AC-19501-6["AC-19501-6"]
   REQ-195 --> AC-19501-6
   TC-267-the-installed-rcf-schemas-at-the-new-pin["TC-267-the-installed-rcf-schemas-at-the-new-pin"]
@@ -3943,6 +3949,18 @@ flowchart LR
   REQ-195 --> AC-19502-2
   TC-268-every-code-node-implementing-a-criterion["TC-268-every-code-node-implementing-a-criterion"]
   AC-19502-2 -.-> TC-268-every-code-node-implementing-a-criterion
+  AC-19502-3["AC-19502-3"]
+  REQ-195 --> AC-19502-3
+  TC-268-update-probe-path-only-refused["TC-268-update-probe-path-only-refused"]
+  AC-19502-3 -.-> TC-268-update-probe-path-only-refused
+  AC-19502-4["AC-19502-4"]
+  REQ-195 --> AC-19502-4
+  TC-268-catalog-path-only-still-fails["TC-268-catalog-path-only-still-fails"]
+  AC-19502-4 -.-> TC-268-catalog-path-only-still-fails
+  AC-19502-5["AC-19502-5"]
+  REQ-195 --> AC-19502-5
+  TC-268-ac-level-path-only-refused["TC-268-ac-level-path-only-refused"]
+  AC-19502-5 -.-> TC-268-ac-level-path-only-refused
   REQ-196["REQ-196"]
   AC-19601-1["AC-19601-1"]
   REQ-196 --> AC-19601-1
@@ -4626,6 +4644,10 @@ flowchart LR
   REQ-204 --> AC-20402-4
   TC-298-the-root-readme-md-and-packages-rcf-lite["TC-298-the-root-readme-md-and-packages-rcf-lite"]
   AC-20402-4 -.-> TC-298-the-root-readme-md-and-packages-rcf-lite
+  class TC-260-validate-own-chain-0-9-0 broken;
+  class TC-260-update-probe-path-only-refused broken;
+  class TC-260-catalog-path-only-still-fails broken;
+  class TC-260-ac-level-path-only-refused broken;
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -6634,6 +6656,7 @@ flowchart LR
   class TC-266-after-the-pin-move-rcf-define-validate tc;
   class AC-19501-5 ac;
   class TC-267-the-rcf-schemas-pin-names-the-release tc;
+  class TC-267-validate-own-chain-0-10-0 tc;
   class AC-19501-6 ac;
   class TC-267-the-installed-rcf-schemas-at-the-new-pin tc;
   class AC-19501-7 ac;
@@ -6642,6 +6665,12 @@ flowchart LR
   class TC-268-the-pnpm-lock-yaml-importer-entry-for tc;
   class AC-19502-2 ac;
   class TC-268-every-code-node-implementing-a-criterion tc;
+  class AC-19502-3 ac;
+  class TC-268-update-probe-path-only-refused tc;
+  class AC-19502-4 ac;
+  class TC-268-catalog-path-only-still-fails tc;
+  class AC-19502-5 ac;
+  class TC-268-ac-level-path-only-refused tc;
   class REQ-196 req;
   class AC-19601-1 ac;
   class TC-269-rcf-audit-separation-over-a-define-build tc;

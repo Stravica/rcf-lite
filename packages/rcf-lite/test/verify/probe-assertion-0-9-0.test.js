@@ -30,16 +30,19 @@ const RCF_BIN = join(PKG_ROOT, 'bin', 'rcf.js');
 const SCHEMAS = '@stravica-ai/rcf-schemas';
 const ASSERTION_FIELDS = ['expectStatus', 'expectHeader', 'expectBody', 'selector'];
 
-// The Given every FBS-227 criterion shares: the package under test pins
-// rcf-schemas 0.9.0 and the copy bin/rcf.js resolves reads 0.9.0. Both
+// The Given the four tests below share. Stage-keeper ruling 5 (round A):
+// FBS-227's AC-19401-1 to -4 are retired, succeeded by AC-19501-5 and
+// AC-19502-3 to -5, whose Given reads the pin at rcf-schemas 0.10.0, so
+// the four are bound to the successors and the package under test pins
+// rcf-schemas 0.10.0 and the copy bin/rcf.js resolves reads 0.10.0. Both
 // are read relative to this file, so inside the artefact run they are
 // the artefact's own pin and its own installed dependency.
 async function assertPinGiven() {
   const pkg = JSON.parse(await readFile(join(PKG_ROOT, 'package.json'), 'utf8'));
-  assert.equal(pkg.dependencies?.[SCHEMAS], '0.9.0', `${PKG_ROOT}/package.json pins ${SCHEMAS} 0.9.0`);
+  assert.equal(pkg.dependencies?.[SCHEMAS], '0.10.0', `${PKG_ROOT}/package.json pins ${SCHEMAS} 0.10.0`);
   const schemasPkg = createRequire(RCF_BIN).resolve(`${SCHEMAS}/package.json`);
   const installed = JSON.parse(await readFile(schemasPkg, 'utf8')).version;
-  assert.equal(installed, '0.9.0', `the ${SCHEMAS} that bin/rcf.js resolves (${schemasPkg}) is 0.9.0`);
+  assert.equal(installed, '0.10.0', `the ${SCHEMAS} that bin/rcf.js resolves (${schemasPkg}) is 0.10.0`);
 }
 
 // This repository's packages/rcf-lite, the directory AC-19401-1 runs its
@@ -156,8 +159,8 @@ function assertMissingAssertionFail(report, acId) {
   assert.equal(failed, 'missing assertion', `${acId}: failedExpectation is exactly "missing assertion"`);
 }
 
-test('AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0', async (t) => {
-  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.9.0', assertPinGiven);
+test('AC-19501-5: with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0', async (t) => {
+  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0', assertPinGiven);
 
   // The package under test's bin/rcf.js runs from this repository's
   // packages/rcf-lite in both worlds, full validation included.
@@ -178,8 +181,8 @@ test('AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node
   });
 });
 
-test('AC-19401-2: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} at rcf-schemas 0.9.0 exits 3 with a stderr line naming AC-101-1 and "missing assertion" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical', async (t) => {
-  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.9.0', assertPinGiven);
+test('AC-19502-3: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} at rcf-schemas 0.10.0 exits 3 with a stderr line naming AC-101-1 and "missing assertion" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical', async (t) => {
+  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0', assertPinGiven);
 
   await t.test('a path-only --probe is refused with exit 3, one stderr line naming AC-101-1, "missing assertion" and the four fields, and the story bytes unchanged', async () => {
     const root = await fixtureChain({ acs: [ac('AC-101-1'), ac('AC-101-2')] });
@@ -197,8 +200,8 @@ test('AC-19401-2: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} at
   });
 });
 
-test('AC-19401-3: at rcf-schemas 0.9.0 an rcf/verify-catalog.json entry { "path": "/" } resolves "fail" with failedExpectation "missing assertion" (never "expectStatus"), never "pass", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key', async (t) => {
-  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.9.0', assertPinGiven);
+test('AC-19502-4: at rcf-schemas 0.10.0 an rcf/verify-catalog.json entry { "path": "/" } resolves "fail" with failedExpectation "missing assertion" (never "expectStatus"), never "pass", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key', async (t) => {
+  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0', assertPinGiven);
 
   const target = await startTarget(t);
   const root = await fixtureChain({
@@ -230,8 +233,8 @@ test('AC-19401-3: at rcf-schemas 0.9.0 an rcf/verify-catalog.json entry { "path"
   });
 });
 
-test('AC-19401-4: at rcf-schemas 0.9.0 an AC-level probe { "path": "/" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it "fail" with failedExpectation "missing assertion", never "pass", exit 4', async (t) => {
-  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.9.0', assertPinGiven);
+test('AC-19502-5: at rcf-schemas 0.10.0 an AC-level probe { "path": "/" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it "fail" with failedExpectation "missing assertion", never "pass", exit 4', async (t) => {
+  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0', assertPinGiven);
 
   const target = await startTarget(t);
   // Written to disk by the scaffold, never through rcf define update.

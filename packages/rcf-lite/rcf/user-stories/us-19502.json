@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:42.592Z",
-  "updatedAt": "2026-10-24T14:59:23.432Z",
+  "updatedAt": "2026-10-25T11:25:19.701Z",
   "asA": "builder on the schema slice, with the stage-keeper who releases it",
   "iWant": "the rcf-schemas change released before the rcf-lite pin moves, and the rcf-lite round to carry Code Nodes only on rcf-lite consumer seams",
   "soThat": "the slice is one Build in rcf-lite whose Finalise can run, even though rcf-schemas has no chain",
@@ -23,6 +23,21 @@
     {
       "id": "AC-19502-2",
       "description": "[must-not] No Code Node recorded for a criterion of this story names a path outside this repository: every rcf/code-nodes/ record whose implementsAcIds names a criterion of REQ-195 has a path that resolves under packages/rcf-lite/ (the writer and schema-loading seams), and none names node_modules/ or a path in the rcf-schemas repository.",
+      "testable": true
+    },
+    {
+      "id": "AC-19502-3",
+      "description": "[failure] Given the pin at rcf-schemas 0.10.0 and a fixture chain whose US-101 holds AC-101-1 with no probe, when rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\"}' runs (a probe with path only, carrying none of expectStatus, expectHeader, expectBody or selector), then it exits 3, stderr carries a line naming AC-101-1 and \"missing assertion\" and listing the four assertion fields, and rcf/user-stories/us-101.json is byte-identical to its state before the command.",
+      "testable": true
+    },
+    {
+      "id": "AC-19502-4",
+      "description": "[must-not] Given the pin at rcf-schemas 0.10.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, an rcf/verify-catalog.json at catalogVersion 1 whose AC-101-1 entry is { \"path\": \"/\" } and whose AC-101-2 entry is { \"path\": \"/\", \"expectStatus\": 200 }, and a local server answering GET / with 200, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then it exits 4, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\" (never \"expectStatus\" or another single assertion name, which the 0.9.0 acProbe subschema error would otherwise name first), never \"pass\", runStats.counts.failed counts it and runStats.counts.verified counts AC-101-2 only; and rcf define validate on that chain exits 3 naming the key AC-101-1.",
+      "testable": true
+    },
+    {
+      "id": "AC-19502-5",
+      "description": "[must-not] Given the pin at rcf-schemas 0.10.0 and a fixture chain whose rcf/user-stories/us-101.json already carries an AC-level probe { \"path\": \"/\" } on AC-101-1 (written to disk, not through the CLI), when rcf define validate runs, then it exits 3 naming AC-101-1 and its probe; and when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs on that tree, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\", never \"pass\", and the command exits 4.",
       "testable": true
     }
   ],

@@ -6,7 +6,7 @@
     "covered": 135,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 38
+    "retiredAcs": 42
   },
   "requirements": [
     {
@@ -7658,35 +7658,51 @@
       "acs": [
         {
           "id": "AC-19401-1",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19501-5",
+          "covered": false,
           "testCases": [
             "TC-260-validate-own-chain-0-9-0"
           ],
-          "unresolvedTestCases": []
+          "unresolvedTestCases": [
+            "TC-260-validate-own-chain-0-9-0"
+          ]
         },
         {
           "id": "AC-19401-2",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19502-3",
+          "covered": false,
           "testCases": [
             "TC-260-update-probe-path-only-refused"
           ],
-          "unresolvedTestCases": []
+          "unresolvedTestCases": [
+            "TC-260-update-probe-path-only-refused"
+          ]
         },
         {
           "id": "AC-19401-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19502-4",
+          "covered": false,
           "testCases": [
             "TC-260-catalog-path-only-still-fails"
           ],
-          "unresolvedTestCases": []
+          "unresolvedTestCases": [
+            "TC-260-catalog-path-only-still-fails"
+          ]
         },
         {
           "id": "AC-19401-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19502-5",
+          "covered": false,
           "testCases": [
             "TC-260-ac-level-path-only-refused"
           ],
-          "unresolvedTestCases": []
+          "unresolvedTestCases": [
+            "TC-260-ac-level-path-only-refused"
+          ]
         },
         {
           "id": "AC-19401-5",
@@ -7835,7 +7851,8 @@
           "id": "AC-19501-5",
           "covered": true,
           "testCases": [
-            "TC-267-the-rcf-schemas-pin-names-the-release"
+            "TC-267-the-rcf-schemas-pin-names-the-release",
+            "TC-267-validate-own-chain-0-10-0"
           ],
           "unresolvedTestCases": []
         },
@@ -7868,6 +7885,30 @@
           "covered": true,
           "testCases": [
             "TC-268-every-code-node-implementing-a-criterion"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19502-3",
+          "covered": true,
+          "testCases": [
+            "TC-268-update-probe-path-only-refused"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19502-4",
+          "covered": true,
+          "testCases": [
+            "TC-268-catalog-path-only-still-fails"
+          ],
+          "unresolvedTestCases": []
+        },
+        {
+          "id": "AC-19502-5",
+          "covered": true,
+          "testCases": [
+            "TC-268-ac-level-path-only-refused"
           ],
           "unresolvedTestCases": []
         }
@@ -9282,5 +9323,30 @@
       ]
     }
   ],
-  "unresolvedTestPointers": []
+  "unresolvedTestPointers": [
+    {
+      "tsId": "TS-260",
+      "tcId": "TC-260-ac-level-path-only-refused",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19401-4: at rcf-schemas 0.9.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-260",
+      "tcId": "TC-260-catalog-path-only-still-fails",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19401-3: at rcf-schemas 0.9.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-260",
+      "tcId": "TC-260-update-probe-path-only-refused",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19401-2: rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.9.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical",
+      "reason": "test-missing"
+    },
+    {
+      "tsId": "TS-260",
+      "tcId": "TC-260-validate-own-chain-0-9-0",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19401-1: with @stravica-ai/rcf-schemas 0.9.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0",
+      "reason": "test-missing"
+    }
+  ]
 }
