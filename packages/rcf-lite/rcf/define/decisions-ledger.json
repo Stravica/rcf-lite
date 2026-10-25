@@ -3091,6 +3091,27 @@
       "answer": "c. The stage-keeper, 2026-10-25: \"D1 (P3), the AC-20303-3 source match (test/define/readiness-own-chain.test.js :326): require the double-quoted remainder after \"The operator, <YYYY-MM-DD>: \", the form FBS-240's notes name.\" SOURCE is now /^The operator, (\\d{4}-\\d{2}-\\d{2}): \"([^\"]+)\"$/: the remainder is one double-quoted string with no double quote inside it and nothing after the closing quote, the form of the add and resolve commands in FBS-240's notes; the text inside the quotes is matched through the plain words of SURFACE and REGISTER, as the stage-keeper ruled before part C3, and both uses keep the one SOURCE.",
       "answeredAt": "2026-10-25T01:03:41.017Z",
       "resolvedAt": "2026-10-25T01:03:41.017Z"
+    },
+    {
+      "id": 141,
+      "question": "(rcf-lite 0.37.0 DEFINE) B3 ruling 9's sentence in FBS-240's notes still ends \"and the DEFINE: commit that records it quotes both answers and that date (AC-20303-3)\", while the AC-20303-3 test reads ledger source entries, not a commit: does that clause change? Source: stage-keeper ruling 3 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the clause stays as a process step for the round DEFINE commit (reading a of the Part C3 summary's stop 5; the record text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "the clause is reworded to the ledger sources: the sentence no longer says the DEFINE commit quotes the answers, and the sources are the ledger entries the AC-20303-3 test reads (reading b of the Part C3 summary's stop 5, the ruled reading)"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-25T01:05:12.481Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-25: \"B3 ruling 9's FBS-240 note: reword so it no longer says the DEFINE commit quotes the answers. The sources are the ledger entries the AC-20303-3 test reads.\" With the stage-keeper's ruling on the part D brief's possible stop 2 (reading b), \"which the AC-20303-1 and AC-20303-3 tests read\" also becomes \"which the AC-20303-1 test reads\", since only the AC-20303-1 test reads the profile's naming of its source. The sentence now ends \"naming the operator and that date as their source, which the AC-20303-1 test reads, and the sources are the ledger entries the AC-20303-3 test reads.\"; its lead, every other clause and every other sentence of the notes are unchanged.",
+      "answeredAt": "2026-10-25T01:05:12.569Z",
+      "resolvedAt": "2026-10-25T01:05:12.569Z"
     }
   ]
 }
