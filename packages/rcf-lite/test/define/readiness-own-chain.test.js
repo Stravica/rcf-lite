@@ -318,14 +318,16 @@ function answersIn(path, text) {
 // The source of an answer (the stage-keeper's ruling in Part C, with
 // rulings 2 and 3 before part C2): a decisions-ledger entry whose question
 // asks for the value of that key and whose answer opens
-// "The operator, <YYYY-MM-DD>:" followed by the operator's verbatim quote,
-// the quote matching the answer's marker through the plain words of
-// SURFACE and REGISTER above, ignoring case. FBS-240's round DEFINE mints
-// the two entries with the profile, before this marker drops.
+// "The operator, <YYYY-MM-DD>: " followed by the operator's verbatim quote
+// in double quotes, with nothing after the closing quote (the stage-keeper's
+// item 2 on the focused re-check, D1: the form FBS-240's notes name), the
+// text inside the quotes matching the answer's marker through the plain
+// words of SURFACE and REGISTER above, ignoring case. FBS-240's round DEFINE
+// mints the two entries with the profile, before this marker drops.
 const asksValueOf = (d, key) => String(d.question ?? '').includes(`the value of ${key}`);
-const SOURCE = /^The operator, (\d{4}-\d{2}-\d{2}): (\S[\s\S]*)$/;
+const SOURCE = /^The operator, (\d{4}-\d{2}-\d{2}): "([^"]+)"$/;
 const PROFILE_STEP = `FBS-240's round DEFINE records the operator's answers in ${PROFILE} and commits it`;
-const SOURCE_STEP = 'FBS-240\'s round DEFINE mints the two operator source entries (node bin/rcf.js define ledger decisions add, then resolve: a question asking for the value of profile:surface or profile:register, an answer opening "The operator, 2026-10-24:" and quoting the operator)';
+const SOURCE_STEP = 'FBS-240\'s round DEFINE mints the two operator source entries (node bin/rcf.js define ledger decisions add, then resolve: a question asking for the value of profile:surface or profile:register, an answer opening "The operator, 2026-10-24:" and quoting the operator in double quotes)';
 
 test('AC-20303-3: rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date', TODO, async (t) => {
   const root = checkoutRoot();

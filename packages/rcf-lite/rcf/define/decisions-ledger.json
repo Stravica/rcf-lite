@@ -3066,6 +3066,31 @@
       "answer": "c. The stage-keeper, 2026-10-25: \"D2 (P1), AC-19803-5 row case (test/define/verification-end-state.test.js :411, if (!before) continue;): also assert that every golden row whose criterion is live at the head has a head row, so a dropped row fails.\" The assertion sits in the row test after the shared-rows check and before the per-row key comparison, so it can be observed failing while that comparison waits on the BUILD; a criterion is live at the head when it is in a story under rcf/user-stories at the head and has no supersededBy, as the own-chain recorder reads it; if (!before) continue; and every other assertion stay as written.",
       "answeredAt": "2026-10-25T01:00:04.134Z",
       "resolvedAt": "2026-10-25T01:00:04.134Z"
+    },
+    {
+      "id": 140,
+      "question": "(rcf-lite 0.37.0 DEFINE) The AC-20303-3 source match (test/define/readiness-own-chain.test.js :326, SOURCE) accepts any non-blank remainder after \"The operator, <YYYY-MM-DD>: \", so an unquoted or negated remainder holding the plain words passes as the operator's quote: what form must a source answer take? Source: stage-keeper ruling 2 on the focused re-check, 2026-10-25, at f916a6f7.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "SOURCE stays as at f916a6f7: any non-blank remainder after \"The operator, <YYYY-MM-DD>: \" (the test text, read as it stays)"
+        },
+        {
+          "letter": "b",
+          "text": "require the quoted answer form and compare the complete normalized quote to the ruled plain words (the focused re-check's proposed fix for D1)"
+        },
+        {
+          "letter": "c",
+          "text": "require the double-quoted remainder after \"The operator, <YYYY-MM-DD>: \", the form FBS-240's notes name, the text inside the quotes still matched through the plain words of SURFACE and REGISTER (the ruled reading)"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-25T01:03:31.042Z",
+      "status": "resolved",
+      "answer": "c. The stage-keeper, 2026-10-25: \"D1 (P3), the AC-20303-3 source match (test/define/readiness-own-chain.test.js :326): require the double-quoted remainder after \"The operator, <YYYY-MM-DD>: \", the form FBS-240's notes name.\" SOURCE is now /^The operator, (\\d{4}-\\d{2}-\\d{2}): \"([^\"]+)\"$/: the remainder is one double-quoted string with no double quote inside it and nothing after the closing quote, the form of the add and resolve commands in FBS-240's notes; the text inside the quotes is matched through the plain words of SURFACE and REGISTER, as the stage-keeper ruled before part C3, and both uses keep the one SOURCE.",
+      "answeredAt": "2026-10-25T01:03:41.017Z",
+      "resolvedAt": "2026-10-25T01:03:41.017Z"
     }
   ]
 }
