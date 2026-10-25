@@ -259,7 +259,7 @@ test('AC-19401-4: at rcf-schemas 0.9.0 an AC-level probe { "path": "/" } already
 // round DEFINE (GR-35). Its body uses only the shared harness
 // (test/_harness/, GR-40): the bin's rcf init fixture and a recording
 // HTTP target.
-test('AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes', { todo: 'FBS-228 round DEFINE' }, async (t) => {
+test('AC-19401-12: rcf verify run --mode deterministic never requests the probe path of retired AC-101-1, records it "retired" with evidence.supersededBy "AC-101-2", never "pass" or "fail", counts it under neither verified nor failed, and exits 0 when AC-101-2 passes', async (t) => {
   const dir = await harnessProject(t, { name: 'verify-retired' });
   editStory(dir, 'US-101', (us) => {
     us.acceptanceCriteria = [
@@ -282,7 +282,7 @@ test('AC-19401-12: rcf verify run --mode deterministic never requests the probe 
   assert.equal(one.evidence?.supersededBy, 'AC-101-2');
   const two = perAc(report, 'AC-101-2');
   assert.equal(two.result, 'pass', 'AC-101-2 passes');
-  assert.equal(report.runStats.counts.verified, 1, 'runStats.counts.verified counts AC-101-2 only, never AC-101-1');
-  assert.equal(report.runStats.counts.failed, 0, 'runStats.counts.failed never counts AC-101-1');
+  assert.equal(report.run.runStats.counts.verified, 1, 'runStats.counts.verified counts AC-101-2 only, never AC-101-1');
+  assert.equal(report.run.runStats.counts.failed, 0, 'runStats.counts.failed never counts AC-101-1');
   assert.equal(r.code, 0, `with AC-101-2 passing the command exits 0\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`);
 });

@@ -19,7 +19,6 @@ import { rcf } from '../_harness/spawn.js';
 import { bindTests, criterion, editFbs, editStory, project, writeJson } from '../_harness/fixture.js';
 import { json } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-228 round DEFINE' };
 const RETIRED = { supersededOn: '2026-10-20', supersessionNote: 'replaced by AC-101-2' };
 
 // US-101 holds exactly `acs`; FBS-001 scopes them all.
@@ -40,7 +39,7 @@ function tableRow(stdout, acId) {
   return stdout.split('\n').find((l) => new RegExp(`(^|\\s)${acId}\\s`).test(l)) ?? '';
 }
 
-test('AC-19401-5: rcf audit coverage with AC-101-1 superseded by AC-101-2 (no TC) and AC-101-2 bound to a resolving TC exits 0, the row reads "retired (AC-101-2)", json state "retired" supersededBy "AC-101-2" covered false totals.retiredAcs 1, mermaid "AC-101-1 -. supersededBy .-> AC-101-2", shallow-any exits 0', TODO, async (t) => {
+test('AC-19401-5: rcf audit coverage with AC-101-1 superseded by AC-101-2 (no TC) and AC-101-2 bound to a resolving TC exits 0, the row reads "retired (AC-101-2)", json state "retired" supersededBy "AC-101-2" covered false totals.retiredAcs 1, mermaid "AC-101-1 -. supersededBy .-> AC-101-2", shallow-any exits 0', async (t) => {
   const dir = await world(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour'),
@@ -99,21 +98,21 @@ async function supersessionError(t, acs, line) {
   return strict;
 }
 
-test('AC-19401-6: rcf audit coverage with AC-101-1 supersededBy AC-101-9 absent from the chain exits 4 printing "supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', TODO, async (t) => {
+test('AC-19401-6: rcf audit coverage with AC-101-1 supersededBy AC-101-9 absent from the chain exits 4 printing "supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', async (t) => {
   await supersessionError(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-9', ...RETIRED, supersessionNote: 'replaced by AC-101-9' }),
     criterion('AC-101-2', '[happy] another behaviour'),
   ], 'supersession: AC-101-1 supersededBy AC-101-9: successor not found in the chain');
 });
 
-test('AC-19401-7: rcf audit coverage with AC-101-1 supersededBy AC-101-1 exits 4 printing "supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', TODO, async (t) => {
+test('AC-19401-7: rcf audit coverage with AC-101-1 supersededBy AC-101-1 exits 4 printing "supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', async (t) => {
   await supersessionError(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-1', ...RETIRED, supersessionNote: 'replaced by itself' }),
     criterion('AC-101-2', '[happy] another behaviour'),
   ], 'supersession: AC-101-1 supersededBy AC-101-1: a criterion cannot supersede itself');
 });
 
-test('AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each other exits 4 printing one line "supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', TODO, async (t) => {
+test('AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each other exits 4 printing one line "supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1"; --mode shallow-any prints it and exits 0; rcf define validate exits 0', async (t) => {
   const line = 'supersession: AC-101-1 supersededBy AC-101-2: cycle AC-101-1 -> AC-101-2 -> AC-101-1';
   const strict = await supersessionError(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
@@ -123,7 +122,7 @@ test('AC-19401-8: rcf audit coverage with AC-101-1 and AC-101-2 superseding each
   assert.deepEqual(cycleLines, [line], 'exactly one line for the cycle, starting at the lowest id');
 });
 
-test('AC-19401-9: rcf audit coverage with a resolving TC still bound to retired AC-101-1 and no TC on AC-101-2 exits 4 with REQ-001 uncovered; the AC-101-1 row reads "retired (AC-101-2)" and lists the TC, json keeps it in testCases, and it counts toward nothing', TODO, async (t) => {
+test('AC-19401-9: rcf audit coverage with a resolving TC still bound to retired AC-101-1 and no TC on AC-101-2 exits 4 with REQ-001 uncovered; the AC-101-1 row reads "retired (AC-101-2)" and lists the TC, json keeps it in testCases, and it counts toward nothing', async (t) => {
   const dir = await world(t, [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour'),
@@ -149,7 +148,7 @@ test('AC-19401-9: rcf audit coverage with a resolving TC still bound to retired 
   assert.deepEqual(two.ac.testCases, []);
 });
 
-test('AC-19401-10: rcf audit coverage with retired AC-101-1, covered AC-101-2 and uncovered AC-101-3 exits 4 with REQ-001 uncovered and AC-101-3 "no"; AC-101-1 never reads "yes" or covered true in strict or shallow-any mode', TODO, async (t) => {
+test('AC-19401-10: rcf audit coverage with retired AC-101-1, covered AC-101-2 and uncovered AC-101-3 exits 4 with REQ-001 uncovered and AC-101-3 "no"; AC-101-1 never reads "yes" or covered true in strict or shallow-any mode', async (t) => {
   const acs = [
     criterion('AC-101-1', '[happy] the first behaviour', { supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour'),
@@ -191,7 +190,7 @@ function evalDoc(id, acIds) {
   };
 }
 
-test('AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministic AC-101-1 and no EVAL exits 0 reading outcome "retired" supersededBy "AC-101-2" and missingCount 0; a live nonDeterministic AC-101-3 with no EVAL still reads "missing" and exits 4', TODO, async (t) => {
+test('AC-19401-11: rcf audit eval coverage --strict with retired nonDeterministic AC-101-1 and no EVAL exits 0 reading outcome "retired" supersededBy "AC-101-2" and missingCount 0; a live nonDeterministic AC-101-3 with no EVAL still reads "missing" and exits 4', async (t) => {
   const base = [
     criterion('AC-101-1', '[happy] the first behaviour', { determinism: 'nonDeterministic', supersededBy: 'AC-101-2', ...RETIRED }),
     criterion('AC-101-2', '[happy] the replacement behaviour', { determinism: 'nonDeterministic' }),
