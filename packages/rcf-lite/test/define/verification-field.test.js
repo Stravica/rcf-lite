@@ -220,37 +220,160 @@ test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCri
 
 // pnpm-lock.yaml read with Node builtins only: a YAML library is a
 // devDependency, absent from the packed artefact the Test stage installs.
-// The lockfile is block-style YAML, mappings nested by indentation with
-// plain or quoted scalar keys and values; this reads that shape into the
-// nested objects a YAML parser returns for it (an empty flow mapping {}
-// reads {}, another flow value its text, a sequence item is skipped), so
-// the importer entry below is read exactly as a YAML parser reads it.
+// AC-19502-1 is about the lockfile pnpm writes, and "any other version
+// fails" holds for every input (the stage-keeper's ruling E), so this
+// reads the subset of YAML pnpm writes and throws on everything else,
+// anywhere in the file. The subset: block mappings nested by indentation
+// (spaces only, each mapping's keys at one indentation), plain or quoted
+// scalar keys and values written whole on their line, {} as a value (read
+// {}), a one-line flow collection as the value of a key pnpm writes in
+// flow style (resolution, engines, cpu, os, libc) outside importers (read
+// as its text), and block sequence items holding one scalar (skipped). It
+// reads that into the nested objects a YAML parser returns for it (every
+// key an own property, as a YAML parser stores __proto__). A block scalar
+// indicator, an anchor, an alias, a tag, a flow collection where a block
+// value is expected, a document marker after the first line, a complex
+// key, a tab in indentation, a duplicate key, a line off its mapping's
+// indentation (a multi-line scalar's continuation, say) and any other
+// line or scalar outside the subset throw an error naming the line and
+// the construct, which fails the test.
+const LOCK_FLOW_KEYS = new Set(['resolution', 'engines', 'cpu', 'os', 'libc']);
+const LOCK_FLOW = 'a flow collection ({ or [) where a block value is expected';
+const LOCK_FLOW_OPEN = 'a flow collection that is not whole on its line';
 function lockScalar(text) {
   if (text === '{}') return {};
   if (/^'.*'$/.test(text)) return text.slice(1, -1).replaceAll("''", "'");
   if (/^".*"$/.test(text)) return JSON.parse(text);
   return text;
 }
-function readLockfile(text) {
-  const root = {};
-  const open = [{ indent: -1, map: root }];
-  for (const line of text.split(/\r?\n/)) {
-    const body = line.trimStart();
-    if (body === '' || body.startsWith('#') || body.startsWith('-')) continue;
-    const m = /^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^'"\s][^:]*?):(?:\s+(.*))?$/.exec(body);
-    if (!m) continue;
-    const indent = line.length - body.length;
-    while (open.at(-1).indent >= indent) open.pop();
-    const parent = open.at(-1).map;
-    const key = lockScalar(m[1]);
-    const value = (m[2] ?? '').trim();
-    if (value === '') {
-      parent[key] = {};
-      open.push({ indent, map: parent[key] });
-    } else {
-      parent[key] = lockScalar(value);
+// The construct a node's first character opens when it is not a plain or
+// quoted scalar, else null.
+function lockIndicator(text) {
+  const c = text[0];
+  if (c === '|' || c === '>') return 'a block scalar indicator (| or >)';
+  if (c === '&') return 'an anchor (&)';
+  if (c === '*') return 'an alias (*)';
+  if (c === '!') return 'a tag (!)';
+  if ('{[]},'.includes(c)) return LOCK_FLOW;
+  if (c === '?' && /^\?(\s|$)/.test(text)) return 'a complex key (?)';
+  if ('@`%#'.includes(c)) return `an indicator (${c}) that cannot open a plain scalar`;
+  return null;
+}
+// Why a one-line key, value or sequence item is not a plain or quoted
+// scalar pnpm writes, else null.
+function lockScalarConstruct(text) {
+  if (text[0] === "'" || text[0] === '"') {
+    return /^(?:'(?:[^']|'')*'|"(?:[^"\\]|\\.)*")$/.test(text) ? null : 'a quoted scalar that does not close on its line';
+  }
+  const indicator = lockIndicator(text);
+  if (indicator) return indicator;
+  if (/^-(\s|$)/.test(text)) return 'a block sequence where a scalar is expected';
+  if (/:(\s|$)/.test(text)) return 'a plain scalar holding ": "';
+  if (/\s$/.test(text)) return 'a space before a key\'s colon';
+  return null;
+}
+// Why a flow value is not one whole flow collection of plain or quoted
+// scalars on its line, else null.
+function lockFlowConstruct(text) {
+  let depth = 0;
+  let quote = null;
+  let start = true;
+  for (let i = 0; i < text.length; i++) {
+    const c = text[i];
+    if (quote) {
+      if (quote === '"' && c === '\\') i++;
+      else if (c === quote && quote === "'" && text[i + 1] === "'") i++;
+      else if (c === quote) quote = null;
+      continue;
+    }
+    if (c === ' ') continue;
+    if (c === '#' && text[i - 1] === ' ') return LOCK_FLOW_OPEN;
+    if (start && (c === "'" || c === '"')) {
+      quote = c;
+      start = false;
+      continue;
+    }
+    if (start && !'{[]}'.includes(c)) {
+      const indicator = lockIndicator(text.slice(i));
+      if (indicator && indicator !== LOCK_FLOW) return indicator;
+    }
+    start = false;
+    if (c === '{' || c === '[') {
+      depth++;
+      start = true;
+    } else if (c === '}' || c === ']') {
+      depth--;
+      if (depth < 0 || (depth === 0 && i !== text.length - 1)) return LOCK_FLOW_OPEN;
+    } else if (c === ',' || (c === ':' && /\s/.test(text[i + 1] ?? ' '))) {
+      start = true;
     }
   }
+  return depth === 0 && quote === null ? null : LOCK_FLOW_OPEN;
+}
+function readLockfile(text) {
+  const root = {};
+  // An open node: its key's indentation (-1 for the document), its object,
+  // and, once its first child is read, that child's indentation and kind.
+  const open = [{ indent: -1, map: root, childIndent: null, seq: false }];
+  let section = null;
+  text.split(/\r?\n/).forEach((line, i) => {
+    const refuse = (construct) => {
+      throw new Error(`pnpm-lock.yaml line ${i + 1}: ${construct}, outside the YAML pnpm writes, so the lockfile reader refuses it: ${line.trim()}`);
+    };
+    const lead = /^[ \t]*/.exec(line)[0];
+    if (lead.includes('\t')) refuse('a tab in indentation');
+    const body = line.slice(lead.length).trimEnd();
+    if (body === '' || body.startsWith('#')) return;
+    if (/^(---|\.\.\.)(\s|$)/.test(line)) {
+      if (i === 0 && /^---\s*(#.*)?$/.test(line)) return;
+      refuse('a document marker (--- after the first line, or ...)');
+    }
+    const indent = lead.length;
+    while (open.at(-1).indent >= indent) open.pop();
+    const node = open.at(-1);
+    const item = /^-(\s|$)/.test(body);
+    if (node.childIndent === null) {
+      node.childIndent = indent;
+      node.seq = item;
+    } else if (node.childIndent !== indent) {
+      refuse('a line off its mapping\'s indentation (a multi-line scalar\'s continuation or a mis-indented key)');
+    } else if (node.seq !== item) {
+      refuse(item ? 'a sequence item beside mapping keys' : 'a mapping key beside sequence items');
+    }
+    if (item) {
+      const content = body.slice(1).trim();
+      const construct = content === '' ? 'a sequence item with no scalar on its line' : lockScalarConstruct(content);
+      if (construct) refuse(construct);
+      return;
+    }
+    const indicator = lockIndicator(body);
+    if (indicator) refuse(indicator);
+    const m = /^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^'"\s][^:]*?):(?:\s+(.*))?$/.exec(body);
+    if (!m) refuse('a line that is not a key with its value or a sequence item');
+    const keyConstruct = lockScalarConstruct(m[1]);
+    if (keyConstruct) refuse(keyConstruct);
+    const key = lockScalar(m[1]);
+    if (Object.hasOwn(node.map, key)) refuse('a duplicate key');
+    if (node === open[0]) section = key;
+    const value = (m[2] ?? '').trim();
+    let read;
+    if (value === '') {
+      read = {};
+      open.push({ indent, map: read, childIndent: null, seq: false });
+    } else if (value === '{}') {
+      read = {};
+    } else if (value[0] === '{' || value[0] === '[') {
+      if (!LOCK_FLOW_KEYS.has(key) || section === 'importers') refuse(LOCK_FLOW);
+      const construct = lockFlowConstruct(value);
+      if (construct) refuse(construct);
+      read = value;
+    } else {
+      const construct = lockScalarConstruct(value);
+      if (construct) refuse(construct);
+      read = lockScalar(value);
+    }
+    Object.defineProperty(node.map, key, { value: read, enumerable: true, writable: true, configurable: true });
+  });
   return root;
 }
 
