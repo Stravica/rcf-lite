@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-920",
+  "path": "src/verify/chain/index.js#readChain",
+  "implementsAcIds": [
+    "AC-19401-12"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-25T09:46:10.479Z",
+  "updatedAt": "2026-10-25T09:46:10.479Z"
+}

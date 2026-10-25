@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-914",
+  "path": "src/query/coverage.js#collectSupersessionErrors",
+  "implementsAcIds": [
+    "AC-19401-6",
+    "AC-19401-7",
+    "AC-19401-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-25T09:46:08.730Z",
+  "updatedAt": "2026-10-25T09:46:08.730Z"
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-918",
+  "path": "src/query/eval-coverage.js#computeEvalCoverage",
+  "implementsAcIds": [
+    "AC-19401-11"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-25T09:46:09.885Z",
+  "updatedAt": "2026-10-25T09:46:09.885Z"
+}

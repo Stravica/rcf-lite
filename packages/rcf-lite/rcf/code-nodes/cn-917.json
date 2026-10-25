@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-917",
+  "path": "src/query/formatters/mermaid.js#renderCoverageMermaid",
+  "implementsAcIds": [
+    "AC-19401-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-25T09:46:09.599Z",
+  "updatedAt": "2026-10-25T09:46:09.599Z"
+}

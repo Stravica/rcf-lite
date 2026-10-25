@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-916",
+  "path": "src/query/formatters/table.js#formatCoverageTable",
+  "implementsAcIds": [
+    "AC-19401-6",
+    "AC-19401-7",
+    "AC-19401-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-25T09:46:09.308Z",
+  "updatedAt": "2026-10-25T09:46:09.308Z"
+}
