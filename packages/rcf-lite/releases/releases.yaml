@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.36.1"
+latest: "0.36.2"
 releases:
+  - version: "0.36.2"
+    date: "2026-10-25"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.36.2 adds an optional verification flag, external or testOnly, to each acceptance criterion: rcf define create ac --from-file and rcf define update <ac-id> --set verification=<value> write it, and any other value exits 3 and leaves the story unchanged."
+      - "Retired criteria, those carrying supersededBy, leave the coverage decision: rcf audit coverage reads them retired and counts them toward no requirement, rcf audit eval coverage and rcf verify run --mode deterministic read them retired and never probe them, and a missing successor, a self-supersession or a supersession cycle now fails rcf audit coverage --strict with exit 4, as does a requirement whose criteria are all retired."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.36.1, and the @stravica-ai/rcf-schemas pin moves from 0.9.0 to 0.10.0 as an additive change, so existing chain files validate as before."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.36.1"
     date: "2026-10-23"
     breaking: false
