@@ -41,6 +41,123 @@
       "reason": "Additive and optional: AC-19501-4 proves chains without the field still validate and AC-19501-5 proves the own chain validates at the new pin, so no data migration exists.",
       "operatorAckAt": "2026-10-25T14:03:05.272Z",
       "reqId": "REQ-195"
+    },
+    {
+      "id": "boo-2026-10-26-001",
+      "createdAt": "2026-10-26T00:48:41.448Z",
+      "baselineKey": "auth.emptyTokenRejection",
+      "scope": "req",
+      "reason": "rcf audit separation is a local, read-only CLI verb over git history, with no login, session, token or HTTP surface.",
+      "operatorAckAt": "2026-10-26T00:48:41.448Z",
+      "reqId": "REQ-196"
+    },
+    {
+      "id": "boo-2026-10-26-002",
+      "createdAt": "2026-10-26T00:48:41.699Z",
+      "baselineKey": "auth.htmlLoginPage",
+      "scope": "req",
+      "reason": "rcf audit separation is a local, read-only CLI verb over git history, with no login, session, token or HTTP surface.",
+      "operatorAckAt": "2026-10-26T00:48:41.699Z",
+      "reqId": "REQ-196"
+    },
+    {
+      "id": "boo-2026-10-26-003",
+      "createdAt": "2026-10-26T00:48:41.970Z",
+      "baselineKey": "auth.postLogout",
+      "scope": "req",
+      "reason": "rcf audit separation is a local, read-only CLI verb over git history, with no login, session, token or HTTP surface.",
+      "operatorAckAt": "2026-10-26T00:48:41.970Z",
+      "reqId": "REQ-196"
+    },
+    {
+      "id": "boo-2026-10-26-004",
+      "createdAt": "2026-10-26T00:48:42.233Z",
+      "baselineKey": "auth.sessionCookieShape",
+      "scope": "req",
+      "reason": "rcf audit separation is a local, read-only CLI verb over git history, with no login, session, token or HTTP surface.",
+      "operatorAckAt": "2026-10-26T00:48:42.233Z",
+      "reqId": "REQ-196"
+    },
+    {
+      "id": "boo-2026-10-26-005",
+      "createdAt": "2026-10-26T00:48:42.492Z",
+      "baselineKey": "persistence.backupObservable",
+      "scope": "req",
+      "reason": "REQ-198 adds no write path: define validate and audit coverage only read the chain, and the worklist never writes (AC-19802-5).",
+      "operatorAckAt": "2026-10-26T00:48:42.492Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-006",
+      "createdAt": "2026-10-26T00:48:42.756Z",
+      "baselineKey": "persistence.crashSafety",
+      "scope": "req",
+      "reason": "REQ-198 adds no write path: define validate and audit coverage only read the chain, and the worklist never writes (AC-19802-5).",
+      "operatorAckAt": "2026-10-26T00:48:42.756Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-007",
+      "createdAt": "2026-10-26T00:48:43.024Z",
+      "baselineKey": "persistence.schemaMigration",
+      "scope": "req",
+      "reason": "No migration is needed: the flag is required only on criteria new or amended since the base (AC-19801-1 to AC-19801-3), and an existing unflagged criterion still validates and is listed on the worklist (US-19802).",
+      "operatorAckAt": "2026-10-26T00:48:43.024Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-008",
+      "createdAt": "2026-10-26T00:48:43.291Z",
+      "baselineKey": "webUi.contrastFloor",
+      "scope": "req",
+      "reason": "REQ-198 changes no web UI: its output is CLI text, JSON and Mermaid, and rcf view is unchanged by it.",
+      "operatorAckAt": "2026-10-26T00:48:43.291Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-009",
+      "createdAt": "2026-10-26T00:48:43.554Z",
+      "baselineKey": "webUi.focusRings",
+      "scope": "req",
+      "reason": "REQ-198 changes no web UI: its output is CLI text, JSON and Mermaid, and rcf view is unchanged by it.",
+      "operatorAckAt": "2026-10-26T00:48:43.554Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-010",
+      "createdAt": "2026-10-26T00:48:43.825Z",
+      "baselineKey": "webUi.oneJourneyOrMore",
+      "scope": "req",
+      "reason": "REQ-198 changes no web UI: its output is CLI text, JSON and Mermaid, and rcf view is unchanged by it.",
+      "operatorAckAt": "2026-10-26T00:48:43.825Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-011",
+      "createdAt": "2026-10-26T00:48:44.094Z",
+      "baselineKey": "webUi.sharedNav",
+      "scope": "req",
+      "reason": "REQ-198 changes no web UI: its output is CLI text, JSON and Mermaid, and rcf view is unchanged by it.",
+      "operatorAckAt": "2026-10-26T00:48:44.094Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-012",
+      "createdAt": "2026-10-26T00:48:44.360Z",
+      "baselineKey": "webUi.signedInAffordance",
+      "scope": "req",
+      "reason": "REQ-198 changes no web UI: its output is CLI text, JSON and Mermaid, and rcf view is unchanged by it.",
+      "operatorAckAt": "2026-10-26T00:48:44.360Z",
+      "reqId": "REQ-198"
+    },
+    {
+      "id": "boo-2026-10-26-013",
+      "createdAt": "2026-10-26T00:48:44.641Z",
+      "baselineKey": "webUi.themeToggle",
+      "scope": "req",
+      "reason": "REQ-198 changes no web UI: its output is CLI text, JSON and Mermaid, and rcf view is unchanged by it.",
+      "operatorAckAt": "2026-10-26T00:48:44.641Z",
+      "reqId": "REQ-198"
     }
   ]
 }
