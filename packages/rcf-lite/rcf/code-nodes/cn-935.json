@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-935",
+  "path": "src/query/coverage.js#hygieneTestFile",
+  "implementsAcIds": [
+    "AC-19602-3",
+    "AC-19602-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T03:25:22.203Z",
+  "updatedAt": "2026-10-26T03:25:22.203Z"
+}

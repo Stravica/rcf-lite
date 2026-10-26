@@ -29,6 +29,13 @@
 // are each reported once on `supersessionErrors` and fail `ok`. A chain
 // with no retired criterion gets none of these fields.
 //
+// FBS-233 (US-19602): a TC whose testPointer points into a builder
+// hygiene test (a hygiene/ directory directly under test/, tests/ or
+// __tests__/, or a *.hygiene.test.* file) is outside the RCF suite. It
+// is never one of its criterion's test cases and never coverage: it is
+// listed apart on `hygieneTestCases` with its file. A chain with no
+// hygiene binding gets no such field.
+//
 // Phase 5 §D10 scoping: no positional -> tree-wide; positional PRD id
 // -> scope to REQs whose prdId matches; positional REQ id -> scope to
 // that REQ; positional US id -> scope to the REQ that owns that US.
@@ -36,6 +43,7 @@
 // BS / TAD) are refused at the handler layer (exit 2).
 
 import { testCaseKey } from '#core/store';
+import { isHygieneTestPath } from '../audit/separation.js';
 
 /**
  * @typedef {import('#core/store/walker.js').TreeModel} TreeModel
@@ -45,8 +53,9 @@ import { testCaseKey } from '#core/store';
  * @typedef {object} AcCoverage
  * @property {string} id
  * @property {boolean} covered - at least one TC whose pointer RESOLVES
- * @property {string[]} testCases - all TC ids that cross-reference this AC
+ * @property {string[]} testCases - all TC ids that cross-reference this AC, hygiene-bound ones excepted
  * @property {string[]} unresolvedTestCases - the subset whose pointer does not resolve
+ * @property {Array<{id: string, file: string}>} [hygieneTestCases] - FBS-233: present only when a TC points into a hygiene test
  * @property {'retired'} [state] - FBS-228: present only on a retired criterion
  * @property {string} [supersededBy] - FBS-228: the successor of a retired criterion
  */
@@ -284,6 +293,22 @@ function selectRequirements(tree, scopeId) {
 }
 
 /**
+ * FBS-233 (AC-19602-3, AC-19602-4): the hygiene test file a TC's
+ * testPointer points into, or null for any other pointer (or none).
+ *
+ * @param {TreeModel} tree
+ * @param {string} tsId
+ * @param {string} tcId
+ * @returns {string|null}
+ */
+export function hygieneTestFile(tree, tsId, tcId) {
+  const tc = (tree.byId.get(tsId)?.testCases ?? []).find((c) => c?.id === tcId);
+  if (typeof tc?.testPointer !== 'string') return null;
+  const file = tc.testPointer.split('::')[0];
+  return isHygieneTestPath(file) ? file : null;
+}
+
+/**
  * Collect every AC under a REQ (across all its USs) with per-AC coverage
  * signal + the list of TC ids referencing that AC. A TC only counts
  * towards `covered` when its pointer resolves (w-2026-07-28-005); the
@@ -294,6 +319,8 @@ function selectRequirements(tree, scopeId) {
  * FBS-228: a criterion carrying `supersededBy` gets state 'retired' and
  * its successor; its TCs stay listed but it never reads covered, and
  * under `withCode` its `codeClass` reads 'retired' (AC-19401-18).
+ * FBS-233: a TC pointing into a hygiene test is left out of `testCases`,
+ * the unresolved subset and coverage, and listed on `hygieneTestCases`.
  *
  * @param {TreeModel} tree
  * @param {string} reqId
@@ -312,7 +339,12 @@ function collectAcs(tree, reqId, opts = {}) {
     if (!us) continue;
     for (const ac of us.acceptanceCriteria ?? []) {
       if (!ac?.id) continue;
-      const tcEntries = tree.tcsByAcId.get(ac.id) ?? [];
+      const hygieneTcs = [];
+      const tcEntries = (tree.tcsByAcId.get(ac.id) ?? []).filter(({ tsId, tcId }) => {
+        const file = hygieneTestFile(tree, tsId, tcId);
+        if (file !== null) hygieneTcs.push({ id: tcId, file });
+        return file === null;
+      });
       const resolvedTcs = [];
       const unresolvedTcs = [];
       for (const { tsId, tcId } of tcEntries) {
@@ -339,6 +371,9 @@ function collectAcs(tree, reqId, opts = {}) {
         covered: !isRetired && resolvedTcs.length > 0,
         testCases: tcEntries.map((e) => e.tcId).sort(),
         unresolvedTestCases: [...unresolvedTcs].sort(),
+        ...(hygieneTcs.length > 0
+          ? { hygieneTestCases: hygieneTcs.sort((a, b) => a.id.localeCompare(b.id)) }
+          : {}),
       };
       if (withCode) {
         const cnIds = [...(tree.cnByAcId?.get(ac.id) ?? [])].sort();

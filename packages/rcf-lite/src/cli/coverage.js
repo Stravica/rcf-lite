@@ -16,6 +16,9 @@
 // supersession error clears `ok`, so strict mode exits 4 on it and
 // shallow-any prints it and exits 0.
 //
+// FBS-233 (US-19602): a TC bound into a builder hygiene test is left out
+// of coverage in query/coverage.js and named by the table formatter.
+//
 // Phase-boundary reminder (§D2, §1.4): this verb is a MECHANICAL /
 // DETERMINISTIC structural check. It does NOT answer "does the AC
 // set adequately capture the REQ's intent?" - that non-deterministic
@@ -71,6 +74,12 @@ keeps its TCs listed and leaves the requirement decision in both
 modes; it never counts as coverage. A successor missing from the
 chain, an AC superseding itself or a supersession cycle prints one
 'supersession:' line and fails strict mode.
+
+A TC whose testPointer points into a builder hygiene test (a hygiene/
+directory directly under test/, tests/ or __tests__/, or a
+*.hygiene.test.* file) is outside the RCF suite: it never counts as
+coverage, in any format, and its row names it 'hygiene test, outside
+the RCF suite: <file>'.
 
 This is a mechanical / deterministic structural check. It does NOT
 answer 'does the AC set adequately capture the REQ's intent?' - that

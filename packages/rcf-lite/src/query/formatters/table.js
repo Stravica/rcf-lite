@@ -39,12 +39,18 @@ function acCoveredCell(ac) {
   return ac.testCases.length > 0 ? 'unresolved' : 'no';
 }
 
+// FBS-233 (AC-19602-3): a TC bound into a hygiene test never counts; its
+// file is named after the counted TCs, once per file, so the row says
+// why (the cell cap is 60 characters, so the note leads with the reason).
 function testCasesCell(ac) {
-  if (ac.testCases.length === 0) return '-';
+  const hygiene = [...new Set((ac.hygieneTestCases ?? []).map((h) => h.file))]
+    .map((file) => `hygiene test, outside the RCF suite: ${file}`);
+  if (ac.testCases.length === 0 && hygiene.length === 0) return '-';
   const unresolved = new Set(ac.unresolvedTestCases ?? []);
-  return ac.testCases
-    .map((tc) => (unresolved.has(tc) ? `${tc}[unresolved]` : tc))
-    .join(', ');
+  return [
+    ...ac.testCases.map((tc) => (unresolved.has(tc) ? `${tc}[unresolved]` : tc)),
+    ...hygiene,
+  ].join(', ');
 }
 
 function formatCoverageTable(result) {
