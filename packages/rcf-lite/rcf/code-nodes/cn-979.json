@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-979",
+  "path": "src/audit/test-strength/runner.js#runMutants",
+  "implementsAcIds": [
+    "AC-19902-1",
+    "AC-19902-4",
+    "AC-19902-6",
+    "AC-19902-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:34.847Z",
+  "updatedAt": "2026-10-26T08:49:34.847Z"
+}

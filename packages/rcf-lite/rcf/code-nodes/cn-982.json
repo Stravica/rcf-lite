@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-982",
+  "path": "src/audit/test-strength/index.js#newestReviewVerdict",
+  "implementsAcIds": [
+    "AC-19902-4",
+    "AC-19903-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:37.502Z",
+  "updatedAt": "2026-10-26T08:49:37.502Z"
+}

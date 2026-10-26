@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-985",
+  "path": "src/audit/test-strength/source.js#findDeclaration",
+  "implementsAcIds": [
+    "AC-19902-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:40.177Z",
+  "updatedAt": "2026-10-26T08:49:40.177Z"
+}

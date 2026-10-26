@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-977",
+  "path": "src/audit/test-strength/mutants.js#removeCalls",
+  "implementsAcIds": [
+    "AC-19902-1",
+    "AC-19902-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:33.071Z",
+  "updatedAt": "2026-10-26T08:49:33.071Z"
+}
