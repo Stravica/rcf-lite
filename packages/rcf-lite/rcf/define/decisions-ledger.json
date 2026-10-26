@@ -3200,6 +3200,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" The round B docs pass: \"packages/rcf-lite/guidance/build-cycle.md:14 says CI runs separation \"on a full-depth checkout\" and judges each commit's Hand: trailer\". Recorded as: AC-20401-9.",
       "answeredAt": "2026-10-26T21:25:02.569Z",
       "resolvedAt": "2026-10-26T21:25:02.569Z"
+    },
+    {
+      "id": 146,
+      "question": "(rcf-lite round C DEFINE) docs/how-it-works.md (about line 130) calls the audit group \"read-only visibility over the tree\", although rcf audit test-strength --record writes a record: does a criterion demand that the docs stop calling the whole group read-only? Source: the round B docs pass, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: how-it-works keeps calling the audit group read-only"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20402 (testOnly, the docs are this repository's tree): the sentence of docs/how-it-works.md that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:26:13.848Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" and \"docs/how-it-works.md:130 calls the audit group \"read-only visibility over the tree\", although rcf audit test-strength --record writes a record.\" The round B docs pass: \"docs how-it-works audit \"read-only\" wording\". Recorded as: AC-20402-5.",
+      "answeredAt": "2026-10-26T21:26:14.261Z",
+      "resolvedAt": "2026-10-26T21:26:14.261Z"
     }
   ]
 }

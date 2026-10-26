@@ -2,7 +2,7 @@
 // the managed block and the bundle runbook, and the docs on the 0.37.0
 // model.
 //
-// Criteria: 12 (US-20401 9 external, US-20402 3 testOnly; AC-20402-1 was
+// Criteria: 13 (US-20401 9 external, US-20402 4 testOnly; AC-20402-1 was
 // removed by the stage-keeper's stop ruling 1 on part A2). Every test is
 // a node:test todo case ("FBS-241 round DEFINE", GR-35): it runs and is
 // red until FBS-241's round DEFINE drops the marker and BUILD turns it
@@ -314,4 +314,15 @@ test('AC-20402-4: the root README.md and packages/rcf-lite/README.md each state 
     const wait = ss.filter((s) => /\b(wait|until|before)\b[^.]*\bverified\b[^.]*\bBuild\b|\bBuild\b[^.]*\b(waits?|until)\b[^.]*\bverified\b/.test(s) && !/never|no longer|not/.test(s));
     assert.deepEqual(wait, [], `${f}: no wait for verified before the next Build`);
   }
+});
+
+// Round C (the round B docs pass): the audit group in how-it-works and
+// the separation job's comment in CI. A sentence may open with bold
+// markdown here (the verb map's "**audit**").
+const docSentences = (text) => prose(text).split('\n').flatMap((l) => l.split(/(?<=[.!?])\s+(?=[A-Z`"(*])/)).map((x) => x.trim()).filter(Boolean);
+
+test('AC-20402-5: the sentence of docs/how-it-works.md that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record', () => {
+  const ss = docSentences(docText('docs/how-it-works.md')).filter((s) => s.startsWith('**audit**'));
+  assert.ok(ss.length > 0, 'a sentence introduces the **audit** group');
+  assert.deepEqual(ss.filter((s) => /read-only/.test(s) && !/test-strength --record/.test(s)), [], 'the audit group is not called read-only without excepting rcf audit test-strength --record');
 });

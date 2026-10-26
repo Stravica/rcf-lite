@@ -1,12 +1,13 @@
 {
   "createdAt": "2026-10-24T18:05:05.520Z",
-  "updatedAt": "2026-10-24T18:05:06.309Z",
+  "updatedAt": "2026-10-26T21:26:12.207Z",
   "purpose": "FBS-241: the testOnly criteria of US-20402, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-241's round DEFINE",
   "testLevel": "integration",
   "acIds": [
     "AC-20402-2",
     "AC-20402-3",
-    "AC-20402-4"
+    "AC-20402-4",
+    "AC-20402-5"
   ],
   "id": "TS-298",
   "usId": "US-20402",
@@ -32,6 +33,13 @@
       "description": "the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build",
       "status": "pending",
       "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20402-4: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build"
+    },
+    {
+      "id": "TC-298-the-sentence-of-docs-how-it-works-md",
+      "acId": "AC-20402-5",
+      "description": "the sentence of docs/how-it-works.md that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20402-5: the sentence of docs/how-it-works.md that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record"
     }
   ],
   "status": "draft"
