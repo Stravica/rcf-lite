@@ -44,8 +44,23 @@ const rcfRoot = resolve(repoRoot, 'rcf');
 // counted, and are never validated or id-checked as documents.
 const CONFIG_FILES = new Set(['separation.json', 'test-strength.json']);
 
+// Round verdict records that sit under rcf/ beside the chain and are
+// neither chain documents nor configuration (stage-keeper ruling 31,
+// rcf-lite 0.37.0 round B): rcf/verdicts/<h12>/review.json (ReviewVerdict
+// v1) and rcf/verdicts/<h12>/test.json (TestVerdict v1), the records
+// `rcf build verdict review|test` writes (FBS-234, src/build/verdict.js),
+// h12 being the 12 lowercase hex characters of the reviewed head. The
+// core validator knows no verdict kind (knownKinds returns the keys of
+// SCHEMAS in src/core/store/validator.js), so they classify as
+// verdictRecord, sit outside the document set, and are never validated,
+// id-checked or counted as documents. They carry no count pin: each
+// round's REVIEW and TEST add one. Any other file under rcf/verdicts/
+// stays unclassified.
+const VERDICT_RECORD = /^verdicts\/[0-9a-f]{12}\/(?:review|test)\.json$/;
+
 function classify(relPath) {
   if (CONFIG_FILES.has(relPath)) return 'config';
+  if (VERDICT_RECORD.test(relPath)) return 'verdictRecord';
   if (relPath === 'manifest.json') return 'manifest';
   if (relPath === 'prd.json') return 'prd';
   if (relPath === 'tad.json') return 'tad';
@@ -98,7 +113,8 @@ function walk(dir, acc = [], projectRootForSkip = repoRoot) {
 }
 
 // The chain documents under rcf/; { config: true } also returns the
-// configuration files (CONFIG_FILES), which only the counts read.
+// configuration files (CONFIG_FILES), which only the counts read. The
+// verdict records (VERDICT_RECORD) are never returned.
 function loadAll(rootOverride, { config = false } = {}) {
   const projectRoot = rootOverride ?? repoRoot;
   const rcfDir = resolve(projectRoot, 'rcf');
@@ -109,7 +125,8 @@ function loadAll(rootOverride, { config = false } = {}) {
     const json = JSON.parse(readFileSync(full, 'utf8'));
     return { full, rel, kind, json };
   });
-  return config ? all : all.filter((d) => d.kind !== 'config');
+  const kept = all.filter((d) => d.kind !== 'verdictRecord');
+  return config ? kept : kept.filter((d) => d.kind !== 'config');
 }
 
 // The Code Node count is not pinned in this file (stage-keeper ruling 24
