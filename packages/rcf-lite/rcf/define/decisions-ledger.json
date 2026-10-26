@@ -3347,6 +3347,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19701-7.",
       "answeredAt": "2026-10-26T21:30:30.073Z",
       "resolvedAt": "2026-10-26T21:30:30.073Z"
+    },
+    {
+      "id": 153,
+      "question": "(rcf-lite round C DEFINE) rcf audit separation --help prints the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <h7>\" (src/cli/separation.js:103), while TAC-4154 and AC-19703-5 write the reviewed head <H7>: does a criterion demand that the help follow the interface record? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the help keeps <h7> for the reviewed head"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19703 (external), scoped by FBS-237: rcf audit separation --help lists the round item with the reviewed head written <H7>, as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head <h7>"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:31:16.205Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19703-12.",
+      "answeredAt": "2026-10-26T21:31:16.622Z",
+      "resolvedAt": "2026-10-26T21:31:16.622Z"
     }
   ]
 }

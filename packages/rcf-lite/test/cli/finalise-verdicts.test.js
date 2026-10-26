@@ -3,8 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 24, all external (US-20001 9, US-20002 5, US-20003 5;
-// round C, ruling RC-1: US-19604 1, US-19701 1, US-19702 1, US-19803 2).
+// Criteria: 25, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19604 1, US-19701 1, US-19702 1, US-19703 1, US-19803 2).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -624,4 +624,14 @@ test('AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --fi
   const r = await rcf(['build', 'verdict', 'review', '--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'FINDINGS', '--finding', 'test:AC-101-1:the bound test survives the noOp mutant'], { cwd: dir });
   assert.equal(r.code, 0, `a test-rooted finding is accepted\n${r.stdout}${r.stderr}`);
   assert.deepEqual(readJson(dir, verdictPath(H, 'review.json')).findings, [{ id: 'F-1', locus: 'test', acId: 'AC-101-1', text: 'the bound test survives the noOp mutant' }]);
+});
+
+// ---------------------------------------------------------------- US-19703 (round C)
+
+test('AC-19703-12: rcf audit separation --help lists the round item "<sha7> TEST: verdict head <x7> is not the reviewed head <H7>" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head "<h7>"', async () => {
+  const r = await rcf(['audit', 'separation', '--help'], {});
+  assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  const ls = lines(r.stdout).map((l) => l.trim());
+  assert.deepEqual(ls.filter((l) => l.includes('is not the reviewed head <h7>')), [], 'no help line names the reviewed head <h7>');
+  assert.ok(ls.includes('<sha7> TEST: verdict head <x7> is not the reviewed head <H7>'), `the round item reads <H7>\n${r.stdout}`);
 });
