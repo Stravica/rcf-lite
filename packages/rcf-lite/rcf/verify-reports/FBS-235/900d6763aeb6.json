@@ -1,0 +1,469 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-235",
+  "headSha": "900d6763aeb6da5799557af438fa0f3c1de7e0f7",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.36.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.36.2",
+    "sha256": "b359c3223cc27399206cc852d8883b01f9e561d66aac4aae3a5295ce3ecab57a",
+    "servedSha": "900d6763aeb6da5799557af438fa0f3c1de7e0f7"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-lite-round-b-test",
+  "startedAt": "2026-10-26T16:25:01.564Z",
+  "finishedAt": "2026-10-26T16:26:20.110Z",
+  "rcfLiteVersion": "0.36.2",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "pack": {
+    "command": "npm pack --pack-destination /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-ARYZtX/out --json",
+    "exitCode": 0
+  },
+  "install": {
+    "command": "npm install --no-audit --no-fund /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-ARYZtX/out/rcf-lite-0.36.2.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-235/900d6763aeb6/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-276",
+      "file": "test/define/verification-end-state.test.js",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-235/900d6763aeb6/TS-276.tap"
+    },
+    {
+      "testSuite": "TS-277",
+      "file": "test/define/verification-end-state.test.js",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-235/900d6763aeb6/TS-277.tap"
+    },
+    {
+      "testSuite": "TS-278",
+      "file": "test/define/verification-end-state.test.js",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-235/900d6763aeb6/TS-278.tap"
+    },
+    {
+      "testSuite": "TS-279",
+      "file": "test/define/verification-end-state.test.js",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-235/900d6763aeb6/TS-279.tap"
+    },
+    {
+      "testSuite": "TS-280",
+      "file": "test/define/verification-end-state.test.js",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-235/900d6763aeb6/TS-280.tap"
+    },
+    {
+      "testSuite": "TS-281",
+      "file": "test/define/verification-end-state.test.js",
+      "tests": 22,
+      "pass": 22,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-235/900d6763aeb6/TS-281.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 21,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 21
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19801-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-276",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-276-with-head-adding-ac-101-2-flagged",
+            "title": "AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no \"[error]\" line and no verification line for AC-101-2 on stderr",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19801-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-276",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-276-with-head-adding-ac-101-2-with-no",
+            "title": "AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with \"[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)\"",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19801-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-276",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-276-a-head-changing-only-the-then-text-of",
+            "title": "AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its \"is amended since <base7>\" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19801-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-276",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-276-outside-git-or-in-git-with-no-origin",
+            "title": "AC-19801-4: outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one \"[warn] verification: no base ref; new and amended criteria not checked\" line; --base naming a missing ref exits 2 \"[error] usage --base <ref> does not resolve\"",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19801-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-276",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-276-a-retired-criterion-is-never-required-to",
+            "title": "AC-19801-5: a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19801-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-277",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-277-the-ci-test-job-checks-out-with-fetch",
+            "title": "AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19801-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-277",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-277-the-ci-separation-job-runs-only-on-pull",
+            "title": "AC-19801-7: the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite",
+            "testNumber": 7,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19802-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-278",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-278-rcf-define-validate-report-verification",
+            "title": "AC-19802-1: rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then \"verification: 2 of 3 live criteria unflagged\"",
+            "testNumber": 8,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19802-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-278",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-278-with-every-live-criterion-flagged-the",
+            "title": "AC-19802-2: with every live criterion flagged the report prints only \"verification: 0 of <n> live criteria unflagged\" and --json prints {\"unflagged\": [], \"live\": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }",
+            "testNumber": 9,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19802-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-278",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-278-over-1000-unflagged-live-criteria-across",
+            "title": "AC-19802-3: over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines",
+            "testNumber": 10,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19802-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-278",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-278-rcf-define-validate-report-flags-exits-2",
+            "title": "AC-19802-4: rcf define validate --report flags exits 2 with \"[error] usage --report takes verification\" and prints no worklist line",
+            "testNumber": 11,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19802-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-278",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-278-the-worklist-never-writes-every-file",
+            "title": "AC-19802-5: the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag",
+            "testNumber": 12,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19803-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-279",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-279-over-fbs-001-complete-scoping-ac-101-1",
+            "title": "AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete",
+            "testNumber": 13,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19803-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-279",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-279-with-fbs-001-at-verified-the-testonly-ac",
+            "title": "AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete",
+            "testNumber": 14,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19803-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-279",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-279-in-format-table-the-unflagged-ac-101-3",
+            "title": "AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown",
+            "testNumber": 15,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19803-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-279",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-279-audit-coverage-strict-exits-with-the",
+            "title": "AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap",
+            "testNumber": 16,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19803-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-280",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-280-over-the-chain-of-this-repository-at-the",
+            "title": "AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else",
+            "testNumber": 17,
+            "result": "pass"
+          },
+          {
+            "tcId": "TC-280-timing-ratio-measured-at-test-with-rcf-perf",
+            "title": "AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1",
+            "testNumber": 18,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19803-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-279",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-279-a-hand-edited-verification-sometimes-on",
+            "title": "AC-19803-6: a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows",
+            "testNumber": 19,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19804-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-281",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-281-at-the-slice-head-no-user-story-tag",
+            "title": "AC-19804-1: at the slice head no user story tag starts \"verification:\", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0",
+            "testNumber": 20,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19804-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-281",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-281-for-every-criterion-the-move-commit",
+            "title": "AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move",
+            "testNumber": 21,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19804-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-281",
+        "file": "test/define/verification-end-state.test.js",
+        "tests": [
+          {
+            "tcId": "TC-281-a-0-37-0-criterion-left-without-the",
+            "title": "AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag",
+            "testNumber": 22,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

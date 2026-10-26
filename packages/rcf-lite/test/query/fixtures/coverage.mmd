@@ -4058,6 +4058,10 @@ flowchart LR
   REQ-196 --> AC-19603-8
   TC-271-over-the-passing-generator-fixture-the["TC-271-over-the-passing-generator-fixture-the"]
   AC-19603-8 -.-> TC-271-over-the-passing-generator-fixture-the
+  AC-19603-9["AC-19603-9"]
+  REQ-196 --> AC-19603-9
+  TC-271-a-build-regenerate-queue-goldens-commit["TC-271-a-build-regenerate-queue-goldens-commit"]
+  AC-19603-9 -.-> TC-271-a-build-regenerate-queue-goldens-commit
   AC-19604-1["AC-19604-1"]
   REQ-196 --> AC-19604-1
   TC-272-define-with-hand-test-author-and-build["TC-272-define-with-hand-test-author-and-build"]
@@ -4212,6 +4216,10 @@ flowchart LR
   REQ-198 --> AC-19801-6
   TC-277-the-ci-test-job-checks-out-with-fetch["TC-277-the-ci-test-job-checks-out-with-fetch"]
   AC-19801-6 -.-> TC-277-the-ci-test-job-checks-out-with-fetch
+  AC-19801-7["AC-19801-7"]
+  REQ-198 --> AC-19801-7
+  TC-277-the-ci-separation-job-runs-only-on-pull["TC-277-the-ci-separation-job-runs-only-on-pull"]
+  AC-19801-7 -.-> TC-277-the-ci-separation-job-runs-only-on-pull
   AC-19802-1["AC-19802-1"]
   REQ-198 --> AC-19802-1
   TC-278-rcf-define-validate-report-verification["TC-278-rcf-define-validate-report-verification"]
@@ -6720,6 +6728,8 @@ flowchart LR
   class TC-271-a-finalise-merge-whose-resolution-edits tc;
   class AC-19603-8 ac;
   class TC-271-over-the-passing-generator-fixture-the tc;
+  class AC-19603-9 ac;
+  class TC-271-a-build-regenerate-queue-goldens-commit tc;
   class AC-19604-1 ac;
   class TC-272-define-with-hand-test-author-and-build tc;
   class AC-19604-2 ac;
@@ -6798,6 +6808,8 @@ flowchart LR
   class TC-276-a-retired-criterion-is-never-required-to tc;
   class AC-19801-6 ac;
   class TC-277-the-ci-test-job-checks-out-with-fetch tc;
+  class AC-19801-7 ac;
+  class TC-277-the-ci-separation-job-runs-only-on-pull tc;
   class AC-19802-1 ac;
   class TC-278-rcf-define-validate-report-verification tc;
   class AC-19802-2 ac;

@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-930",
+  "path": "src/audit/separation.js#matchesAtAnyDepth",
+  "implementsAcIds": [
+    "AC-19602-5",
+    "AC-19603-3",
+    "AC-19603-4",
+    "AC-19604-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T03:23:52.934Z",
+  "updatedAt": "2026-10-26T03:23:52.934Z"
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-983",
+  "path": "src/audit/test-strength/mutants.js#criterionMutants",
+  "implementsAcIds": [
+    "AC-19902-2",
+    "AC-19902-7",
+    "AC-19902-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:38.390Z",
+  "updatedAt": "2026-10-26T08:49:38.390Z"
+}

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:43.042Z",
-  "updatedAt": "2026-10-24T15:07:14.058Z",
+  "updatedAt": "2026-10-26T00:07:45.785Z",
   "asA": "test-author, builder, reviewer, verifier or stage-keeper reading rcf-lite's guidance in an agent session",
   "iWant": "the stage I am in named by its commit prefix with exactly what it does and what it records",
   "soThat": "no session follows the 0.36.x shape of verifying inside the cycle",
@@ -18,46 +18,45 @@
     {
       "id": "AC-20401-1",
       "description": "[happy] When rcf guidance build-cycle runs from the packed artefact installed cold, then its output carries the five stage headings \"DEFINE (commit prefix DEFINE:, role test-author)\", \"BUILD (BUILD:, builder)\", \"REVIEW (REVIEW:, reviewer)\", \"TEST (TEST:, verifier)\" and \"FINALISE (FINALISE:, stage-keeper)\" in that order; inside the TEST section, \"the full RCF suite against a locally running app\" and \"nothing is deployed\"; inside the FINALISE section, \"before the merge\" and \"writes complete\"; and a section headed \"VERIFY (outside the build cycle)\" carrying \"rcf verify run\" with \"--record\" and \"writes verified\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20401-2",
       "description": "[happy] When rcf guidance build-cycle runs, its section headed \"Rounds\" states that a failed REVIEW (FINDINGS) or a failed TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only, each in its own sentence.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20401-3",
       "description": "[happy] When rcf guidance managed/agent-instructions-block runs, then its build loop names the five stages with their commit prefixes, carries \"rcf build finalise <fbs-id> --ci-run <ref>\" with \"writes complete\" and \"before the merge\", and states \"verified is written only by a release Verify (rcf verify run --record)\"; RULE 13 names \"merging before Finalise has written complete\" and no longer names \"verified on the PR branch\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20401-4",
       "description": "[happy] When rcf build bundle FBS-001 --base-suite <a green record> --format md runs over a fixture tree, then its closing runbook lists the five stages in order, each with a dispatch name of the form \"<Stage> FBS-001: <title>\", its commit prefix, and the commands rcf build mark FBS-001 inProgress (DEFINE), rcf build base-suite, rcf build verdict review, rcf audit test-strength --record, rcf build verdict test and rcf build finalise FBS-001 --ci-run <ref>, and ends with \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"; --format json carries the same in completionContract.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20401-5",
       "description": "[must-not] No guidance topic printed by rcf guidance, no part of the managed block and no bundle runbook (md or json) contains \"--hand verifier\" as a TEST or Test-stage step, \"rcf build finalise\" followed within one sentence by --report, --mode or --url, \"verified\" as something Finalise writes, \"Hand: mixed\", \"Separation-Reason\", \"Hand:\" outside a sentence that names the 0.37.x transition, or a rule that a Build waits for a spec to be verified.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20401-6",
       "description": "[edge] When rcf guidance overview runs, then its Finalise line reads as a pre-merge step that writes complete (it no longer says \"CI green, merge, then record\"); and rcf guidance build-cycle-playbook names \"role\" for who does each stage's work and never uses \"hand\" as a process concept (any remaining \"by hand\" idiom excepted).",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20401-7",
       "description": "[failure] Given a project initialised by 0.37.0 whose CLAUDE.md managed block was edited to add back the 0.36.1 Test-stage line (\"rcf verify run --fbs <fbs-id> --hand verifier against the preview or version host\"), when rcf doctor runs, then it reports the managed block as drifted with its existing drift row and exit code, and a fresh rcf init project reads clean.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-20401-1=external",
-    "verification:AC-20401-2=external",
-    "verification:AC-20401-3=external",
-    "verification:AC-20401-4=external",
-    "verification:AC-20401-5=external",
-    "verification:AC-20401-6=external",
-    "verification:AC-20401-7=external"
-  ]
+  "tags": []
 }

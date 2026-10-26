@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-962",
+  "path": "src/query/coverage.js#scopingSpec",
+  "implementsAcIds": [
+    "AC-19802-1",
+    "AC-19803-1",
+    "AC-19803-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:11:04.207Z",
+  "updatedAt": "2026-10-26T06:11:04.207Z"
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-961",
+  "path": "src/cli/validate.js#formatVerificationReport",
+  "implementsAcIds": [
+    "AC-19802-1",
+    "AC-19802-2",
+    "AC-19802-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:11:03.328Z",
+  "updatedAt": "2026-10-26T06:11:03.328Z"
+}

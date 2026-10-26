@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-963",
+  "path": "src/query/coverage.js#endState",
+  "implementsAcIds": [
+    "AC-19803-1",
+    "AC-19803-2",
+    "AC-19803-3",
+    "AC-19803-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:11:05.084Z",
+  "updatedAt": "2026-10-26T06:11:05.084Z"
+}

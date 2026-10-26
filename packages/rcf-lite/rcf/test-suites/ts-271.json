@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:28:06.701Z",
-  "updatedAt": "2026-10-24T16:28:08.775Z",
+  "updatedAt": "2026-10-26T10:39:14.810Z",
   "purpose": "FBS-233: the external criteria of US-19603, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -11,7 +11,8 @@
     "AC-19603-5",
     "AC-19603-6",
     "AC-19603-7",
-    "AC-19603-8"
+    "AC-19603-8",
+    "AC-19603-9"
   ],
   "id": "TS-271",
   "usId": "US-19603",
@@ -72,6 +73,13 @@
       "description": "over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker",
       "status": "pending",
       "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker"
+    },
+    {
+      "id": "TC-271-a-build-regenerate-queue-goldens-commit",
+      "acId": "AC-19603-9",
+      "description": "a \"BUILD: regenerate queue goldens\" commit with \"Generated-By: queue-goldens\" touching only a declared output passes with classes [\"generatorOutput\"] and generators [\"queue-goldens\"], while that output with no Generated-By and a Generated-By commit touching an output of another generator each fail exit 4 with their items",
+      "status": "pending",
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19603-9: a \"BUILD: regenerate queue goldens\" commit with \"Generated-By: queue-goldens\" touching only a declared output passes with classes [\"generatorOutput\"] and generators [\"queue-goldens\"], while that output with no Generated-By and a Generated-By commit touching an output of another generator each fail exit 4 with their items"
     }
   ],
   "status": "draft"

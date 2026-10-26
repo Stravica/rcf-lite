@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-946",
+  "path": "src/build/verdict.js#parseTapSummary",
+  "implementsAcIds": [
+    "AC-19702-1",
+    "AC-19702-2",
+    "AC-19702-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T04:35:34.052Z",
+  "updatedAt": "2026-10-26T04:35:34.052Z"
+}

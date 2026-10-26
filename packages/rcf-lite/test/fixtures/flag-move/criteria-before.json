@@ -1,0 +1,722 @@
+{
+  "AC-19501-1": {
+    "description": "[happy] Given rcf-lite installed with its rcf-schemas pin at the release carrying verification, and an initialised fixture project whose US-101 holds one criterion, when rcf define create ac --parent US-101 --from-file <body> runs with a body {\"description\": \"[happy] fixture\", \"testable\": true, \"verification\": \"external\"}, then it exits 0, rcf define read US-101 --field acceptanceCriteria shows the new criterion with \"verification\": \"external\", and rcf define validate exits 0.",
+    "testable": true
+  },
+  "AC-19501-2": {
+    "description": "[happy] Given the same fixture project with AC-101-1 carrying no verification, when rcf define update AC-101-1 --set verification=testOnly runs, then it exits 0, stdout reads \"AC-101-1 updated at rcf/user-stories/us-101.json\", the criterion reads \"verification\": \"testOnly\" with its description, given, when and then byte-identical, and rcf define validate exits 0.",
+    "testable": true
+  },
+  "AC-19501-3": {
+    "description": "[failure] Given the same fixture project, when rcf define update AC-101-1 --set verification=manual runs (a value outside external and testOnly), then it exits 3, stderr carries a line beginning \"[error] validation\" that names AC-101-1 and the field verification, and rcf/user-stories/us-101.json is byte-identical to its state before the command; the same holds for a create ac body carrying \"verification\": \"deployed\".",
+    "testable": true
+  },
+  "AC-19501-4": {
+    "description": "[must-not] Given the pin move, when rcf define validate runs over a fixture project whose criteria carry no verification at all, then it exits 0 and prints no \"[error]\" line naming verification: the field stays optional at schema level, and making it required is the flag slice's validate rule, never a schema requirement.",
+    "testable": true
+  },
+  "AC-19501-5": {
+    "description": "[happy] Given packages/rcf-lite/package.json after the slice, when its dependencies are read, then \"@stravica-ai/rcf-schemas\" names the rcf-schemas release that carries verification (0.10.0 or the version that release takes), node bin/rcf.js define validate over this repository's own chain from packages/rcf-lite exits 0, and node bin/rcf.js audit coverage --strict exits with the same code and the same gap list as before the pin move.",
+    "testable": true
+  },
+  "AC-19501-6": {
+    "description": "[happy] Given the installed rcf-schemas package at the new pin, when node_modules/@stravica-ai/rcf-schemas/schemas/user-story.schema.json is read, then $defs.acceptanceCriterion.properties.verification is an enum of exactly [\"external\", \"testOnly\"], verification is not in $defs.acceptanceCriterion.required, and $defs.acceptanceCriterion.additionalProperties is still false.",
+    "testable": true
+  },
+  "AC-19501-7": {
+    "description": "[non-functional] Given this repository's own chain at the slice head (827 or more criteria across 234 or more user stories, the typical case), measured at the Test stage on the verifier's host, when node bin/rcf.js define validate runs before and after the pin move on the same host, then the run after takes no more than 1.25 times the run before (median of three runs each), because the field adds one optional enum check per criterion and nothing else.",
+    "testable": true
+  },
+  "AC-19502-1": {
+    "description": "[failure] Given packages/rcf-lite/package.json and pnpm-lock.yaml at the slice head, when the lockfile's importer entry for packages/rcf-lite is read, then it resolves \"@stravica-ai/rcf-schemas\" to exactly the version package.json pins; a lockfile resolving any other version fails this criterion. Whether the pinned version is published on the npm registry is the stage-keeper's Finalise preflight (npm view @stravica-ai/rcf-schemas@<pin> version), not a test.",
+    "testable": true
+  },
+  "AC-19502-2": {
+    "description": "[must-not] No Code Node recorded for a criterion of this story names a path outside this repository: every rcf/code-nodes/ record whose implementsAcIds names a criterion of REQ-195 has a path that resolves under packages/rcf-lite/ (the writer and schema-loading seams), and none names node_modules/ or a path in the rcf-schemas repository.",
+    "testable": true
+  },
+  "AC-19502-3": {
+    "description": "[failure] Given the pin at rcf-schemas 0.10.0 and a fixture chain whose US-101 holds AC-101-1 with no probe, when rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\"}' runs (a probe with path only, carrying none of expectStatus, expectHeader, expectBody or selector), then it exits 3, stderr carries a line naming AC-101-1 and \"missing assertion\" and listing the four assertion fields, and rcf/user-stories/us-101.json is byte-identical to its state before the command.",
+    "testable": true
+  },
+  "AC-19502-4": {
+    "description": "[must-not] Given the pin at rcf-schemas 0.10.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, an rcf/verify-catalog.json at catalogVersion 1 whose AC-101-1 entry is { \"path\": \"/\" } and whose AC-101-2 entry is { \"path\": \"/\", \"expectStatus\": 200 }, and a local server answering GET / with 200, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then it exits 4, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\" (never \"expectStatus\" or another single assertion name, which the 0.9.0 acProbe subschema error would otherwise name first), never \"pass\", runStats.counts.failed counts it and runStats.counts.verified counts AC-101-2 only; and rcf define validate on that chain exits 3 naming the key AC-101-1.",
+    "testable": true
+  },
+  "AC-19502-5": {
+    "description": "[must-not] Given the pin at rcf-schemas 0.10.0 and a fixture chain whose rcf/user-stories/us-101.json already carries an AC-level probe { \"path\": \"/\" } on AC-101-1 (written to disk, not through the CLI), when rcf define validate runs, then it exits 3 naming AC-101-1 and its probe; and when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs on that tree, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\", never \"pass\", and the command exits 4.",
+    "testable": true
+  },
+  "AC-19601-1": {
+    "description": "[happy] Given a fixture git repository with a base commit and five commits on a branch: \"DEFINE: criteria\" touching test/x.test.js and rcf/user-stories/us-1.json, \"BUILD: code\" touching src/x.js, rcf/code-nodes/cn-1.json and test/hygiene/x.test.js, \"REVIEW: verdict\" touching rcf/verdicts/<h12>/review.json, \"TEST: verdict\" touching rcf/verdicts/<h12>/test.json and rcf/verify-reports/FBS-001/a.json, and \"FINALISE: status\" touching rcf/fbs/fbs-001.json and pnpm-lock.yaml, when rcf audit separation --base <base> runs, then it exits 0 and stdout is exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\".",
+    "testable": true
+  },
+  "AC-19601-10": {
+    "description": "[edge] Given a fixture commit \"BUILD: mixed\" carrying Hand: test-author and touching rcf/user-stories/us-1.json and test/a.test.js, followed by a commit \"define: x\" touching src/x.js, when rcf audit separation runs, then it exits 4 and stdout is \"separation: FAIL 2 of 2 commits (base <b7>, head <h7>): <s7> Hand: test-author disagrees with BUILD: (role builder); <s7> BUILD: touches rcf/user-stories/us-1.json (class criteria, owned by DEFINE); <s7> BUILD: touches test/a.test.js (class rcfTest, owned by DEFINE); <s7> malformed stage prefix \\\"define:\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\": each cause is its own item in check order, commits in range order, and a malformed prefix is that commit's only item.",
+    "testable": true
+  },
+  "AC-19601-2": {
+    "description": "[failure] Given a fixture branch whose one commit \"BUILD: add test\" touches test/x.test.js, when rcf audit separation --base <base> runs, then it exits 4 and stdout is \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\".",
+    "testable": true
+  },
+  "AC-19601-3": {
+    "description": "[failure] Given a fixture branch whose commits are \"DEFINE: criteria\" touching rcf/user-stories/us-1.json and \"fix things\" (no prefix) touching only src/x.js, when rcf audit separation --base <base> runs, then it exits 4 and stdout is \"separation: FAIL 1 of 2 commits (base <b7>, head <h7>): <s7> no stage prefix\", where <s7> is the second commit; a commit touching only Markdown outside rcf/ with no prefix fails the same way.",
+    "testable": true
+  },
+  "AC-19601-4": {
+    "description": "[failure] Given seven fixture commits whose subjects start \"define: x\", \"Define: x\", \"DEFINE:x\", \"DEFINE - x\", \"[DEFINE] x\", \"DEFINE(FBS-1): x\" and \"VERIFY: x\", each touching only rcf/user-stories/us-1.json, when rcf audit separation runs over them, then it exits 4 and the FAIL line carries one item for each commit \"<s7> malformed stage prefix \\\"<first token>\\\"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\" where <first token> is the subject up to its first space (\"define:\", \"Define:\", \"DEFINE:x\", \"DEFINE\", \"[DEFINE]\", \"DEFINE(FBS-1):\", \"VERIFY:\").",
+    "testable": true
+  },
+  "AC-19601-5": {
+    "description": "[failure] Given --base naming a ref that does not exist, rcf audit separation exits 2 with stderr \"separation: bad ref <ref>\"; run outside a git repository it exits 1 with stderr \"separation: not a git repository\"; run in a shallow clone it exits 2 with stderr \"separation: shallow repository, the history from <ref> is missing (fetch with full depth)\"; each prints nothing on stdout.",
+    "testable": true
+  },
+  "AC-19601-6": {
+    "description": "[happy] Given the five-commit fixture of the PASS case plus a clean merge commit \"FINALISE: merge main\", when rcf audit separation --base <base> --json runs, then it exits 0 and stdout is a JSON array of six SeparationRow v2 objects in range order, each with exactly the keys sha, subject, merge, stage, role, handTrailer, classes, generators, verdict, reason and paths; the BUILD row reads stage \"BUILD\", role \"builder\" and classes containing \"production\" and \"hygieneTest\"; the merge row reads merge true, stage \"FINALISE\" and paths [].",
+    "testable": true
+  },
+  "AC-19601-7": {
+    "description": "[edge] Given three fixture commits \"REVIEW: notes\" touching docs/review.md, \"TEST: log\" touching test/x.test.js and \"FINALISE: tidy\" touching README.md, when rcf audit separation runs, then it exits 4 naming each: \"<s7> REVIEW: touches docs/review.md (class neutral, owned by DEFINE, BUILD)\", \"<s7> TEST: touches test/x.test.js (class rcfTest, owned by DEFINE)\" and \"<s7> FINALISE: touches README.md (class neutral, owned by DEFINE, BUILD)\": neutral paths are open to DEFINE and BUILD only.",
+    "testable": true
+  },
+  "AC-19601-8": {
+    "description": "[must-not] rcf audit separation never writes a file, never opens a network connection and reads repository files only through git at commits in the range (rcf/separation.json at the head commit, verdict records at the commits that add them): two runs over the same fixture range print byte-identical stdout, git status --porcelain is unchanged by a run, a run with --head <sha> at a commit other than HEAD judges that range without checking anything out, and a spawn seam that records child processes records only git.",
+    "testable": true
+  },
+  "AC-19601-9": {
+    "description": "[non-functional] Given a fixture range of 200 commits, each prefixed and touching 20 paths across four classes (several times the longest single round the redesign records, whose specs held 152 criteria while the round touched 8), when rcf audit separation --base <base> runs on the host the suite runs on (the test prints os.cpus().length and process.version), then it finishes within 10 seconds and spawns no more than 4 git processes plus one per merge commit in the range, because paths, subjects and trailers come from one git log pass.",
+    "testable": true
+  },
+  "AC-19602-1": {
+    "description": "[happy] Given a fixture commit \"BUILD: hygiene\" touching src/a.js, test/hygiene/a.test.js, packages/x/test/hygiene/b.test.js and src/a.hygiene.test.js, when rcf audit separation runs, then it exits 0, the commit counts under BUILD, and its --json row lists classes production and hygieneTest only.",
+    "testable": true
+  },
+  "AC-19602-2": {
+    "description": "[failure] Given a fixture commit \"DEFINE: tests\" touching test/hygiene/a.test.js, when rcf audit separation runs, then it exits 4 with the item \"<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)\".",
+    "testable": true
+  },
+  "AC-19602-3": {
+    "description": "[failure] Given a fixture chain whose AC-101-1 is bound only by a test case whose testPointer is test/hygiene/a.test.js::<a passing test name>, when rcf audit coverage --strict runs, then it exits 4, AC-101-1 is reported uncovered, and its row names \"hygiene test, outside the RCF suite: test/hygiene/a.test.js\"; the same criterion bound to test/rcf/a.test.js::<the same test name> is covered and the run exits 0.",
+    "testable": true
+  },
+  "AC-19602-4": {
+    "description": "[must-not] Given the fixture chain of the coverage case, when rcf define validate runs, then it exits 0 (a hygiene binding is never a validation error) and stderr carries exactly one line \"[warn] TC-<id> points into a hygiene test (test/hygiene/a.test.js); hygiene tests are outside the RCF suite and never count as coverage\", and no hygiene test is ever counted toward any criterion's coverage in table, json or mermaid output.",
+    "testable": true
+  },
+  "AC-19602-5": {
+    "description": "[edge] Given rcf/separation.json {\"classes\": {\"hygieneTest\": [\"spec/unit/**\"]}} at the head, when a \"BUILD: unit\" commit touches spec/unit/a.js and a \"DEFINE: spec\" commit touches spec/unit/b.js, then rcf audit separation exits 4 naming only the DEFINE commit with \"(class hygieneTest, owned by BUILD)\"; the BUILD commit passes.",
+    "testable": true
+  },
+  "AC-19603-1": {
+    "description": "[happy] Given a fixture commit \"FINALISE: release 1.1.0\" touching rcf/fbs/fbs-001.json, pnpm-lock.yaml, CHANGELOG.md, releases/releases.yaml and package.json, where the package.json diff changes only the \"version\" line, when rcf audit separation runs, then it exits 0 and the commit counts under FINALISE with classes chainStatus, lockfile, release and versionField.",
+    "testable": true
+  },
+  "AC-19603-2": {
+    "description": "[failure] Given three fixture commits \"FINALISE: deps\" changing a dependency line in package.json, \"FINALISE: fix\" touching src/a.js and \"FINALISE: notes\" touching docs/x.md, when rcf audit separation runs, then it exits 4 with the items \"<s7> FINALISE: changes package.json beyond its \\\"version\\\" line (class production, owned by BUILD)\", \"<s7> FINALISE: touches src/a.js (class production, owned by BUILD)\" and \"<s7> FINALISE: touches docs/x.md (class neutral, owned by DEFINE, BUILD)\".",
+    "testable": true
+  },
+  "AC-19603-3": {
+    "description": "[happy] Given rcf/separation.json at the head declaring {\"generators\": [{\"id\": \"queue-goldens\", \"command\": \"node bin/rcf.js build queue --format json > test/build/fixtures/queue.json\", \"outputs\": [\"test/build/fixtures/queue.md\", \"test/build/fixtures/queue.json\"], \"checkedBy\": \"test/build/queue.test.js\"}]} with test/build/queue.test.js present, and a commit \"FINALISE: regenerate queue goldens\" carrying the trailer \"Generated-By: queue-goldens\" and touching test/build/fixtures/queue.json and rcf/fbs/fbs-001.json, when rcf audit separation --json runs, then it exits 0 and that commit's row reads classes [\"chainStatus\", \"generatorOutput\"] and generators [\"queue-goldens\"].",
+    "testable": true
+  },
+  "AC-19603-4": {
+    "description": "[failure] Given the generator declaration of the happy case, when one FINALISE: commit touches test/build/fixtures/queue.json with no Generated-By: trailer, a second carries \"Generated-By: view-baseline\" (not declared) and a third carries \"Generated-By: queue-goldens\" but touches test/view/fixtures/phase-3-6-static.html (not among its outputs), then rcf audit separation exits 4 with \"<s7> FINALISE: touches test/build/fixtures/queue.json (class rcfTest, owned by DEFINE)\", \"<s7> Generated-By: view-baseline is not declared in rcf/separation.json\" and \"<s7> FINALISE: touches test/view/fixtures/phase-3-6-static.html (class rcfTest, owned by DEFINE)\".",
+    "testable": true
+  },
+  "AC-19603-5": {
+    "description": "[failure] Given rcf/separation.json at the head whose generators[0] lacks checkedBy, or has \"outputs\": [], or names a checkedBy file absent at the head, when rcf audit separation runs, then it exits 2 with stderr \"separation: malformed rcf/separation.json: generators[0].checkedBy is required\", \"separation: malformed rcf/separation.json: generators[0].outputs must list at least one glob\" or \"separation: malformed rcf/separation.json: generators[0].checkedBy <path> does not exist at <h7>\" respectively, and prints no PASS or FAIL line.",
+    "testable": true
+  },
+  "AC-19603-6": {
+    "description": "[happy] Given a fixture branch with a merge commit \"FINALISE: merge main\" from the base branch whose result equals the automatic merge (no combined-diff paths) and a second merge \"FINALISE: merge main again\" whose only combined-diff path is pnpm-lock.yaml, when rcf audit separation --json runs, then it exits 0, both rows read merge true and stage \"FINALISE\", the second lists paths [\"pnpm-lock.yaml\"], and the PASS line counts merges 2.",
+    "testable": true
+  },
+  "AC-19603-7": {
+    "description": "[failure] Given a fixture merge commit \"FINALISE: merge main\" whose conflict resolution edits src/a.js (src/a.js in its combined diff), and a merge commit \"Merge branch 'main' into feature\" with no prefix, when rcf audit separation runs, then it exits 4 with \"<s7> FINALISE: merge resolution touches src/a.js (class production); a merge that needs a code fix is not committed in FINALISE: record TEST FAIL and merge main in the next round\" and \"<s7> no stage prefix\".",
+    "testable": true
+  },
+  "AC-19603-8": {
+    "description": "[must-not] rcf audit separation never runs a declared generator's command or any process other than git: over the passing generator fixture, a spawn seam that records child processes records only git, and a declared command that would write a marker file leaves no marker after the run.",
+    "testable": true
+  },
+  "AC-19604-1": {
+    "description": "[happy] Given fixture commits \"DEFINE: criteria\" with trailer Hand: test-author touching rcf/user-stories/us-1.json and \"BUILD: code\" with trailers Hand: builder and Hand-Id: b-1 touching src/x.js, when rcf audit separation runs, then it exits 0, the PASS line reads \"DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2\", and each --json row carries handTrailer naming its trailer value.",
+    "testable": true
+  },
+  "AC-19604-2": {
+    "description": "[failure] Given a fixture commit \"BUILD: code\" carrying Hand: test-author and touching src/x.js, when rcf audit separation runs, then it exits 4 with the item \"<s7> Hand: test-author disagrees with BUILD: (role builder)\".",
+    "testable": true
+  },
+  "AC-19604-3": {
+    "description": "[failure] Given fixture commits \"FINALISE: chores\" carrying Hand: mixed with \"Separation-Reason: release regeneration\" and \"BUILD: rename\" carrying Hand: mixed with no Separation-Reason, when rcf audit separation runs, then it exits 4 with the item \"<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\" for each, whatever paths they touch.",
+    "testable": true
+  },
+  "AC-19604-4": {
+    "description": "[failure] When rcf audit separation --require-hand runs in any fixture repository, then it exits 2 with stderr \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout.",
+    "testable": true
+  },
+  "AC-19604-5": {
+    "description": "[happy] Given rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head, a \"BUILD: code\" commit touching spec/a.js fails exit 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\"; given {\"classes\": {\"test\": [\"spec/**\"]}} (a 0.36.x name) the same commit fails the same way and stderr carries \"[warn] separation: class test is read as rcfTest\"; given {\"classes\": {\"bogus\": [\"x/**\"]}} the verb exits 2 with \"separation: malformed rcf/separation.json: unknown class bogus\"; given unparsable JSON it exits 2 naming rcf/separation.json.",
+    "testable": true
+  },
+  "AC-19604-6": {
+    "description": "[must-not] No trailer turns a failing commit into a pass: a \"BUILD: add test\" commit touching test/x.test.js fails with the class item whether it carries no trailer, Hand: test-author or Hand: mixed with a non-empty Separation-Reason; and a commit whose only marker is a Hand: trailer (no prefix) fails \"no stage prefix\" whatever the trailer says.",
+    "testable": true
+  },
+  "AC-19604-7": {
+    "description": "[edge] Given a fixture branch whose first commit is \"BUILD: code\" touching src/x.js followed by \"TEST: evidence\" touching only rcf/verify-reports/FBS-001/a.json, with no verdict file (the range starts after the round's DEFINE), when rcf audit separation runs, then it exits 0 on classes alone with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\".",
+    "testable": true
+  },
+  "AC-19701-1": {
+    "description": "[happy] Given a fixture project at a clean committed HEAD H whose FBS-001 scopes AC-101-1 and AC-101-2, when rcf build verdict review --fbs FBS-001 --acs AC-101-1,AC-101-2 --code MERGE --adequacy PASS --by \"reviewer and codex\" runs, then it exits 0, stdout is \"verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json\", and that file parses as ReviewVerdict v1 with head equal to the full sha of H, fbsIds [\"FBS-001\"], touchedAcIds [\"AC-101-1\", \"AC-101-2\"], findings [] and recordedBy \"reviewer and codex\"; no commit is made.",
+    "testable": true
+  },
+  "AC-19701-2": {
+    "description": "[happy] Given the same fixture, when rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy FINDINGS --finding \"spec:AC-101-1:the then clause names no exit code\" --finding \"build:-:the CHANGELOG line is missing\" runs, then it exits 0 and the file records adequacy \"FINDINGS\" with findings [{ id \"F-1\", locus \"spec\", acId \"AC-101-1\", text \"the then clause names no exit code\" }, { id \"F-2\", locus \"build\", acId null, text \"the CHANGELOG line is missing\" }].",
+    "testable": true
+  },
+  "AC-19701-3": {
+    "description": "[failure] Given the same fixture, when the verb runs with --code FINDINGS and no --finding it exits 2 with stderr \"[error] usage FINDINGS needs at least one --finding\"; with --finding \"maybe:AC-101-1:x\" it exits 2 naming the expected form <spec|build>:<AC id|->:<text>; with --acs AC-999-1 it exits 3 with stderr \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; and in each case no file appears under rcf/verdicts/.",
+    "testable": true
+  },
+  "AC-19701-4": {
+    "description": "[failure] Given an uncommitted change to src/x.js, the verb exits 4 with stderr \"verdict refused: working tree is dirty; a verdict names a committed head\"; given rcf/verdicts/<H12>/review.json already present, a second run exits 4 with stderr \"verdict refused: a review verdict for <H7> already exists at rcf/verdicts/<H12>/review.json\" and the existing file is byte-identical afterwards.",
+    "testable": true
+  },
+  "AC-19701-5": {
+    "description": "[must-not] rcf build verdict review never writes outside rcf/verdicts/<H12>/, never commits, never edits an existing verdict file and never spawns anything but git: after any run, git status --porcelain lists at most that one new file.",
+    "testable": true
+  },
+  "AC-19701-6": {
+    "description": "[failure] Given FBS-001 at inProgress scoping AC-101-1, AC-101-2 and AC-101-3, rcf build verdict review --fbs FBS-001 --acs AC-101-1,AC-101-2 --code MERGE --adequacy PASS exits 3 with stderr \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\" and writes nothing; with FBS-001 at complete the same command writes the verdict (an amend round).",
+    "testable": true
+  },
+  "AC-19702-1": {
+    "description": "[happy] Given a fixture branch whose HEAD is a REVIEW: commit adding a MERGE/PASS review.json for H, and a TAP file from node --test whose summary reads 12 pass, 0 fail, 1 skip, 0 todo and which includes every bound test of the touched criteria, when rcf build verdict test --fbs FBS-001 --result PASS --tap <file> --runtime \"fixture app on localhost:8787\" runs, then it exits 0, stdout is \"verdict: test PASS at <H7> (12 pass, 0 fail, 1 skip, 0 todo) written to rcf/verdicts/<H12>/test.json\", and the file parses as TestVerdict v1 with head the full sha of H and node equal to the running Node version.",
+    "testable": true
+  },
+  "AC-19702-2": {
+    "description": "[failure] Given the same branch and a TAP summary with 2 failing tests, --result PASS exits 4 with stderr \"verdict refused: the TAP summary reports 2 failing; record --result FAIL\"; given a TAP file lacking the bound test of AC-101-2, --result PASS exits 4 with stderr \"verdict refused: the TAP summary does not include bound test <pointer> of AC-101-2\"; given a file with no TAP summary it exits 2 with stderr \"[error] usage --tap <file> carries no TAP summary\"; no test.json is written in any case.",
+    "testable": true
+  },
+  "AC-19702-3": {
+    "description": "[failure] Given a branch whose newest review.json for H records code FINDINGS, or none at all, --result PASS exits 4 with stderr \"verdict refused: no REVIEW MERGE with adequacy PASS recorded for <H7>\"; given a later \"BUILD: fix\" commit that changed src/x.js after H, it exits 4 with stderr \"verdict refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\".",
+    "testable": true
+  },
+  "AC-19702-4": {
+    "description": "[edge] Given a branch whose rcf/verdicts/<H12>/test.json already records PASS, a second rcf build verdict test for the same head exits 4 with stderr \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\" and the file is byte-identical afterwards; given no test verdict yet, --result FAIL --reason \"the suite hangs on the packed head\" with a TAP summary of 0 failing writes result \"FAIL\" with that reason, and FAIL with 0 failing and no --reason exits 2; the one-verdict rule is per head, so a FAIL recorded after the PASS at H names HEAD and is not refused (stage-keeper ruling 3).",
+    "testable": true
+  },
+  "AC-19702-5": {
+    "description": "[must-not] rcf build verdict test never runs the suite itself, never deploys or contacts a host, never writes outside rcf/verdicts/<H12>/ and never commits: a spawn seam records only git, and git status --porcelain after a run lists at most the one new file.",
+    "testable": true
+  },
+  "AC-19702-6": {
+    "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS for H), TEST: (PASS at H) and \"FINALISE: merge main\" (a clean merge) at head M, when rcf build verdict test --fbs FBS-001 --result FAIL --tap <a TAP file with 1 failing> --runtime \"fixture app\" runs, then it exits 0, stdout is \"verdict: test FAIL at <M7> (0 pass, 1 fail, 0 skip, 0 todo) written to rcf/verdicts/<M12>/test.json\", that file's head is the full sha of M, and rcf/verdicts/<H12>/test.json is byte-identical; the same with --result PASS at M exits 4 with \"verdict refused: a test verdict for <H7> already exists at rcf/verdicts/<H12>/test.json\".",
+    "testable": true
+  },
+  "AC-19702-7": {
+    "description": "[failure] Given a fixture at H whose rcf/verdicts/<H12>/test-strength.json records result fail for AC-101-2 and a TAP summary of 0 failing, rcf build verdict test --fbs FBS-001 --result PASS exits 4 with stderr \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\" and writes nothing; --result FAIL --reason \"test strength fails\" writes result FAIL; with no test-strength record at H, PASS is not refused for that reason.",
+    "testable": true
+  },
+  "AC-19702-8": {
+    "description": "[failure] Given a review.json for H with fbsIds [\"FBS-001\", \"FBS-002\"], rcf build verdict test --fbs FBS-001 --result PASS exits 2 with stderr \"[error] usage --fbs FBS-001 differs from the REVIEW verdict's fbsIds FBS-001,FBS-002\" and writes nothing; with --fbs FBS-002,FBS-001 it writes the verdict; given --by omitted, the review verdict's recordedBy reads \"reviewer\" and the test verdict's \"verifier\".",
+    "testable": true
+  },
+  "AC-19703-1": {
+    "description": "[happy] Given a fixture branch DEFINE:, BUILD:, REVIEW: (a passed review.json for its parent H), TEST: (a PASS test.json for H) and FINALISE: (rcf/fbs/ only), when rcf audit separation runs, then it exits 0 with \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\".",
+    "testable": true
+  },
+  "AC-19703-10": {
+    "description": "[failure] Given a fixture branch BUILD: then \"TEST: verdict\" adding a PASS test.json, with no REVIEW: commit in the range, rcf audit separation exits 4 with \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; the same branch whose TEST: commit adds only rcf/verify-reports/FBS-001/a.json exits 0 and counts that commit as no verdict.",
+    "testable": true
+  },
+  "AC-19703-11": {
+    "description": "[edge] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS), TEST: (PASS at H), \"TEST: strength\" adding rcf/verdicts/<H12>/test-strength.json with result fail, then \"DEFINE: triage\", rcf audit separation exits 0: the failing record closes the round; the same branch with \"BUILD: fix\" after the failing record exits 4 with \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\".",
+    "testable": true
+  },
+  "AC-19703-2": {
+    "description": "[happy] Given a fixture branch DEFINE:, BUILD:, REVIEW: (code FINDINGS), DEFINE: (the test-author's triage), BUILD:, REVIEW: (MERGE/PASS), TEST: (PASS), when rcf audit separation runs, then it exits 0: the regression to DEFINE: right after the failed verdict starts round two.",
+    "testable": true
+  },
+  "AC-19703-3": {
+    "description": "[failure] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS), BUILD: (a further code change), when rcf audit separation runs, then it exits 4 with the item \"<s7> BUILD: after REVIEW: without a failed verdict (stage order is monotonic within a round)\"; the same holds for a DEFINE: after a passed REVIEW: or after a TEST: PASS, and for a DEFINE: after BUILD: with no verdict between.",
+    "testable": true
+  },
+  "AC-19703-4": {
+    "description": "[failure] Given a fixture branch whose REVIEW: commit records FINDINGS and whose next commit is \"BUILD: quick fix\", when rcf audit separation runs, then it exits 4 with the item \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\"; the same holds for a TEST: right after a TEST: FAIL.",
+    "testable": true
+  },
+  "AC-19703-5": {
+    "description": "[failure] Given a REVIEW: commit whose review.json head is not its parent, and a TEST: commit whose test.json head is not the round's reviewed head, when rcf audit separation runs, then it exits 4 with \"<s7> REVIEW: verdict head <x7> is not its parent <p7>\" and \"<s7> TEST: verdict head <x7> is not the reviewed head <H7>\"; the one exception is a TEST: commit adding a FAIL test.json whose head is the commit's own parent, after a TEST PASS at H in the same round (stage-keeper ruling 3), which passes and closes the round.",
+    "testable": true
+  },
+  "AC-19703-6": {
+    "description": "[edge] Given a fixture branch REVIEW: (MERGE/PASS), TEST: (PASS), FINALISE: (a clean merge of main), FINALISE: (rcf/fbs/ only), when rcf audit separation runs, then it exits 0; given the same branch with a further \"DEFINE: amend\", or a \"TEST: rerun\" adding a PASS test.json, after the FINALISE: commits, it exits 4 with \"<s7> DEFINE: after FINALISE: without a failed verdict (stage order is monotonic within a round)\" or the same item for TEST:; given instead \"TEST: merge head red\" adding a FAIL test.json whose head is its parent (the FINALISE: merge) and then \"DEFINE: triage\", it exits 0: the FAIL closes the round and the next round starts at DEFINE: on the same branch (stage-keeper ruling 3).",
+    "testable": true
+  },
+  "AC-19703-7": {
+    "description": "[must-not] No commit message text changes a round verdict: a REVIEW: commit whose subject says MERGE but whose review.json records FINDINGS closes the round; a REVIEW: commit with no review.json is judged on classes and counts as no verdict, so it never opens TEST; and the audit never reads a verdict from anywhere but the file the commit adds.",
+    "testable": true
+  },
+  "AC-19703-8": {
+    "description": "[non-functional] Given a fixture range of 6 rounds (30 or more commits, each REVIEW: and TEST: adding a verdict file), when rcf audit separation runs, then the round judgement adds no more than one git process per verdict commit to the budget of the per-commit judgement and the run finishes within 5 seconds on the host the suite runs on (the test prints os.cpus().length and process.version).",
+    "testable": true
+  },
+  "AC-19703-9": {
+    "description": "[failure] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS for its parent H) and a second \"REVIEW: codex\" adding a review.json for its own parent, when rcf audit separation runs, then it exits 4 with \"<s7> REVIEW: after a passed REVIEW verdict (one REVIEW verdict per round)\"; a REVIEW: commit adding no review.json before the verdict commit passes.",
+    "testable": true
+  },
+  "AC-19801-1": {
+    "description": "[happy] Given a fixture git repository whose base commit holds US-101 with AC-101-1 (no verification) and whose HEAD adds AC-101-2 with \"verification\": \"external\", when rcf define validate --base <base> runs, then it exits 0, prints no \"[error]\" line, and stderr carries no verification line for AC-101-2.",
+    "testable": true
+  },
+  "AC-19801-2": {
+    "description": "[failure] Given the same base and a HEAD that adds AC-101-2 with no verification, when rcf define validate --base <base> runs, then it exits 3 with the line \"[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)\".",
+    "testable": true
+  },
+  "AC-19801-3": {
+    "description": "[failure] Given the same base and a HEAD that changes only the then text of AC-101-1 (still unflagged), when rcf define validate --base <base> runs, then it exits 3 with the line \"[error] verification AC-101-1 is amended since <base7> and carries no verification flag (external | testOnly)\"; a HEAD that changes only AC-101-1's testable or ownerRef (not description, given, when or then) does not make it amended and validate exits 0.",
+    "testable": true
+  },
+  "AC-19801-4": {
+    "description": "[edge] Given a fixture project that is not a git repository, or a git repository with no origin/main and no --base, when rcf define validate runs over an unflagged new criterion, then it exits 0 and stderr carries exactly one line \"[warn] verification: no base ref; new and amended criteria not checked\"; given --base naming a ref that does not resolve it exits 2 with \"[error] usage --base <ref> does not resolve\".",
+    "testable": true
+  },
+  "AC-19801-5": {
+    "description": "[must-not] A retired criterion (carrying supersededBy) is never required to carry verification and never appears in the verification report, whether it is new or amended since the base; and the verification rule never changes validate's exit code for any other finding.",
+    "testable": true
+  },
+  "AC-19801-6": {
+    "description": "[happy] Given this repository's .github/workflows/ci.yml after the slice, when its test job is read, then it checks out with fetch-depth 0, runs \"node bin/rcf.js define validate --base origin/${{ github.base_ref }}\" from packages/rcf-lite in a step guarded by \"if: github.event_name == 'pull_request'\", and runs \"node bin/rcf.js define validate\" with no --base in a step guarded by \"if: github.event_name == 'push'\", so a push to main never passes an empty base ref.",
+    "testable": true
+  },
+  "AC-19802-1": {
+    "description": "[happy] Given a fixture project with 3 live criteria, 1 flagged and 2 unflagged, and FBS-001 scoping the first unflagged criterion, when rcf define validate --report verification runs, then it exits 0 and stdout holds two worklist lines \"<AC id>\\t<US id>\\t<FBS id or ->\\t<first 80 characters of the description>\" in id order (FBS-001 on the scoped one, - on the other) followed by \"verification: 2 of 3 live criteria unflagged\".",
+    "testable": true
+  },
+  "AC-19802-2": {
+    "description": "[edge] Given every live criterion flagged, rcf define validate --report verification exits 0 and prints only \"verification: 0 of <n> live criteria unflagged\"; with --json it prints {\"unflagged\": [], \"live\": <n>}, and with unflagged criteria each entry is { acId, usId, fbsId (string or null), description }.",
+    "testable": true
+  },
+  "AC-19802-3": {
+    "description": "[non-functional] Given a fixture chain of 1000 live criteria across 250 stories with none flagged (the heavy sweep), when rcf define validate --report verification runs, then it finishes within 1.5 times a plain rcf define validate over the same tree and prints exactly 1001 lines, because the worklist reuses the validate walk.",
+    "testable": true
+  },
+  "AC-19802-4": {
+    "description": "[failure] Given --report naming anything other than verification (for example --report flags), rcf define validate exits 2 with stderr \"[error] usage --report takes verification\" and prints no worklist line.",
+    "testable": true
+  },
+  "AC-19802-5": {
+    "description": "[must-not] The worklist never writes: after rcf define validate --report verification, every file under rcf/ is byte-identical and git status --porcelain is unchanged, and the worklist never assigns or suggests a flag for any criterion.",
+    "testable": true
+  },
+  "AC-19803-1": {
+    "description": "[happy] Given a fixture chain whose FBS-001 (executionStatus complete) scopes AC-101-1 (external) and AC-101-2 (testOnly), both bound, when rcf audit coverage --format json runs, then it exits 0, the AC-101-1 row carries verification \"external\", expectedEnd \"verified\" and now \"complete\", the AC-101-2 row carries verification \"testOnly\", expectedEnd \"complete\" and now \"complete\", and the FBS-001 spec entry carries expectedEnd \"verified\" and now \"complete\".",
+    "testable": true
+  },
+  "AC-19803-2": {
+    "description": "[edge] Given the same chain with FBS-001 at verified, the AC-101-2 row reads now \"complete\" (a testOnly criterion never reads past its end) and AC-101-1 reads now \"verified\"; given FBS-002 scoping only testOnly criteria, its spec entry reads expectedEnd \"complete\".",
+    "testable": true
+  },
+  "AC-19803-3": {
+    "description": "[edge] Given an unflagged live criterion AC-101-3 on FBS-001 and a retired criterion AC-101-4, when rcf audit coverage --format table runs, then the AC-101-3 row shows flag unflagged, end unknown and now complete, the AC-101-4 row shows now retired with no end, and a spec with any unflagged criterion and no external one shows end unknown.",
+    "testable": true
+  },
+  "AC-19803-4": {
+    "description": "[must-not] Adding the end-state fields never changes coverage's verdict: over the same fixture chain, rcf audit coverage --strict exits with the same code and lists the same gaps before and after a criterion's flag or its spec's status changes, and a criterion short of its end state is never a gap.",
+    "testable": true
+  },
+  "AC-19803-5": {
+    "description": "[non-functional] Given this repository's own chain at the slice head (the typical case: 827 or more criteria, 121 or more specs), measured at the Test stage on the verifier's host, when node bin/rcf.js audit coverage --format json runs, then it finishes within 1.25 times the same command at the parent commit on the same host (median of three runs), and each criterion row grows by the three fields only.",
+    "testable": true
+  },
+  "AC-19803-6": {
+    "description": "[failure] Given a fixture tree whose AC-101-1 carries \"verification\": \"sometimes\" (a hand-edited value outside the enum), when rcf audit coverage runs, then it exits 3 with a line naming AC-101-1 and the field verification and prints no coverage rows, rather than guessing an end state.",
+    "testable": true
+  },
+  "AC-19804-1": {
+    "description": "[happy] Given this repository's chain at the slice head, when every user story is read, then no tags entry starts \"verification:\", and every criterion that carried a \"verification:<AC id>=<flag>\" tag at the parent of the move commit carries \"verification\" equal to that flag; node bin/rcf.js define validate exits 0.",
+    "testable": true
+  },
+  "AC-19804-2": {
+    "description": "[must-not] Moving the flags changes no criterion text: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical before and after the move.",
+    "testable": true
+  },
+  "AC-19804-3": {
+    "description": "[failure] Given a 0.37.0 criterion left without the field after the move, when node bin/rcf.js define validate --base <the merge-base of the DEFINE branch with main> runs, then it exits 3 naming that criterion as new since the base with no verification flag, so a missed move fails CI.",
+    "testable": true
+  },
+  "AC-19901-1": {
+    "description": "[happy] Given a fixture project whose rcf/test-strength.json declares entry [{\"kind\": \"bin\", \"path\": \"bin/app.js\"}] and harness [\"test/_harness/**\"], and whose AC-101-1 is bound to test/rcf/a.test.js importing only node:test, node:assert and test/_harness/run.js (which spawns bin/app.js), with a symbol-level Code Node whose mutants all fail that test, when rcf audit test-strength --acs AC-101-1 runs, then it exits 0 and stdout is \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 3/3 (timeout 0, notApplicable 0)\" (or killed 2/2 with notApplicable 1 when call removal finds no call site).",
+    "testable": true
+  },
+  "AC-19901-2": {
+    "description": "[failure] Given the same fixture with test/rcf/a.test.js also importing src/store.js (a product file that is not the entry), when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 and stdout is \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)\".",
+    "testable": true
+  },
+  "AC-19901-3": {
+    "description": "[failure] Given the same fixture with test/rcf/a.test.js calling mock.module(\"../../src/mailer.js\", ...) and rcf/test-strength.json declaring edge [\"node:https\"], the verb exits 4 with \"AC-101-1 mocks ../../src/mailer.js (not a declared edge)\"; a mock.module(\"node:https\", ...) in the same test is not a finding.",
+    "testable": true
+  },
+  "AC-19901-4": {
+    "description": "[failure] Given a Code Node src/notify.js#makeNotifier implementing AC-101-1 whose function is makeNotifier({ sender = consoleSender } = {}), when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 with \"AC-101-1 silent default sender in src/notify.js#makeNotifier\"; a parameter named sender with no default is not a finding.",
+    "testable": true
+  },
+  "AC-19901-5": {
+    "description": "[edge] Given a fixture project with no rcf/test-strength.json, rcf audit test-strength --acs AC-101-1 exits 2 with stderr \"test-strength: no rcf/test-strength.json; declare entry and harness\"; given no --acs, no --fbs and no REVIEW verdict reachable from HEAD, it exits 2 with \"test-strength: no scope; pass --acs or --fbs, or record a REVIEW verdict\"; given --acs AC-999-1 it exits 2 naming AC-999-1.",
+    "testable": true
+  },
+  "AC-19901-6": {
+    "description": "[must-not] The structural check never executes a test, the entry or any product module: it reads bound test files and Code Node sources as text, so a bound test file that would throw on import still yields its import findings, and a structural-only failure is reported without running a single mutant.",
+    "testable": true
+  },
+  "AC-19901-7": {
+    "description": "[edge] Given --acs AC-101-1,AC-101-2 where AC-101-1's bound test imports src/store.js and AC-101-2 passes the structural check, rcf audit test-strength runs the structural check for both first, runs mutants for AC-101-2 only, exits 4 naming AC-101-1's imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1.",
+    "testable": true
+  },
+  "AC-19901-8": {
+    "description": "[failure] Given a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, rcf audit test-strength exits 2 with stderr \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\" and runs no mutant; bound tests and Code Nodes in .js, .mjs and .cjs files are read.",
+    "testable": true
+  },
+  "AC-19902-1": {
+    "description": "[failure] Given a fixture whose AC-101-1 is bound to a test that asserts only that the CLI exits 0, and whose Code Node src/audit.js#writeAudit is called once per run but its output is never asserted, when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 with \"AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests\" (and the same for callRemoval), and --json lists those mutants with result \"survived\".",
+    "testable": true
+  },
+  "AC-19902-2": {
+    "description": "[failure] Given AC-101-2 with no Code Node, AC-101-3 whose only Code Node is file-level (src/x.js with no #symbol) and AC-101-4 with no bound test case, when rcf audit test-strength --acs AC-101-2,AC-101-3,AC-101-4 runs, then it exits 4 with \"AC-101-2 no Code Node\", \"AC-101-3 no symbol-level Code Node\" and \"AC-101-4 unbound\".",
+    "testable": true
+  },
+  "AC-19902-3": {
+    "description": "[edge] Given a symbol whose no-op mutant makes its bound test hang past --mutant-timeout 5, when rcf audit test-strength --acs AC-101-1 --mutant-timeout 5 runs, then that mutant is recorded result \"timeout\", counts as killed, and the PASS line reports it under timeout; a symbol with no statement-level call site records callRemoval as \"notApplicable\" and the criterion still passes on its other two operators.",
+    "testable": true
+  },
+  "AC-19902-4": {
+    "description": "[must-not] rcf audit test-strength never mutates the working tree and never mutates a symbol of an untouched criterion: over a fixture whose FBS-001 scopes AC-101-1 and AC-101-2 and whose REVIEW verdict touches only AC-101-1, a run with no --acs applies mutants only to AC-101-1's symbols, git status --porcelain and every tracked file's hash are unchanged after the run, and no scratch worktree is left registered (git worktree list shows only the main one).",
+    "testable": true
+  },
+  "AC-19902-5": {
+    "description": "[failure] Given a scope whose Code Node symbols would yield 240 mutants, when rcf audit test-strength runs with the default --max-mutants, then it exits 2 before running any test with stderr \"test-strength: 240 mutants exceed --max-mutants 200; narrow the scope\"; with --max-mutants 300 it runs.",
+    "testable": true
+  },
+  "AC-19902-6": {
+    "description": "[non-functional] Given a fixture round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants, the redesign's heavy round of 8 touched criteria in a 152-criterion spec) and bound test files that each run in about 2 seconds, when rcf audit test-strength runs with --jobs 4 on the host the suite runs on (the test prints os.cpus().length and process.version), then it finishes within 5 minutes, runs only the 8 criteria's bound test files (never the whole suite), and the json totals report mutants 48 and the wall time in wallMs.",
+    "testable": true
+  },
+  "AC-19902-7": {
+    "description": "[edge] Given AC-101-1 with Code Nodes src/a.js#Store (a class with two methods), src/a.js#LIMIT (a numeric constant), src/a.js#api (an object literal) and src/index.js#run (a re-export of src/run.js#run), rcf audit test-strength applies the three operators to each method of Store and fails AC-101-1 with \"no mutable symbol src/a.js#LIMIT\", \"no mutable symbol src/a.js#api\" and \"no mutable symbol src/index.js#run\"; a function-valued initialiser const f = () => {} is mutated like a function.",
+    "testable": true
+  },
+  "AC-19902-8": {
+    "description": "[edge] Given a fixture project whose rcf/test-strength.json declares entry [{\"kind\": \"bin\", \"path\": \"bin/app.js\"}] and harness [\"test/_harness/**\"], and whose AC-101-5 has one Code Node, docs/x.md with no #symbol (a file-level Code Node on a path that is not source), and is bound to test/rcf/a.test.js, which reads docs/x.md through node:fs and asserts it holds the line \"x\", when rcf audit test-strength --acs AC-101-5 runs, then docs/x.md is blanked in the scratch worktree, the bound test goes red, and it exits 0 with stdout \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 1/1 (timeout 0, notApplicable 0)\" and --json listing one mutant with symbol \"docs/x.md\", operator \"fileBlank\" and result \"killed\"; given instead a bound test that never reads docs/x.md, it exits 4 with \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\".",
+    "testable": true
+  },
+  "AC-19903-1": {
+    "description": "[happy] Given a fixture branch whose HEAD is a REVIEW: commit adding a MERGE/PASS review.json for H touching AC-101-1, and a passing test-strength run, when rcf audit test-strength --record runs, then it exits 0 and writes rcf/verdicts/<H12>/test-strength.json parsing as TestStrengthReport v1 with head the full sha of H, scope \"reviewVerdict\" and criteria [AC-101-1]; a FAIL run with --record writes the report too (result fail) and exits 4.",
+    "testable": true
+  },
+  "AC-19903-2": {
+    "description": "[failure] Given an uncommitted change to src/x.js, rcf audit test-strength --record exits 4 with stderr \"test-strength: refused: working tree is dirty; a record names a committed head\"; given a \"BUILD:\" commit after H that changed src/x.js, it exits 4 with \"test-strength: refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\"; given no REVIEW verdict reachable from HEAD, with or without --acs or --fbs, it exits 2 with \"test-strength: --record needs a REVIEW verdict reachable from HEAD\"; none writes a file, and a FINALISE: commit inside FINALISE classes after H does not refuse.",
+    "testable": true
+  },
+  "AC-19903-3": {
+    "description": "[happy] Given a fixture Worker-style app whose rcf/test-strength.json declares entry [{\"kind\": \"worker\", \"path\": \"src/index.js\"}], harness [\"test/harness/**\"] and edge [\"undici\"], and a bound test that imports test/harness/worker.js (which imports src/index.js and calls its fetch with an outbound stand-in), when rcf audit test-strength --acs AC-101-1 runs, then the structural check passes; a bound test importing src/routes/pay.js directly fails with \"imports src/routes/pay.js (not the app entry or the harness)\".",
+    "testable": true
+  },
+  "AC-19903-4": {
+    "description": "[edge] Given a fixture library whose rcf/test-strength.json declares entry [{\"kind\": \"module\", \"path\": \"src/index.js\"}] and whose bound test imports the package by its own name (resolved through its exports map to src/index.js), the structural check passes; the same test importing ../src/index.js by relative path also passes (it is the entry), and importing ../src/internal.js fails with the imports finding.",
+    "testable": true
+  },
+  "AC-19903-5": {
+    "description": "[must-not] rcf audit test-strength never deploys, never opens a network connection of its own and never writes outside rcf/verdicts/<H12>/ in the project, with or without --record; a malformed rcf/test-strength.json (unparsable, an entry kind outside bin, module and worker, or an empty harness list) exits 2 naming the field and runs no test.",
+    "testable": true
+  },
+  "AC-20001-1": {
+    "description": "[happy] Given a fixture branch holding FBS-001 (inProgress) scoping AC-101-1 and AC-101-2 with Code Nodes, commits DEFINE:, BUILD:, REVIEW: (ReviewVerdict MERGE/PASS at H touching both), TEST: (TestVerdict PASS at H and a passing test-strength record at H), and no rcf/verify-reports/ directory at all, when rcf build finalise FBS-001 --ci-run run-7 runs, then it exits 0, stdout is \"finalise: FBS-001 complete at <head7> (reviewed <H7>, ci run-7, touched 2 criteria)\", rcf/fbs/fbs-001.json reads executionStatus \"complete\", and nothing else in the tree changes.",
+    "testable": true
+  },
+  "AC-20001-2": {
+    "description": "[failure] Given the same fixture with no REVIEW: commit, Finalise exits 4 with stderr \"finalise refused: no REVIEW verdict for FBS-001 on the branch\"; given a REVIEW verdict code MERGE with adequacy FINDINGS, it exits 4 with \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\".",
+    "testable": true
+  },
+  "AC-20001-3": {
+    "description": "[failure] Given the happy fixture with the TEST: commit absent, Finalise exits 4 with stderr \"finalise refused: no TEST verdict at <H7>\"; given a TestVerdict FAIL at H, it exits 4 with \"finalise refused: TEST at <H7> is FAIL\"; given a TEST PASS at H followed by a TEST: commit adding a FAIL TestVerdict at a later head M, it exits 4 with \"finalise refused: TEST at <M7> is FAIL; a failed verdict closes the round\".",
+    "testable": true
+  },
+  "AC-20001-4": {
+    "description": "[failure] Given the happy fixture plus a \"BUILD: late fix\" commit after the TEST: commit, Finalise exits 4 with stderr \"finalise refused: REVIEW reopened by <s7> BUILD: after the reviewed head <H7>\"; a \"DEFINE: amend\" after H refuses the same way, while extra FINALISE: commits inside FINALISE classes (a clean merge of main, a lockfile) do not refuse.",
+    "testable": true
+  },
+  "AC-20001-5": {
+    "description": "[edge] Given the happy fixture finalised once (FBS-001 complete), when rcf build finalise FBS-001 --ci-run run-7 runs again at the same head or after a further FINALISE: commit, then it exits 0, stdout is \"finalise: FBS-001 complete (unchanged)\" and rcf/fbs/fbs-001.json is byte-identical; given an earlier round (REVIEW FINDINGS, then DEFINE:, BUILD:, REVIEW: MERGE/PASS, TEST: PASS), Finalise judges only the last round and exits 0.",
+    "testable": true
+  },
+  "AC-20001-6": {
+    "description": "[edge] Given the happy fixture with a \"FINALISE: merge main\" commit after the TEST: commit whose resolution is clean, Finalise run with --merge-suite <a green BaseSuiteRecord whose head is that merge commit M> exits 0 and stderr carries \"[info] finalise: merge from main after the reviewed head; base suite green at <M7> is the suite evidence, ci run-7 on <head7>\"; given a two-spec round whose ReviewVerdict fbsIds are [\"FBS-001\", \"FBS-002\"], finalising each spec writes complete on that spec only.",
+    "testable": true
+  },
+  "AC-20001-7": {
+    "description": "[must-not] On every refusal, rcf build finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named.",
+    "testable": true
+  },
+  "AC-20001-8": {
+    "description": "[failure] Given the happy fixture plus a clean \"FINALISE: merge main\" at M after the TEST: commit, rcf build finalise FBS-001 --ci-run run-7 without --merge-suite exits 4 with stderr \"finalise refused: merge from main after the reviewed head; pass --merge-suite <a green base-suite record at <M7>>\"; with a record whose head is not M it exits 4 with \"finalise refused: base suite recorded at <x7>, merge head is <M7>\"; with a red record at M it exits 4 with \"finalise refused: base suite red at <M7>; the verifier records TEST FAIL at the merge head\"; a FINALISE: status commit with no merge needs no --merge-suite; every refusal leaves rcf/fbs/fbs-001.json byte-identical.",
+    "testable": true
+  },
+  "AC-20001-9": {
+    "description": "[failure] Given the happy fixture with FBS-001 at notStarted, rcf build finalise FBS-001 --ci-run run-7 exits 4 with stderr \"finalise refused: FBS-001 is notStarted; the round's DEFINE: marks it inProgress\" and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round.",
+    "testable": true
+  },
+  "AC-20002-1": {
+    "description": "[failure] Given the happy fixture with no test-strength record at H, Finalise exits 4 with stderr \"finalise refused: no test-strength record at <H7>\"; with a record whose AC-101-2 result is fail, it exits 4 with \"finalise refused: test-strength at <H7> fails for AC-101-2\"; with a record covering AC-101-1 only, it exits 4 with \"finalise refused: test-strength at <H7> omits AC-101-2\".",
+    "testable": true
+  },
+  "AC-20002-2": {
+    "description": "[failure] Given the happy fixture where the ReviewVerdict touches only AC-101-1 but the DEFINE: commit of the round changed AC-101-2's then text (or added a test case bound to AC-101-2), Finalise exits 4 with stderr \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\".",
+    "testable": true
+  },
+  "AC-20002-3": {
+    "description": "[failure] Given the happy fixture with no --ci-run, Finalise exits 4 with stderr \"ci evidence missing: pass --ci-run <ref>\"; given AC-101-2 with no Code Node, it exits 3 with \"finalise refused: missing Code Node for AC-101-2\"; a criterion of FBS-001 that the round did not touch and that has no Code Node does not refuse (slice scope).",
+    "testable": true
+  },
+  "AC-20002-4": {
+    "description": "[failure] Given the happy fixture plus an earlier \"BUILD: tests\" commit in the range touching test/rcf/a.test.js, Finalise exits 4 with stderr \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\"; a range carrying a Hand: mixed commit refuses the same way with the audit's retired-mixed item, and Finalise never lists a separation exception as acceptable.",
+    "testable": true
+  },
+  "AC-20002-5": {
+    "description": "[must-not] Finalise never re-runs the suite, test strength or the separation audit as a child process and never spawns anything but git: a spawn seam over the happy run records only git, and the separation judgement runs in-process over git output.",
+    "testable": true
+  },
+  "AC-20003-1": {
+    "description": "[failure] When rcf build finalise FBS-001 --ci-run run-7 runs with each flag of [--report <path>, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge] in turn, then it exits 2 with stderr \"finalise no longer reads a verify report; Finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts (rcf guidance build-cycle)\", spawns nothing and writes nothing.",
+    "testable": true
+  },
+  "AC-20003-2": {
+    "description": "[must-not] Given the happy fixture plus a committed VerifyReport under rcf/verify-reports/FBS-001/ whose verdict is FAIL (or one that is malformed), when Finalise runs, then it exits 0 with the same output as without the report: Finalise never opens a file under rcf/verify-reports/, and a passing report never stands in for a missing TEST verdict (the TEST-less fixture with a PASS report still exits 4 \"no TEST verdict\").",
+    "testable": true
+  },
+  "AC-20003-3": {
+    "description": "[failure] Given a fixture FBS-001 at inProgress, when rcf build mark FBS-001 complete runs, then it exits 4 with stderr \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" and rcf/fbs/fbs-001.json is byte-identical; rcf build mark FBS-001 inProgress from notStarted still works, and every backward mark (complete to inProgress, inProgress to notStarted) stays refused with exit 4 as today.",
+    "testable": true
+  },
+  "AC-20003-4": {
+    "description": "[edge] Given an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria, Finalise exits 0 with stdout \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write; when any touched criterion is external, it writes complete and stdout is the complete line.",
+    "testable": true
+  },
+  "AC-20003-5": {
+    "description": "[must-not] rcf build finalise never writes executionStatus verified in any mode or flag combination: across every fixture of this requirement, rcf/fbs/<fbs-id>.json never gains verified from a Finalise run.",
+    "testable": true
+  },
+  "AC-20101-1": {
+    "description": "[happy] Given a fixture repository tagged v1.0.0 at commit R, then FBS-001 (complete) changed after R scoping AC-101-1 (external, bound by an e2e-level case that passes against the target) and AC-101-2 (testOnly), FBS-002 unchanged since R, rcf/release-verify.json declaring smoke [\"TS-900\"] whose case passes, and a clean tree, when rcf verify run --release 1.1.0 --since v1.0.0 --url <local fixture server> --record runs, then it exits 0, prints \"AC-101-1 FBS-001 pass\", \"verify: release 1.1.0 PASS 1/1 external criteria, smoke 1/1 (target <url>)\" and \"verify: recorded rcf/verify-reports/releases/1.1.0.json; verified FBS-001\", FBS-001 reads verified, FBS-002 is untouched, and the report parses as ReleaseVerifyReport v1 whose perAc holds AC-101-1 only.",
+    "testable": true
+  },
+  "AC-20101-2": {
+    "description": "[failure] Given the same fixture with the e2e case of AC-101-1 failing against the target, the run exits 4, prints \"AC-101-1 FBS-001 fail\" and a FAIL line, records the report with verdict FAIL and verifiedFbsIds [], and FBS-001 stays complete; given the smoke case failing and AC-101-1 passing, it exits 4 and no spec is written verified; given two in-scope specs where FBS-001's external case passes and FBS-002's fails, with smoke green, it exits 4, records verdict FAIL and verifiedFbsIds [\"FBS-001\"], and FBS-001 reads verified while FBS-002 stays complete.",
+    "testable": true
+  },
+  "AC-20101-3": {
+    "description": "[edge] Given an in-scope FBS-003 at complete scoping only testOnly criteria, it is listed in the report's testOnlyOnly, stays complete, and runs no test; given an in-scope external criterion AC-104-1 bound only by a unit-level case, it prints \"AC-104-1 FBS-004 blocked\", the reason reads \"no bound e2e test\", and FBS-004 is not verified; given an in-scope FBS-005 at inProgress, its criteria are blocked with reason \"spec not complete\"; given an in-scope FBS-006 at complete with one external and one unflagged live criterion, its criteria are blocked with reason \"unflagged criteria\", it is listed in the report's unflagged array and is not verified; given an in-scope FBS-007 already verified whose external case passes, it is run like a complete spec and stays verified; given FBS-008 at notStarted whose criteria changed since the release, or any spec whose only change since the release is a verification flag, a supersession field or its FBS record, it is not in scope.",
+    "testable": true
+  },
+  "AC-20101-4": {
+    "description": "[failure] Given --record without --release or --since, the verb exits 2 with \"[error] usage --record needs --release <label> and --since <ref>\"; given no rcf/release-verify.json, --record exits 2 with \"verify: no core-journey smoke declared in rcf/release-verify.json\"; given an uncommitted change outside rcf/verify-reports/, --record exits 4 with \"verify report refused: working tree is dirty; the report must name a committed head\"; none writes a file.",
+    "testable": true
+  },
+  "AC-20101-5": {
+    "description": "[must-not] Without --record, a release-scoped run (or any ad hoc run, post-deploy smoke included) never writes executionStatus and never writes under rcf/verify-reports/releases/: after the PASS fixture run without --record, every rcf/fbs/ file is byte-identical and git status --porcelain is unchanged (with --out <file> outside the tree, only that file appears).",
+    "testable": true
+  },
+  "AC-20101-6": {
+    "description": "[non-functional] Given a fixture release scope of 12 changed specs holding 40 external criteria, each bound by one e2e case of about 1 second, among 150 specs and 800 criteria in the chain (the typical size of this repository's own chain), when the release Verify runs against a local URL target, then it runs exactly the 40 bound e2e cases plus the smoke suites (never a case of an unchanged spec or a testOnly criterion) and adds no more than 10 seconds of its own overhead, measured as the run's wall time minus the durations the TAP output reports for the cases it ran.",
+    "testable": true
+  },
+  "AC-20101-7": {
+    "description": "[failure] Given --since naming a ref that does not resolve to a commit (a missing ref, a tree or a blob), rcf verify run --release 1.1.0 --since <ref> --url <server> --record exits 2 with stderr \"[error] usage --since <ref> does not resolve to a commit\"; given a commit that is not an ancestor of HEAD it exits 2 with \"[error] usage --since <ref> is not an ancestor of HEAD\"; none writes a file.",
+    "testable": true
+  },
+  "AC-20102-1": {
+    "description": "[happy] Given a fixture package whose bound e2e test prints process.env.HOME, the npm cache path (npm config get cache run by the test) and whether a variable FIXTURE_LEAK set in the caller's environment is visible, when rcf verify run --release 1.1.0 --since v1.0.0 --package . --record runs, then the test observes a HOME and an npm cache inside the run's scratch directory under the OS temp directory, an empty cache before the install, and no FIXTURE_LEAK, and the report target reads kind \"package\", name, version, sha256 of the tarball and cold true.",
+    "testable": true
+  },
+  "AC-20102-2": {
+    "description": "[failure] Given --offline in release mode, the verb exits 2 with \"[error] usage --offline cannot install cold\"; given both --url and --artefact (or none of --url, --artefact and --package), it exits 2 with \"[error] usage give exactly one target: --url, --artefact or --package\"; given an artefact whose dependency resolves nowhere, it exits 1 naming the install command and writes no report.",
+    "testable": true
+  },
+  "AC-20102-3": {
+    "description": "[edge] Given a user npmrc at the caller's HOME that sets a registry the fixture cannot reach, when the cold release Verify runs, then the install ignores that npmrc and resolves from the default registry configuration, so a developer setting never changes the release result.",
+    "testable": true
+  },
+  "AC-20102-4": {
+    "description": "[must-not] A cold release Verify never writes in the project outside rcf/verify-reports/releases/ and rcf/fbs/ (and only with --record), never leaves a tarball, node_modules change or lockfile change in the project, and removes its scratch directory after the run.",
+    "testable": true
+  },
+  "AC-20103-1": {
+    "description": "[happy] Given a fixture with rcf/verify-catalog.json and a local server, rcf verify run --url <server> --fbs FBS-001 --mode deterministic still runs as an ad hoc probe with its 0.36.x output and exit codes, and leaves every rcf/fbs/ file byte-identical.",
+    "testable": true
+  },
+  "AC-20103-2": {
+    "description": "[failure] Given --record with --mode deterministic or --mode agentScreenshotCritique, the verb exits 2 with \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing.",
+    "testable": true
+  },
+  "AC-20103-3": {
+    "description": "[must-not] Release Verify never requires rcf/verify-catalog.json, an agent CLI or a probe on any criterion: the PASS fixture of the release story has neither a catalog nor any probe field and still records verified, and a spawn seam over that run records no agent CLI.",
+    "testable": true
+  },
+  "AC-20201-1": {
+    "description": "[happy] Given a fixture project at a clean committed HEAD B whose FBS-002 is next actionable and whose FBS-001 is complete and not verified, and a record from rcf build base-suite --command 'node --test \"test/rcf/**/*.test.js\"' --out <scratch>/base.json reading green at B, when rcf build bundle --next --base-suite <scratch>/base.json runs, then it exits 0 and emits the FBS-002 bundle: a complete-not-verified spec never holds the queue; given a fixture branch whose HEAD is a DEFINE: commit adding a failing RCF test after the trunk tip B, the same green record at B bundles, because the record names the base (git merge-base of HEAD with the trunk), not HEAD.",
+    "testable": true
+  },
+  "AC-20201-2": {
+    "description": "[failure] Given the same fixture and no --base-suite, rcf build bundle --next exits 4 with stderr \"backstop: base suite not recorded; run rcf build base-suite --command \\\"<suite>\\\" --out <file> on the base and pass --base-suite <file>\" and emits no bundle; given a malformed record file it exits 2 naming the file.",
+    "testable": true
+  },
+  "AC-20201-3": {
+    "description": "[failure] Given a green record made at commit A and a base now at B (git merge-base of HEAD with the trunk, a later commit than A), rcf build bundle --next --base-suite <file> exits 4 with stderr \"backstop: base suite recorded at <A7>, base is <B7>; record it again\".",
+    "testable": true
+  },
+  "AC-20201-4": {
+    "description": "[failure] Given a record at B with exitCode 1 and tap fail 3, rcf build bundle --next --base-suite <file> exits 4 with stderr \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\"; the same record refuses rcf build bundle FBS-002 (explicit id) and an amend bundle the same way.",
+    "testable": true
+  },
+  "AC-20201-5": {
+    "description": "[must-not] No flag emits a bundle on a red or missing base-suite record: --override \"<reason>\" (which satisfies only the freeze gate), --strict and --format change nothing about the refusal; and the backstop never reads executionStatus verified (a fixture where every spec is complete and none verified, with a green record, bundles).",
+    "testable": true
+  },
+  "AC-20201-6": {
+    "description": "[edge] Given a dirty working tree, rcf build base-suite exits 4 with stderr \"base-suite refused: working tree is dirty; record the suite on a committed base\"; given --out rcf/base.json it exits 2 (a record never lands in the chain tree); given a suite command printing no TAP, the record carries tap null, green follows the exit code alone, and stderr carries one line \"[warn] base-suite: no TAP summary; green follows the exit code alone\".",
+    "testable": true
+  },
+  "AC-20201-7": {
+    "description": "[non-functional] Given a green record for the base, rcf build bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command (a spawn seam records none), so the suite's cost (166 seconds for this repository's suite at concurrency 6, the typical case) is paid once per base head by rcf build base-suite.",
+    "testable": true
+  },
+  "AC-20201-8": {
+    "description": "[failure] Given rcf/test-strength.json declaring suiteCommand \"node --test --test-reporter=tap test/rcf\", rcf build base-suite --out <scratch>/b.json with no --command runs that command and records it as the record's command; with --command \"node --test test/rcf/a.test.js\" it exits 2 with stderr \"[error] usage --command differs from rcf/test-strength.json suiteCommand\" and writes nothing.",
+    "testable": true
+  },
+  "AC-20202-1": {
+    "description": "[happy] Given a fixture FBS-001 at complete scoping AC-101-1 to AC-101-6 and a green base-suite record, when rcf build bundle FBS-001 --acs AC-101-2,AC-101-5 --base-suite <file> --format json runs, then it exits 0, the json carries \"round\": \"amend\" and \"touchedAcIds\": [\"AC-101-2\", \"AC-101-5\"] and lists only those two criteria with their test cases and Code Nodes; with --format md the title reads \"Amend round on FBS-001: 2 criteria\" and the runbook's first stage is DEFINE.",
+    "testable": true
+  },
+  "AC-20202-2": {
+    "description": "[failure] Given FBS-002 at inProgress, rcf build bundle FBS-002 --acs AC-102-1 --base-suite <file> exits 2 with stderr \"[error] usage --acs scopes an amend round on a complete or verified spec\"; given --acs AC-999-1 on FBS-001 it exits 3 with \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; given a retired AC-101-6 whose successor is AC-101-7 it exits 2 with \"[error] usage AC-101-6 is retired; amend its successor AC-101-7\".",
+    "testable": true
+  },
+  "AC-20202-3": {
+    "description": "[edge] Given FBS-001 at verified, the amend bundle is emitted the same way; given --next with --acs, the verb exits 2; and rcf build bundle --next over a tree whose only remaining specs are complete or verified prints \"Next actionable: none\" and never selects an amend round.",
+    "testable": true
+  },
+  "AC-20202-4": {
+    "description": "[must-not] An amend bundle never lists a criterion outside --acs and never changes any FBS executionStatus: the md and json output name no other criterion of FBS-001, and every rcf/fbs/ file is byte-identical after the run.",
+    "testable": true
+  },
+  "AC-20202-5": {
+    "description": "[non-functional] Given a fixture spec of 152 criteria at complete (the redesign's heavy round) and --acs naming 8 of them, the amend bundle's json lists 8 criteria and its size is no more than 1.2 times that of an amend bundle naming 8 criteria of a 10-criterion spec, so output scales with the touched criteria, not the spec.",
+    "testable": true
+  },
+  "AC-20203-1": {
+    "description": "[edge] Given a fixture tree carrying rcf/define/backstop.json with fromBuildOrder 1 and a complete-not-verified FBS above it, and a green base-suite record, rcf build bundle --next --base-suite <file> exits 0, emits the bundle, and stderr carries exactly one line \"[warn] backstop: rcf/define/backstop.json is retired in 0.37.0 and ignored; the backstop is the base suite\".",
+    "testable": true
+  },
+  "AC-20203-2": {
+    "description": "[failure] When rcf build backstop adopt --from FBS-001 runs, it exits 2 with stderr \"[error] usage backstop adopt is retired in 0.37.0; the backstop is the base suite (rcf build base-suite)\" and writes no file.",
+    "testable": true
+  },
+  "AC-20203-3": {
+    "description": "[failure] When rcf build bundle --next --allow-unverified \"hotfix\" --base-suite <file> runs, it exits 2 with stderr \"[error] usage --allow-unverified is retired in 0.37.0; no override lets a Build start on a red base\" and emits no bundle.",
+    "testable": true
+  },
+  "AC-20203-4": {
+    "description": "[must-not] No 0.37.0 command writes or reads backstop.overrides: after any run of this story's fixtures, an existing rcf/define/backstop.json is byte-identical and no new one is created.",
+    "testable": true
+  },
+  "AC-20301-1": {
+    "description": "[happy] Given this repository at this slice's reviewed head or any later head of the 0.37.0 train, when node bin/rcf.js define readiness --check all runs from packages/rcf-lite, then it exits 0, its Chips line reads \"D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:passed\" and it prints \"Freezeable: yes\".",
+    "testable": true
+  },
+  "AC-20301-2": {
+    "description": "[happy] Given a scratch copy of this repository at this slice's reviewed head or any later head, with the freeze recorded in the copy by node bin/rcf.js define freeze, when node bin/rcf.js build bundle --next --base-suite <a green record for that head> runs in the copy without --override, then it exits 0 and emits the next actionable bundle, and node bin/rcf.js define readiness in the copy no longer prints \"Unfrozen\".",
+    "testable": true
+  },
+  "AC-20301-3": {
+    "description": "[failure] Given a scratch copy of this repository at this slice's reviewed head or any later head with one new requirement created through rcf define create req and given no shape classification, no story and no concern entries, when node bin/rcf.js define readiness --check all runs in the copy, then it exits 4 naming that requirement under the D2 and D4 checks it fails, so the green state is held by the checks and not by an exemption.",
+    "testable": true
+  },
+  "AC-20301-4": {
+    "description": "[must-not] No readiness check is weakened to reach green: the readiness check code under src/query/gates.js and src/cli/readiness.js gives the same chip verdicts at this slice's reviewed head and every later head as the chip golden that FBS-240's round DEFINE captures from the round-base bin, over the named readiness fixture trees under packages/rcf-lite/test/fixtures/readiness/ (a clean tree, plus one per D-check a tree can fail), and no check in this repository's own chain is marked notApplicable that was applicable at 639f07bb.",
+    "testable": true
+  },
+  "AC-20302-1": {
+    "description": "[happy] Given this repository at this slice's reviewed head or any later head, when node bin/rcf.js define readiness --check skeleton, --check shapes, --check stories, --check crosscut and --check consistency run, then each exits 0 and reports each of its checks [ok], including skeleton:reqShape, skeleton:tadPersistence, skeleton:deployAdr, shapes:tacHasInterface, shapes:draftSettled, shapes:templateMarkers, stories:usFloors, stories:closedSets, crosscut:securityArchitecture, crosscut:catalogue, consistency:contradictions, consistency:unsatisfiable and consistency:orphanInterfaces.",
+    "testable": true
+  },
+  "AC-20302-2": {
+    "description": "[failure] Given rcf/manifest.json at this slice's reviewed head or any later head, when every defineD4:failure and defineD4:mustNot opt-out is read, then each names its REQ and carries a non-empty reason; and every concern-ledger entry with disposition waived carries a non-empty reason (node bin/rcf.js define ledger concerns list --json shows none without one). An opt-out or waiver with an empty reason fails this criterion.",
+    "testable": true
+  },
+  "AC-20302-3": {
+    "description": "[must-not] No criterion text in this repository changes meaning to clear a readiness finding: a criterion whose wording a check flags (closedSets, unsatisfiable, contradictions) is retired and succeeded with the rcf-schemas supersession fields, or the record the check asks for (a closed set owner, a recordShape field) is added; git diff 639f07bb..<this slice's reviewed head or any later head> shows no description, given, when or then rewritten in place on a live criterion.",
+    "testable": true
+  },
+  "AC-20302-4": {
+    "description": "[non-functional] Given this repository's chain at this slice's reviewed head or any later head (about 1300 documents or more, the typical case), node bin/rcf.js define readiness --check all finishes within 2 seconds on the host the suite runs on (the test prints os.cpus().length and process.version) (it reported 29 ms compute at 639f07bb).",
+    "testable": true
+  },
+  "AC-20303-1": {
+    "description": "[happy] Given this repository at this slice's reviewed head or any later head, when node bin/rcf.js define readiness --level intent --check brief runs, then it exits 0, brief:profile reads 2/2, and the recorded answers for profile:surface and profile:register are the operator's, recorded by the test-author with the ruling's source named.",
+    "testable": true
+  },
+  "AC-20303-2": {
+    "description": "[failure] Given a scratch copy of this slice's reviewed head or any later head with the profile answers removed, node bin/rcf.js define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner's questions.",
+    "testable": true
+  },
+  "AC-20303-3": {
+    "description": "[must-not] No hand other than the operator decides the profile answers: the DEFINE round that records them quotes the operator's answer and its date, and no record in this repository answers profile:surface or profile:register without that source.",
+    "testable": true
+  },
+  "AC-20303-4": {
+    "description": "[edge] Given a project made by rcf init whose rcf/.identity/profile.md is one of four fixture profiles, (i) the unedited seed, (ii) the seed with both bare value lines deleted, (iii) the seed with two bare value lines in one section and (iv) menu text only, when the D1 brief:profile check, rcf define readiness, the viewer, rcf define questions and the MCP tool read it, then each resolves profile:surface and profile:register through one shared profile reader in src/ that takes only the bare value line under the key's section: rcf define readiness --json reports profile: { surface, register }, each value the resolved marker word or unanswered; (i) resolves the defaults prDiff and unstated and brief:profile passes; a section with no bare value line or with two (both sections of (ii) and (iv), the doubled section of (iii)) is unanswered and brief:profile fails that key; and all five consumers agree on every fixture, the four register consumers acting on the resolved register and on unanswered exactly as on unstated (the persona order rcf define readiness prints, the default persona of rcf define questions and of the MCP tool, the viewer's data-rcf-register), with surface observed only through the JSON field and brief:profile.",
+    "testable": true
+  },
+  "AC-20401-1": {
+    "description": "[happy] When rcf guidance build-cycle runs from the packed artefact installed cold, then its output carries the five stage headings \"DEFINE (commit prefix DEFINE:, role test-author)\", \"BUILD (BUILD:, builder)\", \"REVIEW (REVIEW:, reviewer)\", \"TEST (TEST:, verifier)\" and \"FINALISE (FINALISE:, stage-keeper)\" in that order; inside the TEST section, \"the full RCF suite against a locally running app\" and \"nothing is deployed\"; inside the FINALISE section, \"before the merge\" and \"writes complete\"; and a section headed \"VERIFY (outside the build cycle)\" carrying \"rcf verify run\" with \"--record\" and \"writes verified\".",
+    "testable": true
+  },
+  "AC-20401-2": {
+    "description": "[happy] When rcf guidance build-cycle runs, its section headed \"Rounds\" states that a failed REVIEW (FINDINGS) or a failed TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only, each in its own sentence.",
+    "testable": true
+  },
+  "AC-20401-3": {
+    "description": "[happy] When rcf guidance managed/agent-instructions-block runs, then its build loop names the five stages with their commit prefixes, carries \"rcf build finalise <fbs-id> --ci-run <ref>\" with \"writes complete\" and \"before the merge\", and states \"verified is written only by a release Verify (rcf verify run --record)\"; RULE 13 names \"merging before Finalise has written complete\" and no longer names \"verified on the PR branch\".",
+    "testable": true
+  },
+  "AC-20401-4": {
+    "description": "[happy] When rcf build bundle FBS-001 --base-suite <a green record> --format md runs over a fixture tree, then its closing runbook lists the five stages in order, each with a dispatch name of the form \"<Stage> FBS-001: <title>\", its commit prefix, and the commands rcf build mark FBS-001 inProgress (DEFINE), rcf build base-suite, rcf build verdict review, rcf audit test-strength --record, rcf build verdict test and rcf build finalise FBS-001 --ci-run <ref>, and ends with \"Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote\"; --format json carries the same in completionContract.",
+    "testable": true
+  },
+  "AC-20401-5": {
+    "description": "[must-not] No guidance topic printed by rcf guidance, no part of the managed block and no bundle runbook (md or json) contains \"--hand verifier\" as a TEST or Test-stage step, \"rcf build finalise\" followed within one sentence by --report, --mode or --url, \"verified\" as something Finalise writes, \"Hand: mixed\", \"Separation-Reason\", \"Hand:\" outside a sentence that names the 0.37.x transition, or a rule that a Build waits for a spec to be verified.",
+    "testable": true
+  },
+  "AC-20401-6": {
+    "description": "[edge] When rcf guidance overview runs, then its Finalise line reads as a pre-merge step that writes complete (it no longer says \"CI green, merge, then record\"); and rcf guidance build-cycle-playbook names \"role\" for who does each stage's work and never uses \"hand\" as a process concept (any remaining \"by hand\" idiom excepted).",
+    "testable": true
+  },
+  "AC-20401-7": {
+    "description": "[failure] Given a project initialised by 0.37.0 whose CLAUDE.md managed block was edited to add back the 0.36.1 Test-stage line (\"rcf verify run --fbs <fbs-id> --hand verifier against the preview or version host\"), when rcf doctor runs, then it reports the managed block as drifted with its existing drift row and exit code, and a fresh rcf init project reads clean.",
+    "testable": true
+  },
+  "AC-20402-2": {
+    "description": "[happy] Given packages/rcf-lite/docs/verify-reference.md at this slice's reviewed head or any later head, then its finalise synopsis reads \"rcf build finalise <fbs-id> --ci-run <ref>\", its modes section names release mode (--release, --since, --record) and calls the catalog and agent modes optional probes that are never a precondition, and the forward catalog contract no longer says the deterministic engine feeds Finalise.",
+    "testable": true
+  },
+  "AC-20402-3": {
+    "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at this slice's reviewed head or any later head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, or a sentence saying a spec is verified at Finalise or by the Test stage finds nothing; any such line fails this criterion.",
+    "testable": true
+  },
+  "AC-20402-4": {
+    "description": "[must-not] The READMEs never describe verification of a deployed app as part of the build cycle: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build.",
+    "testable": true
+  }
+}

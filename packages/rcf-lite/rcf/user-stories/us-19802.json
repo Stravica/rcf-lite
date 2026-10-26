@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:08.852Z",
-  "updatedAt": "2026-10-24T11:47:00.052Z",
+  "updatedAt": "2026-10-26T00:07:40.785Z",
   "asA": "chain author running a one-off flag sweep on a downstream product",
   "iWant": "one command that lists every live criterion without a flag, with its story and spec",
   "soThat": "the sweep reads the chain only and ends when the count reaches zero",
@@ -18,34 +18,33 @@
     {
       "id": "AC-19802-1",
       "description": "[happy] Given a fixture project with 3 live criteria, 1 flagged and 2 unflagged, and FBS-001 scoping the first unflagged criterion, when rcf define validate --report verification runs, then it exits 0 and stdout holds two worklist lines \"<AC id>\\t<US id>\\t<FBS id or ->\\t<first 80 characters of the description>\" in id order (FBS-001 on the scoped one, - on the other) followed by \"verification: 2 of 3 live criteria unflagged\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19802-2",
       "description": "[edge] Given every live criterion flagged, rcf define validate --report verification exits 0 and prints only \"verification: 0 of <n> live criteria unflagged\"; with --json it prints {\"unflagged\": [], \"live\": <n>}, and with unflagged criteria each entry is { acId, usId, fbsId (string or null), description }.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19802-3",
       "description": "[non-functional] Given a fixture chain of 1000 live criteria across 250 stories with none flagged (the heavy sweep), when rcf define validate --report verification runs, then it finishes within 1.5 times a plain rcf define validate over the same tree and prints exactly 1001 lines, because the worklist reuses the validate walk.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19802-4",
       "description": "[failure] Given --report naming anything other than verification (for example --report flags), rcf define validate exits 2 with stderr \"[error] usage --report takes verification\" and prints no worklist line.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19802-5",
       "description": "[must-not] The worklist never writes: after rcf define validate --report verification, every file under rcf/ is byte-identical and git status --porcelain is unchanged, and the worklist never assigns or suggests a flag for any criterion.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-19802-1=external",
-    "verification:AC-19802-2=external",
-    "verification:AC-19802-3=external",
-    "verification:AC-19802-4=external",
-    "verification:AC-19802-5=external"
-  ]
+  "tags": []
 }

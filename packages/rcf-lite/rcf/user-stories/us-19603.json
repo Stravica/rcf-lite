@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:24:58.594Z",
-  "updatedAt": "2026-10-24T14:59:34.351Z",
+  "updatedAt": "2026-10-26T10:37:34.675Z",
   "asA": "stage-keeper running Finalise and the release cut",
   "iWant": "merges from main, lockfiles, declared-generator outputs, status records and the release cut to pass as FINALISE: commits, and anything else to fail",
   "soThat": "chores never need a separation exception and a code change can never ride in as a chore",
@@ -18,52 +18,57 @@
     {
       "id": "AC-19603-1",
       "description": "[happy] Given a fixture commit \"FINALISE: release 1.1.0\" touching rcf/fbs/fbs-001.json, pnpm-lock.yaml, CHANGELOG.md, releases/releases.yaml and package.json, where the package.json diff changes only the \"version\" line, when rcf audit separation runs, then it exits 0 and the commit counts under FINALISE with classes chainStatus, lockfile, release and versionField.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-2",
       "description": "[failure] Given three fixture commits \"FINALISE: deps\" changing a dependency line in package.json, \"FINALISE: fix\" touching src/a.js and \"FINALISE: notes\" touching docs/x.md, when rcf audit separation runs, then it exits 4 with the items \"<s7> FINALISE: changes package.json beyond its \\\"version\\\" line (class production, owned by BUILD)\", \"<s7> FINALISE: touches src/a.js (class production, owned by BUILD)\" and \"<s7> FINALISE: touches docs/x.md (class neutral, owned by DEFINE, BUILD)\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-3",
       "description": "[happy] Given rcf/separation.json at the head declaring {\"generators\": [{\"id\": \"queue-goldens\", \"command\": \"node bin/rcf.js build queue --format json > test/build/fixtures/queue.json\", \"outputs\": [\"test/build/fixtures/queue.md\", \"test/build/fixtures/queue.json\"], \"checkedBy\": \"test/build/queue.test.js\"}]} with test/build/queue.test.js present, and a commit \"FINALISE: regenerate queue goldens\" carrying the trailer \"Generated-By: queue-goldens\" and touching test/build/fixtures/queue.json and rcf/fbs/fbs-001.json, when rcf audit separation --json runs, then it exits 0 and that commit's row reads classes [\"chainStatus\", \"generatorOutput\"] and generators [\"queue-goldens\"].",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-4",
       "description": "[failure] Given the generator declaration of the happy case, when one FINALISE: commit touches test/build/fixtures/queue.json with no Generated-By: trailer, a second carries \"Generated-By: view-baseline\" (not declared) and a third carries \"Generated-By: queue-goldens\" but touches test/view/fixtures/phase-3-6-static.html (not among its outputs), then rcf audit separation exits 4 with \"<s7> FINALISE: touches test/build/fixtures/queue.json (class rcfTest, owned by DEFINE)\", \"<s7> Generated-By: view-baseline is not declared in rcf/separation.json\" and \"<s7> FINALISE: touches test/view/fixtures/phase-3-6-static.html (class rcfTest, owned by DEFINE)\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-5",
       "description": "[failure] Given rcf/separation.json at the head whose generators[0] lacks checkedBy, or has \"outputs\": [], or names a checkedBy file absent at the head, when rcf audit separation runs, then it exits 2 with stderr \"separation: malformed rcf/separation.json: generators[0].checkedBy is required\", \"separation: malformed rcf/separation.json: generators[0].outputs must list at least one glob\" or \"separation: malformed rcf/separation.json: generators[0].checkedBy <path> does not exist at <h7>\" respectively, and prints no PASS or FAIL line.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-6",
       "description": "[happy] Given a fixture branch with a merge commit \"FINALISE: merge main\" from the base branch whose result equals the automatic merge (no combined-diff paths) and a second merge \"FINALISE: merge main again\" whose only combined-diff path is pnpm-lock.yaml, when rcf audit separation --json runs, then it exits 0, both rows read merge true and stage \"FINALISE\", the second lists paths [\"pnpm-lock.yaml\"], and the PASS line counts merges 2.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-7",
       "description": "[failure] Given a fixture merge commit \"FINALISE: merge main\" whose conflict resolution edits src/a.js (src/a.js in its combined diff), and a merge commit \"Merge branch 'main' into feature\" with no prefix, when rcf audit separation runs, then it exits 4 with \"<s7> FINALISE: merge resolution touches src/a.js (class production); a merge that needs a code fix is not committed in FINALISE: record TEST FAIL and merge main in the next round\" and \"<s7> no stage prefix\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19603-8",
       "description": "[must-not] rcf audit separation never runs a declared generator's command or any process other than git: over the passing generator fixture, a spawn seam that records child processes records only git, and a declared command that would write a marker file leaves no marker after the run.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19603-9",
+      "description": "[happy] Given rcf/separation.json at the head declaring the queue-goldens generator of AC-19603-3 and a second generator {\"id\": \"phase-3-6-baseline\", \"command\": \"node scripts/regen-phase-3-6-baseline.mjs\", \"outputs\": [\"test/view/fixtures/phase-3-6-static.html\"], \"checkedBy\": \"test/view/layout-regression.test.js\"}, with test/build/queue.test.js and test/view/layout-regression.test.js present, when one BUILD: commit carries the trailer \"Generated-By: queue-goldens\" and touches only test/build/fixtures/queue.json, a second BUILD: commit touches test/build/fixtures/queue.json with no Generated-By: trailer, and a third carries \"Generated-By: queue-goldens\" but touches test/view/fixtures/phase-3-6-static.html (an output of phase-3-6-baseline, not of queue-goldens), then rcf audit separation exits 4 with exactly two items, \"<s7> BUILD: touches test/build/fixtures/queue.json (class rcfTest, owned by DEFINE)\" and \"<s7> BUILD: touches test/view/fixtures/phase-3-6-static.html (class rcfTest, owned by DEFINE)\", and rcf audit separation --json reads the first commit's row verdict pass with classes [\"generatorOutput\"] and generators [\"queue-goldens\"]: a BUILD: commit may change a declared generator's outputs only when its Generated-By: trailer names that generator, and only that generator's outputs.",
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-19603-1=external",
-    "verification:AC-19603-2=external",
-    "verification:AC-19603-3=external",
-    "verification:AC-19603-4=external",
-    "verification:AC-19603-5=external",
-    "verification:AC-19603-6=external",
-    "verification:AC-19603-7=external",
-    "verification:AC-19603-8=external"
-  ]
+  "tags": []
 }

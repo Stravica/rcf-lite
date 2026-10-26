@@ -1,16 +1,28 @@
 {
   "cnId": "CN-863",
-  "path": "src/cli/separation.js#HELP",
+  "path": "src/cli/separation.js#main",
   "implementsAcIds": [
     "AC-19101-1",
     "AC-19101-4",
     "AC-19102-1",
     "AC-19102-2",
-    "AC-19102-3"
+    "AC-19102-3",
+    "AC-19604-4",
+    "AC-19703-1",
+    "AC-19703-2",
+    "AC-19703-3",
+    "AC-19703-4",
+    "AC-19703-5",
+    "AC-19703-6",
+    "AC-19703-7",
+    "AC-19703-8",
+    "AC-19703-9",
+    "AC-19703-10",
+    "AC-19703-11"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-19T23:37:02.468Z",
-  "updatedAt": "2026-10-20T03:25:28.167Z"
+  "updatedAt": "2026-10-26T11:15:50.291Z"
 }

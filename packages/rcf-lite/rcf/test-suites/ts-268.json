@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-10-24T16:22:21.108Z",
-  "updatedAt": "2026-10-25T15:50:05.555Z",
-  "purpose": "FBS-232: the testOnly criteria of US-19502, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-232's round DEFINE",
+  "updatedAt": "2026-10-26T00:06:39.029Z",
+  "purpose": "FBS-232: the criteria of US-19502 (integration): the lockfile pin and the Code Node paths read from this repository through RCF_CHECKOUT (AC-19502-1, AC-19502-2), and the probe shapes rcf-schemas 0.10.0 accepts, driven through bin/rcf.js on fixture projects (AC-19502-3 to AC-19502-5)",
   "testLevel": "integration",
   "acIds": [
     "AC-19502-1",

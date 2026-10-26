@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-958",
+  "path": "src/define/validate-findings.js#isAmended",
+  "implementsAcIds": [
+    "AC-19801-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:11:00.691Z",
+  "updatedAt": "2026-10-26T14:47:07.781Z"
+}

@@ -35,6 +35,7 @@ import { main as preflightMain } from '../src/cli/preflight.js';
 import { main as readMain } from '../src/cli/read.js';
 import { main as reviewMain } from '../src/cli/review.js';
 import { main as separationMain } from '../src/cli/separation.js';
+import { main as testStrengthMain } from '../src/cli/test-strength.js';
 import { main as fbsMain } from '../src/cli/fbs.js';
 import { main as testSuiteMain } from '../src/cli/test-suite.js';
 import { main as traceMain } from '../src/cli/trace.js';
@@ -109,12 +110,14 @@ export const GROUPS = {
   },
   build: {
     // build sub-verbs are dispatched by build.js internally (queue |
-    // bundle | mark | backstop). finalise, review, fbs, test-suite are their own
-    // handlers.
+    // bundle | mark | backstop | verdict). finalise, review, fbs, test-suite
+    // are their own handlers.
     queue: (argv, deps) => buildMain(['queue', ...argv], deps),
     bundle: (argv, deps) => buildMain(['bundle', ...argv], deps),
     mark: (argv, deps) => buildMain(['mark', ...argv], deps),
     backstop: (argv, deps) => buildMain(['backstop', ...argv], deps),
+    // FBS-234: rcf build verdict review | test.
+    verdict: (argv, deps) => buildMain(['verdict', ...argv], deps),
     finalise: finaliseMain,
     review: reviewMain,
     fbs: fbsMain,
@@ -139,6 +142,8 @@ export const GROUPS = {
     eval: evalMain,
     // FBS-222: hand separation over a pull request's commits.
     separation: separationMain,
+    // FBS-236: the structural check and the mutation proof of bound tests.
+    'test-strength': testStrengthMain,
   },
 };
 

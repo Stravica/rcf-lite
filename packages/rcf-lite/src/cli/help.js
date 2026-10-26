@@ -13,7 +13,7 @@
 //   - TOP_LEVEL_HELP: grouped verb catalogue; the primary cold-reader
 //     entry point.
 
-import { HELP as BUILD_HELP } from './build.js';
+import { HELP as BUILD_HELP, VERDICT_HELP } from './build.js';
 import { HELP as COVERAGE_HELP } from './coverage.js';
 import { HELP as AUDIT_EVAL_HELP } from './eval.js';
 import { HELP as CREATE_HELP } from './create.js';
@@ -30,6 +30,7 @@ import { HELP as PREFLIGHT_HELP } from './preflight.js';
 import { HELP as READ_HELP } from './read.js';
 import { HELP as REVIEW_HELP } from './review.js';
 import { HELP as SEPARATION_HELP } from './separation.js';
+import { HELP as TEST_STRENGTH_HELP } from './test-strength.js';
 import { HELP as FBS_HELP } from './fbs.js';
 import { HELP as TEST_SUITE_HELP } from './test-suite.js';
 import { HELP as TRACE_HELP } from './trace.js';
@@ -113,6 +114,7 @@ build        Drive the FBS queue and the five-stage build cycle.
   review <fbs-id>          Stage-3-to-Stage-4 audit.
   fbs <fbs-id> <verb>      FBS-level operations.
   test-suite <ts-id> <verb>  Test-suite operations.
+  verdict review | test    Record a round's REVIEW or TEST verdict.
 
 verify       Run the independent adversarial ship-gate verifier.
   run                      Run adversarial verification; emit a report.
@@ -127,7 +129,10 @@ audit        Inspect the tree and its rollups.
   coverage [scope-id]      Structural coverage over the REQ chain.
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
-  separation               Hand separation over a pull request's commits.
+  separation               Stage-prefix separation and round order over
+                           pull request commits.
+  test-strength            Structural check and mutation proof of the
+                           touched criteria's bound tests.
 
 Options:
   --version                Print the package version and exit.
@@ -241,6 +246,8 @@ Verbs:
                            mutation-sampling).
   fbs <fbs-id> <verb>      FBS-level operations (depends-on).
   test-suite <ts-id> <verb>  Test-suite operations (provenance, approve).
+  verdict review | test    Record a round's REVIEW or TEST verdict under
+                           rcf/verdicts/<h12>/ for the stage's commit.
 
 Run 'rcf help build <verb>' for per-verb help.
 `;
@@ -268,7 +275,8 @@ const AUDIT_HELP = `Usage: rcf audit <verb> [options]
 
 Inspect the tree and its rollups: live HTML view, structural coverage,
 forward and backward trace, change-impact fan-out. Read-only visibility
-over what has been defined and built.
+over what has been defined and built (test-strength --record writes only
+its report under rcf/verdicts/).
 
 Verbs:
   view                     Live HTML tree render (long-running server).
@@ -278,8 +286,12 @@ Verbs:
                            (spec rcf-eval-node-2026-09-04 section 4).
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
-  separation               Judge each commit's Hand: trailer against the
-                           path classes it touches over a PR range.
+  separation               Judge each commit's stage prefix against the
+                           path classes that stage owns over a PR range,
+                           and the range on round order.
+  test-strength            Prove the touched criteria's bound tests are
+                           real: the structural check, then the mutation
+                           proof over their Code Node symbols.
 
 Run 'rcf help audit <verb>' for per-verb help.
 `;
@@ -332,6 +344,7 @@ export const HELP_MAP = {
     review: REVIEW_HELP,
     fbs: FBS_HELP,
     'test-suite': TEST_SUITE_HELP,
+    verdict: VERDICT_HELP,
   },
   verify: {
     run: VERIFY_RUN_HELP,
@@ -348,6 +361,7 @@ export const HELP_MAP = {
     impact: IMPACT_HELP,
     eval: AUDIT_EVAL_HELP,
     separation: SEPARATION_HELP,
+    'test-strength': TEST_STRENGTH_HELP,
   },
 };
 

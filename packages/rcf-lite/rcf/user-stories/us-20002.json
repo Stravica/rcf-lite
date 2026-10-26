@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:33:45.682Z",
-  "updatedAt": "2026-10-24T11:33:47.286Z",
+  "updatedAt": "2026-10-26T00:07:42.721Z",
   "asA": "stage-keeper",
   "iWant": "Finalise to check test strength and Code Nodes for every touched criterion, and that the round declared every criterion it changed",
   "soThat": "a round cannot slip a changed criterion past the mutation proof or ship a vacuous test",
@@ -18,34 +18,33 @@
     {
       "id": "AC-20002-1",
       "description": "[failure] Given the happy fixture with no test-strength record at H, Finalise exits 4 with stderr \"finalise refused: no test-strength record at <H7>\"; with a record whose AC-101-2 result is fail, it exits 4 with \"finalise refused: test-strength at <H7> fails for AC-101-2\"; with a record covering AC-101-1 only, it exits 4 with \"finalise refused: test-strength at <H7> omits AC-101-2\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20002-2",
       "description": "[failure] Given the happy fixture where the ReviewVerdict touches only AC-101-1 but the DEFINE: commit of the round changed AC-101-2's then text (or added a test case bound to AC-101-2), Finalise exits 4 with stderr \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20002-3",
       "description": "[failure] Given the happy fixture with no --ci-run, Finalise exits 4 with stderr \"ci evidence missing: pass --ci-run <ref>\"; given AC-101-2 with no Code Node, it exits 3 with \"finalise refused: missing Code Node for AC-101-2\"; a criterion of FBS-001 that the round did not touch and that has no Code Node does not refuse (slice scope).",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20002-4",
       "description": "[failure] Given the happy fixture plus an earlier \"BUILD: tests\" commit in the range touching test/rcf/a.test.js, Finalise exits 4 with stderr \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\"; a range carrying a Hand: mixed commit refuses the same way with the audit's retired-mixed item, and Finalise never lists a separation exception as acceptable.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20002-5",
       "description": "[must-not] Finalise never re-runs the suite, test strength or the separation audit as a child process and never spawns anything but git: a spawn seam over the happy run records only git, and the separation judgement runs in-process over git output.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-20002-1=external",
-    "verification:AC-20002-2=external",
-    "verification:AC-20002-3=external",
-    "verification:AC-20002-4=external",
-    "verification:AC-20002-5=external"
-  ]
+  "tags": []
 }

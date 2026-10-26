@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-943",
+  "path": "src/build/verdict.js#verdictFile",
+  "implementsAcIds": [
+    "AC-19701-1",
+    "AC-19702-1",
+    "AC-19702-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T04:35:31.592Z",
+  "updatedAt": "2026-10-26T04:35:31.592Z"
+}

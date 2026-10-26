@@ -1,10 +1,11 @@
 {
   "createdAt": "2026-10-24T16:47:26.293Z",
-  "updatedAt": "2026-10-24T16:47:26.551Z",
+  "updatedAt": "2026-10-26T13:08:34.343Z",
   "purpose": "FBS-235: the testOnly criteria of US-19801, reading this repository through RCF_CHECKOUT (integration); todo cases until FBS-235's round DEFINE",
   "testLevel": "integration",
   "acIds": [
-    "AC-19801-6"
+    "AC-19801-6",
+    "AC-19801-7"
   ],
   "id": "TS-277",
   "usId": "US-19801",
@@ -16,6 +17,13 @@
       "description": "the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push",
       "status": "pending",
       "testPointer": "test/define/verification-end-state.test.js::AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push"
+    },
+    {
+      "id": "TC-277-the-ci-separation-job-runs-only-on-pull",
+      "acId": "AC-19801-7",
+      "description": "the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite",
+      "status": "pending",
+      "testPointer": "test/define/verification-end-state.test.js::AC-19801-7: the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite"
     }
   ],
   "status": "draft"

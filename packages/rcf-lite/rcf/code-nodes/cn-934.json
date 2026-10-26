@@ -1,0 +1,17 @@
+{
+  "cnId": "CN-934",
+  "path": "src/audit/separation.js#readObjects",
+  "implementsAcIds": [
+    "AC-19601-8",
+    "AC-19601-9",
+    "AC-19603-5",
+    "AC-19702-3",
+    "AC-19702-8",
+    "AC-19703-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T03:23:55.087Z",
+  "updatedAt": "2026-10-26T04:35:42.809Z"
+}

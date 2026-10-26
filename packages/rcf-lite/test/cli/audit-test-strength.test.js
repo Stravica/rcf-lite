@@ -28,7 +28,6 @@ import { commit, git, gitTry, initRepo, s7, sha } from '../_harness/git.js';
 import { bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-236 round DEFINE' };
 const CONFIG = { entry: [{ kind: 'bin', path: 'bin/app.js' }], harness: ['test/_harness/**'] };
 const L = (...ls) => `${ls.join('\n')}\n`;
 const q = JSON.stringify;
@@ -127,7 +126,7 @@ function reviewed(dir, touchedAcIds = ['AC-101-1']) {
 
 // ---------------------------------------------------------------- US-19901
 
-test('AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line', TODO, async (t) => {
+test('AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line', async (t) => {
   const { dir, H } = await strengthProject(t);
   const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
@@ -138,14 +137,14 @@ test('AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test 
   assert.equal(out(r), passLine(H, 1, totals.killed, totals.mutants - totals.notApplicable, totals.timeout, totals.notApplicable), 'the PASS total is mutants less notApplicable');
 });
 
-test('AC-19901-2: a bound test also importing src/store.js exits 4 with "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)"', TODO, async (t) => {
+test('AC-19901-2: a bound test also importing src/store.js exits 4 with "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)"', async (t) => {
   const { dir, H } = await strengthProject(t, { files: { 'src/store.js': 'export const store = new Map();\n', 'test/rcf/a.test.js': testFile([GREETS], { imports: ["import '../../src/store.js';"] }) } });
   const r = await strength(dir, ['--acs', 'AC-101-1']);
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
   assert.equal(out(r), failLine(H, 1, 1, ['AC-101-1 imports src/store.js (not the app entry or the harness)']));
 });
 
-test('AC-19901-3: mock.module("../../src/mailer.js") with edge ["node:https"] exits 4 with "AC-101-1 mocks ../../src/mailer.js (not a declared edge)"; mock.module("node:https") in the same test is not a finding', TODO, async (t) => {
+test('AC-19901-3: mock.module("../../src/mailer.js") with edge ["node:https"] exits 4 with "AC-101-1 mocks ../../src/mailer.js (not a declared edge)"; mock.module("node:https") in the same test is not a finding', async (t) => {
   const mocking = { name: GREETS.name, body: ["mock.module('../../src/mailer.js', { namedExports: { send: () => {} } });", "mock.module('node:https', { namedExports: {} });", ...GREETS.body] };
   const { dir } = await strengthProject(t, {
     config: { ...CONFIG, edge: ['node:https'] },
@@ -157,7 +156,7 @@ test('AC-19901-3: mock.module("../../src/mailer.js") with edge ["node:https"] ex
   assert.ok(!r.stdout.includes('mocks node:https'), `a declared edge is not a finding\n${r.stdout}`);
 });
 
-test('AC-19901-4: a Code Node src/notify.js#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with "AC-101-1 silent default sender in src/notify.js#makeNotifier"; a parameter named sender with no default is not a finding', TODO, async (t) => {
+test('AC-19901-4: a Code Node src/notify.js#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with "AC-101-1 silent default sender in src/notify.js#makeNotifier"; a parameter named sender with no default is not a finding', async (t) => {
   const notify = (param) => L(
     'const consoleSender = { send: (m) => console.log(m) };',
     `export function makeNotifier(${param}) {`,
@@ -173,7 +172,7 @@ test('AC-19901-4: a Code Node src/notify.js#makeNotifier written makeNotifier({ 
   assert.ok(!p.stdout.includes('silent default'), `a parameter with no default is not a finding\n${p.stdout}${p.stderr}`);
 });
 
-test('AC-19901-5: no rcf/test-strength.json exits 2 with "test-strength: no rcf/test-strength.json; declare entry and harness"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1', TODO, async (t) => {
+test('AC-19901-5: no rcf/test-strength.json exits 2 with "test-strength: no rcf/test-strength.json; declare entry and harness"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1', async (t) => {
   const none = await strengthProject(t, { config: null });
   const a = await strength(none.dir, ['--acs', 'AC-101-1']);
   assert.equal(a.code, 2, `${a.stdout}${a.stderr}`);
@@ -187,7 +186,7 @@ test('AC-19901-5: no rcf/test-strength.json exits 2 with "test-strength: no rcf/
   assert.match(c.stderr, /AC-999-1/, 'stderr names AC-999-1');
 });
 
-test('AC-19901-6: the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run', TODO, async (t) => {
+test('AC-19901-6: the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run', async (t) => {
   const marks = scratch(t, 'rcf-h-marks-');
   const m = { test: join(marks, 'test'), entry: join(marks, 'entry'), store: join(marks, 'store') };
   const { dir, H } = await strengthProject(t, {
@@ -210,7 +209,7 @@ test('AC-19901-6: the structural check never executes a test, the entry or a pro
   assert.equal(report.totals.mutants, 0);
 });
 
-test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1', TODO, async (t) => {
+test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1', async (t) => {
   const second = { name: 'AC-101-2 greets', body: GREETS.body };
   const { dir } = await strengthProject(t, {
     acs: ['AC-101-1', 'AC-101-2'],
@@ -232,7 +231,7 @@ test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.
   assert.ok(crit(report, 'AC-101-2').mutants.length > 0, 'mutants for AC-101-2');
 });
 
-test('AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with "test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)" and runs no mutant; .js, .mjs and .cjs files are read', TODO, async (t) => {
+test('AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with "test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)" and runs no mutant; .js, .mjs and .cjs files are read', async (t) => {
   const marks = scratch(t, 'rcf-h-marks-');
   const entry = join(marks, 'entry');
   const marked = { 'bin/app.js': markerSrc(entry) + GREET_BIN };
@@ -271,7 +270,7 @@ const vacuous = (t, extra = {}) => strengthProject(t, {
   nodes: [['src/audit.js#writeAudit', ['AC-101-1']]], bind: [['AC-101-1', 'test/rcf/a.test.js', EXITS.name]], ...extra,
 });
 
-test('AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js#writeAudit, called once per run and never asserted, exits 4 with "AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests" and the same for callRemoval, and --json lists those mutants survived', TODO, async (t) => {
+test('AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js#writeAudit, called once per run and never asserted, exits 4 with "AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests" and the same for callRemoval, and --json lists those mutants survived', async (t) => {
   const { dir } = await vacuous(t);
   const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
@@ -283,7 +282,7 @@ test('AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audi
   }
 });
 
-test('AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with "AC-101-2 no Code Node", "AC-101-3 no symbol-level Code Node" and "AC-101-4 unbound"', TODO, async (t) => {
+test('AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with "AC-101-2 no Code Node", "AC-101-3 no symbol-level Code Node" and "AC-101-4 unbound"', async (t) => {
   const n = (id) => ({ name: `${id} greets`, body: GREETS.body });
   const { dir } = await strengthProject(t, {
     acs: ['AC-101-1', 'AC-101-2', 'AC-101-3', 'AC-101-4'],
@@ -296,7 +295,7 @@ test('AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Co
   for (const item of ['AC-101-2 no Code Node', 'AC-101-3 no symbol-level Code Node', 'AC-101-4 unbound']) has(r, item);
 });
 
-test('AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded "timeout" and counted as killed, and a symbol with no statement-level call site records callRemoval "notApplicable" while the criterion passes', TODO, async (t) => {
+test('AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded "timeout" and counted as killed, and a symbol with no statement-level call site records callRemoval "notApplicable" while the criterion passes', async (t) => {
   const { dir, H } = await strengthProject(t, {
     files: {
       'src/wait.js': L('export function ready() {', '  return true;', '}'),
@@ -313,7 +312,7 @@ test('AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout
   assert.deepEqual(by, { stubToThrow: 'killed', noOp: 'timeout', callRemoval: 'notApplicable' });
 });
 
-test('AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree', TODO, async (t) => {
+test('AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree', async (t) => {
   const other = { name: 'AC-101-2 greets', body: GREETS.body };
   const { dir } = await strengthProject(t, {
     acs: ['AC-101-1', 'AC-101-2'],
@@ -335,7 +334,7 @@ test('AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW 
   assert.equal(worktrees.length, 1, `only the main worktree is registered\n${worktrees.join('\n')}`);
 });
 
-test('AC-19902-5: a scope of 240 mutants exits 2 before running any test with "test-strength: 240 mutants exceed --max-mutants 200; narrow the scope"; with --max-mutants 300 it runs', TODO, async (t) => {
+test('AC-19902-5: a scope of 240 mutants exits 2 before running any test with "test-strength: 240 mutants exceed --max-mutants 200; narrow the scope"; with --max-mutants 300 it runs', async (t) => {
   const marks = scratch(t, 'rcf-h-marks-');
   const ran = join(marks, 'test');
   const fns = Array.from({ length: 80 }, (_, i) => L(`export function f${i}(o) {`, `  o.push(${i});`, '  return o;', '}')).join('');
@@ -352,7 +351,7 @@ test('AC-19902-5: a scope of 240 mutants exits 2 before running any test with "t
   assert.equal(json(more.stdout).totals.mutants, 240);
 });
 
-test('AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs', TODO, async (t) => {
+test('AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs', async (t) => {
   hostFacts(t);
   const marks = scratch(t, 'rcf-h-marks-');
   const log = join(marks, 'ran.log');
@@ -384,7 +383,7 @@ test('AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes eac
   assert.deepEqual([...ran].sort(), acs.map((_, i) => `c${i + 1}`).sort(), 'only the 8 bound files ran');
 });
 
-test('AC-19902-7: a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail "no mutable symbol <path#symbol>"', TODO, async (t) => {
+test('AC-19902-7: a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail "no mutable symbol <path#symbol>"', async (t) => {
   const { dir } = await strengthProject(t, {
     files: {
       'src/a.js': L(
@@ -418,7 +417,7 @@ test('AC-19902-7: a class symbol expands to its methods (three operators each), 
   assert.deepEqual(ms.filter((x) => x.symbol === 'src/a.js#f').map((x) => x.operator).sort(), ['callRemoval', 'noOp', 'stubToThrow'], 'the arrow function is mutated like a function');
 });
 
-test('AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 "AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests"', TODO, async (t) => {
+test('AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 "AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests"', async (t) => {
   const reads = { name: 'AC-101-5 reads the doc', body: ["assert.ok(readFileSync(new URL('../../docs/x.md', import.meta.url), 'utf8').split('\\n').includes('x'));"] };
   const ignores = { name: 'AC-101-5 reads the doc', body: ['assert.strictEqual(1 + 1, 2);'] };
   for (const [label, body, code] of [['reads', reads, 0], ['ignores', ignores, 4]]) {
@@ -445,7 +444,7 @@ test('AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch wor
 const REPORT_KEYS = ['version', 'head', 'scope', 'criteria', 'result', 'totals', 'wallMs', 'node'];
 const TOTAL_KEYS = ['criteria', 'structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable'];
 
-test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4', TODO, async (t) => {
+test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4', async (t) => {
   const passing = await strengthProject(t);
   const H = reviewed(passing.dir);
   const r = await strength(passing.dir, ['--record'], nodeEnv());
@@ -468,7 +467,7 @@ test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --recor
   assert.equal(readJson(failing.dir, verdictPath(F, 'test-strength.json')).result, 'fail');
 });
 
-test('AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H', TODO, async (t) => {
+test('AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H', async (t) => {
   const noReport = (dir) => statusPaths(dir).filter((p) => p.endsWith('test-strength.json'));
   {
     const { dir } = await strengthProject(t);
@@ -508,7 +507,7 @@ test('AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to 
   }
 });
 
-test('AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with "imports src/routes/pay.js (not the app entry or the harness)"', TODO, async (t) => {
+test('AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with "imports src/routes/pay.js (not the app entry or the harness)"', async (t) => {
   const config = { entry: [{ kind: 'worker', path: 'src/index.js' }], harness: ['test/harness/**'], edge: ['undici'] };
   const worker = {
     'bin/app.js': null,
@@ -530,7 +529,7 @@ test('AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/ha
   has(b, 'AC-101-1 imports src/routes/pay.js (not the app entry or the harness)');
 });
 
-test('AC-19903-4: a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js', TODO, async (t) => {
+test('AC-19903-4: a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js', async (t) => {
   const lib = {
     'bin/app.js': null,
     'test/_harness/run.js': null,
@@ -557,7 +556,7 @@ test('AC-19903-4: a library (entry module src/index.js) passes the structural ch
   has(r, 'AC-101-1 imports src/internal.js (not the app entry or the harness)');
 });
 
-test('AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test', TODO, async (t) => {
+test('AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test', async (t) => {
   const marks = scratch(t, 'rcf-h-marks-');
   const deployed = join(marks, 'deployed');
   const netLog = join(marks, 'net.log');

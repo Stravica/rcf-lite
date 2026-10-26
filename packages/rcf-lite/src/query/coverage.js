@@ -29,6 +29,22 @@
 // are each reported once on `supersessionErrors` and fail `ok`. A chain
 // with no retired criterion gets none of these fields.
 //
+// FBS-233 (US-19602): a TC whose testPointer points into a builder
+// hygiene test (a hygiene/ directory directly under test/, tests/ or
+// __tests__/, or a *.hygiene.test.* file) is outside the RCF suite. It
+// is never one of its criterion's test cases and never coverage: it is
+// listed apart on `hygieneTestCases` with its file. A chain with no
+// hygiene binding gets no such field.
+//
+// FBS-235 (US-19803; ADR-4155, TAC-4152): every criterion row carries its
+// end state, as information: verification (external | testOnly |
+// unflagged), expectedEnd (verified for external, complete for testOnly,
+// unknown when unflagged, null when retired) and now (the scoping spec's
+// executionStatus capped at expectedEnd, notStarted when no spec scopes
+// it, retired when retired). `specs` carries expectedEnd and now for each
+// spec scoping a criterion in scope. None of it is a gap: `ok` and the
+// exit codes never read it.
+//
 // Phase 5 §D10 scoping: no positional -> tree-wide; positional PRD id
 // -> scope to REQs whose prdId matches; positional REQ id -> scope to
 // that REQ; positional US id -> scope to the REQ that owns that US.
@@ -36,6 +52,7 @@
 // BS / TAD) are refused at the handler layer (exit 2).
 
 import { testCaseKey } from '#core/store';
+import { isHygieneTestPath } from '../audit/separation.js';
 
 /**
  * @typedef {import('#core/store/walker.js').TreeModel} TreeModel
@@ -45,10 +62,14 @@ import { testCaseKey } from '#core/store';
  * @typedef {object} AcCoverage
  * @property {string} id
  * @property {boolean} covered - at least one TC whose pointer RESOLVES
- * @property {string[]} testCases - all TC ids that cross-reference this AC
+ * @property {string[]} testCases - all TC ids that cross-reference this AC, hygiene-bound ones excepted
  * @property {string[]} unresolvedTestCases - the subset whose pointer does not resolve
+ * @property {Array<{id: string, file: string}>} [hygieneTestCases] - FBS-233: present only when a TC points into a hygiene test
  * @property {'retired'} [state] - FBS-228: present only on a retired criterion
  * @property {string} [supersededBy] - FBS-228: the successor of a retired criterion
+ * @property {'external'|'testOnly'|'unflagged'} verification - FBS-235: the criterion's flag
+ * @property {'verified'|'complete'|'unknown'|null} expectedEnd - FBS-235: null when retired
+ * @property {'notStarted'|'inProgress'|'complete'|'verified'|'retired'} now - FBS-235
  */
 
 /**
@@ -75,6 +96,8 @@ import { testCaseKey } from '#core/store';
  * @property {Array<{acId: string, supersededBy: string, problem: 'successorMissing'|'selfSupersession'|'cycle', message: string}>} [supersessionErrors] -
  *   FBS-228: present only when a retired criterion in scope has a missing
  *   successor, supersedes itself or sits in a cycle
+ * @property {Array<{fbsId: string, expectedEnd: 'verified'|'complete'|'unknown', now: string}>} specs -
+ *   FBS-235: each spec scoping a criterion in scope, in id order
  */
 
 /**
@@ -153,6 +176,7 @@ export function computeCoverage(tree, opts = {}) {
       ...(retiredAcs > 0 ? { retiredAcs } : {}),
     },
     requirements,
+    specs: specEndStates(tree, requirements),
     unresolvedTestPointers: [...unresolvedByKey.values()]
       .sort((a, b) => (a.tsId + a.tcId).localeCompare(b.tsId + b.tcId)),
   };
@@ -170,6 +194,80 @@ export function computeCoverage(tree, opts = {}) {
 /** Criterion ids in numeric order (AC-101-2 before AC-101-10). */
 function compareAcIds(a, b) {
   return a.localeCompare(b, 'en', { numeric: true });
+}
+
+// FBS-235: the execution statuses in order, for the cap on `now`.
+const STATUS_ORDER = ['notStarted', 'inProgress', 'complete', 'verified'];
+const END_BY_FLAG = { external: 'verified', testOnly: 'complete' };
+const flagOf = (ac) => (END_BY_FLAG[ac.verification] ? ac.verification : 'unflagged');
+
+/**
+ * The spec whose executionStatus a criterion's end state reads: the one
+ * scoping it (FBS acIds), or, when several do, the latest in buildOrder
+ * (then the highest id). Null when no spec scopes it.
+ *
+ * @param {TreeModel} tree
+ * @param {string} acId
+ * @returns {object|null}
+ */
+export function scopingSpec(tree, acId) {
+  let best = null;
+  for (const fbsId of tree.fbsByAcId?.get(acId) ?? []) {
+    const fbs = tree.byId?.get(fbsId);
+    if (!fbs) continue;
+    if (!best) { best = fbs; continue; }
+    const a = Number.isInteger(fbs.buildOrder) ? fbs.buildOrder : -1;
+    const b = Number.isInteger(best.buildOrder) ? best.buildOrder : -1;
+    if (a > b || (a === b && compareAcIds(fbs.fbsId, best.fbsId) > 0)) best = fbs;
+  }
+  return best;
+}
+
+/**
+ * A criterion's end state (ADR-4155): its flag, the status it must reach
+ * and where it is now. A criterion never reads past its end: a testOnly
+ * criterion on a verified spec reads complete. Information only.
+ *
+ * @param {TreeModel} tree
+ * @param {object} ac - the criterion as stored
+ * @returns {{ verification: string, expectedEnd: string|null, now: string }}
+ */
+export function endState(tree, ac) {
+  const verification = flagOf(ac);
+  if (typeof ac.supersededBy === 'string') return { verification, expectedEnd: null, now: 'retired' };
+  const expectedEnd = END_BY_FLAG[verification] ?? 'unknown';
+  let now = scopingSpec(tree, ac.id)?.executionStatus;
+  if (!STATUS_ORDER.includes(now)) now = 'notStarted';
+  if (expectedEnd !== 'unknown' && STATUS_ORDER.indexOf(now) > STATUS_ORDER.indexOf(expectedEnd)) now = expectedEnd;
+  return { verification, expectedEnd, now };
+}
+
+/**
+ * Each spec scoping a criterion in scope, with its end state: expectedEnd
+ * verified when any of its live criteria is external, else unknown when
+ * any is unflagged, else complete; now its executionStatus.
+ *
+ * @param {TreeModel} tree
+ * @param {ReqCoverage[]} requirements - the rows in scope
+ * @returns {Array<{ fbsId: string, expectedEnd: string, now: string }>}
+ */
+export function specEndStates(tree, requirements) {
+  const fbsIds = new Set();
+  for (const req of requirements) {
+    for (const ac of req.acs) for (const id of tree.fbsByAcId?.get(ac.id) ?? []) fbsIds.add(id);
+  }
+  const acById = new Map();
+  for (const us of tree.userStories ?? []) for (const ac of us.acceptanceCriteria ?? []) if (ac?.id) acById.set(ac.id, ac);
+  const specs = [];
+  for (const fbsId of [...fbsIds].sort(compareAcIds)) {
+    const fbs = tree.byId?.get(fbsId);
+    if (!fbs) continue;
+    const live = (fbs.acIds ?? []).map((id) => acById.get(id)).filter((ac) => ac && typeof ac.supersededBy !== 'string');
+    const flags = new Set(live.map(flagOf));
+    const expectedEnd = flags.has('external') ? 'verified' : flags.has('unflagged') ? 'unknown' : 'complete';
+    specs.push({ fbsId, expectedEnd, now: fbs.executionStatus });
+  }
+  return specs;
 }
 
 /**
@@ -284,6 +382,22 @@ function selectRequirements(tree, scopeId) {
 }
 
 /**
+ * FBS-233 (AC-19602-3, AC-19602-4): the hygiene test file a TC's
+ * testPointer points into, or null for any other pointer (or none).
+ *
+ * @param {TreeModel} tree
+ * @param {string} tsId
+ * @param {string} tcId
+ * @returns {string|null}
+ */
+export function hygieneTestFile(tree, tsId, tcId) {
+  const tc = (tree.byId.get(tsId)?.testCases ?? []).find((c) => c?.id === tcId);
+  if (typeof tc?.testPointer !== 'string') return null;
+  const file = tc.testPointer.split('::')[0];
+  return isHygieneTestPath(file) ? file : null;
+}
+
+/**
  * Collect every AC under a REQ (across all its USs) with per-AC coverage
  * signal + the list of TC ids referencing that AC. A TC only counts
  * towards `covered` when its pointer resolves (w-2026-07-28-005); the
@@ -294,6 +408,8 @@ function selectRequirements(tree, scopeId) {
  * FBS-228: a criterion carrying `supersededBy` gets state 'retired' and
  * its successor; its TCs stay listed but it never reads covered, and
  * under `withCode` its `codeClass` reads 'retired' (AC-19401-18).
+ * FBS-233: a TC pointing into a hygiene test is left out of `testCases`,
+ * the unresolved subset and coverage, and listed on `hygieneTestCases`.
  *
  * @param {TreeModel} tree
  * @param {string} reqId
@@ -312,7 +428,12 @@ function collectAcs(tree, reqId, opts = {}) {
     if (!us) continue;
     for (const ac of us.acceptanceCriteria ?? []) {
       if (!ac?.id) continue;
-      const tcEntries = tree.tcsByAcId.get(ac.id) ?? [];
+      const hygieneTcs = [];
+      const tcEntries = (tree.tcsByAcId.get(ac.id) ?? []).filter(({ tsId, tcId }) => {
+        const file = hygieneTestFile(tree, tsId, tcId);
+        if (file !== null) hygieneTcs.push({ id: tcId, file });
+        return file === null;
+      });
       const resolvedTcs = [];
       const unresolvedTcs = [];
       for (const { tsId, tcId } of tcEntries) {
@@ -339,6 +460,10 @@ function collectAcs(tree, reqId, opts = {}) {
         covered: !isRetired && resolvedTcs.length > 0,
         testCases: tcEntries.map((e) => e.tcId).sort(),
         unresolvedTestCases: [...unresolvedTcs].sort(),
+        ...(hygieneTcs.length > 0
+          ? { hygieneTestCases: hygieneTcs.sort((a, b) => a.id.localeCompare(b.id)) }
+          : {}),
+        ...endState(tree, ac),
       };
       if (withCode) {
         const cnIds = [...(tree.cnByAcId?.get(ac.id) ?? [])].sort();

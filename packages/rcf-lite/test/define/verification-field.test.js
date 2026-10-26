@@ -220,23 +220,35 @@ test('AC-19501-6: the installed rcf-schemas at the new pin defines acceptanceCri
 
 // pnpm-lock.yaml read with Node builtins only: a YAML library is a
 // devDependency, absent from the packed artefact the Test stage installs.
-// AC-19502-1 is about the lockfile pnpm writes, and "any other version
-// fails" holds for every input (the stage-keeper's ruling E), so this
-// reads the subset of YAML pnpm writes and throws on everything else,
-// anywhere in the file. The subset: block mappings nested by indentation
-// (spaces only, each mapping's keys at one indentation), plain or quoted
-// scalar keys and values written whole on their line, {} as a value (read
-// {}), a one-line flow collection as the value of a key pnpm writes in
-// flow style (resolution, engines, cpu, os, libc) outside importers (read
-// as its text), and block sequence items holding one scalar (skipped). It
-// reads that into the nested objects a YAML parser returns for it (every
-// key an own property, as a YAML parser stores __proto__). A block scalar
-// indicator, an anchor, an alias, a tag, a flow collection where a block
-// value is expected, a document marker after the first line, a complex
-// key, a tab in indentation, a duplicate key, a line off its mapping's
-// indentation (a multi-line scalar's continuation, say) and any other
-// line or scalar outside the subset throw an error naming the line and
-// the construct, which fails the test.
+// AC-19502-1 is about the pin the lockfile resolves, and "any other
+// version fails" holds for every input the reader reads (the
+// stage-keeper's ruling E); whether a lockfile is one pnpm can parse is
+// pnpm's to judge (CI's frozen install), not this reader's (the
+// stage-keeper's ruling on round A fix 2's review note N1). It reads the
+// layout pnpm writes: block mappings nested by indentation (spaces only,
+// each mapping's keys at one indentation), plain or quoted scalar keys and
+// values written whole on their line, {} as a value (read {}), a one-line
+// flow collection as the value of a key pnpm writes in flow style
+// (resolution, engines, cpu, os, libc) outside importers (read as its
+// text), and block sequence items holding one scalar (skipped). It reads
+// that into nested objects, each scalar value as its text (every key an
+// own property, as a YAML parser stores __proto__). It throws an error
+// naming the line and the construct, which fails the test, on these and
+// nothing else: a block scalar indicator, an anchor, an alias, a tag, a
+// complex key, an indicator that cannot open a plain scalar (@, `, % or
+// #), a flow collection where a block value is expected or not whole on
+// its line, a document marker after the first line, a tab in indentation,
+// a duplicate key, a line off its mapping's indentation (a multi-line
+// scalar's continuation, say), a sequence item beside mapping keys or a
+// key beside sequence items, a sequence item with no scalar on its line
+// or holding a block sequence, a line that is neither a key with its value
+// nor a sequence item, a quoted scalar that does not close on its line, a
+// plain scalar holding ": ", and a space before a key's colon. It does not
+// check the characters a scalar holds (a control character such as U+0001
+// in a settings value is read as text) or the entries inside a one-line
+// flow collection beyond its brackets, quotes and opening indicators
+// (resolution: {integrity: a: b} is read as its text), so a lockfile pnpm
+// cannot parse may still read its pin here.
 const LOCK_FLOW_KEYS = new Set(['resolution', 'engines', 'cpu', 'os', 'libc']);
 const LOCK_FLOW = 'a flow collection ({ or [) where a block value is expected';
 const LOCK_FLOW_OPEN = 'a flow collection that is not whole on its line';

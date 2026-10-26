@@ -333,6 +333,7 @@ test('readiness tab: AC-18001-7 every id on the tab appears in the CLI --json fo
     cwd: repoRoot,
     encoding: 'utf8',
     timeout: 60000,
+    maxBuffer: 16 * 1024 * 1024,
   });
   assert.equal(run.status, 0, `readiness --json failed: ${run.stderr}`);
   const envelope = JSON.parse(run.stdout);

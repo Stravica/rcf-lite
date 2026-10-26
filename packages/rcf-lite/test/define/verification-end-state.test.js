@@ -21,16 +21,19 @@
 // harness builds with its own base commit (ruling F8). The one exception
 // is AC-19803-5's timing ratio (ruling C3), which runs only with
 // RCF_PERF=1, at TEST on the verifier's full clone, against a temporary
-// worktree at the parent commit, and is skipped otherwise. Timing tests
-// print the host facts (GR-45). Imports: Node builtins, js-yaml and test/_harness/ only
-// (GR-40).
+// worktree at the parent commit of FBS-235's first BUILD commit (the
+// stage-keeper's ruling 5 for round B), and is skipped otherwise. Timing
+// tests print the host facts (GR-45). Imports: Node builtins and
+// test/_harness/ only (GR-40), no devDependency, so the file also loads
+// in the packed-artefact run, which installs the runtime dependencies
+// only (the stage-keeper's ruling on round A fix 1): ci.yml is read by
+// the workflow reader below, not by a YAML library.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { createHash } from 'node:crypto';
 import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
-import yaml from 'js-yaml';
 
 import { lines, rcf, run } from '../_harness/spawn.js';
 import { commit, git, gitTry, porcelain, s7 } from '../_harness/git.js';
@@ -38,7 +41,6 @@ import { bindTests, checkoutPackage, checkoutRoot, criterion, editFbs, editStory
 import { hostFacts, json, median, objectsIn, tables } from '../_harness/capture.js';
 import { MOVE_TEXT_FIELDS, coverageRows, readStories } from '../_harness/goldens.js';
 
-const TODO = { todo: 'FBS-235 round DEFINE' };
 const NOFLAG = '(external | testOnly)';
 const WARN = '[warn] verification: no base ref; new and amended criteria not checked';
 
@@ -66,7 +68,7 @@ async function baseRepo(t) {
 
 // ---------------------------------------------------------------- US-19801
 
-test('AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no "[error]" line and no verification line for AC-101-2 on stderr', TODO, async (t) => {
+test('AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no "[error]" line and no verification line for AC-101-2 on stderr', async (t) => {
   const { dir, base } = await baseRepo(t);
   setCriteria(dir, [gwt('AC-101-1'), gwt('AC-101-2', { verification: 'external' })]);
   commit(dir, 'add AC-101-2 flagged external');
@@ -76,7 +78,7 @@ test('AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding
   assert.deepEqual(lines(r.stderr).filter((l) => l.includes('verification') && l.includes('AC-101-2')), [], 'no verification line for AC-101-2');
 });
 
-test('AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with "[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)"', TODO, async (t) => {
+test('AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with "[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)"', async (t) => {
   const { dir, base } = await baseRepo(t);
   setCriteria(dir, [gwt('AC-101-1'), gwt('AC-101-2')]);
   commit(dir, 'add AC-101-2 unflagged');
@@ -85,7 +87,7 @@ test('AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define val
   assert.ok(outLines(r).includes(errNew('AC-101-2', base)), `${r.stdout}${r.stderr}`);
 });
 
-test('AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its "is amended since <base7>" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0', TODO, async (t) => {
+test('AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its "is amended since <base7>" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0', async (t) => {
   const amended = await baseRepo(t);
   setCriteria(amended.dir, [gwt('AC-101-1', { then: 'it exits 0 and prints one line' })]);
   commit(amended.dir, 'amend the then text of AC-101-1');
@@ -103,7 +105,7 @@ test('AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 e
   }
 });
 
-test('AC-19801-4: outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one "[warn] verification: no base ref; new and amended criteria not checked" line; --base naming a missing ref exits 2 "[error] usage --base <ref> does not resolve"', TODO, async (t) => {
+test('AC-19801-4: outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one "[warn] verification: no base ref; new and amended criteria not checked" line; --base naming a missing ref exits 2 "[error] usage --base <ref> does not resolve"', async (t) => {
   const plain = await project(t, { name: 'nogit' });
   setCriteria(plain, [gwt('AC-101-1'), gwt('AC-101-2')]);
   const noRepo = await validate(plain, [], { GIT_CEILING_DIRECTORIES: dirname(plain) });
@@ -120,7 +122,7 @@ test('AC-19801-4: outside git, or in git with no origin/main and no --base, vali
   assert.ok(lines(bad.stderr).includes('[error] usage --base no-such-ref does not resolve'), bad.stderr);
 });
 
-test('AC-19801-5: a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding', TODO, async (t) => {
+test('AC-19801-5: a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding', async (t) => {
   // New since the base, retired.
   {
     const { dir, base } = await baseRepo(t);
@@ -161,8 +163,231 @@ test('AC-19801-5: a retired criterion is never required to carry verification an
   }
 });
 
-test('AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push', TODO, () => {
-  const ci = yaml.load(readFileSync(join(checkoutRoot(), '.github', 'workflows', 'ci.yml'), 'utf8'));
+// .github/workflows/ci.yml read with Node builtins only: a YAML library is
+// a devDependency, absent from the packed artefact the Test stage installs
+// (the stage-keeper's ruling on round A fix 1). The reader models the YAML
+// a GitHub workflow file is written in and reads it into the objects a
+// YAML parser returns for it: block mappings and block sequences nested by
+// indentation (spaces only; a mapping's keys at one indentation; a
+// sequence under a key at the key's indentation or deeper; a sequence item
+// holding a scalar, a nested block, or a mapping that starts on the item's
+// line), plain or quoted scalar keys, values written whole on their line
+// as a plain scalar, a single- or double-quoted scalar, a one-line flow
+// sequence of such scalars, [] or {}, a literal block scalar (| or |-),
+// full-line and trailing comments, and a --- on the first line. Plain
+// scalars resolve as the core schema does for null (~, null, empty), the
+// booleans (true, false, in their three cases) and decimal numbers; every
+// other value is a string. It throws an error naming the line and the
+// construct, which fails the test, on everything else: a tab in
+// indentation, a line off its mapping's or sequence's indentation (a
+// multi-line plain scalar's continuation, say), a duplicate key, an
+// anchor, an alias, a tag, a merge or complex key, a folded block scalar
+// or a block scalar with a chomping or indentation indicator other than
+// |-, a flow mapping with entries, a nested or unclosed flow collection, a
+// quoted scalar that does not close on its line, a plain scalar holding
+// ": " or opening with an indicator, a plain scalar the core schema reads
+// as a typed value this reader does not model (an octal, hexadecimal,
+// underscored or leading-zero number, .inf, .nan or a timestamp), a
+// double-quoted escape JSON does not read, and a document marker after the
+// first line.
+function readWorkflow(text) {
+  const raw = text.split(/\r?\n/);
+  let at = 0;
+  const refuse = (n, construct) => {
+    throw new Error(`ci.yml line ${n + 1}: ${construct}, outside the YAML this reader models, so it refuses it: ${raw[n].trim()}`);
+  };
+  const leadOf = (n) => {
+    const lead = /^[ \t]*/.exec(raw[n])[0];
+    if (lead.includes('\t')) refuse(n, 'a tab in indentation');
+    return lead.length;
+  };
+  // The next line holding a node, past blank and comment lines; -1 at the end.
+  const next = () => {
+    for (; at < raw.length; at++) {
+      const line = raw[at];
+      if (/^\s*(#.*)?$/.test(line)) continue;
+      if (/^(---|\.\.\.)(\s|$)/.test(line)) {
+        if (at === 0 && /^---\s*(#.*)?$/.test(line)) continue;
+        refuse(at, 'a document marker (--- after the first line, or ...)');
+      }
+      return at;
+    }
+    return -1;
+  };
+  // The text before a comment: a # at the start or after a space, outside quotes.
+  const uncomment = (n, s) => {
+    let quote = null;
+    for (let i = 0; i < s.length; i++) {
+      const c = s[i];
+      if (quote) {
+        if (quote === '"' && c === '\\') i++;
+        else if (c === quote && quote === "'" && s[i + 1] === "'") i++;
+        else if (c === quote) quote = null;
+        continue;
+      }
+      if ((c === "'" || c === '"') && (i === 0 || /[\s[,]/.test(s[i - 1]))) quote = c;
+      else if (c === '#' && (i === 0 || /\s/.test(s[i - 1]))) return s.slice(0, i).trimEnd();
+    }
+    if (quote) refuse(n, 'a quoted scalar that does not close on its line');
+    return s.trimEnd();
+  };
+  const plain = (n, s) => {
+    if (/^[&*!|>%@`{}[\],#'"]/.test(s) || /^[?:-](\s|$)/.test(s)) refuse(n, `a plain scalar opening with an indicator (${s[0]})`);
+    if (/:(\s|$)/.test(s)) refuse(n, 'a plain scalar holding ": "');
+    if (s === '' || s === '~' || /^(null|Null|NULL)$/.test(s)) return null;
+    if (/^(true|True|TRUE)$/.test(s)) return true;
+    if (/^(false|False|FALSE)$/.test(s)) return false;
+    if (/^[-+]?(0|[1-9][0-9]*)$/.test(s) || /^[-+]?(0|[1-9][0-9]*)?\.[0-9]+([eE][-+]?[0-9]+)?$/.test(s) || /^[-+]?(0|[1-9][0-9]*)(\.[0-9]*)?[eE][-+]?[0-9]+$/.test(s)) return Number(s);
+    if (/^[-+]?(0[0-9_box]|[0-9][0-9_]*_|\.(inf|Inf|INF|nan|NaN|NAN)$|[0-9]+\.[0-9]*$)/.test(s) || /^[0-9]{4}-[0-9]{1,2}-[0-9]{1,2}/.test(s)) {
+      refuse(n, 'a plain scalar the core schema reads as a typed value this reader does not model');
+    }
+    return s;
+  };
+  const scalar = (n, s) => {
+    if (s[0] === "'") {
+      if (!/^'(?:[^']|'')*'$/.test(s)) refuse(n, 'a single-quoted scalar with text after its closing quote');
+      return s.slice(1, -1).replaceAll("''", "'");
+    }
+    if (s[0] === '"') {
+      if (!/^"(?:[^"\\]|\\.)*"$/.test(s)) refuse(n, 'a double-quoted scalar with text after its closing quote');
+      try {
+        return JSON.parse(s);
+      } catch {
+        return refuse(n, 'a double-quoted escape JSON does not read');
+      }
+    }
+    return plain(n, s);
+  };
+  const flowSeq = (n, s) => {
+    if (!s.endsWith(']')) refuse(n, 'a flow collection that is not whole on its line');
+    const body = s.slice(1, -1).trim();
+    if (body === '') return [];
+    const items = [];
+    let quote = null;
+    let start = 0;
+    for (let i = 0; i <= body.length; i++) {
+      const c = body[i];
+      if (quote) {
+        if (quote === '"' && c === '\\') i++;
+        else if (c === quote && quote === "'" && body[i + 1] === "'") i++;
+        else if (c === quote) quote = null;
+        continue;
+      }
+      if (c === "'" || c === '"') quote = c;
+      else if (c === '[' || c === ']' || c === '{' || c === '}') refuse(n, 'a nested flow collection');
+      else if (c === ',' || i === body.length) {
+        const item = body.slice(start, i).trim();
+        if (item === '') refuse(n, 'an empty flow sequence entry');
+        items.push(scalar(n, item));
+        start = i + 1;
+      }
+    }
+    return items;
+  };
+  // A literal block scalar under the line n whose node sits at column col.
+  const block = (n, col, chomp) => {
+    const body = [];
+    let indent = null;
+    for (at = n + 1; at < raw.length; at++) {
+      const line = raw[at];
+      if (/^ *$/.test(line)) { body.push(indent !== null && line.length > indent ? line.slice(indent) : ''); continue; }
+      const lead = /^ */.exec(line)[0].length;
+      if (indent === null) {
+        if (lead <= col) break;
+        indent = lead;
+      }
+      if (lead < indent) {
+        if (line[lead] === '\t') refuse(at, 'a tab in indentation');
+        break;
+      }
+      body.push(line.slice(indent));
+    }
+    while (body.length && body.at(-1) === '') body.pop();
+    if (body.length === 0) return '';
+    return body.join('\n') + (chomp ? '' : '\n');
+  };
+  // The value written after a key or a dash on line n, the node at column col.
+  const value = (n, col, s) => {
+    if (s === '') {
+      const m = next();
+      if (m === -1) return null;
+      const lead = leadOf(m);
+      if (lead > col) return node(lead);
+      if (lead === col && /^-(\s|$)/.test(raw[m].slice(lead))) return sequence(lead);
+      return null;
+    }
+    if (s === '|' || s === '|-') return block(n, col, s === '|-');
+    if (/^[|>]/.test(s)) refuse(n, 'a block scalar other than | or |- (folded, or a chomping or indentation indicator)');
+    if (s[0] === '[') return flowSeq(n, s);
+    if (s[0] === '{') {
+      if (s === '{}') return {};
+      refuse(n, 'a flow mapping with entries');
+    }
+    if (/^[&*!]/.test(s)) refuse(n, 'an anchor, alias or tag');
+    return scalar(n, s);
+  };
+  // key: value on line n, its key at column col; sets it on map.
+  const entry = (n, col, s, map) => {
+    if (/^[?&*!]/.test(s) || /^<<\s*:/.test(s)) refuse(n, 'a complex key, merge key, anchor, alias or tag');
+    const m = /^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^'"\s][^]*?):(?:\s+([^]*))?$/.exec(s);
+    if (!m) refuse(n, 'a line that is not a key with its value or a sequence item');
+    const key = scalar(n, m[1].trimEnd());
+    if (typeof key !== 'string') refuse(n, 'a key that is not a string');
+    if (Object.hasOwn(map, key)) refuse(n, 'a duplicate key');
+    Object.defineProperty(map, key, { value: value(n, col, (m[2] ?? '').trim()), enumerable: true, writable: true, configurable: true });
+  };
+  const mapping = (col, first) => {
+    const map = {};
+    if (first) entry(first.n, col, first.s, map);
+    for (let n = next(); n !== -1; n = next()) {
+      const lead = leadOf(n);
+      if (lead < col) break;
+      if (lead > col) refuse(n, 'a line off its mapping\'s indentation (a multi-line scalar\'s continuation or a mis-indented key)');
+      const s = uncomment(n, raw[n].slice(lead));
+      if (/^-(\s|$)/.test(s)) {
+        if (first) break;
+        refuse(n, 'a sequence item beside mapping keys');
+      }
+      at = n + 1;
+      entry(n, col, s, map);
+    }
+    return map;
+  };
+  const sequence = (col) => {
+    const list = [];
+    for (let n = next(); n !== -1; n = next()) {
+      const lead = leadOf(n);
+      if (lead < col) break;
+      if (lead > col) refuse(n, 'a line off its sequence\'s indentation');
+      const s = uncomment(n, raw[n].slice(lead));
+      if (!/^-(\s|$)/.test(s)) break;
+      at = n + 1;
+      const rest = s.slice(1);
+      const content = rest.trimStart();
+      const itemCol = col + 1 + (rest.length - content.length);
+      if (content === '') list.push(value(n, col, ''));
+      else if (/^-(\s|$)/.test(content)) refuse(n, 'a sequence nested on its item\'s line');
+      else if (/^('(?:[^']|'')*'|"(?:[^"\\]|\\.)*"|[^'"\s[{][^]*?):(\s|$)/.test(content)) {
+        list.push(mapping(itemCol, { n, s: content }));
+      } else list.push(value(n, itemCol, content));
+    }
+    return list;
+  };
+  const node = (col) => {
+    const n = next();
+    const s = uncomment(n, raw[n].slice(col));
+    return /^-(\s|$)/.test(s) ? sequence(col) : mapping(col);
+  };
+  const first = next();
+  if (first === -1) return null;
+  const doc = node(leadOf(first));
+  const rest = next();
+  if (rest !== -1) refuse(rest, 'a line off its mapping\'s indentation');
+  return doc;
+}
+
+test('AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push', () => {
+  const ci = readWorkflow(readFileSync(join(checkoutRoot(), '.github', 'workflows', 'ci.yml'), 'utf8'));
   const steps = ci?.jobs?.test?.steps ?? [];
   assert.ok(steps.length > 0, 'ci.yml has a test job with steps');
   const checkout = steps.find((s) => typeof s.uses === 'string' && s.uses.startsWith('actions/checkout@'));
@@ -179,12 +404,29 @@ test('AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate -
   assert.deepEqual(unguarded.map((s) => s.run), [], 'no step outside pull_request passes --base');
 });
 
+// Round B ruling 29: on pull_request, actions/checkout's default ref is the
+// merge commit GitHub synthesises, which carries no stage prefix; the
+// separation job checks out the pull request's own head instead.
+test('AC-19801-7: the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite', () => {
+  const ci = readWorkflow(readFileSync(join(checkoutRoot(), '.github', 'workflows', 'ci.yml'), 'utf8'));
+  const job = ci?.jobs?.separation;
+  assert.ok(job, 'ci.yml has a separation job');
+  assert.equal(job.if, "github.event_name == 'pull_request'", 'the separation job runs only on pull_request');
+  const steps = job.steps ?? [];
+  const checkout = steps.find((s) => typeof s.uses === 'string' && s.uses.startsWith('actions/checkout@'));
+  assert.ok(checkout, 'the separation job checks out');
+  assert.equal(checkout.with?.ref, '${{ github.event.pull_request.head.sha }}', 'it checks out the head of the pull request, never the merge commit GitHub synthesises');
+  assert.equal(checkout.with?.['fetch-depth'], 0, 'with fetch-depth 0');
+  const audit = steps.filter((s) => typeof s.run === 'string' && s.run.trim() === 'node bin/rcf.js audit separation --base origin/${{ github.base_ref }}');
+  assert.ok(audit.some((s) => s['working-directory'] === 'packages/rcf-lite'), 'a step runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite');
+});
+
 // ---------------------------------------------------------------- US-19802
 
 const D2 = 'AC-101-2 is the first unflagged criterion, scoped by FBS-001, and its description runs past eighty characters';
 const D3 = 'AC-101-3 is the second unflagged criterion, scoped by no spec';
 
-test('AC-19802-1: rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then "verification: 2 of 3 live criteria unflagged"', TODO, async (t) => {
+test('AC-19802-1: rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then "verification: 2 of 3 live criteria unflagged"', async (t) => {
   const dir = await project(t, { name: 'worklist' });
   setCriteria(dir, [gwt('AC-101-1', { verification: 'external' }), criterion('AC-101-2', D2), criterion('AC-101-3', D3)], ['AC-101-1', 'AC-101-2']);
   const r = await validate(dir, ['--report', 'verification']);
@@ -196,7 +438,7 @@ test('AC-19802-1: rcf define validate --report verification over 3 live criteria
   ]);
 });
 
-test('AC-19802-2: with every live criterion flagged the report prints only "verification: 0 of <n> live criteria unflagged" and --json prints {"unflagged": [], "live": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }', TODO, async (t) => {
+test('AC-19802-2: with every live criterion flagged the report prints only "verification: 0 of <n> live criteria unflagged" and --json prints {"unflagged": [], "live": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }', async (t) => {
   const flagged = await project(t, { name: 'flagged' });
   setCriteria(flagged, [gwt('AC-101-1', { verification: 'external' }), gwt('AC-101-2', { verification: 'testOnly' })]);
   const r = await validate(flagged, ['--report', 'verification']);
@@ -218,7 +460,7 @@ test('AC-19802-2: with every live criterion flagged the report prints only "veri
   ]);
 });
 
-test('AC-19802-3: over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines', TODO, async (t) => {
+test('AC-19802-3: over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines', async (t) => {
   hostFacts(t);
   const dir = await project(t, { name: 'heavy' });
   const req = readJson(dir, 'rcf/requirements/req-001.json');
@@ -252,7 +494,7 @@ test('AC-19802-3: over 1000 unflagged live criteria across 250 stories the repor
   assert.ok(ratio <= 1.5, `the report takes at most 1.5 times a plain validate (ratio ${ratio.toFixed(2)})`);
 });
 
-test('AC-19802-4: rcf define validate --report flags exits 2 with "[error] usage --report takes verification" and prints no worklist line', TODO, async (t) => {
+test('AC-19802-4: rcf define validate --report flags exits 2 with "[error] usage --report takes verification" and prints no worklist line', async (t) => {
   const dir = await project(t, { name: 'report-flags' });
   setCriteria(dir, [criterion('AC-101-1', D3.replace('AC-101-3', 'AC-101-1'))]);
   const r = await validate(dir, ['--report', 'flags']);
@@ -268,7 +510,7 @@ function snapshot(dir) {
     .map((p) => [p.slice(dir.length + 1), createHash('sha256').update(readFileSync(p)).digest('hex')]));
 }
 
-test('AC-19802-5: the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag', TODO, async (t) => {
+test('AC-19802-5: the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag', async (t) => {
   const dir = await project(t, { git: true, name: 'worklist-rw' });
   setCriteria(dir, [criterion('AC-101-1', 'AC-101-1 holds for the read-only sweep'), criterion('AC-101-2', 'AC-101-2 holds for the read-only sweep')]);
   commit(dir, 'two unflagged criteria');
@@ -310,7 +552,7 @@ const ends = (o) => o && { verification: o.verification, expectedEnd: o.expected
 const specEntry = (j, id) => objectsIn(j).find((o) => (o.fbsId === id || o.id === id) && 'expectedEnd' in o && !('acId' in o) && !String(o.id ?? '').startsWith('AC-'));
 const coverage = (dir, args) => rcf(['audit', 'coverage', ...args], { cwd: dir });
 
-test('AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete', TODO, async (t) => {
+test('AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete', async (t) => {
   const dir = await covProject(t, { acs: [flag('AC-101-1', 'external'), flag('AC-101-2', 'testOnly')], specs: { 'FBS-001': { status: 'complete', acIds: ['AC-101-1', 'AC-101-2'] } }, bound: ['AC-101-1', 'AC-101-2'] });
   const r = await coverage(dir, ['--format', 'json']);
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
@@ -322,7 +564,7 @@ test('AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101
   assert.deepEqual({ expectedEnd: spec.expectedEnd, now: spec.now }, { expectedEnd: 'verified', now: 'complete' });
 });
 
-test('AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete', TODO, async (t) => {
+test('AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete', async (t) => {
   const dir = await covProject(t, {
     acs: [flag('AC-101-1', 'external'), flag('AC-101-2', 'testOnly'), flag('AC-101-3', 'testOnly')],
     specs: { 'FBS-001': { status: 'verified', acIds: ['AC-101-1', 'AC-101-2'] }, 'FBS-002': { status: 'inProgress', acIds: ['AC-101-3'] } },
@@ -336,7 +578,7 @@ test('AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now compl
   assert.equal(specEntry(j, 'FBS-002')?.expectedEnd, 'complete');
 });
 
-test('AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown', TODO, async (t) => {
+test('AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown', async (t) => {
   const dir = await covProject(t, {
     acs: [flag('AC-101-1', 'testOnly'), flag('AC-101-2', 'external'), flag('AC-101-3'), flag('AC-101-4', 'testOnly', retire('AC-101-3'))],
     specs: { 'FBS-001': { status: 'complete', acIds: ['AC-101-1', 'AC-101-3'] }, 'FBS-002': { status: 'inProgress', acIds: ['AC-101-2'] } },
@@ -358,7 +600,7 @@ test('AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflag
   assert.equal(specRows[0].end, 'unknown');
 });
 
-test('AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap', TODO, async (t) => {
+test('AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap', async (t) => {
   const dir = await covProject(t, { acs: [flag('AC-101-1', 'external'), flag('AC-101-2', 'testOnly')], specs: { 'FBS-001': { status: 'complete', acIds: ['AC-101-1', 'AC-101-2'] } }, bound: ['AC-101-1'] });
   const gaps = (r) => acRows(json(r.stdout)).filter((a) => !a.covered).map((a) => a.id).sort();
   const before = await coverage(dir, ['--strict', '--format', 'json']);
@@ -397,7 +639,7 @@ function assertTypicalChain(pkg, rowCount) {
 }
 const PERF = process.env.RCF_PERF === '1';
 
-test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', TODO, async () => {
+test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', async () => {
   const pkg = checkoutPackage();
   const was = moveGolden('coverage-rows', ROWS_GOLDEN);
   assert.ok(Number.isInteger(was.exitCode) && was.rows && typeof was.rows === 'object', `${ROWS_GOLDEN} holds { "exitCode", "rows" }`);
@@ -426,7 +668,22 @@ test('AC-19803-5: over the chain of this repository at the slice head, audit cov
 // independent check: the ledger-118 treatment): measured only with
 // RCF_PERF=1, at TEST on the verifier's full clone, against a temporary
 // worktree at the parent commit (decision 118's method, which the
-// stage-keeper keeps for the two timing tests); skipped otherwise.
+// stage-keeper keeps for the two timing tests); skipped otherwise. The
+// parent commit is the one FBS-235's BUILD changes from (the
+// stage-keeper's ruling 5 for round B, the class of round A's ruling 8):
+// the first parent of the first commit on the head's history whose
+// subject carries FBS-235's BUILD stage prefix, found from git history as
+// AC-19501-7 finds its pin move, and never HEAD^, which at the round's
+// DEFINE carries the same production code as the head. Until that commit
+// exists the test fails naming it, never skips, so it is red at DEFINE
+// and measures the slice's change once its BUILD exists.
+const BUILD_SUBJECT = 'BUILD: FBS-235 ';
+function buildBase(root) {
+  const rows = git(root, 'log', '--topo-order', '--reverse', '--format=%H%x09%s', 'HEAD').split('\n').filter(Boolean).map((r) => r.split('\t'));
+  const first = rows.find(([, subject]) => subject.startsWith(BUILD_SUBJECT));
+  assert.ok(first, `a commit on the head's history carries FBS-235's BUILD (its subject starts "${BUILD_SUBJECT}"), the commit the timing ratio measures from`);
+  return git(root, 'rev-parse', `${first[0]}^1`);
+}
 function worktreeAt(t, root, rev) {
   const dir = join(scratch(t, 'rcf-h-parentwt-'), 'wt');
   git(root, 'worktree', 'add', '--detach', '--quiet', dir, rev);
@@ -436,12 +693,12 @@ function worktreeAt(t, root, rev) {
   return join(dir, 'packages', 'rcf-lite');
 }
 
-test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1', { todo: 'FBS-235 round DEFINE', skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
+test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1', { skip: PERF ? false : 'measured at TEST by the verifier (RCF_PERF=1)' }, async (t) => {
   hostFacts(t);
   const root = checkoutRoot();
   const pkg = checkoutPackage();
   assert.equal(git(root, 'rev-parse', '--is-shallow-repository'), 'false', 'shallow clone: the parent commit is not there (the measurement runs at TEST on the verifier\'s full clone)');
-  const parent = git(root, 'rev-parse', 'HEAD^');
+  const parent = buildBase(root);
   const parentPkg = worktreeAt(t, root, parent);
   const cmd = ['audit', 'coverage', '--format', 'json'];
   const headMs = [];
@@ -461,7 +718,7 @@ test('AC-19803-5: over the chain of this repository at the slice head, audit cov
   assert.ok(ratio <= 1.25, `within 1.25 times the parent (ratio ${ratio.toFixed(2)})`);
 });
 
-test('AC-19803-6: a hand-edited "verification": "sometimes" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows', TODO, async (t) => {
+test('AC-19803-6: a hand-edited "verification": "sometimes" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows', async (t) => {
   const dir = await covProject(t, { acs: [flag('AC-101-1', 'sometimes')], specs: { 'FBS-001': { status: 'complete', acIds: ['AC-101-1'] } }, bound: ['AC-101-1'] });
   const r = await coverage(dir, []);
   assert.equal(r.code, 3, `${r.stdout}${r.stderr}`);
@@ -472,7 +729,7 @@ test('AC-19803-6: a hand-edited "verification": "sometimes" on AC-101-1 makes au
 
 // ---------------------------------------------------------------- US-19804
 
-test('AC-19804-1: at the slice head no user story tag starts "verification:", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0', TODO, async () => {
+test('AC-19804-1: at the slice head no user story tag starts "verification:", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0', async () => {
   const pkg = checkoutPackage();
   const stories = readStories(join(pkg, 'rcf', 'user-stories'));
   assert.deepEqual(stories.flatMap((s) => (s.tags ?? []).filter((x) => x.startsWith('verification:')).map((x) => `${s.usId} ${x}`)), [], 'no tags entry starts "verification:"');
@@ -485,7 +742,7 @@ test('AC-19804-1: at the slice head no user story tag starts "verification:", ev
   assert.equal(v.code, 0, `${v.stdout.slice(-2000)}${v.stderr.slice(-2000)}`);
 });
 
-test('AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move', TODO, () => {
+test('AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move', async (t) => {
   const was = moveGolden('flag-texts', TEXTS_GOLDEN);
   assert.ok(Object.keys(was).length > 0, `${TEXTS_GOLDEN} records the tagged criteria before the move`);
   const now = new Map(readStories(join(checkoutPackage(), 'rcf', 'user-stories')).flatMap((s) => (s.acceptanceCriteria ?? []).map((a) => [a.id, a])));
@@ -496,9 +753,26 @@ test('AC-19804-2: for every criterion moved, its description, given, when, then,
     for (const field of MOVE_TEXT_FIELDS) if (JSON.stringify(cur[field]) !== JSON.stringify(fields[field])) changed.push(`${id}.${field}`);
   }
   assert.deepEqual(changed, [], 'moving the flags changes no criterion text');
+  // Control (round B ruling 28): the move as this repository made it (one
+  // rcf define update <US id> --json call per story, setting each tagged
+  // criterion's verification by index and the story's tags), over a fixture
+  // story whose two criteria carry every compared field. Each moved
+  // criterion carries its flag on the field and its compared fields are
+  // byte-identical before and after.
+  const dir = await project(t, { name: 'flag-move' });
+  setCriteria(dir, [gwt('AC-101-1'), gwt('AC-101-2', retire('AC-101-1'))]);
+  editStory(dir, 'US-101', (us) => { us.tags = ['verification:AC-101-1=external', 'verification:AC-101-2=testOnly']; });
+  const before = readJson(dir, 'rcf/user-stories/us-101.json').acceptanceCriteria;
+  assert.deepEqual(MOVE_TEXT_FIELDS.filter((f) => !before.some((a) => a[f] !== undefined)), [], 'fixture: the two criteria carry every compared field');
+  const u = await rcf(['define', 'update', 'US-101', '--json', '--set', 'acceptanceCriteria[0].verification="external"', '--set', 'acceptanceCriteria[1].verification="testOnly"', '--set', 'tags=[]'], { cwd: dir });
+  assert.equal(u.code, 0, `${u.stdout}${u.stderr}`);
+  const after = readJson(dir, 'rcf/user-stories/us-101.json').acceptanceCriteria;
+  assert.deepEqual(after.map((a) => [a.id, a.verification]), [['AC-101-1', 'external'], ['AC-101-2', 'testOnly']], 'each moved criterion carries its flag on the field');
+  const moved = before.flatMap((a, i) => MOVE_TEXT_FIELDS.filter((f) => JSON.stringify(after[i]?.[f]) !== JSON.stringify(a[f])).map((f) => `${a.id}.${f}`));
+  assert.deepEqual(moved, [], 'the move changes no criterion text');
 });
 
-test('AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag', TODO, async (t) => {
+test('AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag', async (t) => {
   // The fixture's main holds the base (AC-101-1, from before 0.37.0); the
   // DEFINE branch off it adds AC-101-2 moved onto the field and AC-101-3
   // left without it (the stage-keeper's ruling F8 on the independent check).

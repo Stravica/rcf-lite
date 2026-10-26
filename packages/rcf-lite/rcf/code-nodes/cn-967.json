@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-967",
+  "path": "../../.github/workflows/ci.yml",
+  "implementsAcIds": [
+    "AC-19801-6",
+    "AC-19801-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T07:24:17.764Z",
+  "updatedAt": "2026-10-26T14:45:18.142Z"
+}

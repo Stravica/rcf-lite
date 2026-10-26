@@ -1,12 +1,21 @@
 // FBS-222 (US-19101): rcf audit separation judges each commit hand against the paths it touches.
 //
-// One test per AC of US-19101, bound by TS-255. Each builds a fixture git
-// history in a scratch dir (test/_helpers/git-history.js: local bare
-// origin, real Hand: trailers, host git config isolated), reads the
-// history back to check the fixture, then drives bin/rcf.js from the
-// fixture root. With no --base the range is the merge-base with
-// origin/main to HEAD; <sha7> is the first seven characters of a sha.
-// The verdict line and --json go to stdout, refusals to stderr.
+// The tests of AC-19101-4, AC-19101-6 and AC-19101-7, bound by TS-255. The
+// tests of AC-19101-1, AC-19101-2, AC-19101-3 and AC-19101-5 (retired, with
+// successors in FBS-233, whose BUILD makes their assertions false) were
+// deleted in round B's DEFINE, their test cases re-pointed at the
+// successors' tests (stage-keeper ruling 10). Stage-keeper ruling 15
+// applied the same rule to each remaining assertion over commits with no
+// stage prefix: the fixture commits now carry a stage prefix and an
+// agreeing Hand: trailer (ADR-4162), and the two assertions FBS-233's
+// criteria make false were deleted (AC-19101-4's unknown hand subtest,
+// and AC-19101-6's 0.36.x PASS line); each test keeps its test case. Each
+// builds a fixture git history in a scratch dir
+// (test/_helpers/git-history.js: local bare origin, real Hand: trailers,
+// host git config isolated), reads the history back to check the
+// fixture, then drives bin/rcf.js from the fixture root. With no --base
+// the range is the merge-base with origin/main to HEAD. The verdict line
+// and --json go to stdout, refusals to stderr.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync } from 'node:fs';
@@ -14,11 +23,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  baseAndHead, commitPaths, git, gitWorld, mergeBranch, readHistory, runRcf, treeState,
+  commitPaths, git, gitWorld, readHistory, runRcf, treeState,
 } from '../_helpers/git-history.js';
 
 const RCF_BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'bin', 'rcf.js');
-const s7 = (sha) => sha.slice(0, 7);
 
 // The fixture is what the criterion presumes: one entry per commit in
 // range, oldest first, each with its Hand: values and paths.
@@ -39,12 +47,13 @@ function expectExit(res, code) {
   assert.doesNotMatch(res.stderr, /unknown verb/, 'refused as an unknown verb');
 }
 
-const lines = (text) => text.split('\n').filter(Boolean);
-
+// Stage-prefixed commits with agreeing Hand: trailers (ADR-4162: the
+// verifier's report commit is TEST:), so the fixture holds under the
+// 0.36.x audit and the stage-prefix audit alike (stage-keeper ruling 15).
 const PASS_COMMITS = [
-  { hand: 'test-author', paths: ['test/x.test.js', 'rcf/user-stories/us-1.json'], subject: 'tests and criteria' },
-  { hand: 'builder', paths: ['src/x.js', 'rcf/code-nodes/cn-1.json'], subject: 'production and code node' },
-  { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'], subject: 'verify report' },
+  { hand: 'test-author', paths: ['test/x.test.js', 'rcf/user-stories/us-1.json'], subject: 'DEFINE: tests and criteria' },
+  { hand: 'builder', paths: ['src/x.js', 'rcf/code-nodes/cn-1.json'], subject: 'BUILD: production and code node' },
+  { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'], subject: 'TEST: verify report' },
 ];
 
 async function passWorld(t, opts) {
@@ -52,81 +61,6 @@ async function passWorld(t, opts) {
   const shas = PASS_COMMITS.map((c) => commitPaths(world, c.subject, c.paths, c.hand));
   return { world, shas };
 }
-
-test('AC-19101-1: rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints "separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0"', async (t) => {
-  const { world } = await passWorld(t);
-  assertFixture(world, PASS_COMMITS);
-  const { base, head } = baseAndHead(world);
-
-  const res = run(world, []);
-
-  expectExit(res, 0);
-  assert.ok(lines(res.stdout).includes(
-    `separation: PASS 3 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
-  ), `PASS line missing; stdout: ${res.stdout}`);
-});
-
-test('AC-19101-2: rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints "separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js"', async (t) => {
-  // Each case is the only violating commit on its own branch, followed by
-  // a passing verifier commit so the violator is not HEAD; n = 2.
-  const cases = [
-    { hand: 'builder', path: 'test/x.test.js' },
-    { hand: 'test-author', path: 'src/x.js' },
-    { hand: 'builder', path: 'rcf/user-stories/us-1.json' },
-  ];
-  for (const { hand, path } of cases) {
-    await t.test(`Hand: ${hand} touching ${path}`, async (st) => {
-      const world = await gitWorld(st);
-      const bad = commitPaths(world, 'crossing commit', [path], hand);
-      commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
-      assertFixture(world, [{ hand, paths: [path] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
-      const { base, head } = baseAndHead(world);
-
-      const res = run(world, []);
-
-      expectExit(res, 4);
-      assert.ok(lines(res.stdout).includes(
-        `separation: FAIL 1 of 2 commits (base ${s7(base)}, head ${s7(head)}): ${s7(bad)} Hand=${hand} touches ${path}`,
-      ), `FAIL line missing; stdout: ${res.stdout}`);
-    });
-  }
-});
-
-test('AC-19101-3: rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths', async (t) => {
-  await t.test('undeclared single-class commits pass and count as undeclared', async (st) => {
-    const world = await gitWorld(st);
-    commitPaths(world, 'source only', ['src/x.js'], null);
-    commitPaths(world, 'tests only', ['test/x.test.js'], null);
-    assertFixture(world, [{ hand: null, paths: ['src/x.js'] }, { hand: null, paths: ['test/x.test.js'] }]);
-    const { base, head } = baseAndHead(world);
-
-    const res = run(world, []);
-
-    expectExit(res, 0);
-    assert.ok(lines(res.stdout).includes(
-      `separation: PASS 2 commits (base ${s7(base)}, head ${s7(head)}): test-author 0, builder 0, verifier 0, stage-keeper 0, neutral 0, undeclared 2, exceptions 0`,
-    ), `PASS line missing; stdout: ${res.stdout}`);
-  });
-
-  await t.test('an undeclared commit touching src/ and test/ fails naming both paths', async (st) => {
-    const world = await gitWorld(st);
-    commitPaths(world, 'source only', ['src/y.js'], null);
-    const bad = commitPaths(world, 'source and tests', ['src/x.js', 'test/x.test.js'], null);
-    assertFixture(world, [{ hand: null, paths: ['src/y.js'] }, { hand: null, paths: ['src/x.js', 'test/x.test.js'] }]);
-    const { base, head } = baseAndHead(world);
-
-    const res = run(world, []);
-
-    expectExit(res, 4);
-    // The Hand= slot and the order and separator of the two paths are not
-    // pinned: the line names the commit and both paths.
-    const prefix = `separation: FAIL 1 of 2 commits (base ${s7(base)}, head ${s7(head)}): ${s7(bad)} `;
-    const line = lines(res.stdout).find((l) => l.startsWith(prefix));
-    assert.ok(line, `FAIL line missing; stdout: ${res.stdout}`);
-    assert.ok(line.includes('src/x.js') && line.includes('test/x.test.js'), `FAIL line does not name both paths: ${line}`);
-    assert.ok(!line.includes('src/y.js'), `FAIL line names the passing commit's path: ${line}`);
-  });
-});
 
 test('AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with "separation: bad ref <ref>"; outside a git repository it exits 1 with "separation: not a git repository"; an unknown Hand value is a violation "unknown hand <value>"', async (t) => {
   await t.test('--base naming a missing ref exits 2', async (st) => {
@@ -154,76 +88,13 @@ test('AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with "separa
     assert.ok(res.stderr.includes('separation: not a git repository'), `stderr: ${res.stderr}`);
   });
 
-  await t.test('a Hand: value outside the five hands and mixed is a violation', async (st) => {
-    const world = await gitWorld(st);
-    const bad = commitPaths(world, 'unknown hand', ['test/x.test.js'], 'tester');
-    commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
-    assertFixture(world, [{ hand: 'tester', paths: ['test/x.test.js'] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
-    const { base, head } = baseAndHead(world);
-
-    const plain = run(world, []);
-    expectExit(plain, 4);
-    assert.ok(lines(plain.stdout).some((l) => l.startsWith(
-      `separation: FAIL 1 of 2 commits (base ${s7(base)}, head ${s7(head)}): ${s7(bad)} Hand=tester`,
-    )), `FAIL line missing; stdout: ${plain.stdout}`);
-
-    // The reason is carried on the commit's --json row.
-    const json = run(world, ['--json']);
-    expectExit(json, 4);
-    const rows = JSON.parse(json.stdout);
-    const row = rows.find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && bad.startsWith(r.sha));
-    assert.ok(row, `no row for ${bad}: ${json.stdout}`);
-    assert.equal(row.verdict, 'fail');
-    assert.match(String(row.reason), /unknown hand tester/);
-  });
-});
-
-test('AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent', async (t) => {
-  // The PASS-case branch, with the builder commit brought in through a
-  // merge commit (no Hand: trailer) so the range holds one merge.
-  const world = await gitWorld(t);
-  const [ta, bu, ve] = PASS_COMMITS;
-  const shaTa = commitPaths(world, ta.subject, ta.paths, ta.hand);
-  git(world, world.repo, ['checkout', '-q', '-b', 'side', 'main']);
-  const shaBu = commitPaths(world, bu.subject, bu.paths, bu.hand);
-  git(world, world.repo, ['checkout', '-q', 'feature']);
-  const shaVe = commitPaths(world, ve.subject, ve.paths, ve.hand);
-  const merge = mergeBranch(world, 'side', 'merge side');
-  const history = readHistory(world);
-  assert.equal(history.length, 4);
-  assert.deepEqual(history.filter((c) => c.parents.length > 1).map((c) => c.sha), [merge]);
-  assert.deepEqual(history.filter((c) => c.parents.length === 1).map((c) => ({ hands: c.hands, paths: c.paths })).sort((a, b) => a.hands[0].localeCompare(b.hands[0])),
-    [bu, ta, ve].map((c) => ({ hands: [c.hand], paths: [...c.paths].sort() })));
-
-  const res = run(world, ['--json']);
-
-  expectExit(res, 0);
-  const rows = JSON.parse(res.stdout);
-  assert.ok(Array.isArray(rows), 'stdout is not a JSON array');
-  assert.equal(rows.length, 3, `one row per non-merge commit: ${res.stdout}`);
-  const expected = new Map([[shaTa, ta], [shaBu, bu], [shaVe, ve]]);
-  const seen = new Set();
-  for (const row of rows) {
-    assert.deepEqual(Object.keys(row).sort(), ['classes', 'declared', 'hand', 'paths', 'reason', 'sha', 'subject', 'verdict']);
-    assert.ok(typeof row.sha === 'string' && row.sha.length >= 7, `sha: ${row.sha}`);
-    assert.ok(!merge.startsWith(row.sha), 'a merge commit has a row');
-    const full = [...expected.keys()].find((sha) => sha.startsWith(row.sha));
-    assert.ok(full, `row names no commit in range: ${row.sha}`);
-    seen.add(full);
-    const c = expected.get(full);
-    assert.equal(row.subject, c.subject);
-    assert.equal(row.hand, c.hand);
-    assert.equal(row.verdict, 'pass');
-    assert.deepEqual([...row.paths].sort(), [...c.paths].sort());
-  }
-  assert.equal(seen.size, 3);
-
-  const plain = run(world, []);
-  expectExit(plain, 0);
-  const { base, head } = baseAndHead(world);
-  assert.ok(lines(plain.stdout).includes(
-    `separation: PASS 3 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
-  ), `PASS line missing; stdout: ${plain.stdout}`);
+  // The unknown hand subtest was deleted (stage-keeper ruling 15): under
+  // FBS-233 a commit marked only by a Hand: trailer fails "no stage
+  // prefix" whatever the trailer says (AC-19604-6), and a prefixed commit
+  // whose trailer disagrees reads "Hand: <value> disagrees with <STAGE>:"
+  // (AC-19604-2), so no "Hand=<value>" item or "unknown hand <value>"
+  // reason remains. TC-255-bad-ref-and-repo stays on the two subtests
+  // above.
 });
 
 test('AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged', async (t) => {
@@ -239,7 +110,6 @@ test('AC-19101-6: rcf audit separation writes no file, reads no network and no c
   });
   assertFixture(world, PASS_COMMITS);
   assert.equal(git(world, world.repo, ['remote', 'get-url', 'origin']), world.origin);
-  const { base, head } = baseAndHead(world);
   const before = treeState(world);
 
   const plain1 = run(world, []);
@@ -248,10 +118,10 @@ test('AC-19101-6: rcf audit separation writes no file, reads no network and no c
   const json2 = run(world, ['--json']);
   const after = treeState(world);
 
+  // The 0.36.x PASS line assertion was deleted (stage-keeper ruling 15):
+  // FBS-233's PASS line counts stages, merges and transition commits
+  // (AC-19601-1, AC-19604-1). The read-only claim below is unchanged.
   expectExit(plain1, 0);
-  assert.ok(lines(plain1.stdout).includes(
-    `separation: PASS 3 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
-  ), `PASS line missing; stdout: ${plain1.stdout}`);
   expectExit(json1, 0);
   assert.equal(JSON.parse(json1.stdout).length, 3);
   assert.deepEqual(plain2, plain1, 'plain runs differ');
@@ -261,8 +131,11 @@ test('AC-19101-6: rcf audit separation writes no file, reads no network and no c
 
 test('AC-19101-7: rcf audit separation classifies a committed report under rcf/verify-reports/ as verifier evidence', async (t) => {
   const world = await gitWorld(t);
-  commitPaths(world, 'criteria', ['rcf/user-stories/us-1.json'], 'test-author');
-  const report = commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
+  // Stage-prefixed commits with agreeing Hand: trailers (ADR-4162: the
+  // verifier's report commit is TEST:), so the fixture holds under the
+  // 0.36.x audit and the stage-prefix audit alike (stage-keeper ruling 10).
+  commitPaths(world, 'DEFINE: criteria', ['rcf/user-stories/us-1.json'], 'test-author');
+  const report = commitPaths(world, 'TEST: verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
   assertFixture(world, [
     { hand: 'test-author', paths: ['rcf/user-stories/us-1.json'] },
     { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] },
@@ -277,113 +150,4 @@ test('AC-19101-7: rcf audit separation classifies a committed report under rcf/v
   assert.equal(row.verdict, 'pass');
   assert.ok(Array.isArray(row.classes) && row.classes.includes('verifierEvidence'), `classes: ${JSON.stringify(row.classes)}`);
   assert.ok(!row.classes.includes('criteria'), `report classed as criteria: ${JSON.stringify(row.classes)}`);
-});
-
-// FBS-222 fix round (gate 1 BH-1): a test-shaped file is one whose basename
-// carries .test. or .spec. as a dotted segment, whatever follows it, at any
-// depth. Each crossing case is the only violator on its own branch, followed
-// by a passing verifier commit so it is not HEAD; n = 2.
-const MULTI_SUFFIX_TESTS = ['src/widget.test.d.ts', 'src/widget.spec.js.map', 'packages/app/src/widget.test.snap.js'];
-// Basenames that only contain the letters test or spec stay production.
-const TEST_NEAR_MISSES = ['src/attest.js', 'src/testing.js', 'src/inspector.js', 'src/contest.config.js', 'src/widget.testing.js', 'src/widget.spectrum.js'];
-
-test('AC-19101-2: rcf audit separation classes a test file with more than one extension after .test. or .spec. as test: Hand: builder touching src/widget.test.d.ts or src/widget.spec.js.map exits 4 with the FAIL line, Hand: test-author touching it passes', async (t) => {
-  for (const path of MULTI_SUFFIX_TESTS) {
-    await t.test(`Hand: builder touching ${path} fails`, async (st) => {
-      const world = await gitWorld(st);
-      const bad = commitPaths(world, 'crossing commit', [path], 'builder');
-      commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
-      assertFixture(world, [{ hand: 'builder', paths: [path] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
-      const { base, head } = baseAndHead(world);
-
-      const res = run(world, []);
-
-      expectExit(res, 4);
-      assert.ok(lines(res.stdout).includes(
-        `separation: FAIL 1 of 2 commits (base ${s7(base)}, head ${s7(head)}): ${s7(bad)} Hand=builder touches ${path}`,
-      ), `FAIL line missing; stdout: ${res.stdout}`);
-    });
-    await t.test(`Hand: test-author touching ${path} passes classed test`, async (st) => {
-      const world = await gitWorld(st);
-      const own = commitPaths(world, 'test commit', [path], 'test-author');
-      commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
-      assertFixture(world, [{ hand: 'test-author', paths: [path] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
-      const { base, head } = baseAndHead(world);
-
-      const res = run(world, []);
-
-      expectExit(res, 0);
-      assert.ok(lines(res.stdout).includes(
-        `separation: PASS 2 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 0, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
-      ), `PASS line missing; stdout: ${res.stdout}`);
-      const json = run(world, ['--json']);
-      expectExit(json, 0);
-      const row = JSON.parse(json.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
-      assert.ok(row, `no row for the test commit: ${json.stdout}`);
-      assert.equal(row.verdict, 'pass');
-      assert.deepEqual(row.classes, ['test'], `classes: ${JSON.stringify(row.classes)}`);
-    });
-  }
-  await t.test('near-miss names that only contain test or spec stay production', async (st) => {
-    const world = await gitWorld(st);
-    const own = commitPaths(world, 'production commit', TEST_NEAR_MISSES, 'builder');
-    assertFixture(world, [{ hand: 'builder', paths: TEST_NEAR_MISSES }]);
-
-    const res = run(world, ['--json']);
-
-    expectExit(res, 0);
-    const row = JSON.parse(res.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
-    assert.ok(row, `no row for the production commit: ${res.stdout}`);
-    assert.equal(row.verdict, 'pass');
-    assert.deepEqual(row.classes, ['production'], `classes: ${JSON.stringify(row.classes)}`);
-  });
-});
-
-// FBS-222 fix round (gate 1 BH-2): lockfiles are neutral in every common
-// ecosystem, at any depth, plus any basename ending .lock. Observed through
-// a hand that does not own production (test-author), so a lockfile classed
-// production would fail it.
-const LOCKFILE_NAMES = [
-  'package-lock.json', 'npm-shrinkwrap.json', 'pnpm-lock.yaml', 'yarn.lock', 'bun.lockb', 'bun.lock',
-  'Cargo.lock', 'Gemfile.lock', 'poetry.lock', 'uv.lock', 'composer.lock', 'go.sum',
-  'flake.lock', 'Podfile.lock', 'pubspec.lock', 'mix.lock', 'widget-tool.lock',
-  'packages/app/Cargo.lock', 'packages/app/go.sum', 'services/api/poetry.lock',
-];
-// Names that only resemble a lockfile stay production.
-const LOCK_NEAR_MISSES = ['src/lock.js', 'src/flock', 'src/Cargo.lock.js', 'src/lockfile.json', 'src/go.summary'];
-
-test('AC-19101-2: rcf audit separation classes lockfiles of every common ecosystem as neutral: a Hand: test-author commit touching only package-lock.json, npm-shrinkwrap.json, pnpm-lock.yaml, yarn.lock, bun.lockb, bun.lock, Cargo.lock, Gemfile.lock, poetry.lock, uv.lock, composer.lock, go.sum or any basename ending .lock passes', async (t) => {
-  await t.test('a test-author lockfile-only commit passes with classes exactly neutral', async (st) => {
-    const world = await gitWorld(st);
-    const own = commitPaths(world, 'lockfiles', LOCKFILE_NAMES, 'test-author');
-    commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
-    assertFixture(world, [{ hand: 'test-author', paths: LOCKFILE_NAMES }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
-    const { base, head } = baseAndHead(world);
-
-    const res = run(world, []);
-
-    expectExit(res, 0);
-    assert.ok(lines(res.stdout).includes(
-      `separation: PASS 2 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 0, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
-    ), `PASS line missing; stdout: ${res.stdout}`);
-    const json = run(world, ['--json']);
-    expectExit(json, 0);
-    const row = JSON.parse(json.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
-    assert.ok(row, `no row for the lockfile commit: ${json.stdout}`);
-    assert.equal(row.verdict, 'pass');
-    assert.deepEqual(row.classes, ['neutral'], `classes: ${JSON.stringify(row.classes)}`);
-  });
-  await t.test('near-miss names that only resemble a lockfile stay production', async (st) => {
-    const world = await gitWorld(st);
-    const own = commitPaths(world, 'production commit', LOCK_NEAR_MISSES, 'builder');
-    assertFixture(world, [{ hand: 'builder', paths: LOCK_NEAR_MISSES }]);
-
-    const res = run(world, ['--json']);
-
-    expectExit(res, 0);
-    const row = JSON.parse(res.stdout).find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && own.startsWith(r.sha));
-    assert.ok(row, `no row for the production commit: ${res.stdout}`);
-    assert.equal(row.verdict, 'pass');
-    assert.deepEqual(row.classes, ['production'], `classes: ${JSON.stringify(row.classes)}`);
-  });
 });

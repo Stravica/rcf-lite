@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-971",
+  "path": "src/audit/test-strength/source.js#importSpecifiers",
+  "implementsAcIds": [
+    "AC-19901-6",
+    "AC-19903-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:27.782Z",
+  "updatedAt": "2026-10-26T08:49:27.782Z"
+}

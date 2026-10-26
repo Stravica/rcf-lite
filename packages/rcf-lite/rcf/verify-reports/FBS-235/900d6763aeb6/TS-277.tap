@@ -1,0 +1,148 @@
+TAP version 13
+# Subtest: AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no "[error]" line and no verification line for AC-101-2 on stderr
+ok 1 - AC-19801-1: with HEAD adding AC-101-2 flagged external over a base holding the unflagged AC-101-1, rcf define validate --base <base> exits 0 with no "[error]" line and no verification line for AC-101-2 on stderr
+  ---
+  duration_ms: 484.463875
+  type: 'test'
+  ...
+# Subtest: AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with "[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)"
+ok 2 - AC-19801-2: with HEAD adding AC-101-2 with no verification, rcf define validate --base <base> exits 3 with "[error] verification AC-101-2 is new since <base7> and carries no verification flag (external | testOnly)"
+  ---
+  duration_ms: 305.277458
+  type: 'test'
+  ...
+# Subtest: AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its "is amended since <base7>" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0
+ok 3 - AC-19801-3: a HEAD changing only the then text of the unflagged AC-101-1 exits 3 with its "is amended since <base7>" line; a HEAD changing only its testable or only its ownerRef is not amended and exits 0
+  ---
+  duration_ms: 948.628667
+  type: 'test'
+  ...
+# Subtest: AC-19801-4: outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one "[warn] verification: no base ref; new and amended criteria not checked" line; --base naming a missing ref exits 2 "[error] usage --base <ref> does not resolve"
+ok 4 - AC-19801-4: outside git, or in git with no origin/main and no --base, validate over an unflagged new criterion exits 0 with exactly one "[warn] verification: no base ref; new and amended criteria not checked" line; --base naming a missing ref exits 2 "[error] usage --base <ref> does not resolve"
+  ---
+  duration_ms: 546.562209
+  type: 'test'
+  ...
+# Subtest: AC-19801-5: a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding
+ok 5 - AC-19801-5: a retired criterion is never required to carry verification and never in the verification report, new or amended since the base; and the rule never changes the exit code of validate for another finding
+  ---
+  duration_ms: 1426.850917
+  type: 'test'
+  ...
+# Subtest: AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push
+ok 6 - AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate --base origin/${{ github.base_ref }} from packages/rcf-lite only on pull_request, and validate with no --base only on push
+  ---
+  duration_ms: 1.332
+  type: 'test'
+  ...
+# Subtest: AC-19801-7: the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite
+ok 7 - AC-19801-7: the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite
+  ---
+  duration_ms: 0.22175
+  type: 'test'
+  ...
+# Subtest: AC-19802-1: rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then "verification: 2 of 3 live criteria unflagged"
+ok 8 - AC-19802-1: rcf define validate --report verification over 3 live criteria (1 flagged, 2 unflagged, FBS-001 scoping the first unflagged) exits 0 and prints two tab-separated worklist lines in id order, then "verification: 2 of 3 live criteria unflagged"
+  ---
+  duration_ms: 163.302
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19802-2: with every live criterion flagged the report prints only "verification: 0 of <n> live criteria unflagged" and --json prints {"unflagged": [], "live": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }
+ok 9 - AC-19802-2: with every live criterion flagged the report prints only "verification: 0 of <n> live criteria unflagged" and --json prints {"unflagged": [], "live": <n>}; with unflagged criteria each JSON entry is { acId, usId, fbsId (string or null), description }
+  ---
+  duration_ms: 494.324292
+  type: 'test'
+  ...
+# Subtest: AC-19802-3: over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines
+ok 10 - AC-19802-3: over 1000 unflagged live criteria across 250 stories the report finishes within 1.5 times a plain rcf define validate over the same tree (median of three each) and prints exactly 1001 lines
+  ---
+  duration_ms: 1078.390791
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# median report 175 ms, median plain 175 ms, ratio 1.00
+# Subtest: AC-19802-4: rcf define validate --report flags exits 2 with "[error] usage --report takes verification" and prints no worklist line
+ok 11 - AC-19802-4: rcf define validate --report flags exits 2 with "[error] usage --report takes verification" and prints no worklist line
+  ---
+  duration_ms: 90.936666
+  type: 'test'
+  ...
+# Subtest: AC-19802-5: the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag
+ok 12 - AC-19802-5: the worklist never writes (every file under rcf/ byte-identical, git status --porcelain unchanged) and never assigns or suggests a flag
+  ---
+  duration_ms: 273.247583
+  type: 'test'
+  ...
+# Subtest: AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete
+ok 13 - AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete
+  ---
+  duration_ms: 164.54075
+  type: 'test'
+  ...
+# Subtest: AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete
+ok 14 - AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete
+  ---
+  duration_ms: 169.96775
+  type: 'test'
+  ...
+# Subtest: AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown
+ok 15 - AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown
+  ---
+  duration_ms: 173.932125
+  type: 'test'
+  ...
+# Subtest: AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap
+ok 16 - AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap
+  ---
+  duration_ms: 482.651958
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else
+ok 17 - AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else
+  ---
+  duration_ms: 365.626542
+  type: 'test'
+  ...
+# Subtest: AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1
+ok 18 - AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json takes at most 1.25 times the same command in a worktree at the parent commit, median of three runs each, measured at TEST with RCF_PERF=1
+  ---
+  duration_ms: 4229.915375
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# median head 354 ms, median parent 356 ms, ratio 0.99
+# Subtest: AC-19803-6: a hand-edited "verification": "sometimes" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows
+ok 19 - AC-19803-6: a hand-edited "verification": "sometimes" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows
+  ---
+  duration_ms: 168.106625
+  type: 'test'
+  ...
+# Subtest: AC-19804-1: at the slice head no user story tag starts "verification:", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0
+ok 20 - AC-19804-1: at the slice head no user story tag starts "verification:", every criterion of the flag-tags golden recorded before the move carries verification equal to its tag, and node bin/rcf.js define validate exits 0
+  ---
+  duration_ms: 429.326291
+  type: 'test'
+  ...
+# Subtest: AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move
+ok 21 - AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move
+  ---
+  duration_ms: 189.230791
+  type: 'test'
+  ...
+# Subtest: AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag
+ok 22 - AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag
+  ---
+  duration_ms: 345.401833
+  type: 'test'
+  ...
+1..22
+# tests 22
+# suites 0
+# pass 22
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 12564.545667

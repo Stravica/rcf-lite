@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:13.143Z",
-  "updatedAt": "2026-10-24T21:13:52.725Z",
+  "updatedAt": "2026-10-26T17:33:13.070Z",
   "summary": "rcf define validate refuses a new or amended live criterion without verification (base ref through git), reports the rest and prints a sweep worklist; rcf audit coverage adds verification, expectedEnd and now per criterion and per spec; CI passes --base; the round's DEFINE moves the 0.37.0 interim tags onto the field.",
   "approach": "A verification pass in src/define/validate-findings.js with a base reader over git show; --report verification in src/cli/validate.js; end-state derivation in the coverage model and its three formatters; ci.yml passes --base on pull requests. The tag move is a test-author DEFINE act through rcf define update, after the schema slice's pin is on main.",
   "deliverables": [
@@ -24,6 +24,7 @@
     "AC-19801-4",
     "AC-19801-5",
     "AC-19801-6",
+    "AC-19801-7",
     "AC-19802-1",
     "AC-19802-2",
     "AC-19802-3",
@@ -43,6 +44,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 237,
-  "executionStatus": "notStarted",
+  "executionStatus": "verified",
   "title": "Validate requires the verification flag on new and amended criteria; coverage shows expected and current end state"
 }
