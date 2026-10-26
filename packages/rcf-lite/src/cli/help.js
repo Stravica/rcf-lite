@@ -13,7 +13,7 @@
 //   - TOP_LEVEL_HELP: grouped verb catalogue; the primary cold-reader
 //     entry point.
 
-import { HELP as BUILD_HELP } from './build.js';
+import { HELP as BUILD_HELP, VERDICT_HELP } from './build.js';
 import { HELP as COVERAGE_HELP } from './coverage.js';
 import { HELP as AUDIT_EVAL_HELP } from './eval.js';
 import { HELP as CREATE_HELP } from './create.js';
@@ -113,6 +113,7 @@ build        Drive the FBS queue and the five-stage build cycle.
   review <fbs-id>          Stage-3-to-Stage-4 audit.
   fbs <fbs-id> <verb>      FBS-level operations.
   test-suite <ts-id> <verb>  Test-suite operations.
+  verdict review | test    Record a round's REVIEW or TEST verdict.
 
 verify       Run the independent adversarial ship-gate verifier.
   run                      Run adversarial verification; emit a report.
@@ -127,7 +128,8 @@ audit        Inspect the tree and its rollups.
   coverage [scope-id]      Structural coverage over the REQ chain.
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
-  separation               Stage-prefix separation over pull request commits.
+  separation               Stage-prefix separation and round order over
+                           pull request commits.
 
 Options:
   --version                Print the package version and exit.
@@ -241,6 +243,8 @@ Verbs:
                            mutation-sampling).
   fbs <fbs-id> <verb>      FBS-level operations (depends-on).
   test-suite <ts-id> <verb>  Test-suite operations (provenance, approve).
+  verdict review | test    Record a round's REVIEW or TEST verdict under
+                           rcf/verdicts/<h12>/ for the stage's commit.
 
 Run 'rcf help build <verb>' for per-verb help.
 `;
@@ -279,7 +283,8 @@ Verbs:
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
   separation               Judge each commit's stage prefix against the
-                           path classes that stage owns over a PR range.
+                           path classes that stage owns over a PR range,
+                           and the range on round order.
 
 Run 'rcf help audit <verb>' for per-verb help.
 `;
@@ -332,6 +337,7 @@ export const HELP_MAP = {
     review: REVIEW_HELP,
     fbs: FBS_HELP,
     'test-suite': TEST_SUITE_HELP,
+    verdict: VERDICT_HELP,
   },
   verify: {
     run: VERIFY_RUN_HELP,

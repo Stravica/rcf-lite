@@ -109,12 +109,14 @@ export const GROUPS = {
   },
   build: {
     // build sub-verbs are dispatched by build.js internally (queue |
-    // bundle | mark | backstop). finalise, review, fbs, test-suite are their own
-    // handlers.
+    // bundle | mark | backstop | verdict). finalise, review, fbs, test-suite
+    // are their own handlers.
     queue: (argv, deps) => buildMain(['queue', ...argv], deps),
     bundle: (argv, deps) => buildMain(['bundle', ...argv], deps),
     mark: (argv, deps) => buildMain(['mark', ...argv], deps),
     backstop: (argv, deps) => buildMain(['backstop', ...argv], deps),
+    // FBS-234: rcf build verdict review | test.
+    verdict: (argv, deps) => buildMain(['verdict', ...argv], deps),
     finalise: finaliseMain,
     review: reviewMain,
     fbs: fbsMain,

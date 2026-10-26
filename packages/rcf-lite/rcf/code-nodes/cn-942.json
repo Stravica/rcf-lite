@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-942",
+  "path": "src/build/verdict.js#unknownFbs",
+  "implementsAcIds": [
+    "AC-19701-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T04:35:30.772Z",
+  "updatedAt": "2026-10-26T04:35:30.772Z"
+}

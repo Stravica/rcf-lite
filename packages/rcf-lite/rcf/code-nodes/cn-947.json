@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-947",
+  "path": "src/build/verdict.js#tapTestNames",
+  "implementsAcIds": [
+    "AC-19702-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T04:35:34.872Z",
+  "updatedAt": "2026-10-26T04:35:34.872Z"
+}

@@ -7,6 +7,8 @@
 //   rcf build bundle --next              bundle for the next actionable item
 //   rcf build mark <fbs-id> <status>     record a lifecycle transition
 //   rcf build backstop adopt --from <id> open the verified backstop window
+//   rcf build verdict review | test      record a round's REVIEW or TEST
+//                                        verdict (FBS-234, src/build/verdict.js)
 //
 // Positional is an FBS id ONLY: the FBS is the queue unit (one US's
 // ACs can span multiple FBS items, so US addressing is ambiguous by
@@ -56,6 +58,8 @@ import {
 } from '../define/freeze-record.js';
 // FBS-221 (US-19003, TAC-4148): the verified backstop on bundle --next.
 import { loadBackstop, saveBackstop, unverifiedInWindow } from '../build/backstop.js';
+// FBS-234 (US-19701, US-19702, TAC-4154): the REVIEW and TEST verdict writers.
+import { parseFinding, recordReviewVerdict, recordTestVerdict } from '../build/verdict.js';
 
 const OPTION_SPEC = {
   next: { type: 'boolean' },
@@ -92,7 +96,7 @@ const OPTION_SPEC = {
 export const HELP = `Usage: rcf build <verb> [options]
 
 Assemble FBS spec bundles and drive the build queue (the SDD adapter).
-Four sub-verbs:
+Five sub-verbs:
 
   rcf build queue                      Queue overview (the FBS queue as a
                                        table, with parallel-safe tier groups)
@@ -103,6 +107,9 @@ Four sub-verbs:
                                        Open the verified backstop window at
                                        that FBS's buildOrder (writes
                                        rcf/define/backstop.json)
+  rcf build verdict review | test      Record a round's REVIEW or TEST
+                                       verdict under rcf/verdicts/<h12>/
+                                       (see 'rcf help build verdict')
 
 The positional is an FBS id only. For 'which FBS items implement this
 story', use: rcf audit trace <us-id> --forward --format json
@@ -172,6 +179,150 @@ Author CN coverage first, or pass --no-code-nodes for a genuinely
 no-code spec.
 `;
 
+export const VERDICT_HELP = `Usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...]
+         --code MERGE|FINDINGS --adequacy PASS|FINDINGS
+         [--finding "<spec|build>:<AC id|->:<text>"]... [--by <text>]
+       rcf build verdict test --fbs <id>[,...] --result PASS|FAIL
+         --tap <file> --runtime "<text>" [--reason <text>] [--by <text>]
+
+Record a round's REVIEW or TEST verdict as a file for the stage's own
+REVIEW: or TEST: commit to add; rcf audit separation reads it there to
+judge round order. Neither verb commits, edits an existing verdict file
+or spawns anything but git, and a dirty working tree (any change outside
+rcf/verdicts/) is refused: a verdict names a committed head.
+
+review  Writes rcf/verdicts/<h12>/review.json (ReviewVerdict v1) for the
+        committed HEAD, the reviewed head H, and prints
+        "verdict: review <code>/<adequacy> at <h7> written to <path>".
+        Every --acs id must be scoped by a --fbs spec; for a spec at
+        inProgress, --acs names every live criterion it scopes. Findings
+        are numbered F-1, F-2 ... in order; FINDINGS on either axis needs
+        at least one. recordedBy defaults to "reviewer".
+
+test    Reads the newest review.json reachable from HEAD whose fbsIds
+        include every --fbs id (--fbs must equal them as a set), and
+        writes rcf/verdicts/<h12>/test.json (TestVerdict v1) for its head
+        H from the TAP summary of the full RCF suite the verifier ran
+        against the locally running app; it never runs the suite itself.
+        One test verdict per head: a FAIL after a PASS at H is keyed to
+        HEAD instead. --result PASS needs a REVIEW MERGE/PASS for H, no
+        change after H outside rcf/verdicts/, rcf/verify-reports/ and
+        FINALISE classes, 0 failing, every bound test of the touched
+        criteria in the TAP, and no failing test-strength.json at H.
+        FAIL with 0 failing needs --reason. recordedBy defaults to
+        "verifier". Prints "verdict: test <result> at <h7> (<n> pass, <n>
+        fail, <n> skip, <n> todo) written to <path>".
+
+Exit codes:
+  0  written
+  2  usage (a missing or bad flag, a malformed --finding, FINDINGS with
+     no --finding, a --tap file with no TAP summary, FAIL with 0 failing
+     and no --reason, --fbs differing from the REVIEW verdict's fbsIds)
+  3  broken reference (an unknown FBS, a criterion the specs do not
+     scope, touched criteria omitting a live criterion of an inProgress
+     spec), or a chain that fails validation
+  4  refused (a dirty tree, a verdict already recorded for the head, or
+     a PASS the review, the diff since H, the TAP or test strength
+     does not support)
+`;
+
+const VERDICT_OPTIONS = {
+  review: {
+    fbs: { type: 'string' },
+    acs: { type: 'string' },
+    code: { type: 'string' },
+    adequacy: { type: 'string' },
+    finding: { type: 'string', multiple: true },
+    by: { type: 'string' },
+  },
+  test: {
+    fbs: { type: 'string' },
+    result: { type: 'string' },
+    tap: { type: 'string' },
+    runtime: { type: 'string' },
+    reason: { type: 'string' },
+    by: { type: 'string' },
+  },
+};
+const VERDICT_REQUIRED = { review: ['fbs', 'acs', 'code', 'adequacy'], test: ['fbs', 'result', 'tap', 'runtime'] };
+const VERDICT_VALUES = { code: ['MERGE', 'FINDINGS'], adequacy: ['PASS', 'FINDINGS'], result: ['PASS', 'FAIL'] };
+
+/**
+ * `rcf build verdict review | test` (FBS-234): flags, then the writers in
+ * src/build/verdict.js over the walked chain.
+ *
+ * @param {string[]} argv - argv slice after `verdict`
+ * @param {{ stdout: NodeJS.WritableStream, stderr: NodeJS.WritableStream, cwd: string, deps: object }} io
+ * @returns {Promise<number>}
+ */
+async function verdictMain(argv, { stdout, stderr, cwd, deps }) {
+  const which = argv[0];
+  if (!which || argv.includes('--help') || argv.includes('-h')) {
+    stdout.write(VERDICT_HELP);
+    return 0;
+  }
+  const usage = (message) => {
+    stderr.write(`[error] usage ${message}\n`);
+    return 2;
+  };
+  if (!(which in VERDICT_OPTIONS)) return usage(`build verdict: unknown verdict '${which}' (expected review | test)`);
+  let flags;
+  try {
+    ({ values: flags } = parseArgs({ args: argv.slice(1), options: VERDICT_OPTIONS[which], allowPositionals: false, strict: true }));
+  } catch (err) {
+    return usage(err.message);
+  }
+  for (const name of VERDICT_REQUIRED[which]) {
+    if (typeof flags[name] !== 'string' || flags[name].trim() === '') return usage(`build verdict ${which} requires --${name}`);
+  }
+  for (const [name, allowed] of Object.entries(VERDICT_VALUES)) {
+    if (flags[name] !== undefined && !allowed.includes(flags[name])) return usage(`--${name} takes ${allowed.join(' or ')}`);
+  }
+  const ids = (text) => [...new Set(text.split(',').map((s) => s.trim()).filter(Boolean))];
+  const fbsIds = ids(flags.fbs);
+  if (fbsIds.length === 0) return usage(`build verdict ${which} requires --fbs`);
+
+  let review = null;
+  if (which === 'review') {
+    const acIds = ids(flags.acs);
+    if (acIds.length === 0) return usage('build verdict review requires --acs');
+    const findings = [];
+    for (const [i, text] of (flags.finding ?? []).entries()) {
+      const finding = parseFinding(text, i + 1);
+      if (!finding) return usage(`--finding "${text}" does not match <spec|build>:<AC id|->:<text>`);
+      findings.push(finding);
+    }
+    if ((flags.code === 'FINDINGS' || flags.adequacy === 'FINDINGS') && findings.length === 0) {
+      return usage('FINDINGS needs at least one --finding');
+    }
+    review = { acIds, findings };
+  }
+
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
+    return 2;
+  }
+  const { tree, errors } = await walkTree({ projectRoot });
+  if (errors.length > 0) {
+    stderr.write(`${formatErrors(errors, { verbose: false, strict: false })}\n`);
+    return 3;
+  }
+  const by = flags.by;
+  const result = which === 'review'
+    ? await recordReviewVerdict({
+      projectRoot, tree, fbsIds, acIds: review.acIds, code: flags.code, adequacy: flags.adequacy,
+      findings: review.findings, ...(by !== undefined ? { by } : {}), deps,
+    })
+    : await recordTestVerdict({
+      projectRoot, tree, fbsIds, result: flags.result, tapFile: flags.tap, runtime: flags.runtime,
+      reason: flags.reason ?? null, ...(by !== undefined ? { by } : {}), deps,
+    });
+  for (const line of result.err) stderr.write(`${line}\n`);
+  if (result.out) stdout.write(`${result.out}\n`);
+  return result.code;
+}
+
 const VALID_FORMATS = new Set(['md', 'json']);
 
 /**
@@ -194,8 +345,10 @@ export async function main(argv, deps = {}) {
     stdout.write(HELP);
     return 0;
   }
+  // FBS-234: the verdict writers take their own flags and help.
+  if (subverb === 'verdict') return await verdictMain(argv.slice(1), { stdout, stderr, cwd, deps });
   if (!['queue', 'bundle', 'mark', 'backstop'].includes(subverb)) {
-    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | mark | backstop)\n`);
+    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | mark | backstop | verdict)\n`);
     stderr.write(HELP);
     return 2;
   }
