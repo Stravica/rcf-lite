@@ -11,10 +11,13 @@
 //   - ownerRef or deliveredBy that does not resolve on the walker tree
 //     (spec section 4 validate row).
 //
-// Pure over the walker tree model: no filesystem I/O; the caller
+// These four are pure over the walker tree model: no filesystem I/O; the caller
 // (src/cli/validate.js) merges the returned entries into the `errors`
 // array it already exits on (exit 3), so --json and the text report
 // render these exactly as a schema or broken-reference error does.
+// FBS-235 adds the verification rule and its worklist (end of this
+// file): the rule reads the base commit's stories through git (one
+// cat-file batch, read only); the worklist is pure over the tree.
 //
 // Shape of each finding (matches rcfError shape consumed by
 // formatErrors): { kind: 'defineValidate', rule, documentId, filePath,
@@ -26,6 +29,8 @@
 // reports absence as the floor already.
 
 import { INTERFACE_KINDS, resolveOwnerRefField } from '../query/gates.js';
+import { scopingSpec } from '../query/coverage.js';
+import { readObjects } from '../audit/separation.js';
 
 /** @typedef {{ kind: 'defineValidate', rule: string, documentId: string|null, filePath: string|null, field: string|null, message: string }} DefineValidateFinding */
 
@@ -253,4 +258,157 @@ export function collectDefineValidateFindings(tree) {
   }
 
   return findings;
+}
+
+// ---------------------------------------------------------------------------
+// FBS-235 (US-19801, US-19802; ADR-4155, TAC-4152): the verification rule
+// and its worklist.
+//
+// A live criterion (one with no supersededBy) that is new since the base
+// (its id absent from every story at the base) or amended since it (its
+// description, given, when or then differs from the same id at the base)
+// and carries no verification field is an error (exit 3). The base is
+// --base <ref>, else the merge-base of HEAD with origin/main; with neither
+// the rule is report-only and validate prints one warn line. The base
+// stories are read through git in one `git cat-file --batch` (the
+// plumbing form of `git show <base>:<path>` for every story file at the
+// base), from the project root, so the chain may sit below the repository
+// root. Retired criteria are never required to carry the flag and never
+// appear in the worklist. The worklist (`--report verification`) reads the
+// walker tree only and never writes or suggests a flag.
+
+export const VERIFICATION_FLAGS = '(external | testOnly)';
+export const VERIFICATION_NO_BASE_WARNING = '[warn] verification: no base ref; new and amended criteria not checked';
+
+const isLive = (ac) => typeof ac?.supersededBy !== 'string';
+const hasFlag = (ac) => typeof ac?.verification === 'string';
+const compareAcIds = (a, b) => a.localeCompare(b, 'en', { numeric: true });
+
+/**
+ * Resolve the verification base: --base <ref> when given, else the
+ * merge-base of HEAD with origin/main.
+ *
+ * @param {{ base?: string, git: (args: string[], input?: string|null) => Promise<{ code: number|null, stdout: string, raw: Buffer }> }} opts
+ *   `git` runs in the project root (runGit from src/audit/separation.js).
+ * @returns {Promise<{ sha: string } | { sha: null } | { badRef: string }>}
+ *   `sha: null` when no base is resolvable without --base (report-only);
+ *   `badRef` when --base names a ref that does not resolve (exit 2).
+ */
+export async function resolveVerificationBase({ base, git }) {
+  if (typeof base === 'string') {
+    const [obj] = await readObjects(git, [`${base}^{commit}`]);
+    return obj.missing ? { badRef: base } : { sha: obj.sha };
+  }
+  const [main, head] = await readObjects(git, ['origin/main^{commit}', 'HEAD^{commit}']);
+  if (main.missing || head.missing) return { sha: null };
+  const mb = await git(['merge-base', main.sha, head.sha]);
+  const sha = mb.code === 0 ? mb.stdout.trim() : '';
+  return /^[0-9a-f]{40,64}$/.test(sha) ? { sha } : { sha: null };
+}
+
+/**
+ * Every criterion of every story file under rcf/user-stories/ at the
+ * base commit, by id: { description, given, when, then }. A story file
+ * at the base that does not parse contributes no criterion.
+ *
+ * @param {(args: string[], input?: string|null) => Promise<{ code: number|null, stdout: string, raw: Buffer }>} git
+ * @param {string} sha - the base commit
+ * @returns {Promise<Map<string, object>>}
+ */
+export async function readBaseCriteria(git, sha) {
+  const ls = await git(['ls-tree', '-r', '-z', '--full-name', '--name-only', sha, '--', 'rcf/user-stories/']);
+  const paths = ls.code === 0 ? ls.stdout.split('\0').filter((p) => p.endsWith('.json')) : [];
+  const byId = new Map();
+  for (const obj of await readObjects(git, paths.map((p) => `${sha}:${p}`))) {
+    if (obj.missing || obj.type !== 'blob') continue;
+    let story;
+    try {
+      story = JSON.parse(obj.text);
+    } catch {
+      continue;
+    }
+    for (const ac of Array.isArray(story?.acceptanceCriteria) ? story.acceptanceCriteria : []) {
+      if (typeof ac?.id === 'string') byId.set(ac.id, ac);
+    }
+  }
+  return byId;
+}
+
+/** The criterion text fields an amendment is judged on (ADR-4155). */
+const AMENDING_FIELDS = ['description', 'given', 'when', 'then'];
+
+/**
+ * True when the criterion's description, given, when or then differs
+ * from the same criterion at the base. testable, ownerRef, verification
+ * and the supersession fields never make a criterion amended.
+ *
+ * @param {object} ac - the criterion at the head
+ * @param {object} was - the same id at the base
+ */
+export function isAmended(ac, was) {
+  return AMENDING_FIELDS.some((f) => JSON.stringify(ac?.[f]) !== JSON.stringify(was?.[f]));
+}
+
+/**
+ * The verification rule's findings: one per live criterion that is new or
+ * amended since the base and carries no verification flag. Each renders
+ * through formatErrors as "[error] verification <AC id> is new|amended
+ * since <base7> and carries no verification flag (external | testOnly)".
+ *
+ * @param {object} tree - walker tree
+ * @param {{ sha: string, criteria: Map<string, object> }} base
+ * @returns {Array<{ kind: 'verification', rule: string, documentId: null, filePath: null, field: string, message: string }>}
+ */
+export function collectVerificationFindings(tree, base) {
+  const base7 = base.sha.slice(0, 7);
+  const findings = [];
+  const acs = (tree.userStories ?? []).flatMap((us) => (Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : []));
+  for (const ac of [...acs].sort((a, b) => compareAcIds(String(a?.id), String(b?.id)))) {
+    if (typeof ac?.id !== 'string' || !isLive(ac) || hasFlag(ac)) continue;
+    const was = base.criteria.get(ac.id);
+    const change = was === undefined ? 'new' : isAmended(ac, was) ? 'amended' : null;
+    if (!change) continue;
+    findings.push({
+      kind: 'verification',
+      rule: `verification:${change}`,
+      // The criterion id leads the message, so the line reads
+      // "[error] verification <AC id> ..." (formatError prints the
+      // documentId with a colon when one is set).
+      documentId: null,
+      filePath: null,
+      field: 'verification',
+      message: `${ac.id} is ${change} since ${base7} and carries no verification flag ${VERIFICATION_FLAGS}`,
+    });
+  }
+  return findings;
+}
+
+/**
+ * The flag sweep's worklist: every live criterion with no verification
+ * field, in id order, with its story, the spec scoping it (the one the
+ * coverage end state reads, or null) and its description; and the count
+ * of live criteria. Pure over the walker tree: it never writes and never
+ * assigns or suggests a flag.
+ *
+ * @param {object} tree - walker tree
+ * @returns {{ unflagged: Array<{ acId: string, usId: string, fbsId: string|null, description: string }>, live: number }}
+ */
+export function verificationWorklist(tree) {
+  const unflagged = [];
+  let live = 0;
+  for (const us of tree.userStories ?? []) {
+    for (const ac of Array.isArray(us.acceptanceCriteria) ? us.acceptanceCriteria : []) {
+      if (typeof ac?.id !== 'string' || !isLive(ac)) continue;
+      live += 1;
+      if (hasFlag(ac)) continue;
+      unflagged.push({
+        acId: ac.id,
+        usId: us.usId,
+        fbsId: scopingSpec(tree, ac.id)?.fbsId ?? null,
+        description: typeof ac.description === 'string' ? ac.description : '',
+      });
+    }
+  }
+  unflagged.sort((a, b) => compareAcIds(a.acId, b.acId));
+  return { unflagged, live };
 }
