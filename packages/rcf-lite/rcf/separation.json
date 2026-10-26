@@ -15,9 +15,15 @@
     },
     {
       "id": "coverage-goldens",
-      "command": "node bin/rcf.js audit coverage --format table > test/query/fixtures/coverage.table.txt && node bin/rcf.js audit coverage --format json > test/query/fixtures/coverage.json",
-      "outputs": ["test/query/fixtures/coverage.table.txt", "test/query/fixtures/coverage.json"],
+      "command": "node bin/rcf.js audit coverage --format table > test/query/fixtures/coverage.table.txt && node bin/rcf.js audit coverage --format json > test/query/fixtures/coverage.json && node bin/rcf.js audit coverage --format mermaid > test/query/fixtures/coverage.mmd",
+      "outputs": ["test/query/fixtures/coverage.table.txt", "test/query/fixtures/coverage.json", "test/query/fixtures/coverage.mmd"],
       "checkedBy": "test/query/fixtures.test.js"
+    },
+    {
+      "id": "code-node-count",
+      "command": "node -e \"const { readdirSync } = require('node:fs'); const codeNode = readdirSync('rcf/code-nodes', { recursive: true, withFileTypes: true }).filter((e) => e.isFile() && e.name.endsWith('.json')).length; process.stdout.write(JSON.stringify({ codeNode }, null, 2) + '\\n');\" > test/fixtures/code-node-count.json",
+      "outputs": ["test/fixtures/code-node-count.json"],
+      "checkedBy": "test/rcf-tree.test.js"
     }
   ]
 }

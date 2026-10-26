@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:24:58.594Z",
-  "updatedAt": "2026-10-26T00:07:39.109Z",
+  "updatedAt": "2026-10-26T10:37:34.675Z",
   "asA": "stage-keeper running Finalise and the release cut",
   "iWant": "merges from main, lockfiles, declared-generator outputs, status records and the release cut to pass as FINALISE: commits, and anything else to fail",
   "soThat": "chores never need a separation exception and a code change can never ride in as a chore",
@@ -60,6 +60,12 @@
     {
       "id": "AC-19603-8",
       "description": "[must-not] rcf audit separation never runs a declared generator's command or any process other than git: over the passing generator fixture, a spawn seam that records child processes records only git, and a declared command that would write a marker file leaves no marker after the run.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19603-9",
+      "description": "[happy] Given rcf/separation.json at the head declaring the queue-goldens generator of AC-19603-3 and a second generator {\"id\": \"phase-3-6-baseline\", \"command\": \"node scripts/regen-phase-3-6-baseline.mjs\", \"outputs\": [\"test/view/fixtures/phase-3-6-static.html\"], \"checkedBy\": \"test/view/layout-regression.test.js\"}, with test/build/queue.test.js and test/view/layout-regression.test.js present, when one BUILD: commit carries the trailer \"Generated-By: queue-goldens\" and touches only test/build/fixtures/queue.json, a second BUILD: commit touches test/build/fixtures/queue.json with no Generated-By: trailer, and a third carries \"Generated-By: queue-goldens\" but touches test/view/fixtures/phase-3-6-static.html (an output of phase-3-6-baseline, not of queue-goldens), then rcf audit separation exits 4 with exactly two items, \"<s7> BUILD: touches test/build/fixtures/queue.json (class rcfTest, owned by DEFINE)\" and \"<s7> BUILD: touches test/view/fixtures/phase-3-6-static.html (class rcfTest, owned by DEFINE)\", and rcf audit separation --json reads the first commit's row verdict pass with classes [\"generatorOutput\"] and generators [\"queue-goldens\"]: a BUILD: commit may change a declared generator's outputs only when its Generated-By: trailer names that generator, and only that generator's outputs.",
       "testable": true,
       "verification": "external"
     }
