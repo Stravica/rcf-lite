@@ -1,6 +1,8 @@
 // `rcf validate` subcommand handler. Wraps walker + validator + broken-
-// reference machinery. Exits 0 clean, 2 on usage failure, 3 on validation
-// or broken-references. Phase 4 §D3.
+// reference machinery. Exits 0 clean, 2 on usage failure (a --base that
+// does not resolve included), 3 on validation or broken-references or a
+// criterion new or amended since the base with no verification flag
+// (FBS-235). Phase 4 §D3.
 
 import { parseArgs } from 'node:util';
 
@@ -9,9 +11,16 @@ import { checkCodeNodeResolution, walkTree } from '#core/store';
 import { validateCompanionPinsResolvable } from '../blueprint/companions.js';
 import { findProjectRoot } from '../view/index.js';
 // 0.30.0 PR 8 (REQ-178 / TAC-4126): define-validate findings.
-import { collectDefineValidateFindings } from '../define/validate-findings.js';
+import {
+  VERIFICATION_NO_BASE_WARNING,
+  collectDefineValidateFindings,
+  collectVerificationFindings,
+  readBaseCriteria,
+  resolveVerificationBase,
+  verificationWorklist,
+} from '../define/validate-findings.js';
 import { validateVerifyCatalogKeys } from '../verify/engine/catalog.js';
-import { isHygieneTestPath } from '../audit/separation.js';
+import { isHygieneTestPath, runGit } from '../audit/separation.js';
 
 const OPTION_SPEC = {
   quiet: { type: 'boolean' },
@@ -21,14 +30,37 @@ const OPTION_SPEC = {
   // pass (spec-graph checks only). The default remains full validation -
   // the staleCode floor is only a floor if it runs by default.
   'no-code': { type: 'boolean' },
+  // FBS-235 (ADR-4155): the verification base and the flag-sweep report.
+  base: { type: 'string' },
+  report: { type: 'string' },
 };
 
 export const HELP = `Usage: rcf define validate [options]
 
 Walk the rcf/ tree and report schema-validation and broken-reference
-issues. Exits 0 when clean, 3 on issues.
+issues. Exits 0 when clean, 2 on a usage error, 3 on issues.
+
+A live criterion (no supersededBy) that is new since the base, or
+amended since it (its description, given, when or then changed), and
+carries no verification flag is an issue: "[error] verification <AC id>
+is new|amended since <base7> and carries no verification flag
+(external | testOnly)". The base is --base <ref>, else the merge-base of
+HEAD with origin/main; with neither, validate prints one "[warn]
+verification: no base ref; new and amended criteria not checked" line
+and the rule is not checked. Retired criteria never need the flag.
 
 Options:
+  --base <ref>              The verification base (a git ref); a ref that
+                            does not resolve exits 2
+  --report verification     Print the flag-sweep worklist on stdout: one
+                            line per live unflagged criterion, in id
+                            order, "<AC id> TAB <US id> TAB <FBS id or ->
+                            TAB <first 80 characters of its description>",
+                            then "verification: <k> of <n> live criteria
+                            unflagged"; with --json, {"unflagged": [...],
+                            "live": <n>}. Read only: it never writes or
+                            suggests a flag, and leaves the exit code to
+                            the findings
   --quiet                   Only summary line + first 3 issues
   --json                    Emit machine-readable envelope
   --no-code                 Skip the Code Node staleness pass (spec-graph
@@ -115,6 +147,34 @@ function hygieneWarnings(tree) {
 }
 
 /**
+ * FBS-235: the verification options. --report takes only verification.
+ *
+ * @param {{ base?: string, report?: string }} flags
+ * @returns {{ error: string } | { base: string|undefined, report: boolean }}
+ */
+export function verificationOptions(flags) {
+  if (flags.report !== undefined && flags.report !== 'verification') {
+    return { error: '[error] usage --report takes verification' };
+  }
+  return { base: flags.base, report: flags.report === 'verification' };
+}
+
+/**
+ * FBS-235 (AC-19802-1, AC-19802-2): the worklist as stdout text, or as
+ * JSON { unflagged, live } with --json.
+ *
+ * @param {{ unflagged: Array<{ acId: string, usId: string, fbsId: string|null, description: string }>, live: number }} worklist
+ * @param {{ json?: boolean }} [opts]
+ * @returns {string}
+ */
+export function formatVerificationReport(worklist, { json = false } = {}) {
+  if (json) return `${JSON.stringify({ unflagged: worklist.unflagged, live: worklist.live }, null, 2)}\n`;
+  const lines = worklist.unflagged.map((w) => [w.acId, w.usId, w.fbsId ?? '-', w.description.slice(0, 80)].join('\t'));
+  lines.push(`verification: ${worklist.unflagged.length} of ${worklist.live} live criteria unflagged`);
+  return `${lines.join('\n')}\n`;
+}
+
+/**
  * @param {string[]} argv - argv slice after `validate`
  * @param {object} [deps]
  * @returns {Promise<number>}
@@ -137,11 +197,25 @@ export async function main(argv, deps = {}) {
     stdout.write(HELP);
     return 0;
   }
+  const verification = verificationOptions(flags);
+  if ('error' in verification) {
+    stderr.write(`${verification.error}\n`);
+    return 2;
+  }
   const projectRoot = await findProjectRoot(cwd);
   if (!projectRoot) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
     return 2;
   }
+  // FBS-235 (ADR-4155): the verification base, read through git from the
+  // project root before the walk, so a bad --base costs no tree read.
+  const git = (args, input = null) => runGit(args, { cwd: projectRoot, input });
+  const base = await resolveVerificationBase({ base: verification.base, git });
+  if ('badRef' in base) {
+    stderr.write(`[error] usage --base ${base.badRef} does not resolve\n`);
+    return 2;
+  }
+  if (base.sha === null) stderr.write(`${VERIFICATION_NO_BASE_WARNING}\n`);
   const { tree, errors } = await walkTree({ projectRoot });
   for (const line of hygieneWarnings(tree)) stderr.write(`${line}\n`);
   // FBS-215: journey-record load errors are parked on the tree rather
@@ -178,6 +252,20 @@ export async function main(argv, deps = {}) {
   // FBS-218 (issue 349): a rcf/verify-catalog.json key naming no AC in
   // the tree is exit 3, so a probe can never silently orphan.
   errors.push(...await validateVerifyCatalogKeys({ projectRoot, tree }));
+  // FBS-235 (US-19801): a live criterion new or amended since the base
+  // with no verification flag is exit 3, beside every other finding.
+  if (base.sha !== null) {
+    errors.push(...collectVerificationFindings(tree, { sha: base.sha, criteria: await readBaseCriteria(git, base.sha) }));
+  }
+  // FBS-235 (US-19802): --report verification puts the worklist on
+  // stdout (text, or JSON with --json) in place of the clean line and the
+  // issue envelope; findings still go to stderr and set the exit code.
+  if (verification.report) {
+    stdout.write(formatVerificationReport(verificationWorklist(tree), { json: Boolean(flags.json) }));
+    if (errors.length === 0) return 0;
+    stderr.write(`${formatErrors(errors, { verbose: false, strict: false })}\n`);
+    return 3;
+  }
   if (flags.json) {
     const issues = errors.map((e) => ({
       id: e.documentId ?? null,
