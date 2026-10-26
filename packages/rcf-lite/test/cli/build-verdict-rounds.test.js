@@ -26,7 +26,6 @@ import { commit, git, gitTry, initRepo, s7, s12, sha } from '../_harness/git.js'
 import { bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, testStrengthReport, testVerdict, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { commandName, hostFacts, readSpawnLog, spawnLog, writeTap } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-234 round DEFINE' };
 const MONO = '(stage order is monotonic within a round)';
 
 // ------------------------------------------------------------ verdict verbs
@@ -80,7 +79,7 @@ const filler = (n, from = 1) => Array.from({ length: n }, (_, i) => ({ name: `ot
 
 // ---------------------------------------------------------------- US-19701
 
-test('AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by "reviewer and codex" at a clean HEAD exits 0, prints "verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json" and writes a ReviewVerdict v1 for H without committing', TODO, async (t) => {
+test('AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by "reviewer and codex" at a clean HEAD exits 0, prints "verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json" and writes a ReviewVerdict v1 for H without committing', async (t) => {
   const { dir, H } = await verdictProject(t);
   const r = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'PASS', '--by', 'reviewer and codex']);
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
@@ -99,7 +98,7 @@ test('AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by "re
   assert.equal(sha(dir), H, 'no commit is made');
 });
 
-test('AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)', TODO, async (t) => {
+test('AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)', async (t) => {
   // FBS-001 at complete: --acs names one of its two criteria (AC-19701-6).
   const { dir, H } = await verdictProject(t, { status: 'complete' });
   const r = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1', '--code', 'MERGE', '--adequacy', 'FINDINGS',
@@ -113,7 +112,7 @@ test('AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records 
   ]);
 });
 
-test('AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file', TODO, async (t) => {
+test('AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file', async (t) => {
   // FBS-001 at complete, as in AC-19701-2: --acs naming a subset is not refused for that reason.
   const { dir } = await verdictProject(t, { status: 'complete' });
   const a = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1', '--code', 'FINDINGS', '--adequacy', 'PASS']);
@@ -128,7 +127,7 @@ test('AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exit
   assert.deepEqual(verdictFiles(dir), [], 'no file appears under rcf/verdicts/');
 });
 
-test('AC-19701-4: a dirty tree refuses with exit 4 "verdict refused: working tree is dirty; a verdict names a committed head", and a second review for the same head refuses with exit 4 leaving the first file byte-identical', TODO, async (t) => {
+test('AC-19701-4: a dirty tree refuses with exit 4 "verdict refused: working tree is dirty; a verdict names a committed head", and a second review for the same head refuses with exit 4 leaving the first file byte-identical', async (t) => {
   const { dir, H } = await verdictProject(t);
   writeText(dir, 'src/x.js', 'export const x = 2;\n');
   const d = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'PASS']);
@@ -144,7 +143,7 @@ test('AC-19701-4: a dirty tree refuses with exit 4 "verdict refused: working tre
   assert.equal(readText(dir, verdictPath(H, 'review.json')), bytes, 'the existing file is byte-identical');
 });
 
-test('AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git', TODO, async (t) => {
+test('AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git', async (t) => {
   const { dir } = await verdictProject(t);
   // An older verdict for the base head, already committed on the branch.
   const base = git(dir, 'rev-parse', 'HEAD~1');
@@ -162,7 +161,7 @@ test('AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review
   assert.deepEqual([...new Set(spawned.map(commandName))], ['git'], 'only git is spawned');
 });
 
-test('AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 "[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)", nothing written); at complete the same command writes (an amend round)', TODO, async (t) => {
+test('AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 "[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)", nothing written); at complete the same command writes (an amend round)', async (t) => {
   const acs = ['AC-101-1', 'AC-101-2', 'AC-101-3'];
   const ip = await verdictProject(t, { acs, status: 'inProgress' });
   const r = await review(ip.dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'PASS']);
@@ -177,7 +176,7 @@ test('AC-19701-6: at inProgress the review verdict must touch every live criteri
 
 // ---------------------------------------------------------------- US-19702
 
-test('AC-19702-1: rcf build verdict test --result PASS over a REVIEW: MERGE/PASS head and a TAP of 12 pass, 0 fail, 1 skip, 0 todo exits 0, prints the written line and writes a TestVerdict v1 for H with the running Node version', TODO, async (t) => {
+test('AC-19702-1: rcf build verdict test --result PASS over a REVIEW: MERGE/PASS head and a TAP of 12 pass, 0 fail, 1 skip, 0 todo exits 0, prints the written line and writes a TestVerdict v1 for H with the running Node version', async (t) => {
   const { dir, H } = await verdictProject(t);
   reviewCommit(dir);
   const file = tap(t, [...boundTests(), ...filler(10), { name: 'skipped one', directive: 'SKIP' }]);
@@ -195,7 +194,7 @@ test('AC-19702-1: rcf build verdict test --result PASS over a REVIEW: MERGE/PASS
   assert.equal(v.node, process.version);
 });
 
-test('AC-19702-2: --result PASS refuses a TAP with 2 failing and a TAP lacking the bound test of AC-101-2 (exit 4), a file with no TAP summary exits 2, and no test.json is written', TODO, async (t) => {
+test('AC-19702-2: --result PASS refuses a TAP with 2 failing and a TAP lacking the bound test of AC-101-2 (exit 4), a file with no TAP summary exits 2, and no test.json is written', async (t) => {
   const { dir, H } = await verdictProject(t);
   reviewCommit(dir);
   const failing = tap(t, [...boundTests(), { name: 'f1', ok: false }, { name: 'f2', ok: false }]);
@@ -213,7 +212,7 @@ test('AC-19702-2: --result PASS refuses a TAP with 2 failing and a TAP lacking t
   assert.equal(existsSync(join(dir, verdictPath(H, 'test.json'))), false, 'no test.json is written');
 });
 
-test('AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDINGS, or no review verdict) and when a later BUILD: commit changed src/x.js after H', TODO, async (t) => {
+test('AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDINGS, or no review verdict) and when a later BUILD: commit changed src/x.js after H', async (t) => {
   const ok = () => tap(t, boundTests());
   const findings = await verdictProject(t);
   reviewCommit(findings.dir, { code: 'FINDINGS' });
@@ -232,7 +231,7 @@ test('AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDING
   assert.ok(errLine(c, `verdict refused: HEAD differs from the reviewed head ${s7(later.H)} outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes`), c.stderr);
 });
 
-test('AC-19702-4: one test verdict per head: a second verdict for H refuses (exit 4, file byte-identical); FAIL with --reason and 0 failing writes FAIL, FAIL with 0 failing and no --reason exits 2; a FAIL after the PASS at H names HEAD and is not refused', TODO, async (t) => {
+test('AC-19702-4: one test verdict per head: a second verdict for H refuses (exit 4, file byte-identical); FAIL with --reason and 0 failing writes FAIL, FAIL with 0 failing and no --reason exits 2; a FAIL after the PASS at H names HEAD and is not refused', async (t) => {
   const passed = await verdictProject(t);
   reviewCommit(passed.dir);
   commit(passed.dir, 'TEST: verdict', { [verdictPath(passed.H, 'test.json')]: testVerdict(passed.H) });
@@ -257,7 +256,7 @@ test('AC-19702-4: one test verdict per head: a second verdict for H refuses (exi
   assert.equal(v.reason, 'the suite hangs on the packed head');
 });
 
-test('AC-19702-5: rcf build verdict test never runs the suite, deploys, contacts a host, writes outside rcf/verdicts/<H12>/ or commits: the spawn seam records only git and git status lists at most the one new file', TODO, async (t) => {
+test('AC-19702-5: rcf build verdict test never runs the suite, deploys, contacts a host, writes outside rcf/verdicts/<H12>/ or commits: the spawn seam records only git and git status lists at most the one new file', async (t) => {
   const { dir, H } = await verdictProject(t);
   const { R } = reviewCommit(dir);
   const log = spawnLog(scratch(t, 'rcf-h-spawn-'));
@@ -282,7 +281,7 @@ function passedThenMerged(dir, H) {
   return sha(dir);
 }
 
-test('AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H', TODO, async (t) => {
+test('AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H', async (t) => {
   const { dir, H } = await verdictProject(t);
   const M = passedThenMerged(dir, H);
   const hBytes = readText(dir, verdictPath(H, 'test.json'));
@@ -296,7 +295,7 @@ test('AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE
   assert.equal(readText(dir, verdictPath(H, 'test.json')), hBytes, "H's test.json is byte-identical");
 });
 
-test('AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 "verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason', TODO, async (t) => {
+test('AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 "verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason', async (t) => {
   const { dir, H } = await verdictProject(t);
   reviewCommit(dir);
   commit(dir, 'TEST: strength', { [verdictPath(H, 'test-strength.json')]: testStrengthReport(H, { passing: ['AC-101-1'], failing: ['AC-101-2'] }) });
@@ -313,7 +312,7 @@ test('AC-19702-7: a failing test-strength record at H refuses --result PASS (exi
   assert.equal(ok.code, 0, `with no test-strength record PASS is not refused\n${ok.stdout}${ok.stderr}`);
 });
 
-test('AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test', TODO, async (t) => {
+test('AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test', async (t) => {
   const { dir, H } = await verdictProject(t, { fbs002: true });
   const rv = await review(dir, ['--fbs', 'FBS-001,FBS-002', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'PASS']);
   assert.equal(rv.code, 0, `${rv.stdout}${rv.stderr}`);
@@ -351,7 +350,7 @@ const F = (dir, subject = 'FINALISE: status') => commit(dir, subject, { 'rcf/fbs
 const passLine = (k, base, head, counts) => `separation: PASS ${k} commits (base ${s7(base)}, head ${s7(head)}): ${counts}`;
 const has = (r, item) => assert.ok(r.stdout.includes(item), `the FAIL line names ${item}\n${r.stdout}`);
 
-test('AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with "DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"', TODO, async (t) => {
+test('AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with "DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"', async (t) => {
   const { dir, base } = repo(t);
   D(dir); const h = B(dir); R(dir); T(dir, h); const f = F(dir);
   const r = await sep(dir, ['--base', base]);
@@ -359,7 +358,7 @@ test('AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PA
   assert.equal(r.stdout.replace(/\n$/, ''), passLine(5, base, f, 'DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0'));
 });
 
-test('AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0', TODO, async (t) => {
+test('AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0', async (t) => {
   const { dir, base } = repo(t);
   D(dir); B(dir); R(dir, { code: 'FINDINGS' });
   D(dir, 'DEFINE: triage'); const h = B(dir); R(dir); T(dir, h);
@@ -367,7 +366,7 @@ test('AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round 
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
 });
 
-test('AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail "<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)"', TODO, async (t) => {
+test('AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail "<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)"', async (t) => {
   {
     const { dir, base } = repo(t); D(dir); B(dir); R(dir); const c = B(dir, 'BUILD: a further change');
     const r = await sep(dir, ['--base', base]); assert.equal(r.code, 4); has(r, `${s7(c)} BUILD: after REVIEW: without a failed verdict ${MONO}`);
@@ -386,7 +385,7 @@ test('AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: 
   }
 });
 
-test('AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail "<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:"', TODO, async (t) => {
+test('AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail "<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:"', async (t) => {
   {
     const { dir, base } = repo(t); D(dir); B(dir); R(dir, { code: 'FINDINGS' }); const c = B(dir, 'BUILD: quick fix');
     const r = await sep(dir, ['--base', base]); assert.equal(r.code, 4); has(r, `${s7(c)} BUILD: after a failed verdict; the next round starts at DEFINE:`);
@@ -398,7 +397,7 @@ test('AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a
   }
 });
 
-test('AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round', TODO, async (t) => {
+test('AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round', async (t) => {
   {
     const { dir, base } = repo(t); const d = D(dir); const h = B(dir);
     const c = commit(dir, 'REVIEW: verdict', { [verdictPath(d, 'review.json')]: reviewVerdict(d) });
@@ -424,7 +423,7 @@ function mergeMain(dir, subject = 'FINALISE: merge main') {
   return sha(dir);
 }
 
-test('AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)', TODO, async (t) => {
+test('AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)', async (t) => {
   const start = () => { const r = repo(t); const h = sha(r.dir); R(r.dir); T(r.dir, h); mergeMain(r.dir); F(r.dir); return { ...r, h }; };
   {
     const { dir, base } = start();
@@ -446,7 +445,7 @@ test('AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or
   }
 });
 
-test('AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:', TODO, async (t) => {
+test('AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:', async (t) => {
   {
     const { dir, base } = repo(t); D(dir); B(dir); R(dir, { code: 'FINDINGS' }, 'REVIEW: MERGE, all clear'); const c = B(dir, 'BUILD: fix');
     const r = await sep(dir, ['--base', base]); assert.equal(r.code, 4); has(r, `${s7(c)} BUILD: after a failed verdict; the next round starts at DEFINE:`);
@@ -464,7 +463,7 @@ test('AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit 
   }
 });
 
-test('AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds', TODO, async (t) => {
+test('AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds', async (t) => {
   hostFacts(t);
   const { dir, base } = repo(t);
   let verdictCommits = 0;
@@ -487,7 +486,7 @@ test('AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: add
   assert.ok(gits <= 4 + verdictCommits, `at most 4 (the per-commit judgement) plus one per verdict commit (${verdictCommits}); spawned ${gits}`);
 });
 
-test('AC-19703-9: a second "REVIEW: codex" adding a review.json after a passed REVIEW verdict fails "(one REVIEW verdict per round)"; a REVIEW: commit adding no review.json before the verdict commit passes', TODO, async (t) => {
+test('AC-19703-9: a second "REVIEW: codex" adding a review.json after a passed REVIEW verdict fails "(one REVIEW verdict per round)"; a REVIEW: commit adding no review.json before the verdict commit passes', async (t) => {
   {
     const { dir, base } = repo(t); D(dir); B(dir); R(dir); const c = R(dir, {}, 'REVIEW: codex');
     const r = await sep(dir, ['--base', base]); assert.equal(r.code, 4); has(r, `${s7(c)} REVIEW: after a passed REVIEW verdict (one REVIEW verdict per round)`);
@@ -498,7 +497,7 @@ test('AC-19703-9: a second "REVIEW: codex" adding a review.json after a passed R
   }
 });
 
-test('AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails "<s7> TEST: verdict with no passed REVIEW verdict in the round"; one adding only rcf/verify-reports/ evidence passes as no verdict', TODO, async (t) => {
+test('AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails "<s7> TEST: verdict with no passed REVIEW verdict in the round"; one adding only rcf/verify-reports/ evidence passes as no verdict', async (t) => {
   {
     const { dir, base } = repo(t); const h = B(dir); const c = T(dir, h);
     const r = await sep(dir, ['--base', base]); assert.equal(r.code, 4); has(r, `${s7(c)} TEST: verdict with no passed REVIEW verdict in the round`);
@@ -509,7 +508,7 @@ test('AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the
   }
 });
 
-test('AC-19703-11: a "TEST: strength" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails "<s7> BUILD: after a failed verdict; the next round starts at DEFINE:"', TODO, async (t) => {
+test('AC-19703-11: a "TEST: strength" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails "<s7> BUILD: after a failed verdict; the next round starts at DEFINE:"', async (t) => {
   const start = () => {
     const r = repo(t); D(r.dir); const h = B(r.dir); R(r.dir); T(r.dir, h);
     commit(r.dir, 'TEST: strength', { [verdictPath(h, 'test-strength.json')]: testStrengthReport(h, { passing: [], failing: ['AC-101-1'] }) });
