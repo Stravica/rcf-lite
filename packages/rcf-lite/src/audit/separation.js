@@ -3,14 +3,19 @@
 // prefix on its subject (DEFINE:, BUILD:, REVIEW:, TEST:, FINALISE:)
 // against the path classes that stage owns; the role follows from the
 // stage. Through 0.37.x a Hand: trailer is read only to check that it
-// agrees with that role (ADR-4162).
+// agrees with that role (ADR-4162). Round order (FBS-234, TAC-4154,
+// ADR-4154): stages are monotonic within a round, a failed REVIEW or TEST
+// verdict closes the round, and only DEFINE: may follow it; each verdict
+// is read from the rcf/verdicts/<h12>/ file its REVIEW: or TEST: commit
+// adds, and its head is checked.
 //
 // Read-only and deterministic: git is read through one spawn seam
 // (`runGit`); no file write (the RCF_SPAWN_LOG seam aside, when it is
 // set), no network, no chain read, and a declared generator's command
 // is never run. Repository files are read through git at the commits in
-// the range (rcf/separation.json at the head). The prefix parser, the
-// classifier and the verdict function are pure.
+// the range (rcf/separation.json at the head, each verdict file at the
+// commit that adds it). The prefix parser, the classifier and the
+// commit and round verdict functions are pure.
 
 import { spawn } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
@@ -80,6 +85,13 @@ const STAGE_WORD = /^[^A-Za-z]*(define|build|review|test|finalise|finalize)(?![A
 const USE = 'use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:';
 const MIXED_RETIRED = 'Hand: mixed is retired; commit chores as FINALISE: within its file classes';
 const MERGE_FIX = 'a merge that needs a code fix is not committed in FINALISE: record TEST FAIL and merge main in the next round';
+// The stages in round order (TAC-4154 "Round state machine").
+const STAGE_ORDER = Object.keys(STAGE_ROLES);
+const MONOTONIC = '(stage order is monotonic within a round)';
+const VERDICT_FILES = { 'review.json': 'review', 'test.json': 'test', 'test-strength.json': 'testStrength' };
+// The verdict kinds each stage's commit adds; any other file is judged on
+// its class only.
+const STAGE_VERDICTS = { REVIEW: ['review'], TEST: ['test', 'testStrength'] };
 
 /**
  * The spawn log seam (TAC-4153): with RCF_SPAWN_LOG=<file> set, one JSON
@@ -308,6 +320,114 @@ export function judgeCommit(commit, { table = [], generators = [] } = {}) {
 }
 
 /**
+ * The verdict kind of an rcf/verdicts/<h12>/<file> path (review,
+ * test or testStrength), at any depth; null for any other path.
+ *
+ * @param {string} path
+ * @returns {string|null}
+ */
+export function verdictKind(path) {
+  const segs = path.split('/');
+  const at = segs.indexOf('rcf');
+  if (at === -1 || segs.length !== at + 4 || segs[at + 1] !== 'verdicts' || !H12.test(segs[at + 2])) return null;
+  return VERDICT_FILES[segs[at + 3]] ?? null;
+}
+
+const sha7 = (sha) => (typeof sha === 'string' ? sha.slice(0, 7) : '');
+
+/**
+ * Round order over the commits of a range, oldest first (TAC-4154 "Round
+ * state machine"). Each commit carries its stage (null for a commit with
+ * no prefix, which round order skips), its first parent and the verdict
+ * files it adds ({ kind, doc }, doc null when the file does not parse).
+ * A range may start in any stage; a commit may stay in its round's stage
+ * or move to a later one. A REVIEW: commit adding a review.json for its
+ * parent records the round's verdict: passed (MERGE/PASS) opens TEST,
+ * failed closes the round. A TEST: commit adding a test.json for the
+ * reviewed head records PASS or FAIL (FAIL closes the round), and one
+ * adding a failing test-strength.json closes it too. After a TEST PASS,
+ * a TEST: commit adding a FAIL test.json keyed to its own parent is legal
+ * after TEST: or FINALISE: and closes the round (stage-keeper ruling 3).
+ * After a closing verdict only DEFINE: may follow, starting the next
+ * round. A REVIEW: or TEST: commit adding no verdict file counts as no
+ * verdict. Items carry no sha.
+ *
+ * @param {Array<{ stage: string|null, parent: string, verdicts?: Array<{ kind: string, doc: object|null }> }>} commits
+ * @returns {string[][]} the round items of each commit, in range order
+ */
+export function judgeRounds(commits) {
+  const out = commits.map(() => []);
+  let at = -1;
+  let closed = false;
+  let reviewed = null;
+  let tested = false;
+  commits.forEach((c, k) => {
+    if (!c.stage) return;
+    const items = out[k];
+    const i = STAGE_ORDER.indexOf(c.stage);
+    const verdicts = (c.verdicts ?? []).filter((v) => v.doc && typeof v.doc === 'object');
+    if (closed) {
+      // A closing verdict ends the round: only DEFINE: starts the next.
+      if (c.stage !== 'DEFINE') items.push(`${c.stage}: after a failed verdict; the next round starts at DEFINE:`);
+      closed = false;
+      reviewed = null;
+      tested = false;
+      at = i;
+      return;
+    }
+    const tests = verdicts.filter((v) => v.kind === 'test');
+    const failAfterPass = c.stage === 'TEST' && tested && tests.length > 0
+      && tests.every((v) => v.doc.result === 'FAIL' && v.doc.head === c.parent);
+    if (at > i && !failAfterPass) {
+      items.push(`${c.stage}: after ${STAGE_ORDER[at]}: without a failed verdict ${MONOTONIC}`);
+    }
+    at = i;
+    if (c.stage === 'REVIEW') {
+      if (reviewed !== null) {
+        items.push('REVIEW: after a passed REVIEW verdict (one REVIEW verdict per round)');
+        return;
+      }
+      for (const v of verdicts) {
+        if (v.kind !== 'review') continue;
+        if (reviewed !== null) {
+          items.push('REVIEW: after a passed REVIEW verdict (one REVIEW verdict per round)');
+          break;
+        }
+        if (v.doc.head !== c.parent) {
+          items.push(`REVIEW: verdict head ${sha7(v.doc.head)} is not its parent ${sha7(c.parent)}`);
+          continue;
+        }
+        if (v.doc.code === 'MERGE' && v.doc.adequacy === 'PASS') reviewed = v.doc.head;
+        else closed = true;
+      }
+    } else if (c.stage === 'TEST') {
+      for (const v of verdicts) {
+        if (v.kind === 'testStrength') {
+          if (v.doc.result === 'fail') closed = true;
+          continue;
+        }
+        if (v.kind !== 'test') continue;
+        if (reviewed === null) {
+          items.push('TEST: verdict with no passed REVIEW verdict in the round');
+          continue;
+        }
+        if (v.doc.result === 'FAIL' && tested && v.doc.head === c.parent) {
+          closed = true;
+          continue;
+        }
+        if (v.doc.head !== reviewed) {
+          items.push(`TEST: verdict head ${sha7(v.doc.head)} is not the reviewed head ${sha7(reviewed)}`);
+          continue;
+        }
+        if (v.doc.result === 'FAIL') closed = true;
+        else if (v.doc.result === 'PASS') tested = true;
+      }
+    }
+  });
+  return out;
+}
+
+/**
  * True when a package.json diff changes only its "version" line: the
  * same line count, and every line that differs is a "version" line on
  * both sides. A file added, deleted or reshaped is beyond the line.
@@ -378,7 +498,7 @@ export function runGit(args, { cwd, deps = {}, input = null }) {
  * @param {(args: string[], input?: string) => Promise<{ code: number|null, raw: Buffer }>} git
  * @param {string[]} names
  */
-async function readObjects(git, names) {
+export async function readObjects(git, names) {
   const sent = names.filter((n) => !/[\r\n]/.test(n));
   const res = await git(['cat-file', '--batch'], sent.map((n) => `${n}\n`).join(''));
   const raw = res.code === 0 ? res.raw : Buffer.alloc(0);
@@ -409,11 +529,14 @@ async function readObjects(git, names) {
  * reachable only through a merge's second parent is never a row. A
  * shallow repository is refused: its range would be cut short. Classes
  * and generators come from rcf/separation.json in the head commit.
- * Subjects, trailers and paths come from one git log pass. Besides it,
- * git runs once to check the repository, once to read both refs and the
- * config, once for the merge-base when `base` is not given, once for the
- * generators' checkedBy files and the package.json blobs the range
- * changes (only when there are any), and once per merge.
+ * Subjects, trailers, paths and which paths a commit adds come from one
+ * git log pass. Besides it, git runs once to check the repository, once
+ * to read both refs and the config, once for the merge-base when `base`
+ * is not given, once for the generators' checkedBy files, the
+ * package.json blobs the range changes and the verdict files its REVIEW:
+ * and TEST: commits add (only when there are any), and once per merge.
+ * Each commit is judged on its own (judgeCommit), then the range on
+ * round order (judgeRounds), whose items follow the commit's own.
  *
  * @param {{ cwd: string, base?: string, head?: string, deps?: object }} opts
  * @returns {Promise<{ ok: true, base: string, head: string, rows: object[], warnings: string[] }
@@ -447,7 +570,7 @@ export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
   }
 
   const trailer = (key) => `%(trailers:key=${key},valueonly,unfold,separator=%x1e)`;
-  const log = await git(['log', '--first-parent', '--reverse', '--no-renames', '--name-only', '--no-color',
+  const log = await git(['log', '--first-parent', '--reverse', '--no-renames', '--name-status', '--no-color',
     `--format=%x00%H%x1f%P%x1f${trailer('Hand')}%x1f${trailer('Generated-By')}%x1f%s%x1f`,
     `${baseSha}..${headSha}`]);
   if (log.code !== 0) return { ok: false, error: 'badRef', ref: `${baseSha}..${headSha}` };
@@ -456,14 +579,23 @@ export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
   const commits = log.stdout.split('\0').slice(1).map((record) => {
     const [sha, parents, hands, generated, subject, rest = ''] = record.split('\x1f');
     const handValues = values(hands);
-    const merge = parents.split(' ').filter(Boolean).length > 1;
+    const parentShas = parents.split(' ').filter(Boolean);
+    const merge = parentShas.length > 1;
+    // --name-status lines: "<status>\t<path>" (A added, M, D, T ...).
+    const changes = merge ? [] : rest.split('\n').filter(Boolean).map((line) => {
+      const tab = line.indexOf('\t');
+      return { status: line.slice(0, tab), path: line.slice(tab + 1) };
+    });
     return {
       sha, subject, merge,
+      parent: parentShas[0] ?? '',
       hand: handValues.length ? handValues[handValues.length - 1] : null,
       generatedBy: [...new Set(values(generated))],
       // A merge's paths are its combined diff, read below.
-      paths: merge ? [] : rest.split('\n').filter(Boolean),
+      paths: changes.map((x) => x.path),
+      added: changes.filter((x) => x.status === 'A').map((x) => x.path),
       versionOnly: new Set(),
+      verdicts: [],
     };
   });
 
@@ -473,14 +605,21 @@ export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
   }
 
   // One batch for the rest: each declared generator's checkedBy file at
-  // the head, and the blobs of each package.json a commit changes,
-  // before and after (versionField needs them).
+  // the head, the blobs of each package.json a commit changes, before and
+  // after (versionField needs them), and each verdict file a REVIEW: or
+  // TEST: commit adds, at that commit (round order needs them).
   const checked = config.generators.map((g) => `${headSha}:./${g.checkedBy}`);
   const pairs = commits.flatMap((c) => (c.merge ? [] : c.paths
     .filter((p) => p.split('/').pop() === 'package.json' && !config.table.some(([, globs]) => matchesAtAnyDepth(p, globs)))
     .map((p) => [c, p])));
   const blobNames = pairs.flatMap(([c, p]) => [`${c.sha}^:${p}`, `${c.sha}:${p}`]);
-  const found = checked.length || blobNames.length ? await readObjects(git, [...checked, ...blobNames]) : [];
+  const verdictFiles = commits.flatMap((c) => {
+    const kinds = STAGE_VERDICTS[parsePrefix(c.subject).stage] ?? [];
+    return c.added.filter((p) => kinds.includes(verdictKind(p))).map((p) => [c, p]);
+  });
+  const verdictNames = verdictFiles.map(([c, p]) => `${c.sha}:${p}`);
+  const names = [...checked, ...blobNames, ...verdictNames];
+  const found = names.length ? await readObjects(git, names) : [];
   const absent = found.slice(0, checked.length).findIndex((f) => f.missing || f.type !== 'blob');
   if (absent !== -1) {
     return {
@@ -488,14 +627,26 @@ export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
       detail: `generators[${absent}].checkedBy ${config.generators[absent].checkedBy} does not exist at ${headSha.slice(0, 7)}`,
     };
   }
-  const blobs = found.slice(checked.length);
+  const blobs = found.slice(checked.length, checked.length + blobNames.length);
   pairs.forEach(([c, p], i) => {
     const [before, after] = [blobs[2 * i], blobs[2 * i + 1]];
     if (onlyVersionLine(before.missing ? null : before.text, after.missing ? null : after.text)) c.versionOnly.add(p);
   });
+  const verdictBlobs = found.slice(checked.length + blobNames.length);
+  verdictFiles.forEach(([c, p], i) => {
+    const blob = verdictBlobs[i];
+    let doc = null;
+    if (blob && !blob.missing) {
+      try { doc = JSON.parse(blob.text); } catch { doc = null; }
+    }
+    c.verdicts.push({ kind: verdictKind(p), doc });
+  });
 
-  const rows = commits.map((c) => {
-    const { stage, role, classes, items, transition } = judgeCommit(c, config);
+  const judged = commits.map((c) => judgeCommit(c, config));
+  const roundItems = judgeRounds(commits.map((c, i) => ({ stage: judged[i].stage, parent: c.parent, verdicts: c.verdicts })));
+  const rows = commits.map((c, i) => {
+    const { stage, role, classes, transition } = judged[i];
+    const items = [...judged[i].items, ...roundItems[i]];
     return {
       sha: c.sha,
       subject: c.subject,
