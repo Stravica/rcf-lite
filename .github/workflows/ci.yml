@@ -85,7 +85,9 @@ jobs:
       - run: pnpm -r test
   # Commit separation (ADR-4149): judge each commit's Hand: trailer over
   # the pull request's range. Pull requests only, never on main after a
-  # squash; full-depth checkout, since the verb refuses a shallow clone.
+  # squash; full-depth checkout of the pull request's own head, since the
+  # verb refuses a shallow clone; the commits judged are then the pull
+  # request's own, never the merge commit GitHub synthesises.
   separation:
     if: github.event_name == 'pull_request'
     runs-on: ubuntu-latest
@@ -95,6 +97,7 @@ jobs:
       - uses: actions/checkout@34e114876b0b11c390a56381ad16ebd13914f8d5 # v4.3.1
         with:
           fetch-depth: 0
+          ref: ${{ github.event.pull_request.head.sha }}
       - uses: pnpm/action-setup@fc06bc1257f339d1d5d8b3a19a8cae5388b55320 # v4.4.0
         with:
           version: 9
