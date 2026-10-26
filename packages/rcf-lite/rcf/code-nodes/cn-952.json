@@ -1,6 +1,6 @@
 {
   "cnId": "CN-952",
-  "path": "src/cli/build.js#VERDICT_HELP",
+  "path": "src/cli/build.js#verdictMain",
   "implementsAcIds": [
     "AC-19701-3"
   ],
@@ -8,5 +8,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-26T04:35:38.993Z",
-  "updatedAt": "2026-10-26T04:35:38.993Z"
+  "updatedAt": "2026-10-26T11:15:53.046Z"
 }
