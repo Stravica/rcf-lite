@@ -404,6 +404,23 @@ test('AC-19801-6: the CI test job checks out with fetch-depth 0, runs validate -
   assert.deepEqual(unguarded.map((s) => s.run), [], 'no step outside pull_request passes --base');
 });
 
+// Round B ruling 29: on pull_request, actions/checkout's default ref is the
+// merge commit GitHub synthesises, which carries no stage prefix; the
+// separation job checks out the pull request's own head instead.
+test('AC-19801-7: the CI separation job runs only on pull_request, checks out the head of the pull request (ref ${{ github.event.pull_request.head.sha }}) with fetch-depth 0, and runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite', () => {
+  const ci = readWorkflow(readFileSync(join(checkoutRoot(), '.github', 'workflows', 'ci.yml'), 'utf8'));
+  const job = ci?.jobs?.separation;
+  assert.ok(job, 'ci.yml has a separation job');
+  assert.equal(job.if, "github.event_name == 'pull_request'", 'the separation job runs only on pull_request');
+  const steps = job.steps ?? [];
+  const checkout = steps.find((s) => typeof s.uses === 'string' && s.uses.startsWith('actions/checkout@'));
+  assert.ok(checkout, 'the separation job checks out');
+  assert.equal(checkout.with?.ref, '${{ github.event.pull_request.head.sha }}', 'it checks out the head of the pull request, never the merge commit GitHub synthesises');
+  assert.equal(checkout.with?.['fetch-depth'], 0, 'with fetch-depth 0');
+  const audit = steps.filter((s) => typeof s.run === 'string' && s.run.trim() === 'node bin/rcf.js audit separation --base origin/${{ github.base_ref }}');
+  assert.ok(audit.some((s) => s['working-directory'] === 'packages/rcf-lite'), 'a step runs audit separation --base origin/${{ github.base_ref }} from packages/rcf-lite');
+});
+
 // ---------------------------------------------------------------- US-19802
 
 const D2 = 'AC-101-2 is the first unflagged criterion, scoped by FBS-001, and its description runs past eighty characters';
@@ -725,7 +742,7 @@ test('AC-19804-1: at the slice head no user story tag starts "verification:", ev
   assert.equal(v.code, 0, `${v.stdout.slice(-2000)}${v.stderr.slice(-2000)}`);
 });
 
-test('AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move', () => {
+test('AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move', async (t) => {
   const was = moveGolden('flag-texts', TEXTS_GOLDEN);
   assert.ok(Object.keys(was).length > 0, `${TEXTS_GOLDEN} records the tagged criteria before the move`);
   const now = new Map(readStories(join(checkoutPackage(), 'rcf', 'user-stories')).flatMap((s) => (s.acceptanceCriteria ?? []).map((a) => [a.id, a])));
@@ -736,6 +753,23 @@ test('AC-19804-2: for every criterion moved, its description, given, when, then,
     for (const field of MOVE_TEXT_FIELDS) if (JSON.stringify(cur[field]) !== JSON.stringify(fields[field])) changed.push(`${id}.${field}`);
   }
   assert.deepEqual(changed, [], 'moving the flags changes no criterion text');
+  // Control (round B ruling 28): the move as this repository made it (one
+  // rcf define update <US id> --json call per story, setting each tagged
+  // criterion's verification by index and the story's tags), over a fixture
+  // story whose two criteria carry every compared field. Each moved
+  // criterion carries its flag on the field and its compared fields are
+  // byte-identical before and after.
+  const dir = await project(t, { name: 'flag-move' });
+  setCriteria(dir, [gwt('AC-101-1'), gwt('AC-101-2', retire('AC-101-1'))]);
+  editStory(dir, 'US-101', (us) => { us.tags = ['verification:AC-101-1=external', 'verification:AC-101-2=testOnly']; });
+  const before = readJson(dir, 'rcf/user-stories/us-101.json').acceptanceCriteria;
+  assert.deepEqual(MOVE_TEXT_FIELDS.filter((f) => !before.some((a) => a[f] !== undefined)), [], 'fixture: the two criteria carry every compared field');
+  const u = await rcf(['define', 'update', 'US-101', '--json', '--set', 'acceptanceCriteria[0].verification="external"', '--set', 'acceptanceCriteria[1].verification="testOnly"', '--set', 'tags=[]'], { cwd: dir });
+  assert.equal(u.code, 0, `${u.stdout}${u.stderr}`);
+  const after = readJson(dir, 'rcf/user-stories/us-101.json').acceptanceCriteria;
+  assert.deepEqual(after.map((a) => [a.id, a.verification]), [['AC-101-1', 'external'], ['AC-101-2', 'testOnly']], 'each moved criterion carries its flag on the field');
+  const moved = before.flatMap((a, i) => MOVE_TEXT_FIELDS.filter((f) => JSON.stringify(after[i]?.[f]) !== JSON.stringify(a[f])).map((f) => `${a.id}.${f}`));
+  assert.deepEqual(moved, [], 'the move changes no criterion text');
 });
 
 test('AC-19804-3: in a fixture repository the harness builds, a 0.37.0 criterion left without the field after the move on a branch off its base makes node bin/rcf.js define validate --base <the merge-base of that branch with main> exit 3, naming it as new since the base with no verification flag', async (t) => {

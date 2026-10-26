@@ -124,6 +124,12 @@ test('AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exit
   const c = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-999-1', '--code', 'MERGE', '--adequacy', 'PASS']);
   assert.equal(c.code, 3);
   assert.ok(errLine(c, '[error] brokenReference AC-999-1 is not scoped by FBS-001'), c.stderr);
+  // Control (round B ruling 28): a well-formed --finding is parsed, so
+  // FINDINGS with it and the unscoped --acs reaches the chain and exits 3
+  // with the brokenReference line, not 2 with the form line.
+  const d = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-999-1', '--code', 'FINDINGS', '--adequacy', 'PASS', '--finding', 'spec:AC-101-1:the then clause names no exit code']);
+  assert.equal(d.code, 3, `a well-formed --finding is not refused as malformed\n${d.stdout}${d.stderr}`);
+  assert.ok(errLine(d, '[error] brokenReference AC-999-1 is not scoped by FBS-001'), d.stderr);
   assert.deepEqual(verdictFiles(dir), [], 'no file appears under rcf/verdicts/');
 });
 
@@ -229,6 +235,15 @@ test('AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDING
   const c = await testVerb(later.dir, ['--fbs', 'FBS-001', '--result', 'PASS', '--tap', ok(), '--runtime', 'fixture app']);
   assert.equal(c.code, 4);
   assert.ok(errLine(c, `verdict refused: HEAD differs from the reviewed head ${s7(later.H)} outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes`), c.stderr);
+  // Control (round B ruling 28): a HEAD that differs from H only under
+  // rcf/verdicts/ (the review.json) and rcf/verify-reports/ (a "TEST:
+  // evidence" commit) does not get that line, and the PASS is recorded.
+  const evidence = await verdictProject(t);
+  reviewCommit(evidence.dir);
+  commit(evidence.dir, 'TEST: evidence', { 'rcf/verify-reports/FBS-001/a.json': '{"verdict":"PASS"}\n' });
+  const d = await testVerb(evidence.dir, ['--fbs', 'FBS-001', '--result', 'PASS', '--tap', ok(), '--runtime', 'fixture app']);
+  assert.ok(!errLine(d, `verdict refused: HEAD differs from the reviewed head ${s7(evidence.H)} outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes`), `a change only under rcf/verdicts/ and rcf/verify-reports/ is not refused\n${d.stderr}`);
+  assert.equal(d.code, 0, `${d.stdout}${d.stderr}`);
 });
 
 test('AC-19702-4: one test verdict per head: a second verdict for H refuses (exit 4, file byte-identical); FAIL with --reason and 0 failing writes FAIL, FAIL with 0 failing and no --reason exits 2; a FAIL after the PASS at H names HEAD and is not refused', async (t) => {

@@ -277,6 +277,19 @@ test('AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactl
   assert.equal(j.totals.covered, 0);
   const mmd = await rcf(['audit', 'coverage', '--mode', 'shallow-any', '--format', 'mermaid'], { cwd: dir });
   assert.ok(!mmd.stdout.includes(`AC-101-1 -.-> ${tcId}`), `mermaid draws no covering edge to the hygiene test\n${mmd.stdout}`);
+  // Control (round B ruling 28, the shape of rulings 8 and 19): the
+  // coverage case's second chain, AC-101-1 bound to test/rcf/a.test.js,
+  // counts in table, json and mermaid, so the case above is left out for
+  // pointing into a hygiene test and not for being a binding at all.
+  const rcfDir = await project(t, { name: 'rcf-validate' });
+  const rcfTc = bindTests(rcfDir, [{ acId: 'AC-101-1', pointer: 'test/rcf/a.test.js::passes' }]).testCases[0].id;
+  const rcfTable = await rcf(['audit', 'coverage', '--mode', 'shallow-any'], { cwd: rcfDir });
+  assert.match(rcfTable.stdout.split('\n').find((l) => /\bAC-101-1\s/.test(l)) ?? '', /AC-101-1\s+yes\b/, `table counts a test outside test/hygiene/\n${rcfTable.stdout}`);
+  const rcfJson = json((await rcf(['audit', 'coverage', '--mode', 'shallow-any', '--format', 'json'], { cwd: rcfDir })).stdout);
+  assert.equal(rcfJson.requirements[0].acs.find((a) => a.id === 'AC-101-1').covered, true, 'json counts it');
+  assert.equal(rcfJson.totals.covered, 1);
+  const rcfMmd = await rcf(['audit', 'coverage', '--mode', 'shallow-any', '--format', 'mermaid'], { cwd: rcfDir });
+  assert.ok(rcfMmd.stdout.includes(`AC-101-1 -.-> ${rcfTc}`), `mermaid draws the covering edge\n${rcfMmd.stdout}`);
 });
 
 test('AC-19602-5: rcf/separation.json declaring hygieneTest ["spec/unit/**"] makes a "DEFINE: spec" commit on spec/unit/b.js fail with "(class hygieneTest, owned by BUILD)" while the "BUILD: unit" commit on spec/unit/a.js passes', async (t) => {
@@ -318,6 +331,14 @@ test('AC-19603-2: FINALISE: commits changing a package.json dependency line, tou
     `${s7(b)} FINALISE: touches src/a.js (class production, owned by BUILD)`,
     `${s7(c)} FINALISE: touches docs/x.md (class neutral, owned by DEFINE, BUILD)`,
   ]) assert.ok(r.stdout.includes(item), `the FAIL line names ${item}\n${r.stdout}`);
+  // Control (round B ruling 28): a FINALISE: commit that changes only
+  // package.json's "version" line is not listed; it passes as versionField.
+  const ver = (v) => `${JSON.stringify({ name: 'fixture', version: v, dependencies: { a: '1.0.0' } }, null, 2)}\n`;
+  const bump = repo(t, { 'package.json': ver('1.0.0') });
+  const v = commit(bump.dir, 'FINALISE: version 1.1.0', { 'package.json': ver('1.1.0') });
+  const ok = await sep(bump.dir, ['--base', bump.base]);
+  assert.equal(ok.code, 0, `a change to only the "version" line is not listed\n${ok.stdout}${ok.stderr}`);
+  assert.equal(one(ok.stdout), passLine(1, bump.base, v, 'DEFINE 0, BUILD 0, REVIEW 0, TEST 0, FINALISE 1, merges 0, transition 0'));
 });
 
 const GENERATOR = { id: 'queue-goldens', command: 'node bin/rcf.js build queue --format json > test/build/fixtures/queue.json', outputs: ['test/build/fixtures/queue.md', 'test/build/fixtures/queue.json'], checkedBy: 'test/build/queue.test.js' };
@@ -350,6 +371,14 @@ test('AC-19603-4: a declared output with no Generated-By, an undeclared Generate
     `${s7(b)} Generated-By: view-baseline is not declared in rcf/separation.json`,
     `${s7(c)} FINALISE: touches test/view/fixtures/phase-3-6-static.html (class rcfTest, owned by DEFINE)`,
   ]) assert.ok(r.stdout.includes(item), `the FAIL line names ${item}\n${r.stdout}`);
+  // Control (round B ruling 28): under the same declaration, a FINALISE:
+  // commit carrying "Generated-By: queue-goldens" and touching
+  // test/build/fixtures/queue.json, a declared output, is not listed.
+  const named = generatorRepo(t);
+  const g = commit(named.dir, 'FINALISE: regenerate queue goldens', { 'test/build/fixtures/queue.json': '[2]\n' }, { trailers: [['Generated-By', 'queue-goldens']] });
+  const ok = await sep(named.dir, ['--base', named.base]);
+  assert.equal(ok.code, 0, `a declared output named by its Generated-By: is not listed\n${ok.stdout}${ok.stderr}`);
+  assert.equal(one(ok.stdout), passLine(2, named.base, g, 'DEFINE 1, BUILD 0, REVIEW 0, TEST 0, FINALISE 1, merges 0, transition 0'));
 });
 
 test('AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line', async (t) => {
