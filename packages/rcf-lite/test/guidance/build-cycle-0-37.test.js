@@ -25,7 +25,6 @@ import { lines, rcf } from '../_harness/spawn.js';
 import { commit, initRepo, sha } from '../_harness/git.js';
 import { baseSuiteRecord, checkoutPackage, checkoutRoot, editFbs, project, scratch, writeJson } from '../_harness/fixture.js';
 
-const TODO = { todo: 'FBS-241 round DEFINE' };
 
 const guidance = async (topic) => {
   const r = await rcf(['guidance', ...(topic ? [topic] : [])], {});
@@ -54,7 +53,7 @@ const sentences = (text) => lines(text).flatMap((l) => l.split(/(?<=[.!?])\s+(?=
 
 const STAGES = ['DEFINE (commit prefix DEFINE:, role test-author)', 'BUILD (BUILD:, builder)', 'REVIEW (REVIEW:, reviewer)', 'TEST (TEST:, verifier)', 'FINALISE (FINALISE:, stage-keeper)'];
 
-test('AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified', TODO, async () => {
+test('AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified', async () => {
   const text = await guidance('build-cycle');
   const at = STAGES.map((s) => headings(text).find((h) => h.text === s)?.i ?? -1);
   assert.ok(at.every((i) => i >= 0), `the five stage headings: ${STAGES.filter((_, k) => at[k] < 0).join('; ')} missing`);
@@ -68,7 +67,7 @@ test('AC-20401-1: rcf guidance build-cycle carries the five stage headings in or
   for (const p of ['rcf verify run', '--record', 'writes verified']) assert.ok(verify.includes(p), `VERIFY section carries "${p}"`);
 });
 
-test('AC-20401-2: the Rounds section of rcf guidance build-cycle states, each in its own sentence, that a failed REVIEW (FINDINGS) or TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only', TODO, async () => {
+test('AC-20401-2: the Rounds section of rcf guidance build-cycle states, each in its own sentence, that a failed REVIEW (FINDINGS) or TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only', async () => {
   const rounds = section(await guidance('build-cycle'), 'Rounds');
   assert.ok(rounds !== null, 'a section headed "Rounds"');
   const ss = sentences(rounds);
@@ -83,7 +82,7 @@ test('AC-20401-2: the Rounds section of rcf guidance build-cycle states, each in
   assert.equal(new Set(where).size, 4, `each in its own sentence: ${where.map((i) => ss[i]).join(' | ')}`);
 });
 
-test('AC-20401-3: the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch', TODO, async () => {
+test('AC-20401-3: the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch', async () => {
   const text = await guidance('managed/agent-instructions-block');
   const firsts = ['DEFINE:', 'BUILD:', 'REVIEW:', 'TEST:', 'FINALISE:'].map((p) => text.indexOf(p));
   assert.ok(firsts.every((i) => i >= 0), 'the five commit prefixes are named');
@@ -116,7 +115,7 @@ async function bundleFixture(t) {
   return { dir, rec: join(recDir, 'base.json') };
 }
 
-test('AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract', TODO, async (t) => {
+test('AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract', async (t) => {
   const { dir, rec } = await bundleFixture(t);
   const md = await rcf(['build', 'bundle', 'FBS-001', '--base-suite', rec, '--format', 'md'], { cwd: dir });
   assert.equal(md.code, 0, `${md.stdout.slice(0, 500)}${md.stderr}`);
@@ -152,7 +151,7 @@ const FORBIDDEN = [
   ['a Build waits for a spec to be verified', (s) => /\bBuild\b[^.]*\b(waits?|until|before)\b[^.]*\bverified\b/.test(s) && !/never/.test(s)],
 ];
 
-test('AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified', TODO, async (t) => {
+test('AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified', async (t) => {
   const list = await guidance();
   const topics = [...new Set(lines(list).map((l) => /^\s{2}(\S+)\s{2,}/.exec(l)?.[1]).filter(Boolean))];
   assert.ok(topics.includes('build-cycle') && topics.includes('managed/agent-instructions-block'), `the topic list\n${list}`);
@@ -202,7 +201,7 @@ function stageSections(text) {
   });
 }
 
-test('AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no "CI green, merge, then record", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept', TODO, async () => {
+test('AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no "CI green, merge, then record", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept', async () => {
   const overview = await guidance('overview');
   assert.ok(!overview.includes('CI green, merge, then record'), 'no "CI green, merge, then record"');
   const fin = lines(overview).filter((l) => /Finalise|FINALISE/.test(l));
@@ -221,7 +220,7 @@ test('AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merg
 
 const TEST_STAGE_0361 = 'rcf verify run --fbs <fbs-id> --hand verifier against the preview or version host';
 
-test('AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean', TODO, async (t) => {
+test('AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean', async (t) => {
   const fresh = async (name) => {
     const dir = join(scratch(t, `rcf-h-${name}-`), 'project');
     mkdirSync(dir, { recursive: true });
@@ -255,7 +254,7 @@ function filesUnder(dir) {
   return readdirSync(dir).flatMap((f) => (statSync(join(dir, f)).isDirectory() ? filesUnder(join(dir, f)) : [join(dir, f)]));
 }
 
-test('AC-20402-2: docs/verify-reference.md has the finalise synopsis rcf build finalise <fbs-id> --ci-run <ref>, a modes section naming release mode and calling the catalog and agent modes optional probes that are never a precondition, and a forward catalog contract that no longer says the deterministic engine feeds Finalise', TODO, () => {
+test('AC-20402-2: docs/verify-reference.md has the finalise synopsis rcf build finalise <fbs-id> --ci-run <ref>, a modes section naming release mode and calling the catalog and agent modes optional probes that are never a precondition, and a forward catalog contract that no longer says the deterministic engine feeds Finalise', () => {
   const text = docText('docs/verify-reference.md');
   assert.ok(text.includes('rcf build finalise <fbs-id> --ci-run <ref>'), 'the finalise synopsis');
   const modes = headings(text).find((h) => /\bmodes?\b/i.test(h.text));
@@ -270,7 +269,7 @@ test('AC-20402-2: docs/verify-reference.md has the finalise synopsis rcf build f
   assert.deepEqual(feeds, [], 'the deterministic engine no longer feeds Finalise');
 });
 
-test('AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage', TODO, () => {
+test('AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage', () => {
   const files = [...filesUnder(join(checkoutPackage(), 'docs')).filter((f) => /\.(md|txt|html)$/.test(f)), join(checkoutPackage(), 'README.md'), join(checkoutRoot(), 'README.md')];
   const hits = [];
   for (const f of files) {
@@ -286,7 +285,7 @@ test('AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/READM
   assert.deepEqual(hits, [], 'no 0.36.x finalise form and no verified at Finalise or by the Test stage');
 });
 
-test('AC-20402-4: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build', TODO, () => {
+test('AC-20402-4: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build', () => {
   for (const f of [join(checkoutRoot(), 'README.md'), join(checkoutPackage(), 'README.md')]) {
     const ss = sentences(readFileSync(f, 'utf8'));
     assert.ok(ss.some((s) => /build cycle/i.test(s) && /ends at complete|ends with complete/.test(s)), `${f}: the build cycle ends at complete`);
