@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:03.169Z",
-  "updatedAt": "2026-10-26T21:30:43.896Z",
+  "updatedAt": "2026-10-26T23:42:25.153Z",
   "purpose": "FBS-234: the external criteria of US-19701, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -35,7 +35,7 @@
       "acId": "AC-19701-3",
       "description": "FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file",
       "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]"
     },
     {
       "id": "TC-273-a-dirty-tree-refuses-with-exit-4-verdict",

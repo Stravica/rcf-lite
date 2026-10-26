@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:34.872Z",
-  "updatedAt": "2026-10-26T21:30:22.032Z",
+  "updatedAt": "2026-10-26T23:42:24.536Z",
   "asA": "reviewer (with Codex) at the REVIEW stage",
   "iWant": "to record one verdict with a code axis and a test-adequacy axis, the touched criteria and each finding with its locus",
   "soThat": "Finalise and the next round read my verdict from the branch, not from a message",
@@ -31,7 +31,10 @@
       "id": "AC-19701-3",
       "description": "[failure] Given the same fixture, when the verb runs with --code FINDINGS and no --finding it exits 2 with stderr \"[error] usage FINDINGS needs at least one --finding\"; with --finding \"maybe:AC-101-1:x\" it exits 2 naming the expected form <spec|build>:<AC id|->:<text>; with --acs AC-999-1 it exits 3 with stderr \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; and in each case no file appears under rcf/verdicts/.",
       "testable": true,
-      "verification": "external"
+      "verification": "external",
+      "supersededBy": "AC-19701-7",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): --finding takes a test locus beside spec and build (AC-19701-7), so the expected form <spec|build>:<AC id|->:<text> no longer holds; TAC-4154 names <spec|build|test>."
     },
     {
       "id": "AC-19701-4",
