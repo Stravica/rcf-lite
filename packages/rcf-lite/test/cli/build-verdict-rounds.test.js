@@ -356,6 +356,17 @@ test('AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PA
   const r = await sep(dir, ['--base', base]);
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   assert.equal(r.stdout.replace(/\n$/, ''), passLine(5, base, f, 'DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0'));
+  // Control (stage-keeper ruling 19): the same branch with the REVIEW:
+  // commit's review.json naming the DEFINE: commit instead of its parent
+  // H, so the pass above is judged, not given: round order refuses the
+  // verdict with the code and item AC-19703-5 gives.
+  const c = repo(t);
+  const d = D(c.dir); const h2 = B(c.dir);
+  const rc = commit(c.dir, 'REVIEW: verdict', { [verdictPath(d, 'review.json')]: reviewVerdict(d) });
+  T(c.dir, h2); F(c.dir);
+  const r2 = await sep(c.dir, ['--base', c.base]);
+  assert.equal(r2.code, 4, `the control exits 4: a REVIEW: verdict for a head other than its parent is refused\n${r2.stdout}${r2.stderr}`);
+  has(r2, `${s7(rc)} REVIEW: verdict head ${s7(d)} is not its parent ${s7(h2)}`);
 });
 
 test('AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0', async (t) => {
@@ -474,6 +485,30 @@ test('AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit 
 
 test('AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds', async (t) => {
   hostFacts(t);
+  // Control (stage-keeper ruling 19): before measuring, the same 6 rounds
+  // with round 3's REVIEW: verdict naming the round's first DEFINE:
+  // instead of its parent, so the budget below is measured over a round
+  // judgement that runs: round order refuses that verdict with the code
+  // and item AC-19703-5 gives.
+  {
+    const c = repo(t);
+    let wrong;
+    let named;
+    let parent;
+    for (let round = 1; round <= 6; round++) {
+      const d = D(c.dir); D(c.dir, 'DEFINE: more criteria'); B(c.dir); const h = B(c.dir, 'BUILD: more code');
+      if (round === 3) {
+        wrong = commit(c.dir, 'REVIEW: verdict', { [verdictPath(d, 'review.json')]: reviewVerdict(d) }); named = d; parent = h;
+      } else {
+        R(c.dir);
+      }
+      T(c.dir, h, { result: round < 6 ? 'FAIL' : 'PASS' });
+      if (round === 6) F(c.dir);
+    }
+    const r = await sep(c.dir, ['--base', c.base]);
+    assert.equal(r.code, 4, `the control exits 4: the round judgement is live\n${r.stdout}${r.stderr}`);
+    has(r, `${s7(wrong)} REVIEW: verdict head ${s7(named)} is not its parent ${s7(parent)}`);
+  }
   const { dir, base } = repo(t);
   let verdictCommits = 0;
   let total = 0;
