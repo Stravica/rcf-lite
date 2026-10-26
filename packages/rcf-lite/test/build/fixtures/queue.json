@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 131,
-    "notStarted": 66,
+    "notStarted": 62,
     "inProgress": 2,
     "complete": 34,
-    "verified": 29,
-    "actionable": 43,
-    "blocked": 23
+    "verified": 33,
+    "actionable": 42,
+    "blocked": 20
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1646,11 +1646,11 @@
       "buildOrder": 235,
       "tier": 11,
       "title": "Stage-prefix separation audit: per-stage file classes, hygiene tests, declared generators, judged merges, Hand: mixed retired",
-      "executionStatus": "notStarted",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-228"
       ],
-      "state": "actionable",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1658,25 +1658,23 @@
       "buildOrder": 236,
       "tier": 12,
       "title": "Rounds: REVIEW and TEST verdict records (rcf build verdict) and round order in the separation audit",
-      "executionStatus": "notStarted",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-233"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-233"
-      ]
+      "state": "verified",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-235",
       "buildOrder": 237,
       "tier": 1,
       "title": "Validate requires the verification flag on new and amended criteria; coverage shows expected and current end state",
-      "executionStatus": "notStarted",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-232"
       ],
-      "state": "actionable",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1684,14 +1682,12 @@
       "buildOrder": 238,
       "tier": 13,
       "title": "rcf audit test-strength: structural check and the v1 mutation proof over Code Node symbols of touched criteria",
-      "executionStatus": "notStarted",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-234"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-234"
-      ]
+      "state": "verified",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-237",
@@ -1705,12 +1701,8 @@
         "FBS-235",
         "FBS-236"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-234",
-        "FBS-235",
-        "FBS-236"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-238",
@@ -1724,7 +1716,6 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-235",
         "FBS-237"
       ]
     },
@@ -1741,7 +1732,6 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-234",
         "FBS-237"
       ]
     },
@@ -1777,10 +1767,6 @@
       ],
       "state": "blocked",
       "blockedBy": [
-        "FBS-233",
-        "FBS-234",
-        "FBS-235",
-        "FBS-236",
         "FBS-237",
         "FBS-238",
         "FBS-239"
