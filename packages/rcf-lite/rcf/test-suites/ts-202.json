@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T22:38:04Z",
-  "updatedAt": "2026-10-17T01:22:07.879Z",
+  "updatedAt": "2026-10-26T23:43:50.050Z",
   "purpose": "Cover AC-16501-1 (UI-BASELINE-UNMET refusal, C-28 + C-36), AC-16501-2 (BROWSER-VERIFICATION-MISSING refusal, C-29) and AC-16501-3 (SCOPE-MISMATCH refusal, C-30). Each test scaffolds a fresh RCF project with initProject, wires a stub verify subprocess that writes a passing report carrying the named per-AC verdict, invokes rcf build finalise, and asserts exit 4 with the expected stderr message.",
   "testLevel": "integration",
   "acIds": [
@@ -17,21 +17,21 @@
       "acId": "AC-16501-1",
       "description": "Fresh project via initProject with FBS-001 at complete; stub verify writes a passing report with perAcVerdicts = [{acId: AC-101-1, verdict: UI-BASELINE-UNMET}]; invoke rcf build finalise; assert exit 4, FBS at complete, stderr matches /UI-BASELINE-UNMET/ and /Referee-guarantees claims C-28 and C-36/.",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
     },
     {
       "id": "TC-202-browser-verification-missing-refusal",
       "acId": "AC-16501-2",
       "description": "Same scaffold; perAcVerdicts = [{acId: AC-101-1, verdict: BROWSER-VERIFICATION-MISSING}]; assert exit 4, FBS at complete, stderr matches /BROWSER-VERIFICATION-MISSING/ and /Referee-guarantees claim C-29/.",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
     },
     {
       "id": "TC-202-scope-mismatch-refusal",
       "acId": "AC-16501-3",
       "description": "Same scaffold; perAcVerdicts = [{acId: AC-101-1, verdict: SCOPE-MISMATCH}]; assert exit 4, FBS at complete, stderr matches /SCOPE-MISMATCH/ and /Referee-guarantees claim C-30/.",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
     }
   ],
   "status": "approved"

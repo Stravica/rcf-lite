@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T16:21:28.205Z",
-  "updatedAt": "2026-09-04T16:22:01.527Z",
+  "updatedAt": "2026-10-26T23:43:48.244Z",
   "description": "As a project owner shipping non-deterministic behaviour, I want rcf-lite to speak the eval-node surface at every stage of the build cycle so that a non-deterministic AC is graded, audited, verdict-annotated and merge-gated without me holding four disconnected mental models. The surface is one train: audit reports coverage, verify annotates per-AC verdicts, finalise refuses on missing / failing evals with an opt-out, and define authors the determinism flag.",
   "usId": "US-1601",
   "prdId": "PRD-001",
@@ -25,7 +25,10 @@
     {
       "id": "AC-1601-3",
       "description": "rcf finalise refuses (exit 4) with the spec-verbatim message when the verify report carries EVAL-MISSING or EVAL-BELOW-THRESHOLD, and accepts --ship-without-eval <reason> (mandatory reason string; exit 2 without one, refused when the value looks like a flag). The acknowledgement lands on the manifest under shipWithoutEval[] with a monotonic id, the reason, the declared per-AC verdicts and the report path.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): Finalise never opens a file under rcf/verify-reports/ (AC-20003-2), so no report verdict refuses it; Finalise writes complete from the recorded REVIEW, TEST and test-strength verdicts."
     },
     {
       "id": "AC-1601-4",
