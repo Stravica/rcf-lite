@@ -37,7 +37,6 @@ import { commit, git, initRepo, porcelain, s7, sha } from '../_harness/git.js';
 import { baseSuiteRecord, criterion, editStory, project, readJson, readText, scratch, writeJson, writeText } from '../_harness/fixture.js';
 import { commandName, hostFacts, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-239 round DEFINE' };
 const NOT_RECORDED = 'backstop: base suite not recorded; run rcf build base-suite --command "<suite>" --out <file> on the base and pass --base-suite <file>';
 const RETIRED_FILE = '[warn] backstop: rcf/define/backstop.json is retired in 0.37.0 and ignored; the backstop is the base suite';
 
@@ -115,7 +114,7 @@ const acIdsIn = (text, us = '101') => [...new Set(text.match(new RegExp(`AC-${us
 // The suite command of AC-20201-1 as the criterion quotes it (ruling 7).
 const GLOB_COMMAND = 'node --test "test/rcf/**/*.test.js"';
 
-test('AC-20201-1: a record from rcf build base-suite --command node --test "test/rcf/**/*.test.js" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B', TODO, async (t) => {
+test('AC-20201-1: a record from rcf build base-suite --command node --test "test/rcf/**/*.test.js" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B', async (t) => {
   const { dir, B } = await queue(t);
   assert.equal(porcelain(dir).trim(), '', 'given: a clean committed HEAD B');
   assert.equal(readJson(dir, 'rcf/fbs/fbs-001.json').executionStatus, 'complete', 'given: FBS-001 is complete and not verified');
@@ -135,7 +134,7 @@ test('AC-20201-1: a record from rcf build base-suite --command node --test "test
   assert.ok(isBundleOf(offTrunk, 'FBS-002'), 'the FBS-002 bundle from the branch');
 });
 
-test('AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file', TODO, async (t) => {
+test('AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file', async (t) => {
   const { dir } = await queue(t);
   const r = await bundle(dir, ['--next']);
   assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
@@ -148,7 +147,7 @@ test('AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the 
   assert.equal(m.stdout, '', 'no bundle');
 });
 
-test('AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 "backstop: base suite recorded at <A7>, base is <B7>; record it again"', TODO, async (t) => {
+test('AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 "backstop: base suite recorded at <A7>, base is <B7>; record it again"', async (t) => {
   const { dir, A } = await queue(t);
   const B = commit(dir, 'DEFINE: one more RCF test on the trunk', { 'test/rcf/more.test.js': "import { test } from 'node:test';\ntest('more holds', () => {});\n" });
   redBranch(dir); // HEAD off the trunk: the base is the merge-base B, not HEAD
@@ -157,7 +156,7 @@ test('AC-20201-3: a green record made at commit A while the base (git merge-base
   errHas(r, `backstop: base suite recorded at ${s7(A)}, base is ${s7(B)}; record it again`);
 });
 
-test('AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 "backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base"', TODO, async (t) => {
+test('AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 "backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base"', async (t) => {
   const { dir, B } = await queue(t);
   const red = record(t, baseSuiteRecord(B, { exitCode: 1, tap: { pass: 5, fail: 3, skip: 0, todo: 0, cancelled: 0 } }));
   const line = `backstop: base suite red at ${s7(B)}: exit 1, 3 failing; no Build starts until the RCF suite is green on the base`;
@@ -169,7 +168,7 @@ test('AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --
   }
 });
 
-test('AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles', TODO, async (t) => {
+test('AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles', async (t) => {
   const { dir, B } = await queue(t);
   const red = record(t, baseSuiteRecord(B, { exitCode: 1 }));
   for (const flags of [['--override', 'urgent hotfix'], ['--strict'], ['--format', 'json'], ['--format', 'md']]) {
@@ -190,7 +189,7 @@ test('AC-20201-5: no flag emits a bundle on a red or missing record (--override,
   assert.ok(isBundleOf(ok, 'FBS-003'), 'the next spec is bundled while every earlier spec is complete and none verified');
 });
 
-test('AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line', TODO, async (t) => {
+test('AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line', async (t) => {
   const { dir, B } = await queue(t);
   writeText(dir, 'src/dirty.js', 'export const dirty = 1;\n');
   const out = join(scratch(t, 'rcf-h-out-'), 'b.json');
@@ -213,7 +212,7 @@ test('AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses
   assert.equal(rec.green, true, 'green follows the exit code alone');
 });
 
-test('AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command', TODO, async (t) => {
+test('AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command', async (t) => {
   hostFacts(t);
   const { dir, B } = await queue(t);
   const rec = record(t, baseSuiteRecord(B, { command: 'node --test --test-reporter=tap test/rcf' }));
@@ -231,7 +230,7 @@ test('AC-20201-7: with a green record for the base, bundle --next finishes withi
   assert.ok(withRec.ms <= 2000, `within 2 seconds (${Math.round(withRec.ms)} ms)`);
 });
 
-test('AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing', TODO, async (t) => {
+test('AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing', async (t) => {
   const suiteCommand = 'node --test --test-reporter=tap test/rcf';
   const config = { entry: [{ kind: 'bin', path: 'bin/app.js' }], harness: ['test/_harness/**'], edge: [], suiteCommand };
   const { dir, B } = await queue(t, { extra: (d) => { writeJson(d, 'rcf/test-strength.json', config); writeText(d, 'bin/app.js', '#!/usr/bin/env node\n'); } });
@@ -262,7 +261,7 @@ const amend = (dir, rec, acs, format) => bundle(dir, ['FBS-001', '--acs', acs.jo
 const tcIdsFor = (dir, ids) => readJson(dir, 'rcf/test-suites/ts-001.json').testCases.filter((c) => ids.includes(c.acId)).map((c) => c.id);
 const cnIdsFor = (dir, ids) => readdirSync(join(dir, 'rcf', 'code-nodes')).map((f) => readJson(dir, `rcf/code-nodes/${f}`)).filter((c) => c.implementsAcIds.some((a) => ids.includes(a))).map((c) => c.cnId);
 
-test('AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled "Amend round on FBS-001: 2 criteria" whose runbook starts at DEFINE', TODO, async (t) => {
+test('AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled "Amend round on FBS-001: 2 criteria" whose runbook starts at DEFINE', async (t) => {
   const { dir, B } = await queue(t, { ...SIX, specs: sixSpecs() });
   const rec = record(t, baseSuiteRecord(B));
   const touched = ['AC-101-2', 'AC-101-5'];
@@ -283,7 +282,7 @@ test('AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-crite
   assert.equal(first, 'DEFINE', 'the runbook first stage is DEFINE');
 });
 
-test('AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor', TODO, async (t) => {
+test('AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor', async (t) => {
   const { dir, B } = await queue(t, { ...SIX, specs: sixSpecs(), extra: (d) => editStory(d, 'US-101', (us) => { Object.assign(us.acceptanceCriteria.find((a) => a.id === 'AC-101-6'), { supersededBy: 'AC-101-7', supersededOn: '2026-10-20', supersessionNote: 'Retired: replaced by AC-101-7.' }); }) });
   const rec = record(t, baseSuiteRecord(B));
   const a = await bundle(dir, ['FBS-002', '--acs', 'AC-102-1', '--base-suite', rec]);
@@ -297,7 +296,7 @@ test('AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not s
   errHas(c, '[error] usage AC-101-6 is retired; amend its successor AC-101-7');
 });
 
-test('AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints "Next actionable: none" and never selects an amend round', TODO, async (t) => {
+test('AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints "Next actionable: none" and never selects an amend round', async (t) => {
   const v = await queue(t, { ...SIX, specs: sixSpecs('verified') });
   const rec = record(t, baseSuiteRecord(v.B));
   const j = await amend(v.dir, rec, ['AC-101-2'], 'json');
@@ -311,7 +310,7 @@ test('AC-20202-3: an amend bundle on a verified spec is emitted the same way, --
   assert.ok(!r.stdout.includes('Amend round'), 'no amend round is selected');
 });
 
-test('AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical', TODO, async (t) => {
+test('AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical', async (t) => {
   const { dir, B } = await queue(t, { ...SIX, specs: sixSpecs() });
   const rec = record(t, baseSuiteRecord(B));
   const bytes = fbsBytes(dir);
@@ -324,7 +323,7 @@ test('AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in
   assert.equal(porcelain(dir), '', 'git status unchanged');
 });
 
-test('AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec', TODO, async (t) => {
+test('AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec', async (t) => {
   const specs = {
     'FBS-001': { us: 'US-101', acIds: acsOf('US-101', 152), status: 'complete' },
     'FBS-002': { us: 'US-102', acIds: acsOf('US-102', 10), status: 'complete' },
@@ -347,7 +346,7 @@ test('AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete 
 const BACKSTOP = { fromBuildOrder: 1, adoptedAt: '2026-10-19T00:00:00.000Z', adoptedBy: 'fixture@example.com', overrides: [{ reason: 'hotfix', by: 'fixture@example.com', at: '2026-10-20T00:00:00.000Z' }] };
 const withBackstop = (d) => writeJson(d, 'rcf/define/backstop.json', BACKSTOP);
 
-test('AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line', TODO, async (t) => {
+test('AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line', async (t) => {
   const { dir, B } = await queue(t, { extra: withBackstop });
   const r = await bundle(dir, ['--next', '--base-suite', record(t, baseSuiteRecord(B))]);
   assert.equal(r.code, 0, `${r.stdout.slice(0, 500)}${r.stderr}`);
@@ -355,7 +354,7 @@ test('AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complet
   assert.equal(count(r.stderr, RETIRED_FILE), 1, `exactly one warn line\n${r.stderr}`);
 });
 
-test('AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file', TODO, async (t) => {
+test('AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file', async (t) => {
   const { dir } = await queue(t);
   const r = await rcf(['build', 'backstop', 'adopt', '--from', 'FBS-001'], { cwd: dir });
   assert.equal(r.code, 2, `${r.stdout}${r.stderr}`);
@@ -364,7 +363,7 @@ test('AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retir
   assert.ok(!existsSync(join(dir, 'rcf', 'define', 'backstop.json')));
 });
 
-test('AC-20203-3: bundle --next --allow-unverified "hotfix" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle', TODO, async (t) => {
+test('AC-20203-3: bundle --next --allow-unverified "hotfix" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle', async (t) => {
   const { dir, B } = await queue(t);
   const r = await bundle(dir, ['--next', '--allow-unverified', 'hotfix', '--base-suite', record(t, baseSuiteRecord(B))]);
   assert.equal(r.code, 2, `${r.stdout}${r.stderr}`);
@@ -372,7 +371,7 @@ test('AC-20203-3: bundle --next --allow-unverified "hotfix" --base-suite <file> 
   assert.equal(r.stdout, '', 'no bundle');
 });
 
-test('AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one', TODO, async (t) => {
+test('AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one', async (t) => {
   const withFile = await queue(t, { extra: withBackstop });
   const bytes = readText(withFile.dir, 'rcf/define/backstop.json');
   const rec = record(t, baseSuiteRecord(withFile.B));
