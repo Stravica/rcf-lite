@@ -2,7 +2,7 @@
 // the managed block and the bundle runbook, and the docs on the 0.37.0
 // model.
 //
-// Criteria: 10 (US-20401 7 external, US-20402 3 testOnly; AC-20402-1 was
+// Criteria: 11 (US-20401 8 external, US-20402 3 testOnly; AC-20402-1 was
 // removed by the stage-keeper's stop ruling 1 on part A2). Every test is
 // a node:test todo case ("FBS-241 round DEFINE", GR-35): it runs and is
 // red until FBS-241's round DEFINE drops the marker and BUILD turns it
@@ -245,6 +245,20 @@ test('AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed bl
   assert.equal(d.code, 3, `${d.stdout}${d.stderr}`);
   assert.ok(lines(d.stdout).includes('rcf doctor: 1 drift item.'), d.stdout);
   assert.ok(lines(d.stdout).some((l) => l.trim().endsWith('CLAUDE.md has a managed block whose text does not match the canonical hash. `rcf doctor --fix` rewrites it in place.')), `the drift row names CLAUDE.md\n${d.stdout}`);
+});
+
+// Round C (round B ruling 37 and the round B docs pass): the build loop
+// and the Review stage say what the separation audit judges. Prose is
+// joined paragraph by paragraph, so a sentence wrapped over lines is one.
+const prose = (text) => text.split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, ' ')).join('\n');
+
+test('AC-20401-8: the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone', async () => {
+  const loop = section(await guidance('managed/agent-instructions-block'), 'Build loop');
+  assert.ok(loop !== null, 'a section headed "Build loop"');
+  const ss = sentences(prose(loop));
+  assert.deepEqual(ss.filter((s) => /named in every commit's `?Hand:`? trailer/.test(s)), [], 'no sentence names the hand of each stage by the Hand: trailer alone');
+  assert.ok(ss.some((s) => /\bevery commit\b/i.test(s) && /stage prefix/.test(s)), `a sentence says every commit carries its stage prefix\n${ss.join('\n')}`);
+  assert.ok(ss.some((s) => /Hand:/.test(s) && /optional/.test(s) && /0\.37\.x/.test(s)), `a sentence says the Hand: trailer is optional through 0.37.x\n${ss.join('\n')}`);
 });
 
 // ---------------------------------------------------------------- US-20402

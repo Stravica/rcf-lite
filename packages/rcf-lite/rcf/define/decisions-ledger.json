@@ -3158,6 +3158,27 @@
       "answer": "a. The operator, 2026-10-26 about 08:05Z: \"1 & 2 - agree - do it\" Recorded as: \"(i) The generatorOutput class is owned by BUILD and FINALISE. A BUILD: commit may regenerate a declared generator's outputs only with Generated-By: <id>, and only that generator's outputs. FBS-233 gets a new criterion (happy, failure and must-not), and the TAC-4153 class owner changes. The Review gate re-runs each declared command at the reviewed head and checks the bytes are identical.\" \"(ii) The codeNode count pin in test/rcf-tree.test.js becomes a declared generator's output: the test reads the counts from a data file, and rcf/separation.json declares the generator that writes it.\"",
       "answeredAt": "2026-10-26T10:40:33.808Z",
       "resolvedAt": "2026-10-26T10:40:33.808Z"
+    },
+    {
+      "id": 144,
+      "question": "(rcf-lite round C DEFINE) The managed block's build loop names each stage's hand by the Hand: trailer only (guidance/managed/agent-instructions-block.md:350-351), so a commit written from it alone fails \"no stage prefix\": does a criterion demand that the block say every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x? Source: round B ruling 37, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the managed block keeps naming the hand by the Hand: trailer only"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20401 (external): the Build loop section of the managed block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names each stage's hand by the Hand: trailer alone"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:24:13.315Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Managed block gap: a Known issues line now, the text fix in round C. The block (guidance/managed/agent-instructions-block.md:350-351) names the hand by the `Hand:` trailer only; a commit written from it alone fails \"no stage prefix\".\" and \"Round C docs pass: the block paragraph says stage prefix on every commit, Hand: trailer optional through 0.37.x\". Recorded as: AC-20401-8.",
+      "answeredAt": "2026-10-26T21:24:13.741Z",
+      "resolvedAt": "2026-10-26T21:24:13.741Z"
     }
   ]
 }

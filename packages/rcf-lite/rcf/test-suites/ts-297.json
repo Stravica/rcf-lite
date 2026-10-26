@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:05:03.420Z",
-  "updatedAt": "2026-10-24T20:59:37.982Z",
+  "updatedAt": "2026-10-26T21:23:57.053Z",
   "purpose": "FBS-241: the external criteria of US-20401, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-241's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -10,7 +10,8 @@
     "AC-20401-4",
     "AC-20401-5",
     "AC-20401-6",
-    "AC-20401-7"
+    "AC-20401-7",
+    "AC-20401-8"
   ],
   "id": "TS-297",
   "usId": "US-20401",
@@ -64,6 +65,13 @@
       "description": "in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean",
       "status": "pending",
       "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean"
+    },
+    {
+      "id": "TC-297-the-build-loop-section-of-rcf-guidance",
+      "acId": "AC-20401-8",
+      "description": "the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-8: the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone"
     }
   ],
   "status": "draft"

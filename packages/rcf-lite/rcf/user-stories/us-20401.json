@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:43.042Z",
-  "updatedAt": "2026-10-26T00:07:45.785Z",
+  "updatedAt": "2026-10-26T21:23:18.709Z",
   "asA": "test-author, builder, reviewer, verifier or stage-keeper reading rcf-lite's guidance in an agent session",
   "iWant": "the stage I am in named by its commit prefix with exactly what it does and what it records",
   "soThat": "no session follows the 0.36.x shape of verifying inside the cycle",
@@ -54,6 +54,12 @@
     {
       "id": "AC-20401-7",
       "description": "[failure] Given a project initialised by 0.37.0 whose CLAUDE.md managed block was edited to add back the 0.36.1 Test-stage line (\"rcf verify run --fbs <fbs-id> --hand verifier against the preview or version host\"), when rcf doctor runs, then it reports the managed block as drifted with its existing drift row and exit code, and a fresh rcf init project reads clean.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-20401-8",
+      "description": "[happy] When rcf guidance managed/agent-instructions-block runs, then its Build loop section says that every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence of it says each stage's hand is named in every commit's Hand: trailer.",
       "testable": true,
       "verification": "external"
     }
