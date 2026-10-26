@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:29:08.586Z",
-  "updatedAt": "2026-10-19T13:33:28.125Z",
+  "updatedAt": "2026-10-26T23:43:10.449Z",
   "purpose": "Declare one test per AC of US-19301 (FBS-225) driving rcf verify run --artefact through bin/rcf.js over a fixture package repository and a packed tarball, so the FBS-225 Define round turns each declaration into a red test against package target mode.",
   "testLevel": "integration",
   "acIds": [
@@ -65,7 +65,7 @@
       "acId": "AC-19301-7",
       "description": "rcf verify run --artefact under the FBS-219 rules: dirty tree exits 4 \"verify report refused: working tree is dirty; the report must name a committed head\", existing report exits 4 unless --replace \"<reason>\", --fbs absent or twice exits 2, --package <name@version> alone records target kind package and packageRef only and runs no suite",
       "status": "failing",
-      "testPointer": "test/verify/suite-as-probe.test.js::AC-19301-7: rcf verify run --artefact under the FBS-219 rules: dirty tree exits 4 \"verify report refused: working tree is dirty; the report must name a committed head\", existing report exits 4 unless --replace \"<reason>\", --fbs absent or twice exits 2, --package <name@version> alone records target kind package and packageRef only and runs no suite"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
     },
     {
       "id": "TC-258-writes-only-report-dir",

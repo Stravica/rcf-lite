@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:34.032Z",
-  "updatedAt": "2026-10-26T23:42:34.621Z",
+  "updatedAt": "2026-10-26T23:43:11.049Z",
   "purpose": "Records the REVIEW and TEST verdicts of a round as files committed by REVIEW: and TEST: commits, and judges stage order within a round, so round boundaries show in git and Finalise can judge the last round only.",
   "responsibilities": [
     "write rcf/verdicts/<h12>/review.json from rcf build verdict review at the reviewed head H (the committed HEAD)",
@@ -11,7 +11,7 @@
     {
       "name": "rcf build verdict review",
       "kind": "cliCommand",
-      "description": "usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...] --code MERGE|FINDINGS --adequacy PASS|FINDINGS [--finding \"<spec|build|test>:<AC id|->:<text>\"]... [--by <text>] (default recordedBy: \"reviewer\"; the test verb's default is \"verifier\")\nWrites rcf/verdicts/<first 12 of HEAD>/review.json for the committed HEAD (the reviewed head H); for a spec at inProgress, --acs must include every live acId of that spec, else exit 3 \"[error] brokenReference touched criteria omit <ids> of <fbs-id> (inProgress)\" and prints \"verdict: review <code>/<adequacy> at <h7> written to rcf/verdicts/<h12>/review.json\"; never commits. Exit 0 written; 4 refused (\"verdict refused: working tree is dirty; a verdict names a committed head\" for any change outside rcf/verdicts/; \"verdict refused: a review verdict for <h7> already exists at <path>\"); 3 broken reference (\"[error] brokenReference <AC id> is not scoped by <fbs ids>\", unknown FBS); 2 usage (FINDINGS on either axis with no --finding: \"[error] usage FINDINGS needs at least one --finding\"; a --finding not matching <spec|build|test>:<AC id|->:<text>; --code or --adequacy outside its pair)."
+      "description": "usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...] --code MERGE|FINDINGS --adequacy PASS|FINDINGS [--finding \"<spec|build|test>:<AC id|->:<text>\"]... [--by <text>] (default recordedBy: \"reviewer\"; the test verb's default is \"verifier\")\nWrites rcf/verdicts/<first 12 of HEAD>/review.json for the committed HEAD (the reviewed head H); for a spec at inProgress, --acs must include every live acId of that spec, else exit 3 \"[error] brokenReference touched criteria omit <ids> of <fbs-id> (inProgress)\" and prints \"verdict: review <code>/<adequacy> at <h7> written to rcf/verdicts/<h12>/review.json\"; never commits. Exit 0 written; 4 refused (\"verdict refused: working tree is dirty; a verdict names a committed head\" for any change outside rcf/verdicts/, the dirty check ignoring untracked files under rcf/verify-reports/; \"verdict refused: a review verdict for <h7> already exists at <path>\"); 3 broken reference (\"[error] brokenReference <AC id> is not scoped by <fbs ids>\", unknown FBS); 2 usage (FINDINGS on either axis with no --finding: \"[error] usage FINDINGS needs at least one --finding\"; a --finding not matching <spec|build|test>:<AC id|->:<text>; --code or --adequacy outside its pair)."
     },
     {
       "name": "rcf build verdict test",

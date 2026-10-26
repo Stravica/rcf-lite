@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:17.390Z",
-  "updatedAt": "2026-10-23T10:48:29.216Z",
+  "updatedAt": "2026-10-26T23:43:08.574Z",
   "description": "User story under REQ-190 for the Test-stage report writer (FBS-219). The verifier hand runs rcf verify run against the preview or version host and commits the VerifyReport on the PR branch; the report is the evidence the merge gate reads and Finalise later ingests. Committing the report is evidence, not an edit to production code, tests or criteria.",
   "asA": "the verifier hand at the Test stage of one build spec",
   "iWant": "one command that verifies the spec's criteria through the real entry point and writes a report naming the head, the target, the hand and every per-AC result",
@@ -21,7 +21,10 @@
     {
       "id": "AC-19001-2",
       "description": "[failure] Given a working tree with uncommitted changes outside rcf/verify-reports/, when rcf verify run --hand verifier --fbs <fbs-id> runs, then it refuses with exit 4 and stderr \"verify report refused: working tree is dirty; the report must name a committed head\", and writes no report.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19702-10",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): the verify runner's dirty check ignores rcf/verdicts/ (AC-19702-10), so a change outside rcf/verify-reports/ no longer always refuses; an uncommitted change to src/x.js still refuses as dirty with exit 4."
     },
     {
       "id": "AC-19001-3",
