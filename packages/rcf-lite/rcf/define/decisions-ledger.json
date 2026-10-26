@@ -3221,6 +3221,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" and \"docs/how-it-works.md:130 calls the audit group \"read-only visibility over the tree\", although rcf audit test-strength --record writes a record.\" The round B docs pass: \"docs how-it-works audit \"read-only\" wording\". Recorded as: AC-20402-5.",
       "answeredAt": "2026-10-26T21:26:14.261Z",
       "resolvedAt": "2026-10-26T21:26:14.261Z"
+    },
+    {
+      "id": 147,
+      "question": "(rcf-lite round C DEFINE) The comment that introduces CI's separation job (.github/workflows/ci.yml:86) says \"judge each commit's Hand: trailer over the pull request's range\", while the audit judges each commit's stage prefix: does a criterion demand that the comment say so? Source: the round B docs pass, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the ci.yml comment keeps the retired Hand: trailer wording"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20402 (testOnly, CI configuration): the comment introducing the separation job says it judges each commit's stage prefix over the pull request's range and does not say it judges a Hand: trailer"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:26:49.052Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" and \".github/workflows/ci.yml:86 \"# Commit separation (ADR-4149): judge each commit's Hand: trailer over\". FBS-241, testOnly (CI configuration; read through RCF_CHECKOUT as AC-19801-6's test reads ci.yml).\" The round B docs pass: \"ci.yml:86 comment keeps the retired \"judge each commit's Hand: trailer\" wording (round C)\". Recorded as: AC-20402-6.",
+      "answeredAt": "2026-10-26T21:26:49.470Z",
+      "resolvedAt": "2026-10-26T21:26:49.470Z"
     }
   ]
 }

@@ -2,7 +2,7 @@
 // the managed block and the bundle runbook, and the docs on the 0.37.0
 // model.
 //
-// Criteria: 13 (US-20401 9 external, US-20402 4 testOnly; AC-20402-1 was
+// Criteria: 14 (US-20401 9 external, US-20402 5 testOnly; AC-20402-1 was
 // removed by the stage-keeper's stop ruling 1 on part A2). Every test is
 // a node:test todo case ("FBS-241 round DEFINE", GR-35): it runs and is
 // red until FBS-241's round DEFINE drops the marker and BUILD turns it
@@ -325,4 +325,16 @@ test('AC-20402-5: the sentence of docs/how-it-works.md that introduces the audit
   const ss = docSentences(docText('docs/how-it-works.md')).filter((s) => s.startsWith('**audit**'));
   assert.ok(ss.length > 0, 'a sentence introduces the **audit** group');
   assert.deepEqual(ss.filter((s) => /read-only/.test(s) && !/test-strength --record/.test(s)), [], 'the audit group is not called read-only without excepting rcf audit test-strength --record');
+});
+
+test('AC-20402-6: the comment introducing the separation job of .github/workflows/ci.yml says the job judges the stage prefix of each commit over the range of the pull request, and does not say it judges a Hand: trailer', () => {
+  const ls = readFileSync(join(checkoutRoot(), '.github', 'workflows', 'ci.yml'), 'utf8').split('\n');
+  const at = ls.findIndex((l) => /^\s{2}separation:\s*$/.test(l));
+  assert.ok(at > 0, 'the separation job');
+  let from = at;
+  while (from > 0 && /^\s*#/.test(ls[from - 1])) from -= 1;
+  const comment = ls.slice(from, at).map((l) => l.replace(/^\s*#\s?/, '')).join(' ');
+  assert.ok(comment.length > 0, 'a comment introduces the separation job');
+  assert.ok(!/judge[^.]*Hand:/.test(comment), `the comment does not say the job judges a Hand: trailer\n${comment}`);
+  assert.ok(/stage prefix/.test(comment) && /pull request's range/.test(comment), `the comment says the job judges each commit's stage prefix over the pull request's range\n${comment}`);
 });

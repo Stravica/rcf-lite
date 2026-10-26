@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:45.421Z",
-  "updatedAt": "2026-10-26T21:25:54.059Z",
+  "updatedAt": "2026-10-26T21:26:41.437Z",
   "asA": "operator upgrading a product from rcf-lite 0.36.x to 0.37.0",
   "iWant": "the release to tell my agents to refresh the managed block, and the docs to describe the new Finalise and Verify",
   "soThat": "the upgrade lands in every consumer and nobody runs a retired command from the docs",
@@ -36,6 +36,12 @@
     {
       "id": "AC-20402-5",
       "description": "[happy] Given packages/rcf-lite/docs/how-it-works.md at this slice's reviewed head or any later head, then the sentence that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20402-6",
+      "description": "[happy] Given this repository's .github/workflows/ci.yml at this slice's reviewed head or any later head, then the comment that introduces the separation job says the job judges each commit's stage prefix over the pull request's range, and does not say it judges a Hand: trailer.",
       "testable": true,
       "verification": "testOnly"
     }
