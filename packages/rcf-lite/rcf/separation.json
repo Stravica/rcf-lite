@@ -24,6 +24,12 @@
       "command": "node -e \"const { readdirSync } = require('node:fs'); const codeNode = readdirSync('rcf/code-nodes', { recursive: true, withFileTypes: true }).filter((e) => e.isFile() && e.name.endsWith('.json')).length; process.stdout.write(JSON.stringify({ codeNode }, null, 2) + '\\n');\" > test/fixtures/code-node-count.json",
       "outputs": ["test/fixtures/code-node-count.json"],
       "checkedBy": "test/rcf-tree.test.js"
+    },
+    {
+      "id": "bundle-next-029-golden",
+      "command": "node test/_harness/goldens.js bundle-next-029 test/cli/fixtures/bundle-next-029-golden.md",
+      "outputs": ["test/cli/fixtures/bundle-next-029-golden.md"],
+      "checkedBy": "test/cli/build-bundle-next-freeze-gate.test.js"
     }
   ]
 }

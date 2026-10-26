@@ -47,13 +47,23 @@
 //     supersededBy, supersededOn and supersessionNote (those present) of
 //     every tagged criterion, as { "<AC id>": { "<field>": <value> } }.
 //     Each reads the working tree only.
+//
+//   node test/_harness/goldens.js bundle-next-029 test/cli/fixtures/bundle-next-029-golden.md
+//     FBS-241 (AC-17702-5's golden, the stage-keeper's ruling RC-12 on the
+//     round C DEFINE: a golden a BUILD moves gets a declared generator,
+//     bundle-next-029-golden in rcf/separation.json): the stdout of
+//     node bin/rcf.js build bundle --next with CI=1 over the AC-17702-5
+//     fixture, a project made by rcf init as PR8BundleTest with D0
+//     declared none and a freeze record matching the tree (frozenAt
+//     2026-10-03T00:00:00Z, its hashes read from define readiness --json),
+//     built under the OS temp dir with the bin alone and removed after.
 
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { BIN, rcf, run } from './spawn.js';
+import { BIN, rcf, rcfOk, run } from './spawn.js';
 import { json } from './capture.js';
 import { git, gitTry, showAt } from './git.js';
 
@@ -183,6 +193,31 @@ export function flagTexts(storiesDir) {
   return Object.fromEntries(Object.keys(out).sort().map((id) => [id, out[id]]));
 }
 
+/**
+ * The bundle AC-17702-5 compares byte for byte: node bin/rcf.js build
+ * bundle --next over a project made by rcf init as PR8BundleTest, D0
+ * declared none, with a freeze record whose hashes match the tree (an
+ * empty delta). The project sits under the OS temp dir and is removed
+ * afterwards.
+ */
+export async function bundleNext029({ bin = BIN } = {}) {
+  const dir = join(mkdtempSync(join(tmpdir(), 'rcf-h-b029-')), 'project');
+  mkdirSync(dir);
+  try {
+    await rcfOk(['init', '--non-interactive', '--no-agent-setup', '--project-name', 'PR8BundleTest'], { cwd: dir, bin });
+    await rcfOk(['discover', 'journey', 'declare', '--ui', 'none', '--reason', 'fixture: D0 not under test'], { cwd: dir, bin });
+    const { tree, delta } = json((await rcf(['define', 'readiness', '--json'], { cwd: dir, bin })).stdout);
+    mkdirSync(join(dir, 'rcf', 'define'), { recursive: true });
+    const freeze = { frozenAt: '2026-10-03T00:00:00Z', treeHash: tree.currentTreeHash, docHashes: delta.currentDocHashes, briefStatements: 0, override: null };
+    writeFileSync(join(dir, 'rcf', 'define', 'freeze.json'), `${JSON.stringify(freeze, null, 2)}\n`);
+    const r = await rcf(['build', 'bundle', '--next'], { cwd: dir, bin });
+    if (r.code !== 0) throw new Error(`bundle-next-029: rcf build bundle --next exited ${r.code}\n${r.stderr.slice(-1500)}`);
+    return r.stdout;
+  } finally {
+    rmSync(dirname(dir), { recursive: true, force: true });
+  }
+}
+
 function writeGolden(out, value) {
   const abs = resolve(process.cwd(), out);
   mkdirSync(dirname(abs), { recursive: true });
@@ -202,6 +237,12 @@ const RECORDERS = {
   'coverage-rows': async (out) => writeGolden(out, await coverageRows(process.cwd())),
   'flag-tags': async (out) => writeGolden(out, flagTags(join(process.cwd(), 'rcf', 'user-stories'))),
   'flag-texts': async (out) => writeGolden(out, flagTexts(join(process.cwd(), 'rcf', 'user-stories'))),
+  'bundle-next-029': async (out) => {
+    const abs = resolve(process.cwd(), out);
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, await bundleNext029());
+    process.stdout.write(`golden written: ${out}\n`);
+  },
 };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
