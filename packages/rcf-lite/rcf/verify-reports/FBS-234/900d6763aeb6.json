@@ -1,0 +1,501 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-234",
+  "headSha": "900d6763aeb6da5799557af438fa0f3c1de7e0f7",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.36.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.36.2",
+    "sha256": "b359c3223cc27399206cc852d8883b01f9e561d66aac4aae3a5295ce3ecab57a",
+    "servedSha": "900d6763aeb6da5799557af438fa0f3c1de7e0f7"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-lite-round-b-test",
+  "startedAt": "2026-10-26T16:22:53.811Z",
+  "finishedAt": "2026-10-26T16:23:59.201Z",
+  "rcfLiteVersion": "0.36.2",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "pack": {
+    "command": "npm pack --pack-destination /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-bbV9A6/out --json",
+    "exitCode": 0
+  },
+  "install": {
+    "command": "npm install --no-audit --no-fund /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-bbV9A6/out/rcf-lite-0.36.2.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-234/900d6763aeb6/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-273",
+      "file": "test/cli/build-verdict-rounds.test.js",
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-234/900d6763aeb6/TS-273.tap"
+    },
+    {
+      "testSuite": "TS-274",
+      "file": "test/cli/build-verdict-rounds.test.js",
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-234/900d6763aeb6/TS-274.tap"
+    },
+    {
+      "testSuite": "TS-275",
+      "file": "test/cli/build-verdict-rounds.test.js",
+      "tests": 25,
+      "pass": 25,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-234/900d6763aeb6/TS-275.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 25,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 25
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19701-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-273",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-273-rcf-build-verdict-review-code-merge",
+            "title": "AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by \"reviewer and codex\" at a clean HEAD exits 0, prints \"verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json\" and writes a ReviewVerdict v1 for H without committing",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19701-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-273",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-273-adequacy-findings-with-a-spec-and-a",
+            "title": "AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19701-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-273",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-273-findings-with-no-finding-exits-2-a",
+            "title": "AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19701-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-273",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-273-a-dirty-tree-refuses-with-exit-4-verdict",
+            "title": "AC-19701-4: a dirty tree refuses with exit 4 \"verdict refused: working tree is dirty; a verdict names a committed head\", and a second review for the same head refuses with exit 4 leaving the first file byte-identical",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19701-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-273",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-273-rcf-build-verdict-review-writes-only-rcf",
+            "title": "AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19701-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-273",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-273-at-inprogress-the-review-verdict-must",
+            "title": "AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\", nothing written); at complete the same command writes (an amend round)",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-rcf-build-verdict-test-result-pass-over",
+            "title": "AC-19702-1: rcf build verdict test --result PASS over a REVIEW: MERGE/PASS head and a TAP of 12 pass, 0 fail, 1 skip, 0 todo exits 0, prints the written line and writes a TestVerdict v1 for H with the running Node version",
+            "testNumber": 7,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-result-pass-refuses-a-tap-with-2-failing",
+            "title": "AC-19702-2: --result PASS refuses a TAP with 2 failing and a TAP lacking the bound test of AC-101-2 (exit 4), a file with no TAP summary exits 2, and no test.json is written",
+            "testNumber": 8,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-result-pass-refuses-with-no-review-merge",
+            "title": "AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDINGS, or no review verdict) and when a later BUILD: commit changed src/x.js after H",
+            "testNumber": 9,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-one-test-verdict-per-head-a-second",
+            "title": "AC-19702-4: one test verdict per head: a second verdict for H refuses (exit 4, file byte-identical); FAIL with --reason and 0 failing writes FAIL, FAIL with 0 failing and no --reason exits 2; a FAIL after the PASS at H names HEAD and is not refused",
+            "testNumber": 10,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-rcf-build-verdict-test-never-runs-the",
+            "title": "AC-19702-5: rcf build verdict test never runs the suite, deploys, contacts a host, writes outside rcf/verdicts/<H12>/ or commits: the spawn seam records only git and git status lists at most the one new file",
+            "testNumber": 11,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-after-review-merge-pass-test-pass-at-h",
+            "title": "AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H",
+            "testNumber": 12,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-a-failing-test-strength-record-at-h",
+            "title": "AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason",
+            "testNumber": 13,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19702-8",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-274",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-274-fbs-must-equal-the-review-verdict",
+            "title": "AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is \"reviewer\" for review and \"verifier\" for test",
+            "testNumber": 14,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-define-build-review-passed-for-its",
+            "title": "AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with \"DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\"",
+            "testNumber": 15,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-a-review-with-code-findings-followed-by",
+            "title": "AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0",
+            "testNumber": 16,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-build-after-a-passed-review-define-after",
+            "title": "AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail \"<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)\"",
+            "testNumber": 17,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-build-right-after-a-review-findings-and",
+            "title": "AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail \"<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:\"",
+            "testNumber": 18,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-a-review-json-whose-head-is-not-its",
+            "title": "AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round",
+            "testNumber": 19,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-review-test-finalise-merge-and-finalise",
+            "title": "AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)",
+            "testNumber": 20,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-only-the-verdict-file-a-commit-adds",
+            "title": "AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:",
+            "testNumber": 21,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-8",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-over-6-rounds-30-or-more-commits-every",
+            "title": "AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds",
+            "testNumber": 22,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-9",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-a-second-review-codex-adding-a-review",
+            "title": "AC-19703-9: a second \"REVIEW: codex\" adding a review.json after a passed REVIEW verdict fails \"(one REVIEW verdict per round)\"; a REVIEW: commit adding no review.json before the verdict commit passes",
+            "testNumber": 23,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-10",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-a-test-commit-adding-a-pass-test-json",
+            "title": "AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; one adding only rcf/verify-reports/ evidence passes as no verdict",
+            "testNumber": 24,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19703-11",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-275",
+        "file": "test/cli/build-verdict-rounds.test.js",
+        "tests": [
+          {
+            "tcId": "TC-275-a-test-strength-adding-a-failing-test",
+            "title": "AC-19703-11: a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\"",
+            "testNumber": 25,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

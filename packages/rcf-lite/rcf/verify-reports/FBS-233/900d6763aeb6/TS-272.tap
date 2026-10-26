@@ -1,0 +1,198 @@
+TAP version 13
+# Subtest: AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly "separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"
+ok 1 - AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly "separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"
+  ---
+  duration_ms: 363.435834
+  type: 'test'
+  ...
+# Subtest: AC-19601-2: a "BUILD: add test" commit touching test/x.test.js exits 4 with "separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)"
+ok 2 - AC-19601-2: a "BUILD: add test" commit touching test/x.test.js exits 4 with "separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)"
+  ---
+  duration_ms: 244.85975
+  type: 'test'
+  ...
+# Subtest: AC-19601-3: a commit with no stage prefix exits 4 with "<s7> no stage prefix" as its only item, also when it touches only Markdown outside rcf/
+ok 3 - AC-19601-3: a commit with no stage prefix exits 4 with "<s7> no stage prefix" as its only item, also when it touches only Markdown outside rcf/
+  ---
+  duration_ms: 512.295209
+  type: 'test'
+  ...
+# Subtest: AC-19601-4: seven malformed prefixes each fail exit 4, each with the item "<s7> malformed stage prefix" naming its first token in double quotes, then "; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:"
+ok 4 - AC-19601-4: seven malformed prefixes each fail exit 4, each with the item "<s7> malformed stage prefix" naming its first token in double quotes, then "; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:"
+  ---
+  duration_ms: 486.783333
+  type: 'test'
+  ...
+# Subtest: AC-19601-5: a bad --base ref exits 2 "separation: bad ref <ref>", outside a git repository exits 1 "separation: not a git repository", a shallow clone exits 2 with the shallow line, each with nothing on stdout
+ok 5 - AC-19601-5: a bad --base ref exits 2 "separation: bad ref <ref>", outside a git repository exits 1 "separation: not a git repository", a shallow clone exits 2 with the shallow line, each with nothing on stdout
+  ---
+  duration_ms: 656.610916
+  type: 'test'
+  ...
+# Subtest: AC-19601-6: --json over the five-commit branch plus a clean "FINALISE: merge main" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []
+ok 6 - AC-19601-6: --json over the five-commit branch plus a clean "FINALISE: merge main" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []
+  ---
+  duration_ms: 547.326042
+  type: 'test'
+  ...
+# Subtest: AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only
+ok 7 - AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only
+  ---
+  duration_ms: 308.705916
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git
+ok 8 - AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git
+  ---
+  duration_ms: 841.975542
+  type: 'test'
+  ...
+# Subtest: AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge
+ok 9 - AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge
+  ---
+  duration_ms: 277.2775
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching criteria and an RCF test, then a malformed "define: x", print each cause as its own item in check order and the malformed prefix as the only item of that commit
+ok 10 - AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching criteria and an RCF test, then a malformed "define: x", print each cause as its own item in check order and the malformed prefix as the only item of that commit
+  ---
+  duration_ms: 262.111667
+  type: 'test'
+  ...
+# Subtest: AC-19602-1: a "BUILD: hygiene" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only
+ok 11 - AC-19602-1: a "BUILD: hygiene" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only
+  ---
+  duration_ms: 351.510833
+  type: 'test'
+  ...
+# Subtest: AC-19602-2: a "DEFINE: tests" commit touching test/hygiene/a.test.js exits 4 with "<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)"
+ok 12 - AC-19602-2: a "DEFINE: tests" commit touching test/hygiene/a.test.js exits 4 with "<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)"
+  ---
+  duration_ms: 226.68075
+  type: 'test'
+  ...
+# Subtest: AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with "hygiene test, outside the RCF suite: test/hygiene/a.test.js" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0
+ok 13 - AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with "hygiene test, outside the RCF suite: test/hygiene/a.test.js" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0
+  ---
+  duration_ms: 542.578125
+  type: 'test'
+  ...
+# Subtest: AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactly one "[warn] TC-<id> points into a hygiene test" line, and no hygiene test counts toward coverage in table, json or mermaid
+ok 14 - AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactly one "[warn] TC-<id> points into a hygiene test" line, and no hygiene test counts toward coverage in table, json or mermaid
+  ---
+  duration_ms: 1210.825459
+  type: 'test'
+  ...
+# Subtest: AC-19602-5: rcf/separation.json declaring hygieneTest ["spec/unit/**"] makes a "DEFINE: spec" commit on spec/unit/b.js fail with "(class hygieneTest, owned by BUILD)" while the "BUILD: unit" commit on spec/unit/a.js passes
+ok 15 - AC-19602-5: rcf/separation.json declaring hygieneTest ["spec/unit/**"] makes a "DEFINE: spec" commit on spec/unit/b.js fail with "(class hygieneTest, owned by BUILD)" while the "BUILD: unit" commit on spec/unit/a.js passes
+  ---
+  duration_ms: 308.779041
+  type: 'test'
+  ...
+# Subtest: AC-19603-1: a "FINALISE: release 1.1.0" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField
+ok 16 - AC-19603-1: a "FINALISE: release 1.1.0" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField
+  ---
+  duration_ms: 379.49875
+  type: 'test'
+  ...
+# Subtest: AC-19603-2: FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items
+ok 17 - AC-19603-2: FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items
+  ---
+  duration_ms: 541.238
+  type: 'test'
+  ...
+# Subtest: AC-19603-3: a "FINALISE: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching a declared output and rcf/fbs/ passes with classes ["chainStatus", "generatorOutput"] and generators ["queue-goldens"]
+ok 18 - AC-19603-3: a "FINALISE: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching a declared output and rcf/fbs/ passes with classes ["chainStatus", "generatorOutput"] and generators ["queue-goldens"]
+  ---
+  duration_ms: 276.659833
+  type: 'test'
+  ...
+# Subtest: AC-19603-4: a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items
+ok 19 - AC-19603-4: a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items
+  ---
+  duration_ms: 622.187125
+  type: 'test'
+  ...
+# Subtest: AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line
+ok 20 - AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line
+  ---
+  duration_ms: 686.94125
+  type: 'test'
+  ...
+# Subtest: AC-19603-6: a clean "FINALISE: merge main" and a "FINALISE: merge main again" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths ["pnpm-lock.yaml"], and the PASS line counts merges 2
+ok 21 - AC-19603-6: a clean "FINALISE: merge main" and a "FINALISE: merge main again" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths ["pnpm-lock.yaml"], and the PASS line counts merges 2
+  ---
+  duration_ms: 620.933542
+  type: 'test'
+  ...
+# Subtest: AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and "<s7> no stage prefix"
+ok 22 - AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and "<s7> no stage prefix"
+  ---
+  duration_ms: 465.634916
+  type: 'test'
+  ...
+# Subtest: AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker
+ok 23 - AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker
+  ---
+  duration_ms: 277.951375
+  type: 'test'
+  ...
+# Subtest: AC-19603-9: a "BUILD: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching only a declared output passes with classes ["generatorOutput"] and generators ["queue-goldens"], while that output with no Generated-By and a Generated-By commit touching an output of another generator each fail exit 4 with their items
+ok 24 - AC-19603-9: a "BUILD: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching only a declared output passes with classes ["generatorOutput"] and generators ["queue-goldens"], while that output with no Generated-By and a Generated-By commit touching an output of another generator each fail exit 4 with their items
+  ---
+  duration_ms: 487.222667
+  type: 'test'
+  ...
+# Subtest: AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with "DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2" and each --json row names its handTrailer
+ok 25 - AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with "DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2" and each --json row names its handTrailer
+  ---
+  duration_ms: 384.525542
+  type: 'test'
+  ...
+# Subtest: AC-19604-2: a "BUILD: code" commit carrying Hand: test-author exits 4 with "<s7> Hand: test-author disagrees with BUILD: (role builder)"
+ok 26 - AC-19604-2: a "BUILD: code" commit carrying Hand: test-author exits 4 with "<s7> Hand: test-author disagrees with BUILD: (role builder)"
+  ---
+  duration_ms: 226.182916
+  type: 'test'
+  ...
+# Subtest: AC-19604-3: a Hand: mixed trailer fails "<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes" with or without Separation-Reason, whatever the commit touches
+ok 27 - AC-19604-3: a Hand: mixed trailer fails "<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes" with or without Separation-Reason, whatever the commit touches
+  ---
+  duration_ms: 264.976084
+  type: 'test'
+  ...
+# Subtest: AC-19604-4: rcf audit separation --require-hand exits 2 with "[error] usage --require-hand is retired; every commit needs a stage prefix" and prints nothing on stdout
+ok 28 - AC-19604-4: rcf audit separation --require-hand exits 2 with "[error] usage --require-hand is retired; every commit needs a stage prefix" and prints nothing on stdout
+  ---
+  duration_ms: 190.504084
+  type: 'test'
+  ...
+# Subtest: AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2
+ok 29 - AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2
+  ---
+  duration_ms: 1039.1455
+  type: 'test'
+  ...
+# Subtest: AC-19604-6: no trailer turns a failing commit into a pass: "BUILD: add test" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails "no stage prefix"
+ok 30 - AC-19604-6: no trailer turns a failing commit into a pass: "BUILD: add test" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails "no stage prefix"
+  ---
+  duration_ms: 1369.221
+  type: 'test'
+  ...
+# Subtest: AC-19604-7: a branch starting at "BUILD: code" followed by an evidence-only "TEST: evidence" with no verdict file passes on classes with "DEFINE 0, BUILD 1, REVIEW 0, TEST 1"
+ok 31 - AC-19604-7: a branch starting at "BUILD: code" followed by an evidence-only "TEST: evidence" with no verdict file passes on classes with "DEFINE 0, BUILD 1, REVIEW 0, TEST 1"
+  ---
+  duration_ms: 265.664
+  type: 'test'
+  ...
+1..31
+# tests 31
+# suites 0
+# pass 31
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 15272.835709
