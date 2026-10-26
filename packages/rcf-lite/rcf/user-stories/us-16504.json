@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:17:56.478Z",
-  "updatedAt": "2026-10-12T19:29:33.005Z",
+  "updatedAt": "2026-10-26T23:44:15.638Z",
   "asA": "operator finalising one build unit on a tree that carries hundreds of acceptance criteria",
   "iWant": "`rcf build finalise <fbs-id>` to verify only the acceptance criteria bound to that FBS by default, with `rcf verify run --fbs <id>` as the underlying filter and an explicit `--all` option that restores whole-chain verification",
   "soThat": "finalising one build unit costs one unit's verification rather than the whole chain, the ADR-4112 verified invariant still holds per FBS (every AC bound to the FBS verified, none skipped), and a whole-chain run stays available at slice end",
@@ -26,7 +26,10 @@
       "testable": true,
       "given": "an FBS at status 'complete' bound to a subset of the chain's acceptance criteria",
       "when": "rcf build finalise <fbs-id> --url ... is invoked without --all, and separately with --all",
-      "then": "without --all the fresh rcf verify run subprocess receives --fbs <fbs-id> and the finalise output names the scope and the AC count; with --all no --fbs filter is passed and the whole chain is verified; the promotion to 'verified' still requires a passing run with ship authority"
+      "then": "without --all the fresh rcf verify run subprocess receives --fbs <fbs-id> and the finalise output names the scope and the AC count; with --all no --fbs filter is passed and the whole chain is verified; the promotion to 'verified' still requires a passing run with ship authority",
+      "supersededBy": "AC-20002-5",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): Finalise never spawns anything but git (AC-20002-5), so it launches no verify run and writes no verify report."
     },
     {
       "id": "AC-16504-3",

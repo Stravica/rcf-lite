@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-13T20:16:41.430Z",
-  "updatedAt": "2026-10-17T02:02:41.831Z",
+  "updatedAt": "2026-10-26T23:44:17.446Z",
   "purpose": "Cover the five issue 356 contract points on rcf build finalise: --provision-mode accepted and forwarded verbatim to the fresh verify subprocess (usage error on an unknown value), the finalise help text lists it, the finalise report stamps provisioning.mode on completed runs and launch failures, a provisioning blocked-reason surfaced by finalise names only remedies finalise accepts, and detectVerify prefers the package-local verify entry over PATH while the report records the resolved verify command and its version.",
   "testLevel": "unit",
   "acIds": [
@@ -19,14 +19,14 @@
       "acId": "AC-16505-1",
       "description": "buildVerifyArgs emits ['--provision-mode', <mode>] exactly once when provisionMode is set and nothing when it is absent",
       "status": "pending",
-      "testPointer": "test/cli/finalise-provision-mode.test.js::buildVerifyArgs: --provision-mode threads through to the fresh subprocess argv exactly once; absent means no flag"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-1-forward",
       "acId": "AC-16505-1",
       "description": "finalise accepts --provision-mode run|skip, forwards the pair to the verify subprocess argv, passes nothing when absent, and refuses an unknown value with exit 2 before verify launches",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-2-help",
@@ -40,7 +40,7 @@
       "acId": "AC-16505-3",
       "description": "finalise report at --out carries provisioning.mode 'skip' after a completed skip run (promoted) and after a launch failure (aborted record), and 'run' when the flag is absent (blocked)",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-4-remedy",
@@ -54,35 +54,35 @@
       "acId": "AC-16505-5",
       "description": "detectVerify with a foreign rcf first on PATH and no local install in cwd returns the package's own bin/rcf.js under process.execPath with source not 'path' and version equal to the package version; PATH only when no package entry resolves",
       "status": "pending",
-      "testPointer": "test/finalise/verify-resolution.test.js::detectVerify prefers the verify entry of the package finalise runs from over a foreign rcf on PATH, and carries its version"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-5-record",
       "acId": "AC-16505-5",
       "description": "finalise report at --out records run.verify.command, prefixArgs, source and version equal to the resolved invocation on the launch-failure record and after a completed run",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-5-stamp-refused",
       "acId": "AC-16505-5",
       "description": "finalise refuses to promote a completed ship-authority PASS report whose run.verify stamp write fails: exit 1 before gate evaluation, stderr names run.verify, the report path and the FBS, and the FBS stays 'complete'",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-5-path-fallback",
       "acId": "AC-16505-5",
       "description": "detectVerify returns the rcf on PATH (source 'path', no prefix args) only when both the self-package and project-local routes return null, carrying the version read through the PATH binary back to its rcf-lite package (null for a foreign script); either package route winning yields source 'package' under process.execPath; nothing anywhere is not installed",
       "status": "pending",
-      "testPointer": "test/finalise/verify-resolution.test.js::detectVerify uses the rcf on PATH only when both package routes return null, records source path, and carries the version behind the PATH binary (null for a foreign script)"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     },
     {
       "id": "TC-250-16505-5-record-blocked",
       "acId": "AC-16505-5",
       "description": "finalise report at --out records the full run.verify object (command, prefixArgs, source, version) on a completed blocked report (provisioning-dependent criteria on blockedAcs, exit 4) and on a completed held report (ci-profile PASS without ship authority, exit 4), FBS unchanged",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
     }
   ],
   "status": "draft"
