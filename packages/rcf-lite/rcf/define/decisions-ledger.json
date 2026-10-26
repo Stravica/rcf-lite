@@ -3179,6 +3179,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"Managed block gap: a Known issues line now, the text fix in round C. The block (guidance/managed/agent-instructions-block.md:350-351) names the hand by the `Hand:` trailer only; a commit written from it alone fails \"no stage prefix\".\" and \"Round C docs pass: the block paragraph says stage prefix on every commit, Hand: trailer optional through 0.37.x\". Recorded as: AC-20401-8.",
       "answeredAt": "2026-10-26T21:24:13.741Z",
       "resolvedAt": "2026-10-26T21:24:13.741Z"
+    },
+    {
+      "id": 145,
+      "question": "(rcf-lite round C DEFINE) The Review stage of guidance/build-cycle.md (line 14) says rcf audit separation judges each commit's Hand: trailer against the paths it touches, while the audit judges each commit's stage prefix: does a criterion demand that build-cycle say the audit judges the stage prefix? Source: the round B docs pass, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: build-cycle keeps saying the audit judges each commit's Hand: trailer"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20401 (external): where rcf guidance build-cycle names rcf audit separation as a check it says the audit judges each commit's stage prefix against the paths it touches, and no sentence says it judges a Hand: trailer"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:25:02.148Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" The round B docs pass: \"packages/rcf-lite/guidance/build-cycle.md:14 says CI runs separation \"on a full-depth checkout\" and judges each commit's Hand: trailer\". Recorded as: AC-20401-9.",
+      "answeredAt": "2026-10-26T21:25:02.569Z",
+      "resolvedAt": "2026-10-26T21:25:02.569Z"
     }
   ]
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T18:05:03.420Z",
-  "updatedAt": "2026-10-26T21:23:57.053Z",
+  "updatedAt": "2026-10-26T21:25:29.613Z",
   "purpose": "FBS-241: the external criteria of US-20401, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-241's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -11,7 +11,8 @@
     "AC-20401-5",
     "AC-20401-6",
     "AC-20401-7",
-    "AC-20401-8"
+    "AC-20401-8",
+    "AC-20401-9"
   ],
   "id": "TS-297",
   "usId": "US-20401",
@@ -72,6 +73,13 @@
       "description": "the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone",
       "status": "pending",
       "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-8: the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone"
+    },
+    {
+      "id": "TC-297-every-sentence-of-rcf-guidance-build",
+      "acId": "AC-20401-9",
+      "description": "every sentence of rcf guidance build-cycle naming rcf audit separation as a check judges each commit by its stage prefix against the paths it touches, and none says the audit judges the Hand: trailer of a commit",
+      "status": "pending",
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-9: every sentence of rcf guidance build-cycle naming rcf audit separation as a check judges each commit by its stage prefix against the paths it touches, and none says the audit judges the Hand: trailer of a commit"
     }
   ],
   "status": "draft"

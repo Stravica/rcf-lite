@@ -2,7 +2,7 @@
 // the managed block and the bundle runbook, and the docs on the 0.37.0
 // model.
 //
-// Criteria: 11 (US-20401 8 external, US-20402 3 testOnly; AC-20402-1 was
+// Criteria: 12 (US-20401 9 external, US-20402 3 testOnly; AC-20402-1 was
 // removed by the stage-keeper's stop ruling 1 on part A2). Every test is
 // a node:test todo case ("FBS-241 round DEFINE", GR-35): it runs and is
 // red until FBS-241's round DEFINE drops the marker and BUILD turns it
@@ -259,6 +259,13 @@ test('AC-20401-8: the Build loop section of rcf guidance managed/agent-instructi
   assert.deepEqual(ss.filter((s) => /named in every commit's `?Hand:`? trailer/.test(s)), [], 'no sentence names the hand of each stage by the Hand: trailer alone');
   assert.ok(ss.some((s) => /\bevery commit\b/i.test(s) && /stage prefix/.test(s)), `a sentence says every commit carries its stage prefix\n${ss.join('\n')}`);
   assert.ok(ss.some((s) => /Hand:/.test(s) && /optional/.test(s) && /0\.37\.x/.test(s)), `a sentence says the Hand: trailer is optional through 0.37.x\n${ss.join('\n')}`);
+});
+
+test('AC-20401-9: every sentence of rcf guidance build-cycle naming rcf audit separation as a check judges each commit by its stage prefix against the paths it touches, and none says the audit judges the Hand: trailer of a commit', async () => {
+  const ss = sentences(prose(await guidance('build-cycle'))).filter((s) => s.includes('rcf audit separation'));
+  assert.ok(ss.length > 0, 'build-cycle names rcf audit separation');
+  assert.deepEqual(ss.filter((s) => /Hand:`? trailer[^.]*judged|judges?[^.]*Hand:/.test(s)), [], 'no sentence says the audit judges a Hand: trailer');
+  assert.ok(ss.some((s) => /stage prefix/.test(s) && /\bpaths?\b/.test(s)), `a sentence says the audit judges each commit's stage prefix against the paths it touches\n${ss.join('\n')}`);
 });
 
 // ---------------------------------------------------------------- US-20402
