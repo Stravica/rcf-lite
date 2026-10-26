@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:39:16.395Z",
-  "updatedAt": "2026-10-24T22:53:00.702Z",
+  "updatedAt": "2026-10-26T00:07:45.506Z",
   "asA": "the operator as product owner of rcf-lite",
   "iWant": "to be asked the profile questions once, in plain words, and have my answers recorded",
   "soThat": "D1 passes on my answers, not on a guess",
@@ -18,28 +18,27 @@
     {
       "id": "AC-20303-1",
       "description": "[happy] Given this repository at this slice's reviewed head or any later head, when node bin/rcf.js define readiness --level intent --check brief runs, then it exits 0, brief:profile reads 2/2, and the recorded answers for profile:surface and profile:register are the operator's, recorded by the test-author with the ruling's source named.",
-      "testable": true
+      "testable": true,
+      "verification": "testOnly"
     },
     {
       "id": "AC-20303-2",
       "description": "[failure] Given a scratch copy of this slice's reviewed head or any later head with the profile answers removed, node bin/rcf.js define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner's questions.",
-      "testable": true
+      "testable": true,
+      "verification": "testOnly"
     },
     {
       "id": "AC-20303-3",
       "description": "[must-not] No hand other than the operator decides the profile answers: the DEFINE round that records them quotes the operator's answer and its date, and no record in this repository answers profile:surface or profile:register without that source.",
-      "testable": true
+      "testable": true,
+      "verification": "testOnly"
     },
     {
       "id": "AC-20303-4",
       "description": "[edge] Given a project made by rcf init whose rcf/.identity/profile.md is one of four fixture profiles, (i) the unedited seed, (ii) the seed with both bare value lines deleted, (iii) the seed with two bare value lines in one section and (iv) menu text only, when the D1 brief:profile check, rcf define readiness, the viewer, rcf define questions and the MCP tool read it, then each resolves profile:surface and profile:register through one shared profile reader in src/ that takes only the bare value line under the key's section: rcf define readiness --json reports profile: { surface, register }, each value the resolved marker word or unanswered; (i) resolves the defaults prDiff and unstated and brief:profile passes; a section with no bare value line or with two (both sections of (ii) and (iv), the doubled section of (iii)) is unanswered and brief:profile fails that key; and all five consumers agree on every fixture, the four register consumers acting on the resolved register and on unanswered exactly as on unstated (the persona order rcf define readiness prints, the default persona of rcf define questions and of the MCP tool, the viewer's data-rcf-register), with surface observed only through the JSON field and brief:profile.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-20303-1=testOnly",
-    "verification:AC-20303-2=testOnly",
-    "verification:AC-20303-3=testOnly",
-    "verification:AC-20303-4=external"
-  ]
+  "tags": []
 }

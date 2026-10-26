@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:24:56.749Z",
-  "updatedAt": "2026-10-24T11:24:58.342Z",
+  "updatedAt": "2026-10-26T00:07:38.838Z",
   "asA": "builder writing production code and code-hygiene unit tests",
   "iWant": "hygiene tests under a hygiene/ directory to class as mine, outside the RCF suite",
   "soThat": "I can keep code hygiene without crossing into the test-author's RCF tests, and coverage never counts a hygiene test for a criterion",
@@ -18,34 +18,33 @@
     {
       "id": "AC-19602-1",
       "description": "[happy] Given a fixture commit \"BUILD: hygiene\" touching src/a.js, test/hygiene/a.test.js, packages/x/test/hygiene/b.test.js and src/a.hygiene.test.js, when rcf audit separation runs, then it exits 0, the commit counts under BUILD, and its --json row lists classes production and hygieneTest only.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19602-2",
       "description": "[failure] Given a fixture commit \"DEFINE: tests\" touching test/hygiene/a.test.js, when rcf audit separation runs, then it exits 4 with the item \"<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19602-3",
       "description": "[failure] Given a fixture chain whose AC-101-1 is bound only by a test case whose testPointer is test/hygiene/a.test.js::<a passing test name>, when rcf audit coverage --strict runs, then it exits 4, AC-101-1 is reported uncovered, and its row names \"hygiene test, outside the RCF suite: test/hygiene/a.test.js\"; the same criterion bound to test/rcf/a.test.js::<the same test name> is covered and the run exits 0.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19602-4",
       "description": "[must-not] Given the fixture chain of the coverage case, when rcf define validate runs, then it exits 0 (a hygiene binding is never a validation error) and stderr carries exactly one line \"[warn] TC-<id> points into a hygiene test (test/hygiene/a.test.js); hygiene tests are outside the RCF suite and never count as coverage\", and no hygiene test is ever counted toward any criterion's coverage in table, json or mermaid output.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19602-5",
       "description": "[edge] Given rcf/separation.json {\"classes\": {\"hygieneTest\": [\"spec/unit/**\"]}} at the head, when a \"BUILD: unit\" commit touches spec/unit/a.js and a \"DEFINE: spec\" commit touches spec/unit/b.js, then rcf audit separation exits 4 naming only the DEFINE commit with \"(class hygieneTest, owned by BUILD)\"; the BUILD commit passes.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-19602-1=external",
-    "verification:AC-19602-2=external",
-    "verification:AC-19602-3=external",
-    "verification:AC-19602-4=external",
-    "verification:AC-19602-5=external"
-  ]
+  "tags": []
 }
