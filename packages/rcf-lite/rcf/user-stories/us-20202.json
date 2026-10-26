@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:37:24.860Z",
-  "updatedAt": "2026-10-24T11:37:26.469Z",
+  "updatedAt": "2026-10-26T00:07:44.395Z",
   "asA": "stage-keeper opening a fix round on a spec already complete",
   "iWant": "a bundle that names only the criteria the round touches",
   "soThat": "an 8-criterion fix on a 152-criterion spec stays an 8-criterion round through REVIEW, TEST and Finalise",
@@ -18,34 +18,33 @@
     {
       "id": "AC-20202-1",
       "description": "[happy] Given a fixture FBS-001 at complete scoping AC-101-1 to AC-101-6 and a green base-suite record, when rcf build bundle FBS-001 --acs AC-101-2,AC-101-5 --base-suite <file> --format json runs, then it exits 0, the json carries \"round\": \"amend\" and \"touchedAcIds\": [\"AC-101-2\", \"AC-101-5\"] and lists only those two criteria with their test cases and Code Nodes; with --format md the title reads \"Amend round on FBS-001: 2 criteria\" and the runbook's first stage is DEFINE.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20202-2",
       "description": "[failure] Given FBS-002 at inProgress, rcf build bundle FBS-002 --acs AC-102-1 --base-suite <file> exits 2 with stderr \"[error] usage --acs scopes an amend round on a complete or verified spec\"; given --acs AC-999-1 on FBS-001 it exits 3 with \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; given a retired AC-101-6 whose successor is AC-101-7 it exits 2 with \"[error] usage AC-101-6 is retired; amend its successor AC-101-7\".",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20202-3",
       "description": "[edge] Given FBS-001 at verified, the amend bundle is emitted the same way; given --next with --acs, the verb exits 2; and rcf build bundle --next over a tree whose only remaining specs are complete or verified prints \"Next actionable: none\" and never selects an amend round.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20202-4",
       "description": "[must-not] An amend bundle never lists a criterion outside --acs and never changes any FBS executionStatus: the md and json output name no other criterion of FBS-001, and every rcf/fbs/ file is byte-identical after the run.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-20202-5",
       "description": "[non-functional] Given a fixture spec of 152 criteria at complete (the redesign's heavy round) and --acs naming 8 of them, the amend bundle's json lists 8 criteria and its size is no more than 1.2 times that of an amend bundle naming 8 criteria of a 10-criterion spec, so output scales with the touched criteria, not the spec.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
-  "tags": [
-    "verification:AC-20202-1=external",
-    "verification:AC-20202-2=external",
-    "verification:AC-20202-3=external",
-    "verification:AC-20202-4=external",
-    "verification:AC-20202-5=external"
-  ]
+  "tags": []
 }
