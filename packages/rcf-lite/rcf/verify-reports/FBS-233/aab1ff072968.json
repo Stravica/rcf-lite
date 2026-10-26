@@ -1,0 +1,613 @@
+{
+  "reportVersion": 1,
+  "fbsId": "FBS-233",
+  "headSha": "aab1ff072968a5ee50bdc36df0aee54020cd5c72",
+  "target": {
+    "kind": "package",
+    "packageRef": "rcf-lite-0.36.2.tgz",
+    "name": "rcf-lite",
+    "version": "0.36.2",
+    "sha256": "be94d08c442320c364fad3180a7e43d6f9d98cc2aa3b5bdeea0ddd34bfd2c6d1",
+    "servedSha": "aab1ff072968a5ee50bdc36df0aee54020cd5c72"
+  },
+  "mode": "deterministic",
+  "hand": "verifier",
+  "verifierId": "rcf-lite-round-b-test",
+  "startedAt": "2026-10-26T12:03:29.416Z",
+  "finishedAt": "2026-10-26T12:04:19.450Z",
+  "rcfLiteVersion": "0.36.2",
+  "profile": "packagedArtefact",
+  "method": "suiteAsProbe",
+  "pack": {
+    "command": "npm pack --pack-destination /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-7g2M3I/out --json",
+    "exitCode": 0
+  },
+  "install": {
+    "command": "npm install --no-audit --no-fund /var/folders/hh/g2r6l9wx0rvcfvmhw54ykcjm0000gn/T/rcf-pack-7g2M3I/out/rcf-lite-0.36.2.tgz",
+    "exitCode": 0,
+    "logPath": "rcf/verify-reports/FBS-233/aab1ff072968/install.log",
+    "registry": "default"
+  },
+  "suites": [
+    {
+      "testSuite": "TS-269",
+      "file": "test/cli/audit-separation-stage-prefix.test.js",
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-233/aab1ff072968/TS-269.tap"
+    },
+    {
+      "testSuite": "TS-270",
+      "file": "test/cli/audit-separation-stage-prefix.test.js",
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-233/aab1ff072968/TS-270.tap"
+    },
+    {
+      "testSuite": "TS-271",
+      "file": "test/cli/audit-separation-stage-prefix.test.js",
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-233/aab1ff072968/TS-271.tap"
+    },
+    {
+      "testSuite": "TS-272",
+      "file": "test/cli/audit-separation-stage-prefix.test.js",
+      "tests": 31,
+      "pass": 31,
+      "fail": 0,
+      "skipped": 0,
+      "todos": 0,
+      "outputPath": "rcf/verify-reports/FBS-233/aab1ff072968/TS-272.tap"
+    }
+  ],
+  "verdict": "PASS",
+  "verdictAuthority": "ship",
+  "runStats": {
+    "counts": {
+      "verified": 31,
+      "failed": 0,
+      "skipped": 0,
+      "critiqueOnly": 0,
+      "total": 31
+    }
+  },
+  "perAc": [
+    {
+      "acId": "AC-19601-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-rcf-audit-separation-over-a-define-build",
+            "title": "AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\"",
+            "testNumber": 1,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-a-build-add-test-commit-touching-test-x",
+            "title": "AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\"",
+            "testNumber": 2,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-a-commit-with-no-stage-prefix-exits-4",
+            "title": "AC-19601-3: a commit with no stage prefix exits 4 with \"<s7> no stage prefix\" as its only item, also when it touches only Markdown outside rcf/",
+            "testNumber": 3,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-seven-malformed-prefixes-each-fail-with",
+            "title": "AC-19601-4: seven malformed prefixes each fail exit 4, each with the item \"<s7> malformed stage prefix\" naming its first token in double quotes, then \"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\"",
+            "testNumber": 4,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-a-bad-base-ref-exits-2-separation-bad",
+            "title": "AC-19601-5: a bad --base ref exits 2 \"separation: bad ref <ref>\", outside a git repository exits 1 \"separation: not a git repository\", a shallow clone exits 2 with the shallow line, each with nothing on stdout",
+            "testNumber": 5,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-json-over-the-five-commit-branch-plus-a",
+            "title": "AC-19601-6: --json over the five-commit branch plus a clean \"FINALISE: merge main\" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []",
+            "testNumber": 6,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-review-test-and-finalise-commits-outside",
+            "title": "AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only",
+            "testNumber": 7,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-8",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-rcf-audit-separation-never-writes-reads",
+            "title": "AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git",
+            "testNumber": 8,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-9",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-over-200-prefixed-commits-touching-20",
+            "title": "AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge",
+            "testNumber": 9,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19601-10",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-269",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-269-a-build-mixed-commit-with-hand-test",
+            "title": "AC-19601-10: a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as the only item of that commit",
+            "testNumber": 10,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19602-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-270",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-270-a-build-hygiene-commit-touching-src-a-js",
+            "title": "AC-19602-1: a \"BUILD: hygiene\" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only",
+            "testNumber": 11,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19602-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-270",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-270-a-define-tests-commit-touching-test",
+            "title": "AC-19602-2: a \"DEFINE: tests\" commit touching test/hygiene/a.test.js exits 4 with \"<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)\"",
+            "testNumber": 12,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19602-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-270",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-270-audit-coverage-strict-reports-ac-101-1",
+            "title": "AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with \"hygiene test, outside the RCF suite: test/hygiene/a.test.js\" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0",
+            "testNumber": 13,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19602-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-270",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-270-define-validate-over-a-hygiene-bound",
+            "title": "AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactly one \"[warn] TC-<id> points into a hygiene test\" line, and no hygiene test counts toward coverage in table, json or mermaid",
+            "testNumber": 14,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19602-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-270",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-270-rcf-separation-json-declaring",
+            "title": "AC-19602-5: rcf/separation.json declaring hygieneTest [\"spec/unit/**\"] makes a \"DEFINE: spec\" commit on spec/unit/b.js fail with \"(class hygieneTest, owned by BUILD)\" while the \"BUILD: unit\" commit on spec/unit/a.js passes",
+            "testNumber": 15,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-finalise-release-1-1-0-commit-touching",
+            "title": "AC-19603-1: a \"FINALISE: release 1.1.0\" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField",
+            "testNumber": 16,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-finalise-commits-changing-a-package-json",
+            "title": "AC-19603-2: FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items",
+            "testNumber": 17,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-finalise-regenerate-queue-goldens",
+            "title": "AC-19603-3: a \"FINALISE: regenerate queue goldens\" commit with \"Generated-By: queue-goldens\" touching a declared output and rcf/fbs/ passes with classes [\"chainStatus\", \"generatorOutput\"] and generators [\"queue-goldens\"]",
+            "testNumber": 18,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-declared-output-with-no-generated-by",
+            "title": "AC-19603-4: a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items",
+            "testNumber": 19,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-generator-lacking-checkedby-with",
+            "title": "AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line",
+            "testNumber": 20,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-clean-finalise-merge-main-and-a",
+            "title": "AC-19603-6: a clean \"FINALISE: merge main\" and a \"FINALISE: merge main again\" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths [\"pnpm-lock.yaml\"], and the PASS line counts merges 2",
+            "testNumber": 21,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-finalise-merge-whose-resolution-edits",
+            "title": "AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and \"<s7> no stage prefix\"",
+            "testNumber": 22,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-8",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-over-the-passing-generator-fixture-the",
+            "title": "AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker",
+            "testNumber": 23,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19603-9",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-271",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-271-a-build-regenerate-queue-goldens-commit",
+            "title": "AC-19603-9: a \"BUILD: regenerate queue goldens\" commit with \"Generated-By: queue-goldens\" touching only a declared output passes with classes [\"generatorOutput\"] and generators [\"queue-goldens\"], while that output with no Generated-By and a Generated-By commit touching an output of another generator each fail exit 4 with their items",
+            "testNumber": 24,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-1",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-define-with-hand-test-author-and-build",
+            "title": "AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with \"DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2\" and each --json row names its handTrailer",
+            "testNumber": 25,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-2",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-a-build-code-commit-carrying-hand-test",
+            "title": "AC-19604-2: a \"BUILD: code\" commit carrying Hand: test-author exits 4 with \"<s7> Hand: test-author disagrees with BUILD: (role builder)\"",
+            "testNumber": 26,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-3",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-a-hand-mixed-trailer-fails-s7-hand-mixed",
+            "title": "AC-19604-3: a Hand: mixed trailer fails \"<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\" with or without Separation-Reason, whatever the commit touches",
+            "testNumber": 27,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-4",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-rcf-audit-separation-require-hand-exits",
+            "title": "AC-19604-4: rcf audit separation --require-hand exits 2 with \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout",
+            "testNumber": 28,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-5",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-configured-classes-win-rcftest-on-spec",
+            "title": "AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2",
+            "testNumber": 29,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-6",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-no-trailer-turns-a-failing-commit-into-a",
+            "title": "AC-19604-6: no trailer turns a failing commit into a pass: \"BUILD: add test\" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails \"no stage prefix\"",
+            "testNumber": 30,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    },
+    {
+      "acId": "AC-19604-7",
+      "result": "pass",
+      "evidence": {
+        "testSuite": "TS-272",
+        "file": "test/cli/audit-separation-stage-prefix.test.js",
+        "tests": [
+          {
+            "tcId": "TC-272-a-branch-starting-at-build-code-followed",
+            "title": "AC-19604-7: a branch starting at \"BUILD: code\" followed by an evidence-only \"TEST: evidence\" with no verdict file passes on classes with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\"",
+            "testNumber": 31,
+            "result": "pass"
+          }
+        ],
+        "notRun": []
+      }
+    }
+  ]
+}

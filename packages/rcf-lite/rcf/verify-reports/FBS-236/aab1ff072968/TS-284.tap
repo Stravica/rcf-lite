@@ -1,0 +1,138 @@
+TAP version 13
+# Subtest: AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line
+ok 1 - AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line
+  ---
+  duration_ms: 936.800708
+  type: 'test'
+  ...
+# Subtest: AC-19901-2: a bound test also importing src/store.js exits 4 with "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)"
+ok 2 - AC-19901-2: a bound test also importing src/store.js exits 4 with "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)"
+  ---
+  duration_ms: 263.737916
+  type: 'test'
+  ...
+# Subtest: AC-19901-3: mock.module("../../src/mailer.js") with edge ["node:https"] exits 4 with "AC-101-1 mocks ../../src/mailer.js (not a declared edge)"; mock.module("node:https") in the same test is not a finding
+ok 3 - AC-19901-3: mock.module("../../src/mailer.js") with edge ["node:https"] exits 4 with "AC-101-1 mocks ../../src/mailer.js (not a declared edge)"; mock.module("node:https") in the same test is not a finding
+  ---
+  duration_ms: 302.262083
+  type: 'test'
+  ...
+# Subtest: AC-19901-4: a Code Node src/notify.js\#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with "AC-101-1 silent default sender in src/notify.js\#makeNotifier"; a parameter named sender with no default is not a finding
+ok 4 - AC-19901-4: a Code Node src/notify.js\#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with "AC-101-1 silent default sender in src/notify.js\#makeNotifier"; a parameter named sender with no default is not a finding
+  ---
+  duration_ms: 667.950458
+  type: 'test'
+  ...
+# Subtest: AC-19901-5: no rcf/test-strength.json exits 2 with "test-strength: no rcf/test-strength.json; declare entry and harness"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1
+ok 5 - AC-19901-5: no rcf/test-strength.json exits 2 with "test-strength: no rcf/test-strength.json; declare entry and harness"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1
+  ---
+  duration_ms: 649.655916
+  type: 'test'
+  ...
+# Subtest: AC-19901-6: the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run
+ok 6 - AC-19901-6: the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run
+  ---
+  duration_ms: 463.456667
+  type: 'test'
+  ...
+# Subtest: AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1
+ok 7 - AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1
+  ---
+  duration_ms: 748.033041
+  type: 'test'
+  ...
+# Subtest: AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with "test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)" and runs no mutant; .js, .mjs and .cjs files are read
+ok 8 - AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with "test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)" and runs no mutant; .js, .mjs and .cjs files are read
+  ---
+  duration_ms: 971.629834
+  type: 'test'
+  ...
+# Subtest: AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js\#writeAudit, called once per run and never asserted, exits 4 with "AC-101-1 vacuous: noOp on src/audit.js\#writeAudit survived 1 bound tests" and the same for callRemoval, and --json lists those mutants survived
+ok 9 - AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js\#writeAudit, called once per run and never asserted, exits 4 with "AC-101-1 vacuous: noOp on src/audit.js\#writeAudit survived 1 bound tests" and the same for callRemoval, and --json lists those mutants survived
+  ---
+  duration_ms: 834.255459
+  type: 'test'
+  ...
+# Subtest: AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with "AC-101-2 no Code Node", "AC-101-3 no symbol-level Code Node" and "AC-101-4 unbound"
+ok 10 - AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with "AC-101-2 no Code Node", "AC-101-3 no symbol-level Code Node" and "AC-101-4 unbound"
+  ---
+  duration_ms: 278.469333
+  type: 'test'
+  ...
+# Subtest: AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded "timeout" and counted as killed, and a symbol with no statement-level call site records callRemoval "notApplicable" while the criterion passes
+ok 11 - AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded "timeout" and counted as killed, and a symbol with no statement-level call site records callRemoval "notApplicable" while the criterion passes
+  ---
+  duration_ms: 10618.449125
+  type: 'test'
+  ...
+# Subtest: AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree
+ok 12 - AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree
+  ---
+  duration_ms: 499.949292
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19902-5: a scope of 240 mutants exits 2 before running any test with "test-strength: 240 mutants exceed --max-mutants 200; narrow the scope"; with --max-mutants 300 it runs
+ok 13 - AC-19902-5: a scope of 240 mutants exits 2 before running any test with "test-strength: 240 mutants exceed --max-mutants 200; narrow the scope"; with --max-mutants 300 it runs
+  ---
+  duration_ms: 3194.693792
+  type: 'test'
+  ...
+# Subtest: AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs
+ok 14 - AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs
+  ---
+  duration_ms: 15746.110583
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19902-7: a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail "no mutable symbol <path\#symbol>"
+ok 15 - AC-19902-7: a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail "no mutable symbol <path\#symbol>"
+  ---
+  duration_ms: 1072.95525
+  type: 'test'
+  ...
+# Subtest: AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 "AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests"
+ok 16 - AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 "AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests"
+  ---
+  duration_ms: 975.726333
+  type: 'test'
+  ...
+# Subtest: AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4
+ok 17 - AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4
+  ---
+  duration_ms: 965.049584
+  type: 'test'
+  ...
+# Subtest: AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H
+ok 18 - AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H
+  ---
+  duration_ms: 1761.866625
+  type: 'test'
+  ...
+# Subtest: AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with "imports src/routes/pay.js (not the app entry or the harness)"
+ok 19 - AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with "imports src/routes/pay.js (not the app entry or the harness)"
+  ---
+  duration_ms: 655.981041
+  type: 'test'
+  ...
+# Subtest: AC-19903-4: a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js
+ok 20 - AC-19903-4: a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js
+  ---
+  duration_ms: 1024.115083
+  type: 'test'
+  ...
+# Subtest: AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test
+ok 21 - AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test
+  ---
+  duration_ms: 1518.03075
+  type: 'test'
+  ...
+1..21
+# tests 21
+# suites 0
+# pass 21
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 44180.458875

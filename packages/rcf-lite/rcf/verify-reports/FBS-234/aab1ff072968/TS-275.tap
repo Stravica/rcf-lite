@@ -1,0 +1,162 @@
+TAP version 13
+# Subtest: AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by "reviewer and codex" at a clean HEAD exits 0, prints "verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json" and writes a ReviewVerdict v1 for H without committing
+ok 1 - AC-19701-1: rcf build verdict review --code MERGE --adequacy PASS --by "reviewer and codex" at a clean HEAD exits 0, prints "verdict: review MERGE/PASS at <H7> written to rcf/verdicts/<H12>/review.json" and writes a ReviewVerdict v1 for H without committing
+  ---
+  duration_ms: 464.159125
+  type: 'test'
+  ...
+# Subtest: AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)
+ok 2 - AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records adequacy FINDINGS and findings F-1 (spec, AC-101-1) and F-2 (build, acId null)
+  ---
+  duration_ms: 279.113208
+  type: 'test'
+  ...
+# Subtest: AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file
+ok 3 - AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file
+  ---
+  duration_ms: 429.297541
+  type: 'test'
+  ...
+# Subtest: AC-19701-4: a dirty tree refuses with exit 4 "verdict refused: working tree is dirty; a verdict names a committed head", and a second review for the same head refuses with exit 4 leaving the first file byte-identical
+ok 4 - AC-19701-4: a dirty tree refuses with exit 4 "verdict refused: working tree is dirty; a verdict names a committed head", and a second review for the same head refuses with exit 4 leaving the first file byte-identical
+  ---
+  duration_ms: 648.653375
+  type: 'test'
+  ...
+# Subtest: AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git
+ok 5 - AC-19701-5: rcf build verdict review writes only rcf/verdicts/<H12>/review.json, never commits, never edits an existing verdict file and spawns only git
+  ---
+  duration_ms: 348.284
+  type: 'test'
+  ...
+# Subtest: AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 "[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)", nothing written); at complete the same command writes (an amend round)
+ok 6 - AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 "[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)", nothing written); at complete the same command writes (an amend round)
+  ---
+  duration_ms: 538.304125
+  type: 'test'
+  ...
+# Subtest: AC-19702-1: rcf build verdict test --result PASS over a REVIEW: MERGE/PASS head and a TAP of 12 pass, 0 fail, 1 skip, 0 todo exits 0, prints the written line and writes a TestVerdict v1 for H with the running Node version
+ok 7 - AC-19702-1: rcf build verdict test --result PASS over a REVIEW: MERGE/PASS head and a TAP of 12 pass, 0 fail, 1 skip, 0 todo exits 0, prints the written line and writes a TestVerdict v1 for H with the running Node version
+  ---
+  duration_ms: 344.045833
+  type: 'test'
+  ...
+# Subtest: AC-19702-2: --result PASS refuses a TAP with 2 failing and a TAP lacking the bound test of AC-101-2 (exit 4), a file with no TAP summary exits 2, and no test.json is written
+ok 8 - AC-19702-2: --result PASS refuses a TAP with 2 failing and a TAP lacking the bound test of AC-101-2 (exit 4), a file with no TAP summary exits 2, and no test.json is written
+  ---
+  duration_ms: 697.534334
+  type: 'test'
+  ...
+# Subtest: AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDINGS, or no review verdict) and when a later BUILD: commit changed src/x.js after H
+ok 9 - AC-19702-3: --result PASS refuses with no REVIEW MERGE/PASS for H (FINDINGS, or no review verdict) and when a later BUILD: commit changed src/x.js after H
+  ---
+  duration_ms: 985.576833
+  type: 'test'
+  ...
+# Subtest: AC-19702-4: one test verdict per head: a second verdict for H refuses (exit 4, file byte-identical); FAIL with --reason and 0 failing writes FAIL, FAIL with 0 failing and no --reason exits 2; a FAIL after the PASS at H names HEAD and is not refused
+ok 10 - AC-19702-4: one test verdict per head: a second verdict for H refuses (exit 4, file byte-identical); FAIL with --reason and 0 failing writes FAIL, FAIL with 0 failing and no --reason exits 2; a FAIL after the PASS at H names HEAD and is not refused
+  ---
+  duration_ms: 1057.596625
+  type: 'test'
+  ...
+# Subtest: AC-19702-5: rcf build verdict test never runs the suite, deploys, contacts a host, writes outside rcf/verdicts/<H12>/ or commits: the spawn seam records only git and git status lists at most the one new file
+ok 11 - AC-19702-5: rcf build verdict test never runs the suite, deploys, contacts a host, writes outside rcf/verdicts/<H12>/ or commits: the spawn seam records only git and git status lists at most the one new file
+  ---
+  duration_ms: 362.715333
+  type: 'test'
+  ...
+# Subtest: AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H
+ok 12 - AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H
+  ---
+  duration_ms: 632.048708
+  type: 'test'
+  ...
+# Subtest: AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 "verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason
+ok 13 - AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 "verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason
+  ---
+  duration_ms: 915.922667
+  type: 'test'
+  ...
+# Subtest: AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test
+ok 14 - AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test
+  ---
+  duration_ms: 709.420708
+  type: 'test'
+  ...
+# Subtest: AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with "DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"
+ok 15 - AC-19703-1: DEFINE:, BUILD:, REVIEW: (passed, for its parent H), TEST: (PASS for H) and FINALISE: (rcf/fbs/ only) pass with "DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"
+  ---
+  duration_ms: 658.201458
+  type: 'test'
+  ...
+# Subtest: AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0
+ok 16 - AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round two, and the branch through REVIEW: MERGE/PASS and TEST: PASS exits 0
+  ---
+  duration_ms: 805.273625
+  type: 'test'
+  ...
+# Subtest: AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail "<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)"
+ok 17 - AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail "<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)"
+  ---
+  duration_ms: 1181.556833
+  type: 'test'
+  ...
+# Subtest: AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail "<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:"
+ok 18 - AC-19703-4: BUILD: right after a REVIEW: FINDINGS, and TEST: right after a TEST: FAIL, fail "<s7> <STAGE>: after a failed verdict; the next round starts at DEFINE:"
+  ---
+  duration_ms: 647.456375
+  type: 'test'
+  ...
+# Subtest: AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round
+ok 19 - AC-19703-5: a review.json whose head is not the parent of its commit and a test.json whose head is not the reviewed head fail with their items; a FAIL test.json keyed to its own parent after a TEST PASS at H passes and closes the round
+  ---
+  duration_ms: 932.578416
+  type: 'test'
+  ...
+# Subtest: AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)
+ok 20 - AC-19703-6: REVIEW:, TEST:, FINALISE: merge and FINALISE: pass; DEFINE: or a PASS-adding TEST: after FINALISE: fail with the monotonic item; a TEST: FAIL keyed to the FINALISE: merge then DEFINE: passes (stage-keeper ruling 3)
+  ---
+  duration_ms: 1548.091333
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:
+ok 21 - AC-19703-7: only the verdict file a commit adds decides: a REVIEW: commit saying MERGE whose review.json records FINDINGS closes the round, and a REVIEW: commit with no review.json (even beside an uncommitted one) never opens TEST:
+  ---
+  duration_ms: 892.353458
+  type: 'test'
+  ...
+# Subtest: AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds
+ok 22 - AC-19703-8: over 6 rounds (30 or more commits, every REVIEW: and TEST: adding a verdict file) the round judgement adds at most one git process per verdict commit and the run finishes within 5 seconds
+  ---
+  duration_ms: 2849.620292
+  type: 'test'
+  ...
+# host: os.cpus().length 10, process.version v24.14.0
+# Subtest: AC-19703-9: a second "REVIEW: codex" adding a review.json after a passed REVIEW verdict fails "(one REVIEW verdict per round)"; a REVIEW: commit adding no review.json before the verdict commit passes
+ok 23 - AC-19703-9: a second "REVIEW: codex" adding a review.json after a passed REVIEW verdict fails "(one REVIEW verdict per round)"; a REVIEW: commit adding no review.json before the verdict commit passes
+  ---
+  duration_ms: 653.173708
+  type: 'test'
+  ...
+# Subtest: AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails "<s7> TEST: verdict with no passed REVIEW verdict in the round"; one adding only rcf/verify-reports/ evidence passes as no verdict
+ok 24 - AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails "<s7> TEST: verdict with no passed REVIEW verdict in the round"; one adding only rcf/verify-reports/ evidence passes as no verdict
+  ---
+  duration_ms: 491.171708
+  type: 'test'
+  ...
+# Subtest: AC-19703-11: a "TEST: strength" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails "<s7> BUILD: after a failed verdict; the next round starts at DEFINE:"
+ok 25 - AC-19703-11: a "TEST: strength" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails "<s7> BUILD: after a failed verdict; the next round starts at DEFINE:"
+  ---
+  duration_ms: 792.181375
+  type: 'test'
+  ...
+1..25
+# tests 25
+# suites 0
+# pass 25
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 19894.5445
