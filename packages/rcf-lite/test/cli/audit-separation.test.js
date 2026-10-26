@@ -4,13 +4,18 @@
 // tests of AC-19101-1, AC-19101-2, AC-19101-3 and AC-19101-5 (retired, with
 // successors in FBS-233, whose BUILD makes their assertions false) were
 // deleted in round B's DEFINE, their test cases re-pointed at the
-// successors' tests (stage-keeper ruling 10). Each builds a fixture git
-// history in a scratch dir (test/_helpers/git-history.js: local bare
-// origin, real Hand: trailers, host git config isolated), reads the
-// history back to check the fixture, then drives bin/rcf.js from the
-// fixture root. With no --base the range is the merge-base with
-// origin/main to HEAD; <sha7> is the first seven characters of a sha.
-// The verdict line and --json go to stdout, refusals to stderr.
+// successors' tests (stage-keeper ruling 10). Stage-keeper ruling 15
+// applied the same rule to each remaining assertion over commits with no
+// stage prefix: the fixture commits now carry a stage prefix and an
+// agreeing Hand: trailer (ADR-4162), and the two assertions FBS-233's
+// criteria make false were deleted (AC-19101-4's unknown hand subtest,
+// and AC-19101-6's 0.36.x PASS line); each test keeps its test case. Each
+// builds a fixture git history in a scratch dir
+// (test/_helpers/git-history.js: local bare origin, real Hand: trailers,
+// host git config isolated), reads the history back to check the
+// fixture, then drives bin/rcf.js from the fixture root. With no --base
+// the range is the merge-base with origin/main to HEAD. The verdict line
+// and --json go to stdout, refusals to stderr.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { mkdirSync } from 'node:fs';
@@ -18,11 +23,10 @@ import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import {
-  baseAndHead, commitPaths, git, gitWorld, readHistory, runRcf, treeState,
+  commitPaths, git, gitWorld, readHistory, runRcf, treeState,
 } from '../_helpers/git-history.js';
 
 const RCF_BIN = resolve(dirname(fileURLToPath(import.meta.url)), '..', '..', 'bin', 'rcf.js');
-const s7 = (sha) => sha.slice(0, 7);
 
 // The fixture is what the criterion presumes: one entry per commit in
 // range, oldest first, each with its Hand: values and paths.
@@ -43,12 +47,13 @@ function expectExit(res, code) {
   assert.doesNotMatch(res.stderr, /unknown verb/, 'refused as an unknown verb');
 }
 
-const lines = (text) => text.split('\n').filter(Boolean);
-
+// Stage-prefixed commits with agreeing Hand: trailers (ADR-4162: the
+// verifier's report commit is TEST:), so the fixture holds under the
+// 0.36.x audit and the stage-prefix audit alike (stage-keeper ruling 15).
 const PASS_COMMITS = [
-  { hand: 'test-author', paths: ['test/x.test.js', 'rcf/user-stories/us-1.json'], subject: 'tests and criteria' },
-  { hand: 'builder', paths: ['src/x.js', 'rcf/code-nodes/cn-1.json'], subject: 'production and code node' },
-  { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'], subject: 'verify report' },
+  { hand: 'test-author', paths: ['test/x.test.js', 'rcf/user-stories/us-1.json'], subject: 'DEFINE: tests and criteria' },
+  { hand: 'builder', paths: ['src/x.js', 'rcf/code-nodes/cn-1.json'], subject: 'BUILD: production and code node' },
+  { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'], subject: 'TEST: verify report' },
 ];
 
 async function passWorld(t, opts) {
@@ -83,28 +88,13 @@ test('AC-19101-4: rcf audit separation --base <missing-ref> exits 2 with "separa
     assert.ok(res.stderr.includes('separation: not a git repository'), `stderr: ${res.stderr}`);
   });
 
-  await t.test('a Hand: value outside the five hands and mixed is a violation', async (st) => {
-    const world = await gitWorld(st);
-    const bad = commitPaths(world, 'unknown hand', ['test/x.test.js'], 'tester');
-    commitPaths(world, 'verify report', ['rcf/verify-reports/FBS-1/abc.json'], 'verifier');
-    assertFixture(world, [{ hand: 'tester', paths: ['test/x.test.js'] }, { hand: 'verifier', paths: ['rcf/verify-reports/FBS-1/abc.json'] }]);
-    const { base, head } = baseAndHead(world);
-
-    const plain = run(world, []);
-    expectExit(plain, 4);
-    assert.ok(lines(plain.stdout).some((l) => l.startsWith(
-      `separation: FAIL 1 of 2 commits (base ${s7(base)}, head ${s7(head)}): ${s7(bad)} Hand=tester`,
-    )), `FAIL line missing; stdout: ${plain.stdout}`);
-
-    // The reason is carried on the commit's --json row.
-    const json = run(world, ['--json']);
-    expectExit(json, 4);
-    const rows = JSON.parse(json.stdout);
-    const row = rows.find((r) => typeof r.sha === 'string' && r.sha.length >= 7 && bad.startsWith(r.sha));
-    assert.ok(row, `no row for ${bad}: ${json.stdout}`);
-    assert.equal(row.verdict, 'fail');
-    assert.match(String(row.reason), /unknown hand tester/);
-  });
+  // The unknown hand subtest was deleted (stage-keeper ruling 15): under
+  // FBS-233 a commit marked only by a Hand: trailer fails "no stage
+  // prefix" whatever the trailer says (AC-19604-6), and a prefixed commit
+  // whose trailer disagrees reads "Hand: <value> disagrees with <STAGE>:"
+  // (AC-19604-2), so no "Hand=<value>" item or "unknown hand <value>"
+  // reason remains. TC-255-bad-ref-and-repo stays on the two subtests
+  // above.
 });
 
 test('AC-19101-6: rcf audit separation writes no file, reads no network and no chain: two runs over the same range print byte-identical output and leave git status unchanged', async (t) => {
@@ -120,7 +110,6 @@ test('AC-19101-6: rcf audit separation writes no file, reads no network and no c
   });
   assertFixture(world, PASS_COMMITS);
   assert.equal(git(world, world.repo, ['remote', 'get-url', 'origin']), world.origin);
-  const { base, head } = baseAndHead(world);
   const before = treeState(world);
 
   const plain1 = run(world, []);
@@ -129,10 +118,10 @@ test('AC-19101-6: rcf audit separation writes no file, reads no network and no c
   const json2 = run(world, ['--json']);
   const after = treeState(world);
 
+  // The 0.36.x PASS line assertion was deleted (stage-keeper ruling 15):
+  // FBS-233's PASS line counts stages, merges and transition commits
+  // (AC-19601-1, AC-19604-1). The read-only claim below is unchanged.
   expectExit(plain1, 0);
-  assert.ok(lines(plain1.stdout).includes(
-    `separation: PASS 3 commits (base ${s7(base)}, head ${s7(head)}): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0`,
-  ), `PASS line missing; stdout: ${plain1.stdout}`);
   expectExit(json1, 0);
   assert.equal(JSON.parse(json1.stdout).length, 3);
   assert.deepEqual(plain2, plain1, 'plain runs differ');
