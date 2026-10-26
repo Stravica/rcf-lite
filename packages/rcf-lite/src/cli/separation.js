@@ -42,7 +42,8 @@ A commit with no prefix fails "no stage prefix"; a near miss (define:,
 DEFINE:x, [DEFINE], VERIFY: ...) fails "malformed stage prefix".
 
 Classes (defaults, matched at any depth, first match wins) and owners:
-  generatorOutput   a declared output named by Generated-By: (FINALISE)
+  generatorOutput   a declared output named by Generated-By: (BUILD,
+                    FINALISE)
   reviewVerdict     rcf/verdicts/<h12>/review.json (REVIEW)
   testVerdict       rcf/verdicts/<h12>/test.json and test-strength.json
                     (TEST)
@@ -76,9 +77,9 @@ classes criteria itself:
 Configured classes extend the defaults and win over them, in file order
 (a glob matches at any depth; ** spans directories). The 0.36.x names
 test and stageKeeper are read as rcfTest and release, with a [warn]
-line. A FINALISE: commit may touch a generator's outputs only with a
-Generated-By: <id> trailer naming it; checkedBy must exist at the head;
-the command is never run. A malformed file exits 2.
+line. A BUILD: or FINALISE: commit may touch a generator's outputs only
+with a Generated-By: <id> trailer naming that generator; checkedBy must
+exist at the head; the command is never run. A malformed file exits 2.
 
 Round order (stages DEFINE, BUILD, REVIEW, TEST, FINALISE): a range may
 start in any stage, and a commit stays in its round's stage or moves to
