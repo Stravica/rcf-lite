@@ -169,7 +169,7 @@ test('AC-1.12: rcf validate is unchanged - no reads of CLAUDE.md/AGENTS.md, no n
   await writeFile(join(tmp, 'CLAUDE.md'), claude.replace('### RULE 1:', '### DRIFT:'), 'utf8');
   const { code, stderr } = await runBin(tmp, ['define', 'validate']);
   assert.equal(code, 0, `validate exited ${code}: ${stderr}`);
-  assert.equal(stderr, '', `validate stderr should be empty on a clean tree`);
+  assert.equal(stderr, '[warn] verification: no base ref; new and amended criteria not checked\n', `validate stderr should carry only the AC-19801-4 no-base warn on a clean tree`);
 });
 
 test('doctor --json emits machine-readable envelope', async () => {
