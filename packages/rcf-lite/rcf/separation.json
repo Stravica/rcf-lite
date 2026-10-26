@@ -1,0 +1,17 @@
+{
+  "classes": {},
+  "generators": [
+    {
+      "id": "queue-goldens",
+      "command": "node bin/rcf.js build queue > test/build/fixtures/queue.md && node bin/rcf.js build queue --format json > test/build/fixtures/queue.json",
+      "outputs": ["test/build/fixtures/queue.md", "test/build/fixtures/queue.json"],
+      "checkedBy": "test/cli/build.test.js"
+    },
+    {
+      "id": "phase-3-6-baseline",
+      "command": "node scripts/regen-phase-3-6-baseline.mjs",
+      "outputs": ["test/view/fixtures/phase-3-6-static.html"],
+      "checkedBy": "test/view/layout-regression.test.js"
+    }
+  ]
+}

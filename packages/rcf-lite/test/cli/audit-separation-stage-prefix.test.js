@@ -22,7 +22,6 @@ import { commit, fastImport, git, initRepo, porcelain, s7, sha } from '../_harne
 import { bindTests, project, reviewVerdict, scratch, testVerdict, verdictPath, writeText } from '../_harness/fixture.js';
 import { commandName, hostFacts, json, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-233 round DEFINE' };
 const USE = 'use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:';
 
 // A fixture repository: main with one base commit, work on branch
@@ -53,7 +52,7 @@ function fiveStageBranch(dir) {
 
 // ---------------------------------------------------------------- US-19601
 
-test('AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly "separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"', TODO, async (t) => {
+test('AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly "separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0"', async (t) => {
   const { dir, base } = repo(t);
   const { f } = fiveStageBranch(dir);
   const r = await sep(dir, ['--base', base]);
@@ -61,7 +60,7 @@ test('AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: an
   assert.equal(one(r.stdout), passLine(5, base, f, 'DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0'));
 });
 
-test('AC-19601-2: a "BUILD: add test" commit touching test/x.test.js exits 4 with "separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)"', TODO, async (t) => {
+test('AC-19601-2: a "BUILD: add test" commit touching test/x.test.js exits 4 with "separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)"', async (t) => {
   const { dir, base } = repo(t);
   const c = commit(dir, 'BUILD: add test', { 'test/x.test.js': "test('x', () => {});\n" });
   const r = await sep(dir, ['--base', base]);
@@ -69,7 +68,7 @@ test('AC-19601-2: a "BUILD: add test" commit touching test/x.test.js exits 4 wit
   assert.equal(one(r.stdout), failLine(1, 1, base, c, [`${s7(c)} BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)`]));
 });
 
-test('AC-19601-3: a commit with no stage prefix exits 4 with "<s7> no stage prefix" as its only item, also when it touches only Markdown outside rcf/', TODO, async (t) => {
+test('AC-19601-3: a commit with no stage prefix exits 4 with "<s7> no stage prefix" as its only item, also when it touches only Markdown outside rcf/', async (t) => {
   const { dir, base } = repo(t);
   commit(dir, 'DEFINE: criteria', { 'rcf/user-stories/us-1.json': '{"id":"US-1"}\n' });
   const c = commit(dir, 'fix things', { 'src/x.js': 'export const x = 2;\n' });
@@ -84,7 +83,7 @@ test('AC-19601-3: a commit with no stage prefix exits 4 with "<s7> no stage pref
   assert.equal(one(r2.stdout), failLine(1, 1, md.base, m, [`${s7(m)} no stage prefix`]));
 });
 
-test('AC-19601-4: seven malformed prefixes each fail exit 4, each with the item "<s7> malformed stage prefix" naming its first token in double quotes, then "; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:"', TODO, async (t) => {
+test('AC-19601-4: seven malformed prefixes each fail exit 4, each with the item "<s7> malformed stage prefix" naming its first token in double quotes, then "; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:"', async (t) => {
   const { dir, base } = repo(t);
   const subjects = ['define: x', 'Define: x', 'DEFINE:x', 'DEFINE - x', '[DEFINE] x', 'DEFINE(FBS-1): x', 'VERIFY: x'];
   const tokens = ['define:', 'Define:', 'DEFINE:x', 'DEFINE', '[DEFINE]', 'DEFINE(FBS-1):', 'VERIFY:'];
@@ -95,7 +94,7 @@ test('AC-19601-4: seven malformed prefixes each fail exit 4, each with the item 
   assert.equal(one(r.stdout), failLine(7, 7, base, shas.at(-1), items), 'the FAIL line carries one item per commit, in range order');
 });
 
-test('AC-19601-5: a bad --base ref exits 2 "separation: bad ref <ref>", outside a git repository exits 1 "separation: not a git repository", a shallow clone exits 2 with the shallow line, each with nothing on stdout', TODO, async (t) => {
+test('AC-19601-5: a bad --base ref exits 2 "separation: bad ref <ref>", outside a git repository exits 1 "separation: not a git repository", a shallow clone exits 2 with the shallow line, each with nothing on stdout', async (t) => {
   const { dir } = repo(t);
   commit(dir, 'DEFINE: criteria', { 'rcf/user-stories/us-1.json': '{"id":"US-1"}\n' });
   const bad = await sep(dir, ['--base', 'no-such-ref']);
@@ -122,7 +121,7 @@ test('AC-19601-5: a bad --base ref exits 2 "separation: bad ref <ref>", outside 
 
 const ROW_KEYS = ['sha', 'subject', 'merge', 'stage', 'role', 'handTrailer', 'classes', 'generators', 'verdict', 'reason', 'paths'];
 
-test('AC-19601-6: --json over the five-commit branch plus a clean "FINALISE: merge main" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []', TODO, async (t) => {
+test('AC-19601-6: --json over the five-commit branch plus a clean "FINALISE: merge main" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []', async (t) => {
   const { dir, base } = repo(t);
   const s = fiveStageBranch(dir);
   git(dir, 'switch', '-q', 'main');
@@ -146,7 +145,7 @@ test('AC-19601-6: --json over the five-commit branch plus a clean "FINALISE: mer
   assert.deepEqual(merge.paths, []);
 });
 
-test('AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only', TODO, async (t) => {
+test('AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only', async (t) => {
   const { dir, base } = repo(t);
   const a = commit(dir, 'REVIEW: notes', { 'docs/review.md': '# review\n' });
   const b = commit(dir, 'TEST: log', { 'test/x.test.js': "test('x', () => {});\n" });
@@ -160,7 +159,7 @@ test('AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fai
   ]) assert.ok(r.stdout.includes(item), `the FAIL line names ${item}\n${r.stdout}`);
 });
 
-test('AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git', TODO, async (t) => {
+test('AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git', async (t) => {
   const { dir, base } = repo(t);
   const s = fiveStageBranch(dir);
   const extra = commit(dir, 'BUILD: add test', { 'test/y.test.js': "test('y', () => {});\n" });
@@ -185,7 +184,7 @@ test('AC-19601-8: rcf audit separation never writes, reads files only through gi
   assert.deepEqual([...new Set(spawned.map(commandName))], ['git'], 'only git is spawned');
 });
 
-test('AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge', TODO, async (t) => {
+test('AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge', async (t) => {
   hostFacts(t);
   const { dir, base } = repo(t);
   const commits = [];
@@ -210,7 +209,7 @@ test('AC-19601-9: over 200 prefixed commits touching 20 paths each across four c
   assert.ok(gits.length <= 4, `spawns no more than 4 git processes with no merge in the range (spawned ${gits.length})`);
 });
 
-test('AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching criteria and an RCF test, then a malformed "define: x", print each cause as its own item in check order and the malformed prefix as the only item of that commit', TODO, async (t) => {
+test('AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching criteria and an RCF test, then a malformed "define: x", print each cause as its own item in check order and the malformed prefix as the only item of that commit', async (t) => {
   const { dir, base } = repo(t);
   const a = commit(dir, 'BUILD: mixed', { 'rcf/user-stories/us-1.json': '{"id":"US-1"}\n', 'test/a.test.js': "test('a', () => {});\n" }, { trailers: [['Hand', 'test-author']] });
   const b = commit(dir, 'define: x', { 'src/x.js': 'export const x = 3;\n' });
@@ -226,7 +225,7 @@ test('AC-19601-10: a "BUILD: mixed" commit with Hand: test-author touching crite
 
 // ---------------------------------------------------------------- US-19602
 
-test('AC-19602-1: a "BUILD: hygiene" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only', TODO, async (t) => {
+test('AC-19602-1: a "BUILD: hygiene" commit touching src/a.js and three hygiene test paths passes, counts under BUILD and lists classes production and hygieneTest only', async (t) => {
   const { dir, base } = repo(t);
   const c = commit(dir, 'BUILD: hygiene', {
     'src/a.js': 'export const a = 1;\n', 'test/hygiene/a.test.js': "test('a', () => {});\n",
@@ -239,7 +238,7 @@ test('AC-19602-1: a "BUILD: hygiene" commit touching src/a.js and three hygiene 
   assert.deepEqual([...rows[0].classes].sort(), ['hygieneTest', 'production']);
 });
 
-test('AC-19602-2: a "DEFINE: tests" commit touching test/hygiene/a.test.js exits 4 with "<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)"', TODO, async (t) => {
+test('AC-19602-2: a "DEFINE: tests" commit touching test/hygiene/a.test.js exits 4 with "<s7> DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)"', async (t) => {
   const { dir, base } = repo(t);
   const c = commit(dir, 'DEFINE: tests', { 'test/hygiene/a.test.js': "test('a', () => {});\n" });
   const r = await sep(dir, ['--base', base]);
@@ -247,7 +246,7 @@ test('AC-19602-2: a "DEFINE: tests" commit touching test/hygiene/a.test.js exits
   assert.ok(r.stdout.includes(`${s7(c)} DEFINE: touches test/hygiene/a.test.js (class hygieneTest, owned by BUILD)`), r.stdout);
 });
 
-test('AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with "hygiene test, outside the RCF suite: test/hygiene/a.test.js" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0', TODO, async (t) => {
+test('AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygiene test uncovered with "hygiene test, outside the RCF suite: test/hygiene/a.test.js" and exits 4; bound to test/rcf/a.test.js it is covered and exits 0', async (t) => {
   const dir = await project(t, { name: 'hygiene-cov' });
   bindTests(dir, [{ acId: 'AC-101-1', pointer: 'test/hygiene/a.test.js::passes' }]);
   const r = await rcf(['audit', 'coverage', '--strict'], { cwd: dir });
@@ -263,7 +262,7 @@ test('AC-19602-3: audit coverage --strict reports AC-101-1 bound only to a hygie
   assert.match(ok.stdout.split('\n').find((l) => /\bAC-101-1\s/.test(l)) ?? '', /AC-101-1\s+yes\b/);
 });
 
-test('AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactly one "[warn] TC-<id> points into a hygiene test" line, and no hygiene test counts toward coverage in table, json or mermaid', TODO, async (t) => {
+test('AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactly one "[warn] TC-<id> points into a hygiene test" line, and no hygiene test counts toward coverage in table, json or mermaid', async (t) => {
   const dir = await project(t, { name: 'hygiene-validate' });
   const ts = bindTests(dir, [{ acId: 'AC-101-1', pointer: 'test/hygiene/a.test.js::passes' }]);
   const tcId = ts.testCases[0].id;
@@ -280,7 +279,7 @@ test('AC-19602-4: define validate over a hygiene-bound chain exits 0 with exactl
   assert.ok(!mmd.stdout.includes(`AC-101-1 -.-> ${tcId}`), `mermaid draws no covering edge to the hygiene test\n${mmd.stdout}`);
 });
 
-test('AC-19602-5: rcf/separation.json declaring hygieneTest ["spec/unit/**"] makes a "DEFINE: spec" commit on spec/unit/b.js fail with "(class hygieneTest, owned by BUILD)" while the "BUILD: unit" commit on spec/unit/a.js passes', TODO, async (t) => {
+test('AC-19602-5: rcf/separation.json declaring hygieneTest ["spec/unit/**"] makes a "DEFINE: spec" commit on spec/unit/b.js fail with "(class hygieneTest, owned by BUILD)" while the "BUILD: unit" commit on spec/unit/a.js passes', async (t) => {
   const { dir, base } = repo(t);
   commit(dir, 'DEFINE: config', { 'rcf/separation.json': { classes: { hygieneTest: ['spec/unit/**'] } } });
   const d = commit(dir, 'DEFINE: spec', { 'spec/unit/b.js': 'b\n' });
@@ -292,7 +291,7 @@ test('AC-19602-5: rcf/separation.json declaring hygieneTest ["spec/unit/**"] mak
 
 // ---------------------------------------------------------------- US-19603
 
-test('AC-19603-1: a "FINALISE: release 1.1.0" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField', TODO, async (t) => {
+test('AC-19603-1: a "FINALISE: release 1.1.0" commit touching chain status, the lockfile, CHANGELOG.md, releases/releases.yaml and only the package.json version line passes under FINALISE with classes chainStatus, lockfile, release and versionField', async (t) => {
   const pkg = (v) => `${JSON.stringify({ name: 'fixture', version: v, dependencies: { a: '1.0.0' } }, null, 2)}\n`;
   const { dir, base } = repo(t, { 'package.json': pkg('1.0.0'), 'CHANGELOG.md': '# Changelog\n', 'releases/releases.yaml': 'releases: []\n', 'pnpm-lock.yaml': "lockfileVersion: '9.0'\n", 'rcf/fbs/fbs-001.json': '{}\n' });
   const c = commit(dir, 'FINALISE: release 1.1.0', {
@@ -306,7 +305,7 @@ test('AC-19603-1: a "FINALISE: release 1.1.0" commit touching chain status, the 
   assert.deepEqual([...row.classes].sort(), ['chainStatus', 'lockfile', 'release', 'versionField']);
 });
 
-test('AC-19603-2: FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items', TODO, async (t) => {
+test('AC-19603-2: FINALISE: commits changing a package.json dependency line, touching src/a.js or touching docs/x.md fail exit 4 with their three items', async (t) => {
   const pkg = (dep) => `${JSON.stringify({ name: 'fixture', version: '1.0.0', dependencies: { a: dep } }, null, 2)}\n`;
   const { dir, base } = repo(t, { 'package.json': pkg('1.0.0'), 'src/a.js': 'a\n' });
   const a = commit(dir, 'FINALISE: deps', { 'package.json': pkg('2.0.0') });
@@ -329,7 +328,7 @@ function generatorRepo(t, generator = GENERATOR) {
   return r;
 }
 
-test('AC-19603-3: a "FINALISE: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching a declared output and rcf/fbs/ passes with classes ["chainStatus", "generatorOutput"] and generators ["queue-goldens"]', TODO, async (t) => {
+test('AC-19603-3: a "FINALISE: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching a declared output and rcf/fbs/ passes with classes ["chainStatus", "generatorOutput"] and generators ["queue-goldens"]', async (t) => {
   const { dir, base } = generatorRepo(t);
   const c = commit(dir, 'FINALISE: regenerate queue goldens', { 'test/build/fixtures/queue.json': '[]\n', 'rcf/fbs/fbs-001.json': '{"executionStatus":"complete"}\n' }, { trailers: [['Generated-By', 'queue-goldens']] });
   const r = await sep(dir, ['--base', base, '--json']);
@@ -339,7 +338,7 @@ test('AC-19603-3: a "FINALISE: regenerate queue goldens" commit with "Generated-
   assert.deepEqual(row.generators, ['queue-goldens']);
 });
 
-test('AC-19603-4: a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items', TODO, async (t) => {
+test('AC-19603-4: a declared output with no Generated-By, an undeclared Generated-By id, and a Generated-By commit touching a path outside its outputs each fail exit 4 with their items', async (t) => {
   const { dir, base } = generatorRepo(t);
   const a = commit(dir, 'FINALISE: goldens', { 'test/build/fixtures/queue.json': '[1]\n' });
   const b = commit(dir, 'FINALISE: baseline', { 'rcf/fbs/fbs-001.json': '{"n":1}\n' }, { trailers: [['Generated-By', 'view-baseline']] });
@@ -353,7 +352,7 @@ test('AC-19603-4: a declared output with no Generated-By, an undeclared Generate
   ]) assert.ok(r.stdout.includes(item), `the FAIL line names ${item}\n${r.stdout}`);
 });
 
-test('AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line', TODO, async (t) => {
+test('AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a checkedBy file absent at the head exits 2 with its malformed rcf/separation.json line and prints no PASS or FAIL line', async (t) => {
   const { checkedBy, ...noCheckedBy } = GENERATOR;
   void checkedBy;
   const cases = [
@@ -371,7 +370,7 @@ test('AC-19603-5: a generator lacking checkedBy, with outputs [], or naming a ch
   }
 });
 
-test('AC-19603-6: a clean "FINALISE: merge main" and a "FINALISE: merge main again" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths ["pnpm-lock.yaml"], and the PASS line counts merges 2', TODO, async (t) => {
+test('AC-19603-6: a clean "FINALISE: merge main" and a "FINALISE: merge main again" whose only combined-diff path is pnpm-lock.yaml pass, read merge true and stage FINALISE, the second lists paths ["pnpm-lock.yaml"], and the PASS line counts merges 2', async (t) => {
   const { dir, base } = repo(t, { 'README.md': '# fixture\n', 'pnpm-lock.yaml': 'v1\n' });
   commit(dir, 'BUILD: code', { 'src/x.js': 'x\n', 'pnpm-lock.yaml': 'feature\n' });
   git(dir, 'switch', '-q', 'main');
@@ -402,7 +401,7 @@ test('AC-19603-6: a clean "FINALISE: merge main" and a "FINALISE: merge main aga
   assert.match(plain.stdout, /, merges 2, /, plain.stdout);
 });
 
-test('AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and "<s7> no stage prefix"', TODO, async (t) => {
+test('AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unprefixed merge commit fail exit 4 with the merge-resolution item and "<s7> no stage prefix"', async (t) => {
   const { dir, base } = repo(t, { 'README.md': '# fixture\n', 'src/a.js': 'a\n' });
   commit(dir, 'BUILD: code', { 'src/a.js': 'feature\n' });
   git(dir, 'switch', '-q', 'main');
@@ -427,7 +426,7 @@ test('AC-19603-7: a FINALISE: merge whose resolution edits src/a.js and an unpre
   ]) assert.ok(r.stdout.includes(item), `the FAIL line names ${item}\n${r.stdout}`);
 });
 
-test('AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker', TODO, async (t) => {
+test('AC-19603-8: over the passing generator fixture the audit runs no declared command and no process but git: the spawn seam records only git and a marker-writing command leaves no marker', async (t) => {
   const marker = join(scratch(t, 'rcf-h-marker-'), 'MARKER');
   const { dir, base } = generatorRepo(t, { ...GENERATOR, command: `node -e "require('node:fs').writeFileSync('${marker}', 'ran')"` });
   commit(dir, 'FINALISE: regenerate queue goldens', { 'test/build/fixtures/queue.json': '[]\n', 'rcf/fbs/fbs-001.json': '{"executionStatus":"complete"}\n' }, { trailers: [['Generated-By', 'queue-goldens']] });
@@ -442,7 +441,7 @@ test('AC-19603-8: over the passing generator fixture the audit runs no declared 
 
 // ---------------------------------------------------------------- US-19604
 
-test('AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with "DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2" and each --json row names its handTrailer', TODO, async (t) => {
+test('AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder and Hand-Id pass with "DEFINE 1, BUILD 1, REVIEW 0, TEST 0, FINALISE 0, merges 0, transition 2" and each --json row names its handTrailer', async (t) => {
   const { dir, base } = repo(t);
   commit(dir, 'DEFINE: criteria', { 'rcf/user-stories/us-1.json': '{"id":"US-1"}\n' }, { trailers: [['Hand', 'test-author']] });
   const b = commit(dir, 'BUILD: code', { 'src/x.js': 'x\n' }, { trailers: [['Hand', 'builder'], ['Hand-Id', 'b-1']] });
@@ -453,7 +452,7 @@ test('AC-19604-1: DEFINE: with Hand: test-author and BUILD: with Hand: builder a
   assert.deepEqual(rows.map((x) => x.handTrailer), ['test-author', 'builder']);
 });
 
-test('AC-19604-2: a "BUILD: code" commit carrying Hand: test-author exits 4 with "<s7> Hand: test-author disagrees with BUILD: (role builder)"', TODO, async (t) => {
+test('AC-19604-2: a "BUILD: code" commit carrying Hand: test-author exits 4 with "<s7> Hand: test-author disagrees with BUILD: (role builder)"', async (t) => {
   const { dir, base } = repo(t);
   const c = commit(dir, 'BUILD: code', { 'src/x.js': 'x\n' }, { trailers: [['Hand', 'test-author']] });
   const r = await sep(dir, ['--base', base]);
@@ -461,7 +460,7 @@ test('AC-19604-2: a "BUILD: code" commit carrying Hand: test-author exits 4 with
   assert.equal(one(r.stdout), failLine(1, 1, base, c, [`${s7(c)} Hand: test-author disagrees with BUILD: (role builder)`]));
 });
 
-test('AC-19604-3: a Hand: mixed trailer fails "<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes" with or without Separation-Reason, whatever the commit touches', TODO, async (t) => {
+test('AC-19604-3: a Hand: mixed trailer fails "<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes" with or without Separation-Reason, whatever the commit touches', async (t) => {
   const { dir, base } = repo(t);
   const b = commit(dir, 'BUILD: rename', { 'src/x.js': 'x\n' }, { trailers: [['Hand', 'mixed']] });
   const f = commit(dir, 'FINALISE: chores', { 'rcf/fbs/fbs-001.json': '{}\n' }, { trailers: [['Hand', 'mixed'], ['Separation-Reason', 'release regeneration']] });
@@ -470,7 +469,7 @@ test('AC-19604-3: a Hand: mixed trailer fails "<s7> Hand: mixed is retired; comm
   for (const c of [f, b]) assert.ok(r.stdout.includes(`${s7(c)} Hand: mixed is retired; commit chores as FINALISE: within its file classes`), r.stdout);
 });
 
-test('AC-19604-4: rcf audit separation --require-hand exits 2 with "[error] usage --require-hand is retired; every commit needs a stage prefix" and prints nothing on stdout', TODO, async (t) => {
+test('AC-19604-4: rcf audit separation --require-hand exits 2 with "[error] usage --require-hand is retired; every commit needs a stage prefix" and prints nothing on stdout', async (t) => {
   const { dir } = repo(t);
   commit(dir, 'DEFINE: criteria', { 'rcf/user-stories/us-1.json': '{"id":"US-1"}\n' });
   const r = await sep(dir, ['--require-hand']);
@@ -479,7 +478,7 @@ test('AC-19604-4: rcf audit separation --require-hand exits 2 with "[error] usag
   assert.equal(r.stdout, '');
 });
 
-test('AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2', TODO, async (t) => {
+test('AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2', async (t) => {
   for (const [classes, warn] of [[{ rcfTest: ['spec/**'] }, null], [{ test: ['spec/**'] }, '[warn] separation: class test is read as rcfTest']]) {
     const { dir, base } = repo(t);
     commit(dir, 'DEFINE: config', { 'rcf/separation.json': { classes } });
@@ -504,7 +503,7 @@ test('AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name t
   assert.match(rj.stderr, /rcf\/separation\.json/, 'stderr names rcf/separation.json');
 });
 
-test('AC-19604-6: no trailer turns a failing commit into a pass: "BUILD: add test" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails "no stage prefix"', TODO, async (t) => {
+test('AC-19604-6: no trailer turns a failing commit into a pass: "BUILD: add test" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails "no stage prefix"', async (t) => {
   for (const trailers of [[], [['Hand', 'test-author']], [['Hand', 'mixed'], ['Separation-Reason', 'needed']]]) {
     const { dir, base } = repo(t);
     const c = commit(dir, 'BUILD: add test', { 'test/x.test.js': "test('x', () => {});\n" }, { trailers });
@@ -521,7 +520,7 @@ test('AC-19604-6: no trailer turns a failing commit into a pass: "BUILD: add tes
   }
 });
 
-test('AC-19604-7: a branch starting at "BUILD: code" followed by an evidence-only "TEST: evidence" with no verdict file passes on classes with "DEFINE 0, BUILD 1, REVIEW 0, TEST 1"', TODO, async (t) => {
+test('AC-19604-7: a branch starting at "BUILD: code" followed by an evidence-only "TEST: evidence" with no verdict file passes on classes with "DEFINE 0, BUILD 1, REVIEW 0, TEST 1"', async (t) => {
   const { dir, base } = repo(t);
   commit(dir, 'BUILD: code', { 'src/x.js': 'x\n' });
   const c = commit(dir, 'TEST: evidence', { 'rcf/verify-reports/FBS-001/a.json': '{"verdict":"PASS"}\n' });
