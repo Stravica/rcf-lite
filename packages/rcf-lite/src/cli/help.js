@@ -30,6 +30,7 @@ import { HELP as PREFLIGHT_HELP } from './preflight.js';
 import { HELP as READ_HELP } from './read.js';
 import { HELP as REVIEW_HELP } from './review.js';
 import { HELP as SEPARATION_HELP } from './separation.js';
+import { HELP as TEST_STRENGTH_HELP } from './test-strength.js';
 import { HELP as FBS_HELP } from './fbs.js';
 import { HELP as TEST_SUITE_HELP } from './test-suite.js';
 import { HELP as TRACE_HELP } from './trace.js';
@@ -130,6 +131,8 @@ audit        Inspect the tree and its rollups.
   impact <id>              Change-impact fan-out from a node.
   separation               Stage-prefix separation and round order over
                            pull request commits.
+  test-strength            Structural check and mutation proof of the
+                           touched criteria's bound tests.
 
 Options:
   --version                Print the package version and exit.
@@ -272,7 +275,8 @@ const AUDIT_HELP = `Usage: rcf audit <verb> [options]
 
 Inspect the tree and its rollups: live HTML view, structural coverage,
 forward and backward trace, change-impact fan-out. Read-only visibility
-over what has been defined and built.
+over what has been defined and built (test-strength --record writes only
+its report under rcf/verdicts/).
 
 Verbs:
   view                     Live HTML tree render (long-running server).
@@ -285,6 +289,9 @@ Verbs:
   separation               Judge each commit's stage prefix against the
                            path classes that stage owns over a PR range,
                            and the range on round order.
+  test-strength            Prove the touched criteria's bound tests are
+                           real: the structural check, then the mutation
+                           proof over their Code Node symbols.
 
 Run 'rcf help audit <verb>' for per-verb help.
 `;
@@ -354,6 +361,7 @@ export const HELP_MAP = {
     impact: IMPACT_HELP,
     eval: AUDIT_EVAL_HELP,
     separation: SEPARATION_HELP,
+    'test-strength': TEST_STRENGTH_HELP,
   },
 };
 
