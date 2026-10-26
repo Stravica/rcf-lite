@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-956",
+  "path": "src/define/validate-findings.js#readBaseCriteria",
+  "implementsAcIds": [
+    "AC-19801-1",
+    "AC-19801-2",
+    "AC-19801-3",
+    "AC-19804-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:10:58.935Z",
+  "updatedAt": "2026-10-26T06:10:58.935Z"
+}

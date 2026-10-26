@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-966",
+  "path": "src/query/formatters/table.js#formatSpecEnds",
+  "implementsAcIds": [
+    "AC-19803-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:11:07.724Z",
+  "updatedAt": "2026-10-26T06:11:07.724Z"
+}
