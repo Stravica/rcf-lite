@@ -905,6 +905,7 @@ REQ-198      yes      AC-19801-1   yes                   external   verified  no
                       AC-19801-4   yes                   external   verified  notStarted  TC-276-outside-git-or-in-git-with-no-origin
                       AC-19801-5   yes                   external   verified  notStarted  TC-276-a-retired-criterion-is-never-required-to
                       AC-19801-6   yes                   testOnly   complete  notStarted  TC-277-the-ci-test-job-checks-out-with-fetch
+                      AC-19801-7   yes                   testOnly   complete  notStarted  TC-277-the-ci-separation-job-runs-only-on-pull
                       AC-19802-1   yes                   external   verified  notStarted  TC-278-rcf-define-validate-report-verification
                       AC-19802-2   yes                   external   verified  notStarted  TC-278-with-every-live-criterion-flagged-the
                       AC-19802-3   yes                   external   verified  notStarted  TC-278-over-1000-unflagged-live-criteria-across

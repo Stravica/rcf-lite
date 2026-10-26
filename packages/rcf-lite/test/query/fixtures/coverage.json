@@ -11136,6 +11136,17 @@
           "now": "notStarted"
         },
         {
+          "id": "AC-19801-7",
+          "covered": true,
+          "testCases": [
+            "TC-277-the-ci-separation-job-runs-only-on-pull"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
           "id": "AC-19802-1",
           "covered": true,
           "testCases": [

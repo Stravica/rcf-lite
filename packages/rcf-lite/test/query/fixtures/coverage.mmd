@@ -4216,6 +4216,10 @@ flowchart LR
   REQ-198 --> AC-19801-6
   TC-277-the-ci-test-job-checks-out-with-fetch["TC-277-the-ci-test-job-checks-out-with-fetch"]
   AC-19801-6 -.-> TC-277-the-ci-test-job-checks-out-with-fetch
+  AC-19801-7["AC-19801-7"]
+  REQ-198 --> AC-19801-7
+  TC-277-the-ci-separation-job-runs-only-on-pull["TC-277-the-ci-separation-job-runs-only-on-pull"]
+  AC-19801-7 -.-> TC-277-the-ci-separation-job-runs-only-on-pull
   AC-19802-1["AC-19802-1"]
   REQ-198 --> AC-19802-1
   TC-278-rcf-define-validate-report-verification["TC-278-rcf-define-validate-report-verification"]
@@ -6804,6 +6808,8 @@ flowchart LR
   class TC-276-a-retired-criterion-is-never-required-to tc;
   class AC-19801-6 ac;
   class TC-277-the-ci-test-job-checks-out-with-fetch tc;
+  class AC-19801-7 ac;
+  class TC-277-the-ci-separation-job-runs-only-on-pull tc;
   class AC-19802-1 ac;
   class TC-278-rcf-define-validate-report-verification tc;
   class AC-19802-2 ac;
