@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:23.075Z",
-  "updatedAt": "2026-10-20T00:26:24.936Z",
+  "updatedAt": "2026-10-26T00:54:13.710Z",
   "purpose": "Declare one test per AC of US-19101 (FBS-222) driving rcf audit separation through bin/rcf.js over fixture git histories, so the FBS-222 Define round turns each declaration into a red test against the separation verb.",
   "testLevel": "integration",
   "acIds": [
@@ -21,21 +21,21 @@
       "acId": "AC-19101-1",
       "description": "rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints \"separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\"",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation.test.js::AC-19101-1: rcf audit separation over test-author, builder and verifier commits on their own paths exits 0 and prints \"separation: PASS 3 commits (base <sha7>, head <sha7>): test-author 1, builder 1, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\""
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\""
     },
     {
       "id": "TC-255-fail-line",
       "acId": "AC-19101-2",
       "description": "rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\"",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation.test.js::AC-19101-2: rcf audit separation with a Hand: builder commit touching test/x.test.js exits 4 and prints \"separation: FAIL 1 of <n> commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches test/x.test.js\""
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\""
     },
     {
       "id": "TC-255-undeclared",
       "acId": "AC-19101-3",
       "description": "rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation.test.js::AC-19101-3: rcf audit separation passes undeclared commits touching only src/ or only test/ and counts them undeclared; an undeclared commit touching both exits 4 naming both paths"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-3: a commit with no stage prefix exits 4 with \"<s7> no stage prefix\" as its only item, also when it touches only Markdown outside rcf/"
     },
     {
       "id": "TC-255-bad-ref-and-repo",
@@ -49,7 +49,7 @@
       "acId": "AC-19101-5",
       "description": "rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation.test.js::AC-19101-5: rcf audit separation --json prints a JSON array of one SeparationRow { sha, subject, hand, declared, classes, verdict, reason, paths } per non-merge commit with merge commits absent"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-6: --json over the five-commit branch plus a clean \"FINALISE: merge main\" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []"
     },
     {
       "id": "TC-255-read-only",
@@ -70,14 +70,14 @@
       "acId": "AC-19101-2",
       "description": "rcf audit separation classes a test-shaped file whose basename carries .test. or .spec. as a dotted segment, whatever follows it and at any depth, as test: a Hand: builder commit touching src/widget.test.d.ts, src/widget.spec.js.map or packages/app/src/widget.test.snap.js exits 4 with \"separation: FAIL 1 of 2 commits (base <sha7>, head <sha7>): <sha7> Hand=builder touches <path>\", a Hand: test-author commit touching the same path passes with --json classes exactly [test]; near-miss names src/attest.js, src/testing.js, src/inspector.js, src/contest.config.js, src/widget.testing.js and src/widget.spectrum.js stay production (gate 1 BH-1, FBS-222-DIFF-001)",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation.test.js::AC-19101-2: rcf audit separation classes a test file with more than one extension after .test. or .spec. as test: Hand: builder touching src/widget.test.d.ts or src/widget.spec.js.map exits 4 with the FAIL line, Hand: test-author touching it passes"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\""
     },
     {
       "id": "TC-255-lockfiles-neutral",
       "acId": "AC-19101-2",
       "description": "rcf audit separation classes lockfiles as neutral at any depth: a Hand: test-author commit touching only package-lock.json, npm-shrinkwrap.json, pnpm-lock.yaml, yarn.lock, bun.lockb, bun.lock, Cargo.lock, Gemfile.lock, poetry.lock, uv.lock, composer.lock, go.sum, any basename ending .lock (exercised by flake.lock, Podfile.lock, pubspec.lock, mix.lock, widget-tool.lock), packages/app/Cargo.lock, packages/app/go.sum and services/api/poetry.lock passes with \"separation: PASS 2 commits (base <sha7>, head <sha7>): test-author 1, builder 0, verifier 1, stage-keeper 0, neutral 0, undeclared 0, exceptions 0\" and --json classes exactly [neutral]; near-miss names src/lock.js, src/flock, src/Cargo.lock.js, src/lockfile.json and src/go.summary stay production (gate 1 BH-2, FBS-222-DIFF-002)",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation.test.js::AC-19101-2: rcf audit separation classes lockfiles of every common ecosystem as neutral: a Hand: test-author commit touching only package-lock.json, npm-shrinkwrap.json, pnpm-lock.yaml, yarn.lock, bun.lockb, bun.lock, Cargo.lock, Gemfile.lock, poetry.lock, uv.lock, composer.lock, go.sum or any basename ending .lock passes"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\""
     }
   ],
   "status": "draft"

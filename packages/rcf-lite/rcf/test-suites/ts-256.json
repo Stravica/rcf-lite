@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:30.801Z",
-  "updatedAt": "2026-10-20T04:12:19.697Z",
+  "updatedAt": "2026-10-26T00:54:15.340Z",
   "purpose": "Declare one test per AC of US-19102 (FBS-223) driving rcf audit separation flags through bin/rcf.js and checking the pull_request CI wiring, so the FBS-223 Define round turns each declaration into a red test; AC-19102-4 and AC-19102-5 carry the CI-wiring criteria.",
   "testLevel": "integration",
   "acIds": [
@@ -19,21 +19,21 @@
       "acId": "AC-19102-1",
       "description": "rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict \"exception\"); Hand: mixed without a reason exits 4 with \"mixed without Separation-Reason\"",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-1: rcf audit separation passes a Hand: mixed commit with Separation-Reason as an exception (exceptions 1, --json verdict \"exception\"); Hand: mixed without a reason exits 4 with \"mixed without Separation-Reason\""
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-3: a Hand: mixed trailer fails \"<s7> Hand: mixed is retired; commit chores as FINALISE: within its file classes\" with or without Separation-Reason, whatever the commit touches"
     },
     {
       "id": "TC-256-class-override",
       "acId": "AC-19102-2",
       "description": "rcf audit separation with rcf/separation.json { classes: { test: [\"spec/**\"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-2: rcf audit separation with rcf/separation.json { classes: { test: [\"spec/**\"] } } exits 4 naming spec/a.js for a builder commit; a malformed rcf/separation.json exits 2 naming the file; a builder edit to it fails as a criteria-class touch"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name test is read as rcfTest with a warn line, an unknown class and unparsable JSON exit 2"
     },
     {
       "id": "TC-256-require-hand",
       "acId": "AC-19102-3",
       "description": "rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-3: rcf audit separation --require-hand exits 4 naming the commit and the missing trailer for a commit with no Hand: trailer or a Hand: builder commit with no Hand-Id: trailer"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-4: rcf audit separation --require-hand exits 2 with \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout"
     },
     {
       "id": "TC-256-ci-pull-request-step",
@@ -47,21 +47,21 @@
       "acId": "AC-19102-5",
       "description": "an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-5: an empty or whitespace Separation-Reason never turns Hand: mixed into a pass, and rcf audit separation on a shallow checkout exits 2 naming the missing base"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-6: no trailer turns a failing commit into a pass: \"BUILD: add test\" fails with its class item under no trailer, Hand: test-author or Hand: mixed with a reason, and a commit marked only by a Hand: trailer fails \"no stage prefix\""
     },
     {
       "id": "TC-256-require-hand-undeclared-breach",
       "acId": "AC-19102-3",
       "description": "rcf audit separation --require-hand exits 4 naming the missing Hand: trailer for a commit with no Hand: trailer that also touches test and production",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-3: rcf audit separation --require-hand exits 4 naming the missing Hand: trailer for a commit with no Hand: trailer that also touches test and production"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-4: rcf audit separation --require-hand exits 2 with \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout"
     },
     {
       "id": "TC-256-require-hand-builder-breach",
       "acId": "AC-19102-3",
       "description": "rcf audit separation --require-hand exits 4 naming the missing Hand-Id: trailer for a Hand: builder commit with no Hand-Id: trailer that also touches a test path",
       "status": "failing",
-      "testPointer": "test/cli/audit-separation-wiring.test.js::AC-19102-3: rcf audit separation --require-hand exits 4 naming the missing Hand-Id: trailer for a Hand: builder commit with no Hand-Id: trailer that also touches a test path"
+      "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-4: rcf audit separation --require-hand exits 2 with \"[error] usage --require-hand is retired; every commit needs a stage prefix\" and prints nothing on stdout"
     }
   ],
   "status": "draft"
