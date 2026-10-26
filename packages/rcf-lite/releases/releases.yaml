@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.36.2"
+latest: "0.37.0"
 releases:
+  - version: "0.37.0"
+    date: "2026-10-26"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.37.0 judges every commit by its stage prefix and every round by its order: rcf audit separation checks each commit, merges included, against the file classes its DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE: stage owns, rcf build verdict review and rcf build verdict test record a round's verdicts as files under rcf/verdicts/, rcf audit test-strength proves bound tests are real with a structural check and a mutation proof, and rcf audit coverage shows each criterion's and each spec's end state."
+      - "Breaking: rcf audit separation now fails a commit with no stage prefix, a malformed prefix or Hand: mixed, judges merge commits and exits 2 on --require-hand, and rcf define validate exits 3 on a criterion new or amended since the base that carries no verification flag, so runs that passed on 0.36.2 can fail. Put a stage prefix on every commit (subject a merge from main FINALISE: merge main), drop Hand: mixed and --require-hand from scripts and CI, read --json as SeparationRow v2, and flag new and amended criteria with rcf define update <ac-id> --set verification=<value>."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.36.1 and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged, so rcf doctor reports a clean hash and a 0.36.x rcf/separation.json still loads. Known issue: the block still names each hand by its Hand: trailer alone, so a commit written from that text alone fails with no stage prefix; put the stage prefix on every commit."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.36.2"
     date: "2026-10-25"
     breaking: false
