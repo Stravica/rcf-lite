@@ -1,0 +1,5 @@
+{
+  "entry": [{ "kind": "bin", "path": "bin/rcf.js" }],
+  "harness": ["test/_harness/**"],
+  "suiteCommand": "node --test --test-reporter=tap --test-concurrency=1 'test/**/*.test.js'"
+}
