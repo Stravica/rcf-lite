@@ -53,6 +53,20 @@ function testCasesCell(ac) {
   ].join(', ');
 }
 
+// FBS-235 (AC-19803-3): a criterion's end state as three cells, flag,
+// end and now; a retired criterion reads now 'retired' with end '-'.
+function endCells(ac) {
+  return [ac.verification ?? '-', ac.expectedEnd ?? '-', ac.now ?? '-'];
+}
+
+// FBS-235 (AC-19803-3): one row per spec scoping a criterion in scope,
+// its end state and where it is now, under the criterion rows.
+function formatSpecEnds(specs) {
+  if (!specs || specs.length === 0) return [];
+  const rows = [['Spec', 'end', 'now'], ...specs.map((s) => [s.fbsId, s.expectedEnd, s.now])];
+  return ['', 'Spec end state (information, never a gap):', renderTable(rows)];
+}
+
 function formatCoverageTable(result) {
   const lines = [];
   const modeLabel = result.strict ? 'strict (per-AC)' : 'shallow-any';
@@ -67,12 +81,13 @@ function formatCoverageTable(result) {
   const rows = [];
   // Phase 10 (X2 CodeNode bridge, D11): --with-code appends a Code column.
   const withCode = Boolean(result.withCode);
-  const header = ['Requirement', 'Covered', 'AC', 'AC covered', 'Test cases'];
+  // FBS-235: flag, end and now after AC covered (endCells).
+  const header = ['Requirement', 'Covered', 'AC', 'AC covered', 'flag', 'end', 'now', 'Test cases'];
   if (withCode) header.push('Code');
   rows.push(header);
   for (const req of result.requirements) {
     if (req.acs.length === 0) {
-      const row = [req.id, reqCoveredCell(req), '(no AC)', '-', '-'];
+      const row = [req.id, reqCoveredCell(req), '(no AC)', '-', '-', '-', '-', '-'];
       if (withCode) row.push('-');
       rows.push(row);
       continue;
@@ -83,6 +98,7 @@ function formatCoverageTable(result) {
         i === 0 ? reqCoveredCell(req) : '',
         ac.id,
         acCoveredCell(ac),
+        ...endCells(ac),
         testCasesCell(ac),
       ];
       if (withCode) row.push(ac.codeClass ?? '-');
@@ -90,6 +106,7 @@ function formatCoverageTable(result) {
     }
   }
   lines.push(renderTable(rows));
+  lines.push(...formatSpecEnds(result.specs));
   // FBS-228: one line per supersession error, each exactly as computed.
   const supersessionErrors = result.supersessionErrors ?? [];
   if (supersessionErrors.length > 0) {
