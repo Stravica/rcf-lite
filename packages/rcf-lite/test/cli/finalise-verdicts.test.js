@@ -27,7 +27,6 @@ import { commit, git, initRepo, porcelain, s7, sha } from '../_harness/git.js';
 import { baseSuiteRecord, bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, testStrengthReport, testVerdict, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { commandName, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-237 round DEFINE' };
 const BOTH = ['AC-101-1', 'AC-101-2'];
 const NAMES = { 'AC-101-1': 'first behaviour holds', 'AC-101-2': 'second behaviour holds', 'AC-101-3': 'third behaviour holds' };
 const SYMBOL = { 'AC-101-1': 'first', 'AC-101-2': 'second', 'AC-101-3': 'third' };
@@ -159,7 +158,7 @@ const reportPath = (H) => `rcf/verify-reports/FBS-001/${H.slice(0, 12)}.json`;
 
 // ---------------------------------------------------------------- US-20001
 
-test('AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree', TODO, async (t) => {
+test('AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree', async (t) => {
   const { dir, H, T } = await happy(t);
   assert.ok(!existsSync(join(dir, 'rcf', 'verify-reports')), 'given: no rcf/verify-reports/ directory at all');
   const r = await finalise(dir);
@@ -169,7 +168,7 @@ test('AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both cr
   assert.deepEqual(lines(porcelain(dir)).map((l) => l.slice(3)), ['rcf/fbs/fbs-001.json'], 'only rcf/fbs/fbs-001.json changes');
 });
 
-test('AC-20001-2: with no REVIEW: commit finalise exits 4 "finalise refused: no REVIEW verdict for FBS-001 on the branch", and with a ReviewVerdict MERGE/FINDINGS it exits 4 "finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round"', TODO, async (t) => {
+test('AC-20001-2: with no REVIEW: commit finalise exits 4 "finalise refused: no REVIEW verdict for FBS-001 on the branch", and with a ReviewVerdict MERGE/FINDINGS it exits 4 "finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round"', async (t) => {
   const a = await baseChain(t);
   defineCommit(a.dir, { status: 'inProgress' });
   const H = buildCommit(a.dir);
@@ -180,7 +179,7 @@ test('AC-20001-2: with no REVIEW: commit finalise exits 4 "finalise refused: no 
   await refuses(b.dir, [], 4, `finalise refused: REVIEW at ${s7(b.H)} is MERGE/FINDINGS; a failed verdict closes the round`);
 });
 
-test('AC-20001-3: with the TEST: commit absent finalise exits 4 "no TEST verdict at <H7>", with a TestVerdict FAIL at H "TEST at <H7> is FAIL", and with a TEST PASS at H then a FAIL TestVerdict at the later head M "TEST at <M7> is FAIL; a failed verdict closes the round"', TODO, async (t) => {
+test('AC-20001-3: with the TEST: commit absent finalise exits 4 "no TEST verdict at <H7>", with a TestVerdict FAIL at H "TEST at <H7> is FAIL", and with a TEST PASS at H then a FAIL TestVerdict at the later head M "TEST at <M7> is FAIL; a failed verdict closes the round"', async (t) => {
   const a = await baseChain(t);
   defineCommit(a.dir, { status: 'inProgress' });
   const H = buildCommit(a.dir);
@@ -197,7 +196,7 @@ test('AC-20001-3: with the TEST: commit absent finalise exits 4 "no TEST verdict
   await refuses(c.dir, [], 4, `finalise refused: TEST at ${s7(M)} is FAIL; a failed verdict closes the round`);
 });
 
-test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 "finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse', TODO, async (t) => {
+test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 "finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse', async (t) => {
   const a = await happy(t);
   const late = commit(a.dir, 'BUILD: late fix', { 'src/x.js': 'export function first() { return 11; }\nexport function second() { return 2; }\nexport function third() { return 3; }\n' });
   await refuses(a.dir, [], 4, `finalise refused: REVIEW reopened by ${s7(late)} BUILD: after the reviewed head ${s7(a.H)}`);
@@ -220,7 +219,7 @@ test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit re
   assert.equal(out(rd), completeLine(M, d.H));
 });
 
-test('AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with "finalise: FBS-001 complete (unchanged)" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0', TODO, async (t) => {
+test('AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with "finalise: FBS-001 complete (unchanged)" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0', async (t) => {
   const a = await happy(t);
   const first = await finalise(a.dir);
   assert.equal(first.code, 0, `${first.stdout}${first.stderr}`);
@@ -249,7 +248,7 @@ test('AC-20001-5: run again at the same head or after a FINALISE: status commit,
   assert.equal(out(r), completeLine(T2, H2));
 });
 
-test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only', TODO, async (t) => {
+test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only', async (t) => {
   const a = await happy(t);
   const M = mergeMain(a.dir);
   const r = await finalise(a.dir, ['--merge-suite', suiteFile(t, baseSuiteRecord(M))]);
@@ -271,7 +270,7 @@ test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suit
   assert.deepEqual([status(dir, 'FBS-001'), status(dir, 'FBS-002')], ['complete', 'complete'], 'finalising FBS-002 writes complete on FBS-002');
 });
 
-test('AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named', TODO, async (t) => {
+test('AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named', async (t) => {
   const specs = { 'FBS-001': { acIds: BOTH, status: 'notStarted' }, 'FBS-002': { acIds: ['AC-101-2'], status: 'inProgress' } };
   const ids = ['FBS-001', 'FBS-002'];
   const cases = [
@@ -303,7 +302,7 @@ test('AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-id
   assert.equal(fbsText(dir, 'FBS-002'), other, 'FBS-002 is byte-identical after finalising FBS-001');
 });
 
-test('AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite', TODO, async (t) => {
+test('AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite', async (t) => {
   const a = await happy(t);
   const M = mergeMain(a.dir);
   await refuses(a.dir, [], 4, `finalise refused: merge from main after the reviewed head; pass --merge-suite <a green base-suite record at ${s7(M)}>`);
@@ -318,7 +317,7 @@ test('AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with
   assert.equal(out(r), completeLine(S, b.H));
 });
 
-test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round', TODO, async (t) => {
+test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round', async (t) => {
   const a = await happy(t, { define: {} });
   assert.equal(status(a.dir), 'notStarted', 'given: FBS-001 at notStarted');
   await refuses(a.dir, [], 4, "finalise refused: FBS-001 is notStarted; the round's DEFINE: marks it inProgress");
@@ -346,7 +345,7 @@ test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarte
 
 // ---------------------------------------------------------------- US-20002
 
-test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-strength record at <H7>", with AC-101-2 failing "test-strength at <H7> fails for AC-101-2", and with a record covering AC-101-1 only "test-strength at <H7> omits AC-101-2"', TODO, async (t) => {
+test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-strength record at <H7>", with AC-101-2 failing "test-strength at <H7> fails for AC-101-2", and with a record covering AC-101-1 only "test-strength at <H7> omits AC-101-2"', async (t) => {
   const a = await happy(t, { testOpts: { strength: null } });
   await refuses(a.dir, [], 4, `finalise refused: no test-strength record at ${s7(a.H)}`);
   const b = await happy(t, { testOpts: { strength: { passing: ['AC-101-1'], failing: ['AC-101-2'] } } });
@@ -355,7 +354,7 @@ test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-st
   await refuses(c.dir, [], 4, `finalise refused: test-strength at ${s7(c.H)} omits AC-101-2`);
 });
 
-test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 "finalise refused: touched criteria omit AC-101-2 changed since <base7>"', TODO, async (t) => {
+test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 "finalise refused: touched criteria omit AC-101-2 changed since <base7>"', async (t) => {
   const thenText = (d) => editStory(d, 'US-101', (us) => { us.acceptanceCriteria.find((a) => a.id === 'AC-101-2').then = 'second behaviour holds, amended'; });
   const newCase = (d) => bindTests(d, [{ acId: 'AC-101-2', pointer: 'test/rcf/b.test.js::second behaviour holds again' }], { tsId: 'TS-002' });
   for (const edit of [thenText, newCase]) {
@@ -364,7 +363,7 @@ test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEF
   }
 });
 
-test('AC-20002-3: with no --ci-run finalise exits 4 "ci evidence missing: pass --ci-run <ref>", with AC-101-2 lacking a Code Node it exits 3 "finalise refused: missing Code Node for AC-101-2", and an untouched criterion of the spec with no Code Node does not refuse', TODO, async (t) => {
+test('AC-20002-3: with no --ci-run finalise exits 4 "ci evidence missing: pass --ci-run <ref>", with AC-101-2 lacking a Code Node it exits 3 "finalise refused: missing Code Node for AC-101-2", and an untouched criterion of the spec with no Code Node does not refuse', async (t) => {
   const a = await happy(t);
   const before = fbsText(a.dir);
   const r = await rcf(['build', 'finalise', 'FBS-001'], { cwd: a.dir });
@@ -383,7 +382,7 @@ test('AC-20002-3: with no --ci-run finalise exits 4 "ci evidence missing: pass -
   assert.equal(out(rc), completeLine(c.T, c.H));
 });
 
-test('AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 "finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)", and a Hand: mixed commit refuses the same way with the retired-mixed item', TODO, async (t) => {
+test('AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 "finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)", and a Hand: mixed commit refuses the same way with the retired-mixed item', async (t) => {
   const { dir } = await baseChain(t);
   defineCommit(dir, { status: 'inProgress' });
   const bad = commit(dir, 'BUILD: tests', { 'test/rcf/a.test.js': `${readText(dir, 'test/rcf/a.test.js')}// touched by BUILD\n` });
@@ -397,7 +396,7 @@ test('AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js mak
   assert.ok(!r.stdout.includes('complete'), 'no separation exception is accepted');
 });
 
-test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process', TODO, async (t) => {
+test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process', async (t) => {
   const { dir } = await happy(t);
   const log = spawnLog(scratch(t, 'rcf-h-spawn-'));
   const r = await finalise(dir, [], log.env);
@@ -409,7 +408,7 @@ test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only g
 
 // ---------------------------------------------------------------- US-20003
 
-test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing', TODO, async (t) => {
+test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing', async (t) => {
   const { dir } = await happy(t);
   const flags = [['--report', 'rcf/verify-reports/FBS-001/report.json'], ['--max-report-age', '7'], ['--mode', 'deterministic'], ['--url', 'http://localhost:8787'], ['--allow-pre-merge']];
   for (const flag of flags) {
@@ -424,7 +423,7 @@ test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode determ
   }
 });
 
-test('AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict', TODO, async (t) => {
+test('AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict', async (t) => {
   const plain = await happy(t);
   const p = await finalise(plain.dir);
   assert.equal(p.code, 0, `${p.stdout}${p.stderr}`);
@@ -449,7 +448,7 @@ test('AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-re
   await refuses(dir, [], 4, `finalise refused: no TEST verdict at ${s7(H)}`);
 });
 
-test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark refused: complete is written only by rcf build finalise from the recorded verdicts" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4', TODO, async (t) => {
+test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark refused: complete is written only by rcf build finalise from the recorded verdicts" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4', async (t) => {
   const dir = await project(t, { name: 'mark' });
   const mark = (to) => rcf(['build', 'mark', 'FBS-001', to], { cwd: dir });
   const set = (s) => editFbs(dir, 'FBS-001', (f) => { f.executionStatus = s; });
@@ -476,7 +475,7 @@ test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark re
   }
 });
 
-test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with "finalise: FBS-001 verified (unchanged: touched criteria are testOnly)" and no write, and with an external criterion touched it writes complete', TODO, async (t) => {
+test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with "finalise: FBS-001 verified (unchanged: touched criteria are testOnly)" and no write, and with an external criterion touched it writes complete', async (t) => {
   const base = { flags: { 'AC-101-1': 'testOnly', 'AC-101-2': 'external' }, specs: { 'FBS-001': { acIds: BOTH, status: 'verified' } } };
   const a = await happy(t, { base, define: {}, review: { touchedAcIds: ['AC-101-1'] }, testOpts: { strength: { passing: ['AC-101-1'] } } });
   const st = porcelain(a.dir);
@@ -494,7 +493,7 @@ test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touc
   assert.equal(status(b.dir), 'complete');
 });
 
-test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination', TODO, async (t) => {
+test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination', async (t) => {
   const runs = [];
   const fixtures = [
     ['inProgress round', () => happy(t)],
