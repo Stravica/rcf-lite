@@ -3,8 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 23, all external (US-20001 9, US-20002 5, US-20003 5;
-// round C, ruling RC-1: US-19604 1, US-19702 1, US-19803 2).
+// Criteria: 24, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19604 1, US-19701 1, US-19702 1, US-19803 2).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -614,4 +614,14 @@ test('AC-19604-8: with rcf/separation.json {"classes": {"rcfTest": ["spec/**"]}}
     assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
     assert.ok(r.stdout.includes(item), `from ${where}: stdout names "${item}"\n${r.stdout}${r.stderr}`);
   }
+});
+
+// ---------------------------------------------------------------- US-19701 (round C)
+
+test('AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding "test:AC-101-1:the bound test survives the noOp mutant" exits 0 and review.json records findings [{ id "F-1", locus "test", acId "AC-101-1", text "the bound test survives the noOp mutant" }]', async (t) => {
+  const { dir } = await baseChain(t);
+  const H = sha(dir);
+  const r = await rcf(['build', 'verdict', 'review', '--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'FINDINGS', '--finding', 'test:AC-101-1:the bound test survives the noOp mutant'], { cwd: dir });
+  assert.equal(r.code, 0, `a test-rooted finding is accepted\n${r.stdout}${r.stderr}`);
+  assert.deepEqual(readJson(dir, verdictPath(H, 'review.json')).findings, [{ id: 'F-1', locus: 'test', acId: 'AC-101-1', text: 'the bound test survives the noOp mutant' }]);
 });

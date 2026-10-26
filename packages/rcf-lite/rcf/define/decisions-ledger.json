@@ -3326,6 +3326,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19604-8.",
       "answeredAt": "2026-10-26T21:29:55.102Z",
       "resolvedAt": "2026-10-26T21:29:55.102Z"
+    },
+    {
+      "id": 152,
+      "question": "(rcf-lite round C DEFINE) rcf build verdict review --finding takes only a spec or build locus (FINDING in src/build/verdict.js:27, read by parseFinding), so a test-rooted finding has nowhere to go: does a criterion demand a test locus? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: --finding keeps the spec and build loci only"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19701 (external), scoped by FBS-237: --finding \"test:<AC id>:<text>\" is accepted and recorded with locus test beside spec and build"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:30:29.662Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19701-7.",
+      "answeredAt": "2026-10-26T21:30:30.073Z",
+      "resolvedAt": "2026-10-26T21:30:30.073Z"
     }
   ]
 }
