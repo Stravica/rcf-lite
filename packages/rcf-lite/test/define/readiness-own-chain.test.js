@@ -54,7 +54,6 @@ import { baseSuiteRecord, checkoutPackage, checkoutRoot, project, scratch, write
 import { hostFacts, json } from '../_harness/capture.js';
 import { MAIN_0361, readinessChips, readinessTrees } from '../_harness/goldens.js';
 
-const TODO = { todo: 'FBS-240 round DEFINE' };
 const PROFILE = 'rcf/.identity/profile.md';
 
 const pkg = () => checkoutPackage();
@@ -84,14 +83,14 @@ function scratchCopy(t) {
 
 // ---------------------------------------------------------------- US-20301
 
-test('AC-20301-1: at the current head node bin/rcf.js define readiness --check all from packages/rcf-lite exits 0, its Chips line reads D0:notApplicable and D1 to D8 passed, and it prints "Freezeable: yes"', TODO, async () => {
+test('AC-20301-1: at the current head node bin/rcf.js define readiness --check all from packages/rcf-lite exits 0, its Chips line reads D0:notApplicable and D1 to D8 passed, and it prints "Freezeable: yes"', async () => {
   const r = await readiness(pkg(), ['--check', 'all']);
   assert.equal(r.code, 0, `${r.stdout.slice(0, 3000)}${r.stderr.slice(-1000)}`);
   assert.ok(lines(r.stdout).includes('Chips: D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:passed'), `the Chips line\n${lines(r.stdout).find((l) => l.startsWith('Chips:'))}`);
   assert.ok(lines(r.stdout).some((l) => l.startsWith('Freezeable: yes')), `prints "Freezeable: yes"\n${lines(r.stdout).find((l) => l.startsWith('Freezeable:'))}`);
 });
 
-test('AC-20301-2: in a scratch copy at the current head with the freeze recorded by define freeze, build bundle --next --base-suite <a green record for that head> exits 0 without --override and emits the next bundle, and readiness no longer prints "Unfrozen"', TODO, async (t) => {
+test('AC-20301-2: in a scratch copy at the current head with the freeze recorded by define freeze, build bundle --next --base-suite <a green record for that head> exits 0 without --override and emits the next bundle, and readiness no longer prints "Unfrozen"', async (t) => {
   const dir = scratchCopy(t);
   const f = await rcf(['define', 'freeze'], { cwd: dir });
   assert.equal(f.code, 0, `define freeze records the freeze in the copy\n${f.stdout.slice(0, 2000)}${f.stderr.slice(-1500)}`);
@@ -104,7 +103,7 @@ test('AC-20301-2: in a scratch copy at the current head with the freeze recorded
   assert.ok(!r.stdout.includes('Unfrozen'), `readiness no longer prints "Unfrozen"\n${r.stdout.slice(0, 600)}`);
 });
 
-test('AC-20301-3: in a scratch copy at the current head, one new requirement created through rcf define create req with no shape, story or concern entries makes define readiness --check all exit 4 naming it under the D2 and D4 checks it fails', TODO, async (t) => {
+test('AC-20301-3: in a scratch copy at the current head, one new requirement created through rcf define create req with no shape, story or concern entries makes define readiness --check all exit 4 naming it under the D2 and D4 checks it fails', async (t) => {
   const dir = scratchCopy(t);
   const c = await rcf(['define', 'create', 'req', '--parent', 'PRD-001', '--title', 'A fixture requirement with nothing beneath it', '--description', 'Fixture: a requirement created to show the readiness checks hold the green state.'], { cwd: dir });
   assert.equal(c.code, 0, `${c.stdout}${c.stderr}`);
@@ -149,7 +148,7 @@ function ownChainGolden() {
 }
 const notApplicableStages = (doc) => doc.stages.filter((s) => s.state === 'notApplicable').map((s) => s.stage);
 
-test('AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb as the own-chain golden records it', TODO, async () => {
+test('AC-20301-4: over the named readiness fixture trees under test/fixtures/readiness/ the bin at the current head prints the Chips line of the chip golden captured from the round-base bin, and no stage of the own chain is notApplicable at the current head that was applicable at 639f07bb as the own-chain golden records it', async () => {
   const trees = join(pkg(), READINESS_DIR);
   assert.ok(existsSync(trees), `${ROUND_DEFINE_STEP}: ${READINESS_DIR}/ is absent`);
   assert.deepEqual(readinessTrees(trees), [...READINESS_TREES].sort(), `${ROUND_DEFINE_STEP}: the named trees`);
@@ -190,7 +189,7 @@ function checkLines(stdout, gate) {
   return out;
 }
 
-test('AC-20302-1: at the current head each of define readiness --check skeleton, shapes, stories, crosscut and consistency exits 0 with every one of its checks ok, the thirteen named checks included', TODO, async () => {
+test('AC-20302-1: at the current head each of define readiness --check skeleton, shapes, stories, crosscut and consistency exits 0 with every one of its checks ok, the thirteen named checks included', async () => {
   for (const [gate, names] of Object.entries(NAMED)) {
     const stage = gate.slice('define.'.length);
     const r = await readiness(pkg(), ['--check', stage]);
@@ -202,7 +201,7 @@ test('AC-20302-1: at the current head each of define readiness --check skeleton,
   }
 });
 
-test('AC-20302-2: every defineD4:failure and defineD4:mustNot opt-out in rcf/manifest.json names its REQ and carries a non-empty reason, and every waived concern-ledger entry carries a non-empty reason', TODO, async () => {
+test('AC-20302-2: every defineD4:failure and defineD4:mustNot opt-out in rcf/manifest.json names its REQ and carries a non-empty reason, and every waived concern-ledger entry carries a non-empty reason', async () => {
   const manifest = JSON.parse(readFileSync(join(pkg(), 'rcf', 'manifest.json'), 'utf8'));
   const optOuts = (manifest.baselineAcOptOuts ?? []).filter((o) => o.baselineKey === 'defineD4:failure' || o.baselineKey === 'defineD4:mustNot');
   const bad = optOuts.filter((o) => !(o.scope === 'req' && /^REQ-\d+$/.test(o.reqId ?? '') && String(o.reason ?? '').trim()));
@@ -215,7 +214,7 @@ test('AC-20302-2: every defineD4:failure and defineD4:mustNot opt-out in rcf/man
   assert.deepEqual(unreasoned, [], 'every waived concern carries a reason');
 });
 
-test('AC-20302-3: no criterion live on main at 639f07bb, as the own-chain golden records it, has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor', TODO, () => {
+test('AC-20302-3: no criterion live on main at 639f07bb, as the own-chain golden records it, has its description, given, when or then rewritten in place at the current head; a changed one is retired with the supersession fields and a live successor', () => {
   const then = new Map(Object.entries(ownChainGolden().liveCriteria));
   assert.ok(then.size > 0, `${OWN_CHAIN_GOLDEN} records the criteria live at 639f07bb`);
   const dir = join(pkg(), 'rcf', 'user-stories');
@@ -233,7 +232,7 @@ test('AC-20302-3: no criterion live on main at 639f07bb, as the own-chain golden
   assert.deepEqual(rewritten, [], 'no live criterion is rewritten in place');
 });
 
-test('AC-20302-4: define readiness --check all over the own chain (about 1300 documents or more) finishes within 2 seconds on the host the suite runs on', TODO, async (t) => {
+test('AC-20302-4: define readiness --check all over the own chain (about 1300 documents or more) finishes within 2 seconds on the host the suite runs on', async (t) => {
   hostFacts(t);
   const r = await readiness(pkg(), ['--check', 'all']);
   const docs = Number(/(\d+) documents/.exec(r.stdout)?.[1] ?? 0);
@@ -251,7 +250,7 @@ const REGISTER = { productOwner: /productOwner|product owner/i, engineer: /engin
 const chosen = (text, set) => Object.keys(set).filter((m) => new RegExp(`\\b${m}\\b`).test(text));
 const DATE = /\b\d{4}-\d{2}-\d{2}\b/;
 
-test('AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source', TODO, async () => {
+test('AC-20303-1: define readiness --level intent --check brief exits 0 with brief:profile 2/2, and the profile records one surface and one register answer naming the operator and the ruling date as their source', async () => {
   const r = await readiness(pkg(), ['--level', 'intent', '--check', 'brief']);
   assert.equal(r.code, 0, `${r.stdout.slice(0, 1500)}`);
   const check = (stageOf(await readinessJson(pkg()), 'define.brief')?.checks ?? []).find((k) => k.name === 'brief:profile');
@@ -264,7 +263,7 @@ test('AC-20303-1: define readiness --level intent --check brief exits 0 with bri
   assert.ok(/\bthe operator\b/i.test(text) && DATE.test(text), 'the ruling source (the operator and the date of the answer) is named');
 });
 
-test('AC-20303-2: in a scratch copy at the current head with the profile answers removed, define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner questions', TODO, async (t) => {
+test('AC-20303-2: in a scratch copy at the current head with the profile answers removed, define readiness --level intent --check brief exits 4 naming profile:surface and profile:register as the product owner questions', async (t) => {
   const dir = scratchCopy(t);
   assert.ok(existsSync(join(dir, PROFILE)), `given: the copy carries ${PROFILE}`);
   writeFileSync(join(dir, PROFILE), '# Profile\n\nNo answers recorded.\n');
@@ -329,7 +328,7 @@ const SOURCE = /^The operator, (\d{4}-\d{2}-\d{2}): "([^"]+)"$/;
 const PROFILE_STEP = `FBS-240's round DEFINE records the operator's answers in ${PROFILE} and commits it`;
 const SOURCE_STEP = 'FBS-240\'s round DEFINE mints the two operator source entries (node bin/rcf.js define ledger decisions add, then resolve: a question asking for the value of profile:surface or profile:register, an answer opening "The operator, 2026-10-24:" and quoting the operator in double quotes)';
 
-test('AC-20303-3: rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date', TODO, async (t) => {
+test('AC-20303-3: rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date', async (t) => {
   const root = checkoutRoot();
   const rel = `packages/rcf-lite/${PROFILE}`;
   // Every rcf/ records tree at HEAD (one at the time of writing,
@@ -395,7 +394,7 @@ function personaOrder(stdout) {
   return po < en ? 'productOwner' : 'engineer';
 }
 
-test('AC-20303-4: over the four fixture profiles of test/fixtures/profile/, written into projects made by rcf init, define readiness --json reports the profile the shared reader resolves, brief:profile fails each key whose section holds no bare value line or two, and the persona order of define readiness, the default persona of define questions and of the MCP tool and the data-rcf-register of the viewer all agree with it', TODO, async (t) => {
+test('AC-20303-4: over the four fixture profiles of test/fixtures/profile/, written into projects made by rcf init, define readiness --json reports the profile the shared reader resolves, brief:profile fails each key whose section holds no bare value line or two, and the persona order of define readiness, the default persona of define questions and of the MCP tool and the data-rcf-register of the viewer all agree with it', async (t) => {
   assert.deepEqual(readdirSync(PROFILE_FIXTURES).filter((f) => f !== 'README.md').sort(), Object.keys(RULED).sort(), 'the four fixture profiles');
   const owed = [];
   for (const [name, ruled] of Object.entries(RULED)) {
