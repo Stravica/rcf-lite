@@ -1,6 +1,6 @@
 {
   "cnId": "CN-927",
-  "path": "src/audit/separation.js#STAGE_ROLES",
+  "path": "src/audit/separation.js#judgeCommit",
   "implementsAcIds": [
     "AC-19601-1",
     "AC-19601-6",
@@ -11,5 +11,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-26T03:23:51.339Z",
-  "updatedAt": "2026-10-26T03:23:51.339Z"
+  "updatedAt": "2026-10-26T11:15:51.261Z"
 }

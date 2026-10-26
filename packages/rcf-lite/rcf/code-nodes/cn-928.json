@@ -1,6 +1,6 @@
 {
   "cnId": "CN-928",
-  "path": "src/audit/separation.js#CLASS_OWNERS",
+  "path": "src/audit/separation.js#judgeCommit",
   "implementsAcIds": [
     "AC-19601-2",
     "AC-19601-7",
@@ -14,5 +14,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-26T03:23:51.871Z",
-  "updatedAt": "2026-10-26T03:23:51.871Z"
+  "updatedAt": "2026-10-26T11:15:52.155Z"
 }
