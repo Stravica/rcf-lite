@@ -1,7 +1,8 @@
 // `rcf audit separation` handler (FBS-233, US-19601 to US-19604,
-// TAC-4153). Prints one PASS or FAIL line (or `--json` SeparationRow v2
-// objects) for the commits in a pull request's range, each judged by its
-// stage prefix against the path classes that stage owns
+// TAC-4153; round order FBS-234, US-19703, TAC-4154). Prints one PASS or
+// FAIL line (or `--json` SeparationRow v2 objects) for the commits in a
+// pull request's range, each judged by its stage prefix against the path
+// classes that stage owns, and the range judged on round order
 // (src/audit/separation.js).
 //
 // Exit table: 0 pass, 4 violation, 2 usage (the retired --require-hand
@@ -25,7 +26,8 @@ const OPTION_SPEC = {
 export const HELP = `Usage: rcf audit separation [--base <ref>] [--head <ref>] [--json]
 
 Judge every commit in a pull request's range by the stage prefix on its
-subject against the path classes that stage owns. The range is walked
+subject against the path classes that stage owns, and the range on round
+order (below). The range is walked
 with --first-parent from HEAD (or --head) to the merge-base with
 origin/main (or --base). A merge commit is a row judged by the paths its
 resolution changed (its combined diff); a commit reachable only through
@@ -78,6 +80,28 @@ line. A FINALISE: commit may touch a generator's outputs only with a
 Generated-By: <id> trailer naming it; checkedBy must exist at the head;
 the command is never run. A malformed file exits 2.
 
+Round order (stages DEFINE, BUILD, REVIEW, TEST, FINALISE): a range may
+start in any stage, and a commit stays in its round's stage or moves to
+a later one. Verdicts are read only from the file a commit adds, at that
+commit: a REVIEW: commit's rcf/verdicts/<h12>/review.json (written by
+rcf build verdict review) must name its parent, and MERGE/PASS passes;
+a TEST: commit's test.json (rcf build verdict test) must name the
+reviewed head, and needs a passed REVIEW verdict in the round. A failed
+review, a TEST FAIL or a failing test-strength.json closes the round,
+and the next commit must be DEFINE:, starting the next round. After a
+TEST PASS, a TEST: commit adding a FAIL test.json keyed to its own
+parent is legal after TEST: or FINALISE:, and closes the round. A
+REVIEW: or TEST: commit adding no verdict file counts as no verdict.
+Round items:
+  <sha7> <STAGE>: after <PREV>: without a failed verdict (stage order is
+    monotonic within a round)
+  <sha7> <STAGE>: after a failed verdict; the next round starts at DEFINE:
+  <sha7> REVIEW: after a passed REVIEW verdict (one REVIEW verdict per
+    round)
+  <sha7> REVIEW: verdict head <x7> is not its parent <p7>
+  <sha7> TEST: verdict head <x7> is not the reviewed head <h7>
+  <sha7> TEST: verdict with no passed REVIEW verdict in the round
+
 Prints one line:
   separation: PASS <n> commits (base <sha7>, head <sha7>): DEFINE <n>,
     BUILD <n>, REVIEW <n>, TEST <n>, FINALISE <n>, merges <n>,
@@ -87,7 +111,7 @@ Prints one line:
 Merges and transition commits also count under their stage. Each cause
 of a failing commit is its own item, in check order: the prefix (then
 the commit's only item), Hand: agreement, Hand: mixed, each path, each
-Generated-By id. Items are joined by "; ".
+Generated-By id, then its round items. Items are joined by "; ".
 
 Options:
   --base <ref>   Range start (default: merge-base with origin/main)
