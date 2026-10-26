@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-986",
+  "path": "src/audit/test-strength/index.js#dirtyTree",
+  "implementsAcIds": [
+    "AC-19903-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:41.066Z",
+  "updatedAt": "2026-10-26T08:49:41.066Z"
+}

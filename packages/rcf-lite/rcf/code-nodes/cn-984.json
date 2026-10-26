@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-984",
+  "path": "src/audit/test-strength/mutants.js#mutableTargets",
+  "implementsAcIds": [
+    "AC-19902-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:39.288Z",
+  "updatedAt": "2026-10-26T08:49:39.288Z"
+}

@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-975",
+  "path": "src/audit/test-strength/config.js#loadConfig",
+  "implementsAcIds": [
+    "AC-19901-5",
+    "AC-19903-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:31.301Z",
+  "updatedAt": "2026-10-26T08:49:31.301Z"
+}

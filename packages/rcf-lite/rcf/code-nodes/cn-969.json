@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-969",
+  "path": "src/audit/test-strength/structural.js#testFileFindings",
+  "implementsAcIds": [
+    "AC-19901-1",
+    "AC-19901-2",
+    "AC-19901-3",
+    "AC-19901-7",
+    "AC-19903-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T08:49:26.045Z",
+  "updatedAt": "2026-10-26T08:49:26.045Z"
+}
