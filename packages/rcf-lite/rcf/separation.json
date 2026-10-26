@@ -12,6 +12,12 @@
       "command": "node scripts/regen-phase-3-6-baseline.mjs",
       "outputs": ["test/view/fixtures/phase-3-6-static.html"],
       "checkedBy": "test/view/layout-regression.test.js"
+    },
+    {
+      "id": "coverage-goldens",
+      "command": "node bin/rcf.js audit coverage --format table > test/query/fixtures/coverage.table.txt && node bin/rcf.js audit coverage --format json > test/query/fixtures/coverage.json",
+      "outputs": ["test/query/fixtures/coverage.table.txt", "test/query/fixtures/coverage.json"],
+      "checkedBy": "test/query/fixtures.test.js"
     }
   ]
 }
