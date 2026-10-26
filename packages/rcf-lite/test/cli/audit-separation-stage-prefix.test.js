@@ -2,7 +2,7 @@
 // separation audit: per-stage file classes, hygiene tests, declared
 // generators, judged merges, Hand: mixed retired.
 //
-// Criteria: 30, all external. Every test is a node:test todo case
+// Criteria: 31, all external. Every test is a node:test todo case
 // ("FBS-233 round DEFINE", GR-35): it runs and is red until FBS-233's
 // round DEFINE drops the marker and BUILD turns it green. Each drives
 // bin/rcf.js (or the packed artefact) as a child process against a
@@ -437,6 +437,31 @@ test('AC-19603-8: over the passing generator fixture the audit runs no declared 
   assert.ok(spawned.length > 0, 'the spawn seam records the run');
   assert.deepEqual([...new Set(spawned.map(commandName))], ['git'], 'only git is spawned');
   assert.equal(existsSync(marker), false, 'the declared command never ran');
+});
+
+test('AC-19603-9: a "BUILD: regenerate queue goldens" commit with "Generated-By: queue-goldens" touching only a declared output passes with classes ["generatorOutput"] and generators ["queue-goldens"], while that output with no Generated-By and a Generated-By commit touching an output of another generator each fail exit 4 with their items', async (t) => {
+  // Its own fixture: queue-goldens (GENERATOR, read as is) and a second
+  // generator in the phase-3-6-baseline shape, both checkedBy files present.
+  const second = { id: 'phase-3-6-baseline', command: 'node scripts/regen-phase-3-6-baseline.mjs', outputs: ['test/view/fixtures/phase-3-6-static.html'], checkedBy: 'test/view/layout-regression.test.js' };
+  const { dir, base } = repo(t);
+  commit(dir, 'DEFINE: declare the generators', {
+    'rcf/separation.json': { generators: [GENERATOR, second] },
+    'test/build/queue.test.js': "test('queue golden', () => {});\n",
+    'test/view/layout-regression.test.js': "test('layout golden', () => {});\n",
+  });
+  const a = commit(dir, 'BUILD: regenerate queue goldens', { 'test/build/fixtures/queue.json': '[]\n' }, { trailers: [['Generated-By', 'queue-goldens']] });
+  const b = commit(dir, 'BUILD: goldens', { 'test/build/fixtures/queue.json': '[1]\n' });
+  const c = commit(dir, 'BUILD: goldens again', { 'test/view/fixtures/phase-3-6-static.html': '<html></html>\n' }, { trailers: [['Generated-By', 'queue-goldens']] });
+  const r = await sep(dir, ['--base', base]);
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  assert.equal(one(r.stdout), failLine(2, 4, base, c, [
+    `${s7(b)} BUILD: touches test/build/fixtures/queue.json (class rcfTest, owned by DEFINE)`,
+    `${s7(c)} BUILD: touches test/view/fixtures/phase-3-6-static.html (class rcfTest, owned by DEFINE)`,
+  ]), 'the Generated-By: queue-goldens commit is no item; the other two are');
+  const row = json((await sep(dir, ['--base', base, '--json'])).stdout).find((x) => x.sha === a);
+  assert.equal(row.verdict, 'pass', row.reason);
+  assert.deepEqual(row.classes, ['generatorOutput']);
+  assert.deepEqual(row.generators, ['queue-goldens']);
 });
 
 // ---------------------------------------------------------------- US-19604

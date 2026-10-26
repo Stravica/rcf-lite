@@ -3133,6 +3133,31 @@
       "answer": "b. The stage-keeper, 2026-10-25: \"FBS-240's deliverables: add the shared profile reader (AC-20303-4, ADR-4163) and the readiness --json profile field.\" Appended as two entries after the two existing ones, each naming the builder hand: \"The shared profile reader (AC-20303-4, ADR-4163): one reader in src/ that every consumer of profile:surface and profile:register resolves through (builder)\" and \"The profile field of rcf define readiness --json (AC-20303-4): profile: { surface, register }, each value the resolved marker word or unanswered (builder)\", the second in AC-20303-4's words; the two existing entries and every other field of FBS-240 are unchanged.",
       "answeredAt": "2026-10-25T01:06:25.487Z",
       "resolvedAt": "2026-10-25T01:06:25.487Z"
+    },
+    {
+      "id": 143,
+      "question": "(rcf-lite 0.37.0 DEFINE) 0.37.0 spec gap: where are goldens a BUILD moves re-recorded under strict round order? Source: stage-keeper ruling 22 on the FBS-234 BUILD return, 2026-10-26, at d2ce7063 (question q-2026-10-26-rcf-002).",
+      "options": [
+        {
+          "letter": "a",
+          "text": "Builds may regenerate: A BUILD commit may re-run a declared generator with Generated-By; one new FBS-233 criterion and a class-owner change; review re-runs the generator to check; works for every future round"
+        },
+        {
+          "letter": "b",
+          "text": "Test ignores stale goldens: TEST and CI skip declared-generator checks until FINALISE regenerates them; weaker gate, CI red on round heads"
+        },
+        {
+          "letter": "c",
+          "text": "New round per golden: A failed review verdict closes the round so a DEFINE commit can re-record; a full extra round every time a build moves a golden"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-233",
+      "addedAt": "2026-10-26T10:40:27.185Z",
+      "status": "resolved",
+      "answer": "a. The operator, 2026-10-26 about 08:05Z: \"1 & 2 - agree - do it\" Recorded as: \"(i) The generatorOutput class is owned by BUILD and FINALISE. A BUILD: commit may regenerate a declared generator's outputs only with Generated-By: <id>, and only that generator's outputs. FBS-233 gets a new criterion (happy, failure and must-not), and the TAC-4153 class owner changes. The Review gate re-runs each declared command at the reviewed head and checks the bytes are identical.\" \"(ii) The codeNode count pin in test/rcf-tree.test.js becomes a declared generator's output: the test reads the counts from a data file, and rcf/separation.json declares the generator that writes it.\"",
+      "answeredAt": "2026-10-26T10:40:33.808Z",
+      "resolvedAt": "2026-10-26T10:40:33.808Z"
     }
   ]
 }

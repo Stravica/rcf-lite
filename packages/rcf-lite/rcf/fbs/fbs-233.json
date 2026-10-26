@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:25:03.528Z",
-  "updatedAt": "2026-10-24T15:00:01.171Z",
+  "updatedAt": "2026-10-26T10:37:51.076Z",
   "summary": "rcf audit separation judges every commit, merges included, by its strict stage prefix against per-stage file classes with the role derived from the stage; hygiene tests get a builder class outside the RCF suite; FINALISE carries only its chores; Hand: mixed and --require-hand retire; an agreeing Hand: trailer is accepted through 0.37.x.",
   "approach": "Replace HANDS/OWNED with a stage table and the class map of TAC TAC-4153; read subjects, trailers and paths in one git log pass; judge merges by git diff-tree --cc paths; read rcf/separation.json v2 (classes, generators) from the head through git; coverage and validate learn the hygiene class. Help text and the PASS/FAIL lines change; the CI separation job is unchanged.",
   "deliverables": [
@@ -40,6 +40,7 @@
     "AC-19603-6",
     "AC-19603-7",
     "AC-19603-8",
+    "AC-19603-9",
     "AC-19604-1",
     "AC-19604-2",
     "AC-19604-3",
