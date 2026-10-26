@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-955",
+  "path": "src/define/validate-findings.js#resolveVerificationBase",
+  "implementsAcIds": [
+    "AC-19801-4",
+    "AC-19804-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T06:10:58.005Z",
+  "updatedAt": "2026-10-26T06:10:58.005Z"
+}
