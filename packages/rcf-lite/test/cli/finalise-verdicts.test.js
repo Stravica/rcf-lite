@@ -3,8 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 21, all external (US-20001 9, US-20002 5, US-20003 5;
-// round C, ruling RC-1: US-19702 1, US-19803 1).
+// Criteria: 22, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19702 1, US-19803 2).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -551,6 +551,18 @@ test('AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.
   assert.deepEqual(one.hygieneTestCases, [{ id: 'TC-001-hygiene', file: 'test/hygiene/a.test.js' }], 'the hygiene case is listed apart with its file');
   assert.deepEqual(one.testCases, ['TC-001-first'], 'testCases names only the RCF-suite case');
   assert.ok(!('hygieneTestCases' in coverageRow(j, 'AC-101-2')), 'a row with no hygiene binding carries no hygieneTestCases key');
+});
+
+test('AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later', async (t) => {
+  for (const [o1, o2, now] of [[1, 2, 'inProgress'], [2, 1, 'complete']]) {
+    const dir = await project(t, { name: 'tie' });
+    editStory(dir, 'US-101', (us) => { us.acceptanceCriteria = [criterion('AC-101-1', '[happy] first behaviour holds', { verification: 'external' })]; });
+    const one = readJson(dir, 'rcf/fbs/fbs-001.json');
+    editFbs(dir, 'FBS-001', () => ({ ...one, buildOrder: o1, acIds: ['AC-101-1'], executionStatus: 'complete' }));
+    editFbs(dir, 'FBS-002', () => ({ ...one, fbsId: 'FBS-002', title: 'FBS-002 fixture', summary: 'FBS-002 scopes AC-101-1.', buildOrder: o2, acIds: ['AC-101-1'], executionStatus: 'inProgress' }));
+    bindTests(dir, [{ acId: 'AC-101-1', pointer: pointer('AC-101-1') }]);
+    assert.equal(coverageRow(await coverageJson(dir), 'AC-101-1').now, now, `FBS-001 buildOrder ${o1}, FBS-002 buildOrder ${o2}: now reads ${now}`);
+  }
 });
 
 // ---------------------------------------------------------------- US-19702 (round C)

@@ -3284,6 +3284,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19702-9.",
       "answeredAt": "2026-10-26T21:28:39.533Z",
       "resolvedAt": "2026-10-26T21:28:39.533Z"
+    },
+    {
+      "id": 150,
+      "question": "(rcf-lite round C DEFINE) When several specs scope one criterion, coverage reads its end state from the latest in buildOrder (src/query/coverage.js scopingSpec, about :206 to :222), which the round B REVIEW found undemanded by any criterion: does a criterion demand that tie-break? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the latest-buildOrder tie-break stays undemanded"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19803 (external), scoped by FBS-237 and a declared regression guard: a criterion scoped by two specs reads now from the scoping spec latest in buildOrder"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:29:17.324Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19803-8.",
+      "answeredAt": "2026-10-26T21:29:17.735Z",
+      "resolvedAt": "2026-10-26T21:29:17.735Z"
     }
   ]
 }

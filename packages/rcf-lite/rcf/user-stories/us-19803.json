@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:10.197Z",
-  "updatedAt": "2026-10-26T21:27:37.444Z",
+  "updatedAt": "2026-10-26T21:29:09.678Z",
   "asA": "stage-keeper planning a release, or the operator running Verify",
   "iWant": "coverage to show, per criterion and per spec, the end state it must reach and where it is now",
   "soThat": "I can see which specs still need a release Verify and which are done at complete",
@@ -54,6 +54,12 @@
     {
       "id": "AC-19803-7",
       "description": "[edge] Given a fixture chain whose AC-101-1 is bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and whose AC-101-2 is bound only into test/rcf/a.test.js, when rcf audit coverage --format json runs, then the AC-101-1 row carries hygieneTestCases [{ id <the hygiene test case id>, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row carries no hygieneTestCases key.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19803-8",
+      "description": "[edge] Given AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), when rcf audit coverage --format json runs, then the AC-101-1 row reads now from the scoping spec latest in buildOrder: \"inProgress\" when FBS-002 is later in buildOrder, and \"complete\" when FBS-001 is later.",
       "testable": true,
       "verification": "external"
     }
