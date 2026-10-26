@@ -36,7 +36,16 @@ const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..');
 const rcfRoot = resolve(repoRoot, 'rcf');
 
+// Repository configuration files that sit under rcf/ beside the chain and
+// are not chain documents (stage-keeper ruling 11, rcf-lite 0.37.0 round
+// B): rcf/separation.json (TAC-4153, the separation audit's classes and
+// generators) and rcf/test-strength.json (TAC-4155, the test-strength
+// audit's entry, harness and suite command). They classify as config, are
+// counted, and are never validated or id-checked as documents.
+const CONFIG_FILES = new Set(['separation.json', 'test-strength.json']);
+
 function classify(relPath) {
+  if (CONFIG_FILES.has(relPath)) return 'config';
   if (relPath === 'manifest.json') return 'manifest';
   if (relPath === 'prd.json') return 'prd';
   if (relPath === 'tad.json') return 'tad';
@@ -88,16 +97,19 @@ function walk(dir, acc = [], projectRootForSkip = repoRoot) {
   return acc;
 }
 
-function loadAll(rootOverride) {
+// The chain documents under rcf/; { config: true } also returns the
+// configuration files (CONFIG_FILES), which only the counts read.
+function loadAll(rootOverride, { config = false } = {}) {
   const projectRoot = rootOverride ?? repoRoot;
   const rcfDir = resolve(projectRoot, 'rcf');
   const files = walk(rcfDir, [], projectRoot).sort();
-  return files.map((full) => {
+  const all = files.map((full) => {
     const rel = relative(rcfDir, full).split('\\').join('/');
     const kind = classify(rel);
     const json = JSON.parse(readFileSync(full, 'utf8'));
     return { full, rel, kind, json };
   });
+  return config ? all : all.filter((d) => d.kind !== 'config');
 }
 
 const expectedCounts = {
@@ -480,10 +492,13 @@ const expectedCounts = {
   // rcf-eval-node train added EVAL-001 for the AC-1601-4 judge run path
   // (0 -> 1). Chain schema: EVAL doc kind lands with rcf-schemas 0.6.0.
   evalDoc: 1,
+  // rcf-lite 0.37.0 round B DEFINE (2026-10-26, ruling 11): the two
+  // configuration files, rcf/separation.json and rcf/test-strength.json.
+  config: 2,
 };
 
 test('expected file counts by category', () => {
-  const docs = loadAll();
+  const docs = loadAll(undefined, { config: true });
   const counts = {};
   for (const d of docs) counts[d.kind] = (counts[d.kind] ?? 0) + 1;
   for (const [kind, expected] of Object.entries(expectedCounts)) {
