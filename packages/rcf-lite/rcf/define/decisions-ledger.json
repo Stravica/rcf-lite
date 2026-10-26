@@ -3263,6 +3263,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19803-7.",
       "answeredAt": "2026-10-26T21:27:57.720Z",
       "resolvedAt": "2026-10-26T21:27:57.720Z"
+    },
+    {
+      "id": 149,
+      "question": "(rcf-lite round C DEFINE) The verdict verbs refuse a project that is not a git repository and an unreadable --tap (src/build/verdict.js:178, :247 and :261), which the round B REVIEW found undemanded by any criterion: does a criterion demand those refusals? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the two refusals stay undemanded"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19702 (external), scoped by FBS-237 and a declared regression guard: outside git each verdict verb exits 4 with the not-a-git-repository refusal, and an unreadable --tap exits 2 with the cannot-be-read usage line, with no file under rcf/verdicts/"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:28:39.109Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19702-9.",
+      "answeredAt": "2026-10-26T21:28:39.533Z",
+      "resolvedAt": "2026-10-26T21:28:39.533Z"
     }
   ]
 }

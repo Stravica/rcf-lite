@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:36.705Z",
-  "updatedAt": "2026-10-26T00:07:39.946Z",
+  "updatedAt": "2026-10-26T21:28:31.563Z",
   "asA": "verifier at the TEST stage",
   "iWant": "to record PASS or FAIL for the reviewed head from the TAP summary of the full RCF suite",
   "soThat": "the TEST pass is a branch commit that names the code it tested",
@@ -60,6 +60,12 @@
     {
       "id": "AC-19702-8",
       "description": "[failure] Given a review.json for H with fbsIds [\"FBS-001\", \"FBS-002\"], rcf build verdict test --fbs FBS-001 --result PASS exits 2 with stderr \"[error] usage --fbs FBS-001 differs from the REVIEW verdict's fbsIds FBS-001,FBS-002\" and writes nothing; with --fbs FBS-002,FBS-001 it writes the verdict; given --by omitted, the review verdict's recordedBy reads \"reviewer\" and the test verdict's \"verifier\".",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19702-9",
+      "description": "[failure] Given a fixture project that is not a git repository, rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy PASS and rcf build verdict test --fbs FBS-001 --result PASS --tap <a readable TAP file> --runtime <text> each exit 4 with stderr \"verdict refused: not a git repository; a verdict names a committed head\"; given a git fixture, rcf build verdict test with --tap naming a file that does not exist exits 2 with stderr \"[error] usage --tap <file> cannot be read\"; in each case no file appears under rcf/verdicts/.",
       "testable": true,
       "verification": "external"
     }

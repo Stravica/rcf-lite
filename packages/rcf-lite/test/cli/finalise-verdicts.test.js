@@ -3,8 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 20, all external (US-20001 9, US-20002 5, US-20003 5;
-// round C, ruling RC-1: US-19803 1).
+// Criteria: 21, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19702 1, US-19803 1).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -26,7 +26,7 @@ import { join } from 'node:path';
 import { lines, rcf } from '../_harness/spawn.js';
 import { commit, git, initRepo, porcelain, s7, sha } from '../_harness/git.js';
 import { baseSuiteRecord, bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, testStrengthReport, testVerdict, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
-import { commandName, readSpawnLog, spawnLog } from '../_harness/capture.js';
+import { commandName, readSpawnLog, spawnLog, writeTap } from '../_harness/capture.js';
 
 const BOTH = ['AC-101-1', 'AC-101-2'];
 const NAMES = { 'AC-101-1': 'first behaviour holds', 'AC-101-2': 'second behaviour holds', 'AC-101-3': 'third behaviour holds' };
@@ -551,4 +551,37 @@ test('AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.
   assert.deepEqual(one.hygieneTestCases, [{ id: 'TC-001-hygiene', file: 'test/hygiene/a.test.js' }], 'the hygiene case is listed apart with its file');
   assert.deepEqual(one.testCases, ['TC-001-first'], 'testCases names only the RCF-suite case');
   assert.ok(!('hygieneTestCases' in coverageRow(j, 'AC-101-2')), 'a row with no hygiene binding carries no hygieneTestCases key');
+});
+
+// ---------------------------------------------------------------- US-19702 (round C)
+
+// A TAP file whose run passes the bound tests of both criteria, and the
+// TEST verdict verb over it.
+const passingTap = (t) => writeTap(join(scratch(t, 'rcf-h-tap-'), 'run.tap'), BOTH.map((acId) => ({ name: NAMES[acId] })));
+const verdictTest = (dir, tap) => rcf(['build', 'verdict', 'test', '--fbs', 'FBS-001', '--result', 'PASS', '--tap', tap, '--runtime', 'fixture app on localhost'], { cwd: dir });
+
+test('AC-19702-9: outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with "verdict refused: not a git repository; a verdict names a committed head", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with "[error] usage --tap <file> cannot be read"; no file appears under rcf/verdicts/', async (t) => {
+  const tap = passingTap(t);
+  const plain = await project(t, { name: 'nogit' });
+  const verbs = [
+    ['review', '--fbs', 'FBS-001', '--acs', 'AC-101-1', '--code', 'MERGE', '--adequacy', 'PASS'],
+    ['test', '--fbs', 'FBS-001', '--result', 'PASS', '--tap', tap, '--runtime', 'fixture app on localhost'],
+  ];
+  for (const args of verbs) {
+    const r = await rcf(['build', 'verdict', ...args], { cwd: plain });
+    assert.equal(r.code, 4, `verdict ${args[0]} outside git: exit 4\n${r.stdout}${r.stderr}`);
+    errHas(r, 'verdict refused: not a git repository; a verdict names a committed head');
+  }
+  assert.ok(!existsSync(join(plain, 'rcf', 'verdicts')), 'no rcf/verdicts/ outside git');
+
+  const { dir } = await baseChain(t);
+  defineCommit(dir, { status: 'inProgress' });
+  buildCommit(dir);
+  reviewCommit(dir);
+  const missing = join(scratch(t, 'rcf-h-tap-'), 'absent.tap');
+  const before = porcelain(dir);
+  const r = await verdictTest(dir, missing);
+  assert.equal(r.code, 2, `an unreadable --tap: exit 2\n${r.stdout}${r.stderr}`);
+  errHas(r, `[error] usage --tap ${missing} cannot be read`);
+  assert.equal(porcelain(dir), before, 'no file appears');
 });
