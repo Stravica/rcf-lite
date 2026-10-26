@@ -11,6 +11,7 @@ import { findProjectRoot } from '../view/index.js';
 // 0.30.0 PR 8 (REQ-178 / TAC-4126): define-validate findings.
 import { collectDefineValidateFindings } from '../define/validate-findings.js';
 import { validateVerifyCatalogKeys } from '../verify/engine/catalog.js';
+import { isHygieneTestPath } from '../audit/separation.js';
 
 const OPTION_SPEC = {
   quiet: { type: 'boolean' },
@@ -93,6 +94,27 @@ function collectTodoNotices(tree) {
 }
 
 /**
+ * FBS-233 (AC-19602-4): one warn line per test case whose testPointer
+ * points into a builder hygiene test. A hygiene binding is never a
+ * validation error; coverage never counts it.
+ * @param {object} tree - walker TreeModel
+ * @returns {string[]}
+ */
+function hygieneWarnings(tree) {
+  const lines = [];
+  for (const ts of tree.testSuites ?? []) {
+    for (const tc of ts.testCases ?? []) {
+      if (typeof tc?.testPointer !== 'string') continue;
+      const file = tc.testPointer.split('::')[0];
+      if (isHygieneTestPath(file)) {
+        lines.push(`[warn] ${tc.id} points into a hygiene test (${file}); hygiene tests are outside the RCF suite and never count as coverage`);
+      }
+    }
+  }
+  return lines;
+}
+
+/**
  * @param {string[]} argv - argv slice after `validate`
  * @param {object} [deps]
  * @returns {Promise<number>}
@@ -121,6 +143,7 @@ export async function main(argv, deps = {}) {
     return 2;
   }
   const { tree, errors } = await walkTree({ projectRoot });
+  for (const line of hygieneWarnings(tree)) stderr.write(`${line}\n`);
   // FBS-215: journey-record load errors are parked on the tree rather
   // than pushed onto the walker error list (so audit CLIs do not fail
   // on a discovery-record bug, per ADR-4142's read posture). The

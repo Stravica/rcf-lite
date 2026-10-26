@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-937",
+  "path": "src/cli/validate.js#hygieneWarnings",
+  "implementsAcIds": [
+    "AC-19602-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T03:25:23.275Z",
+  "updatedAt": "2026-10-26T03:25:23.275Z"
+}
