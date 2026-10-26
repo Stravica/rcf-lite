@@ -488,7 +488,7 @@ test('AC-19604-5: configured classes win (rcfTest on spec/**), the 0.36.x name t
     const r = await sep(dir, ['--base', base]);
     assert.equal(r.code, 4, `${JSON.stringify(classes)}\n${r.stdout}${r.stderr}`);
     assert.ok(r.stdout.includes(`${s7(c)} BUILD: touches spec/a.js (class rcfTest, owned by DEFINE)`), r.stdout);
-    assert.ok(!r.stdout.includes(s7(notes)), `packages/x/CHANGELOG.md classes release, so the FINALISE: commit has no item\n${r.stdout}`);
+    assert.doesNotMatch(r.stdout, new RegExp(`(?:\\): |; )${s7(notes)} `), `packages/x/CHANGELOG.md classes release, so no FAIL item names the FINALISE: commit (its sha7 is the head)\n${r.stdout}`);
     if (warn) assert.ok(r.stderr.split('\n').includes(warn), r.stderr);
   }
   const bogus = repo(t);
