@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:05.043Z",
-  "updatedAt": "2026-10-26T21:28:37.531Z",
+  "updatedAt": "2026-10-26T21:31:56.821Z",
   "purpose": "FBS-234: the external criteria of US-19702, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -12,7 +12,8 @@
     "AC-19702-6",
     "AC-19702-7",
     "AC-19702-8",
-    "AC-19702-9"
+    "AC-19702-9",
+    "AC-19702-10"
   ],
   "id": "TS-274",
   "usId": "US-19702",
@@ -80,6 +81,13 @@
       "description": "outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with \"verdict refused: not a git repository; a verdict names a committed head\", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with \"[error] usage --tap <file> cannot be read\"; no file appears under rcf/verdicts/",
       "status": "pending",
       "testPointer": "test/cli/finalise-verdicts.test.js::AC-19702-9: outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with \"verdict refused: not a git repository; a verdict names a committed head\", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with \"[error] usage --tap <file> cannot be read\"; no file appears under rcf/verdicts/"
+    },
+    {
+      "id": "TC-274-verdict-and-runner-dirty-checks",
+      "acId": "AC-19702-10",
+      "description": "an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
     }
   ],
   "status": "draft"

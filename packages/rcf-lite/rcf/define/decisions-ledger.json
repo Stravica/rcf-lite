@@ -3368,6 +3368,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19703-12.",
       "answeredAt": "2026-10-26T21:31:16.622Z",
       "resolvedAt": "2026-10-26T21:31:16.622Z"
+    },
+    {
+      "id": 154,
+      "question": "(rcf-lite round C DEFINE) rcf build verdict test treats an untracked rcf/verify-reports/ as a dirty tree and rcf verify run treats rcf/verdicts/ as one, so the one TEST: commit carrying the reports and test.json together cannot be produced from one tree: does a criterion demand that each verb's dirty check ignore the other's directory? Source: round B ruling 33, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: each verb keeps refusing the other's untracked output as a dirty tree"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19702 (external), scoped by FBS-237: the verdict verb's dirty check ignores untracked files under rcf/verify-reports/ and the verify runner's ignores rcf/verdicts/, while any other uncommitted change still refuses each as dirty"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:31:58.383Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"The mutual refusal is a tool defect: round C DEFINE criterion on FBS-234's successor, \"the verdict verb's dirty check ignores untracked files under rcf/verify-reports/ and the verify runner's ignores rcf/verdicts/\".\" Recorded as: AC-19702-10.",
+      "answeredAt": "2026-10-26T21:31:58.807Z",
+      "resolvedAt": "2026-10-26T21:31:58.807Z"
     }
   ]
 }

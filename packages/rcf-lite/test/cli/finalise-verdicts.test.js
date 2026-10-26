@@ -3,8 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 25, all external (US-20001 9, US-20002 5, US-20003 5;
-// round C, ruling RC-1: US-19604 1, US-19701 1, US-19702 1, US-19703 1, US-19803 2).
+// Criteria: 26, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19604 1, US-19701 1, US-19702 2, US-19703 1, US-19803 2).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -21,6 +21,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync } from 'node:fs';
+import { createServer } from 'node:http';
 import { join } from 'node:path';
 
 import { lines, rcf } from '../_harness/spawn.js';
@@ -596,6 +597,43 @@ test('AC-19702-9: outside a git repository rcf build verdict review and rcf buil
   assert.equal(r.code, 2, `an unreadable --tap: exit 2\n${r.stdout}${r.stderr}`);
   errHas(r, `[error] usage --tap ${missing} cannot be read`);
   assert.equal(porcelain(dir), before, 'no file appears');
+});
+
+const VERDICT_DIRTY = 'verdict refused: working tree is dirty; a verdict names a committed head';
+const RUNNER_DIRTY = 'verify report refused: working tree is dirty; the report must name a committed head';
+
+test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4', async (t) => {
+  const tap = passingTap(t);
+  const a = await baseChain(t);
+  defineCommit(a.dir, { status: 'inProgress' });
+  const H = buildCommit(a.dir);
+  reviewCommit(a.dir);
+  const src = readText(a.dir, 'src/x.js');
+  writeText(a.dir, 'src/x.js', `${src}// uncommitted\n`);
+  const dirty = await verdictTest(a.dir, tap);
+  assert.equal(dirty.code, 4, `given: a change to src/x.js is dirty to the verdict verb\n${dirty.stdout}${dirty.stderr}`);
+  errHas(dirty, VERDICT_DIRTY);
+  writeText(a.dir, 'src/x.js', src);
+  writeJson(a.dir, reportPath(H), verifyReport(H, 'PASS'));
+  const r = await verdictTest(a.dir, tap);
+  assert.equal(r.code, 0, `an untracked report under rcf/verify-reports/ is not a dirty tree to the verdict verb\n${r.stdout}${r.stderr}`);
+  assert.ok(existsSync(join(a.dir, verdictPath(H, 'test.json'))), 'test.json is written');
+
+  const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); });
+  await new Promise((res) => server.listen(0, '127.0.0.1', res));
+  t.after(() => new Promise((res) => server.close(res)));
+  const b = await baseChain(t);
+  defineCommit(b.dir, { status: 'inProgress' });
+  const B = buildCommit(b.dir);
+  const run = () => rcf(['verify', 'run', '--url', `http://127.0.0.1:${server.address().port}`, '--hand', 'verifier', '--fbs', 'FBS-001', '--engine', 'node', '--served-sha', B], { cwd: b.dir });
+  writeText(b.dir, 'src/x.js', `${readText(b.dir, 'src/x.js')}// uncommitted\n`);
+  const rd = await run();
+  assert.equal(rd.code, 4, `given: a change to src/x.js is dirty to the verify runner\n${rd.stdout}${rd.stderr}`);
+  errHas(rd, RUNNER_DIRTY);
+  git(b.dir, 'checkout', '--', 'src/x.js');
+  writeJson(b.dir, verdictPath(B, 'test.json'), testVerdict(B));
+  const rv = await run();
+  assert.ok(!lines(rv.stderr).includes(RUNNER_DIRTY), `an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${rv.code}\n${rv.stdout}${rv.stderr}`);
 });
 
 // ---------------------------------------------------------------- US-19604 (round C)
