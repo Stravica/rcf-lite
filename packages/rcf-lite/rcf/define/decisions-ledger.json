@@ -3305,6 +3305,27 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19803-8.",
       "answeredAt": "2026-10-26T21:29:17.735Z",
       "resolvedAt": "2026-10-26T21:29:17.735Z"
+    },
+    {
+      "id": 151,
+      "question": "(rcf-lite round C DEFINE) rcf audit separation reads rcf/separation.json relative to the working directory (src/audit/separation.js, about :554), not at the project root as other verbs resolve the chain: does a criterion demand that it resolve at the project root? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the separation config stays read relative to the working directory"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19604 (external), scoped by FBS-237: run from a subdirectory of the project, rcf audit separation resolves rcf/separation.json at the project root (the directory holding rcf/manifest.json) and judges as it does from the root"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:29:54.681Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19604-8.",
+      "answeredAt": "2026-10-26T21:29:55.102Z",
+      "resolvedAt": "2026-10-26T21:29:55.102Z"
     }
   ]
 }

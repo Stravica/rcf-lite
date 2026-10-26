@@ -3,8 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 22, all external (US-20001 9, US-20002 5, US-20003 5;
-// round C, ruling RC-1: US-19702 1, US-19803 2).
+// Criteria: 23, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19604 1, US-19702 1, US-19803 2).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -596,4 +596,22 @@ test('AC-19702-9: outside a git repository rcf build verdict review and rcf buil
   assert.equal(r.code, 2, `an unreadable --tap: exit 2\n${r.stdout}${r.stderr}`);
   errHas(r, `[error] usage --tap ${missing} cannot be read`);
   assert.equal(porcelain(dir), before, 'no file appears');
+});
+
+// ---------------------------------------------------------------- US-19604 (round C)
+
+test('AC-19604-8: with rcf/separation.json {"classes": {"rcfTest": ["spec/**"]}} at the head and a "BUILD: code" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with "(class rcfTest, owned by DEFINE)", as it does from the project root', async (t) => {
+  const dir = await project(t, { name: 'root' });
+  writeJson(dir, 'rcf/separation.json', { classes: { rcfTest: ['spec/**'] } });
+  writeText(dir, '.gitignore', 'node_modules/\n');
+  initRepo(dir);
+  const base = commit(dir, 'fixture: base chain');
+  git(dir, 'switch', '-q', '-c', 'feature');
+  const bad = commit(dir, 'BUILD: code', { 'spec/a.js': 'export const a = 1;\n', 'src/x.js': 'export const x = 1;\n' });
+  const item = `${s7(bad)} BUILD: touches spec/a.js (class rcfTest, owned by DEFINE)`;
+  for (const [where, cwd] of [['the project subdirectory src/', join(dir, 'src')], ['the project root', dir]]) {
+    const r = await rcf(['audit', 'separation', '--base', base], { cwd });
+    assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
+    assert.ok(r.stdout.includes(item), `from ${where}: stdout names "${item}"\n${r.stdout}${r.stderr}`);
+  }
 });
