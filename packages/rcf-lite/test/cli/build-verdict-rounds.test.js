@@ -364,6 +364,15 @@ test('AC-19703-2: a REVIEW: with code FINDINGS followed by DEFINE: starts round 
   D(dir, 'DEFINE: triage'); const h = B(dir); R(dir); T(dir, h);
   const r = await sep(dir, ['--base', base]);
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  // Control (stage-keeper ruling 8): the same branch with the first
+  // REVIEW: recording MERGE/PASS, so the DEFINE: follows a passed verdict
+  // and round order refuses it (AC-19703-3).
+  const c = repo(t);
+  D(c.dir); B(c.dir); R(c.dir);
+  const d = D(c.dir, 'DEFINE: triage'); const h2 = B(c.dir); R(c.dir); T(c.dir, h2);
+  const r2 = await sep(c.dir, ['--base', c.base]);
+  assert.equal(r2.code, 4, `the control exits 4: a DEFINE: after a passed REVIEW: is a stage regression\n${r2.stdout}${r2.stderr}`);
+  has(r2, `${s7(d)} DEFINE: after REVIEW: without a failed verdict ${MONO}`);
 });
 
 test('AC-19703-3: BUILD: after a passed REVIEW:, DEFINE: after a passed REVIEW: or a TEST: PASS, and DEFINE: after BUILD: with no verdict between each fail "<s7> <STAGE>: after <PREV>: without a failed verdict (stage order is monotonic within a round)"', async (t) => {
