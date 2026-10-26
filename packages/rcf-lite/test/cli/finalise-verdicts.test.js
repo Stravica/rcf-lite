@@ -3,7 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 19, all external (US-20001 9, US-20002 5, US-20003 5).
+// Criteria: 20, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19803 1).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -517,4 +518,37 @@ test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executi
     }
   }
   t.diagnostic(runs.join('\n'));
+});
+
+// ------------------------------------------- round C (stage-keeper ruling RC-1)
+//
+// Criteria on FBS-233 to FBS-235's stories that FBS-237 scopes (round B
+// rulings 28 and 33): the coverage rows, the separation config, the
+// verdict verb and the verify runner's dirty check, which the light
+// Finalise reads or hardens. AC-19803-7, AC-19803-8 and AC-19702-9 are
+// declared regression guards (ruling RC-2): green at the round DEFINE head.
+
+const coverageJson = async (dir) => {
+  const r = await rcf(['audit', 'coverage', '--format', 'json'], { cwd: dir });
+  assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  return JSON.parse(r.stdout);
+};
+const coverageRow = (j, id) => j.requirements.flatMap((q) => q.acs).find((a) => a.id === id);
+
+// ---------------------------------------------------------------- US-19803 (round C)
+
+test('AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file "test/hygiene/a.test.js" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key', async (t) => {
+  const dir = await project(t, { name: 'hyg' });
+  editStory(dir, 'US-101', (us) => { us.acceptanceCriteria = BOTH.map((id) => criterion(id, `[happy] ${NAMES[id]}`, { verification: 'external' })); });
+  editFbs(dir, 'FBS-001', (f) => { f.acIds = BOTH; });
+  bindTests(dir, [
+    { acId: 'AC-101-1', pointer: 'test/hygiene/a.test.js::first behaviour holds', tcId: 'TC-001-hygiene' },
+    { acId: 'AC-101-1', pointer: pointer('AC-101-1'), tcId: 'TC-001-first' },
+    { acId: 'AC-101-2', pointer: pointer('AC-101-2'), tcId: 'TC-001-second' },
+  ]);
+  const j = await coverageJson(dir);
+  const one = coverageRow(j, 'AC-101-1');
+  assert.deepEqual(one.hygieneTestCases, [{ id: 'TC-001-hygiene', file: 'test/hygiene/a.test.js' }], 'the hygiene case is listed apart with its file');
+  assert.deepEqual(one.testCases, ['TC-001-first'], 'testCases names only the RCF-suite case');
+  assert.ok(!('hygieneTestCases' in coverageRow(j, 'AC-101-2')), 'a row with no hygiene binding carries no hygieneTestCases key');
 });

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:47:28.408Z",
-  "updatedAt": "2026-10-24T16:47:29.711Z",
+  "updatedAt": "2026-10-26T21:27:55.711Z",
   "purpose": "FBS-235: the external criteria of US-19803, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-235's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -8,7 +8,8 @@
     "AC-19803-2",
     "AC-19803-3",
     "AC-19803-4",
-    "AC-19803-6"
+    "AC-19803-6",
+    "AC-19803-7"
   ],
   "id": "TS-279",
   "usId": "US-19803",
@@ -48,6 +49,13 @@
       "description": "a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows",
       "status": "pending",
       "testPointer": "test/define/verification-end-state.test.js::AC-19803-6: a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows"
+    },
+    {
+      "id": "TC-279-with-ac-101-1-bound-by-one-test-case",
+      "acId": "AC-19803-7",
+      "description": "with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key"
     }
   ],
   "status": "draft"
