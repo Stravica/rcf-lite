@@ -36,6 +36,15 @@
 // listed apart on `hygieneTestCases` with its file. A chain with no
 // hygiene binding gets no such field.
 //
+// FBS-235 (US-19803; ADR-4155, TAC-4152): every criterion row carries its
+// end state, as information: verification (external | testOnly |
+// unflagged), expectedEnd (verified for external, complete for testOnly,
+// unknown when unflagged, null when retired) and now (the scoping spec's
+// executionStatus capped at expectedEnd, notStarted when no spec scopes
+// it, retired when retired). `specs` carries expectedEnd and now for each
+// spec scoping a criterion in scope. None of it is a gap: `ok` and the
+// exit codes never read it.
+//
 // Phase 5 §D10 scoping: no positional -> tree-wide; positional PRD id
 // -> scope to REQs whose prdId matches; positional REQ id -> scope to
 // that REQ; positional US id -> scope to the REQ that owns that US.
@@ -58,6 +67,9 @@ import { isHygieneTestPath } from '../audit/separation.js';
  * @property {Array<{id: string, file: string}>} [hygieneTestCases] - FBS-233: present only when a TC points into a hygiene test
  * @property {'retired'} [state] - FBS-228: present only on a retired criterion
  * @property {string} [supersededBy] - FBS-228: the successor of a retired criterion
+ * @property {'external'|'testOnly'|'unflagged'} verification - FBS-235: the criterion's flag
+ * @property {'verified'|'complete'|'unknown'|null} expectedEnd - FBS-235: null when retired
+ * @property {'notStarted'|'inProgress'|'complete'|'verified'|'retired'} now - FBS-235
  */
 
 /**
@@ -84,6 +96,8 @@ import { isHygieneTestPath } from '../audit/separation.js';
  * @property {Array<{acId: string, supersededBy: string, problem: 'successorMissing'|'selfSupersession'|'cycle', message: string}>} [supersessionErrors] -
  *   FBS-228: present only when a retired criterion in scope has a missing
  *   successor, supersedes itself or sits in a cycle
+ * @property {Array<{fbsId: string, expectedEnd: 'verified'|'complete'|'unknown', now: string}>} specs -
+ *   FBS-235: each spec scoping a criterion in scope, in id order
  */
 
 /**
@@ -162,6 +176,7 @@ export function computeCoverage(tree, opts = {}) {
       ...(retiredAcs > 0 ? { retiredAcs } : {}),
     },
     requirements,
+    specs: specEndStates(tree, requirements),
     unresolvedTestPointers: [...unresolvedByKey.values()]
       .sort((a, b) => (a.tsId + a.tcId).localeCompare(b.tsId + b.tcId)),
   };
@@ -179,6 +194,80 @@ export function computeCoverage(tree, opts = {}) {
 /** Criterion ids in numeric order (AC-101-2 before AC-101-10). */
 function compareAcIds(a, b) {
   return a.localeCompare(b, 'en', { numeric: true });
+}
+
+// FBS-235: the execution statuses in order, for the cap on `now`.
+const STATUS_ORDER = ['notStarted', 'inProgress', 'complete', 'verified'];
+const END_BY_FLAG = { external: 'verified', testOnly: 'complete' };
+const flagOf = (ac) => (END_BY_FLAG[ac.verification] ? ac.verification : 'unflagged');
+
+/**
+ * The spec whose executionStatus a criterion's end state reads: the one
+ * scoping it (FBS acIds), or, when several do, the latest in buildOrder
+ * (then the highest id). Null when no spec scopes it.
+ *
+ * @param {TreeModel} tree
+ * @param {string} acId
+ * @returns {object|null}
+ */
+export function scopingSpec(tree, acId) {
+  let best = null;
+  for (const fbsId of tree.fbsByAcId?.get(acId) ?? []) {
+    const fbs = tree.byId?.get(fbsId);
+    if (!fbs) continue;
+    if (!best) { best = fbs; continue; }
+    const a = Number.isInteger(fbs.buildOrder) ? fbs.buildOrder : -1;
+    const b = Number.isInteger(best.buildOrder) ? best.buildOrder : -1;
+    if (a > b || (a === b && compareAcIds(fbs.fbsId, best.fbsId) > 0)) best = fbs;
+  }
+  return best;
+}
+
+/**
+ * A criterion's end state (ADR-4155): its flag, the status it must reach
+ * and where it is now. A criterion never reads past its end: a testOnly
+ * criterion on a verified spec reads complete. Information only.
+ *
+ * @param {TreeModel} tree
+ * @param {object} ac - the criterion as stored
+ * @returns {{ verification: string, expectedEnd: string|null, now: string }}
+ */
+export function endState(tree, ac) {
+  const verification = flagOf(ac);
+  if (typeof ac.supersededBy === 'string') return { verification, expectedEnd: null, now: 'retired' };
+  const expectedEnd = END_BY_FLAG[verification] ?? 'unknown';
+  let now = scopingSpec(tree, ac.id)?.executionStatus;
+  if (!STATUS_ORDER.includes(now)) now = 'notStarted';
+  if (expectedEnd !== 'unknown' && STATUS_ORDER.indexOf(now) > STATUS_ORDER.indexOf(expectedEnd)) now = expectedEnd;
+  return { verification, expectedEnd, now };
+}
+
+/**
+ * Each spec scoping a criterion in scope, with its end state: expectedEnd
+ * verified when any of its live criteria is external, else unknown when
+ * any is unflagged, else complete; now its executionStatus.
+ *
+ * @param {TreeModel} tree
+ * @param {ReqCoverage[]} requirements - the rows in scope
+ * @returns {Array<{ fbsId: string, expectedEnd: string, now: string }>}
+ */
+export function specEndStates(tree, requirements) {
+  const fbsIds = new Set();
+  for (const req of requirements) {
+    for (const ac of req.acs) for (const id of tree.fbsByAcId?.get(ac.id) ?? []) fbsIds.add(id);
+  }
+  const acById = new Map();
+  for (const us of tree.userStories ?? []) for (const ac of us.acceptanceCriteria ?? []) if (ac?.id) acById.set(ac.id, ac);
+  const specs = [];
+  for (const fbsId of [...fbsIds].sort(compareAcIds)) {
+    const fbs = tree.byId?.get(fbsId);
+    if (!fbs) continue;
+    const live = (fbs.acIds ?? []).map((id) => acById.get(id)).filter((ac) => ac && typeof ac.supersededBy !== 'string');
+    const flags = new Set(live.map(flagOf));
+    const expectedEnd = flags.has('external') ? 'verified' : flags.has('unflagged') ? 'unknown' : 'complete';
+    specs.push({ fbsId, expectedEnd, now: fbs.executionStatus });
+  }
+  return specs;
 }
 
 /**
@@ -374,6 +463,7 @@ function collectAcs(tree, reqId, opts = {}) {
         ...(hygieneTcs.length > 0
           ? { hygieneTestCases: hygieneTcs.sort((a, b) => a.id.localeCompare(b.id)) }
           : {}),
+        ...endState(tree, ac),
       };
       if (withCode) {
         const cnIds = [...(tree.cnByAcId?.get(ac.id) ?? [])].sort();

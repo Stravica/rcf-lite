@@ -19,6 +19,12 @@
 // FBS-233 (US-19602): a TC bound into a builder hygiene test is left out
 // of coverage in query/coverage.js and named by the table formatter.
 //
+// FBS-235 (US-19803, ADR-4155): each criterion's end state (verification,
+// expectedEnd, now) and each spec's (expectedEnd, now) are derived in
+// query/coverage.js; the table prints flag, end and now and a spec
+// table, JSON carries the fields, Mermaid is unchanged. Information
+// only: the exit codes and the gaps never read them.
+//
 // Phase-boundary reminder (§D2, §1.4): this verb is a MECHANICAL /
 // DETERMINISTIC structural check. It does NOT answer "does the AC
 // set adequately capture the REQ's intent?" - that non-deterministic
@@ -80,6 +86,16 @@ directory directly under test/, tests/ or __tests__/, or a
 *.hygiene.test.* file) is outside the RCF suite: it never counts as
 coverage, in any format, and its row names it 'hygiene test, outside
 the RCF suite: <file>'.
+
+Each criterion row also shows its end state, as information that never
+changes the exit code or the gaps: flag (external | testOnly |
+unflagged), end (verified for external, complete for testOnly, unknown
+when unflagged; '-' when retired) and now (the scoping spec's
+executionStatus, never past the end; retired for a retired criterion).
+A spec table follows: end is verified when any of its live criteria is
+external, else unknown when any is unflagged, else complete; now is its
+executionStatus. --format json carries verification, expectedEnd and
+now per criterion and a specs list; --format mermaid is unchanged.
 
 This is a mechanical / deterministic structural check. It does NOT
 answer 'does the AC set adequately capture the REQ's intent?' - that
