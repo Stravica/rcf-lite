@@ -46,7 +46,7 @@ export const CLASS_OWNERS = {
   versionField: ['FINALISE'],
   lockfile: ['DEFINE', 'BUILD', 'FINALISE'],
   neutral: ['DEFINE', 'BUILD'],
-  generatorOutput: ['FINALISE'],
+  generatorOutput: ['BUILD', 'FINALISE'],
 };
 
 // The classes rcf/separation.json may name. versionField depends on a
