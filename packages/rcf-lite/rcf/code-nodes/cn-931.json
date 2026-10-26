@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-931",
+  "path": "src/audit/separation.js#isHygieneTestPath",
+  "implementsAcIds": [
+    "AC-19602-1",
+    "AC-19602-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T03:23:53.470Z",
+  "updatedAt": "2026-10-26T03:23:53.470Z"
+}

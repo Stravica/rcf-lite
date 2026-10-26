@@ -127,7 +127,7 @@ audit        Inspect the tree and its rollups.
   coverage [scope-id]      Structural coverage over the REQ chain.
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
-  separation               Hand separation over a pull request's commits.
+  separation               Stage-prefix separation over pull request commits.
 
 Options:
   --version                Print the package version and exit.
@@ -278,8 +278,8 @@ Verbs:
                            (spec rcf-eval-node-2026-09-04 section 4).
   trace <id>               Walk the graph forward, back, or both from a node.
   impact <id>              Change-impact fan-out from a node.
-  separation               Judge each commit's Hand: trailer against the
-                           path classes it touches over a PR range.
+  separation               Judge each commit's stage prefix against the
+                           path classes that stage owns over a PR range.
 
 Run 'rcf help audit <verb>' for per-verb help.
 `;

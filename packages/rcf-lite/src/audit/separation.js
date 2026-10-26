@@ -1,46 +1,104 @@
-// `rcf audit separation` core (FBS-222, ADR-4149). Judges each non-merge
-// commit in a git range by its `Hand:` trailer against the path classes
-// it touches.
+// `rcf audit separation` core (FBS-233, TAC-4153, ADR-4153). Judges
+// every commit in a git range, merges included, by the strict stage
+// prefix on its subject (DEFINE:, BUILD:, REVIEW:, TEST:, FINALISE:)
+// against the path classes that stage owns; the role follows from the
+// stage. Through 0.37.x a Hand: trailer is read only to check that it
+// agrees with that role (ADR-4162).
 //
 // Read-only and deterministic: git is read through one spawn seam
-// (`runGit`, shaped like resolveGitBranch in src/cli/finalise.js); no
-// file write, no network, no chain read. The classifier and the verdict
-// function are pure.
+// (`runGit`); no file write (the RCF_SPAWN_LOG seam aside, when it is
+// set), no network, no chain read, and a declared generator's command
+// is never run. Repository files are read through git at the commits in
+// the range (rcf/separation.json at the head). The prefix parser, the
+// classifier and the verdict function are pure.
 
 import { spawn } from 'node:child_process';
+import { appendFileSync } from 'node:fs';
 
-// The five estate hands plus mixed (ADR-4149).
-export const HANDS = ['test-author', 'builder', 'reviewer', 'verifier', 'stage-keeper', 'mixed'];
-
-// Classes each declared hand owns; every hand may also touch neutral.
-// reviewer owns none (neutral paths only). mixed owns none: it passes
-// only as an exception, with a non-empty Separation-Reason: (FBS-223).
-const OWNED = {
-  'test-author': ['test', 'criteria'],
-  builder: ['production'],
-  reviewer: [],
-  verifier: ['verifierEvidence'],
-  'stage-keeper': ['stageKeeper'],
+// The five stages in their order, each with the role it derives.
+export const STAGE_ROLES = {
+  DEFINE: 'test-author',
+  BUILD: 'builder',
+  REVIEW: 'reviewer',
+  TEST: 'verifier',
+  FINALISE: 'stage-keeper',
 };
 
-// Lockfiles of the common ecosystems; any other basename ending .lock
-// (flake.lock, Podfile.lock, mix.lock) is matched by LOCKFILE_SUFFIX.
+// Each class and the stages that own it (TAC-4153 "Default path classes
+// and owners"). Neutral paths are open to DEFINE and BUILD only; REVIEW
+// and TEST own only their verdict and evidence classes.
+export const CLASS_OWNERS = {
+  criteria: ['DEFINE'],
+  rcfTest: ['DEFINE'],
+  hygieneTest: ['BUILD'],
+  production: ['BUILD'],
+  reviewVerdict: ['REVIEW'],
+  testVerdict: ['TEST'],
+  verifierEvidence: ['TEST'],
+  releaseEvidence: ['FINALISE'],
+  chainStatus: ['DEFINE', 'FINALISE'],
+  release: ['BUILD', 'FINALISE'],
+  versionField: ['FINALISE'],
+  lockfile: ['DEFINE', 'BUILD', 'FINALISE'],
+  neutral: ['DEFINE', 'BUILD'],
+  generatorOutput: ['FINALISE'],
+};
+
+// The classes rcf/separation.json may name. versionField depends on a
+// commit's diff and generatorOutput on its Generated-By: trailer, so
+// neither is a path class a glob can grant.
+const CONFIGURABLE = Object.keys(CLASS_OWNERS).filter((c) => c !== 'versionField' && c !== 'generatorOutput');
+// 0.36.x class names that changed, read with a warn line; criteria,
+// production, verifierEvidence and neutral keep their names.
+const RENAMED = { test: 'rcfTest', stageKeeper: 'release' };
+
+// The 0.36.1 lockfile set: the common ecosystems' lockfiles, and any
+// other basename ending .lock (flake.lock, Podfile.lock, mix.lock).
 const LOCKFILES = new Set([
   'pnpm-lock.yaml', 'package-lock.json', 'npm-shrinkwrap.json', 'yarn.lock', 'bun.lockb', 'bun.lock',
   'Cargo.lock', 'Gemfile.lock', 'poetry.lock', 'uv.lock', 'composer.lock', 'go.sum',
 ]);
 const LOCKFILE_SUFFIX = /.\.lock$/;
 const TEST_DIRS = new Set(['test', 'tests', '__tests__', 'e2e']);
+// A hygiene/ directory directly under one of these test roots.
+const HYGIENE_ROOTS = new Set(['test', 'tests', '__tests__']);
 // .test. or .spec. as a dotted basename segment, whatever follows it
 // (widget.test.js, widget.test.d.ts, widget.spec.js.map).
 const TEST_FILE = /\.(test|spec)\.[^.]/;
-const STAGE_KEEPER_FILE = /^(CHANGELOG|RELEASE)/i;
+const HYGIENE_FILE = /\.hygiene\.test\.[^.]/;
+const RELEASE_FILE = /^(CHANGELOG|RELEASE)/i;
+const H12 = /^[0-9a-f]{12}$/;
 
-// The six path classes, and the override file (ADR-4149), which is read
-// from the head commit relative to the working directory.
-const CLASSES = ['test', 'criteria', 'production', 'verifierEvidence', 'stageKeeper', 'neutral'];
-const OVERRIDE_PATH = 'rcf/separation.json';
-const MIXED_NO_REASON = 'mixed without Separation-Reason';
+const CONFIG_PATH = 'rcf/separation.json';
+const CONFIG_SHAPE = 'expected { "classes": { <class>: [glob, ...] }, "generators": [ { "id", "command", "outputs", "checkedBy" } ] }';
+
+const STRICT_PREFIX = /^(DEFINE|BUILD|REVIEW|TEST|FINALISE): (?=\S)/;
+// A first token that reaches for a stage: one ending ":" (define:,
+// VERIFY:, DEFINE(FBS-1):) or naming a stage word in any case or
+// punctuation (DEFINE:x, DEFINE, [DEFINE]).
+const STAGE_WORD = /^[^A-Za-z]*(define|build|review|test|finalise|finalize)(?![A-Za-z])/i;
+const USE = 'use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:';
+const MIXED_RETIRED = 'Hand: mixed is retired; commit chores as FINALISE: within its file classes';
+const MERGE_FIX = 'a merge that needs a code fix is not committed in FINALISE: record TEST FAIL and merge main in the next round';
+
+/**
+ * The spawn log seam (TAC-4153): with RCF_SPAWN_LOG=<file> set, one JSON
+ * line { command, args } per child process is appended to <file>; unset,
+ * nothing is written. A failed append never fails the verb.
+ *
+ * @param {string} command
+ * @param {string[]} args
+ * @param {NodeJS.ProcessEnv} [env]
+ */
+export function recordSpawn(command, args, env = process.env) {
+  const file = env.RCF_SPAWN_LOG;
+  if (!file) return;
+  try {
+    appendFileSync(file, `${JSON.stringify({ command, args })}\n`);
+  } catch {
+    // The seam observes; it never changes the verb's outcome.
+  }
+}
 
 /**
  * Glob to an anchored RegExp: `**` spans directories, `*` and `?` stay
@@ -63,12 +121,26 @@ function globToRegExp(glob) {
   return new RegExp(`^${re}$`);
 }
 
+/** True when any glob matches the path or any of its tails. */
+function matchesAtAnyDepth(path, globs) {
+  const segs = path.split('/');
+  for (let at = 0; at < segs.length; at += 1) {
+    const tail = segs.slice(at).join('/');
+    if (globs.some((re) => re.test(tail))) return true;
+  }
+  return false;
+}
+
 /**
- * Parse the text of rcf/separation.json, `{ classes: { <class>: [glob, ...] } }`,
- * into a class table of [class, RegExp[]] pairs in CLASSES order.
+ * Parse the text of rcf/separation.json v2, `{ classes, generators }`
+ * (both optional), into a class table of [class, RegExp[]] pairs in file
+ * order, the declared generators and the warn lines for 0.36.x class
+ * names. The checkedBy existence check needs the head commit and is made
+ * by auditSeparation.
  *
  * @param {string} text
- * @returns {{ ok: true, table: Array<[string, RegExp[]]> } | { ok: false, detail: string }}
+ * @returns {{ ok: true, table: Array<[string, RegExp[]]>, generators: Array<{ id: string, outputs: RegExp[], checkedBy: string }>, warnings: string[] }
+ *   | { ok: false, detail: string }}
  */
 export function parseOverride(text) {
   let doc;
@@ -77,210 +149,368 @@ export function parseOverride(text) {
   } catch (err) {
     return { ok: false, detail: err.message };
   }
-  const classes = doc?.classes;
-  if (!doc || typeof doc !== 'object' || Array.isArray(doc) || !classes || typeof classes !== 'object' || Array.isArray(classes)) {
-    return { ok: false, detail: 'expected { "classes": { <class>: [glob, ...] } }' };
-  }
-  for (const [cls, globs] of Object.entries(classes)) {
-    if (!CLASSES.includes(cls)) return { ok: false, detail: `unknown class ${cls}` };
+  if (!doc || typeof doc !== 'object' || Array.isArray(doc)) return { ok: false, detail: CONFIG_SHAPE };
+  // Both keys are optional; present, each must have its shape.
+  const classes = doc.classes === undefined ? {} : doc.classes;
+  const generators = doc.generators === undefined ? [] : doc.generators;
+  if (!classes || typeof classes !== 'object' || Array.isArray(classes)) return { ok: false, detail: CONFIG_SHAPE };
+  const table = [];
+  const warnings = [];
+  for (const [name, globs] of Object.entries(classes)) {
+    const cls = RENAMED[name] ?? name;
+    if (!CONFIGURABLE.includes(cls)) return { ok: false, detail: `unknown class ${name}` };
     if (!Array.isArray(globs) || !globs.every((g) => typeof g === 'string' && g !== '')) {
-      return { ok: false, detail: `classes.${cls} is not an array of globs` };
+      return { ok: false, detail: `classes.${name} is not an array of globs` };
     }
+    if (cls !== name) warnings.push(`separation: class ${name} is read as ${cls}`);
+    table.push([cls, globs.map(globToRegExp)]);
   }
-  return { ok: true, table: CLASSES.filter((c) => classes[c]).map((c) => [c, classes[c].map(globToRegExp)]) };
+  if (!Array.isArray(generators)) return { ok: false, detail: 'generators is not an array' };
+  const declared = [];
+  for (const [i, g] of generators.entries()) {
+    const at = `generators[${i}]`;
+    if (!g || typeof g !== 'object' || Array.isArray(g)) return { ok: false, detail: `${at} is not an object` };
+    if (typeof g.id !== 'string' || g.id === '') return { ok: false, detail: `${at}.id is required` };
+    if (typeof g.command !== 'string' || g.command === '') return { ok: false, detail: `${at}.command is required` };
+    if (!Array.isArray(g.outputs) || g.outputs.length === 0 || !g.outputs.every((o) => typeof o === 'string' && o !== '')) {
+      return { ok: false, detail: `${at}.outputs must list at least one glob` };
+    }
+    if (typeof g.checkedBy !== 'string' || g.checkedBy === '') return { ok: false, detail: `${at}.checkedBy is required` };
+    declared.push({ id: g.id, outputs: g.outputs.map(globToRegExp), checkedBy: g.checkedBy });
+  }
+  return { ok: true, table, generators: declared, warnings };
 }
 
 /**
- * Path class for a repo-relative path. Defaults match at any depth, so
- * `packages/x/rcf/fbs/a.json` and `rcf/fbs/a.json` class alike. An
- * override table (parseOverride) is consulted first and its globs match
- * at any depth too; the override file itself always classes criteria.
+ * True for a builder hygiene test: a path under a hygiene/ directory
+ * directly beneath test/, tests/ or __tests__/ (at any depth), or a
+ * *.hygiene.test.* file. Hygiene tests sit outside the RCF suite.
  *
  * @param {string} path
- * @param {Array<[string, RegExp[]]>} [table]
- * @returns {'test'|'criteria'|'production'|'verifierEvidence'|'stageKeeper'|'neutral'}
+ * @returns {boolean}
  */
-export function classifyPath(path, table = []) {
+export function isHygieneTestPath(path) {
+  const segs = path.split('/');
+  const dirs = segs.slice(0, -1);
+  for (let i = 0; i + 1 < dirs.length; i += 1) {
+    if (HYGIENE_ROOTS.has(dirs[i]) && dirs[i + 1] === 'hygiene') return true;
+  }
+  return HYGIENE_FILE.test(segs[segs.length - 1]);
+}
+
+/**
+ * Path class for a repo-relative path. Configured classes come first, in
+ * file order, each glob tried against every path tail; then the
+ * defaults, each matching at any depth, in TAC-4153's order. The
+ * override file itself always classes criteria.
+ *
+ * @param {string} path
+ * @param {{ table?: Array<[string, RegExp[]]>, generated?: boolean, versionOnly?: boolean }} [opts]
+ *   generated: a Generated-By: trailer on the commit names a declared
+ *   generator whose outputs match the path; versionOnly: the commit's
+ *   diff of this package.json changes only its "version" line.
+ * @returns {string}
+ */
+export function classifyPath(path, { table = [], generated = false, versionOnly = false } = {}) {
   const segs = path.split('/');
   const name = segs[segs.length - 1];
   const dirs = segs.slice(0, -1);
   if (name === 'separation.json' && dirs[dirs.length - 1] === 'rcf') return 'criteria';
   for (const [cls, globs] of table) {
-    for (let at = 0; at < segs.length; at += 1) {
-      const tail = segs.slice(at).join('/');
-      if (globs.some((re) => re.test(tail))) return cls;
-    }
+    if (matchesAtAnyDepth(path, globs)) return cls;
   }
+  if (generated) return 'generatorOutput';
   const rcfAt = dirs.indexOf('rcf');
   if (rcfAt !== -1) {
     const sub = segs.slice(rcfAt + 1);
-    if (sub[0] === 'code-nodes' && sub.length > 1) return 'production';
-    if (sub[0] === 'verify-reports' && sub.length > 1) return 'verifierEvidence';
-    if (sub[0] === 'fbs' && sub.length > 1) return 'neutral';
     if (sub.length === 1 && sub[0] === 'manifest.json') return 'neutral';
+    if (sub[0] === 'verdicts' && sub.length === 3 && H12.test(sub[1])) {
+      if (sub[2] === 'review.json') return 'reviewVerdict';
+      if (sub[2] === 'test.json' || sub[2] === 'test-strength.json') return 'testVerdict';
+    }
+    if (sub[0] === 'verify-reports' && sub[1] === 'releases' && sub.length > 2) return 'releaseEvidence';
+    if (sub[0] === 'verify-reports' && sub.length > 1) return 'verifierEvidence';
+    if (sub[0] === 'fbs' && sub.length > 1) return 'chainStatus';
+    if (sub[0] === 'code-nodes' && sub.length > 1) return 'production';
     return 'criteria';
   }
   if (dirs.includes('.github')) return 'neutral';
-  if (LOCKFILES.has(name) || LOCKFILE_SUFFIX.test(name)) return 'neutral';
-  if (STAGE_KEEPER_FILE.test(name)) return 'stageKeeper';
+  if (LOCKFILES.has(name) || LOCKFILE_SUFFIX.test(name)) return 'lockfile';
+  if (name === 'package.json' && versionOnly) return 'versionField';
+  if (RELEASE_FILE.test(name) || (name === 'releases.yaml' && dirs[dirs.length - 1] === 'releases')) return 'release';
   if (/\.md$/i.test(name)) return 'neutral';
-  if (dirs.some((d) => TEST_DIRS.has(d)) || TEST_FILE.test(name)) return 'test';
+  if (isHygieneTestPath(path)) return 'hygieneTest';
+  if (dirs.some((d) => TEST_DIRS.has(d)) || TEST_FILE.test(name)) return 'rcfTest';
   return 'production';
 }
 
 /**
- * Verdict for one commit from its declared hand (null when undeclared)
- * and its paths. `reason` is the Separation-Reason: value and `handId`
- * the Hand-Id: value (null when absent); `requireHand` fails a commit
- * with no Hand:, or a builder commit with no Hand-Id:, and that missing
- * trailer leads the reason even when the commit also breaks ownership.
+ * The stage a subject's strict prefix names, or why it names none.
  *
- * @param {string|null} hand
- * @param {string[]} paths
- * @param {{ reason?: string|null, handId?: string|null, requireHand?: boolean, table?: Array<[string, RegExp[]]> }} [opts]
- * @returns {{ classes: string[], verdict: 'pass'|'fail'|'exception', reason: string|null, offending: string[] }}
+ * @param {string} subject
+ * @returns {{ stage: string|null, malformed: string|null }} malformed is
+ *   the first token (the subject up to its first space) of a near-miss
+ *   prefix, null for a subject with no prefix at all
  */
-export function judgeCommit(hand, paths, { reason = null, handId = null, requireHand = false, table = [] } = {}) {
-  const classed = paths.map((p) => [p, classifyPath(p, table)]);
-  const classes = [...new Set(classed.map(([, c]) => c))].sort();
-  const nonNeutral = classed.filter(([, c]) => c !== 'neutral');
-  const pass = { classes, verdict: 'pass', reason: null, offending: [] };
-
-  if (hand !== null && !HANDS.includes(hand)) {
-    return { classes, verdict: 'fail', reason: `unknown hand ${hand}`, offending: paths };
-  }
-  if (hand === 'mixed') {
-    const text = (reason ?? '').trim();
-    if (text) return { classes, verdict: 'exception', reason: text, offending: [] };
-    return { classes, verdict: 'fail', reason: MIXED_NO_REASON, offending: [] };
-  }
-  if (hand === null) {
-    const missing = requireHand ? 'missing Hand: trailer' : null;
-    const touched = new Set(nonNeutral.map(([, c]) => c));
-    if (touched.size > 1) {
-      const breach = `undeclared commit touches ${[...touched].sort().join(' and ')}`;
-      return {
-        classes,
-        verdict: 'fail',
-        reason: missing ? `${missing}, ${breach}` : breach,
-        offending: nonNeutral.map(([p]) => p),
-      };
-    }
-    if (missing) return { classes, verdict: 'fail', reason: missing, offending: [] };
-    return pass;
-  }
-  const missing = requireHand && hand === 'builder' && !(handId ?? '').trim() ? 'missing Hand-Id: trailer' : null;
-  const owned = OWNED[hand];
-  const foreign = nonNeutral.filter(([, c]) => !owned.includes(c));
-  if (foreign.length === 0) {
-    if (missing) return { classes, verdict: 'fail', reason: missing, offending: [] };
-    return pass;
-  }
-  const foreignClasses = [...new Set(foreign.map(([, c]) => c))].sort();
-  const breach = `${hand} touches ${foreignClasses.join(' and ')}`;
-  return {
-    classes,
-    verdict: 'fail',
-    reason: missing ? `${missing}, ${breach}` : breach,
-    offending: foreign.map(([p]) => p),
-  };
+export function parsePrefix(subject) {
+  const m = STRICT_PREFIX.exec(subject);
+  if (m) return { stage: m[1], malformed: null };
+  const token = subject.split(' ')[0];
+  if (token.endsWith(':') || STAGE_WORD.test(token)) return { stage: null, malformed: token };
+  return { stage: null, malformed: null };
 }
 
 /**
- * The one git spawn seam. Resolves { code, stdout, stderr }; code is
- * null when git could not be spawned.
+ * Verdict for one commit: its stage and role from the subject prefix, the
+ * classes of the paths it touches (a merge: its combined-diff paths) and
+ * each cause of failure as its own item, in check order: prefix (a
+ * missing or malformed prefix is the only item), Hand: agreement, Hand:
+ * mixed, each path in order, then each undeclared Generated-By id.
+ * Items carry no sha.
+ *
+ * @param {{ subject: string, merge?: boolean, hand?: string|null, generatedBy?: string[], paths?: string[], versionOnly?: Set<string> }} commit
+ * @param {{ table?: Array<[string, RegExp[]]>, generators?: Array<{ id: string, outputs: RegExp[] }> }} [config]
+ * @returns {{ stage: string|null, role: string|null, classes: string[], items: string[], transition: boolean }}
+ */
+export function judgeCommit(commit, { table = [], generators = [] } = {}) {
+  const { subject, merge = false, hand = null, generatedBy = [], paths = [], versionOnly = new Set() } = commit;
+  const { stage, malformed } = parsePrefix(subject);
+  const role = stage ? STAGE_ROLES[stage] : null;
+  const named = generators.filter((g) => generatedBy.includes(g.id));
+  const classed = paths.map((p) => [p, classifyPath(p, {
+    table,
+    generated: named.some((g) => matchesAtAnyDepth(p, g.outputs)),
+    versionOnly: versionOnly.has(p),
+  })]);
+  const classes = [...new Set(classed.map(([, c]) => c))].sort();
+  if (!stage) {
+    const item = malformed !== null ? `malformed stage prefix "${malformed}"; ${USE}` : 'no stage prefix';
+    return { stage, role, classes, items: [item], transition: false };
+  }
+  const items = [];
+  if (hand !== null && hand !== 'mixed' && hand !== role) items.push(`Hand: ${hand} disagrees with ${stage}: (role ${role})`);
+  if (hand === 'mixed') items.push(MIXED_RETIRED);
+  for (const [path, cls] of classed) {
+    const owners = CLASS_OWNERS[cls];
+    if (owners.includes(stage)) continue;
+    if (merge && stage === 'FINALISE') {
+      items.push(`FINALISE: merge resolution touches ${path} (class ${cls}); ${MERGE_FIX}`);
+    } else if (stage === 'FINALISE' && cls === 'production' && path.split('/').pop() === 'package.json') {
+      items.push(`FINALISE: changes ${path} beyond its "version" line (class production, owned by BUILD)`);
+    } else {
+      items.push(`${stage}: touches ${path} (class ${cls}, owned by ${owners.join(', ')})`);
+    }
+  }
+  for (const id of generatedBy) {
+    if (!generators.some((g) => g.id === id)) items.push(`Generated-By: ${id} is not declared in rcf/separation.json`);
+  }
+  return { stage, role, classes, items, transition: hand !== null && hand === role };
+}
+
+/**
+ * True when a package.json diff changes only its "version" line: the
+ * same line count, and every line that differs is a "version" line on
+ * both sides. A file added, deleted or reshaped is beyond the line.
+ *
+ * @param {string|null} before
+ * @param {string|null} after
+ * @returns {boolean}
+ */
+function onlyVersionLine(before, after) {
+  if (before === null || after === null) return false;
+  const a = before.split('\n');
+  const b = after.split('\n');
+  if (a.length !== b.length) return false;
+  const version = /^\s*"version"\s*:/;
+  let changed = 0;
+  for (let i = 0; i < a.length; i += 1) {
+    if (a[i] === b[i]) continue;
+    if (!version.test(a[i]) || !version.test(b[i])) return false;
+    changed += 1;
+  }
+  return changed > 0;
+}
+
+/**
+ * The one git spawn seam. Resolves { code, stdout, stderr, raw }; code
+ * is null when git could not be spawned, raw is stdout as bytes. `input`
+ * is written to git's stdin. Every spawn is recorded by recordSpawn.
  *
  * @param {string[]} args
- * @param {{ cwd: string, deps?: { spawn?: Function } }} opts
+ * @param {{ cwd: string, deps?: { spawn?: Function }, input?: string|null }} opts
  */
-export function runGit(args, { cwd, deps = {} }) {
+export function runGit(args, { cwd, deps = {}, input = null }) {
   const spawnFn = deps.spawn ?? spawn;
+  const argv = ['-c', 'core.quotePath=false', ...args];
+  recordSpawn('git', argv);
   return new Promise((resolveP) => {
-    let stdout = '';
-    let stderr = '';
+    const out = [];
+    const err = [];
+    const failed = (message) => resolveP({ code: null, stdout: '', stderr: message, raw: Buffer.alloc(0) });
     let child;
     try {
-      child = spawnFn('git', ['-c', 'core.quotePath=false', ...args], {
-        cwd, stdio: ['ignore', 'pipe', 'pipe'],
-      });
-    } catch (err) {
-      resolveP({ code: null, stdout: '', stderr: err.message });
+      child = spawnFn('git', argv, { cwd, stdio: [input === null ? 'ignore' : 'pipe', 'pipe', 'pipe'] });
+    } catch (e) {
+      failed(e.message);
       return;
     }
-    child.stdout.on('data', (chunk) => { stdout += chunk.toString('utf8'); });
-    child.stderr.on('data', (chunk) => { stderr += chunk.toString('utf8'); });
-    child.on('error', (err) => resolveP({ code: null, stdout: '', stderr: err.message }));
-    child.on('close', (code) => resolveP({ code, stdout, stderr }));
+    const bytes = (chunk) => (Buffer.isBuffer(chunk) ? chunk : Buffer.from(String(chunk)));
+    child.stdout.on('data', (chunk) => { out.push(bytes(chunk)); });
+    child.stderr.on('data', (chunk) => { err.push(bytes(chunk)); });
+    child.on('error', (e) => failed(e.message));
+    child.on('close', (code) => {
+      const raw = Buffer.concat(out);
+      resolveP({ code, stdout: raw.toString('utf8'), stderr: Buffer.concat(err).toString('utf8'), raw });
+    });
+    if (input !== null) {
+      child.stdin.on('error', () => {});
+      child.stdin.end(input);
+    }
   });
 }
 
 /**
- * Resolve the range and judge every non-merge commit in it, oldest
- * first. Without `base` the range starts at the merge-base of
- * origin/main and the head. A shallow repository is refused: its range
- * would be cut short. Class overrides come from rcf/separation.json in
- * the head commit.
+ * Read objects by name through one `git cat-file --batch`. Returns one
+ * entry per name, in order: { sha, type, text } or { missing: true } for
+ * a name that does not resolve. A name holding a line break would split
+ * the batch, so it is never sent and reads missing.
  *
- * @param {{ cwd: string, base?: string, head?: string, requireHand?: boolean, deps?: object }} opts
- * @returns {Promise<{ ok: true, base: string, head: string, rows: object[] }
+ * @param {(args: string[], input?: string) => Promise<{ code: number|null, raw: Buffer }>} git
+ * @param {string[]} names
+ */
+async function readObjects(git, names) {
+  const sent = names.filter((n) => !/[\r\n]/.test(n));
+  const res = await git(['cat-file', '--batch'], sent.map((n) => `${n}\n`).join(''));
+  const raw = res.code === 0 ? res.raw : Buffer.alloc(0);
+  const out = [];
+  let at = 0;
+  for (const name of names) {
+    if (/[\r\n]/.test(name)) { out.push({ name, missing: true }); continue; }
+    const nl = raw.indexOf(10, at);
+    if (nl === -1) { out.push({ name, missing: true }); continue; }
+    const parts = raw.subarray(at, nl).toString('utf8').split(' ');
+    at = nl + 1;
+    if (parts.length === 3 && /^[0-9a-f]{40,64}$/.test(parts[0]) && /^\d+$/.test(parts[2])) {
+      const size = Number(parts[2]);
+      out.push({ name, sha: parts[0], type: parts[1], text: raw.subarray(at, at + size).toString('utf8') });
+      at += size + 1;
+    } else {
+      out.push({ name, missing: true });
+    }
+  }
+  return out;
+}
+
+/**
+ * Resolve the range and judge every commit on it, oldest first. The
+ * range is walked with --first-parent from the head to the base (without
+ * `base`, the merge-base of origin/main and the head); a merge is a row
+ * judged by its combined diff (git diff-tree --cc), and a commit
+ * reachable only through a merge's second parent is never a row. A
+ * shallow repository is refused: its range would be cut short. Classes
+ * and generators come from rcf/separation.json in the head commit.
+ * Subjects, trailers and paths come from one git log pass. Besides it,
+ * git runs once to check the repository, once to read both refs and the
+ * config, once for the merge-base when `base` is not given, once for the
+ * generators' checkedBy files and the package.json blobs the range
+ * changes (only when there are any), and once per merge.
+ *
+ * @param {{ cwd: string, base?: string, head?: string, deps?: object }} opts
+ * @returns {Promise<{ ok: true, base: string, head: string, rows: object[], warnings: string[] }
  *   | { ok: false, error: 'notRepo' } | { ok: false, error: 'badRef'|'shallow', ref: string }
  *   | { ok: false, error: 'badOverride', path: string, detail: string }>}
  */
-export async function auditSeparation({ cwd, base, head = 'HEAD', requireHand = false, deps = {} }) {
-  const git = (args) => runGit(args, { cwd, deps });
-  const inRepo = await git(['rev-parse', '--git-dir']);
-  if (inRepo.code !== 0) return { ok: false, error: 'notRepo' };
+export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
+  const git = (args, input = null) => runGit(args, { cwd, deps, input });
   const shallow = await git(['rev-parse', '--is-shallow-repository']);
-  if (shallow.code === 0 && shallow.stdout.trim() === 'true') {
-    return { ok: false, error: 'shallow', ref: base ?? 'origin/main' };
-  }
+  if (shallow.code !== 0) return { ok: false, error: 'notRepo' };
+  if (shallow.stdout.trim() === 'true') return { ok: false, error: 'shallow', ref: base ?? 'origin/main' };
 
-  const resolveRef = async (ref) => {
-    const res = await git(['rev-parse', '--verify', '-q', '--end-of-options', `${ref}^{commit}`]);
-    return res.code === 0 ? res.stdout.trim() : null;
-  };
-  const headSha = await resolveRef(head);
-  if (!headSha) return { ok: false, error: 'badRef', ref: head };
-  let baseSha;
-  if (base !== undefined) {
-    baseSha = await resolveRef(base);
-    if (!baseSha) return { ok: false, error: 'badRef', ref: base };
-  } else {
-    if (!(await resolveRef('origin/main'))) return { ok: false, error: 'badRef', ref: 'origin/main' };
-    const mb = await git(['merge-base', 'origin/main', headSha]);
+  const baseRef = base ?? 'origin/main';
+  const [headObj, baseObj, configObj] = await readObjects(git,
+    [`${head}^{commit}`, `${baseRef}^{commit}`, `${head}:./${CONFIG_PATH}`]);
+  if (headObj.missing) return { ok: false, error: 'badRef', ref: head };
+  if (baseObj.missing) return { ok: false, error: 'badRef', ref: baseRef };
+  const headSha = headObj.sha;
+  let baseSha = baseObj.sha;
+  if (base === undefined) {
+    const mb = await git(['merge-base', baseSha, headSha]);
     if (mb.code !== 0) return { ok: false, error: 'badRef', ref: 'origin/main' };
     baseSha = mb.stdout.trim();
   }
 
-  let table = [];
-  const listed = await git(['ls-tree', '--name-only', headSha, '--', OVERRIDE_PATH]);
-  if (listed.code === 0 && listed.stdout.trim()) {
-    const blob = await git(['cat-file', 'blob', `${headSha}:./${OVERRIDE_PATH}`]);
-    const parsed = blob.code === 0 ? parseOverride(blob.stdout) : { ok: false, detail: blob.stderr.trim() };
-    if (!parsed.ok) return { ok: false, error: 'badOverride', path: OVERRIDE_PATH, detail: parsed.detail };
-    table = parsed.table;
+  let config = { table: [], generators: [], warnings: [] };
+  if (!configObj.missing) {
+    const parsed = configObj.type === 'blob' ? parseOverride(configObj.text) : { ok: false, detail: CONFIG_SHAPE };
+    if (!parsed.ok) return { ok: false, error: 'badOverride', path: CONFIG_PATH, detail: parsed.detail };
+    config = parsed;
   }
 
   const trailer = (key) => `%(trailers:key=${key},valueonly,unfold,separator=%x1e)`;
-  const log = await git(['log', '--reverse', '--no-renames', '--name-only', '--no-color',
-    `--format=%x00%H%x1f%P%x1f${trailer('Hand')}%x1f${trailer('Separation-Reason')}%x1f${trailer('Hand-Id')}%x1f%s%x1f`,
+  const log = await git(['log', '--first-parent', '--reverse', '--no-renames', '--name-only', '--no-color',
+    `--format=%x00%H%x1f%P%x1f${trailer('Hand')}%x1f${trailer('Generated-By')}%x1f%s%x1f`,
     `${baseSha}..${headSha}`]);
   if (log.code !== 0) return { ok: false, error: 'badRef', ref: `${baseSha}..${headSha}` };
 
-  const rows = [];
-  for (const record of log.stdout.split('\0').slice(1)) {
-    const [sha, parents, hands, reasons, handIds, subject, rest] = record.split('\x1f');
-    // Merge commits are skipped: not judged, not counted, no row.
-    if (parents.split(' ').filter(Boolean).length > 1) continue;
-    const last = (field) => {
-      const values = field.split('\x1e').map((h) => h.trim()).filter(Boolean);
-      return values.length ? values[values.length - 1] : null;
+  const values = (field) => field.split('\x1e').map((v) => v.trim()).filter(Boolean);
+  const commits = log.stdout.split('\0').slice(1).map((record) => {
+    const [sha, parents, hands, generated, subject, rest = ''] = record.split('\x1f');
+    const handValues = values(hands);
+    const merge = parents.split(' ').filter(Boolean).length > 1;
+    return {
+      sha, subject, merge,
+      hand: handValues.length ? handValues[handValues.length - 1] : null,
+      generatedBy: [...new Set(values(generated))],
+      // A merge's paths are its combined diff, read below.
+      paths: merge ? [] : rest.split('\n').filter(Boolean),
+      versionOnly: new Set(),
     };
-    const hand = last(hands);
-    const paths = rest.split('\n').filter(Boolean);
-    const { classes, verdict, reason, offending } = judgeCommit(hand, paths,
-      { reason: last(reasons), handId: last(handIds), requireHand, table });
-    rows.push({ sha, subject, hand, declared: hand !== null, classes, verdict, reason, paths, offending });
+  });
+
+  for (const c of commits.filter((x) => x.merge)) {
+    const cc = await git(['diff-tree', '--cc', '--name-only', '--no-commit-id', c.sha]);
+    c.paths = cc.code === 0 ? cc.stdout.split('\n').filter(Boolean) : [];
   }
-  return { ok: true, base: baseSha, head: headSha, rows };
+
+  // One batch for the rest: each declared generator's checkedBy file at
+  // the head, and the blobs of each package.json a commit changes,
+  // before and after (versionField needs them).
+  const checked = config.generators.map((g) => `${headSha}:./${g.checkedBy}`);
+  const pairs = commits.flatMap((c) => (c.merge ? [] : c.paths
+    .filter((p) => p.split('/').pop() === 'package.json' && !config.table.some(([, globs]) => matchesAtAnyDepth(p, globs)))
+    .map((p) => [c, p])));
+  const blobNames = pairs.flatMap(([c, p]) => [`${c.sha}^:${p}`, `${c.sha}:${p}`]);
+  const found = checked.length || blobNames.length ? await readObjects(git, [...checked, ...blobNames]) : [];
+  const absent = found.slice(0, checked.length).findIndex((f) => f.missing || f.type !== 'blob');
+  if (absent !== -1) {
+    return {
+      ok: false, error: 'badOverride', path: CONFIG_PATH,
+      detail: `generators[${absent}].checkedBy ${config.generators[absent].checkedBy} does not exist at ${headSha.slice(0, 7)}`,
+    };
+  }
+  const blobs = found.slice(checked.length);
+  pairs.forEach(([c, p], i) => {
+    const [before, after] = [blobs[2 * i], blobs[2 * i + 1]];
+    if (onlyVersionLine(before.missing ? null : before.text, after.missing ? null : after.text)) c.versionOnly.add(p);
+  });
+
+  const rows = commits.map((c) => {
+    const { stage, role, classes, items, transition } = judgeCommit(c, config);
+    return {
+      sha: c.sha,
+      subject: c.subject,
+      merge: c.merge,
+      stage,
+      role,
+      handTrailer: c.hand,
+      classes,
+      generators: c.generatedBy,
+      verdict: items.length ? 'fail' : 'pass',
+      reason: items.join('; '),
+      paths: c.paths,
+      items,
+      transition,
+    };
+  });
+  return { ok: true, base: baseSha, head: headSha, rows, warnings: config.warnings };
 }
