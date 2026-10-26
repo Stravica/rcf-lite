@@ -219,6 +219,9 @@ test('AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merg
 });
 
 const TEST_STAGE_0361 = 'rcf verify run --fbs <fbs-id> --hand verifier against the preview or version host';
+// The block wraps its lines and marks commands as inline code, so the
+// given reads it with line wraps joined and backticks taken out.
+const unwrapped = (text) => text.replace(/`/g, '').replace(/\s*\n\s*/g, ' ');
 
 test('AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean', async (t) => {
   const fresh = async (name) => {
@@ -237,7 +240,7 @@ test('AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed bl
   const dir = await fresh('drift');
   const file = join(dir, 'CLAUDE.md');
   const text = readFileSync(file, 'utf8');
-  assert.ok(!text.includes(TEST_STAGE_0361), 'given: the 0.37.0 block no longer carries the 0.36.1 Test-stage line');
+  assert.ok(!unwrapped(text).includes(TEST_STAGE_0361), 'given: the 0.37.0 block no longer carries the 0.36.1 Test-stage line');
   const anchor = text.indexOf('RULE 13');
   assert.ok(anchor > 0, 'the managed block is in CLAUDE.md');
   writeFileSync(file, `${text.slice(0, anchor)}Test stage: ${TEST_STAGE_0361}.\n\n${text.slice(anchor)}`);
