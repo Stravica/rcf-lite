@@ -1,0 +1,25 @@
+{
+  "cnId": "CN-951",
+  "path": "src/cli/build.js#verdictMain",
+  "implementsAcIds": [
+    "AC-19701-1",
+    "AC-19701-2",
+    "AC-19701-3",
+    "AC-19701-4",
+    "AC-19701-5",
+    "AC-19701-6",
+    "AC-19702-1",
+    "AC-19702-2",
+    "AC-19702-3",
+    "AC-19702-4",
+    "AC-19702-5",
+    "AC-19702-6",
+    "AC-19702-7",
+    "AC-19702-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T04:35:38.169Z",
+  "updatedAt": "2026-10-26T04:35:38.169Z"
+}

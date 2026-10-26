@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-948",
+  "path": "src/build/verdict.js#newestReview",
+  "implementsAcIds": [
+    "AC-19702-3",
+    "AC-19702-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-26T04:35:35.701Z",
+  "updatedAt": "2026-10-26T04:35:35.701Z"
+}
