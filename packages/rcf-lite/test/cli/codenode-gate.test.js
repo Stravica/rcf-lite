@@ -102,6 +102,19 @@ test('--no-code-nodes only combines with .build mark (exit 2 otherwise)', async 
   assert.match(stderr, /--no-code-nodes only combines with .build mark/);
 });
 
+// RC-37 and RC-48 (F-22): rcf build finalise keeps parsing --no-code-nodes;
+// it is not on AC-20003-1's retired list. Over the world of the test
+// above that writes complete, so the outcome does not turn on what the
+// flag does beyond the parse.
+test('rcf build finalise parses --no-code-nodes: no usage error, and the light round with a CN still writes complete', async (t) => {
+  const tmp = await lightRound(t, { cn: true });
+  const { code, stdout, stderr } = await harnessRcf(['build', 'finalise', 'FBS-001', '--ci-run', 'run-7', '--no-code-nodes'], { cwd: tmp });
+  assert.ok(!lines(stderr).some((l) => l.startsWith('[error] usage')), `rcf build finalise parses --no-code-nodes\nexit ${code}\n${stderr}`);
+  assert.equal(code, 0, `${stdout}${stderr}`);
+  assert.match(stdout, /finalise: FBS-001 complete at [0-9a-f]{7} \(reviewed [0-9a-f]{7}, ci run-7, touched 1 criteria\)/);
+  assert.equal(readJson(tmp, 'rcf/fbs/fbs-001.json').executionStatus, 'complete');
+});
+
 test('rcf coverage --with-code reports the four classes and never blocks', async () => {
   const tmp = await scaffold('coverage');
   // Two AC creates: the first replaces the seeded phantom in place at
