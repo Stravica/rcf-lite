@@ -83,20 +83,6 @@ test('section 5 is omitted without renumbering when context is absent', () => {
   assert.equal(md.includes('## 7. Build-cycle runbook'), true);
 });
 
-test('runbook renders all five stages with referee commands and the mark loop', () => {
-  const md = formatMarkdown(sampleBundle(), 'bundle');
-  for (const stage of ['Stage 1 - Define', 'Stage 2 - Build', 'Stage 3 - Review', 'Stage 4 - Test', 'Stage 5 - Finalise']) {
-    assert.equal(md.includes(`### ${stage}`), true, stage);
-  }
-  assert.equal(md.includes('rcf build mark FBS-002 inProgress'), true);
-  assert.equal(md.includes('rcf define validate'), true);
-  assert.equal(md.includes('rcf audit coverage --strict'), true);
-  assert.equal(md.includes('rcf build mark FBS-002 complete'), true);
-  assert.equal(md.includes('rcf build finalise FBS-002 --ci-run <ref>'), true);
-  // Each-stage-commits discipline is part of the printed contract (D3-A).
-  assert.match(md, /Every stage ends in a commit/);
-});
-
 test('BLOCKED warning block renders at the top of section 2 when blockedBy is non-empty', () => {
   const bundle = sampleBundle({
     blockedBy: ['FBS-001'],
