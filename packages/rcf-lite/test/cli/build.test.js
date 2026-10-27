@@ -14,6 +14,9 @@ import { promisify } from 'node:util';
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { existsSync } from 'node:fs';
+import { commit, git, gitTry, initRepo } from '../_harness/git.js';
+import { baseSuiteRecord } from '../_harness/fixture.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -61,6 +64,38 @@ async function readFbs(tmp, id = 'fbs-001') {
   return JSON.parse(await readFile(join(tmp, `rcf/fbs/${id}.json`), 'utf8'));
 }
 
+// The base-suite record every rcf build bundle takes once FBS-239 lands
+// (the stage-keeper's ruling RC-16 on the round C DEFINE, class C: the
+// call shape changes, the criterion does not). TAC-4158 reads the record
+// against the base, git merge-base of HEAD with the trunk (HEAD itself on
+// the trunk), so the fixture is committed as the trunk main and a green
+// BaseSuiteRecord v1 (the harness baseSuiteRecord) for that commit is
+// written outside it, as test/cli/build-base-suite.test.js passes one.
+async function baseSuiteArgs(root) {
+  if (!existsSync(join(root, '.git'))) initRepo(root);
+  const head = commit(root, 'fixture: base', {}, { allowEmpty: true });
+  const file = join(await scratchDir('rcf-base-suite-'), 'base.json');
+  await writeFile(file, `${JSON.stringify(baseSuiteRecord(head), null, 2)}\n`, 'utf8');
+  return ['--base-suite', file];
+}
+
+// The base-suite record a bundle over this repository's own chain takes
+// once FBS-239 lands (the stage-keeper's ruling RC-16 on the round C
+// DEFINE, class C). TAC-4158 reads the record against the base, git
+// merge-base of HEAD with the trunk, "the first of origin/main,
+// origin/master, main and master that resolves; HEAD itself on the trunk":
+// the test resolves the base the same way and writes a green
+// BaseSuiteRecord v1 (the harness baseSuiteRecord) for it outside the tree.
+async function ownBaseSuiteArgs() {
+  let base = git(repoRoot, 'rev-parse', 'HEAD');
+  for (const ref of ['origin/main', 'origin/master', 'main', 'master']) {
+    if (gitTry(repoRoot, 'rev-parse', '--verify', '--quiet', `${ref}^{commit}`).code === 0) { base = git(repoRoot, 'merge-base', 'HEAD', ref); break; }
+  }
+  const file = join(await scratchDir('rcf-base-suite-'), 'base.json');
+  await writeFile(file, `${JSON.stringify(baseSuiteRecord(base), null, 2)}\n`, 'utf8');
+  return ['--base-suite', file];
+}
+
 test('rcf build (queue overview) exits 0 and renders the table', async () => {
   const tmp = await scaffold();
   const { code, stdout } = await runBin(tmp, ['build', 'queue']);
@@ -83,7 +118,7 @@ test('rcf build --format json emits the D14 queue envelope', async () => {
 
 test('rcf build FBS-001 (bundle) exits 0 with the seven-section document', async () => {
   const tmp = await scaffold();
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', 'FBS-001']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-001']);
   assert.equal(code, 0);
   assert.match(stdout, /# Spec bundle: FBS-001/);
   assert.match(stdout, /## 7\. Build-cycle runbook/);
@@ -91,14 +126,14 @@ test('rcf build FBS-001 (bundle) exits 0 with the seven-section document', async
 
 test('unknown id exits 2', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['build', 'bundle', 'FBS-999']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-999']);
   assert.equal(code, 2);
   assert.match(stderr, /id FBS-999 not found/);
 });
 
 test('US id exits 2 with the rcf trace pointer (D1)', async () => {
   const tmp = await scaffold();
-  const { code, stderr } = await runBin(tmp, ['build', 'bundle', 'US-101']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'US-101']);
   assert.equal(code, 2);
   assert.match(stderr, /rcf audit trace US-101 --forward --format json/);
 });
@@ -106,7 +141,7 @@ test('US id exits 2 with the rcf trace pointer (D1)', async () => {
 test('--next selects the lowest-order actionable item and emits its bundle', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.mode, 'next');
@@ -118,7 +153,7 @@ test('--next distinguishes stuck (blocked/inProgress) from done', async () => {
   await addDependentFbs(tmp);
   const mark = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
   assert.equal(mark.code, 0);
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
+  const { code, stdout } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
   assert.equal(code, 0);
   const body = JSON.parse(stdout);
   assert.equal(body.queueEmpty, false);
@@ -143,7 +178,7 @@ test('--next warns when the selected FBS names dependsOnServices with no preFlig
     acIds: ['AC-101-1'],
   }];
   await writeFile(fbsPath, `${JSON.stringify(fbs, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next', '--override', 'pr8-test-scaffold']);
   assert.equal(code, 0, `warn only, should not fail: stderr=${stderr}`);
   assert.match(stderr, /\[warn\] build bundle --next: FBS-001 touches services not covered by any preFlightConfig \(resend\); run 'rcf discover preflight' before Stage 4\./);
 });
@@ -171,7 +206,7 @@ test('--next stays silent when preFlightConfig covers every dependsOnServices en
     operatorAckAt: '2026-07-31T10:02:00Z',
   }];
   await writeFile(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`, 'utf8');
-  const { code, stderr } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold']);
+  const { code, stderr } = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next', '--override', 'pr8-test-scaffold']);
   assert.equal(code, 0);
   assert.doesNotMatch(stderr, /touches services not covered/);
 });
@@ -247,10 +282,10 @@ test('--mark on a broken tree exits 3; no write lands (D6)', async () => {
 test('blocked bundle warns by default (exit 0), --strict refuses (exit 4) (D12)', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
-  const warn = await runBin(tmp, ['build', 'bundle', 'FBS-002']);
+  const warn = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-002']);
   assert.equal(warn.code, 0);
   assert.match(warn.stdout, /\*\*BLOCKED\*\*: unsatisfied dependencies - FBS-001 \(notStarted\)/);
-  const strict = await runBin(tmp, ['build', 'bundle', 'FBS-002', '--strict']);
+  const strict = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-002', '--strict']);
   assert.equal(strict.code, 4);
   assert.match(strict.stderr, /\[error\] refused build: FBS-002 is blocked by FBS-001 \(notStarted\)/);
   assert.equal(strict.stdout, '');
@@ -278,12 +313,12 @@ test('flag conflicts exit 2 (D1)', async () => {
 test('--out writes the bundle to a file; parent dir must exist (exit 1 when not)', async () => {
   const tmp = await scaffold();
   const outPath = join(tmp, 'bundle.md');
-  const ok = await runBin(tmp, ['build', 'bundle', 'FBS-001', '--out', outPath]);
+  const ok = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-001', '--out', outPath]);
   assert.equal(ok.code, 0);
   assert.match(ok.stdout, /bundle written to /);
   const written = await readFile(outPath, 'utf8');
   assert.match(written, /# Spec bundle: FBS-001/);
-  const bad = await runBin(tmp, ['build', 'bundle', 'FBS-001', '--out', join(tmp, 'no-such-dir', 'bundle.md')]);
+  const bad = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-001', '--out', join(tmp, 'no-such-dir', 'bundle.md')]);
   assert.equal(bad.code, 1);
   assert.match(bad.stderr, /\[rcf\] unexpected failure/);
 });
@@ -297,8 +332,10 @@ test('bad --format exits 2', async () => {
 
 test('bundle output is byte-identical across consecutive invocations (D10)', async () => {
   const tmp = await scaffold();
-  const first = await runBin(tmp, ['build', 'bundle', 'FBS-001']);
-  const second = await runBin(tmp, ['build', 'bundle', 'FBS-001']);
+  const first = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-001']);
+  const second = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), 'FBS-001']);
+  // Both runs refusing would compare two empty outputs (round A ruling 8).
+  assert.equal(first.code, 0, `the bundle is emitted\n${first.stderr}`);
   assert.equal(first.stdout, second.stdout);
 });
 
@@ -323,9 +360,9 @@ test('golden: rcf build --format json (queue) matches dogfood fixture', async ()
 });
 
 test('golden: rcf build FBS-001 (bundle md) matches dogfood fixture', async () => {
-  await goldenTest('bundle md', ['build', 'bundle', 'FBS-001'], 'bundle-fbs-001.md');
+  await goldenTest('bundle md', ['build', 'bundle', 'FBS-001', ...(await ownBaseSuiteArgs())], 'bundle-fbs-001.md');
 });
 
 test('golden: rcf build FBS-001 --format json matches dogfood fixture', async () => {
-  await goldenTest('bundle json', ['build', 'bundle', 'FBS-001', '--format', 'json'], 'bundle-fbs-001.json');
+  await goldenTest('bundle json', ['build', 'bundle', 'FBS-001', '--format', 'json', ...(await ownBaseSuiteArgs())], 'bundle-fbs-001.json');
 });
