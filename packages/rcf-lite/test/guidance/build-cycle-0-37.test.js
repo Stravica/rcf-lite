@@ -144,7 +144,7 @@ test('AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <
 const FORBIDDEN = [
   ['--hand verifier as a TEST step', (s) => s.includes('--hand verifier') && /\bTEST\b|Test[- ]stage|\(Test\)/.test(s)],
   ['rcf build finalise with --report, --mode or --url in one sentence', (s) => /rcf build finalise[^.]*--(report|mode|url)\b/.test(s)],
-  ['verified as something Finalise writes', (s) => /[Ff]inali[sz]e[^.]*\bwrites?\b[^.]*\bverified\b/.test(s) && !/never writes?[^.]*verified|not verified|written only by a release Verify/.test(s)],
+  ['verified as something Finalise writes', (s) => (/finali[sz]e[^.]*\b(writes?|promot\w*|carries|ingest\w*)\b[^.]*\bverified\b/i.test(s) || /\bmerge carries verified\b/.test(s)) && !/never writes?[^.]*verified|not verified|written only by a release Verify|only by a release Verify/.test(s)],
   ['Hand: mixed', (s) => s.includes('Hand: mixed')],
   ['Separation-Reason', (s) => s.includes('Separation-Reason')],
   ['Hand: outside the 0.37.x transition', (s) => s.includes('Hand:') && !/0\.37/.test(s)],
@@ -163,6 +163,14 @@ test('AC-20401-5: no guidance topic, no part of the managed block and no bundle 
     assert.equal(r.code, 0, `${format}\n${r.stderr}`);
     const body = format === 'json' ? JSON.stringify(JSON.parse(r.stdout).completionContract ?? {}, null, 1).replace(/\\n/g, '\n') : r.stdout;
     texts.push([`bundle ${format}`, body]);
+  }
+  // Non-vacuity (F-2): every scanned text is non-blank and yields a
+  // sentence, and the texts carrying the Finalise contract each hold a
+  // sentence naming rcf build finalise, so the must-not has text to judge.
+  for (const [where, text] of texts) assert.ok(text.trim().length > 0 && sentences(text).length > 0, `${where} is non-blank and yields at least one sentence`);
+  for (const where of ['guidance build-cycle', 'guidance build-cycle-playbook', 'guidance managed/agent-instructions-block', 'bundle md', 'bundle json']) {
+    const text = texts.find(([w]) => w === where)?.[1] ?? '';
+    assert.ok(sentences(text).some((s) => s.includes('rcf build finalise')), `${where} holds a sentence naming rcf build finalise`);
   }
   const hits = [];
   for (const [where, text] of texts) {
