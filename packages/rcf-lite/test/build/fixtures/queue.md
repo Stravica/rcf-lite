@@ -133,8 +133,8 @@ Generation strategy: dependencyFirst
 | 239 | 14 | FBS-237 | Light Finalise: complete from the last round's recorded REVIEW, TEST and test-strength verdicts; no verify report; mark refuses complete | notStarted | actionable |  |
 | 240 | 15 | FBS-238 | Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold | notStarted | blocked | FBS-237 |
 | 241 | 15 | FBS-239 | Suite-green backstop (rcf build base-suite, --base-suite on every bundle) and amend rounds bundled by touched criterion | notStarted | blocked | FBS-237 |
-| 242 | 16 | FBS-240 | Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once FBS-241's round DEFINE records the freeze (GR-31) | notStarted | blocked | FBS-239 |
 | 243 | 16 | FBS-241 | Guidance, the managed block, the bundle runbook and docs on the 0.37.0 model; release feed minAgentAction rerun-init | notStarted | blocked | FBS-237, FBS-238, FBS-239 |
+| 244 | 16 | FBS-240 | Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once round D's DEFINE follow-up records the freeze (RC-29, superseding GR-31) | notStarted | blocked | FBS-239 |
 
 Totals: items 131 | notStarted 62 | inProgress 2 | complete 34 | verified 33 | actionable 42 | blocked 20
 
@@ -155,6 +155,6 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 - tier 13: FBS-236
 - tier 14: FBS-237
 - tier 15: FBS-238, FBS-239
-- tier 16: FBS-240, FBS-241
+- tier 16: FBS-241, FBS-240
 
 Next actionable: FBS-013

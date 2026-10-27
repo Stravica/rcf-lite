@@ -229,8 +229,8 @@
     {
       "tier": 16,
       "fbsIds": [
-        "FBS-240",
-        "FBS-241"
+        "FBS-241",
+        "FBS-240"
       ]
     }
   ],
@@ -1736,20 +1736,6 @@
       ]
     },
     {
-      "fbsId": "FBS-240",
-      "buildOrder": 242,
-      "tier": 16,
-      "title": "Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once FBS-241's round DEFINE records the freeze (GR-31)",
-      "executionStatus": "notStarted",
-      "dependsOnFbsIds": [
-        "FBS-239"
-      ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-239"
-      ]
-    },
-    {
       "fbsId": "FBS-241",
       "buildOrder": 243,
       "tier": 16,
@@ -1769,6 +1755,20 @@
       "blockedBy": [
         "FBS-237",
         "FBS-238",
+        "FBS-239"
+      ]
+    },
+    {
+      "fbsId": "FBS-240",
+      "buildOrder": 244,
+      "tier": 16,
+      "title": "Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once round D's DEFINE follow-up records the freeze (RC-29, superseding GR-31)",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-239"
+      ],
+      "state": "blocked",
+      "blockedBy": [
         "FBS-239"
       ]
     }
