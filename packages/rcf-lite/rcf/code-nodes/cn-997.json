@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-997",
+  "path": "src/build/mark.js#planMark",
+  "implementsAcIds": [
+    "AC-20003-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:35.919Z",
+  "updatedAt": "2026-10-27T11:42:35.919Z"
+}
