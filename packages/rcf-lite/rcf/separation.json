@@ -30,6 +30,12 @@
       "command": "node test/_harness/goldens.js bundle-next-029 test/cli/fixtures/bundle-next-029-golden.md",
       "outputs": ["test/cli/fixtures/bundle-next-029-golden.md"],
       "checkedBy": "test/cli/build-bundle-next-freeze-gate.test.js"
+    },
+    {
+      "id": "bundle-fbs-001-golden",
+      "command": "node test/_harness/goldens.js bundle-fbs-001 test/build/fixtures/bundle-fbs-001.md",
+      "outputs": ["test/build/fixtures/bundle-fbs-001.md", "test/build/fixtures/bundle-fbs-001.json"],
+      "checkedBy": "test/cli/build.test.js"
     }
   ]
 }
