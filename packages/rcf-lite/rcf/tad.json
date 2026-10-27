@@ -47,7 +47,7 @@
     "logging": "Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics."
   },
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-10-27T03:17:26.381Z",
+  "updatedAt": "2026-10-27T03:20:59.932Z",
   "dataArchitecture": {
     "dataStores": [
       {
@@ -85,5 +85,11 @@
       }
     ],
     "dataFlow": "The CLI and the MCP server read and write the files under rcf/ in the working tree; git carries them between clones; no external store mirrors them."
+  },
+  "securityArchitecture": {
+    "authenticationPattern": "None in rcf-lite itself: the CLI and the MCP server (over stdio) run as the local user on the local filesystem, and the view server binds 127.0.0.1 only (localhost trust). The one remote call, feedback submission, runs the gh CLI under the operator's own ambient GitHub login (ADR-4105-gh-ambient-auth); rcf-lite never asks for or reads a token.",
+    "authorizationModel": "The local user's filesystem permissions over the project's rcf/ tree; there are no accounts or roles in rcf-lite. Stage hands (DEFINE, BUILD, REVIEW, TEST, FINALISE) are a review discipline the separation audit judges from commit prefixes, not an access control.",
+    "secretsManagement": "rcf-lite stores no secrets; GitHub credentials stay with the gh CLI.",
+    "threatModel": "Local tool over the operator's own repository; the view server is loopback-only with no CORS; feedback reports are redacted before they leave the machine (REQ-156)."
   }
 }
