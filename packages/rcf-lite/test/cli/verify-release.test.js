@@ -446,6 +446,14 @@ test('AC-20102-4: a cold release Verify writes in the project only under rcf/ver
   for (const lock of ['package-lock.json', 'pnpm-lock.yaml', 'npm-shrinkwrap.json']) assert.ok(!existsSync(join(dir, lock)), `no ${lock}`);
   const o = JSON.parse(readFileSync(observed, 'utf8'));
   assert.ok(!existsSync(o.home), `the scratch directory is removed after the run: ${o.home}`);
+  // F-6: a --release label holding ../ keeps the same write boundary, on a
+  // fresh fixture (the first --record run changed rcf/fbs/). The label
+  // ../../x resolves from rcf/verify-reports/releases/ to rcf/x.json.
+  const fresh = await packageRelease(t);
+  const esc = await verify(fresh.dir, ['--release', '../../x', '--since', 'v1.0.0', '--package', '.', '--record'], env);
+  const escaped = lines(gitTryPaths(fresh.dir));
+  assert.ok(escaped.every((p) => p.startsWith('rcf/verify-reports/releases/') || p.startsWith('rcf/fbs/')), `with --release ../../x only release reports and spec files change: ${escaped.join(', ')}\nexit ${esc.code}\n${esc.stderr}`);
+  assert.ok(!existsSync(join(fresh.dir, 'rcf', 'x.json')), 'nothing is written at rcf/x.json, where the label ../../x resolves');
 });
 // The changed and untracked paths (untracked listed file by file), read
 // untrimmed and NUL-separated: the harness git() trims stdout, which
