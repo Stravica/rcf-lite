@@ -21,6 +21,10 @@ import { fileURLToPath } from 'node:url';
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { rcf as harnessRcf } from '../_harness/spawn.js';
+import { commit, git as harnessGit, initRepo } from '../_harness/git.js';
+import { bindTests, criterion, editFbs, editStory, project, readText, reviewVerdict, scratch, testStrengthReport, testVerdict, verdictPath, writeText } from '../_harness/fixture.js';
+import { commandName, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const bin = resolve(here, '..', '..', 'bin', 'rcf.js');
@@ -162,33 +166,73 @@ function nonGitSpawns(spawns) {
   return spawns.filter((s) => s.file !== 'git');
 }
 
-test('AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical', async () => {
-  const world = await buildWorld();
-  // Each refusal the ingest path names, with the exit code it must carry.
+// AC-19002-8 in the light Finalise call shape (the stage-keeper's ruling
+// RC-31 on the round C DEFINE, RC-16): the round is recorded by verdicts
+// on a branch, DEFINE: (FBS-001 notStarted -> inProgress), BUILD: (H,
+// src/x.js and a Code Node for AC-101-1), REVIEW: MERGE/PASS at H and
+// TEST: PASS with a passing test-strength record at H; no verify report
+// and no `rcf build mark FBS-001 complete`. Each refusal is one the
+// TAC-4156 interface lists; spawns are read through the RCF_SPAWN_LOG
+// seam (TAC-4153). Imports: Node builtins and test/_harness/ (GR-40).
+const CN_001 = {
+  cnId: 'CN-001', path: 'src/x.js#first', title: `fixture node for ${AC}`, description: `Fixture Code Node implementing ${AC}.`,
+  implementsAcIds: [AC], dependencies: [], version: '0.1.0', status: 'draft', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+};
+
+async function lightRound(t, { cn = true, adequacy = 'PASS', result = 'PASS', strength = true } = {}) {
+  const dir = await project(t, { name: 'fin220' });
+  editStory(dir, 'US-101', (us) => {
+    us.acceptanceCriteria = [criterion(AC, '[happy] first behaviour holds', { given: 'a fixture project', when: 'the fixture runs', then: 'first behaviour holds', verification: 'external' })];
+  });
+  editFbs(dir, FBS, (f) => ({ ...f, acIds: [AC], executionStatus: 'notStarted' }));
+  bindTests(dir, [{ acId: AC, pointer: 'test/rcf/a.test.js::first behaviour holds' }]);
+  writeText(dir, '.gitignore', 'node_modules/\n');
+  initRepo(dir);
+  commit(dir, 'fixture: base chain');
+  harnessGit(dir, 'switch', '-q', '-c', 'feature');
+  editFbs(dir, FBS, (f) => ({ ...f, executionStatus: 'inProgress', summary: `${f.summary} Round opened.` }));
+  commit(dir, 'DEFINE: round');
+  const H = commit(dir, 'BUILD: code', { 'src/x.js': 'export function first() { return 1; }\n', ...(cn ? { 'rcf/code-nodes/cn-001.json': CN_001 } : {}) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { adequacy }) });
+  const files = {};
+  if (result) files[verdictPath(H, 'test.json')] = testVerdict(H, { result });
+  if (strength) files[verdictPath(H, 'test-strength.json')] = testStrengthReport(H);
+  commit(dir, 'TEST: verdict', files);
+  return dir;
+}
+
+async function lightFinalise(t, dir, extra) {
+  const log = spawnLog(scratch(t, 'rcf-h-spawn-'));
+  const r = await harnessRcf(['build', 'finalise', FBS, ...extra], { cwd: dir, env: log.env });
+  return { ...r, spawned: readSpawnLog(log.file) };
+}
+
+test('AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical', async (t) => {
+  // Refusals the TAC-4156 interface lists, each with the exit code it carries.
   const refusals = [
-    ['retired --url', null, ['--url', 'https://preview.invalid', '--mode', 'deterministic'], 2],
-    ['no --ci-run', null, [], 4],
-    ['retired --mode', null, ['--mode', 'agentScreenshotCritique', '--ci-run', CI_REF], 2],
-    ['loopback target', { target: { kind: 'url', url: 'http://localhost:5173' } }, ['--ci-run', CI_REF], 4],
-    ['old report', { finishedAt: isoAgo(9 * DAY_MS) }, ['--ci-run', CI_REF], 4],
-    ['builder hand', { hand: 'builder', verifierId: BUILDER_ID }, ['--ci-run', CI_REF], 4],
-    ['verdict BROKEN', { verdict: 'BROKEN' }, ['--ci-run', CI_REF], 4],
-    ['SCOPE-MISMATCH row', { perAc: [{ acId: AC, result: 'pass', verdict: 'SCOPE-MISMATCH', evidence: null }] }, ['--ci-run', CI_REF], 4],
-    ['invalid report', { reportVersion: 2 }, ['--ci-run', CI_REF], 3],
+    ['retired --url', {}, ['--url', 'https://preview.invalid', '--ci-run', CI_REF], 2],
+    ['retired --mode', {}, ['--mode', 'agentScreenshotCritique', '--ci-run', CI_REF], 2],
+    ['no --ci-run', {}, [], 4],
+    ['REVIEW FINDINGS', { adequacy: 'FINDINGS' }, ['--ci-run', CI_REF], 4],
+    ['no TEST verdict', { result: null }, ['--ci-run', CI_REF], 4],
+    ['TEST FAIL', { result: 'FAIL' }, ['--ci-run', CI_REF], 4],
+    ['no test-strength record', { strength: false }, ['--ci-run', CI_REF], 4],
+    ['missing Code Node', { cn: false }, ['--ci-run', CI_REF], 3],
   ];
-  for (const [label, overrides, extra, code] of refusals) {
-    if (overrides) await replantReport(world, overrides);
-    const before = sha256(await fbsBytes(world));
-    const r = await rcf(world.root, ['build', 'finalise', FBS, ...extra], { trace: true });
-    assert.deepEqual(nonGitSpawns(r.spawns), [], `${label}: no verify subprocess, verifier package or agent CLI is spawned`);
-    assert.equal(sha256(await fbsBytes(world)), before, `${label}: ${FBS_PATH} is byte-identical after the refusal`);
+  for (const [label, round, extra, code] of refusals) {
+    const dir = await lightRound(t, round);
+    const before = sha256(readText(dir, FBS_PATH));
+    const r = await lightFinalise(t, dir, extra);
+    assert.deepEqual(r.spawned.filter((s) => commandName(s) !== 'git'), [], `${label}: no verify subprocess, verifier package or agent CLI is spawned`);
+    assert.equal(sha256(readText(dir, FBS_PATH)), before, `${label}: ${FBS_PATH} is byte-identical after the refusal`);
     assert.equal(r.code, code, `${label}: refuses exit ${code}\nstderr:\n${r.stderr}`);
   }
-  // The promoting run spawns nothing but git either.
-  await replantReport(world, {});
-  const ok = await rcf(world.root, ['build', 'finalise', FBS, '--ci-run', CI_REF], { trace: true });
-  assert.equal(ok.code, 0, `the valid report promotes\nstderr:\n${ok.stderr}`);
-  assert.deepEqual(nonGitSpawns(ok.spawns), [], 'the promoting run spawns nothing but git');
+  // The run that writes complete spawns nothing but git either.
+  const dir = await lightRound(t);
+  const ok = await lightFinalise(t, dir, ['--ci-run', CI_REF]);
+  assert.equal(ok.code, 0, `the recorded round writes complete\nstderr:\n${ok.stderr}`);
+  assert.ok(ok.spawned.length > 0, 'the seam recorded the git calls');
+  assert.deepEqual(ok.spawned.filter((s) => commandName(s) !== 'git'), [], 'the run that writes complete spawns nothing but git');
 });
 
 // ---------------------------------------------------------------------------
