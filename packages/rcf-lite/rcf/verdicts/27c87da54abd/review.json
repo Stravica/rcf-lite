@@ -1,0 +1,216 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "27c87da54abd699d8d87f64f4ccfc567e771b477",
+  "fbsIds": [
+    "FBS-237",
+    "FBS-238",
+    "FBS-239",
+    "FBS-241"
+  ],
+  "touchedAcIds": [
+    "AC-20001-1",
+    "AC-20001-2",
+    "AC-20001-3",
+    "AC-20001-4",
+    "AC-20001-5",
+    "AC-20001-6",
+    "AC-20001-7",
+    "AC-20001-8",
+    "AC-20001-9",
+    "AC-20002-1",
+    "AC-20002-2",
+    "AC-20002-3",
+    "AC-20002-4",
+    "AC-20002-5",
+    "AC-20003-1",
+    "AC-20003-2",
+    "AC-20003-3",
+    "AC-20003-4",
+    "AC-20003-5",
+    "AC-19803-7",
+    "AC-19702-9",
+    "AC-19803-8",
+    "AC-19604-8",
+    "AC-19701-7",
+    "AC-19703-12",
+    "AC-19702-10",
+    "AC-20101-1",
+    "AC-20101-2",
+    "AC-20101-3",
+    "AC-20101-4",
+    "AC-20101-5",
+    "AC-20101-6",
+    "AC-20101-7",
+    "AC-20102-1",
+    "AC-20102-2",
+    "AC-20102-3",
+    "AC-20102-4",
+    "AC-20103-1",
+    "AC-20103-2",
+    "AC-20103-3",
+    "AC-20201-1",
+    "AC-20201-2",
+    "AC-20201-3",
+    "AC-20201-4",
+    "AC-20201-5",
+    "AC-20201-6",
+    "AC-20201-7",
+    "AC-20201-8",
+    "AC-20202-1",
+    "AC-20202-2",
+    "AC-20202-3",
+    "AC-20202-4",
+    "AC-20202-5",
+    "AC-20203-1",
+    "AC-20203-2",
+    "AC-20203-3",
+    "AC-20203-4",
+    "AC-20401-1",
+    "AC-20401-2",
+    "AC-20401-3",
+    "AC-20401-4",
+    "AC-20401-5",
+    "AC-20401-6",
+    "AC-20401-7",
+    "AC-20402-2",
+    "AC-20402-3",
+    "AC-20402-4",
+    "AC-20401-8",
+    "AC-20401-9",
+    "AC-20402-5",
+    "AC-20402-6"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-20402-6",
+      "text": ".github/workflows/ci.yml:86 says the separation job judges each commit's Hand: trailer; the criterion needs the stage prefix over the pull request's range; .github/ was outside the builder's paths, so the fix builder makes exactly that one comment change in its own BUILD: commit under the stage-keeper's allowance, nothing else under .github/ (test/guidance/build-cycle-0-37.test.js:341, red at this head)"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-20401-5",
+      "text": "test locus, vacuous: fileBlank on guidance/build-cycle-playbook.md survived 1 bound tests (test/guidance/build-cycle-0-37.test.js:154); a must-not scan passes on an empty file; the test must also assert each scanned topic is non-blank and carries the text it is scanned for, and widen the Finalise-writes-verified form at :147 beyond the verb writes (promote, carries)"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-20402-3",
+      "text": "test locus, vacuous: fileBlank on docs/verify-reference.md and on README.md survived 1 bound tests (test/guidance/build-cycle-0-37.test.js:304); the test must also assert each scanned file is non-blank and names rcf build finalise, and widen the sentence match at :312 to lowercase finalise and to promote"
+    },
+    {
+      "id": "F-4",
+      "locus": "build",
+      "acId": "AC-20401-5",
+      "text": "guidance topics still carry Finalise producing verified: guidance/build-cycle-playbook.md:545 (the complete mark and Finalise run on the PR branch so the merge carries verified) and guidance/elicitation-playbook.md:326 (the finalise gate refuses to promote the FBS to verified unless --ship-without-verified); rewrite both to the 0.37.0 model"
+    },
+    {
+      "id": "F-5",
+      "locus": "build",
+      "acId": "AC-20402-3",
+      "text": "docs/how-it-works.md:130, edited this round, still says rcf build finalise runs rcf verify run and promotes the FBS from complete to verified; rewrite it to Finalise writing complete and a release Verify writing verified (the same line keeps backstop adopt and the wait for verified)"
+    },
+    {
+      "id": "F-6",
+      "locus": "build",
+      "acId": "AC-20102-4",
+      "text": "the --release label reaches the report path unchecked (src/verify/release/report.js:9 releaseReportPath, src/verify/cli/run.js:558), so --release ../../x --record writes outside rcf/verify-reports/releases/; refuse a label with a path separator or a dot segment (the test-author adds the edge case)"
+    },
+    {
+      "id": "F-7",
+      "locus": "spec",
+      "acId": "AC-19702-10",
+      "text": "test locus: test/cli/finalise-verdicts.test.js:606 never runs rcf verify run --artefact with an untracked rcf/verdicts/ file, and never checks that the refused --package run leaves no *.tgz before packing; add both clauses"
+    },
+    {
+      "id": "F-8",
+      "locus": "spec",
+      "acId": "AC-20102-3",
+      "text": "test locus: test/cli/verify-release.test.js:423 installs a fixture with no dependencies, so the cold install never reaches a registry and the npmrc-ignore clause is unproven; give the fixture a dependency the default configuration resolves, or assert the npm configuration the cold install reads"
+    },
+    {
+      "id": "F-9",
+      "locus": "spec",
+      "acId": "AC-20201-6",
+      "text": "test locus: test/cli/build-base-suite.test.js:192 tries green by the exit code with exit 0 only; dropping run.exitCode === 0 at src/build/base-suite.js:111 keeps it green; add a no-TAP command exiting non-zero and assert green false with that exit code"
+    },
+    {
+      "id": "F-10",
+      "locus": "spec",
+      "acId": "AC-20203-4",
+      "text": "test locus, vacuous: stubToThrow and noOp on src/build/backstop.js#checkBaseSuite and on src/cli/build.js#main survived 1 bound tests (test/cli/build-base-suite.test.js:374); the test ignores every exit and output; assert each run's exit and line (bundle --next exit 0 with the bundle and one retired-file warn, backstop adopt and --allow-unverified exit 2 with their retired lines, the --acs amend round exit 0)"
+    },
+    {
+      "id": "F-11",
+      "locus": "build",
+      "acId": null,
+      "text": "stale shipped help and messages: rcf help (src/cli/help.js:113 and :243) says finalise ingests the Test-stage verify report and promotes a complete FBS to verified; rcf build --help (src/cli/build.js:190 to :211) still documents the mark-complete Code Node gate with --no-code-nodes and --accept-block though mark complete is refused; src/build/mark.js:89 to :91 tells the user to run rcf build finalise <id> --url, which exits 2"
+    },
+    {
+      "id": "F-12",
+      "locus": "build",
+      "acId": null,
+      "text": "stale shipped guidance and docs outside the criteria's scans: guidance/build-cycle-playbook.md:344 and :347 run rcf build bundle --next with no --base-suite (exit 4 at this head), :81 the mark complete refusal of a uiBearing FBS and :487 the retired browser gate; docs/how-it-works.md:130 keeps backstop adopt and --allow-unverified proceeding; docs/code-nodes.md:95 to :105 the --no-code-nodes gate; docs/verify-reference.md:26 the release synopsis without its target and :176 a Test-stage report (--hand)"
+    },
+    {
+      "id": "F-13",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: rcf build base-suite puts dirname(process.execPath) first on PATH (src/build/base-suite.js:61), so where the node directory also holds an agent CLI this repository's own harness guard (test/_harness/spawn.js:101) fails 17 tests and a green base records red; ruled an environment fact (no criterion names PATH; a project suite without that guard is unaffected); the fix round adds a criterion fixing the base-suite PATH rule (inherit the PATH, or record the resolved node) and a contributor-guide line for running this repository's own base suite"
+    },
+    {
+      "id": "F-14",
+      "locus": "spec",
+      "acId": "AC-20002-4",
+      "text": "TAC-4153's precedence puts criteria (the rest of rcf/) ahead of rcfTest, so under the TAC test/rcf/a.test.js classes criteria while the criterion and classifyPath (src/audit/separation.js) class it rcfTest; amend TAC-4153 to the criterion (the stage-keeper's call); code unchanged"
+    },
+    {
+      "id": "F-15",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: unreachable 0.36.x code still ships: src/finalise/detect.js, install.js, spawn.js, ship-without-eval.js, ship-without-verified.js, index.js and ingest.js apart from isLoopbackUrl; runMark's mark-complete gates (src/cli/build.js:1039 onward); enforceBundleNextBackstop (:881), runBackstopAdopt (:910) and loadBackstop, unverifiedInWindow, saveBackstop (src/build/backstop.js); a criterion for their removal and the retirement of their Code Nodes"
+    },
+    {
+      "id": "F-16",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: the bundle's completionContract keeps markComplete (the MCP output schema, src/mcp/tools.js:451) though rcf build mark complete exits 4; retire it from the contract and the schema"
+    },
+    {
+      "id": "F-17",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: rcf build finalise --merge-suite trusts record.green alone (src/finalise/light.js:131) while the bundle backstop also needs exit 0 and no failing tests (src/build/backstop.js:194); one rule for both"
+    },
+    {
+      "id": "F-18",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: the verdict verbs' dirty check ignores every change under rcf/verify-reports/, edits to committed files included (src/build/verdict.js:92 to :96), where AC-19702-10 asks only for untracked files"
+    },
+    {
+      "id": "F-19",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: release Verify behaviour with no criterion behind it: with no smoke declared and no --record it runs and can PASS with smoke 0/0 (src/verify/cli/run.js:507); a blocked row makes the verdict FAIL exit 4 (src/verify/release/report.js:31); runCases has no per-case timeout (src/verify/release/index.js:31); the report is written before the status writes, so a failed write leaves specs partly verified (run.js:555 to :571)"
+    },
+    {
+      "id": "F-20",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: base-suite error paths that hide the failure: declaredSuiteCommand swallows a malformed rcf/test-strength.json and so skips AC-20201-8's differs refusal; any git failure in recordBaseSuite reads as no committed HEAD; resolveBase reports a git failure as base is none"
+    },
+    {
+      "id": "F-21",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: a hygiene test below an rcf/ directory moved from the criteria class to hygieneTest with no criterion (src/audit/separation.js:252), and the separation help (src/cli/separation.js:54 to :55) does not name that exception to rcfTest"
+    }
+  ],
+  "recordedBy": "reviewer, round C REVIEW",
+  "recordedAt": "2026-10-27T21:19:07.801Z"
+}
