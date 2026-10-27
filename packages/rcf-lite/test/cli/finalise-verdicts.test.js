@@ -634,6 +634,7 @@ test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty 
   writeJson(b.dir, verdictPath(B, 'test.json'), testVerdict(B));
   const rv = await run();
   assert.ok(!lines(rv.stderr).includes(RUNNER_DIRTY), `an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${rv.code}\n${rv.stdout}${rv.stderr}`);
+
 });
 
 // ---------------------------------------------------------------- US-19604 (round C)
@@ -662,6 +663,21 @@ test('AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --fi
   const r = await rcf(['build', 'verdict', 'review', '--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'FINDINGS', '--finding', 'test:AC-101-1:the bound test survives the noOp mutant'], { cwd: dir });
   assert.equal(r.code, 0, `a test-rooted finding is accepted\n${r.stdout}${r.stderr}`);
   assert.deepEqual(readJson(dir, verdictPath(H, 'review.json')).findings, [{ id: 'F-1', locus: 'test', acId: 'AC-101-1', text: 'the bound test survives the noOp mutant' }]);
+
+  // The refusals beside it, restated from the retired AC-19701-3 (the
+  // stage-keeper's ruling RC-15 on the round C DEFINE), over a fresh fixture.
+  const f = await baseChain(t);
+  const review = (args) => rcf(['build', 'verdict', 'review', '--fbs', 'FBS-001', ...args], { cwd: f.dir });
+  const a = await review(['--acs', 'AC-101-1,AC-101-2', '--code', 'FINDINGS', '--adequacy', 'PASS']);
+  assert.equal(a.code, 2, `--code FINDINGS and no --finding: exit 2\n${a.stdout}${a.stderr}`);
+  errHas(a, '[error] usage FINDINGS needs at least one --finding');
+  const b = await review(['--acs', 'AC-101-1,AC-101-2', '--code', 'FINDINGS', '--adequacy', 'PASS', '--finding', 'maybe:AC-101-1:x']);
+  assert.equal(b.code, 2, `--finding "maybe:AC-101-1:x": exit 2\n${b.stdout}${b.stderr}`);
+  assert.ok(b.stderr.includes('<spec|build|test>:<AC id|->:<text>'), `stderr names the expected form <spec|build|test>:<AC id|->:<text>\n${b.stderr}`);
+  const c = await review(['--acs', 'AC-999-1', '--code', 'MERGE', '--adequacy', 'PASS']);
+  assert.equal(c.code, 3, `--acs AC-999-1: exit 3\n${c.stdout}${c.stderr}`);
+  errHas(c, '[error] brokenReference AC-999-1 is not scoped by FBS-001');
+  assert.ok(!existsSync(join(f.dir, 'rcf', 'verdicts')), 'no file appears under rcf/verdicts/');
 });
 
 // ---------------------------------------------------------------- US-19703 (round C)
