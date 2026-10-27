@@ -42,7 +42,10 @@ const rcfRoot = resolve(repoRoot, 'rcf');
 // generators) and rcf/test-strength.json (TAC-4155, the test-strength
 // audit's entry, harness and suite command). They classify as config, are
 // counted, and are never validated or id-checked as documents.
-const CONFIG_FILES = new Set(['separation.json', 'test-strength.json']);
+// rcf/release-verify.json (TAC-4157, the release Verify's smoke suites)
+// joins them in ruling 11's shape (stage-keeper ruling RC-4, rcf-lite
+// round C, FBS-238's round DEFINE).
+const CONFIG_FILES = new Set(['separation.json', 'test-strength.json', 'release-verify.json']);
 
 // Round verdict records that sit under rcf/ beside the chain and are
 // neither chain documents nor configuration (stage-keeper ruling 31,
@@ -533,7 +536,7 @@ const expectedCounts = {
   evalDoc: 1,
   // rcf-lite 0.37.0 round B DEFINE (2026-10-26, ruling 11): the two
   // configuration files, rcf/separation.json and rcf/test-strength.json.
-  config: 2,
+  config: 3, // stage-keeper ruling RC-4 (round C, FBS-238's round DEFINE) added rcf/release-verify.json as a configuration file (2 -> 3).
 };
 
 test('expected file counts by category', () => {
