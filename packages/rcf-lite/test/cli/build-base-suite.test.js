@@ -377,12 +377,27 @@ test('AC-20203-4: across the runs of this story, an existing rcf/define/backstop
   const rec = record(t, baseSuiteRecord(withFile.B));
   const without = await queue(t);
   const rec2 = record(t, baseSuiteRecord(without.B));
-  for (const [dir, r] of [[withFile.dir, rec], [without.dir, rec2]]) {
-    await bundle(dir, ['--next', '--base-suite', r]);
-    await rcf(['build', 'backstop', 'adopt', '--from', 'FBS-001'], { cwd: dir });
-    await bundle(dir, ['--next', '--allow-unverified', 'hotfix', '--base-suite', r]);
-    await bundle(dir, ['FBS-001', '--acs', 'AC-101-1', '--base-suite', r]);
+  const nextOut = [];
+  for (const [dir, r, warns] of [[withFile.dir, rec, 1], [without.dir, rec2, 0]]) {
+    // Each run is asserted, so the absence of a write is measured over runs that reached the 0.37.0 path.
+    const next = await bundle(dir, ['--next', '--base-suite', r]);
+    assert.equal(next.code, 0, `bundle --next\n${next.stdout.slice(0, 500)}${next.stderr}`);
+    assert.ok(isBundleOf(next, 'FBS-002'), 'bundle --next emits the FBS-002 bundle');
+    nextOut.push(next.stdout);
+    assert.equal(count(next.stderr, RETIRED_FILE), warns, `bundle --next: ${warns} retired-file warn line\n${next.stderr}`);
+    const adopt = await rcf(['build', 'backstop', 'adopt', '--from', 'FBS-001'], { cwd: dir });
+    assert.equal(adopt.code, 2, `backstop adopt\n${adopt.stdout}${adopt.stderr}`);
+    errHas(adopt, '[error] usage backstop adopt is retired in 0.37.0; the backstop is the base suite (rcf build base-suite)');
+    const allow = await bundle(dir, ['--next', '--allow-unverified', 'hotfix', '--base-suite', r]);
+    assert.equal(allow.code, 2, `--allow-unverified\n${allow.stdout}${allow.stderr}`);
+    errHas(allow, '[error] usage --allow-unverified is retired in 0.37.0; no override lets a Build start on a red base');
+    assert.equal(allow.stdout, '', '--allow-unverified emits no bundle');
+    const am = await bundle(dir, ['FBS-001', '--acs', 'AC-101-1', '--base-suite', r]);
+    assert.equal(am.code, 0, `the --acs amend round\n${am.stdout.slice(0, 500)}${am.stderr}`);
+    assert.ok(lines(am.stdout).some((l) => /^#+ Amend round on FBS-001: 1 criteria$/.test(l)), `the amend round title\n${am.stdout.slice(0, 400)}`);
   }
+  // The reads half: the overrides entry of the existing file changes nothing in the bundle.
+  assert.equal(nextOut[0], nextOut[1], 'bundle --next prints the same bundle with and without rcf/define/backstop.json');
   assert.equal(readText(withFile.dir, 'rcf/define/backstop.json'), bytes, 'the existing file is byte-identical');
   assert.ok(!existsSync(join(without.dir, 'rcf', 'define', 'backstop.json')), 'no new backstop.json is created');
 });
