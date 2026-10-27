@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-06T16:59:00.000Z",
-  "updatedAt": "2026-10-17T05:20:32.230Z",
+  "updatedAt": "2026-10-27T03:17:16.023Z",
   "reqId": "REQ-040",
   "prdId": "PRD-001",
   "title": "Persistence-data-postgres v1.0.0 blueprint on the shelf with six Node-only probes proven against a postgres:17-alpine container",
@@ -12,5 +12,186 @@
   "status": "draft",
   "tags": [
     "capability:applications-shelf"
-  ]
+  ],
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:16.020Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "persistence",
+        "match": "Persist"
+      },
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "title",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "migration"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "migration"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "migration"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "migration"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "migration"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "restore"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "Post"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "post"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      }
+    ]
+  }
 }

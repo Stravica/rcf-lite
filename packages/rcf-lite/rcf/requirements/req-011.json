@@ -19,5 +19,74 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-03T16:56:00Z",
-  "updatedAt": "2026-10-17T05:20:29.878Z"
+  "updatedAt": "2026-10-27T03:17:09.870Z",
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:09.866Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "template"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "Form"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "browser"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "browser"
+      }
+    ]
+  }
 }

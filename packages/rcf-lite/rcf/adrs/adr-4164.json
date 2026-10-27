@@ -1,0 +1,13 @@
+{
+  "createdAt": "2026-10-27T03:17:26.992Z",
+  "updatedAt": "2026-10-27T03:17:26.992Z",
+  "status": "accepted",
+  "context": "FBS-240 needs exactly one Deploy target ADR (D2 skeleton:deployAdr; ADR-4160). rcf-lite is a command-line tool and MCP server that runs on the user's machine; nothing is hosted.",
+  "decision": "rcf-lite is delivered as one npm package, rcf-lite, from packages/rcf-lite, published by .github/workflows/publish.yml when a tag rcf-lite-v<version> is pushed (pnpm publish --provenance --access public).",
+  "consequences": "Users install it with npm or run it with npx; a release is a tag; there is no server, container or cloud target to provision.",
+  "adrId": "ADR-4164",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "title": "Deploy target: the rcf-lite npm package, published from a release tag"
+}

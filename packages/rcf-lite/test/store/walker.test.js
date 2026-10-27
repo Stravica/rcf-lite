@@ -382,7 +382,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Pre-merge Finalise DEFINE (2026-10-22) added ADR-4151 (74 -> 75).
   // rcf-lite 0.37.0 DEFINE (2026-10-24) added ADR-4152..ADR-4162 (75 -> 86).
   // rcf-lite 0.37.0 DEFINE part C3 (2026-10-24) added ADR-4163, the shared profile reader of FBS-240 (86 -> 87).
-  assert.equal(tree.adrs.length, 87);
+  // FBS-240's round DEFINE (round C, 2026-10-27) added ADR-4164, the Deploy target ADR of D2 skeleton:deployAdr (87 -> 88).
+  assert.equal(tree.adrs.length, 88);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // e2e contract added FBS-020..023 to cover the four US-1101..1104 AC sets.
   // FBS-027 was added for the remove-resolution verb (US-1204). Core

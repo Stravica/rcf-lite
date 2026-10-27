@@ -9,8 +9,27 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-10-27T03:17:23.330Z",
   "tags": [
     "capability:feedback-loop"
-  ]
+  ],
+  "shapeClassification": {
+    "shapes": [
+      "auth"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:23.327Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "auth",
+        "match": "session"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "session"
+      }
+    ]
+  }
 }

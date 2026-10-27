@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-04T23:59:00.000Z",
-  "updatedAt": "2026-09-22T13:47:34.538Z",
+  "updatedAt": "2026-10-27T03:17:13.550Z",
   "reqId": "REQ-021",
   "prdId": "PRD-001",
   "title": "Application-notifications-in-app v1.0.0 blueprint on the shelf with its Playwright probe pack and sample-app fixture",
@@ -12,5 +12,127 @@
   "status": "draft",
   "tags": [
     "capability:applications-shelf"
-  ]
+  ],
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "auth",
+      "notifications"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:13.547Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "alert"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "email"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "webhook"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "webhook) as documented in the blueprint README and the shelf band registry. Ships a Playwright probe pack under blueprints/application-notifications-in-app/probe-packs/application-notifications-in-app.pack.mjs whose three checks (AC-20101-1 live-region preseeding on every declared route, AC-20102-1 transient toast contract with priority-to-role mapping and timeout floor measured via data-shown-at/data-dismissed-at timestamps, AC-20103-1 centre acknowledge round-trip through data-notification-id enumeration and reconciliation of client + server request logs) are anchored to blueprint AC ids per T-0 AC-1701-3. Ships a dependency-free sample-app fixture at packages/rcf-lite/test/fixtures/probe-pack-application-notifications-in-app/ with four break switches for the negative runs (preseed, role, timeout, ack). Fourth shipped consumer of T-0's probe-pack runner extension; consumes the logging companion for the deliver"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "show"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "notification"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "alert"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "browser"
+      }
+    ]
+  }
 }

@@ -9,8 +9,39 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-10-27T03:17:20.290Z",
   "tags": [
     "capability:feedback-loop"
-  ]
+  ],
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "persistence",
+      "notifications"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:20.288Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "store"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "rendered"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "email"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "show"
+      }
+    ]
+  }
 }
