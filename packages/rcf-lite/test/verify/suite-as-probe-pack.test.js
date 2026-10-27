@@ -30,6 +30,7 @@ import {
   addDependency, cleanPackOf, editPackageJson, isIgnored, nestWorld, npmRecorder, packAs, setPrepack, setVersion, subcommand,
   tarballEntries, tarballsIn, writeWorldFile,
 } from './helpers/pack-world.js';
+import { commandName, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
 // test/verify/suite-as-probe.test.js's INSTALL_TIMEOUT.
 const INSTALL_TIMEOUT = 240_000;
@@ -205,19 +206,21 @@ test('AC-19302-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier 
       assert.equal(report.install.registry, c.registry);
 
       commitAll(root, 'test: verify report', { Hand: 'verifier' });
-      git(root, 'checkout', '-q', 'main');
-      git(root, 'merge', '-q', '--no-ff', '-m', 'Merge feature', 'feature');
-      const done = await rcf(['build', 'mark', FBS, 'complete'], { cwd: root });
-      assert.equal(done.code, 0, `fixture: mark complete\n${done.stderr}`);
-      commitAll(root, 'chain: mark FBS-001 complete');
 
-      // Finalise with a recording npm first on PATH: npm is the only
+      // Finalise on the branch carrying the committed report, with a
+      // recording npm first on PATH and the spawn log seam on: npm is the only
       // installer and the only registry client in the verify path, so no npm
-      // call is the observable for "never installs or reaches the network".
+      // call is the observable for "never installs or reaches the network",
+      // and Finalise spawns nothing but git (AC-20002-5). It reads no report
+      // and writes no verified (AC-20003-2, AC-20003-5): FBS-001 is
+      // inProgress with no REVIEW or TEST verdict, so the run refuses (exit 4)
+      // and the PASS report stands in for neither.
       const npm = await npmRecorder(world, 'finalise');
-      const fin = await rcf(['build', 'finalise', FBS, '--ci-run', 'run-1'], { cwd: root, env: runEnv(world, { prependPath: npm.dir }) });
-      assert.equal(fin.code, 0, `Finalise ingests the ${c.registry} report: exit 0\nstderr:\n${fin.stderr}`);
-      assert.ok(fin.stdout.includes(`finalise: ${FBS} verified from ${reportRel(world)} (head ${world.head.slice(0, 7)}, ci run-1)`), fin.stdout);
+      const log = spawnLog(world.aux, 'finalise-spawn.log');
+      const fin = await rcf(['build', 'finalise', FBS, '--ci-run', 'run-1'], { cwd: root, env: { ...runEnv(world, { prependPath: npm.dir }), ...log.env } });
+      assert.equal(fin.code, 4, `Finalise refuses: the ${c.registry} report stands in for no verdict: exit 4\nstderr:\n${fin.stderr}`);
+      assert.equal(JSON.parse(await readFile(join(root, 'rcf', 'fbs', 'fbs-001.json'), 'utf8')).executionStatus, 'inProgress', 'Finalise writes no status from the report');
+      assert.deepEqual(readSpawnLog(log.file).map(commandName).filter((name) => name !== 'git'), [], 'rcf build finalise spawns nothing but git');
       assert.deepEqual((await npm.calls()).map((x) => x.line), [], 'rcf build finalise spawns no npm');
       assertNoClaude(world);
     });
