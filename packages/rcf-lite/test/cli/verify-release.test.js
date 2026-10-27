@@ -422,6 +422,20 @@ test('AC-20102-2: --offline in release mode exits 2 "[error] usage --offline can
 
 test('AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration', async (t) => {
   const { dir, observed } = await packageRelease(t);
+  // F-8: the npm configuration the cold install itself reads, observed by
+  // a postinstall script of the fixture package, which the install's own
+  // npm runs (no registry fetch: the package has no dependencies).
+  const installed = join(scratch(t, 'rcf-h-observed-'), 'install.json');
+  commit(dir, 'BUILD: the package observes its own install', {
+    'package.json': { ...readJson(dir, 'package.json'), scripts: { postinstall: 'node src/postinstall.cjs' } },
+    'src/postinstall.cjs': [
+      "const { execFileSync } = require('node:child_process');",
+      "const { writeFileSync } = require('node:fs');",
+      "const registry = execFileSync('npm', ['config', 'get', 'registry'], { encoding: 'utf8' }).trim();",
+      `writeFileSync(${JSON.stringify(installed)}, JSON.stringify({ home: process.env.HOME, userconfig: process.env.npm_config_userconfig ?? null, registry }));`,
+      '',
+    ].join('\n'),
+  });
   const home = scratch(t, 'rcf-h-home-');
   writeText(home, '.npmrc', 'registry=http://127.0.0.1:9/\n');
   const r = await verify(dir, ['--release', '1.1.0', '--since', 'v1.0.0', '--package', '.', '--record'], { PATH: NPM_PATH(), HOME: home });
@@ -429,6 +443,11 @@ test('AC-20102-3: a user npmrc at the caller HOME setting an unreachable registr
   const o = JSON.parse(readFileSync(observed, 'utf8'));
   assert.equal(o.registry, 'https://registry.npmjs.org/', 'the run sees the default registry, not the caller npmrc');
   assert.notEqual(o.home, home);
+  assert.ok(existsSync(installed), 'the cold install ran the package postinstall');
+  const i = JSON.parse(readFileSync(installed, 'utf8'));
+  assert.equal(i.registry, 'https://registry.npmjs.org/', 'the cold install reads the default registry, not the caller npmrc');
+  assert.notEqual(i.home, home, 'the cold install does not run under the caller HOME');
+  assert.notEqual(i.userconfig, join(home, '.npmrc'), 'the cold install does not read the caller npmrc');
 });
 
 test('AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory', async (t) => {
