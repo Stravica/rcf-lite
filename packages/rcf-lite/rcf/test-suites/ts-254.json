@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:15.812Z",
-  "updatedAt": "2026-10-19T10:41:32.417Z",
+  "updatedAt": "2026-10-27T01:53:34.306Z",
   "purpose": "Declare one test per AC of US-19003 (FBS-221) driving rcf build bundle --next and rcf build backstop adopt through bin/rcf.js, so the FBS-221 Define round turns each declaration into a red test against the backstop.",
   "testLevel": "integration",
   "acIds": [
@@ -19,42 +19,42 @@
       "acId": "AC-19003-1",
       "description": "rcf build bundle --next with an FBS at or above backstop fromBuildOrder at complete exits 4 with \"backstop: <k> merged spec(s) complete and not verified: <ids>; run rcf build finalise <id> or pass --allow-unverified \"<reason>\"\" and emits no bundle",
       "status": "failing",
-      "testPointer": "test/build/verified-backstop.test.js::AC-19003-1: rcf build bundle --next with an FBS at or above backstop fromBuildOrder at complete exits 4 with \"backstop: <k> merged spec(s) complete and not verified: <ids>; run rcf build finalise <id> or pass --allow-unverified \"<reason>\"\" and emits no bundle"
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\""
     },
     {
       "id": "TC-254-override-recorded",
       "acId": "AC-19003-2",
       "description": "rcf build bundle --next --allow-unverified \"<reason>\" emits the bundle, appends { reason, by, at, unverifiedFbsIds } to backstop.overrides in rcf/define/backstop.json and prints \"backstop overridden: <reason>\" on stdout; an empty reason exits 2",
       "status": "failing",
-      "testPointer": "test/build/verified-backstop.test.js::AC-19003-2: rcf build bundle --next --allow-unverified \"<reason>\" emits the bundle, appends { reason, by, at, unverifiedFbsIds } to backstop.overrides in rcf/define/backstop.json and prints \"backstop overridden: <reason>\" on stdout; an empty reason exits 2"
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-3: bundle --next --allow-unverified \"hotfix\" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle"
     },
     {
       "id": "TC-254-inert-without-backstop",
       "acId": "AC-19003-3",
       "description": "rcf build bundle --next with no rcf/define/backstop.json, or one whose complete FBS all have buildOrder below fromBuildOrder, does not refuse and the bundle behaves as before (exit 0, stdout byte-identical to the run with no backstop file)",
       "status": "failing",
-      "testPointer": "test/build/verified-backstop.test.js::AC-19003-3: rcf build bundle --next with no rcf/define/backstop.json, or one whose complete FBS all have buildOrder below fromBuildOrder, does not refuse and the bundle behaves as before (exit 0, stdout byte-identical to the run with no backstop file)"
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line"
     },
     {
       "id": "TC-254-adopt",
       "acId": "AC-19003-4",
       "description": "rcf build backstop adopt --from FBS-218 exits 0 writing rcf/define/backstop.json { fromBuildOrder: 218, adoptedAt, adoptedBy }; an unknown FBS id exits 3 and a missing --from exits 2",
       "status": "failing",
-      "testPointer": "test/build/verified-backstop.test.js::AC-19003-4: rcf build backstop adopt --from FBS-218 exits 0 writing rcf/define/backstop.json { fromBuildOrder: 218, adoptedAt, adoptedBy }; an unknown FBS id exits 3 and a missing --from exits 2"
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file"
     },
     {
       "id": "TC-254-no-silent-bypass",
       "acId": "AC-19003-5",
       "description": "rcf build bundle --next never emits a bundle while the backstop refuses unless --allow-unverified carries a non-empty reason, and the override never changes any FBS executionStatus",
       "status": "failing",
-      "testPointer": "test/build/verified-backstop.test.js::AC-19003-5: rcf build bundle --next never emits a bundle while the backstop refuses unless --allow-unverified carries a non-empty reason, and the override never changes any FBS executionStatus"
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles"
     },
     {
       "id": "TC-254-e2e-finalise-clears-backstop",
       "acId": "AC-19003-1",
       "description": "with the backstop adopted from FBS-001, bundle --next refuses while FBS-001 is complete, the real rcf build finalise FBS-001 --ci-run <ref> writes verified, and bundle --next then hands out FBS-002 with no override recorded",
       "status": "failing",
-      "testPointer": "test/build/verified-backstop.test.js::AC-19003-1 (end to end): with the backstop adopted from FBS-001, bundle --next refuses while FBS-001 is complete, the real rcf build finalise FBS-001 --ci-run <ref> writes verified, and bundle --next then hands out FBS-002 with no override recorded"
+      "testPointer": "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\""
     }
   ],
   "status": "draft"

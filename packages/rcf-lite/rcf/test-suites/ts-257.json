@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:37.965Z",
-  "updatedAt": "2026-10-20T06:51:53.433Z",
+  "updatedAt": "2026-10-27T01:53:45.257Z",
   "purpose": "Declare one test per AC of US-19004 (FBS-224) driving rcf guidance, rcf build bundle --next --format md and rcf doctor through bin/rcf.js, so the FBS-224 Define round turns each declaration into a red test against the shipped stage contract text.",
   "testLevel": "integration",
   "acIds": [
@@ -21,28 +21,28 @@
       "acId": "AC-19004-1",
       "description": "rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no \"--url <deploy-url>\" and no \"post-merge verify run\"",
       "status": "failing",
-      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-1: rcf guidance build-cycle exits 0 and its Test stage names the verifier hand, rcf verify run --fbs <fbs-id> --hand verifier and rcf/verify-reports/, its Finalise stage names rcf build finalise <fbs-id> --ci-run <ref>, with no \"--url <deploy-url>\" and no \"post-merge verify run\""
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified"
     },
     {
       "id": "TC-257-define-and-build-hands",
       "acId": "AC-19004-2",
       "description": "rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer",
       "status": "failing",
-      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-2: rcf guidance build-cycle exits 0 with the Define stage naming the test-author hand and TS/TC bindings, the Build stage naming the builder for production code, Code Nodes and code-hygiene unit tests only, and every stage naming its Hand: trailer"
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified"
     },
     {
       "id": "TC-257-bundle-runbook",
       "acId": "AC-19004-3",
       "description": "rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url",
       "status": "failing",
-      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-3: rcf build bundle --next --format md closes with a runbook listing the five stages and hands, rcf verify run --hand verifier, rcf audit separation and rcf build finalise <fbs-id> --ci-run <ref>, with no finalise --mode or --url"
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
     },
     {
       "id": "TC-257-managed-block",
       "acId": "AC-19004-4",
       "description": "rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted",
       "status": "failing",
-      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-4: rcf guidance managed/agent-instructions-block states verified is written only by rcf build finalise from a Test-stage report, the release notes carry a non-null minAgentAction, and rcf doctor reports the old block as drifted"
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-3: the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch"
     },
     {
       "id": "TC-257-audit-fifth-verb",
@@ -63,7 +63,7 @@
       "acId": "AC-19004-7",
       "description": "no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge",
       "status": "failing",
-      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-7: no rcf guidance topic and no rcf build bundle --next runbook tells a hand to run rcf build finalise with --mode or --url, or to run verification after merge"
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified"
     }
   ],
   "status": "draft"

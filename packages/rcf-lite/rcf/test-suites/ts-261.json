@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:21:26.487Z",
-  "updatedAt": "2026-10-27T01:51:59.030Z",
+  "updatedAt": "2026-10-27T01:53:39.708Z",
   "purpose": "Bind one red test per criterion of US-19005 (FBS-230), each driving bin/rcf.js over fixture git repositories with a bare local remote and servers on 127.0.0.1, so the Build hand makes them green against the pre-merge Finalise rule of ADR-4151.",
   "testLevel": "integration",
   "acIds": [
@@ -101,7 +101,7 @@
       "acId": "AC-19005-10",
       "description": "finalise HELP, build HELP, guidance build-cycle, playbook sections 6 and 7, the managed block and the bundle runbook Stage 5 say \"on the PR branch before the merge\" and name loopback with a served sha; none carries an after-the-merge Finalise shape",
       "status": "failing",
-      "testPointer": "test/guidance/premerge-finalise-text.test.js::AC-19005-10: rcf build finalise --help, rcf build --help, rcf guidance build-cycle, the playbook (sections 6 and 7), the managed block and the bundle runbook Stage 5 say \"on the PR branch before the merge\" and name loopback targets with a served sha, and none says \"the CI run that passed on the merged head\" or puts mark complete or finalise after the merge"
+      "testPointer": "test/guidance/build-cycle-0-37.test.js::AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified"
     },
     {
       "id": "TC-261-e2e-loopback-verify-then-finalise-on-branch",
