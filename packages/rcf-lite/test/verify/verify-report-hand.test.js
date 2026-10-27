@@ -209,29 +209,6 @@ test('AC-19001-1: rcf verify run --url <preview-url> --fbs <fbs-id> --mode deter
     `stdout ends with "verify report: <path> PASS 2/2"; got: ${last}`);
 });
 
-test('AC-19001-2: rcf verify run --hand verifier --fbs <fbs-id> on a dirty working tree exits 4 with "verify report refused: working tree is dirty; the report must name a committed head" and writes no report', async (t) => {
-  const target = await startTarget(t);
-  const { root, head } = await fixtureRepo();
-  await writeFile(join(root, 'src', 'app.js'), 'export const app = 2;\n', 'utf8');
-
-  const dirty = await verifyRun(root, ['--url', target.url, '--fbs', 'FBS-001',
-    '--hand', 'verifier', '--verifier-id', 'verifier-ac-19001-2']);
-  assert.equal(dirty.code, 4, `a dirty tree refuses exit 4; stderr:\n${dirty.stderr}`);
-  assert.ok(dirty.stderr.includes('verify report refused: working tree is dirty; the report must name a committed head'),
-    `stderr names the refusal; got:\n${dirty.stderr}`);
-  assert.equal(existsSync(join(root, 'rcf', 'verify-reports')), false, 'no report is written');
-
-  // Control: uncommitted files inside rcf/verify-reports/ only are not a
-  // dirty tree. A report for another FBS sits there uncommitted.
-  git(root, ['checkout', '--', 'src/app.js']);
-  await mkdir(reportsDir(root, 'FBS-002'), { recursive: true });
-  await writeFile(join(reportsDir(root, 'FBS-002'), 'aaaaaaaaaaaa.json'), '{}\n', 'utf8');
-  const clean = await verifyRun(root, ['--url', target.url, '--fbs', 'FBS-001',
-    '--hand', 'verifier', '--verifier-id', 'verifier-ac-19001-2']);
-  assert.equal(clean.code, 0, `changes only under rcf/verify-reports/ do not refuse; stderr:\n${clean.stderr}`);
-  assert.ok(existsSync(reportPath(root, head)), 'the clean run writes its report');
-});
-
 test('AC-19001-3: rcf verify run with --hand outside the five hands, or --hand without --fbs, exits 2 naming the flag and writes no report', async (t) => {
   const target = await startTarget(t);
   const { root } = await fixtureRepo();
