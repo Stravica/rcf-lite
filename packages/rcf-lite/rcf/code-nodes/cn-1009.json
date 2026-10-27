@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1009",
+  "path": "src/verify/release/scope.js#resolveReleaseScope",
+  "implementsAcIds": [
+    "AC-20101-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T14:32:53.562Z",
+  "updatedAt": "2026-10-27T14:32:53.562Z"
+}

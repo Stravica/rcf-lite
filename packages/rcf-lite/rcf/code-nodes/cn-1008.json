@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-1008",
+  "path": "src/verify/release/report.js#composeReleaseReport",
+  "implementsAcIds": [
+    "AC-20101-1",
+    "AC-20101-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T14:32:51.610Z",
+  "updatedAt": "2026-10-27T14:32:51.610Z"
+}
