@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-1025",
+  "path": "src/build/bundle.js#runbookStages",
+  "implementsAcIds": [
+    "AC-20401-4",
+    "AC-20401-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T18:07:20.090Z",
+  "updatedAt": "2026-10-27T18:07:20.090Z"
+}

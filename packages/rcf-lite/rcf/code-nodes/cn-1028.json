@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1028",
+  "path": "guidance/overview.md",
+  "implementsAcIds": [
+    "AC-20401-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T18:07:26.019Z",
+  "updatedAt": "2026-10-27T18:07:26.019Z"
+}
