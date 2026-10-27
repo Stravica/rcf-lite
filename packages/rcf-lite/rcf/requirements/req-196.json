@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:24:53.560Z",
-  "updatedAt": "2026-10-24T11:51:34.323Z",
+  "updatedAt": "2026-10-27T03:13:39.607Z",
   "description": "Every commit in a pull-request range carries a strict stage prefix (DEFINE:, BUILD:, REVIEW:, TEST:, FINALISE:) and the separation audit judges the paths it touches against that stage's file classes, the role derived from the stage. Builder hygiene tests have their own builder-owned class outside the RCF suite. FINALISE: carries only a merge from main, lockfiles, declared-generator outputs named by Generated-By:, chain status records, release evidence and the release cut. Merges are judged by their resolution. Hand: mixed and --require-hand retire. During the transition a Hand: trailer that agrees with the derived role is accepted and one that disagrees fails.",
   "category": "functional",
   "domain": "functional",
@@ -20,10 +20,10 @@
   "status": "draft",
   "shapeClassification": {
     "shapes": [
-      "auth"
+      "none"
     ],
     "reason": "keyword-scan",
-    "classifiedAt": "2026-10-24T11:24:53.646Z",
+    "classifiedAt": "2026-10-27T03:13:39.604Z",
     "signals": [
       {
         "source": "description",
@@ -35,6 +35,16 @@
         "shape": "auth",
         "match": "role"
       }
-    ]
+    ],
+    "operatorOverride": {
+      "originalShapes": [
+        "auth"
+      ],
+      "newShapes": [
+        "none"
+      ],
+      "reason": "Test-author reclassification, FBS-240 round DEFINE (GR-54): rcf audit separation is a local CLI verb over git history; the auth signal is the word \"role\" in \"the role derived from the stage\", a hand role, not a login or permission.",
+      "ackAt": "2026-10-27T03:30:00.000Z"
+    }
   }
 }
