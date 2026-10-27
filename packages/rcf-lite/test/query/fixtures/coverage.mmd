@@ -887,6 +887,7 @@ flowchart LR
   AC-1601-2 -.-> TC-045-per-ac-verdicts-carries-the-two-new-eval
   AC-1601-3["AC-1601-3"]
   REQ-016 --> AC-1601-3
+  AC-1601-3 -. supersededBy .-> AC-20003-2
   TC-045-findevalrefusalacs-and["TC-045-findevalrefusalacs-and"]
   AC-1601-3 -.-> TC-045-findevalrefusalacs-and
   AC-1601-4["AC-1601-4"]
@@ -2266,14 +2267,17 @@ flowchart LR
   REQ-165["REQ-165"]
   AC-16501-1["AC-16501-1"]
   REQ-165 --> AC-16501-1
+  AC-16501-1 -. supersededBy .-> AC-20003-2
   TC-202-ui-baseline-unmet-refusal["TC-202-ui-baseline-unmet-refusal"]
   AC-16501-1 -.-> TC-202-ui-baseline-unmet-refusal
   AC-16501-2["AC-16501-2"]
   REQ-165 --> AC-16501-2
+  AC-16501-2 -. supersededBy .-> AC-20003-2
   TC-202-browser-verification-missing-refusal["TC-202-browser-verification-missing-refusal"]
   AC-16501-2 -.-> TC-202-browser-verification-missing-refusal
   AC-16501-3["AC-16501-3"]
   REQ-165 --> AC-16501-3
+  AC-16501-3 -. supersededBy .-> AC-20003-2
   TC-202-scope-mismatch-refusal["TC-202-scope-mismatch-refusal"]
   AC-16501-3 -.-> TC-202-scope-mismatch-refusal
   AC-16502-1["AC-16502-1"]
@@ -2295,14 +2299,17 @@ flowchart LR
   AC-16503-1 -.-> TC-242-16503-1-happy
   AC-16503-2["AC-16503-2"]
   REQ-165 --> AC-16503-2
+  AC-16503-2 -. supersededBy .-> AC-20003-1
   TC-242-16503-2-refuse["TC-242-16503-2-refuse"]
   AC-16503-2 -.-> TC-242-16503-2-refuse
   AC-16503-3["AC-16503-3"]
   REQ-165 --> AC-16503-3
+  AC-16503-3 -. supersededBy .-> AC-20003-1
   TC-242-16503-3-abort["TC-242-16503-3-abort"]
   AC-16503-3 -.-> TC-242-16503-3-abort
   AC-16503-4["AC-16503-4"]
   REQ-165 --> AC-16503-4
+  AC-16503-4 -. supersededBy .-> AC-20003-1
   TC-242-16503-4-usage["TC-242-16503-4-usage"]
   AC-16503-4 -.-> TC-242-16503-4-usage
   AC-16504-1["AC-16504-1"]
@@ -2311,36 +2318,44 @@ flowchart LR
   AC-16504-1 -.-> TC-249-16504-1-scope
   AC-16504-2["AC-16504-2"]
   REQ-165 --> AC-16504-2
+  AC-16504-2 -. supersededBy .-> AC-20002-5
   TC-249-16504-2-default["TC-249-16504-2-default"]
   AC-16504-2 -.-> TC-249-16504-2-default
   AC-16504-3["AC-16504-3"]
   REQ-165 --> AC-16504-3
+  AC-16504-3 -. supersededBy .-> AC-20003-5
   TC-249-16504-3-invariant["TC-249-16504-3-invariant"]
   AC-16504-3 -.-> TC-249-16504-3-invariant
   AC-16504-4["AC-16504-4"]
   REQ-165 --> AC-16504-4
+  AC-16504-4 -. supersededBy .-> AC-20003-2
   TC-249-16504-4-help["TC-249-16504-4-help"]
   AC-16504-4 -.-> TC-249-16504-4-help
   AC-16505-1["AC-16505-1"]
   REQ-165 --> AC-16505-1
+  AC-16505-1 -. supersededBy .-> AC-20002-5
   TC-250-16505-1-args["TC-250-16505-1-args"]
   AC-16505-1 -.-> TC-250-16505-1-args
   TC-250-16505-1-forward["TC-250-16505-1-forward"]
   AC-16505-1 -.-> TC-250-16505-1-forward
   AC-16505-2["AC-16505-2"]
   REQ-165 --> AC-16505-2
+  AC-16505-2 -. supersededBy .-> AC-20003-1
   TC-250-16505-2-help["TC-250-16505-2-help"]
   AC-16505-2 -.-> TC-250-16505-2-help
   AC-16505-3["AC-16505-3"]
   REQ-165 --> AC-16505-3
+  AC-16505-3 -. supersededBy .-> AC-20002-5
   TC-250-16505-3-stamp["TC-250-16505-3-stamp"]
   AC-16505-3 -.-> TC-250-16505-3-stamp
   AC-16505-4["AC-16505-4"]
   REQ-165 --> AC-16505-4
+  AC-16505-4 -. supersededBy .-> AC-20003-1
   TC-250-16505-4-remedy["TC-250-16505-4-remedy"]
   AC-16505-4 -.-> TC-250-16505-4-remedy
   AC-16505-5["AC-16505-5"]
   REQ-165 --> AC-16505-5
+  AC-16505-5 -. supersededBy .-> AC-20002-5
   TC-250-16505-5-detect["TC-250-16505-5-detect"]
   AC-16505-5 -.-> TC-250-16505-5-detect
   TC-250-16505-5-path-fallback["TC-250-16505-5-path-fallback"]
@@ -3461,6 +3476,7 @@ flowchart LR
   AC-19001-1 -.-> TC-252-report-written
   AC-19001-2["AC-19001-2"]
   REQ-190 --> AC-19001-2
+  AC-19001-2 -. supersededBy .-> AC-19702-10
   TC-252-dirty-tree-refused["TC-252-dirty-tree-refused"]
   AC-19001-2 -.-> TC-252-dirty-tree-refused
   AC-19001-3["AC-19001-3"]
@@ -3792,6 +3808,7 @@ flowchart LR
   AC-19301-6 -.-> TC-258-flag-refusals
   AC-19301-7["AC-19301-7"]
   REQ-193 --> AC-19301-7
+  AC-19301-7 -. supersededBy .-> AC-19702-10
   TC-258-fbs-219-rules-kept["TC-258-fbs-219-rules-kept"]
   AC-19301-7 -.-> TC-258-fbs-219-rules-kept
   AC-19301-8["AC-19301-8"]
@@ -3831,6 +3848,7 @@ flowchart LR
   AC-19302-4 -.-> TC-259-offline-outside-package-mode-refused
   AC-19302-5["AC-19302-5"]
   REQ-193 --> AC-19302-5
+  AC-19302-5 -. supersededBy .-> AC-19702-10
   TC-259-no-tarball-left["TC-259-no-tarball-left"]
   AC-19302-5 -.-> TC-259-no-tarball-left
   TC-259-package-outside-repo-refused["TC-259-package-outside-repo-refused"]
@@ -4090,6 +4108,10 @@ flowchart LR
   REQ-196 --> AC-19604-7
   TC-272-a-branch-starting-at-build-code-followed["TC-272-a-branch-starting-at-build-code-followed"]
   AC-19604-7 -.-> TC-272-a-branch-starting-at-build-code-followed
+  AC-19604-8["AC-19604-8"]
+  REQ-196 --> AC-19604-8
+  TC-272-with-rcf-separation-json-classes-rcftest["TC-272-with-rcf-separation-json-classes-rcftest"]
+  AC-19604-8 -.-> TC-272-with-rcf-separation-json-classes-rcftest
   REQ-197["REQ-197"]
   AC-19701-1["AC-19701-1"]
   REQ-197 --> AC-19701-1
@@ -4101,6 +4123,7 @@ flowchart LR
   AC-19701-2 -.-> TC-273-adequacy-findings-with-a-spec-and-a
   AC-19701-3["AC-19701-3"]
   REQ-197 --> AC-19701-3
+  AC-19701-3 -. supersededBy .-> AC-19701-7
   TC-273-findings-with-no-finding-exits-2-a["TC-273-findings-with-no-finding-exits-2-a"]
   AC-19701-3 -.-> TC-273-findings-with-no-finding-exits-2-a
   AC-19701-4["AC-19701-4"]
@@ -4115,6 +4138,10 @@ flowchart LR
   REQ-197 --> AC-19701-6
   TC-273-at-inprogress-the-review-verdict-must["TC-273-at-inprogress-the-review-verdict-must"]
   AC-19701-6 -.-> TC-273-at-inprogress-the-review-verdict-must
+  AC-19701-7["AC-19701-7"]
+  REQ-197 --> AC-19701-7
+  TC-273-rcf-build-verdict-review-test-locus["TC-273-rcf-build-verdict-review-test-locus"]
+  AC-19701-7 -.-> TC-273-rcf-build-verdict-review-test-locus
   AC-19702-1["AC-19702-1"]
   REQ-197 --> AC-19702-1
   TC-274-rcf-build-verdict-test-result-pass-over["TC-274-rcf-build-verdict-test-result-pass-over"]
@@ -4147,6 +4174,14 @@ flowchart LR
   REQ-197 --> AC-19702-8
   TC-274-fbs-must-equal-the-review-verdict["TC-274-fbs-must-equal-the-review-verdict"]
   AC-19702-8 -.-> TC-274-fbs-must-equal-the-review-verdict
+  AC-19702-9["AC-19702-9"]
+  REQ-197 --> AC-19702-9
+  TC-274-outside-a-git-repository-rcf-build["TC-274-outside-a-git-repository-rcf-build"]
+  AC-19702-9 -.-> TC-274-outside-a-git-repository-rcf-build
+  AC-19702-10["AC-19702-10"]
+  REQ-197 --> AC-19702-10
+  TC-274-verdict-and-runner-dirty-checks["TC-274-verdict-and-runner-dirty-checks"]
+  AC-19702-10 -.-> TC-274-verdict-and-runner-dirty-checks
   AC-19703-1["AC-19703-1"]
   REQ-197 --> AC-19703-1
   TC-275-define-build-review-passed-for-its["TC-275-define-build-review-passed-for-its"]
@@ -4191,6 +4226,10 @@ flowchart LR
   REQ-197 --> AC-19703-11
   TC-275-a-test-strength-adding-a-failing-test["TC-275-a-test-strength-adding-a-failing-test"]
   AC-19703-11 -.-> TC-275-a-test-strength-adding-a-failing-test
+  AC-19703-12["AC-19703-12"]
+  REQ-197 --> AC-19703-12
+  TC-275-separation-help-reviewed-head-casing["TC-275-separation-help-reviewed-head-casing"]
+  AC-19703-12 -.-> TC-275-separation-help-reviewed-head-casing
   REQ-198["REQ-198"]
   AC-19801-1["AC-19801-1"]
   REQ-198 --> AC-19801-1
@@ -4266,6 +4305,14 @@ flowchart LR
   REQ-198 --> AC-19803-6
   TC-279-a-hand-edited-verification-sometimes-on["TC-279-a-hand-edited-verification-sometimes-on"]
   AC-19803-6 -.-> TC-279-a-hand-edited-verification-sometimes-on
+  AC-19803-7["AC-19803-7"]
+  REQ-198 --> AC-19803-7
+  TC-279-with-ac-101-1-bound-by-one-test-case["TC-279-with-ac-101-1-bound-by-one-test-case"]
+  AC-19803-7 -.-> TC-279-with-ac-101-1-bound-by-one-test-case
+  AC-19803-8["AC-19803-8"]
+  REQ-198 --> AC-19803-8
+  TC-279-with-ac-101-1-external-scoped-by-both["TC-279-with-ac-101-1-external-scoped-by-both"]
+  AC-19803-8 -.-> TC-279-with-ac-101-1-external-scoped-by-both
   AC-19804-1["AC-19804-1"]
   REQ-198 --> AC-19804-1
   TC-281-at-the-slice-head-no-user-story-tag["TC-281-at-the-slice-head-no-user-story-tag"]
@@ -4644,6 +4691,14 @@ flowchart LR
   REQ-204 --> AC-20401-7
   TC-297-in-a-project-initialised-by-the-bin["TC-297-in-a-project-initialised-by-the-bin"]
   AC-20401-7 -.-> TC-297-in-a-project-initialised-by-the-bin
+  AC-20401-8["AC-20401-8"]
+  REQ-204 --> AC-20401-8
+  TC-297-the-build-loop-section-of-rcf-guidance["TC-297-the-build-loop-section-of-rcf-guidance"]
+  AC-20401-8 -.-> TC-297-the-build-loop-section-of-rcf-guidance
+  AC-20401-9["AC-20401-9"]
+  REQ-204 --> AC-20401-9
+  TC-297-every-sentence-of-rcf-guidance-build["TC-297-every-sentence-of-rcf-guidance-build"]
+  AC-20401-9 -.-> TC-297-every-sentence-of-rcf-guidance-build
   AC-20402-2["AC-20402-2"]
   REQ-204 --> AC-20402-2
   TC-298-docs-verify-reference-md-has-the["TC-298-docs-verify-reference-md-has-the"]
@@ -4656,6 +4711,14 @@ flowchart LR
   REQ-204 --> AC-20402-4
   TC-298-the-root-readme-md-and-packages-rcf-lite["TC-298-the-root-readme-md-and-packages-rcf-lite"]
   AC-20402-4 -.-> TC-298-the-root-readme-md-and-packages-rcf-lite
+  AC-20402-5["AC-20402-5"]
+  REQ-204 --> AC-20402-5
+  TC-298-the-sentence-of-docs-how-it-works-md["TC-298-the-sentence-of-docs-how-it-works-md"]
+  AC-20402-5 -.-> TC-298-the-sentence-of-docs-how-it-works-md
+  AC-20402-6["AC-20402-6"]
+  REQ-204 --> AC-20402-6
+  TC-298-the-comment-introducing-the-separation["TC-298-the-comment-introducing-the-separation"]
+  AC-20402-6 -.-> TC-298-the-comment-introducing-the-separation
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -6744,6 +6807,8 @@ flowchart LR
   class TC-272-no-trailer-turns-a-failing-commit-into-a tc;
   class AC-19604-7 ac;
   class TC-272-a-branch-starting-at-build-code-followed tc;
+  class AC-19604-8 ac;
+  class TC-272-with-rcf-separation-json-classes-rcftest tc;
   class REQ-197 req;
   class AC-19701-1 ac;
   class TC-273-rcf-build-verdict-review-code-merge tc;
@@ -6757,6 +6822,8 @@ flowchart LR
   class TC-273-rcf-build-verdict-review-writes-only-rcf tc;
   class AC-19701-6 ac;
   class TC-273-at-inprogress-the-review-verdict-must tc;
+  class AC-19701-7 ac;
+  class TC-273-rcf-build-verdict-review-test-locus tc;
   class AC-19702-1 ac;
   class TC-274-rcf-build-verdict-test-result-pass-over tc;
   class AC-19702-2 ac;
@@ -6773,6 +6840,10 @@ flowchart LR
   class TC-274-a-failing-test-strength-record-at-h tc;
   class AC-19702-8 ac;
   class TC-274-fbs-must-equal-the-review-verdict tc;
+  class AC-19702-9 ac;
+  class TC-274-outside-a-git-repository-rcf-build tc;
+  class AC-19702-10 ac;
+  class TC-274-verdict-and-runner-dirty-checks tc;
   class AC-19703-1 ac;
   class TC-275-define-build-review-passed-for-its tc;
   class AC-19703-2 ac;
@@ -6795,6 +6866,8 @@ flowchart LR
   class TC-275-a-test-commit-adding-a-pass-test-json tc;
   class AC-19703-11 ac;
   class TC-275-a-test-strength-adding-a-failing-test tc;
+  class AC-19703-12 ac;
+  class TC-275-separation-help-reviewed-head-casing tc;
   class REQ-198 req;
   class AC-19801-1 ac;
   class TC-276-with-head-adding-ac-101-2-flagged tc;
@@ -6833,6 +6906,10 @@ flowchart LR
   class TC-280-timing-ratio-measured-at-test-with-rcf-perf tc;
   class AC-19803-6 ac;
   class TC-279-a-hand-edited-verification-sometimes-on tc;
+  class AC-19803-7 ac;
+  class TC-279-with-ac-101-1-bound-by-one-test-case tc;
+  class AC-19803-8 ac;
+  class TC-279-with-ac-101-1-external-scoped-by-both tc;
   class AC-19804-1 ac;
   class TC-281-at-the-slice-head-no-user-story-tag tc;
   class AC-19804-2 ac;
@@ -7025,12 +7102,20 @@ flowchart LR
   class TC-297-the-finalise-line-of-rcf-guidance tc;
   class AC-20401-7 ac;
   class TC-297-in-a-project-initialised-by-the-bin tc;
+  class AC-20401-8 ac;
+  class TC-297-the-build-loop-section-of-rcf-guidance tc;
+  class AC-20401-9 ac;
+  class TC-297-every-sentence-of-rcf-guidance-build tc;
   class AC-20402-2 ac;
   class TC-298-docs-verify-reference-md-has-the tc;
   class AC-20402-3 ac;
   class TC-298-no-file-under-packages-rcf-lite-docs tc;
   class AC-20402-4 ac;
   class TC-298-the-root-readme-md-and-packages-rcf-lite tc;
+  class AC-20402-5 ac;
+  class TC-298-the-sentence-of-docs-how-it-works-md tc;
+  class AC-20402-6 ac;
+  class TC-298-the-comment-introducing-the-separation tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;
