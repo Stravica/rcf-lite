@@ -26,7 +26,7 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { lines, rcf, run, toolPath } from '../_harness/spawn.js';
-import { commit, git, initRepo, porcelain, sha } from '../_harness/git.js';
+import { commit, git, gitTry, initRepo, porcelain, sha } from '../_harness/git.js';
 import { project, readJson, readText, scratch, writeJson, writeText } from '../_harness/fixture.js';
 import { commandName, hostFacts, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
@@ -447,8 +447,16 @@ test('AC-20102-4: a cold release Verify writes in the project only under rcf/ver
   const o = JSON.parse(readFileSync(observed, 'utf8'));
   assert.ok(!existsSync(o.home), `the scratch directory is removed after the run: ${o.home}`);
 });
+// The changed and untracked paths (untracked listed file by file), read
+// untrimmed and NUL-separated: the harness git() trims stdout, which
+// would cut the leading status column of a first porcelain line.
 function gitTryPaths(dir) {
-  return git(dir, 'status', '--porcelain', '-uall').split('\n').filter(Boolean).map((l) => l.slice(3)).join('\n');
+  const z = (...args) => {
+    const r = gitTry(dir, ...args, '-z');
+    if (r.code !== 0) throw new Error(`git ${args.join(' ')} exited ${r.code}: ${r.stderr}`);
+    return r.stdout.split('\0').filter(Boolean);
+  };
+  return [...z('diff', '--name-only', 'HEAD'), ...z('ls-files', '--others', '--exclude-standard')].join('\n');
 }
 
 // ---------------------------------------------------------------- US-20103
