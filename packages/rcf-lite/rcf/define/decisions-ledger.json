@@ -3389,6 +3389,56 @@
       "answer": "b. The stage-keeper, 2026-10-26: \"The mutual refusal is a tool defect: round C DEFINE criterion on FBS-234's successor, \"the verdict verb's dirty check ignores untracked files under rcf/verify-reports/ and the verify runner's ignores rcf/verdicts/\".\" Recorded as: AC-19702-10.",
       "answeredAt": "2026-10-26T21:31:58.807Z",
       "resolvedAt": "2026-10-26T21:31:58.807Z"
+    },
+    {
+      "id": 155,
+      "question": "(rcf-lite 0.37.0 DEFINE) What is the value of profile:surface in rcf-lite's own profile, rcf/.identity/profile.md? Source: the operator's GR-55 answer, 2026-10-24.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "viewer"
+        },
+        {
+          "letter": "b",
+          "text": "runningApp"
+        },
+        {
+          "letter": "c",
+          "text": "prDiff"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-27T03:18:44.274Z",
+      "status": "resolved",
+      "answer": "The operator, 2026-10-24: \"the running app\"",
+      "answeredAt": "2026-10-27T03:18:48.504Z",
+      "resolvedAt": "2026-10-27T03:18:48.504Z"
+    },
+    {
+      "id": 156,
+      "question": "(rcf-lite 0.37.0 DEFINE) What is the value of profile:register in rcf-lite's own profile, rcf/.identity/profile.md? Source: the operator's GR-55 answer, 2026-10-24.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "productOwner"
+        },
+        {
+          "letter": "b",
+          "text": "engineer"
+        },
+        {
+          "letter": "c",
+          "text": "unstated"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-27T03:18:48.707Z",
+      "status": "resolved",
+      "answer": "The operator, 2026-10-24: \"product owner\"",
+      "answeredAt": "2026-10-27T03:18:53.334Z",
+      "resolvedAt": "2026-10-27T03:18:53.334Z"
     }
   ]
 }
