@@ -413,7 +413,7 @@ test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only g
 
 test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing', async (t) => {
   const { dir } = await happy(t);
-  const flags = [['--report', 'rcf/verify-reports/FBS-001/report.json'], ['--max-report-age', '7'], ['--mode', 'deterministic'], ['--url', 'http://localhost:8787'], ['--allow-pre-merge'], ['--provision-mode', 'skip'], ['--ship-without-eval', 'fixture reason']];
+  const flags = [['--report', 'rcf/verify-reports/FBS-001/report.json'], ['--max-report-age', '7'], ['--mode', 'deterministic'], ['--url', 'http://localhost:8787'], ['--allow-pre-merge'], ['--provision-mode', 'skip'], ['--ship-without-eval', 'fixture reason'], ['--ship-without-verified']];
   for (const flag of flags) {
     const log = spawnLog(scratch(t, 'rcf-h-spawn-'));
     const before = { st: porcelain(dir), fbs: fbsText(dir) };
