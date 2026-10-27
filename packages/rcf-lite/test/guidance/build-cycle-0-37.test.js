@@ -259,7 +259,15 @@ test('AC-20401-8: the Build loop section of rcf guidance managed/agent-instructi
   const loop = section(await guidance('managed/agent-instructions-block'), 'Build loop');
   assert.ok(loop !== null, 'a section headed "Build loop"');
   const ss = sentences(prose(loop));
-  assert.deepEqual(ss.filter((s) => /named in every commit's `?Hand:`? trailer/.test(s)), [], 'no sentence names the hand of each stage by the Hand: trailer alone');
+  // Any sentence that makes the Hand: trailer mandatory (the stage-keeper's
+  // ruling RC-26 on the round C DEFINE), in today's words or any other: it
+  // names the trailer, says it is on every (or each, or all) commit, required
+  // or mandatory, or that a commit must carry it, and does not say it is
+  // optional, not needed or there only where present.
+  const makesHandMandatory = (s) => /`?Hand:`?|\bHand trailer\b/.test(s)
+    && (/\b(every|each|all) commits?\b/i.test(s) || /\b(required|mandatory)\b/i.test(s) || /\bmust (carry|include|have|add|name)\b/i.test(s))
+    && !/\boptional\b|\bnot (?:required|mandatory|needed)\b|\bneed not\b|\bno longer\b|\b(where|when|if) present\b/i.test(s);
+  assert.deepEqual(ss.filter(makesHandMandatory), [], 'no sentence makes the Hand: trailer mandatory');
   assert.ok(ss.some((s) => /\bevery commit\b/i.test(s) && /stage prefix/.test(s)), `a sentence says every commit carries its stage prefix\n${ss.join('\n')}`);
   assert.ok(ss.some((s) => /Hand:/.test(s) && /optional/.test(s) && /0\.37\.x/.test(s)), `a sentence says the Hand: trailer is optional through 0.37.x\n${ss.join('\n')}`);
 });

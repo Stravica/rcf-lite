@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:43.042Z",
-  "updatedAt": "2026-10-26T21:24:42.930Z",
+  "updatedAt": "2026-10-27T05:47:20.450Z",
   "asA": "test-author, builder, reviewer, verifier or stage-keeper reading rcf-lite's guidance in an agent session",
   "iWant": "the stage I am in named by its commit prefix with exactly what it does and what it records",
   "soThat": "no session follows the 0.36.x shape of verifying inside the cycle",
@@ -59,7 +59,7 @@
     },
     {
       "id": "AC-20401-8",
-      "description": "[happy] When rcf guidance managed/agent-instructions-block runs, then its Build loop section says that every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence of it says each stage's hand is named in every commit's Hand: trailer.",
+      "description": "[happy] When rcf guidance managed/agent-instructions-block runs, then its Build loop section says that every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence of it makes the Hand: trailer mandatory, in today's words or any other (it does not say, for example, that each stage's hand is named in every commit's Hand: trailer).",
       "testable": true,
       "verification": "external"
     },
