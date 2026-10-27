@@ -648,6 +648,9 @@ test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty 
   assert.equal(pd.code, 4, `under --package a change to src/x.js is dirty to the verify runner: exit 4\n${pd.stdout}${pd.stderr}`);
   errHas(pd, RUNNER_DIRTY);
   assert.ok(!existsSync(join(p.dir, 'rcf', 'verify-reports', 'FBS-001')), 'under --package the refused run writes no report');
+  // The refusal comes before packing: no *.tgz is anywhere in the project after it (F-7).
+  const packed = lines(git(p.dir, 'status', '--porcelain=v1', '--untracked-files=all', '--ignored')).map((l) => l.replace(/^\S+\s+/, '')).filter((f) => /\.tgz$/.test(f));
+  assert.deepEqual(packed, [], `under --package the refused run leaves no *.tgz in the project\n${packed.join('\n')}`);
   git(p.dir, 'checkout', '--', 'src/x.js');
   writeJson(p.dir, verdictPath(P, 'test.json'), testVerdict(P));
   const pv = await pack();
@@ -680,6 +683,12 @@ test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty 
     const rf = await art(fbs);
     assert.equal(rf.code, 2, `under --artefact --fbs ${fbs.length ? 'given twice' : 'absent'}: exit 2\n${rf.stdout}${rf.stderr}`);
   }
+  // The rcf/verdicts/ exemption under --artefact (F-7): an untracked
+  // rcf/verdicts/<H12>/test.json and no other change is not a dirty tree.
+  const C = sha(c.dir);
+  writeJson(c.dir, verdictPath(C, 'test.json'), testVerdict(C));
+  const av = await art(['--fbs', 'FBS-001']);
+  assert.ok(!lines(av.stderr).includes(RUNNER_DIRTY), `under --artefact an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${av.code}\n${av.stdout}${av.stderr}`);
 });
 
 // ---------------------------------------------------------------- US-19604 (round C)
