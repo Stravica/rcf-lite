@@ -7,15 +7,18 @@
 //
 // The lifecycle is the schema enum, in order:
 //   notStarted -> inProgress -> complete -> verified
-// Forward jumps are legal (notStarted -> complete for trivially-shipped
-// items) but the mark ladder caps at `complete`: `--mark verified` is
-// refused (exit 4) and points to the finalise gate (`rcf finalise`), which
-// is the only path that writes `verified` after an independent verify run.
+// The mark ladder caps at `inProgress`: `--mark complete` is refused
+// (exit 4) because complete is written only by rcf build finalise from the
+// recorded verdicts (AC-20003-3), and `--mark verified` is refused (exit 4)
+// too.
 // Backward transitions are refused (exit 4) and the message names the
 // deliberate-correction escape hatch (`rcf update`).
 
 import { rcfError } from '#core/errors';
 import { LIFECYCLE } from './queue.js';
+
+/** The refusal line of rcf build mark <fbs-id> complete (AC-20003-3). */
+export const MARK_COMPLETE_REFUSED = 'mark refused: complete is written only by rcf build finalise from the recorded verdicts';
 
 // Phase 10 (X2 CodeNode bridge, D17, operator ruling 2026-07-10): the
 // mark-complete CN gate. The no-code-nodes declaration is a dedicated
@@ -104,6 +107,11 @@ export function planMark(tree, { fbsId, status }) {
       message: `build: refusing backward transition ${from} -> ${status} on ${fbsId}; `
         + `for a deliberate correction use: rcf define update ${fbsId} --set executionStatus=${status}`,
     };
+  }
+  // AC-20003-3 (TAC-4156): complete is written only by rcf build finalise
+  // from the round's recorded verdicts, never by a mark.
+  if (status === 'complete') {
+    return { fbsId, from, to: status, noOp: false, refused: true, message: MARK_COMPLETE_REFUSED };
   }
   return { fbsId, from, to: status, noOp: false };
 }

@@ -51,7 +51,8 @@ Classes (defaults, matched at any depth, first match wins) and owners:
   verifierEvidence  rcf/verify-reports/ (TEST)
   chainStatus       rcf/fbs/ (DEFINE, FINALISE)
   production        rcf/code-nodes/, and everything not listed (BUILD)
-  criteria          the rest of rcf/ (DEFINE)
+  criteria          the rest of rcf/, except *.test.* and *.spec.* files
+                    (rcfTest) (DEFINE)
   lockfile          lockfiles (DEFINE, BUILD, FINALISE)
   versionField      package.json when its diff changes only the
                     "version" line (FINALISE)
@@ -100,7 +101,7 @@ Round items:
   <sha7> REVIEW: after a passed REVIEW verdict (one REVIEW verdict per
     round)
   <sha7> REVIEW: verdict head <x7> is not its parent <p7>
-  <sha7> TEST: verdict head <x7> is not the reviewed head <h7>
+  <sha7> TEST: verdict head <x7> is not the reviewed head <H7>
   <sha7> TEST: verdict with no passed REVIEW verdict in the round
 
 Prints one line:

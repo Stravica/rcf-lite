@@ -40,6 +40,7 @@ import {
   formatJson,
   formatMarkdown,
   hasNoCodeNodesDeclaration,
+  MARK_COMPLETE_REFUSED,
   planMark,
   selectNext,
 } from '../build/index.js';
@@ -115,10 +116,10 @@ The positional is an FBS id only. For 'which FBS items implement this
 story', use: rcf audit trace <us-id> --forward --format json
 
 Lifecycle (forward-only): notStarted -> inProgress -> complete -> verified.
-The mark ladder caps at 'complete': 'verified' is refused (exit 4)
-because it is written only by the finalise gate (rcf build finalise),
-which ingests the verifier's committed Test-stage report on the PR branch
-before the merge. Backward transitions are also refused
+The mark ladder caps at 'inProgress': 'complete' is refused (exit 4)
+because it is written only by rcf build finalise from the round's
+recorded REVIEW, TEST and test-strength verdicts, and 'verified' is
+refused (exit 4) too. Backward transitions are also refused
 (exit 4); the deliberate-correction / manual-override escape hatch is:
 rcf define update <fbs-id> --set executionStatus=<status>
 
@@ -181,7 +182,7 @@ no-code spec.
 
 export const VERDICT_HELP = `Usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...]
          --code MERGE|FINDINGS --adequacy PASS|FINDINGS
-         [--finding "<spec|build>:<AC id|->:<text>"]... [--by <text>]
+         [--finding "<spec|build|test>:<AC id|->:<text>"]... [--by <text>]
        rcf build verdict test --fbs <id>[,...] --result PASS|FAIL
          --tap <file> --runtime "<text>" [--reason <text>] [--by <text>]
 
@@ -189,7 +190,8 @@ Record a round's REVIEW or TEST verdict as a file for the stage's own
 REVIEW: or TEST: commit to add; rcf audit separation reads it there to
 judge round order. Neither verb commits, edits an existing verdict file
 or spawns anything but git, and a dirty working tree (any change outside
-rcf/verdicts/) is refused: a verdict names a committed head.
+rcf/verdicts/ and rcf/verify-reports/) is refused: a verdict names a
+committed head.
 
 review  Writes rcf/verdicts/<h12>/review.json (ReviewVerdict v1) for the
         committed HEAD, the reviewed head H, and prints
@@ -289,7 +291,7 @@ async function verdictMain(argv, { stdout, stderr, cwd, deps }) {
     const findings = [];
     for (const [i, text] of (flags.finding ?? []).entries()) {
       const finding = parseFinding(text, i + 1);
-      if (!finding) return usage(`--finding "${text}" does not match <spec|build>:<AC id|->:<text>`);
+      if (!finding) return usage(`--finding "${text}" does not match <spec|build|test>:<AC id|->:<text>`);
       findings.push(finding);
     }
     if ((flags.code === 'FINDINGS' || flags.adequacy === 'FINDINGS') && findings.length === 0) {
@@ -913,7 +915,7 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
     return 2;
   }
   if (plan.refused) {
-    io.stderr.write(`[error] refused ${plan.message}\n`);
+    io.stderr.write(plan.message === MARK_COMPLETE_REFUSED ? `${plan.message}\n` : `[error] refused ${plan.message}\n`);
     return 4;
   }
   if (plan.noOp) {
