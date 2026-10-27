@@ -1,0 +1,32 @@
+{
+  "reqId": "REQ-001",
+  "prdId": "PRD-001",
+  "title": "Count the lines of a text file",
+  "description": "The tally command reads one text file named on the command line and prints the number of lines it holds.",
+  "category": "functional",
+  "domain": "cli",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-27T02:58:14.212Z",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "operatorOverride",
+    "classifiedAt": "2026-10-27T00:00:00.000Z",
+    "operatorOverride": {
+      "originalShapes": [],
+      "newShapes": [
+        "none"
+      ],
+      "reason": "A local command over one file: no screen, HTTP route, login, store or notification.",
+      "ackAt": "2026-10-27T00:00:00.000Z"
+    }
+  },
+  "deliveredBy": {
+    "tacId": "TAC-001",
+    "field": "interfaces"
+  }
+}

@@ -1,0 +1,22 @@
+{
+  "decisions": [
+    {
+      "id": 1,
+      "question": "Does tally count a final line with no newline?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "yes"
+        },
+        {
+          "letter": "b",
+          "text": "no"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-001",
+      "addedAt": "2026-10-27T02:58:38.183Z",
+      "status": "open"
+    }
+  ]
+}

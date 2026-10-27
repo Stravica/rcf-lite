@@ -1,0 +1,21 @@
+{
+  "tacId": "TAC-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "The tally command",
+  "purpose": "Read one text file and print its line count.",
+  "responsibilities": [
+    "Count the lines of the named file."
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-27T02:58:06.643Z",
+  "interfaces": [
+    {
+      "name": "tally",
+      "kind": "cliCommand",
+      "description": "usage: tally <file>; prints the line count and exits 0, or exits 1 naming a missing path."
+    }
+  ]
+}

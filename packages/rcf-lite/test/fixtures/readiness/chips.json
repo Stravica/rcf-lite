@@ -1,0 +1,12 @@
+{
+  "clean": "D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:passed",
+  "d0-discovery": "D0:failing D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:failing",
+  "d1-brief": "D0:notApplicable D1:failing D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:failing",
+  "d2-skeleton": "D0:notApplicable D1:passed D2:failing D3:passed D4:passed D5:passed D6:passed D7:passed D8:failing",
+  "d3-shapes": "D0:notApplicable D1:passed D2:passed D3:failing D4:passed D5:passed D6:passed D7:passed D8:failing",
+  "d4-stories": "D0:notApplicable D1:passed D2:passed D3:passed D4:failing D5:passed D6:passed D7:passed D8:failing",
+  "d5-crosscut": "D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:failing D6:passed D7:passed D8:failing",
+  "d6-consistency": "D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:failing D7:passed D8:failing",
+  "d7-decisions": "D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:failing D8:failing",
+  "d8-freeze": "D0:notApplicable D1:passed D2:passed D3:passed D4:passed D5:passed D6:passed D7:passed D8:failing"
+}

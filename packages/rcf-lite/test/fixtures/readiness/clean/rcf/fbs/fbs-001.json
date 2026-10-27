@@ -1,0 +1,17 @@
+{
+  "fbsId": "FBS-001",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 1,
+  "executionStatus": "notStarted",
+  "title": "The tally command",
+  "summary": "Deliver the tally command and its three criteria.",
+  "acIds": [
+    "AC-101-1",
+    "AC-101-2",
+    "AC-101-3"
+  ],
+  "dependsOnFbsIds": [],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-27T02:58:03.445Z"
+}

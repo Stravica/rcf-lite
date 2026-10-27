@@ -1,0 +1,36 @@
+{
+  "usId": "US-101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Count the lines of a file",
+  "asA": "a person at a terminal",
+  "iWant": "to count the lines of a text file",
+  "soThat": "I know its length without opening it",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-101-1",
+      "description": "[happy] tally <file> prints the line count of the file and exits 0.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-101-2",
+      "description": "[failure] tally <file> for a file that does not exist prints an error naming the path and exits 1.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-101-3",
+      "description": "[must-not] tally never writes to the file it reads.",
+      "testable": true,
+      "verification": "testOnly"
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-27T02:58:14.668Z",
+  "tacIds": [
+    "TAC-001"
+  ]
+}

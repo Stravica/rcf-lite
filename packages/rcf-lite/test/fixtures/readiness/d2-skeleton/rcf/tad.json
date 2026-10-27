@@ -1,0 +1,16 @@
+{
+  "tadId": "TAD-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "systemOverview": {
+    "executiveSummary": "TODO: one-paragraph system overview.",
+    "systemPurpose": "TODO: state the system purpose.",
+    "architecturalApproach": "TODO: state the architectural approach.",
+    "keyCapabilities": [
+      "TODO: list at least one key capability."
+    ]
+  },
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}
