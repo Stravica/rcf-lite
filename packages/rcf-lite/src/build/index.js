@@ -8,6 +8,7 @@ export {
   checkContrastBeforePaletteGate,
   checkDesignGate,
   hasNoCodeNodesDeclaration,
+  MARK_COMPLETE_REFUSED,
   planMark,
 } from './mark.js';
 export { formatMarkdown } from './formatters/markdown.js';

@@ -68,20 +68,23 @@ const OPTION_SPEC = {
 };
 
 const VERIFY_REPORTS_DIR = 'rcf/verify-reports';
+// AC-19702-10: the round's verdict files are never a dirty tree to the
+// runner, in every mode.
+const VERDICTS_DIR = 'rcf/verdicts';
 
 function git(cwd, args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
 // FBS-219: paths git reports changed (tracked or untracked) outside
-// rcf/verify-reports/ under cwd's project. Read from git status on every
-// call, never cached.
+// rcf/verify-reports/ and rcf/verdicts/ under cwd's project. Read from
+// git status on every call, never cached.
 export function dirtyPathsOutsideReports(cwd) {
   const prefix = git(cwd, ['rev-parse', '--show-prefix']).trim();
-  const exempt = `${prefix}${VERIFY_REPORTS_DIR}/`;
+  const exempt = [`${prefix}${VERIFY_REPORTS_DIR}/`, `${prefix}${VERDICTS_DIR}/`];
   return git(cwd, ['status', '--porcelain=v1', '-z', '--no-renames', '--untracked-files=all'])
     .split('\0').filter(Boolean).map((entry) => entry.slice(3))
-    .filter((path) => !path.startsWith(exempt));
+    .filter((path) => !exempt.some((e) => path.startsWith(e)));
 }
 
 // FBS-219: base URL for a package target given without --url (RFC 2606

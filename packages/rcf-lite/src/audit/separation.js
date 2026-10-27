@@ -19,6 +19,9 @@
 
 import { spawn } from 'node:child_process';
 import { appendFileSync } from 'node:fs';
+import { relative, sep } from 'node:path';
+
+import { findProjectRoot } from '../view/index.js';
 
 // The five stages in their order, each with the role it derives.
 export const STAGE_ROLES = {
@@ -244,6 +247,9 @@ export function classifyPath(path, { table = [], generated = false, versionOnly 
     if (sub[0] === 'verify-reports' && sub.length > 1) return 'verifierEvidence';
     if (sub[0] === 'fbs' && sub.length > 1) return 'chainStatus';
     if (sub[0] === 'code-nodes' && sub.length > 1) return 'production';
+    // AC-20002-4: a *.test.* or *.spec.* file below an rcf/ directory
+    // (test/rcf/a.test.js) is a test, not a chain record.
+    if (TEST_FILE.test(name)) return isHygieneTestPath(path) ? 'hygieneTest' : 'rcfTest';
     return 'criteria';
   }
   if (dirs.includes('.github')) return 'neutral';
@@ -528,7 +534,8 @@ export async function readObjects(git, names) {
  * judged by its combined diff (git diff-tree --cc), and a commit
  * reachable only through a merge's second parent is never a row. A
  * shallow repository is refused: its range would be cut short. Classes
- * and generators come from rcf/separation.json in the head commit.
+ * and generators come from rcf/separation.json in the head commit, at the
+ * project root.
  * Subjects, trailers, paths and which paths a commit adds come from one
  * git log pass. Besides it, git runs once to check the repository, once
  * to read both refs and the config, once for the merge-base when `base`
@@ -549,9 +556,15 @@ export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
   if (shallow.code !== 0) return { ok: false, error: 'notRepo' };
   if (shallow.stdout.trim() === 'true') return { ok: false, error: 'shallow', ref: base ?? 'origin/main' };
 
+  // AC-19604-8: rcf/separation.json and the checkedBy files are read at
+  // the project root (the rcf/manifest.json ancestor of the cwd, as the
+  // other verbs resolve it), wherever below it the verb runs.
+  const root = (await findProjectRoot(cwd)) ?? cwd;
+  const atRoot = (path) => [relative(cwd, root).split(sep).join('/'), path].filter(Boolean).join('/');
+
   const baseRef = base ?? 'origin/main';
   const [headObj, baseObj, configObj] = await readObjects(git,
-    [`${head}^{commit}`, `${baseRef}^{commit}`, `${head}:./${CONFIG_PATH}`]);
+    [`${head}^{commit}`, `${baseRef}^{commit}`, `${head}:./${atRoot(CONFIG_PATH)}`]);
   if (headObj.missing) return { ok: false, error: 'badRef', ref: head };
   if (baseObj.missing) return { ok: false, error: 'badRef', ref: baseRef };
   const headSha = headObj.sha;
@@ -608,7 +621,7 @@ export async function auditSeparation({ cwd, base, head = 'HEAD', deps = {} }) {
   // the head, the blobs of each package.json a commit changes, before and
   // after (versionField needs them), and each verdict file a REVIEW: or
   // TEST: commit adds, at that commit (round order needs them).
-  const checked = config.generators.map((g) => `${headSha}:./${g.checkedBy}`);
+  const checked = config.generators.map((g) => `${headSha}:./${atRoot(g.checkedBy)}`);
   const pairs = commits.flatMap((c) => (c.merge ? [] : c.paths
     .filter((p) => p.split('/').pop() === 'package.json' && !config.table.some(([, globs]) => matchesAtAnyDepth(p, globs)))
     .map((p) => [c, p])));

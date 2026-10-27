@@ -24,7 +24,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../audit/separa
 
 const VERDICTS = 'rcf/verdicts';
 const DIRTY = 'verdict refused: working tree is dirty; a verdict names a committed head';
-const FINDING = /^(spec|build):(-|AC-\d+-\d+):(.+)$/s;
+const FINDING = /^(spec|build|test):(-|AC-\d+-\d+):(.+)$/s;
 const FINALISE_CLASSES = new Set(Object.entries(CLASS_OWNERS).filter(([, owners]) => owners.includes('FINALISE')).map(([cls]) => cls));
 
 const s7 = (sha) => String(sha ?? '').slice(0, 7);
@@ -36,7 +36,7 @@ export function verdictFile(head, file) {
 }
 
 /**
- * Parse one --finding value, "<spec|build>:<AC id|->:<text>", into a
+ * Parse one --finding value, "<spec|build|test>:<AC id|->:<text>", into a
  * finding with its F-<n> id; null when it does not match the form.
  *
  * @param {string} text
@@ -98,7 +98,8 @@ function verdictOrEvidence(path) {
 /**
  * The working tree's state through git: null when the cwd is not in a
  * git repository, else { head, dirty } where dirty is true for any
- * change (untracked files included) outside rcf/verdicts/.
+ * change (untracked files included) outside rcf/verdicts/ and
+ * rcf/verify-reports/.
  */
 async function treeState(git) {
   const status = await git(['status', '--porcelain', '-z', '--untracked-files=all']);
@@ -110,9 +111,7 @@ async function treeState(git) {
     if (entry.length < 4) continue;
     // A rename or copy carries its old path as the next entry.
     if (entry[0] === 'R' || entry[0] === 'C') i += 1;
-    const segs = entry.slice(3).split('/');
-    const at = segs.indexOf('rcf');
-    if (!(at !== -1 && segs[at + 1] === 'verdicts')) dirty = true;
+    if (!verdictOrEvidence(entry.slice(3))) dirty = true;
   }
   const head = await git(['rev-parse', 'HEAD']);
   if (head.code !== 0) return null;
