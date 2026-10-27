@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-995",
+  "path": "src/finalise/light.js#missingCodeNodes",
+  "implementsAcIds": [
+    "AC-20002-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:31.981Z",
+  "updatedAt": "2026-10-27T11:42:31.981Z"
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1004",
+  "path": "src/build/verdict.js#recordTestVerdict",
+  "implementsAcIds": [
+    "AC-19702-9"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:50.413Z",
+  "updatedAt": "2026-10-27T11:42:50.413Z"
+}

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-994",
+  "path": "src/finalise/light.js#changedCriteria",
+  "implementsAcIds": [
+    "AC-20002-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:30.016Z",
+  "updatedAt": "2026-10-27T11:42:30.016Z"
+}

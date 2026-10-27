@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-991",
+  "path": "src/finalise/light.js#planOutcome",
+  "implementsAcIds": [
+    "AC-20001-5",
+    "AC-20003-4",
+    "AC-20003-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:24.111Z",
+  "updatedAt": "2026-10-27T11:42:24.111Z"
+}
