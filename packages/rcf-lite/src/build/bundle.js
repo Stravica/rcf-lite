@@ -39,9 +39,12 @@ function pick(source, fields) {
  * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} opts
  * @param {string} opts.fbsId
+ * @param {string[]} [opts.acIds] - FBS-239 (US-20202): an amend round's
+ *   touched criteria; the bundle then lists only these, with their test
+ *   cases and Code Nodes, and carries round "amend" and touchedAcIds.
  * @returns {object|null} BundleResult
  */
-export function assembleBundle(tree, { fbsId }) {
+export function assembleBundle(tree, { fbsId, acIds: touchedAcIds }) {
   const fbs = tree.byId.get(fbsId);
   if (!fbs || tree.kindById.get(fbsId) !== 'fbs') return null;
 
@@ -74,7 +77,7 @@ export function assembleBundle(tree, { fbsId }) {
   // the authored acIds order.
   const usOrder = [];
   const acsByUs = new Map();
-  for (const acId of fbs.acIds ?? []) {
+  for (const acId of touchedAcIds ?? fbs.acIds ?? []) {
     const usId = tree.parentByChild.get(acId);
     const us = usId ? tree.byId.get(usId) : null;
     if (!us) continue; // Broken cross-links cannot occur post-walker (§D6).
@@ -223,6 +226,7 @@ export function assembleBundle(tree, { fbsId }) {
   });
 
   const result = {
+    ...(touchedAcIds ? { round: 'amend', touchedAcIds: [...touchedAcIds] } : {}),
     fbs: fbsBlock,
     queue: { position, total: queue.items.length },
     bs: tree.bs
@@ -239,6 +243,22 @@ export function assembleBundle(tree, { fbsId }) {
     tests,
     completionContract,
     boundSteps,
+    ...(touchedAcIds ? { codeNodes: amendCodeNodes(tree, touchedAcIds) } : {}),
   };
   return result;
+}
+
+/**
+ * FBS-239 (AC-20202-1): the Code Nodes of an amend round's touched
+ * criteria, each naming only the touched criteria it implements.
+ *
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @param {string[]} acIds
+ * @returns {Array<{ cnId: string, path: string, acIds: string[] }>}
+ */
+function amendCodeNodes(tree, acIds) {
+  const touched = new Set(acIds);
+  return (tree.codeNodes ?? [])
+    .map((cn) => ({ cnId: cn.cnId, path: cn.path, acIds: (cn.implementsAcIds ?? []).filter((id) => touched.has(id)) }))
+    .filter((cn) => cn.acIds.length > 0);
 }

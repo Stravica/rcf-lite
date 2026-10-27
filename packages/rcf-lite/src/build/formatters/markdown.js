@@ -113,7 +113,7 @@ function formatQueueTable(queue) {
  * @returns {string}
  */
 function formatNextEmpty(envelope) {
-  const lines = ['# Build queue: nothing actionable', ''];
+  const lines = ['# Build queue: nothing actionable', '', 'Next actionable: none', ''];
   if (envelope.queueEmpty) {
     lines.push('Queue complete: every item is complete or verified.');
   } else {
@@ -140,7 +140,10 @@ function formatNextEmpty(envelope) {
 function formatBundle(bundle) {
   const lines = [];
   const { fbs } = bundle;
-  lines.push(`# Spec bundle: ${fbs.fbsId} - ${fbs.title}`, '');
+  // FBS-239 (AC-20202-1): an amend round is titled by its touched criteria.
+  lines.push(bundle.round === 'amend'
+    ? `# Amend round on ${fbs.fbsId}: ${bundle.touchedAcIds.length} criteria`
+    : `# Spec bundle: ${fbs.fbsId} - ${fbs.title}`, '');
   pushHeader(lines, bundle);
   pushQueueContext(lines, bundle);
   pushWork(lines, bundle);
@@ -384,6 +387,10 @@ function pushTestSurface(lines, bundle) {
       const status = c.status !== undefined ? ` (${c.status})` : '';
       lines.push(`  - ${c.tcId}${status}: ${c.description ?? ''}${pointer}`);
     }
+    if (bundle.round === 'amend') {
+      const cns = bundle.codeNodes.filter((cn) => cn.acIds.includes(entry.acId)).map((cn) => `${cn.cnId} (${cn.path})`);
+      lines.push(`  - Code Nodes: ${cns.length > 0 ? cns.join(', ') : 'none'}`);
+    }
   }
   lines.push('');
 }
@@ -399,6 +406,11 @@ function pushRunbook(lines, bundle) {
   const fbsId = bundle.fbs.fbsId;
   const acIds = bundle.acceptanceCriteria.map((ac) => ac.id).join(', ');
   lines.push(`## ${SECTION_NUMBERS.runbook}. Build-cycle runbook`, '');
+  if (bundle.round === 'amend') {
+    // FBS-239 (AC-20202-1): an amend round starts at DEFINE.
+    lines.push(`Amend round: it starts at DEFINE for the touched criteria (${acIds}),`);
+    lines.push('then BUILD, REVIEW, TEST and FINALISE, each scoped to them.', '');
+  }
   lines.push('This bundle is the work order for one pass of the RCF five-stage build');
   lines.push('cycle: Define -> Build -> Review -> Test -> Finalise. The tool assembles');
   lines.push('and referees; the harness executes. Every stage ends in a commit.', '');

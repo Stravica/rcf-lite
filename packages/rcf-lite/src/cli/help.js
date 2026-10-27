@@ -108,6 +108,7 @@ define       Author the RCF tree.
 build        Drive the FBS queue and the five-stage build cycle.
   queue                    Show the FBS build queue.
   bundle <fbs-id>          Spec bundle for one FBS (or --next).
+  base-suite --out <file>  Record the RCF suite run on the base head.
   mark <fbs-id> <status>   Record a lifecycle transition.
   finalise <fbs-id>        Ship gate: ingest the Test-stage verify report
                            and promote a complete FBS to verified.
@@ -230,13 +231,15 @@ walks: Define -> Build -> Review -> Test -> Finalise.
 
 Verbs:
   queue                    Show the FBS build queue with parallel-safe tiers.
-  bundle <fbs-id>          Assemble the spec bundle for one FBS (or --next).
+  bundle <fbs-id>          Assemble the spec bundle for one FBS (or --next);
+                           every bundle needs --base-suite <file>.
+  base-suite --out <file>  Run the RCF suite at a clean committed HEAD and
+                           write the base-suite record bundles check.
   mark <fbs-id> <status>   Record a lifecycle transition (notStarted ->
                            inProgress -> complete). 'verified' is written
                            only by 'build finalise'.
-  backstop adopt --from <fbs-id>
-                           Open the verified backstop window for
-                           'bundle --next'.
+  backstop adopt           Retired in 0.37.0 (exit 2); the backstop is the
+                           base suite.
   finalise <fbs-id>        Ship gate, run on the PR branch before the merge:
                            ingest the Test-stage verify report committed
                            there and promote a complete FBS to verified.
@@ -338,6 +341,7 @@ export const HELP_MAP = {
   build: {
     queue: BUILD_HELP,
     bundle: BUILD_HELP,
+    'base-suite': BUILD_HELP,
     mark: BUILD_HELP,
     backstop: BUILD_HELP,
     finalise: FINALISE_HELP,

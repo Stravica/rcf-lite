@@ -114,6 +114,8 @@ export const GROUPS = {
     // are their own handlers.
     queue: (argv, deps) => buildMain(['queue', ...argv], deps),
     bundle: (argv, deps) => buildMain(['bundle', ...argv], deps),
+    // FBS-239: rcf build base-suite records the base-suite record.
+    'base-suite': (argv, deps) => buildMain(['base-suite', ...argv], deps),
     mark: (argv, deps) => buildMain(['mark', ...argv], deps),
     backstop: (argv, deps) => buildMain(['backstop', ...argv], deps),
     // FBS-234: rcf build verdict review | test.
