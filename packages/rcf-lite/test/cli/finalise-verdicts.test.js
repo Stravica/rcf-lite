@@ -701,9 +701,9 @@ test('AC-19604-8: with rcf/separation.json {"classes": {"rcfTest": ["spec/**"]}}
 
   // Below the git root (the stage-keeper's ruling RC-25 on the round C
   // DEFINE): the project sits in project/ of its git repository, as
-  // packages/rcf-lite does in this one. The path form the item prints there
-  // is open (a question in the round C DEFINE summary), so the item is
-  // matched with any leading directories before spec/a.js.
+  // packages/rcf-lite does in this one. The item prints the path in git's
+  // own form, repository-relative, project/spec/a.js (the stage-keeper's
+  // ruling RC-33 on the round C DEFINE), and the matcher pins it exactly.
   const sub = await project(t, { name: 'below' });
   const top = dirname(sub);
   writeJson(sub, 'rcf/separation.json', { classes: { rcfTest: ['spec/**'] } });
@@ -712,7 +712,7 @@ test('AC-19604-8: with rcf/separation.json {"classes": {"rcfTest": ["spec/**"]}}
   const subBase = commit(top, 'fixture: base chain');
   git(top, 'switch', '-q', '-c', 'feature');
   const subBad = commit(top, 'BUILD: code', { 'project/spec/a.js': 'export const a = 1;\n', 'project/src/x.js': 'export const x = 1;\n' });
-  const subItem = new RegExp(`${s7(subBad)} BUILD: touches (?:\\S+/)?spec/a\\.js \\(class rcfTest, owned by DEFINE\\)`);
+  const subItem = new RegExp(`${s7(subBad)} BUILD: touches project/spec/a\\.js \\(class rcfTest, owned by DEFINE\\)`);
   for (const [where, cwd] of [['the project subdirectory src/ below the git root', join(sub, 'src')], ['the project root below the git root', sub]]) {
     const r = await rcf(['audit', 'separation', '--base', subBase], { cwd });
     assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
