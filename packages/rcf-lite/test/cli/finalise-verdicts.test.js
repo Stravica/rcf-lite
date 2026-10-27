@@ -476,6 +476,19 @@ test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark re
     assert.equal(r.code, 4, `${from} to ${to} is refused with exit 4\n${r.stdout}${r.stderr}`);
     assert.equal(fbsText(dir), bytes, `${from} to ${to}: byte-identical`);
   }
+
+  // F-11: no mark-complete gate in rcf build mark --help, and the verified
+  // refusal names no rcf build finalise <fbs-id> --url command.
+  const help = await rcf(['build', 'mark', '--help'], { cwd: dir });
+  assert.equal(help.code, 0, `${help.stdout}${help.stderr}`);
+  const gate = lines(help.stdout).filter((l) => /--accept-block|mark-complete CN gate/i.test(l) || (l.includes('--no-code-nodes') && /mark complete/i.test(l)));
+  assert.deepEqual(gate, [], 'rcf build mark --help documents no mark-complete gate');
+  set('complete');
+  bytes = fbsText(dir);
+  const v = await mark('verified');
+  assert.equal(v.code, 4, `mark verified is refused with exit 4\n${v.stdout}${v.stderr}`);
+  assert.ok(!/rcf build finalise \S+ --url\b/.test(`${v.stdout}${v.stderr}`), `the verified refusal names no rcf build finalise <fbs-id> --url command\n${v.stdout}${v.stderr}`);
+  assert.equal(fbsText(dir), bytes, 'byte-identical after the refused verified');
 });
 
 test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with "finalise: FBS-001 verified (unchanged: touched criteria are testOnly)" and no write, and with an external criterion touched it writes complete', async (t) => {
