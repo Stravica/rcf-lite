@@ -16,12 +16,30 @@ import {
   renderTadSections,
   shortenDocId,
 } from '../../src/view/doc-renderers/architecture.js';
+import { project, readJson, writeJson } from '../_harness/fixture.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
 
 async function renderLive() {
   const result = await walkTree({ projectRoot: repoRoot });
+  const model = buildTreeModel(result);
+  const html = renderPage(model);
+  return { model, html };
+}
+
+// A fixture project made by rcf init (the harness template), its TAD-001
+// with dataArchitecture and securityArchitecture absent, walked and
+// rendered the way renderLive renders this repository's own tree (the
+// stage-keeper's ruling RC-28 on the round C DEFINE: the empty states read
+// a fixture tree, never the moving chain).
+async function renderFixture(t) {
+  const dir = await project(t, { name: 'arch-tab' });
+  const tad = readJson(dir, 'rcf/tad.json');
+  delete tad.dataArchitecture;
+  delete tad.securityArchitecture;
+  writeJson(dir, 'rcf/tad.json', tad);
+  const result = await walkTree({ projectRoot: dir });
   const model = buildTreeModel(result);
   const html = renderPage(model);
   return { model, html };
@@ -74,10 +92,10 @@ test('Present TAD section carries a one-line preview on its summary', async () =
     'systemOverview preview includes the leading executive summary');
 });
 
-test('Absent TAD section reads "Nothing written yet" and names the authoring command', async () => {
-  const { html } = await renderLive();
+test('Absent TAD section reads "Nothing written yet" and names the authoring command', async (t) => {
+  const { html } = await renderFixture(t);
   const panel = sliceArchitectureTab(html);
-  // The dogfood tree has dataArchitecture and securityArchitecture absent.
+  // The fixture tree has dataArchitecture and securityArchitecture absent.
   const dataMatch = panel.match(/<details[^>]*data-rcf-tad-section="dataArchitecture"[^>]*data-empty="1"[\s\S]*?<\/details>/);
   assert.ok(dataMatch, 'dataArchitecture section rendered as empty');
   assert.match(dataMatch[0], /Nothing written yet/);
@@ -88,16 +106,16 @@ test('Absent TAD section reads "Nothing written yet" and names the authoring com
   assert.match(secMatch[0], /rcf define update TAD-001 --set securityArchitecture\./);
 });
 
-test('Empty TAD section carries an "empty" facet badge in its meta slot', async () => {
-  const { html } = await renderLive();
+test('Empty TAD section carries an "empty" facet badge in its meta slot', async (t) => {
+  const { html } = await renderFixture(t);
   const panel = sliceArchitectureTab(html);
   const dataMatch = panel.match(/<details[^>]*data-rcf-tad-section="dataArchitecture"[^>]*data-empty="1"[\s\S]*?<\/details>/);
   assert.ok(dataMatch, 'dataArchitecture section rendered');
   assert.match(dataMatch[0], /<span class="rcf-badge rcf-badge--facet"[^>]*><span class="rcf-badge-value">empty<\/span><\/span>/);
 });
 
-test('Architecture tab never names Readiness in TAD empty states', async () => {
-  const { html } = await renderLive();
+test('Architecture tab never names Readiness in TAD empty states', async (t) => {
+  const { html } = await renderFixture(t);
   const panel = sliceArchitectureTab(html);
   const dataMatch = panel.match(/<details[^>]*data-rcf-tad-section="dataArchitecture"[^>]*data-empty="1"[\s\S]*?<\/details>/);
   assert.ok(dataMatch, 'empty section found');
