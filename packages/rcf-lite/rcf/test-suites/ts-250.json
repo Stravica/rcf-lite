@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-13T20:16:41.430Z",
-  "updatedAt": "2026-10-26T23:44:17.446Z",
+  "updatedAt": "2026-10-27T05:39:45.900Z",
   "purpose": "Cover the five issue 356 contract points on rcf build finalise: --provision-mode accepted and forwarded verbatim to the fresh verify subprocess (usage error on an unknown value), the finalise help text lists it, the finalise report stamps provisioning.mode on completed runs and launch failures, a provisioning blocked-reason surfaced by finalise names only remedies finalise accepts, and detectVerify prefers the package-local verify entry over PATH while the report records the resolved verify command and its version.",
   "testLevel": "unit",
   "acIds": [
@@ -33,7 +33,7 @@
       "acId": "AC-16505-2",
       "description": "finalise HELP lists --provision-mode <m> naming run and skip, the out-of-band purpose of skip and the report.provisioning.mode disclosure, with no em-dash. Superseded 2026-10-17 by AC-19002-7 (FBS-220): finalise no longer runs verify, so --provision-mode is retired from finalise and its help.",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     },
     {
       "id": "TC-250-16505-3-stamp",
@@ -47,7 +47,7 @@
       "acId": "AC-16505-4",
       "description": "every --flag token in a provisioning blocked-reason finalise prints on stderr is listed in finalise help and accepted by its parser, or the reason names rcf verify run",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     },
     {
       "id": "TC-250-16505-5-detect",
