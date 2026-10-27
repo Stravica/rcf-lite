@@ -533,6 +533,13 @@ test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executi
     }
   }
   t.diagnostic(runs.join('\n'));
+  // F-11: the shipped help never presents finalise as what writes verified.
+  for (const args of [['help'], ['help', 'build']]) {
+    const h = await rcf(args, {});
+    assert.equal(h.code, 0, `rcf ${args.join(' ')}\n${h.stderr}`);
+    const said = h.stdout.replace(/\s+/g, ' ').split(/(?<=\.)\s+/).filter((s) => /finalise[^.]*\bingest\w*[^.]*\breport\b|finalise[^.]*\bpromot\w*[^.]*\bverified\b|\bverified\b[^.]*\bwritten\b[^.]*\bby\W+(rcf )?build finalise\b/i.test(s));
+    assert.deepEqual(said, [], `rcf ${args.join(' ')} says nowhere that finalise ingests a verify report, promotes to verified or writes verified`);
+  }
 });
 
 // ------------------------------------------- round C (stage-keeper ruling RC-1)
