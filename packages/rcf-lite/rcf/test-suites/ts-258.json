@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T11:29:08.586Z",
-  "updatedAt": "2026-10-26T23:43:10.449Z",
+  "updatedAt": "2026-10-27T01:51:58.442Z",
   "purpose": "Declare one test per AC of US-19301 (FBS-225) driving rcf verify run --artefact through bin/rcf.js over a fixture package repository and a packed tarball, so the FBS-225 Define round turns each declaration into a red test against package target mode.",
   "testLevel": "integration",
   "acIds": [
@@ -79,7 +79,7 @@
       "acId": "AC-19301-9",
       "description": "the tool-written report from rcf verify run --artefact committed under Hand: verifier and merged, then rcf build mark FBS-001 complete and rcf build finalise FBS-001 --ci-run run-1 exits 0 printing \"finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<head12>.json (head <sha7>, ci run-1)\" and FBS-001 reads executionStatus verified with no report field edited by hand",
       "status": "failing",
-      "testPointer": "test/verify/suite-as-probe.test.js::AC-19301-9: the tool-written report from rcf verify run --artefact committed under Hand: verifier and merged, then rcf build mark FBS-001 complete and rcf build finalise FBS-001 --ci-run run-1 exits 0 printing \"finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<head12>.json (head <sha7>, ci run-1)\" and FBS-001 reads executionStatus verified with no report field edited by hand"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
     }
   ],
   "status": "draft"
