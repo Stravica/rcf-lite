@@ -16,14 +16,13 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-10-27T03:17:04.403Z",
+  "updatedAt": "2026-10-27T03:31:32.214Z",
   "shapeClassification": {
     "shapes": [
-      "webUi",
-      "persistence"
+      "none"
     ],
     "reason": "keyword-scan",
-    "classifiedAt": "2026-10-27T03:17:04.400Z",
+    "classifiedAt": "2026-10-27T03:31:32.211Z",
     "signals": [
       {
         "source": "description",
@@ -35,6 +34,17 @@
         "shape": "webUi",
         "match": "layout"
       }
-    ]
+    ],
+    "operatorOverride": {
+      "originalShapes": [
+        "webUi",
+        "persistence"
+      ],
+      "newShapes": [
+        "none"
+      ],
+      "reason": "Test-author reclassification, FBS-240 round DEFINE: the requirement is the on-disk directory layout of local files under rcf/; the scan signal \"layout\" is that on-disk layout, not a screen layout, and \"store\" sits in \"no external store mirrors them\", which says there is no data store.",
+      "ackAt": "2026-10-27T03:45:00.000Z"
+    }
   }
 }
