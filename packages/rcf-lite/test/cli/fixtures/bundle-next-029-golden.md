@@ -50,85 +50,46 @@ and referees; the harness executes. Every stage ends in a commit.
 
 Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or `rcf guidance build-cycle-playbook` on the CLI.
 
-### Stage 1 - Define
+**DEFINE FBS-001: TODO: name this build session** - commit prefix `DEFINE:`, role test-author.
 
-Hand: test-author. The FBS, acceptance criteria, ancestry and
-architectural context above ARE the definition. The test-author writes
-the AC-based and E2E tests and their TS / TC bindings for every in-scope
-acceptance criterion (AC-101-1) before any production code, proves each
-new test red, and checks that (section 6 lists the existing surface):
+The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red and marks pickup; it never writes production code.
 
     rcf audit coverage --strict
 
-covers them. Then mark pickup:
-
     rcf build mark FBS-001 inProgress
 
-Commit with the trailer `Hand: test-author`.
+**BUILD FBS-001: TODO: name this build session** - commit prefix `BUILD:`, role builder.
 
-### Stage 2 - Build
+The builder makes the red tests green with production code, Code Nodes and code-hygiene unit tests only, on a base whose RCF suite is recorded green; deviation from the bundle is escalation, not improvisation.
 
-Hand: builder. The builder makes the red tests green with production code,
-Code Nodes and code-hygiene unit tests only; it never edits an AC-based or
-E2E test, a TS / TC record or criterion text. Implement to the acceptance
-criteria in section 4 using the architectural context in section 5. The
-bundle is the spec: deviation is escalation to the operator of the loop,
-not improvisation. As you implement, author or update Code Nodes for the
-source you write:
+    rcf build base-suite --out <file>
 
     rcf define create cn --path <file>[#symbol] --acs <ac-ids>
 
-Do this now, not as an afterthought: comprehension of which symbols serve
-which acceptance criteria is cheapest to capture while you are writing the
-code, and Stage 5 refuses completion without it. Commit with the trailers
-`Hand: builder` and `Hand-Id: <builder identity>`.
+**REVIEW FBS-001: TODO: name this build session** - commit prefix `REVIEW:`, role reviewer.
 
-### Stage 3 - Review
-
-Hand: reviewer. Mechanical referee pass:
+The reviewer validates the tree, runs the separation audit (each commit's stage prefix against the paths it touches) and the test-strength proof, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H.
 
     rcf define validate
 
-    rcf audit separation
+    rcf audit separation --base <trunk>
 
-must both come back clean (separation judges each commit's `Hand:` trailer
-against the paths it touches, as the pull_request CI job does); then the
-reviewer re-reads the diff against every in-scope acceptance criterion
-and returns MERGE or FINDINGS. Any commit it makes carries
-`Hand: reviewer`.
+    rcf audit test-strength --record
 
-### Stage 4 - Test
+    rcf build verdict review --fbs FBS-001 --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS
 
-Hand: verifier. On the reviewed head, the verifier runs the bound suites
-against the preview or version host (`--artefact <tgz>` or
-`--package <dir>`):
+**TEST FBS-001: TODO: name this build session** - commit prefix `TEST:`, role verifier.
 
-    rcf verify run --fbs FBS-001 --hand verifier --artefact <tgz>
+The verifier runs the full RCF suite against a locally running app serving H, nothing deployed, and records its TAP; a failed REVIEW or TEST closes the round and the next round starts at DEFINE.
 
-The verb writes the report to rcf/verify-reports/FBS-001/<head12>.json;
-commit it with the trailer `Hand: verifier`. The PR merges only on a
-Review MERGE and a Test PASS at the same head.
+    rcf build verdict test --fbs FBS-001 --result PASS|FAIL --tap <file> --runtime "<text>"
 
-### Stage 5 - Finalise
+**FINALISE FBS-001: TODO: name this build session** - commit prefix `FINALISE:`, role stage-keeper.
 
-Hand: stage-keeper. On the PR branch before the merge, with CI green on
-the PR head and a Review MERGE and a Test PASS at the same head:
-
-    rcf build mark FBS-001 complete
-
-This refuses (exit 3, missingCodeNodes) if any in-scope acceptance
-criterion still carries no Code Node - go back to Stage 2 and author it,
-or, for a genuinely no-code spec (docs-only, config-only), declare:
-
-    rcf build mark FBS-001 complete --no-code-nodes
-
-Then promote complete -> verified by ingesting the committed Test-stage
-report, naming the CI run that passed on the PR head the report names:
+On the PR branch before the merge, with CI green, the stage-keeper runs the light Finalise: it checks the recorded verdicts and writes complete, and the merge carries it.
 
     rcf build finalise FBS-001 --ci-run <ref>
 
-A loopback report target (localhost, 127.0.0.0/8, ::1) is accepted when
-the report names the engine, the port and the served sha
-(rcf verify run --engine <name> --served-sha <sha>). Commit the verified
-write on the branch, then merge the PR per the driving workflow's
-convention; the merge carries verified.
+Every commit carries its stage prefix; the `Hand:` trailer is optional through 0.37.x.
+
+Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote
