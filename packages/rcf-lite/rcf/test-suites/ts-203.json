@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-16T22:38:04Z",
-  "updatedAt": "2026-10-22T11:22:29.922Z",
+  "updatedAt": "2026-10-27T01:51:57.253Z",
   "purpose": "Cover AC-16502-1 (writer refuses executionStatus=verified without allowVerifiedOverride, C-22), AC-16502-2 (writer accepts when allowVerifiedOverride:true, C-22 opt-out seam), and AC-16502-3 as restated for ADR-4151 (finalise promotes on a non-default branch with no flag; --allow-pre-merge changes nothing; claim C-26 reversed). AC-16502-1 and AC-16502-2 drive the writer directly through updateDocument; AC-16502-3 drives the finalise CLI through bin/rcf.js in a fixture git repository on branch topic-x.",
   "testLevel": "integration",
   "acIds": [
@@ -31,7 +31,7 @@
       "acId": "AC-16502-3",
       "description": "Ingest path: with a valid committed report and HEAD on branch topic-x, rcf build finalise --ci-run exits 0 with executionStatus verified and no \"git working tree is on branch\" refusal; on a second identical project --allow-pre-merge also exits 0 and stdout carries no /Referee-guarantees claim C-26 records the pre-merge decision here/ (C-26 reversed, ADR-4151).",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-16502-3 (ingest): rcf build finalise on a non-default branch promotes with no flag and no claim C-26 line, and --allow-pre-merge changes nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
     }
   ],
   "status": "approved"
