@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:17:56.478Z",
-  "updatedAt": "2026-10-26T23:44:15.638Z",
+  "updatedAt": "2026-10-27T05:40:36.669Z",
   "asA": "operator finalising one build unit on a tree that carries hundreds of acceptance criteria",
   "iWant": "`rcf build finalise <fbs-id>` to verify only the acceptance criteria bound to that FBS by default, with `rcf verify run --fbs <id>` as the underlying filter and an explicit `--all` option that restores whole-chain verification",
   "soThat": "finalising one build unit costs one unit's verification rather than the whole chain, the ADR-4112 verified invariant still holds per FBS (every AC bound to the FBS verified, none skipped), and a whole-chain run stays available at slice end",
@@ -46,7 +46,10 @@
       "testable": true,
       "given": "the shipped package",
       "when": "rcf build finalise --help, rcf verify run --help, rcf verify report <path> and the finalise docs page are read",
-      "then": "each states plainly that finalise verifies the named FBS's bound acceptance criteria by default, that --all verifies the whole chain, and that verify run --fbs <id> is the filter; the human report render shows the scope and the AC count"
+      "then": "each states plainly that finalise verifies the named FBS's bound acceptance criteria by default, that --all verifies the whole chain, and that verify run --fbs <id> is the filter; the human report render shows the scope and the AC count",
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-27",
+      "supersessionNote": "Retired 2026-10-27 (stage-keeper ruling RC-19, round A ruling 5: retired and succeeded, never reworded): the light Finalise reads no report and never writes verified, so this 0.36.x report-based Finalise behaviour retires; Finalise never opens a file under rcf/verify-reports/ (AC-20003-2), so it verifies no scoped set of criteria and its help, the report render it summarised and its docs page have no verification scope of Finalise to describe; the verify-run clauses (verify run --fbs <id> as the filter, the report render's scope) are ad hoc probe behaviour AC-20103-1 keeps."
     }
   ],
   "tacIds": [

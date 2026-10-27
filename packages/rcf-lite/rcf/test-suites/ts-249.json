@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:18:00.962Z",
-  "updatedAt": "2026-10-26T23:44:16.818Z",
+  "updatedAt": "2026-10-27T05:40:37.258Z",
   "purpose": "Cover the --fbs filter on rcf verify run (brief and deterministic ledger scoped to the bound criteria, report scope fields), the finalise default filter and --all escape, the ADR-4112 invariant over the scoped set with the zero-AC refusal, and the help, render and docs surfaces.",
   "testLevel": "unit",
   "acIds": [
@@ -39,7 +39,7 @@
       "acId": "AC-16504-4",
       "description": "help text, report render and docs page describe the scope. Superseded 2026-10-17 by AC-19002-7 (FBS-220): finalise no longer runs verify, so --all and the finalise verify-scope wording are retired from finalise and its help.",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
     }
   ],
   "status": "draft"
