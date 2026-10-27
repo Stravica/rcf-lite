@@ -636,6 +636,23 @@ test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty 
   const rv = await run();
   assert.ok(!lines(rv.stderr).includes(RUNNER_DIRTY), `an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${rv.code}\n${rv.stdout}${rv.stderr}`);
 
+  // The same exemption under --package (the stage-keeper's ruling RC-27 on
+  // the round C DEFINE: every rcf verify run mode, --package and --artefact
+  // included), with the dirty refusal before packing kept.
+  const p = await baseChain(t);
+  defineCommit(p.dir, { status: 'inProgress' });
+  const P = buildCommit(p.dir);
+  const pack = () => rcf(['verify', 'run', '--package', '.', '--fbs', 'FBS-001', '--hand', 'verifier'], { cwd: p.dir });
+  writeText(p.dir, 'src/x.js', `${readText(p.dir, 'src/x.js')}// uncommitted\n`);
+  const pd = await pack();
+  assert.equal(pd.code, 4, `under --package a change to src/x.js is dirty to the verify runner: exit 4\n${pd.stdout}${pd.stderr}`);
+  errHas(pd, RUNNER_DIRTY);
+  assert.ok(!existsSync(join(p.dir, 'rcf', 'verify-reports', 'FBS-001')), 'under --package the refused run writes no report');
+  git(p.dir, 'checkout', '--', 'src/x.js');
+  writeJson(p.dir, verdictPath(P, 'test.json'), testVerdict(P));
+  const pv = await pack();
+  assert.ok(!lines(pv.stderr).includes(RUNNER_DIRTY), `under --package an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${pv.code}\n${pv.stdout}${pv.stderr}`);
+
   // The FBS-219 rules under --artefact, restated from the retired AC-19301-7
   // (the stage-keeper's ruling RC-15 on the round C DEFINE). The dirty check
   // and the --fbs count run before the tarball is unpacked, so a gzip file

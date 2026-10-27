@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:36.705Z",
-  "updatedAt": "2026-10-27T01:44:21.746Z",
+  "updatedAt": "2026-10-27T05:48:05.308Z",
   "asA": "verifier at the TEST stage",
   "iWant": "to record PASS or FAIL for the reviewed head from the TAP summary of the full RCF suite",
   "soThat": "the TEST pass is a branch commit that names the code it tested",
@@ -71,7 +71,7 @@
     },
     {
       "id": "AC-19702-10",
-      "description": "[edge] Given a fixture branch whose HEAD is a REVIEW: commit adding a MERGE/PASS review.json for H, an untracked report file under rcf/verify-reports/FBS-001/ and a TAP file passing every bound test of the touched criteria, when rcf build verdict test --fbs FBS-001 --result PASS --tap <file> --runtime <text> runs, then it exits 0 and writes rcf/verdicts/<H12>/test.json: the verdict verb's dirty check ignores untracked files under rcf/verify-reports/; and given an untracked rcf/verdicts/<H12>/test.json and no other change, rcf verify run --hand verifier --fbs FBS-001 --url <loopback> --engine <name> --served-sha <HEAD> does not refuse with \"verify report refused: working tree is dirty; the report must name a committed head\": the verify runner's dirty check ignores rcf/verdicts/; an uncommitted change to src/x.js still refuses each verb as dirty with exit 4; and the FBS-219 rules hold under --artefact: given the same change to src/x.js, rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier refuses exit 4 with stderr \"verify report refused: working tree is dirty; the report must name a committed head\" and writes no report, and --fbs absent or given twice exits 2.",
+      "description": "[edge] Given a fixture branch whose HEAD is a REVIEW: commit adding a MERGE/PASS review.json for H, an untracked report file under rcf/verify-reports/FBS-001/ and a TAP file passing every bound test of the touched criteria, when rcf build verdict test --fbs FBS-001 --result PASS --tap <file> --runtime <text> runs, then it exits 0 and writes rcf/verdicts/<H12>/test.json: the verdict verb's dirty check ignores untracked files under rcf/verify-reports/; and given an untracked rcf/verdicts/<H12>/test.json and no other change, rcf verify run --hand verifier --fbs FBS-001 --url <loopback> --engine <name> --served-sha <HEAD> does not refuse with \"verify report refused: working tree is dirty; the report must name a committed head\", and neither does rcf verify run --package . --fbs FBS-001 --hand verifier: the verify runner's dirty check ignores rcf/verdicts/ in every rcf verify run mode, --url, --package and --artefact alike; an uncommitted change to src/x.js still refuses each verb as dirty with exit 4, under --package before packing; and the FBS-219 rules hold under --artefact: given the same change to src/x.js, rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier refuses exit 4 with stderr \"verify report refused: working tree is dirty; the report must name a committed head\" and writes no report, and --fbs absent or given twice exits 2.",
       "testable": true,
       "verification": "external"
     }
