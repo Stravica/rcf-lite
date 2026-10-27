@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:18:00.962Z",
-  "updatedAt": "2026-10-27T05:40:37.258Z",
+  "updatedAt": "2026-10-27T05:41:14.881Z",
   "purpose": "Cover the --fbs filter on rcf verify run (brief and deterministic ledger scoped to the bound criteria, report scope fields), the finalise default filter and --all escape, the ADR-4112 invariant over the scoped set with the zero-AC refusal, and the help, render and docs surfaces.",
   "testLevel": "unit",
   "acIds": [
@@ -32,7 +32,7 @@
       "acId": "AC-16504-3",
       "description": "verified invariant over the scoped set: skipped in scope refuses, skipped outside scope promotes, zero-AC FBS refused",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination"
     },
     {
       "id": "TC-249-16504-4-help",
