@@ -22,7 +22,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { existsSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
-import { join } from 'node:path';
+import { dirname, join } from 'node:path';
 import { gzipSync } from 'node:zlib';
 
 import { lines, rcf } from '../_harness/spawn.js';
@@ -673,6 +673,26 @@ test('AC-19604-8: with rcf/separation.json {"classes": {"rcfTest": ["spec/**"]}}
     const r = await rcf(['audit', 'separation', '--base', base], { cwd });
     assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
     assert.ok(r.stdout.includes(item), `from ${where}: stdout names "${item}"\n${r.stdout}${r.stderr}`);
+  }
+
+  // Below the git root (the stage-keeper's ruling RC-25 on the round C
+  // DEFINE): the project sits in project/ of its git repository, as
+  // packages/rcf-lite does in this one. The path form the item prints there
+  // is open (a question in the round C DEFINE summary), so the item is
+  // matched with any leading directories before spec/a.js.
+  const sub = await project(t, { name: 'below' });
+  const top = dirname(sub);
+  writeJson(sub, 'rcf/separation.json', { classes: { rcfTest: ['spec/**'] } });
+  writeText(top, '.gitignore', 'node_modules/\n');
+  initRepo(top);
+  const subBase = commit(top, 'fixture: base chain');
+  git(top, 'switch', '-q', '-c', 'feature');
+  const subBad = commit(top, 'BUILD: code', { 'project/spec/a.js': 'export const a = 1;\n', 'project/src/x.js': 'export const x = 1;\n' });
+  const subItem = new RegExp(`${s7(subBad)} BUILD: touches (?:\\S+/)?spec/a\\.js \\(class rcfTest, owned by DEFINE\\)`);
+  for (const [where, cwd] of [['the project subdirectory src/ below the git root', join(sub, 'src')], ['the project root below the git root', sub]]) {
+    const r = await rcf(['audit', 'separation', '--base', subBase], { cwd });
+    assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
+    assert.match(r.stdout, subItem, `from ${where}: stdout names "${s7(subBad)} BUILD: touches <path>spec/a.js (class rcfTest, owned by DEFINE)"\n${r.stdout}${r.stderr}`);
   }
 });
 
