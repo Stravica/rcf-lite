@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:07.089Z",
-  "updatedAt": "2026-10-27T01:51:57.856Z",
+  "updatedAt": "2026-10-27T05:44:28.045Z",
   "purpose": "Declare one test per AC of US-19002 (FBS-220) driving rcf build finalise <fbs-id> --ci-run <ref> through bin/rcf.js, so the FBS-220 Define round turns each declaration into a red test against the report-ingesting Finalise.",
   "testLevel": "integration",
   "acIds": [
@@ -64,7 +64,7 @@
       "acId": "AC-19002-7",
       "description": "rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     },
     {
       "id": "TC-253-no-spawn-no-mutation",

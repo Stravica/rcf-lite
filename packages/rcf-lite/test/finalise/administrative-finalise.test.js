@@ -162,25 +162,6 @@ function nonGitSpawns(spawns) {
   return spawns.filter((s) => s.file !== 'git');
 }
 
-test('AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with "finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage" and spawns nothing', async () => {
-  const world = await buildWorld();
-  const retired = `finalise no longer runs verify; run rcf verify run --fbs ${FBS} --hand verifier at the Test stage`;
-  const runs = [
-    ['--mode', 'deterministic'],
-    ['--mode', 'agentScreenshotCritique'],
-    ['--mode', 'anything'],
-    ['--url', 'https://preview.invalid'],
-    ['--url', 'https://preview.invalid', '--mode', 'deterministic', '--ci-run', CI_REF],
-  ];
-  for (const extra of runs) {
-    const r = await rcf(world.root, ['build', 'finalise', FBS, ...extra], { trace: true });
-    assert.equal(r.code, 2, `${extra.join(' ')}: retired flag exits 2\nstderr:\n${r.stderr}`);
-    assert.ok(r.stderr.includes(retired), `${extra.join(' ')}\n${r.stderr}`);
-    assert.deepEqual(r.spawns, [], `${extra.join(' ')}: spawns nothing`);
-    assert.equal(await status(world), 'complete');
-  }
-});
-
 test('AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical', async () => {
   const world = await buildWorld();
   // Each refusal the ingest path names, with the exit code it must carry.
