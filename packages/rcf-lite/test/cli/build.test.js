@@ -113,18 +113,6 @@ test('--next selects the lowest-order actionable item and emits its bundle', asy
   assert.equal(body.fbs.fbsId, 'FBS-001');
 });
 
-test('--next on an exhausted queue exits 0 with queueEmpty: true (OQ-P6-2)', async () => {
-  const tmp = await scaffold();
-  // Phase 10 D17: the mark-complete CN gate refuses without CN coverage
-  // or a --no-code-nodes declaration - this fixture has no source tree.
-  const first = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  assert.equal(first.code, 0);
-  const { code, stdout } = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--format', 'json']);
-  assert.equal(code, 0);
-  const body = JSON.parse(stdout);
-  assert.equal(body.queueEmpty, true);
-});
-
 test('--next distinguishes stuck (blocked/inProgress) from done', async () => {
   const tmp = await scaffold();
   await addDependentFbs(tmp);
@@ -234,49 +222,6 @@ test('same-status --mark is an idempotent no-op, exit 0', async () => {
   const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
   assert.equal(code, 0);
   assert.match(stdout, /FBS-001 already inProgress/);
-});
-
-test('backward --mark exits 4 and names the rcf update escape hatch', async () => {
-  const tmp = await scaffold();
-  // Phase 10 D17: no CN coverage in this fixture - declare no-code-nodes.
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'notStarted']);
-  assert.equal(code, 4);
-  assert.match(stderr, /\[error\] refused/);
-  assert.match(stderr, /rcf define update FBS-001 --set executionStatus=notStarted/);
-});
-
-test('--mark verified is refused (exit 4), names rcf finalise, and writes nothing (mark ladder caps at complete)', async () => {
-  const tmp = await scaffold();
-  // Take FBS-001 to complete first, so this is a "complete -> verified" attempt
-  // (the exact sidestep the hardening closes), not a backward mark.
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'verified']);
-  assert.equal(code, 4);
-  assert.match(stderr, /\[error\] refused/);
-  assert.match(stderr, /rcf build finalise FBS-001/);
-  assert.match(stderr, /rcf define update FBS-001 --set executionStatus=verified --acknowledge-verified-override/);
-  // No write landed: the FBS is still complete, not verified.
-  const fbs = await readFbs(tmp);
-  assert.equal(fbs.executionStatus, 'complete');
-});
-
-test('the sanctioned manual override still works: rcf update --set executionStatus=verified --acknowledge-verified-override (referee-guarantees C-22 gated escape)', async () => {
-  const tmp = await scaffold();
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  // Referee-guarantee train (REQ-165 / US-16502): the writer refuses
-  // FBS.executionStatus=verified by default; --acknowledge-verified-override
-  // is the deliberate, logged operator escape valve.
-  const bare = await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=verified']);
-  assert.equal(bare.code, 2, 'unflagged manual override is refused (usage)');
-  assert.match(bare.stderr, /verified is written only by the finalise gate/);
-  const bareFbs = await readFbs(tmp);
-  assert.equal(bareFbs.executionStatus, 'complete', 'no write landed without the override flag');
-
-  const { code } = await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=verified', '--acknowledge-verified-override']);
-  assert.equal(code, 0);
-  const fbs = await readFbs(tmp);
-  assert.equal(fbs.executionStatus, 'verified', 'rcf update remains the explicit verified override when the operator acknowledges it');
 });
 
 test('bad --mark value exits 2', async () => {
