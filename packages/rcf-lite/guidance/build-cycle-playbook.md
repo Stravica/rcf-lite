@@ -4,18 +4,20 @@
 
 ## 1. Read this if
 
-You are the agent executing FBS items in an RCF project. Load this once per session - as the `rcf_execute_build_cycle` prompt, or by running `rcf guidance build-cycle-playbook` on the CLI - then loop. Every spec bundle closes with a terse runbook for the item in hand; that runbook is the contract you execute each cycle, and this playbook is the depth behind it. If the two ever disagree, the runbook wins; report the disagreement as a bug rather than resolving it yourself.
+You are the agent executing FBS items in an RCF project. Load this once per session - as the `rcf_execute_build_cycle` prompt, or by running `rcf guidance build-cycle-playbook` on the CLI - then loop. Every spec bundle closes with a terse runbook for the current item; that runbook is the contract you execute each cycle, and this playbook is the depth behind it. If the two ever disagree, the runbook wins; report the disagreement as a bug rather than resolving it yourself.
 
 Every command output shown below is real, captured against this repository's own RCF tree (or a scratch copy of it, where noted). Outputs illustrate shape, not the tree's current queue state.
 
 ## 2. The loop at a glance
 
 ```
-rcf build bundle --next     -> spec bundle for the next actionable item
+rcf build base-suite --out <file>
+                     -> the RCF suite recorded green on the base
+rcf build bundle <fbs-id> --base-suite <file>
+                     -> spec bundle for the next actionable item
                         execute the five stages its runbook prints:
                         Define -> Build -> Review -> Test -> Finalise
-rcf build mark <fbs-id> <status>
-                     -> record each lifecycle transition, then repeat
+                     -> each stage ends in a commit with its stage prefix
 ```
 
 Queue semantics in four lines. An item is actionable when it is `notStarted` and every dependency is complete or verified. An item with an unsatisfied dependency is blocked; never select a blocked item yourself, `--next` does the selection. `inProgress` marks exactly one thing: an item you have started and not finished. When nothing is actionable, the envelope tells you whether the queue is complete (`queueEmpty`) or stuck, and a stuck queue lists what is blocked and what is in progress; stuck is a report-to-operator condition, not a pick-something-anyway condition.
@@ -23,6 +25,8 @@ Queue semantics in four lines. An item is actionable when it is `notStarted` and
 This section is one item's five stages. A project is a queue of them, and finishing the queue - not finishing one item - is the job. Section 11 is the loop around this loop: how one session drives every FBS to done, and how a session that cannot writes a clean handover instead of stalling. Section 17 sets the register for what the operator reads while you drive it.
 
 ## 3. Stage 1 - Define
+
+The role for this stage is the test-author: it writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red, and never writes production code. Its commits open with `DEFINE:`.
 
 What good looks like:
 
@@ -70,7 +74,7 @@ What good looks like:
 - A `uiBaseline` record exists on the manifest. If it does not, run `rcf discover ui-baseline init` before opening any Design substage verb. The interactive session presents every ruled default on one summary screen; press ENTER to accept, type a field name to edit one, type `edit-all` to walk them sequentially, type `cancel` to leave without writing. Every opt-out lands with a plain-text reason of at least twenty characters. Silence is never an opt-out.
 - Three artefacts land on the FBS's `designStage` block before the design is called complete: a `journeys[]` list (at least one walk-through of a real actor + goal + two to eight steps), a `navModel` (shape from `shared-persistent` | `shared-per-section` | `none-single-page` | `operator-declared-other`, at least one route with a path + label + authRequired boolean, and a `signedInAsAffordance` boolean), and a `themeAndA11y` block (theme mode from `light-default-with-toggle` | `dark-default-with-toggle` | `single-theme-declared`, the tokens-module path, the contrast-test path, and the `contrastTestAuthoredBeforePalette` boolean attestation).
 - Author via the verbs, not by hand-editing: `rcf define design <fbs-id> journeys add --id <slug> --actor "..." --goal "..." --step "..." --step "..."`, `rcf define design <fbs-id> nav set --shape <shape> --route <path=label:authRequired> ...`, `rcf define design <fbs-id> theme-a11y set --mode <mode> --tokens <path> --contrast-test <path> --contrast-before-palette true|false`. When all three are in place, `rcf define design <fbs-id> --mark-complete` sets `designStageComplete: true` on the FBS record. Alternatively, dispatch the Design worker via `rcf define design <fbs-id>` (no sub-verb) and let the subagent author the three artefacts against the baseline plus a sibling-FBS `designStage` context, then mark complete.
-- The playbook mandate 5 vocabulary (`Button`, `Input`, `Card`, `Badge`, `Table`, `Notice`, single badge shape) is guidance-only in v1. For string-templated projects (server-rendered HTML by concatenation, no framework) the operator can hand-check the six-component vocabulary with a `grep -oE 'class="[^"]+"'` sweep of view files; the audit does not enforce it mechanically in v1.
+- The playbook mandate 5 vocabulary (`Button`, `Input`, `Card`, `Badge`, `Table`, `Notice`, single badge shape) is guidance-only in v1. For string-templated projects (server-rendered HTML by concatenation, no framework) the operator can check the six-component vocabulary by hand with a `grep -oE 'class="[^"]+"'` sweep of view files; the audit does not enforce it mechanically in v1.
 
 Warning at Stage 2 entry (`rcf build mark <fbs-id> inProgress`): if the FBS is uiBearing and no `designStage` has been authored, one `[warn]` line points at `rcf define design <fbs-id>`. Not a refusal - pickup and planning can happen before design when the operator wants to think about the AC scope first. The hard refusal fires at Stage 5.
 
@@ -83,6 +87,8 @@ Stage end: commit. The `designStage` and `designStageComplete` write are the art
 Worked micro-example. FBS-016 ("Web UI dashboard") classifies as UI-bearing on `dashboard` and `page` signals in the summary. `rcf discover ui-baseline init` runs once for the project, accepting the ruled defaults on ENTER. Three journeys sketched: signed-in-owner checks status; new-monitor add flow; unauthenticated visitor lands on login. `navModel` records the four authenticated routes (dashboard, monitors, monitor-detail, settings) as `shared-persistent` with `signedInAsAffordance: true`. `themeAndA11y` records `light-default-with-toggle`, tokens at `src/ui/tokens.ts`, contrast test at `test/ui-accessibility.test.ts`, `contrastTestAuthoredBeforePalette: true`. `rcf define design FBS-016 --mark-complete` sets the boolean; Stage 2 opens.
 
 ## 4. Stage 2 - Build
+
+The role for this stage is the builder: it makes the red tests green with production code, Code Nodes and code-hygiene unit tests only, and never edits an AC-based or E2E test, a TS / TC record or criterion text. Its commits open with `BUILD:`.
 
 What good looks like:
 
@@ -103,6 +109,8 @@ Stage end: commit.
 
 ## 5. Stage 3 - Review
 
+The role for this stage is the reviewer: it runs the scoped gate on the committed head H and records the round's REVIEW verdict. Its commits open with `REVIEW:`.
+
 What good looks like:
 
 - The tree is structurally clean, and then the diff is re-read against the promise, not against itself. The question per AC is "where in this diff is AC-x satisfied?", answered with a file and a behaviour.
@@ -115,7 +123,7 @@ $ rcf define validate
 rcf define validate: tree is clean.
 ```
 
-Exit 0 when clean; exit 3 with issue lines when not (section 9 shows the failure shape).
+Exit 0 when clean; exit 3 with issue lines when not (section 9 shows the failure shape). Then `rcf audit separation --base <trunk>` judges each commit's stage prefix against the paths it touches, `rcf audit test-strength --record` records the structural and mutation proof for the touched criteria, and `rcf build verdict review --fbs <fbs-id> --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS` records the verdict for the `REVIEW:` commit to add.
 
 Failure modes:
 
@@ -137,10 +145,11 @@ Stage end: commit.
 
 ## 6. Stage 4 - Test
 
+The role for this stage is the verifier, separate from the builder: on the reviewed head H it runs the full RCF suite against a locally running app (nothing is deployed) and records the result. Its commits open with `TEST:`.
+
 What good looks like:
 
-- The verifier hand, separate from the builder, runs `rcf verify run --fbs <fbs-id> --hand verifier --verifier-id <id>` against the preview or version host serving the reviewed head (`--artefact <tgz>` or `--package <dir>` for a packed artefact), and commits the report the verb writes to `rcf/verify-reports/<fbs-id>/<head12>.json` on the PR branch with the trailer `Hand: verifier`. That report plus the Review MERGE is the merge gate, and it is what Finalise ingests on the PR branch before the merge.
-- A loopback target (localhost, `*.localhost`, 127.0.0.0/8, ::1, 0.0.0.0; for example `wrangler dev` or `node server` serving the PR head) is accepted when the run names the engine and the served sha: `rcf verify run --url <loopback-url> --hand verifier --engine "<engine>" --served-sha <full sha of the committed HEAD>` records `target.engine`, `target.port` and `target.servedSha`. A loopback `--hand` run without them exits 2, and a served sha that is not the committed HEAD exits 4.
+- The verifier runs the full RCF suite with TAP output against a locally running app serving H, then records it with `rcf build verdict test --fbs <fbs-id> --result PASS|FAIL --tap <file> --runtime "<text>"`, which writes `rcf/verdicts/<h12>/test.json` for the `TEST:` commit to add. The verb never runs the suite itself. A REVIEW MERGE and a TEST PASS at the same head are the merge gate, and they are what Finalise reads on the PR branch before the merge.
 - Every in-scope AC gets a TS / TC pair on the tree and an executable test behind it, named by the TC's `testPointer` (`filePath::testName`). Section 6 of the bundle lists what already exists and what is flagged as missing.
 - The test asserts the AC's observable outcome (its given / when / then), not the implementation's internals.
 - A TC's `status` reflects a run that actually happened.
@@ -179,26 +188,23 @@ Stage end: commit.
 
 ## 7. Stage 5 - Finalise
 
+The role for this stage is the stage-keeper: on the PR branch before the merge it runs the light Finalise, which checks the recorded verdicts and writes complete. Its commits open with `FINALISE:`.
+
 What good looks like:
 
-- Finalise runs on the PR branch before the merge: CI green on the PR head, a Review MERGE and a Test PASS at the same head, the PR raised per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
-- `rcf build mark <fbs-id> complete` on the PR branch. This refuses (exit 3, `missingCodeNodes`) if any in-scope AC still carries no Code Node - a reliability chain with optional links is not a chain. Author the missing CNs and retry, or, for a genuinely no-code spec (docs-only, config-only), declare `rcf build mark <fbs-id> complete --no-code-nodes` once.
-- `rcf build finalise <fbs-id> --ci-run <ref>` writes `verified` on the PR branch by ingesting the Test-stage report: the verifier hand ran `rcf verify run --fbs <fbs-id> --hand verifier` against the preview or version host and committed the report it wrote under `rcf/verify-reports/<fbs-id>/`, and `--ci-run` names the CI run that passed on the PR head the report names. The report must be committed at HEAD with its bytes unchanged; a loopback target is accepted only when the report names the engine, the port and the served sha (`target.servedSha`, equal to its head). Commit the verified write on the branch, then merge: the merge carries it. Once merged with a merge commit, a re-run on the default branch is a read-only confirm; a squash merge is not promised. Finalise spawns nothing but git lookups; it never runs verify itself. `--mark` cannot write `verified` - it caps at `complete`; the finalise gate promotes `complete -> verified` only when the report's verdict is PASS with ship authority.
+- Finalise runs on the PR branch before the merge: CI green on the PR head, a REVIEW MERGE and a TEST PASS at the same head, the PR raised per the driving workflow's convention. The PR body is written for the reviewer, evidence first - author it per section 12, not as a diff walk.
+- `rcf build finalise <fbs-id> --ci-run <ref>` checks the last round's recorded REVIEW verdict, TEST verdict and test-strength record, a Code Node on every touched criterion and the separation audit over the range, then writes complete. It refuses (exit 3) when a touched criterion carries no Code Node: author the missing Code Nodes and retry. It spawns nothing but git and never writes verified. Commit the complete write on the branch in a `FINALISE:` commit, then merge: the merge carries it.
+- `rcf build mark <fbs-id> complete` is refused (exit 4): complete is written only by `rcf build finalise`, and verified only by a release Verify (`rcf verify run --release <label> --since <ref> --record`), outside the build cycle.
 - A working, documented local preview is present as the default outcome (section 14), and every verification claim in the PR names the runtime it was checked against (section 15). These are part of done, not extras.
 
-Referee: CI, the finalise gate, plus the mark commands' own refusals (section 9).
+Referee: CI, the finalise checks and their refusals (section 9).
 
 Failure modes:
 
 - **AC-skipping at the finish line.** Symptom: a section-4 AC has no corresponding diff or test, discovered at PR time or never. Correction: a per-AC checklist pass before this stage ends; every AC id gets a tick against a diff location and a test.
-- **Leaving Finalise for the merge.** Symptom: the PR merges with the FBS still at `complete`, so the default branch carries an unverified spec. Correction: mark complete and run Finalise on the PR branch before the merge; the merge carries `verified`.
-- **Reaching for `--no-code-nodes` out of impatience.** Symptom: the flag on a spec that plainly produced code. Correction: it declares a fact (no traceable code exists), not an escape from the CN-authoring step you skipped in Stage 2 - go back and author the CN instead.
+- **Leaving Finalise for the merge.** Symptom: the PR merges with the FBS still at `inProgress`. Correction: run Finalise on the PR branch before the merge; the merge carries `complete`.
 
-**The finalise gate reads the attestation, not just the exit code.** A passing verify run whose report carries per-AC verdicts in `{MOCK-ONLY-DECLARED, BLOCKED-BY-DECLARATION}` will not promote to `verified`. The gate stays at `complete -> verified` promotion, but a mock-only-declared AC refuses the promotion unless the operator explicitly ships the FBS complete-without-verified via `--ship-without-verified`. The summary always discloses these verdicts (whether the FBS ships or not) so the honest picture reaches the reviewer. Older verify reports without the `perAcVerdicts` field are handled gracefully - verify's train car may land later; older reports flow through with the pre-0.7.0 gate behaviour.
-
-**Browser-verification gate (Track B, UI-bearing FBS only).** Before `--mark complete` on a uiBearing FBS, run `rcf verify browser <fbs-id>` against the local preview or a deployed URL. The verb writes a `browserVerification[]` record on the manifest and aggregates a verdict (pass / warn / block). `--mark complete` refuses when the verdict is `block` (unless the operator uses `--accept-block --reason "..."` per the ship-without-verified escape hatch) or `warn` (unless `operatorAckAt` is populated via `rcf verify browser <fbs-id> --ack`). The `agentScreenshotCritique` mode drives an injectable browser driver over every enumerated route x theme, records the DOM against the versioned `UI_INVARIANTS_V1` set (shared-nav presence, active-nav marker, signed-in-as affordance, theme toggle, default theme, focus rings, structural layout compare), and (when the FBS binds an auth REQ) runs the auth-REQ smoke pack (`GET /login`, `POST /logout`, `GET /login/verify?token=`). The `operatorSession` mode records the operator's ack alone; the ack is the evidence. Screenshots and DOM dumps land under `.rcf/artefacts/<bv-id>/`, gitignored via the 0.6.0 managed block.
-
-Stage end: the verified write is committed on the PR branch, and the merge carries it.
+Stage end: the complete write is committed on the PR branch, and the merge carries it.
 
 ## 8. Escalation rules
 
@@ -246,7 +252,7 @@ Note the fan-out: one broken document produced two broken references. Fix the na
 
 Without `--strict` the bundle renders anyway, flagged as a read-ahead; `--next` never selects blocked items.
 
-**`rcf build mark <fbs-id> <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but `--mark` caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf build finalise` (only the finalise gate writes `verified`). A backward mark is likewise refused with exit 4 and names the escape hatch:
+**`rcf build mark <fbs-id> <status>`** - exit 0 with a one-line confirmation (`marked FBS-012 notStarted -> inProgress`). The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`; forward jumps legal), but the mark ladder caps at `inProgress`: marking `complete` or `verified` is refused with exit 4, because `complete` is written only by `rcf build finalise` and `verified` only by a release Verify. A backward mark is likewise refused with exit 4 and names the escape hatch:
 
 ```
 [error] refused build: refusing backward transition complete -> inProgress on FBS-005; for a deliberate correction use: rcf define update FBS-005 --set executionStatus=inProgress
@@ -323,7 +329,7 @@ $ rcf build mark FBS-013 inProgress
 marked FBS-013 notStarted -> inProgress
 ```
 
-From here it is the five stages, a commit per stage, `--mark complete` and `rcf build finalise` on the PR branch before the merge to promote to `verified` from the Test-stage report, the merge, and back to `rcf build bundle --next`.
+From here it is the five stages, a commit per stage, `rcf build finalise` on the PR branch before the merge to write `complete` from the recorded verdicts, the merge, and back to the next bundle.
 
 ## 11. Driving the whole queue
 
@@ -337,8 +343,7 @@ Sections 3 to 7 deliver one item. This section is the loop around them: how a si
 rcf build queue      -> queue state; a "Next actionable" id means there is work
 rcf build bundle --next     -> bundle for that item
                         run its five stages (sections 3-7), commit per stage
-rcf build mark <fbs-id> complete       (on the PR branch)
-rcf build finalise <fbs-id> --ci-run <ref>  (Test-stage report -> verified, then merge)
+rcf build finalise <fbs-id> --ci-run <ref>  (on the PR branch: recorded verdicts -> complete, then merge)
                         then rcf build bundle --next again
 ```
 
@@ -354,13 +359,13 @@ That line - not "I built the first one" - is the end of the loop. If it instead 
 
 **Keep the driving context thin (why one session is enough).** The reason a sixteen-item queue "won't fit in one session" is that the agent kept every item's bundle, diff and test detail in a single growing thread. It does not have to. If your harness can spawn sub-agents, run each FBS in its own worker:
 
-- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build bundle --next`, hand the bundle id to a worker, and wait for a short structured result.
+- The driver (you) holds only the queue, the trace and the running tally of what is done. You call `rcf build bundle --next`, pass the bundle id to a worker, and wait for a short structured result.
 - The worker holds one item's full working set - the bundle, the diff, the tests, the referee outputs - runs the five stages, opens its PR, and returns a few lines: item id, ACs satisfied, referee outputs, PR link, and any escalation. Then its context is discarded.
 - The driver's context stays flat across all sixteen items because it never holds more than a summary of any one. That is the mechanism that makes a small app's whole queue a single-session job.
 
-Brief each worker with the same four things the bundle names: the item id, the five-stage cycle, the exact mark commands, and the escalation rule. **One write worker at a time** - builds share the working tree, so two workers marking and committing at once collide. Read-only workers (a trace lookup, an impact check) can run in parallel; writers are strictly sequential. `--next` already hands items out in dependency order, so sequential is also correct order.
+Brief each worker with the same four things the bundle names: the item id, the five-stage cycle, the exact mark commands, and the escalation rule. **One write worker at a time** - builds share the working tree, so two workers marking and committing at once collide. Read-only workers (a trace lookup, an impact check) can run in parallel; writers are strictly sequential. `--next` already gives items out in dependency order, so sequential is also correct order.
 
-**When to hand over instead of pushing on.** For a large stack, judge context cleanliness honestly rather than optimistically. The signs it is time to hand over: referee outputs contradict your memory of the tree, you are re-reading a bundle to reload state you should still be holding, or you have lost confidence about which items are truly done. Do not drag a degraded session to the finish - a wrong `--mark complete` costs more than a handover.
+**When to write a handover instead of pushing on.** For a large stack, judge context cleanliness honestly rather than optimistically. The signs it is time for a handover: referee outputs contradict your memory of the tree, you are re-reading a bundle to reload state you should still be holding, or you have lost confidence about which items are truly done. Do not drag a degraded session to the finish - a wrong `--mark complete` costs more than a handover.
 
 **The handover protocol.** A handover is state capture, not a memory dump. A fresh session must be able to resume from it without re-eliciting anything or re-deriving the queue.
 
@@ -372,13 +377,13 @@ The test of a good handover: the next session reads it, runs `rcf build`, and co
 
 **Failure modes:**
 
-- **Stopping after one item.** Symptom: the session ends with a still-actionable queue and no handover. Correction: either loop to `Queue complete` or hand over; "I did the first one" is neither.
+- **Stopping after one item.** Symptom: the session ends with a still-actionable queue and no handover. Correction: either loop to `Queue complete` or write a handover; "I did the first one" is neither.
 - **Inlining everything until the context is full.** Symptom: the thread carries every item's diff and the agent concludes the rest is impossible this session. Correction: dispatch per item; the driver never holds more than one item's working set.
 - **Handover as narration.** Symptom: a wall of prose the next session cannot act on. Correction: capture ids, statuses, the next actionable id and the stop point, not the story of how you got there.
 
 ## 12. Authoring the PR
 
-When Finalise raises a PR, the body is for the reviewer - human or agent - and its one job is to let them confirm the work is correct without reverse-engineering it from the diff. Lead with evidence and verification, not a changelog. RCF hands you what an ordinary PR lacks: every claim traces to an AC id, and the referee outputs are real, quotable evidence. Use them.
+When Finalise raises a PR, the body is for the reviewer - human or agent - and its one job is to let them confirm the work is correct without reverse-engineering it from the diff. Lead with evidence and verification, not a changelog. RCF gives you what an ordinary PR lacks: every claim traces to an AC id, and the referee outputs are real, quotable evidence. Use them.
 
 **The body, in this order:**
 
@@ -471,20 +476,20 @@ Both name the runtime, both refuse to imply the deployed profile, and both say p
 
 ## 16. In-loop fresh-context self-review
 
-Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: the verifier hand's `rcf verify run --fbs <fbs-id> --hand verifier` at the Test stage writes the report, and `rcf build finalise`, ingesting that report, is the only thing that promotes an FBS from `complete` to `verified` (section 7). Nothing in this section changes that.
+Self-verification is only as truthful as the runtime it verifies against, and a green suite plus a confident claim can still ship a user-facing defect. The independent verification gate is the durable answer to that, and it ships: the verifier's recorded TEST verdict on the full RCF suite gates the merge (section 6), and a release Verify (`rcf verify run --release <label> --since <ref> --record`) is the only thing that writes `verified`. Nothing in this section changes that.
 
 What this section adds is the cheap check that runs **in the loop, between builds** - long before you reach the gate. Its value is finding the defect at FBS 6 instead of at the ship gate. It is subordinate to the gate, never a substitute for it, and it never writes `verified`.
 
 - **What it is: a fresh-context reviewer dispatch, periodic and at the end.** Run a manual-review subagent in a fresh context **every few FBS builds** and **once more at the end of the build**. Fresh context matters: a reviewer carrying the build's own assumptions re-confirms them; a reviewer starting cold does not.
 - **It drives the app, it does not read the code.** The reviewer starts the running application (the local preview is right there) and **drives it against the acceptance criteria** - exercises the real behaviour a user would - rather than reading the diff. Reading code re-checks intent; driving the app checks what was actually built.
 - **It targets the defect classes green suites miss.** Name them for the reviewer: **session-class bugs** (state that leaks or resets across requests/sessions), **false-promise UI** (buttons and screens that imply an action the code never performs), **runtime mismatch** (passes on localhost, fails on the deployed runtime), **dead auth paths** (login/signup flows that never actually work end to end), and **dead code** (paths shipped but never reachable). These are exactly the classes a passing unit suite reports nothing about.
-- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf build finalise` (section 7) - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only the finalise gate produces that.
+- **It is honestly scoped, and it is not the gate.** State plainly, every time: this is **an in-loop check, not the independent verification gate** - the gate is `rcf build finalise` (section 7), on the recorded TEST verdict - and it is **guidance and prompt-level, not a new subsystem**. A same-agent, same-programme reviewer is better than nothing and weaker than an independent check: worth running before the gate, not worth overclaiming after it. Say both. A self-review pass is never evidence for a `verified` mark; only a release Verify writes it.
 - **For UI-bearing FBSes, cross-reference to `rcf verify browser`.** The in-loop reviewer's "drive the app against ACs" behaviour is a superset of what `rcf verify browser <fbs-id>` does (open every enumerated route on every declared theme, record the DOM, run the versioned invariant set, run the auth smoke pack). Reach for `rcf verify browser` first for uiBearing FBS: it writes a persisted `browserVerification[]` record on the manifest that the Stage 5 gate reads, and it names the exact invariants a passing browser check must satisfy. The self-review pass then adds the qualitative rubric on top (component consistency, typography, interaction affordances, modern-versus-dated feel) - the same rubric the browser-verify agent-mode critique carries on its record's `notes` field.
 - **Keep the review surface up across the pass.** `rcf audit view` gains `start | status | stop | logs` verbs and defaults to `--detach` on an interactive session (the pre-0.7.0 foreground default survives non-interactive callers, so CI scripts do not change behaviour). Start it once at the top of the loop; the supervisor persists across session death and the manifest carries `reviewSurface.viewServer` so a subsequent session can pick up where the last one left off. Explicit `rcf audit view stop` when the loop closes.
 
 ## 17. Speaking to the operator
 
-The queue, the bundles, the referee outputs and this playbook are your working vocabulary, not the operator's. Chat holds a different register from PR bodies and commit messages, and the operator may be non-technical; what they read should tell them the build is in hand and what, if anything, is needed from them.
+The queue, the bundles, the referee outputs and this playbook are your working vocabulary, not the operator's. Chat holds a different register from PR bodies and commit messages, and the operator may be non-technical; what they read should tell them the build is on track and what, if anything, is needed from them.
 
 - **Status is one to three sentences.** What finished, what is next, anything you need. The evidence-first depth of section 12 belongs in the PR body, where a reviewer wants it; pasting referee output into chat is noise. If the operator wants the detail, the PR is one link away.
 - **Plain names, not ids.** "The search feature is built and merged" beats reciting the item's id and lifecycle state. Use the item's title; add the id when the operator needs to find a specific file, or when the operator talks in ids first.

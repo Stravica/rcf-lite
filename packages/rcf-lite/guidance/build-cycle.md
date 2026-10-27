@@ -1,23 +1,38 @@
 # The RCF 5-stage build cycle
 
-The normative statement of the cycle. Every FBS item is delivered by one pass of five stages, in this order, under these contracts. The spec bundle that `rcf build bundle --next` emits carries the same cycle as its closing runbook, parameterised for the item in hand; if this page and a bundle ever disagree, the bundle is authoritative.
+The normative statement of the cycle. Every FBS item is delivered in rounds of five stages, in this order, under these contracts. The spec bundle that `rcf build bundle <fbs-id> --base-suite <file>` emits carries the same cycle as its closing runbook, parameterised for the item in hand; if this page and a bundle ever disagree, the bundle is authoritative.
 
 ## The five stages
 
-**1. Define.**
-Hand: test-author. Entry: you hold the item's spec bundle. Exit: the test-author hand has written the AC-based and E2E tests and their TS / TC bindings for every in-scope acceptance criterion in the bundle's section 4, each new test is proven red for the right reason, `rcf audit coverage --strict` covers them, and pickup is recorded with `rcf build mark <fbs-id> inProgress`. The test-author never writes production code. Commits carry the trailer `Hand: test-author`. Referee: the bundle itself, plus `rcf define validate` and `rcf audit coverage --strict` on a clean tree - the strict gate checks the pointer, not just the row: a test case counts only when its `testPointer` resolves to a real test in the tree, and one that does not is reported as `covered-unresolved`.
+Each stage is done by its own role and ends in a commit whose subject opens with the stage prefix: `DEFINE:`, `BUILD:`, `REVIEW:`, `TEST:` or `FINALISE:`. The `Hand:` trailer is optional through the 0.37.x transition, and where a commit carries one it agrees with the prefix. No Build starts until the RCF suite is green on the base: every bundle needs `--base-suite <file>`, a record `rcf build base-suite --out <file>` writes at a clean committed base.
 
-**2. Build.**
-Hand: builder. Entry: the red tests from Define. Exit: the red tests pass, the acceptance criteria are implemented using the bundle's architectural context, with nothing beyond them; deviation from the bundle is escalation, not improvisation. The builder writes production code, Code Nodes and code-hygiene unit tests only: never an AC-based or E2E test, a TS / TC record or criterion text. Author or update Code Nodes (`rcf define create cn --path <file>[#symbol] --acs <ac-ids>`) for the source as you write it - comprehension of which symbols serve which ACs is cheapest to capture now, and Stage 5 refuses completion without it. Commits carry the trailers `Hand: builder` and `Hand-Id: <builder identity>`. Referee: the red tests, with the bundle as the spec.
+### DEFINE (commit prefix DEFINE:, role test-author)
 
-**3. Review.**
-Hand: reviewer. Entry: the implementation is complete. Exit: `rcf define validate` comes back clean, `rcf audit separation` passes over the pull request's range (each commit's `Hand:` trailer judged against the paths it touches; the pull_request CI job runs the same check on a full-depth checkout), and the reviewer has re-read the diff against every in-scope acceptance criterion and returned MERGE or FINDINGS, with deviations documented. Any commit the reviewer makes carries `Hand: reviewer`. Referee: `rcf define validate` and `rcf audit separation`.
+Role: test-author. Entry: you hold the item's spec bundle. Exit: the test-author has written the AC-based and E2E tests and their TS / TC bindings for every in-scope acceptance criterion in the bundle's section 4, each new test is proven red for the right reason, `rcf audit coverage --strict` covers them, and pickup is recorded with `rcf build mark <fbs-id> inProgress`. The test-author never writes production code. Referee: the bundle itself, plus `rcf define validate` and `rcf audit coverage --strict` on a clean tree - the strict gate checks the pointer, not just the row: a test case counts only when its `testPointer` resolves to a real test in the tree, and one that does not is reported as `covered-unresolved`.
 
-**4. Test.**
-Hand: verifier. Entry: a reviewed head with a MERGE. Exit: the verifier hand has run `rcf verify run --fbs <fbs-id> --hand verifier` against the preview or version host serving the reviewed head (`--artefact <tgz>` for the packed artefact, `--package <dir>` for a package directory), and committed the report the verb writes to `rcf/verify-reports/<fbs-id>/<head12>.json` with the trailer `Hand: verifier`. The pull request merges only on a Review MERGE and a Test PASS at the same head. Every "verified" or "tested" claim made in this stage names the runtime it was checked against and never implies verification on a deployed runtime that was not exercised. Referee: the verify report's verdict.
+### BUILD (BUILD:, builder)
 
-**5. Finalise.**
-Hand: stage-keeper. Entry: a Review MERGE and a Test PASS at the same head. Exit: on the PR branch before the merge, with CI green on the PR head, `rcf build mark <fbs-id> complete`, then `verified` written by `rcf build finalise <fbs-id> --ci-run <ref>`, which ingests the Test-stage report committed at HEAD and names the CI run that passed on the PR head the report names; it spawns nothing but git lookups and never runs verify itself. The verified write is committed on the branch and the work merges per the driving workflow's convention, carrying it; once merged with a merge commit, a re-run on the default branch is a read-only confirm (a squash merge is not promised). A loopback report target (localhost, 127.0.0.0/8, ::1, a local dev server such as `wrangler dev`) is accepted when the report names the engine, the port and the served sha (`target.servedSha`, equal to its head), which `rcf verify run --engine <name> --served-sha <sha>` records. `--mark` caps at `complete` - it cannot write `verified`. `--mark complete` refuses (exit 3, missingCodeNodes) if any in-scope acceptance criterion still carries no Code Node - go back to Stage 2, or declare `--no-code-nodes` for a genuinely no-code spec. The PR body's verification section carries a runtime label on every claim. Commits carry the trailer `Hand: stage-keeper`. Referee: CI, the finalise gate, plus the mark commands' own refusals.
+Role: builder. Entry: the red tests from DEFINE. Exit: the red tests pass, the acceptance criteria are implemented using the bundle's architectural context, with nothing beyond them; deviation from the bundle is escalation, not improvisation. The builder writes production code, Code Nodes and code-hygiene unit tests only: never an AC-based or E2E test, a TS / TC record or criterion text. Author or update Code Nodes (`rcf define create cn --path <file>[#symbol] --acs <ac-ids>`) for the source as you write it - comprehension of which symbols serve which ACs is cheapest to capture now, and FINALISE refuses completion without it. Referee: the red tests, with the bundle as the spec.
+
+### REVIEW (REVIEW:, reviewer)
+
+Role: reviewer. Entry: the implementation is complete at a committed head H. Exit: `rcf define validate` comes back clean, `rcf audit separation` passes over the pull request's range (it judges each commit's stage prefix against the paths it touches, and the pull_request CI job runs the same check on a full-depth checkout), `rcf audit test-strength --record` has recorded the structural and mutation proof for the touched criteria, and the reviewer has re-read the diff against every in-scope acceptance criterion and recorded MERGE or FINDINGS for the code and PASS or FINDINGS for test adequacy with `rcf build verdict review --fbs <fbs-id> --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS`. Referee: `rcf define validate`, `rcf audit separation` and the recorded verdict.
+
+### TEST (TEST:, verifier)
+
+Role: verifier. Entry: a reviewed head H with a REVIEW MERGE. Exit: the verifier has run the full RCF suite against a locally running app serving H, nothing is deployed, and recorded the result from the suite's TAP with `rcf build verdict test --fbs <fbs-id> --result PASS|FAIL --tap <file> --runtime "<text>"`. The pull request merges only on a REVIEW MERGE and a TEST PASS at the same head. Every "tested" claim made in this stage names the runtime it was checked against and never implies a run on a deployed runtime that was not exercised. Referee: the recorded TEST verdict.
+
+### FINALISE (FINALISE:, stage-keeper)
+
+Role: stage-keeper. Entry: a REVIEW MERGE and a TEST PASS at the same head, with CI green on the PR head. Exit: on the PR branch before the merge, `rcf build finalise <fbs-id> --ci-run <ref>` checks the last round's recorded verdicts (the REVIEW MERGE and test-adequacy PASS, the TEST PASS, the test-strength record, Code Nodes for every touched criterion and the separation audit over the range) and writes complete; the write is committed on the branch and the work merges carrying it. Finalise spawns nothing but git and never writes verified. `rcf build mark <fbs-id> complete` is refused (exit 4): complete is written only by `rcf build finalise`. Referee: CI, the finalise checks and their refusals.
+
+## Rounds
+
+A round is one pass of the five stages over the touched criteria. A failed REVIEW (FINDINGS) or a failed TEST closes the round. The next round starts at DEFINE. Stage order is monotonic within a round: no `DEFINE:` commit follows a `BUILD:` commit of the same round, and so on down the five stages. Finalise judges the last round only.
+
+## VERIFY (outside the build cycle)
+
+A release Verify runs outside the build cycle, after the round and before the promote: `rcf verify run --release <label> --since <ref> --record` runs the bound E2E tests of the specs changed since the last release, plus the release smoke suites, against the release candidate, and writes verified on each spec whose live external criteria all passed. The `verified` status is written only by a release Verify, and no Build waits for it.
 
 ## Definition of done includes a working local preview
 
@@ -29,7 +44,7 @@ Each stage ends in a commit. The commit is the stage boundary: it makes the cycl
 
 ## The lifecycle is forward-only
 
-`notStarted -> inProgress -> complete -> verified`. Forward jumps are legal, but the `--mark` ladder caps at `complete`: `--mark verified` is refused with exit 4 and points to `rcf build finalise`, because `verified` is written only by the finalise gate from the Test-stage report. Backward transitions are refused with exit 4; the deliberate-correction / manual-override escape hatch is `rcf define update <fbs-id> --set executionStatus=<status>`, and reaching for it should be rare enough to be remarkable.
+`notStarted -> inProgress -> complete -> verified`. The `rcf build mark` ladder caps at `inProgress`: `complete` is written only by `rcf build finalise` and `verified` only by a release Verify, so marking either is refused with exit 4. Backward transitions are refused with exit 4; the deliberate-correction / manual-override escape hatch is `rcf define update <fbs-id> --set executionStatus=<status>`, and reaching for it should be rare enough to be remarkable.
 
 ## Depth
 

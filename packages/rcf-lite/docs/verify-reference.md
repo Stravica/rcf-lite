@@ -23,6 +23,10 @@ Every one of these fails at *run* time, not install time. A missing `claude`, an
 
 ```
 rcf verify run                    Run adversarial verification and emit a report artifact
+rcf verify run --release <label> --since <ref> --record
+                                  Release Verify: run the bound E2E tests of
+                                  the specs changed since the last release;
+                                  writes verified
 rcf verify report <path>          Re-render a prior report artifact
 rcf verify browser <fbs-id>       Stage 5 browser-verification gate (invariants,
                                   auth-smoke, blueprint-shipped probe packs);
@@ -34,6 +38,8 @@ rcf help verify                   Print help for the verify subcommand
 ```
 
 `rcf help verify <command>` is the authoritative flag reference for each. The transition-grace `rcf verify <command>` bin accepts the same shapes; every example on this page has an equivalent `rcf verify <command>` form.
+
+Finalise is not a verify command. `rcf build finalise <fbs-id> --ci-run <ref>` runs on the PR branch before the merge, checks the round's recorded REVIEW and TEST verdicts and writes complete; it never runs verify and never writes verified. A release Verify writes verified.
 
 ## `run` - the verification pass
 
@@ -69,27 +75,21 @@ A non-semver value refuses with exit 2 and the message `--playwright-mcp-version
 ## Verify modes
 
 ```sh
+rcf verify run --release <label> --since <ref> (--url <target-url> | --artefact <tgz> | --package <dir>) [--record]
 rcf verify run --mode <agentScreenshotCritique|deterministic> ...
-rcf build finalise <fbs-id> --url <url> --mode <mode> [--provision-mode run|skip] ...
 ```
+
+Release mode (`--release <label> --since <ref>`, with `--record` to write) is the Verify that writes verified. It runs the bound E2E tests of the live external criteria of the specs changed in `<ref>..HEAD`, plus the smoke suites named in `rcf/release-verify.json`, against one target, and with `--record` writes `rcf/verify-reports/releases/<label>.json` and executionStatus verified on each in-scope spec whose live external criteria all passed, only when the smoke run passed. It runs outside the build cycle, before the promote. Exit 0 is a release PASS, 4 a FAIL.
+
+The catalog and agent modes below (`--mode deterministic`, which reads the forward catalog contract, and `--mode agentScreenshotCritique`, the verifier agent) are optional probes for an ad hoc run: they are never a precondition of Finalise or of a release Verify.
 
 The default is `agentScreenshotCritique` and runs the adversarial verifier agent inside Claude Code. **This mode is a parent-session mode**: it spawns the agent CLI as a subagent with Playwright MCP and will only work from a session that may invoke that CLI. A dispatched worker (a tool call that is itself inside a Claude Code session) is forbidden from spawning the agent CLI by the surrounding harness, which terminates any such child. Attempting `agentScreenshotCritique` from a worker surfaces as a launch failure.
 
-`deterministic` is the sister mode a dispatched worker CAN run. It is model-free and in-process: no child process, no MCP, no Playwright, no agent CLI. It records a diagnostic HTTP reachability probe on `run.runStats.httpProbe` and records every testable AC on `blockedAcs[]` with reason `critique-only`. The aggregate verdict is `BLOCKED` by construction, so the finalise gate refuses to promote. The report carries the honest counts on `run.runStats.counts = { verified, failed, skipped, total }`; today, with no chain-level per-AC probe shape, every AC lands in `skipped` (critique-only). A later train car can extend the deterministic engine to run per-AC HTTP/DOM probes (status, headers, body substring, selector) when the chain carries them; the report schema and the finalise refusals are already stable across that extension.
-
-The finalise gate refuses promotion on any deterministic run where `counts.skipped > 0` or `counts.verified < counts.total` with a counts line referencing ADR-4112 (the verified invariant), so a deterministic run never silently promotes an FBS to `verified`. The parent-session `agentScreenshotCritique` mode is unchanged.
-
-The finalise gate also preseeds the `--out` report path with a stub BEFORE spawning the fresh `rcf verify run` subprocess. If verify exits non-zero without replacing the stub (killed by the harness, failed to start, errored before the write), finalise overwrites it with a `{ run.runStats.status: 'aborted', run.runStats.exitCode: <code>, launchFailure.status: 'aborted' }` record naming the mode. Ingest never surfaces `ENOENT`. The stub, and so the aborted record, also carries `provisioning.mode` (the `--provision-mode` finalise was given, or verify's default `run`) and `run.verify` (the resolved verifier, see [Which verifier finalise runs](#which-verifier-finalise-runs)), so the audit trail of a failed finalise still says what was declared and what was launched.
-
-### Which verifier finalise runs
-
-`rcf build finalise` launches `rcf verify run` as a fresh subprocess and resolves that binary package-first: the rcf-lite package the finalise command itself runs from (same install, same version) comes first, a project-local `rcf-lite` install resolved from the project root is next, and an `rcf` bin on `PATH` is the documented fallback only. An isolated project install (`node_modules/.bin/rcf build finalise`) therefore never spawns a stale global `rcf` that happens to sit first on `PATH`; before this change the order was PATH-first, and a global 0.33.0 exited 2 on 0.34.0 arguments without writing a report (issue 356).
-
-Whichever route wins, the finalise report records it as `run.verify = { command, prefixArgs, source, version }`: the command spawned (the current `node` for a package entry, the bin itself for a PATH hit), the prefix arguments (the entry script for a package route), the route (`package` or `path`) and the version read from that binary's `package.json` (`null` when a PATH bin does not lead back to a readable rcf-lite package). The record is written onto the preseed stub before launch and onto the report verify wrote after the run, so the launch-failure record and every completed report (promoted, held or blocked) say which verifier produced them. A completed report that cannot be stamped with the record is never promoted: when the stamp write is refused after verify has written its report, finalise stops before any gate evaluation, exits 1, names `run.verify`, the report path and the FBS on stderr, and leaves the FBS at its current status (the report on disk is verify's own, unstamped). The finalise stdout prints the same line as `[finalise] verify: rcf-lite <version> via <source>: <command> <args>` before the launch.
+`deterministic` is the sister mode a dispatched worker CAN run. It is model-free and in-process: no child process, no MCP, no Playwright, no agent CLI. It records a diagnostic HTTP reachability probe on `run.runStats.httpProbe` and records every testable AC on `blockedAcs[]` with reason `critique-only`. The aggregate verdict is `BLOCKED` by construction, so a deterministic run is never evidence for a status write. The report carries the honest counts on `run.runStats.counts = { verified, failed, skipped, total }`; today, with no chain-level per-AC probe shape, every AC lands in `skipped` (critique-only). A later train car can extend the deterministic engine to run per-AC HTTP/DOM probes (status, headers, body substring, selector) when the chain carries them; the report schema is already stable across that extension.
 
 An unknown `--mode` value refuses with exit 2 and the message `--mode must be one of agentScreenshotCritique | deterministic (got "...")`.
 
-### Making an AC checkable in deterministic mode
+### Forward catalog contract: making an AC checkable in deterministic mode
 
 The deterministic engine today records every testable AC as `critique-only` on `blockedAcs[]` because the chain carries no per-AC runtime probe shape. A follow-up train car wires the deterministic engine to read probes from one of three places; this section is the forward contract so a project (for example a GBP 249 product built with rcf-lite, in its `docs/runtime-verify-catalog.md`) can produce machine-readable rows ready to be consumed as soon as the engine lands them.
 
@@ -144,24 +144,22 @@ Worked example for `AC-801-1` on a GBP 249 product built with rcf-lite (the sign
 }
 ```
 
-When the deterministic engine consumes those rows, it will emit per-AC findings (one per probe, with severity PASS on success and BROKEN on failure, evidence carrying `status`, `headers`, `bodyHead`, or `selector + domSnippet`), and the AC lands under `counts.verified` rather than `counts.skipped`. Any AC with no probe row stays `critique-only` and keeps the finalise refusal honest (ADR-4112). An HTTP-reachability-only fallback for an AC is NEVER acceptable: a reachable URL does not verify anything on the contract.
+When the deterministic engine consumes those rows, it will emit per-AC findings (one per probe, with severity PASS on success and BROKEN on failure, evidence carrying `status`, `headers`, `bodyHead`, or `selector + domSnippet`), and the AC lands under `counts.verified` rather than `counts.skipped`. Any AC with no probe row stays `critique-only` and keeps the blocked count honest (ADR-4112). An HTTP-reachability-only fallback for an AC is NEVER acceptable: a reachable URL does not verify anything on the contract.
 
 ## Verification scope
 
 ```sh
 rcf verify run --fbs <fbs-id> [--fbs <fbs-id> ...] ...
-rcf build finalise <fbs-id> --url <url> ...          # verifies that FBS's bound criteria
-rcf build finalise <fbs-id> --url <url> --all ...    # verifies the whole chain
-rcf build finalise <fbs-id> --url <url> --provision-mode skip ...   # prerequisites supplied out of band
+rcf verify run --fbs <fbs-id> --provision-mode skip ...   # prerequisites supplied out of band
 ```
 
 By default `rcf verify run` verifies every acceptance criterion on the chain. `--fbs <fbs-id>` narrows the acceptance contract to the criteria bound to the named FBS items (the option is repeatable and a comma list is accepted). Everything downstream reads the scoped set: the per-AC verdicts, prerequisite provisioning, the adversarial brief, the deterministic skip ledger and the EVAL coverage line. An unknown id, or an FBS with no bound criteria, refuses with exit 2 and a plain message naming the id.
 
-`rcf build finalise <fbs-id>` passes its own FBS as the filter by default, so finalising one build unit costs one unit's verification rather than the whole chain. The ADR-4112 verified invariant is evaluated over that bound set: the FBS is promoted only when every criterion bound to it is verified and none is skipped. Every entry on the report's `blockedAcs` list is an AC in scope that was not exercised (an unprovisionable prerequisite, or critique-only in deterministic mode), so finalise refuses promotion whenever that list is non-empty, in any verify mode, naming the criteria and ADR-4112. A skipped criterion outside the scope never appears on the report and never blocks the FBS.
+A release Verify scopes itself: `--release <label> --since <ref>` runs the bound E2E tests of the specs changed in `<ref>..HEAD`, and `--record` writes verified only on a spec whose live external criteria all passed. Every entry on an ad hoc report's `blockedAcs` list is an AC in scope that was not exercised.
 
-The verifier is asked for one finding per criterion in scope, and the engine checks that it got them: after the run, in either verify mode, every scoped criterion with no finding and no blocked entry is recorded on `blockedAcs` with reason `noFinding`, so an omission can never read as a pass (a run that returns no findings at all is `BLOCKED`). A finding for a criterion outside the scope does not drive the verdict; it is dropped from `findings` and listed under `run.runStats.coverage.ignored`, which the report render and the finalise summary print as ignored findings. `run.runStats.coverage` also carries the expected and found counts and the missing ids. A re-verify of an FBS that is already `verified` goes through the same report checks (ship authority, the scoped invariant, the per-AC refusals) before the status is confirmed; a zero exit alone never re-asserts it. Pass `--all` to verify the whole chain instead, for example at the end of a slice. An FBS with no bound criteria is refused before any verify run launches with a plain message naming the FBS (exit 3; the schema forbids an empty binding), whether or not `--all` is given.
+The verifier is asked for one finding per criterion in scope, and the engine checks that it got them: after the run, in either verify mode, every scoped criterion with no finding and no blocked entry is recorded on `blockedAcs` with reason `noFinding`, so an omission can never read as a pass (a run that returns no findings at all is `BLOCKED`). A finding for a criterion outside the scope does not drive the verdict; it is dropped from `findings` and listed under `run.runStats.coverage.ignored`, which the report render prints as ignored findings. `run.runStats.coverage` also carries the expected and found counts and the missing ids. A re-verify of an FBS that is already `verified` goes through the same report checks (ship authority, the scoped invariant, the per-AC refusals) before the status is confirmed; a zero exit alone never re-asserts it. Pass `--all` to verify the whole chain instead, for example at the end of a slice. An FBS with no bound criteria is refused before any verify run launches with a plain message naming the FBS (exit 3; the schema forbids an empty binding), whether or not `--all` is given.
 
-The report records the scope so a reader never mistakes a one-unit run for a whole-chain statement: `run.scope` is `chain` (no filter) or `fbs:<id>[,<id>...]`, and `run.scopeAcCount` is the number of criteria the run was briefed on. `rcf verify report <path>` prints the same line under Runtime provenance, and the finalise output names the scope in its launch, refusal and promotion lines. Over MCP the `rcf_verify_run` tool takes the same filter as `fbsIds`.
+The report records the scope so a reader never mistakes a one-unit run for a whole-chain statement: `run.scope` is `chain` (no filter) or `fbs:<id>[,<id>...]`, and `run.scopeAcCount` is the number of criteria the run was briefed on. `rcf verify report <path>` prints the same line under Runtime provenance. Over MCP the `rcf_verify_run` tool takes the same filter as `fbsIds`.
 
 ## Runtime profiles and verdict authority
 
@@ -175,7 +173,7 @@ Every verdict is stamped with the runtime profile it ran against. Authority is c
 
 `localhost` is a first-class target under `ci`/`local-dev`. What is forbidden is a lower profile masquerading as `deployed`.
 
-A Test-stage report (`--hand`) against a loopback `--url` (localhost, `*.localhost`, 127.0.0.0/8, ::1, 0.0.0.0) names what served it: `--engine <name>` (free text, for example `wrangler dev` or `node server`) and `--served-sha <sha>` (the full sha of the committed HEAD) are required, exit 2 without them, and a served sha other than the committed HEAD exits 4. The report records `target.engine`, `target.port` (the URL's port, else 80 or 443 by scheme) and `target.servedSha`. `rcf build finalise`, run on the PR branch before the merge, accepts a loopback report only when it names all three and the served sha equals the report head.
+A Test-stage report (`--hand`) against a loopback `--url` (localhost, `*.localhost`, 127.0.0.0/8, ::1, 0.0.0.0) names what served it: `--engine <name>` (free text, for example `wrangler dev` or `node server`) and `--served-sha <sha>` (the full sha of the committed HEAD) are required, exit 2 without them, and a served sha other than the committed HEAD exits 4. The report records `target.engine`, `target.port` (the URL's port, else 80 or 443 by scheme) and `target.servedSha`.
 
 ## Exit codes (`run`)
 
@@ -187,7 +185,7 @@ A Test-stage report (`--hand`) against a loopback `--url` (localhost, `*.localho
 5  severity gate tripped, or NOT-DEPLOYED / BLOCKED
 ```
 
-The exit code is the machine-readable gate: `rcf build finalise` (also part of [rcf-lite](https://www.npmjs.com/package/rcf-lite)) promotes a build spec to `verified` only on exit 0.
+The exit code is the machine-readable gate for an ad hoc run. In release mode exit 0 is a release PASS and 4 a FAIL, and only a release Verify with `--record` writes verified.
 
 ## EVAL coverage preflight (rcf-schemas 0.6.0)
 
@@ -203,7 +201,7 @@ or, on chains with no non-deterministic ACs:
 EVAL coverage: no nonDeterministic ACs on this chain
 ```
 
-An AC declared `determinism: "nonDeterministic"` without a resolving EVAL surfaces on `report.perAcVerdicts[]` as `EVAL-MISSING`; an AC whose bound EVAL's freshest run failed surfaces as `EVAL-BELOW-THRESHOLD`. Both refuse `rcf build finalise` promotion to `verified` unless the operator opts out with `--ship-without-eval "<reason>"` (the acknowledgement lands on the manifest under `shipWithoutEval[]`). Deterministic ACs are never subject to either verdict; TS/TC coverage remains the sole contract for them. `report.run.runStats.evalCoverage` mirrors the counts for report re-render.
+An AC declared `determinism: "nonDeterministic"` without a resolving EVAL surfaces on `report.perAcVerdicts[]` as `EVAL-MISSING`; an AC whose bound EVAL's freshest run failed surfaces as `EVAL-BELOW-THRESHOLD`. Both are reported on the run; `rcf build finalise` no longer reads verify reports, and its `--ship-without-eval` flag is retired (exit 2). Deterministic ACs are never subject to either verdict; TS/TC coverage remains the sole contract for them. `report.run.runStats.evalCoverage` mirrors the counts for report re-render.
 
 ## Prerequisite provisioning (app state)
 
@@ -213,16 +211,14 @@ Adversarial testing often needs state: auth accounts, third-party service sandbo
 
 ### `--provision-mode run | skip`
 
-`rcf verify run` takes a `--provision-mode` flag that controls whether verify tries to stand up prerequisites, and `rcf build finalise` accepts the same flag with the same two values and forwards it verbatim to the verify subprocess it launches (issue 356, US-16505). A value other than `run` or `skip` is a usage error (exit 2) on either command, refused by finalise before verify launches:
+`rcf verify run` takes a `--provision-mode` flag that controls whether verify tries to stand up prerequisites (issue 356, US-16505); `rcf build finalise` no longer takes it (exit 2, retired in 0.37.0). A value other than `run` or `skip` is a usage error (exit 2):
 
 | Mode | Behaviour |
 |---|---|
 | `run` (default) | derive prerequisites from the ACs and provision what verify can (auth signups where a route exists; service sandboxes and seed data are out-of-band and refuse honestly). An AC whose prerequisite cannot be provisioned is reported BLOCKED. |
 | `skip` | bypass provisioning entirely for chains whose prerequisites are supplied out of band (admin-seeded auth accounts, pre-populated test data, operator-managed service sandboxes). |
 
-The mode is disclosed on `report.provisioning.mode` on every run (both `run` and `skip`) so the audit trail distinguishes a run whose prerequisites were skipped from one whose prerequisites were satisfied. Without this disclosure a seeded tree and a verified one read identically; the human render annotates `skip` as "prerequisites supplied out of band; not provisioned by verify". When a run under default `run` mode blocks on an unprovisionable prerequisite, the blocked-AC reason text names `--provision-mode skip` as the remedy so the next operator does not need to be told the flag exists; because finalise now accepts the flag, every remedy a finalise-surfaced blocked reason names is a flag finalise itself exposes.
-
-The finalise report carries the same stamp whichever command invoked the gate: a completed finalise run has `provisioning.mode` from verify (the forwarded flag, or verify's default `run` when finalise was given none), and the launch-failure record finalise leaves behind when verify never writes a report carries the mode finalise was given (or `run`). Under `run` the provisioning-dependent criteria of an admin-seeded chain land on `blockedAcs` and finalise refuses to promote (exit 4, ADR-4112); under `skip` the same chain promotes when the verifier passes it, exactly as a direct `rcf verify run --provision-mode skip` does. The mode is also named on the finalise launch line when the flag was given.
+The mode is disclosed on `report.provisioning.mode` on every run (both `run` and `skip`) so the audit trail distinguishes a run whose prerequisites were skipped from one whose prerequisites were satisfied. Without this disclosure a seeded tree and a verified one read identically; the human render annotates `skip` as "prerequisites supplied out of band; not provisioned by verify". When a run under default `run` mode blocks on an unprovisionable prerequisite, the blocked-AC reason text names `--provision-mode skip` as the remedy so the next operator does not need to be told the flag exists.
 
 ## Verifier-agent launcher
 

@@ -48,6 +48,8 @@ The agent elicits the requirements and drives the build from there. To drive it 
 
 The RCF lite suite follows the method's stage chain: **define, build, verify, release, audit**. This repo ships the tooling for the build and verify stages. The unified `rcf` bin also carries the define stage in practice, since `rcf init` plus your agent session is where the requirements chain gets authored.
 
+Each FBS goes through the five-stage build cycle (DEFINE, BUILD, REVIEW, TEST, FINALISE), and the build cycle ends at complete, which `rcf build finalise` writes on the PR branch before the merge. A release Verify writes verified (`rcf verify run --release <label> --since <ref> --record`), outside the build cycle, and the next Build never waits for it.
+
 Sister repo (kept standalone as a language-neutral contract, per the 2026-08-06 operator ruling on schemas):
 
 - [`Stravica/rcf-schemas`](https://github.com/Stravica/rcf-schemas): the JSON Schema contract for RCF documents. Every tree these tools read or write validates against it. Consumed as an exact-pinned dependency by `rcf-lite`.
