@@ -653,11 +653,11 @@ function storiesAt(root, rev) {
   return [...showAt(root, rev, paths).values()].map((text) => JSON.parse(text));
 }
 
-test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', async () => {
-  const pkg = checkoutPackage();
+test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', async (t) => {
+  const pkg = worktreeAt(t, checkoutRoot(), VERIFIED_AT);
   const was = moveGolden('coverage-rows', ROWS_GOLDEN);
   assert.ok(Number.isInteger(was.exitCode) && was.rows && typeof was.rows === 'object', `${ROWS_GOLDEN} holds { "exitCode", "rows" }`);
-  const now = await coverageRows(pkg);
+  const now = await coverageRows(pkg, { bin: join(pkg, 'bin', 'rcf.js') });
   assertTypicalChain(pkg, Object.keys(now.rows).length);
   assert.equal(now.exitCode, was.exitCode, `audit coverage --format json exits ${now.exitCode} at the head and ${was.exitCode} in ${ROWS_GOLDEN}`);
   const added = ['verification', 'expectedEnd', 'now'];
