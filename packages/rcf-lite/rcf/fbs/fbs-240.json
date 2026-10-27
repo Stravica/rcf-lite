@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:39:17.746Z",
-  "updatedAt": "2026-10-25T01:06:10.979Z",
+  "updatedAt": "2026-10-27T10:15:25.588Z",
   "summary": "Clear every failing readiness check on this repository's chain by records written through the CLI (the operator answering the two D1 questions), and end the explicit-id bundling workaround (WA-08) at the 0.37.0 release. FBS-241's round DEFINE records the freeze (GR-31).",
   "approach": "A chain-authoring round: the DEFINE stage (test-author) writes the records check by check, driven by node bin/rcf.js define readiness --check <stage> output; BUILD is expected to be empty unless a check is shown wrong for a CLI product, in which case its fix is a new criterion with an ADR first. The stage-keeper records the freeze after D1 to D6 pass.",
   "deliverables": [
@@ -33,7 +33,7 @@
   "fbsId": "FBS-240",
   "prdId": "PRD-001",
   "bsId": "BS-001",
-  "buildOrder": 242,
+  "buildOrder": 244,
   "executionStatus": "notStarted",
   "title": "Readiness D1 to D6 and D8 green on rcf-lite main: frozen --next is the default again once FBS-241's round DEFINE records the freeze (GR-31)"
 }
