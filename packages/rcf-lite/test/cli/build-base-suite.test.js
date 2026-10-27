@@ -210,6 +210,14 @@ test('AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses
   assert.equal(rec.tap, null);
   assert.equal(rec.exitCode, 0);
   assert.equal(rec.green, true, 'green follows the exit code alone');
+  // A command printing no TAP and exiting non-zero: green follows that exit code (F-9).
+  const red = await baseSuite(dir, ['--command', 'node -e "process.exit(3)"', '--out', out], { PATH: toolPath(['node']) });
+  assert.equal(count(red.stderr, '[warn] base-suite: no TAP summary; green follows the exit code alone'), 1, `one warn line for the non-zero run\nexit ${red.code}\n${red.stderr}`);
+  const redRec = JSON.parse(readFileSync(out, 'utf8'));
+  assert.equal(redRec.head, B);
+  assert.equal(redRec.tap, null, 'a non-zero run printing no TAP records tap null');
+  assert.equal(redRec.exitCode, 3, 'the record carries the command exit code');
+  assert.equal(redRec.green, false, 'green follows the exit code alone: exit 3 records green false');
 });
 
 test('AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command', async (t) => {
