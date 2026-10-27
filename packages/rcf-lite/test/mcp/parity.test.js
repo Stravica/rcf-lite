@@ -8,12 +8,14 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
-import { readFile } from 'node:fs/promises';
-import { dirname, resolve } from 'node:path';
+import { readFile, writeFile } from 'node:fs/promises';
+import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { promisify } from 'node:util';
 
 import { createToolRegistry } from '../../src/mcp/tools.js';
+import { git, gitTry } from '../_harness/git.js';
+import { baseSuiteRecord, scratch } from '../_harness/fixture.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -32,6 +34,23 @@ async function runBin(args) {
     cwd: repoRoot, encoding: 'utf8', env: { ...process.env, CI: '1' },
   });
   return stdout;
+}
+
+// The base-suite record a bundle over this repository's own chain takes
+// once FBS-239 lands (the stage-keeper's ruling RC-16 on the round C
+// DEFINE, class C). TAC-4158 reads the record against the base, git
+// merge-base of HEAD with the trunk, "the first of origin/main,
+// origin/master, main and master that resolves; HEAD itself on the trunk":
+// the test resolves the base the same way and writes a green
+// BaseSuiteRecord v1 (the harness baseSuiteRecord) for it outside the tree.
+async function ownBaseSuiteArgs(t) {
+  let base = git(repoRoot, 'rev-parse', 'HEAD');
+  for (const ref of ['origin/main', 'origin/master', 'main', 'master']) {
+    if (gitTry(repoRoot, 'rev-parse', '--verify', '--quiet', `${ref}^{commit}`).code === 0) { base = git(repoRoot, 'merge-base', 'HEAD', ref); break; }
+  }
+  const file = join(scratch(t, 'rcf-base-suite-'), 'base.json');
+  await writeFile(file, `${JSON.stringify(baseSuiteRecord(base), null, 2)}\n`, 'utf8');
+  return ['--base-suite', file];
 }
 
 test('parity: rcf_coverage structuredContent deep-equals the committed coverage golden', async () => {
@@ -58,8 +77,8 @@ test('parity: rcf_validate structuredContent deep-equals live `rcf define valida
   assert.deepEqual(result.structuredContent, cli);
 });
 
-test('parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build bundle FBS-001 --format json`', async () => {
-  const cli = JSON.parse(await runBin(['build', 'bundle', 'FBS-001', '--format', 'json']));
+test('parity: rcf_build FBS-001 structuredContent deep-equals live `rcf build bundle FBS-001 --format json`', async (t) => {
+  const cli = JSON.parse(await runBin(['build', 'bundle', 'FBS-001', '--format', 'json', ...(await ownBaseSuiteArgs(t))]));
   const result = await registry.call('rcf_build', { fbsId: 'FBS-001' });
   assert.equal(result.isError, undefined);
   assert.deepEqual(result.structuredContent, cli);
