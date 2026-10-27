@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:45.421Z",
-  "updatedAt": "2026-10-26T21:26:41.437Z",
+  "updatedAt": "2026-10-27T23:08:28.059Z",
   "asA": "operator upgrading a product from rcf-lite 0.36.x to 0.37.0",
   "iWant": "the release to tell my agents to refresh the managed block, and the docs to describe the new Finalise and Verify",
   "soThat": "the upgrade lands in every consumer and nobody runs a retired command from the docs",
@@ -23,7 +23,7 @@
     },
     {
       "id": "AC-20402-3",
-      "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at this slice's reviewed head or any later head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, or a sentence saying a spec is verified at Finalise or by the Test stage finds nothing; any such line fails this criterion.",
+      "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at this slice's reviewed head or any later head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, a sentence saying a spec is verified at Finalise or by the Test stage, \"rcf build backstop adopt\" or \"--allow-unverified\" outside a sentence that calls it retired, \"rcf build mark <fbs-id> complete\" as a command to run (with or without --no-code-nodes), or a \"Test-stage report\" written by rcf verify run finds nothing; any such line fails this criterion.",
       "testable": true,
       "verification": "testOnly"
     },

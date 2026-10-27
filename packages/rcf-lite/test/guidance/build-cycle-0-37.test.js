@@ -344,6 +344,11 @@ test('AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/READM
     for (const s of sentences(text)) {
       const m = VERIFIED_AT.map((re) => re.exec(s)).find((x) => x && !/never|\bnot\b|release Verify/.test(x[0]));
       if (m) hits.push(`${f}: ${m[0].slice(0, 160)}`);
+      // F-12: the retired backstop pieces as working commands, mark complete
+      // as a command to run, and a Test-stage report from rcf verify run.
+      if (/backstop adopt|--allow-unverified/.test(s) && !/retired|exits? 2/.test(s)) hits.push(`${f}: backstop adopt or --allow-unverified outside a retirement: ${s.slice(0, 160)}`);
+      if (/rcf build mark <?[\w-]+>? complete\b/.test(s) && !/refus|retired|exits? 4/.test(s)) hits.push(`${f}: rcf build mark <fbs-id> complete as a command: ${s.slice(0, 160)}`);
+      if (/Test[- ]stage (verify )?report/i.test(s) && !/no longer|retired|never/.test(s)) hits.push(`${f}: a Test-stage report: ${s.slice(0, 160)}`);
     }
   }
   assert.deepEqual(hits, [], 'no 0.36.x finalise form and no verified at Finalise or by the Test stage');
