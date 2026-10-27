@@ -311,15 +311,31 @@ test('AC-20402-2: docs/verify-reference.md has the finalise synopsis rcf build f
 
 test('AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage', () => {
   const files = [...filesUnder(join(checkoutPackage(), 'docs')).filter((f) => /\.(md|txt|html)$/.test(f)), join(checkoutPackage(), 'README.md'), join(checkoutRoot(), 'README.md')];
+  // The sentence forms, finalise in any case (F-3): verified at or by
+  // Finalise or the Test stage, Finalise or the Test stage writing
+  // verified, and finalise promoting to verified. A negation, or a
+  // release Verify as the writer, exempts a match only inside the matched
+  // span, so a sentence that says "not verified" elsewhere is still judged.
+  const VERIFIED_AT = [
+    /\bverified\b[^.]*\b(at|by)\s+(finali[sz]e|the Test stage|the TEST stage|TEST)\b/i,
+    /\b(finali[sz]e|the Test stage)\b[^.]*\bwrites?\b[^.]*\bverified\b/i,
+    /\bfinali[sz]e\b[^.]*\bpromot\w*[^.]*\bverified\b/i,
+  ];
+  // Non-vacuity (F-3): every scanned file is non-blank, and the three
+  // files whose Finalise text the criterion polices each name rcf build
+  // finalise with --ci-run <ref> or the complete it writes.
+  for (const f of files) assert.ok(readFileSync(f, 'utf8').trim().length > 0, `${f} is non-blank`);
+  for (const f of [join(checkoutPackage(), 'docs', 'verify-reference.md'), join(checkoutPackage(), 'README.md'), join(checkoutRoot(), 'README.md')]) {
+    assert.ok(sentences(readFileSync(f, 'utf8')).some((s) => s.includes('rcf build finalise') && (s.includes('--ci-run <ref>') || (/\bcomplete\b/.test(s) && /\bwrites?\b/.test(s)))), `${f} holds a sentence naming rcf build finalise with --ci-run <ref> or the complete it writes`);
+  }
   const hits = [];
   for (const f of files) {
     const text = readFileSync(f, 'utf8');
     if (text.includes('rcf build finalise <fbs-id> --url')) hits.push(`${f}: rcf build finalise <fbs-id> --url`);
     for (const l of lines(text)) if (l.includes('rcf build finalise') && l.includes('--mode <mode>')) hits.push(`${f}: finalise synopsis with --mode <mode>`);
     for (const s of sentences(text)) {
-      if (/\bverified\b[^.]*\b(at|by)\s+(Finalise|finalise|the Test stage|the TEST stage|TEST)\b/.test(s) || /\b(Finalise|The Test stage|the Test stage)\b[^.]*\bwrites?\b[^.]*\bverified\b/.test(s)) {
-        if (!/never|not|only by a release Verify/.test(s)) hits.push(`${f}: ${s.slice(0, 160)}`);
-      }
+      const m = VERIFIED_AT.map((re) => re.exec(s)).find((x) => x && !/never|\bnot\b|release Verify/.test(x[0]));
+      if (m) hits.push(`${f}: ${m[0].slice(0, 160)}`);
     }
   }
   assert.deepEqual(hits, [], 'no 0.36.x finalise form and no verified at Finalise or by the Test stage');
