@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:43.042Z",
-  "updatedAt": "2026-10-27T05:47:20.450Z",
+  "updatedAt": "2026-10-27T23:07:08.154Z",
   "asA": "test-author, builder, reviewer, verifier or stage-keeper reading rcf-lite's guidance in an agent session",
   "iWant": "the stage I am in named by its commit prefix with exactly what it does and what it records",
   "soThat": "no session follows the 0.36.x shape of verifying inside the cycle",
@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-20401-5",
-      "description": "[must-not] No guidance topic printed by rcf guidance, no part of the managed block and no bundle runbook (md or json) contains \"--hand verifier\" as a TEST or Test-stage step, \"rcf build finalise\" followed within one sentence by --report, --mode or --url, \"verified\" as something Finalise writes, \"Hand: mixed\", \"Separation-Reason\", \"Hand:\" outside a sentence that names the 0.37.x transition, or a rule that a Build waits for a spec to be verified.",
+      "description": "[must-not] No guidance topic printed by rcf guidance, no part of the managed block and no bundle runbook (md or json) contains \"--hand verifier\" as a TEST or Test-stage step, \"rcf build finalise\" followed within one sentence by --report, --mode or --url, \"verified\" as something Finalise writes, \"Hand: mixed\", \"Separation-Reason\", \"Hand:\" outside a sentence that names the 0.37.x transition, a rule that a Build waits for a spec to be verified, a command line in a code block running rcf build bundle without --base-suite, \"rcf build mark <fbs-id> complete\" (or \"--mark complete\") as a step or a gate (the json completionContract field markComplete aside, which a later round retires), or a Stage 5 gate that reads a browserVerification record.",
       "testable": true,
       "verification": "external"
     },

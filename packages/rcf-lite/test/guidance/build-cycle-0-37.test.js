@@ -144,12 +144,19 @@ test('AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <
 const FORBIDDEN = [
   ['--hand verifier as a TEST step', (s) => s.includes('--hand verifier') && /\bTEST\b|Test[- ]stage|\(Test\)/.test(s)],
   ['rcf build finalise with --report, --mode or --url in one sentence', (s) => /rcf build finalise[^.]*--(report|mode|url)\b/.test(s)],
-  ['verified as something Finalise writes', (s) => (/finali[sz]e[^.]*\b(writes?|promot\w*|carries|ingest\w*)\b[^.]*\bverified\b/i.test(s) || /\bmerge carries verified\b/.test(s)) && !/never writes?[^.]*verified|not verified|written only by a release Verify|only by a release Verify/.test(s)],
+  ['verified as something Finalise writes', (s) => (/finali[sz]e[^.]*\b(writes?|promot\w*|carries|ingest\w*)\b[^.]*\bverified\b/i.test(s) || /\bmerge carries verified\b/.test(s)) && !/never writes?[^.]*verified|not verified|written only by a release Verify|only by a release Verify|release Verify writes verified/.test(s)],
   ['Hand: mixed', (s) => s.includes('Hand: mixed')],
   ['Separation-Reason', (s) => s.includes('Separation-Reason')],
   ['Hand: outside the 0.37.x transition', (s) => s.includes('Hand:') && !/0\.37/.test(s)],
   ['a Build waits for a spec to be verified', (s) => /\bBuild\b[^.]*\b(waits?|until|before)\b[^.]*\bverified\b/.test(s) && !/never/.test(s)],
+  ['rcf build mark <fbs-id> complete as a step or a gate', (s) => /rcf build mark <?[\w-]+>? complete\b|--mark complete\b/.test(s) && !/refus|retired|exits? 4|"markComplete":/.test(s)],
+  ['a Stage 5 gate that reads a browserVerification record', (s) => /browserVerification/.test(s) && /\bgate\b/.test(s) && !/retired/.test(s)],
 ];
+// A command line in a code block that runs rcf build bundle without --base-suite.
+const bundleWithoutBase = (text) => {
+  let fenced = false;
+  return lines(text).filter((l) => { if (/^\s*```/.test(l)) { fenced = !fenced; return false; } return fenced && /\brcf build bundle\b/.test(l) && !l.includes('--base-suite'); });
+};
 
 test('AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified', async (t) => {
   const list = await guidance();
@@ -175,6 +182,7 @@ test('AC-20401-5: no guidance topic, no part of the managed block and no bundle 
   const hits = [];
   for (const [where, text] of texts) {
     for (const s of sentences(text)) for (const [label, bad] of FORBIDDEN) if (bad(s)) hits.push(`${where}: ${label}: ${s.slice(0, 160)}`);
+    for (const l of bundleWithoutBase(text)) hits.push(`${where}: rcf build bundle without --base-suite in a code block: ${l.trim().slice(0, 160)}`);
   }
   assert.deepEqual(hits, [], 'no forbidden form');
 });
