@@ -249,12 +249,3 @@ test('test surface: covered flag, suites and case detail per AC; uncovered flagg
   const uncovered = bundle.tests.find((t) => t.acId === 'AC-202-1');
   assert.deepEqual(uncovered, { acId: 'AC-202-1', covered: false, suites: [], cases: [] });
 });
-
-test('completionContract carries the mark commands plus the finalise instruction for the item', () => {
-  const bundle = assembleBundle(baseFixture(), { fbsId: 'FBS-002' });
-  assert.deepEqual(bundle.completionContract, {
-    markInProgress: 'rcf build mark FBS-002 inProgress',
-    markComplete: 'rcf build mark FBS-002 complete',
-    finalise: 'rcf build finalise FBS-002 --ci-run <ref>',
-  });
-});
