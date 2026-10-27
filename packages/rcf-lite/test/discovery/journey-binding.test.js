@@ -37,6 +37,9 @@ import { formatJson } from '../../src/build/formatters/json.js';
 import { auditTestTheatre, aggregateVerdict } from '../../src/review/index.js';
 import { computeCoverage, computeTrace, computeImpact } from '../../src/query/index.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { existsSync } from 'node:fs';
+import { commit, initRepo } from '../_harness/git.js';
+import { baseSuiteRecord } from '../_harness/fixture.js';
 
 const here = dirname(fileURLToPath(import.meta.url));
 const repoRoot = resolve(here, '..', '..');
@@ -99,6 +102,21 @@ async function scaffold() {
 }
 
 // --- AC-18906-1 -----------------------------------------------------------
+
+// The base-suite record every rcf build bundle takes once FBS-239 lands
+// (the stage-keeper's ruling RC-16 on the round C DEFINE, class C: the
+// call shape changes, the criterion does not). TAC-4158 reads the record
+// against the base, git merge-base of HEAD with the trunk (HEAD itself on
+// the trunk), so the fixture is committed as the trunk main and a green
+// BaseSuiteRecord v1 (the harness baseSuiteRecord) for that commit is
+// written outside it, as test/cli/build-base-suite.test.js passes one.
+async function baseSuiteArgs(root) {
+  if (!existsSync(join(root, '.git'))) initRepo(root);
+  const head = commit(root, 'fixture: base', {}, { allowEmpty: true });
+  const file = join(await scratchDir('rcf-base-suite-'), 'base.json');
+  await writeFile(file, `${JSON.stringify(baseSuiteRecord(head), null, 2)}\n`, 'utf8');
+  return ['--base-suite', file];
+}
 
 test('AC-18906-1 happy: an fbs whose journeystepids all resolve to steps', async () => {
   // F9 mutation kill: bind TWO steps and exercise the real CLI
@@ -171,7 +189,7 @@ test('AC-18906-1 happy: an fbs whose journeystepids all resolve to steps', async
   // CLI build bundle --format json: end-to-end check that the real
   // binary emits boundSteps the same way (so swapping the formatter
   // or the composed envelope is caught by this body).
-  const run = spawnSync(process.execPath, [BIN, 'build', 'bundle', fbs.fbsId, '--format', 'json'], { cwd: scratch, encoding: 'utf8' });
+  const run = spawnSync(process.execPath, [BIN, 'build', 'bundle', fbs.fbsId, ...(await baseSuiteArgs(scratch)), '--format', 'json'], { cwd: scratch, encoding: 'utf8' });
   assert.equal(run.status, 0, `build bundle must exit 0; stderr=${run.stderr}`);
   const cliEnvelope = JSON.parse(run.stdout);
   assert.ok(Array.isArray(cliEnvelope.boundSteps), 'CLI build bundle --format json must carry boundSteps[]');
