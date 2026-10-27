@@ -652,6 +652,13 @@ test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty 
   writeJson(p.dir, verdictPath(P, 'test.json'), testVerdict(P));
   const pv = await pack();
   assert.ok(!lines(pv.stderr).includes(RUNNER_DIRTY), `under --package an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${pv.code}\n${pv.stdout}${pv.stderr}`);
+  // AC-19302-5's rule for this ad hoc suite-as-probe-pack Verify, restated
+  // here (the stage-keeper's ruling RC-34 on the round C DEFINE): the run
+  // leaves no tarball or install output in the project, and its only new
+  // paths are under rcf/verify-reports/FBS-001/ (the verdict file was there).
+  const left = lines(git(p.dir, 'status', '--porcelain=v1', '--untracked-files=all')).map((l) => l.replace(/^\S+\s+/, ''));
+  assert.deepEqual(left.filter((f) => /\.tgz$|(^|\/)node_modules\/|(^|\/)package-lock\.json$/.test(f)), [], `under --package no *.tgz, node_modules or package-lock.json change is left in git status\n${left.join('\n')}`);
+  assert.deepEqual(left.filter((f) => !f.startsWith('rcf/verify-reports/FBS-001/') && f !== verdictPath(P, 'test.json')), [], `under --package the only new paths are under rcf/verify-reports/FBS-001/\n${left.join('\n')}`);
 
   // The FBS-219 rules under --artefact, restated from the retired AC-19301-7
   // (the stage-keeper's ruling RC-15 on the round C DEFINE). The dirty check
