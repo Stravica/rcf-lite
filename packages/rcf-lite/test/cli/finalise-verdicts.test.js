@@ -20,9 +20,10 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
+import { existsSync, writeFileSync } from 'node:fs';
 import { createServer } from 'node:http';
 import { join } from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 import { lines, rcf } from '../_harness/spawn.js';
 import { commit, git, initRepo, porcelain, s7, sha } from '../_harness/git.js';
@@ -635,6 +636,26 @@ test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty 
   const rv = await run();
   assert.ok(!lines(rv.stderr).includes(RUNNER_DIRTY), `an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${rv.code}\n${rv.stdout}${rv.stderr}`);
 
+  // The FBS-219 rules under --artefact, restated from the retired AC-19301-7
+  // (the stage-keeper's ruling RC-15 on the round C DEFINE). The dirty check
+  // and the --fbs count run before the tarball is unpacked, so a gzip file
+  // outside the fixture stands in for the packed artefact.
+  const c = await baseChain(t);
+  defineCommit(c.dir, { status: 'inProgress' });
+  buildCommit(c.dir);
+  const tgz = join(scratch(t, 'rcf-h-tgz-'), 'fixture-cli-1.0.0.tgz');
+  writeFileSync(tgz, gzipSync('fixture artefact\n'));
+  const art = (fbs) => rcf(['verify', 'run', '--artefact', tgz, ...fbs, '--hand', 'verifier'], { cwd: c.dir });
+  writeText(c.dir, 'src/x.js', `${readText(c.dir, 'src/x.js')}// uncommitted\n`);
+  const ra = await art(['--fbs', 'FBS-001']);
+  assert.equal(ra.code, 4, `under --artefact a change to src/x.js is dirty to the verify runner: exit 4\n${ra.stdout}${ra.stderr}`);
+  errHas(ra, RUNNER_DIRTY);
+  assert.ok(!existsSync(join(c.dir, 'rcf', 'verify-reports', 'FBS-001')), 'under --artefact the refused run writes no report');
+  git(c.dir, 'checkout', '--', 'src/x.js');
+  for (const fbs of [[], ['--fbs', 'FBS-001', '--fbs', 'FBS-002']]) {
+    const rf = await art(fbs);
+    assert.equal(rf.code, 2, `under --artefact --fbs ${fbs.length ? 'given twice' : 'absent'}: exit 2\n${rf.stdout}${rf.stderr}`);
+  }
 });
 
 // ---------------------------------------------------------------- US-19604 (round C)
