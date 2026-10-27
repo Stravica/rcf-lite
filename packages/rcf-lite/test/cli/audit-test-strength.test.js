@@ -439,6 +439,39 @@ test('AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch wor
   }
 });
 
+// RC-45 (the stage-keeper): a bound test red before any mutant would kill
+// every mutant, a false PASS, so the bound tests run once unmutated first.
+const unmutatedRed = (pointer, runner) => `test-strength: the unmutated run is red for AC-101-1: ${pointer} fails under runner ${runner.join(' ')}; no mutant was run`;
+const runsIn = (log) => (existsSync(log) ? readFileSync(log, 'utf8').split('\n').filter(Boolean).length : 0);
+const noResultLine = (r) => assert.ok(!lines(r.stdout).some((l) => /^test-strength: (PASS|FAIL) /.test(l)), `neither the PASS line nor a FAIL line\n${r.stdout}${r.stderr}`);
+
+test('AC-19902-9: a declared runner that fails on every bound test makes rcf audit test-strength --acs AC-101-1 exit 2 naming the runner and the bound test, with no mutant run and neither the PASS line nor a FAIL line', async (t) => {
+  const log = join(scratch(t, 'rcf-h-marks-'), 'runner.log');
+  const runner = ['node', 'tools/runner.mjs', log, '<file>'];
+  const { dir } = await strengthProject(t, {
+    config: { ...CONFIG, runner },
+    files: { 'tools/runner.mjs': L("import { appendFileSync } from 'node:fs';", "appendFileSync(process.argv[2], 'ran\\n');", 'process.exit(3);') },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  assert.equal(r.code, 2, `the unmutated run is red: exit 2\n${r.stdout}${r.stderr}`);
+  assert.ok(lines(r.stderr).includes(unmutatedRed(`test/rcf/a.test.js::${GREETS.name}`, runner)), `stderr names the runner and the bound test\n${r.stderr}`);
+  noResultLine(r);
+  assert.equal(runsIn(log), 1, 'the runner ran once, unmutated, and no mutant ran');
+});
+
+test('AC-19902-9: a bound test red unmutated for want of an environment variable the runner does not set makes rcf audit test-strength --acs AC-101-1 exit 2 naming the default runner and the bound test, with no mutant run and neither result line', async (t) => {
+  const log = join(scratch(t, 'rcf-h-marks-'), 'test.log');
+  const needsEnv = { name: GREETS.name, body: [`appendFileSync(${q(log)}, 'ran\\n');`, "assert.strictEqual(process.env.FIXTURE_NEEDED, 'yes');", ...GREETS.body] };
+  const { dir } = await strengthProject(t, {
+    files: { 'test/rcf/a.test.js': testFile([needsEnv], { imports: ["import { appendFileSync } from 'node:fs';"] }) },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  assert.equal(r.code, 2, `the unmutated run is red: exit 2\n${r.stdout}${r.stderr}`);
+  assert.ok(lines(r.stderr).includes(unmutatedRed(`test/rcf/a.test.js::${GREETS.name}`, ['node', '--test', '--test-name-pattern', '<name>', '<file>'])), `stderr names the default runner and the bound test\n${r.stderr}`);
+  noResultLine(r);
+  assert.equal(runsIn(log), 1, 'the bound test ran once, unmutated, and no mutant ran');
+});
+
 // ---------------------------------------------------------------- US-19903
 
 const REPORT_KEYS = ['version', 'head', 'scope', 'criteria', 'result', 'totals', 'wallMs', 'node'];
