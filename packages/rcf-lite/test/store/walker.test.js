@@ -601,7 +601,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // rcf-lite 0.37.0 DEFINE part B (2026-10-24) added TS-266 to TS-298 (206 -> 239).
   // rcf-lite 0.37.0 DEFINE part C3 (2026-10-24) added TS-299, the external suite of US-20303 binding AC-20303-4 (239 -> 240).
   // Release-Verify flags DEFINE (2026-10-28) added TS-300, the e2e suite of US-19001 binding AC-19001-1, AC-19001-3, AC-19001-4, AC-19001-5 and AC-19001-6 (240 -> 241).
-  assert.equal(tree.testSuites.length, 241);
+  // Release-Verify flags DEFINE (2026-10-28) added TS-301, the e2e suite of US-19002 binding AC-19002-8 (241 -> 242).
+  assert.equal(tree.testSuites.length, 242);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
