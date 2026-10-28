@@ -605,7 +605,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Release-Verify flags DEFINE (2026-10-28) added TS-302, the e2e suite of US-19004 binding AC-19004-6 (242 -> 243).
   // Release-Verify flags DEFINE (2026-10-28) added TS-303, the e2e suite of US-19301 binding AC-19301-1 to AC-19301-6 and AC-19301-8 (243 -> 244).
   // Release-Verify flags DEFINE (2026-10-28) added TS-304, the e2e suite of US-19302 binding AC-19302-1 to AC-19302-4 (244 -> 245).
-  assert.equal(tree.testSuites.length, 245);
+  // Release-Verify flags DEFINE (2026-10-28) added TS-305, the e2e suite of US-19005 binding AC-19005-5 (245 -> 246).
+  assert.equal(tree.testSuites.length, 246);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

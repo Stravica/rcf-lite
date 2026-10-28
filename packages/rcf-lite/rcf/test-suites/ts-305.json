@@ -1,0 +1,43 @@
+{
+  "createdAt": "2026-10-28T20:41:10.648Z",
+  "updatedAt": "2026-10-28T20:41:11.769Z",
+  "purpose": "FBS-230: the external criteria of US-19005, driving bin/rcf.js against fixture projects (e2e); each case is the existing TS-261 integration case, bound again at e2e level for the release Verify",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19005-5"
+  ],
+  "id": "TS-305",
+  "usId": "US-19005",
+  "title": "US-19005 external criteria (FBS-230)",
+  "testCases": [
+    {
+      "id": "TC-305-verify-run-records-loopback-fields",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run --hand verifier --url <loopback> --engine <name> --served-sha <HEAD> records target { kind, url, engine, port, servedSha }",
+      "status": "pending",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: rcf verify run --hand verifier --url <loopback-url> --engine <name> --served-sha <committed HEAD> records target { kind \"url\", url, engine, port, servedSha } in rcf/verify-reports/<fbs-id>/<head12>.json"
+    },
+    {
+      "id": "TC-305-verify-run-served-sha-refused",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run --served-sha other than the full committed HEAD exits 4 with \"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\", no report, no probe",
+      "status": "pending",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: a --served-sha that is not the full sha of the committed HEAD exits 4 with \"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\", writing no report and sending no probe"
+    },
+    {
+      "id": "TC-305-verify-run-loopback-usage",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run --hand with a loopback --url and no --engine or no --served-sha exits 2 naming the flag, no report, no probe",
+      "status": "pending",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: a loopback --url with --hand exits 2 with \"[error] usage --engine <name> is required with --hand and a loopback --url\" with no --engine, and \"[error] usage --served-sha <sha> is required with --hand and a loopback --url\" with no --served-sha, writing no report and sending no probe"
+    },
+    {
+      "id": "TC-305-verify-run-loopback-flags-url-only",
+      "acId": "AC-19005-5",
+      "description": "rcf verify run refuses --engine and --served-sha whenever the target is not a --url (a directory, a tarball or a name@version: --artefact <tgz>, --package <dir>, --package <tarball file>, --package <name@version>) with a usage error, exit 2, naming the flag, with or without --hand, before any pack, install or engine call, writing no report",
+      "status": "pending",
+      "testPointer": "test/verify/loopback-target-run.test.js::AC-19005-5: whenever the target is not a --url (a directory, a tarball or a name@version) --engine and --served-sha each exit 2 with \"[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\" (and the same for --served-sha), with or without --hand, before any pack, install or engine call, writing no report"
+    }
+  ],
+  "status": "draft"
+}
