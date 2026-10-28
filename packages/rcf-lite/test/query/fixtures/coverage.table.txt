@@ -874,14 +874,14 @@ REQ-196      yes      AC-19601-1   yes                    external   verified  v
                       AC-19604-5   yes                    external   verified  verified    TC-272-configured-classes-win-rcftest-on-spec
                       AC-19604-6   yes                    external   verified  verified    TC-272-no-trailer-turns-a-failing-commit-into-a
                       AC-19604-7   yes                    external   verified  verified    TC-272-a-branch-starting-at-build-code-followed
-                      AC-19604-8   yes                    external   verified  complete    TC-272-with-rcf-separation-json-classes-rcftest
+                      AC-19604-8   yes                    external   verified  verified    TC-272-with-rcf-separation-json-classes-rcftest
 REQ-197      yes      AC-19701-1   yes                    external   verified  verified    TC-273-rcf-build-verdict-review-code-merge
                       AC-19701-2   yes                    external   verified  verified    TC-273-adequacy-findings-with-a-spec-and-a
                       AC-19701-3   retired (AC-19701-7)   external   -         retired     TC-273-findings-with-no-finding-exits-2-a
                       AC-19701-4   yes                    external   verified  verified    TC-273-a-dirty-tree-refuses-with-exit-4-verdict
                       AC-19701-5   yes                    external   verified  verified    TC-273-rcf-build-verdict-review-writes-only-rcf
                       AC-19701-6   yes                    external   verified  verified    TC-273-at-inprogress-the-review-verdict-must
-                      AC-19701-7   yes                    external   verified  complete    TC-273-rcf-build-verdict-review-test-locus
+                      AC-19701-7   yes                    external   verified  verified    TC-273-rcf-build-verdict-review-test-locus
                       AC-19702-1   yes                    external   verified  verified    TC-274-rcf-build-verdict-test-result-pass-over
                       AC-19702-2   yes                    external   verified  verified    TC-274-result-pass-refuses-a-tap-with-2-failing
                       AC-19702-3   yes                    external   verified  verified    TC-274-result-pass-refuses-with-no-review-merge
@@ -890,8 +890,8 @@ REQ-197      yes      AC-19701-1   yes                    external   verified  v
                       AC-19702-6   yes                    external   verified  verified    TC-274-after-review-merge-pass-test-pass-at-h
                       AC-19702-7   yes                    external   verified  verified    TC-274-a-failing-test-strength-record-at-h
                       AC-19702-8   yes                    external   verified  verified    TC-274-fbs-must-equal-the-review-verdict
-                      AC-19702-9   yes                    external   verified  complete    TC-274-outside-a-git-repository-rcf-build
-                      AC-19702-10  yes                    external   verified  complete    TC-274-verdict-and-runner-dirty-checks
+                      AC-19702-9   yes                    external   verified  verified    TC-274-outside-a-git-repository-rcf-build
+                      AC-19702-10  yes                    external   verified  verified    TC-274-verdict-and-runner-dirty-checks
                       AC-19703-1   yes                    external   verified  verified    TC-275-define-build-review-passed-for-its
                       AC-19703-2   yes                    external   verified  verified    TC-275-a-review-with-code-findings-followed-by
                       AC-19703-3   yes                    external   verified  verified    TC-275-build-after-a-passed-review-define-after
@@ -903,7 +903,7 @@ REQ-197      yes      AC-19701-1   yes                    external   verified  v
                       AC-19703-9   yes                    external   verified  verified    TC-275-a-second-review-codex-adding-a-review
                       AC-19703-10  yes                    external   verified  verified    TC-275-a-test-commit-adding-a-pass-test-json
                       AC-19703-11  yes                    external   verified  verified    TC-275-a-test-strength-adding-a-failing-test
-                      AC-19703-12  yes                    external   verified  complete    TC-275-separation-help-reviewed-head-casing
+                      AC-19703-12  yes                    external   verified  verified    TC-275-separation-help-reviewed-head-casing
 REQ-198      yes      AC-19801-1   yes                    external   verified  verified    TC-276-with-head-adding-ac-101-2-flagged
                       AC-19801-2   yes                    external   verified  verified    TC-276-with-head-adding-ac-101-2-with-no
                       AC-19801-3   yes                    external   verified  verified    TC-276-a-head-changing-only-the-then-text-of
@@ -922,8 +922,8 @@ REQ-198      yes      AC-19801-1   yes                    external   verified  v
                       AC-19803-4   yes                    external   verified  verified    TC-279-audit-coverage-strict-exits-with-the
                       AC-19803-5   yes                    testOnly   complete  complete    TC-280-over-the-chain-of-this-repository-at-the, TC-280-t...
                       AC-19803-6   yes                    external   verified  verified    TC-279-a-hand-edited-verification-sometimes-on
-                      AC-19803-7   yes                    external   verified  complete    TC-279-with-ac-101-1-bound-by-one-test-case
-                      AC-19803-8   yes                    external   verified  complete    TC-279-with-ac-101-1-external-scoped-by-both
+                      AC-19803-7   yes                    external   verified  verified    TC-279-with-ac-101-1-bound-by-one-test-case
+                      AC-19803-8   yes                    external   verified  verified    TC-279-with-ac-101-1-external-scoped-by-both
                       AC-19804-1   yes                    testOnly   complete  complete    TC-281-at-the-slice-head-no-user-story-tag
                       AC-19804-2   yes                    testOnly   complete  complete    TC-281-for-every-criterion-the-move-commit
                       AC-19804-3   yes                    testOnly   complete  complete    TC-281-a-0-37-0-criterion-left-without-the
@@ -943,62 +943,62 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19902-6   yes                    external   verified  verified    TC-283-a-round-touching-8-criteria-with-2
                       AC-19902-7   yes                    external   verified  verified    TC-283-a-class-symbol-expands-to-its-methods
                       AC-19902-8   yes                    external   verified  verified    TC-283-a-file-level-code-node-docs-x-md-is
-                      AC-19902-9   yes                    external   verified  complete    TC-283-a-bound-test-red-unmutated-for-want-of, TC-283-a-d...
+                      AC-19902-9   yes                    external   verified  verified    TC-283-a-bound-test-red-unmutated-for-want-of, TC-283-a-d...
                       AC-19903-1   yes                    external   verified  verified    TC-284-at-a-review-commit-for-h-touching-ac-101
                       AC-19903-2   yes                    external   verified  verified    TC-284-record-refuses-a-dirty-tree-exit-4-and-a
                       AC-19903-3   yes                    external   verified  verified    TC-284-a-worker-style-app-entry-worker-src
                       AC-19903-4   yes                    external   verified  verified    TC-284-a-library-entry-module-src-index-js
                       AC-19903-5   yes                    external   verified  verified    TC-284-rcf-audit-test-strength-never-deploys
-REQ-200      yes      AC-20001-1   yes                    external   verified  complete    TC-285-over-define-build-review-merge-pass-at-h
-                      AC-20001-2   yes                    external   verified  complete    TC-285-with-no-review-commit-finalise-exits-4
-                      AC-20001-3   yes                    external   verified  complete    TC-285-with-the-test-commit-absent-finalise
-                      AC-20001-4   yes                    external   verified  complete    TC-285-a-build-late-fix-or-a-define-amend-after
-                      AC-20001-5   yes                    external   verified  complete    TC-285-run-again-at-the-same-head-or-after-a
-                      AC-20001-6   yes                    external   verified  complete    TC-285-after-a-clean-finalise-merge-main
-                      AC-20001-7   yes                    external   verified  complete    TC-285-on-every-refusal-finalise-leaves-rcf-fbs
-                      AC-20001-8   yes                    external   verified  complete    TC-285-after-a-clean-finalise-merge-main-at-m
-                      AC-20001-9   yes                    external   verified  complete    TC-285-with-fbs-001-at-notstarted-finalise
-                      AC-20002-1   yes                    external   verified  complete    TC-286-with-no-test-strength-record-at-h
-                      AC-20002-2   yes                    external   verified  complete    TC-286-when-the-reviewverdict-touches-only-ac
-                      AC-20002-3   yes                    external   verified  complete    TC-286-with-no-ci-run-finalise-exits-4-ci
-                      AC-20002-4   yes                    external   verified  complete    TC-286-an-earlier-build-tests-commit-touching
-                      AC-20002-5   yes                    external   verified  complete    TC-286-over-the-happy-run-a-spawn-seam-rcf
-                      AC-20003-1   yes                    external   verified  complete    TC-287-each-retired-flag-report-max-report-age
-                      AC-20003-2   yes                    external   verified  complete    TC-287-a-committed-fail-or-malformed
-                      AC-20003-3   yes                    external   verified  complete    TC-287-rcf-build-mark-fbs-001-complete-at
-                      AC-20003-4   yes                    external   verified  complete    TC-287-an-amend-round-on-fbs-001-at-verified
-                      AC-20003-5   yes                    external   verified  complete    TC-287-across-the-fixtures-of-us-20003-no
-REQ-201      yes      AC-20101-1   yes                    external   verified  complete    TC-288-with-fbs-001-changed-after-v1-0-0-and
-                      AC-20101-2   yes                    external   verified  complete    TC-288-a-failing-e2e-case-of-ac-101-1-exits-4
-                      AC-20101-3   yes                    external   verified  complete    TC-288-testonly-only-unit-bound-inprogress
-                      AC-20101-4   yes                    external   verified  complete    TC-288-record-without-release-or-since-exits-2
-                      AC-20101-5   yes                    external   verified  complete    TC-288-without-record-the-pass-fixture-run
-                      AC-20101-6   yes                    external   verified  complete    TC-288-over-150-specs-and-800-criteria-with-12
-                      AC-20101-7   yes                    external   verified  complete    TC-288-since-naming-a-missing-ref-a-tree-or-a
-                      AC-20102-1   yes                    external   verified  complete    TC-289-a-cold-package-release-verify-runs-the
-                      AC-20102-2   yes                    external   verified  complete    TC-289-offline-in-release-mode-exits-2-error
-                      AC-20102-3   yes                    external   verified  complete    TC-289-a-user-npmrc-at-the-caller-home-setting
-                      AC-20102-4   yes                    external   verified  complete    TC-289-a-cold-release-verify-writes-in-the
-                      AC-20103-1   yes                    external   verified  complete    TC-290-with-rcf-verify-catalog-json-and-a-local
-                      AC-20103-2   yes                    external   verified  complete    TC-290-record-with-mode-deterministic-or-mode
-                      AC-20103-3   yes                    external   verified  complete    TC-290-the-pass-fixture-of-the-release-story
-REQ-202      yes      AC-20201-1   yes                    external   verified  complete    TC-291-a-record-from-rcf-build-base-suite
-                      AC-20201-2   yes                    external   verified  complete    TC-291-with-no-base-suite-rcf-build-bundle-next
-                      AC-20201-3   yes                    external   verified  complete    TC-291-a-green-record-made-at-commit-a-while
-                      AC-20201-4   yes                    external   verified  complete    TC-291-a-record-at-b-with-exitcode-1-and-tap
-                      AC-20201-5   yes                    external   verified  complete    TC-291-no-flag-emits-a-bundle-on-a-red-or
-                      AC-20201-6   yes                    external   verified  complete    TC-291-rcf-build-base-suite-refuses-a-dirty
-                      AC-20201-7   yes                    external   verified  complete    TC-291-with-a-green-record-for-the-base-bundle
-                      AC-20201-8   yes                    external   verified  complete    TC-291-with-rcf-test-strength-json-declaring
-                      AC-20202-1   yes                    external   verified  complete    TC-292-bundle-fbs-001-acs-ac-101-2-ac-101-5-on
-                      AC-20202-2   yes                    external   verified  complete    TC-292-acs-on-an-inprogress-spec-exits-2-an-ac
-                      AC-20202-3   yes                    external   verified  complete    TC-292-an-amend-bundle-on-a-verified-spec-is
-                      AC-20202-4   yes                    external   verified  complete    TC-292-an-amend-bundle-names-no-criterion-of
-                      AC-20202-5   yes                    external   verified  complete    TC-292-an-amend-bundle-naming-8-criteria-of-a
-                      AC-20203-1   yes                    external   verified  complete    TC-293-with-rcf-define-backstop-json
-                      AC-20203-2   yes                    external   verified  complete    TC-293-rcf-build-backstop-adopt-from-fbs-001
-                      AC-20203-3   yes                    external   verified  complete    TC-293-bundle-next-allow-unverified-hotfix-base
-                      AC-20203-4   yes                    external   verified  complete    TC-293-across-the-runs-of-this-story-an
+REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
+                      AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
+                      AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
+                      AC-20001-4   yes                    external   verified  verified    TC-285-a-build-late-fix-or-a-define-amend-after
+                      AC-20001-5   yes                    external   verified  verified    TC-285-run-again-at-the-same-head-or-after-a
+                      AC-20001-6   yes                    external   verified  verified    TC-285-after-a-clean-finalise-merge-main
+                      AC-20001-7   yes                    external   verified  verified    TC-285-on-every-refusal-finalise-leaves-rcf-fbs
+                      AC-20001-8   yes                    external   verified  verified    TC-285-after-a-clean-finalise-merge-main-at-m
+                      AC-20001-9   yes                    external   verified  verified    TC-285-with-fbs-001-at-notstarted-finalise
+                      AC-20002-1   yes                    external   verified  verified    TC-286-with-no-test-strength-record-at-h
+                      AC-20002-2   yes                    external   verified  verified    TC-286-when-the-reviewverdict-touches-only-ac
+                      AC-20002-3   yes                    external   verified  verified    TC-286-with-no-ci-run-finalise-exits-4-ci
+                      AC-20002-4   yes                    external   verified  verified    TC-286-an-earlier-build-tests-commit-touching
+                      AC-20002-5   yes                    external   verified  verified    TC-286-over-the-happy-run-a-spawn-seam-rcf
+                      AC-20003-1   yes                    external   verified  verified    TC-287-each-retired-flag-report-max-report-age
+                      AC-20003-2   yes                    external   verified  verified    TC-287-a-committed-fail-or-malformed
+                      AC-20003-3   yes                    external   verified  verified    TC-287-rcf-build-mark-fbs-001-complete-at
+                      AC-20003-4   yes                    external   verified  verified    TC-287-an-amend-round-on-fbs-001-at-verified
+                      AC-20003-5   yes                    external   verified  verified    TC-287-across-the-fixtures-of-us-20003-no
+REQ-201      yes      AC-20101-1   yes                    external   verified  verified    TC-288-with-fbs-001-changed-after-v1-0-0-and
+                      AC-20101-2   yes                    external   verified  verified    TC-288-a-failing-e2e-case-of-ac-101-1-exits-4
+                      AC-20101-3   yes                    external   verified  verified    TC-288-testonly-only-unit-bound-inprogress
+                      AC-20101-4   yes                    external   verified  verified    TC-288-record-without-release-or-since-exits-2
+                      AC-20101-5   yes                    external   verified  verified    TC-288-without-record-the-pass-fixture-run
+                      AC-20101-6   yes                    external   verified  verified    TC-288-over-150-specs-and-800-criteria-with-12
+                      AC-20101-7   yes                    external   verified  verified    TC-288-since-naming-a-missing-ref-a-tree-or-a
+                      AC-20102-1   yes                    external   verified  verified    TC-289-a-cold-package-release-verify-runs-the
+                      AC-20102-2   yes                    external   verified  verified    TC-289-offline-in-release-mode-exits-2-error
+                      AC-20102-3   yes                    external   verified  verified    TC-289-a-user-npmrc-at-the-caller-home-setting
+                      AC-20102-4   yes                    external   verified  verified    TC-289-a-cold-release-verify-writes-in-the
+                      AC-20103-1   yes                    external   verified  verified    TC-290-with-rcf-verify-catalog-json-and-a-local
+                      AC-20103-2   yes                    external   verified  verified    TC-290-record-with-mode-deterministic-or-mode
+                      AC-20103-3   yes                    external   verified  verified    TC-290-the-pass-fixture-of-the-release-story
+REQ-202      yes      AC-20201-1   yes                    external   verified  verified    TC-291-a-record-from-rcf-build-base-suite
+                      AC-20201-2   yes                    external   verified  verified    TC-291-with-no-base-suite-rcf-build-bundle-next
+                      AC-20201-3   yes                    external   verified  verified    TC-291-a-green-record-made-at-commit-a-while
+                      AC-20201-4   yes                    external   verified  verified    TC-291-a-record-at-b-with-exitcode-1-and-tap
+                      AC-20201-5   yes                    external   verified  verified    TC-291-no-flag-emits-a-bundle-on-a-red-or
+                      AC-20201-6   yes                    external   verified  verified    TC-291-rcf-build-base-suite-refuses-a-dirty
+                      AC-20201-7   yes                    external   verified  verified    TC-291-with-a-green-record-for-the-base-bundle
+                      AC-20201-8   yes                    external   verified  verified    TC-291-with-rcf-test-strength-json-declaring
+                      AC-20202-1   yes                    external   verified  verified    TC-292-bundle-fbs-001-acs-ac-101-2-ac-101-5-on
+                      AC-20202-2   yes                    external   verified  verified    TC-292-acs-on-an-inprogress-spec-exits-2-an-ac
+                      AC-20202-3   yes                    external   verified  verified    TC-292-an-amend-bundle-on-a-verified-spec-is
+                      AC-20202-4   yes                    external   verified  verified    TC-292-an-amend-bundle-names-no-criterion-of
+                      AC-20202-5   yes                    external   verified  verified    TC-292-an-amend-bundle-naming-8-criteria-of-a
+                      AC-20203-1   yes                    external   verified  verified    TC-293-with-rcf-define-backstop-json
+                      AC-20203-2   yes                    external   verified  verified    TC-293-rcf-build-backstop-adopt-from-fbs-001
+                      AC-20203-3   yes                    external   verified  verified    TC-293-bundle-next-allow-unverified-hotfix-base
+                      AC-20203-4   yes                    external   verified  verified    TC-293-across-the-runs-of-this-story-an
 REQ-203      yes      AC-20301-1   yes                    testOnly   complete  notStarted  TC-294-at-the-current-head-node-bin-rcf-js
                       AC-20301-2   yes                    testOnly   complete  notStarted  TC-294-in-a-scratch-copy-at-the-current-head
                       AC-20301-3   yes                    testOnly   complete  notStarted  TC-294-in-a-scratch-copy-a-new-requirement-fails-d2-d4
@@ -1011,15 +1011,15 @@ REQ-203      yes      AC-20301-1   yes                    testOnly   complete  n
                       AC-20303-2   yes                    testOnly   complete  notStarted  TC-296-in-a-scratch-copy-at-the-current-head
                       AC-20303-3   yes                    testOnly   complete  notStarted  TC-296-the-define-commit-that-recorded-the
                       AC-20303-4   yes                    external   verified  notStarted  TC-299-over-the-four-fixture-profiles-of-test
-REQ-204      yes      AC-20401-1   yes                    external   verified  complete    TC-297-rcf-guidance-build-cycle-carries-the
-                      AC-20401-2   yes                    external   verified  complete    TC-297-the-rounds-section-of-rcf-guidance-build
-                      AC-20401-3   yes                    external   verified  complete    TC-297-the-managed-block-names-the-five-stages
-                      AC-20401-4   yes                    external   verified  complete    TC-297-the-closing-runbook-of-rcf-build-bundle
-                      AC-20401-5   yes                    external   verified  complete    TC-297-no-guidance-topic-no-part-of-the-managed
-                      AC-20401-6   yes                    external   verified  complete    TC-297-the-finalise-line-of-rcf-guidance
-                      AC-20401-7   yes                    external   verified  complete    TC-297-in-a-project-initialised-by-the-bin
-                      AC-20401-8   yes                    external   verified  complete    TC-297-the-build-loop-section-of-rcf-guidance
-                      AC-20401-9   yes                    external   verified  complete    TC-297-every-sentence-of-rcf-guidance-build
+REQ-204      yes      AC-20401-1   yes                    external   verified  verified    TC-297-rcf-guidance-build-cycle-carries-the
+                      AC-20401-2   yes                    external   verified  verified    TC-297-the-rounds-section-of-rcf-guidance-build
+                      AC-20401-3   yes                    external   verified  verified    TC-297-the-managed-block-names-the-five-stages
+                      AC-20401-4   yes                    external   verified  verified    TC-297-the-closing-runbook-of-rcf-build-bundle
+                      AC-20401-5   yes                    external   verified  verified    TC-297-no-guidance-topic-no-part-of-the-managed
+                      AC-20401-6   yes                    external   verified  verified    TC-297-the-finalise-line-of-rcf-guidance
+                      AC-20401-7   yes                    external   verified  verified    TC-297-in-a-project-initialised-by-the-bin
+                      AC-20401-8   yes                    external   verified  verified    TC-297-the-build-loop-section-of-rcf-guidance
+                      AC-20401-9   yes                    external   verified  verified    TC-297-every-sentence-of-rcf-guidance-build
                       AC-20402-2   yes                    testOnly   complete  complete    TC-298-docs-verify-reference-md-has-the
                       AC-20402-3   yes                    testOnly   complete  complete    TC-298-no-file-under-packages-rcf-lite-docs
                       AC-20402-4   yes                    testOnly   complete  complete    TC-298-the-root-readme-md-and-packages-rcf-lite
@@ -1155,8 +1155,8 @@ FBS-233  verified  verified
 FBS-234  verified  verified
 FBS-235  verified  verified
 FBS-236  verified  verified
-FBS-237  verified  complete
-FBS-238  verified  complete
-FBS-239  verified  complete
+FBS-237  verified  verified
+FBS-238  verified  verified
+FBS-239  verified  verified
 FBS-240  verified  notStarted
-FBS-241  verified  complete
+FBS-241  verified  verified
