@@ -3474,6 +3474,8 @@ flowchart LR
   REQ-190 --> AC-19001-1
   TC-252-report-written["TC-252-report-written"]
   AC-19001-1 -.-> TC-252-report-written
+  TC-300-report-written["TC-300-report-written"]
+  AC-19001-1 -.-> TC-300-report-written
   AC-19001-2["AC-19001-2"]
   REQ-190 --> AC-19001-2
   AC-19001-2 -. supersededBy .-> AC-19702-10
@@ -3483,20 +3485,30 @@ flowchart LR
   REQ-190 --> AC-19001-3
   TC-252-bad-hand-flags["TC-252-bad-hand-flags"]
   AC-19001-3 -.-> TC-252-bad-hand-flags
+  TC-300-bad-hand-flags["TC-300-bad-hand-flags"]
+  AC-19001-3 -.-> TC-300-bad-hand-flags
   AC-19001-4["AC-19001-4"]
   REQ-190 --> AC-19001-4
   TC-252-package-target["TC-252-package-target"]
   AC-19001-4 -.-> TC-252-package-target
+  TC-300-package-target["TC-300-package-target"]
+  AC-19001-4 -.-> TC-300-package-target
   AC-19001-5["AC-19001-5"]
   REQ-190 --> AC-19001-5
   TC-252-reports-not-chain["TC-252-reports-not-chain"]
   AC-19001-5 -.-> TC-252-reports-not-chain
+  TC-300-reports-not-chain["TC-300-reports-not-chain"]
+  AC-19001-5 -.-> TC-300-reports-not-chain
   AC-19001-6["AC-19001-6"]
   REQ-190 --> AC-19001-6
   TC-252-hand-refuses-out["TC-252-hand-refuses-out"]
   AC-19001-6 -.-> TC-252-hand-refuses-out
   TC-252-writes-only-reports["TC-252-writes-only-reports"]
   AC-19001-6 -.-> TC-252-writes-only-reports
+  TC-300-hand-refuses-out["TC-300-hand-refuses-out"]
+  AC-19001-6 -.-> TC-300-hand-refuses-out
+  TC-300-writes-only-reports["TC-300-writes-only-reports"]
+  AC-19001-6 -.-> TC-300-writes-only-reports
   AC-19001-7["AC-19001-7"]
   REQ-190 --> AC-19001-7
   TC-263-out-directory-refused["TC-263-out-directory-refused"]
@@ -3548,6 +3560,8 @@ flowchart LR
   REQ-190 --> AC-19002-8
   TC-253-no-spawn-no-mutation["TC-253-no-spawn-no-mutation"]
   AC-19002-8 -.-> TC-253-no-spawn-no-mutation
+  TC-301-no-spawn-no-mutation["TC-301-no-spawn-no-mutation"]
+  AC-19002-8 -.-> TC-301-no-spawn-no-mutation
   AC-19003-1["AC-19003-1"]
   REQ-190 --> AC-19003-1
   AC-19003-1 -. supersededBy .-> AC-20201-4
@@ -3603,6 +3617,8 @@ flowchart LR
   REQ-190 --> AC-19004-6
   TC-257-doctor-drift["TC-257-doctor-drift"]
   AC-19004-6 -.-> TC-257-doctor-drift
+  TC-302-doctor-drift["TC-302-doctor-drift"]
+  AC-19004-6 -.-> TC-302-doctor-drift
   AC-19004-7["AC-19004-7"]
   REQ-190 --> AC-19004-7
   AC-19004-7 -. supersededBy .-> AC-20401-5
@@ -3640,6 +3656,14 @@ flowchart LR
   AC-19005-5 -.-> TC-261-verify-run-records-loopback-fields
   TC-261-verify-run-served-sha-refused["TC-261-verify-run-served-sha-refused"]
   AC-19005-5 -.-> TC-261-verify-run-served-sha-refused
+  TC-305-verify-run-loopback-flags-url-only["TC-305-verify-run-loopback-flags-url-only"]
+  AC-19005-5 -.-> TC-305-verify-run-loopback-flags-url-only
+  TC-305-verify-run-loopback-usage["TC-305-verify-run-loopback-usage"]
+  AC-19005-5 -.-> TC-305-verify-run-loopback-usage
+  TC-305-verify-run-records-loopback-fields["TC-305-verify-run-records-loopback-fields"]
+  AC-19005-5 -.-> TC-305-verify-run-records-loopback-fields
+  TC-305-verify-run-served-sha-refused["TC-305-verify-run-served-sha-refused"]
+  AC-19005-5 -.-> TC-305-verify-run-served-sha-refused
   AC-19005-6["AC-19005-6"]
   REQ-190 --> AC-19005-6
   AC-19005-6 -. supersededBy .-> AC-20003-2
@@ -3786,26 +3810,38 @@ flowchart LR
   REQ-193 --> AC-19301-1
   TC-258-pass-all["TC-258-pass-all"]
   AC-19301-1 -.-> TC-258-pass-all
+  TC-303-pass-all["TC-303-pass-all"]
+  AC-19301-1 -.-> TC-303-pass-all
   AC-19301-2["AC-19301-2"]
   REQ-193 --> AC-19301-2
   TC-258-fail-one["TC-258-fail-one"]
   AC-19301-2 -.-> TC-258-fail-one
+  TC-303-fail-one["TC-303-fail-one"]
+  AC-19301-2 -.-> TC-303-fail-one
   AC-19301-3["AC-19301-3"]
   REQ-193 --> AC-19301-3
   TC-258-unbound-critique-only["TC-258-unbound-critique-only"]
   AC-19301-3 -.-> TC-258-unbound-critique-only
+  TC-303-unbound-critique-only["TC-303-unbound-critique-only"]
+  AC-19301-3 -.-> TC-303-unbound-critique-only
   AC-19301-4["AC-19301-4"]
   REQ-193 --> AC-19301-4
   TC-258-to-do-skip-and-not-run["TC-258-to-do-skip-and-not-run"]
   AC-19301-4 -.-> TC-258-to-do-skip-and-not-run
+  TC-303-to-do-skip-and-not-run["TC-303-to-do-skip-and-not-run"]
+  AC-19301-4 -.-> TC-303-to-do-skip-and-not-run
   AC-19301-5["AC-19301-5"]
   REQ-193 --> AC-19301-5
   TC-258-probe-not-run-and-evidence["TC-258-probe-not-run-and-evidence"]
   AC-19301-5 -.-> TC-258-probe-not-run-and-evidence
+  TC-303-probe-not-run-and-evidence["TC-303-probe-not-run-and-evidence"]
+  AC-19301-5 -.-> TC-303-probe-not-run-and-evidence
   AC-19301-6["AC-19301-6"]
   REQ-193 --> AC-19301-6
   TC-258-flag-refusals["TC-258-flag-refusals"]
   AC-19301-6 -.-> TC-258-flag-refusals
+  TC-303-flag-refusals["TC-303-flag-refusals"]
+  AC-19301-6 -.-> TC-303-flag-refusals
   AC-19301-7["AC-19301-7"]
   REQ-193 --> AC-19301-7
   AC-19301-7 -. supersededBy .-> AC-19702-10
@@ -3815,6 +3851,8 @@ flowchart LR
   REQ-193 --> AC-19301-8
   TC-258-writes-only-report-dir["TC-258-writes-only-report-dir"]
   AC-19301-8 -.-> TC-258-writes-only-report-dir
+  TC-303-writes-only-report-dir["TC-303-writes-only-report-dir"]
+  AC-19301-8 -.-> TC-303-writes-only-report-dir
   AC-19301-9["AC-19301-9"]
   REQ-193 --> AC-19301-9
   AC-19301-9 -. supersededBy .-> AC-20001-1
@@ -3828,10 +3866,18 @@ flowchart LR
   AC-19302-1 -.-> TC-259-pack-from-head
   TC-259-prepack-stdout-parsed["TC-259-prepack-stdout-parsed"]
   AC-19302-1 -.-> TC-259-prepack-stdout-parsed
+  TC-304-ignored-content-not-packed["TC-304-ignored-content-not-packed"]
+  AC-19302-1 -.-> TC-304-ignored-content-not-packed
+  TC-304-pack-from-head["TC-304-pack-from-head"]
+  AC-19302-1 -.-> TC-304-pack-from-head
+  TC-304-prepack-stdout-parsed["TC-304-prepack-stdout-parsed"]
+  AC-19302-1 -.-> TC-304-prepack-stdout-parsed
   AC-19302-2["AC-19302-2"]
   REQ-193 --> AC-19302-2
   TC-259-given-tarball-no-pack["TC-259-given-tarball-no-pack"]
   AC-19302-2 -.-> TC-259-given-tarball-no-pack
+  TC-304-given-tarball-no-pack["TC-304-given-tarball-no-pack"]
+  AC-19302-2 -.-> TC-304-given-tarball-no-pack
   AC-19302-3["AC-19302-3"]
   REQ-193 --> AC-19302-3
   TC-259-evidence-log-not-ignored["TC-259-evidence-log-not-ignored"]
@@ -3840,12 +3886,22 @@ flowchart LR
   AC-19302-3 -.-> TC-259-install-failure-exits-1
   TC-259-pack-failure-log["TC-259-pack-failure-log"]
   AC-19302-3 -.-> TC-259-pack-failure-log
+  TC-304-evidence-log-not-ignored["TC-304-evidence-log-not-ignored"]
+  AC-19302-3 -.-> TC-304-evidence-log-not-ignored
+  TC-304-install-failure-exits-1["TC-304-install-failure-exits-1"]
+  AC-19302-3 -.-> TC-304-install-failure-exits-1
+  TC-304-pack-failure-log["TC-304-pack-failure-log"]
+  AC-19302-3 -.-> TC-304-pack-failure-log
   AC-19302-4["AC-19302-4"]
   REQ-193 --> AC-19302-4
   TC-259-offline-and-default-registry["TC-259-offline-and-default-registry"]
   AC-19302-4 -.-> TC-259-offline-and-default-registry
   TC-259-offline-outside-package-mode-refused["TC-259-offline-outside-package-mode-refused"]
   AC-19302-4 -.-> TC-259-offline-outside-package-mode-refused
+  TC-304-offline-and-default-registry["TC-304-offline-and-default-registry"]
+  AC-19302-4 -.-> TC-304-offline-and-default-registry
+  TC-304-offline-outside-package-mode-refused["TC-304-offline-outside-package-mode-refused"]
+  AC-19302-4 -.-> TC-304-offline-outside-package-mode-refused
   AC-19302-5["AC-19302-5"]
   REQ-193 --> AC-19302-5
   AC-19302-5 -. supersededBy .-> AC-19702-10
@@ -6515,17 +6571,23 @@ flowchart LR
   class REQ-190 req;
   class AC-19001-1 ac;
   class TC-252-report-written tc;
+  class TC-300-report-written tc;
   class AC-19001-2 ac;
   class TC-252-dirty-tree-refused tc;
   class AC-19001-3 ac;
   class TC-252-bad-hand-flags tc;
+  class TC-300-bad-hand-flags tc;
   class AC-19001-4 ac;
   class TC-252-package-target tc;
+  class TC-300-package-target tc;
   class AC-19001-5 ac;
   class TC-252-reports-not-chain tc;
+  class TC-300-reports-not-chain tc;
   class AC-19001-6 ac;
   class TC-252-hand-refuses-out tc;
   class TC-252-writes-only-reports tc;
+  class TC-300-hand-refuses-out tc;
+  class TC-300-writes-only-reports tc;
   class AC-19001-7 ac;
   class TC-263-out-directory-refused tc;
   class TC-263-out-help-says-file-path tc;
@@ -6548,6 +6610,7 @@ flowchart LR
   class TC-253-retired-flags tc;
   class AC-19002-8 ac;
   class TC-253-no-spawn-no-mutation tc;
+  class TC-301-no-spawn-no-mutation tc;
   class AC-19003-1 ac;
   class TC-254-e2e-finalise-clears-backstop tc;
   class TC-254-refuses-unverified tc;
@@ -6571,6 +6634,7 @@ flowchart LR
   class TC-257-audit-fifth-verb tc;
   class AC-19004-6 ac;
   class TC-257-doctor-drift tc;
+  class TC-302-doctor-drift tc;
   class AC-19004-7 ac;
   class TC-257-no-post-merge-verify tc;
   class AC-19005-1 ac;
@@ -6587,6 +6651,10 @@ flowchart LR
   class TC-261-verify-run-loopback-usage tc;
   class TC-261-verify-run-records-loopback-fields tc;
   class TC-261-verify-run-served-sha-refused tc;
+  class TC-305-verify-run-loopback-flags-url-only tc;
+  class TC-305-verify-run-loopback-usage tc;
+  class TC-305-verify-run-records-loopback-fields tc;
+  class TC-305-verify-run-served-sha-refused tc;
   class AC-19005-6 ac;
   class TC-261-report-committed-at-head tc;
   class AC-19005-7 ac;
@@ -6654,35 +6722,51 @@ flowchart LR
   class REQ-193 req;
   class AC-19301-1 ac;
   class TC-258-pass-all tc;
+  class TC-303-pass-all tc;
   class AC-19301-2 ac;
   class TC-258-fail-one tc;
+  class TC-303-fail-one tc;
   class AC-19301-3 ac;
   class TC-258-unbound-critique-only tc;
+  class TC-303-unbound-critique-only tc;
   class AC-19301-4 ac;
   class TC-258-to-do-skip-and-not-run tc;
+  class TC-303-to-do-skip-and-not-run tc;
   class AC-19301-5 ac;
   class TC-258-probe-not-run-and-evidence tc;
+  class TC-303-probe-not-run-and-evidence tc;
   class AC-19301-6 ac;
   class TC-258-flag-refusals tc;
+  class TC-303-flag-refusals tc;
   class AC-19301-7 ac;
   class TC-258-fbs-219-rules-kept tc;
   class AC-19301-8 ac;
   class TC-258-writes-only-report-dir tc;
+  class TC-303-writes-only-report-dir tc;
   class AC-19301-9 ac;
   class TC-258-finalise-end-to-end tc;
   class AC-19302-1 ac;
   class TC-259-ignored-content-not-packed tc;
   class TC-259-pack-from-head tc;
   class TC-259-prepack-stdout-parsed tc;
+  class TC-304-ignored-content-not-packed tc;
+  class TC-304-pack-from-head tc;
+  class TC-304-prepack-stdout-parsed tc;
   class AC-19302-2 ac;
   class TC-259-given-tarball-no-pack tc;
+  class TC-304-given-tarball-no-pack tc;
   class AC-19302-3 ac;
   class TC-259-evidence-log-not-ignored tc;
   class TC-259-install-failure-exits-1 tc;
   class TC-259-pack-failure-log tc;
+  class TC-304-evidence-log-not-ignored tc;
+  class TC-304-install-failure-exits-1 tc;
+  class TC-304-pack-failure-log tc;
   class AC-19302-4 ac;
   class TC-259-offline-and-default-registry tc;
   class TC-259-offline-outside-package-mode-refused tc;
+  class TC-304-offline-and-default-registry tc;
+  class TC-304-offline-outside-package-mode-refused tc;
   class AC-19302-5 ac;
   class TC-259-no-tarball-left tc;
   class TC-259-package-outside-repo-refused tc;
