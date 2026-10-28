@@ -363,7 +363,9 @@ async function packageRelease(t) {
   const f = await release(t, specs, { change: (d) => amend(d, 'US-101', 'AC-101-1'), pkg: packageFixture(observed) });
   return { ...f, observed };
 }
-const NPM_PATH = () => toolPath(['npm']);
+// The child PATH must reach sh as well as npm: npm spawns sh for a package's
+// install scripts, and on macOS npm does not sit beside sh in /bin.
+const NPM_PATH = () => toolPath(['npm', 'sh']);
 function commonDir(a, b) {
   const x = a.split('/');
   const y = b.split('/');

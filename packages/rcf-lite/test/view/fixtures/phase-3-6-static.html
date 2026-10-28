@@ -22986,7 +22986,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19001::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-16T12:47:17.390Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-26T23:43:08.574Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-28T20:39:26.141Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-190 for the Test-stage report writer (FBS-219). The verifier hand runs rcf verify run against the preview or version host and commits the VerifyReport on the PR branch; the report is the evidence the merge gate reads and Finalise later ingests. Committing the report is evidence, not an edit to production code, tests or criteria.&quot;,
   &quot;asA&quot;: &quot;the verifier hand at the Test stage of one build spec&quot;,
   &quot;iWant&quot;: &quot;one command that verifies the spec&#39;s criteria through the real entry point and writes a report naming the head, the target, the hand and every per-AC result&quot;,
@@ -23002,7 +23002,8 @@
       &quot;ownerRef&quot;: {
         &quot;tacId&quot;: &quot;TAC-4148-test-stage-verify-finalise&quot;,
         &quot;field&quot;: &quot;interfaces[rcf verify run (Test stage)]&quot;
-      }
+      },
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19001-2&quot;,
@@ -23015,22 +23016,26 @@
     {
       &quot;id&quot;: &quot;AC-19001-3&quot;,
       &quot;description&quot;: &quot;[failure] Given --hand with a value outside [test-author | builder | reviewer | verifier | stage-keeper], or --fbs absent while --hand is given, when rcf verify run is invoked, then it exits 2 naming the flag and writes no report.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19001-4&quot;,
       &quot;description&quot;: &quot;[happy] Given a version-host target (a packed or published package rather than a web address), when rcf verify run --package &lt;name@version|tarball&gt; --fbs &lt;fbs-id&gt; --hand verifier runs, then the report carries target.kind \&quot;package\&quot; and target.packageRef and target.url is absent, so a CLI product verifies against its version host.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19001-5&quot;,
       &quot;description&quot;: &quot;[happy] Given a committed report under rcf/verify-reports/, when rcf define validate and the tree walker run, then neither treats the directory as chain documents (validate exit 0, no unknown-document error).&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19001-6&quot;,
       &quot;description&quot;: &quot;[must-not] rcf verify run --hand verifier never writes outside rcf/verify-reports/&lt;fbs-id&gt;/: after a run, git status lists no change under src/, test/ or any chain document directory, and an existing report for the same head is never overwritten (a second run exits 4 with \&quot;verify report exists for head &lt;sha7&gt;; pass --replace \\\&quot;&lt;reason&gt;\\\&quot;\&quot;).&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19001-7&quot;,
@@ -23086,7 +23091,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19002::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-16T12:47:20.312Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-24T11:33:51.195Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-28T20:39:58.157Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-190 for the administrative Finalise (FBS-220). rcf build finalise reads the report, checks preconditions and provenance and writes verified; it spawns no verify subprocess and no agent CLI. Every refusal names its reason, exits 4 (or 3 for validation, 2 for usage) and leaves the FBS unchanged.&quot;,
   &quot;asA&quot;: &quot;the stage-keeper, or any hand it names, after the merge&quot;,
   &quot;iWant&quot;: &quot;Finalise to be a deterministic check of recorded evidence that any worker can run&quot;,
@@ -23158,7 +23163,8 @@
     {
       &quot;id&quot;: &quot;AC-19002-8&quot;,
       &quot;description&quot;: &quot;[must-not] rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and on every refusal leaves rcf/fbs/&lt;fbs-id&gt;.json byte-identical to its state before the run.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     }
   ],
   &quot;usId&quot;: &quot;US-19002&quot;,
@@ -23303,7 +23309,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19004::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-16T12:47:32.041Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-24T11:41:48.356Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-28T20:40:12.893Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-190 for the guidance train (FBS-224). The Build hand rewrites build-cycle.md stages 1, 4 and 5, the playbook, the bundle closing runbook, the managed agent-instructions block (minAgentAction set) and the README, and replaces the fifth verb attest with audit.&quot;,
   &quot;asA&quot;: &quot;an agent or operator reading rcf-lite&#39;s method through the CLI&quot;,
   &quot;iWant&quot;: &quot;the stage contract the tool prints to match what the tool enforces&quot;,
@@ -23351,12 +23357,14 @@
     {
       &quot;id&quot;: &quot;AC-19004-5&quot;,
       &quot;description&quot;: &quot;[happy] When the README at the repository root and every guidance topic printed by rcf guidance are searched for the stage chain, then the fifth verb reads audit (define, build, verify, release, audit) and attest appears nowhere as a verb or stage name; the unrelated AC attestation vocabulary and the --litmus-attested flag stay as they are.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;testOnly&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19004-6&quot;,
       &quot;description&quot;: &quot;[failure] Given a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block, when rcf doctor runs with the new release, then it reports the managed block as drifted, names rcf doctor --fix as the refresh command and does not exit 0.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19004-7&quot;,
@@ -23419,7 +23427,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19005::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-22T11:03:09.684Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-24T11:41:48.611Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-28T20:41:12.070Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-190 for the pre-merge Finalise ruling (operator ruling 2026-10-21): rcf build finalise runs on the PR branch at the PR head before the merge and writes verified there, the merge carries it, and a later run on the default branch confirms it without a write. A loopback target is accepted when the report names the engine, the port and a served sha equal to its head; rcf verify run records those fields. Provenance (head containment, hand separation, the age bound) and the committed-report rule hold on any branch. Reverses claim C-26 (AC-16502-3, restated).&quot;,
   &quot;asA&quot;: &quot;the stage-keeper finalising a spec on its PR branch, or a verifier serving the PR head on a local dev server&quot;,
   &quot;iWant&quot;: &quot;Finalise to promote on the PR branch before the merge and to accept a loopback report that names the engine, the port and the sha it served&quot;,
@@ -23466,7 +23474,8 @@
     {
       &quot;id&quot;: &quot;AC-19005-5&quot;,
       &quot;description&quot;: &quot;[happy] Given a clean working tree at a committed HEAD and a server on a loopback --url, when rcf verify run --url &lt;loopback-url&gt; --fbs &lt;fbs-id&gt; --mode deterministic --hand verifier --verifier-id &lt;id&gt; --engine &lt;name&gt; --served-sha &lt;sha&gt; runs with &lt;sha&gt; the full sha of the committed HEAD, then the report it writes under rcf/verify-reports/&lt;fbs-id&gt;/&lt;head12&gt;.json records target { kind \&quot;url\&quot;, url, engine &lt;name&gt;, port &lt;the URL&#39;s port as an integer, or 80 / 443 by scheme when the URL names none&gt;, servedSha &lt;sha&gt; }. A --served-sha that is not the full sha of the committed HEAD exits 4 with stderr \&quot;verify report refused: --served-sha &lt;value&gt; is not the committed HEAD &lt;sha7&gt;\&quot;; a loopback --url with --hand and no --engine exits 2 with stderr \&quot;[error] usage --engine &lt;name&gt; is required with --hand and a loopback --url\&quot;; with --engine and no --served-sha it exits 2 with stderr \&quot;[error] usage --served-sha &lt;sha&gt; is required with --hand and a loopback --url\&quot;. Whenever the target is not a --url (a directory, a tarball, or a name@version: --artefact &lt;tgz&gt;, or --package &lt;dir | tarball | name@version&gt; with no --url), --engine exits 2 with stderr \&quot;[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\&quot; and --served-sha exits 2 with stderr \&quot;[error] usage --served-sha applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\&quot;, with or without --hand, before any pack, install or engine call. Every refusal writes no report and sends no probe request.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19005-6&quot;,
@@ -24018,7 +24027,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19301::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-19T10:59:34.436Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-26T23:43:09.181Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-28T20:40:32.372Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-193 for FBS-225. rcf verify run --artefact &lt;tgz&gt; --fbs &lt;fbs-id&gt; --hand verifier with no --url installs the given tarball in a scratch project outside the repository, copies the bound test files beside the installed package, runs them with node --test and a TAP reporter, maps TAP results to test cases by exact title and test cases to ACs, and writes VerifyReport v1 with method suiteAsProbe, profile packagedArtefact and the artefact identity, with no hand composition.&quot;,
   &quot;asA&quot;: &quot;a verifier hand running the Test stage for a CLI or library product&quot;,
   &quot;iWant&quot;: &quot;rcf verify run to run the AC-bound suites against the packed artefact and write the per-AC verdicts itself&quot;,
@@ -24033,32 +24042,38 @@
     {
       &quot;id&quot;: &quot;AC-19301-1&quot;,
       &quot;description&quot;: &quot;[happy] Given a fixture git repository at head H holding a zero-dependency package fixture-cli 1.0.0 whose bin prints one line, an rcf/ chain whose FBS-001 scopes AC-001-1 and AC-001-2, each bound by a test case whose testPointer names a test in test/cli.test.js, and fixture-cli-1.0.0.tgz packed from H into a directory outside the repository, when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier --verifier-id v1 runs with no --url and both bound tests pass against the installed artefact, then it exits 0, stdout ends \&quot;verify report: rcf/verify-reports/FBS-001/&lt;first 12 of H&gt;.json PASS 2/2\&quot;, and the report carries verdict \&quot;PASS\&quot;, verdictAuthority \&quot;ship\&quot;, mode \&quot;deterministic\&quot;, method \&quot;suiteAsProbe\&quot;, profile \&quot;packagedArtefact\&quot;, target { kind \&quot;package\&quot;, packageRef \&quot;fixture-cli-1.0.0.tgz\&quot;, name \&quot;fixture-cli\&quot;, version \&quot;1.0.0\&quot;, sha256 the sha256 of the tarball bytes, servedSha null (a given tarball names no head; FBS-226 records the head when it packs) } and one perAc row per AC with result \&quot;pass\&quot; and evidence naming the TS id, the test file, each bound test title and its reporter test number.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-2&quot;,
       &quot;description&quot;: &quot;[failure] Given the fixture of AC-19301-1 with the one test bound to AC-001-2 failing against the installed artefact, when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier runs, then it exits 4, stdout ends \&quot;verify report: &lt;path&gt; FAIL 1/2\&quot;, the report carries verdict \&quot;FAIL\&quot; and verdictAuthority \&quot;correctness\&quot;, the AC-001-2 row has result \&quot;fail\&quot; with evidence naming the failing test title, the AC-001-1 row has result \&quot;pass\&quot;, and runStats.counts is { verified 1, failed 1, skipped 0, critiqueOnly 0, total 2 }.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-3&quot;,
       &quot;description&quot;: &quot;[edge] Given the fixture of AC-19301-1 with no test case bound to AC-001-2, when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier runs, then it exits 4, stdout ends \&quot;verify report: &lt;path&gt; BLOCKED 1/2\&quot;, the AC-001-2 row has result \&quot;critiqueOnly\&quot;, runStats.counts.critiqueOnly is 1, verdictAuthority is \&quot;correctness\&quot;, and the bound suite for AC-001-1 still ran (its row is \&quot;pass\&quot;).&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-4&quot;,
       &quot;description&quot;: &quot;[edge] Given the fixture of AC-19301-1 where the test bound to AC-001-1 is marked to-do or skip, and a second test case bound to AC-001-2 names a test title that does not appear in the run, when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier runs, then it exits 4, the AC-001-1 row has result \&quot;skipped\&quot;, the AC-001-2 row has result \&quot;fail\&quot; with evidence listing the missing title under notRun, and the verdict is not \&quot;PASS\&quot;; an AC passes only when every test bound to it ran and passed and at least one is bound.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-5&quot;,
       &quot;description&quot;: &quot;[edge] Given the fixture of AC-19301-1 where AC-001-1 also carries an HTTP probe, when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier runs with no --url, then AC-001-1 resolves through its bound test (result \&quot;pass\&quot;) and its evidence records probeNotRun \&quot;package target has no served URL\&quot;; the report carries one suites[] row per test suite run { testSuite, file, tests, pass, fail, skipped, todos, outputPath }, the files rcf/verify-reports/FBS-001/&lt;first 12 of H&gt;/&lt;TS id&gt;.tap and rcf/verify-reports/FBS-001/&lt;first 12 of H&gt;/install.log exist, install records { command, exitCode 0, logPath }, and rcf define validate still exits 0.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-6&quot;,
       &quot;description&quot;: &quot;[failure] Given the fixture of AC-19301-1, when rcf verify run --artefact &lt;tgz&gt; is given together with --url, or with --mode agentScreenshotCritique, or with --profile set to anything other than packagedArtefact, or with an --artefact path that does not exist or is not a gzip tarball, then it exits 2 with a stderr line naming the flag and writes nothing under rcf/verify-reports/.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-7&quot;,
@@ -24071,7 +24086,8 @@
     {
       &quot;id&quot;: &quot;AC-19301-8&quot;,
       &quot;description&quot;: &quot;[must-not] rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier never writes outside rcf/verify-reports/FBS-001/ in the project: after a run, a hash of every tracked and untracked file outside that directory is byte-identical to the hash before it and git status lists nothing else; the scratch install project lives under the OS temporary directory; and with a claude executable on PATH that records each invocation to a marker file, the marker file is absent after the run (no agent CLI is spawned).&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19301-9&quot;,
@@ -24121,7 +24137,7 @@
   </section>
   <details class="raw-json" data-doc-id="US-19302::raw"><summary>Show raw JSON</summary><pre>{
   &quot;createdAt&quot;: &quot;2026-10-19T11:01:56.254Z&quot;,
-  &quot;updatedAt&quot;: &quot;2026-10-27T10:18:51.534Z&quot;,
+  &quot;updatedAt&quot;: &quot;2026-10-28T20:40:53.940Z&quot;,
   &quot;description&quot;: &quot;User story under REQ-193 for FBS-226. rcf verify run --package &lt;dir&gt; --fbs &lt;fbs-id&gt; --hand verifier with no --url and no --artefact packs the package in &lt;dir&gt; from HEAD into the scratch directory with npm pack, records the head it was packed from, and runs the FBS-225 path over that tarball; the install runs from the registry by default or from the local npm cache with --offline, and the install command, exit code and log are evidence on the report.&quot;,
   &quot;asA&quot;: &quot;a verifier hand running the Test stage for a CLI or library product&quot;,
   &quot;iWant&quot;: &quot;rcf verify run to pack the artefact from the head under test and install it under a declared store policy&quot;,
@@ -24136,22 +24152,26 @@
     {
       &quot;id&quot;: &quot;AC-19302-1&quot;,
       &quot;description&quot;: &quot;[happy] Given the fixture of AC-19301-1 at head H with a clean working tree, when rcf verify run --package . --fbs FBS-001 --hand verifier runs with no --url and no --artefact, then it packs the package from H with npm pack into the scratch directory, exits 0, stdout ends \&quot;verify report: rcf/verify-reports/FBS-001/&lt;first 12 of H&gt;.json PASS 2/2\&quot;, and the report carries target { kind \&quot;package\&quot;, packageRef \&quot;fixture-cli-1.0.0.tgz\&quot;, name \&quot;fixture-cli\&quot;, version \&quot;1.0.0\&quot;, sha256 equal to the sha256 of a separate npm pack of H, servedSha H }, pack { command, exitCode 0 }, profile \&quot;packagedArtefact\&quot; and method \&quot;suiteAsProbe\&quot;.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19302-2&quot;,
       &quot;description&quot;: &quot;[edge] Given a tarball fixture-cli-0.9.0.tgz packed from an earlier commit, when rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier runs at head H, then the report carries target.version \&quot;0.9.0\&quot;, target.sha256 the sha256 of that tarball&#39;s bytes, target.servedSha null and no pack object, and no npm pack runs (an npm wrapper on PATH that logs its subcommand records install and never pack).&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19302-3&quot;,
       &quot;description&quot;: &quot;[failure] Given an artefact whose install fails (a tarball declaring a dependency that resolves nowhere, run with --offline), when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier --offline runs, then it exits 1, stderr carries \&quot;verify run: install failed (npm exit &lt;n&gt;); log rcf/verify-reports/FBS-001/&lt;first 12 of H&gt;/install.log\&quot;, that log file exists, and no report JSON is written for the head.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19302-4&quot;,
       &quot;description&quot;: &quot;[edge] Given the fixture of AC-19301-1, when rcf verify run --artefact &lt;tgz&gt; --fbs FBS-001 --hand verifier runs with --offline and then without it, then the report&#39;s install.command carries \&quot;--offline\&quot; on the first run and not on the second, install.registry records \&quot;offline\&quot; and \&quot;default\&quot; respectively, and both runs exit 0 for the zero-dependency fixture; rcf build finalise never installs or reaches the network for either report.&quot;,
-      &quot;testable&quot;: true
+      &quot;testable&quot;: true,
+      &quot;verification&quot;: &quot;external&quot;
     },
     {
       &quot;id&quot;: &quot;AC-19302-5&quot;,

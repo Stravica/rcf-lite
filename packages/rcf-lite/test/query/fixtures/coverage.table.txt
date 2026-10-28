@@ -742,12 +742,12 @@ REQ-189      yes      AC-18901-1   yes                    unflagged  unknown   n
                       AC-18906-4   yes                    unflagged  unknown   notStarted  TC-248-18906-4-failure
                       AC-18906-5   yes                    unflagged  unknown   notStarted  TC-248-18906-5-edge
                       AC-18906-6   yes                    unflagged  unknown   notStarted  TC-248-18906-6-mustnot
-REQ-190      yes      AC-19001-1   yes                    unflagged  unknown   verified    TC-252-report-written
+REQ-190      yes      AC-19001-1   yes                    external   verified  verified    TC-252-report-written, TC-300-report-written
                       AC-19001-2   retired (AC-19702-10)  unflagged  -         retired     TC-252-dirty-tree-refused
-                      AC-19001-3   yes                    unflagged  unknown   verified    TC-252-bad-hand-flags
-                      AC-19001-4   yes                    unflagged  unknown   verified    TC-252-package-target
-                      AC-19001-5   yes                    unflagged  unknown   verified    TC-252-reports-not-chain
-                      AC-19001-6   yes                    unflagged  unknown   verified    TC-252-hand-refuses-out, TC-252-writes-only-reports
+                      AC-19001-3   yes                    external   verified  verified    TC-252-bad-hand-flags, TC-300-bad-hand-flags
+                      AC-19001-4   yes                    external   verified  verified    TC-252-package-target, TC-300-package-target
+                      AC-19001-5   yes                    external   verified  verified    TC-252-reports-not-chain, TC-300-reports-not-chain
+                      AC-19001-6   yes                    external   verified  verified    TC-252-hand-refuses-out, TC-252-writes-only-reports, TC-3...
                       AC-19001-7   yes                    unflagged  unknown   verified    TC-263-out-directory-refused, TC-263-out-help-says-file-path
                       AC-19002-1   retired (AC-20001-1)   unflagged  -         retired     TC-253-e2e-verify-then-finalise, TC-253-promotes-verified
                       AC-19002-2   retired (AC-20001-2)   unflagged  -         retired     TC-253-no-report
@@ -756,7 +756,7 @@ REQ-190      yes      AC-19001-1   yes                    unflagged  unknown   v
                       AC-19002-5   retired (AC-20002-3)   unflagged  -         retired     TC-253-preconditions
                       AC-19002-6   retired (AC-20001-3)   unflagged  -         retired     TC-253-blocking-per-ac-verdicts, TC-253-e2e-per-ac-refusal
                       AC-19002-7   retired (AC-20003-1)   unflagged  -         retired     TC-253-retired-flags
-                      AC-19002-8   yes                    unflagged  unknown   verified    TC-253-no-spawn-no-mutation
+                      AC-19002-8   yes                    external   verified  verified    TC-253-no-spawn-no-mutation, TC-301-no-spawn-no-mutation
                       AC-19003-1   retired (AC-20201-4)   unflagged  -         retired     TC-254-e2e-finalise-clears-backstop, TC-254-refuses-unver...
                       AC-19003-2   retired (AC-20203-3)   unflagged  -         retired     TC-254-override-recorded
                       AC-19003-3   retired (AC-20203-1)   unflagged  -         retired     TC-254-inert-without-backstop
@@ -766,14 +766,14 @@ REQ-190      yes      AC-19001-1   yes                    unflagged  unknown   v
                       AC-19004-2   retired (AC-20401-1)   unflagged  -         retired     TC-257-define-and-build-hands
                       AC-19004-3   retired (AC-20401-4)   unflagged  -         retired     TC-257-bundle-runbook
                       AC-19004-4   retired (AC-20401-3)   unflagged  -         retired     TC-257-managed-block
-                      AC-19004-5   yes                    unflagged  unknown   verified    TC-257-audit-fifth-verb
-                      AC-19004-6   yes                    unflagged  unknown   verified    TC-257-doctor-drift
+                      AC-19004-5   yes                    testOnly   complete  complete    TC-257-audit-fifth-verb
+                      AC-19004-6   yes                    external   verified  verified    TC-257-doctor-drift, TC-302-doctor-drift
                       AC-19004-7   retired (AC-20401-5)   unflagged  -         retired     TC-257-no-post-merge-verify
                       AC-19005-1   retired (AC-20001-1)   unflagged  -         retired     TC-261-e2e-loopback-verify-then-finalise-on-branch, TC-26...
                       AC-19005-2   retired (AC-20003-2)   unflagged  -         retired     TC-261-loopback-accepted
                       AC-19005-3   retired (AC-20003-2)   unflagged  -         retired     TC-261-loopback-missing-field
                       AC-19005-4   retired (AC-20003-2)   unflagged  -         retired     TC-261-served-sha-mismatch
-                      AC-19005-5   yes                    unflagged  unknown   verified    TC-261-verify-run-loopback-flags-url-only, TC-261-verify-...
+                      AC-19005-5   yes                    external   verified  verified    TC-261-verify-run-loopback-flags-url-only, TC-261-verify-...
                       AC-19005-6   retired (AC-20003-2)   unflagged  -         retired     TC-261-report-committed-at-head
                       AC-19005-7   retired (AC-20002-4)   unflagged  -         retired     TC-261-provenance-kept-pre-merge
                       AC-19005-8   retired (AC-20001-5)   unflagged  -         retired     TC-261-e2e-merge-confirm, TC-261-merged-main-confirm
@@ -799,19 +799,19 @@ REQ-192      yes      AC-19201-1   yes                    unflagged  unknown   v
                       AC-19201-6   yes                    unflagged  unknown   verified    TC-251-probe-schema
                       AC-19201-7   yes                    unflagged  unknown   verified    TC-251-no-probe-no-pass
                       AC-19201-8   yes                    unflagged  unknown   verified    TC-251-ac-level-empty-assertion-refused, TC-251-ac-level-...
-REQ-193      yes      AC-19301-1   yes                    unflagged  unknown   verified    TC-258-pass-all
-                      AC-19301-2   yes                    unflagged  unknown   verified    TC-258-fail-one
-                      AC-19301-3   yes                    unflagged  unknown   verified    TC-258-unbound-critique-only
-                      AC-19301-4   yes                    unflagged  unknown   verified    TC-258-to-do-skip-and-not-run
-                      AC-19301-5   yes                    unflagged  unknown   verified    TC-258-probe-not-run-and-evidence
-                      AC-19301-6   yes                    unflagged  unknown   verified    TC-258-flag-refusals
+REQ-193      yes      AC-19301-1   yes                    external   verified  verified    TC-258-pass-all, TC-303-pass-all
+                      AC-19301-2   yes                    external   verified  verified    TC-258-fail-one, TC-303-fail-one
+                      AC-19301-3   yes                    external   verified  verified    TC-258-unbound-critique-only, TC-303-unbound-critique-only
+                      AC-19301-4   yes                    external   verified  verified    TC-258-to-do-skip-and-not-run, TC-303-to-do-skip-and-not-run
+                      AC-19301-5   yes                    external   verified  verified    TC-258-probe-not-run-and-evidence, TC-303-probe-not-run-a...
+                      AC-19301-6   yes                    external   verified  verified    TC-258-flag-refusals, TC-303-flag-refusals
                       AC-19301-7   retired (AC-19702-10)  unflagged  -         retired     TC-258-fbs-219-rules-kept
-                      AC-19301-8   yes                    unflagged  unknown   verified    TC-258-writes-only-report-dir
+                      AC-19301-8   yes                    external   verified  verified    TC-258-writes-only-report-dir, TC-303-writes-only-report-dir
                       AC-19301-9   retired (AC-20001-1)   unflagged  -         retired     TC-258-finalise-end-to-end
-                      AC-19302-1   yes                    unflagged  unknown   verified    TC-259-ignored-content-not-packed, TC-259-pack-from-head,...
-                      AC-19302-2   yes                    unflagged  unknown   verified    TC-259-given-tarball-no-pack
-                      AC-19302-3   yes                    unflagged  unknown   verified    TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
-                      AC-19302-4   yes                    unflagged  unknown   verified    TC-259-offline-and-default-registry, TC-259-offline-outsi...
+                      AC-19302-1   yes                    external   verified  verified    TC-259-ignored-content-not-packed, TC-259-pack-from-head,...
+                      AC-19302-2   yes                    external   verified  verified    TC-259-given-tarball-no-pack, TC-304-given-tarball-no-pack
+                      AC-19302-3   yes                    external   verified  verified    TC-259-evidence-log-not-ignored, TC-259-install-failure-e...
+                      AC-19302-4   yes                    external   verified  verified    TC-259-offline-and-default-registry, TC-259-offline-outsi...
                       AC-19302-5   retired (AC-19702-10)  unflagged  -         retired     TC-259-no-tarball-left, TC-259-package-outside-repo-refus...
 REQ-194      yes      AC-19401-1   retired (AC-19501-5)   unflagged  -         retired     TC-260-validate-own-chain-0-9-0
                       AC-19401-2   retired (AC-19502-3)   unflagged  -         retired     TC-260-update-probe-path-only-refused
@@ -1137,18 +1137,18 @@ FBS-215  unknown   notStarted
 FBS-216  unknown   notStarted
 FBS-217  complete  complete
 FBS-218  unknown   verified
-FBS-219  unknown   verified
-FBS-220  unknown   verified
+FBS-219  verified  verified
+FBS-220  verified  verified
 FBS-221  complete  verified
 FBS-222  unknown   verified
 FBS-223  unknown   verified
-FBS-224  unknown   verified
-FBS-225  unknown   verified
-FBS-226  unknown   verified
+FBS-224  verified  verified
+FBS-225  verified  verified
+FBS-226  verified  verified
 FBS-227  complete  verified
 FBS-228  unknown   verified
 FBS-229  unknown   notStarted
-FBS-230  unknown   verified
+FBS-230  verified  verified
 FBS-231  unknown   verified
 FBS-232  verified  verified
 FBS-233  verified  verified

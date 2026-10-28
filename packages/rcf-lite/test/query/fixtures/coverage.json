@@ -9208,11 +9208,12 @@
           "id": "AC-19001-1",
           "covered": true,
           "testCases": [
-            "TC-252-report-written"
+            "TC-252-report-written",
+            "TC-300-report-written"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -9232,33 +9233,36 @@
           "id": "AC-19001-3",
           "covered": true,
           "testCases": [
-            "TC-252-bad-hand-flags"
+            "TC-252-bad-hand-flags",
+            "TC-300-bad-hand-flags"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19001-4",
           "covered": true,
           "testCases": [
-            "TC-252-package-target"
+            "TC-252-package-target",
+            "TC-300-package-target"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19001-5",
           "covered": true,
           "testCases": [
-            "TC-252-reports-not-chain"
+            "TC-252-reports-not-chain",
+            "TC-300-reports-not-chain"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -9266,11 +9270,13 @@
           "covered": true,
           "testCases": [
             "TC-252-hand-refuses-out",
-            "TC-252-writes-only-reports"
+            "TC-252-writes-only-reports",
+            "TC-300-hand-refuses-out",
+            "TC-300-writes-only-reports"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -9383,11 +9389,12 @@
           "id": "AC-19002-8",
           "covered": true,
           "testCases": [
-            "TC-253-no-spawn-no-mutation"
+            "TC-253-no-spawn-no-mutation",
+            "TC-301-no-spawn-no-mutation"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -9515,19 +9522,20 @@
             "TC-257-audit-fifth-verb"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
-          "now": "verified"
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
         },
         {
           "id": "AC-19004-6",
           "covered": true,
           "testCases": [
-            "TC-257-doctor-drift"
+            "TC-257-doctor-drift",
+            "TC-302-doctor-drift"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -9603,11 +9611,15 @@
             "TC-261-verify-run-loopback-flags-url-only",
             "TC-261-verify-run-loopback-usage",
             "TC-261-verify-run-records-loopback-fields",
-            "TC-261-verify-run-served-sha-refused"
+            "TC-261-verify-run-served-sha-refused",
+            "TC-305-verify-run-loopback-flags-url-only",
+            "TC-305-verify-run-loopback-usage",
+            "TC-305-verify-run-records-loopback-fields",
+            "TC-305-verify-run-served-sha-refused"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -9952,66 +9964,72 @@
           "id": "AC-19301-1",
           "covered": true,
           "testCases": [
-            "TC-258-pass-all"
+            "TC-258-pass-all",
+            "TC-303-pass-all"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19301-2",
           "covered": true,
           "testCases": [
-            "TC-258-fail-one"
+            "TC-258-fail-one",
+            "TC-303-fail-one"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19301-3",
           "covered": true,
           "testCases": [
-            "TC-258-unbound-critique-only"
+            "TC-258-unbound-critique-only",
+            "TC-303-unbound-critique-only"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19301-4",
           "covered": true,
           "testCases": [
-            "TC-258-to-do-skip-and-not-run"
+            "TC-258-to-do-skip-and-not-run",
+            "TC-303-to-do-skip-and-not-run"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19301-5",
           "covered": true,
           "testCases": [
-            "TC-258-probe-not-run-and-evidence"
+            "TC-258-probe-not-run-and-evidence",
+            "TC-303-probe-not-run-and-evidence"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19301-6",
           "covered": true,
           "testCases": [
-            "TC-258-flag-refusals"
+            "TC-258-flag-refusals",
+            "TC-303-flag-refusals"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -10031,11 +10049,12 @@
           "id": "AC-19301-8",
           "covered": true,
           "testCases": [
-            "TC-258-writes-only-report-dir"
+            "TC-258-writes-only-report-dir",
+            "TC-303-writes-only-report-dir"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -10057,22 +10076,26 @@
           "testCases": [
             "TC-259-ignored-content-not-packed",
             "TC-259-pack-from-head",
-            "TC-259-prepack-stdout-parsed"
+            "TC-259-prepack-stdout-parsed",
+            "TC-304-ignored-content-not-packed",
+            "TC-304-pack-from-head",
+            "TC-304-prepack-stdout-parsed"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
           "id": "AC-19302-2",
           "covered": true,
           "testCases": [
-            "TC-259-given-tarball-no-pack"
+            "TC-259-given-tarball-no-pack",
+            "TC-304-given-tarball-no-pack"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -10081,11 +10104,14 @@
           "testCases": [
             "TC-259-evidence-log-not-ignored",
             "TC-259-install-failure-exits-1",
-            "TC-259-pack-failure-log"
+            "TC-259-pack-failure-log",
+            "TC-304-evidence-log-not-ignored",
+            "TC-304-install-failure-exits-1",
+            "TC-304-pack-failure-log"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -10093,11 +10119,13 @@
           "covered": true,
           "testCases": [
             "TC-259-offline-and-default-registry",
-            "TC-259-offline-outside-package-mode-refused"
+            "TC-259-offline-outside-package-mode-refused",
+            "TC-304-offline-and-default-registry",
+            "TC-304-offline-outside-package-mode-refused"
           ],
           "unresolvedTestCases": [],
-          "verification": "unflagged",
-          "expectedEnd": "unknown",
+          "verification": "external",
+          "expectedEnd": "verified",
           "now": "verified"
         },
         {
@@ -13083,12 +13111,12 @@
     },
     {
       "fbsId": "FBS-219",
-      "expectedEnd": "unknown",
+      "expectedEnd": "verified",
       "now": "verified"
     },
     {
       "fbsId": "FBS-220",
-      "expectedEnd": "unknown",
+      "expectedEnd": "verified",
       "now": "verified"
     },
     {
@@ -13108,17 +13136,17 @@
     },
     {
       "fbsId": "FBS-224",
-      "expectedEnd": "unknown",
+      "expectedEnd": "verified",
       "now": "verified"
     },
     {
       "fbsId": "FBS-225",
-      "expectedEnd": "unknown",
+      "expectedEnd": "verified",
       "now": "verified"
     },
     {
       "fbsId": "FBS-226",
-      "expectedEnd": "unknown",
+      "expectedEnd": "verified",
       "now": "verified"
     },
     {
@@ -13138,7 +13166,7 @@
     },
     {
       "fbsId": "FBS-230",
-      "expectedEnd": "unknown",
+      "expectedEnd": "verified",
       "now": "verified"
     },
     {

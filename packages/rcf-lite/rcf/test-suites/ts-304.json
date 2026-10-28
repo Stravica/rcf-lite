@@ -1,0 +1,81 @@
+{
+  "createdAt": "2026-10-28T20:40:50.225Z",
+  "updatedAt": "2026-10-28T20:40:52.802Z",
+  "purpose": "FBS-226: the external criteria of US-19302, driving bin/rcf.js against fixture projects (e2e); each case is the existing TS-259 integration case, bound again at e2e level for the release Verify",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19302-1",
+    "AC-19302-2",
+    "AC-19302-3",
+    "AC-19302-4"
+  ],
+  "id": "TS-304",
+  "usId": "US-19302",
+  "title": "US-19302 external criteria (FBS-226)",
+  "testCases": [
+    {
+      "id": "TC-304-pack-from-head",
+      "acId": "AC-19302-1",
+      "description": "rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H packs with npm pack into the scratch directory, exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; target sha256 equals a separate npm pack of H, servedSha H, pack { command, exitCode 0 }",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-1: rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H packs with npm pack into the scratch directory, exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; target sha256 equals a separate npm pack of H, servedSha H, pack { command, exitCode 0 }"
+    },
+    {
+      "id": "TC-304-given-tarball-no-pack",
+      "acId": "AC-19302-2",
+      "description": "rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier at head H records target.version 0.9.0, the tarball sha256, servedSha null and no pack object, and an npm wrapper on PATH logs install and never pack",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-2: rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier at head H records target.version 0.9.0, the tarball sha256, servedSha null and no pack object, and an npm wrapper on PATH logs install and never pack"
+    },
+    {
+      "id": "TC-304-install-failure-exits-1",
+      "acId": "AC-19302-3",
+      "description": "rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline with an unresolvable dependency exits 1 with stderr \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/install.log\", the log exists and no report JSON is written",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-3: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline with an unresolvable dependency exits 1 with stderr \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/install.log\", the log exists and no report JSON is written"
+    },
+    {
+      "id": "TC-304-offline-and-default-registry",
+      "acId": "AC-19302-4",
+      "description": "rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with --offline then without exits 0 both times; install.command carries --offline only on the first, install.registry offline then default; rcf build finalise never installs or reaches the network",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with --offline then without exits 0 both times; install.command carries --offline only on the first, install.registry offline then default; rcf build finalise never installs or reaches the network"
+    },
+    {
+      "id": "TC-304-prepack-stdout-parsed",
+      "acId": "AC-19302-1",
+      "description": "rcf verify run --package . on a package whose prepack prints a line to stdout before npm pack's JSON exits 0 with \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned (0); FBS-226 fix round TD-1",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack prints to stdout before the npm JSON exits 0 with \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned"
+    },
+    {
+      "id": "TC-304-pack-failure-log",
+      "acId": "AC-19302-3",
+      "description": "rcf verify run --package . whose npm pack fails (a prepack exiting non-zero) exits 1 with stderr \"verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log\", <n> the exit npm returned; the log exists and holds npm's output; no report JSON is written; git status lists nothing outside rcf/verify-reports/FBS-001/ and no *.tgz is in the project; FBS-226 fix round BH-2",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifier whose npm pack fails exits 1 with stderr \"verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log\", the log holds the npm output, no report JSON is written and nothing outside rcf/verify-reports/FBS-001/ changes"
+    },
+    {
+      "id": "TC-304-evidence-log-not-ignored",
+      "acId": "AC-19302-3",
+      "description": "In a project whose .gitignore carries *.log, the log at the report's install.logPath, the log a failed install names and the log a failed pack names are not ignored: git check-ignore does not match them, git status lists them, and no new path appears outside rcf/verify-reports/FBS-001/; FBS-226 fix round TD-2",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the log at the report install.logPath, the log of a failed install and the log of a failed pack are not ignored: git check-ignore does not match them and git status lists them, with no new path outside rcf/verify-reports/FBS-001/"
+    },
+    {
+      "id": "TC-304-ignored-content-not-packed",
+      "acId": "AC-19302-1",
+      "description": "rcf verify run --package . at clean head H whose live directory carries content git ignores but npm packs exits 0, PASS 2/2, servedSha H and target.sha256 equal to a separate pack of a fresh clone of H (the ignored content never reaches the packed bytes), with the project unchanged; FBS-226 fix round BH-1 (b)",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-1 (BH-1 b): rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H with content git ignores but npm packs records servedSha H only on the bytes of a separate pack of H: exit 0, PASS 2/2, target.sha256 equals that pack, and the project is unchanged"
+    },
+    {
+      "id": "TC-304-offline-outside-package-mode-refused",
+      "acId": "AC-19302-4",
+      "description": "rcf verify run --offline outside package target mode (a --url target with --hand verifier or with --out, a --package <dir> with --url, a --package name@version or a tarball name that is not a directory, or no target) exits 2 with the one stderr line \"[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)\" before any other check, nothing on stdout, and writes no report, no evidence directory and no --out file, calls no npm and spawns no agent CLI; --offline with --artefact or a --package <dir> package target is unchanged (TC-259-offline-and-default-registry); FBS-226 fix round 2 BH-3",
+      "status": "pending",
+      "testPointer": "test/verify/suite-as-probe-pack.test.js::AC-19302-4 (BH-3): rcf verify run --offline outside package target mode (a --url target, a --package <dir> with --url, a --package name@version or tarball name, or no target) exits 2 with the one stderr line \"[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)\" before any other check, and writes no report, no evidence directory and no --out file, calls no npm and spawns no agent CLI"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:20.312Z",
-  "updatedAt": "2026-10-24T11:33:51.195Z",
+  "updatedAt": "2026-10-28T20:39:58.157Z",
   "description": "User story under REQ-190 for the administrative Finalise (FBS-220). rcf build finalise reads the report, checks preconditions and provenance and writes verified; it spawns no verify subprocess and no agent CLI. Every refusal names its reason, exits 4 (or 3 for validation, 2 for usage) and leaves the FBS unchanged.",
   "asA": "the stage-keeper, or any hand it names, after the merge",
   "iWant": "Finalise to be a deterministic check of recorded evidence that any worker can run",
@@ -72,7 +72,8 @@
     {
       "id": "AC-19002-8",
       "description": "[must-not] rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and on every refusal leaves rcf/fbs/<fbs-id>.json byte-identical to its state before the run.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     }
   ],
   "usId": "US-19002",

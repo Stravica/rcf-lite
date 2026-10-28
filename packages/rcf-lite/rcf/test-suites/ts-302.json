@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-28T20:40:12.062Z",
+  "updatedAt": "2026-10-28T20:40:12.335Z",
+  "purpose": "FBS-224: the external criteria of US-19004, driving bin/rcf.js against fixture projects (e2e); each case is the existing TS-257 integration case, bound again at e2e level for the release Verify",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19004-6"
+  ],
+  "id": "TS-302",
+  "usId": "US-19004",
+  "title": "US-19004 external criteria (FBS-224)",
+  "testCases": [
+    {
+      "id": "TC-302-doctor-drift",
+      "acId": "AC-19004-6",
+      "description": "rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero",
+      "status": "pending",
+      "testPointer": "test/guidance/stage-contract.test.js::AC-19004-6: rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero"
+    }
+  ],
+  "status": "draft"
+}

@@ -1,0 +1,22 @@
+{
+  "createdAt": "2026-10-28T20:39:57.601Z",
+  "updatedAt": "2026-10-28T20:39:57.881Z",
+  "purpose": "FBS-220: the external criteria of US-19002, driving bin/rcf.js against fixture projects (e2e); each case is the existing TS-253 integration case, bound again at e2e level for the release Verify",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19002-8"
+  ],
+  "id": "TS-301",
+  "usId": "US-19002",
+  "title": "US-19002 external criteria (FBS-220)",
+  "testCases": [
+    {
+      "id": "TC-301-no-spawn-no-mutation",
+      "acId": "AC-19002-8",
+      "description": "rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+    }
+  ],
+  "status": "draft"
+}
