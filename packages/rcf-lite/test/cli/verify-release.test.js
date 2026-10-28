@@ -408,9 +408,11 @@ test('AC-20102-2: --offline in release mode exits 2 "[error] usage --offline can
     assert.equal(r.code, 2, `${args.join(' ')}\n${r.stdout}${r.stderr}`);
     errHas(r, '[error] usage give exactly one target: --url, --artefact or --package');
   }
-  // An artefact whose dependency resolves nowhere: a file: dependency on a missing directory.
-  const src = join(scratch(t, 'rcf-h-badpkg-'), 'pkg');
-  writeJson(src, 'package.json', { name: 'fixture-broken', version: '1.1.0', dependencies: { 'fixture-missing': 'file:../does-not-exist' } });
+  // An artefact whose dependency resolves nowhere: a file: dependency on a tarball that does not exist, by absolute
+  // path in this test's scratch, so npm must open it to read its manifest and fails ENOENT on every version, offline or not.
+  const badRoot = scratch(t, 'rcf-h-badpkg-');
+  const src = join(badRoot, 'pkg');
+  writeJson(src, 'package.json', { name: 'fixture-broken', version: '1.1.0', dependencies: { 'fixture-missing': `file:${join(badRoot, 'does-not-exist.tgz')}` } });
   const packed = run('npm', ['pack', '--pack-destination', tgzDir], { cwd: src, env });
   assert.equal(packed.code, 0, `npm pack\n${packed.stderr}`);
   const tgz = join(tgzDir, packed.stdout.trim().split('\n').pop());
