@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:47.066Z",
-  "updatedAt": "2026-10-28T16:26:57.871Z",
+  "updatedAt": "2026-10-28T22:10:00.514Z",
   "summary": "Rewrite build-cycle, the playbook, the overview, the managed agent-instructions block (build loop, RULE 7, RULE 13, RULE 16) and the bundle's closing runbook to the 0.37.0 model with dispatches named by stage; fix docs/verify-reference.md and the READMEs; regenerate the block's hash and fragment; the 0.37.0 feed entry carries minAgentAction rerun-init.",
   "approach": "Text changes in guidance/ and docs/, src/build/bundle.js completionContract and its formatters, scripts/gen-managed-artefacts.mjs run as the declared generator for the hash and fragment, and the release feed entry at the release cut (FINALISE). Last in the order because it describes every earlier slice.",
   "deliverables": [
@@ -44,6 +44,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 243,
-  "executionStatus": "complete",
+  "executionStatus": "verified",
   "title": "Guidance, the managed block, the bundle runbook and docs on the 0.37.0 model; release feed minAgentAction rerun-init"
 }
