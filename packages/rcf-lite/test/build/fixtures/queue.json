@@ -10,8 +10,8 @@
     "items": 131,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 38,
-    "verified": 33,
+    "complete": 34,
+    "verified": 37,
     "actionable": 42,
     "blocked": 16
   },
@@ -1694,14 +1694,14 @@
       "buildOrder": 239,
       "tier": 14,
       "title": "Light Finalise: complete from the last round's recorded REVIEW, TEST and test-strength verdicts; no verify report; mark refuses complete",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-228",
         "FBS-234",
         "FBS-235",
         "FBS-236"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1709,12 +1709,12 @@
       "buildOrder": 240,
       "tier": 15,
       "title": "Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-235",
         "FBS-237"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1722,13 +1722,13 @@
       "buildOrder": 241,
       "tier": 15,
       "title": "Suite-green backstop (rcf build base-suite, --base-suite on every bundle) and amend rounds bundled by touched criterion",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-228",
         "FBS-234",
         "FBS-237"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1736,7 +1736,7 @@
       "buildOrder": 243,
       "tier": 16,
       "title": "Guidance, the managed block, the bundle runbook and docs on the 0.37.0 model; release feed minAgentAction rerun-init",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-228",
         "FBS-233",
@@ -1747,7 +1747,7 @@
         "FBS-238",
         "FBS-239"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
