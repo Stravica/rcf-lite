@@ -8,12 +8,12 @@
   },
   "totals": {
     "items": 131,
-    "notStarted": 62,
+    "notStarted": 58,
     "inProgress": 2,
-    "complete": 34,
+    "complete": 38,
     "verified": 33,
     "actionable": 42,
-    "blocked": 20
+    "blocked": 16
   },
   "nextActionable": "FBS-013",
   "tiers": [
@@ -1694,14 +1694,14 @@
       "buildOrder": 239,
       "tier": 14,
       "title": "Light Finalise: complete from the last round's recorded REVIEW, TEST and test-strength verdicts; no verify report; mark refuses complete",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-228",
         "FBS-234",
         "FBS-235",
         "FBS-236"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
@@ -1709,38 +1709,34 @@
       "buildOrder": 240,
       "tier": 15,
       "title": "Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-235",
         "FBS-237"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-237"
-      ]
+      "state": "complete",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-239",
       "buildOrder": 241,
       "tier": 15,
       "title": "Suite-green backstop (rcf build base-suite, --base-suite on every bundle) and amend rounds bundled by touched criterion",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-228",
         "FBS-234",
         "FBS-237"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-237"
-      ]
+      "state": "complete",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-241",
       "buildOrder": 243,
       "tier": 16,
       "title": "Guidance, the managed block, the bundle runbook and docs on the 0.37.0 model; release feed minAgentAction rerun-init",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-228",
         "FBS-233",
@@ -1751,12 +1747,8 @@
         "FBS-238",
         "FBS-239"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-237",
-        "FBS-238",
-        "FBS-239"
-      ]
+      "state": "complete",
+      "blockedBy": []
     },
     {
       "fbsId": "FBS-240",
@@ -1767,10 +1759,8 @@
       "dependsOnFbsIds": [
         "FBS-239"
       ],
-      "state": "blocked",
-      "blockedBy": [
-        "FBS-239"
-      ]
+      "state": "actionable",
+      "blockedBy": []
     }
   ],
   "journeyApplicable": false,
