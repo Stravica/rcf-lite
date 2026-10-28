@@ -11600,6 +11600,18 @@
           "now": "verified"
         },
         {
+          "id": "AC-19902-9",
+          "covered": true,
+          "testCases": [
+            "TC-283-a-bound-test-red-unmutated-for-want-of",
+            "TC-283-a-declared-runner-that-fails-on-every"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
           "id": "AC-19903-1",
           "covered": true,
           "testCases": [
