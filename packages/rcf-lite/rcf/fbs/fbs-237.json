@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:33:49.398Z",
-  "updatedAt": "2026-10-27T23:10:34.895Z",
+  "updatedAt": "2026-10-28T16:26:50.422Z",
   "summary": "rcf build finalise reads the last round from rcf/verdicts/, checks the list in TAC TAC-4156 in a fixed order and writes complete; never reads rcf/verify-reports/, never writes verified, spawns only git; the retired report flags exit 2; rcf build mark refuses complete.",
   "approach": "Replace src/finalise/ingest.js report ingestion with a verdict reader over git (newest ReviewVerdict naming the spec, TestVerdict and TestStrengthReport at H), reuse the separation judgement in-process over merge-base..HEAD, compute changed criteria between the merge-base and H from git show of rcf/user-stories/ and rcf/test-suites/, and keep the Code Node check slice-scoped. Help, the barrel header and src/cli/finalise.js follow.",
   "deliverables": [
@@ -51,6 +51,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 239,
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "title": "Light Finalise: complete from the last round's recorded REVIEW, TEST and test-strength verdicts; no verify report; mark refuses complete"
 }
