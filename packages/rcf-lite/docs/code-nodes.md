@@ -88,13 +88,11 @@ Symbol-level dependency auto-derivation is out of reach for `dependency-cruiser`
 
 ## 7. The mark-complete gate
 
-`rcf build mark <fbs-id> complete` refuses (**exit 3**, structured `missingCodeNodes` error) when any acceptance criterion delivered by the build spec carries no Code Node:
+Since 0.37.0 `rcf build mark <fbs-id> complete` is refused (exit 4) and the Code Node check runs in the light Finalise: `rcf build finalise` refuses (**exit 3**) when any touched acceptance criterion of the build spec carries no Code Node:
 
 ```sh
-rcf build mark FBS-004 complete
-# [error] missingCodeNodes build --mark complete: refused - FBS-004 has AC(s)
-# with no Code Node: AC-401-2, AC-401-3. Author CN coverage for these ACs, or
-# pass --no-code-nodes for a genuinely no-code (docs-only, config-only) spec.
+rcf build finalise FBS-004 --ci-run <ref>
+# finalise refused: missing Code Node for AC-401-2, AC-401-3
 ```
 
 This is deliberate, not an oversight: a reliability chain with optional links is not a chain. CN authoring happens at exactly the moment comprehension of the change is already paid for - during the build cycle, not as an afterthought - so the gate asks for work the agent has already done the thinking for.
@@ -102,10 +100,10 @@ This is deliberate, not an oversight: a reliability chain with optional links is
 A build spec that genuinely produces no traceable code (documentation, configuration, a housekeeping PR) declares the exemption once:
 
 ```sh
-rcf build mark FBS-009 complete --no-code-nodes
+rcf define update FBS-009 --set noCodeNodes=true --json
 ```
 
-This records `noCodeNodes: true` on the FBS document itself (a dedicated schema field - not a free-form convention string, because an unvalidated magic value fails silently on a typo, which is exactly the failure mode this feature exists to make visible). The declaration is sticky: once set, later re-marks of that FBS do not re-trigger the gate.
+This records `noCodeNodes: true` on the FBS document itself (a dedicated schema field - not a free-form convention string, because an unvalidated magic value fails silently on a typo, which is exactly the failure mode this feature exists to make visible). The declaration is sticky: once set, the light Finalise skips the Code Node check for that FBS.
 
 The gate is deterministic edge counting against the working tree (`tree.cnByAcId`) - no semantic judgement, same no-LLM boundary as everywhere else in `rcf`.
 

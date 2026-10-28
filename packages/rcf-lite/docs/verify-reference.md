@@ -173,7 +173,7 @@ Every verdict is stamped with the runtime profile it ran against. Authority is c
 
 `localhost` is a first-class target under `ci`/`local-dev`. What is forbidden is a lower profile masquerading as `deployed`.
 
-A Test-stage report (`--hand`) against a loopback `--url` (localhost, `*.localhost`, 127.0.0.0/8, ::1, 0.0.0.0) names what served it: `--engine <name>` (free text, for example `wrangler dev` or `node server`) and `--served-sha <sha>` (the full sha of the committed HEAD) are required, exit 2 without them, and a served sha other than the committed HEAD exits 4. The report records `target.engine`, `target.port` (the URL's port, else 80 or 443 by scheme) and `target.servedSha`.
+A report recorded with `--hand` against a loopback `--url` (localhost, `*.localhost`, 127.0.0.0/8, ::1, 0.0.0.0) names what served it: `--engine <name>` (free text, for example `wrangler dev` or `node server`) and `--served-sha <sha>` (the full sha of the committed HEAD) are required, exit 2 without them, and a served sha other than the committed HEAD exits 4. The report records `target.engine`, `target.port` (the URL's port, else 80 or 443 by scheme) and `target.servedSha`.
 
 ## Exit codes (`run`)
 
