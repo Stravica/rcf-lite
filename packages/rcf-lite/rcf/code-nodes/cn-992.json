@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-992",
+  "path": "src/finalise/light.js#judgeMergeSuite",
+  "implementsAcIds": [
+    "AC-20001-6",
+    "AC-20001-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:26.075Z",
+  "updatedAt": "2026-10-27T11:42:26.075Z"
+}

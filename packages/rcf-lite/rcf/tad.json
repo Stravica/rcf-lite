@@ -47,5 +47,49 @@
     "logging": "Human-readable terminal output by default; a quiet flag for scripting and a verbose flag for diagnostics."
   },
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-07-02T10:22:43Z"
+  "updatedAt": "2026-10-27T03:20:59.932Z",
+  "dataArchitecture": {
+    "dataStores": [
+      {
+        "name": "rcf/ document tree",
+        "kind": "local JSON files under version control",
+        "purpose": "Every RCF document of the project (PRD, TAD, build sequence, requirements, user stories, TACs, ADRs, FBS, Code Nodes, test suites), one JSON file each, walked from the roots the manifest declares; the local files are the single source of truth."
+      },
+      {
+        "name": "rcf/define/ ledgers",
+        "kind": "local JSON files under version control",
+        "purpose": "The brief, decisions, concerns and probes ledgers, one JSON file each, and the freeze record."
+      },
+      {
+        "name": "rcf/verify-reports/ and rcf/verdicts/",
+        "kind": "local JSON files under version control",
+        "purpose": "Verify reports and the review and test stage verdicts."
+      }
+    ],
+    "coreEntities": [
+      {
+        "name": "JourneyRecord",
+        "description": "The whole of rcf/discovery/journey.json (TAC-4142)."
+      },
+      {
+        "name": "VerifyReport",
+        "description": "The Test-stage verify report under rcf/verify-reports/ (TAC-4148)."
+      },
+      {
+        "name": "ReviewVerdict v1",
+        "description": "The review stage verdict under rcf/verdicts/ (TAC-4154)."
+      },
+      {
+        "name": "TestVerdict v1",
+        "description": "The test stage verdict under rcf/verdicts/ (TAC-4154)."
+      }
+    ],
+    "dataFlow": "The CLI and the MCP server read and write the files under rcf/ in the working tree; git carries them between clones; no external store mirrors them."
+  },
+  "securityArchitecture": {
+    "authenticationPattern": "None in rcf-lite itself: the CLI and the MCP server (over stdio) run as the local user on the local filesystem, and the view server binds 127.0.0.1 only (localhost trust). The one remote call, feedback submission, runs the gh CLI under the operator's own ambient GitHub login (ADR-4105-gh-ambient-auth); rcf-lite never asks for or reads a token.",
+    "authorizationModel": "The local user's filesystem permissions over the project's rcf/ tree; there are no accounts or roles in rcf-lite. Stage hands (DEFINE, BUILD, REVIEW, TEST, FINALISE) are a review discipline the separation audit judges from commit prefixes, not an access control.",
+    "secretsManagement": "rcf-lite stores no secrets; GitHub credentials stay with the gh CLI.",
+    "threatModel": "Local tool over the operator's own repository; the view server is loopback-only with no CORS; feedback reports are redacted before they leave the machine (REQ-156)."
+  }
 }

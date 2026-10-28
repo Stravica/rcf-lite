@@ -163,10 +163,16 @@ function assertPinIsVerificationRelease() {
 // as this golden (the exit code and the sorted gap list), written from
 // packages/rcf-lite with
 //   node test/_harness/goldens.js coverage test/fixtures/pin-move/coverage-at-base.json
-// and the test compares HEAD's run with it. No git history is read.
+// and the test compares with it the run over the chain at add917a6, the
+// 0.37.0 release merge on main, where FBS-232 is verified (the
+// stage-keeper's ruling RC-14 on the round C DEFINE): that tree's own bin
+// over that tree's own chain in a temporary worktree at the fixed ref
+// (worktreeAt above), never the moving head, so no later DEFINE or BUILD
+// moves it; CI checks out with fetch-depth: 0, so the ref is in its history.
 const PIN_MOVE_GOLDEN = 'test/fixtures/pin-move/coverage-at-base.json';
+const VERIFIED_AT = 'add917a6db7f52536254dde491930103abbbe13b';
 
-test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', async () => {
+test('AC-19501-5: the rcf-schemas pin names the release carrying verification, define validate over the own chain exits 0, and audit coverage --strict exits with the same code and gap list at HEAD as the coverage golden recorded at the round base before the pin move', async (t) => {
   const pkg = checkoutPackage();
   const golden = join(pkg, PIN_MOVE_GOLDEN);
   assert.ok(existsSync(golden), `FBS-232's round DEFINE records the coverage golden at the round's base: ${PIN_MOVE_GOLDEN} is absent (node test/_harness/goldens.js coverage ${PIN_MOVE_GOLDEN})`);
@@ -175,7 +181,8 @@ test('AC-19501-5: the rcf-schemas pin names the release carrying verification, d
   assertPinIsVerificationRelease();
   const v = await rcf(['define', 'validate'], { cwd: pkg });
   assert.equal(v.code, 0, `define validate over the own chain exits 0\n${v.stdout.slice(-1500)}${v.stderr.slice(-1500)}`);
-  const now = await coverageResult(pkg);
+  const at = worktreeAt(t, checkoutRoot(), VERIFIED_AT);
+  const now = await coverageResult(at, { bin: join(at, 'bin', 'rcf.js') });
   assert.equal(now.exitCode, was.exitCode, `audit coverage --strict exits ${now.exitCode} at HEAD and ${was.exitCode} in the golden recorded before the pin move`);
   assert.deepEqual(now.gaps, was.gaps, 'the same gap list as the golden recorded before the pin move');
 });

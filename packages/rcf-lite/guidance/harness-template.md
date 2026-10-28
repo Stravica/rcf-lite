@@ -228,7 +228,7 @@ rule is that register applied to findings.
 The failure modes the method exists to guard against are agent-side
 self-checks, not defects for the operator to spot and name. Skipping a
 layer, gold-plating past the AC set, editing a test to pass instead of
-fixing the code, merging before Finalise has written verified on the
+fixing the code, merging before Finalise has written complete on the
 PR branch, drifting off the bundle, inventing a fact the stakeholder never gave you, treating a
 rubber-stamp read as review, marking a stage done without its referee
 output: you catch each one before the stage ends. Before you commit a
@@ -358,24 +358,31 @@ Docs-review gate: when the tree has just been elicited, offer the
 stakeholder a review of it before the first build. Do not roll from
 elicitation straight into building without the offer.
 
-Run `rcf build bundle --next` to get the spec bundle for the next actionable
-item, then execute the five-stage runbook it prints: Define, Build,
-Review, Test, Finalise. Each stage has its own hand, named in every
-commit's `Hand:` trailer: the test-author writes the AC-based and E2E
-tests and their TS / TC bindings (Define), the builder writes production
-code, Code Nodes and code-hygiene unit tests only (Build), the reviewer
-runs the scoped gate and `rcf audit separation` (Review), the verifier
-runs `rcf verify run --fbs <fbs-id> --hand verifier` against the preview
-or version host and commits the report (Test), and the stage-keeper,
-on a Review MERGE and a Test PASS with CI green, runs
-`rcf build mark <fbs-id> complete` and
-`rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch before the
-merge, then merges; the merge carries `verified` (Finalise). Every stage
-ends in a commit. Drive the whole
-queue, not one item. After each item's Finalise, loop `rcf build bundle --next`
-until it reports the queue complete. If your harness can spawn
-sub-agents, run each FBS in its own worker so the driving context stays
-clean across the queue: one write worker at a time.
+Record the base first: `rcf build base-suite --out <file>` runs the RCF
+suite at a clean committed base, and no Build starts until it is green
+there. Run `rcf build bundle <fbs-id> --base-suite <file>` to get the
+spec bundle for the next actionable item, then execute the five-stage
+runbook it prints. Each stage is done by its own role: DEFINE (`DEFINE:`),
+the test-author writes the AC-based and E2E tests and their TS / TC
+bindings and marks pickup with `rcf build mark <fbs-id> inProgress`;
+BUILD (`BUILD:`), the builder writes production code, Code Nodes and
+code-hygiene unit tests only; REVIEW (`REVIEW:`), the reviewer runs the
+scoped gate, `rcf audit separation` and `rcf audit test-strength
+--record`, and records `rcf build verdict review`; TEST (`TEST:`), the
+verifier runs the full RCF suite against a locally running app, nothing
+deployed, and records `rcf build verdict test`; FINALISE (`FINALISE:`),
+the stage-keeper, on a REVIEW MERGE and a TEST PASS with CI green, runs
+`rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch, which
+checks the recorded verdicts and writes complete before the merge, then
+merges. Every commit carries its stage prefix, and the separation audit
+judges that prefix against the paths the commit touches.
+The `Hand:` trailer is optional through 0.37.x: where a commit carries
+one, it agrees with the prefix. A failed REVIEW or TEST closes the round, and
+the next round starts at DEFINE. Drive the whole queue, not one item.
+After each item's Finalise, bundle the next actionable item until the
+queue reports complete. If your harness can spawn sub-agents, run each
+FBS in its own worker so the driving context stays clean across the
+queue: one write worker at a time.
 
 Record lifecycle transitions with the exact mark commands the bundle
 prints. Never mark backwards. Run `rcf define validate` after any tree edit,
@@ -387,12 +394,11 @@ Run the fresh-context self-review every few FBS builds and once at the
 end: a reviewer that drives the running app against its ACs, not one
 that reads the code. Method: `rcf guidance build-cycle-playbook`,
 section 16. It is the cheap in-loop check between builds, and it is not
-the independent verification gate. `verified` is written only by
-`rcf build finalise`, from the Test-stage report the verifier hand
-committed under `rcf/verify-reports/`. A loopback verify target (a local
-dev server such as `wrangler dev` on localhost) is accepted when the
-report names its engine, port and served sha
-(`rcf verify run --engine <name> --served-sha <sha>`).
+the independent verification gate. verified is written only by a release Verify (rcf verify run --record):
+`rcf verify run --release <label> --since <ref> --record`, outside the
+build cycle, runs the bound E2E tests of the specs changed since the
+last release against the release candidate and writes verified on each
+spec whose tests pass.
 
 If context gets unreliable on a large build, do not stall. Write a
 next-session handover doc (queue state, the in-progress item, the next

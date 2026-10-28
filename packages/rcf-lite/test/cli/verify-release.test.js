@@ -26,11 +26,10 @@ import { tmpdir } from 'node:os';
 import { join } from 'node:path';
 
 import { lines, rcf, run, toolPath } from '../_harness/spawn.js';
-import { commit, git, initRepo, porcelain, sha } from '../_harness/git.js';
+import { commit, git, gitTry, initRepo, porcelain, sha } from '../_harness/git.js';
 import { project, readJson, readText, scratch, writeJson, writeText } from '../_harness/fixture.js';
 import { commandName, hostFacts, readSpawnLog, spawnLog } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-238 round DEFINE' };
 const REPORT = 'rcf/verify-reports/releases/1.1.0.json';
 
 // ---------------------------------------------------------- the target
@@ -145,7 +144,7 @@ const passFixture = (t, opts = {}) => release(t, opts.specs ?? PASS_SPECS(opts.o
 
 // ---------------------------------------------------------------- US-20101
 
-test('AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only', TODO, async (t) => {
+test('AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only', async (t) => {
   const { dir, R, head, log } = await passFixture(t);
   const two = readText(dir, 'rcf/fbs/fbs-002.json');
   const r = await verify(dir, releaseArgs(['--record']));
@@ -171,7 +170,7 @@ test('AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verif
   assert.deepEqual(ranNames(log), ['AC-101-1 holds against the target', 'core journey walks'], 'only the bound e2e case and the smoke case ran');
 });
 
-test('AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds ["FBS-001"]', TODO, async (t) => {
+test('AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds ["FBS-001"]', async (t) => {
   const a = await passFixture(t, { o1: 'fail' });
   const ra = await verify(a.dir, releaseArgs(['--record']));
   assert.equal(ra.code, 4, `${ra.stdout}${ra.stderr}`);
@@ -200,7 +199,7 @@ test('AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL 
   assert.deepEqual(['FBS-001', 'FBS-002'].map((id) => status(c.dir, id)), ['verified', 'complete']);
 });
 
-test('AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope', TODO, async (t) => {
+test('AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope', async (t) => {
   const specs = [
     { id: 'FBS-003', status: 'complete', us: 'US-103', criteria: [{ id: 'AC-103-1', flag: 'testOnly', level: 'integration' }] },
     { id: 'FBS-004', status: 'complete', us: 'US-104', criteria: [{ id: 'AC-104-1', flag: 'external', level: 'unit' }] },
@@ -249,7 +248,7 @@ test('AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-v
   assert.ok(!ranNames(log).includes(caseName('AC-103-1')), 'FBS-003 runs no test');
 });
 
-test('AC-20101-4: --record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file', TODO, async (t) => {
+test('AC-20101-4: --record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file', async (t) => {
   const a = await passFixture(t);
   const st = porcelain(a.dir);
   for (const args of [['--since', 'v1.0.0', '--url', URL_, '--record'], ['--release', '1.1.0', '--url', URL_, '--record']]) {
@@ -273,7 +272,7 @@ test('AC-20101-4: --record without --release or --since exits 2 with the usage l
   assert.ok(!existsSync(join(c.dir, 'rcf', 'verify-reports', 'releases')), 'no release report');
 });
 
-test('AC-20101-5: without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears', TODO, async (t) => {
+test('AC-20101-5: without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears', async (t) => {
   const { dir } = await passFixture(t);
   const bytes = fbsBytes(dir);
   const r = await verify(dir, releaseArgs());
@@ -288,7 +287,7 @@ test('AC-20101-5: without --record the PASS fixture run writes no status and not
   assert.equal(porcelain(dir), '', 'nothing appears in the tree');
 });
 
-test('AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations', TODO, async (t) => {
+test('AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations', async (t) => {
   hostFacts(t);
   // Specs 1 to 50 hold 6 criteria, 51 to 150 hold 5 (800 in all). Changed: 1 to 4 (4 external,
   // 2 testOnly) and 5 to 12 (3 external, 3 testOnly): 40 external criteria, each case 1000 ms.
@@ -317,7 +316,7 @@ test('AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 
   assert.ok(overhead <= 10_000, `overhead at most 10 s (got ${Math.round(overhead)} ms)`);
 });
 
-test('AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 "[error] usage --since <ref> does not resolve to a commit", a commit that is not an ancestor of HEAD exits 2 "[error] usage --since <ref> is not an ancestor of HEAD", and none writes a file', TODO, async (t) => {
+test('AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 "[error] usage --since <ref> does not resolve to a commit", a commit that is not an ancestor of HEAD exits 2 "[error] usage --since <ref> is not an ancestor of HEAD", and none writes a file', async (t) => {
   const { dir } = await passFixture(t);
   const tree = git(dir, 'rev-parse', 'HEAD^{tree}');
   const blob = git(dir, 'rev-parse', 'HEAD:package.json');
@@ -375,7 +374,7 @@ function commonDir(a, b) {
 const TMPS = () => [tmpdir(), realpathSync(tmpdir())];
 const underTmp = (p) => TMPS().some((d) => p.startsWith(`${d}/`)) && !TMPS().includes(p);
 
-test('AC-20102-1: a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true', TODO, async (t) => {
+test('AC-20102-1: a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true', async (t) => {
   const { dir, observed } = await packageRelease(t);
   const r = await verify(dir, ['--release', '1.1.0', '--since', 'v1.0.0', '--package', '.', '--record'], { PATH: NPM_PATH(), FIXTURE_LEAK: 'visible' });
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
@@ -396,7 +395,7 @@ test('AC-20102-1: a cold --package . release Verify runs the bound test with HOM
   assert.equal(target.cold, true);
 });
 
-test('AC-20102-2: --offline in release mode exits 2 "[error] usage --offline cannot install cold", two targets or none exit 2 "[error] usage give exactly one target: --url, --artefact or --package", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report', TODO, async (t) => {
+test('AC-20102-2: --offline in release mode exits 2 "[error] usage --offline cannot install cold", two targets or none exit 2 "[error] usage give exactly one target: --url, --artefact or --package", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report', async (t) => {
   const { dir } = await packageRelease(t);
   const base = ['--release', '1.1.0', '--since', 'v1.0.0'];
   const env = { PATH: NPM_PATH() };
@@ -409,9 +408,11 @@ test('AC-20102-2: --offline in release mode exits 2 "[error] usage --offline can
     assert.equal(r.code, 2, `${args.join(' ')}\n${r.stdout}${r.stderr}`);
     errHas(r, '[error] usage give exactly one target: --url, --artefact or --package');
   }
-  // An artefact whose dependency resolves nowhere: a file: dependency on a missing directory.
-  const src = join(scratch(t, 'rcf-h-badpkg-'), 'pkg');
-  writeJson(src, 'package.json', { name: 'fixture-broken', version: '1.1.0', dependencies: { 'fixture-missing': 'file:../does-not-exist' } });
+  // An artefact whose dependency resolves nowhere: a file: dependency on a tarball that does not exist, by absolute
+  // path in this test's scratch, so npm must open it to read its manifest and fails ENOENT on every version, offline or not.
+  const badRoot = scratch(t, 'rcf-h-badpkg-');
+  const src = join(badRoot, 'pkg');
+  writeJson(src, 'package.json', { name: 'fixture-broken', version: '1.1.0', dependencies: { 'fixture-missing': `file:${join(badRoot, 'does-not-exist.tgz')}` } });
   const packed = run('npm', ['pack', '--pack-destination', tgzDir], { cwd: src, env });
   assert.equal(packed.code, 0, `npm pack\n${packed.stderr}`);
   const tgz = join(tgzDir, packed.stdout.trim().split('\n').pop());
@@ -421,8 +422,22 @@ test('AC-20102-2: --offline in release mode exits 2 "[error] usage --offline can
   assert.ok(!existsSync(join(dir, REPORT)), 'no report is written');
 });
 
-test('AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration', TODO, async (t) => {
+test('AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration', async (t) => {
   const { dir, observed } = await packageRelease(t);
+  // F-8: the npm configuration the cold install itself reads, observed by
+  // a postinstall script of the fixture package, which the install's own
+  // npm runs (no registry fetch: the package has no dependencies).
+  const installed = join(scratch(t, 'rcf-h-observed-'), 'install.json');
+  commit(dir, 'BUILD: the package observes its own install', {
+    'package.json': { ...readJson(dir, 'package.json'), scripts: { postinstall: 'node src/postinstall.cjs' } },
+    'src/postinstall.cjs': [
+      "const { execFileSync } = require('node:child_process');",
+      "const { writeFileSync } = require('node:fs');",
+      "const registry = execFileSync('npm', ['config', 'get', 'registry'], { encoding: 'utf8' }).trim();",
+      `writeFileSync(${JSON.stringify(installed)}, JSON.stringify({ home: process.env.HOME, userconfig: process.env.npm_config_userconfig ?? null, registry }));`,
+      '',
+    ].join('\n'),
+  });
   const home = scratch(t, 'rcf-h-home-');
   writeText(home, '.npmrc', 'registry=http://127.0.0.1:9/\n');
   const r = await verify(dir, ['--release', '1.1.0', '--since', 'v1.0.0', '--package', '.', '--record'], { PATH: NPM_PATH(), HOME: home });
@@ -430,9 +445,14 @@ test('AC-20102-3: a user npmrc at the caller HOME setting an unreachable registr
   const o = JSON.parse(readFileSync(observed, 'utf8'));
   assert.equal(o.registry, 'https://registry.npmjs.org/', 'the run sees the default registry, not the caller npmrc');
   assert.notEqual(o.home, home);
+  assert.ok(existsSync(installed), 'the cold install ran the package postinstall');
+  const i = JSON.parse(readFileSync(installed, 'utf8'));
+  assert.equal(i.registry, 'https://registry.npmjs.org/', 'the cold install reads the default registry, not the caller npmrc');
+  assert.notEqual(i.home, home, 'the cold install does not run under the caller HOME');
+  assert.notEqual(i.userconfig, join(home, '.npmrc'), 'the cold install does not read the caller npmrc');
 });
 
-test('AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory', TODO, async (t) => {
+test('AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory', async (t) => {
   const { dir, observed } = await packageRelease(t);
   const env = { PATH: NPM_PATH() };
   const plain = await verify(dir, ['--release', '1.1.0', '--since', 'v1.0.0', '--package', '.'], env);
@@ -447,14 +467,30 @@ test('AC-20102-4: a cold release Verify writes in the project only under rcf/ver
   for (const lock of ['package-lock.json', 'pnpm-lock.yaml', 'npm-shrinkwrap.json']) assert.ok(!existsSync(join(dir, lock)), `no ${lock}`);
   const o = JSON.parse(readFileSync(observed, 'utf8'));
   assert.ok(!existsSync(o.home), `the scratch directory is removed after the run: ${o.home}`);
+  // F-6: a --release label holding ../ keeps the same write boundary, on a
+  // fresh fixture (the first --record run changed rcf/fbs/). The label
+  // ../../x resolves from rcf/verify-reports/releases/ to rcf/x.json.
+  const fresh = await packageRelease(t);
+  const esc = await verify(fresh.dir, ['--release', '../../x', '--since', 'v1.0.0', '--package', '.', '--record'], env);
+  const escaped = lines(gitTryPaths(fresh.dir));
+  assert.ok(escaped.every((p) => p.startsWith('rcf/verify-reports/releases/') || p.startsWith('rcf/fbs/')), `with --release ../../x only release reports and spec files change: ${escaped.join(', ')}\nexit ${esc.code}\n${esc.stderr}`);
+  assert.ok(!existsSync(join(fresh.dir, 'rcf', 'x.json')), 'nothing is written at rcf/x.json, where the label ../../x resolves');
 });
+// The changed and untracked paths (untracked listed file by file), read
+// untrimmed and NUL-separated: the harness git() trims stdout, which
+// would cut the leading status column of a first porcelain line.
 function gitTryPaths(dir) {
-  return git(dir, 'status', '--porcelain', '-uall').split('\n').filter(Boolean).map((l) => l.slice(3)).join('\n');
+  const z = (...args) => {
+    const r = gitTry(dir, ...args, '-z');
+    if (r.code !== 0) throw new Error(`git ${args.join(' ')} exited ${r.code}: ${r.stderr}`);
+    return r.stdout.split('\0').filter(Boolean);
+  };
+  return [...z('diff', '--name-only', 'HEAD'), ...z('ls-files', '--others', '--exclude-standard')].join('\n');
 }
 
 // ---------------------------------------------------------------- US-20103
 
-test('AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical', TODO, async (t) => {
+test('AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical', async (t) => {
   const dir = await project(t, { name: 'catalog' });
   writeJson(dir, 'rcf/verify-catalog.json', { catalogVersion: 1, probes: { 'AC-101-1': { path: '/health', expectStatus: 200 } } });
   writeText(dir, '.gitignore', 'node_modules/\n');
@@ -474,7 +510,7 @@ test('AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --
   assert.equal(porcelain(dir), '', 'git status unchanged');
 });
 
-test('AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCritique exits 2 "[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only" and runs nothing', TODO, async (t) => {
+test('AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCritique exits 2 "[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only" and runs nothing', async (t) => {
   const { dir, log } = await passFixture(t);
   for (const mode of ['deterministic', 'agentScreenshotCritique']) {
     const spawned = spawnLog(scratch(t, 'rcf-h-spawn-'));
@@ -487,7 +523,7 @@ test('AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCr
   }
 });
 
-test('AC-20103-3: the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI', TODO, async (t) => {
+test('AC-20103-3: the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI', async (t) => {
   const { dir } = await passFixture(t);
   assert.ok(!existsSync(join(dir, 'rcf', 'verify-catalog.json')), 'given: no rcf/verify-catalog.json');
   const stories = readdirSync(join(dir, 'rcf', 'user-stories')).map((f) => readJson(dir, `rcf/user-stories/${f}`));

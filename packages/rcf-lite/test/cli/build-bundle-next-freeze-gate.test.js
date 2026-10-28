@@ -21,6 +21,9 @@ import { promisify } from 'node:util';
 import { initProject } from '../../src/core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { existsSync } from 'node:fs';
+import { commit, initRepo } from '../_harness/git.js';
+import { baseSuiteRecord } from '../_harness/fixture.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -73,9 +76,24 @@ async function writeMatchingFreeze(tmp) {
   });
 }
 
+// The base-suite record every rcf build bundle takes once FBS-239 lands
+// (the stage-keeper's ruling RC-16 on the round C DEFINE, class C: the
+// call shape changes, the criterion does not). TAC-4158 reads the record
+// against the base, git merge-base of HEAD with the trunk (HEAD itself on
+// the trunk), so the fixture is committed as the trunk main and a green
+// BaseSuiteRecord v1 (the harness baseSuiteRecord) for that commit is
+// written outside it, as test/cli/build-base-suite.test.js passes one.
+async function baseSuiteArgs(root) {
+  if (!existsSync(join(root, '.git'))) initRepo(root);
+  const head = commit(root, 'fixture: base', {}, { allowEmpty: true });
+  const file = join(await scratchDir('rcf-base-suite-'), 'base.json');
+  await writeFile(file, `${JSON.stringify(baseSuiteRecord(head), null, 2)}\n`, 'utf8');
+  return ['--base-suite', file];
+}
+
 test('bundle --next (PR 8, AC-17702-1): refuses without a freeze record naming rcf define readiness', async () => {
   const tmp = await scaffold();
-  const r = await runBin(tmp, ['build', 'bundle', '--next']);
+  const r = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next']);
   assert.equal(r.code, 4);
   assert.match(r.stderr, /refused on an unfrozen tree/);
   assert.match(r.stderr, /rcf define readiness/);
@@ -84,7 +102,7 @@ test('bundle --next (PR 8, AC-17702-1): refuses without a freeze record naming r
 
 test('bundle --next (PR 8, AC-17702-2): --override writes freeze.override and proceeds', async () => {
   const tmp = await scaffold();
-  const r = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'hotfix']);
+  const r = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next', '--override', 'hotfix']);
   assert.equal(r.code, 0, `expected exit 0, got ${r.code}. stderr=${r.stderr}`);
   const freeze = await readFreeze(tmp);
   assert.equal(freeze.override.reason, 'hotfix');
@@ -119,7 +137,7 @@ test('bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the
     briefStatements: 0,
     override: null,
   });
-  const first = await runBin(tmp, ['build', 'bundle', '--next']);
+  const first = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next']);
   assert.equal(first.code, 0, `expected exit 0, got ${first.code}. stderr=${first.stderr}`);
   assert.ok(!/freeze\.override recorded/.test(first.stderr));
   assert.ok(!/skipping/.test(first.stderr));
@@ -128,7 +146,7 @@ test('bundle --next (PR 9, AC-17702-5): empty delta on a frozen tree matches the
   assert.equal(first.stdout, golden, 'bundle --next on a frozen tree with an empty delta must match the captured 0.29.0 golden byte-for-byte');
   // Re-running the verb yields identical stdout: the empty-delta
   // posture is idempotent.
-  const second = await runBin(tmp, ['build', 'bundle', '--next']);
+  const second = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next']);
   assert.equal(second.stdout, first.stdout);
 });
 
@@ -178,7 +196,7 @@ test('bundle --next (PR 9, AC-17702-3): skips the impacted FBS and hands out the
     briefStatements: 0,
     override: null,
   });
-  const r = await runBin(tmp, ['build', 'bundle', '--next']);
+  const r = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next']);
   assert.equal(r.code, 0, `expected exit 0, got ${r.code}. stderr=${r.stderr.slice(0, 500)}`);
   assert.match(r.stderr, /skipping FBS-001 \(impacted by the delta/);
   assert.match(r.stdout, /FBS-002/);
@@ -206,7 +224,7 @@ test('bundle --next (PR 9, AC-17702-4): refuses with exit 4 when every actionabl
     briefStatements: 0,
     override: null,
   });
-  const r = await runBin(tmp, ['build', 'bundle', '--next']);
+  const r = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next']);
   assert.equal(r.code, 4, `expected exit 4, got ${r.code}. stderr=${r.stderr}`);
   assert.match(r.stderr, /every actionable FBS is impacted/);
   assert.match(r.stderr, /NV-DL-ADM-05/);
@@ -232,7 +250,7 @@ test('bundle --next (PR 8, AC-17702-4): with --override even when every actionab
     briefStatements: 0,
     override: null,
   });
-  const r = await runBin(tmp, ['build', 'bundle', '--next', '--override', 'force-ship']);
+  const r = await runBin(tmp, ['build', 'bundle', ...(await baseSuiteArgs(tmp)), '--next', '--override', 'force-ship']);
   assert.equal(r.code, 0, `expected exit 0 with override, got ${r.code}. stderr=${r.stderr}`);
   const freeze = await readFreeze(tmp);
   assert.equal(freeze.override.reason, 'force-ship');

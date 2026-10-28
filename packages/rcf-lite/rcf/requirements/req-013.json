@@ -19,5 +19,49 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-04T12:20:00Z",
-  "updatedAt": "2026-10-17T05:20:30.489Z"
+  "updatedAt": "2026-10-27T03:17:11.072Z",
+  "shapeClassification": {
+    "shapes": [
+      "httpApi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:11.069Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "api"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "api"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "rest"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "REST"
+      },
+      {
+        "source": "rationale",
+        "shape": "httpApi",
+        "match": "api"
+      },
+      {
+        "source": "rationale",
+        "shape": "httpApi",
+        "match": "rest"
+      }
+    ]
+  }
 }

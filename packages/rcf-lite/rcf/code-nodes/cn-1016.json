@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1016",
+  "path": "src/build/base-suite.js#tapSummary",
+  "implementsAcIds": [
+    "AC-20201-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T15:35:36.339Z",
+  "updatedAt": "2026-10-27T15:35:36.339Z"
+}

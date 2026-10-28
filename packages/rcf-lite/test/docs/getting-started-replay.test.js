@@ -9,10 +9,15 @@
 //   s4  = "4. Author the chain"
 //   s5  = "5. Validate"
 //   s6  = "6. Ask the traceability questions"
-//   s7  = "7. Drive the build loop"
+// Section 7 ("7. Drive the build loop") is not mirrored: its command
+// sequence is parsed from the doc at runtime (the stage-keeper's ruling
+// RC-24 on the round C DEFINE), each sh fenced block between the "## 7."
+// heading and the next "## " heading in order, each with the plain fenced
+// block that follows it as the output the doc shows.
 // Section 3 (rcf view, long-running server) and section 8 (MCP) are
 // excluded from CI replay per §6.4; they are manual-verification duty.
-// If you edit the doc's commands, edit SEQUENCE in the same PR.
+// If you edit the doc's commands in sections 2 to 6, edit SEQUENCE in the
+// same PR.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -75,17 +80,99 @@ const SEQUENCE = {
   s6TraceBack: ['audit', 'trace', 'TC-001-flour-search', '--back'],
   s6Impact: ['audit', 'impact', 'TAC-001'],
   s6CoverageJson: ['audit', 'coverage', '--mode', 'shallow-any', '--format', 'json'],
-  s7Queue: [
-    ['define', 'update', 'FBS-001', '--set', 'title=Save a recipe end to end', '--set', 'summary=Implement recipe capture: the recipe model, storage and the save flow behind AC-101-1.'],
-    ['define', 'create', 'fbs', '--parent', 'BS-001', '--title', 'Ingredient search', '--acs', 'AC-201-1,AC-201-2'],
-    ['define', 'update', 'FBS-002', '--set', 'dependsOnFbsIds=["FBS-001"]', '--json'],
-  ],
-  s7Build: ['build', 'queue'],
-  s7BuildNextOut: ['build', 'bundle', '--next', '--override', 'pr8-test-scaffold', '--out', 'fbs-001-bundle.md'],
-  s7MarkInProgress: ['build', 'mark', 'FBS-001', 'inProgress'],
-  s7MarkComplete: ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes'],
-  s7MarkBackward: ['build', 'mark', 'FBS-001', 'inProgress'],
 };
+
+// Section 7, parsed from docs/getting-started.md at runtime (RC-24).
+const DOC = resolve(fileURLToPath(new URL('../..', import.meta.url)), 'docs', 'getting-started.md');
+
+// Split one shell command line into words: single quotes literal, double
+// quotes with backslash escapes, unquoted whitespace separating words.
+function shellWords(line) {
+  const words = [];
+  let word = null;
+  for (let i = 0; i < line.length; i += 1) {
+    const ch = line[i];
+    if (ch === "'") {
+      const end = line.indexOf("'", i + 1);
+      assert.ok(end > i, `an unclosed single quote in: ${line}`);
+      word = (word ?? '') + line.slice(i + 1, end);
+      i = end;
+    } else if (ch === '"') {
+      let j = i + 1;
+      let text = '';
+      while (j < line.length && line[j] !== '"') {
+        if (line[j] === '\\' && j + 1 < line.length) j += 1;
+        text += line[j];
+        j += 1;
+      }
+      assert.ok(j < line.length, `an unclosed double quote in: ${line}`);
+      word = (word ?? '') + text;
+      i = j;
+    } else if (/\s/.test(ch)) {
+      if (word !== null) words.push(word);
+      word = null;
+    } else {
+      word = (word ?? '') + ch;
+    }
+  }
+  if (word !== null) words.push(word);
+  return words;
+}
+
+// The section's steps: each sh block's command lines (blank and # comment
+// lines skipped) and the plain fenced block right after it, if any.
+function sectionSevenSteps(markdown) {
+  const all = markdown.split('\n');
+  const start = all.findIndex((l) => /^## 7\. /.test(l));
+  if (start < 0) return [];
+  // The section ends at the next "## " heading outside a fenced block (an
+  // output block may show a bundle's own "## " headings).
+  const rest = all.slice(start + 1);
+  let fenced = false;
+  const stop = rest.findIndex((l) => {
+    if (/^```/.test(l)) fenced = !fenced;
+    return !fenced && /^## /.test(l);
+  });
+  const body = stop < 0 ? rest : rest.slice(0, stop);
+  const blocks = [];
+  for (let i = 0; i < body.length; i += 1) {
+    const open = /^```(\S*)\s*$/.exec(body[i]);
+    if (!open) continue;
+    let j = i + 1;
+    while (j < body.length && !/^```\s*$/.test(body[j])) j += 1;
+    blocks.push({ lang: open[1], lines: body.slice(i + 1, j) });
+    i = j;
+  }
+  const steps = [];
+  blocks.forEach((b, k) => {
+    if (b.lang !== 'sh') return;
+    const next = blocks[k + 1];
+    steps.push({
+      commands: b.lines.map((l) => l.trim()).filter((l) => l && !l.startsWith('#')),
+      output: next && next.lang === '' ? next.lines : null,
+    });
+  });
+  return steps;
+}
+
+// ISO timestamps differ run to run; the doc shows one from its own run.
+const stamp = (line) => line.replace(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}(?:\.\d+)?Z/g, '<timestamp>');
+
+// Run one documented command line: rcf through the bin, `head -<n> <file>`
+// read in the project; any other command is not replayable.
+async function runDocCommand(line) {
+  const [cmd, ...args] = shellWords(line);
+  if (cmd === 'rcf') return rcf(args);
+  if (cmd === 'head' && args.length === 2 && /^-\d+$/.test(args[0])) {
+    try {
+      const text = await readFile(join(project, args[1]), 'utf8');
+      return { code: 0, stdout: `${text.split('\n').slice(0, Number(args[0].slice(1))).join('\n')}\n`, stderr: '' };
+    } catch (err) {
+      return { code: 1, stdout: '', stderr: `head: ${err.message}\n` };
+    }
+  }
+  return { code: 127, stdout: '', stderr: `not a replayable command: ${line}\n` };
+}
 
 test('s2: rcf init scaffolds the project (exit 0)', async () => {
   const { code, stdout } = await rcf(SEQUENCE.s2Init);
@@ -247,37 +334,33 @@ test('s6: coverage --format json is machine-readable and agrees with the table',
   assert.equal(report.totals.coveredUnresolved, 0);
 });
 
-test('s7: the queue is authored: FBS-002 depends on FBS-001 (exit 0 each)', async () => {
-  for (const args of SEQUENCE.s7Queue) {
-    const { code, stderr } = await rcf(args);
-    assert.equal(code, 0, `rcf ${args.join(' ')} failed: ${stderr}`);
+test('s7: every command block of section 7 runs as docs/getting-started.md shows it', async () => {
+  // Each sh block's commands run in order in the project sections 2 to 6
+  // built. A block whose doc output carries an "[error] usage" line expects
+  // its last command to exit 2, an "[error] refused" line exit 4, any other
+  // "[error]" line a non-zero exit; every other command exits 0. Every
+  // non-blank line of the doc output (timestamps aside) appears, in order,
+  // among the lines the block's commands print on stdout and stderr.
+  const steps = sectionSevenSteps(await readFile(DOC, 'utf8'));
+  assert.ok(steps.length > 0, 'docs/getting-started.md has a "## 7." section with sh command blocks');
+  for (const [k, step] of steps.entries()) {
+    const shown = (step.output ?? []).map(stamp).filter((l) => l.trim());
+    const error = shown.find((l) => l.startsWith('[error]'));
+    const want = !error ? 0 : error.startsWith('[error] usage') ? 2 : error.startsWith('[error] refused') ? 4 : null;
+    const printed = [];
+    for (const [n, line] of step.commands.entries()) {
+      const r = await runDocCommand(line);
+      const last = n === step.commands.length - 1;
+      const where = `section 7 block ${k + 1}, \`${line}\``;
+      if (last && want === null) assert.notEqual(r.code, 0, `${where}: the doc shows an error, so it exits non-zero\n${r.stdout}${r.stderr}`);
+      else assert.equal(r.code, last ? want : 0, `${where}: exit ${last ? want : 0}\n${r.stdout}${r.stderr}`);
+      printed.push(...`${r.stdout}${r.stderr}`.split('\n').map(stamp));
+    }
+    let at = 0;
+    for (const line of shown) {
+      const found = printed.findIndex((p, i) => i >= at && p.trimEnd() === line.trimEnd());
+      assert.ok(found >= 0, `section 7 block ${k + 1} (${step.commands.join(' && ')}): the doc shows "${line}"; printed:\n${printed.join('\n')}`);
+      at = found + 1;
+    }
   }
-});
-
-test('s7: the queue overview shows FBS-002 blocked by FBS-001', async () => {
-  const { code, stdout } = await rcf(SEQUENCE.s7Build);
-  assert.equal(code, 0);
-  assert.match(stdout, /\| 2 \| 1 \| FBS-002 \| Ingredient search \| notStarted \| blocked \| FBS-001 \|/);
-  assert.match(stdout, /Next actionable: FBS-001/);
-});
-
-test('s7: build --next --out sinks the FBS-001 bundle to a file', async () => {
-  const { code, stdout } = await rcf(SEQUENCE.s7BuildNextOut);
-  assert.equal(code, 0);
-  assert.match(stdout, /bundle written to fbs-001-bundle\.md/);
-  const bundle = await readFile(join(project, 'fbs-001-bundle.md'), 'utf8');
-  assert.match(bundle, /^# Spec bundle: FBS-001 - Save a recipe end to end/);
-});
-
-test('s7: forward marks land; completing FBS-001 unblocks FBS-002', async () => {
-  assert.match((await rcf(SEQUENCE.s7MarkInProgress)).stdout, /marked FBS-001 notStarted -> inProgress/);
-  assert.match((await rcf(SEQUENCE.s7MarkComplete)).stdout, /marked FBS-001 inProgress -> complete/);
-  const { stdout } = await rcf(SEQUENCE.s7Build);
-  assert.match(stdout, /Next actionable: FBS-002/);
-});
-
-test('s7: a backward mark is refused with exit 4', async () => {
-  const { code, stderr } = await rcf(SEQUENCE.s7MarkBackward);
-  assert.equal(code, 4);
-  assert.match(stderr, /refusing backward transition complete -> inProgress/);
 });

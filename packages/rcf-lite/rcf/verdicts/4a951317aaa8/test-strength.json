@@ -1,0 +1,2497 @@
+{
+  "version": 1,
+  "head": "4a951317aaa8f9ae566451090f2fd68f78810674",
+  "scope": "reviewVerdict",
+  "criteria": [
+    {
+      "acId": "AC-20001-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeTest",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTest",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTest",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeAfterReview",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeAfterReview",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeAfterReview",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeMergeSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeMergeSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeMergeSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named"
+          ]
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named"
+          ]
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeMergeSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeMergeSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeMergeSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20001-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20002-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-1: with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-1: with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20002-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#changedCriteria",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#changedCriteria",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\""
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#changedCriteria",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20002-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#missingCodeNodes",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-3: with no --ci-run finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", with AC-101-2 lacking a Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-2\", and an untouched criterion of the spec with no Code Node does not refuse"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#missingCodeNodes",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-3: with no --ci-run finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", with AC-101-2 lacking a Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-2\", and an untouched criterion of the spec with no Code Node does not refuse"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#missingCodeNodes",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20002-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/separation.js#classifyPath",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
+          ]
+        },
+        {
+          "symbol": "src/audit/separation.js#classifyPath",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
+          ]
+        },
+        {
+          "symbol": "src/audit/separation.js#classifyPath",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20002-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20003-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
+          ]
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
+          ]
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20003-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeTest",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTest",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTest",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20003-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/mark.js#planMark",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4"
+          ]
+        },
+        {
+          "symbol": "src/build/mark.js#planMark",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4"
+          ]
+        },
+        {
+          "symbol": "src/build/mark.js#planMark",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20003-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write, and with an external criterion touched it writes complete"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write, and with an external criterion touched it writes complete"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20003-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#planOutcome",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19803-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/query/coverage.js#collectAcs",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key"
+          ]
+        },
+        {
+          "symbol": "src/query/coverage.js#collectAcs",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key"
+          ]
+        },
+        {
+          "symbol": "src/query/coverage.js#collectAcs",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19702-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/verdict.js#recordTestVerdict",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19702-9: outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with \"verdict refused: not a git repository; a verdict names a committed head\", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with \"[error] usage --tap <file> cannot be read\"; no file appears under rcf/verdicts/"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#recordTestVerdict",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19702-9: outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with \"verdict refused: not a git repository; a verdict names a committed head\", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with \"[error] usage --tap <file> cannot be read\"; no file appears under rcf/verdicts/"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#recordTestVerdict",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19803-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/query/coverage.js#scopingSpec",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later"
+          ]
+        },
+        {
+          "symbol": "src/query/coverage.js#scopingSpec",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later"
+          ]
+        },
+        {
+          "symbol": "src/query/coverage.js#scopingSpec",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19604-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/separation.js#auditSeparation",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19604-8: with rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head and a \"BUILD: code\" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\", as it does from the project root"
+          ]
+        },
+        {
+          "symbol": "src/audit/separation.js#auditSeparation",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19604-8: with rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head and a \"BUILD: code\" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\", as it does from the project root"
+          ]
+        },
+        {
+          "symbol": "src/audit/separation.js#auditSeparation",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19701-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/verdict.js#parseFinding",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#parseFinding",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#parseFinding",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19703-12",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/separation.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19703-12: rcf audit separation --help lists the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head \"<h7>\""
+          ]
+        },
+        {
+          "symbol": "src/cli/separation.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19703-12: rcf audit separation --help lists the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head \"<h7>\""
+          ]
+        },
+        {
+          "symbol": "src/cli/separation.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19702-10",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/verdict.js#treeState",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#treeState",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#treeState",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/cli/run.js#dirtyPathsOutsideReports",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#dirtyPathsOutsideReports",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#dirtyPathsOutsideReports",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19902-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#runUnmutated",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19902-9: a declared runner that fails on every bound test makes rcf audit test-strength --acs AC-101-1 exit 2 naming the runner and the bound test, with no mutant run and neither the PASS line nor a FAIL line"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runUnmutated",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19902-9: a declared runner that fails on every bound test makes rcf audit test-strength --acs AC-101-1 exit 2 naming the runner and the bound test, with no mutant run and neither the PASS line nor a FAIL line"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runUnmutated",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/report.js#composeReleaseReport",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#composeReleaseReport",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#composeReleaseReport",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/report.js#composeReleaseReport",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds [\"FBS-001\"]"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#composeReleaseReport",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds [\"FBS-001\"]"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#composeReleaseReport",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/scope.js#resolveReleaseScope",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/scope.js#resolveReleaseScope",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/scope.js#resolveReleaseScope",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-4: --record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-4: --record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-5: without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-5: without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20102-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/cold.js#coldScratch",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-1: a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#coldScratch",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-1: a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#coldScratch",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20102-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-2: --offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-2: --offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/cold.js#installCold",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-2: --offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#installCold",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-2: --offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#installCold",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20102-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/cold.js#coldScratch",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#coldScratch",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#coldScratch",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/cold.js#installCold",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#installCold",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/cold.js#installCold",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20102-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/index.js#runReleaseVerify",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runReleaseVerify",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runReleaseVerify",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLabelProblem",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLabelProblem",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLabelProblem",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20103-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20103-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCritique exits 2 \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCritique exits 2 \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#runReleaseMode",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20103-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/index.js#runReleaseVerify",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20103-3: the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runReleaseVerify",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20103-3: the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runReleaseVerify",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\""
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\""
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\""
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\""
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\""
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\""
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/base-suite.js#tapSummary",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#tapSummary",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#tapSummary",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#resolveBase",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20201-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing"
+          ]
+        },
+        {
+          "symbol": "src/build/base-suite.js#recordBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20202-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/bundle.js#amendCodeNodes",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#amendCodeNodes",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#amendCodeNodes",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#formatBundle",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#formatBundle",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#formatBundle",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20202-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/build.js#amendScope",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#amendScope",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#amendScope",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20202-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/formatters/markdown.js#formatNextEmpty",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round"
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#formatNextEmpty",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round"
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#formatNextEmpty",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20202-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20202-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#assembleBundle",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20203-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20203-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20203-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-3: bundle --next --allow-unverified \"hotfix\" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-3: bundle --next --allow-unverified \"hotfix\" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20203-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one"
+          ]
+        },
+        {
+          "symbol": "src/build/backstop.js#checkBaseSuite",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/build-base-suite.test.js::AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one"
+          ]
+        },
+        {
+          "symbol": "src/cli/build.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/build-cycle.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/build-cycle.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-2: the Rounds section of rcf guidance build-cycle states, each in its own sentence, that a failed REVIEW (FINDINGS) or TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-3: the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#pushRunbook",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#pushRunbook",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#pushRunbook",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "guidance/build-cycle-playbook.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/build-cycle-playbook.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept"
+          ]
+        },
+        {
+          "symbol": "guidance/overview.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20402-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "docs/verify-reference.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-2: docs/verify-reference.md has the finalise synopsis rcf build finalise <fbs-id> --ci-run <ref>, a modes section naming release mode and calling the catalog and agent modes optional probes that are never a precondition, and a forward catalog contract that no longer says the deterministic engine feeds Finalise"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20402-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "docs/verify-reference.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage"
+          ]
+        },
+        {
+          "symbol": "README.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md carries rcf build finalise <fbs-id> --url, a finalise synopsis with --mode <mode>, or a sentence saying a spec is verified at Finalise or by the Test stage"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20402-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "README.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-4: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build"
+          ]
+        },
+        {
+          "symbol": "../../README.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-4: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-8: the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20401-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/build-cycle.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20401-9: every sentence of rcf guidance build-cycle naming rcf audit separation as a check judges each commit by its stage prefix against the paths it touches, and none says the audit judges the Hand: trailer of a commit"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20402-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "docs/how-it-works.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-5: the sentence of docs/how-it-works.md that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20402-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "../../.github/workflows/ci.yml",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/build-cycle-0-37.test.js::AC-20402-6: the comment introducing the separation job of .github/workflows/ci.yml says the job judges the stage prefix of each commit over the range of the pull request, and does not say it judges a Hand: trailer"
+          ]
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "pass",
+  "totals": {
+    "criteria": 72,
+    "structuralPassed": 72,
+    "mutants": 238,
+    "killed": 165,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 73
+  },
+  "wallMs": 236901,
+  "node": "v24.14.0"
+}

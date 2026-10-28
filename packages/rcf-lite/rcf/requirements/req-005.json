@@ -16,5 +16,12 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z"
+  "updatedAt": "2026-10-27T03:17:06.838Z",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:06.835Z"
+  }
 }

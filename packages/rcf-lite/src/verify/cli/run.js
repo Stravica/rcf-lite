@@ -6,7 +6,7 @@
 // step spawns (§8.2).
 
 import { execFileSync } from 'node:child_process';
-import { existsSync, rmSync, statSync } from 'node:fs';
+import { existsSync, readFileSync, rmSync, statSync } from 'node:fs';
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import { dirname, resolve as resolvePath } from 'node:path';
 import { parseArgs } from 'node:util';
@@ -26,6 +26,11 @@ import { isGzipFile, PACKAGED_ARTEFACT_PROFILE, runSuiteAsProbe } from '../suite
 import { packDirectory } from '../suite/pack.js';
 import { isLoopbackUrl } from '../../finalise/ingest.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
+import { releaseLabelProblem, releaseLines, releaseReportPath } from '../release/report.js';
+import { runReleaseVerify } from '../release/index.js';
+import { releaseGit } from '../release/scope.js';
+import { findProjectRoot } from '../chain/index.js';
+import { updateDocument, walkTree } from '#core/store';
 
 const OPTION_SPEC = {
   repo: { type: 'string' },
@@ -64,24 +69,31 @@ const OPTION_SPEC = {
   // serving it and the committed HEAD it serves.
   engine: { type: 'string' },
   'served-sha': { type: 'string' },
+  // FBS-238 (US-20101): release mode, the release Verify outside the cycle.
+  release: { type: 'string' },
+  since: { type: 'string' },
+  record: { type: 'boolean' },
   help: { type: 'boolean' },
 };
 
 const VERIFY_REPORTS_DIR = 'rcf/verify-reports';
+// AC-19702-10: the round's verdict files are never a dirty tree to the
+// runner, in every mode.
+const VERDICTS_DIR = 'rcf/verdicts';
 
 function git(cwd, args) {
   return execFileSync('git', args, { cwd, encoding: 'utf8', stdio: ['ignore', 'pipe', 'pipe'] });
 }
 
 // FBS-219: paths git reports changed (tracked or untracked) outside
-// rcf/verify-reports/ under cwd's project. Read from git status on every
-// call, never cached.
+// rcf/verify-reports/ and rcf/verdicts/ under cwd's project. Read from
+// git status on every call, never cached.
 export function dirtyPathsOutsideReports(cwd) {
   const prefix = git(cwd, ['rev-parse', '--show-prefix']).trim();
-  const exempt = `${prefix}${VERIFY_REPORTS_DIR}/`;
+  const exempt = [`${prefix}${VERIFY_REPORTS_DIR}/`, `${prefix}${VERDICTS_DIR}/`];
   return git(cwd, ['status', '--porcelain=v1', '-z', '--no-renames', '--untracked-files=all'])
     .split('\0').filter(Boolean).map((entry) => entry.slice(3))
-    .filter((path) => !path.startsWith(exempt));
+    .filter((path) => !exempt.some((e) => path.startsWith(e)));
 }
 
 // FBS-219: base URL for a package target given without --url (RFC 2606
@@ -113,6 +125,7 @@ async function readOwnVersion() {
 
 export const HELP = `Usage: rcf verify run [options]
        rcf verify run (--artefact <tgz> | --package <dir>) --fbs <fbs-id> --hand verifier [--verifier-id <id>] [--offline] [--replace <reason>]
+       rcf verify run --release <label> --since <ref> (--url <target-url> | --artefact <tgz> | --package <dir>) [--record] [--out <file>]
 
 Launch a fresh-context adversarial verifier against a running app and emit a
 structured verdict stamped with the runtime it ran against.
@@ -262,6 +275,28 @@ Optional:
                             name, or no target) it exits 2 before any other
                             check, writing nothing
   --replace <reason>        Overwrite an existing report for the same head
+  --release <label>         Release mode (FBS-238), with --since <ref> and
+                            exactly one target: run the bound e2e tests of
+                            the live external criteria of the specs changed
+                            in <ref>..HEAD, plus the smoke suites named in
+                            rcf/release-verify.json, against --url (tests
+                            read RCF_TARGET_URL) or a package installed cold
+                            (scratch HOME, empty npm cache, reduced
+                            environment, RCF_TARGET_KIND=package). Prints
+                            "<AC id> <FBS id> <pass|fail|blocked>" per
+                            criterion and the release verdict line. Exit 0
+                            PASS, 4 FAIL, 2 usage, 1 install failure.
+                            --mode and --offline are refused in release mode
+  --since <ref>             The last release's commit (a tag or sha); must
+                            be a commit and an ancestor of HEAD
+  --record                  With --release and --since: write
+                            ReleaseVerifyReport v1 to
+                            rcf/verify-reports/releases/<label>.json and
+                            executionStatus verified on each in-scope spec
+                            whose live external criteria all passed, only
+                            when the smoke run passed. Needs a clean working
+                            tree outside rcf/verify-reports/ (exit 4).
+                            Without it nothing is written in the project
   --help                    Print this help
 
 Exit codes:
@@ -437,6 +472,114 @@ function isDirectory(path) {
   }
 }
 
+const RELEASE_VERIFY_FILE = 'rcf/release-verify.json';
+
+// FBS-238 (AC-20101-4): the declared core-journey smoke suites, or null
+// when rcf/release-verify.json is absent, unreadable or names none.
+function readSmokeSuites(projectRoot) {
+  try {
+    const smoke = JSON.parse(readFileSync(resolvePath(projectRoot, RELEASE_VERIFY_FILE), 'utf8')).smoke;
+    return Array.isArray(smoke) && smoke.length > 0 ? smoke : null;
+  } catch {
+    return null;
+  }
+}
+
+// FBS-238 (US-20101, US-20102, US-20103, TAC-4157): release mode. Usage
+// refusals (exit 2) first and in this order: a --mode probe, --offline,
+// --release and --since together, a --release label that would leave
+// rcf/verify-reports/releases/, exactly one target, the smoke
+// declaration (with --record), the --since commit; then the dirty-tree
+// refusal (exit 4, --record only); then the run. Without --record nothing
+// is written in the project; with it, the release report and verified.
+async function runReleaseMode(flags, { stdout, stderr, cwd, env }) {
+  const usage = (message) => {
+    stderr.write(`[error] usage ${message}\n`);
+    return 2;
+  };
+  if (flags.mode !== undefined) return usage('release Verify runs the bound E2E tests; --mode probes are ad hoc only');
+  if (flags.offline) return usage('--offline cannot install cold');
+  if (flags.release === undefined || flags.since === undefined) {
+    return usage(flags.record ? '--record needs --release <label> and --since <ref>' : 'release Verify needs --release <label> and --since <ref>');
+  }
+  const labelProblem = releaseLabelProblem(flags.release);
+  if (labelProblem) return usage(labelProblem);
+  const targets = ['url', 'artefact', 'package'].filter((k) => flags[k] !== undefined);
+  if (targets.length !== 1) return usage('give exactly one target: --url, --artefact or --package');
+  const projectRoot = (await findProjectRoot(cwd)) ?? cwd;
+  const smokeSuites = readSmokeSuites(projectRoot);
+  if (flags.record && !smokeSuites) {
+    stderr.write(`verify: no core-journey smoke declared in ${RELEASE_VERIFY_FILE}\n`);
+    return 2;
+  }
+  const target = {};
+  if (flags.url !== undefined) target.url = flags.url;
+  if (flags.artefact !== undefined) {
+    target.artefact = resolvePath(cwd, flags.artefact);
+    if (!isGzipFile(target.artefact)) return usage(`--artefact ${flags.artefact}: not a gzip tarball`);
+  }
+  let since;
+  let head;
+  try {
+    if (flags.package !== undefined) {
+      const dir = resolvePath(cwd, flags.package);
+      if (!isDirectory(dir)) return usage(`--package ${flags.package}: not a directory`);
+      target.packageDir = { top: releaseGit(dir, ['rev-parse', '--show-toplevel']).trim(), prefix: releaseGit(dir, ['rev-parse', '--show-prefix']).trim() };
+    }
+    try {
+      since = releaseGit(projectRoot, ['rev-parse', '--verify', '--quiet', `${flags.since}^{commit}`]).trim();
+    } catch {
+      return usage(`--since ${flags.since} does not resolve to a commit`);
+    }
+    try {
+      releaseGit(projectRoot, ['merge-base', '--is-ancestor', since, 'HEAD']);
+    } catch {
+      return usage(`--since ${flags.since} is not an ancestor of HEAD`);
+    }
+    if (flags.record && dirtyPathsOutsideReports(projectRoot).length > 0) {
+      stderr.write('verify report refused: working tree is dirty; the report must name a committed head\n');
+      return 4;
+    }
+    head = releaseGit(projectRoot, ['rev-parse', 'HEAD']).trim();
+  } catch (err) {
+    stderr.write(`[rcf-verify] unexpected failure: could not read the git head: ${err.message}\n`);
+    return 1;
+  }
+
+  const result = await runReleaseVerify({
+    projectRoot, release: flags.release, since, head, smokeSuites: smokeSuites ?? [], target, env: env ?? process.env,
+  });
+  if (!result.ok) {
+    stderr.write(`${result.message}\n`);
+    return result.code;
+  }
+  const { report } = result;
+  for (const line of releaseLines(report)) stdout.write(`${line}\n`);
+  try {
+    if (flags.out !== undefined) await writeFile(resolvePath(cwd, flags.out), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+    if (flags.record) {
+      const path = releaseReportPath(flags.release);
+      await mkdir(dirname(resolvePath(projectRoot, path)), { recursive: true });
+      await writeFile(resolvePath(projectRoot, path), `${JSON.stringify(report, null, 2)}\n`, 'utf8');
+      // Verify never lowers a status: a verified spec is left as it is.
+      const { tree } = await walkTree({ projectRoot });
+      for (const fbsId of report.verifiedFbsIds) {
+        if (tree.byId.get(fbsId)?.executionStatus === 'verified') continue;
+        const w = await updateDocument({ projectRoot, tree, id: fbsId, sets: [{ path: 'executionStatus', value: 'verified' }], options: { allowVerifiedOverride: true } });
+        if (isRcfError(w)) {
+          stderr.write(`${formatError(w, { verbose: true })}\n`);
+          return 1;
+        }
+      }
+      stdout.write(`verify: recorded ${path}; verified ${report.verifiedFbsIds.length > 0 ? report.verifiedFbsIds.join(', ') : 'none'}\n`);
+    }
+  } catch (err) {
+    stderr.write(`[rcf-verify] unexpected failure: could not write the release report: ${err.message}\n`);
+    return 1;
+  }
+  return report.verdict === 'PASS' ? 0 : 4;
+}
+
 function exitForError(err) {
   switch (err.kind) {
     case 'usage': return 2;
@@ -469,6 +612,9 @@ export async function main(argv, deps = {}) {
   if (flags.help) {
     stdout.write(HELP);
     return 0;
+  }
+  if (flags.release !== undefined || flags.since !== undefined || flags.record) {
+    return runReleaseMode(flags, { stdout, stderr, cwd, env: deps.env });
   }
   const packageTarget = flags.artefact !== undefined || isPackDirectory(flags, cwd);
   // FBS-226 (BH-3): --offline selects the install store policy, so outside

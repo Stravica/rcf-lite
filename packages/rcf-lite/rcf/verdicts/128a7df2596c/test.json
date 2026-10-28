@@ -1,0 +1,24 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "128a7df2596c463d4a43b31cdce488984d9e0e12",
+  "fbsIds": [
+    "FBS-237",
+    "FBS-238",
+    "FBS-239",
+    "FBS-241"
+  ],
+  "result": "FAIL",
+  "suite": {
+    "pass": 4108,
+    "fail": 0,
+    "skip": 4,
+    "todo": 17,
+    "cancelled": 0
+  },
+  "runtime": "node v24.14.0, CI's full suite command in a full clone at 262401b",
+  "node": "v24.14.0",
+  "reason": "by-hand check, AC-20401-5: the document-model guidance topic (guidance/document-model.md:29) presents rcf build mark <fbs-id> complete as the Code Node gate; root locus build (shipped guidance), with a test gap (the bound scan exempts any sentence holding refus)",
+  "recordedBy": "verifier",
+  "recordedAt": "2026-10-28T07:10:01.847Z"
+}

@@ -6,7 +6,8 @@
 //   rcf build bundle <fbs-id>            spec bundle for one FBS item
 //   rcf build bundle --next              bundle for the next actionable item
 //   rcf build mark <fbs-id> <status>     record a lifecycle transition
-//   rcf build backstop adopt --from <id> open the verified backstop window
+//   rcf build base-suite --out <file>    record the RCF suite run on the
+//                                        base head (FBS-239, src/build/base-suite.js)
 //   rcf build verdict review | test      record a round's REVIEW or TEST
 //                                        verdict (FBS-234, src/build/verdict.js)
 //
@@ -40,6 +41,7 @@ import {
   formatJson,
   formatMarkdown,
   hasNoCodeNodesDeclaration,
+  MARK_COMPLETE_REFUSED,
   planMark,
   selectNext,
 } from '../build/index.js';
@@ -56,8 +58,10 @@ import {
   applyOverrideToFreezeRecord,
   loadFreezeRecord,
 } from '../define/freeze-record.js';
-// FBS-221 (US-19003, TAC-4148): the verified backstop on bundle --next.
-import { loadBackstop, saveBackstop, unverifiedInWindow } from '../build/backstop.js';
+// FBS-239 (US-20201, US-20203, TAC-4158): the suite-green backstop on
+// every bundle, and the base-suite record it reads.
+import { checkBaseSuite, loadBackstop, saveBackstop, unverifiedInWindow } from '../build/backstop.js';
+import { recordBaseSuite } from '../build/base-suite.js';
 // FBS-234 (US-19701, US-19702, TAC-4154): the REVIEW and TEST verdict writers.
 import { parseFinding, recordReviewVerdict, recordTestVerdict } from '../build/verdict.js';
 
@@ -85,12 +89,18 @@ const OPTION_SPEC = {
   // (AC-17702-1) and when every actionable FBS is impacted by the
   // delta (AC-17702-4).
   override: { type: 'string' },
-  // FBS-221 (AC-19003-2): bundle --next --allow-unverified "<reason>"
-  // proceeds past the backstop, appending { reason, by, at,
-  // unverifiedFbsIds } to backstop.overrides. Independent of --override.
+  // FBS-239 (AC-20203-3): --allow-unverified is retired in 0.37.0; it
+  // still parses so the refusal names the replacement.
   'allow-unverified': { type: 'string' },
-  // FBS-221 (AC-19003-4): backstop adopt --from <fbs-id>.
-  from: { type: 'string' },
+  // FBS-239 (AC-20201-2): the BaseSuiteRecord every bundle needs.
+  'base-suite': { type: 'string' },
+  // FBS-239 (AC-20202-1): an amend round's touched criteria.
+  acs: { type: 'string' },
+};
+
+const BASE_SUITE_OPTIONS = {
+  command: { type: 'string' },
+  out: { type: 'string' },
 };
 
 export const HELP = `Usage: rcf build <verb> [options]
@@ -100,13 +110,18 @@ Five sub-verbs:
 
   rcf build queue                      Queue overview (the FBS queue as a
                                        table, with parallel-safe tier groups)
-  rcf build bundle <fbs-id>            Spec bundle for one FBS item
-  rcf build bundle --next              Bundle for the next actionable item
+  rcf build bundle <fbs-id> --base-suite <file>
+                                       Spec bundle for one FBS item
+  rcf build bundle --next --base-suite <file>
+                                       Bundle for the next actionable item
+  rcf build bundle <fbs-id> --acs <AC id>[,...] --base-suite <file>
+                                       Amend round on a complete or verified
+                                       FBS, scoped to the touched criteria
+  rcf build base-suite [--command "<suite>"] --out <file>
+                                       Run the RCF suite at a clean committed
+                                       HEAD and write the base-suite record
+                                       every bundle checks
   rcf build mark <fbs-id> <status>     Record a lifecycle transition
-  rcf build backstop adopt --from <fbs-id>
-                                       Open the verified backstop window at
-                                       that FBS's buildOrder (writes
-                                       rcf/define/backstop.json)
   rcf build verdict review | test      Record a round's REVIEW or TEST
                                        verdict under rcf/verdicts/<h12>/
                                        (see 'rcf help build verdict')
@@ -115,10 +130,10 @@ The positional is an FBS id only. For 'which FBS items implement this
 story', use: rcf audit trace <us-id> --forward --format json
 
 Lifecycle (forward-only): notStarted -> inProgress -> complete -> verified.
-The mark ladder caps at 'complete': 'verified' is refused (exit 4)
-because it is written only by the finalise gate (rcf build finalise),
-which ingests the verifier's committed Test-stage report on the PR branch
-before the merge. Backward transitions are also refused
+The mark ladder caps at 'inProgress': 'complete' is refused (exit 4)
+because it is written only by rcf build finalise from the round's
+recorded REVIEW, TEST and test-strength verdicts, and 'verified' is
+refused (exit 4) too. Backward transitions are also refused
 (exit 4); the deliberate-correction / manual-override escape hatch is:
 rcf define update <fbs-id> --set executionStatus=<status>
 
@@ -127,6 +142,22 @@ tree says. It does NOT judge whether the FBS is well-specified or the
 bundle sufficient - that belongs to a later prompting + MCP phase.
 
 Options (bundle):
+  --base-suite <file>       Required on every bundle: a BaseSuiteRecord
+                            v1 from rcf build base-suite for the base
+                            (git merge-base of HEAD with the trunk, the
+                            first of origin/main, origin/master, main and
+                            master that resolves; HEAD itself on the
+                            trunk). Refuses (exit 4) when absent, recorded
+                            at another head, or red (exit code not 0 or
+                            a failing test); exit 2 for an unreadable
+                            record. No flag overrides it.
+  --acs <AC id>[,...]       With <fbs-id> at complete or verified: an
+                            amend round listing only these criteria with
+                            their test cases and Code Nodes (json adds
+                            "round": "amend" and "touchedAcIds"). Exit 2
+                            on another status, a retired criterion or
+                            with --next; exit 3 for a criterion the FBS
+                            does not scope.
   --next                    Select the next actionable FBS item (lowest
                             buildOrder, notStarted, all dependencies
                             satisfied) and emit its bundle
@@ -139,49 +170,32 @@ Options (bundle):
                             an all-impacted delta, recording
                             freeze.override { reason, by, at } (REQ-177,
                             0.30.0 PR 8). The reason must be a
-                            non-empty string.
-  --allow-unverified "<reason>"
-                            With --next: proceed while the verified
-                            backstop refuses (an FBS inside the window
-                            of rcf/define/backstop.json is complete and
-                            not verified), appending { reason, by, at,
-                            unverifiedFbsIds } to backstop.overrides.
-                            Per call; --override never satisfies it.
+                            non-empty string. It never satisfies the
+                            base-suite backstop.
 
-Options (backstop adopt):
-  --from <fbs-id>           The FBS whose buildOrder opens the window.
-                            Exit 0 written, 2 usage, 3 unknown FBS. A
-                            tree with no backstop.json has it off.
+Options (base-suite):
+  --command "<suite>"       The RCF suite command, run through the shell
+                            in the project root; default rcf/test-strength.json
+                            suiteCommand (a differing --command exits 2)
+  --out <file>              Where the record is written; never inside rcf/
+                            Exit 0 recorded (green or red), 2 usage, 4 a
+                            dirty working tree, 1 IO.
+
+Retired in 0.37.0: rcf build backstop adopt, --allow-unverified and
+rcf/define/backstop.json (ignored with a warning); the backstop is the
+base suite.
 
 Options (queue):
   --format <format>         md (default) | json
 
-Options (mark):
-  --no-code-nodes           With mark complete: declare this FBS as
-                            genuinely producing no traceable code
-                            (docs-only, config-only), recorded on the FBS
-                            and exempting it from the mark-complete CN gate
-  --accept-block            With mark complete on a uiBearing FBS: accept
-                            a browserVerification block and ship the FBS
-                            at complete. Requires --reason "..." (>= 20
-                            chars). Records the reason on the
-                            browserVerification.operatorShipDespiteBlockReason
-                            field. Track B ship-without-verified (spec §8.6).
-  --reason "..."            Reason string for --accept-block.
-
 Global:
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
-
-Mark-complete CN gate (D17): 'build mark <fbs-id> complete' refuses
-(exit 3, missingCodeNodes) when any of its ACs carries no Code Node.
-Author CN coverage first, or pass --no-code-nodes for a genuinely
-no-code spec.
 `;
 
 export const VERDICT_HELP = `Usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...]
          --code MERGE|FINDINGS --adequacy PASS|FINDINGS
-         [--finding "<spec|build>:<AC id|->:<text>"]... [--by <text>]
+         [--finding "<spec|build|test>:<AC id|->:<text>"]... [--by <text>]
        rcf build verdict test --fbs <id>[,...] --result PASS|FAIL
          --tap <file> --runtime "<text>" [--reason <text>] [--by <text>]
 
@@ -189,7 +203,8 @@ Record a round's REVIEW or TEST verdict as a file for the stage's own
 REVIEW: or TEST: commit to add; rcf audit separation reads it there to
 judge round order. Neither verb commits, edits an existing verdict file
 or spawns anything but git, and a dirty working tree (any change outside
-rcf/verdicts/) is refused: a verdict names a committed head.
+rcf/verdicts/ and rcf/verify-reports/) is refused: a verdict names a
+committed head.
 
 review  Writes rcf/verdicts/<h12>/review.json (ReviewVerdict v1) for the
         committed HEAD, the reviewed head H, and prints
@@ -289,7 +304,7 @@ async function verdictMain(argv, { stdout, stderr, cwd, deps }) {
     const findings = [];
     for (const [i, text] of (flags.finding ?? []).entries()) {
       const finding = parseFinding(text, i + 1);
-      if (!finding) return usage(`--finding "${text}" does not match <spec|build>:<AC id|->:<text>`);
+      if (!finding) return usage(`--finding "${text}" does not match <spec|build|test>:<AC id|->:<text>`);
       findings.push(finding);
     }
     if ((flags.code === 'FINDINGS' || flags.adequacy === 'FINDINGS') && findings.length === 0) {
@@ -347,8 +362,14 @@ export async function main(argv, deps = {}) {
   }
   // FBS-234: the verdict writers take their own flags and help.
   if (subverb === 'verdict') return await verdictMain(argv.slice(1), { stdout, stderr, cwd, deps });
+  // FBS-239 (AC-20203-2): backstop adopt is retired; it writes nothing.
+  if (subverb === 'backstop' && !argv.includes('--help') && !argv.includes('-h')) {
+    stderr.write('[error] usage backstop adopt is retired in 0.37.0; the backstop is the base suite (rcf build base-suite)\n');
+    return 2;
+  }
+  if (subverb === 'base-suite') return await baseSuiteMain(argv.slice(1), { stdout, stderr, cwd });
   if (!['queue', 'bundle', 'mark', 'backstop'].includes(subverb)) {
-    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | mark | backstop | verdict)\n`);
+    stderr.write(`[error] usage build: unknown sub-verb '${subverb}' (expected queue | bundle | base-suite | mark | verdict)\n`);
     stderr.write(HELP);
     return 2;
   }
@@ -382,12 +403,6 @@ export async function main(argv, deps = {}) {
   } else if (subverb === 'bundle') {
     // Either --next as the first token, or a positional fbs-id.
     translated = rest;
-  } else if (subverb === 'backstop') {
-    if (rest[0] !== 'adopt') {
-      stderr.write('[error] usage build backstop: expected `rcf build backstop adopt --from <fbs-id>`\n');
-      return 2;
-    }
-    translated = rest.slice(1);
   } else { // mark
     if (rest.length < 2) {
       stderr.write('[error] usage build mark: requires <fbs-id> <status>\n');
@@ -438,6 +453,17 @@ export async function main(argv, deps = {}) {
     if (flags.mark !== undefined) return usage('bundle does not take --mark (use `rcf build mark`)');
     if (flags.next && positional) return usage('bundle --next takes no positional');
     if (!flags.next && !positional) return usage('bundle requires <fbs-id> or --next');
+    // FBS-239 (AC-20203-3, AC-20202-3): refused before any gate.
+    if (flags['allow-unverified'] !== undefined) {
+      stderr.write('[error] usage --allow-unverified is retired in 0.37.0; no override lets a Build start on a red base\n');
+      return 2;
+    }
+    if (flags.acs !== undefined && flags.next) return usage('--acs scopes an amend round on one <fbs-id>; it never combines with --next');
+    // An empty --override is a usage error, refused before the backstop.
+    if (flags.next && flags.override === '') {
+      stderr.write('[error] build bundle --next: --override requires a non-empty reason (e.g. --override "hotfix")\n');
+      return 2;
+    }
   } else if (subverb === 'queue') {
     if (flags.mark !== undefined) return usage('queue does not take --mark (use `rcf build mark`)');
     if (flags.next) return usage('queue does not take --next (use `rcf build bundle --next`)');
@@ -450,10 +476,10 @@ export async function main(argv, deps = {}) {
     if (flags.format !== undefined) return usage('mark cannot combine with --format');
     if (flags.out !== undefined) return usage('--out is invalid in mark mode');
     if (flags.strict) return usage('mark cannot combine with --strict');
-  } else if (subverb === 'backstop') {
-    if (positional) return usage('backstop adopt takes no positional');
-    if (typeof flags.from !== 'string' || flags.from.length === 0) {
-      return usage('backstop adopt requires --from <fbs-id>');
+  }
+  if (subverb !== 'bundle') {
+    for (const name of ['base-suite', 'acs', 'allow-unverified']) {
+      if (flags[name] !== undefined) return usage(`--${name} applies to bundle only`);
     }
   }
   // Phase 10 (X2 CodeNode bridge, D17): --no-code-nodes only makes sense
@@ -469,7 +495,7 @@ export async function main(argv, deps = {}) {
   if (flags['accept-block'] && (typeof flags.reason !== 'string' || flags.reason.length < 20)) {
     return usage('--accept-block requires --reason "..." with at least 20 characters');
   }
-  const mode = subverb === 'mark' || subverb === 'queue' || subverb === 'backstop'
+  const mode = subverb === 'mark' || subverb === 'queue'
     ? subverb
     : flags.next ? 'next' : 'bundle';
   const format = flags.format ?? 'md';
@@ -481,6 +507,15 @@ export async function main(argv, deps = {}) {
   if (!projectRoot) {
     stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
     return 2;
+  }
+  // FBS-239 (US-20201, TAC-4158): the base-suite backstop comes before any
+  // other bundle gate, and no flag overrides it.
+  if (subverb === 'bundle') {
+    const backstop = await checkBaseSuite({ projectRoot, file: flags['base-suite'] ?? null, stderr });
+    if (!backstop.ok) {
+      stderr.write(`${backstop.message}\n`);
+      return backstop.code;
+    }
   }
   // Single walkTree call; walker errors block every mode, including
   // --mark - no status write lands on a tree that fails validation (§D6).
@@ -500,9 +535,6 @@ export async function main(argv, deps = {}) {
       acceptReason: typeof flags.reason === 'string' ? flags.reason : null,
     });
   }
-  if (mode === 'backstop') {
-    return await runBackstopAdopt({ tree, projectRoot, fbsId: flags.from, io });
-  }
   if (mode === 'queue') {
     const queue = computeQueue(tree);
     const output = format === 'json' ? formatJson(queue, 'queue') : formatMarkdown(queue, 'queue');
@@ -513,11 +545,11 @@ export async function main(argv, deps = {}) {
     return await emitNext({
       tree, projectRoot, format, io,
       overrideReason: typeof flags.override === 'string' ? flags.override : null,
-      allowUnverifiedReason: typeof flags['allow-unverified'] === 'string' ? flags['allow-unverified'] : null,
     });
   }
   return await emitBundle({
     tree, fbsId: positional, format, strict: Boolean(flags.strict), io,
+    acs: typeof flags.acs === 'string' ? flags.acs : null,
   });
 }
 
@@ -546,11 +578,20 @@ function classifyPositional(tree, id) {
   return rcfError({ kind: 'usage', message: `build: id ${id} not found`, documentId: id });
 }
 
-async function emitBundle({ tree, fbsId, format, strict, io }) {
+async function emitBundle({ tree, fbsId, format, strict, io, acs = null }) {
   const classification = classifyPositional(tree, fbsId);
   if (classification) {
     io.stderr.write(`[error] usage ${classification.message}\n`);
     return 2;
+  }
+  let touchedAcIds;
+  if (acs !== null) {
+    const scope = amendScope(tree, fbsId, acs);
+    if (scope.error) {
+      io.stderr.write(`${scope.error}\n`);
+      return scope.code;
+    }
+    touchedAcIds = scope.acIds;
   }
   // Track C+D §5.4: single-FBS bundle emission also refuses when the
   // bound US has open baseline sweep candidates. Same shape as --next
@@ -563,7 +604,7 @@ async function emitBundle({ tree, fbsId, format, strict, io }) {
   // Track B (spec §4.4): classifier signal alongside the single-FBS
   // bundle. Same transparency rule as --next.
   emitClassifierSignal(io, tree, fbsId);
-  const bundle = assembleBundle(tree, { fbsId });
+  const bundle = assembleBundle(tree, { fbsId, ...(touchedAcIds ? { acIds: touchedAcIds } : {}) });
   // Blocked-dependency gate (§D12): warn by default (the BLOCKED block
   // in section 2), refuse under --strict.
   if (strict && bundle.blockedBy.length > 0) {
@@ -718,13 +759,7 @@ async function enforceBundleNextFreezeGate({ tree, projectRoot, overrideReason }
   return { ok: true, impactedFbsIds, override: appliedOverride };
 }
 
-async function emitNext({ tree, projectRoot, format, io, overrideReason = null, allowUnverifiedReason = null }) {
-  // FBS-221 (AC-19003-2): an empty --allow-unverified is a usage error,
-  // refused before any gate writes.
-  if (allowUnverifiedReason === '') {
-    io.stderr.write('[error] build bundle --next: --allow-unverified requires a non-empty reason (e.g. --allow-unverified "hotfix")\n');
-    return 2;
-  }
+async function emitNext({ tree, projectRoot, format, io, overrideReason = null }) {
   // 0.30.0 PR 8 (REQ-177 / TAC-4125): refuse without a freeze record,
   // write freeze.override on --override "<reason>" and proceed, skip
   // impacted FBS from the next-item selection.
@@ -738,17 +773,6 @@ async function emitNext({ tree, projectRoot, format, io, overrideReason = null, 
   if (gate.override) {
     const o = gate.override;
     io.stderr.write(`[info] build bundle --next: freeze.override recorded (reason=${JSON.stringify(o.reason)}, by=${o.by}, at=${o.at}).\n`);
-  }
-  const backstop = await enforceBundleNextBackstop({ projectRoot, tree, allowUnverifiedReason });
-  if (!backstop.ok) {
-    io.stderr.write(`[error] ${backstop.message}\n`);
-    return backstop.exitCode;
-  }
-  if (backstop.override) {
-    // Markdown carries the line on stdout (AC-19003-2); json keeps
-    // stdout a single parseable document and carries it on stderr.
-    const sink = format === 'json' ? io.stderr : io.stdout;
-    sink.write(`backstop overridden: ${backstop.override.reason}\n`);
   }
   // Skip FBS impacted by a non-empty delta; the next-item compute
   // walks the queue from the top and the first unimpacted actionable
@@ -818,6 +842,10 @@ async function emitNext({ tree, projectRoot, format, io, overrideReason = null, 
   return await emitToSink(output, io);
 }
 
+// FBS-239 (US-20203): the 0.36.x verified backstop below is unreachable
+// (backstop adopt and --allow-unverified are refused before dispatch, and
+// rcf/define/backstop.json is ignored); kept in place for the Code Nodes
+// of its retired criteria (AC-19003-1 to AC-19003-5).
 /**
  * FBS-221 (US-19003, TAC-4148): the verified backstop for
  * `bundle --next`. With no rcf/define/backstop.json the backstop is
@@ -878,6 +906,63 @@ async function runBackstopAdopt({ tree, projectRoot, fbsId, io }) {
 }
 
 /**
+ * FBS-239 (US-20202, TAC-4158): the touched criteria of an amend round.
+ * The FBS must be complete or verified (exit 2), every id scoped by it
+ * (exit 3) and live (a retired id exits 2 naming its successor).
+ *
+ * @param {object} tree - walker tree.
+ * @param {string} fbsId
+ * @param {string} acs - the --acs value
+ * @returns {{ acIds: string[] } | { error: string, code: 2|3 }}
+ */
+function amendScope(tree, fbsId, acs) {
+  const fbs = tree.byId.get(fbsId);
+  if (!['complete', 'verified'].includes(fbs.executionStatus)) {
+    return { error: '[error] usage --acs scopes an amend round on a complete or verified spec', code: 2 };
+  }
+  const acIds = [...new Set(acs.split(',').map((id) => id.trim()).filter(Boolean))];
+  if (acIds.length === 0) return { error: '[error] usage --acs needs at least one AC id', code: 2 };
+  for (const acId of acIds) {
+    if (!(fbs.acIds ?? []).includes(acId)) return { error: `[error] brokenReference ${acId} is not scoped by ${fbsId}`, code: 3 };
+    const us = tree.byId.get(tree.parentByChild.get(acId));
+    const ac = (us?.acceptanceCriteria ?? []).find((a) => a.id === acId);
+    if (ac?.supersededBy) return { error: `[error] usage ${acId} is retired; amend its successor ${ac.supersededBy}`, code: 2 };
+  }
+  return { acIds };
+}
+
+/**
+ * FBS-239 (US-20201): `rcf build base-suite [--command "<suite>"] --out
+ * <file>` writes BaseSuiteRecord v1 through src/build/base-suite.js.
+ *
+ * @param {string[]} argv - argv slice after `base-suite`
+ * @param {{ stdout: NodeJS.WritableStream, stderr: NodeJS.WritableStream, cwd: string }} io
+ * @returns {Promise<number>}
+ */
+async function baseSuiteMain(argv, { stdout, stderr, cwd }) {
+  if (argv.includes('--help') || argv.includes('-h')) {
+    stdout.write(HELP);
+    return 0;
+  }
+  let flags;
+  try {
+    ({ values: flags } = parseArgs({ args: argv, options: BASE_SUITE_OPTIONS, allowPositionals: false, strict: true }));
+  } catch (err) {
+    stderr.write(`[error] usage ${err.message}\n`);
+    return 2;
+  }
+  const projectRoot = await findProjectRoot(cwd);
+  if (!projectRoot) {
+    stderr.write('[error] usage no project root found (no rcf/manifest.json in this directory or any ancestor). Run `npx rcf init` to create and wire a project.\n');
+    return 2;
+  }
+  const result = await recordBaseSuite({ projectRoot, cwd, command: flags.command, out: flags.out });
+  for (const line of result.err) stderr.write(`${line}\n`);
+  if (result.out) stdout.write(`${result.out}\n`);
+  return result.code;
+}
+
+/**
  * Default sink is stdout (pipe-friendly for the harness loop); `--out`
  * writes to a file instead - parent directory must exist, plain
  * overwrite, single writeFile (§D4). Write failures exit 1.
@@ -913,7 +998,7 @@ async function runMark({ tree, projectRoot, fbsId, status, io, noCodeNodes = fal
     return 2;
   }
   if (plan.refused) {
-    io.stderr.write(`[error] refused ${plan.message}\n`);
+    io.stderr.write(plan.message === MARK_COMPLETE_REFUSED ? `${plan.message}\n` : `[error] refused ${plan.message}\n`);
     return 4;
   }
   if (plan.noOp) {

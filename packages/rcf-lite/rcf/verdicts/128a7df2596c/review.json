@@ -1,0 +1,193 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "128a7df2596c463d4a43b31cdce488984d9e0e12",
+  "fbsIds": [
+    "FBS-237",
+    "FBS-238",
+    "FBS-239",
+    "FBS-241"
+  ],
+  "touchedAcIds": [
+    "AC-20001-1",
+    "AC-20001-2",
+    "AC-20001-3",
+    "AC-20001-4",
+    "AC-20001-5",
+    "AC-20001-6",
+    "AC-20001-7",
+    "AC-20001-8",
+    "AC-20001-9",
+    "AC-20002-1",
+    "AC-20002-2",
+    "AC-20002-3",
+    "AC-20002-4",
+    "AC-20002-5",
+    "AC-20003-1",
+    "AC-20003-2",
+    "AC-20003-3",
+    "AC-20003-4",
+    "AC-20003-5",
+    "AC-19803-7",
+    "AC-19702-9",
+    "AC-19803-8",
+    "AC-19604-8",
+    "AC-19701-7",
+    "AC-19703-12",
+    "AC-19702-10",
+    "AC-19902-9",
+    "AC-20101-1",
+    "AC-20101-2",
+    "AC-20101-3",
+    "AC-20101-4",
+    "AC-20101-5",
+    "AC-20101-6",
+    "AC-20101-7",
+    "AC-20102-1",
+    "AC-20102-2",
+    "AC-20102-3",
+    "AC-20102-4",
+    "AC-20103-1",
+    "AC-20103-2",
+    "AC-20103-3",
+    "AC-20201-1",
+    "AC-20201-2",
+    "AC-20201-3",
+    "AC-20201-4",
+    "AC-20201-5",
+    "AC-20201-6",
+    "AC-20201-7",
+    "AC-20201-8",
+    "AC-20202-1",
+    "AC-20202-2",
+    "AC-20202-3",
+    "AC-20202-4",
+    "AC-20202-5",
+    "AC-20203-1",
+    "AC-20203-2",
+    "AC-20203-3",
+    "AC-20203-4",
+    "AC-20401-1",
+    "AC-20401-2",
+    "AC-20401-3",
+    "AC-20401-4",
+    "AC-20401-5",
+    "AC-20401-6",
+    "AC-20401-7",
+    "AC-20402-2",
+    "AC-20402-3",
+    "AC-20402-4",
+    "AC-20401-8",
+    "AC-20401-9",
+    "AC-20402-5",
+    "AC-20402-6"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: guidance/build-cycle-playbook.md:79 still says \"The hard refusal fires at Stage 5.\" though the mark-complete design refusal is retired (RC-32); the line is rewritten"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: guidance/build-cycle-playbook.md:351, :363 and :511 tell the reader to run rcf build bundle --next in prose without --base-suite, which exits 4"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: rcf build mark still parses --no-code-nodes, --accept-block and --reason, and its usage line points at rcf build mark <fbs-id> complete, a command that always exits 4 (src/cli/build.js)"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: docs/code-nodes.md section 7 is still headed \"The mark-complete gate\""
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: guidance/elicitation-playbook.md:326 says the verdict is \"disclosed on the finalise summary\""
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: rcf help build describes mark as running \"-> complete\""
+    },
+    {
+      "id": "F-7",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: the help and exit table of rcf audit test-strength do not name the exit 2 of the unmutated run, and the help of rcf verify run does not state the --release label rule"
+    },
+    {
+      "id": "F-8",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: a timeout in the unmutated run of rcf audit test-strength is reported as \"fails\" (src/audit/test-strength/runner.js, runUnmutated)"
+    },
+    {
+      "id": "F-9",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: the help scans of test/cli/finalise-verdicts.test.js at :485 and :540 are sharpened"
+    },
+    {
+      "id": "F-10",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: both bound cases of AC-19902-9 (test/cli/audit-test-strength.test.js:448) assert a red unmutated run; a bound green-baseline case asserts that the mutants then run and keep their prior scoring"
+    },
+    {
+      "id": "F-11",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: docs/code-nodes.md section 7 keeps its mark-complete heading (:89) and a later mark-complete reference (:121) though its body says the gate moved to the light Finalise; section 7 and every cross-reference name the light Finalise Code Node gate"
+    },
+    {
+      "id": "F-12",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: AC-20401-5 is widened from command lines in code blocks to inline and prose instructions, and every line that runs rcf build bundle --next without --base-suite is rewritten: guidance/build-cycle-playbook.md:351, :363 and :511, guidance/README.md:23, guidance/elicitation-playbook.md lines 7, 172, 263, 286 and 330, and guidance/harness-template.md:488, with guidance/build-cycle-playbook.md:79 in the same pass (RC-54)"
+    },
+    {
+      "id": "F-13",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: \"malformed\" in AC-20201-2 is sharpened to a base-suite record that fails the BaseSuiteRecord v1 schema; the bundle check accepts a record missing its descriptive fields (src/build/backstop.js:161) (RC-56)"
+    },
+    {
+      "id": "F-14",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, question for DEFINE: which stage carries the UI design, contrast, baseline and browser-record safeguards that RC-32 retired from rcf build mark complete: the light Finalise, the Test stage, or neither, with every shipped claim of a Stage 5 UI refusal removed"
+    },
+    {
+      "id": "F-15",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: F-13 to F-21 of the first REVIEW verdict of this round (rcf/verdicts/27c87da54abd/review.json, added by 44043036) stay round D criteria, linked here rather than repeated"
+    },
+    {
+      "id": "F-16",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: CI floats to the newest Node 24.x (.github/workflows/ci.yml:21 and :106 read node-version: 24; v24.21.0 on pull request 426) while the lane runs v24.14.0 with npm 11.9.0, which hid the AC-20102-2 fixture fault from both Review halves; round D pins one of them or tallies the suite on both (RC-61)"
+    },
+    {
+      "id": "F-17",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: Stage 2 entry (rcf build mark <fbs-id> inProgress, guidance/build-cycle-playbook.md:79) writes the rcf/fbs records, class chainStatus, which only DEFINE: and FINALISE: commits may touch (src/audit/separation.js, CLASS_OWNERS); the playbook and separation agree on who writes inProgress and under which prefix (RC-60)"
+    }
+  ],
+  "recordedBy": "reviewer, round C REVIEW: the scoped re-Review of the AC-20102-2 fixture fix with CI green on its head, after the reviews of the fix range and the round range, under rulings RC-54 to RC-61",
+  "recordedAt": "2026-10-28T06:18:28.185Z"
+}

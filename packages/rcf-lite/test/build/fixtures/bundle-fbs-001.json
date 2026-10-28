@@ -264,7 +264,65 @@
   "completionContract": {
     "markInProgress": "rcf build mark FBS-001 inProgress",
     "markComplete": "rcf build mark FBS-001 complete",
-    "finalise": "rcf build finalise FBS-001 --ci-run <ref>"
+    "finalise": "rcf build finalise FBS-001 --ci-run <ref>",
+    "stages": [
+      {
+        "stage": "DEFINE",
+        "dispatch": "DEFINE FBS-001: Document store core",
+        "prefix": "DEFINE:",
+        "role": "test-author",
+        "does": "The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red and marks pickup; it never writes production code.",
+        "commands": [
+          "rcf audit coverage --strict",
+          "rcf build mark FBS-001 inProgress"
+        ]
+      },
+      {
+        "stage": "BUILD",
+        "dispatch": "BUILD FBS-001: Document store core",
+        "prefix": "BUILD:",
+        "role": "builder",
+        "does": "The builder makes the red tests green with production code, Code Nodes and code-hygiene unit tests only, on a base whose RCF suite is recorded green; deviation from the bundle is escalation, not improvisation.",
+        "commands": [
+          "rcf build base-suite --out <file>",
+          "rcf define create cn --path <file>[#symbol] --acs <ac-ids>"
+        ]
+      },
+      {
+        "stage": "REVIEW",
+        "dispatch": "REVIEW FBS-001: Document store core",
+        "prefix": "REVIEW:",
+        "role": "reviewer",
+        "does": "The reviewer validates the tree, runs the separation audit (each commit's stage prefix against the paths it touches) and the test-strength proof, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H.",
+        "commands": [
+          "rcf define validate",
+          "rcf audit separation --base <trunk>",
+          "rcf audit test-strength --record",
+          "rcf build verdict review --fbs FBS-001 --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS"
+        ]
+      },
+      {
+        "stage": "TEST",
+        "dispatch": "TEST FBS-001: Document store core",
+        "prefix": "TEST:",
+        "role": "verifier",
+        "does": "The verifier runs the full RCF suite against a locally running app serving H, nothing deployed, and records its TAP; a failed REVIEW or TEST closes the round and the next round starts at DEFINE.",
+        "commands": [
+          "rcf build verdict test --fbs FBS-001 --result PASS|FAIL --tap <file> --runtime \"<text>\""
+        ]
+      },
+      {
+        "stage": "FINALISE",
+        "dispatch": "FINALISE FBS-001: Document store core",
+        "prefix": "FINALISE:",
+        "role": "stage-keeper",
+        "does": "On the PR branch before the merge, with CI green, the stage-keeper runs the light Finalise: it checks the recorded verdicts and writes complete, and the merge carries it.",
+        "commands": [
+          "rcf build finalise FBS-001 --ci-run <ref>"
+        ]
+      }
+    ],
+    "verify": "Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote"
   },
   "boundSteps": []
 }

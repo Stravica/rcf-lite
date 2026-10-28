@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-08T15:39:52.219Z",
-  "updatedAt": "2026-10-08T15:40:58.645Z",
+  "updatedAt": "2026-10-27T05:39:44.026Z",
   "asA": "operator running `rcf build finalise` from a dispatched worker that may not spawn the agent CLI",
   "iWant": "a `--mode deterministic` option on `rcf verify run` and `rcf build finalise` that runs the gate in-process with a per-AC skip ledger, and a partial-report fallback that names the mode and the reason when verify exits without writing a report",
   "soThat": "the finalise gate always surfaces a readable report, deterministic runs never silently promote to verified (ADR-4112), and the parent-session `agentScreenshotCritique` mode is unchanged for operators who can spawn the agent CLI",
@@ -26,7 +26,10 @@
       "testable": true,
       "given": "an FBS at status 'complete' and a verify report whose run.runStats.mode='deterministic' and counts.skipped>0",
       "when": "rcf build finalise <fbsId> --url ... is invoked",
-      "then": "the exit code is 4, the FBS stays at 'complete', and stderr matches /deterministic mode verified \\d+ of \\d+ ACs/ and /ADR-4112/"
+      "then": "the exit code is 4, the FBS stays at 'complete', and stderr matches /deterministic mode verified \\d+ of \\d+ ACs/ and /ADR-4112/",
+      "supersededBy": "AC-20003-1",
+      "supersededOn": "2026-10-27",
+      "supersessionNote": "Retired 2026-10-27 (stage-keeper ruling RC-19, round A ruling 5: retired and succeeded, never reworded): the light Finalise reads no report and never writes verified, so this 0.36.x report-based Finalise behaviour retires; finalise --url and --mode exit 2 with the no-verify-report line, spawn nothing and write nothing (AC-20003-1), so no deterministic-mode report refuses with exit 4."
     },
     {
       "id": "AC-16503-3",
@@ -34,7 +37,10 @@
       "testable": true,
       "given": "an FBS at status 'complete' and a spawnVerify seam that returns exit code 1 WITHOUT writing to --out",
       "when": "rcf build finalise <fbsId> --url ... --mode deterministic is invoked",
-      "then": "the exit code is non-zero, the --out file is readable, run.runStats.mode='deterministic', run.runStats.status='aborted', run.runStats.exitCode=1, launchFailure.status='aborted', and the FBS stays at 'complete'"
+      "then": "the exit code is non-zero, the --out file is readable, run.runStats.mode='deterministic', run.runStats.status='aborted', run.runStats.exitCode=1, launchFailure.status='aborted', and the FBS stays at 'complete'",
+      "supersededBy": "AC-20003-1",
+      "supersededOn": "2026-10-27",
+      "supersessionNote": "Retired 2026-10-27 (stage-keeper ruling RC-19, round A ruling 5: retired and succeeded, never reworded): the light Finalise reads no report and never writes verified, so this 0.36.x report-based Finalise behaviour retires; finalise --url and --mode exit 2, spawn nothing and write nothing (AC-20003-1), so no verify launch aborts and no --out file is written."
     },
     {
       "id": "AC-16503-4",
@@ -42,7 +48,10 @@
       "testable": true,
       "given": "any scaffold",
       "when": "rcf verify run --mode foo or rcf build finalise <fbsId> --url ... --mode foo is invoked",
-      "then": "the exit code is 2 and stderr matches /--mode must be one of/"
+      "then": "the exit code is 2 and stderr matches /--mode must be one of/",
+      "supersededBy": "AC-20003-1",
+      "supersededOn": "2026-10-27",
+      "supersessionNote": "Retired 2026-10-27 (stage-keeper ruling RC-19, round A ruling 5: retired and succeeded, never reworded): the light Finalise reads no report and never writes verified, so this 0.36.x report-based Finalise behaviour retires; finalise --url and --mode exit 2 with the no-verify-report line (AC-20003-1), not /--mode must be one of/; the rcf verify run --mode foo half stays in force under AC-20103-1 (the ad hoc probe keeps its 0.36.x output and exit codes)."
     }
   ],
   "tacIds": [

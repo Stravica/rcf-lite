@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:45.421Z",
-  "updatedAt": "2026-10-26T00:07:46.064Z",
+  "updatedAt": "2026-10-27T23:08:28.059Z",
   "asA": "operator upgrading a product from rcf-lite 0.36.x to 0.37.0",
   "iWant": "the release to tell my agents to refresh the managed block, and the docs to describe the new Finalise and Verify",
   "soThat": "the upgrade lands in every consumer and nobody runs a retired command from the docs",
@@ -23,13 +23,25 @@
     },
     {
       "id": "AC-20402-3",
-      "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at this slice's reviewed head or any later head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, or a sentence saying a spec is verified at Finalise or by the Test stage finds nothing; any such line fails this criterion.",
+      "description": "[failure] Given any file under packages/rcf-lite/docs/, packages/rcf-lite/README.md or the root README.md at this slice's reviewed head or any later head, a search for \"rcf build finalise <fbs-id> --url\", \"--mode <mode>\" in a finalise synopsis, a sentence saying a spec is verified at Finalise or by the Test stage, \"rcf build backstop adopt\" or \"--allow-unverified\" outside a sentence that calls it retired, \"rcf build mark <fbs-id> complete\" as a command to run (with or without --no-code-nodes), or a \"Test-stage report\" written by rcf verify run finds nothing; any such line fails this criterion.",
       "testable": true,
       "verification": "testOnly"
     },
     {
       "id": "AC-20402-4",
       "description": "[must-not] The READMEs never describe verification of a deployed app as part of the build cycle: the root README.md and packages/rcf-lite/README.md each state that the build cycle ends at complete and that a release Verify writes verified, and neither tells a reader to wait for verified before the next Build.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20402-5",
+      "description": "[happy] Given packages/rcf-lite/docs/how-it-works.md at this slice's reviewed head or any later head, then the sentence that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20402-6",
+      "description": "[happy] Given this repository's .github/workflows/ci.yml at this slice's reviewed head or any later head, then the comment that introduces the separation job says the job judges each commit's stage prefix over the pull request's range, and does not say it judges a Hand: trailer.",
       "testable": true,
       "verification": "testOnly"
     }

@@ -16,8 +16,199 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-06-25T00:00:00Z",
-  "updatedAt": "2026-10-07T13:46:36.188Z",
+  "updatedAt": "2026-10-27T03:17:05.008Z",
   "deliveredBy": {
     "tacId": "TAC-4136-view-query-routes"
+  },
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "httpApi",
+      "persistence"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:05.005Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "renders"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "see"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "click"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "server-built `./index.json` of every document id and AC, opened by the SearchButton or Cmd/Ctrl+F, navigates to `#tab=<tab>&entity=<id>` preserving `embed` and `theme`, per viewer UI refresh design section 6. Embedding proof: a same-origin test-host fixture mounts the viewer with `embed=1` and `theme=` and the three lints keep framing headers, `target='_top'` and localStorage namespace in place, per viewer UI refresh design section 9 and Dex's wespa requirements of 2026-10-02. Standalone viewer carries a visible three-state theme control (Light|Dark|Auto) in the header right of the SearchButton that persists its setting under `rcf-view:v1:theme` in non-embed mode only (ADR-4137); under `embed=1` the control is absent from the DOM and the key is never read or written. Every text and control colour pair meets WCAG 2.1 AA (>= 4.5:1 for text, >= 3:1 for large text and non-text UI boundaries) in both themes, pinned by a static CSS-contrast audit test (US-207) that enumerates every rule and state in `src/view/style.css` and fails the suite on any below-threshold pair. Query routes and the trace matrix (DEFINE 2026-10-07, discovery-viewer-command-page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "nav"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "theme"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "theme"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "header"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "visible"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "theme"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "header"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "persist"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "theme"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "theme"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "contrast"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "style"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "page"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "httpApi",
+        "match": "GET"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "renders"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "modal"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "component"
+      },
+      {
+        "source": "rationale",
+        "shape": "webUi",
+        "match": "see"
+      }
+    ]
   }
 }

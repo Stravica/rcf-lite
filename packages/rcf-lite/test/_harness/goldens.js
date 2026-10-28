@@ -47,15 +47,42 @@
 //     supersededBy, supersededOn and supersessionNote (those present) of
 //     every tagged criterion, as { "<AC id>": { "<field>": <value> } }.
 //     Each reads the working tree only.
+//
+//   node test/_harness/goldens.js bundle-next-029 test/cli/fixtures/bundle-next-029-golden.md
+//     FBS-241 (AC-17702-5's golden, the stage-keeper's ruling RC-12 on the
+//     round C DEFINE: a golden a BUILD moves gets a declared generator,
+//     bundle-next-029-golden in rcf/separation.json): the stdout of
+//     node bin/rcf.js build bundle --next with CI=1 over the AC-17702-5
+//     fixture, a project made by rcf init as PR8BundleTest with D0
+//     declared none and a freeze record matching the tree (frozenAt
+//     2026-10-03T00:00:00Z, its hashes read from define readiness --json),
+//     built under the OS temp dir with the bin alone and removed after.
+//     When the bin's rcf build bundle --help lists --base-suite (FBS-239's
+//     BUILD, the stage-keeper's ruling RC-17), the fixture is committed as
+//     the trunk main and the bundle takes --base-suite with a green
+//     BaseSuiteRecord v1 for that commit, as AC-17702-5's test passes it.
+//
+//   node test/_harness/goldens.js bundle-fbs-001 test/build/fixtures/bundle-fbs-001.md
+//     FBS-241 (the bundle goldens of test/cli/build.test.js, the
+//     stage-keeper's ruling RC-17 on the round C DEFINE, generator
+//     bundle-fbs-001-golden in rcf/separation.json): the stdout of
+//     node bin/rcf.js build bundle FBS-001 over this repository's chain,
+//     written to the named .md file, and of the same with --format json,
+//     written beside it as the .json file. When the bin's rcf build bundle
+//     --help lists --base-suite, each run takes --base-suite with a green
+//     BaseSuiteRecord v1 for the base TAC-4158 names (git merge-base of
+//     HEAD with the first of origin/main, origin/master, main and master
+//     that resolves; HEAD itself on the trunk), written under the OS temp
+//     dir and removed after, as those tests pass it.
 
 import { cpSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { BIN, rcf, run } from './spawn.js';
+import { BIN, rcf, rcfOk, run } from './spawn.js';
 import { json } from './capture.js';
-import { git, gitTry, showAt } from './git.js';
+import { commit, git, gitTry, initRepo, showAt } from './git.js';
 
 /**
  * node bin/rcf.js audit coverage --strict --format json in cwd, read as
@@ -183,6 +210,78 @@ export function flagTexts(storiesDir) {
   return Object.fromEntries(Object.keys(out).sort().map((id) => [id, out[id]]));
 }
 
+/**
+ * The bundle AC-17702-5 compares byte for byte: node bin/rcf.js build
+ * bundle --next over a project made by rcf init as PR8BundleTest, D0
+ * declared none, with a freeze record whose hashes match the tree (an
+ * empty delta). The project sits under the OS temp dir and is removed
+ * afterwards.
+ */
+export async function bundleNext029({ bin = BIN } = {}) {
+  const dir = join(mkdtempSync(join(tmpdir(), 'rcf-h-b029-')), 'project');
+  mkdirSync(dir);
+  try {
+    await rcfOk(['init', '--non-interactive', '--no-agent-setup', '--project-name', 'PR8BundleTest'], { cwd: dir, bin });
+    await rcfOk(['discover', 'journey', 'declare', '--ui', 'none', '--reason', 'fixture: D0 not under test'], { cwd: dir, bin });
+    const { tree, delta } = json((await rcf(['define', 'readiness', '--json'], { cwd: dir, bin })).stdout);
+    mkdirSync(join(dir, 'rcf', 'define'), { recursive: true });
+    const freeze = { frozenAt: '2026-10-03T00:00:00Z', treeHash: tree.currentTreeHash, docHashes: delta.currentDocHashes, briefStatements: 0, override: null };
+    writeFileSync(join(dir, 'rcf', 'define', 'freeze.json'), `${JSON.stringify(freeze, null, 2)}\n`);
+    const args = ['build', 'bundle', '--next'];
+    if (await bundleTakesBaseSuite(bin, dir)) {
+      initRepo(dir);
+      args.push('--base-suite', baseSuiteFile(commit(dir, 'fixture: base', {}, { allowEmpty: true }), dirname(dir)));
+    }
+    const r = await rcf(args, { cwd: dir, bin });
+    if (r.code !== 0) throw new Error(`bundle-next-029: rcf build bundle --next exited ${r.code}\n${r.stderr.slice(-1500)}`);
+    return r.stdout;
+  } finally {
+    rmSync(dirname(dir), { recursive: true, force: true });
+  }
+}
+
+// Whether the bin's rcf build bundle --help lists the --base-suite option
+// (FBS-239's BUILD adds it; the stage-keeper's ruling RC-17).
+async function bundleTakesBaseSuite(bin, cwd) {
+  const h = await rcf(['build', 'bundle', '--help'], { cwd, bin });
+  return /(^|\s)--base-suite\b/m.test(`${h.stdout}${h.stderr}`);
+}
+
+// A green BaseSuiteRecord v1 (TAC-4158) for head, in the shape of the
+// harness baseSuiteRecord defaults, written as base.json in dir.
+function baseSuiteFile(head, dir) {
+  const record = { version: 1, head, command: 'node --test --test-reporter=tap', exitCode: 0, tap: { pass: 3, fail: 0, skip: 0, todo: 0, cancelled: 0 }, green: true, startedAt: '2026-10-24T00:00:00.000Z', finishedAt: '2026-10-24T00:00:05.000Z', node: process.version };
+  const file = join(dir, 'base.json');
+  writeFileSync(file, `${JSON.stringify(record, null, 2)}\n`);
+  return file;
+}
+
+// The two bundle goldens of test/cli/build.test.js: rcf build bundle
+// FBS-001 over the chain in cwd, as md and as json.
+async function bundleFbs001(cwd, { bin = BIN } = {}) {
+  const extra = [];
+  let tmp = null;
+  try {
+    if (await bundleTakesBaseSuite(bin, cwd)) {
+      let base = git(cwd, 'rev-parse', 'HEAD');
+      for (const ref of ['origin/main', 'origin/master', 'main', 'master']) {
+        if (gitTry(cwd, 'rev-parse', '--verify', '--quiet', `${ref}^{commit}`).code === 0) { base = git(cwd, 'merge-base', 'HEAD', ref); break; }
+      }
+      tmp = mkdtempSync(join(tmpdir(), 'rcf-h-bfbs-'));
+      extra.push('--base-suite', baseSuiteFile(base, tmp));
+    }
+    const out = {};
+    for (const [kind, format] of [['md', []], ['json', ['--format', 'json']]]) {
+      const r = await rcf(['build', 'bundle', 'FBS-001', ...format, ...extra], { cwd, bin });
+      if (r.code !== 0) throw new Error(`bundle-fbs-001: rcf build bundle FBS-001 ${format.join(' ')} exited ${r.code}\n${r.stderr.slice(-1500)}`);
+      out[kind] = r.stdout;
+    }
+    return out;
+  } finally {
+    if (tmp) rmSync(tmp, { recursive: true, force: true });
+  }
+}
+
 function writeGolden(out, value) {
   const abs = resolve(process.cwd(), out);
   mkdirSync(dirname(abs), { recursive: true });
@@ -202,6 +301,22 @@ const RECORDERS = {
   'coverage-rows': async (out) => writeGolden(out, await coverageRows(process.cwd())),
   'flag-tags': async (out) => writeGolden(out, flagTags(join(process.cwd(), 'rcf', 'user-stories'))),
   'flag-texts': async (out) => writeGolden(out, flagTexts(join(process.cwd(), 'rcf', 'user-stories'))),
+  'bundle-next-029': async (out) => {
+    const abs = resolve(process.cwd(), out);
+    mkdirSync(dirname(abs), { recursive: true });
+    writeFileSync(abs, await bundleNext029());
+    process.stdout.write(`golden written: ${out}\n`);
+  },
+  'bundle-fbs-001': async (out) => {
+    if (!out.endsWith('.md')) throw new Error(`bundle-fbs-001: ${out} must name the .md golden; the .json golden is written beside it`);
+    const { md, json: js } = await bundleFbs001(process.cwd());
+    for (const [file, text] of [[out, md], [out.replace(/\.md$/, '.json'), js]]) {
+      const abs = resolve(process.cwd(), file);
+      mkdirSync(dirname(abs), { recursive: true });
+      writeFileSync(abs, text);
+      process.stdout.write(`golden written: ${file}\n`);
+    }
+  },
 };
 
 if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {

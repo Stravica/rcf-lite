@@ -8,6 +8,8 @@
 // spec: headings and tables carry the structure without a parser, and
 // the same artefact is human-reviewable as-is (OQ-P6-5).
 
+import { runbookStages, VERIFY_LINE } from '../bundle.js';
+
 const SECTION_NUMBERS = {
   header: 1,
   queueContext: 2,
@@ -113,7 +115,7 @@ function formatQueueTable(queue) {
  * @returns {string}
  */
 function formatNextEmpty(envelope) {
-  const lines = ['# Build queue: nothing actionable', ''];
+  const lines = ['# Build queue: nothing actionable', '', 'Next actionable: none', ''];
   if (envelope.queueEmpty) {
     lines.push('Queue complete: every item is complete or verified.');
   } else {
@@ -140,7 +142,10 @@ function formatNextEmpty(envelope) {
 function formatBundle(bundle) {
   const lines = [];
   const { fbs } = bundle;
-  lines.push(`# Spec bundle: ${fbs.fbsId} - ${fbs.title}`, '');
+  // FBS-239 (AC-20202-1): an amend round is titled by its touched criteria.
+  lines.push(bundle.round === 'amend'
+    ? `# Amend round on ${fbs.fbsId}: ${bundle.touchedAcIds.length} criteria`
+    : `# Spec bundle: ${fbs.fbsId} - ${fbs.title}`, '');
   pushHeader(lines, bundle);
   pushQueueContext(lines, bundle);
   pushWork(lines, bundle);
@@ -384,6 +389,10 @@ function pushTestSurface(lines, bundle) {
       const status = c.status !== undefined ? ` (${c.status})` : '';
       lines.push(`  - ${c.tcId}${status}: ${c.description ?? ''}${pointer}`);
     }
+    if (bundle.round === 'amend') {
+      const cns = bundle.codeNodes.filter((cn) => cn.acIds.includes(entry.acId)).map((cn) => `${cn.cnId} (${cn.path})`);
+      lines.push(`  - Code Nodes: ${cns.length > 0 ? cns.join(', ') : 'none'}`);
+    }
   }
   lines.push('');
 }
@@ -391,7 +400,7 @@ function pushTestSurface(lines, bundle) {
 /**
  * Section 7 - the full RCF five-stage build-cycle runbook (§D3.7,
  * amendment D3-A). Static text parameterised only by fbsId and the
- * in-scope AC ids; the each-stage-commits discipline and the hand per
+ * in-scope AC ids; the each-stage-commits discipline and the role per
  * stage (FBS-224, AC-19004-3) are part of the printed contract. The tool assembles and referees; the harness
  * executes the cycle.
  */
@@ -399,6 +408,11 @@ function pushRunbook(lines, bundle) {
   const fbsId = bundle.fbs.fbsId;
   const acIds = bundle.acceptanceCriteria.map((ac) => ac.id).join(', ');
   lines.push(`## ${SECTION_NUMBERS.runbook}. Build-cycle runbook`, '');
+  if (bundle.round === 'amend') {
+    // FBS-239 (AC-20202-1): an amend round starts at DEFINE.
+    lines.push(`Amend round: it starts at DEFINE for the touched criteria (${acIds}),`);
+    lines.push('then BUILD, REVIEW, TEST and FINALISE, each scoped to them.', '');
+  }
   lines.push('This bundle is the work order for one pass of the RCF five-stage build');
   lines.push('cycle: Define -> Build -> Review -> Test -> Finalise. The tool assembles');
   lines.push('and referees; the harness executes. Every stage ends in a commit.', '');
@@ -406,64 +420,14 @@ function pushRunbook(lines, bundle) {
   // terse just-in-time layer; the playbook is the deep layer.
   lines.push('Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or `rcf guidance build-cycle-playbook` on the CLI.', '');
 
-  lines.push('### Stage 1 - Define', '');
-  lines.push('Hand: test-author. The FBS, acceptance criteria, ancestry and');
-  lines.push('architectural context above ARE the definition. The test-author writes');
-  lines.push('the AC-based and E2E tests and their TS / TC bindings for every in-scope');
-  lines.push(`acceptance criterion (${acIds}) before any production code, proves each`);
-  lines.push('new test red, and checks that (section 6 lists the existing surface):', '');
-  lines.push('    rcf audit coverage --strict', '');
-  lines.push('covers them. Then mark pickup:', '');
-  lines.push(`    rcf build mark ${fbsId} inProgress`, '');
-  lines.push('Commit with the trailer `Hand: test-author`.', '');
-
-  lines.push('### Stage 2 - Build', '');
-  lines.push('Hand: builder. The builder makes the red tests green with production code,');
-  lines.push('Code Nodes and code-hygiene unit tests only; it never edits an AC-based or');
-  lines.push('E2E test, a TS / TC record or criterion text. Implement to the acceptance');
-  lines.push('criteria in section 4 using the architectural context in section 5. The');
-  lines.push('bundle is the spec: deviation is escalation to the operator of the loop,');
-  lines.push('not improvisation. As you implement, author or update Code Nodes for the');
-  lines.push('source you write:', '');
-  lines.push('    rcf define create cn --path <file>[#symbol] --acs <ac-ids>', '');
-  lines.push('Do this now, not as an afterthought: comprehension of which symbols serve');
-  lines.push('which acceptance criteria is cheapest to capture while you are writing the');
-  lines.push('code, and Stage 5 refuses completion without it. Commit with the trailers');
-  lines.push('`Hand: builder` and `Hand-Id: <builder identity>`.', '');
-
-  lines.push('### Stage 3 - Review', '');
-  lines.push('Hand: reviewer. Mechanical referee pass:', '');
-  lines.push('    rcf define validate', '');
-  lines.push('    rcf audit separation', '');
-  lines.push('must both come back clean (separation judges each commit\'s `Hand:` trailer');
-  lines.push('against the paths it touches, as the pull_request CI job does); then the');
-  lines.push('reviewer re-reads the diff against every in-scope acceptance criterion');
-  lines.push('and returns MERGE or FINDINGS. Any commit it makes carries');
-  lines.push('`Hand: reviewer`.', '');
-
-  lines.push('### Stage 4 - Test', '');
-  lines.push('Hand: verifier. On the reviewed head, the verifier runs the bound suites');
-  lines.push('against the preview or version host (`--artefact <tgz>` or');
-  lines.push('`--package <dir>`):', '');
-  lines.push(`    rcf verify run --fbs ${fbsId} --hand verifier --artefact <tgz>`, '');
-  lines.push(`The verb writes the report to rcf/verify-reports/${fbsId}/<head12>.json;`);
-  lines.push('commit it with the trailer `Hand: verifier`. The PR merges only on a');
-  lines.push('Review MERGE and a Test PASS at the same head.', '');
-
-  lines.push('### Stage 5 - Finalise', '');
-  lines.push('Hand: stage-keeper. On the PR branch before the merge, with CI green on');
-  lines.push('the PR head and a Review MERGE and a Test PASS at the same head:', '');
-  lines.push(`    rcf build mark ${fbsId} complete`, '');
-  lines.push('This refuses (exit 3, missingCodeNodes) if any in-scope acceptance');
-  lines.push('criterion still carries no Code Node - go back to Stage 2 and author it,');
-  lines.push('or, for a genuinely no-code spec (docs-only, config-only), declare:', '');
-  lines.push(`    rcf build mark ${fbsId} complete --no-code-nodes`, '');
-  lines.push('Then promote complete -> verified by ingesting the committed Test-stage');
-  lines.push('report, naming the CI run that passed on the PR head the report names:', '');
-  lines.push(`    rcf build finalise ${fbsId} --ci-run <ref>`, '');
-  lines.push('A loopback report target (localhost, 127.0.0.0/8, ::1) is accepted when');
-  lines.push('the report names the engine, the port and the served sha');
-  lines.push('(rcf verify run --engine <name> --served-sha <sha>). Commit the verified');
-  lines.push('write on the branch, then merge the PR per the driving workflow\'s');
-  lines.push('convention; the merge carries verified.');
+  // FBS-241 (AC-20401-4): the five stages from the shared table, each
+  // with its dispatch name, prefix, role and commands, then the Verify
+  // line outside the round as the runbook's last line.
+  for (const s of runbookStages(fbsId, bundle.fbs.title ?? fbsId)) {
+    lines.push(`**${s.dispatch}** - commit prefix \`${s.prefix}\`, role ${s.role}.`, '');
+    lines.push(s.does, '');
+    for (const c of s.commands) lines.push(`    ${c}`, '');
+  }
+  lines.push('Every commit carries its stage prefix; the `Hand:` trailer is optional through 0.37.x.', '');
+  lines.push(VERIFY_LINE);
 }

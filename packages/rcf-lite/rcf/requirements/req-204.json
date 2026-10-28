@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:42.697Z",
-  "updatedAt": "2026-10-24T11:51:36.390Z",
+  "updatedAt": "2026-10-27T03:13:42.003Z",
   "description": "rcf guidance build-cycle, the playbook, the overview, the managed agent-instructions block and the rcf build bundle closing runbook name the five stages by commit prefix and role, TEST on a locally running app with nothing deployed, Finalise light and pre-merge writing complete, Verify outside the cycle writing verified with --record, the rounds rule, and dispatches named by stage; none tells anyone to verify inside the cycle, to pass a verify report to Finalise or to use a Hand trailer. docs/verify-reference.md drops the retired finalise synopsis and describes release mode with probes optional. The 0.37.0 release feed entry carries minAgentAction rerun-init.",
   "category": "functional",
   "domain": "functional",
@@ -20,16 +20,26 @@
   "status": "draft",
   "shapeClassification": {
     "shapes": [
-      "auth"
+      "none"
     ],
     "reason": "keyword-scan",
-    "classifiedAt": "2026-10-24T11:41:42.786Z",
+    "classifiedAt": "2026-10-27T03:13:42.000Z",
     "signals": [
       {
         "source": "description",
         "shape": "auth",
         "match": "role"
       }
-    ]
+    ],
+    "operatorOverride": {
+      "originalShapes": [
+        "auth"
+      ],
+      "newShapes": [
+        "none"
+      ],
+      "reason": "Test-author reclassification, FBS-240 round DEFINE (GR-54): the requirement is shipped guidance text and the managed block; the auth signal is \"role\" in \"by commit prefix and role\", a hand role, not a login or permission.",
+      "ackAt": "2026-10-27T03:30:00.000Z"
+    }
   }
 }

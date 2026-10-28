@@ -1,0 +1,12 @@
+{
+  "statements": [
+    {
+      "id": 1,
+      "text": "A command-line tool that counts the lines of a text file.",
+      "kind": "capability",
+      "addedAt": "2026-10-27T02:58:53.275Z",
+      "status": "open",
+      "resolvedBy": "REQ-001"
+    }
+  ]
+}

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-19T10:59:34.436Z",
-  "updatedAt": "2026-10-24T11:33:53.748Z",
+  "updatedAt": "2026-10-26T23:43:09.181Z",
   "description": "User story under REQ-193 for FBS-225. rcf verify run --artefact <tgz> --fbs <fbs-id> --hand verifier with no --url installs the given tarball in a scratch project outside the repository, copies the bound test files beside the installed package, runs them with node --test and a TAP reporter, maps TAP results to test cases by exact title and test cases to ACs, and writes VerifyReport v1 with method suiteAsProbe, profile packagedArtefact and the artefact identity, with no hand composition.",
   "asA": "a verifier hand running the Test stage for a CLI or library product",
   "iWant": "rcf verify run to run the AC-bound suites against the packed artefact and write the per-AC verdicts itself",
@@ -45,7 +45,10 @@
     {
       "id": "AC-19301-7",
       "description": "[failure] The FBS-219 rules hold under --artefact: a working tree with changes outside rcf/verify-reports/ refuses exit 4 with stderr \"verify report refused: working tree is dirty; the report must name a committed head\"; an existing report for the same head refuses exit 4 with \"verify report exists for head <sha7>; pass --replace \\\"<reason>\\\"\" unless --replace \"<reason>\" is given; --fbs absent or given twice exits 2; and rcf verify run --package <name@version> or --package <tarball name> with no --artefact and no --url still records target.kind \"package\" and target.packageRef only, as AC-19001-4 states, running no suite.",
-      "testable": true
+      "testable": true,
+      "supersededBy": "AC-19702-10",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): the verify runner's dirty check ignores rcf/verdicts/ (AC-19702-10), so a change outside rcf/verify-reports/ no longer always refuses; an uncommitted change to src/x.js still refuses as dirty with exit 4. The existing-report --replace rule and the --package target stay stated for every --hand verifier run by AC-19001-6 and AC-19001-4."
     },
     {
       "id": "AC-19301-8",

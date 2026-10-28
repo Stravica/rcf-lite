@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1002",
+  "path": "src/build/verdict.js#treeState",
+  "implementsAcIds": [
+    "AC-19702-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:46.090Z",
+  "updatedAt": "2026-10-27T11:42:46.090Z"
+}

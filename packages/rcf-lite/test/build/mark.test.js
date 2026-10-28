@@ -15,11 +15,11 @@ function treeWith(status) {
 }
 
 test('every legal single-step forward transition produces an executable plan', () => {
-  // The mark ladder caps at `complete`; complete -> verified is no longer a
-  // mark transition (it is the finalise gate's job), so it is not listed here.
+  // The mark ladder caps at `inProgress`: complete is written only by rcf
+  // build finalise from the recorded verdicts (AC-20003-3, below) and
+  // verified only by a release Verify, so neither is listed here.
   const steps = [
     ['notStarted', 'inProgress'],
-    ['inProgress', 'complete'],
   ];
   for (const [from, to] of steps) {
     const plan = planMark(treeWith(from), { fbsId: 'FBS-001', status: to });
@@ -27,14 +27,19 @@ test('every legal single-step forward transition produces an executable plan', (
   }
 });
 
-test('forward jumps up to complete are legal (notStarted -> complete)', () => {
-  const jumps = [
+test('AC-20003-3: marking complete is refused from notStarted and inProgress; the message says complete is written only by rcf build finalise from the recorded verdicts', () => {
+  // The rows the ladder planned before round C (inProgress -> complete,
+  // notStarted -> complete), now refused in the shape planMark returns for
+  // --mark verified.
+  const steps = [
+    ['inProgress', 'complete'],
     ['notStarted', 'complete'],
   ];
-  for (const [from, to] of jumps) {
+  for (const [from, to] of steps) {
     const plan = planMark(treeWith(from), { fbsId: 'FBS-001', status: to });
-    assert.equal(plan.noOp, false, `${from} -> ${to}`);
-    assert.equal(plan.refused, undefined, `${from} -> ${to}`);
+    assert.equal(plan.refused, true, `${from} -> ${to} refuses`);
+    assert.equal(plan.to, to);
+    assert.match(plan.message, /mark refused: complete is written only by rcf build finalise from the recorded verdicts/, `${from} -> ${to} names finalise`);
   }
 });
 

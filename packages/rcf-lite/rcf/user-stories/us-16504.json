@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-12T19:17:56.478Z",
-  "updatedAt": "2026-10-12T19:29:33.005Z",
+  "updatedAt": "2026-10-27T05:41:14.271Z",
   "asA": "operator finalising one build unit on a tree that carries hundreds of acceptance criteria",
   "iWant": "`rcf build finalise <fbs-id>` to verify only the acceptance criteria bound to that FBS by default, with `rcf verify run --fbs <id>` as the underlying filter and an explicit `--all` option that restores whole-chain verification",
   "soThat": "finalising one build unit costs one unit's verification rather than the whole chain, the ADR-4112 verified invariant still holds per FBS (every AC bound to the FBS verified, none skipped), and a whole-chain run stays available at slice end",
@@ -26,7 +26,10 @@
       "testable": true,
       "given": "an FBS at status 'complete' bound to a subset of the chain's acceptance criteria",
       "when": "rcf build finalise <fbs-id> --url ... is invoked without --all, and separately with --all",
-      "then": "without --all the fresh rcf verify run subprocess receives --fbs <fbs-id> and the finalise output names the scope and the AC count; with --all no --fbs filter is passed and the whole chain is verified; the promotion to 'verified' still requires a passing run with ship authority"
+      "then": "without --all the fresh rcf verify run subprocess receives --fbs <fbs-id> and the finalise output names the scope and the AC count; with --all no --fbs filter is passed and the whole chain is verified; the promotion to 'verified' still requires a passing run with ship authority",
+      "supersededBy": "AC-20002-5",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): Finalise never spawns anything but git (AC-20002-5), so it launches no verify run and writes no verify report."
     },
     {
       "id": "AC-16504-3",
@@ -35,7 +38,10 @@
       "given": "a chain where one FBS binds an acceptance criterion the verifier cannot exercise (it lands on blockedAcs) and another FBS binds only exercisable criteria",
       "when": "rcf build finalise is run for each FBS in turn, and for an FBS whose acIds list is empty",
       "then": "the FBS whose scoped set contains the skipped criterion is refused (exit 4, left at 'complete') with a line naming the unexercised criteria and ADR-4112, in agent mode and deterministic mode alike; the FBS whose scoped set contains no skipped criterion is promoted when the run passes with ship authority; an FBS with zero bound acceptance criteria is refused before verify launches (exit 3, the schema forbids an empty binding) with a plain message naming the FBS and saying there is nothing to verify",
-      "scope": "runtime"
+      "scope": "runtime",
+      "supersededBy": "AC-20003-5",
+      "supersededOn": "2026-10-27",
+      "supersessionNote": "Retired 2026-10-27 (stage-keeper ruling RC-19, round A ruling 5: retired and succeeded, never reworded): the light Finalise reads no report and never writes verified, so this 0.36.x report-based Finalise behaviour retires; Finalise never writes executionStatus verified in any mode or flag combination (AC-20003-5), so no promotion exists for the ADR-4112 invariant to be evaluated over a scoped set."
     },
     {
       "id": "AC-16504-4",
@@ -43,7 +49,10 @@
       "testable": true,
       "given": "the shipped package",
       "when": "rcf build finalise --help, rcf verify run --help, rcf verify report <path> and the finalise docs page are read",
-      "then": "each states plainly that finalise verifies the named FBS's bound acceptance criteria by default, that --all verifies the whole chain, and that verify run --fbs <id> is the filter; the human report render shows the scope and the AC count"
+      "then": "each states plainly that finalise verifies the named FBS's bound acceptance criteria by default, that --all verifies the whole chain, and that verify run --fbs <id> is the filter; the human report render shows the scope and the AC count",
+      "supersededBy": "AC-20003-2",
+      "supersededOn": "2026-10-27",
+      "supersessionNote": "Retired 2026-10-27 (stage-keeper ruling RC-19, round A ruling 5: retired and succeeded, never reworded): the light Finalise reads no report and never writes verified, so this 0.36.x report-based Finalise behaviour retires; Finalise never opens a file under rcf/verify-reports/ (AC-20003-2), so it verifies no scoped set of criteria and its help, the report render it summarised and its docs page have no verification scope of Finalise to describe; the verify-run clauses (verify run --fbs <id> as the filter, the report render's scope) are ad hoc probe behaviour AC-20103-1 keeps."
     }
   ],
   "tacIds": [

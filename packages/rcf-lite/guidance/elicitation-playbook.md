@@ -323,7 +323,7 @@ Between the tree being drafted (section 8) and the build cycle picking up its fi
 
 Pick honestly. A `mocked` where the ship intent is `live` is the exact failure this whole surface exists to prevent.
 
-**What "declared mock-only" costs at ship time.** Verify emits a `MOCK-ONLY-DECLARED` verdict on the run, disclosed on the finalise summary. The finalise gate refuses to promote the FBS to `verified` on that verdict unless you pass `--ship-without-verified`. This is legitimate for pre-launch stubs and feature-flagged-off code; the chain records it so it is greppable at ship time rather than a false PASS.
+**What "declared mock-only" costs at ship time.** Verify emits a `MOCK-ONLY-DECLARED` verdict on the run, disclosed on the finalise summary. The light Finalise never writes verified; a release Verify writes verified, outside the build cycle. This is legitimate for pre-launch stubs and feature-flagged-off code; the chain records it so it is greppable at ship time rather than a false PASS.
 
 **Credentials never enter the chain.** The session prompts for env-var NAMES only. Values are read from the shell at test / finalise time; the name-metadata lives in `.rcf/preflight-secrets.local.json`, which is gitignored via the managed block written by `rcf init`.
 

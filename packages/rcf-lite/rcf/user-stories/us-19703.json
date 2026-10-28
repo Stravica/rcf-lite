@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:38.538Z",
-  "updatedAt": "2026-10-26T00:07:40.214Z",
+  "updatedAt": "2026-10-26T21:31:08.535Z",
   "asA": "test-author starting a new round, and the stage-keeper judging the branch",
   "iWant": "rcf audit separation to refuse any stage regression except a new round right after a failed verdict",
   "soThat": "every fix round re-runs all five stages and no BUILD or DEFINE commit slips in after a passed review",
@@ -78,6 +78,12 @@
     {
       "id": "AC-19703-11",
       "description": "[edge] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS), TEST: (PASS at H), \"TEST: strength\" adding rcf/verdicts/<H12>/test-strength.json with result fail, then \"DEFINE: triage\", rcf audit separation exits 0: the failing record closes the round; the same branch with \"BUILD: fix\" after the failing record exits 4 with \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\".",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19703-12",
+      "description": "[edge] When rcf audit separation --help runs, then its round items list \"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\", the reviewed head written <H7> as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head <h7>.",
       "testable": true,
       "verification": "external"
     }

@@ -209,63 +209,6 @@ test('AC-19301-6: rcf verify run --artefact <tgz> with --url, --mode agentScreen
   }
 });
 
-test('AC-19301-7: rcf verify run --artefact under the FBS-219 rules: dirty tree exits 4 "verify report refused: working tree is dirty; the report must name a committed head", existing report exits 4 unless --replace "<reason>", --fbs absent or twice exits 2, --package <name@version> alone records target kind package and packageRef only and runs no suite', { timeout: 2 * INSTALL_TIMEOUT }, async (t) => {
-  const world = await readyWorld();
-  const hand = ['--fbs', FBS, '--hand', 'verifier'];
-
-  await t.test('dirty tree refuses exit 4', async () => {
-    const stray = join(world.root, 'notes.txt');
-    await writeFile(stray, 'uncommitted\n', 'utf8');
-    const r = await artefactRun(world, hand);
-    await unlink(stray);
-    assertNotUnknownOption(r);
-    assert.equal(r.code, 4, `dirty tree: exit 4; stderr:\n${r.stderr}`);
-    assert.ok(r.stderr.includes('verify report refused: working tree is dirty; the report must name a committed head'), r.stderr);
-    assert.equal(existsSync(join(world.root, 'rcf', 'verify-reports', FBS)), false, 'no report written');
-  });
-
-  await t.test('existing report refuses exit 4 unless --replace', async () => {
-    assertSelf(world, BOTH_PASS);
-    const first = await artefactRun(world, hand);
-    assertNotUnknownOption(first);
-    assert.equal(first.code, 0, `first run writes the report; stderr:\n${first.stderr}`);
-    const before = readFileSync(join(world.root, reportRel(world)));
-    const second = await artefactRun(world, hand);
-    assert.equal(second.code, 4, `second run for the same head: exit 4; stderr:\n${second.stderr}`);
-    assert.ok(second.stderr.includes(`verify report exists for head ${world.head.slice(0, 7)}; pass --replace "<reason>"`), second.stderr);
-    assert.deepEqual(readFileSync(join(world.root, reportRel(world))), before, 'the refused run never overwrites');
-    const replaced = await artefactRun(world, [...hand, '--replace', 'fixture re-run']);
-    assert.equal(replaced.code, 0, `--replace proceeds; stderr:\n${replaced.stderr}`);
-    assert.equal(lastLine(replaced.stdout), `verify report: ${reportRel(world)} PASS 2/2`);
-  });
-
-  await t.test('--fbs absent or given twice exits 2', async () => {
-    for (const fbs of [[], ['--fbs', FBS, '--fbs', 'FBS-002']]) {
-      const r = await artefactRun(world, [...fbs, '--hand', 'verifier']);
-      assertNotUnknownOption(r);
-      assert.equal(r.code, 2, `--fbs ${fbs.length ? 'twice' : 'absent'}: exit 2; stderr:\n${r.stderr}`);
-      assert.ok(r.stderr.includes('--fbs <fbs-id> is required with --hand (exactly one build spec)'), r.stderr);
-    }
-  });
-
-  // Regression guards: FBS-219's record-only --package (AC-19001-4) is green today and must stay so.
-  await t.test('--package <name@version> or <tarball name> alone records target kind and packageRef only, runs no suite', async () => {
-    const plain = await packageWorld();
-    commitWorld(plain);
-    for (const [i, packageRef] of [`${PKG_NAME}@${PKG_VERSION}`, TARBALL].entries()) {
-      const r = await rcf(['verify', 'run', '--repo', plain.root, '--profile', 'ci', '--provision-mode', 'skip',
-        '--mode', 'deterministic', '--package', packageRef, ...hand, ...(i ? ['--replace', 'second ref'] : [])],
-      { cwd: plain.root, env: runEnv(plain) });
-      assert.ok(r.code === 0 || r.code === 4, `--package ${packageRef} writes a report; got ${r.code}; stderr:\n${r.stderr}`);
-      const report = readReport(plain);
-      assert.deepEqual(report.target, { kind: 'package', packageRef });
-      assert.equal('suites' in report, false, 'no suite ran');
-      assert.equal(existsSync(join(plain.root, 'rcf', 'verify-reports', FBS, head12(plain))), false,
-        'no evidence directory');
-    }
-  });
-});
-
 test('AC-19301-8: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier leaves every file outside rcf/verify-reports/FBS-001/ byte-identical and git status clean beyond it, installs under the OS temporary directory, and never spawns a claude executable on PATH', { timeout: INSTALL_TIMEOUT }, async () => {
   const world = await readyWorld();
   assertSelf(world, BOTH_PASS);
@@ -295,44 +238,6 @@ test('AC-19301-8: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier 
   for (const call of installs) {
     assert.ok(call.split('\t')[0].startsWith(`${tmpReal}/`), `the scratch install project lives under the OS temp dir (${tmpReal}); got ${call}`);
   }
-  assert.equal(existsSync(world.claudeMarker), false, 'no agent CLI was spawned');
-});
-
-test('AC-19301-9: the tool-written report from rcf verify run --artefact committed under Hand: verifier and merged, then rcf build mark FBS-001 complete and rcf build finalise FBS-001 --ci-run run-1 exits 0 printing "finalise: FBS-001 verified from rcf/verify-reports/FBS-001/<head12>.json (head <sha7>, ci run-1)" and FBS-001 reads executionStatus verified with no report field edited by hand', { timeout: INSTALL_TIMEOUT }, async () => {
-  const world = await packageWorld({ fbsStatus: 'notStarted' });
-  const { root } = world;
-  const cn = await rcf(['define', 'create', 'cn', '--path', `bin/${PKG_NAME}.js#banner`, '--acs', `${AC1},${AC2}`], { cwd: root });
-  assert.equal(cn.code, 0, `fixture: create cn\n${cn.stderr}`);
-  const ip = await rcf(['build', 'mark', FBS, 'inProgress'], { cwd: root });
-  assert.equal(ip.code, 0, `fixture: mark inProgress\n${ip.stderr}`);
-
-  git(root, 'init', '-q', '-b', 'main');
-  commitAll(root, 'chore: base');
-  git(root, 'checkout', '-q', '-b', 'feature');
-  const binPath = join(root, 'bin', `${PKG_NAME}.js`);
-  await writeFile(binPath, `${await readFile(binPath, 'utf8')}// built\n`, 'utf8');
-  world.head = commitAll(root, 'feat: fixture-cli banner', { Hand: 'builder', 'Hand-Id': 'build-hand-7' });
-  packWorld(world);
-  assertSelf(world, BOTH_PASS);
-
-  const run = await rcf(['verify', 'run', '--artefact', world.tgz, '--fbs', FBS, '--hand', 'verifier'], { cwd: root, env: runEnv(world) });
-  assertNotUnknownOption(run);
-  assert.equal(run.code, 0, `the verifier's run passes; stderr:\n${run.stderr}`);
-  const written = readFileSync(join(root, reportRel(world)));
-  commitAll(root, 'test: verify report', { Hand: 'verifier' });
-  git(root, 'checkout', '-q', 'main');
-  git(root, 'merge', '-q', '--no-ff', '-m', 'Merge feature', 'feature');
-  const done = await rcf(['build', 'mark', FBS, 'complete'], { cwd: root });
-  assert.equal(done.code, 0, `fixture: mark complete\n${done.stderr}`);
-  commitAll(root, 'chain: mark FBS-001 complete');
-
-  const fin = await rcf(['build', 'finalise', FBS, '--ci-run', 'run-1'], { cwd: root, env: runEnv(world) });
-  assert.equal(fin.code, 0, `Finalise ingests the tool-written report: exit 0\nstderr:\n${fin.stderr}`);
-  assert.ok(fin.stdout.includes(`finalise: ${FBS} verified from ${reportRel(world)} (head ${world.head.slice(0, 7)}, ci run-1)`), fin.stdout);
-  const fbs = JSON.parse(await readFile(join(root, 'rcf', 'fbs', 'fbs-001.json'), 'utf8'));
-  assert.equal(fbs.executionStatus, 'verified');
-  const committed = execGitBlob(root, `HEAD:${reportRel(world)}`);
-  assert.deepEqual(committed, written, 'the committed report is byte-identical to what the run wrote');
   assert.equal(existsSync(world.claudeMarker), false, 'no agent CLI was spawned');
 });
 

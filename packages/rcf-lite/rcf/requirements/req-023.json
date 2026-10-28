@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-05T01:30:00.000Z",
-  "updatedAt": "2026-09-22T13:47:34.538Z",
+  "updatedAt": "2026-10-27T03:17:14.797Z",
   "reqId": "REQ-023",
   "prdId": "PRD-001",
   "title": "Application-admin-console v1.0.0 blueprint on the shelf with capability-gated surfaces, a Playwright probe pack and a sample-app fixture",
@@ -12,5 +12,212 @@
   "status": "draft",
   "tags": [
     "capability:applications-shelf"
-  ]
+  ],
+  "shapeClassification": {
+    "shapes": [
+      "webUi",
+      "auth",
+      "persistence",
+      "notifications"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:14.794Z",
+    "signals": [
+      {
+        "source": "title",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "Admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "View"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "permission"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "email"
+      },
+      {
+        "source": "description",
+        "shape": "notifications",
+        "match": "email"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "permission"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "nav"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "permission"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "rendered"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "role"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "permission"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "permission"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "WCAG"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "persistence",
+        "match": "table"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "admin"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "ADMIN"
+      },
+      {
+        "source": "description",
+        "shape": "auth",
+        "match": "magic-link"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      }
+    ]
+  }
 }

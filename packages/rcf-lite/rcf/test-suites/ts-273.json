@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:03.169Z",
-  "updatedAt": "2026-10-24T16:35:04.779Z",
+  "updatedAt": "2026-10-26T23:42:25.153Z",
   "purpose": "FBS-234: the external criteria of US-19701, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -9,7 +9,8 @@
     "AC-19701-3",
     "AC-19701-4",
     "AC-19701-5",
-    "AC-19701-6"
+    "AC-19701-6",
+    "AC-19701-7"
   ],
   "id": "TS-273",
   "usId": "US-19701",
@@ -34,7 +35,7 @@
       "acId": "AC-19701-3",
       "description": "FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file",
       "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]"
     },
     {
       "id": "TC-273-a-dirty-tree-refuses-with-exit-4-verdict",
@@ -56,6 +57,13 @@
       "description": "at inProgress the review verdict must touch every live criterion of the spec (exit 3 \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\", nothing written); at complete the same command writes (an amend round)",
       "status": "pending",
       "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19701-6: at inProgress the review verdict must touch every live criterion of the spec (exit 3 \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\", nothing written); at complete the same command writes (an amend round)"
+    },
+    {
+      "id": "TC-273-rcf-build-verdict-review-test-locus",
+      "acId": "AC-19701-7",
+      "description": "rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]"
     }
   ],
   "status": "draft"

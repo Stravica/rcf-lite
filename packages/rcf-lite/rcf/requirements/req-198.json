@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:29:06.415Z",
-  "updatedAt": "2026-10-24T11:51:34.839Z",
+  "updatedAt": "2026-10-27T03:13:40.798Z",
   "description": "rcf define validate exits 3 when a live criterion new or amended since the base ref (--base, else the merge-base with origin/main) has no verification flag, and reports every other live unflagged criterion; --report verification prints the worklist. rcf audit coverage shows per criterion its verification flag, expected end state (verified for external, complete for testOnly, unknown when unflagged) and where it is now, and per spec its expected end and current status, in table and json. CI passes --base on pull requests. The 0.37.0 criteria move from their interim tags onto the field.",
   "category": "functional",
   "domain": "functional",
@@ -20,11 +20,10 @@
   "status": "draft",
   "shapeClassification": {
     "shapes": [
-      "webUi",
-      "persistence"
+      "none"
     ],
     "reason": "keyword-scan",
-    "classifiedAt": "2026-10-24T11:29:06.503Z",
+    "classifiedAt": "2026-10-27T03:13:40.796Z",
     "signals": [
       {
         "source": "title",
@@ -46,6 +45,17 @@
         "shape": "persistence",
         "match": "table"
       }
-    ]
+    ],
+    "operatorOverride": {
+      "originalShapes": [
+        "webUi",
+        "persistence"
+      ],
+      "newShapes": [
+        "none"
+      ],
+      "reason": "Test-author reclassification, FBS-240 round DEFINE (GR-54): rcf define validate and rcf audit coverage are local CLI verbs; \"shows\" and \"table\" are the CLI's table output format, not a web page or a database table.",
+      "ackAt": "2026-10-27T03:30:00.000Z"
+    }
   }
 }

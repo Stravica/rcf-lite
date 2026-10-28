@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:07.403Z",
-  "updatedAt": "2026-10-24T16:46:06.938Z",
+  "updatedAt": "2026-10-26T21:31:14.539Z",
   "purpose": "FBS-234: the external criteria of US-19703, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -14,7 +14,8 @@
     "AC-19703-8",
     "AC-19703-9",
     "AC-19703-10",
-    "AC-19703-11"
+    "AC-19703-11",
+    "AC-19703-12"
   ],
   "id": "TS-275",
   "usId": "US-19703",
@@ -96,6 +97,13 @@
       "description": "a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\"",
       "status": "pending",
       "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-11: a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\""
+    },
+    {
+      "id": "TC-275-separation-help-reviewed-head-casing",
+      "acId": "AC-19703-12",
+      "description": "rcf audit separation --help lists the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head \"<h7>\"",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19703-12: rcf audit separation --help lists the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head \"<h7>\""
     }
   ],
   "status": "draft"

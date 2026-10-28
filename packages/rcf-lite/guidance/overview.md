@@ -31,13 +31,15 @@ Every RCF query is one of three questions:
 
 ## The build cycle in five lines
 
-1. **Define** - confirm the plan against every in-scope acceptance criterion in the spec bundle.
-2. **Build** - implement to those criteria and nothing beyond them.
-3. **Review** - validate the tree, then re-read the diff against every in-scope criterion.
-4. **Test** - write tests until strict coverage holds over the in-scope criteria.
-5. **Finalise** - CI green, merge, then record the lifecycle transition.
+1. **Define** - the test-author writes the tests for every in-scope acceptance criterion in the spec bundle and proves them red.
+2. **Build** - the builder implements to those criteria and nothing beyond them.
+3. **Review** - validate the tree, then re-read the diff against every in-scope criterion and record the verdict.
+4. **Test** - run the full RCF suite against a locally running app and record the verdict.
+5. **Finalise** - a pre-merge step on the PR branch that checks the recorded verdicts and writes complete, before the merge.
 
-Every stage ends in a commit. The normative statement is `rcf://docs/build-cycle`; the deep guidance is the `rcf_execute_build_cycle` prompt.
+Every stage ends in a commit carrying its stage prefix. A release Verify, outside the build cycle, writes verified.
+
+The normative statement is `rcf://docs/build-cycle`; the deep guidance is the `rcf_execute_build_cycle` prompt.
 
 ## Mechanical, not semantic
 

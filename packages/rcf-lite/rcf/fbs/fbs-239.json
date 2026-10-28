@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:37:28.340Z",
-  "updatedAt": "2026-10-24T15:55:37.553Z",
+  "updatedAt": "2026-10-28T16:26:57.407Z",
   "summary": "Replace the verified backstop with a recorded RCF suite run on the base head, checked before every bundle with no override; add rcf build bundle <fbs-id> --acs for amend rounds on complete or verified specs; retire backstop.json, backstop adopt and --allow-unverified.",
   "approach": "New src/build/base-suite.js (runner and BaseSuiteRecord writer); src/build/backstop.js reads the record against the base (git merge-base of HEAD with the trunk; HEAD itself on the trunk); src/build/bundle.js gains the amend scope and the round and touchedAcIds fields; src/cli/build.js wires flags, retirements and help.",
   "deliverables": [
@@ -39,6 +39,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 241,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Suite-green backstop (rcf build base-suite, --base-suite on every bundle) and amend rounds bundled by touched criterion"
 }

@@ -1,0 +1,24 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "dffd3be3ec40fcc138e5e2af4a0631df847b2ade",
+  "fbsIds": [
+    "FBS-237",
+    "FBS-238",
+    "FBS-239",
+    "FBS-241"
+  ],
+  "result": "PASS",
+  "suite": {
+    "pass": 4108,
+    "fail": 0,
+    "skip": 4,
+    "todo": 17,
+    "cancelled": 0
+  },
+  "runtime": "node v24.14.0, CI's full suite command in a full clone at 155c36c",
+  "node": "v24.14.0",
+  "reason": null,
+  "recordedBy": "verifier",
+  "recordedAt": "2026-10-28T15:43:19.400Z"
+}

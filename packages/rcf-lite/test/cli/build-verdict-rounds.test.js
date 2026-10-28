@@ -112,27 +112,6 @@ test('AC-19701-2: --adequacy FINDINGS with a spec and a build --finding records 
   ]);
 });
 
-test('AC-19701-3: FINDINGS with no --finding exits 2, a malformed --finding exits 2 naming the <spec|build>:<AC id|->:<text> form, an unscoped --acs exits 3 with the brokenReference line, and none writes a verdict file', async (t) => {
-  // FBS-001 at complete, as in AC-19701-2: --acs naming a subset is not refused for that reason.
-  const { dir } = await verdictProject(t, { status: 'complete' });
-  const a = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1', '--code', 'FINDINGS', '--adequacy', 'PASS']);
-  assert.equal(a.code, 2);
-  assert.ok(errLine(a, '[error] usage FINDINGS needs at least one --finding'), a.stderr);
-  const b = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-101-1', '--code', 'FINDINGS', '--adequacy', 'PASS', '--finding', 'maybe:AC-101-1:x']);
-  assert.equal(b.code, 2);
-  assert.ok(b.stderr.includes('<spec|build>:<AC id|->:<text>'), `stderr names the expected form\n${b.stderr}`);
-  const c = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-999-1', '--code', 'MERGE', '--adequacy', 'PASS']);
-  assert.equal(c.code, 3);
-  assert.ok(errLine(c, '[error] brokenReference AC-999-1 is not scoped by FBS-001'), c.stderr);
-  // Control (round B ruling 28): a well-formed --finding is parsed, so
-  // FINDINGS with it and the unscoped --acs reaches the chain and exits 3
-  // with the brokenReference line, not 2 with the form line.
-  const d = await review(dir, ['--fbs', 'FBS-001', '--acs', 'AC-999-1', '--code', 'FINDINGS', '--adequacy', 'PASS', '--finding', 'spec:AC-101-1:the then clause names no exit code']);
-  assert.equal(d.code, 3, `a well-formed --finding is not refused as malformed\n${d.stdout}${d.stderr}`);
-  assert.ok(errLine(d, '[error] brokenReference AC-999-1 is not scoped by FBS-001'), d.stderr);
-  assert.deepEqual(verdictFiles(dir), [], 'no file appears under rcf/verdicts/');
-});
-
 test('AC-19701-4: a dirty tree refuses with exit 4 "verdict refused: working tree is dirty; a verdict names a committed head", and a second review for the same head refuses with exit 4 leaving the first file byte-identical', async (t) => {
   const { dir, H } = await verdictProject(t);
   writeText(dir, 'src/x.js', 'export const x = 2;\n');

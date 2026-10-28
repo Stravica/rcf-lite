@@ -9,8 +9,27 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-09-16T13:45:23.000Z",
-  "updatedAt": "2026-09-21T17:00:00.000Z",
+  "updatedAt": "2026-10-27T03:17:22.724Z",
   "tags": [
     "capability:feedback-loop"
-  ]
+  ],
+  "shapeClassification": {
+    "shapes": [
+      "webUi"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-10-27T03:17:22.721Z",
+    "signals": [
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "route"
+      },
+      {
+        "source": "description",
+        "shape": "webUi",
+        "match": "view"
+      }
+    ]
+  }
 }

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:28:09.039Z",
-  "updatedAt": "2026-10-24T16:28:10.860Z",
+  "updatedAt": "2026-10-26T21:29:53.083Z",
   "purpose": "FBS-233: the external criteria of US-19604, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-233's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -10,7 +10,8 @@
     "AC-19604-4",
     "AC-19604-5",
     "AC-19604-6",
-    "AC-19604-7"
+    "AC-19604-7",
+    "AC-19604-8"
   ],
   "id": "TS-272",
   "usId": "US-19604",
@@ -64,6 +65,13 @@
       "description": "a branch starting at \"BUILD: code\" followed by an evidence-only \"TEST: evidence\" with no verdict file passes on classes with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\"",
       "status": "pending",
       "testPointer": "test/cli/audit-separation-stage-prefix.test.js::AC-19604-7: a branch starting at \"BUILD: code\" followed by an evidence-only \"TEST: evidence\" with no verdict file passes on classes with \"DEFINE 0, BUILD 1, REVIEW 0, TEST 1\""
+    },
+    {
+      "id": "TC-272-with-rcf-separation-json-classes-rcftest",
+      "acId": "AC-19604-8",
+      "description": "with rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head and a \"BUILD: code\" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\", as it does from the project root",
+      "status": "pending",
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19604-8: with rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head and a \"BUILD: code\" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\", as it does from the project root"
     }
   ],
   "status": "draft"

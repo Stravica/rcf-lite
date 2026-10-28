@@ -413,10 +413,10 @@ FBS-002 created at rcf/fbs/fbs-002.json
 FBS-002 updated at rcf/fbs/fbs-002.json
 ```
 
-`rcf build` with no arguments is the queue overview:
+`rcf build queue` is the queue overview:
 
 ```sh
-rcf build
+rcf build queue
 ```
 
 ```
@@ -438,51 +438,34 @@ Parallel-safe tiers (items in the same tier have no dependency between them and 
 Next actionable: FBS-001
 ```
 
-`rcf build bundle --next` assembles the spec bundle for the next actionable item - the work, its acceptance criteria with full ancestry, the architectural context and a five-stage runbook - as a single markdown document. Print it, or sink it to a file to hand to an implementing agent:
+Every bundle checks the base suite first, because no Build starts until the RCF suite is green on the base: `rcf build bundle FBS-001` with no record exits 4 with `backstop: base suite not recorded`. In a project under git with its own test suite, `rcf build base-suite --out <file>` runs the suite at a clean committed base and writes the record, and `rcf build bundle FBS-001 --base-suite <file>` then assembles the spec bundle for the item - the work, its acceptance criteria with full ancestry, the architectural context and the five-stage runbook - as a single markdown document to hand to the agents that run each stage. This walkthrough's project has neither yet, so it stops short of the bundle.
 
-```sh
-rcf build bundle --next --out fbs-001-bundle.md
-```
-
-```
-bundle written to fbs-001-bundle.md
-```
-
-```sh
-head -12 fbs-001-bundle.md
-```
-
-```
-# Spec bundle: FBS-001 - Save a recipe end to end
-
-## 1. Header
-
-- Item: FBS-001 - Save a recipe end to end
-- Queue: order 1, item 1 of 2
-- Execution status: notStarted
-- Parent chain: BS-001 -> PRD-001 (Recipe Box)
-- Spec last touched: 2026-07-06T13:57:22.413Z
-
-## 2. Queue and dependency context
-
-```
-
-Whoever drives the loop records lifecycle transitions as the work moves. Marking a spec `complete` runs the Code Node gate: it refuses when any of the spec's acceptance criteria carries no Code Node (see [code-nodes.md](code-nodes.md)), because a spec-to-code chain with optional links is not a chain. This walkthrough has no real application code to point Code Nodes at, so it declares FBS-001 with `--no-code-nodes` - in a real codebase you would author the Code Nodes first (`rcf define create cn --path ... --acs ...`) and drop the flag:
+The round's DEFINE stage records pickup:
 
 ```sh
 rcf build mark FBS-001 inProgress
-rcf build mark FBS-001 complete --no-code-nodes
 ```
 
 ```
 marked FBS-001 notStarted -> inProgress
-marked FBS-001 inProgress -> complete
 ```
 
-Completing FBS-001 unblocks the queue:
+`complete` is not a mark. It is written only by `rcf build finalise <fbs-id> --ci-run <ref>`, which runs on the PR branch before the merge and checks the round's recorded REVIEW and TEST verdicts, so `rcf build mark FBS-001 complete` exits 4 with `mark refused: complete is written only by rcf build finalise from the recorded verdicts`.
+
+The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`). The build cycle ends at complete; verified is written only by a release Verify (`rcf verify run --release <label> --since <ref> --record`), outside the build cycle. Marking backwards is refused too:
 
 ```sh
-rcf build
+rcf build mark FBS-001 notStarted
+```
+
+```
+[error] refused build: refusing backward transition inProgress -> notStarted on FBS-001; for a deliberate correction use: rcf define update FBS-001 --set executionStatus=notStarted
+```
+
+The queue shows FBS-001 in progress and FBS-002 still waiting on it:
+
+```sh
+rcf build queue
 ```
 
 ```
@@ -492,29 +475,17 @@ Generation strategy: dependencyFirst
 
 | order | tier | id | title | status | state | blocked by |
 |---|---|---|---|---|---|---|
-| 1 | 0 | FBS-001 | Save a recipe end to end | complete | complete |  |
-| 2 | 1 | FBS-002 | Ingredient search | notStarted | actionable |  |
+| 1 | 0 | FBS-001 | Save a recipe end to end | inProgress | inProgress |  |
+| 2 | 1 | FBS-002 | Ingredient search | notStarted | blocked | FBS-001 |
 
-Totals: items 2 | notStarted 1 | inProgress 0 | complete 1 | verified 0 | actionable 1 | blocked 0
+Totals: items 2 | notStarted 1 | inProgress 1 | complete 0 | verified 0 | actionable 0 | blocked 1
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001
 - tier 1: FBS-002
 
-Next actionable: FBS-002
+Next actionable: none
 ```
-
-The lifecycle is forward-only (`notStarted -> inProgress -> complete -> verified`), and `--mark` tops out at `complete` - `verified` is written only by the finalise gate (`rcf build finalise`), never by `--mark`. Marking backwards is refused:
-
-```sh
-rcf build mark FBS-001 inProgress
-```
-
-```
-[error] refused build: refusing backward transition complete -> inProgress on FBS-001; for a deliberate correction use: rcf define update FBS-001 --set executionStatus=inProgress
-```
-
-Exit code 4 - the "refused" code. The tool ships the marking primitive and the discipline: mark `complete` on merge; `verified` is not a `--mark` target - it is written only by the finalise gate (`rcf build finalise`), which promotes `complete -> verified` when an independent post-merge verify run against the deploy passes with ship authority. By default that verify run covers only the acceptance criteria bound to the FBS being finalised; `--all` verifies the whole chain instead.
 
 ## 8. Do it from your agent
 

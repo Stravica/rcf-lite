@@ -42,21 +42,30 @@ const rcfRoot = resolve(repoRoot, 'rcf');
 // generators) and rcf/test-strength.json (TAC-4155, the test-strength
 // audit's entry, harness and suite command). They classify as config, are
 // counted, and are never validated or id-checked as documents.
-const CONFIG_FILES = new Set(['separation.json', 'test-strength.json']);
+// rcf/release-verify.json (TAC-4157, the release Verify's smoke suites)
+// joins them in ruling 11's shape (stage-keeper ruling RC-4, rcf-lite
+// round C, FBS-238's round DEFINE).
+const CONFIG_FILES = new Set(['separation.json', 'test-strength.json', 'release-verify.json']);
 
 // Round verdict records that sit under rcf/ beside the chain and are
 // neither chain documents nor configuration (stage-keeper ruling 31,
 // rcf-lite 0.37.0 round B): rcf/verdicts/<h12>/review.json (ReviewVerdict
 // v1) and rcf/verdicts/<h12>/test.json (TestVerdict v1), the records
 // `rcf build verdict review|test` writes (FBS-234, src/build/verdict.js),
-// h12 being the 12 lowercase hex characters of the reviewed head. The
+// and rcf/verdicts/<h12>/test-strength.json (TestStrengthReport v1), the
+// record `rcf audit test-strength --record` writes
+// (src/audit/test-strength/index.js) and the light Finalise reads at
+// HEAD (src/finalise/light.js judgeTestStrength; stage-keeper ruling
+// RC-63, rcf-lite round C), h12 being the 12 lowercase hex characters
+// of the reviewed head. The
 // core validator knows no verdict kind (knownKinds returns the keys of
 // SCHEMAS in src/core/store/validator.js), so they classify as
 // verdictRecord, sit outside the document set, and are never validated,
 // id-checked or counted as documents. They carry no count pin: each
-// round's REVIEW and TEST add one. Any other file under rcf/verdicts/
-// stays unclassified.
-const VERDICT_RECORD = /^verdicts\/[0-9a-f]{12}\/(?:review|test)\.json$/;
+// round's REVIEW and TEST add theirs. Any other file under
+// rcf/verdicts/, and these three names at any other depth, stays
+// unclassified.
+const VERDICT_RECORD = /^verdicts\/[0-9a-f]{12}\/(?:review|test|test-strength)\.json$/;
 
 function classify(relPath) {
   if (CONFIG_FILES.has(relPath)) return 'config';
@@ -321,7 +330,7 @@ const expectedCounts = {
   // Round-7 T-2 added ADR-3901..3904 (container host contract, reverse
   // proxy, reject Coolify, log driver) per HQ reserved-block ruling
   // 2026-09-07 (26 -> 30).
-  adr: 87, // rcf-lite 0.37.0 DEFINE part C3 (2026-10-24) added ADR-4163, the shared profile reader of FBS-240 (86 -> 87). // rcf-lite 0.37.0 DEFINE (2026-10-24) added ADR-4152..ADR-4162 (75 -> 86). // Pre-merge Finalise DEFINE (2026-10-22) added ADR-4151 (74 -> 75). // Suite-as-probe DEFINE (2026-10-19) added ADR-4150 (73 -> 74). // Finalise-admin DEFINE (w-2026-10-16) added ADR-4148 and ADR-4149 (71 -> 73). // Finalise per-FBS verify scope added ADR-4147 (70 -> 71). // UX intake gate DEFINE added ADR-4142..4146 (journey record local, three-valued declaration, wireframe files, grandfathering, D0 no-ack door) (65 -> 70). // Issue 330 added ADR-4141-verify-modes (64 -> 65). // DEFINE viewer-command-page added ADR-4139 (viewer read-only, no CLI commands) and ADR-4140 (view query routes per pivot, matrix not Mermaid) (62 -> 64). DEFINE step 3 rulings R1 to R8 added ADR-4138 (tree-wide checks evaluate before any scope short-circuit; shared helper backing R2 + R5 + R7) (61 -> 62). Viewer UI refresh amendments added ADR-4137-standalone-theme-persistence (in-viewer theme control persists under rcf-view:v1:theme in standalone mode only; under embed=1 the control is absent and the key is never read or written) (60 -> 61). DEFINE step 3 PR 5 added ADR-4131 (the gates bite with --ack as the recorded override for D3, D5, D6) (59 -> 60). Viewer UI refresh PR 9 added ADR-4136-embedding-host-fixture (CI host fixture plus three lints; fixture does not persist theme so a passing run proves the iframe reads the message) (58 -> 59). DEFINE step 3 PR 3 added ADR-4132 (prototypes in DISCOVERY as evidence; code is burned; salvage is re-derivation) (57 -> 58). Viewer UI refresh PR 8 added ADR-4135-readiness-po-register-and-adapter (fixes the Readiness two-audience split by profile register; feature-detected adapter seam for the questions shape) (56 -> 57). Viewer UI refresh PR 7 added ADR-4134 (ID lookup index served as a new ./index.json route built on every rewalk) under REQ-002 (55 -> 56). DEFINE step 3 PR 2 added ADR-4129 (harness-driven loop; no conversation state in rcf-lite) and ADR-4130 (intake is harness-split and tool-scanned; findings become open-question statements) (53 -> 55). Viewer UI refresh PR 6 added ADR-4133 (DAG dependency-depth layout) (52 -> 53). DEFINE train step 2 PR A added ADR-4126 (persona-tagged blockers, two readiness levels; intent-complete is a persona cut computed on every read and never recorded) (50 -> 51). DEFINE train slice 3 added ADR-4124 (freeze refuses on failing; ack only on D3/D5/D6; admissibility informational carried from ADR-4123) (49 -> 50). DEFINE train slice 2 added ADR-4122 (block-where-data-exists + warn-with-ack + D4 per-class opt-outs via manifest.baselineAcOptOuts[]) and ADR-4123 (readiness is one computed object; no stored stale) (47 -> 49). DEFINE train slice 1 added ADR-4120 (canonical-JSON hashing over parsed docs at document granularity) and ADR-4121 (sidecars under rcf/define/ with a local schema until schemas 0.7) (45 -> 47). Round-7 T-3 added ADR-4001..4003 (edge-cloudflare-tunnel ingress bridge contract on new topic edgeIngressBridge, connector runtime, hostname mode) per HQ reserved-block ruling 2026-09-07 (30 -> 33). Feedback submission chain added ADR-4101..4108 (store gitignored, fingerprint-and-labels, redaction-rule-based, destination-on-library, gh-ambient-auth, bundled-entries-terminal, stop-is-ask-event, hooks-in-committed-config) (33 -> 41). Referee-guarantee train added ADR-4109..4112 (round-6 gate close 2026-09-17, merged from origin/main) (41 -> 45).
+  adr: 88, // FBS-240's round DEFINE (round C, 2026-10-27) added ADR-4164, the Deploy target ADR of D2 skeleton:deployAdr (87 -> 88). // rcf-lite 0.37.0 DEFINE part C3 (2026-10-24) added ADR-4163, the shared profile reader of FBS-240 (86 -> 87). // rcf-lite 0.37.0 DEFINE (2026-10-24) added ADR-4152..ADR-4162 (75 -> 86). // Pre-merge Finalise DEFINE (2026-10-22) added ADR-4151 (74 -> 75). // Suite-as-probe DEFINE (2026-10-19) added ADR-4150 (73 -> 74). // Finalise-admin DEFINE (w-2026-10-16) added ADR-4148 and ADR-4149 (71 -> 73). // Finalise per-FBS verify scope added ADR-4147 (70 -> 71). // UX intake gate DEFINE added ADR-4142..4146 (journey record local, three-valued declaration, wireframe files, grandfathering, D0 no-ack door) (65 -> 70). // Issue 330 added ADR-4141-verify-modes (64 -> 65). // DEFINE viewer-command-page added ADR-4139 (viewer read-only, no CLI commands) and ADR-4140 (view query routes per pivot, matrix not Mermaid) (62 -> 64). DEFINE step 3 rulings R1 to R8 added ADR-4138 (tree-wide checks evaluate before any scope short-circuit; shared helper backing R2 + R5 + R7) (61 -> 62). Viewer UI refresh amendments added ADR-4137-standalone-theme-persistence (in-viewer theme control persists under rcf-view:v1:theme in standalone mode only; under embed=1 the control is absent and the key is never read or written) (60 -> 61). DEFINE step 3 PR 5 added ADR-4131 (the gates bite with --ack as the recorded override for D3, D5, D6) (59 -> 60). Viewer UI refresh PR 9 added ADR-4136-embedding-host-fixture (CI host fixture plus three lints; fixture does not persist theme so a passing run proves the iframe reads the message) (58 -> 59). DEFINE step 3 PR 3 added ADR-4132 (prototypes in DISCOVERY as evidence; code is burned; salvage is re-derivation) (57 -> 58). Viewer UI refresh PR 8 added ADR-4135-readiness-po-register-and-adapter (fixes the Readiness two-audience split by profile register; feature-detected adapter seam for the questions shape) (56 -> 57). Viewer UI refresh PR 7 added ADR-4134 (ID lookup index served as a new ./index.json route built on every rewalk) under REQ-002 (55 -> 56). DEFINE step 3 PR 2 added ADR-4129 (harness-driven loop; no conversation state in rcf-lite) and ADR-4130 (intake is harness-split and tool-scanned; findings become open-question statements) (53 -> 55). Viewer UI refresh PR 6 added ADR-4133 (DAG dependency-depth layout) (52 -> 53). DEFINE train step 2 PR A added ADR-4126 (persona-tagged blockers, two readiness levels; intent-complete is a persona cut computed on every read and never recorded) (50 -> 51). DEFINE train slice 3 added ADR-4124 (freeze refuses on failing; ack only on D3/D5/D6; admissibility informational carried from ADR-4123) (49 -> 50). DEFINE train slice 2 added ADR-4122 (block-where-data-exists + warn-with-ack + D4 per-class opt-outs via manifest.baselineAcOptOuts[]) and ADR-4123 (readiness is one computed object; no stored stale) (47 -> 49). DEFINE train slice 1 added ADR-4120 (canonical-JSON hashing over parsed docs at document granularity) and ADR-4121 (sidecars under rcf/define/ with a local schema until schemas 0.7) (45 -> 47). Round-7 T-3 added ADR-4001..4003 (edge-cloudflare-tunnel ingress bridge contract on new topic edgeIngressBridge, connector runtime, hostname mode) per HQ reserved-block ruling 2026-09-07 (30 -> 33). Feedback submission chain added ADR-4101..4108 (store gitignored, fingerprint-and-labels, redaction-rule-based, destination-on-library, gh-ambient-auth, bundled-entries-terminal, stop-is-ask-event, hooks-in-committed-config) (33 -> 41). Referee-guarantee train added ADR-4109..4112 (round-6 gate close 2026-09-17, merged from origin/main) (41 -> 45).
   buildSequence: 1,
   // FBS-027 covers the remove-resolution verb (US-1204). Core companions
   // train added FBS-028..034 (7 FBSs, one per US on REQ-013/014/015).
@@ -533,7 +542,7 @@ const expectedCounts = {
   evalDoc: 1,
   // rcf-lite 0.37.0 round B DEFINE (2026-10-26, ruling 11): the two
   // configuration files, rcf/separation.json and rcf/test-strength.json.
-  config: 2,
+  config: 3, // stage-keeper ruling RC-4 (round C, FBS-238's round DEFINE) added rcf/release-verify.json as a configuration file (2 -> 3).
 };
 
 test('expected file counts by category', () => {

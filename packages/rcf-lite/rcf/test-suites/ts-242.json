@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-08T15:50:28.920Z",
-  "updatedAt": "2026-10-17T01:22:54.586Z",
+  "updatedAt": "2026-10-27T05:39:45.286Z",
   "purpose": "Cover the --mode flag on rcf verify run and rcf build finalise, the deterministic engine output shape (findings/blockedAcs/runStats), the finalise preseed partial-report fallback, and the ADR-4112 deterministic-mode refusal line.",
   "testLevel": "unit",
   "acIds": [
@@ -25,21 +25,21 @@
       "acId": "AC-16503-2",
       "description": "finalise refuses promotion on a deterministic PASS with skipped>0, naming the counts line and ADR-4112",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     },
     {
       "id": "TC-242-16503-3-abort",
       "acId": "AC-16503-3",
       "description": "finalise overwrites the preseed stub with a status: aborted record when verify exits non-zero without writing",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     },
     {
       "id": "TC-242-16503-4-usage",
       "acId": "AC-16503-4",
       "description": "verify run --mode and finalise --mode refuse an unknown value with exit 2",
       "status": "skipped",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     }
   ],
   "status": "draft"

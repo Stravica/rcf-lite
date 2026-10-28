@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:44:47.124Z",
-  "updatedAt": "2026-10-16T23:18:19.055Z",
+  "updatedAt": "2026-10-26T23:43:09.802Z",
   "purpose": "Declare one test per AC of US-19001 (FBS-219) driving rcf verify run --hand verifier, rcf define validate and rcf audit separation through bin/rcf.js, so the FBS-219 Define round turns each declaration into a red test against the Test-stage report behaviour.",
   "testLevel": "integration",
   "acIds": [
@@ -27,7 +27,7 @@
       "acId": "AC-19001-2",
       "description": "rcf verify run --hand verifier --fbs <fbs-id> on a dirty working tree exits 4 with \"verify report refused: working tree is dirty; the report must name a committed head\" and writes no report",
       "status": "failing",
-      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-2: rcf verify run --hand verifier --fbs <fbs-id> on a dirty working tree exits 4 with \"verify report refused: working tree is dirty; the report must name a committed head\" and writes no report"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
     },
     {
       "id": "TC-252-bad-hand-flags",

@@ -1,0 +1,12 @@
+{
+  "prdId": "PRD-001",
+  "productName": "d2-skeleton",
+  "version": "0.1.0",
+  "status": "draft",
+  "problemStatement": "TODO: state the problem this product solves.",
+  "objectives": [
+    "TODO: add at least one objective."
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-01-01T00:00:00Z"
+}

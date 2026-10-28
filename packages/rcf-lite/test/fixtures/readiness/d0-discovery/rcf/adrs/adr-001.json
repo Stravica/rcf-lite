@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "Deploy target: an npm package published from a tag",
+  "context": "The tally command runs on the user's machine.",
+  "decision": "Publish the tool as an npm package from a release tag.",
+  "consequences": "Users install it with npm; nothing is hosted.",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-27T02:58:07.226Z"
+}

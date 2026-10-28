@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-998",
+  "path": "src/audit/separation.js#classifyPath",
+  "implementsAcIds": [
+    "AC-20002-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T11:42:37.977Z",
+  "updatedAt": "2026-10-27T11:42:37.977Z"
+}

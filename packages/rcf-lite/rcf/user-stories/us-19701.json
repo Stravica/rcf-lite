@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:34.872Z",
-  "updatedAt": "2026-10-26T00:07:39.664Z",
+  "updatedAt": "2026-10-27T01:44:05.142Z",
   "asA": "reviewer (with Codex) at the REVIEW stage",
   "iWant": "to record one verdict with a code axis and a test-adequacy axis, the touched criteria and each finding with its locus",
   "soThat": "Finalise and the next round read my verdict from the branch, not from a message",
@@ -31,7 +31,10 @@
       "id": "AC-19701-3",
       "description": "[failure] Given the same fixture, when the verb runs with --code FINDINGS and no --finding it exits 2 with stderr \"[error] usage FINDINGS needs at least one --finding\"; with --finding \"maybe:AC-101-1:x\" it exits 2 naming the expected form <spec|build>:<AC id|->:<text>; with --acs AC-999-1 it exits 3 with stderr \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; and in each case no file appears under rcf/verdicts/.",
       "testable": true,
-      "verification": "external"
+      "verification": "external",
+      "supersededBy": "AC-19701-7",
+      "supersededOn": "2026-10-26",
+      "supersessionNote": "Retired 2026-10-26 (stage-keeper ruling RC-10, round A ruling 5: retired and succeeded, never reworded): --finding takes a test locus beside spec and build (AC-19701-7), so the expected form <spec|build>:<AC id|->:<text> no longer holds; TAC-4154 names <spec|build|test>."
     },
     {
       "id": "AC-19701-4",
@@ -48,6 +51,12 @@
     {
       "id": "AC-19701-6",
       "description": "[failure] Given FBS-001 at inProgress scoping AC-101-1, AC-101-2 and AC-101-3, rcf build verdict review --fbs FBS-001 --acs AC-101-1,AC-101-2 --code MERGE --adequacy PASS exits 3 with stderr \"[error] brokenReference touched criteria omit AC-101-3 of FBS-001 (inProgress)\" and writes nothing; with FBS-001 at complete the same command writes the verdict (an amend round).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19701-7",
+      "description": "[happy] Given the same fixture, when rcf build verdict review --fbs FBS-001 --acs AC-101-1,AC-101-2 --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" runs, then it exits 0 and the file records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]: --finding takes a test locus beside spec and build. Beside it the refusals stand: with --code FINDINGS and no --finding it exits 2 with stderr \"[error] usage FINDINGS needs at least one --finding\"; with --finding \"maybe:AC-101-1:x\" it exits 2 naming the expected form <spec|build|test>:<AC id|->:<text>; with --acs AC-999-1 it exits 3 with stderr \"[error] brokenReference AC-999-1 is not scoped by FBS-001\"; and in each case no file appears under rcf/verdicts/.",
       "testable": true,
       "verification": "external"
     }

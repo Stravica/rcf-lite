@@ -3158,6 +3158,287 @@
       "answer": "a. The operator, 2026-10-26 about 08:05Z: \"1 & 2 - agree - do it\" Recorded as: \"(i) The generatorOutput class is owned by BUILD and FINALISE. A BUILD: commit may regenerate a declared generator's outputs only with Generated-By: <id>, and only that generator's outputs. FBS-233 gets a new criterion (happy, failure and must-not), and the TAC-4153 class owner changes. The Review gate re-runs each declared command at the reviewed head and checks the bytes are identical.\" \"(ii) The codeNode count pin in test/rcf-tree.test.js becomes a declared generator's output: the test reads the counts from a data file, and rcf/separation.json declares the generator that writes it.\"",
       "answeredAt": "2026-10-26T10:40:33.808Z",
       "resolvedAt": "2026-10-26T10:40:33.808Z"
+    },
+    {
+      "id": 144,
+      "question": "(rcf-lite round C DEFINE) The managed block's build loop names each stage's hand by the Hand: trailer only (guidance/managed/agent-instructions-block.md:350-351), so a commit written from it alone fails \"no stage prefix\": does a criterion demand that the block say every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x? Source: round B ruling 37, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the managed block keeps naming the hand by the Hand: trailer only"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20401 (external): the Build loop section of the managed block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names each stage's hand by the Hand: trailer alone"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:24:13.315Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Managed block gap: a Known issues line now, the text fix in round C. The block (guidance/managed/agent-instructions-block.md:350-351) names the hand by the `Hand:` trailer only; a commit written from it alone fails \"no stage prefix\".\" and \"Round C docs pass: the block paragraph says stage prefix on every commit, Hand: trailer optional through 0.37.x\". Recorded as: AC-20401-8.",
+      "answeredAt": "2026-10-26T21:24:13.741Z",
+      "resolvedAt": "2026-10-26T21:24:13.741Z"
+    },
+    {
+      "id": 145,
+      "question": "(rcf-lite round C DEFINE) The Review stage of guidance/build-cycle.md (line 14) says rcf audit separation judges each commit's Hand: trailer against the paths it touches, while the audit judges each commit's stage prefix: does a criterion demand that build-cycle say the audit judges the stage prefix? Source: the round B docs pass, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: build-cycle keeps saying the audit judges each commit's Hand: trailer"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20401 (external): where rcf guidance build-cycle names rcf audit separation as a check it says the audit judges each commit's stage prefix against the paths it touches, and no sentence says it judges a Hand: trailer"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:25:02.148Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" The round B docs pass: \"packages/rcf-lite/guidance/build-cycle.md:14 says CI runs separation \"on a full-depth checkout\" and judges each commit's Hand: trailer\". Recorded as: AC-20401-9.",
+      "answeredAt": "2026-10-26T21:25:02.569Z",
+      "resolvedAt": "2026-10-26T21:25:02.569Z"
+    },
+    {
+      "id": 146,
+      "question": "(rcf-lite round C DEFINE) docs/how-it-works.md (about line 130) calls the audit group \"read-only visibility over the tree\", although rcf audit test-strength --record writes a record: does a criterion demand that the docs stop calling the whole group read-only? Source: the round B docs pass, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: how-it-works keeps calling the audit group read-only"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20402 (testOnly, the docs are this repository's tree): the sentence of docs/how-it-works.md that introduces the audit group does not call the group read-only unless it excepts rcf audit test-strength --record, which writes a record"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:26:13.848Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" and \"docs/how-it-works.md:130 calls the audit group \"read-only visibility over the tree\", although rcf audit test-strength --record writes a record.\" The round B docs pass: \"docs how-it-works audit \"read-only\" wording\". Recorded as: AC-20402-5.",
+      "answeredAt": "2026-10-26T21:26:14.261Z",
+      "resolvedAt": "2026-10-26T21:26:14.261Z"
+    },
+    {
+      "id": 147,
+      "question": "(rcf-lite round C DEFINE) The comment that introduces CI's separation job (.github/workflows/ci.yml:86) says \"judge each commit's Hand: trailer over the pull request's range\", while the audit judges each commit's stage prefix: does a criterion demand that the comment say so? Source: the round B docs pass, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the ci.yml comment keeps the retired Hand: trailer wording"
+        },
+        {
+          "letter": "b",
+          "text": "a new FBS-241 criterion on US-20402 (testOnly, CI configuration): the comment introducing the separation job says it judges each commit's stage prefix over the pull request's range and does not say it judges a Hand: trailer"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-241",
+      "addedAt": "2026-10-26T21:26:49.052Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Where an item is shipped text only (a guidance or docs sentence), it lands as an FBS-241 criterion whose bound test reads the shipped file.\" and \".github/workflows/ci.yml:86 \"# Commit separation (ADR-4149): judge each commit's Hand: trailer over\". FBS-241, testOnly (CI configuration; read through RCF_CHECKOUT as AC-19801-6's test reads ci.yml).\" The round B docs pass: \"ci.yml:86 comment keeps the retired \"judge each commit's Hand: trailer\" wording (round C)\". Recorded as: AC-20402-6.",
+      "answeredAt": "2026-10-26T21:26:49.470Z",
+      "resolvedAt": "2026-10-26T21:26:49.470Z"
+    },
+    {
+      "id": 148,
+      "question": "(rcf-lite round C DEFINE) Coverage rows gain a hygieneTestCases key (src/query/coverage.js:464), which the round B REVIEW found undemanded by any criterion: does a criterion demand it? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the hygieneTestCases key stays undemanded"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19803 (external), scoped by FBS-237 and a declared regression guard: a criterion bound into a hygiene test lists that case on hygieneTestCases with its file, beside testCases naming only the RCF-suite cases, and a row with no hygiene binding carries no such key"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:27:57.294Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19803-7.",
+      "answeredAt": "2026-10-26T21:27:57.720Z",
+      "resolvedAt": "2026-10-26T21:27:57.720Z"
+    },
+    {
+      "id": 149,
+      "question": "(rcf-lite round C DEFINE) The verdict verbs refuse a project that is not a git repository and an unreadable --tap (src/build/verdict.js:178, :247 and :261), which the round B REVIEW found undemanded by any criterion: does a criterion demand those refusals? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the two refusals stay undemanded"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19702 (external), scoped by FBS-237 and a declared regression guard: outside git each verdict verb exits 4 with the not-a-git-repository refusal, and an unreadable --tap exits 2 with the cannot-be-read usage line, with no file under rcf/verdicts/"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:28:39.109Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19702-9.",
+      "answeredAt": "2026-10-26T21:28:39.533Z",
+      "resolvedAt": "2026-10-26T21:28:39.533Z"
+    },
+    {
+      "id": 150,
+      "question": "(rcf-lite round C DEFINE) When several specs scope one criterion, coverage reads its end state from the latest in buildOrder (src/query/coverage.js scopingSpec, about :206 to :222), which the round B REVIEW found undemanded by any criterion: does a criterion demand that tie-break? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the latest-buildOrder tie-break stays undemanded"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19803 (external), scoped by FBS-237 and a declared regression guard: a criterion scoped by two specs reads now from the scoping spec latest in buildOrder"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:29:17.324Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"R7 to R9 (undemanded: coverage rows' hygieneTestCases key, verdict refusals for non-git and unreadable --tap, the coverage tie-break) go to round C DEFINE as criteria to add; no change in round B.\" Recorded as: AC-19803-8.",
+      "answeredAt": "2026-10-26T21:29:17.735Z",
+      "resolvedAt": "2026-10-26T21:29:17.735Z"
+    },
+    {
+      "id": 151,
+      "question": "(rcf-lite round C DEFINE) rcf audit separation reads rcf/separation.json relative to the working directory (src/audit/separation.js, about :554), not at the project root as other verbs resolve the chain: does a criterion demand that it resolve at the project root? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the separation config stays read relative to the working directory"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19604 (external), scoped by FBS-237: run from a subdirectory of the project, rcf audit separation resolves rcf/separation.json at the project root (the directory holding rcf/manifest.json) and judges as it does from the root"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:29:54.681Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19604-8.",
+      "answeredAt": "2026-10-26T21:29:55.102Z",
+      "resolvedAt": "2026-10-26T21:29:55.102Z"
+    },
+    {
+      "id": 152,
+      "question": "(rcf-lite round C DEFINE) rcf build verdict review --finding takes only a spec or build locus (FINDING in src/build/verdict.js:27, read by parseFinding), so a test-rooted finding has nowhere to go: does a criterion demand a test locus? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: --finding keeps the spec and build loci only"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19701 (external), scoped by FBS-237: --finding \"test:<AC id>:<text>\" is accepted and recorded with locus test beside spec and build"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:30:29.662Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19701-7.",
+      "answeredAt": "2026-10-26T21:30:30.073Z",
+      "resolvedAt": "2026-10-26T21:30:30.073Z"
+    },
+    {
+      "id": 153,
+      "question": "(rcf-lite round C DEFINE) rcf audit separation --help prints the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <h7>\" (src/cli/separation.js:103), while TAC-4154 and AC-19703-5 write the reviewed head <H7>: does a criterion demand that the help follow the interface record? Source: round B ruling 28, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: the help keeps <h7> for the reviewed head"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19703 (external), scoped by FBS-237: rcf audit separation --help lists the round item with the reviewed head written <H7>, as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head <h7>"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:31:16.205Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"Reviewer questions to round C: rcf/separation.json should resolve at the project root like other verbs (src/audit/separation.js:557); `--finding` gains a `test` locus; help `<h7>` vs TAC `<H7>` casing.\" Recorded as: AC-19703-12.",
+      "answeredAt": "2026-10-26T21:31:16.622Z",
+      "resolvedAt": "2026-10-26T21:31:16.622Z"
+    },
+    {
+      "id": 154,
+      "question": "(rcf-lite round C DEFINE) rcf build verdict test treats an untracked rcf/verify-reports/ as a dirty tree and rcf verify run treats rcf/verdicts/ as one, so the one TEST: commit carrying the reports and test.json together cannot be produced from one tree: does a criterion demand that each verb's dirty check ignore the other's directory? Source: round B ruling 33, 2026-10-26.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record as it stands, no criterion: each verb keeps refusing the other's untracked output as a dirty tree"
+        },
+        {
+          "letter": "b",
+          "text": "a new criterion on US-19702 (external), scoped by FBS-237: the verdict verb's dirty check ignores untracked files under rcf/verify-reports/ and the verify runner's ignores rcf/verdicts/, while any other uncommitted change still refuses each as dirty"
+        }
+      ],
+      "default": "b",
+      "blocks": "FBS-237",
+      "addedAt": "2026-10-26T21:31:58.383Z",
+      "status": "resolved",
+      "answer": "b. The stage-keeper, 2026-10-26: \"The mutual refusal is a tool defect: round C DEFINE criterion on FBS-234's successor, \"the verdict verb's dirty check ignores untracked files under rcf/verify-reports/ and the verify runner's ignores rcf/verdicts/\".\" Recorded as: AC-19702-10.",
+      "answeredAt": "2026-10-26T21:31:58.807Z",
+      "resolvedAt": "2026-10-26T21:31:58.807Z"
+    },
+    {
+      "id": 155,
+      "question": "(rcf-lite 0.37.0 DEFINE) What is the value of profile:surface in rcf-lite's own profile, rcf/.identity/profile.md? Source: the operator's GR-55 answer, 2026-10-24.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "viewer"
+        },
+        {
+          "letter": "b",
+          "text": "runningApp"
+        },
+        {
+          "letter": "c",
+          "text": "prDiff"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-27T03:18:44.274Z",
+      "status": "resolved",
+      "answer": "The operator, 2026-10-24: \"the running app\"",
+      "answeredAt": "2026-10-27T03:18:48.504Z",
+      "resolvedAt": "2026-10-27T03:18:48.504Z"
+    },
+    {
+      "id": 156,
+      "question": "(rcf-lite 0.37.0 DEFINE) What is the value of profile:register in rcf-lite's own profile, rcf/.identity/profile.md? Source: the operator's GR-55 answer, 2026-10-24.",
+      "options": [
+        {
+          "letter": "a",
+          "text": "productOwner"
+        },
+        {
+          "letter": "b",
+          "text": "engineer"
+        },
+        {
+          "letter": "c",
+          "text": "unstated"
+        }
+      ],
+      "default": "c",
+      "blocks": "FBS-240",
+      "addedAt": "2026-10-27T03:18:48.707Z",
+      "status": "resolved",
+      "answer": "The operator, 2026-10-24: \"product owner\"",
+      "answeredAt": "2026-10-27T03:18:53.334Z",
+      "resolvedAt": "2026-10-27T03:18:53.334Z"
     }
   ]
 }

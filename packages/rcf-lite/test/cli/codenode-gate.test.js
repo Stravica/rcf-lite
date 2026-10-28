@@ -15,6 +15,9 @@ import { promisify } from 'node:util';
 import { initProject } from '#core/store/init.js';
 import { declareUiNoneForTests } from '../_helpers/d0.js';
 import { scratchDir } from '../_helpers/scratch.js';
+import { rcf as harnessRcf, lines } from '../_harness/spawn.js';
+import { commit, git as harnessGit, initRepo } from '../_harness/git.js';
+import { bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, testStrengthReport, testVerdict, verdictPath, writeText } from '../_harness/fixture.js';
 
 const exec = promisify(execFile);
 const here = dirname(fileURLToPath(import.meta.url));
@@ -41,44 +44,55 @@ async function scaffold(name) {
   return tmp;
 }
 
-test('rcf build --mark complete is refused (exit 3, missingCodeNodes) when the AC has no CN', async () => {
-  const tmp = await scaffold('refused');
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
-  const { code, stderr } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
-  assert.equal(code, 3);
-  assert.match(stderr, /missingCodeNodes/);
-  assert.match(stderr, /AC-101-1/);
+// The Code Node gate through rcf build finalise (the stage-keeper's ruling
+// RC-32 on the round C DEFINE): rcf build mark <fbs-id> complete is refused
+// after FBS-237 (AC-20003-3), and the light Finalise checks "Code Nodes
+// for every touched criterion" (TAC-4156; AC-20002-3's exit 3 "finalise
+// refused: missing Code Node for <ids>"). The round is recorded by verdicts
+// on a branch: DEFINE: (FBS-001 notStarted -> inProgress), BUILD: (H,
+// src/x.js and, with cn, a Code Node for AC-101-1), REVIEW: MERGE/PASS at
+// H touching AC-101-1 and TEST: PASS with a passing test-strength record
+// at H. The --no-code-nodes declaration tests left with the mark-complete
+// gate (RC-32: the light Finalise's Code Node check names no declaration).
+const CN_001 = {
+  cnId: 'CN-001', path: 'src/x.js#first', title: 'fixture node for AC-101-1', description: 'Fixture Code Node implementing AC-101-1.',
+  implementsAcIds: ['AC-101-1'], dependencies: [], version: '0.1.0', status: 'draft', createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+};
+
+async function lightRound(t, { cn }) {
+  const dir = await project(t, { name: 'gate' });
+  editStory(dir, 'US-101', (us) => {
+    us.acceptanceCriteria = [criterion('AC-101-1', '[happy] first behaviour holds', { given: 'a fixture project', when: 'the fixture runs', then: 'first behaviour holds', verification: 'external' })];
+  });
+  editFbs(dir, 'FBS-001', (f) => ({ ...f, acIds: ['AC-101-1'], executionStatus: 'notStarted' }));
+  bindTests(dir, [{ acId: 'AC-101-1', pointer: 'test/rcf/a.test.js::first behaviour holds' }]);
+  writeText(dir, '.gitignore', 'node_modules/\n');
+  initRepo(dir);
+  commit(dir, 'fixture: base chain');
+  harnessGit(dir, 'switch', '-q', '-c', 'feature');
+  editFbs(dir, 'FBS-001', (f) => ({ ...f, executionStatus: 'inProgress', summary: `${f.summary} Round opened.` }));
+  commit(dir, 'DEFINE: round');
+  const H = commit(dir, 'BUILD: code', { 'src/x.js': 'export function first() { return 1; }\n', ...(cn ? { 'rcf/code-nodes/cn-001.json': CN_001 } : {}) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H) });
+  commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H), [verdictPath(H, 'test-strength.json')]: testStrengthReport(H) });
+  return dir;
+}
+
+test('rcf build finalise is refused (exit 3, missing Code Node) when the touched AC has no CN', async (t) => {
+  const tmp = await lightRound(t, { cn: false });
+  const before = readText(tmp, 'rcf/fbs/fbs-001.json');
+  const { code, stdout, stderr } = await harnessRcf(['build', 'finalise', 'FBS-001', '--ci-run', 'run-7'], { cwd: tmp });
+  assert.equal(code, 3, `${stdout}${stderr}`);
+  assert.ok(lines(stderr).includes('finalise refused: missing Code Node for AC-101-1'), `stderr names the gate and AC-101-1\n${stderr}`);
+  assert.equal(readText(tmp, 'rcf/fbs/fbs-001.json'), before, 'FBS-001 is byte-identical');
 });
 
-test('rcf build --mark complete succeeds once the AC has a CN', async () => {
-  const tmp = await scaffold('passes');
-  await runBin(tmp, ['define', 'create', 'cn', '--path', 'src/save.js#save', '--acs', 'AC-101-1']);
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
-  assert.equal(code, 0, stdout);
-  assert.match(stdout, /marked FBS-001 inProgress -> complete/);
-});
-
-test('rcf build --mark complete --no-code-nodes bypasses the gate and records the declaration', async () => {
-  const tmp = await scaffold('declared');
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  assert.equal(code, 0, stdout);
-  const read = await runBin(tmp, ['define', 'read', 'FBS-001']);
-  const body = JSON.parse(read.stdout);
-  assert.equal(body.noCodeNodes, true);
-});
-
-test('the no-code-nodes declaration is sticky: a later re-mark does not re-trigger the gate', async () => {
-  const tmp = await scaffold('sticky');
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'inProgress']);
-  await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete', '--no-code-nodes']);
-  // Deliberate correction back to inProgress, then complete again with no
-  // --no-code-nodes flag on the second pass - the FBS already carries the
-  // declaration, so the gate must not re-fire.
-  await runBin(tmp, ['define', 'update', 'FBS-001', '--set', 'executionStatus=inProgress']);
-  const { code, stdout } = await runBin(tmp, ['build', 'mark', 'FBS-001', 'complete']);
-  assert.equal(code, 0, stdout);
+test('rcf build finalise succeeds once the touched AC has a CN', async (t) => {
+  const tmp = await lightRound(t, { cn: true });
+  const { code, stdout, stderr } = await harnessRcf(['build', 'finalise', 'FBS-001', '--ci-run', 'run-7'], { cwd: tmp });
+  assert.equal(code, 0, `${stdout}${stderr}`);
+  assert.match(stdout, /finalise: FBS-001 complete at [0-9a-f]{7} \(reviewed [0-9a-f]{7}, ci run-7, touched 1 criteria\)/);
+  assert.equal(readJson(tmp, 'rcf/fbs/fbs-001.json').executionStatus, 'complete');
 });
 
 test('--no-code-nodes only combines with .build mark (exit 2 otherwise)', async () => {

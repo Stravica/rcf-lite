@@ -36,7 +36,7 @@ import { existsSync, readFileSync, readdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { lines, rcf, run } from '../_harness/spawn.js';
-import { commit, git, gitTry, porcelain, s7 } from '../_harness/git.js';
+import { commit, git, gitTry, porcelain, s7, showAt } from '../_harness/git.js';
 import { bindTests, checkoutPackage, checkoutRoot, criterion, editFbs, editStory, project, readJson, scratch, writeJson } from '../_harness/fixture.js';
 import { hostFacts, json, median, objectsIn, tables } from '../_harness/capture.js';
 import { MOVE_TEXT_FIELDS, coverageRows, readStories } from '../_harness/goldens.js';
@@ -638,12 +638,26 @@ function assertTypicalChain(pkg, rowCount) {
   assert.ok(rowCount >= 827 && specs >= 121, `the typical case: ${rowCount} criteria, ${specs} specs`);
 }
 const PERF = process.env.RCF_PERF === '1';
+// The chain AC-19803-5's row half and AC-19804-2 read (the stage-keeper's
+// ruling RC-14 on the round C DEFINE): add917a6, the 0.37.0 release merge
+// on main, where FBS-235 is verified. Each reads the chain at that fixed
+// ref through git (the way test/_harness/goldens.js reads 639f07bb), never
+// the moving head, so no later DEFINE or BUILD moves the result; CI checks
+// out with fetch-depth: 0, so the ref is in its history. The row half runs
+// that tree's own bin in a temporary worktree at the ref (worktreeAt
+// below); the text half reads the stories at the ref with git cat-file.
+const VERIFIED_AT = 'add917a6db7f52536254dde491930103abbbe13b';
+function storiesAt(root, rev) {
+  const dir = 'packages/rcf-lite/rcf/user-stories';
+  const paths = git(root, 'ls-tree', '--name-only', `${rev}:${dir}`).split('\n').filter((n) => n.endsWith('.json')).sort().map((n) => `${dir}/${n}`);
+  return [...showAt(root, rev, paths).values()].map((text) => JSON.parse(text));
+}
 
-test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', async () => {
-  const pkg = checkoutPackage();
+test('AC-19803-5: over the chain of this repository at the slice head, audit coverage --format json exits as in the coverage-rows golden recorded before the move, and each criterion row carries that golden row keys plus verification, expectedEnd and now, and nothing else', async (t) => {
+  const pkg = worktreeAt(t, checkoutRoot(), VERIFIED_AT);
   const was = moveGolden('coverage-rows', ROWS_GOLDEN);
   assert.ok(Number.isInteger(was.exitCode) && was.rows && typeof was.rows === 'object', `${ROWS_GOLDEN} holds { "exitCode", "rows" }`);
-  const now = await coverageRows(pkg);
+  const now = await coverageRows(pkg, { bin: join(pkg, 'bin', 'rcf.js') });
   assertTypicalChain(pkg, Object.keys(now.rows).length);
   assert.equal(now.exitCode, was.exitCode, `audit coverage --format json exits ${now.exitCode} at the head and ${was.exitCode} in ${ROWS_GOLDEN}`);
   const added = ['verification', 'expectedEnd', 'now'];
@@ -745,7 +759,7 @@ test('AC-19804-1: at the slice head no user story tag starts "verification:", ev
 test('AC-19804-2: for every criterion moved, its description, given, when, then, testable and supersession fields are byte-identical at the slice head and in the flag-texts golden recorded before the move', async (t) => {
   const was = moveGolden('flag-texts', TEXTS_GOLDEN);
   assert.ok(Object.keys(was).length > 0, `${TEXTS_GOLDEN} records the tagged criteria before the move`);
-  const now = new Map(readStories(join(checkoutPackage(), 'rcf', 'user-stories')).flatMap((s) => (s.acceptanceCriteria ?? []).map((a) => [a.id, a])));
+  const now = new Map(storiesAt(checkoutRoot(), VERIFIED_AT).flatMap((s) => (s.acceptanceCriteria ?? []).map((a) => [a.id, a])));
   const changed = [];
   for (const [id, fields] of Object.entries(was)) {
     const cur = now.get(id);

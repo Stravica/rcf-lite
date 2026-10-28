@@ -3,7 +3,8 @@
 // never reads a verify report and never writes verified; rcf build mark
 // refuses complete.
 //
-// Criteria: 19, all external (US-20001 9, US-20002 5, US-20003 5).
+// Criteria: 26, all external (US-20001 9, US-20002 5, US-20003 5;
+// round C, ruling RC-1: US-19604 1, US-19701 1, US-19702 2, US-19703 1, US-19803 2).
 // Every test is a node:test todo case ("FBS-237 round DEFINE", GR-35): it
 // runs and is red until FBS-237's round DEFINE drops the marker and BUILD
 // turns it green. Each drives bin/rcf.js (or the packed artefact) as a
@@ -19,15 +20,16 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { existsSync } from 'node:fs';
-import { join } from 'node:path';
+import { existsSync, writeFileSync } from 'node:fs';
+import { createServer } from 'node:http';
+import { dirname, join } from 'node:path';
+import { gzipSync } from 'node:zlib';
 
 import { lines, rcf } from '../_harness/spawn.js';
 import { commit, git, initRepo, porcelain, s7, sha } from '../_harness/git.js';
 import { baseSuiteRecord, bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, testStrengthReport, testVerdict, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
-import { commandName, readSpawnLog, spawnLog } from '../_harness/capture.js';
+import { commandName, readSpawnLog, spawnLog, writeTap } from '../_harness/capture.js';
 
-const TODO = { todo: 'FBS-237 round DEFINE' };
 const BOTH = ['AC-101-1', 'AC-101-2'];
 const NAMES = { 'AC-101-1': 'first behaviour holds', 'AC-101-2': 'second behaviour holds', 'AC-101-3': 'third behaviour holds' };
 const SYMBOL = { 'AC-101-1': 'first', 'AC-101-2': 'second', 'AC-101-3': 'third' };
@@ -159,7 +161,7 @@ const reportPath = (H) => `rcf/verify-reports/FBS-001/${H.slice(0, 12)}.json`;
 
 // ---------------------------------------------------------------- US-20001
 
-test('AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree', TODO, async (t) => {
+test('AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree', async (t) => {
   const { dir, H, T } = await happy(t);
   assert.ok(!existsSync(join(dir, 'rcf', 'verify-reports')), 'given: no rcf/verify-reports/ directory at all');
   const r = await finalise(dir);
@@ -169,7 +171,7 @@ test('AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both cr
   assert.deepEqual(lines(porcelain(dir)).map((l) => l.slice(3)), ['rcf/fbs/fbs-001.json'], 'only rcf/fbs/fbs-001.json changes');
 });
 
-test('AC-20001-2: with no REVIEW: commit finalise exits 4 "finalise refused: no REVIEW verdict for FBS-001 on the branch", and with a ReviewVerdict MERGE/FINDINGS it exits 4 "finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round"', TODO, async (t) => {
+test('AC-20001-2: with no REVIEW: commit finalise exits 4 "finalise refused: no REVIEW verdict for FBS-001 on the branch", and with a ReviewVerdict MERGE/FINDINGS it exits 4 "finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round"', async (t) => {
   const a = await baseChain(t);
   defineCommit(a.dir, { status: 'inProgress' });
   const H = buildCommit(a.dir);
@@ -180,7 +182,7 @@ test('AC-20001-2: with no REVIEW: commit finalise exits 4 "finalise refused: no 
   await refuses(b.dir, [], 4, `finalise refused: REVIEW at ${s7(b.H)} is MERGE/FINDINGS; a failed verdict closes the round`);
 });
 
-test('AC-20001-3: with the TEST: commit absent finalise exits 4 "no TEST verdict at <H7>", with a TestVerdict FAIL at H "TEST at <H7> is FAIL", and with a TEST PASS at H then a FAIL TestVerdict at the later head M "TEST at <M7> is FAIL; a failed verdict closes the round"', TODO, async (t) => {
+test('AC-20001-3: with the TEST: commit absent finalise exits 4 "no TEST verdict at <H7>", with a TestVerdict FAIL at H "TEST at <H7> is FAIL", and with a TEST PASS at H then a FAIL TestVerdict at the later head M "TEST at <M7> is FAIL; a failed verdict closes the round"', async (t) => {
   const a = await baseChain(t);
   defineCommit(a.dir, { status: 'inProgress' });
   const H = buildCommit(a.dir);
@@ -197,7 +199,7 @@ test('AC-20001-3: with the TEST: commit absent finalise exits 4 "no TEST verdict
   await refuses(c.dir, [], 4, `finalise refused: TEST at ${s7(M)} is FAIL; a failed verdict closes the round`);
 });
 
-test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 "finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse', TODO, async (t) => {
+test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 "finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse', async (t) => {
   const a = await happy(t);
   const late = commit(a.dir, 'BUILD: late fix', { 'src/x.js': 'export function first() { return 11; }\nexport function second() { return 2; }\nexport function third() { return 3; }\n' });
   await refuses(a.dir, [], 4, `finalise refused: REVIEW reopened by ${s7(late)} BUILD: after the reviewed head ${s7(a.H)}`);
@@ -220,7 +222,7 @@ test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit re
   assert.equal(out(rd), completeLine(M, d.H));
 });
 
-test('AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with "finalise: FBS-001 complete (unchanged)" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0', TODO, async (t) => {
+test('AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with "finalise: FBS-001 complete (unchanged)" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0', async (t) => {
   const a = await happy(t);
   const first = await finalise(a.dir);
   assert.equal(first.code, 0, `${first.stdout}${first.stderr}`);
@@ -249,7 +251,7 @@ test('AC-20001-5: run again at the same head or after a FINALISE: status commit,
   assert.equal(out(r), completeLine(T2, H2));
 });
 
-test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only', TODO, async (t) => {
+test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only', async (t) => {
   const a = await happy(t);
   const M = mergeMain(a.dir);
   const r = await finalise(a.dir, ['--merge-suite', suiteFile(t, baseSuiteRecord(M))]);
@@ -271,7 +273,7 @@ test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suit
   assert.deepEqual([status(dir, 'FBS-001'), status(dir, 'FBS-002')], ['complete', 'complete'], 'finalising FBS-002 writes complete on FBS-002');
 });
 
-test('AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named', TODO, async (t) => {
+test('AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named', async (t) => {
   const specs = { 'FBS-001': { acIds: BOTH, status: 'notStarted' }, 'FBS-002': { acIds: ['AC-101-2'], status: 'inProgress' } };
   const ids = ['FBS-001', 'FBS-002'];
   const cases = [
@@ -303,7 +305,7 @@ test('AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-id
   assert.equal(fbsText(dir, 'FBS-002'), other, 'FBS-002 is byte-identical after finalising FBS-001');
 });
 
-test('AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite', TODO, async (t) => {
+test('AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite', async (t) => {
   const a = await happy(t);
   const M = mergeMain(a.dir);
   await refuses(a.dir, [], 4, `finalise refused: merge from main after the reviewed head; pass --merge-suite <a green base-suite record at ${s7(M)}>`);
@@ -318,7 +320,7 @@ test('AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with
   assert.equal(out(r), completeLine(S, b.H));
 });
 
-test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round', TODO, async (t) => {
+test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round', async (t) => {
   const a = await happy(t, { define: {} });
   assert.equal(status(a.dir), 'notStarted', 'given: FBS-001 at notStarted');
   await refuses(a.dir, [], 4, "finalise refused: FBS-001 is notStarted; the round's DEFINE: marks it inProgress");
@@ -346,7 +348,7 @@ test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarte
 
 // ---------------------------------------------------------------- US-20002
 
-test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-strength record at <H7>", with AC-101-2 failing "test-strength at <H7> fails for AC-101-2", and with a record covering AC-101-1 only "test-strength at <H7> omits AC-101-2"', TODO, async (t) => {
+test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-strength record at <H7>", with AC-101-2 failing "test-strength at <H7> fails for AC-101-2", and with a record covering AC-101-1 only "test-strength at <H7> omits AC-101-2"', async (t) => {
   const a = await happy(t, { testOpts: { strength: null } });
   await refuses(a.dir, [], 4, `finalise refused: no test-strength record at ${s7(a.H)}`);
   const b = await happy(t, { testOpts: { strength: { passing: ['AC-101-1'], failing: ['AC-101-2'] } } });
@@ -355,7 +357,7 @@ test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-st
   await refuses(c.dir, [], 4, `finalise refused: test-strength at ${s7(c.H)} omits AC-101-2`);
 });
 
-test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 "finalise refused: touched criteria omit AC-101-2 changed since <base7>"', TODO, async (t) => {
+test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 "finalise refused: touched criteria omit AC-101-2 changed since <base7>"', async (t) => {
   const thenText = (d) => editStory(d, 'US-101', (us) => { us.acceptanceCriteria.find((a) => a.id === 'AC-101-2').then = 'second behaviour holds, amended'; });
   const newCase = (d) => bindTests(d, [{ acId: 'AC-101-2', pointer: 'test/rcf/b.test.js::second behaviour holds again' }], { tsId: 'TS-002' });
   for (const edit of [thenText, newCase]) {
@@ -364,7 +366,7 @@ test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEF
   }
 });
 
-test('AC-20002-3: with no --ci-run finalise exits 4 "ci evidence missing: pass --ci-run <ref>", with AC-101-2 lacking a Code Node it exits 3 "finalise refused: missing Code Node for AC-101-2", and an untouched criterion of the spec with no Code Node does not refuse', TODO, async (t) => {
+test('AC-20002-3: with no --ci-run finalise exits 4 "ci evidence missing: pass --ci-run <ref>", with AC-101-2 lacking a Code Node it exits 3 "finalise refused: missing Code Node for AC-101-2", and an untouched criterion of the spec with no Code Node does not refuse', async (t) => {
   const a = await happy(t);
   const before = fbsText(a.dir);
   const r = await rcf(['build', 'finalise', 'FBS-001'], { cwd: a.dir });
@@ -383,7 +385,7 @@ test('AC-20002-3: with no --ci-run finalise exits 4 "ci evidence missing: pass -
   assert.equal(out(rc), completeLine(c.T, c.H));
 });
 
-test('AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 "finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)", and a Hand: mixed commit refuses the same way with the retired-mixed item', TODO, async (t) => {
+test('AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 "finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)", and a Hand: mixed commit refuses the same way with the retired-mixed item', async (t) => {
   const { dir } = await baseChain(t);
   defineCommit(dir, { status: 'inProgress' });
   const bad = commit(dir, 'BUILD: tests', { 'test/rcf/a.test.js': `${readText(dir, 'test/rcf/a.test.js')}// touched by BUILD\n` });
@@ -397,7 +399,7 @@ test('AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js mak
   assert.ok(!r.stdout.includes('complete'), 'no separation exception is accepted');
 });
 
-test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process', TODO, async (t) => {
+test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process', async (t) => {
   const { dir } = await happy(t);
   const log = spawnLog(scratch(t, 'rcf-h-spawn-'));
   const r = await finalise(dir, [], log.env);
@@ -409,9 +411,9 @@ test('AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only g
 
 // ---------------------------------------------------------------- US-20003
 
-test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing', TODO, async (t) => {
+test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing', async (t) => {
   const { dir } = await happy(t);
-  const flags = [['--report', 'rcf/verify-reports/FBS-001/report.json'], ['--max-report-age', '7'], ['--mode', 'deterministic'], ['--url', 'http://localhost:8787'], ['--allow-pre-merge']];
+  const flags = [['--report', 'rcf/verify-reports/FBS-001/report.json'], ['--max-report-age', '7'], ['--mode', 'deterministic'], ['--url', 'http://localhost:8787'], ['--allow-pre-merge'], ['--provision-mode', 'skip'], ['--ship-without-eval', 'fixture reason'], ['--ship-without-verified']];
   for (const flag of flags) {
     const log = spawnLog(scratch(t, 'rcf-h-spawn-'));
     const before = { st: porcelain(dir), fbs: fbsText(dir) };
@@ -424,7 +426,7 @@ test('AC-20003-1: each retired flag (--report, --max-report-age 7, --mode determ
   }
 });
 
-test('AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict', TODO, async (t) => {
+test('AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict', async (t) => {
   const plain = await happy(t);
   const p = await finalise(plain.dir);
   assert.equal(p.code, 0, `${p.stdout}${p.stderr}`);
@@ -449,7 +451,7 @@ test('AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-re
   await refuses(dir, [], 4, `finalise refused: no TEST verdict at ${s7(H)}`);
 });
 
-test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark refused: complete is written only by rcf build finalise from the recorded verdicts" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4', TODO, async (t) => {
+test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark refused: complete is written only by rcf build finalise from the recorded verdicts" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4', async (t) => {
   const dir = await project(t, { name: 'mark' });
   const mark = (to) => rcf(['build', 'mark', 'FBS-001', to], { cwd: dir });
   const set = (s) => editFbs(dir, 'FBS-001', (f) => { f.executionStatus = s; });
@@ -474,9 +476,22 @@ test('AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 "mark re
     assert.equal(r.code, 4, `${from} to ${to} is refused with exit 4\n${r.stdout}${r.stderr}`);
     assert.equal(fbsText(dir), bytes, `${from} to ${to}: byte-identical`);
   }
+
+  // F-11: no mark-complete gate in rcf build mark --help, and the verified
+  // refusal names no rcf build finalise <fbs-id> --url command.
+  const help = await rcf(['build', 'mark', '--help'], { cwd: dir });
+  assert.equal(help.code, 0, `${help.stdout}${help.stderr}`);
+  const gate = lines(help.stdout).filter((l) => /--accept-block|mark-complete CN gate/i.test(l) || (l.includes('--no-code-nodes') && /mark complete/i.test(l)));
+  assert.deepEqual(gate, [], 'rcf build mark --help documents no mark-complete gate');
+  set('complete');
+  bytes = fbsText(dir);
+  const v = await mark('verified');
+  assert.equal(v.code, 4, `mark verified is refused with exit 4\n${v.stdout}${v.stderr}`);
+  assert.ok(!/rcf build finalise \S+ --url\b/.test(`${v.stdout}${v.stderr}`), `the verified refusal names no rcf build finalise <fbs-id> --url command\n${v.stdout}${v.stderr}`);
+  assert.equal(fbsText(dir), bytes, 'byte-identical after the refused verified');
 });
 
-test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with "finalise: FBS-001 verified (unchanged: touched criteria are testOnly)" and no write, and with an external criterion touched it writes complete', TODO, async (t) => {
+test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with "finalise: FBS-001 verified (unchanged: touched criteria are testOnly)" and no write, and with an external criterion touched it writes complete', async (t) => {
   const base = { flags: { 'AC-101-1': 'testOnly', 'AC-101-2': 'external' }, specs: { 'FBS-001': { acIds: BOTH, status: 'verified' } } };
   const a = await happy(t, { base, define: {}, review: { touchedAcIds: ['AC-101-1'] }, testOpts: { strength: { passing: ['AC-101-1'] } } });
   const st = porcelain(a.dir);
@@ -494,7 +509,7 @@ test('AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touc
   assert.equal(status(b.dir), 'complete');
 });
 
-test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination', TODO, async (t) => {
+test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination', async (t) => {
   const runs = [];
   const fixtures = [
     ['inProgress round', () => happy(t)],
@@ -518,4 +533,253 @@ test('AC-20003-5: across the fixtures of US-20003 no finalise run writes executi
     }
   }
   t.diagnostic(runs.join('\n'));
+  // F-11: the shipped help never presents finalise as what writes verified.
+  for (const args of [['help'], ['help', 'build']]) {
+    const h = await rcf(args, {});
+    assert.equal(h.code, 0, `rcf ${args.join(' ')}\n${h.stderr}`);
+    const said = h.stdout.replace(/\s+/g, ' ').split(/(?<=\.)\s+/).filter((s) => /finalise[^.]*\bingest\w*[^.]*\breport\b|finalise[^.]*\bpromot\w*[^.]*\bverified\b|\bverified\b[^.]*\bwritten\b[^.]*\bby\W+(rcf )?build finalise\b/i.test(s));
+    assert.deepEqual(said, [], `rcf ${args.join(' ')} says nowhere that finalise ingests a verify report, promotes to verified or writes verified`);
+  }
+});
+
+// ------------------------------------------- round C (stage-keeper ruling RC-1)
+//
+// Criteria on FBS-233 to FBS-235's stories that FBS-237 scopes (round B
+// rulings 28 and 33): the coverage rows, the separation config, the
+// verdict verb and the verify runner's dirty check, which the light
+// Finalise reads or hardens. AC-19803-7, AC-19803-8 and AC-19702-9 are
+// declared regression guards (ruling RC-2): green at the round DEFINE head.
+
+const coverageJson = async (dir) => {
+  const r = await rcf(['audit', 'coverage', '--format', 'json'], { cwd: dir });
+  assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  return JSON.parse(r.stdout);
+};
+const coverageRow = (j, id) => j.requirements.flatMap((q) => q.acs).find((a) => a.id === id);
+
+// ---------------------------------------------------------------- US-19803 (round C)
+
+test('AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file "test/hygiene/a.test.js" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key', async (t) => {
+  const dir = await project(t, { name: 'hyg' });
+  editStory(dir, 'US-101', (us) => { us.acceptanceCriteria = BOTH.map((id) => criterion(id, `[happy] ${NAMES[id]}`, { verification: 'external' })); });
+  editFbs(dir, 'FBS-001', (f) => { f.acIds = BOTH; });
+  bindTests(dir, [
+    { acId: 'AC-101-1', pointer: 'test/hygiene/a.test.js::first behaviour holds', tcId: 'TC-001-hygiene' },
+    { acId: 'AC-101-1', pointer: pointer('AC-101-1'), tcId: 'TC-001-first' },
+    { acId: 'AC-101-2', pointer: pointer('AC-101-2'), tcId: 'TC-001-second' },
+  ]);
+  const j = await coverageJson(dir);
+  const one = coverageRow(j, 'AC-101-1');
+  assert.deepEqual(one.hygieneTestCases, [{ id: 'TC-001-hygiene', file: 'test/hygiene/a.test.js' }], 'the hygiene case is listed apart with its file');
+  assert.deepEqual(one.testCases, ['TC-001-first'], 'testCases names only the RCF-suite case');
+  assert.ok(!('hygieneTestCases' in coverageRow(j, 'AC-101-2')), 'a row with no hygiene binding carries no hygieneTestCases key');
+});
+
+test('AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later', async (t) => {
+  for (const [o1, o2, now] of [[1, 2, 'inProgress'], [2, 1, 'complete']]) {
+    const dir = await project(t, { name: 'tie' });
+    editStory(dir, 'US-101', (us) => { us.acceptanceCriteria = [criterion('AC-101-1', '[happy] first behaviour holds', { verification: 'external' })]; });
+    const one = readJson(dir, 'rcf/fbs/fbs-001.json');
+    editFbs(dir, 'FBS-001', () => ({ ...one, buildOrder: o1, acIds: ['AC-101-1'], executionStatus: 'complete' }));
+    editFbs(dir, 'FBS-002', () => ({ ...one, fbsId: 'FBS-002', title: 'FBS-002 fixture', summary: 'FBS-002 scopes AC-101-1.', buildOrder: o2, acIds: ['AC-101-1'], executionStatus: 'inProgress' }));
+    bindTests(dir, [{ acId: 'AC-101-1', pointer: pointer('AC-101-1') }]);
+    assert.equal(coverageRow(await coverageJson(dir), 'AC-101-1').now, now, `FBS-001 buildOrder ${o1}, FBS-002 buildOrder ${o2}: now reads ${now}`);
+  }
+});
+
+// ---------------------------------------------------------------- US-19702 (round C)
+
+// A TAP file whose run passes the bound tests of both criteria, and the
+// TEST verdict verb over it.
+const passingTap = (t) => writeTap(join(scratch(t, 'rcf-h-tap-'), 'run.tap'), BOTH.map((acId) => ({ name: NAMES[acId] })));
+const verdictTest = (dir, tap) => rcf(['build', 'verdict', 'test', '--fbs', 'FBS-001', '--result', 'PASS', '--tap', tap, '--runtime', 'fixture app on localhost'], { cwd: dir });
+
+test('AC-19702-9: outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with "verdict refused: not a git repository; a verdict names a committed head", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with "[error] usage --tap <file> cannot be read"; no file appears under rcf/verdicts/', async (t) => {
+  const tap = passingTap(t);
+  const plain = await project(t, { name: 'nogit' });
+  const verbs = [
+    ['review', '--fbs', 'FBS-001', '--acs', 'AC-101-1', '--code', 'MERGE', '--adequacy', 'PASS'],
+    ['test', '--fbs', 'FBS-001', '--result', 'PASS', '--tap', tap, '--runtime', 'fixture app on localhost'],
+  ];
+  for (const args of verbs) {
+    const r = await rcf(['build', 'verdict', ...args], { cwd: plain });
+    assert.equal(r.code, 4, `verdict ${args[0]} outside git: exit 4\n${r.stdout}${r.stderr}`);
+    errHas(r, 'verdict refused: not a git repository; a verdict names a committed head');
+  }
+  assert.ok(!existsSync(join(plain, 'rcf', 'verdicts')), 'no rcf/verdicts/ outside git');
+
+  const { dir } = await baseChain(t);
+  defineCommit(dir, { status: 'inProgress' });
+  buildCommit(dir);
+  reviewCommit(dir);
+  const missing = join(scratch(t, 'rcf-h-tap-'), 'absent.tap');
+  const before = porcelain(dir);
+  const r = await verdictTest(dir, missing);
+  assert.equal(r.code, 2, `an unreadable --tap: exit 2\n${r.stdout}${r.stderr}`);
+  errHas(r, `[error] usage --tap ${missing} cannot be read`);
+  assert.equal(porcelain(dir), before, 'no file appears');
+});
+
+const VERDICT_DIRTY = 'verdict refused: working tree is dirty; a verdict names a committed head';
+const RUNNER_DIRTY = 'verify report refused: working tree is dirty; the report must name a committed head';
+
+test('AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4', async (t) => {
+  const tap = passingTap(t);
+  const a = await baseChain(t);
+  defineCommit(a.dir, { status: 'inProgress' });
+  const H = buildCommit(a.dir);
+  reviewCommit(a.dir);
+  const src = readText(a.dir, 'src/x.js');
+  writeText(a.dir, 'src/x.js', `${src}// uncommitted\n`);
+  const dirty = await verdictTest(a.dir, tap);
+  assert.equal(dirty.code, 4, `given: a change to src/x.js is dirty to the verdict verb\n${dirty.stdout}${dirty.stderr}`);
+  errHas(dirty, VERDICT_DIRTY);
+  writeText(a.dir, 'src/x.js', src);
+  writeJson(a.dir, reportPath(H), verifyReport(H, 'PASS'));
+  const r = await verdictTest(a.dir, tap);
+  assert.equal(r.code, 0, `an untracked report under rcf/verify-reports/ is not a dirty tree to the verdict verb\n${r.stdout}${r.stderr}`);
+  assert.ok(existsSync(join(a.dir, verdictPath(H, 'test.json'))), 'test.json is written');
+
+  const server = createServer((req, res) => { res.writeHead(200, { 'content-type': 'text/plain' }); res.end('ok'); });
+  await new Promise((res) => server.listen(0, '127.0.0.1', res));
+  t.after(() => new Promise((res) => server.close(res)));
+  const b = await baseChain(t);
+  defineCommit(b.dir, { status: 'inProgress' });
+  const B = buildCommit(b.dir);
+  const run = () => rcf(['verify', 'run', '--url', `http://127.0.0.1:${server.address().port}`, '--hand', 'verifier', '--fbs', 'FBS-001', '--engine', 'node', '--served-sha', B], { cwd: b.dir });
+  writeText(b.dir, 'src/x.js', `${readText(b.dir, 'src/x.js')}// uncommitted\n`);
+  const rd = await run();
+  assert.equal(rd.code, 4, `given: a change to src/x.js is dirty to the verify runner\n${rd.stdout}${rd.stderr}`);
+  errHas(rd, RUNNER_DIRTY);
+  git(b.dir, 'checkout', '--', 'src/x.js');
+  writeJson(b.dir, verdictPath(B, 'test.json'), testVerdict(B));
+  const rv = await run();
+  assert.ok(!lines(rv.stderr).includes(RUNNER_DIRTY), `an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${rv.code}\n${rv.stdout}${rv.stderr}`);
+
+  // The same exemption under --package (the stage-keeper's ruling RC-27 on
+  // the round C DEFINE: every rcf verify run mode, --package and --artefact
+  // included), with the dirty refusal before packing kept.
+  const p = await baseChain(t);
+  defineCommit(p.dir, { status: 'inProgress' });
+  const P = buildCommit(p.dir);
+  const pack = () => rcf(['verify', 'run', '--package', '.', '--fbs', 'FBS-001', '--hand', 'verifier'], { cwd: p.dir });
+  writeText(p.dir, 'src/x.js', `${readText(p.dir, 'src/x.js')}// uncommitted\n`);
+  const pd = await pack();
+  assert.equal(pd.code, 4, `under --package a change to src/x.js is dirty to the verify runner: exit 4\n${pd.stdout}${pd.stderr}`);
+  errHas(pd, RUNNER_DIRTY);
+  assert.ok(!existsSync(join(p.dir, 'rcf', 'verify-reports', 'FBS-001')), 'under --package the refused run writes no report');
+  // The refusal comes before packing: no *.tgz is anywhere in the project after it (F-7).
+  const packed = lines(git(p.dir, 'status', '--porcelain=v1', '--untracked-files=all', '--ignored')).map((l) => l.replace(/^\S+\s+/, '')).filter((f) => /\.tgz$/.test(f));
+  assert.deepEqual(packed, [], `under --package the refused run leaves no *.tgz in the project\n${packed.join('\n')}`);
+  git(p.dir, 'checkout', '--', 'src/x.js');
+  writeJson(p.dir, verdictPath(P, 'test.json'), testVerdict(P));
+  const pv = await pack();
+  assert.ok(!lines(pv.stderr).includes(RUNNER_DIRTY), `under --package an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${pv.code}\n${pv.stdout}${pv.stderr}`);
+  // AC-19302-5's rule for this ad hoc suite-as-probe-pack Verify, restated
+  // here (the stage-keeper's ruling RC-34 on the round C DEFINE): the run
+  // leaves no tarball or install output in the project, and its only new
+  // paths are under rcf/verify-reports/FBS-001/ (the verdict file was there).
+  const left = lines(git(p.dir, 'status', '--porcelain=v1', '--untracked-files=all')).map((l) => l.replace(/^\S+\s+/, ''));
+  assert.deepEqual(left.filter((f) => /\.tgz$|(^|\/)node_modules\/|(^|\/)package-lock\.json$/.test(f)), [], `under --package no *.tgz, node_modules or package-lock.json change is left in git status\n${left.join('\n')}`);
+  assert.deepEqual(left.filter((f) => !f.startsWith('rcf/verify-reports/FBS-001/') && f !== verdictPath(P, 'test.json')), [], `under --package the only new paths are under rcf/verify-reports/FBS-001/\n${left.join('\n')}`);
+
+  // The FBS-219 rules under --artefact, restated from the retired AC-19301-7
+  // (the stage-keeper's ruling RC-15 on the round C DEFINE). The dirty check
+  // and the --fbs count run before the tarball is unpacked, so a gzip file
+  // outside the fixture stands in for the packed artefact.
+  const c = await baseChain(t);
+  defineCommit(c.dir, { status: 'inProgress' });
+  buildCommit(c.dir);
+  const tgz = join(scratch(t, 'rcf-h-tgz-'), 'fixture-cli-1.0.0.tgz');
+  writeFileSync(tgz, gzipSync('fixture artefact\n'));
+  const art = (fbs) => rcf(['verify', 'run', '--artefact', tgz, ...fbs, '--hand', 'verifier'], { cwd: c.dir });
+  writeText(c.dir, 'src/x.js', `${readText(c.dir, 'src/x.js')}// uncommitted\n`);
+  const ra = await art(['--fbs', 'FBS-001']);
+  assert.equal(ra.code, 4, `under --artefact a change to src/x.js is dirty to the verify runner: exit 4\n${ra.stdout}${ra.stderr}`);
+  errHas(ra, RUNNER_DIRTY);
+  assert.ok(!existsSync(join(c.dir, 'rcf', 'verify-reports', 'FBS-001')), 'under --artefact the refused run writes no report');
+  git(c.dir, 'checkout', '--', 'src/x.js');
+  for (const fbs of [[], ['--fbs', 'FBS-001', '--fbs', 'FBS-002']]) {
+    const rf = await art(fbs);
+    assert.equal(rf.code, 2, `under --artefact --fbs ${fbs.length ? 'given twice' : 'absent'}: exit 2\n${rf.stdout}${rf.stderr}`);
+  }
+  // The rcf/verdicts/ exemption under --artefact (F-7): an untracked
+  // rcf/verdicts/<H12>/test.json and no other change is not a dirty tree.
+  const C = sha(c.dir);
+  writeJson(c.dir, verdictPath(C, 'test.json'), testVerdict(C));
+  const av = await art(['--fbs', 'FBS-001']);
+  assert.ok(!lines(av.stderr).includes(RUNNER_DIRTY), `under --artefact an untracked rcf/verdicts/ file is not a dirty tree to the verify runner\nexit ${av.code}\n${av.stdout}${av.stderr}`);
+});
+
+// ---------------------------------------------------------------- US-19604 (round C)
+
+test('AC-19604-8: with rcf/separation.json {"classes": {"rcfTest": ["spec/**"]}} at the head and a "BUILD: code" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with "(class rcfTest, owned by DEFINE)", as it does from the project root', async (t) => {
+  const dir = await project(t, { name: 'root' });
+  writeJson(dir, 'rcf/separation.json', { classes: { rcfTest: ['spec/**'] } });
+  writeText(dir, '.gitignore', 'node_modules/\n');
+  initRepo(dir);
+  const base = commit(dir, 'fixture: base chain');
+  git(dir, 'switch', '-q', '-c', 'feature');
+  const bad = commit(dir, 'BUILD: code', { 'spec/a.js': 'export const a = 1;\n', 'src/x.js': 'export const x = 1;\n' });
+  const item = `${s7(bad)} BUILD: touches spec/a.js (class rcfTest, owned by DEFINE)`;
+  for (const [where, cwd] of [['the project subdirectory src/', join(dir, 'src')], ['the project root', dir]]) {
+    const r = await rcf(['audit', 'separation', '--base', base], { cwd });
+    assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
+    assert.ok(r.stdout.includes(item), `from ${where}: stdout names "${item}"\n${r.stdout}${r.stderr}`);
+  }
+
+  // Below the git root (the stage-keeper's ruling RC-25 on the round C
+  // DEFINE): the project sits in project/ of its git repository, as
+  // packages/rcf-lite does in this one. The item prints the path in git's
+  // own form, repository-relative, project/spec/a.js (the stage-keeper's
+  // ruling RC-33 on the round C DEFINE), and the matcher pins it exactly.
+  const sub = await project(t, { name: 'below' });
+  const top = dirname(sub);
+  writeJson(sub, 'rcf/separation.json', { classes: { rcfTest: ['spec/**'] } });
+  writeText(top, '.gitignore', 'node_modules/\n');
+  initRepo(top);
+  const subBase = commit(top, 'fixture: base chain');
+  git(top, 'switch', '-q', '-c', 'feature');
+  const subBad = commit(top, 'BUILD: code', { 'project/spec/a.js': 'export const a = 1;\n', 'project/src/x.js': 'export const x = 1;\n' });
+  const subItem = new RegExp(`${s7(subBad)} BUILD: touches project/spec/a\\.js \\(class rcfTest, owned by DEFINE\\)`);
+  for (const [where, cwd] of [['the project subdirectory src/ below the git root', join(sub, 'src')], ['the project root below the git root', sub]]) {
+    const r = await rcf(['audit', 'separation', '--base', subBase], { cwd });
+    assert.equal(r.code, 4, `from ${where}: exit 4\n${r.stdout}${r.stderr}`);
+    assert.match(r.stdout, subItem, `from ${where}: stdout names "${s7(subBad)} BUILD: touches <path>spec/a.js (class rcfTest, owned by DEFINE)"\n${r.stdout}${r.stderr}`);
+  }
+});
+
+// ---------------------------------------------------------------- US-19701 (round C)
+
+test('AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding "test:AC-101-1:the bound test survives the noOp mutant" exits 0 and review.json records findings [{ id "F-1", locus "test", acId "AC-101-1", text "the bound test survives the noOp mutant" }]', async (t) => {
+  const { dir } = await baseChain(t);
+  const H = sha(dir);
+  const r = await rcf(['build', 'verdict', 'review', '--fbs', 'FBS-001', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'FINDINGS', '--finding', 'test:AC-101-1:the bound test survives the noOp mutant'], { cwd: dir });
+  assert.equal(r.code, 0, `a test-rooted finding is accepted\n${r.stdout}${r.stderr}`);
+  assert.deepEqual(readJson(dir, verdictPath(H, 'review.json')).findings, [{ id: 'F-1', locus: 'test', acId: 'AC-101-1', text: 'the bound test survives the noOp mutant' }]);
+
+  // The refusals beside it, restated from the retired AC-19701-3 (the
+  // stage-keeper's ruling RC-15 on the round C DEFINE), over a fresh fixture.
+  const f = await baseChain(t);
+  const review = (args) => rcf(['build', 'verdict', 'review', '--fbs', 'FBS-001', ...args], { cwd: f.dir });
+  const a = await review(['--acs', 'AC-101-1,AC-101-2', '--code', 'FINDINGS', '--adequacy', 'PASS']);
+  assert.equal(a.code, 2, `--code FINDINGS and no --finding: exit 2\n${a.stdout}${a.stderr}`);
+  errHas(a, '[error] usage FINDINGS needs at least one --finding');
+  const b = await review(['--acs', 'AC-101-1,AC-101-2', '--code', 'FINDINGS', '--adequacy', 'PASS', '--finding', 'maybe:AC-101-1:x']);
+  assert.equal(b.code, 2, `--finding "maybe:AC-101-1:x": exit 2\n${b.stdout}${b.stderr}`);
+  assert.ok(b.stderr.includes('<spec|build|test>:<AC id|->:<text>'), `stderr names the expected form <spec|build|test>:<AC id|->:<text>\n${b.stderr}`);
+  const c = await review(['--acs', 'AC-999-1', '--code', 'MERGE', '--adequacy', 'PASS']);
+  assert.equal(c.code, 3, `--acs AC-999-1: exit 3\n${c.stdout}${c.stderr}`);
+  errHas(c, '[error] brokenReference AC-999-1 is not scoped by FBS-001');
+  assert.ok(!existsSync(join(f.dir, 'rcf', 'verdicts')), 'no file appears under rcf/verdicts/');
+});
+
+// ---------------------------------------------------------------- US-19703 (round C)
+
+test('AC-19703-12: rcf audit separation --help lists the round item "<sha7> TEST: verdict head <x7> is not the reviewed head <H7>" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head "<h7>"', async () => {
+  const r = await rcf(['audit', 'separation', '--help'], {});
+  assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  const ls = lines(r.stdout).map((l) => l.trim());
+  assert.deepEqual(ls.filter((l) => l.includes('is not the reviewed head <h7>')), [], 'no help line names the reviewed head <h7>');
+  assert.ok(ls.includes('<sha7> TEST: verdict head <x7> is not the reviewed head <H7>'), `the round item reads <H7>\n${r.stdout}`);
 });

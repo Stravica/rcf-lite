@@ -39,9 +39,12 @@ function pick(source, fields) {
  * @param {import('#core/store/walker.js').TreeModel} tree
  * @param {object} opts
  * @param {string} opts.fbsId
+ * @param {string[]} [opts.acIds] - FBS-239 (US-20202): an amend round's
+ *   touched criteria; the bundle then lists only these, with their test
+ *   cases and Code Nodes, and carries round "amend" and touchedAcIds.
  * @returns {object|null} BundleResult
  */
-export function assembleBundle(tree, { fbsId }) {
+export function assembleBundle(tree, { fbsId, acIds: touchedAcIds }) {
   const fbs = tree.byId.get(fbsId);
   if (!fbs || tree.kindById.get(fbsId) !== 'fbs') return null;
 
@@ -74,7 +77,7 @@ export function assembleBundle(tree, { fbsId }) {
   // the authored acIds order.
   const usOrder = [];
   const acsByUs = new Map();
-  for (const acId of fbs.acIds ?? []) {
+  for (const acId of touchedAcIds ?? fbs.acIds ?? []) {
     const usId = tree.parentByChild.get(acId);
     const us = usId ? tree.byId.get(usId) : null;
     if (!us) continue; // Broken cross-links cannot occur post-walker (§D6).
@@ -195,10 +198,15 @@ export function assembleBundle(tree, { fbsId }) {
   });
 
   // Section 7 - completion contract (static, parameterised by fbsId).
+  // FBS-241 (AC-20401-4): the five stages of the round, in order, with
+  // their dispatch names, prefixes, roles and commands, then the Verify
+  // line that sits outside the round.
   const completionContract = {
     markInProgress: `rcf build mark ${fbsId} inProgress`,
     markComplete: `rcf build mark ${fbsId} complete`,
     finalise: `rcf build finalise ${fbsId} --ci-run <ref>`,
+    stages: runbookStages(fbsId, fbs.title ?? fbsId),
+    verify: VERIFY_LINE,
   };
 
   // FBS-215 (AC-18906-1): journey-step bindings. For each id on
@@ -223,6 +231,7 @@ export function assembleBundle(tree, { fbsId }) {
   });
 
   const result = {
+    ...(touchedAcIds ? { round: 'amend', touchedAcIds: [...touchedAcIds] } : {}),
     fbs: fbsBlock,
     queue: { position, total: queue.items.length },
     bs: tree.bs
@@ -239,6 +248,61 @@ export function assembleBundle(tree, { fbsId }) {
     tests,
     completionContract,
     boundSteps,
+    ...(touchedAcIds ? { codeNodes: amendCodeNodes(tree, touchedAcIds) } : {}),
   };
   return result;
+}
+
+/**
+ * FBS-239 (AC-20202-1): the Code Nodes of an amend round's touched
+ * criteria, each naming only the touched criteria it implements.
+ *
+ * @param {import('#core/store/walker.js').TreeModel} tree
+ * @param {string[]} acIds
+ * @returns {Array<{ cnId: string, path: string, acIds: string[] }>}
+ */
+function amendCodeNodes(tree, acIds) {
+  const touched = new Set(acIds);
+  return (tree.codeNodes ?? [])
+    .map((cn) => ({ cnId: cn.cnId, path: cn.path, acIds: (cn.implementsAcIds ?? []).filter((id) => touched.has(id)) }))
+    .filter((cn) => cn.acIds.length > 0);
+}
+
+/** The closing line of every runbook (FBS-241, AC-20401-4). */
+export const VERIFY_LINE = 'Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote';
+
+/**
+ * The five stages of one round for an FBS (FBS-241, AC-20401-4): each
+ * with its dispatch name "<STAGE> <fbs-id>: <title>", commit prefix,
+ * role, what the stage does and the commands it runs, in stage order.
+ * The markdown runbook and the json completionContract both print it.
+ *
+ * @param {string} fbsId
+ * @param {string} title
+ * @returns {Array<{stage: string, dispatch: string, prefix: string, role: string, does: string, commands: string[]}>}
+ */
+export function runbookStages(fbsId, title) {
+  const stage = (name, role, does, commands) => ({ stage: name, dispatch: `${name} ${fbsId}: ${title}`, prefix: `${name}:`, role, does, commands });
+  return [
+    stage('DEFINE', 'test-author', 'The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red and marks pickup; it never writes production code.', [
+      'rcf audit coverage --strict',
+      `rcf build mark ${fbsId} inProgress`,
+    ]),
+    stage('BUILD', 'builder', 'The builder makes the red tests green with production code, Code Nodes and code-hygiene unit tests only, on a base whose RCF suite is recorded green; deviation from the bundle is escalation, not improvisation.', [
+      'rcf build base-suite --out <file>',
+      'rcf define create cn --path <file>[#symbol] --acs <ac-ids>',
+    ]),
+    stage('REVIEW', 'reviewer', 'The reviewer validates the tree, runs the separation audit (each commit\'s stage prefix against the paths it touches) and the test-strength proof, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H.', [
+      'rcf define validate',
+      'rcf audit separation --base <trunk>',
+      'rcf audit test-strength --record',
+      `rcf build verdict review --fbs ${fbsId} --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS`,
+    ]),
+    stage('TEST', 'verifier', 'The verifier runs the full RCF suite against a locally running app serving H, nothing deployed, and records its TAP; a failed REVIEW or TEST closes the round and the next round starts at DEFINE.', [
+      `rcf build verdict test --fbs ${fbsId} --result PASS|FAIL --tap <file> --runtime "<text>"`,
+    ]),
+    stage('FINALISE', 'stage-keeper', 'On the PR branch before the merge, with CI green, the stage-keeper runs the light Finalise: it checks the recorded verdicts and writes complete, and the merge carries it.', [
+      `rcf build finalise ${fbsId} --ci-run <ref>`,
+    ]),
+  ];
 }

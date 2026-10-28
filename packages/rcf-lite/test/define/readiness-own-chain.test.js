@@ -332,12 +332,14 @@ const SOURCE_STEP = 'FBS-240\'s round DEFINE mints the two operator source entri
 test('AC-20303-3: rcf/.identity/profile.md is committed, each answer it records in the documented answer form has an operator source entry with its date in the ledger, no other file in an rcf/ tree holds an answer, and no ledger entry answers either key without the operator and a date', TODO, async (t) => {
   const root = checkoutRoot();
   const rel = `packages/rcf-lite/${PROFILE}`;
-  // Every rcf/ records tree at HEAD (one at the time of writing,
-  // packages/rcf-lite/rcf/); mentions of the keys in criteria, cases, TACs
-  // and Code Nodes are not answers, so only the answer form is flagged.
+  // rcf-lite's own chain at HEAD, packages/rcf-lite/rcf/ (the stage-keeper's
+  // ruling RC-5 (iii): the readiness fixture trees under test/fixtures/ are
+  // synthetic data, not the operator's answers, so the scan skips them);
+  // mentions of the keys in criteria, cases, TACs and Code Nodes are not
+  // answers, so only the answer form is flagged.
   const tracked = gitTry(root, 'ls-tree', '-r', '--name-only', 'HEAD');
   assert.equal(tracked.code, 0, `git ls-tree HEAD in ${root}: ${tracked.stderr}`);
-  const inTrees = tracked.stdout.split('\n').filter((p) => /(^|\/)rcf\//.test(p));
+  const inTrees = tracked.stdout.split('\n').filter((p) => p.startsWith('packages/rcf-lite/rcf/'));
   const elsewhere = [];
   for (const [p, text] of showAt(root, 'HEAD', inTrees.filter((p) => p !== rel))) {
     for (const s of answersIn(p, text)) elsewhere.push(`${p}: ${s.key} = ${s.answer}`);

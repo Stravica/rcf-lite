@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:35:52.032Z",
-  "updatedAt": "2026-10-24T15:02:56.830Z",
+  "updatedAt": "2026-10-28T16:26:56.990Z",
   "summary": "rcf verify run gains release mode (--release, --since, one target, --record): scope from <since>..HEAD plus declared smoke suites, e2e-level cases of live external criteria only, cold install for package targets, ReleaseVerifyReport v1 and verified written only with --record when smoke passes. Probe modes stay ad hoc and are refused in release mode.",
   "approach": "A release scope resolver over git and the chain; reuse the suite-as-probe runner with an e2e filter and a cold installer (fresh cache, HOME and npm user config in scratch, reduced env); the release report writer and the status write behind --record; verify run help and docs/verify-reference.md follow (the docs line is the guidance slice's).",
   "deliverables": [
@@ -36,6 +36,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 240,
-  "executionStatus": "notStarted",
+  "executionStatus": "complete",
   "title": "Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold"
 }

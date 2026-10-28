@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-1012",
+  "path": "src/verify/release/cold.js#installCold",
+  "implementsAcIds": [
+    "AC-20102-2",
+    "AC-20102-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T14:32:59.473Z",
+  "updatedAt": "2026-10-27T14:32:59.473Z"
+}

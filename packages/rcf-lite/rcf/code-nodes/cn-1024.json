@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1024",
+  "path": "guidance/managed/agent-instructions-block.md",
+  "implementsAcIds": [
+    "AC-20401-3",
+    "AC-20401-7",
+    "AC-20401-8"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T18:07:18.127Z",
+  "updatedAt": "2026-10-27T18:07:18.127Z"
+}

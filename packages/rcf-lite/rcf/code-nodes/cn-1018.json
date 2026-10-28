@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1018",
+  "path": "src/build/backstop.js#resolveBase",
+  "implementsAcIds": [
+    "AC-20201-1",
+    "AC-20201-3",
+    "AC-20201-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T15:35:40.388Z",
+  "updatedAt": "2026-10-27T15:35:40.388Z"
+}

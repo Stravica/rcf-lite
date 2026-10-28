@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1032",
+  "path": "docs/how-it-works.md",
+  "implementsAcIds": [
+    "AC-20402-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-27T18:07:33.926Z",
+  "updatedAt": "2026-10-27T18:07:33.926Z"
+}

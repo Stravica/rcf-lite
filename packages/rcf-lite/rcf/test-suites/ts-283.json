@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:39.806Z",
-  "updatedAt": "2026-10-24T16:56:41.868Z",
+  "updatedAt": "2026-10-27T23:14:43.207Z",
   "purpose": "FBS-236: the external criteria of US-19902, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -11,7 +11,8 @@
     "AC-19902-5",
     "AC-19902-6",
     "AC-19902-7",
-    "AC-19902-8"
+    "AC-19902-8",
+    "AC-19902-9"
   ],
   "id": "TS-283",
   "usId": "US-19902",
@@ -72,6 +73,20 @@
       "description": "a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 \"AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\"",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 \"AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\""
+    },
+    {
+      "id": "TC-283-a-declared-runner-that-fails-on-every",
+      "acId": "AC-19902-9",
+      "description": "a declared runner that fails on every bound test makes rcf audit test-strength --acs AC-101-1 exit 2 naming the runner and the bound test, with no mutant run and neither the PASS line nor a FAIL line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-9: a declared runner that fails on every bound test makes rcf audit test-strength --acs AC-101-1 exit 2 naming the runner and the bound test, with no mutant run and neither the PASS line nor a FAIL line"
+    },
+    {
+      "id": "TC-283-a-bound-test-red-unmutated-for-want-of",
+      "acId": "AC-19902-9",
+      "description": "a bound test red unmutated for want of an environment variable the runner does not set makes rcf audit test-strength --acs AC-101-1 exit 2 naming the default runner and the bound test, with no mutant run and neither result line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19902-9: a bound test red unmutated for want of an environment variable the runner does not set makes rcf audit test-strength --acs AC-101-1 exit 2 naming the default runner and the bound test, with no mutant run and neither result line"
     }
   ],
   "status": "draft"

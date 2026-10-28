@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T15:45:07.089Z",
-  "updatedAt": "2026-10-22T11:22:29.356Z",
+  "updatedAt": "2026-10-27T05:44:28.045Z",
   "purpose": "Declare one test per AC of US-19002 (FBS-220) driving rcf build finalise <fbs-id> --ci-run <ref> through bin/rcf.js, so the FBS-220 Define round turns each declaration into a red test against the report-ingesting Finalise.",
   "testLevel": "integration",
   "acIds": [
@@ -22,49 +22,49 @@
       "acId": "AC-19002-1",
       "description": "rcf build finalise <fbs-id> --ci-run <ref> with a valid verifier PASS report exits 0, sets executionStatus verified and prints \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", spawning nothing but git",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-1: rcf build finalise <fbs-id> --ci-run <ref> with a valid verifier PASS report exits 0, sets executionStatus verified and prints \"finalise: <fbs-id> verified from <report path> (head <sha7>, ci <ref>)\", spawning nothing but git"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
     },
     {
       "id": "TC-253-no-report",
       "acId": "AC-19002-2",
       "description": "rcf build finalise <fbs-id> --ci-run <ref> with no report exits 4 with \"finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge\" and the FBS stays complete",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-2: rcf build finalise <fbs-id> --ci-run <ref> with no report exits 4 with \"finalise refused: no Test-stage verify report for <fbs-id>; the verifier runs rcf verify run --fbs <fbs-id> --hand verifier before merge\" and the FBS stays complete"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\""
     },
     {
       "id": "TC-253-head-loopback-age",
       "acId": "AC-19002-3",
       "description": "rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\" or \"report is <n> days old\" (the loopback clause moved to AC-19005-2 to -4, ADR-4151)",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-3: rcf build finalise exits 4 with \"finalise refused: report head <sha7> is not contained in HEAD <sha7>; re-verify this head\" or \"report is <n> days old\""
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse"
     },
     {
       "id": "TC-253-hand-not-separate",
       "acId": "AC-19002-4",
       "description": "rcf build finalise on a report whose hand is not verifier or whose verifierId matches a builder Hand-Id exits 4 with \"finalise refused: report hand <hand>/<id> is not separate from the builder\" and the FBS is unchanged",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-4: rcf build finalise on a report whose hand is not verifier or whose verifierId matches a builder Hand-Id exits 4 with \"finalise refused: report hand <hand>/<id> is not separate from the builder\" and the FBS is unchanged"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
     },
     {
       "id": "TC-253-preconditions",
       "acId": "AC-19002-5",
       "description": "rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field (the off-trunk clause moved to AC-19005-1, ADR-4151)",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-5: rcf build finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", 4 not-complete and 3 \"missing Code Nodes: <ac-ids>\"; a report failing VerifyReport v1 exits 3 naming the field"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-3: with no --ci-run finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", with AC-101-2 lacking a Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-2\", and an untouched criterion of the spec with no Code Node does not refuse"
     },
     {
       "id": "TC-253-blocking-per-ac-verdicts",
       "acId": "AC-19002-6",
       "description": "rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6: rcf build finalise on a report carrying MOCK-ONLY-DECLARED, EVAL-MISSING, EVAL-BELOW-THRESHOLD, UI-BASELINE-UNMET, BROWSER-VERIFICATION-MISSING or SCOPE-MISMATCH, or a non-PASS or non-ship verdict, exits 4 with the 0.20.0 and 0.28.0 message shapes"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\""
     },
     {
       "id": "TC-253-retired-flags",
       "acId": "AC-19002-7",
       "description": "rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-7: rcf build finalise <fbs-id> --mode <any> or --url <url> exits 2 with \"finalise no longer runs verify; run rcf verify run --fbs <fbs-id> --hand verifier at the Test stage\" and spawns nothing"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
     },
     {
       "id": "TC-253-no-spawn-no-mutation",
@@ -78,21 +78,21 @@
       "acId": "AC-19002-1",
       "description": "End to end: a real rcf verify run --hand verifier --fbs FBS-001 --url <non-loopback preview> --mode deterministic --profile ci passes, writes rcf/verify-reports/FBS-001/<head12>.json with verdict PASS and verdictAuthority ship; after a --no-ff merge and the complete mark, rcf build finalise FBS-001 --ci-run <ref> exits 0, prints the verified-from line and spawns nothing but git.",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-1 (end to end): a real rcf verify run --hand verifier --fbs <fbs-id> --url <preview> PASS writes a ship-authority report with per-AC verdicts, and rcf build finalise <fbs-id> --ci-run <ref> promotes it to verified"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
     },
     {
       "id": "TC-253-e2e-per-ac-refusal",
       "acId": "AC-19002-6",
       "description": "End to end: a real verify run on a nonDeterministic AC with no EVAL records EVAL-MISSING on that AC in the report perAc row; rcf build finalise refuses exit 4 with the 0.20.0 EVAL-missing message, the FBS stays complete and byte-identical, nothing but git is spawned.",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-6 (end to end): a real verify run whose engine records EVAL-MISSING on an AC writes that verdict into perAc, and rcf build finalise refuses exit 4 with the 0.20.0 message shape, the FBS staying complete"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\""
     },
     {
       "id": "TC-253-squash-tree-equal",
       "acId": "AC-19002-3",
       "description": "A real report on the feature head, squash-merged to main: the report head is not an ancestor of HEAD and the squash tree differs from it only under rcf/verify-reports/, so it is tree-equal and rcf build finalise promotes (exit 0, verified).",
       "status": "failing",
-      "testPointer": "test/finalise/administrative-finalise.test.js::AC-19002-3 (squash merge): a report head whose tree differs from a commit HEAD contains only under rcf/verify-reports/ is tree-equal, so Finalise accepts it"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse"
     }
   ],
   "status": "draft"

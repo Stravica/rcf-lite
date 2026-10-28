@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:43.345Z",
-  "updatedAt": "2026-10-26T00:07:41.900Z",
+  "updatedAt": "2026-10-27T23:10:27.754Z",
   "asA": "verifier at the TEST stage",
   "iWant": "each symbol implementing a touched criterion stubbed to throw, made a no-op and its calls removed, with the criterion's bound tests run against each",
   "soThat": "a criterion whose tests stay green against broken code is reported vacuous before Finalise",
@@ -60,6 +60,12 @@
     {
       "id": "AC-19902-8",
       "description": "[edge] Given a fixture project whose rcf/test-strength.json declares entry [{\"kind\": \"bin\", \"path\": \"bin/app.js\"}] and harness [\"test/_harness/**\"], and whose AC-101-5 has one Code Node, docs/x.md with no #symbol (a file-level Code Node on a path that is not source), and is bound to test/rcf/a.test.js, which reads docs/x.md through node:fs and asserts it holds the line \"x\", when rcf audit test-strength --acs AC-101-5 runs, then docs/x.md is blanked in the scratch worktree, the bound test goes red, and it exits 0 with stdout \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 1/1 (timeout 0, notApplicable 0)\" and --json listing one mutant with symbol \"docs/x.md\", operator \"fileBlank\" and result \"killed\"; given instead a bound test that never reads docs/x.md, it exits 4 with \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\".",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19902-9",
+      "description": "[failure] Given a fixture whose AC-101-1 passes the structural check and has mutants to run, and whose bound test is red before any mutant is applied (a declared runner in rcf/test-strength.json that fails on every bound test, or a bound test that needs an environment variable the runner does not set), when rcf audit test-strength --acs AC-101-1 runs, then after the --max-mutants check and before any mutant it runs the bound tests of each criterion that reaches the mutation proof once, unmutated, through the declared runner, and because that run is red it exits 2 with stderr \"test-strength: the unmutated run is red for AC-101-1: <file>::<name> fails under runner <the runner argv, space-separated>; no mutant was run\", runs no mutant and prints neither the PASS line nor a FAIL line; when the unmutated run is green, the mutants run and are scored as before.",
       "testable": true,
       "verification": "external"
     }
