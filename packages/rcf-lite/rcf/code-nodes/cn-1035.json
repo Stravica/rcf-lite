@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1035",
+  "path": "src/verify/release/report.js#releaseLabelProblem",
+  "implementsAcIds": [
+    "AC-20102-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-28T02:07:58.061Z",
+  "updatedAt": "2026-10-28T02:07:58.061Z"
+}
