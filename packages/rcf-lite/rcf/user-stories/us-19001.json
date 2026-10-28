@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-16T12:47:17.390Z",
-  "updatedAt": "2026-10-26T23:43:08.574Z",
+  "updatedAt": "2026-10-28T20:39:26.141Z",
   "description": "User story under REQ-190 for the Test-stage report writer (FBS-219). The verifier hand runs rcf verify run against the preview or version host and commits the VerifyReport on the PR branch; the report is the evidence the merge gate reads and Finalise later ingests. Committing the report is evidence, not an edit to production code, tests or criteria.",
   "asA": "the verifier hand at the Test stage of one build spec",
   "iWant": "one command that verifies the spec's criteria through the real entry point and writes a report naming the head, the target, the hand and every per-AC result",
@@ -16,7 +16,8 @@
       "ownerRef": {
         "tacId": "TAC-4148-test-stage-verify-finalise",
         "field": "interfaces[rcf verify run (Test stage)]"
-      }
+      },
+      "verification": "external"
     },
     {
       "id": "AC-19001-2",
@@ -29,22 +30,26 @@
     {
       "id": "AC-19001-3",
       "description": "[failure] Given --hand with a value outside [test-author | builder | reviewer | verifier | stage-keeper], or --fbs absent while --hand is given, when rcf verify run is invoked, then it exits 2 naming the flag and writes no report.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19001-4",
       "description": "[happy] Given a version-host target (a packed or published package rather than a web address), when rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier runs, then the report carries target.kind \"package\" and target.packageRef and target.url is absent, so a CLI product verifies against its version host.",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19001-5",
       "description": "[happy] Given a committed report under rcf/verify-reports/, when rcf define validate and the tree walker run, then neither treats the directory as chain documents (validate exit 0, no unknown-document error).",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19001-6",
       "description": "[must-not] rcf verify run --hand verifier never writes outside rcf/verify-reports/<fbs-id>/: after a run, git status lists no change under src/, test/ or any chain document directory, and an existing report for the same head is never overwritten (a second run exits 4 with \"verify report exists for head <sha7>; pass --replace \\\"<reason>\\\"\").",
-      "testable": true
+      "testable": true,
+      "verification": "external"
     },
     {
       "id": "AC-19001-7",

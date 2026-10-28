@@ -1,0 +1,61 @@
+{
+  "createdAt": "2026-10-28T20:39:23.013Z",
+  "updatedAt": "2026-10-28T20:39:24.731Z",
+  "purpose": "FBS-219: the external criteria of US-19001, driving bin/rcf.js against fixture projects (e2e); each case is the existing TS-252 integration case, bound again at e2e level for the release Verify",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19001-1",
+    "AC-19001-3",
+    "AC-19001-4",
+    "AC-19001-5",
+    "AC-19001-6"
+  ],
+  "id": "TS-300",
+  "usId": "US-19001",
+  "title": "US-19001 external criteria (FBS-219)",
+  "testCases": [
+    {
+      "id": "TC-300-report-written",
+      "acId": "AC-19001-1",
+      "description": "rcf verify run --url <preview-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> writes rcf/verify-reports/<fbs-id>/<head12>.json valid as VerifyReport v1 and stdout ends \"verify report: <path> <verdict> <verified>/<total>\"",
+      "status": "pending",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-1: rcf verify run --url <preview-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> writes rcf/verify-reports/<fbs-id>/<head12>.json valid as VerifyReport v1 and stdout ends \"verify report: <path> <verdict> <verified>/<total>\""
+    },
+    {
+      "id": "TC-300-bad-hand-flags",
+      "acId": "AC-19001-3",
+      "description": "rcf verify run with --hand outside the five hands, or --hand without --fbs, exits 2 naming the flag and writes no report",
+      "status": "pending",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-3: rcf verify run with --hand outside the five hands, or --hand without --fbs, exits 2 naming the flag and writes no report"
+    },
+    {
+      "id": "TC-300-package-target",
+      "acId": "AC-19001-4",
+      "description": "rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier writes a report with target.kind \"package\" and target.packageRef and no target.url",
+      "status": "pending",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-4: rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier writes a report with target.kind \"package\" and target.packageRef and no target.url"
+    },
+    {
+      "id": "TC-300-reports-not-chain",
+      "acId": "AC-19001-5",
+      "description": "with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document",
+      "status": "pending",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document"
+    },
+    {
+      "id": "TC-300-writes-only-reports",
+      "acId": "AC-19001-6",
+      "description": "rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites",
+      "status": "pending",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites"
+    },
+    {
+      "id": "TC-300-hand-refuses-out",
+      "acId": "AC-19001-6",
+      "description": "rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path",
+      "status": "pending",
+      "testPointer": "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path"
+    }
+  ],
+  "status": "draft"
+}
