@@ -170,3 +170,22 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, runner, head, 
   }
   return { results, left };
 }
+
+/**
+ * The unmutated run (RC-45, AC-19902-9): before any mutant, run the bound
+ * tests of each criterion that reaches the mutation proof once, unmutated,
+ * in a scratch worktree of `head`, through the declared runner. A bound
+ * test red here would kill every mutant, a false PASS. Resolves the first
+ * red bound test as `red` ({ acId, pointer }, null when every one is
+ * green) and the worktrees that could not be removed as `left`.
+ *
+ * @param {object} opts
+ * @param {Array<{ acId: string, tests: Array<{ file: string, name: string, pointer: string }> }>} opts.criteria
+ * @returns {Promise<{ red: { acId: string, pointer: string }|null, left: string[] }>}
+ */
+export async function runUnmutated({ git, criteria, timeoutMs, runner, head, toplevel, prefix }) {
+  const checks = criteria.map((c) => ({ acId: c.acId, edits: new Map(), tests: c.tests }));
+  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, runner, head, toplevel, prefix });
+  const at = results.findIndex((r) => r.result !== 'survived');
+  return { red: at < 0 ? null : { acId: checks[at].acId, pointer: results[at].killedBy[0] }, left };
+}

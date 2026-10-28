@@ -28,7 +28,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { runMutants } from './runner.js';
+import { runMutants, runUnmutated } from './runner.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
 export const DEFAULT_MAX_MUTANTS = 200;
@@ -244,6 +244,20 @@ export async function auditTestStrength({
   const total = criteria.reduce((n, c) => n + c.mutants.length, 0);
   if (total > maxMutants) return fail(2, `test-strength: ${total} mutants exceed --max-mutants ${maxMutants}; narrow the scope`);
 
+  // The unmutated run (RC-45): the bound tests of each criterion with a
+  // mutant to run, once, before any mutant; a red one stops the run.
+  const proved = criteria.filter((c) => c.mutants.some((m) => !m.result));
+  let unmutated;
+  try {
+    unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, runner: config.runner, head, toplevel, prefix });
+  } catch (err) {
+    return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
+  }
+  const leftUnmutated = unmutated.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`);
+  if (unmutated.red) {
+    return fail(2, ...leftUnmutated, `test-strength: the unmutated run is red for ${unmutated.red.acId}: ${unmutated.red.pointer} fails under runner ${config.runner.join(' ')}; no mutant was run`);
+  }
+
   const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
   let run;
   try {
@@ -252,7 +266,7 @@ export async function auditTestStrength({
     return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
   }
   runnable.forEach((m, i) => Object.assign(m, run.results[i]));
-  const warn = run.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`);
+  const warn = [...leftUnmutated, ...run.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`)];
 
   // The report (TestStrengthReport v1) and the verdict line.
   const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0 };
