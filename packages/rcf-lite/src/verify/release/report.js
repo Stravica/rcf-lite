@@ -4,6 +4,18 @@
 
 export const RELEASE_REPORTS_DIR = 'rcf/verify-reports/releases';
 
+/**
+ * Why a --release label cannot name a report file, or null when it can: a
+ * label holding a path separator, or a . or .. segment, would write outside
+ * RELEASE_REPORTS_DIR (AC-20102-4).
+ */
+export function releaseLabelProblem(label) {
+  if (label === '' || /[\\/]/.test(label) || label === '.' || label === '..') {
+    return `--release ${label}: a release label holds no path separator and no . or .. segment`;
+  }
+  return null;
+}
+
 /** The project-relative path of a release's report. */
 export function releaseReportPath(label) {
   return `${RELEASE_REPORTS_DIR}/${label}.json`;

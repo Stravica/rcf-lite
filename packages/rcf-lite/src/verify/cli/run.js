@@ -26,7 +26,7 @@ import { isGzipFile, PACKAGED_ARTEFACT_PROFILE, runSuiteAsProbe } from '../suite
 import { packDirectory } from '../suite/pack.js';
 import { isLoopbackUrl } from '../../finalise/ingest.js';
 import { gateTripped, FINDING_SEVERITIES } from '../verdict/index.js';
-import { releaseLines, releaseReportPath } from '../release/report.js';
+import { releaseLabelProblem, releaseLines, releaseReportPath } from '../release/report.js';
 import { runReleaseVerify } from '../release/index.js';
 import { releaseGit } from '../release/scope.js';
 import { findProjectRoot } from '../chain/index.js';
@@ -487,7 +487,8 @@ function readSmokeSuites(projectRoot) {
 
 // FBS-238 (US-20101, US-20102, US-20103, TAC-4157): release mode. Usage
 // refusals (exit 2) first and in this order: a --mode probe, --offline,
-// --release and --since together, exactly one target, the smoke
+// --release and --since together, a --release label that would leave
+// rcf/verify-reports/releases/, exactly one target, the smoke
 // declaration (with --record), the --since commit; then the dirty-tree
 // refusal (exit 4, --record only); then the run. Without --record nothing
 // is written in the project; with it, the release report and verified.
@@ -501,6 +502,8 @@ async function runReleaseMode(flags, { stdout, stderr, cwd, env }) {
   if (flags.release === undefined || flags.since === undefined) {
     return usage(flags.record ? '--record needs --release <label> and --since <ref>' : 'release Verify needs --release <label> and --since <ref>');
   }
+  const labelProblem = releaseLabelProblem(flags.release);
+  if (labelProblem) return usage(labelProblem);
   const targets = ['url', 'artefact', 'package'].filter((k) => flags[k] !== undefined);
   if (targets.length !== 1) return usage('give exactly one target: --url, --artefact or --package');
   const projectRoot = (await findProjectRoot(cwd)) ?? cwd;
