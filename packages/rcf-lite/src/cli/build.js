@@ -188,27 +188,9 @@ base suite.
 Options (queue):
   --format <format>         md (default) | json
 
-Options (mark):
-  --no-code-nodes           With mark complete: declare this FBS as
-                            genuinely producing no traceable code
-                            (docs-only, config-only), recorded on the FBS
-                            and exempting it from the mark-complete CN gate
-  --accept-block            With mark complete on a uiBearing FBS: accept
-                            a browserVerification block and ship the FBS
-                            at complete. Requires --reason "..." (>= 20
-                            chars). Records the reason on the
-                            browserVerification.operatorShipDespiteBlockReason
-                            field. Track B ship-without-verified (spec §8.6).
-  --reason "..."            Reason string for --accept-block.
-
 Global:
   --quiet                   Suppress non-error confirmations
   --help                    Print this help
-
-Mark-complete CN gate (D17): 'build mark <fbs-id> complete' refuses
-(exit 3, missingCodeNodes) when any of its ACs carries no Code Node.
-Author CN coverage first, or pass --no-code-nodes for a genuinely
-no-code spec.
 `;
 
 export const VERDICT_HELP = `Usage: rcf build verdict review --fbs <id>[,<id>...] --acs <AC id>[,...]

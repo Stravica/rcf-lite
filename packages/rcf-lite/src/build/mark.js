@@ -74,12 +74,12 @@ export function planMark(tree, { fbsId, status }) {
   const from = fbs.executionStatus;
   // The mark ladder caps at `complete` (w-2026-07-22-004). `verified` means
   // "independently verified against the running deploy" - it is written only by
-  // the finalise gate (`rcf finalise`), which spawns a fresh rcf-verify run.
+  // a release Verify outside the build cycle (`rcf verify run --release`).
   // Letting `--mark verified` promote with no verify run would let the builder
   // sidestep that gate with one flag, defeating the spec-9 independence
   // guarantee. Refused as part of the mark-refusal family (exit 4); the message
-  // names the finalise gate and keeps `rcf update` as the explicit manual
-  // override (unchanged - a deliberate, logged operator decision).
+  // names the release Verify, says what finalise writes, and keeps `rcf update`
+  // as the explicit manual override (a deliberate, logged operator decision).
   if (status === 'verified') {
     return {
       fbsId,
@@ -88,7 +88,8 @@ export function planMark(tree, { fbsId, status }) {
       noOp: false,
       refused: true,
       message: `build: refusing --mark verified on ${fbsId}; 'verified' is written only by the `
-        + `independent verify gate, not by --mark. Promote it with: rcf build finalise ${fbsId} --url <deploy-url>. `
+        + `release Verify outside the build cycle (rcf verify run --release <label> --since <ref> --record), not by --mark; `
+        + `rcf build finalise ${fbsId} writes complete from the recorded verdicts. `
         + `For a deliberate manual override (no verify run) use: rcf define update ${fbsId} --set executionStatus=verified --acknowledge-verified-override`,
     };
   }

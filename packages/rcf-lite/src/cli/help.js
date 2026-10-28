@@ -110,8 +110,8 @@ build        Drive the FBS queue and the five-stage build cycle.
   bundle <fbs-id>          Spec bundle for one FBS (or --next).
   base-suite --out <file>  Record the RCF suite run on the base head.
   mark <fbs-id> <status>   Record a lifecycle transition.
-  finalise <fbs-id>        Ship gate: ingest the Test-stage verify report
-                           and promote a complete FBS to verified.
+  finalise <fbs-id>        Light Finalise: write complete from the
+                           round's recorded verdicts.
   review <fbs-id>          Stage-3-to-Stage-4 audit.
   fbs <fbs-id> <verb>      FBS-level operations.
   test-suite <ts-id> <verb>  Test-suite operations.
@@ -237,14 +237,12 @@ Verbs:
                            write the base-suite record bundles check.
   mark <fbs-id> <status>   Record a lifecycle transition (notStarted ->
                            inProgress -> complete). 'verified' is written
-                           only by 'build finalise'.
+                           only by a release Verify.
   backstop adopt           Retired in 0.37.0 (exit 2); the backstop is the
                            base suite.
-  finalise <fbs-id>        Ship gate, run on the PR branch before the merge:
-                           ingest the Test-stage verify report committed
-                           there and promote a complete FBS to verified.
-                           A loopback report must name its engine, port
-                           and served sha.
+  finalise <fbs-id>        Light Finalise, run on the PR branch before the
+                           merge: check the round's recorded REVIEW, TEST
+                           and test-strength verdicts and write complete.
   review <fbs-id>          Stage-3-to-Stage-4 audit (test-theatre and
                            mutation-sampling).
   fbs <fbs-id> <verb>      FBS-level operations (depends-on).
