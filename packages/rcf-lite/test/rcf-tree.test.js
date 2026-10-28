@@ -52,14 +52,20 @@ const CONFIG_FILES = new Set(['separation.json', 'test-strength.json', 'release-
 // rcf-lite 0.37.0 round B): rcf/verdicts/<h12>/review.json (ReviewVerdict
 // v1) and rcf/verdicts/<h12>/test.json (TestVerdict v1), the records
 // `rcf build verdict review|test` writes (FBS-234, src/build/verdict.js),
-// h12 being the 12 lowercase hex characters of the reviewed head. The
+// and rcf/verdicts/<h12>/test-strength.json (TestStrengthReport v1), the
+// record `rcf audit test-strength --record` writes
+// (src/audit/test-strength/index.js) and the light Finalise reads at
+// HEAD (src/finalise/light.js judgeTestStrength; stage-keeper ruling
+// RC-63, rcf-lite round C), h12 being the 12 lowercase hex characters
+// of the reviewed head. The
 // core validator knows no verdict kind (knownKinds returns the keys of
 // SCHEMAS in src/core/store/validator.js), so they classify as
 // verdictRecord, sit outside the document set, and are never validated,
 // id-checked or counted as documents. They carry no count pin: each
-// round's REVIEW and TEST add one. Any other file under rcf/verdicts/
-// stays unclassified.
-const VERDICT_RECORD = /^verdicts\/[0-9a-f]{12}\/(?:review|test)\.json$/;
+// round's REVIEW and TEST add theirs. Any other file under
+// rcf/verdicts/, and these three names at any other depth, stays
+// unclassified.
+const VERDICT_RECORD = /^verdicts\/[0-9a-f]{12}\/(?:review|test|test-strength)\.json$/;
 
 function classify(relPath) {
   if (CONFIG_FILES.has(relPath)) return 'config';
