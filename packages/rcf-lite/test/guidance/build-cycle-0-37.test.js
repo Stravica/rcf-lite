@@ -149,7 +149,11 @@ const FORBIDDEN = [
   ['Separation-Reason', (s) => s.includes('Separation-Reason')],
   ['Hand: outside the 0.37.x transition', (s) => s.includes('Hand:') && !/0\.37/.test(s)],
   ['a Build waits for a spec to be verified', (s) => /\bBuild\b[^.]*\b(waits?|until|before)\b[^.]*\bverified\b/.test(s) && !/never/.test(s)],
-  ['rcf build mark <fbs-id> complete as a step or a gate', (s) => /rcf build mark <?[\w-]+>? complete\b|--mark complete\b/.test(s) && !/refus|retired|exits? 4|"markComplete":/.test(s)],
+  // RC-62: mark complete refused outright, retired or exiting 4 stays allowed;
+  // a refusal of the mark command itself under a condition (refuses when,
+  // unless, if, until; or a when/unless/if clause before it) is a gate and a hit.
+  // The clause read is the mark command's own, up to the next :, ; or `rcf .
+  ['rcf build mark <fbs-id> complete as a step or a gate', (s) => /rcf build mark <?[\w-]+>? complete\b|--mark complete\b/.test(s) && (!/refus|retired|exits? 4|"markComplete":/.test(s) || [...s.matchAll(/rcf build mark <?[\w-]+>? complete\b|--mark complete\b/g)].some((m) => { const post = s.slice(m.index + m[0].length).split(/[:;]|`rcf /)[0]; return /refus\w*\b.*\b(when|unless|if|until)\b/i.test(post) || (/\b(when|unless|if)\b/i.test(s.slice(0, m.index).split(/[:;]/).pop()) && /^`?\s*(is\s+)?refus/.test(post)); }))],
   ['a Stage 5 gate that reads a browserVerification record', (s) => /browserVerification/.test(s) && /\bgate\b/.test(s) && !/retired/.test(s)],
 ];
 // A command line in a code block that runs rcf build bundle without --base-suite.
@@ -347,7 +351,9 @@ test('AC-20402-3: no file under packages/rcf-lite/docs/, packages/rcf-lite/READM
       // F-12: the retired backstop pieces as working commands, mark complete
       // as a command to run, and a Test-stage report from rcf verify run.
       if (/backstop adopt|--allow-unverified/.test(s) && !/retired|exits? 2/.test(s)) hits.push(`${f}: backstop adopt or --allow-unverified outside a retirement: ${s.slice(0, 160)}`);
-      if (/rcf build mark <?[\w-]+>? complete\b/.test(s) && !/refus|retired|exits? 4/.test(s)) hits.push(`${f}: rcf build mark <fbs-id> complete as a command: ${s.slice(0, 160)}`);
+      // RC-62: the same rule as AC-20401-5 at the FORBIDDEN entry: a conditional
+      // refusal of mark complete itself presents it as a command to run.
+      if (/rcf build mark <?[\w-]+>? complete\b/.test(s) && (!/refus|retired|exits? 4/.test(s) || [...s.matchAll(/rcf build mark <?[\w-]+>? complete\b/g)].some((m) => { const post = s.slice(m.index + m[0].length).split(/[:;]|`rcf /)[0]; return /refus\w*\b.*\b(when|unless|if|until)\b/i.test(post) || (/\b(when|unless|if)\b/i.test(s.slice(0, m.index).split(/[:;]/).pop()) && /^`?\s*(is\s+)?refus/.test(post)); }))) hits.push(`${f}: rcf build mark <fbs-id> complete as a command: ${s.slice(0, 160)}`);
       if (/Test[- ]stage (verify )?report/i.test(s) && !/no longer|retired|never/.test(s)) hits.push(`${f}: a Test-stage report: ${s.slice(0, 160)}`);
     }
   }
