@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.37.0"
+latest: "0.38.0"
 releases:
+  - version: "0.38.0"
+    date: "2026-10-28"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.38.0 ends the build cycle at complete: rcf build finalise <fbs-id> --ci-run <ref> is the light Finalise, which writes complete on the PR branch before the merge from the round's recorded REVIEW, TEST and test-strength verdicts, and a release Verify, rcf verify run --release <label> --since <ref> --record against a URL or a package installed cold, writes verified outside the build cycle. rcf build base-suite records the RCF suite on the base, every rcf build bundle needs that green record, and rcf build bundle <fbs-id> --acs bundles an amend round on a complete or verified spec."
+      - "Breaking: every rcf build bundle without --base-suite exits 4, rcf build mark <fbs-id> complete exits 4, rcf build finalise refuses a spec with no recorded REVIEW, TEST or test-strength verdict and exits 2 on --report and its other report-era flags, rcf build backstop adopt and --allow-unverified exit 2, and rcf audit test-strength exits 2 when the unmutated run of a bound test is red, so runs that passed on 0.37.0 can fail. Record a base suite with rcf build base-suite --out <file> and pass --base-suite <file> to every bundle, stop marking complete and let Finalise write it, drop the report-era Finalise flags and the retired backstop forms, and fix a red unmutated test-strength run before Finalise."
+      - "Rerun rcf init after installing, or run rcf doctor --fix: the managed agent-instructions block now names the stage prefix on every commit, the light Finalise and the release Verify, which resolves the 0.37.0 known issue, so rcf doctor reports a block written by 0.37.x as drifted until it is refreshed. The @stravica-ai/rcf-schemas 0.10.0 pin is unchanged, chain files need no migration, and an existing rcf/define/backstop.json is ignored with one warning line."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.37.0"
     date: "2026-10-26"
     breaking: true
