@@ -83,7 +83,7 @@ jobs:
           RCF_LINT_SHELF: root
           RCF_LINT_MODE: hard
       - run: pnpm -r test
-  # Commit separation (ADR-4149): judge each commit's Hand: trailer over
+  # Commit separation (ADR-4149): judge each commit's stage prefix over
   # the pull request's range. Pull requests only, never on main after a
   # squash; full-depth checkout of the pull request's own head, since the
   # verb refuses a shallow clone; the commits judged are then the pull
