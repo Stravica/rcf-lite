@@ -9,12 +9,13 @@
 // test fails or its file fails to load (loadError), timeout when its
 // tests outlive --mutant-timeout (the whole process group is killed; a
 // timeout counts as killed), else survived. The project's working tree,
-// index and tracked files are never written, and every worktree is
-// removed with `git worktree remove` before the run returns, pass, fail
-// or error.
+// index and tracked files are never written; each runner gets a scratch
+// TMPDIR of the run's own (its caches and temp files land there, never
+// in the caller's TMPDIR), and every worktree and that scratch directory
+// are removed before the run returns, pass, fail or error.
 
 import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, realpathSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 
@@ -199,15 +200,17 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
   };
   process.once('SIGINT', onSignal);
   process.once('SIGTERM', onSignal);
-  const env = childEnv();
-  // vitest writes its report to a file: one per run, in one temp directory.
-  let reportDir = null;
+  // The runners' temp files and caches, and vitest's report files, stay
+  // in one scratch directory of this run. Its name is short: a runner may
+  // open a Unix socket under TMPDIR (tsx does), and those paths are capped
+  // near 108 bytes.
+  const scratch = mkdtempSync(join(tmpdir(), 'rcf-ts-'));
+  const env = { ...childEnv(), TMPDIR: scratch, TMP: scratch, TEMP: scratch };
   let n = 0;
   const reports = {
     next() {
-      reportDir = reportDir ?? mkdtempSync(join(tmpdir(), 'rcf-test-strength-report-'));
       n += 1;
-      return join(reportDir, `report-${n}.json`);
+      return join(scratch, `report-${n}.json`);
     },
   };
   let left = [];
@@ -261,9 +264,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
     if (failure) throw failure;
   } finally {
     left = await removeWorktrees(git, made);
-    if (reportDir) {
-      try { rmdirSync(reportDir); } catch { left.push(reportDir); }
-    }
+    try { rmSync(scratch, { recursive: true, force: true }); } catch { left.push(scratch); }
     process.removeListener('SIGINT', onSignal);
     process.removeListener('SIGTERM', onSignal);
   }
