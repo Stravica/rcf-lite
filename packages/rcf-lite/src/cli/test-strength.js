@@ -1,13 +1,17 @@
 // `rcf audit test-strength` handler (FBS-236, US-19901 to US-19903,
-// TAC-4155, ADR-4156). Prints one PASS or FAIL line (or, with --json,
-// the TestStrengthReport v1 object) for the touched criteria: the
-// structural check of their bound tests, then the mutation proof over
-// their Code Node symbols (src/audit/test-strength/).
+// TAC-4155, ADR-4156; FBS-242, US-19904). Prints one PASS, FAIL or
+// BLOCKED line (or, with --json, the TestStrengthReport v1 object alone)
+// for the touched criteria: the structural check of their bound tests,
+// then the mutation proof over their Code Node symbols
+// (src/audit/test-strength/).
 //
-// Exit table: 0 pass, 4 fail or a --record refusal, 2 usage (no
-// rcf/test-strength.json or a malformed one, no scope, an unknown id, an
-// unsupported source, too many mutants, --record with no REVIEW verdict),
-// 3 the chain does not load.
+// Exit table: 0 pass, 4 fail or a --record refusal, 5 blocked (a
+// criterion the audit cannot read, none failing), 2 usage or a whole-run
+// failure (no rcf/test-strength.json or a malformed one, an unreadable
+// entry point, no scope, an unknown id, a file-level Code Node on a code
+// file, too many mutants, a bound test not committed or not run, a runner
+// that cannot run, --record with no REVIEW verdict), 3 the chain does not
+// load. Precedence 2 over 4 over 5 over 0.
 
 import { parseArgs } from 'node:util';
 
@@ -42,7 +46,8 @@ Node builtin, a third-party package, the declared harness or the app
 entry; a module mock (mock.module) names a declared edge or clock
 specifier; and no Code Node symbol gives a parameter or option named
 logger, log, emitter, events, sender, mailer or notifier a default
-value. It runs for every criterion in scope first.
+value (vi.mock is read as a module mock too). It runs for every
+criterion in scope first.
 
 Mutation proof (criteria that pass the structural check): for each
 symbol-level Code Node (<path>#<symbol>) three mutants, stubToThrow (the
@@ -55,27 +60,77 @@ Node on a path that is not source (docs, JSON, YAML, workflows, chain
 records) gets fileBlank (the file is emptied); one on a .js, .mjs or
 .cjs file is never mutated. Each mutant is applied in a scratch git
 worktree of HEAD under the OS temp directory, and only the criterion's
-bound tests run against it, through the declared runner; at least one
-must go red (killed). A mutant whose tests outlive --mutant-timeout is
+bound tests run against it, each through its runner; at least one must
+go red (killed): its runner's report shows it failed, or its file
+failed to load. A mutant whose tests outlive --mutant-timeout is
 "timeout" and counts as killed. The working tree, the index and every
 tracked file are never changed, and no worktree outlives the run.
 
 rcf/test-strength.json (required; written by the test-author):
   { "entry": [ { "kind": "bin" | "module" | "worker", "path": <path> } ],
     "harness": [glob, ...], "edge": [specifier, ...],
-    "clock": [specifier, ...], "runner": [argv with <file> and <name>],
+    "clock": [specifier, ...],
+    "runners": [ { "files": [glob], "kind": "nodeTest" | "vitest" | "playwright",
+                   "argv": [...] } ],
+    "runner": [argv with <file> and <name>],
     "suiteCommand": <the project's RCF suite command> }
-  entry and harness need one or more items; runner defaults to
-  ["node", "--test", "--test-name-pattern", "<name>", "<file>"].
-Sources: JavaScript ESM and CommonJS (.js, .mjs, .cjs). A bound test
-file or a symbol-level Code Node on any other file, or a file-level Code
-Node on .ts .tsx .jsx .py .rb .go .java .kt .rs .php .cs .swift, exits 2.
+  entry and harness need one or more items.
+  runners (optional): each bound test file runs under the first entry
+  whose files glob matches it; an entry that matches no bound file is
+  allowed and silent. files globs: "**" spans directories, "*" and "?"
+  stay inside one segment. kind sets the default argv and the report
+  the audit reads, and each default carries that reporter:
+    nodeTest    node --test --test-reporter=tap --test-name-pattern <name> <file>
+    vitest      vitest run <file> -t <name> --reporter=json --outputFile=<report>
+    playwright  playwright test <file> -g <name> --reporter=json
+  <report> is a per-run temp path the audit sets and reads. argv, when
+  given, replaces the whole argv (holding <file> or <name>, and <report>
+  where its runner writes the report to a file) and must carry its own
+  reporter flag (--test-reporter=tap, or --reporter=json); give the test
+  runner alone, never a type checker. <name> is the pointer's name
+  filter: nodeTest an escaped ^name$; vitest the title path joined by
+  " > ", ^...$ for a leaf or a path, ^prefix for a describe title;
+  playwright the title path space-joined and $-anchored. A pointer
+  <file>::<name> names the leaf title, the title path ("describe > test")
+  or a describe title (run when a leaf under it ran, failed when any
+  leaf under it failed). An entry is malformed (exit 2, naming
+  runners[<i>]) when files is missing, empty or not a list of non-empty
+  strings, kind is none of the three, or argv holds neither <file> nor
+  <name>.
+  runner (optional, the legacy runner beside runners): a bound test file
+  no runners entry matches runs under it, judged by its exit code; with
+  neither, the file runs under kind nodeTest.
+Sources: JavaScript ESM and CommonJS (.js, .mjs, .cjs); .ts, .mts and
+.cts through node:module's stripTypeScriptTypes in strip mode; .tsx and
+.jsx through a JSX scanner; .vue through its <script> and <script setup>
+blocks (lang ts, tsx or js). A file-level Code Node on .ts .mts .cts .tsx
+.jsx .py .rb .go .java .kt .rs .php .cs .swift exits 2; one on a .vue
+file gets fileBlank.
 
-Prints one line:
+Blocked: a bound test file or a symbol-level Code Node file the audit
+cannot read makes its criterion blocked (result "blocked", reason
+"TEST_STRENGTH_UNSUPPORTED", a detail per unreadable file joined by
+"; ") while the other criteria are judged: a file of another type
+("<file>:1:1: unsupported file type <ext>"), non-erasable TypeScript
+syntax ("<file>:<line>:<col>: non-erasable TypeScript syntax
+(<construct>)"), a failed JSX scan ("JSX scan failed at
+<file>:<line>:<col>: <what the scanner met>") or a .vue script block
+with a src attribute. A blocked criterion is not checked, gets no
+mutant and counts in no total but criteria and blocked. An entry point
+the views cannot read exits 2 "entry point unreadable".
+
+Prints one line (none under --json):
   test-strength: PASS <n> criteria at <h7>: structural <n>/<n>, mutants
     killed <k>/<total> (timeout <t>, notApplicable <a>)
   test-strength: FAIL <k> of <n> criteria at <h7>: <AC id> <reason>[; ...]
-<k> counts timeouts; <total> excludes notApplicable mutants. Reasons:
+    [, blocked <m>: <AC id> (<file>), ...]
+  test-strength: BLOCKED <n> criteria at <h7>: structural <a>/<b>,
+    mutants killed <k>/<total> (timeout <t>, notApplicable <a>,
+    blocked <m>): <AC id> (<file>[ and <file>]), ...
+<n> is the criteria in scope; <b> those less the blocked ones; blocked
+ids ascend. <k> counts timeouts; <total> excludes notApplicable mutants.
+Before any mutant the bound tests run once unmutated; one red, or one
+its runner did not run, exits 2 with no result line. Reasons:
   imports <path> (not the app entry or the harness)
   mocks <specifier> (not a declared edge)
   silent default <name> in <path#symbol>
@@ -90,8 +145,8 @@ Options:
   --record                   Write TestStrengthReport v1 to
                              rcf/verdicts/<H12>/test-strength.json for the
                              reviewed head H of the newest REVIEW verdict
-                             (pass or fail); never commits
-  --json                     Print the TestStrengthReport v1 object
+                             (pass, fail or blocked); never commits
+  --json                     Print the TestStrengthReport v1 object alone
   --jobs <n>                 Mutants run at once, one worktree each
                              (default: half the CPU count, at least 1)
   --mutant-timeout <seconds> Time limit per mutant (default ${DEFAULT_MUTANT_TIMEOUT_S})
@@ -103,12 +158,16 @@ flags, and refuses (exit 4) a dirty working tree or a HEAD that differs
 from the reviewed head outside rcf/verdicts/, rcf/verify-reports/ and
 FINALISE classes. It writes nothing else.
 
-Exit codes:
+Exit codes (precedence 2 over 4 over 5 over 0):
   0  every criterion passes
   4  a criterion fails, or --record refused
-  2  usage: no or malformed rcf/test-strength.json, no scope, an unknown
-     id, an unsupported source, more mutants than --max-mutants, or
-     --record with no REVIEW verdict
+  5  blocked: a criterion the audit cannot read, and none fails
+  2  usage or a whole-run failure: no or malformed
+     rcf/test-strength.json, an unreadable entry point, no scope, an
+     unknown id, a file-level Code Node on a code file, more mutants
+     than --max-mutants, a bound test not committed, red unmutated or
+     not run by its runner (or matching several tests), a runner that
+     cannot run, or --record with no REVIEW verdict
   3  the chain does not load
 `;
 

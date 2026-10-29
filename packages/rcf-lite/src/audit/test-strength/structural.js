@@ -10,12 +10,13 @@
 import { isBuiltin } from 'node:module';
 import { posix } from 'node:path';
 
-import { defaultedParams, findDeclaration, importSpecifiers, mockedModules, parseSource } from './source.js';
+import { defaultedParams, findDeclaration, importSpecifiers, mockedModules, parseFile } from './source.js';
 
 // ADR-4156: the parameter and option names a silent default hides.
 export const SILENT_NAMES = new Set(['logger', 'log', 'emitter', 'events', 'sender', 'mailer', 'notifier']);
 
-const RESOLVE_SUFFIXES = ['', '.js', '.mjs', '.cjs', '/index.js', '/index.mjs', '/index.cjs'];
+// The stage-keeper's ruling Q10: the JavaScript forms first, then .ts and /index.ts.
+const RESOLVE_SUFFIXES = ['', '.js', '.mjs', '.cjs', '/index.js', '/index.mjs', '/index.cjs', '.ts', '/index.ts'];
 
 /** The first string target of a package.json exports or imports value. */
 function target(value) {
@@ -46,10 +47,17 @@ function mapLookup(map, key) {
   return null;
 }
 
-/** A project-relative path, completed with the first suffix the HEAD tree holds. */
+/**
+ * A project-relative path, completed with the first suffix the HEAD tree
+ * holds; a terminal .js specifier (NodeNext) leads to its .ts file when
+ * the literal .js path is absent.
+ */
 function complete(path, files) {
   const p = posix.normalize(path).replace(/^\.\//, '');
-  return RESOLVE_SUFFIXES.map((s) => p + s).find((c) => files.has(c)) ?? p;
+  const hit = RESOLVE_SUFFIXES.map((s) => p + s).find((c) => files.has(c));
+  if (hit) return hit;
+  if (p.endsWith('.js') && files.has(`${p.slice(0, -3)}.ts`)) return `${p.slice(0, -3)}.ts`;
+  return p;
 }
 
 /**
@@ -100,7 +108,7 @@ const bareBuiltin = (spec) => (isBuiltin(spec) ? spec.replace(/^node:/, '') : sp
  * @returns {string[]}
  */
 export function testFileFindings(file, text, { config, files, pkg }) {
-  const src = parseSource(text);
+  const src = parseFile(file, text);
   const entries = new Set(config.entry.map((e) => posix.normalize(e.path)));
   const findings = [];
   for (const spec of importSpecifiers(src)) {
@@ -129,7 +137,7 @@ export function testFileFindings(file, text, { config, files, pkg }) {
 export function silentDefaults(cnPath, text) {
   const symbol = cnPath.slice(cnPath.indexOf('#') + 1);
   const [head, member] = symbol.split('.');
-  const src = parseSource(text);
+  const src = parseFile(cnPath.slice(0, cnPath.indexOf('#')), text);
   const decl = findDeclaration(src, head);
   if (!decl) return [];
   let fns = [];

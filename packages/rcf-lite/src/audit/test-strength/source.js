@@ -10,6 +10,15 @@
 // No parser dependency: the package carries none, and the verb needs
 // only declaration and statement boundaries, which bracket matching over
 // tokens gives. Source is read as text and never evaluated.
+//
+// TypeScript files (FBS-242, US-19904) are read through a view of the
+// same length as the file: node:module's stripTypeScriptTypes in strip
+// mode for .ts, .mts and .cts (types become spaces). Offsets hold, so rewrites found in the view are spliced
+// into the original file. What a view cannot read is reported with its
+// position, never guessed.
+
+import { stripTypeScriptTypes } from 'node:module';
+import { extname } from 'node:path';
 
 // Multi-character punctuators, longest first.
 const PUNCT = ['>>>=', '...', '===', '!==', '**=', '<<=', '>>=', '>>>', '&&=', '||=', '??=', '=>', '==', '!=',
@@ -382,8 +391,8 @@ export function mockedModules(src) {
   const { tokens } = src;
   const out = [];
   for (let i = 0; i + 4 < tokens.length; i += 1) {
-    if (word(tokens[i], 'mock') && punct(tokens[i + 1], '.') && word(tokens[i + 2], 'module')
-      && punct(tokens[i + 3], '(') && is(tokens[i + 4], 'str')) out.push(stringValue(tokens[i + 4]));
+    const mock = word(tokens[i], 'mock') && word(tokens[i + 2], 'module');
+    if (mock && punct(tokens[i + 1], '.') && punct(tokens[i + 3], '(') && is(tokens[i + 4], 'str')) out.push(stringValue(tokens[i + 4]));
   }
   return out;
 }
@@ -431,4 +440,86 @@ export function statementCalls(src, name, { method }) {
     out.push([tokens[s].start, tokens[close].end]);
   }
   return out;
+}
+
+// ------------------------------------------------------------ views
+
+export const JS_EXT = /\.(?:js|mjs|cjs)$/;
+const TS_EXT = /\.(?:ts|mts|cts)$/;
+// Every file the audit reads: JavaScript, and TypeScript, JSX and Vue as US-19904 rules.
+export const READ_EXT = /\.(?:js|mjs|cjs|ts|mts|cts)$/;
+
+/** 1-based line and column of an offset. */
+function lineCol(text, at) {
+  const before = text.slice(0, at);
+  const line = before.split('\n').length;
+  return `${line}:${at - before.lastIndexOf('\n')}`;
+}
+
+// The construct each strip-mode refusal names, found by its first token.
+const NON_ERASABLE = [
+  [/\benum\b/, (t, k) => word(t[k], 'enum') && is(t[k + 1], 'id'), (t, k) => `enum ${t[k + 1].text}`],
+  [/namespace|module/, (t, k) => (word(t[k], 'namespace') || word(t[k], 'module')) && (is(t[k + 1], 'id') || is(t[k + 1], 'str')), (t, k) => `namespace ${t[k + 1].text}`],
+  [/parameter propert/, (t, k) => ['public', 'private', 'protected', 'readonly'].some((w) => word(t[k], w)) && is(t[k + 1], 'id') && !punct(t[k + 2], '('), (t, k) => `parameter property ${t[k + 1].text}`],
+  [/import|export/, (t, k) => (word(t[k], 'import') || word(t[k], 'export')) && (punct(t[k + 1], '=') || (is(t[k + 1], 'id') && punct(t[k + 2], '='))), (t, k) => `${t[k].text} =`],
+];
+
+// stripTypeScriptTypes warns once that it is experimental; the audit's own output carries no such line.
+function strip(text) {
+  const emit = process.emitWarning;
+  process.emitWarning = () => {};
+  try {
+    return stripTypeScriptTypes(text, { mode: 'strip' });
+  } finally {
+    process.emitWarning = emit;
+  }
+}
+
+/**
+ * The strip-mode view of TypeScript text, or the refusal: "<file>:<line>:<col>:
+ * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6).
+ */
+function stripView(file, text) {
+  try {
+    return { ok: true, text: strip(text) };
+  } catch (err) {
+    if (err?.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
+      const { tokens } = parseSource(text);
+      const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
+      for (const [re, at, name] of NON_ERASABLE) {
+        if (!re.test(err.message)) continue;
+        const k = tokens.findIndex((_, i) => at(tokens, i));
+        if (k >= 0) return { ok: false, detail: `${file}:${lineCol(text, tokens[k].start)}: non-erasable TypeScript syntax (${name(tokens, k)})` };
+      }
+      return { ok: false, detail: `${file}:1:1: non-erasable TypeScript syntax (${what})` };
+    }
+    if (err?.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX') return { ok: false, detail: `${file}:1:1: invalid TypeScript syntax (${err.message})` };
+    throw err;
+  }
+}
+
+/**
+ * The view the audit reads a file through (same length as the file), or
+ * why it cannot: { ok: true, text } | { ok: false, detail }. A file of no
+ * readable kind reads "<file>:1:1: unsupported file type <ext>" (the
+ * stage-keeper's ruling F11).
+ *
+ * @param {string} file - project-relative path
+ * @param {string} text
+ */
+export function sourceView(file, text) {
+  if (JS_EXT.test(file)) return { ok: true, text };
+  if (TS_EXT.test(file)) return stripView(file, text);
+  return { ok: false, detail: `${file}:1:1: unsupported file type ${extname(file) || '(none)'}` };
+}
+
+/**
+ * parseSource over a file's view, carrying the original text: token
+ * offsets index both, so a rewrite spliced at them edits the original.
+ * Throws when the view cannot be read.
+ */
+export function parseFile(file, text) {
+  const v = sourceView(file, text);
+  if (!v.ok) throw new Error(v.detail);
+  return { ...parseSource(v.text), text };
 }
