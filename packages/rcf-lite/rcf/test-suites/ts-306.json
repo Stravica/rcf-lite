@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-10-29T09:32:45.788Z",
+  "updatedAt": "2026-10-29T23:51:18.694Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -64,6 +64,34 @@
       "description": "a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+    },
+    {
+      "id": "TC-306-a-vue-code-node-whose-sfc-holds-a-script",
+      "acId": "AC-19904-4",
+      "description": "a .vue Code Node whose SFC holds a <script src> block makes the criterion BLOCKED, reason \"TEST_STRENGTH_UNSUPPORTED\", detail \"<file>:<line>:<col>: <construct>\" at the block, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-4: a .vue Code Node whose SFC holds a <script src> block makes the criterion BLOCKED, reason \"TEST_STRENGTH_UNSUPPORTED\", detail \"<file>:<line>:<col>: <construct>\" at the block, exit 5"
+    },
+    {
+      "id": "TC-306-a-script-data-src-x-lang-ts-block",
+      "acId": "AC-19904-4",
+      "description": "a <script data-src=\"x\" lang=\"ts\"> block declaring src/Counter.vue#clampStart is read (attributes other than src ignored): exit 0, three mutants on the symbol",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-4: a <script data-src=\"x\" lang=\"ts\"> block declaring src/Counter.vue#clampStart is read (attributes other than src ignored): exit 0, three mutants on the symbol"
+    },
+    {
+      "id": "TC-306-the-detail-names-the-construct-strip",
+      "acId": "AC-19904-7",
+      "description": "the detail names the construct strip mode refused at its own line and column: a parameter property private y on line 3 behind a class field private x, and an enum behind a declare enum",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: the detail names the construct strip mode refused at its own line and column: a parameter property private y on line 3 behind a class field private x, and an enum behind a declare enum"
+    },
+    {
+      "id": "TC-306-a-playwright-pointer-naming-a-describe",
+      "acId": "AC-19904-3",
+      "description": "a playwright pointer naming a describe title runs the tests of that describe through the describe-prefix form (followed by a space) and no test of a sibling describe whose title extends it, exit 0",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright pointer naming a describe title runs the tests of that describe through the describe-prefix form (followed by a space) and no test of a sibling describe whose title extends it, exit 0"
     }
   ],
   "status": "draft"
