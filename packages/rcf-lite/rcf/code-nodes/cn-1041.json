@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-1041",
+  "path": "src/audit/test-strength/jsx.js#blankJsx",
+  "implementsAcIds": [
+    "AC-19904-4",
+    "AC-19904-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-29T18:00:10.753Z",
+  "updatedAt": "2026-10-29T18:00:10.753Z"
+}
