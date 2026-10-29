@@ -1,9 +1,8 @@
 // The runner report readers of `rcf audit test-strength` (FBS-242,
 // US-19904, TAC-4155): one bound test file runs per runner invocation,
 // and the verb reads that runner's report, never its exit code alone
-// (the legacy runner aside): node:test's TAP and vitest's JSON report
-// file (a kind with no reader here yet gives no report the audit can
-// read). Each reader gives the leaves
+// (the legacy runner aside): node:test's TAP, vitest's JSON report file
+// and Playwright's JSON report on stdout. Each reader gives the leaves
 // the runner reported (title path and status) and whether the file
 // itself was reported failed; judge() finds the bound test's pointer in
 // them.
@@ -74,6 +73,29 @@ function readVitest(text) {
   return { ok: true, leaves, fileFailed };
 }
 
+/** Playwright's JSON report: suites (the file's, then describes) holding specs and their tests' results. */
+function readPlaywright(stdout) {
+  const at = stdout.indexOf('{');
+  const doc = at < 0 ? null : parseJson(stdout.slice(at));
+  if (!doc || !Array.isArray(doc.suites)) return { ok: false };
+  const leaves = [];
+  const walk = (suite, path) => {
+    for (const spec of suite.specs ?? []) {
+      const tests = Array.isArray(spec?.tests) ? spec.tests : [];
+      const results = tests.flatMap((t) => (Array.isArray(t?.results) ? t.results : []));
+      const failed = results.some((r) => ['failed', 'timedOut', 'interrupted'].includes(r?.status)) || tests.some((t) => t?.status === 'unexpected');
+      const ran = results.some((r) => r?.status && r.status !== 'skipped');
+      leaves.push({ path: [...path, String(spec?.title ?? '')], status: failed ? 'failed' : (ran ? 'passed' : 'skipped') });
+    }
+    for (const child of suite.suites ?? []) walk(child, [...path, String(child?.title ?? '')]);
+  };
+  // The top-level suites are the files: their titles are not part of the title path.
+  for (const fileSuite of doc.suites) walk(fileSuite, []);
+  const errors = Array.isArray(doc.errors) ? doc.errors : [];
+  const fileFailed = leaves.length === 0 && errors.some((e) => !/no tests found/i.test(String(e?.message ?? '')));
+  return { ok: true, leaves, fileFailed };
+}
+
 /**
  * The report of one bound test run.
  *
@@ -84,7 +106,7 @@ function readVitest(text) {
 export function readReport(kind, { stdout, reportText, file }) {
   if (kind === 'nodeTest') return readTap(stdout, file);
   if (kind === 'vitest') return readVitest(reportText);
-  return { ok: false };
+  return readPlaywright(stdout);
 }
 
 const SEP = ' > ';
