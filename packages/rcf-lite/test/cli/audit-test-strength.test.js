@@ -231,19 +231,47 @@ test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.
   assert.ok(crit(report, 'AC-101-2').mutants.length > 0, 'mutants for AC-101-2');
 });
 
-test('AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with "test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)" and runs no mutant; .js, .mjs and .cjs files are read', async (t) => {
-  const marks = scratch(t, 'rcf-h-marks-');
-  const entry = join(marks, 'entry');
-  const marked = { 'bin/app.js': markerSrc(entry) + GREET_BIN };
-  const ts = await strengthProject(t, { files: { ...marked, 'test/rcf/a.test.ts': testFile([GREETS]) }, bind: [['AC-101-1', 'test/rcf/a.test.ts', GREETS.name]] });
-  const a = await strength(ts.dir, ['--acs', 'AC-101-1']);
-  assert.equal(a.code, 2, `${a.stdout}${a.stderr}`);
-  assert.ok(lines(a.stderr).includes('test-strength: test/rcf/a.test.ts is not a supported source (JavaScript ESM or CommonJS)'), a.stderr);
-  const node = await strengthProject(t, { files: { ...marked, 'src/x.ts': 'export const x: number = 1;\n' }, nodes: [['src/x.ts', ['AC-101-1']], ['src/greet.js#greet', ['AC-101-1']]] });
-  const b = await strength(node.dir, ['--acs', 'AC-101-1']);
-  assert.equal(b.code, 2, `${b.stdout}${b.stderr}`);
-  assert.ok(lines(b.stderr).includes('test-strength: src/x.ts is not a supported source (JavaScript ESM or CommonJS)'), b.stderr);
-  assert.equal(existsSync(entry), false, 'no mutant ran');
+// AC-19901-9 succeeds the retired AC-19901-8 (round D, RC-46; the
+// stage-keeper's retire-and-succeed ruling): a file the audit cannot read
+// is BLOCKED per criterion (stage-keeper ruling Q2 (a)), never a
+// whole-run exit 2.
+test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result "blocked", reason "TEST_STRENGTH_UNSUPPORTED", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read', async (t) => {
+  const PY_TEST = 'def test_greets():\n    assert True\n';
+  const blocked = (report, file) => {
+    const c = crit(report, 'AC-101-1');
+    assert.equal(c.result, 'blocked', JSON.stringify(c));
+    assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', JSON.stringify(c));
+    assert.ok(c.detail.includes(file), `detail names ${file}\n${JSON.stringify(c)}`);
+    assert.equal(crit(report, 'AC-101-2').result, 'pass', `the run continues for AC-101-2\n${JSON.stringify(report)}`);
+  };
+  const acs = ['AC-101-1', 'AC-101-2'];
+  const pyTest = await strengthProject(t, {
+    acs,
+    files: { 'test/rcf/a.test.py': PY_TEST },
+    nodes: [['src/greet.js#greet', acs]],
+    bind: [['AC-101-1', 'test/rcf/a.test.py', 'test_greets'], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const a = await strength(pyTest.dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  assert.equal(a.code, 5, `a blocked criterion beside a passing one: exit 5\n${a.stdout}${a.stderr}`);
+  assert.doesNotMatch(a.stderr, /not a supported source/);
+  blocked(json(a.stdout), 'test/rcf/a.test.py');
+
+  const pyNode = await strengthProject(t, {
+    acs,
+    files: { 'src/x.py': 'def run():\n    return 1\n' },
+    nodes: [['src/x.py#run', ['AC-101-1']], ['src/greet.js#greet', acs]],
+    bind: [['AC-101-1', 'test/rcf/a.test.js', GREETS.name], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const b = await strength(pyNode.dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  assert.equal(b.code, 5, `a blocked criterion beside a passing one: exit 5\n${b.stdout}${b.stderr}`);
+  assert.doesNotMatch(b.stderr, /not a supported source/);
+  blocked(json(b.stdout), 'src/x.py');
+
+  // The audit's own inputs unreadable stay a whole-run exit 2.
+  const badRunner = await strengthProject(t, { config: { ...CONFIG, runners: [{ files: ['test/**'], kind: 'jest' }] } });
+  const m = await strength(badRunner.dir, ['--acs', 'AC-101-1'], nodeEnv());
+  assert.equal(m.code, 2, `a runners entry of no known kind: exit 2\n${m.stdout}${m.stderr}`);
+  assert.ok(lines(m.stderr).some((l) => l.startsWith('test-strength: malformed rcf/test-strength.json')), m.stderr);
 
   const mjs = await strengthProject(t, {
     files: {

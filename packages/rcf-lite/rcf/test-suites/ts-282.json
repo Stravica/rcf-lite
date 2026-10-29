@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-10-24T16:56:39.543Z",
+  "updatedAt": "2026-10-29T09:33:11.300Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -11,7 +11,8 @@
     "AC-19901-5",
     "AC-19901-6",
     "AC-19901-7",
-    "AC-19901-8"
+    "AC-19901-8",
+    "AC-19901-9"
   ],
   "id": "TS-282",
   "usId": "US-19901",
@@ -67,11 +68,11 @@
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1"
     },
     {
-      "id": "TC-282-a-bound-test-file-test-rcf-a-test-ts-or",
-      "acId": "AC-19901-8",
-      "description": "a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\" and runs no mutant; .js, .mjs and .cjs files are read",
+      "id": "TC-282-a-bound-test-file-test-rcf-a-test-py-or",
+      "acId": "AC-19901-9",
+      "description": "a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with \"test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)\" and runs no mutant; .js, .mjs and .cjs files are read"
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
     }
   ],
   "status": "draft"

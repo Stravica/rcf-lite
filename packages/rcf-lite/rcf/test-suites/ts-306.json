@@ -1,0 +1,70 @@
+{
+  "createdAt": "2026-10-29T09:32:31.933Z",
+  "updatedAt": "2026-10-29T09:32:45.788Z",
+  "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7"
+  ],
+  "id": "TS-306",
+  "usId": "US-19904",
+  "title": "rcf audit test-strength over TypeScript: tsx node:test, vitest and @playwright/test bound tests and .ts, .tsx and .vue Code Nodes (external, through bin/rcf.js)",
+  "testCases": [
+    {
+      "id": "TC-306-a-ts-project-with-entry-src-index-ts-and",
+      "acId": "AC-19904-1",
+      "description": "a .ts project with entry src/index.ts and no runner, AC-101-1 bound to test/totals.test.ts::sums the line items (node:test in one describe, importing ../src/index.ts) and claiming src/totals.ts#sumTotals, exits 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1)\", and likewise under a tsx runners entry and through a NodeNext .js specifier",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-1: a .ts project with entry src/index.ts and no runner, AC-101-1 bound to test/totals.test.ts::sums the line items (node:test in one describe, importing ../src/index.ts) and claiming src/totals.ts#sumTotals, exits 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1)\", and likewise under a tsx runners entry and through a NodeNext .js specifier"
+    },
+    {
+      "id": "TC-306-a-vitest-runners-entry-with-ac-101-1",
+      "acId": "AC-19904-2",
+      "description": "a vitest runners entry with AC-101-1 bound to test/cart.test.ts::cart > applies a percentage discount, importing ../src/index and claiming src/cart.ts#applyDiscount, exits 0, structural 1/1, both body mutants killed; a pointer naming a vitest describe title matches as a prefix of the title path and passes the same way",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-2: a vitest runners entry with AC-101-1 bound to test/cart.test.ts::cart > applies a percentage discount, importing ../src/index and claiming src/cart.ts#applyDiscount, exits 0, structural 1/1, both body mutants killed; a pointer naming a vitest describe title matches as a prefix of the title path and passes the same way"
+    },
+    {
+      "id": "TC-306-a-playwright-runners-entry-with-ac-101-1",
+      "acId": "AC-19904-3",
+      "description": "a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+    },
+    {
+      "id": "TC-306-code-nodes-src-badge-tsx-badgelabel-src",
+      "acId": "AC-19904-4",
+      "description": "Code Nodes src/Badge.tsx#badgeLabel, src/Counter.vue#clampStart (in <script lang=\"ts\">) and file-level src/Counter.vue under a vitest runners entry exit 0, each symbol with three mutants and the SFC one fileBlank",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-4: Code Nodes src/Badge.tsx#badgeLabel, src/Counter.vue#clampStart (in <script lang=\"ts\">) and file-level src/Counter.vue under a vitest runners entry exit 0, each symbol with three mutants and the SFC one fileBlank"
+    },
+    {
+      "id": "TC-306-a-vitest-pointer-test-cart-test-ts-cart",
+      "acId": "AC-19904-5",
+      "description": "a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+    },
+    {
+      "id": "TC-306-a-ts-bound-test-importing-vitest-that",
+      "acId": "AC-19904-6",
+      "description": "a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+    },
+    {
+      "id": "TC-306-a-code-node-file-holding-a-typescript",
+      "acId": "AC-19904-7",
+      "description": "a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+    }
+  ],
+  "status": "draft"
+}

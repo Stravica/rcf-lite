@@ -1,0 +1,61 @@
+{
+  "createdAt": "2026-10-29T09:28:56.301Z",
+  "updatedAt": "2026-10-29T09:29:36.044Z",
+  "asA": "verifier at the TEST stage on a TypeScript product",
+  "iWant": "test strength to run each bound test through its declared runner and read that runner's report",
+  "soThat": "TypeScript criteria get the proof JavaScript criteria get",
+  "description": "RC-46, round D (0.39.0): TypeScript test strength. Bound tests under tsx node:test, vitest and @playwright/test, each run through its declared runner and judged from that runner's report; Code Nodes in .ts, .tsx and .vue files; what stays unreadable reported per criterion as BLOCKED.",
+  "usId": "US-19904",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The verifier runs test strength over TypeScript bound tests through each test's declared runner and its report",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19904-1",
+      "description": "[happy] Given a fixture whose `rcf/test-strength.json` declares entry `src/index.ts` and no runner, and whose AC-101-1 is bound to `test/totals.test.ts::sums the line items` (node:test inside one describe, importing `../src/index.ts`) and claims the typed function `src/totals.ts#sumTotals`, when `rcf audit test-strength --acs AC-101-1` runs, then it exits 0 with stdout \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1)\", and likewise under a tsx `runners` entry; and the same PASS under that tsx `runners` entry when the bound test imports its `.ts` source through a NodeNext `.js` specifier (a test importing `../../../../src/intervals.js` for the declared entry `src/intervals.ts`, AC-101-1 bound to its describe title and claiming `src/intervals.ts#overlaps`).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-2",
+      "description": "[happy] Given a vitest `runners` entry and AC-101-1 bound to `test/cart.test.ts::cart > applies a percentage discount`, importing `../src/index`, claiming `src/cart.ts#applyDiscount`, when the audit runs, then it exits 0, structural 1/1, both body mutants killed. A pointer may also name a describe title (`<file>::<describe title>`): it matches as a prefix of the report's title path (`ancestorTitles` then `title`), the bound test counts as run when at least one leaf under it ran, and as failed under a mutant when any leaf under it failed, the node:test treatment; so a vitest `runners` entry with AC-101-1 bound to a describe title `tests/rcf/unit/US-101/AC-101-1.spec.ts::AC-101-1: <summary>` and claiming `src/slug.ts#slugify` and `src/slug.ts#isSlug` exits 0 with the PASS line, structural 1/1.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-3",
+      "description": "[happy] Given a playwright `runners` entry and `e2e/slug.spec.ts::slug > slugs a title`, a spec using no browser fixture, when the audit runs, then it exits 0 and each mutant of `src/slug.ts#slugify` reads killed. Each bound test file runs under the first `runners` entry whose `files` glob matches it, so one criterion bound to a vitest test and a Playwright test runs each under its own entry (the same criterion also bound to `test/slug.test.ts::slug > joins the words of a title with hyphens` under a vitest entry passes the same way); no match falls to the legacy `runner` with today's exit-code rule, else kind nodeTest. `rcf audit test-strength --help` documents the `runners` field of `rcf/test-strength.json` beside the legacy `runner`: a list of entries `{ \"files\": [glob], \"kind\": \"nodeTest\" | \"vitest\" | \"playwright\", \"argv\": [...] }`, first match wins; `kind` sets the default argv and the report the verb reads, `argv` overrides it. Each kind's default argv carries the reporter the audit reads: nodeTest the TAP reporter, vitest and playwright their JSON reporter. An `argv` override replaces the whole argv and must carry its own reporter flag: given a vitest entry whose `argv` carries no reporter flag, the audit cannot read the report, so the unmutated run fails, exit 2, with today's unmutated-run line and a hint naming the flag (`--reporter`).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-4",
+      "description": "[happy] Given Code Nodes `src/Badge.tsx#badgeLabel`, `src/Counter.vue#clampStart` (in `<script lang=\"ts\">`) and file-level `src/Counter.vue` under vitest, when the audit runs, then it exits 0, each symbol has three mutants and the SFC one fileBlank.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-5",
+      "description": "[failure] Given a vitest pointer whose name matches no test in its file, when the audit runs, then it exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-6",
+      "description": "[failure] Given a `.ts` bound test importing `vitest` that matches no `runners` entry, with no `runner`, when the audit runs, then it prints today's unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-7",
+      "description": "[failure] Given a Code Node file holding a TypeScript enum (`src/totals.ts` declaring `export enum Rounding` beside `sumTotals`, its Code Node `src/totals.ts#sumTotals`), when the audit runs (`rcf audit test-strength --acs AC-101-1 --record` at a reviewed head), then that criterion is reported as stage-keeper ruling Q2 (a) rules, BLOCKED, naming the file and \"non-erasable TypeScript syntax\": its criterion in the TestStrengthReport carries `result` \"blocked\", `reason` \"TEST_STRENGTH_UNSUPPORTED\" and a `detail` naming `src/totals.ts` and \"non-erasable TypeScript syntax\"; the summary line counts it blocked beside pass, fail and notApplicable; the run exits 5, a code the verb does not use today; and light Finalise refuses it like a fail, exit 4 with \"finalise refused: test-strength at <H7> fails for AC-101-1\".",
+      "testable": true,
+      "verification": "external"
+    }
+  ],
+  "tacIds": [
+    "TAC-4155"
+  ]
+}
