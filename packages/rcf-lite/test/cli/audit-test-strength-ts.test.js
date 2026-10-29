@@ -248,7 +248,13 @@ test('AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount
   const notRun = /^test-strength: bound test test\/cart\.test\.ts::cart > applies no discount was not run by runner (.+)$/;
   const line = lines(r.stderr).find((l) => notRun.test(l));
   assert.ok(line, `stderr names the bound test the runner did not run\n${shown(r)}`);
-  assert.match(notRun.exec(line)[1], /vitest/, `the runner named is the vitest entry's argv\n${line}`);
+  const runner = notRun.exec(line)[1];
+  assert.match(runner, /vitest/, `the runner named is the vitest entry's argv\n${line}`);
+  // The stage-keeper's rulings F1 and F2 on the whole-plan pass's findings:
+  // the vitest default argv by shape, its report read from --outputFile=<report>.
+  const words = runner.split(' ');
+  for (const w of ['run', '<file>', '-t', '<name>', '--reporter=json']) assert.ok(words.includes(w), `the vitest default argv carries ${w}\n${line}`);
+  assert.ok(words.some((w) => w.startsWith('--outputFile=')), `the vitest default argv carries --outputFile=<report>\n${line}`);
   assert.equal(r.code, 2, shown(r));
   noResultLine(r);
 });
@@ -297,7 +303,7 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   const c = crit(readJson(dir, verdictPath(H, 'test-strength.json')), 'AC-101-1');
   assert.equal(c.result, 'blocked', q(c));
   assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
-  assert.ok(c.detail.includes('src/totals.ts') && c.detail.includes('non-erasable TypeScript syntax'), `detail names the file and the construct\n${q(c)}`);
+  assert.match(c.detail, /^src\/totals\.ts:\d+:\d+: non-erasable TypeScript syntax \([^)]*enum[^)]*\)$/, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)" naming the enum (ruling F6)\n${q(c)}`);
   // The stage-keeper's rulings Q1 and Q2 on the pre-freeze gate's questions: a
   // blocked-only report reads result blocked, totals.blocked 1 and every other
   // count 0, and the blocked criterion's structural is { checked: false }.
@@ -307,9 +313,15 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   assert.equal(rep.totals.blocked, 1, q(rep.totals));
   for (const k of ['structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable']) assert.equal(rep.totals[k], 0, `totals.${k} is 0\n${q(rep.totals)}`);
   assert.deepEqual(c.structural, { checked: false }, q(c));
+  // The stage-keeper's ruling F8 and carry-over 14 on the whole-plan pass's
+  // findings: mutants [] and blocked: true beside result; totals.criteria
+  // counts the blocked criterion.
+  assert.deepEqual(c.mutants, [], q(c));
+  assert.equal(c.blocked, true, q(c));
+  assert.equal(rep.totals.criteria, 1, q(rep.totals));
   // The stage-keeper's ruling Q2 on the pre-freeze gate's questions: the exact
-  // BLOCKED line; only the structural denominator <b> by shape.
-  const blockedLine = new RegExp(`^test-strength: BLOCKED 1 criteria at ${s7(H)}: structural 0/\\d+, mutants killed 0/0 \\(timeout 0, notApplicable 0, blocked 1\\): AC-101-1 \\(src/totals\\.ts\\)$`);
+  // BLOCKED line, its counts by ruling F7 (b is the criteria in scope less the blocked one).
+  const blockedLine = new RegExp(`^test-strength: BLOCKED 1 criteria at ${s7(H)}: structural 0/0, mutants killed 0/0 \\(timeout 0, notApplicable 0, blocked 1\\): AC-101-1 \\(src/totals\\.ts\\)$`);
   assert.ok(lines(r.stdout).some((l) => blockedLine.test(l)), `the summary line is the BLOCKED line ending "AC-101-1 (src/totals.ts)"\n${shown(r)}`);
 
   commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H) });

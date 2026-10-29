@@ -282,8 +282,8 @@ test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code N
   assert.equal(f.code, 4, `a failing criterion beside a blocked one: the fail exit 4\n${f.stdout}${f.stderr}`);
   assert.doesNotMatch(f.stderr, /not a supported source/);
   // The stage-keeper's ruling Q2 on the pre-freeze gate's questions: the exact
-  // FAIL line, its blocked tail ", blocked <m>: <id> (<file>)"; <n> by shape.
-  const failBlocked = new RegExp(`^test-strength: FAIL 1 of \\d+ criteria at ${s7(mixed.H)}: AC-101-2 imports src/store\\.js \\(not the app entry or the harness\\), blocked 1: AC-101-1 \\(test/rcf/a\\.test\\.py\\)$`);
+  // FAIL line, its blocked tail ", blocked <m>: <id> (<file>)"; <n> the criteria in scope (ruling F7).
+  const failBlocked = new RegExp(`^test-strength: FAIL 1 of 2 criteria at ${s7(mixed.H)}: AC-101-2 imports src/store\\.js \\(not the app entry or the harness\\), blocked 1: AC-101-1 \\(test/rcf/a\\.test\\.py\\)$`);
   assert.ok(lines(f.stdout).some((l) => failBlocked.test(l)), `the FAIL line names AC-101-2's finding and ends ", blocked 1: AC-101-1 (test/rcf/a.test.py)"\n${f.stdout}${f.stderr}`);
 
   // The audit's own inputs unreadable stay a whole-run exit 2.
@@ -305,6 +305,48 @@ test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code N
   const c = await strength(mjs.dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.notEqual(c.code, 2, `.mjs and .cjs sources are read\n${c.stdout}${c.stderr}`);
   assert.doesNotMatch(c.stderr, /not a supported source/);
+
+  // The stage-keeper's ruling F5 on the whole-plan pass's findings: a .jsx file
+  // is read through the JSX scanner, never blocked for being JSX (by shape, as the .mjs run).
+  const jsx = await strengthProject(t, {
+    files: { 'src/label.jsx': L('export function label(n) {', '  return <b>{n}</b>;', '}') },
+    nodes: [['src/greet.js#greet', ['AC-101-1']], ['src/label.jsx#label', ['AC-101-1']]],
+  });
+  const x = await strength(jsx.dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  assert.notEqual(x.code, 2, `a .jsx Code Node is read\n${x.stdout}${x.stderr}`);
+  assert.doesNotMatch(x.stderr, /not a supported source/);
+  assert.notEqual(crit(json(x.stdout), 'AC-101-1').result, 'blocked', `a .jsx file is never blocked for being JSX\n${x.stdout}`);
+
+  // The stage-keeper's rulings F7 and F12 on the whole-plan pass's findings: two
+  // blocked criteria, one blocked by two files, beside a passing one. The scope
+  // is passed in descending order, so the ascending order on the line is the audit's.
+  const many = await strengthProject(t, {
+    acs: ['AC-101-1', 'AC-101-2', 'AC-101-3'],
+    files: { 'test/rcf/a.test.py': PY_TEST, 'test/rcf/b.test.py': PY_TEST, 'test/rcf/c.test.py': PY_TEST },
+    nodes: [['src/greet.js#greet', ['AC-101-1', 'AC-101-2', 'AC-101-3']]],
+    bind: [['AC-101-1', 'test/rcf/a.test.py', 'test_greets'], ['AC-101-1', 'test/rcf/c.test.py', 'test_greets'], ['AC-101-2', 'test/rcf/b.test.py', 'test_greets'], ['AC-101-3', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const scope = ['--acs', 'AC-101-3,AC-101-2,AC-101-1'];
+  const g = await strength(many.dir, scope, nodeEnv());
+  assert.equal(g.code, 5, `two blocked criteria beside a passing one: exit 5\n${g.stdout}${g.stderr}`);
+  const rep = json((await strength(many.dir, [...scope, '--json'], nodeEnv())).stdout);
+  assert.equal(rep.result, 'blocked', JSON.stringify(rep));
+  assert.equal(rep.totals.criteria, 3, `totals.criteria counts the blocked criteria\n${JSON.stringify(rep.totals)}`);
+  assert.equal(rep.totals.blocked, 2, JSON.stringify(rep.totals));
+  assert.equal(rep.totals.structuralPassed, 1, JSON.stringify(rep.totals));
+  for (const id of ['AC-101-1', 'AC-101-2']) {
+    const e = crit(rep, id);
+    assert.equal(e.result, 'blocked', JSON.stringify(e));
+    assert.equal(e.blocked, true, JSON.stringify(e));
+    assert.deepEqual(e.mutants, [], JSON.stringify(e));
+    assert.deepEqual(e.structural, { checked: false }, JSON.stringify(e));
+  }
+  assert.match(crit(rep, 'AC-101-1').detail, /^test\/rcf\/a\.test\.py:\d+:\d+: [^;]+; test\/rcf\/c\.test\.py:\d+:\d+: [^;]+$/, `each file's first construct in bound order, joined by "; "\n${JSON.stringify(crit(rep, 'AC-101-1'))}`);
+  assert.equal(crit(rep, 'AC-101-3').result, 'pass', JSON.stringify(rep));
+  const { killed, timeout, mutants, notApplicable } = rep.totals;
+  const twoFiles = '(?:test/rcf/a\\.test\\.py and test/rcf/c\\.test\\.py|test/rcf/c\\.test\\.py and test/rcf/a\\.test\\.py)';
+  const manyLine = new RegExp(`^test-strength: BLOCKED 3 criteria at ${s7(many.H)}: structural 1/1, mutants killed ${killed + timeout}/${mutants - notApplicable} \\(timeout ${timeout}, notApplicable ${notApplicable}, blocked 2\\): AC-101-1 \\(${twoFiles}\\), AC-101-2 \\(test/rcf/b\\.test\\.py\\)$`);
+  assert.ok(lines(g.stdout).some((l) => manyLine.test(l)), `the BLOCKED line: ids ascending, ", " between ids, " and " between one id's files, the F7 counts\n${g.stdout}${g.stderr}`);
 });
 
 // ---------------------------------------------------------------- US-19902
