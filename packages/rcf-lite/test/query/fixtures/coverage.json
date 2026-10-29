@@ -6,7 +6,7 @@
     "covered": 135,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 61
+    "retiredAcs": 62
   },
   "requirements": [
     {
@@ -11530,14 +11530,25 @@
         },
         {
           "id": "AC-19901-8",
+          "state": "retired",
+          "supersededBy": "AC-19901-9",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": null,
+          "now": "retired"
+        },
+        {
+          "id": "AC-19901-9",
           "covered": true,
           "testCases": [
-            "TC-282-a-bound-test-file-test-rcf-a-test-ts-or"
+            "TC-282-a-bound-test-file-test-rcf-a-test-py-or"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "verified"
+          "now": "notStarted"
         },
         {
           "id": "AC-19902-1",
@@ -11693,6 +11704,83 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "verified"
+        },
+        {
+          "id": "AC-19904-1",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-ts-project-with-entry-src-index-ts-and"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-2",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-vitest-runners-entry-with-ac-101-1"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-3",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-playwright-runners-entry-with-ac-101-1"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-4",
+          "covered": true,
+          "testCases": [
+            "TC-306-code-nodes-src-badge-tsx-badgelabel-src"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-5",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-vitest-pointer-test-cart-test-ts-cart"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-6",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-ts-bound-test-importing-vitest-that"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-7",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-code-node-file-holding-a-typescript"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },
@@ -13223,6 +13311,11 @@
       "fbsId": "FBS-241",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-242",
+      "expectedEnd": "verified",
+      "now": "notStarted"
     }
   ],
   "unresolvedTestPointers": []

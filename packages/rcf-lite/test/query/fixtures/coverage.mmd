@@ -4412,8 +4412,11 @@ flowchart LR
   AC-19901-7 -.-> TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101
   AC-19901-8["AC-19901-8"]
   REQ-199 --> AC-19901-8
-  TC-282-a-bound-test-file-test-rcf-a-test-ts-or["TC-282-a-bound-test-file-test-rcf-a-test-ts-or"]
-  AC-19901-8 -.-> TC-282-a-bound-test-file-test-rcf-a-test-ts-or
+  AC-19901-8 -. supersededBy .-> AC-19901-9
+  AC-19901-9["AC-19901-9"]
+  REQ-199 --> AC-19901-9
+  TC-282-a-bound-test-file-test-rcf-a-test-py-or["TC-282-a-bound-test-file-test-rcf-a-test-py-or"]
+  AC-19901-9 -.-> TC-282-a-bound-test-file-test-rcf-a-test-py-or
   AC-19902-1["AC-19902-1"]
   REQ-199 --> AC-19902-1
   TC-283-a-bound-test-asserting-only-that-the-cli["TC-283-a-bound-test-asserting-only-that-the-cli"]
@@ -4472,6 +4475,34 @@ flowchart LR
   REQ-199 --> AC-19903-5
   TC-284-rcf-audit-test-strength-never-deploys["TC-284-rcf-audit-test-strength-never-deploys"]
   AC-19903-5 -.-> TC-284-rcf-audit-test-strength-never-deploys
+  AC-19904-1["AC-19904-1"]
+  REQ-199 --> AC-19904-1
+  TC-306-a-ts-project-with-entry-src-index-ts-and["TC-306-a-ts-project-with-entry-src-index-ts-and"]
+  AC-19904-1 -.-> TC-306-a-ts-project-with-entry-src-index-ts-and
+  AC-19904-2["AC-19904-2"]
+  REQ-199 --> AC-19904-2
+  TC-306-a-vitest-runners-entry-with-ac-101-1["TC-306-a-vitest-runners-entry-with-ac-101-1"]
+  AC-19904-2 -.-> TC-306-a-vitest-runners-entry-with-ac-101-1
+  AC-19904-3["AC-19904-3"]
+  REQ-199 --> AC-19904-3
+  TC-306-a-playwright-runners-entry-with-ac-101-1["TC-306-a-playwright-runners-entry-with-ac-101-1"]
+  AC-19904-3 -.-> TC-306-a-playwright-runners-entry-with-ac-101-1
+  AC-19904-4["AC-19904-4"]
+  REQ-199 --> AC-19904-4
+  TC-306-code-nodes-src-badge-tsx-badgelabel-src["TC-306-code-nodes-src-badge-tsx-badgelabel-src"]
+  AC-19904-4 -.-> TC-306-code-nodes-src-badge-tsx-badgelabel-src
+  AC-19904-5["AC-19904-5"]
+  REQ-199 --> AC-19904-5
+  TC-306-a-vitest-pointer-test-cart-test-ts-cart["TC-306-a-vitest-pointer-test-cart-test-ts-cart"]
+  AC-19904-5 -.-> TC-306-a-vitest-pointer-test-cart-test-ts-cart
+  AC-19904-6["AC-19904-6"]
+  REQ-199 --> AC-19904-6
+  TC-306-a-ts-bound-test-importing-vitest-that["TC-306-a-ts-bound-test-importing-vitest-that"]
+  AC-19904-6 -.-> TC-306-a-ts-bound-test-importing-vitest-that
+  AC-19904-7["AC-19904-7"]
+  REQ-199 --> AC-19904-7
+  TC-306-a-code-node-file-holding-a-typescript["TC-306-a-code-node-file-holding-a-typescript"]
+  AC-19904-7 -.-> TC-306-a-code-node-file-holding-a-typescript
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7022,7 +7053,8 @@ flowchart LR
   class AC-19901-7 ac;
   class TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101 tc;
   class AC-19901-8 ac;
-  class TC-282-a-bound-test-file-test-rcf-a-test-ts-or tc;
+  class AC-19901-9 ac;
+  class TC-282-a-bound-test-file-test-rcf-a-test-py-or tc;
   class AC-19902-1 ac;
   class TC-283-a-bound-test-asserting-only-that-the-cli tc;
   class AC-19902-2 ac;
@@ -7052,6 +7084,20 @@ flowchart LR
   class TC-284-a-library-entry-module-src-index-js tc;
   class AC-19903-5 ac;
   class TC-284-rcf-audit-test-strength-never-deploys tc;
+  class AC-19904-1 ac;
+  class TC-306-a-ts-project-with-entry-src-index-ts-and tc;
+  class AC-19904-2 ac;
+  class TC-306-a-vitest-runners-entry-with-ac-101-1 tc;
+  class AC-19904-3 ac;
+  class TC-306-a-playwright-runners-entry-with-ac-101-1 tc;
+  class AC-19904-4 ac;
+  class TC-306-code-nodes-src-badge-tsx-badgelabel-src tc;
+  class AC-19904-5 ac;
+  class TC-306-a-vitest-pointer-test-cart-test-ts-cart tc;
+  class AC-19904-6 ac;
+  class TC-306-a-ts-bound-test-importing-vitest-that tc;
+  class AC-19904-7 ac;
+  class TC-306-a-code-node-file-holding-a-typescript tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;

@@ -934,7 +934,8 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19901-5   yes                    external   verified  verified    TC-282-no-rcf-test-strength-json-exits-2-with
                       AC-19901-6   yes                    external   verified  verified    TC-282-the-structural-check-never-executes-a
                       AC-19901-7   yes                    external   verified  verified    TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101
-                      AC-19901-8   yes                    external   verified  verified    TC-282-a-bound-test-file-test-rcf-a-test-ts-or
+                      AC-19901-8   retired (AC-19901-9)   external   -         retired     -
+                      AC-19901-9   yes                    external   verified  notStarted  TC-282-a-bound-test-file-test-rcf-a-test-py-or
                       AC-19902-1   yes                    external   verified  verified    TC-283-a-bound-test-asserting-only-that-the-cli
                       AC-19902-2   yes                    external   verified  verified    TC-283-ac-101-2-with-no-code-node-ac-101-3-with
                       AC-19902-3   yes                    external   verified  verified    TC-283-a-no-op-mutant-that-hangs-its-bound-test
@@ -949,6 +950,13 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19903-3   yes                    external   verified  verified    TC-284-a-worker-style-app-entry-worker-src
                       AC-19903-4   yes                    external   verified  verified    TC-284-a-library-entry-module-src-index-js
                       AC-19903-5   yes                    external   verified  verified    TC-284-rcf-audit-test-strength-never-deploys
+                      AC-19904-1   yes                    external   verified  notStarted  TC-306-a-ts-project-with-entry-src-index-ts-and
+                      AC-19904-2   yes                    external   verified  notStarted  TC-306-a-vitest-runners-entry-with-ac-101-1
+                      AC-19904-3   yes                    external   verified  notStarted  TC-306-a-playwright-runners-entry-with-ac-101-1
+                      AC-19904-4   yes                    external   verified  notStarted  TC-306-code-nodes-src-badge-tsx-badgelabel-src
+                      AC-19904-5   yes                    external   verified  notStarted  TC-306-a-vitest-pointer-test-cart-test-ts-cart
+                      AC-19904-6   yes                    external   verified  notStarted  TC-306-a-ts-bound-test-importing-vitest-that
+                      AC-19904-7   yes                    external   verified  notStarted  TC-306-a-code-node-file-holding-a-typescript
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
@@ -1160,3 +1168,4 @@ FBS-238  verified  verified
 FBS-239  verified  verified
 FBS-240  verified  notStarted
 FBS-241  verified  verified
+FBS-242  verified  notStarted
