@@ -284,10 +284,31 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   assert.equal(c.result, 'blocked', q(c));
   assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
   assert.ok(c.detail.includes('src/totals.ts') && c.detail.includes('non-erasable TypeScript syntax'), `detail names the file and the construct\n${q(c)}`);
-  assert.ok(lines(r.stdout).some((l) => l.startsWith('test-strength: ') && l.includes('blocked')), `the summary line counts the criterion blocked\n${shown(r)}`);
+  // The stage-keeper's rulings 1 and 2 on the DEFINE's questions: the BLOCKED
+  // line, its open values matched by shape.
+  const blockedLine = new RegExp(`^test-strength: BLOCKED 1 criteria at ${s7(H)}: structural \\d+/\\d+, mutants killed \\d+/\\d+ \\(timeout \\d+, notApplicable \\d+, blocked 1\\): (.+)$`);
+  const summary = lines(r.stdout).map((l) => l.match(blockedLine)).find(Boolean);
+  assert.ok(summary, `the summary line is the BLOCKED line\n${shown(r)}`);
+  assert.ok(summary[1].includes('AC-101-1') && summary[1].includes('src/totals.ts'), `the BLOCKED line names AC-101-1 and its file\n${shown(r)}`);
 
   commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H) });
   const fin = await rcf(['build', 'finalise', 'FBS-001', '--ci-run', 'run-7'], { cwd: dir });
   assert.equal(fin.code, 4, shown(fin));
   assert.ok(lines(fin.stderr).includes(`finalise refused: test-strength at ${s7(H)} fails for AC-101-1`), `light Finalise refuses the blocked criterion like a fail\n${shown(fin)}`);
+
+  // Ruling 5: a .tsx Code Node file holding a deliberately broken JSX
+  // element (a scan the JSX scanner cannot complete) is BLOCKED the same
+  // way; the bound test never imports it, so it still loads.
+  const jsx = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [['src/totals.ts#sumTotals', ['AC-101-1']], ['src/broken.tsx#Broken', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+    deps: false,
+  });
+  commit(jsx.dir, 'fixture: a broken JSX element', { 'src/broken.tsx': 'export function Broken(label: string) {\n  return <span class="badge">{label</span>;\n}\n' });
+  const j = await strength(jsx.dir, ['--acs', 'AC-101-1', '--json']);
+  assert.equal(j.code, 5, `a blocked criterion: exit 5\n${shown(j)}`);
+  const jc = crit(json(j.stdout), 'AC-101-1');
+  assert.equal(jc.result, 'blocked', q(jc));
+  assert.equal(jc.reason, 'TEST_STRENGTH_UNSUPPORTED', q(jc));
+  assert.match(jc.detail, /^JSX scan failed at src\/broken\.tsx:\d+:\d+: \S.*$/, `detail is "JSX scan failed at <file>:<line>:<col>: <what the scanner met>"\n${q(jc)}`);
 });

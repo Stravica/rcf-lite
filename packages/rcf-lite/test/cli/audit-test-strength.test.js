@@ -267,6 +267,23 @@ test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code N
   assert.doesNotMatch(b.stderr, /not a supported source/);
   blocked(json(b.stdout), 'src/x.py');
 
+  // The stage-keeper's ruling 1 on the DEFINE's questions: a blocked and a
+  // failing criterion together, the fail verdict and its exit code win and
+  // the FAIL line still counts and lists the blocked criterion.
+  const mixed = await strengthProject(t, {
+    acs,
+    files: { 'test/rcf/a.test.py': PY_TEST, 'src/store.js': 'export const store = new Map();\n', 'test/rcf/a.test.js': testFile([GREETS], { imports: ["import '../../src/store.js';"] }) },
+    nodes: [['src/greet.js#greet', acs]],
+    bind: [['AC-101-1', 'test/rcf/a.test.py', 'test_greets'], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const f = await strength(mixed.dir, ['--acs', 'AC-101-1,AC-101-2'], nodeEnv());
+  assert.equal(f.code, 4, `a failing criterion beside a blocked one: the fail exit 4\n${f.stdout}${f.stderr}`);
+  assert.doesNotMatch(f.stderr, /not a supported source/);
+  const failBlocked = new RegExp(`^test-strength: FAIL \\d+ of \\d+ criteria at ${s7(mixed.H)}: .*AC-101-2 imports src/store\\.js \\(not the app entry or the harness\\).*, blocked 1: (.+)$`);
+  const fl = lines(f.stdout).map((l) => l.match(failBlocked)).find(Boolean);
+  assert.ok(fl, `the FAIL line names AC-101-2's finding and ends ", blocked 1: <AC ids with their files>"\n${f.stdout}${f.stderr}`);
+  assert.ok(fl[1].includes('AC-101-1') && fl[1].includes('test/rcf/a.test.py'), `the FAIL line lists AC-101-1 and its file as blocked\n${f.stdout}`);
+
   // The audit's own inputs unreadable stay a whole-run exit 2.
   const badRunner = await strengthProject(t, { config: { ...CONFIG, runners: [{ files: ['test/**'], kind: 'jest' }] } });
   const m = await strength(badRunner.dir, ['--acs', 'AC-101-1'], nodeEnv());
@@ -495,7 +512,13 @@ test('AC-19902-9: a bound test red unmutated for want of an environment variable
   });
   const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 2, `the unmutated run is red: exit 2\n${r.stdout}${r.stderr}`);
-  assert.ok(lines(r.stderr).includes(unmutatedRed(`test/rcf/a.test.js::${GREETS.name}`, ['node', '--test', '--test-name-pattern', '<name>', '<file>'])), `stderr names the default runner and the bound test\n${r.stderr}`);
+  // The stage-keeper's ruling 3 on the DEFINE's questions: the nodeTest
+  // default argv carries the TAP reporter; its exact form is matched by shape.
+  const red = lines(r.stderr).map((l) => l.match(/^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/)).find((m) => m && m[1] === `test/rcf/a.test.js::${GREETS.name}`);
+  assert.ok(red, `stderr names the default runner and the bound test\n${r.stderr}`);
+  const argv = red[2].split(' ');
+  for (const word of ['node', '--test', '--test-name-pattern', '<name>', '<file>']) assert.ok(argv.includes(word), `the default runner carries ${word}\n${red[0]}`);
+  assert.ok(argv.includes('--test-reporter=tap') || argv.some((w, i) => w === '--test-reporter' && argv[i + 1] === 'tap'), `the default runner carries the TAP reporter\n${red[0]}`);
   noResultLine(r);
   assert.equal(runsIn(log), 1, 'the bound test ran once, unmutated, and no mutant ran');
 });

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:28:56.301Z",
-  "updatedAt": "2026-10-29T09:29:36.044Z",
+  "updatedAt": "2026-10-29T10:50:36.018Z",
   "asA": "verifier at the TEST stage on a TypeScript product",
   "iWant": "test strength to run each bound test through its declared runner and read that runner's report",
   "soThat": "TypeScript criteria get the proof JavaScript criteria get",
@@ -50,7 +50,7 @@
     },
     {
       "id": "AC-19904-7",
-      "description": "[failure] Given a Code Node file holding a TypeScript enum (`src/totals.ts` declaring `export enum Rounding` beside `sumTotals`, its Code Node `src/totals.ts#sumTotals`), when the audit runs (`rcf audit test-strength --acs AC-101-1 --record` at a reviewed head), then that criterion is reported as stage-keeper ruling Q2 (a) rules, BLOCKED, naming the file and \"non-erasable TypeScript syntax\": its criterion in the TestStrengthReport carries `result` \"blocked\", `reason` \"TEST_STRENGTH_UNSUPPORTED\" and a `detail` naming `src/totals.ts` and \"non-erasable TypeScript syntax\"; the summary line counts it blocked beside pass, fail and notApplicable; the run exits 5, a code the verb does not use today; and light Finalise refuses it like a fail, exit 4 with \"finalise refused: test-strength at <H7> fails for AC-101-1\".",
+      "description": "[failure] Given a Code Node file holding a TypeScript enum (`src/totals.ts` declaring `export enum Rounding` beside `sumTotals`, its Code Node `src/totals.ts#sumTotals`), when the audit runs (`rcf audit test-strength --acs AC-101-1 --record` at a reviewed head), then that criterion is reported as stage-keeper ruling Q2 (a) rules, BLOCKED, naming the file and \"non-erasable TypeScript syntax\": its criterion in the TestStrengthReport carries `result` \"blocked\", `reason` \"TEST_STRENGTH_UNSUPPORTED\" and a `detail` naming `src/totals.ts` and \"non-erasable TypeScript syntax\"; a `.tsx` Code Node file the JSX scan cannot read is recorded the same way, its detail naming the file and the scan failure, `detail` \"JSX scan failed at <file>:<line>:<col>: <what the scanner met>\"; the summary line reads \"test-strength: BLOCKED <n> criteria at <h7>: structural a/b, mutants killed x/y (timeout t, notApplicable n, blocked m): <blocked AC ids with their files>\"; the run exits 5, the BLOCKED exit (exit 1 is the bin's unexpected-failure code); when a run has both a blocked and a failing criterion the fail verdict and its exit code win: the verdict word is FAIL, the FAIL line gains \", blocked <m>: <blocked AC ids with their files>\" at its end, and the summary line still counts the blocked criteria and lists their ids; and light Finalise refuses it like a fail, exit 4 with \"finalise refused: test-strength at <H7> fails for AC-101-1\".",
       "testable": true,
       "verification": "external"
     }
