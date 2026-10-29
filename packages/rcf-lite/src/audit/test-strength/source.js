@@ -11,14 +11,19 @@
 // only declaration and statement boundaries, which bracket matching over
 // tokens gives. Source is read as text and never evaluated.
 //
-// TypeScript files (FBS-242, US-19904) are read through a view of the
-// same length as the file: node:module's stripTypeScriptTypes in strip
-// mode for .ts, .mts and .cts (types become spaces). Offsets hold, so rewrites found in the view are spliced
+// TypeScript, JSX and Vue files (FBS-242, US-19904) are read through a
+// view of the same length as the file: node:module's
+// stripTypeScriptTypes in strip mode for .ts, .mts and .cts (types
+// become spaces), the JSX scanner for .tsx and .jsx, and for .vue the
+// SFC's <script> and <script setup> blocks in place with everything
+// else blanked. Offsets hold, so rewrites found in the view are spliced
 // into the original file. What a view cannot read is reported with its
 // position, never guessed.
 
 import { stripTypeScriptTypes } from 'node:module';
 import { extname } from 'node:path';
+
+import { blankJsx } from './jsx.js';
 
 // Multi-character punctuators, longest first.
 const PUNCT = ['>>>=', '...', '===', '!==', '**=', '<<=', '>>=', '>>>', '&&=', '||=', '??=', '=>', '==', '!=',
@@ -446,8 +451,9 @@ export function statementCalls(src, name, { method }) {
 
 export const JS_EXT = /\.(?:js|mjs|cjs)$/;
 const TS_EXT = /\.(?:ts|mts|cts)$/;
+const JSX_EXT = /\.(?:tsx|jsx)$/;
 // Every file the audit reads: JavaScript, and TypeScript, JSX and Vue as US-19904 rules.
-export const READ_EXT = /\.(?:js|mjs|cjs|ts|mts|cts)$/;
+export const READ_EXT = /\.(?:js|mjs|cjs|ts|mts|cts|tsx|jsx|vue)$/;
 
 /** 1-based line and column of an offset. */
 function lineCol(text, at) {
@@ -498,6 +504,42 @@ function stripView(file, text) {
   }
 }
 
+/** The JSX-blanked view, or "JSX scan failed at <file>:<line>:<col>: <what the scanner met>". */
+function jsxView(file, text) {
+  const r = blankJsx(text);
+  return r.ok ? r : { ok: false, detail: `JSX scan failed at ${file}:${lineCol(text, r.at)}: ${r.what}` };
+}
+
+/**
+ * The SFC script view (the stage-keeper's ruling Q9): every <script> and
+ * <script setup> block (lang ts, tsx or js) in place, in document order,
+ * everything else blanked with its line breaks kept. A block with a src
+ * attribute, or another lang, is unreadable.
+ */
+function sfcView(file, text) {
+  const view = text.replace(/[^\r\n]/g, ' ').split('');
+  const open = /<script\b([^>]*)>/gi;
+  const langs = new Set();
+  let m;
+  while ((m = open.exec(text))) {
+    const attrs = m[1];
+    const at = `${file}:${lineCol(text, m.index)}`;
+    if (/\bsrc\s*=/i.test(attrs)) return { ok: false, detail: `${at}: a <script> block with a src attribute` };
+    const lang = (/\blang\s*=\s*["']([^"']*)["']/i.exec(attrs)?.[1] ?? 'js').toLowerCase();
+    if (!['js', 'ts', 'tsx'].includes(lang)) return { ok: false, detail: `${at}: a <script lang="${lang}"> block` };
+    langs.add(lang);
+    const from = m.index + m[0].length;
+    const close = text.toLowerCase().indexOf('</script', from);
+    if (close < 0) return { ok: false, detail: `${at}: an unclosed <script> block` };
+    for (let k = from; k < close; k += 1) view[k] = text[k];
+    open.lastIndex = close;
+  }
+  let out = { ok: true, text: view.join('') };
+  if (langs.has('tsx')) out = jsxView(file, out.text);
+  if (out.ok && (langs.has('ts') || langs.has('tsx'))) out = stripView(file, out.text);
+  return out;
+}
+
 /**
  * The view the audit reads a file through (same length as the file), or
  * why it cannot: { ok: true, text } | { ok: false, detail }. A file of no
@@ -510,6 +552,11 @@ function stripView(file, text) {
 export function sourceView(file, text) {
   if (JS_EXT.test(file)) return { ok: true, text };
   if (TS_EXT.test(file)) return stripView(file, text);
+  if (JSX_EXT.test(file)) {
+    const r = jsxView(file, text);
+    return r.ok && file.endsWith('.tsx') ? stripView(file, r.text) : r;
+  }
+  if (file.endsWith('.vue')) return sfcView(file, text);
   return { ok: false, detail: `${file}:1:1: unsupported file type ${extname(file) || '(none)'}` };
 }
 
