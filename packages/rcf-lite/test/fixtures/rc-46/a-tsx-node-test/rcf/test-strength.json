@@ -1,0 +1,18 @@
+{
+  "entry": [
+    {
+      "kind": "module",
+      "path": "src/index.ts"
+    }
+  ],
+  "harness": [
+    "test/_harness/**"
+  ],
+  "runner": [
+    "node_modules/.bin/tsx",
+    "--test",
+    "--test-name-pattern",
+    "<name>",
+    "<file>"
+  ]
+}

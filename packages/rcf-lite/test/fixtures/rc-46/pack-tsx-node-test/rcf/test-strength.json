@@ -1,0 +1,10 @@
+{
+  "entry": [
+    { "kind": "module", "path": "src/intervals.ts" }
+  ],
+  "harness": ["tests/rcf/helpers/**"],
+  "edge": [],
+  "clock": [],
+  "runner": ["npx", "tsx", "--test", "--test-name-pattern", "<name>", "<file>"],
+  "suiteCommand": "npx tsx --test 'tests/rcf/api/**/*.spec.ts'"
+}

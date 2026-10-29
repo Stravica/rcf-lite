@@ -1,0 +1,29 @@
+{
+  "createdAt": "2026-10-28T22:29:00.422Z",
+  "updatedAt": "2026-10-28T22:29:23.515Z",
+  "purpose": "Browser verification of the US-101 preview page with @playwright/test against the pack's own preview server; each test is bound by its top-level test title.",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-101-2"
+  ],
+  "id": "TS-002",
+  "usId": "US-101",
+  "title": "US-101 browser spec",
+  "testCases": [
+    {
+      "id": "TC-002-ac-101-2-the-preview-page-shows-the-slug",
+      "acId": "AC-101-2",
+      "description": "AC-101-2 the preview page shows the slug of the title a user submits",
+      "status": "passing",
+      "testPointer": "tests/rcf/ui/US-101/AC-101-2.spec.ts::AC-101-2 the preview page shows the slug of the title a user submits"
+    },
+    {
+      "id": "TC-002-ac-101-2-the-preview-page-with-nothing",
+      "acId": "AC-101-2",
+      "description": "AC-101-2 the preview page with nothing submitted shows the nothing-to-preview message",
+      "status": "passing",
+      "testPointer": "tests/rcf/ui/US-101/AC-101-2.spec.ts::AC-101-2 the preview page with nothing submitted shows the nothing-to-preview message"
+    }
+  ],
+  "status": "draft"
+}

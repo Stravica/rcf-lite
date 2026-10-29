@@ -1,0 +1,7 @@
+# Journey: Preview a slug
+actor: writer naming a new page
+goal: see the slug a title will get before using it
+- entry open-preview @preview-page Open the preview page
+- step submit-text @preview-page Type a title and submit it
+- exit read-slug @preview-page Read the slug shown for the title
+interruptions: lostEmail=notApplicable: the page sends no email and needs no sign-in, closedTab=open-preview, deadBattery=open-preview, expiredLink=notApplicable: the page carries no expiring link or token, switchedDevice=open-preview, lostSignal=submit-text
