@@ -724,3 +724,66 @@ test('AC-19903-5: rcf audit test-strength never deploys, opens no network connec
     assert.equal(existsSync(ran), false, `${field}: no test ran`);
   }
 });
+
+// ------------------------------------------- round D fix DEFINE (F-2, F-3, F-5)
+// The review verdict at 1bee2f8c (FINDINGS/FINDINGS) and the stage-keeper's
+// rulings on it: AC-19901-9's position past line 1 and its unreadable entry.
+
+// F-2 (the reviewer's own, test locus) and F-3 (ruled D3): the detail
+// places the first unreadable construct where it is, never at 1:1.
+test('AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5', async (t) => {
+  const acs = ['AC-101-1', 'AC-101-2'];
+  const { dir } = await strengthProject(t, {
+    acs,
+    files: {
+      // "  const b = ;": the expression node expects sits at column 13 of line 3.
+      'src/a.ts': L('export function run(n: number): number {', '  const a = n;', '  const b = ;', '  return a;', '}'),
+      // "  constructor(override y: number) { super(); }": the parameter property spans columns 15 to 32 of line 3.
+      'src/b.ts': L('class Base {}', 'export class C extends Base {', '  constructor(override y: number) { super(); }', '}', 'export function run(n: number): number {', '  return n;', '}'),
+    },
+    nodes: [['src/a.ts#run', ['AC-101-1']], ['src/b.ts#run', ['AC-101-2']]],
+    bind: [['AC-101-1', 'test/rcf/a.test.js', GREETS.name], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  const report = json(r.stdout);
+  const detail = (acId) => {
+    const c = crit(report, acId);
+    assert.equal(c?.result, 'blocked', `${acId} is BLOCKED\n${r.stdout}${r.stderr}`);
+    assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
+    return c.detail;
+  };
+  const a = detail('AC-101-1');
+  assert.match(a, /^src\/a\.ts:3:13: \S.*$/, `the first unreadable construct of src/a.ts is at 3:13, where node places the syntax error\n${a}`);
+  const b = detail('AC-101-2');
+  const m = /^src\/b\.ts:(\d+):(\d+): non-erasable TypeScript syntax \(.+\)$/.exec(b);
+  assert.ok(m, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)"\n${b}`);
+  assert.equal(Number(m[1]), 3, `the refused parameter property sits on line 3\n${b}`);
+  assert.ok(Number(m[2]) >= 15 && Number(m[2]) <= 32, `the column lies in the refused parameter property, columns 15 to 32\n${b}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+});
+
+// F-2: an entry point the strip view cannot parse is the audit's own input unreadable.
+test('AC-19901-9: an entry point the strip view cannot parse (rcf/test-strength.json entry src/index.ts holding an enum on line 2) exits 2 with a stderr line starting "test-strength: entry point unreadable" and the detail', async (t) => {
+  const { dir } = await strengthProject(t, {
+    config: { entry: [{ kind: 'module', path: 'src/index.ts' }], harness: ['test/_harness/**'] },
+    files: { 'src/index.ts': L('export const one = 1;', 'export enum Mode { A }') },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable'));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable"\n${r.stdout}${r.stderr}`);
+  assert.match(line, /^test-strength: entry point unreadable: src\/index\.ts:2:\d+: non-erasable TypeScript syntax \([^)]*enum[^)]*\)$/, `the line carries the detail "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)"\n${line}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});
+
+// F-2 and F-5 (ruled D4): an entry point of an extension the views cannot read.
+test('AC-19901-9: an entry point of an extension the views cannot read (rcf/test-strength.json entry bin/app.py) exits 2 with a stderr line starting "test-strength: entry point unreadable" and the detail naming the file', async (t) => {
+  const { dir } = await strengthProject(t, {
+    config: { entry: [{ kind: 'bin', path: 'bin/app.py' }], harness: ['test/_harness/**'] },
+    files: { 'bin/app.py': 'print("hello")\n' },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable'));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable" for the .py entry\n${r.stdout}${r.stderr}`);
+  assert.match(line, /^test-strength: entry point unreadable: bin\/app\.py:\d+:\d+: \S.*$/, `the line carries the detail "<file>:<line>:<col>: <construct>"\n${line}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});

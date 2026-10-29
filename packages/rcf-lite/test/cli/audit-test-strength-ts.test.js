@@ -24,7 +24,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, mkdirSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { delimiter, join, relative, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -344,4 +344,158 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   assert.equal(jc.result, 'blocked', q(jc));
   assert.equal(jc.reason, 'TEST_STRENGTH_UNSUPPORTED', q(jc));
   assert.match(jc.detail, /^JSX scan failed at src\/broken\.tsx:\d+:\d+: \S.*$/, `detail is "JSX scan failed at <file>:<line>:<col>: <what the scanner met>"\n${q(jc)}`);
+});
+
+// ------------------------------------------- round D fix DEFINE (F-1 to F-9)
+// The review verdict at 1bee2f8c (FINDINGS/FINDINGS, F-1 to F-16) and the
+// stage-keeper's rulings on it: the clauses its broken findings showed
+// unasserted, each driven through bin/rcf.js as above.
+
+const blockedDetail = (r, acId = 'AC-101-1') => {
+  const c = crit(json(r.stdout), acId);
+  assert.equal(c?.result, 'blocked', `${acId} is BLOCKED\n${shown(r)}`);
+  assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
+  return c.detail;
+};
+// "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)" at
+// `line` with its column inside [from, to], the refused construct's span.
+const refusedAt = (detail, file, line, [from, to], construct) => {
+  const m = new RegExp(`^${escape(file)}:(\\d+):(\\d+): non-erasable TypeScript syntax \\((.+)\\)$`).exec(detail);
+  assert.ok(m, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)" (ruling F6)\n${detail}`);
+  assert.equal(Number(m[1]), line, `the refused construct sits on line ${line}\n${detail}`);
+  assert.ok(Number(m[2]) >= from && Number(m[2]) <= to, `the column lies in the refused construct, columns ${from} to ${to} of line ${line}\n${detail}`);
+  assert.match(m[3], construct, `the construct named is the one strip mode refused\n${detail}`);
+};
+
+// F-1 (the reviewer's own, test locus): ruling Q9's src clause.
+test('AC-19904-4: a .vue Code Node whose SFC holds a <script src> block makes the criterion BLOCKED, reason "TEST_STRENGTH_UNSUPPORTED", detail "<file>:<line>:<col>: <construct>" at the block, exit 5', async (t) => {
+  const d = await tsProject(t, 'd-tsx-vue', {
+    config: { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'vitest' }] },
+    nodes: [['src/Linked.vue#clampStart', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/counter.test.ts', 'counter > clamps the start value to ten']],
+    deps: false,
+  });
+  commit(d.dir, 'fixture: an SFC whose script is a src block', {
+    'src/Linked.vue': '<template>\n  <button class="counter">{{ start }}</button>\n</template>\n\n<script src="./clamp.ts" lang="ts"></script>\n',
+    'src/clamp.ts': 'export function clampStart(n: number): number {\n  return Math.max(0, Math.min(n, 10));\n}\n',
+  });
+  const r = await strength(d.dir, ['--acs', 'AC-101-1', '--json']);
+  const detail = blockedDetail(r);
+  assert.match(detail, /^src\/Linked\.vue:5:\d+: \S.*$/, `detail is "<file>:<line>:<col>: <construct>" at the src block on line 5 (ruling Q9, the AC-19901-9 form)\n${detail}`);
+  assert.equal(r.code, 5, `a blocked criterion: exit 5\n${shown(r)}`);
+});
+
+// F-1 and F-6 (ruled D6): "attributes otherwise ignored".
+test('AC-19904-4: a <script data-src="x" lang="ts"> block declaring src/Counter.vue#clampStart is read (attributes other than src ignored): exit 0, three mutants on the symbol', async (t) => {
+  const d = await tsProject(t, 'd-tsx-vue', {
+    config: { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'vitest' }] },
+    nodes: [['src/Counter.vue#clampStart', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/counter.test.ts', 'counter > clamps the start value to ten']],
+  });
+  const sfc = readFileSync(join(FIXTURES, 'd-tsx-vue', 'src', 'Counter.vue'), 'utf8');
+  assert.ok(sfc.startsWith('<script lang="ts">\n'), 'the fixture SFC opens with its <script lang="ts"> block');
+  commit(d.dir, 'fixture: a data-src attribute', { 'src/Counter.vue': sfc.replace('<script lang="ts">', '<script data-src="x" lang="ts">') });
+  const r = await strength(d.dir, ['--acs', 'AC-101-1', '--json']);
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.notEqual(c?.result, 'blocked', `a data-src attribute is not a src attribute: the block is read\n${shown(r)}`);
+  assert.equal(r.code, 0, `exit 0\n${shown(r)}`);
+  assert.equal(c.result, 'pass', r.stdout);
+  assert.deepEqual(ops(json(r.stdout), 'src/Counter.vue#clampStart'), ['callRemoval', 'noOp', 'stubToThrow'], `three mutants on src/Counter.vue#clampStart\n${r.stdout}`);
+});
+
+// F-7 (ruled C1): the detail names the construct strip mode refused, at
+// its own position, never the first erasable look-alike.
+test('AC-19904-7: the detail names the construct strip mode refused at its own line and column: a parameter property private y on line 3 behind a class field private x, and an enum behind a declare enum', async (t) => {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    acs: ['AC-101-1', 'AC-101-2'],
+    nodes: [['src/ledger.ts#total', ['AC-101-1']], ['src/modes.ts#total', ['AC-101-2']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items'], ['AC-101-2', 'test/totals.test.ts', 'sums the line items']],
+    deps: false,
+  });
+  commit(a.dir, 'fixture: erasable look-alikes ahead of the refused constructs', {
+    'src/ledger.ts': 'export class Ledger {\n  private x = 1;\n  constructor(private y: number) {}\n}\nexport function total(n: number): number {\n  return n;\n}\n',
+    'src/modes.ts': 'declare enum A { X }\nexport enum B { Y }\nexport function total(n: number): number {\n  return n;\n}\n',
+  });
+  const r = await strength(a.dir, ['--acs', 'AC-101-1,AC-101-2', '--json']);
+  // "  constructor(private y: number) {}": the parameter property spans columns 15 to 31.
+  refusedAt(blockedDetail(r, 'AC-101-1'), 'src/ledger.ts', 3, [15, 31], /\by\b/);
+  // "export enum B { Y }": the enum declaration spans columns 1 to 19.
+  refusedAt(blockedDetail(r, 'AC-101-2'), 'src/modes.ts', 2, [1, 19], /enum\b.*\bB\b/);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${shown(r)}`);
+});
+
+// F-4 (ruled D2, spec-rooted): the playwright describe-prefix form, the
+// segments space-joined and followed by a space, so a pointer naming the
+// describe "title" never selects a test of the sibling describe "titles".
+test('AC-19904-3: a playwright pointer naming a describe title runs the tests of that describe through the describe-prefix form (followed by a space) and no test of a sibling describe whose title extends it, exit 0', async (t) => {
+  const marker = join(scratch(t, 'rcf-h-marks-'), 'sibling');
+  const c = await tsProject(t, 'c-playwright', {
+    variant: 'no-browser',
+    config: { ...TS_CONFIG, runners: [{ files: ['e2e/**'], kind: 'playwright' }] },
+    nodes: [['src/slug.ts#slugify', ['AC-101-1']]],
+    bind: [['AC-101-1', 'e2e/prefix.spec.ts', 'title']],
+  });
+  const H = commit(c.dir, 'fixture: a describe and its sibling', {
+    'e2e/prefix.spec.ts': [
+      "import { test, expect } from '@playwright/test';",
+      "import { writeFileSync } from 'node:fs';",
+      "import { slugify } from '../src/index';",
+      '',
+      "test.describe('title', () => {",
+      "  test('slugs the words', () => {",
+      "    expect(slugify('Hello World')).toBe('hello-world');",
+      '  });',
+      '});',
+      '',
+      "test.describe('titles', () => {",
+      "  test('is a sibling describe', () => {",
+      `    writeFileSync(${q(marker)}, 'ran');`,
+      '  });',
+      '});',
+      '',
+    ].join('\n'),
+  });
+  const r = await strength(c.dir, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 0, `a describe-title pointer under playwright: exit 0\n${shown(r)}`);
+  assert.match(out(r), passAny(H), shown(r));
+  assert.equal(existsSync(marker), false, `the sibling describe "titles" never ran: the describe prefix is "title" followed by a space\n${shown(r)}`);
+});
+
+// Every path under dir but .git/, with its type, size and mtime, so a
+// new, changed or deleted path shows, ignored paths (node_modules) included.
+function tree(dir) {
+  const seen = new Map();
+  const walk = (rel) => {
+    for (const e of readdirSync(join(dir, rel), { withFileTypes: true })) {
+      const p = rel ? `${rel}/${e.name}` : e.name;
+      if (p === '.git') continue;
+      const s = lstatSync(join(dir, p));
+      if (e.isDirectory()) { seen.set(`${p}/`, 'dir'); walk(p); } else seen.set(p, `${s.isSymbolicLink() ? 'link' : 'file'} ${s.size} ${s.mtimeMs}`);
+    }
+  };
+  walk('');
+  return seen;
+}
+const moved = (before, after, keep = () => false) => [...new Set([...before.keys(), ...after.keys()])].filter((p) => before.get(p) !== after.get(p) && !keep(p)).sort();
+
+// F-9 (ruled C3, blocking until disproved): vitest keeps caches under
+// node_modules, and the runner's worktrees link the project's node_modules.
+test('AC-19903-5: a vitest project audited end to end, with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included', async (t) => {
+  const b = await tsProject(t, 'b-vitest', {
+    config: { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'vitest' }] },
+    nodes: [['src/cart.ts#applyDiscount', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/cart.test.ts', 'cart > applies a percentage discount']],
+  });
+  const before = tree(b.dir);
+  const plain = await strength(b.dir, ['--acs', 'AC-101-1']);
+  assert.equal(plain.code, 0, `the vitest project passes: exit 0\n${shown(plain)}`);
+  assert.deepEqual(moved(before, tree(b.dir)), [], `without --record no path in the project tree is new, changed or deleted\n${shown(plain)}`);
+
+  commit(b.dir, 'REVIEW: verdict', { [verdictPath(b.H, 'review.json')]: reviewVerdict(b.H, { touchedAcIds: ['AC-101-1'] }) });
+  const reviewedTree = tree(b.dir);
+  const rec = await strength(b.dir, ['--acs', 'AC-101-1', '--record']);
+  assert.equal(rec.code, 0, `--record at the reviewed head: exit 0\n${shown(rec)}`);
+  assert.ok(existsSync(join(b.dir, verdictPath(b.H, 'test-strength.json'))), `the record is written at rcf/verdicts/${s12(b.H)}/\n${shown(rec)}`);
+  const inVerdicts = (p) => p.startsWith(`rcf/verdicts/${s12(b.H)}/`);
+  assert.deepEqual(moved(reviewedTree, tree(b.dir), inVerdicts), [], `with --record no path outside rcf/verdicts/${s12(b.H)}/ is new, changed or deleted\n${shown(rec)}`);
 });
