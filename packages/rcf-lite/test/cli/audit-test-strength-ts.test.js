@@ -222,6 +222,20 @@ test('AC-19904-4: Code Nodes src/Badge.tsx#badgeLabel, src/Counter.vue#clampStar
   assert.deepEqual(ops(report, 'src/Badge.tsx#badgeLabel'), three, `three mutants on src/Badge.tsx#badgeLabel\n${r.stdout}`);
   assert.deepEqual(ops(report, 'src/Counter.vue#clampStart'), three, `three mutants on src/Counter.vue#clampStart\n${r.stdout}`);
   assert.deepEqual(ops(report, 'src/Counter.vue'), ['fileBlank'], `one fileBlank on src/Counter.vue\n${r.stdout}`);
+
+  // The SFC script view (ruling Q9): blocks in document order, non-script
+  // content blank-padded, so clampStart declared in the last block is read.
+  const two = await tsProject(t, 'd-tsx-vue', {
+    variant: 'two-block',
+    config: { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'vitest' }] },
+    nodes: [['src/Counter.vue#clampStart', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/counter.test.ts', 'counter > clamps the start value to ten']],
+  });
+  const s = await strength(two.dir, ['--acs', 'AC-101-1', '--json']);
+  assert.equal(s.code, 0, `a two-block SFC declaring clampStart in its last block: exit 0\n${shown(s)}`);
+  const sfc = json(s.stdout);
+  assert.equal(crit(sfc, 'AC-101-1').result, 'pass', s.stdout);
+  assert.deepEqual(ops(sfc, 'src/Counter.vue#clampStart'), three, `three mutants on src/Counter.vue#clampStart in the two-block SFC\n${s.stdout}`);
 });
 
 test('AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with "test-strength: bound test <file>::<name> was not run by runner <argv>" and scores no mutant', async (t) => {
@@ -276,7 +290,7 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   const H = commit(dir, 'BUILD: code');
   commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: ['AC-101-1'] }) });
 
-  const r = await strength(dir, ['--record']);
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--record']);
   assert.equal(r.code, 5, `a blocked criterion: exit 5\n${shown(r)}`);
   const recorded = join(dir, verdictPath(H, 'test-strength.json'));
   assert.ok(existsSync(recorded), `the record is written at rcf/verdicts/${s12(H)}/\n${shown(r)}`);
@@ -284,12 +298,19 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   assert.equal(c.result, 'blocked', q(c));
   assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
   assert.ok(c.detail.includes('src/totals.ts') && c.detail.includes('non-erasable TypeScript syntax'), `detail names the file and the construct\n${q(c)}`);
-  // The stage-keeper's rulings 1 and 2 on the DEFINE's questions: the BLOCKED
-  // line, its open values matched by shape.
-  const blockedLine = new RegExp(`^test-strength: BLOCKED 1 criteria at ${s7(H)}: structural \\d+/\\d+, mutants killed \\d+/\\d+ \\(timeout \\d+, notApplicable \\d+, blocked 1\\): (.+)$`);
-  const summary = lines(r.stdout).map((l) => l.match(blockedLine)).find(Boolean);
-  assert.ok(summary, `the summary line is the BLOCKED line\n${shown(r)}`);
-  assert.ok(summary[1].includes('AC-101-1') && summary[1].includes('src/totals.ts'), `the BLOCKED line names AC-101-1 and its file\n${shown(r)}`);
+  // The stage-keeper's rulings Q1 and Q2 on the pre-freeze gate's questions: a
+  // blocked-only report reads result blocked, totals.blocked 1 and every other
+  // count 0, and the blocked criterion's structural is { checked: false }.
+  const rep = readJson(dir, verdictPath(H, 'test-strength.json'));
+  assert.equal(rep.result, 'blocked', `none fails and one is blocked: result blocked\n${q(rep)}`);
+  assert.deepEqual(Object.keys(rep.totals).sort(), ['criteria', 'structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable', 'blocked'].sort(), q(rep.totals));
+  assert.equal(rep.totals.blocked, 1, q(rep.totals));
+  for (const k of ['structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable']) assert.equal(rep.totals[k], 0, `totals.${k} is 0\n${q(rep.totals)}`);
+  assert.deepEqual(c.structural, { checked: false }, q(c));
+  // The stage-keeper's ruling Q2 on the pre-freeze gate's questions: the exact
+  // BLOCKED line; only the structural denominator <b> by shape.
+  const blockedLine = new RegExp(`^test-strength: BLOCKED 1 criteria at ${s7(H)}: structural 0/\\d+, mutants killed 0/0 \\(timeout 0, notApplicable 0, blocked 1\\): AC-101-1 \\(src/totals\\.ts\\)$`);
+  assert.ok(lines(r.stdout).some((l) => blockedLine.test(l)), `the summary line is the BLOCKED line ending "AC-101-1 (src/totals.ts)"\n${shown(r)}`);
 
   commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H) });
   const fin = await rcf(['build', 'finalise', 'FBS-001', '--ci-run', 'run-7'], { cwd: dir });

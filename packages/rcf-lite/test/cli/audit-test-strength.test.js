@@ -241,7 +241,9 @@ test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code N
     const c = crit(report, 'AC-101-1');
     assert.equal(c.result, 'blocked', JSON.stringify(c));
     assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', JSON.stringify(c));
-    assert.ok(c.detail.includes(file), `detail names ${file}\n${JSON.stringify(c)}`);
+    // Ruling Q6: the detail is <file>:<line>:<col>: <construct> (one unreadable file here).
+    const esc = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    assert.match(c.detail, new RegExp(`^${esc}:\\d+:\\d+: \\S.*$`), `detail is "<file>:<line>:<col>: <construct>" for ${file}\n${JSON.stringify(c)}`);
     assert.equal(crit(report, 'AC-101-2').result, 'pass', `the run continues for AC-101-2\n${JSON.stringify(report)}`);
   };
   const acs = ['AC-101-1', 'AC-101-2'];
@@ -279,10 +281,10 @@ test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code N
   const f = await strength(mixed.dir, ['--acs', 'AC-101-1,AC-101-2'], nodeEnv());
   assert.equal(f.code, 4, `a failing criterion beside a blocked one: the fail exit 4\n${f.stdout}${f.stderr}`);
   assert.doesNotMatch(f.stderr, /not a supported source/);
-  const failBlocked = new RegExp(`^test-strength: FAIL \\d+ of \\d+ criteria at ${s7(mixed.H)}: .*AC-101-2 imports src/store\\.js \\(not the app entry or the harness\\).*, blocked 1: (.+)$`);
-  const fl = lines(f.stdout).map((l) => l.match(failBlocked)).find(Boolean);
-  assert.ok(fl, `the FAIL line names AC-101-2's finding and ends ", blocked 1: <AC ids with their files>"\n${f.stdout}${f.stderr}`);
-  assert.ok(fl[1].includes('AC-101-1') && fl[1].includes('test/rcf/a.test.py'), `the FAIL line lists AC-101-1 and its file as blocked\n${f.stdout}`);
+  // The stage-keeper's ruling Q2 on the pre-freeze gate's questions: the exact
+  // FAIL line, its blocked tail ", blocked <m>: <id> (<file>)"; <n> by shape.
+  const failBlocked = new RegExp(`^test-strength: FAIL 1 of \\d+ criteria at ${s7(mixed.H)}: AC-101-2 imports src/store\\.js \\(not the app entry or the harness\\), blocked 1: AC-101-1 \\(test/rcf/a\\.test\\.py\\)$`);
+  assert.ok(lines(f.stdout).some((l) => failBlocked.test(l)), `the FAIL line names AC-101-2's finding and ends ", blocked 1: AC-101-1 (test/rcf/a.test.py)"\n${f.stdout}${f.stderr}`);
 
   // The audit's own inputs unreadable stay a whole-run exit 2.
   const badRunner = await strengthProject(t, { config: { ...CONFIG, runners: [{ files: ['test/**'], kind: 'jest' }] } });
@@ -526,7 +528,7 @@ test('AC-19902-9: a bound test red unmutated for want of an environment variable
 // ---------------------------------------------------------------- US-19903
 
 const REPORT_KEYS = ['version', 'head', 'scope', 'criteria', 'result', 'totals', 'wallMs', 'node'];
-const TOTAL_KEYS = ['criteria', 'structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable'];
+const TOTAL_KEYS = ['criteria', 'structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable', 'blocked'];
 
 test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4', async (t) => {
   const passing = await strengthProject(t);
@@ -541,6 +543,8 @@ test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --recor
   assert.deepEqual(rep.criteria.map((c) => c.acId), ['AC-101-1']);
   assert.equal(rep.result, 'pass');
   assert.deepEqual(Object.keys(rep.totals).sort(), [...TOTAL_KEYS].sort());
+  // The stage-keeper's ruling Q1 on the pre-freeze gate's questions: totals.blocked is present on every report, 0 when none.
+  assert.equal(rep.totals.blocked, 0, `totals.blocked is 0 when no criterion is blocked\n${JSON.stringify(rep.totals)}`);
   assert.equal(typeof rep.wallMs, 'number');
   assert.equal(rep.node, process.version);
 
