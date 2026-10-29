@@ -386,12 +386,12 @@ export function importSpecifiers(src) {
   return out;
 }
 
-/** Specifiers passed to mock.module(<string>, ...) (node:test module mocks). */
+/** Specifiers passed to mock.module(<string>, ...) (node:test module mocks) or vi.mock(<string>, ...) (vitest's). */
 export function mockedModules(src) {
   const { tokens } = src;
   const out = [];
   for (let i = 0; i + 4 < tokens.length; i += 1) {
-    const mock = word(tokens[i], 'mock') && word(tokens[i + 2], 'module');
+    const mock = (word(tokens[i], 'mock') && word(tokens[i + 2], 'module')) || (word(tokens[i], 'vi') && word(tokens[i + 2], 'mock'));
     if (mock && punct(tokens[i + 1], '.') && punct(tokens[i + 3], '(') && is(tokens[i + 4], 'str')) out.push(stringValue(tokens[i + 4]));
   }
   return out;

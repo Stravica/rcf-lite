@@ -1,8 +1,9 @@
 // The runner report readers of `rcf audit test-strength` (FBS-242,
 // US-19904, TAC-4155): one bound test file runs per runner invocation,
 // and the verb reads that runner's report, never its exit code alone
-// (the legacy runner aside): node:test's TAP (a kind with no reader
-// here yet gives no report the audit can read). Each reader gives the leaves
+// (the legacy runner aside): node:test's TAP and vitest's JSON report
+// file (a kind with no reader here yet gives no report the audit can
+// read). Each reader gives the leaves
 // the runner reported (title path and status) and whether the file
 // itself was reported failed; judge() finds the bound test's pointer in
 // them.
@@ -54,6 +55,25 @@ function readTap(stdout, file) {
   return { ok: true, leaves, fileFailed };
 }
 
+const parseJson = (text) => { try { return JSON.parse(text); } catch { return null; } };
+
+/** vitest's JSON report: testResults[].assertionResults[] with ancestorTitles and title. */
+function readVitest(text) {
+  const doc = typeof text === 'string' ? parseJson(text) : null;
+  if (!doc || !Array.isArray(doc.testResults)) return { ok: false };
+  const leaves = [];
+  let fileFailed = false;
+  for (const r of doc.testResults) {
+    const results = Array.isArray(r?.assertionResults) ? r.assertionResults : [];
+    if (r?.status === 'failed' && results.length === 0) fileFailed = true;
+    for (const a of results) {
+      const status = a?.status === 'passed' || a?.status === 'failed' ? a.status : 'skipped';
+      leaves.push({ path: [...(Array.isArray(a?.ancestorTitles) ? a.ancestorTitles : []), String(a?.title ?? '')], status });
+    }
+  }
+  return { ok: true, leaves, fileFailed };
+}
+
 /**
  * The report of one bound test run.
  *
@@ -63,6 +83,7 @@ function readTap(stdout, file) {
  */
 export function readReport(kind, { stdout, reportText, file }) {
   if (kind === 'nodeTest') return readTap(stdout, file);
+  if (kind === 'vitest') return readVitest(reportText);
   return { ok: false };
 }
 
