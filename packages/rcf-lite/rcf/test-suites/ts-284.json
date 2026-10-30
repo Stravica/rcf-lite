@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-10-29T23:50:50.149Z",
+  "updatedAt": "2026-10-30T05:26:08.925Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -55,6 +55,13 @@
       "description": "a vitest project audited end to end, with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project audited end to end, with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included"
+    },
+    {
+      "id": "TC-284-a-vitest-project-whose-runners-entry-carries",
+      "acId": "AC-19903-5",
+      "description": "a vitest project whose runners entry carries its own argv, audited end to end with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project whose runners entry carries its own argv, audited end to end with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included"
     }
   ],
   "status": "draft"

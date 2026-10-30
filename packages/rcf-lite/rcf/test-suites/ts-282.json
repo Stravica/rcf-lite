@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-10-29T23:50:51.998Z",
+  "updatedAt": "2026-10-30T05:26:06.729Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -94,6 +94,13 @@
       "description": "an entry point of an extension the views cannot read (rcf/test-strength.json entry bin/app.py) exits 2 with a stderr line starting \"test-strength: entry point unreadable\" and the detail naming the file",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point of an extension the views cannot read (rcf/test-strength.json entry bin/app.py) exits 2 with a stderr line starting \"test-strength: entry point unreadable\" and the detail naming the file"
+    },
+    {
+      "id": "TC-282-an-entry-point-whose-error-carries-a-line",
+      "acId": "AC-19901-9",
+      "description": "an entry point the strip view cannot parse whose error carries a line and no caret (src/index.ts with a brace left open, node placing it on line 4) exits 2 with \"test-strength: entry point unreadable\" and a detail on line 4, never 1:1",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse whose error carries a line and no caret (src/index.ts with a brace left open, node placing it on line 4) exits 2 with \"test-strength: entry point unreadable\" and a detail on line 4, never 1:1"
     }
   ],
   "status": "draft"

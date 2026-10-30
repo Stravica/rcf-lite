@@ -787,3 +787,24 @@ test('AC-19901-9: an entry point of an extension the views cannot read (rcf/test
   assert.match(line, /^test-strength: entry point unreadable: bin\/app\.py:\d+:\d+: \S.*$/, `the line carries the detail "<file>:<line>:<col>: <construct>"\n${line}`);
   assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
 });
+
+// ------------------------------------------- round D fix round 2 (R-1)
+// The re-review verdict at 150ab8ea (FINDINGS/FINDINGS): R-1, its F-1, the
+// first round's F-3 not closed where node's diagnostic carries a line and
+// no caret line under it (an unclosed brace): the detail still gives the
+// line node gives, never 1:1.
+test('AC-19901-9: an entry point the strip view cannot parse whose error carries a line and no caret (src/index.ts with a brace left open, node placing it on line 4) exits 2 with "test-strength: entry point unreadable" and a detail on line 4, never 1:1', async (t) => {
+  const { dir } = await strengthProject(t, {
+    config: { entry: [{ kind: 'module', path: 'src/index.ts' }], harness: ['test/_harness/**'] },
+    files: { 'src/index.ts': L('export function run(n: number): number {', '  const a = n;', '  if (a) {', '    return a;') },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable: '));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
+  const m = /^test-strength: entry point unreadable: src\/index\.ts:(\d+):(\d+): invalid TypeScript syntax \(.+\)$/.exec(line);
+  assert.ok(m, `the line carries the detail "<file>:<line>:<col>: invalid TypeScript syntax (...)"\n${line}`);
+  assert.notEqual(`${m[1]}:${m[2]}`, '1:1', `the detail is never 1:1 when node gives a line\n${line}`);
+  assert.equal(Number(m[1]), 4, `the detail gives the line node gives for the unclosed brace, line 4\n${line}`);
+  assert.ok(Number(m[2]) >= 1, `the column is a 1-based column\n${line}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});

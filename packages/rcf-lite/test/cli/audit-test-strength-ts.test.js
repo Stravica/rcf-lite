@@ -560,3 +560,73 @@ test('AC-19903-5: a vitest project audited end to end, with and without --record
   const inVerdicts = (p) => p.startsWith(`rcf/verdicts/${s12(b.H)}/`);
   assert.deepEqual(moved(reviewedTree, tree(b.dir), inVerdicts), [], `with --record no path outside rcf/verdicts/${s12(b.H)}/ is new, changed or deleted\n${shown(rec)}`);
 });
+
+// ------------------------------------------- round D fix round 2 (R-3, R-4)
+// The re-review verdict at 150ab8ea (FINDINGS/FINDINGS) and the
+// stage-keeper's rulings on it: R-3, the re-review verdict's F-3 (the
+// column counts characters of the source line, a tab as one), and R-4,
+// its F-4 (the cache flags apply to every vitest invocation the audit
+// makes, an argv override included).
+
+// R-3: node prints a tab-indented source line with each tab expanded, so
+// a caret read off that line lands past the construct; the column counts
+// the source line's own characters and the construct keeps its name.
+test('AC-19904-7: on a tab-indented line the detail places a parameter property at its column counted with a tab as one character and names it: private y on line 3 behind a tab-indented class field, 3:22, exit 5', async (t) => {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [['src/ledger.ts#total', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+    deps: false,
+  });
+  commit(a.dir, 'fixture: a tab-indented class', {
+    'src/ledger.ts': 'export class Ledger {\n\tprivate x = 1;\n\tconstructor(private y: number) {}\n}\nexport function total(n: number): number {\n\treturn n;\n}\n',
+  });
+  const r = await strength(a.dir, ['--acs', 'AC-101-1', '--json']);
+  const detail = blockedDetail(r);
+  // "\tconstructor(private y: number) {}": the tab is column 1, so y, where node places the parameter property, is column 22.
+  const m = /^src\/ledger\.ts:(\d+):(\d+): non-erasable TypeScript syntax \((.+)\)$/.exec(detail);
+  assert.ok(m, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)" (ruling F6)\n${detail}`);
+  assert.equal(`${m[1]}:${m[2]}`, '3:22', `the parameter property y sits at 3:22, the column counted on the source line with a tab as one character\n${detail}`);
+  assert.match(m[3], /\by\b/, `the construct is named as on a space-indented line: the parameter property y\n${detail}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${shown(r)}`);
+});
+
+test('AC-19904-7: on a tab-indented line the detail places an enum at its column counted with a tab as one character and names it: enum B on line 2, 2:9, exit 5', async (t) => {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [['src/modes.ts#total', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+    deps: false,
+  });
+  commit(a.dir, 'fixture: a tab-indented enum', {
+    'src/modes.ts': 'export const x = 1;\n\texport enum B { Y }\nexport function total(n: number): number {\n\treturn n;\n}\n',
+  });
+  const r = await strength(a.dir, ['--acs', 'AC-101-1', '--json']);
+  const detail = blockedDetail(r);
+  // "\texport enum B { Y }": the tab is column 1, so enum is column 9.
+  const m = /^src\/modes\.ts:(\d+):(\d+): non-erasable TypeScript syntax \((.+)\)$/.exec(detail);
+  assert.ok(m, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)" (ruling F6)\n${detail}`);
+  assert.equal(`${m[1]}:${m[2]}`, '2:9', `the enum sits at 2:9, the column counted on the source line with a tab as one character\n${detail}`);
+  assert.match(m[3], /enum\b.*\bB\b/, `the construct is named as on a space-indented line: enum B\n${detail}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${shown(r)}`);
+});
+
+// R-4: a vitest runners entry whose argv the project overrides (the
+// default argv spelled out) still leaves the project tree as it was.
+test('AC-19903-5: a vitest project whose runners entry carries its own argv, audited end to end with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included', async (t) => {
+  const b = await tsProject(t, 'b-vitest', {
+    config: { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'vitest', argv: ['vitest', 'run', '<file>', '-t', '<name>', '--reporter=json', '--outputFile=<report>'] }] },
+    nodes: [['src/cart.ts#applyDiscount', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/cart.test.ts', 'cart > applies a percentage discount']],
+  });
+  const before = tree(b.dir);
+  const plain = await strength(b.dir, ['--acs', 'AC-101-1']);
+  assert.equal(plain.code, 0, `the vitest project passes under its argv override: exit 0\n${shown(plain)}`);
+  assert.deepEqual(moved(before, tree(b.dir)), [], `without --record no path in the project tree is new, changed or deleted\n${shown(plain)}`);
+
+  commit(b.dir, 'REVIEW: verdict', { [verdictPath(b.H, 'review.json')]: reviewVerdict(b.H, { touchedAcIds: ['AC-101-1'] }) });
+  const reviewedTree = tree(b.dir);
+  const rec = await strength(b.dir, ['--acs', 'AC-101-1', '--record']);
+  assert.equal(rec.code, 0, `--record at the reviewed head: exit 0\n${shown(rec)}`);
+  assert.ok(existsSync(join(b.dir, verdictPath(b.H, 'test-strength.json'))), `the record is written at rcf/verdicts/${s12(b.H)}/\n${shown(rec)}`);
+  const inVerdicts = (p) => p.startsWith(`rcf/verdicts/${s12(b.H)}/`);
+  assert.deepEqual(moved(reviewedTree, tree(b.dir), inVerdicts), [], `with --record no path outside rcf/verdicts/${s12(b.H)}/ is new, changed or deleted\n${shown(rec)}`);
+});
