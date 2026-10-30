@@ -26,13 +26,19 @@ const SEP = ' > ';
 
 /**
  * The name filter of one bound test (the stage-keeper's ruling F1):
- * nodeTest and the legacy runner an escaped `^name$`; vitest the
- * pointer's segments joined by " > ", `^...$` for a leaf or a full path,
- * `^prefix` for a describe prefix; playwright the segments space-joined
- * and `$`-anchored only (a describe prefix: followed by a space).
+ * nodeTest and the legacy runner an escaped `^name$`; vitest (ruling
+ * F-8a) the titles joined by " > ", each regex-escaped, a leaf as
+ * `(^| > )<leaf>$` (a nested test runs, a longer title ending in the
+ * same words does not), a full path as `^<titles>$`, `^prefix` for a
+ * describe prefix; playwright the segments space-joined and
+ * `$`-anchored only (a describe prefix: followed by a space).
  */
 export function namePattern(kind, name, prefix = false) {
-  if (kind === 'vitest') return prefix ? `^${escapeRegExp(name)}` : `^${escapeRegExp(name)}$`;
+  if (kind === 'vitest') {
+    const titles = name.split(SEP).map(escapeRegExp);
+    if (prefix) return `^${titles.join(SEP)}`;
+    return titles.length === 1 ? `(^|${SEP})${titles[0]}$` : `^${titles.join(SEP)}$`;
+  }
   if (kind === 'playwright') {
     const joined = escapeRegExp(name.split(SEP).join(' '));
     return prefix ? `${joined} ` : `${joined}$`;
@@ -109,12 +115,12 @@ function runTest(argv, cwd, ms, env) {
 /**
  * vitest keeps its module cache and its results cache under node_modules,
  * which the worktrees link from the project (AC-19903-5, the stage-keeper's
- * ruling C3): under the default argv the module cache goes to the run's
- * scratch directory and the results cache is off; an argv override keeps
- * its own choices.
+ * ruling C3): on every vitest invocation, the default argv and an argv
+ * override alike (the stage-keeper's rulings R-4 and R-6), the module
+ * cache goes to the run's scratch directory and the results cache is off.
  */
 function cacheArgv(runner, scratch) {
-  if (runner.kind !== 'vitest' || runner.override) return [];
+  if (runner.kind !== 'vitest') return [];
   return [`--fsModuleCachePath=${join(scratch, 'vitest-cache')}`, '--no-cache'];
 }
 

@@ -83,13 +83,22 @@ rcf/test-strength.json (required; written by the test-author):
     nodeTest    node --test --test-reporter=tap --test-name-pattern <name> <file>
     vitest      vitest run <file> -t <name> --reporter=json --outputFile=<report>
     playwright  playwright test <file> -g <name> --reporter=json
+  The audit appends --fsModuleCachePath=<scratch>/vitest-cache --no-cache
+  to every vitest invocation it makes, the default argv and an argv
+  override alike, <scratch> being the audit's own scratch directory, so
+  vitest writes no cache into the project.
   <report> is a per-run temp path the audit sets and reads. argv, when
   given, replaces the whole argv (holding <file> or <name>, and <report>
   where its runner writes the report to a file) and must carry its own
   reporter flag (--test-reporter=tap, or --reporter=json); give the test
   runner alone, never a type checker. <name> is the pointer's name
-  filter: nodeTest an escaped ^name$; vitest the title path joined by
-  " > ", ^...$ for a leaf or a path, ^prefix for a describe title;
+  filter: nodeTest an escaped ^name$; vitest -t with the titles joined
+  by " > ", a leaf as (^| > )<leaf>$ (anchored at the end and at a title
+  boundary, so a nested test runs and a longer title ending in the same
+  words does not), a full path as ^<titles joined by " > ">$, the leaf
+  and title text regex-escaped, ^prefix with no $ for a describe title,
+  and the report's space-joined fullName mapped back to the titles,
+  never split on spaces;
   playwright the title path space-joined, $-anchored for a leaf or a
   path, and for a describe title followed by a space with no $. A pointer
   <file>::<name> names the leaf title, the title path ("describe > test")
