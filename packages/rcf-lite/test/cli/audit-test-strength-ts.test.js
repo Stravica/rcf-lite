@@ -461,6 +461,67 @@ test('AC-19904-3: a playwright pointer naming a describe title runs the tests of
   assert.equal(existsSync(marker), false, `the sibling describe "titles" never ran: the describe prefix is "title" followed by a space\n${shown(r)}`);
 });
 
+// F-8 (the stage-keeper's ruling F-8a): vitest matches -t against the
+// titles joined by " > ", so a bare leaf pointer runs through the leaf
+// form anchored at the end and at a title boundary.
+const VITEST_CART = { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'vitest' }] };
+
+test('AC-19904-3: a vitest pointer naming the bare leaf title of a test nested two describes deep runs that test through the leaf form anchored at a title boundary, exit 0 with the PASS line', async (t) => {
+  const b = await tsProject(t, 'b-vitest', {
+    config: VITEST_CART,
+    nodes: [['src/cart.ts#applyDiscount', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/nested.test.ts', 'applies a percentage discount']],
+  });
+  const H = commit(b.dir, 'fixture: a test two describes deep', {
+    'test/nested.test.ts': [
+      "import { describe, it, expect } from 'vitest';",
+      "import { applyDiscount } from '../src/index';",
+      '',
+      "describe('cart', () => {",
+      "  describe('discounts', () => {",
+      "    it('applies a percentage discount', () => {",
+      '      expect(applyDiscount(200, 10)).toBe(180);',
+      '    });',
+      '  });',
+      '});',
+      '',
+    ].join('\n'),
+  });
+  const r = await strength(b.dir, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 0, `a bare leaf pointer runs the test nested in cart > discounts: exit 0\n${shown(r)}`);
+  assert.match(out(r), passAny(H), shown(r));
+});
+
+test('AC-19904-3: a vitest leaf pointer runs its own test and no test of the same describe whose longer title ends in the same words, exit 0 with the PASS line', async (t) => {
+  const marker = join(scratch(t, 'rcf-h-marks-'), 'near-miss');
+  const b = await tsProject(t, 'b-vitest', {
+    config: VITEST_CART,
+    nodes: [['src/cart.ts#applyDiscount', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/near.test.ts', 'applies a percentage discount']],
+  });
+  const H = commit(b.dir, 'fixture: a leaf and a longer title ending in it', {
+    'test/near.test.ts': [
+      "import { describe, it, expect } from 'vitest';",
+      "import { writeFileSync } from 'node:fs';",
+      "import { applyDiscount } from '../src/index';",
+      '',
+      "describe('cart', () => {",
+      "  it('applies a percentage discount', () => {",
+      '    expect(applyDiscount(200, 10)).toBe(180);',
+      '  });',
+      "  it('already applies a percentage discount', () => {",
+      `    writeFileSync(${q(marker)}, 'ran');`,
+      '  });',
+      '});',
+      '',
+    ].join('\n'),
+  });
+  const r = await strength(b.dir, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 0, `a leaf pointer inside a describe runs: exit 0\n${shown(r)}`);
+  assert.match(out(r), passAny(H), shown(r));
+  assert.equal(existsSync(marker), false, `the test "cart > already applies a percentage discount" never ran: the leaf is anchored at a title boundary\n${shown(r)}`);
+});
+
 // Every path under dir but .git/, with its type, size and mtime, so a
 // new, changed or deleted path shows, ignored paths (node_modules) included.
 function tree(dir) {
