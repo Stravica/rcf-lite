@@ -1,21 +1,23 @@
 // The bounded job runner of `rcf audit test-strength` (FBS-236, US-19902,
-// TAC-4155, ADR-4156; FBS-242, US-19904). Mutants run in scratch git
-// worktrees of HEAD under the OS temp directory, one worktree per job and
-// one mutant at a time per job: the mutant's files are written in the
-// worktree, only its criterion's bound tests run (each through the runner
-// its file resolves to, one test name per run), and the files are
-// restored. A bound test fails when its runner's report says so (the
+// TAC-4155, ADR-4156; FBS-242, US-19904). Mutants run in working copies
+// of HEAD inside one scratch directory of the run under the OS temp
+// directory, one working copy per job and one mutant at a time per job:
+// the mutant's files are written in the working copy, only its
+// criterion's bound tests run (each through the runner its file resolves
+// to, one test name per run), and the files are restored. A bound test fails when its runner's report says so (the
 // legacy runner: when it exits non-zero); a mutant is killed when a bound
 // test fails or its file fails to load (loadError), timeout when its
 // tests outlive --mutant-timeout (the whole process group is killed; a
-// timeout counts as killed), else survived. The project's working tree,
-// index and tracked files are never written; each runner gets a scratch
-// TMPDIR of the run's own (its caches and temp files land there, never
-// in the caller's TMPDIR), and every worktree and that scratch directory
-// are removed before the run returns, pass, fail or error.
+// timeout counts as killed), else survived. Nothing in the project is
+// written (AC-19903-5): a working copy is a shared clone, which writes
+// nothing in the project's .git, and its node_modules is a directory of
+// the run's own linking the project's installed packages, so a path any
+// process creates there stays in the working copy. Each runner gets the
+// scratch as its TMPDIR, and the scratch, with every working copy in it,
+// is removed before the run returns, pass, fail, error or signal.
 
-import { execFileSync, spawn } from 'node:child_process';
-import { existsSync, mkdtempSync, readFileSync, realpathSync, rmSync, rmdirSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { spawn } from 'node:child_process';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
 import { delimiter, join } from 'node:path';
 
@@ -77,10 +79,11 @@ function killGroup(child) {
 
 /**
  * Run one bound test in `cwd`, killing its whole process group at the
- * deadline. Resolves { code, timedOut, stdout }; rejects when the runner
+ * deadline. While it runs, the child is in `live` (a signal kills its
+ * group). Resolves { code, timedOut, stdout }; rejects when the runner
  * cannot be spawned.
  */
-function runTest(argv, cwd, ms, env) {
+function runTest(argv, cwd, ms, env, live) {
   return new Promise((resolve, reject) => {
     let child;
     try {
@@ -89,6 +92,7 @@ function runTest(argv, cwd, ms, env) {
       reject(err);
       return;
     }
+    live.add(child);
     let timedOut = false;
     let code = null;
     let done = false;
@@ -97,10 +101,11 @@ function runTest(argv, cwd, ms, env) {
     const finish = () => {
       if (done) return;
       done = true;
+      live.delete(child);
       resolve({ code: code ?? 1, timedOut, stdout: Buffer.concat(chunks).toString('utf8') });
     };
     const timer = setTimeout(() => { timedOut = true; killGroup(child); }, Math.max(1, ms));
-    child.on('error', (err) => { clearTimeout(timer); done = true; reject(err); });
+    child.on('error', (err) => { clearTimeout(timer); done = true; live.delete(child); reject(err); });
     child.on('exit', (c) => {
       clearTimeout(timer);
       code = c;
@@ -113,27 +118,15 @@ function runTest(argv, cwd, ms, env) {
 }
 
 /**
- * vitest keeps its module cache and its results cache under node_modules,
- * which the worktrees link from the project (AC-19903-5, the stage-keeper's
- * ruling C3): on every vitest invocation, the default argv and an argv
- * override alike (the stage-keeper's rulings R-4 and R-6), the module
- * cache goes to the run's scratch directory and the results cache is off.
- */
-function cacheArgv(runner, scratch) {
-  if (runner.kind !== 'vitest') return [];
-  return [`--fsModuleCachePath=${join(scratch, 'vitest-cache')}`, '--no-cache'];
-}
-
-/**
  * One run of one bound test through its runner, judged: { verdict, timedOut }
  * with verdict pass, fail, loadError, unreadable (no report the audit can
  * read), notRun or ambiguous (and the leaves' names).
  */
-async function runBound(t, { cwd, ms, env, reports, scratch }) {
+async function runBound(t, { cwd, ms, env, reports, live }) {
   const report = t.runner.kind === 'vitest' ? reports.next() : '';
-  const argv = [...runnerArgv(t.runner, t, report), ...cacheArgv(t.runner, scratch)];
+  const argv = runnerArgv(t.runner, t, report);
   try {
-    const r = await runTest(argv, cwd, ms, kindEnv(env, t.runner, cwd));
+    const r = await runTest(argv, cwd, ms, kindEnv(env, t.runner, cwd), live);
     if (r.timedOut) return { verdict: 'timeout', timedOut: true };
     if (t.runner.kind === 'legacy') return { verdict: r.code !== 0 ? 'fail' : 'pass' };
     let reportText = null;
@@ -145,39 +138,92 @@ async function runBound(t, { cwd, ms, env, reports, scratch }) {
   }
 }
 
+// The dot entries of a node_modules directory a working copy links: the
+// package manager's own (binaries, the pnpm store, their manifests). Any
+// other dot entry is a cache and is not linked.
+const LINKED_DOT = new Set(['.bin', '.pnpm', '.modules.yaml', '.package-lock.json']);
+
 /**
- * Make `count` scratch worktrees of `head`, each with the main checkout's
- * node_modules directories linked in (the project's and each ancestor's
- * up to the repository root), so the bound tests resolve the same
- * dependencies. Hooks are off: adding a worktree runs no project code.
+ * Make `count` working copies of `head` in `root` (AC-19903-5): each a
+ * shared clone of the repository (it writes nothing in the project's
+ * .git) checked out detached at `head`, hooks off, so making one runs no
+ * project code. Its node_modules, and each ancestor's up to the
+ * repository root, is a fresh directory holding one link per top-level
+ * entry of the project's (packages, scopes and LINKED_DOT), so the bound
+ * tests resolve the same dependencies and a path any process creates
+ * under node_modules lands in the working copy.
  */
-async function makeWorktrees(git, { count, head, toplevel, prefix, made }) {
+async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, made }) {
   const segs = prefix.split('/').filter(Boolean);
-  for (let i = 0; i < count; i += 1) {
-    const dir = realpathSync(mkdtempSync(join(tmpdir(), 'rcf-test-strength-')));
+  for (let i = 1; i <= count; i += 1) {
+    const dir = join(root, `wc-${i}`);
+    const clone = await git(['clone', '--quiet', '--shared', '--no-checkout', toplevel, dir]);
+    if (clone.code !== 0) throw new Error(`git clone --shared failed: ${clone.stderr.trim()}`);
     made.push(dir);
-    const add = await git(['-c', 'core.hooksPath=/dev/null', 'worktree', 'add', '--detach', '--quiet', dir, head]);
-    if (add.code !== 0) throw new Error(`git worktree add failed: ${add.stderr.trim()}`);
+    const checkout = await git(['-C', dir, '-c', 'core.hooksPath=/dev/null', 'checkout', '--quiet', '--detach', head]);
+    if (checkout.code !== 0) throw new Error(`git checkout failed: ${checkout.stderr.trim()}`);
     for (let k = segs.length; k >= 0; k -= 1) {
       const rel = segs.slice(0, k).join('/');
       const from = join(toplevel, rel, 'node_modules');
       const to = join(dir, rel, 'node_modules');
-      if (existsSync(from) && !existsSync(to)) symlinkSync(from, to, 'junction');
+      if (!existsSync(from) || existsSync(to)) continue;
+      mkdirSync(to, { recursive: true });
+      for (const e of readdirSync(from, { withFileTypes: true })) {
+        if (e.name.startsWith('.') && !LINKED_DOT.has(e.name)) continue;
+        symlinkSync(join(from, e.name), join(to, e.name), e.isFile() ? 'file' : 'junction');
+      }
     }
   }
 }
 
-/** Remove every scratch worktree made, through git; an emptied directory left behind is removed too. */
-async function removeWorktrees(git, made) {
-  const left = [];
-  for (const dir of made) {
-    await git(['worktree', 'remove', '--force', dir]);
-    if (existsSync(dir)) {
-      try { rmdirSync(dir); } catch { left.push(dir); }
+/**
+ * The project tree the backstop compares (AC-19903-6): every path under
+ * `root`, node_modules and every dot directory included, .git excluded;
+ * a directory by its presence, anything else by its size, mtime and inode.
+ *
+ * @returns {Map<string, string>}
+ */
+export function projectTree(root) {
+  const seen = new Map();
+  const walk = (dir, rel) => {
+    let entries;
+    try { entries = readdirSync(dir, { withFileTypes: true }); } catch { return; }
+    for (const e of entries) {
+      if (e.name === '.git') continue;
+      const path = rel ? `${rel}/${e.name}` : e.name;
+      if (e.isDirectory()) {
+        seen.set(path, 'dir');
+        walk(join(dir, e.name), path);
+        continue;
+      }
+      try {
+        const st = lstatSync(join(dir, e.name));
+        seen.set(path, `${st.size}:${st.mtimeMs}:${st.ino}`);
+      } catch {
+        seen.set(path, 'gone');
+      }
     }
-  }
-  await git(['worktree', 'prune']);
-  return left;
+  };
+  walk(root, '');
+  return seen;
+}
+
+/** The first path (in sorted order) new, changed or deleted between two project trees, or null. */
+export function firstMoved(before, after) {
+  const moved = [...after].filter(([path, v]) => before.get(path) !== v).map(([path]) => path);
+  for (const path of before.keys()) if (!after.has(path)) moved.push(path);
+  return moved.sort()[0] ?? null;
+}
+
+/**
+ * On SIGINT or SIGTERM during a run (AC-19903-7): kill the process group
+ * of every bound test run under way, remove the scratch directory with
+ * its working copies, and exit 130 for SIGINT or 143 for SIGTERM.
+ */
+function stopOnSignal(signal, live, scratch) {
+  for (const child of live) killGroup(child);
+  try { rmSync(scratch, { recursive: true, force: true, maxRetries: 5 }); } catch { /* best effort */ }
+  process.exit(signal === 'SIGINT' ? 130 : 143);
 }
 
 /** A bound test the runner did not run, or a name matching several leaves: a whole-run failure (exit 2). */
@@ -209,20 +255,17 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
   const results = new Array(mutants.length);
   if (!mutants.length) return { results, left: [] };
   const made = [];
-  // A signal must not leave a worktree registered: remove synchronously, then exit.
-  const onSignal = (signal) => {
-    for (const dir of made) {
-      try { execFileSync('git', ['worktree', 'remove', '--force', dir], { cwd: toplevel, stdio: 'ignore' }); } catch { /* best effort */ }
-    }
-    process.exit(signal === 'SIGINT' ? 130 : 143);
-  };
+  // The working copies, the runners' temp files and caches, and vitest's
+  // report files stay in one scratch directory of this run. Its name is
+  // short: a runner may open a Unix socket under TMPDIR (tsx does), and
+  // those paths are capped near 108 bytes.
+  const scratch = mkdtempSync(join(tmpdir(), 'rcf-ts-'));
+  const root = realpathSync(scratch);
+  // The bound test runs under way: a signal kills each one's process group.
+  const live = new Set();
+  const onSignal = (signal) => stopOnSignal(signal, live, scratch);
   process.once('SIGINT', onSignal);
   process.once('SIGTERM', onSignal);
-  // The runners' temp files and caches, and vitest's report files, stay
-  // in one scratch directory of this run. Its name is short: a runner may
-  // open a Unix socket under TMPDIR (tsx does), and those paths are capped
-  // near 108 bytes.
-  const scratch = mkdtempSync(join(tmpdir(), 'rcf-ts-'));
   const env = { ...childEnv(), TMPDIR: scratch, TMP: scratch, TEMP: scratch };
   let n = 0;
   const reports = {
@@ -233,11 +276,11 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
   };
   let left = [];
   try {
-    await makeWorktrees(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, made });
+    await makeWorkingCopies(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, root, made });
     let next = 0;
     let failure = null;
     // Workers never reject: the first error stops every worker, and the
-    // worktrees are removed only once all of them have stopped.
+    // scratch is removed only once all of them have stopped.
     const worker = async (dir) => {
       const cwd = join(dir, prefix);
       while (!failure && next < mutants.length) {
@@ -254,7 +297,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
           const deadline = Date.now() + timeoutMs;
           let outcome = { result: 'survived', killedBy: [] };
           for (const t of m.tests) {
-            const ctx = { cwd, env, reports, scratch };
+            const ctx = { cwd, env, reports, live };
             let r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
             if (unmutated && r.verdict === 'notRun' && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
               t.prefix = true;
@@ -281,8 +324,8 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
     await Promise.all(made.map((dir) => worker(dir)));
     if (failure) throw failure;
   } finally {
-    left = await removeWorktrees(git, made);
-    try { rmSync(scratch, { recursive: true, force: true }); } catch { left.push(scratch); }
+    try { rmSync(scratch, { recursive: true, force: true, maxRetries: 5 }); } catch { /* named below */ }
+    if (existsSync(scratch)) left = [scratch];
     process.removeListener('SIGINT', onSignal);
     process.removeListener('SIGTERM', onSignal);
   }
@@ -292,12 +335,12 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
 /**
  * The unmutated run (RC-45, AC-19902-9): before any mutant, run the bound
  * tests of each criterion that reaches the mutation proof once, unmutated,
- * in a scratch worktree of `head`, each through its runner. A bound test
+ * in a working copy of `head`, each through its runner. A bound test
  * red here would kill every mutant, a false PASS. Resolves the first bound
  * test that is not green as `red` ({ acId, test, result, verdict, names }:
  * result notRun when the runner did not run it, else the red verdict;
- * null when every one is green) and the worktrees that could not be
- * removed as `left`.
+ * null when every one is green) and the scratch directory that could not
+ * be removed as `left`.
  *
  * @param {object} opts
  * @param {Array<{ acId: string, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.criteria

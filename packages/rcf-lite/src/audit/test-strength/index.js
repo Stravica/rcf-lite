@@ -36,7 +36,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { NotRunError, runMutants, runUnmutated } from './runner.js';
+import { NotRunError, firstMoved, projectTree, runMutants, runUnmutated } from './runner.js';
 import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
@@ -284,14 +284,24 @@ export async function auditTestStrength({
   // The unmutated run (RC-45): the bound tests of each criterion with a
   // mutant to run, once, before any mutant; a red one stops the run.
   const proved = criteria.filter((c) => c.mutants.some((m) => !m.result));
+  // The backstop (AC-19903-6): the project tree before any bound test runs,
+  // compared after them; a path a bound test run wrote there stops the run.
+  const before = proved.length ? projectTree(projectRoot) : null;
+  const wrote = (left) => {
+    if (!before) return null;
+    const path = firstMoved(before, projectTree(projectRoot));
+    return path === null ? null : fail(2, ...left, `test-strength: a bound test run wrote ${path} in the project`);
+  };
   let unmutated;
   try {
     unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix });
   } catch (err) {
     return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
   }
-  const leftUnmutated = unmutated.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`);
+  const leftUnmutated = unmutated.left.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`);
   if (unmutated.red) {
+    const breach = wrote(leftUnmutated);
+    if (breach) return breach;
     const { acId, test: t, result, verdict, names } = unmutated.red;
     const argv = t.runner.argv.join(' ');
     if (result === 'notRun') return fail(2, ...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`);
@@ -316,7 +326,9 @@ export async function auditTestStrength({
     return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
   }
   runnable.forEach((m, i) => Object.assign(m, run.results[i]));
-  const warn = [...leftUnmutated, ...run.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`)];
+  const warn = [...leftUnmutated, ...run.left.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`)];
+  const breach = wrote(warn);
+  if (breach) return breach;
 
   // The report (TestStrengthReport v1) and the verdict line.
   const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0, blocked: 0 };
