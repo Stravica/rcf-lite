@@ -1,0 +1,68 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "5a880f2f621e03e88aab42b3164299de3f90e67d",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9",
+    "AC-19903-6",
+    "AC-19903-7"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-19904-7",
+      "text": "re-review 3, W F-1 (at 96a8bf87) not closed: the construction holds (no width table, every detail through positionOf src/audit/test-strength/source.js:503, P-POS 84 of 84 in the view and 28 of 28 end to end) but a refusal the width-neutral shadow cannot reproduce still reaches the unplaced detail (stripView :648, returned at :671) and prints the line with column 1: shadowOf (:557) maps every ID_Continue character outside literals to z in both passes (ID_CHAR :544, :583), so a character node refuses as a token start is accepted in the shadow, and a message quoting a non-ASCII identifier differs in it; probes (an entry src/intervals.ts, node bin/rcf.js audit test-strength --acs AC-101-1, exit 2 entry point unreadable): A-POS-6a export const a = U+0301; reads src/intervals.ts:1:1 where node places its caret at 1:18 (Unexpected character), A-POS-6b a lone U+200D after export const a = 1; reads 1:1 for 1:21, A-POS-6c U+0663 starting a token reads 1:1 for 1:18 (view), A-POS-6h a duplicate label U+00FC reads 1:1 for 1:4 (Label is already declared); the criterion places the construct node refusal places, whatever characters precede it on the line (AC-19901-9 too), and ruling 4 pins this path as never reached"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19901-9",
+      "text": "repeat-bug watch, position mapping: when node refuses an input that ends after an operator with nothing open it gives a line and no caret, openAtEnd (src/audit/test-strength/source.js:597) returns -1 and refusalOffset (:611) cannot place it, so the detail is the unplaced <file>:<line>:1; probes A-POS-6f (export const a = 1; then export const b = at the end of input) reads src/intervals.ts:2:1 (Expression expected) end to end and A-POS-6g (export const a = 1 + with no line break) reads 1:1 in the view; the position sentence places an end-of-input error only when the input ends inside a construct (an unclosed bracket, string, template literal or block comment), so it names no position for this refusal and ruling 4 (unstated, never reached) does not hold; state where such a refusal is placed (AC-19904-7 too)"
+    },
+    {
+      "id": "F-3",
+      "locus": "build",
+      "acId": "AC-19903-5",
+      "text": "repeat-bug watch, cache isolation: the backstop compares projectTree(projectRoot) (src/audit/test-strength/index.js:289 to :293, runner.js projectTree :186), the package directory alone, while makeWorkingCopies (runner.js:165 to :176) links each ancestor node_modules up to the repository root, so a bound test writing inside an installed package of an ancestor node_modules passes silently; probe A-CACHE-6: a repository whose root holds node_modules/rootpkg and the project as its subdirectory pkg, a nodeTest bound test writing join(realpathSync(../node_modules/rootpkg), a6.txt); node bin/rcf.js audit test-strength --acs AC-101-1 from pkg exits 0 with the PASS line and the repository gains node_modules/rootpkg/a6.txt; AC-19903-5 asks for no write under an ancestor node_modules up to the repository root, and rulings 6 and 8 accept such a write only as a named exit 2 through the backstop, never a silent breach"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "note, new criterion: the freshness red case of ruling 9 (a mutant of a file vitest already transformed in the same working copy is killed) is not written (the redesign DEFINE QUESTIONS, the BUILD GAPS); probe A-CACHE-4 is clean (pack-vitest-playwright with --jobs 1: 4 of 4 mutants of src/slug.ts killed with the default argv and with an override naming its own --fsModuleCachePath, and with isSlug unasserted its mutants survive after the slugify mutants were killed in the same working copy); add the case"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-19903-7",
+      "text": "note, new criterion: the signal case (test/cli/audit-test-strength.test.js:887) asserts only that the bound test own pid is gone and .git/worktrees is empty; the other processes of each bound test group, two working copies at once (--jobs 2) and the rest of .git are unasserted; probe A-CACHE-5 shows they hold (exit 130 and 143, both groups and their sleep children gone, the scratch removed, .git unchanged)"
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: src/audit/test-strength/index.js:150 still prints \"mutants run in a scratch worktree of HEAD\" (and the comments at index.js:13 and mutants.js:10 say worktree), though mutants now run in shared-clone working copies inside the scratch; state the line"
+    },
+    {
+      "id": "F-7",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: when runUnmutated or runMutants throws an error other than a NotRunError (src/audit/test-strength/index.js:299 and :326) the run exits 2 \"cannot run the bound tests\" with neither the backstop compare nor the scratch warn line (runMutants computes left in its finally at runner.js:327 to :328 and the error propagates), so a scratch left on that path is not named; state what that path reports"
+    }
+  ],
+  "recordedBy": "reviewer, round D RC-46 redesign re-REVIEW",
+  "recordedAt": "2026-10-30T21:23:26.406Z"
+}
