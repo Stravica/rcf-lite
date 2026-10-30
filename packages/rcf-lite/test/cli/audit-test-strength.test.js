@@ -18,12 +18,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { lines, rcf, toolPath } from '../_harness/spawn.js';
+import { BIN, baseEnv, lines, rcf, toolPath } from '../_harness/spawn.js';
 import { commit, git, gitTry, initRepo, s7, sha } from '../_harness/git.js';
 import { bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
@@ -791,9 +792,11 @@ test('AC-19901-9: an entry point of an extension the views cannot read (rcf/test
 // ------------------------------------------- round D fix round 2 (R-1)
 // The re-review verdict at 150ab8ea (FINDINGS/FINDINGS): R-1, its F-1, the
 // first round's F-3 not closed where node's diagnostic carries a line and
-// no caret line under it (an unclosed brace): the detail still gives the
-// line node gives, never 1:1.
-test('AC-19901-9: an entry point the strip view cannot parse whose error carries a line and no caret (src/index.ts with a brace left open, node placing it on line 4) exits 2 with "test-strength: entry point unreadable" and a detail on line 4, never 1:1', async (t) => {
+// no caret line under it (an unclosed brace). Rewritten in the redesign
+// DEFINE to its successor (the stage-keeper's ruling 3 on the design
+// review): when the input ends inside a construct, the detail places it
+// where the innermost construct still open opens.
+test('AC-19901-9: an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with "test-strength: entry point unreadable" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file', async (t) => {
   const { dir } = await strengthProject(t, {
     config: { entry: [{ kind: 'module', path: 'src/index.ts' }], harness: ['test/_harness/**'] },
     files: { 'src/index.ts': L('export function run(n: number): number {', '  const a = n;', '  if (a) {', '    return a;') },
@@ -803,8 +806,137 @@ test('AC-19901-9: an entry point the strip view cannot parse whose error carries
   assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
   const m = /^test-strength: entry point unreadable: src\/index\.ts:(\d+):(\d+): invalid TypeScript syntax \(.+\)$/.exec(line);
   assert.ok(m, `the line carries the detail "<file>:<line>:<col>: invalid TypeScript syntax (...)"\n${line}`);
-  assert.notEqual(`${m[1]}:${m[2]}`, '1:1', `the detail is never 1:1 when node gives a line\n${line}`);
-  assert.equal(Number(m[1]), 4, `the detail gives the line node gives for the unclosed brace, line 4\n${line}`);
-  assert.ok(Number(m[2]) >= 1, `the column is a 1-based column\n${line}`);
+  // "  if (a) {": the brace still open at the end of input is column 10 of line 3.
+  assert.equal(`${m[1]}:${m[2]}`, '3:10', `the detail places the innermost brace still open at the end of input, 3:10\n${line}`);
   assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});
+
+// ------------------------------------------- round D redesign (W's F-1, positions)
+// The second re-review verdict at 09e409f8 (FINDINGS/PASS): W's F-1, the
+// repeat-bug watch on position mapping, and its notes F-3 (the column
+// unit) and F-4 (the column at the end of input), after the stage-keeper's
+// design review and rulings 1 and 3: <line> counts CRLF, a lone CR and LF;
+// <col> counts UTF-16 code units; at the end of input, where the innermost
+// construct still open opens. Each case holds one symbol-level .ts Code
+// Node file the strip view refuses, so the criterion is BLOCKED and its
+// detail is read.
+async function blockedDetailOf(t, text, file = 'src/a.ts') {
+  const { dir } = await strengthProject(t, { files: { [file]: text }, nodes: [[`${file}#run`, ['AC-101-1']]] });
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.equal(c?.result, 'blocked', `AC-101-1 is BLOCKED\n${r.stdout}${r.stderr}`);
+  assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+  return c.detail;
+}
+const placedAt = (detail, at, why) => assert.ok(detail.startsWith(`${at}: `) && /^\S+:\d+:\d+: \S/.test(detail), `${why}: the detail starts "${at}: "\n${detail}`);
+
+// P-R2: U+2705 (node prints it two columns wide) is one UTF-16 unit.
+test('AC-19901-9: a syntax error after a character node prints two columns wide is placed at its column: src/a.ts holding a string literal of U+2705 then const b = ;, the gap at 1:33, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, "export const s = '✅'; const b = ;\n");
+  placedAt(detail, 'src/a.ts:1:33', 'the expression node expects, after U+2705 counted one UTF-16 unit, sits at 1:33');
+});
+
+// P-R3: a combining mark (node prints it with no width) counts one unit.
+test('AC-19901-9: a syntax error after a combining mark is placed at its column: src/a.ts holding a string literal of U+0E01 U+0E31 then const b = ;, the gap at 1:34, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, "export const s = 'กั'; const b = ;\n");
+  placedAt(detail, 'src/a.ts:1:34', 'the combining mark U+0E31 counts one unit, so the gap sits at 1:34');
+});
+
+// P-R4: a lone CR is a line break.
+test('AC-19901-9: a file whose lines end in a lone CR places the error on its line and column: src/a.ts of three CR-ended lines, the gap of the tab-indented const b = ; at 3:12, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, 'export const a = 1;\rexport const c = 2;\r\tconst b = ;\r');
+  placedAt(detail, 'src/a.ts:3:12', 'a lone CR ends a line and the tab counts one unit, so the gap sits at 3:12');
+});
+
+// P-R5: one test, three inputs, one assertion each.
+test('AC-19901-9: a byte order mark, a form feed and a vertical tab count one column each: the gap of const b = ; at 1:19 after a byte order mark, 1:31 after a form feed and 1:31 after a vertical tab, exit 5', async (t) => {
+  placedAt(await blockedDetailOf(t, '﻿export const b = ;\n'), 'src/a.ts:1:19', 'a byte order mark counts one unit');
+  placedAt(await blockedDetailOf(t, 'export const a = 1;\fconst b = ;\n'), 'src/a.ts:1:31', 'a form feed counts one unit and is no line break');
+  placedAt(await blockedDetailOf(t, 'export const a = 1;\vconst b = ;\n'), 'src/a.ts:1:31', 'a vertical tab counts one unit and is no line break');
+});
+
+// P-R7: the end of input inside a template literal.
+test('AC-19901-9: an unterminated template literal is placed where it opens: src/a.ts whose line 2 opens a template literal never closed, 2:18, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, 'export const a = 1;\nexport const t = `abc ${a}\nmore\n');
+  placedAt(detail, 'src/a.ts:2:18', 'the template literal still open at the end of input opens at 2:18');
+});
+
+// P-R8: the end of input inside a block comment.
+test('AC-19901-9: an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, 'export const a = 1;\n/* open\nmore\n');
+  placedAt(detail, 'src/a.ts:2:1', 'the block comment still open at the end of input opens at 2:1');
+});
+
+// ------------------------------------------- round D redesign (F-10, F-14)
+// The first verdict's F-10 (a signal leaves the scratch and no runner
+// group is killed) and F-14 (a scratch that cannot be removed is labelled
+// a worktree), joined to this round by the stage-keeper's ruling 10. The
+// audit makes its scratch under its own TMPDIR (runner.js mkdtemp of
+// tmpdir()), so each case gives the audit a TMPDIR of its own to read.
+
+// Restore write permission under dir, so the case's scratch can be removed.
+function writable(dir) {
+  if (!existsSync(dir)) return;
+  chmodSync(dir, 0o755);
+  for (const e of readdirSync(dir, { withFileTypes: true })) if (e.isDirectory()) writable(join(dir, e.name));
+}
+const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+const until = async (fn, ms) => { const end = Date.now() + ms; while (!fn() && Date.now() < end) await new Promise((r) => setTimeout(r, 100)); return fn(); };
+
+test('AC-19903-7: on SIGINT or SIGTERM while a bound test runs, rcf audit test-strength kills the process group of the bound test run, removes its scratch directory with its working copies, leaves no entry in .git/worktrees of the project and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
+  for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
+    const side = scratch(t, 'rcf-h-sig-');
+    const tmp = join(side, 'tmp');
+    mkdirSync(tmp);
+    const pidFile = join(side, 'pid');
+    // The bound test writes its pid, then waits: the signal lands while it runs.
+    const waiting = testFile([GREETS], { imports: ["import { writeFileSync } from 'node:fs';"], top: [`writeFileSync(${q(pidFile)}, String(process.pid));`, 'await new Promise((r) => setTimeout(r, 60_000));'] });
+    const { dir } = await strengthProject(t, { files: { 'test/rcf/a.test.js': waiting } });
+    const child = spawn(process.execPath, [BIN, 'audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: dir, env: baseEnv({ ...nodeEnv(), TMPDIR: tmp }), stdio: 'ignore' });
+    const exited = new Promise((res) => child.on('exit', (code, sig) => res({ code, sig })));
+    let pid = 0;
+    t.after(() => { if (pid && alive(pid)) process.kill(pid, 'SIGKILL'); });
+    try {
+      assert.ok(await until(() => existsSync(pidFile) && readFileSync(pidFile, 'utf8') !== '', 120_000), `${signal}: the bound test started`);
+      pid = Number(readFileSync(pidFile, 'utf8'));
+      assert.notDeepEqual(readdirSync(tmp), [], `${signal}: while the run is on, the audit's scratch sits in its TMPDIR`);
+      child.kill(signal);
+      const { code, sig } = await exited;
+      assert.equal(code, want, `${signal}: exit ${want} (got code ${code}, signal ${sig})`);
+      assert.deepEqual(readdirSync(tmp), [], `${signal}: the audit's scratch directory, its working copies within it, is removed`);
+      const worktrees = join(dir, '.git', 'worktrees');
+      assert.deepEqual(existsSync(worktrees) ? readdirSync(worktrees) : [], [], `${signal}: no entry is left in the project's .git/worktrees`);
+      assert.equal(await until(() => !alive(pid), 10_000), true, `${signal}: the bound test run's process (pid ${pid}) is killed with its group`);
+    } finally {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      if (pid && alive(pid)) process.kill(pid, 'SIGKILL');
+      writable(tmp);
+    }
+  }
+});
+
+test('AC-19903-5: a scratch directory that cannot be removed is named in one stderr line "[warn] test-strength: scratch directory <dir> could not be removed" (a bound test leaving a directory it made read-only in its TMPDIR, the scratch of the audit)', async (t) => {
+  const side = scratch(t, 'rcf-h-locked-');
+  const tmp = join(side, 'tmp');
+  mkdirSync(tmp);
+  // The bound test's TMPDIR is the audit's scratch: it leaves a directory there whose entries cannot be removed.
+  const locking = testFile([GREETS], {
+    imports: ["import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';", "import { tmpdir } from 'node:os';", "import { join } from 'node:path';"],
+    top: ["mkdirSync(join(tmpdir(), 'locked', 'in'), { recursive: true });", "writeFileSync(join(tmpdir(), 'locked', 'in', 'f.txt'), 'x');", "chmodSync(join(tmpdir(), 'locked'), 0o555);"],
+  });
+  const { dir } = await strengthProject(t, { files: { 'test/rcf/a.test.js': locking } });
+  try {
+    const r = await strength(dir, ['--acs', 'AC-101-1'], { ...nodeEnv(), TMPDIR: tmp });
+    const warns = lines(r.stderr).filter((l) => l.startsWith('[warn] test-strength: scratch'));
+    assert.ok(warns.length > 0, `a scratch directory that cannot be removed is named on stderr\n${r.stdout}${r.stderr}`);
+    for (const w of warns) {
+      const m = /^\[warn\] test-strength: scratch directory (.+) could not be removed$/.exec(w);
+      assert.ok(m, `the line reads "[warn] test-strength: scratch directory <dir> could not be removed"\n${w}`);
+      assert.ok(existsSync(m[1]) && m[1].startsWith(tmp), `the line names the audit's scratch directory, left in its TMPDIR\n${w}`);
+    }
+    assert.equal(new Set(warns).size, warns.length, `each scratch directory is named in one line\n${r.stderr}`);
+  } finally {
+    writable(tmp);
+  }
 });

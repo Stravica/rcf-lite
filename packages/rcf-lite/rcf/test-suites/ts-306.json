@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-10-30T05:26:08.204Z",
+  "updatedAt": "2026-10-30T15:14:45.114Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -120,6 +120,41 @@
       "description": "on a tab-indented line the detail places an enum at its column counted with a tab as one character and names it: enum B on line 2, 2:9, exit 5",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: on a tab-indented line the detail places an enum at its column counted with a tab as one character and names it: enum B on line 2, 2:9, exit 5"
+    },
+    {
+      "id": "TC-306-an-enum-after-an-astral-character-on-its",
+      "acId": "AC-19904-7",
+      "description": "an enum after an astral character on its line is placed at its UTF-16 column and named: a string literal of U+1F680 then export enum E { A }, enum E at 1:31, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: an enum after an astral character on its line is placed at its UTF-16 column and named: a string literal of U+1F680 then export enum E { A }, enum E at 1:31, exit 5"
+    },
+    {
+      "id": "TC-306-a-namespace-after-an-astral-character-is",
+      "acId": "AC-19904-7",
+      "description": "a namespace after an astral character is placed and named: a string literal of U+1F680 then namespace N { ... }, namespace N at 1:24, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a namespace after an astral character is placed and named: a string literal of U+1F680 then namespace N { ... }, namespace N at 1:24, exit 5"
+    },
+    {
+      "id": "TC-306-in-a-vue-script-block-a-syntax-error",
+      "acId": "AC-19904-7",
+      "description": "in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5"
+    },
+    {
+      "id": "TC-306-the-column-counts-utf-16-units-an-emoji",
+      "acId": "AC-19904-7",
+      "description": "the column counts UTF-16 units: an emoji outside the Basic Multilingual Plane counts two: a string literal of U+1F600 then const b = ;, the gap at 1:34, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: the column counts UTF-16 units: an emoji outside the Basic Multilingual Plane counts two: a string literal of U+1F600 then const b = ;, the gap at 1:34, exit 5"
+    },
+    {
+      "id": "TC-306-a-vitest-runners-entry-whose-argv-names",
+      "acId": "AC-19904-3",
+      "description": "a vitest runners entry whose argv names its own --fsModuleCachePath runs, exit 0 with the PASS line, and the project gains nothing",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest runners entry whose argv names its own --fsModuleCachePath runs, exit 0 with the PASS line, and the project gains nothing"
     }
   ],
   "status": "draft"

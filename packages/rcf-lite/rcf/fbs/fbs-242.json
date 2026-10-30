@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:30:11.028Z",
-  "updatedAt": "2026-10-29T14:57:29.538Z",
+  "updatedAt": "2026-10-30T15:15:22.361Z",
   "summary": "Test strength runs each bound test through its declared runner and reads that runner's report, so that TypeScript criteria get the proof JavaScript criteria get (RC-46): bound tests under tsx node:test, vitest and @playwright/test; symbol-level Code Nodes in .ts, .tsx and .vue files and file-level Code Nodes in .vue files (a file-level Code Node on a .ts or .tsx file keeps exit 2); what stays unreadable recorded per criterion as BLOCKED (stage-keeper ruling Q2 (a)).",
   "approach": "Build order (the discovery study, section (4)), one write hand at a time: 1 tsx node:test and .ts Code Nodes (the type-stripped view from node:module stripTypeScriptTypes in strip mode, rewrites spliced into the original .ts at the same offsets; the structural resolver's .ts suffixes and its .js to .ts step for NodeNext specifiers; the callRemoval call-site set widened to .ts; the source refusal rewritten into the per-criterion BLOCKED; the runners list in rcf/test-strength.json; the TAP reader); 2 vitest (kind, the JSON report reader, \" > \" title paths and describe-title prefixes, vi.mock read as a mock); 3 @playwright/test (kind, the JSON report reader, the -g form); 4 .vue first and .tsx as its sibling (a downstream report's finding 1): the SFC script view of <script> and <script setup>, then the JSX scanner blanking each element to a same-length expression, a scan failure unsupported and never a guess. Design (study 2.1 B and 2.2 M2): runners entries { files, kind, argv }, first match wins; kind sets the default argv and the report the verb reads (nodeTest the TAP reporter, vitest and playwright their JSON reporter), argv replaces the whole argv and carries its own reporter flag; no match falls to the legacy runner with today's exit-code rule, else kind nodeTest; the verb never infers a kind. A bound file the runner reports as failed with no leaf of it reported is a load failure: unmutated, the run is red (the AC-19904-6 line); under a mutant, the mutant is killed with loadError. A bound file with no report line at all stays absent, exit 2, never killed or survived. The pointer stays <file>::<name>, <name> the leaf title, the title path with \" > \" between describe titles and test title, or a describe title matched as a prefix of the title path; a leaf naming two tests in one file is exit 2. A blocked criterion carries result blocked, reason TEST_STRENGTH_UNSUPPORTED and a detail naming the file and the construct; the summary line counts blocked criteria; a run with one and no failing criterion exits 5, and when a criterion also fails the fail verdict and its exit 4 win (exit precedence 2 over 4 over 5 over 0); a file-level Code Node on a .ts or .tsx file keeps exit 2 (not a supported source). Tests pin the experimental strip API on the engine floor (package.json engines). No separation change (study 2.5 S1). FBS-240 builds after this spec.",
   "deliverables": [
@@ -27,7 +27,9 @@
     "AC-19904-5",
     "AC-19904-6",
     "AC-19904-7",
-    "AC-19901-9"
+    "AC-19901-9",
+    "AC-19903-6",
+    "AC-19903-7"
   ],
   "fbsId": "FBS-242",
   "prdId": "PRD-001",

@@ -24,8 +24,8 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
-import { delimiter, join, relative, sep } from 'node:path';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { delimiter, dirname, join, relative, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
 import { commit, git, initRepo, s7, s12 } from '../_harness/git.js';
@@ -629,4 +629,187 @@ test('AC-19903-5: a vitest project whose runners entry carries its own argv, aud
   assert.ok(existsSync(join(b.dir, verdictPath(b.H, 'test-strength.json'))), `the record is written at rcf/verdicts/${s12(b.H)}/\n${shown(rec)}`);
   const inVerdicts = (p) => p.startsWith(`rcf/verdicts/${s12(b.H)}/`);
   assert.deepEqual(moved(reviewedTree, tree(b.dir), inVerdicts), [], `with --record no path outside rcf/verdicts/${s12(b.H)}/ is new, changed or deleted\n${shown(rec)}`);
+});
+
+// ------------------------------------------- round D redesign (W's F-1, positions)
+// The second re-review verdict at 09e409f8 (FINDINGS/PASS): W's F-1, the
+// repeat-bug watch on position mapping, after the stage-keeper's design
+// review and its rulings 1 and 3: <col> counts UTF-16 code units from the
+// start of the line, whatever characters precede the construct, and the
+// construct keeps its name; a .vue file's position counts in the .vue
+// file; at the end of input, where the innermost construct still open
+// opens. Each case holds one symbol-level Code Node file the strip view
+// refuses, so the criterion is BLOCKED and its detail is read.
+async function blockedAtHead(t, file, text) {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [[`${file}#run`, ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+    deps: false,
+  });
+  commit(a.dir, 'fixture: a file the strip view refuses', { [file]: text });
+  const r = await strength(a.dir, ['--acs', 'AC-101-1', '--json']);
+  const detail = blockedDetail(r);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${shown(r)}`);
+  return detail;
+}
+const refusedNamed = (detail, at, construct) => {
+  const m = /^(\S+:\d+:\d+): non-erasable TypeScript syntax \((.+)\)$/.exec(detail);
+  assert.ok(m, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)" (ruling F6)\n${detail}`);
+  assert.equal(m[1], at, `the refused construct sits at ${at}, its column counted in UTF-16 code units\n${detail}`);
+  assert.match(m[2], construct, `the construct named is the one strip mode refused\n${detail}`);
+};
+const placedAt = (detail, at, why) => assert.ok(detail.startsWith(`${at}: `) && /^\S+:\d+:\d+: \S/.test(detail), `${why}: the detail starts "${at}: "\n${detail}`);
+
+// P-R1: U+1F680 is two UTF-16 units; node prints it two columns wide too, and the copy of its widths missed it.
+test('AC-19904-7: an enum after an astral character on its line is placed at its UTF-16 column and named: a string literal of U+1F680 then export enum E { A }, enum E at 1:31, exit 5', async (t) => {
+  const detail = await blockedAtHead(t, 'src/a.ts', "export const s = '\u{1F680}'; export enum E { A }\n");
+  refusedNamed(detail, 'src/a.ts:1:31', /enum\b.*\bE\b/);
+});
+
+// P-R6: the same for a namespace.
+test('AC-19904-7: a namespace after an astral character is placed and named: a string literal of U+1F680 then namespace N { ... }, namespace N at 1:24, exit 5', async (t) => {
+  const detail = await blockedAtHead(t, 'src/a.ts', "export const s = '\u{1F680}'; namespace N { export const x = 1; }\n");
+  refusedNamed(detail, 'src/a.ts:1:24', /namespace\b.*\bN\b/);
+});
+
+// P-R9: one test, two inputs, one assertion each.
+test('AC-19904-7: in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5', async (t) => {
+  const vue = await blockedAtHead(t, 'src/a.vue', "<template><p>{{ s }}</p></template>\n<script setup lang=\"ts\">\nexport const s = '✅'; const b = ;\n</script>\n");
+  placedAt(vue, 'src/a.vue:3:33', 'the gap after U+2705 sits at 3:33 of the .vue file');
+  const tpl = await blockedAtHead(t, 'src/a.ts', 'export const t = `a ${[1, 2\n');
+  placedAt(tpl, 'src/a.ts:1:23', 'the bracket still open inside the template expression at the end of input opens at 1:23');
+});
+
+// P-R10, a regression guard (green at the DEFINE head: U+1F600 sits in the
+// width table node's caret is read through): the column counts UTF-16
+// units, so a character outside the Basic Multilingual Plane counts two.
+test('AC-19904-7: the column counts UTF-16 units: an emoji outside the Basic Multilingual Plane counts two: a string literal of U+1F600 then const b = ;, the gap at 1:34, exit 5', async (t) => {
+  const detail = await blockedAtHead(t, 'src/a.ts', "export const s = '\u{1F600}'; const b = ;\n");
+  placedAt(detail, 'src/a.ts:1:34', 'U+1F600 counts two UTF-16 units, so the gap sits at 1:34');
+});
+
+// ------------------------------------------- round D redesign (W's F-2, cache isolation)
+// W's F-2, the repeat-bug watch on cache isolation, after the stage-keeper's
+// design review and its rulings 5 to 9: no write under the project's
+// working tree, node_modules or .git, whatever the runner kind, its own
+// configuration or a runners entry's argv; the audit adds no flag to a
+// runner's argv. Each case runs on the vitest pack (it has a
+// vitest.config.ts, which b-vitest has not) or on a nodeTest project,
+// each with its devDependencies installed, so node_modules is there to
+// be written (round A ruling 8).
+const PACK_UNIT = { files: ['tests/rcf/unit/**'], kind: 'vitest' };
+const VITEST_ARGV = ['vitest', 'run', '<file>', '-t', '<name>', '--reporter=json', '--outputFile=<report>'];
+const packVitest = (t, unit = PACK_UNIT) => packProject(t, 'pack-vitest-playwright', {
+  config: {
+    entry: [{ kind: 'module', path: 'src/slug.ts' }, { kind: 'bin', path: 'src/preview-server.ts' }], harness: ['tests/rcf/helpers/**'],
+    runners: [unit, { files: ['tests/rcf/ui/**'], kind: 'playwright' }],
+  },
+  nodes: [['src/slug.ts#slugify', ['AC-101-1', 'AC-101-2']], ['src/slug.ts#isSlug', ['AC-101-1']], ['src/preview-server.ts#renderPreviewPage', ['AC-101-2']]],
+});
+// The vitest config of the pack with a globalSetup writing under node_modules/.cache.
+const GLOBAL_SETUP = {
+  'vitest.config.ts': "import { defineConfig } from 'vitest/config';\n\nexport default defineConfig({\n  test: {\n    include: ['tests/rcf/unit/**/*.spec.ts'],\n    globalSetup: ['./global-setup.ts'],\n  },\n});\n",
+  'global-setup.ts': "import { mkdirSync, writeFileSync } from 'node:fs';\n\nexport default function setup(): void {\n  mkdirSync('node_modules/.cache/probe', { recursive: true });\n  writeFileSync('node_modules/.cache/probe/g.txt', 'new');\n}\n",
+};
+// The audit of AC-101-1 at head H, without and with --record (at a
+// reviewed head), leaves every path of the project tree, node_modules
+// included, as it was outside rcf/verdicts/<H12>/.
+async function leavesProjectAsIs(dir, H, acId = 'AC-101-1') {
+  const before = tree(dir);
+  const plain = await strength(dir, ['--acs', acId]);
+  assert.equal(plain.code, 0, `the project passes: exit 0\n${shown(plain)}`);
+  assert.deepEqual(moved(before, tree(dir)), [], `without --record no path in the project tree is new, changed or deleted\n${shown(plain)}`);
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: [acId] }) });
+  const reviewedTree = tree(dir);
+  const rec = await strength(dir, ['--acs', acId, '--record']);
+  assert.equal(rec.code, 0, `--record at the reviewed head: exit 0\n${shown(rec)}`);
+  const inVerdicts = (p) => p.startsWith(`rcf/verdicts/${s12(H)}/`);
+  assert.deepEqual(moved(reviewedTree, tree(dir), inVerdicts), [], `with --record no path outside rcf/verdicts/${s12(H)}/ is new, changed or deleted\n${shown(rec)}`);
+}
+
+// C-R1: vite's config bundler writes node_modules/.vite-temp whenever a vitest config exists.
+test('AC-19903-5: a vitest project with a vitest.config.ts, audited with the default argv, gains no path under node_modules, with and without --record', async (t) => {
+  const p = await packVitest(t);
+  await leavesProjectAsIs(p.dir, p.H);
+});
+
+// C-R2: the argv ends in "--", where vitest reads no flag after it.
+test('AC-19903-5: a vitest runners entry whose argv ends in "--" writes no results cache into the project, with and without --record', async (t) => {
+  const p = await packVitest(t, { ...PACK_UNIT, argv: [...VITEST_ARGV, '--'] });
+  await leavesProjectAsIs(p.dir, p.H);
+});
+
+// C-R3: a shell launcher, whose argv the audit cannot parse.
+test('AC-19903-5: a vitest runners entry run through sh -c writes nothing into the project, with and without --record', async (t) => {
+  const p = await packVitest(t, { ...PACK_UNIT, argv: ['sh', '-c', 'exec vitest run "$1" -t "$2" --reporter=json --outputFile="$3"', 'sh', '<file>', '<name>', '<report>'] });
+  await leavesProjectAsIs(p.dir, p.H);
+});
+
+// C-R4: project code the runner runs (a globalSetup) writes under node_modules.
+test('AC-19903-5: a vitest config whose globalSetup writes under node_modules/.cache leaves the project unchanged, with and without --record', async (t) => {
+  const p = await packVitest(t);
+  const H = commit(p.dir, 'fixture: a globalSetup', GLOBAL_SETUP);
+  await leavesProjectAsIs(p.dir, H);
+});
+
+// C-R5: not vitest at all: a nodeTest bound test writes under node_modules and beside node_modules' real path.
+test('AC-19903-5: a nodeTest bound test writing under node_modules and beside the real path of node_modules leaves the project unchanged, with and without --record', async (t) => {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+  });
+  const H = commit(a.dir, 'fixture: a bound test that writes', {
+    'test/totals.test.ts': `import { mkdirSync, realpathSync, writeFileSync } from 'node:fs';\nimport { dirname, join } from 'node:path';\n${readFileSync(join(a.dir, 'test', 'totals.test.ts'), 'utf8')}\nmkdirSync('node_modules/.cache/x', { recursive: true });\nwriteFileSync('node_modules/.cache/x/n.txt', 'n');\nwriteFileSync(join(dirname(realpathSync('node_modules')), 'escape.txt'), 'e');\n`,
+  });
+  await leavesProjectAsIs(a.dir, H);
+});
+
+// C-R6: the audit adds no flag, so an override naming its own cache flag runs as written.
+test('AC-19904-3: a vitest runners entry whose argv names its own --fsModuleCachePath runs, exit 0 with the PASS line, and the project gains nothing', async (t) => {
+  const p = await packVitest(t, { ...PACK_UNIT, argv: [...VITEST_ARGV, '--fsModuleCachePath=node_modules/.own-cache'] });
+  const before = tree(p.dir);
+  const r = await strength(p.dir, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 0, `an override naming its own cache flag runs as written: exit 0\n${shown(r)}`);
+  assert.match(out(r), passAny(p.H), `the PASS line\n${shown(r)}`);
+  assert.deepEqual(moved(before, tree(p.dir)), [], `no path in the project tree is new, changed or deleted\n${shown(r)}`);
+});
+
+// C-R7: a cache file the project already holds is not rewritten through the link.
+test('AC-19903-5: a cache file the project already holds under node_modules is not rewritten by a bound test run, with and without --record', async (t) => {
+  const p = await packVitest(t);
+  const H = commit(p.dir, 'fixture: a globalSetup', GLOBAL_SETUP);
+  const held = join(p.dir, 'node_modules', '.cache', 'probe', 'g.txt');
+  mkdirSync(dirname(held), { recursive: true });
+  writeFileSync(held, 'old');
+  await leavesProjectAsIs(p.dir, H);
+  assert.equal(readFileSync(held, 'utf8'), 'old', 'the project\'s own node_modules/.cache/probe/g.txt still reads "old"');
+});
+
+// ------------------------------------------- round D redesign (the backstop)
+// The stage-keeper's rulings 6 to 8: what no working copy can keep out of
+// the project (a bound test's own write to an absolute project path) is
+// reported, never a silent pass.
+test('AC-19903-6: a bound test writing a file at an absolute path in the project exits 2 with "test-strength: a bound test run wrote <path> in the project" naming it, and records nothing even with --record', async (t) => {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+  });
+  const escaped = join(a.dir, 'escape.txt');
+  const H = commit(a.dir, 'fixture: a bound test writing an absolute project path', {
+    'test/totals.test.ts': `import { writeFileSync } from 'node:fs';\n${readFileSync(join(a.dir, 'test', 'totals.test.ts'), 'utf8')}\nwriteFileSync(${q(escaped)}, 'e');\n`,
+  });
+  const wrote = (r) => {
+    const m = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
+    assert.ok(m, `stderr carries "test-strength: a bound test run wrote <path> in the project"\n${shown(r)}`);
+    assert.ok(m[1].endsWith('escape.txt'), `the line names escape.txt\n${m[0]}`);
+  };
+  const plain = await strength(a.dir, ['--acs', 'AC-101-1']);
+  assert.equal(plain.code, 2, `a bound test run wrote in the project: exit 2\n${shown(plain)}`);
+  wrote(plain);
+  rmSync(escaped, { force: true });
+  commit(a.dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: ['AC-101-1'] }) });
+  const rec = await strength(a.dir, ['--acs', 'AC-101-1', '--record']);
+  assert.equal(rec.code, 2, `with --record: exit 2\n${shown(rec)}`);
+  wrote(rec);
+  assert.equal(existsSync(join(a.dir, verdictPath(H, 'test-strength.json'))), false, `nothing is recorded\n${shown(rec)}`);
 });

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-10-30T05:26:06.729Z",
+  "updatedAt": "2026-10-30T15:14:36.098Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -98,9 +98,51 @@
     {
       "id": "TC-282-an-entry-point-whose-error-carries-a-line",
       "acId": "AC-19901-9",
-      "description": "an entry point the strip view cannot parse whose error carries a line and no caret (src/index.ts with a brace left open, node placing it on line 4) exits 2 with \"test-strength: entry point unreadable\" and a detail on line 4, never 1:1",
+      "description": "an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with \"test-strength: entry point unreadable\" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse whose error carries a line and no caret (src/index.ts with a brace left open, node placing it on line 4) exits 2 with \"test-strength: entry point unreadable\" and a detail on line 4, never 1:1"
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with \"test-strength: entry point unreadable\" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file"
+    },
+    {
+      "id": "TC-282-a-syntax-error-after-a-character-node",
+      "acId": "AC-19901-9",
+      "description": "a syntax error after a character node prints two columns wide is placed at its column: src/a.ts holding a string literal of U+2705 then const b = ;, the gap at 1:33, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a syntax error after a character node prints two columns wide is placed at its column: src/a.ts holding a string literal of U+2705 then const b = ;, the gap at 1:33, exit 5"
+    },
+    {
+      "id": "TC-282-a-syntax-error-after-a-combining-mark-is",
+      "acId": "AC-19901-9",
+      "description": "a syntax error after a combining mark is placed at its column: src/a.ts holding a string literal of U+0E01 U+0E31 then const b = ;, the gap at 1:34, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a syntax error after a combining mark is placed at its column: src/a.ts holding a string literal of U+0E01 U+0E31 then const b = ;, the gap at 1:34, exit 5"
+    },
+    {
+      "id": "TC-282-a-file-whose-lines-end-in-a-lone-cr",
+      "acId": "AC-19901-9",
+      "description": "a file whose lines end in a lone CR places the error on its line and column: src/a.ts of three CR-ended lines, the gap of the tab-indented const b = ; at 3:12, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a file whose lines end in a lone CR places the error on its line and column: src/a.ts of three CR-ended lines, the gap of the tab-indented const b = ; at 3:12, exit 5"
+    },
+    {
+      "id": "TC-282-a-byte-order-mark-a-form-feed-and-a",
+      "acId": "AC-19901-9",
+      "description": "a byte order mark, a form feed and a vertical tab count one column each: the gap of const b = ; at 1:19 after a byte order mark, 1:31 after a form feed and 1:31 after a vertical tab, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a byte order mark, a form feed and a vertical tab count one column each: the gap of const b = ; at 1:19 after a byte order mark, 1:31 after a form feed and 1:31 after a vertical tab, exit 5"
+    },
+    {
+      "id": "TC-282-an-unterminated-template-literal-is",
+      "acId": "AC-19901-9",
+      "description": "an unterminated template literal is placed where it opens: src/a.ts whose line 2 opens a template literal never closed, 2:18, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an unterminated template literal is placed where it opens: src/a.ts whose line 2 opens a template literal never closed, 2:18, exit 5"
+    },
+    {
+      "id": "TC-282-an-unterminated-block-comment-is-placed",
+      "acId": "AC-19901-9",
+      "description": "an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5"
     }
   ],
   "status": "draft"

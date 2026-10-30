@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-10-26T00:07:42.180Z",
+  "updatedAt": "2026-10-30T15:10:49.974Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -41,7 +41,19 @@
     },
     {
       "id": "AC-19903-5",
-      "description": "[must-not] rcf audit test-strength never deploys, never opens a network connection of its own and never writes outside rcf/verdicts/<H12>/ in the project, with or without --record; a malformed rcf/test-strength.json (unparsable, an entry kind outside bin, module and worker, or an empty harness list) exits 2 naming the field and runs no test.",
+      "description": "[must-not] rcf audit test-strength never deploys, never opens a network connection of its own and never writes outside rcf/verdicts/<H12>/ in the project, with or without --record: not in its working tree, not under its node_modules or an ancestor's up to the repository root, and not in its .git, whatever the runner kind, the runner's own configuration (a vitest or playwright config, a globalSetup) or a `runners` entry's `argv` (a trailing `--`, a shell launcher) leads a bound test run to write there by creating a path; every bound test runs in a working copy of HEAD the audit makes in its own scratch directory, whose node_modules directory is the audit's own, its entries linking the project's installed packages; a scratch directory that cannot be removed is named in one stderr line \"[warn] test-strength: scratch directory <dir> could not be removed\"; a malformed rcf/test-strength.json (unparsable, an entry kind outside bin, module and worker, or an empty harness list) exits 2 naming the field and runs no test.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-6",
+      "description": "[failure] Given a bound test that writes a file at an absolute path inside the project outside rcf/verdicts/<H12>/, when `rcf audit test-strength` runs, then it compares the project tree (node_modules and every dot directory included, .git excluded) before and after the bound test runs, exits 2 with a stderr line \"test-strength: a bound test run wrote <path> in the project\" naming the first such path, and records nothing even with --record.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-7",
+      "description": "[failure] On SIGINT or SIGTERM during a run, `rcf audit test-strength` kills the process group of every bound test run it started, removes its scratch directory (its working copies within it), leaves no entry in the project's .git, and exits 130 for SIGINT or 143 for SIGTERM.",
       "testable": true,
       "verification": "external"
     }
