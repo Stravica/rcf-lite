@@ -482,20 +482,62 @@ function strip(text) {
 }
 
 /**
- * Where node:module's strip-mode error places the construct it met, as
- * 1-based { line, col }: its stack opens ":<line>" and shows that source
- * line with a caret line under the construct. Null when the stack
- * carries no position.
+ * The 1-based line node:module's strip-mode error gives: its stack opens
+ * ":<line>". Null when the stack carries no line.
  *
  * @param {unknown} err
+ * @returns {number|null}
+ */
+export function diagnosticLine(err) {
+  const head = /:(\d+)$/.exec(String(err?.stack ?? '').split('\n')[0]);
+  return head ? Number(head[1]) : null;
+}
+
+// Display columns of a character in node's caret line: a combining mark
+// none, a wide (East Asian or emoji) character two, anything else one.
+const ZERO_WIDTH = [[0x0300, 0x036f], [0x200b, 0x200f], [0xfe00, 0xfe0f], [0xfe20, 0xfe2f]];
+const WIDE = [[0x1100, 0x115f], [0x2e80, 0x303e], [0x3041, 0x33ff], [0x3400, 0x4dbf], [0x4e00, 0x9fff], [0xa000, 0xa4cf], [0xac00, 0xd7a3], [0xf900, 0xfaff], [0xfe30, 0xfe4f], [0xff00, 0xff60], [0xffe0, 0xffe6], [0x1f300, 0x1f64f], [0x1f900, 0x1f9ff], [0x20000, 0x3fffd]];
+const within = (cp, ranges) => ranges.some(([lo, hi]) => cp >= lo && cp <= hi);
+const widthOf = (cp) => (within(cp, ZERO_WIDTH) ? 0 : within(cp, WIDE) ? 2 : 1);
+
+/**
+ * The 1-based column, counted in the characters of the source line (a
+ * tab as one, as lineCol counts), of a 0-based display column of node's
+ * caret line, which prints each tab to the next stop of four columns.
+ */
+export function sourceColumn(line, display) {
+  let w = 0;
+  let i = 0;
+  while (i < line.length && w < display) {
+    const cp = line.codePointAt(i);
+    w = cp === 9 ? w + 4 - (w % 4) : w + widthOf(cp);
+    i += cp > 0xffff ? 2 : 1;
+  }
+  return i + 1;
+}
+
+/** The 1-based line of text, without its line break. */
+const textLine = (text, line) => (text.split('\n')[line - 1] ?? '').replace(/\r$/, '');
+
+/**
+ * Where node:module's strip-mode error places the construct it met, as
+ * 1-based { line, col }: its stack opens ":<line>" and shows that source
+ * line with a caret line under the construct. Given the source text, the
+ * column counts the characters of the source line, a tab as one (the
+ * stage-keeper's ruling on R-3); without it, the caret's own column.
+ * Null when the stack carries no caret.
+ *
+ * @param {unknown} err
+ * @param {string} [text]
  * @returns {{ line: number, col: number }|null}
  */
-export function diagnosticAt(err) {
+export function diagnosticAt(err, text) {
   const lines = String(err?.stack ?? '').split('\n');
-  const head = /:(\d+)$/.exec(lines[0] ?? '');
+  const line = diagnosticLine(err);
   const caret = lines.findIndex((l, i) => i > 1 && /^\s*\^+\s*$/.test(l));
-  if (!head || caret < 0) return null;
-  return { line: Number(head[1]), col: lines[caret].indexOf('^') + 1 };
+  if (line === null || caret < 0) return null;
+  const display = lines[caret].indexOf('^');
+  return { line, col: typeof text === 'string' ? sourceColumn(textLine(text, line), display) : display + 1 };
 }
 
 /** The offset of a 1-based line and column in text. */
@@ -514,7 +556,7 @@ function stripView(file, text) {
   try {
     return { ok: true, text: strip(text) };
   } catch (err) {
-    const pos = diagnosticAt(err);
+    const pos = diagnosticAt(err, text);
     if (err?.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
       const { tokens } = parseSource(text);
       const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
@@ -536,7 +578,15 @@ function stripView(file, text) {
       }
       return { ok: false, detail: `${file}:1:1: non-erasable TypeScript syntax (${what})` };
     }
-    if (err?.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX') return { ok: false, detail: `${file}:${pos ? `${pos.line}:${pos.col}` : '1:1'}: invalid TypeScript syntax (${err.message})` };
+    if (err?.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX') {
+      // A line and no caret (the input ends inside a construct, or the
+      // span runs over several lines): node's line (the stage-keeper's
+      // ruling on R-1), and, node giving no column, the column one past
+      // that line's last character.
+      const line = diagnosticLine(err);
+      const at = pos ?? (line === null ? { line: 1, col: 1 } : { line, col: textLine(text, line).length + 1 });
+      return { ok: false, detail: `${file}:${at.line}:${at.col}: invalid TypeScript syntax (${err.message})` };
+    }
     throw err;
   }
 }
