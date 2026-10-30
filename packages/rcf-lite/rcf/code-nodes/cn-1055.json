@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1055",
+  "path": "src/audit/test-strength/runner.js#stopOnSignal",
+  "implementsAcIds": [
+    "AC-19903-7"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-30T17:24:00.011Z",
+  "updatedAt": "2026-10-30T17:24:00.011Z"
+}
