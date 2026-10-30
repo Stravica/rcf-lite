@@ -90,7 +90,8 @@ rcf/test-strength.json (required; written by the test-author):
   runner alone, never a type checker. <name> is the pointer's name
   filter: nodeTest an escaped ^name$; vitest the title path joined by
   " > ", ^...$ for a leaf or a path, ^prefix for a describe title;
-  playwright the title path space-joined and $-anchored. A pointer
+  playwright the title path space-joined, $-anchored for a leaf or a
+  path, and for a describe title followed by a space with no $. A pointer
   <file>::<name> names the leaf title, the title path ("describe > test")
   or a describe title (run when a leaf under it ran, failed when any
   leaf under it failed). An entry is malformed (exit 2, naming

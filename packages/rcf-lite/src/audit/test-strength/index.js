@@ -207,7 +207,8 @@ export async function auditTestStrength({
   // Everything is read at HEAD, as text.
   const tree0 = await git(['ls-tree', '-r', '--name-only', 'HEAD']);
   const files = new Set(tree0.stdout.split('\n').filter(Boolean));
-  const entryPaths = config.entry.map((e) => posix.normalize(e.path)).filter((p) => !SOURCE_EXT.test(p) && READ_EXT.test(p));
+  // Every entry but plain JavaScript is judged, an extension the views cannot read included.
+  const entryPaths = config.entry.map((e) => posix.normalize(e.path)).filter((p) => !SOURCE_EXT.test(p) && posix.extname(p) !== '');
   const wanted = [...new Set(['package.json', ...entryPaths, ...criteria.flatMap((c) => [...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path).file)])])];
   const texts = new Map();
   (await readObjects(git, wanted.map((p) => `HEAD:./${p}`))).forEach((blob, i) => texts.set(wanted[i], blob.missing ? null : blob.text));

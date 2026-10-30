@@ -107,13 +107,25 @@ function runTest(argv, cwd, ms, env) {
 }
 
 /**
+ * vitest keeps its module cache and its results cache under node_modules,
+ * which the worktrees link from the project (AC-19903-5, the stage-keeper's
+ * ruling C3): under the default argv the module cache goes to the run's
+ * scratch directory and the results cache is off; an argv override keeps
+ * its own choices.
+ */
+function cacheArgv(runner, scratch) {
+  if (runner.kind !== 'vitest' || runner.override) return [];
+  return [`--fsModuleCachePath=${join(scratch, 'vitest-cache')}`, '--no-cache'];
+}
+
+/**
  * One run of one bound test through its runner, judged: { verdict, timedOut }
  * with verdict pass, fail, loadError, unreadable (no report the audit can
  * read), notRun or ambiguous (and the leaves' names).
  */
-async function runBound(t, { cwd, ms, env, reports }) {
+async function runBound(t, { cwd, ms, env, reports, scratch }) {
   const report = t.runner.kind === 'vitest' ? reports.next() : '';
-  const argv = runnerArgv(t.runner, t, report);
+  const argv = [...runnerArgv(t.runner, t, report), ...cacheArgv(t.runner, scratch)];
   try {
     const r = await runTest(argv, cwd, ms, kindEnv(env, t.runner, cwd));
     if (r.timedOut) return { verdict: 'timeout', timedOut: true };
@@ -236,7 +248,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
           const deadline = Date.now() + timeoutMs;
           let outcome = { result: 'survived', killedBy: [] };
           for (const t of m.tests) {
-            const ctx = { cwd, env, reports };
+            const ctx = { cwd, env, reports, scratch };
             let r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
             if (unmutated && r.verdict === 'notRun' && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
               t.prefix = true;

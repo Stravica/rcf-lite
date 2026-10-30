@@ -482,16 +482,53 @@ function strip(text) {
 }
 
 /**
+ * Where node:module's strip-mode error places the construct it met, as
+ * 1-based { line, col }: its stack opens ":<line>" and shows that source
+ * line with a caret line under the construct. Null when the stack
+ * carries no position.
+ *
+ * @param {unknown} err
+ * @returns {{ line: number, col: number }|null}
+ */
+export function diagnosticAt(err) {
+  const lines = String(err?.stack ?? '').split('\n');
+  const head = /:(\d+)$/.exec(lines[0] ?? '');
+  const caret = lines.findIndex((l, i) => i > 1 && /^\s*\^+\s*$/.test(l));
+  if (!head || caret < 0) return null;
+  return { line: Number(head[1]), col: lines[caret].indexOf('^') + 1 };
+}
+
+/** The offset of a 1-based line and column in text. */
+function offsetOf(text, { line, col }) {
+  let at = 0;
+  for (let l = 1; l < line; l += 1) at = text.indexOf('\n', at) + 1;
+  return at + col - 1;
+}
+
+/**
  * The strip-mode view of TypeScript text, or the refusal: "<file>:<line>:<col>:
- * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6).
+ * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6),
+ * at the position node's diagnostic gives (the stage-keeper's rulings D3 and C1).
  */
 function stripView(file, text) {
   try {
     return { ok: true, text: strip(text) };
   } catch (err) {
+    const pos = diagnosticAt(err);
     if (err?.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
       const { tokens } = parseSource(text);
       const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
+      if (pos) {
+        // The construct node refused, named from the token at its position
+        // (a parameter property's caret sits on the name after its modifier).
+        const i = tokens.findIndex((t) => t.start === offsetOf(text, pos));
+        let named = what;
+        for (const [re, is, name] of NON_ERASABLE) {
+          const k = i < 0 || !re.test(err.message) ? undefined : [i, i - 1].find((j) => j >= 0 && is(tokens, j));
+          if (k !== undefined) { named = name(tokens, k); break; }
+        }
+        return { ok: false, detail: `${file}:${pos.line}:${pos.col}: non-erasable TypeScript syntax (${named})` };
+      }
       for (const [re, at, name] of NON_ERASABLE) {
         if (!re.test(err.message)) continue;
         const k = tokens.findIndex((_, i) => at(tokens, i));
@@ -499,7 +536,7 @@ function stripView(file, text) {
       }
       return { ok: false, detail: `${file}:1:1: non-erasable TypeScript syntax (${what})` };
     }
-    if (err?.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX') return { ok: false, detail: `${file}:1:1: invalid TypeScript syntax (${err.message})` };
+    if (err?.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX') return { ok: false, detail: `${file}:${pos ? `${pos.line}:${pos.col}` : '1:1'}: invalid TypeScript syntax (${err.message})` };
     throw err;
   }
 }
@@ -524,7 +561,7 @@ function sfcView(file, text) {
   while ((m = open.exec(text))) {
     const attrs = m[1];
     const at = `${file}:${lineCol(text, m.index)}`;
-    if (/\bsrc\s*=/i.test(attrs)) return { ok: false, detail: `${at}: a <script> block with a src attribute` };
+    if (/(?:^|\s)src\s*=/i.test(attrs)) return { ok: false, detail: `${at}: a <script> block with a src attribute` };
     const lang = (/\blang\s*=\s*["']([^"']*)["']/i.exec(attrs)?.[1] ?? 'js').toLowerCase();
     if (!['js', 'ts', 'tsx'].includes(lang)) return { ok: false, detail: `${at}: a <script lang="${lang}"> block` };
     langs.add(lang);
