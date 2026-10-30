@@ -40,20 +40,33 @@ const OPENERS = { '(': ')', '[': ']', '{': '}' };
 const CLOSERS = new Set([')', ']', '}']);
 
 /**
- * Skip a template literal from just after its opening backtick; returns
- * the index after its closing backtick. `${...}` expressions are skipped
- * with the tokenizer itself, so strings and braces inside them are safe.
+ * Skip a template literal from just after its opening backtick (`at`).
+ * `${...}` expressions are read with the tokenizer itself, so strings and
+ * braces inside them are safe, and their tokens are kept as `inner`
+ * ({ start, end, tokens } per expression). Returns { end, inner, open }:
+ * end the index after the closing backtick; open, when the input ends
+ * inside the template, where the innermost construct still open opens.
  */
 function skipTemplate(text, at) {
+  const inner = [];
   let i = at;
   while (i < text.length) {
     const ch = text[i];
     if (ch === '\\') { i += 2; continue; }
-    if (ch === '`') return i + 1;
-    if (ch === '$' && text[i + 1] === '{') { i = lex(text, i + 2, true).end; continue; }
+    if (ch === '`') return { end: i + 1, inner };
+    if (ch === '$' && text[i + 1] === '{') {
+      const r = lex(text, i + 2, true);
+      inner.push({ start: i + 2, end: r.closed ? r.end - 1 : r.end, tokens: r.tokens });
+      if (!r.closed) {
+        const brackets = pairBrackets(r.tokens).open;
+        return { end: text.length, inner, open: r.open ?? (brackets.length ? r.tokens[brackets[brackets.length - 1]].start : at - 1) };
+      }
+      i = r.end;
+      continue;
+    }
     i += 1;
   }
-  return text.length;
+  return { end: text.length, inner, open: at - 1 };
 }
 
 function regexAllowed(prev) {
@@ -65,9 +78,12 @@ function regexAllowed(prev) {
 
 /**
  * Tokenize from `start`. With `nested` (a template expression) it stops
- * at the first unmatched "}" and returns the index after it.
+ * at the first unmatched "}" and returns the index after it (closed).
+ * A template token carries the tokens of its expressions (`inner`).
+ * When the input ends inside a block comment, a string or a template
+ * literal, `open` is where the innermost construct still open opens.
  *
- * @returns {{ tokens: Array<{ type: string, text: string, start: number, end: number, nl: boolean }>, end: number }}
+ * @returns {{ tokens: Array<{ type: string, text: string, start: number, end: number, nl: boolean, inner?: object[] }>, end: number, closed?: boolean, open?: number }}
  */
 function lex(text, start, nested) {
   const tokens = [];
@@ -75,6 +91,7 @@ function lex(text, start, nested) {
   let i = start;
   let nl = false;
   let depth = 0;
+  let open;
   if (!nested && i === 0 && text.startsWith('#!')) {
     while (i < n && text[i] !== '\n') i += 1;
   }
@@ -89,20 +106,26 @@ function lex(text, start, nested) {
     if (c === '/' && text[i + 1] === '*') {
       const close = text.indexOf('*/', i + 2);
       const end = close < 0 ? n : close + 2;
+      if (close < 0) open = i;
       if (/[\n\r\u2028\u2029]/.test(text.slice(i, end))) nl = true;
       i = end;
       continue;
     }
     const s = i;
     let type;
+    let inner;
     if (c === '"' || c === "'") {
       i += 1;
       while (i < n && text[i] !== c && text[i] !== '\n') i += text[i] === '\\' ? 2 : 1;
+      if (i >= n) open = s;
       i += 1;
       type = 'str';
     } else if (c === '`') {
-      i = skipTemplate(text, i + 1);
+      const r = skipTemplate(text, i + 1);
+      i = r.end;
+      if (r.open !== undefined) open = r.open;
       type = 'tpl';
+      inner = r.inner;
     } else if (ID_START.test(c) || (c === '#' && ID_START.test(text[i + 1] ?? ''))) {
       i += 1;
       while (i < n && ID_PART.test(text[i])) i += 1;
@@ -133,25 +156,23 @@ function lex(text, start, nested) {
       if (nested) {
         if (c === '{') depth += 1;
         if (c === '}') {
-          if (depth === 0) return { tokens, end: i };
+          if (depth === 0) return { tokens, end: i, closed: true };
           depth -= 1;
         }
       }
     }
-    tokens.push({ type, text: text.slice(s, i), start: s, end: i, nl });
+    tokens.push(inner ? { type, text: text.slice(s, i), start: s, end: i, nl, inner } : { type, text: text.slice(s, i), start: s, end: i, nl });
     nl = false;
   }
-  return { tokens, end: n };
+  return { tokens, end: n, closed: false, open };
 }
 
 /**
- * Tokenize one source file, with each bracket's partner (`match`) and
- * each token's bracket depth (`depth`).
- *
- * @param {string} text
+ * Pair the brackets of a token list: each bracket's partner (`match`),
+ * each token's bracket depth (`depth`), and the openers still unmatched
+ * at the end (`open`, token indices, innermost last).
  */
-export function parseSource(text) {
-  const { tokens } = lex(text, 0, false);
+function pairBrackets(tokens) {
   const match = new Array(tokens.length).fill(-1);
   const depth = new Array(tokens.length).fill(0);
   const stack = [];
@@ -166,6 +187,18 @@ export function parseSource(text) {
       depth[i] = stack.length;
     }
   });
+  return { match, depth, open: stack };
+}
+
+/**
+ * Tokenize one source file, with each bracket's partner (`match`) and
+ * each token's bracket depth (`depth`).
+ *
+ * @param {string} text
+ */
+export function parseSource(text) {
+  const { tokens } = lex(text, 0, false);
+  const { match, depth } = pairBrackets(tokens);
   return { text, tokens, match, depth };
 }
 
@@ -455,12 +488,31 @@ const JSX_EXT = /\.(?:tsx|jsx)$/;
 // Every file the audit reads: JavaScript, and TypeScript, JSX and Vue as US-19904 rules.
 export const READ_EXT = /\.(?:js|mjs|cjs|ts|mts|cts|tsx|jsx|vue)$/;
 
-/** 1-based line and column of an offset. */
-function lineCol(text, at) {
-  const before = text.slice(0, at);
-  const line = before.split('\n').length;
-  return `${line}:${at - before.lastIndexOf('\n')}`;
+/**
+ * The 1-based line and column of an offset (the stage-keeper's ruling 1):
+ * `line` counts the line breaks wholly before the offset, a line break
+ * being CRLF (one), a lone CR or LF (U+2028, U+2029, VT and FF are not);
+ * `col` counts UTF-16 code units from the start of that line, every unit
+ * one (a tab, a byte order mark, a combining mark, each half of a
+ * surrogate pair).
+ *
+ * @param {string} text
+ * @param {number} offset
+ * @returns {{ line: number, col: number }}
+ */
+export function positionOf(text, offset) {
+  let line = 1;
+  let start = 0;
+  for (let i = 0; i < offset; i += 1) {
+    const c = text[i];
+    if (c === '\n') { line += 1; start = i + 1; } else if (c === '\r') {
+      if (text[i + 1] !== '\n') { line += 1; start = i + 1; } else if (i + 1 < offset) { line += 1; start = i + 2; i += 1; }
+    }
+  }
+  return { line, col: offset - start + 1 };
 }
+
+const lineCol = (text, at) => { const p = positionOf(text, at); return `${p.line}:${p.col}`; };
 
 // The construct each strip-mode refusal names, found by its first token.
 const NON_ERASABLE = [
@@ -481,113 +533,142 @@ function strip(text) {
   }
 }
 
-/**
- * The 1-based line node:module's strip-mode error gives: its stack opens
- * ":<line>". Null when the stack carries no line.
- *
- * @param {unknown} err
- * @returns {number|null}
- */
-export function diagnosticLine(err) {
-  const head = /:(\d+)$/.exec(String(err?.stack ?? '').split('\n')[0]);
-  return head ? Number(head[1]) : null;
-}
-
-// Display columns of a character in node's caret line: a combining mark
-// none, a wide (East Asian or emoji) character two, anything else one.
-const ZERO_WIDTH = [[0x0300, 0x036f], [0x200b, 0x200f], [0xfe00, 0xfe0f], [0xfe20, 0xfe2f]];
-const WIDE = [[0x1100, 0x115f], [0x2e80, 0x303e], [0x3041, 0x33ff], [0x3400, 0x4dbf], [0x4e00, 0x9fff], [0xa000, 0xa4cf], [0xac00, 0xd7a3], [0xf900, 0xfaff], [0xfe30, 0xfe4f], [0xff00, 0xff60], [0xffe0, 0xffe6], [0x1f300, 0x1f64f], [0x1f900, 0x1f9ff], [0x20000, 0x3fffd]];
-const within = (cp, ranges) => ranges.some(([lo, hi]) => cp >= lo && cp <= hi);
-const widthOf = (cp) => (within(cp, ZERO_WIDTH) ? 0 : within(cp, WIDE) ? 2 : 1);
-
-/**
- * The 1-based column, counted in the characters of the source line (a
- * tab as one, as lineCol counts), of a 0-based display column of node's
- * caret line, which prints each tab to the next stop of four columns.
- */
-export function sourceColumn(line, display) {
-  let w = 0;
-  let i = 0;
-  while (i < line.length && w < display) {
-    const cp = line.codePointAt(i);
-    w = cp === 9 ? w + 4 - (w % 4) : w + widthOf(cp);
-    i += cp > 0xffff ? 2 : 1;
-  }
-  return i + 1;
-}
-
-/** The 1-based line of text, without its line break. */
-const textLine = (text, line) => (text.split('\n')[line - 1] ?? '').replace(/\r$/, '');
-
-/**
- * Where node:module's strip-mode error places the construct it met, as
- * 1-based { line, col }: its stack opens ":<line>" and shows that source
- * line with a caret line under the construct. Given the source text, the
- * column counts the characters of the source line, a tab as one (the
- * stage-keeper's ruling on R-3); without it, the caret's own column.
- * Null when the stack carries no caret.
- *
- * @param {unknown} err
- * @param {string} [text]
- * @returns {{ line: number, col: number }|null}
- */
-export function diagnosticAt(err, text) {
+/** node's strip-mode error: the line its stack opens with (":<line>"), and its caret line's first caret with the line printed above it. */
+function caretOf(err) {
   const lines = String(err?.stack ?? '').split('\n');
-  const line = diagnosticLine(err);
-  const caret = lines.findIndex((l, i) => i > 1 && /^\s*\^+\s*$/.test(l));
-  if (line === null || caret < 0) return null;
-  const display = lines[caret].indexOf('^');
-  return { line, col: typeof text === 'string' ? sourceColumn(textLine(text, line), display) : display + 1 };
+  const head = /:(\d+)$/.exec(lines[0]);
+  const k = lines.findIndex((l, i) => i > 1 && /^\s*\^+\s*$/.test(l));
+  return { line: head ? Number(head[1]) : null, caret: k < 0 ? -1 : lines[k].indexOf('^'), shown: k < 0 ? null : lines[k - 1] };
 }
 
-/** The offset of a 1-based line and column in text. */
-function offsetOf(text, { line, col }) {
-  let at = 0;
-  for (let l = 1; l < line; l += 1) at = text.indexOf('\n', at) + 1;
-  return at + col - 1;
+const ID_CHAR = /[\p{ID_Continue}\u200c\u200d]/u;
+
+/**
+ * The width-neutral shadow of a text (the stage-keeper's ruling 2): the
+ * same UTF-16 length, every unit printable ASCII of display width one,
+ * so node's caret index in it is the offset. Every CR becomes LF (node's
+ * snippet splits on LF only); U+2028 and U+2029 become LF outside a
+ * string and `z` inside one; tab, VT, FF and every other whitespace a
+ * space; identifier characters `z` (`zz` when astral); any other
+ * non-ASCII unit `z` inside a string (a string, template or regular
+ * expression literal) and a space elsewhere, or, with `keep`, as written
+ * outside literals.
+ */
+function shadowOf(text, keep) {
+  const literal = new Uint8Array(text.length);
+  const mark = (tokens) => {
+    for (const t of tokens) {
+      if (t.type !== 'str' && t.type !== 'tpl' && t.type !== 'regex') continue;
+      literal.fill(1, t.start, t.end);
+      for (const part of t.inner ?? []) {
+        literal.fill(0, part.start, part.end);
+        mark(part.tokens);
+      }
+    }
+  };
+  mark(lex(text, 0, false).tokens);
+  let out = '';
+  for (let i = 0; i < text.length; i += 1) {
+    const u = text.charCodeAt(i);
+    if (u === 10 || u === 13) { out += '\n'; continue; }
+    if (u >= 0x20 && u < 0x7f) { out += text[i]; continue; }
+    const cp = text.codePointAt(i);
+    const ch = String.fromCodePoint(cp);
+    const units = ch.length;
+    let as;
+    if (u === 9 || u === 11 || u === 12) as = ' ';
+    else if (literal[i]) as = 'z';
+    else if (u === 0x2028 || u === 0x2029) as = '\n';
+    else if (/\s/u.test(ch)) as = ' ';
+    else if (ID_CHAR.test(ch)) as = 'z';
+    else as = keep ? ch : ' ';
+    out += as === ch ? ch : as.repeat(units);
+    i += units - 1;
+  }
+  return out;
+}
+
+/**
+ * Where the innermost construct still open at the end of the input opens
+ * (the stage-keeper's ruling 3): an unterminated block comment, template
+ * literal or string, else the last unmatched "(", "[" or "{". -1 when
+ * nothing is open.
+ */
+function openAtEnd(text) {
+  const { tokens, open } = lex(text, 0, false);
+  if (open !== undefined) return open;
+  const brackets = pairBrackets(tokens).open;
+  return brackets.length ? tokens[brackets[brackets.length - 1]].start : -1;
+}
+
+/**
+ * The offset of the construct node's strip-mode error places in `text`,
+ * or -1 when it cannot be placed. node stays the judge (the stage-keeper's
+ * ruling 2): its caret is read in the width-neutral shadow, which node
+ * refuses with the same code and message; with no caret, the input ends
+ * inside a construct, placed where the innermost one still open opens.
+ */
+function refusalOffset(text, err) {
+  const at = caretOf(err);
+  if (at.line === null) return -1;
+  if (at.caret < 0) return err.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX' ? openAtEnd(text) : -1;
+  for (const keep of [false, true]) {
+    const shadow = shadowOf(text, keep);
+    let again = null;
+    try { strip(shadow); } catch (e) { again = e; }
+    if (again?.code !== err.code || again.message !== err.message) continue;
+    const s = caretOf(again);
+    if (s.line === null || s.caret < 0) continue;
+    let start = 0;
+    for (let l = 1; l < s.line && start >= 0; l += 1) start = shadow.indexOf('\n', start) + 1 || -1;
+    if (start < 0) continue;
+    const end = shadow.indexOf('\n', start);
+    if (s.shown !== shadow.slice(start, end < 0 ? shadow.length : end)) continue;
+    return start + s.caret;
+  }
+  return -1;
 }
 
 /**
  * The strip-mode view of TypeScript text, or the refusal: "<file>:<line>:<col>:
- * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6),
- * at the position node's diagnostic gives (the stage-keeper's rulings D3 and C1).
+ * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6)
+ * or "<file>:<line>:<col>: invalid TypeScript syntax (<message>)", at the
+ * offset refusalOffset gives, counted in `source` (the file as committed,
+ * of which `text` is a view of the same length) by positionOf. A refusal
+ * it cannot place (the stage-keeper's ruling 4: no input reaches it) reads
+ * node's line and column 1, marked `unplaced`.
  */
-function stripView(file, text) {
+function stripView(file, text, source = text) {
   try {
     return { ok: true, text: strip(text) };
   } catch (err) {
-    const pos = diagnosticAt(err, text);
-    if (err?.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
+    if (err?.code !== 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX' && err?.code !== 'ERR_INVALID_TYPESCRIPT_SYNTAX') throw err;
+    const at = refusalOffset(text, err);
+    const where = (offset) => `${file}:${lineCol(source, offset)}`;
+    const unplaced = (what) => ({ ok: false, unplaced: true, detail: `${file}:${caretOf(err).line ?? 1}:1: ${what}` });
+    if (err.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
       const { tokens } = parseSource(text);
       const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
-      if (pos) {
-        // The construct node refused, named from the token at its position
+      if (at >= 0) {
+        // The construct node refused, named from the token at its offset
         // (a parameter property's caret sits on the name after its modifier).
-        const i = tokens.findIndex((t) => t.start === offsetOf(text, pos));
+        const i = tokens.findIndex((t) => t.start === at);
         let named = what;
         for (const [re, is, name] of NON_ERASABLE) {
           const k = i < 0 || !re.test(err.message) ? undefined : [i, i - 1].find((j) => j >= 0 && is(tokens, j));
           if (k !== undefined) { named = name(tokens, k); break; }
         }
-        return { ok: false, detail: `${file}:${pos.line}:${pos.col}: non-erasable TypeScript syntax (${named})` };
+        return { ok: false, detail: `${where(at)}: non-erasable TypeScript syntax (${named})` };
       }
-      for (const [re, at, name] of NON_ERASABLE) {
+      for (const [re, is, name] of NON_ERASABLE) {
         if (!re.test(err.message)) continue;
-        const k = tokens.findIndex((_, i) => at(tokens, i));
-        if (k >= 0) return { ok: false, detail: `${file}:${lineCol(text, tokens[k].start)}: non-erasable TypeScript syntax (${name(tokens, k)})` };
+        const k = tokens.findIndex((_, i) => is(tokens, i));
+        if (k >= 0) return { ok: false, detail: `${where(tokens[k].start)}: non-erasable TypeScript syntax (${name(tokens, k)})` };
       }
-      return { ok: false, detail: `${file}:1:1: non-erasable TypeScript syntax (${what})` };
+      return unplaced(`non-erasable TypeScript syntax (${what})`);
     }
-    if (err?.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX') {
-      // A line and no caret (the input ends inside a construct, or the
-      // span runs over several lines): node's line (the stage-keeper's
-      // ruling on R-1), and, node giving no column, the column one past
-      // that line's last character.
-      const line = diagnosticLine(err);
-      const at = pos ?? (line === null ? { line: 1, col: 1 } : { line, col: textLine(text, line).length + 1 });
-      return { ok: false, detail: `${file}:${at.line}:${at.col}: invalid TypeScript syntax (${err.message})` };
-    }
-    throw err;
+    if (at >= 0) return { ok: false, detail: `${where(at)}: invalid TypeScript syntax (${err.message})` };
+    return unplaced(`invalid TypeScript syntax (${err.message})`);
   }
 }
 
@@ -623,7 +704,7 @@ function sfcView(file, text) {
   }
   let out = { ok: true, text: view.join('') };
   if (langs.has('tsx')) out = jsxView(file, out.text);
-  if (out.ok && (langs.has('ts') || langs.has('tsx'))) out = stripView(file, out.text);
+  if (out.ok && (langs.has('ts') || langs.has('tsx'))) out = stripView(file, out.text, text);
   return out;
 }
 
@@ -641,7 +722,7 @@ export function sourceView(file, text) {
   if (TS_EXT.test(file)) return stripView(file, text);
   if (JSX_EXT.test(file)) {
     const r = jsxView(file, text);
-    return r.ok && file.endsWith('.tsx') ? stripView(file, r.text) : r;
+    return r.ok && file.endsWith('.tsx') ? stripView(file, r.text, text) : r;
   }
   if (file.endsWith('.vue')) return sfcView(file, text);
   return { ok: false, detail: `${file}:1:1: unsupported file type ${extname(file) || '(none)'}` };

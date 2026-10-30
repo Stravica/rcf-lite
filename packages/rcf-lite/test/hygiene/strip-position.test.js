@@ -1,15 +1,18 @@
-// Builder hygiene test (FBS-242, the stage-keeper's rulings D3 and C1): rcf
-// audit test-strength places a strip-mode refusal or a TypeScript syntax
-// error at the position node:module's stripTypeScriptTypes gives in its
-// error's stack (src/audit/test-strength/source.js diagnosticAt): a
-// ":<line>" first line and a caret line under the construct. This pins
-// that shape on the engine floor (package.json engines). It tests code
-// hygiene only, is bound to no test case, and sits outside the RCF suite.
+// Builder hygiene test (FBS-242, the stage-keeper's rulings 1 to 3 on the
+// design review): rcf audit test-strength turns an offset into
+// <line>:<col> through one conversion (src/audit/test-strength/source.js
+// positionOf: CRLF, a lone CR and LF are line breaks, the column counts
+// UTF-16 code units), reads node:module's strip-mode caret in a
+// width-neutral shadow of the file, and places an input that ends inside
+// a construct where the innermost one still open opens. This pins those
+// rules and the error shape the shadow reads on the engine floor
+// (package.json engines). It tests code hygiene only, is bound to no test
+// case, and sits outside the RCF suite.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { stripTypeScriptTypes } from 'node:module';
-import { diagnosticAt, diagnosticLine, sourceColumn } from '../../src/audit/test-strength/source.js';
+import { positionOf, sourceView } from '../../src/audit/test-strength/source.js';
 
 function refusal(text) {
   const emit = process.emitWarning;
@@ -24,39 +27,48 @@ function refusal(text) {
   return null;
 }
 
-test('hygiene: an invalid-syntax error carries its line and column in the stack', () => {
+const at = (text) => {
+  const v = sourceView('src/a.ts', text);
+  assert.equal(v.ok, false, 'the strip view refuses the input');
+  assert.notEqual(v.unplaced, true, `the refusal is placed\n${v.detail}`);
+  return /^src\/a\.ts:(\d+:\d+): /.exec(v.detail)?.[1];
+};
+
+test('hygiene: positionOf counts CRLF, a lone CR and LF as one line break each, and UTF-16 code units for the column', () => {
+  assert.deepEqual(positionOf('ab', 0), { line: 1, col: 1 });
+  assert.deepEqual(positionOf('a\r\nb\rc\nd', 7), { line: 4, col: 1 });
+  assert.deepEqual(positionOf('a\r\nb', 2), { line: 1, col: 3 }, 'a CRLF not wholly before the offset is no break');
+  assert.deepEqual(positionOf('a b c\vd\fe', 8), { line: 1, col: 9 }, 'U+2028, U+2029, VT and FF are not line breaks');
+  assert.deepEqual(positionOf('﻿\tกั\u{1F600}x', 6), { line: 1, col: 7 }, 'a BOM, a tab, a combining mark one unit each, an astral character two');
+});
+
+test('hygiene: node\'s strip-mode error carries ":<line>" first and a caret line under the line it prints, and no caret when the input ends inside a construct', () => {
   const err = refusal('export function run(n: number): number {\n  const a = n;\n  const b = ;\n  return a;\n}\n');
   assert.equal(err?.code, 'ERR_INVALID_TYPESCRIPT_SYNTAX');
-  assert.deepEqual(diagnosticAt(err), { line: 3, col: 13 });
+  const lines = err.stack.split('\n');
+  assert.equal(lines[0], ':3');
+  const caret = lines.findIndex((l, i) => i > 1 && /^\s*\^+\s*$/.test(l));
+  assert.equal(lines[caret - 1], '  const b = ;', 'the line above the caret line is the source line as written');
+  assert.equal(lines[caret].indexOf('^'), 12);
+  const open = refusal('export function run(n: number): number {\n  if (n) {\n');
+  assert.equal(open?.code, 'ERR_INVALID_TYPESCRIPT_SYNTAX');
+  assert.match(open.stack.split('\n')[0], /^:\d+$/);
+  assert.equal(open.stack.split('\n').some((l) => /^\s*\^+\s*$/.test(l)), false);
 });
 
-test('hygiene: a strip-mode refusal carries the refused construct\'s line and column in the stack', () => {
-  const err = refusal('declare enum A { X }\nexport enum B { Y }\n');
-  assert.equal(err?.code, 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX');
-  assert.deepEqual(diagnosticAt(err), { line: 2, col: 8 });
+test('hygiene: the shadow places node\'s caret at the UTF-16 column whatever precedes it on the line', () => {
+  assert.equal(at("export const s = '✅'; const b = ;\n"), '1:33');
+  assert.equal(at("export const s = 'กั'; const b = ;\n"), '1:34');
+  assert.equal(at("export const s = '\u{1F600}'; const b = ;\n"), '1:34');
+  assert.equal(at('﻿export const b = ;\n'), '1:19');
+  assert.equal(at('export const a = 1;\fconst b = ;\n'), '1:31');
+  assert.equal(at('export const a = 1;\r\texport const c = 2;\r\tconst b = ;\r'), '3:12');
+  assert.equal(at('export class L {\n\tconstructor(private y: number) {}\n}\n'), '2:22');
 });
 
-test('hygiene: an error with no position in its stack reads null', () => {
-  assert.equal(diagnosticAt(new Error('no position')), null);
-  assert.equal(diagnosticAt(undefined), null);
-});
-
-// Round D fix round 2 (the stage-keeper's rulings on R-1 and R-3).
-test('hygiene: node prints a tab to the next stop of four in its caret line, and diagnosticAt given the text counts the source line with a tab as one', () => {
-  const text = 'export class Ledger {\n\tprivate x = 1;\n\tconstructor(private y: number) {}\n}\n';
-  const err = refusal(text);
-  assert.equal(err?.code, 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX');
-  assert.deepEqual(diagnosticAt(err), { line: 3, col: 25 });
-  assert.deepEqual(diagnosticAt(err, text), { line: 3, col: 22 });
-  assert.equal(sourceColumn('const q = 1;\tconst b = ;', 26), 24);
-  assert.equal(sourceColumn(' \t constructor(private y', 25), 24);
-  assert.equal(sourceColumn('const s = \'漢\';\tconst b = ;', 26), 26);
-});
-
-test('hygiene: an input ending inside a brace gives a line and no caret: diagnosticLine reads it, diagnosticAt reads null', () => {
-  const err = refusal('export function run(n: number): number {\n  const a = n;\n  if (a) {\n    return a;\n');
-  assert.equal(err?.code, 'ERR_INVALID_TYPESCRIPT_SYNTAX');
-  assert.equal(diagnosticLine(err), 4);
-  assert.equal(diagnosticAt(err), null);
-  assert.equal(diagnosticLine(new Error('no position')), null);
+test('hygiene: an input that ends inside a construct is placed where the innermost one still open opens', () => {
+  assert.equal(at('export function run(n: number): number {\n  const a = n;\n  if (a) {\n    return a;\n'), '3:10');
+  assert.equal(at('x;\nexport const t = `abc ${a}\nmore\n'), '2:18');
+  assert.equal(at('x;\n/* open\nmore\n'), '2:1');
+  assert.equal(at('export const t = `a ${[1, 2\n'), '1:23');
 });
