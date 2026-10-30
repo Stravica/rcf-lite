@@ -935,7 +935,7 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19901-6   yes                    external   verified  verified    TC-282-the-structural-check-never-executes-a
                       AC-19901-7   yes                    external   verified  verified    TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101
                       AC-19901-8   retired (AC-19901-9)   external   -         retired     -
-                      AC-19901-9   yes                    external   verified  notStarted  TC-282-a-bound-test-file-test-rcf-a-test-py-or, TC-282-an...
+                      AC-19901-9   yes                    external   verified  notStarted  TC-282-a-bound-test-file-test-rcf-a-test-py-or, TC-282-a-...
                       AC-19902-1   yes                    external   verified  verified    TC-283-a-bound-test-asserting-only-that-the-cli
                       AC-19902-2   yes                    external   verified  verified    TC-283-ac-101-2-with-no-code-node-ac-101-3-with
                       AC-19902-3   yes                    external   verified  verified    TC-283-a-no-op-mutant-that-hangs-its-bound-test
@@ -949,14 +949,16 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19903-2   yes                    external   verified  verified    TC-284-record-refuses-a-dirty-tree-exit-4-and-a
                       AC-19903-3   yes                    external   verified  verified    TC-284-a-worker-style-app-entry-worker-src
                       AC-19903-4   yes                    external   verified  verified    TC-284-a-library-entry-module-src-index-js
-                      AC-19903-5   yes                    external   verified  verified    TC-284-a-vitest-project-audited-end-to-end-with, TC-284-a...
+                      AC-19903-5   yes                    external   verified  verified    TC-284-a-cache-file-the-project-already-holds, TC-284-a-n...
+                      AC-19903-6   yes                    external   verified  notStarted  TC-284-a-bound-test-writing-a-file-at-an
+                      AC-19903-7   yes                    external   verified  notStarted  TC-284-on-sigint-or-sigterm-while-a-bound-test
                       AC-19904-1   yes                    external   verified  notStarted  TC-306-a-ts-project-with-entry-src-index-ts-and
                       AC-19904-2   yes                    external   verified  notStarted  TC-306-a-vitest-runners-entry-with-ac-101-1
                       AC-19904-3   yes                    external   verified  notStarted  TC-306-a-playwright-pointer-naming-a-describe, TC-306-a-p...
                       AC-19904-4   yes                    external   verified  notStarted  TC-306-a-script-data-src-x-lang-ts-block, TC-306-a-vue-co...
                       AC-19904-5   yes                    external   verified  notStarted  TC-306-a-vitest-pointer-test-cart-test-ts-cart
                       AC-19904-6   yes                    external   verified  notStarted  TC-306-a-ts-bound-test-importing-vitest-that
-                      AC-19904-7   yes                    external   verified  notStarted  TC-306-a-code-node-file-holding-a-typescript, TC-306-on-a...
+                      AC-19904-7   yes                    external   verified  notStarted  TC-306-a-code-node-file-holding-a-typescript, TC-306-a-na...
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
