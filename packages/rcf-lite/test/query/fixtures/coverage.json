@@ -11546,6 +11546,7 @@
             "TC-282-a-bound-test-file-test-rcf-a-test-py-or",
             "TC-282-an-entry-point-of-an-extension-the-views",
             "TC-282-an-entry-point-the-strip-view-cannot",
+            "TC-282-an-entry-point-whose-error-carries-a-line",
             "TC-282-the-detail-places-the-first-unreadable"
           ],
           "unresolvedTestCases": [],
@@ -11702,6 +11703,7 @@
           "covered": true,
           "testCases": [
             "TC-284-a-vitest-project-audited-end-to-end-with",
+            "TC-284-a-vitest-project-whose-runners-entry-carries",
             "TC-284-rcf-audit-test-strength-never-deploys"
           ],
           "unresolvedTestCases": [],
@@ -11736,7 +11738,9 @@
           "covered": true,
           "testCases": [
             "TC-306-a-playwright-pointer-naming-a-describe",
-            "TC-306-a-playwright-runners-entry-with-ac-101-1"
+            "TC-306-a-playwright-runners-entry-with-ac-101-1",
+            "TC-306-a-vitest-leaf-pointer-runs-its-own-test",
+            "TC-306-a-vitest-pointer-naming-the-bare-leaf"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
@@ -11783,6 +11787,8 @@
           "covered": true,
           "testCases": [
             "TC-306-a-code-node-file-holding-a-typescript",
+            "TC-306-on-a-tab-indented-line-a-parameter-property",
+            "TC-306-on-a-tab-indented-line-an-enum",
             "TC-306-the-detail-names-the-construct-strip"
           ],
           "unresolvedTestCases": [],
