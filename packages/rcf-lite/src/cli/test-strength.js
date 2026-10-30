@@ -10,8 +10,9 @@
 // failure (no rcf/test-strength.json or a malformed one, an unreadable
 // entry point, no scope, an unknown id, a file-level Code Node on a code
 // file, too many mutants, a bound test not committed or not run, a runner
-// that cannot run, --record with no REVIEW verdict), 3 the chain does not
-// load. Precedence 2 over 4 over 5 over 0.
+// that cannot run, a bound test run that wrote in the project, --record
+// with no REVIEW verdict), 3 the chain does not load, 130 SIGINT and 143
+// SIGTERM. Precedence 2 over 4 over 5 over 0.
 
 import { parseArgs } from 'node:util';
 
@@ -58,13 +59,24 @@ function-valued initialiser is mutable; a class symbol expands to its
 methods; any other symbol fails "no mutable symbol". A file-level Code
 Node on a path that is not source (docs, JSON, YAML, workflows, chain
 records) gets fileBlank (the file is emptied); one on a .js, .mjs or
-.cjs file is never mutated. Each mutant is applied in a scratch git
-worktree of HEAD under the OS temp directory, and only the criterion's
-bound tests run against it, each through its runner; at least one must
-go red (killed): its runner's report shows it failed, or its file
-failed to load. A mutant whose tests outlive --mutant-timeout is
-"timeout" and counts as killed. The working tree, the index and every
-tracked file are never changed, and no worktree outlives the run.
+.cjs file is never mutated. Each mutant is applied in a working copy
+of HEAD the audit makes in its own scratch directory under the OS temp
+directory, and only the criterion's bound tests run against it, each
+through its runner; at least one must go red (killed): its runner's
+report shows it failed, or its file failed to load. A mutant whose
+tests outlive --mutant-timeout is "timeout" and counts as killed. A
+working copy writes nothing in the project's .git, and its
+node_modules directory is the audit's own, its entries linking the
+project's installed packages. Nothing in the project is written
+outside rcf/verdicts/<H12>/: the audit compares the project tree
+(node_modules and every dot directory included, .git excluded) before
+and after the bound tests run, and a path a bound test run wrote there
+exits 2 "test-strength: a bound test run wrote <path> in the project"
+and records nothing. No scratch directory outlives the run; one that
+cannot be removed is named in one stderr line "[warn] test-strength:
+scratch directory <dir> could not be removed". On SIGINT or SIGTERM
+the audit kills the process group of every bound test run it started,
+removes its scratch directory and exits 130 or 143.
 
 rcf/test-strength.json (required; written by the test-author):
   { "entry": [ { "kind": "bin" | "module" | "worker", "path": <path> } ],
@@ -83,10 +95,10 @@ rcf/test-strength.json (required; written by the test-author):
     nodeTest    node --test --test-reporter=tap --test-name-pattern <name> <file>
     vitest      vitest run <file> -t <name> --reporter=json --outputFile=<report>
     playwright  playwright test <file> -g <name> --reporter=json
-  The audit appends --fsModuleCachePath=<scratch>/vitest-cache --no-cache
-  to every vitest invocation it makes, the default argv and an argv
-  override alike, <scratch> being the audit's own scratch directory, so
-  vitest writes no cache into the project.
+  The audit adds no flag to a runner's argv: each kind's default argv
+  runs as stated here and an argv override as written, an override
+  naming its own cache flags included; what a runner writes under
+  node_modules stays in the audit's working copy.
   <report> is a per-run temp path the audit sets and reads. argv, when
   given, replaces the whole argv (holding <file> or <name>, and <report>
   where its runner writes the report to a file) and must carry its own
@@ -125,7 +137,12 @@ cannot read makes its criterion blocked (result "blocked", reason
 syntax ("<file>:<line>:<col>: non-erasable TypeScript syntax
 (<construct>)"), a failed JSX scan ("JSX scan failed at
 <file>:<line>:<col>: <what the scanner met>") or a .vue script block
-with a src attribute. A blocked criterion is not checked, gets no
+with a src attribute. <line> and <col> are 1-based and place the
+first character of the construct in the file as committed: <line>
+counts the line breaks before it (CRLF, a lone CR or LF), <col> the
+UTF-16 code units from the start of that line; when the input ends
+inside a construct, it is where the innermost such construct opens.
+A blocked criterion is not checked, gets no
 mutant and counts in no total but criteria and blocked. An entry point
 the views cannot read exits 2 "entry point unreadable".
 
@@ -157,7 +174,7 @@ Options:
                              reviewed head H of the newest REVIEW verdict
                              (pass, fail or blocked); never commits
   --json                     Print the TestStrengthReport v1 object alone
-  --jobs <n>                 Mutants run at once, one worktree each
+  --jobs <n>                 Mutants run at once, one working copy each
                              (default: half the CPU count, at least 1)
   --mutant-timeout <seconds> Time limit per mutant (default ${DEFAULT_MUTANT_TIMEOUT_S})
   --max-mutants <n>          Refuse a scope with more mutants (default ${DEFAULT_MAX_MUTANTS})
@@ -177,8 +194,10 @@ Exit codes (precedence 2 over 4 over 5 over 0):
      unknown id, a file-level Code Node on a code file, more mutants
      than --max-mutants, a bound test not committed, red unmutated or
      not run by its runner (or matching several tests), a runner that
-     cannot run, or --record with no REVIEW verdict
+     cannot run, a bound test run that wrote in the project, or
+     --record with no REVIEW verdict
   3  the chain does not load
+  130, 143  SIGINT, SIGTERM during the run
 `;
 
 const ids = (v) => (typeof v === 'string' ? v.split(',').map((s) => s.trim()).filter(Boolean) : null);
