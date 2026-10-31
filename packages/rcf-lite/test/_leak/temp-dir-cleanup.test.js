@@ -17,6 +17,12 @@
 //
 // The pin excludes itself via the `RCF_LEAK_PIN_SPAWNED` env guard
 // so the child doesn't recurse.
+//
+// The child runs under the pin's own cap, 90 minutes by default or
+// `RCF_LEAK_PIN_TIMEOUT_MS` milliseconds. The pin prints the inner
+// suite's wall time on every exit of the child so the cap can be
+// sized from measurements; at the cap it stops the child and fails
+// naming the cap and the time.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -30,12 +36,27 @@ import {
   parseExecutedTests,
   assessPinChildRun,
   EXECUTED_TESTS_FLOOR,
+  resolvePinTimeout,
+  innerWallTimeLine,
+  PIN_TIMEOUT_ENV,
+  DEFAULT_PIN_TIMEOUT_MS,
 } from './pin-core.js';
 
 const PIN_SPAWNED = process.env.RCF_LEAK_PIN_SPAWNED === '1';
 const SKIP_REASON = 'child run from the pin itself (RCF_LEAK_PIN_SPAWNED set): the suite re-entered through this file would recurse';
 
-async function runSuite({ cwd, tmp, log }) {
+// The cap, resolved once without letting a bad value break the file's
+// load: the test body throws the refusal instead.
+let cap;
+let capError = null;
+try {
+  cap = resolvePinTimeout();
+} catch (err) {
+  capError = err;
+  cap = { ms: DEFAULT_PIN_TIMEOUT_MS, source: 'default' };
+}
+
+async function runSuite({ cwd, tmp, log, capMs }) {
   // The pin itself runs under `node --test`, which exports
   // NODE_TEST_CONTEXT / NODE_TEST_WORKER_ID into our environment and
   // makes any inner `node --test` emit "run() is being called
@@ -47,6 +68,7 @@ async function runSuite({ cwd, tmp, log }) {
   delete childEnv.NODE_TEST_WORKER_ID;
 
   return new Promise((resolveRun, rejectRun) => {
+    const started = performance.now();
     const child = spawn(
       process.execPath,
       // Pin the child to the TAP reporter: Node 24 defaults to
@@ -66,21 +88,36 @@ async function runSuite({ cwd, tmp, log }) {
         stdio: ['ignore', 'pipe', 'pipe'],
       },
     );
+    // The pin's own cap: SIGTERM at the cap, SIGKILL 30 s later.
+    let timedOut = false;
+    let killTimer = null;
+    const timer = setTimeout(() => {
+      timedOut = true;
+      child.kill('SIGTERM');
+      killTimer = setTimeout(() => child.kill('SIGKILL'), 30 * 1000);
+    }, capMs);
     const chunks = [];
     child.stdout.on('data', (b) => chunks.push(b));
     child.stderr.on('data', (b) => chunks.push(b));
-    child.on('error', rejectRun);
+    child.on('error', (err) => {
+      clearTimeout(timer);
+      clearTimeout(killTimer);
+      rejectRun(err);
+    });
     child.on('exit', (code, signal) => {
+      clearTimeout(timer);
+      clearTimeout(killTimer);
       log.push(Buffer.concat(chunks).toString('utf8'));
-      resolveRun({ code, signal });
+      resolveRun({ code, signal, elapsedMs: Math.round(performance.now() - started), timedOut });
     });
   });
 }
 
 test(
   'test suite does not leak temp dirs into TMPDIR',
-  { skip: PIN_SPAWNED ? SKIP_REASON : false, timeout: 30 * 60 * 1000 },
+  { skip: PIN_SPAWNED ? SKIP_REASON : false, timeout: cap.ms + 5 * 60 * 1000 },
   async (t) => {
+    if (capError) throw capError;
     const here = dirname(fileURLToPath(import.meta.url));
     const pkgRoot = resolve(here, '..', '..');
 
@@ -90,7 +127,13 @@ test(
       const before = new Set(await readdir(isolated));
       assert.equal(before.size, 0, 'pin invariant: isolated TMPDIR should start empty');
 
-      const { code, signal } = await runSuite({ cwd: pkgRoot, tmp: isolated, log: transcript });
+      const { code, signal, elapsedMs, timedOut } = await runSuite({
+        cwd: pkgRoot,
+        tmp: isolated,
+        log: transcript,
+        capMs: cap.ms,
+      });
+      t.diagnostic(innerWallTimeLine({ elapsedMs, capMs: cap.ms, source: cap.source, timedOut }));
 
       const after = await readdir(isolated);
       // `node-compile-cache` is a fixed-name cache directory that
@@ -142,6 +185,16 @@ test(
       t.diagnostic(
         `child executed tests parsed from TAP summary: ${executedTests ?? 'null (no summary line seen)'}`,
       );
+      // A child stopped at the cap leaves an untrusted leak snapshot,
+      // as a non-zero exit does.
+      if (timedOut) {
+        throw new assert.AssertionError({
+          message: `pin invariant: the inner suite passed the cap of ${cap.ms} ms (${cap.source}) and was stopped after ${elapsedMs} ms; raise ${PIN_TIMEOUT_ENV} to give it longer`,
+          actual: elapsedMs,
+          expected: cap.ms,
+          operator: '<=',
+        });
+      }
       assessPinChildRun({
         code,
         signal,

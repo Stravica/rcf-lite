@@ -67,3 +67,32 @@ export function assessPinChildRun({ code, signal, executedTests, floor }) {
     });
   }
 }
+
+// The name of the environment variable that overrides the pin's cap.
+export const PIN_TIMEOUT_ENV = 'RCF_LEAK_PIN_TIMEOUT_MS';
+
+// The pin's own cap on the inner suite: about three times the inner
+// suite's time on CI, overridable by RCF_LEAK_PIN_TIMEOUT_MS.
+export const DEFAULT_PIN_TIMEOUT_MS = 90 * 60 * 1000;
+
+// Resolves the pin's cap from the environment. Unset or empty reads
+// the default; a positive integer of milliseconds overrides it; any
+// other value is refused loudly, never a silent fallback.
+export function resolvePinTimeout(env = process.env) {
+  const value = env[PIN_TIMEOUT_ENV];
+  if (value === undefined || value === '') {
+    return { ms: DEFAULT_PIN_TIMEOUT_MS, source: 'default' };
+  }
+  if (/^[1-9][0-9]*$/.test(value)) {
+    return { ms: Number(value), source: PIN_TIMEOUT_ENV };
+  }
+  throw new assert.AssertionError({
+    message: `pin invariant: RCF_LEAK_PIN_TIMEOUT_MS must be a positive integer of milliseconds, got '${value}'`,
+  });
+}
+
+// The pin's one line on the inner suite's measured wall time, printed
+// on every exit of the child so a later round can size the cap.
+export function innerWallTimeLine({ elapsedMs, capMs, source, timedOut }) {
+  return `inner suite wall time: ${elapsedMs} ms (cap ${capMs} ms, ${source}${timedOut ? ', stopped at the cap' : ''})`;
+}
