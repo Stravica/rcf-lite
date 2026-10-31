@@ -4,12 +4,11 @@
   "title": "The reach rule R at node's caret",
   "description": "Decides a tie of offsets at node's caret from node's own probes alone (the reach rule R): rule 1 withholds when a tied code point but the last measures a non-zero width alone (node's caret does not move across the tie); rule 2 takes the largest offset where node refuses MARK with its own message for MARK, read once from the calibration probe and compared as one whole string, at node's line and caret; rule 3, only when rule 2 reaches none, the largest offset after the first where a space changes node's code, message, line or caret, else the first; rule 4 withholds when the answer is the last offset and deleting every code point before it at once changes node's refusal (the probes disagree).",
   "implementsAcIds": [
-    "AC-19904-7",
     "AC-19901-9"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-31T13:16:02.012Z",
-  "updatedAt": "2026-10-31T13:16:02.012Z"
+  "updatedAt": "2026-10-31T13:48:35.052Z"
 }
