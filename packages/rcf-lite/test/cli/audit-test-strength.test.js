@@ -1038,6 +1038,10 @@ test('AC-19903-5: on an error exit the audit still runs the backstop and the war
     const left = readdirSync(tmp).map((e) => join(tmp, e)).sort();
     assert.notDeepEqual(left, [], `the bound test leaves the audit's scratch in its TMPDIR\n${r.stderr}`);
     assert.deepEqual([...named].sort(), left, `the error exit names each scratch directory left in its TMPDIR, each in one line\n${r.stdout}${r.stderr}`);
+    // F-7 (a), the re-Review 4 verdict's F-7: the cannot-run line names the scratch path the run used.
+    const cannot = lines(r.stderr).filter((l) => l.startsWith('test-strength: cannot run the bound tests'));
+    assert.equal(cannot.length, 1, `one stderr line starts "test-strength: cannot run the bound tests"\n${r.stdout}${r.stderr}`);
+    assert.ok(named.some((d) => cannot[0].includes(` ${d}: `)), `the cannot-run line names the scratch directory the run used, the one a warn line names\n${cannot[0]}\n${named.join('\n')}`);
   } finally {
     writable(tmp);
   }
@@ -1108,4 +1112,107 @@ test('AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under 
       writable(tmp);
     }
   }
+});
+
+// ------------------------------------------- round D fix round 4 (re-Review 4's F-1, the tie rule)
+// F-1, the re-Review 4 verdict's F-1 (the X-POS-22 family), and the tie
+// set of the stage-keeper's design decision after re-Review 4: a
+// zero-width character (U+200B or U+FEFF, which node's renderer prints
+// with no width) just before the token node refuses ties several offsets
+// at node's caret, and the refusal is placed at the refused token, where
+// node places it, never at node's caret plus 1. A placed refusal is never
+// the withheld degraded state: no stderr line starts "test-strength:
+// column for ". Each input is written as escapes; each position is the
+// one node v24.14.0 gives for it (the refused token's UTF-16 column).
+const WITHHELD = 'test-strength: column for ';
+async function placedUnwithheld(t, text, at, why, file = 'src/a.ts') {
+  const { dir } = await strengthProject(t, { files: { [file]: text }, nodes: [[`${file}#run`, ['AC-101-1']]] });
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.equal(c?.result, 'blocked', `AC-101-1 is BLOCKED\n${r.stdout}${r.stderr}`);
+  syntaxAt(c.detail, `${file}:${at}`, why);
+  assert.deepEqual(lines(r.stderr).filter((l) => l.startsWith(WITHHELD)), [], `${why}: node places the refusal, so no stderr line reads "${WITHHELD}..."\n${r.stderr}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+}
+async function entryUnwithheld(t, text, at, why) {
+  const { dir } = await strengthProject(t, { config: { entry: [{ kind: 'module', path: 'src/intervals.ts' }], harness: ['test/_harness/**'] }, files: { 'src/intervals.ts': text } });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable: '));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
+  syntaxAt(line.slice('test-strength: entry point unreadable: '.length), `src/intervals.ts:${at}`, `${why}, in the entry point`);
+  assert.deepEqual(lines(r.stderr).filter((l) => l.startsWith(WITHHELD)), [], `${why}, in the entry point: no stderr line reads "${WITHHELD}..."\n${r.stderr}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+}
+async function familyPlaced(t, text, at, why) {
+  await placedUnwithheld(t, text, at, why);
+  await entryUnwithheld(t, text, at, why);
+}
+
+// X-POS-22: const t = 1 + U+200B U+200B; node's caret at index 14, the refused ; at 1:17.
+test('AC-19901-9: two zero width spaces before the token node refuses after a binary operator are no column: src/a.ts holding const t = 1 + U+200B U+200B; places the refused ; at 1:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:17, exit 2', async (t) => {
+  await familyPlaced(t, 'const t = 1 + ​​;', '1:17', 'node refuses the ; at column 17');
+});
+
+// X-POS-22h: const total = cost * U+200B; node's caret at index 21, the refused ; at 1:23.
+test('AC-19901-9: a zero width space before the token node refuses after * is no column: src/a.ts holding const total = cost * U+200B; places the refused ; at 1:23 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:23, exit 2', async (t) => {
+  await familyPlaced(t, 'const total = cost * ​;', '1:23', 'node refuses the ; at column 23');
+});
+
+// X-POS-22i: const okay = lefts || U+FEFF; node's caret at index 22, the refused ; at 1:24.
+test('AC-19901-9: a byte order mark before the token node refuses after || is no column: src/a.ts holding const okay = lefts || U+FEFF; places the refused ; at 1:24 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:24, exit 2', async (t) => {
+  await familyPlaced(t, 'const okay = lefts || ﻿;', '1:24', 'node refuses the ; at column 24');
+});
+
+// X-POS-22j: g(1 + U+200B); node's caret at index 6, the refused ) at 1:8.
+test('AC-19901-9: a zero width space before a refused closing parenthesis after + is no column: src/a.ts holding g(1 + U+200B); places the refused ) at 1:8 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:8, exit 2', async (t) => {
+  await familyPlaced(t, 'g(1 + ​);', '1:8', 'node refuses the ) at column 8');
+});
+
+// X-POS-22k: line 2 after a CRLF line, const d = 9 - U+FEFF U+FEFF; node's caret at index 14, the refused ; at 2:17.
+test('AC-19901-9: two byte order marks before the token node refuses after - on line 2 after a CRLF line are no column: src/a.ts holding export const z = 0; CRLF const d = 9 - U+FEFF U+FEFF; places the refused ; at 2:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 2:17, exit 2', async (t) => {
+  await familyPlaced(t, 'export const z = 0;\r\nconst d = 9 - ﻿﻿;\r\n', '2:17', 'node refuses the ; at column 17 of line 2');
+});
+
+// The tie set: an operand, the operator, a space, one zero-width character, then the ; node refuses.
+test('AC-19901-9: a tie after the binary operator + is placed at the refused token: src/a.ts holding const t = a + U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a + ​;', '1:16', 'node refuses the ; after + at column 16');
+});
+test('AC-19901-9: a tie after the binary operator - is placed at the refused token: src/a.ts holding const t = a - U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a - ​;', '1:16', 'node refuses the ; after - at column 16');
+});
+test('AC-19901-9: a tie after the binary operator * is placed at the refused token: src/a.ts holding const t = a * U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a * ​;', '1:16', 'node refuses the ; after * at column 16');
+});
+test('AC-19901-9: a tie after the binary operator / is placed at the refused token: src/a.ts holding const t = a / U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a / ​;', '1:16', 'node refuses the ; after / at column 16');
+});
+test('AC-19901-9: a tie after the binary operator % is placed at the refused token: src/a.ts holding const t = a % U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a % ​;', '1:16', 'node refuses the ; after % at column 16');
+});
+test('AC-19901-9: a tie after the binary operator ** is placed at the refused token: src/a.ts holding const t = a ** U+200B; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a ** ​;', '1:17', 'node refuses the ; after ** at column 17');
+});
+test('AC-19901-9: a tie after the binary operator == is placed at the refused token: src/a.ts holding const t = a == U+200B; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a == ​;', '1:17', 'node refuses the ; after == at column 17');
+});
+test('AC-19901-9: a tie after the binary operator != is placed at the refused token: src/a.ts holding const t = a != U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a != ﻿;', '1:17', 'node refuses the ; after != at column 17');
+});
+test('AC-19901-9: a tie after the binary operator < is placed at the refused token: src/a.ts holding const t = a < U+FEFF; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a < ﻿;', '1:16', 'node refuses the ; after < at column 16');
+});
+test('AC-19901-9: a tie after the binary operator > is placed at the refused token: src/a.ts holding const t = a > U+FEFF; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a > ﻿;', '1:16', 'node refuses the ; after > at column 16');
+});
+test('AC-19901-9: a tie after the binary operator && is placed at the refused token: src/a.ts holding const t = a && U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a && ﻿;', '1:17', 'node refuses the ; after && at column 17');
+});
+test('AC-19901-9: a tie after the binary operator || is placed at the refused token: src/a.ts holding const t = a || U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a || ﻿;', '1:17', 'node refuses the ; after || at column 17');
+});
+test('AC-19901-9: a tie after the binary operator ?? is placed at the refused token: src/a.ts holding const t = a ?? U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a ?? ﻿;', '1:17', 'node refuses the ; after ?? at column 17');
+});
+test('AC-19901-9: a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let t = 0; t = ﻿;', '1:17', 'node refuses the ; after = at column 17');
 });

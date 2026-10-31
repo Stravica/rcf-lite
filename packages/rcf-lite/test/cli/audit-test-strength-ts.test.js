@@ -24,7 +24,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { delimiter, dirname, join, relative, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -856,6 +856,8 @@ test('AC-19903-5: a bound test writing a new file inside an installed package in
     const m = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
     assert.ok(m, `stderr carries "test-strength: a bound test run wrote <path> in the project"\n${shown(r)}\nwritten: ${existsSync(written)}`);
     assert.ok(m[1].endsWith('a6.txt'), `the line names a6.txt\n${m[0]}`);
+    // F-7 (b), the re-Review 4 verdict's F-7: an ancestor's file is named relative to the project root.
+    assert.equal(m[1], '../node_modules/rootpkg/a6.txt', `the line names the file relative to the project root\n${m[0]}`);
   };
   const plain = await strength(n.dir, ['--acs', 'AC-101-1']);
   assert.equal(plain.code, 2, `a bound test run wrote under an ancestor's node_modules: exit 2\n${shown(plain)}\nwritten: ${existsSync(written)}`);
@@ -900,4 +902,73 @@ test('AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src
   assert.ok(slugify.length > 0 && slugify.every((m) => m.result === 'killed'), `slugify's mutants killed\n${some.stdout}`);
   const isSlug = mutantsOf(some, 'src/slug.ts#isSlug');
   assert.ok(isSlug.length > 0 && isSlug.every((m) => m.result === 'survived'), `isSlug's mutants survived, judged on their own text after slugify's were killed in the same working copy\n${some.stdout}`);
+});
+
+// ------------------------------------------- round D fix round 4 (re-Review 4's F-2 and F-3)
+// F-2, the re-Review 4 verdict's F-2 (X-CACHE-3b), under the stage-keeper's
+// design decision after re-Review 4 and AC-19903-5's real-path sentence:
+// "its node_modules" is the real location of the project's node_modules,
+// following symbolic links, so a write inside an installed package reached
+// through a project node_modules that is a symbolic link to a directory
+// outside the project is the named exit 2 of the backstop (rulings 6 and
+// 8), never a silent pass, and nothing is recorded even with --record. The
+// project's devDependencies are installed (round A ruling 8), then its
+// node_modules is moved outside the project and linked back.
+test('AC-19903-5: a bound test writing a new file inside an installed package reached through a project node_modules that is a symbolic link to a directory outside the project exits 2 with "test-strength: a bound test run wrote <path> in the project" naming the file, and records nothing even with --record', async (t) => {
+  const a = await tsProject(t, 'a-tsx-node-test', {
+    nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+  });
+  const outside = join(scratch(t, 'rcf-h-linked-'), 'node_modules');
+  renameSync(join(a.dir, 'node_modules'), outside);
+  symlinkSync(outside, join(a.dir, 'node_modules'), 'dir');
+  assert.ok(lstatSync(join(a.dir, 'node_modules')).isSymbolicLink() && existsSync(join(outside, 'tsx', 'package.json')), 'the project node_modules is a symbolic link to the installed packages outside the project');
+  const written = join(outside, 'tsx', 'x3b.txt');
+  const H = commit(a.dir, 'fixture: a bound test writing inside an installed package through the linked node_modules', {
+    'test/totals.test.ts': `import { realpathSync, writeFileSync } from 'node:fs';\nimport { join } from 'node:path';\n${readFileSync(join(a.dir, 'test', 'totals.test.ts'), 'utf8')}\nwriteFileSync(join(realpathSync('node_modules/tsx'), 'x3b.txt'), 'x3b');\n`,
+  });
+  const named = (r) => {
+    const m = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
+    assert.ok(m, `stderr carries "test-strength: a bound test run wrote <path> in the project"\n${shown(r)}\nwritten: ${existsSync(written)}`);
+    assert.ok(m[1].endsWith('x3b.txt'), `the line names x3b.txt\n${m[0]}`);
+  };
+  const plain = await strength(a.dir, ['--acs', 'AC-101-1']);
+  assert.equal(plain.code, 2, `a bound test run wrote under the real location of the project's node_modules: exit 2\n${shown(plain)}\nwritten: ${existsSync(written)}`);
+  named(plain);
+  rmSync(written, { force: true });
+  commit(a.dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: ['AC-101-1'] }) });
+  const rec = await strength(a.dir, ['--acs', 'AC-101-1', '--record']);
+  assert.equal(rec.code, 2, `with --record: exit 2\n${shown(rec)}`);
+  named(rec);
+  assert.equal(existsSync(join(a.dir, verdictPath(H, 'test-strength.json'))), false, `nothing is recorded\n${shown(rec)}`);
+  rmSync(written, { force: true });
+});
+
+// F-3, the re-Review 4 verdict's F-3 (X-CACHE-6), under AC-19903-5's
+// every-exit sentence: the not-run exit still runs the backstop. The layout
+// of A-CACHE-6 (nestedProject); the bound test's title carries what
+// sumTotals returns, so a mutant renames it and the runner reports the bound
+// test not run; every run writes a new file inside node_modules/rootpkg of
+// the repository root, an ancestor's node_modules.
+test('AC-19903-5: on a not-run exit the audit still runs the backstop: a bound test whose title carries what sumTotals returns, so a mutant renames it, and whose every run writes a new file inside node_modules/rootpkg of the repository root, exits 2 with "test-strength: a bound test run wrote <path> in the project" naming one of those files', async (t) => {
+  const n = await nestedProject(t, 'a-tsx-node-test', {
+    nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items to 10']],
+  });
+  const pkgDir = join(n.root, 'node_modules', 'rootpkg');
+  const original = readFileSync(join(n.dir, 'test', 'totals.test.ts'), 'utf8');
+  const renamed = original.replace("it('sums the line items', () => {", 'it(`sums the line items to ${sumTotals([2, 3, 5])}`, () => {');
+  assert.ok(renamed !== original, 'the bound test title carries what sumTotals returns');
+  commit(n.root, 'fixture: a bound test a mutant renames, writing in an ancestor node_modules on every run', {
+    'pkg/test/totals.test.ts': `import { realpathSync, writeFileSync } from 'node:fs';\nimport { join } from 'node:path';\n${renamed}\nwriteFileSync(join(realpathSync('../node_modules/rootpkg'), \`x6-\${process.pid}.txt\`), 'x6');\n`,
+  });
+  const before = new Set(readdirSync(pkgDir));
+  const r = await strength(n.dir, ['--acs', 'AC-101-1']);
+  const added = readdirSync(pkgDir).filter((f) => !before.has(f));
+  assert.ok(added.length > 0 && added.every((f) => /^x6-\d+\.txt$/.test(f)), `the bound test runs wrote x6-<pid>.txt files under node_modules/rootpkg\n${added.join('\n')}`);
+  assert.equal(r.code, 2, `a not-run exit with a forbidden write: exit 2\n${shown(r)}`);
+  const m = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
+  assert.ok(m, `the backstop runs on the not-run exit: stderr carries "test-strength: a bound test run wrote <path> in the project"\n${shown(r)}\nadded: ${added.join(' ')}`);
+  assert.ok(added.some((f) => m[1].endsWith(`/${f}`)) && /\/x6-\d+\.txt$/.test(m[1]), `the line names one of the x6-<pid>.txt files written\n${m[0]}\nadded: ${added.join(' ')}`);
+  for (const f of added) rmSync(join(pkgDir, f), { force: true });
 });

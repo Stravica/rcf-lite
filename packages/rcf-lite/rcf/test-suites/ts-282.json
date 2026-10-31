@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-10-31T00:16:38.871Z",
+  "updatedAt": "2026-10-31T09:04:41.075Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -185,6 +185,139 @@
       "description": "when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5"
+    },
+    {
+      "id": "TC-282-x-pos-22-two-zero-width-spaces-after-plus",
+      "acId": "AC-19901-9",
+      "description": "two zero width spaces before the token node refuses after a binary operator are no column: src/a.ts holding const t = 1 + U+200B U+200B; places the refused ; at 1:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:17, exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two zero width spaces before the token node refuses after a binary operator are no column: src/a.ts holding const t = 1 + U+200B U+200B; places the refused ; at 1:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:17, exit 2"
+    },
+    {
+      "id": "TC-282-x-pos-22h-a-zero-width-space-after-times",
+      "acId": "AC-19901-9",
+      "description": "a zero width space before the token node refuses after * is no column: src/a.ts holding const total = cost * U+200B; places the refused ; at 1:23 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:23, exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a zero width space before the token node refuses after * is no column: src/a.ts holding const total = cost * U+200B; places the refused ; at 1:23 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:23, exit 2"
+    },
+    {
+      "id": "TC-282-x-pos-22i-a-byte-order-mark-after-or",
+      "acId": "AC-19901-9",
+      "description": "a byte order mark before the token node refuses after || is no column: src/a.ts holding const okay = lefts || U+FEFF; places the refused ; at 1:24 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:24, exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a byte order mark before the token node refuses after || is no column: src/a.ts holding const okay = lefts || U+FEFF; places the refused ; at 1:24 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:24, exit 2"
+    },
+    {
+      "id": "TC-282-x-pos-22j-a-zero-width-space-before-a-parenthesis",
+      "acId": "AC-19901-9",
+      "description": "a zero width space before a refused closing parenthesis after + is no column: src/a.ts holding g(1 + U+200B); places the refused ) at 1:8 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:8, exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a zero width space before a refused closing parenthesis after + is no column: src/a.ts holding g(1 + U+200B); places the refused ) at 1:8 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:8, exit 2"
+    },
+    {
+      "id": "TC-282-x-pos-22k-two-byte-order-marks-on-line-2",
+      "acId": "AC-19901-9",
+      "description": "two byte order marks before the token node refuses after - on line 2 after a CRLF line are no column: src/a.ts holding export const z = 0; CRLF const d = 9 - U+FEFF U+FEFF; places the refused ; at 2:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 2:17, exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two byte order marks before the token node refuses after - on line 2 after a CRLF line are no column: src/a.ts holding export const z = 0; CRLF const d = 9 - U+FEFF U+FEFF; places the refused ; at 2:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 2:17, exit 2"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-plus",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator + is placed at the refused token: src/a.ts holding const t = a + U+200B; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator + is placed at the refused token: src/a.ts holding const t = a + U+200B; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-minus",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator - is placed at the refused token: src/a.ts holding const t = a - U+200B; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator - is placed at the refused token: src/a.ts holding const t = a - U+200B; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-times",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator * is placed at the refused token: src/a.ts holding const t = a * U+200B; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator * is placed at the refused token: src/a.ts holding const t = a * U+200B; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-divide",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator / is placed at the refused token: src/a.ts holding const t = a / U+200B; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator / is placed at the refused token: src/a.ts holding const t = a / U+200B; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-remainder",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator % is placed at the refused token: src/a.ts holding const t = a % U+200B; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator % is placed at the refused token: src/a.ts holding const t = a % U+200B; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-exponent",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator ** is placed at the refused token: src/a.ts holding const t = a ** U+200B; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator ** is placed at the refused token: src/a.ts holding const t = a ** U+200B; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-equals",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator == is placed at the refused token: src/a.ts holding const t = a == U+200B; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator == is placed at the refused token: src/a.ts holding const t = a == U+200B; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-not-equals",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator != is placed at the refused token: src/a.ts holding const t = a != U+FEFF; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator != is placed at the refused token: src/a.ts holding const t = a != U+FEFF; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-less-than",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator < is placed at the refused token: src/a.ts holding const t = a < U+FEFF; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator < is placed at the refused token: src/a.ts holding const t = a < U+FEFF; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-greater-than",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator > is placed at the refused token: src/a.ts holding const t = a > U+FEFF; at 1:16 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator > is placed at the refused token: src/a.ts holding const t = a > U+FEFF; at 1:16 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-and",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator && is placed at the refused token: src/a.ts holding const t = a && U+FEFF; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator && is placed at the refused token: src/a.ts holding const t = a && U+FEFF; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-or",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator || is placed at the refused token: src/a.ts holding const t = a || U+FEFF; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator || is placed at the refused token: src/a.ts holding const t = a || U+FEFF; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-nullish",
+      "acId": "AC-19901-9",
+      "description": "a tie after the binary operator ?? is placed at the refused token: src/a.ts holding const t = a ?? U+FEFF; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator ?? is placed at the refused token: src/a.ts holding const t = a ?? U+FEFF; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-a-tie-after-the-operator-assignment",
+      "acId": "AC-19901-9",
+      "description": "a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5"
     }
   ],
   "status": "draft"
