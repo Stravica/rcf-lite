@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-001",
+  "prdId": "PRD-001",
+  "title": "Interval overlap and merge",
+  "description": "The module answers whether two half-open intervals overlap and merges a list of intervals into a sorted disjoint list, rejecting malformed input.",
+  "category": "functional",
+  "domain": "interval-maths",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:24:06.066Z"
+}

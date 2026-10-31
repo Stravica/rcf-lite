@@ -18,12 +18,13 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
+import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { existsSync, readFileSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
-import { lines, rcf, toolPath } from '../_harness/spawn.js';
+import { BIN, baseEnv, lines, rcf, toolPath } from '../_harness/spawn.js';
 import { commit, git, gitTry, initRepo, s7, sha } from '../_harness/git.js';
 import { bindTests, criterion, editFbs, editStory, project, readJson, readText, reviewVerdict, scratch, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { hostFacts, json } from '../_harness/capture.js';
@@ -231,19 +232,66 @@ test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.
   assert.ok(crit(report, 'AC-101-2').mutants.length > 0, 'mutants for AC-101-2');
 });
 
-test('AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.ts, exits 2 with "test-strength: <path> is not a supported source (JavaScript ESM or CommonJS)" and runs no mutant; .js, .mjs and .cjs files are read', async (t) => {
-  const marks = scratch(t, 'rcf-h-marks-');
-  const entry = join(marks, 'entry');
-  const marked = { 'bin/app.js': markerSrc(entry) + GREET_BIN };
-  const ts = await strengthProject(t, { files: { ...marked, 'test/rcf/a.test.ts': testFile([GREETS]) }, bind: [['AC-101-1', 'test/rcf/a.test.ts', GREETS.name]] });
-  const a = await strength(ts.dir, ['--acs', 'AC-101-1']);
-  assert.equal(a.code, 2, `${a.stdout}${a.stderr}`);
-  assert.ok(lines(a.stderr).includes('test-strength: test/rcf/a.test.ts is not a supported source (JavaScript ESM or CommonJS)'), a.stderr);
-  const node = await strengthProject(t, { files: { ...marked, 'src/x.ts': 'export const x: number = 1;\n' }, nodes: [['src/x.ts', ['AC-101-1']], ['src/greet.js#greet', ['AC-101-1']]] });
-  const b = await strength(node.dir, ['--acs', 'AC-101-1']);
-  assert.equal(b.code, 2, `${b.stdout}${b.stderr}`);
-  assert.ok(lines(b.stderr).includes('test-strength: src/x.ts is not a supported source (JavaScript ESM or CommonJS)'), b.stderr);
-  assert.equal(existsSync(entry), false, 'no mutant ran');
+// AC-19901-9 succeeds the retired AC-19901-8 (round D, RC-46; the
+// stage-keeper's retire-and-succeed ruling): a file the audit cannot read
+// is BLOCKED per criterion (stage-keeper ruling Q2 (a)), never a
+// whole-run exit 2.
+test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result "blocked", reason "TEST_STRENGTH_UNSUPPORTED", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read', async (t) => {
+  const PY_TEST = 'def test_greets():\n    assert True\n';
+  const blocked = (report, file) => {
+    const c = crit(report, 'AC-101-1');
+    assert.equal(c.result, 'blocked', JSON.stringify(c));
+    assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', JSON.stringify(c));
+    // Ruling Q6: the detail is <file>:<line>:<col>: <construct> (one unreadable file here).
+    const esc = file.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+    assert.match(c.detail, new RegExp(`^${esc}:\\d+:\\d+: \\S.*$`), `detail is "<file>:<line>:<col>: <construct>" for ${file}\n${JSON.stringify(c)}`);
+    assert.equal(crit(report, 'AC-101-2').result, 'pass', `the run continues for AC-101-2\n${JSON.stringify(report)}`);
+  };
+  const acs = ['AC-101-1', 'AC-101-2'];
+  const pyTest = await strengthProject(t, {
+    acs,
+    files: { 'test/rcf/a.test.py': PY_TEST },
+    nodes: [['src/greet.js#greet', acs]],
+    bind: [['AC-101-1', 'test/rcf/a.test.py', 'test_greets'], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const a = await strength(pyTest.dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  assert.equal(a.code, 5, `a blocked criterion beside a passing one: exit 5\n${a.stdout}${a.stderr}`);
+  assert.doesNotMatch(a.stderr, /not a supported source/);
+  blocked(json(a.stdout), 'test/rcf/a.test.py');
+
+  const pyNode = await strengthProject(t, {
+    acs,
+    files: { 'src/x.py': 'def run():\n    return 1\n' },
+    nodes: [['src/x.py#run', ['AC-101-1']], ['src/greet.js#greet', acs]],
+    bind: [['AC-101-1', 'test/rcf/a.test.js', GREETS.name], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const b = await strength(pyNode.dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  assert.equal(b.code, 5, `a blocked criterion beside a passing one: exit 5\n${b.stdout}${b.stderr}`);
+  assert.doesNotMatch(b.stderr, /not a supported source/);
+  blocked(json(b.stdout), 'src/x.py');
+
+  // The stage-keeper's ruling 1 on the DEFINE's questions: a blocked and a
+  // failing criterion together, the fail verdict and its exit code win and
+  // the FAIL line still counts and lists the blocked criterion.
+  const mixed = await strengthProject(t, {
+    acs,
+    files: { 'test/rcf/a.test.py': PY_TEST, 'src/store.js': 'export const store = new Map();\n', 'test/rcf/a.test.js': testFile([GREETS], { imports: ["import '../../src/store.js';"] }) },
+    nodes: [['src/greet.js#greet', acs]],
+    bind: [['AC-101-1', 'test/rcf/a.test.py', 'test_greets'], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const f = await strength(mixed.dir, ['--acs', 'AC-101-1,AC-101-2'], nodeEnv());
+  assert.equal(f.code, 4, `a failing criterion beside a blocked one: the fail exit 4\n${f.stdout}${f.stderr}`);
+  assert.doesNotMatch(f.stderr, /not a supported source/);
+  // The stage-keeper's ruling Q2 on the pre-freeze gate's questions: the exact
+  // FAIL line, its blocked tail ", blocked <m>: <id> (<file>)"; <n> the criteria in scope (ruling F7).
+  const failBlocked = new RegExp(`^test-strength: FAIL 1 of 2 criteria at ${s7(mixed.H)}: AC-101-2 imports src/store\\.js \\(not the app entry or the harness\\), blocked 1: AC-101-1 \\(test/rcf/a\\.test\\.py\\)$`);
+  assert.ok(lines(f.stdout).some((l) => failBlocked.test(l)), `the FAIL line names AC-101-2's finding and ends ", blocked 1: AC-101-1 (test/rcf/a.test.py)"\n${f.stdout}${f.stderr}`);
+
+  // The audit's own inputs unreadable stay a whole-run exit 2.
+  const badRunner = await strengthProject(t, { config: { ...CONFIG, runners: [{ files: ['test/**'], kind: 'jest' }] } });
+  const m = await strength(badRunner.dir, ['--acs', 'AC-101-1'], nodeEnv());
+  assert.equal(m.code, 2, `a runners entry of no known kind: exit 2\n${m.stdout}${m.stderr}`);
+  assert.ok(lines(m.stderr).some((l) => l.startsWith('test-strength: malformed rcf/test-strength.json')), m.stderr);
 
   const mjs = await strengthProject(t, {
     files: {
@@ -258,6 +306,48 @@ test('AC-19901-8: a bound test file test/rcf/a.test.ts, or a Code Node on src/x.
   const c = await strength(mjs.dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.notEqual(c.code, 2, `.mjs and .cjs sources are read\n${c.stdout}${c.stderr}`);
   assert.doesNotMatch(c.stderr, /not a supported source/);
+
+  // The stage-keeper's ruling F5 on the whole-plan pass's findings: a .jsx file
+  // is read through the JSX scanner, never blocked for being JSX (by shape, as the .mjs run).
+  const jsx = await strengthProject(t, {
+    files: { 'src/label.jsx': L('export function label(n) {', '  return <b>{n}</b>;', '}') },
+    nodes: [['src/greet.js#greet', ['AC-101-1']], ['src/label.jsx#label', ['AC-101-1']]],
+  });
+  const x = await strength(jsx.dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  assert.notEqual(x.code, 2, `a .jsx Code Node is read\n${x.stdout}${x.stderr}`);
+  assert.doesNotMatch(x.stderr, /not a supported source/);
+  assert.notEqual(crit(json(x.stdout), 'AC-101-1').result, 'blocked', `a .jsx file is never blocked for being JSX\n${x.stdout}`);
+
+  // The stage-keeper's rulings F7 and F12 on the whole-plan pass's findings: two
+  // blocked criteria, one blocked by two files, beside a passing one. The scope
+  // is passed in descending order, so the ascending order on the line is the audit's.
+  const many = await strengthProject(t, {
+    acs: ['AC-101-1', 'AC-101-2', 'AC-101-3'],
+    files: { 'test/rcf/a.test.py': PY_TEST, 'test/rcf/b.test.py': PY_TEST, 'test/rcf/c.test.py': PY_TEST },
+    nodes: [['src/greet.js#greet', ['AC-101-1', 'AC-101-2', 'AC-101-3']]],
+    bind: [['AC-101-1', 'test/rcf/a.test.py', 'test_greets'], ['AC-101-1', 'test/rcf/c.test.py', 'test_greets'], ['AC-101-2', 'test/rcf/b.test.py', 'test_greets'], ['AC-101-3', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const scope = ['--acs', 'AC-101-3,AC-101-2,AC-101-1'];
+  const g = await strength(many.dir, scope, nodeEnv());
+  assert.equal(g.code, 5, `two blocked criteria beside a passing one: exit 5\n${g.stdout}${g.stderr}`);
+  const rep = json((await strength(many.dir, [...scope, '--json'], nodeEnv())).stdout);
+  assert.equal(rep.result, 'blocked', JSON.stringify(rep));
+  assert.equal(rep.totals.criteria, 3, `totals.criteria counts the blocked criteria\n${JSON.stringify(rep.totals)}`);
+  assert.equal(rep.totals.blocked, 2, JSON.stringify(rep.totals));
+  assert.equal(rep.totals.structuralPassed, 1, JSON.stringify(rep.totals));
+  for (const id of ['AC-101-1', 'AC-101-2']) {
+    const e = crit(rep, id);
+    assert.equal(e.result, 'blocked', JSON.stringify(e));
+    assert.equal(e.blocked, true, JSON.stringify(e));
+    assert.deepEqual(e.mutants, [], JSON.stringify(e));
+    assert.deepEqual(e.structural, { checked: false }, JSON.stringify(e));
+  }
+  assert.match(crit(rep, 'AC-101-1').detail, /^test\/rcf\/a\.test\.py:\d+:\d+: [^;]+; test\/rcf\/c\.test\.py:\d+:\d+: [^;]+$/, `each file's first construct in bound order, joined by "; "\n${JSON.stringify(crit(rep, 'AC-101-1'))}`);
+  assert.equal(crit(rep, 'AC-101-3').result, 'pass', JSON.stringify(rep));
+  const { killed, timeout, mutants, notApplicable } = rep.totals;
+  const twoFiles = '(?:test/rcf/a\\.test\\.py and test/rcf/c\\.test\\.py|test/rcf/c\\.test\\.py and test/rcf/a\\.test\\.py)';
+  const manyLine = new RegExp(`^test-strength: BLOCKED 3 criteria at ${s7(many.H)}: structural 1/1, mutants killed ${killed + timeout}/${mutants - notApplicable} \\(timeout ${timeout}, notApplicable ${notApplicable}, blocked 2\\): AC-101-1 \\(${twoFiles}\\), AC-101-2 \\(test/rcf/b\\.test\\.py\\)$`);
+  assert.ok(lines(g.stdout).some((l) => manyLine.test(l)), `the BLOCKED line: ids ascending, ", " between ids, " and " between one id's files, the F7 counts\n${g.stdout}${g.stderr}`);
 });
 
 // ---------------------------------------------------------------- US-19902
@@ -467,7 +557,13 @@ test('AC-19902-9: a bound test red unmutated for want of an environment variable
   });
   const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
   assert.equal(r.code, 2, `the unmutated run is red: exit 2\n${r.stdout}${r.stderr}`);
-  assert.ok(lines(r.stderr).includes(unmutatedRed(`test/rcf/a.test.js::${GREETS.name}`, ['node', '--test', '--test-name-pattern', '<name>', '<file>'])), `stderr names the default runner and the bound test\n${r.stderr}`);
+  // The stage-keeper's ruling 3 on the DEFINE's questions: the nodeTest
+  // default argv carries the TAP reporter; its exact form is matched by shape.
+  const red = lines(r.stderr).map((l) => l.match(/^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/)).find((m) => m && m[1] === `test/rcf/a.test.js::${GREETS.name}`);
+  assert.ok(red, `stderr names the default runner and the bound test\n${r.stderr}`);
+  const argv = red[2].split(' ');
+  for (const word of ['node', '--test', '--test-name-pattern', '<name>', '<file>']) assert.ok(argv.includes(word), `the default runner carries ${word}\n${red[0]}`);
+  assert.ok(argv.includes('--test-reporter=tap') || argv.some((w, i) => w === '--test-reporter' && argv[i + 1] === 'tap'), `the default runner carries the TAP reporter\n${red[0]}`);
   noResultLine(r);
   assert.equal(runsIn(log), 1, 'the bound test ran once, unmutated, and no mutant ran');
 });
@@ -475,7 +571,7 @@ test('AC-19902-9: a bound test red unmutated for want of an environment variable
 // ---------------------------------------------------------------- US-19903
 
 const REPORT_KEYS = ['version', 'head', 'scope', 'criteria', 'result', 'totals', 'wallMs', 'node'];
-const TOTAL_KEYS = ['criteria', 'structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable'];
+const TOTAL_KEYS = ['criteria', 'structuralPassed', 'mutants', 'killed', 'survived', 'timeout', 'notApplicable', 'blocked'];
 
 test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4', async (t) => {
   const passing = await strengthProject(t);
@@ -490,6 +586,8 @@ test('AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --recor
   assert.deepEqual(rep.criteria.map((c) => c.acId), ['AC-101-1']);
   assert.equal(rep.result, 'pass');
   assert.deepEqual(Object.keys(rep.totals).sort(), [...TOTAL_KEYS].sort());
+  // The stage-keeper's ruling Q1 on the pre-freeze gate's questions: totals.blocked is present on every report, 0 when none.
+  assert.equal(rep.totals.blocked, 0, `totals.blocked is 0 when no criterion is blocked\n${JSON.stringify(rep.totals)}`);
   assert.equal(typeof rep.wallMs, 'number');
   assert.equal(rep.node, process.version);
 
@@ -626,4 +724,565 @@ test('AC-19903-5: rcf audit test-strength never deploys, opens no network connec
     assert.ok(r.stderr.includes(field), `stderr names ${field}\n${r.stderr}`);
     assert.equal(existsSync(ran), false, `${field}: no test ran`);
   }
+});
+
+// ------------------------------------------- round D fix DEFINE (F-2, F-3, F-5)
+// The review verdict at 1bee2f8c (FINDINGS/FINDINGS) and the stage-keeper's
+// rulings on it: AC-19901-9's position past line 1 and its unreadable entry.
+
+// F-2 (the reviewer's own, test locus) and F-3 (ruled D3): the detail
+// places the first unreadable construct where it is, never at 1:1.
+test('AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5', async (t) => {
+  const acs = ['AC-101-1', 'AC-101-2'];
+  const { dir } = await strengthProject(t, {
+    acs,
+    files: {
+      // "  const b = ;": the expression node expects sits at column 13 of line 3.
+      'src/a.ts': L('export function run(n: number): number {', '  const a = n;', '  const b = ;', '  return a;', '}'),
+      // "  constructor(override y: number) { super(); }": the parameter property spans columns 15 to 32 of line 3.
+      'src/b.ts': L('class Base {}', 'export class C extends Base {', '  constructor(override y: number) { super(); }', '}', 'export function run(n: number): number {', '  return n;', '}'),
+    },
+    nodes: [['src/a.ts#run', ['AC-101-1']], ['src/b.ts#run', ['AC-101-2']]],
+    bind: [['AC-101-1', 'test/rcf/a.test.js', GREETS.name], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  const report = json(r.stdout);
+  const detail = (acId) => {
+    const c = crit(report, acId);
+    assert.equal(c?.result, 'blocked', `${acId} is BLOCKED\n${r.stdout}${r.stderr}`);
+    assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
+    return c.detail;
+  };
+  const a = detail('AC-101-1');
+  assert.match(a, /^src\/a\.ts:3:13: \S.*$/, `the first unreadable construct of src/a.ts is at 3:13, where node places the syntax error\n${a}`);
+  const b = detail('AC-101-2');
+  const m = /^src\/b\.ts:(\d+):(\d+): non-erasable TypeScript syntax \(.+\)$/.exec(b);
+  assert.ok(m, `detail is "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)"\n${b}`);
+  assert.equal(Number(m[1]), 3, `the refused parameter property sits on line 3\n${b}`);
+  assert.ok(Number(m[2]) >= 15 && Number(m[2]) <= 32, `the column lies in the refused parameter property, columns 15 to 32\n${b}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+});
+
+// F-2: an entry point the strip view cannot parse is the audit's own input unreadable.
+test('AC-19901-9: an entry point the strip view cannot parse (rcf/test-strength.json entry src/index.ts holding an enum on line 2) exits 2 with a stderr line starting "test-strength: entry point unreadable" and the detail', async (t) => {
+  const { dir } = await strengthProject(t, {
+    config: { entry: [{ kind: 'module', path: 'src/index.ts' }], harness: ['test/_harness/**'] },
+    files: { 'src/index.ts': L('export const one = 1;', 'export enum Mode { A }') },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable'));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable"\n${r.stdout}${r.stderr}`);
+  assert.match(line, /^test-strength: entry point unreadable: src\/index\.ts:2:\d+: non-erasable TypeScript syntax \([^)]*enum[^)]*\)$/, `the line carries the detail "<file>:<line>:<col>: non-erasable TypeScript syntax (<construct>)"\n${line}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});
+
+// F-2 and F-5 (ruled D4): an entry point of an extension the views cannot read.
+test('AC-19901-9: an entry point of an extension the views cannot read (rcf/test-strength.json entry bin/app.py) exits 2 with a stderr line starting "test-strength: entry point unreadable" and the detail naming the file', async (t) => {
+  const { dir } = await strengthProject(t, {
+    config: { entry: [{ kind: 'bin', path: 'bin/app.py' }], harness: ['test/_harness/**'] },
+    files: { 'bin/app.py': 'print("hello")\n' },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable'));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable" for the .py entry\n${r.stdout}${r.stderr}`);
+  assert.match(line, /^test-strength: entry point unreadable: bin\/app\.py:\d+:\d+: \S.*$/, `the line carries the detail "<file>:<line>:<col>: <construct>"\n${line}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});
+
+// ------------------------------------------- round D fix round 2 (R-1)
+// The re-review verdict at 150ab8ea (FINDINGS/FINDINGS): R-1, its F-1, the
+// first round's F-3 not closed where node's diagnostic carries a line and
+// no caret line under it (an unclosed brace). Rewritten in the redesign
+// DEFINE to its successor (the stage-keeper's ruling 3 on the design
+// review): when the input ends inside a construct, the detail places it
+// where the innermost construct still open opens.
+test('AC-19901-9: an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with "test-strength: entry point unreadable" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file', async (t) => {
+  const { dir } = await strengthProject(t, {
+    config: { entry: [{ kind: 'module', path: 'src/index.ts' }], harness: ['test/_harness/**'] },
+    files: { 'src/index.ts': L('export function run(n: number): number {', '  const a = n;', '  if (a) {', '    return a;') },
+  });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable: '));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
+  const m = /^test-strength: entry point unreadable: src\/index\.ts:(\d+):(\d+): invalid TypeScript syntax \(.+\)$/.exec(line);
+  assert.ok(m, `the line carries the detail "<file>:<line>:<col>: invalid TypeScript syntax (...)"\n${line}`);
+  // "  if (a) {": the brace still open at the end of input is column 10 of line 3.
+  assert.equal(`${m[1]}:${m[2]}`, '3:10', `the detail places the innermost brace still open at the end of input, 3:10\n${line}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+});
+
+// ------------------------------------------- round D redesign (W's F-1, positions)
+// The second re-review verdict at 09e409f8 (FINDINGS/PASS): W's F-1, the
+// repeat-bug watch on position mapping, and its notes F-3 (the column
+// unit) and F-4 (the column at the end of input), after the stage-keeper's
+// design review and rulings 1 and 3: <line> counts CRLF, a lone CR and LF;
+// <col> counts UTF-16 code units; at the end of input, where the innermost
+// construct still open opens. Each case holds one symbol-level .ts Code
+// Node file the strip view refuses, so the criterion is BLOCKED and its
+// detail is read.
+async function blockedDetailOf(t, text, file = 'src/a.ts') {
+  const { dir } = await strengthProject(t, { files: { [file]: text }, nodes: [[`${file}#run`, ['AC-101-1']]] });
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.equal(c?.result, 'blocked', `AC-101-1 is BLOCKED\n${r.stdout}${r.stderr}`);
+  assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', q(c));
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+  return c.detail;
+}
+const placedAt = (detail, at, why) => assert.ok(detail.startsWith(`${at}: `) && /^\S+:\d+:\d+: \S/.test(detail), `${why}: the detail starts "${at}: "\n${detail}`);
+
+// P-R2: U+2705 (node prints it two columns wide) is one UTF-16 unit.
+test('AC-19901-9: a syntax error after a character node prints two columns wide is placed at its column: src/a.ts holding a string literal of U+2705 then const b = ;, the gap at 1:33, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, "export const s = '✅'; const b = ;\n");
+  placedAt(detail, 'src/a.ts:1:33', 'the expression node expects, after U+2705 counted one UTF-16 unit, sits at 1:33');
+});
+
+// P-R3: a combining mark (node prints it with no width) counts one unit.
+test('AC-19901-9: a syntax error after a combining mark is placed at its column: src/a.ts holding a string literal of U+0E01 U+0E31 then const b = ;, the gap at 1:34, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, "export const s = 'กั'; const b = ;\n");
+  placedAt(detail, 'src/a.ts:1:34', 'the combining mark U+0E31 counts one unit, so the gap sits at 1:34');
+});
+
+// P-R4: a lone CR is a line break.
+test('AC-19901-9: a file whose lines end in a lone CR places the error on its line and column: src/a.ts of three CR-ended lines, the gap of the tab-indented const b = ; at 3:12, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, 'export const a = 1;\rexport const c = 2;\r\tconst b = ;\r');
+  placedAt(detail, 'src/a.ts:3:12', 'a lone CR ends a line and the tab counts one unit, so the gap sits at 3:12');
+});
+
+// P-R5: one test, three inputs, one assertion each.
+test('AC-19901-9: a byte order mark, a form feed and a vertical tab count one column each: the gap of const b = ; at 1:19 after a byte order mark, 1:31 after a form feed and 1:31 after a vertical tab, exit 5', async (t) => {
+  placedAt(await blockedDetailOf(t, '﻿export const b = ;\n'), 'src/a.ts:1:19', 'a byte order mark counts one unit');
+  placedAt(await blockedDetailOf(t, 'export const a = 1;\fconst b = ;\n'), 'src/a.ts:1:31', 'a form feed counts one unit and is no line break');
+  placedAt(await blockedDetailOf(t, 'export const a = 1;\vconst b = ;\n'), 'src/a.ts:1:31', 'a vertical tab counts one unit and is no line break');
+});
+
+// P-R7: the end of input inside a template literal.
+test('AC-19901-9: an unterminated template literal is placed where it opens: src/a.ts whose line 2 opens a template literal never closed, 2:18, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, 'export const a = 1;\nexport const t = `abc ${a}\nmore\n');
+  placedAt(detail, 'src/a.ts:2:18', 'the template literal still open at the end of input opens at 2:18');
+});
+
+// P-R8: the end of input inside a block comment.
+test('AC-19901-9: an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5', async (t) => {
+  const detail = await blockedDetailOf(t, 'export const a = 1;\n/* open\nmore\n');
+  placedAt(detail, 'src/a.ts:2:1', 'the block comment still open at the end of input opens at 2:1');
+});
+
+// ------------------------------------------- round D redesign (F-10, F-14)
+// The first verdict's F-10 (a signal leaves the scratch and no runner
+// group is killed) and F-14 (a scratch that cannot be removed is labelled
+// a worktree), joined to this round by the stage-keeper's ruling 10. The
+// audit makes its scratch under its own TMPDIR (runner.js mkdtemp of
+// tmpdir()), so each case gives the audit a TMPDIR of its own to read.
+
+// Restore write permission under dir, so the case's scratch can be removed.
+function writable(dir) {
+  if (!existsSync(dir)) return;
+  chmodSync(dir, 0o755);
+  for (const e of readdirSync(dir, { withFileTypes: true })) if (e.isDirectory()) writable(join(dir, e.name));
+}
+const alive = (pid) => { try { process.kill(pid, 0); return true; } catch { return false; } };
+const until = async (fn, ms) => { const end = Date.now() + ms; while (!fn() && Date.now() < end) await new Promise((r) => setTimeout(r, 100)); return fn(); };
+
+test('AC-19903-7: on SIGINT or SIGTERM while a bound test runs, rcf audit test-strength kills the process group of the bound test run, removes its scratch directory with its working copies, leaves no entry in .git/worktrees of the project and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
+  for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
+    const side = scratch(t, 'rcf-h-sig-');
+    const tmp = join(side, 'tmp');
+    mkdirSync(tmp);
+    const pidFile = join(side, 'pid');
+    // The bound test writes its pid, then waits: the signal lands while it runs.
+    const waiting = testFile([GREETS], { imports: ["import { writeFileSync } from 'node:fs';"], top: [`writeFileSync(${q(pidFile)}, String(process.pid));`, 'await new Promise((r) => setTimeout(r, 60_000));'] });
+    const { dir } = await strengthProject(t, { files: { 'test/rcf/a.test.js': waiting } });
+    const child = spawn(process.execPath, [BIN, 'audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: dir, env: baseEnv({ ...nodeEnv(), TMPDIR: tmp }), stdio: 'ignore' });
+    const exited = new Promise((res) => child.on('exit', (code, sig) => res({ code, sig })));
+    let pid = 0;
+    t.after(() => { if (pid && alive(pid)) process.kill(pid, 'SIGKILL'); });
+    try {
+      assert.ok(await until(() => existsSync(pidFile) && readFileSync(pidFile, 'utf8') !== '', 120_000), `${signal}: the bound test started`);
+      pid = Number(readFileSync(pidFile, 'utf8'));
+      assert.notDeepEqual(readdirSync(tmp), [], `${signal}: while the run is on, the audit's scratch sits in its TMPDIR`);
+      child.kill(signal);
+      const { code, sig } = await exited;
+      assert.equal(code, want, `${signal}: exit ${want} (got code ${code}, signal ${sig})`);
+      assert.deepEqual(readdirSync(tmp), [], `${signal}: the audit's scratch directory, its working copies within it, is removed`);
+      const worktrees = join(dir, '.git', 'worktrees');
+      assert.deepEqual(existsSync(worktrees) ? readdirSync(worktrees) : [], [], `${signal}: no entry is left in the project's .git/worktrees`);
+      assert.equal(await until(() => !alive(pid), 10_000), true, `${signal}: the bound test run's process (pid ${pid}) is killed with its group`);
+    } finally {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      if (pid && alive(pid)) process.kill(pid, 'SIGKILL');
+      writable(tmp);
+    }
+  }
+});
+
+test('AC-19903-5: a scratch directory that cannot be removed is named in one stderr line "[warn] test-strength: scratch directory <dir> could not be removed" (a bound test leaving a directory it made read-only in its TMPDIR, the scratch of the audit)', async (t) => {
+  const side = scratch(t, 'rcf-h-locked-');
+  const tmp = join(side, 'tmp');
+  mkdirSync(tmp);
+  // The bound test's TMPDIR is the audit's scratch: it leaves a directory there whose entries cannot be removed.
+  const locking = testFile([GREETS], {
+    imports: ["import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';", "import { tmpdir } from 'node:os';", "import { join } from 'node:path';"],
+    top: ["mkdirSync(join(tmpdir(), 'locked', 'in'), { recursive: true });", "writeFileSync(join(tmpdir(), 'locked', 'in', 'f.txt'), 'x');", "chmodSync(join(tmpdir(), 'locked'), 0o555);"],
+  });
+  const { dir } = await strengthProject(t, { files: { 'test/rcf/a.test.js': locking } });
+  try {
+    const r = await strength(dir, ['--acs', 'AC-101-1'], { ...nodeEnv(), TMPDIR: tmp });
+    const warns = lines(r.stderr).filter((l) => l.startsWith('[warn] test-strength: scratch'));
+    assert.ok(warns.length > 0, `a scratch directory that cannot be removed is named on stderr\n${r.stdout}${r.stderr}`);
+    for (const w of warns) {
+      const m = /^\[warn\] test-strength: scratch directory (.+) could not be removed$/.exec(w);
+      assert.ok(m, `the line reads "[warn] test-strength: scratch directory <dir> could not be removed"\n${w}`);
+      assert.ok(existsSync(m[1]) && m[1].startsWith(tmp), `the line names the audit's scratch directory, left in its TMPDIR\n${w}`);
+    }
+    assert.equal(new Set(warns).size, warns.length, `each scratch directory is named in one line\n${r.stderr}`);
+  } finally {
+    writable(tmp);
+  }
+});
+
+// ------------------------------------------- round D fix round 3 (re-Review 3's F-1 and F-2, positions)
+// The re-Review 3 verdict at 5a880f2f (FINDINGS/FINDINGS) and the
+// stage-keeper's rulings on it: node is the oracle. Where node's strip-mode
+// error carries a caret, the detail places the refusal at node's line and
+// the caret's column; where it names a line and no column (the input ends
+// with nothing open), at that line, column 1 (F-2's sentence in
+// AC-19901-9). Each input is written as escapes, and each position is the
+// one node v24.14.0 gives for it. Each case reads the detail of a
+// symbol-level .ts Code Node file on line 1, then on line 2 after an LF
+// line and after a CRLF line, and the same detail through the entry point
+// src/intervals.ts ("entry point unreadable", exit 2).
+async function entryDetailOf(t, text, file = 'src/intervals.ts') {
+  const { dir } = await strengthProject(t, { config: { entry: [{ kind: 'module', path: file }], harness: ['test/_harness/**'] }, files: { [file]: text } });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable: '));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+  return line.slice('test-strength: entry point unreadable: '.length);
+}
+const syntaxAt = (detail, at, why) => assert.ok(detail.startsWith(`${at}: invalid TypeScript syntax (`), `${why}: the detail starts "${at}: invalid TypeScript syntax ("\n${detail}`);
+async function placedWhereNodePlaces(t, text, col, why) {
+  syntaxAt(await blockedDetailOf(t, text), `src/a.ts:1:${col}`, why);
+  syntaxAt(await blockedDetailOf(t, `export const z = 0;\n${text}\n`), `src/a.ts:2:${col}`, `${why}, on line 2 after an LF line`);
+  syntaxAt(await blockedDetailOf(t, `export const z = 0;\r\n${text}\r\n`), `src/a.ts:2:${col}`, `${why}, on line 2 after a CRLF line`);
+  syntaxAt(await entryDetailOf(t, text), `src/intervals.ts:1:${col}`, `${why}, in the entry point`);
+}
+
+// F-1 (A-POS-6a): node refuses U+0301 as a token start, its caret at index 17.
+test('AC-19901-9: a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, 'export const a = \u0301;', 18, 'node places the unexpected U+0301 at column 18');
+});
+
+// F-1 (A-POS-6b): a lone U+200D, node's caret at index 20.
+test('AC-19901-9: a lone zero width joiner is placed where node places its refusal: src/a.ts holding export const a = 1; U+200D const b = 2; at 1:21 (2:21 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:21, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, 'export const a = 1; \u200d const b = 2;', 21, 'node places the unexpected U+200D at column 21');
+});
+
+// F-1 (A-POS-6c): U+0663 starting a token, node's caret at index 17.
+test('AC-19901-9: an Arabic-Indic digit starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0663; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, 'export const a = \u0663;', 18, 'node places the unexpected U+0663 at column 18');
+});
+
+// F-1 (A-POS-6h): node's message quotes the non-ASCII label, its caret at index 3.
+test('AC-19901-9: a refusal whose message quotes a non-ASCII identifier is placed where node places it: src/a.ts holding U+00FC: U+00FC: while (true) break; (the label declared twice) at 1:4 (2:4 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:4, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, '\u00fc: \u00fc: while (true) break;', 4, 'node places the second label U+00FC at column 4');
+});
+
+// F-2 (A-POS-6f), a declared guard: node names line 2 and no column.
+test('AC-19901-9: when node names a line and no column, the input ending after an operator with nothing open, the refusal is placed at that line, column 1: src/a.ts ending in export const b = on line 2 at 2:1 (with CRLF line ends too, and on line 3 at 3:1), and the entry point src/intervals.ts at 2:1, exit 5 and exit 2', async (t) => {
+  syntaxAt(await blockedDetailOf(t, 'export const a = 1;\nexport const b =\n'), 'src/a.ts:2:1', 'node names line 2 and no column');
+  syntaxAt(await blockedDetailOf(t, 'export const a = 1;\r\nexport const b =\r\n'), 'src/a.ts:2:1', 'node names line 2 and no column, CRLF line ends');
+  syntaxAt(await blockedDetailOf(t, 'export const z = 0;\nexport const a = 1;\nexport const b =\n'), 'src/a.ts:3:1', 'node names line 3 and no column');
+  syntaxAt(await entryDetailOf(t, 'export const a = 1;\nexport const b =\n'), 'src/intervals.ts:2:1', 'node names line 2 and no column, in the entry point');
+});
+
+// F-2 (A-POS-6g), a declared guard: node names line 1 and no column.
+test('AC-19901-9: when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5', async (t) => {
+  syntaxAt(await blockedDetailOf(t, 'export const a = 1 +'), 'src/a.ts:1:1', 'node names line 1 and no column');
+  syntaxAt(await blockedDetailOf(t, 'export const z = 0;\nexport const a = 1 +'), 'src/a.ts:2:1', 'node names line 2 and no column');
+});
+
+// ------------------------------------------- round D fix round 3 (re-Review 3's F-5 and F-7)
+// F-7, the re-Review 3 verdict's F-7, and F-7's sentence in AC-19903-5: on
+// an error exit (here the mutant run failing on a mutated file it cannot
+// restore, the "cannot run the bound tests" path) the audit still runs the
+// backstop and the warn line, and names the scratch it leaves.
+test('AC-19903-5: on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with "test-strength: a bound test run wrote <path> in the project" naming escape.txt and a "[warn] test-strength: scratch directory <dir> could not be removed" line for each scratch left', async (t) => {
+  const side = scratch(t, 'rcf-h-errexit-');
+  const tmp = join(side, 'tmp');
+  mkdirSync(tmp);
+  const { dir } = await strengthProject(t);
+  const escaped = join(dir, 'escape.txt');
+  const failing = testFile([GREETS], {
+    imports: ["import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';", "import { tmpdir } from 'node:os';", "import { join } from 'node:path';"],
+    top: [
+      `writeFileSync(${q(escaped)}, 'e');`,
+      "mkdirSync(join(tmpdir(), 'locked', 'in'), { recursive: true });",
+      "writeFileSync(join(tmpdir(), 'locked', 'in', 'f.txt'), 'x');",
+      "chmodSync(join(tmpdir(), 'locked'), 0o555);",
+      "chmodSync('src/greet.js', 0o444);",
+    ],
+  });
+  commit(dir, 'fixture: a bound test the mutant run cannot recover from', { 'test/rcf/a.test.js': failing });
+  try {
+    const r = await strength(dir, ['--acs', 'AC-101-1'], { ...nodeEnv(), TMPDIR: tmp });
+    assert.equal(r.code, 2, `an error exit: exit 2\n${r.stdout}${r.stderr}`);
+    const wrote = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
+    assert.ok(wrote, `the backstop runs on the error exit: stderr carries "test-strength: a bound test run wrote <path> in the project"\n${r.stdout}${r.stderr}`);
+    assert.ok(wrote[1].endsWith('escape.txt'), `the line names escape.txt\n${wrote[0]}`);
+    const named = lines(r.stderr).filter((l) => l.startsWith('[warn] test-strength: scratch')).map((w) => {
+      const m = /^\[warn\] test-strength: scratch directory (.+) could not be removed$/.exec(w);
+      assert.ok(m, `the line reads "[warn] test-strength: scratch directory <dir> could not be removed"\n${w}`);
+      return m[1];
+    });
+    const left = readdirSync(tmp).map((e) => join(tmp, e)).sort();
+    assert.notDeepEqual(left, [], `the bound test leaves the audit's scratch in its TMPDIR\n${r.stderr}`);
+    assert.deepEqual([...named].sort(), left, `the error exit names each scratch directory left in its TMPDIR, each in one line\n${r.stdout}${r.stderr}`);
+    // F-7 (a), the re-Review 4 verdict's F-7: the cannot-run line names the scratch path the run used.
+    const cannot = lines(r.stderr).filter((l) => l.startsWith('test-strength: cannot run the bound tests'));
+    assert.equal(cannot.length, 1, `one stderr line starts "test-strength: cannot run the bound tests"\n${r.stdout}${r.stderr}`);
+    assert.ok(named.some((d) => cannot[0].includes(` ${d}: `)), `the cannot-run line names the scratch directory the run used, the one a warn line names\n${cannot[0]}\n${named.join('\n')}`);
+  } finally {
+    writable(tmp);
+  }
+});
+
+// F-5, the re-Review 3 verdict's F-5: the parts of AC-19903-7 the signal
+// case above leaves unasserted, as A-CACHE-5 ran them. Each bound test run
+// starts a child process of its own (in its process group) and records
+// both pids and its working directory; with --jobs 2 the signal lands while
+// two mutant runs are live, in two working copies.
+function gitTree(dir) {
+  const seen = new Map();
+  const walk = (rel) => {
+    for (const e of readdirSync(join(dir, rel), { withFileTypes: true })) {
+      const p = `${rel}/${e.name}`;
+      if (e.isDirectory()) { seen.set(`${p}/`, 'dir'); walk(p); } else seen.set(p, createHash('sha256').update(readFileSync(join(dir, p))).digest('hex'));
+    }
+  };
+  walk('.git');
+  return seen;
+}
+test('AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process in the process group of each bound test run, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the .git of the project as it was, and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
+  for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
+    const side = scratch(t, 'rcf-h-sig2-');
+    const tmp = join(side, 'tmp');
+    mkdirSync(tmp);
+    const runsFile = join(side, 'runs');
+    // Each run appends "<its pid> <its child's pid> <its working directory>", then waits 20 s.
+    const waiting = testFile([GREETS], {
+      imports: ["import { appendFileSync } from 'node:fs';", "import { spawn } from 'node:child_process';"],
+      top: [
+        "const kid = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 300_000)'], { stdio: 'ignore' });",
+        `appendFileSync(${q(runsFile)}, \`\${process.pid} \${kid.pid} \${process.cwd()}\\n\`);`,
+        'await new Promise((r) => setTimeout(r, 20_000));',
+        'kid.kill();',
+      ],
+    });
+    const { dir } = await strengthProject(t, { files: { 'test/rcf/a.test.js': waiting } });
+    const gitBefore = gitTree(dir);
+    const runs = () => (existsSync(runsFile) ? readFileSync(runsFile, 'utf8') : '').split('\n').filter(Boolean).map((l) => {
+      const [pid, kid, ...cwd] = l.split(' ');
+      return { pid: Number(pid), kid: Number(kid), cwd: cwd.join(' ') };
+    });
+    let seen = [];
+    const reap = () => { for (const r of [...seen, ...runs()]) for (const p of [r.pid, r.kid]) if (p && alive(p)) process.kill(p, 'SIGKILL'); };
+    t.after(reap);
+    const child = spawn(process.execPath, [BIN, 'audit', 'test-strength', '--acs', 'AC-101-1', '--jobs', '2'], { cwd: dir, env: baseEnv({ ...nodeEnv(), TMPDIR: tmp }), stdio: 'ignore' });
+    const exited = new Promise((res) => child.on('exit', (code, sig) => res({ code, sig })));
+    try {
+      // The first run is the unmutated run (one working copy); the mutant runs follow, two at once.
+      const live = () => runs().slice(1).filter((r) => alive(r.pid) && alive(r.kid));
+      assert.ok(await until(() => live().length >= 2, 150_000), `${signal}: two mutant runs are live at once under --jobs 2\n${q(runs())}`);
+      const both = live();
+      assert.equal(new Set(both.map((r) => r.cwd)).size, 2, `${signal}: the two live runs sit in two working copies\n${q(both)}`);
+      for (const r of both) assert.ok(r.cwd.startsWith(realpathSync(tmp)), `${signal}: each working copy sits in the audit's scratch, in its TMPDIR\n${r.cwd}`);
+      child.kill(signal);
+      const { code, sig } = await exited;
+      seen = runs();
+      assert.equal(code, want, `${signal}: exit ${want} (got code ${code}, signal ${sig})`);
+      for (const r of seen) {
+        assert.equal(await until(() => !alive(r.pid) && !alive(r.kid), 10_000), true, `${signal}: every process of the group is killed: the bound test run ${r.pid} and its child ${r.kid}`);
+      }
+      assert.deepEqual(readdirSync(tmp), [], `${signal}: the audit's scratch directory, both working copies within it, is removed`);
+      assert.deepEqual(gitTree(dir), gitBefore, `${signal}: no path of the project's .git is new, changed or deleted`);
+    } finally {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      reap();
+      writable(tmp);
+    }
+  }
+});
+
+// ------------------------------------------- round D fix round 4 (re-Review 4's F-1, the tie rule)
+// F-1, the re-Review 4 verdict's F-1 (the X-POS-22 family), and the tie
+// set of the stage-keeper's design decision after re-Review 4: a
+// zero-width character (U+200B or U+FEFF, which node's renderer prints
+// with no width) just before the token node refuses ties several offsets
+// at node's caret, and the refusal is placed at the refused token, where
+// node places it, never at node's caret plus 1. A placed refusal is never
+// the withheld degraded state: no stderr line starts "test-strength:
+// column for ". Each input is written as escapes; each position is the
+// one node v24.14.0 gives for it (the refused token's UTF-16 column).
+const WITHHELD = 'test-strength: column for ';
+async function placedUnwithheld(t, text, at, why, file = 'src/a.ts') {
+  const { dir } = await strengthProject(t, { files: { [file]: text }, nodes: [[`${file}#run`, ['AC-101-1']]] });
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.equal(c?.result, 'blocked', `AC-101-1 is BLOCKED\n${r.stdout}${r.stderr}`);
+  syntaxAt(c.detail, `${file}:${at}`, why);
+  assert.deepEqual(lines(r.stderr).filter((l) => l.startsWith(WITHHELD)), [], `${why}: node places the refusal, so no stderr line reads "${WITHHELD}..."\n${r.stderr}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+}
+async function entryUnwithheld(t, text, at, why) {
+  const { dir } = await strengthProject(t, { config: { entry: [{ kind: 'module', path: 'src/intervals.ts' }], harness: ['test/_harness/**'] }, files: { 'src/intervals.ts': text } });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable: '));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
+  syntaxAt(line.slice('test-strength: entry point unreadable: '.length), `src/intervals.ts:${at}`, `${why}, in the entry point`);
+  assert.deepEqual(lines(r.stderr).filter((l) => l.startsWith(WITHHELD)), [], `${why}, in the entry point: no stderr line reads "${WITHHELD}..."\n${r.stderr}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+}
+async function familyPlaced(t, text, at, why) {
+  await placedUnwithheld(t, text, at, why);
+  await entryUnwithheld(t, text, at, why);
+}
+
+// X-POS-22: const t = 1 + U+200B U+200B; node's caret at index 14, the refused ; at 1:17.
+test('AC-19901-9: two zero width spaces before the token node refuses after a binary operator are no column: src/a.ts holding const t = 1 + U+200B U+200B; places the refused ; at 1:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:17, exit 2', async (t) => {
+  await familyPlaced(t, 'const t = 1 + ​​;', '1:17', 'node refuses the ; at column 17');
+});
+
+// X-POS-22h: const total = cost * U+200B; node's caret at index 21, the refused ; at 1:23.
+test('AC-19901-9: a zero width space before the token node refuses after * is no column: src/a.ts holding const total = cost * U+200B; places the refused ; at 1:23 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:23, exit 2', async (t) => {
+  await familyPlaced(t, 'const total = cost * ​;', '1:23', 'node refuses the ; at column 23');
+});
+
+// X-POS-22i: const okay = lefts || U+FEFF; node's caret at index 22, the refused ; at 1:24.
+test('AC-19901-9: a byte order mark before the token node refuses after || is no column: src/a.ts holding const okay = lefts || U+FEFF; places the refused ; at 1:24 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:24, exit 2', async (t) => {
+  await familyPlaced(t, 'const okay = lefts || ﻿;', '1:24', 'node refuses the ; at column 24');
+});
+
+// X-POS-22j: g(1 + U+200B); node's caret at index 6, the refused ) at 1:8.
+test('AC-19901-9: a zero width space before a refused closing parenthesis after + is no column: src/a.ts holding g(1 + U+200B); places the refused ) at 1:8 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:8, exit 2', async (t) => {
+  await familyPlaced(t, 'g(1 + ​);', '1:8', 'node refuses the ) at column 8');
+});
+
+// X-POS-22k: line 2 after a CRLF line, const d = 9 - U+FEFF U+FEFF; node's caret at index 14, the refused ; at 2:17.
+test('AC-19901-9: two byte order marks before the token node refuses after - on line 2 after a CRLF line are no column: src/a.ts holding export const z = 0; CRLF const d = 9 - U+FEFF U+FEFF; places the refused ; at 2:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 2:17, exit 2', async (t) => {
+  await familyPlaced(t, 'export const z = 0;\r\nconst d = 9 - ﻿﻿;\r\n', '2:17', 'node refuses the ; at column 17 of line 2');
+});
+
+// The tie set: an operand, the operator, a space, one zero-width character, then the ; node refuses.
+test('AC-19901-9: a tie after the binary operator + is placed at the refused token: src/a.ts holding const t = a + U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a + ​;', '1:16', 'node refuses the ; after + at column 16');
+});
+test('AC-19901-9: a tie after the binary operator - is placed at the refused token: src/a.ts holding const t = a - U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a - ​;', '1:16', 'node refuses the ; after - at column 16');
+});
+test('AC-19901-9: a tie after the binary operator * is placed at the refused token: src/a.ts holding const t = a * U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a * ​;', '1:16', 'node refuses the ; after * at column 16');
+});
+test('AC-19901-9: a tie after the binary operator / is placed at the refused token: src/a.ts holding const t = a / U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a / ​;', '1:16', 'node refuses the ; after / at column 16');
+});
+test('AC-19901-9: a tie after the binary operator % is placed at the refused token: src/a.ts holding const t = a % U+200B; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a % ​;', '1:16', 'node refuses the ; after % at column 16');
+});
+test('AC-19901-9: a tie after the binary operator ** is placed at the refused token: src/a.ts holding const t = a ** U+200B; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a ** ​;', '1:17', 'node refuses the ; after ** at column 17');
+});
+test('AC-19901-9: a tie after the binary operator == is placed at the refused token: src/a.ts holding const t = a == U+200B; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a == ​;', '1:17', 'node refuses the ; after == at column 17');
+});
+test('AC-19901-9: a tie after the binary operator != is placed at the refused token: src/a.ts holding const t = a != U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a != ﻿;', '1:17', 'node refuses the ; after != at column 17');
+});
+test('AC-19901-9: a tie after the binary operator < is placed at the refused token: src/a.ts holding const t = a < U+FEFF; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a < ﻿;', '1:16', 'node refuses the ; after < at column 16');
+});
+test('AC-19901-9: a tie after the binary operator > is placed at the refused token: src/a.ts holding const t = a > U+FEFF; at 1:16 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a > ﻿;', '1:16', 'node refuses the ; after > at column 16');
+});
+test('AC-19901-9: a tie after the binary operator && is placed at the refused token: src/a.ts holding const t = a && U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a && ﻿;', '1:17', 'node refuses the ; after && at column 17');
+});
+test('AC-19901-9: a tie after the binary operator || is placed at the refused token: src/a.ts holding const t = a || U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a || ﻿;', '1:17', 'node refuses the ; after || at column 17');
+});
+test('AC-19901-9: a tie after the binary operator ?? is placed at the refused token: src/a.ts holding const t = a ?? U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'const t = a ?? ﻿;', '1:17', 'node refuses the ; after ?? at column 17');
+});
+test('AC-19901-9: a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let t = 0; t = ﻿;', '1:17', 'node refuses the ; after = at column 17');
+});
+
+// ------------------------------------------- round D fix round 4 (the reach rule R)
+// The reach rule R, the stage-keeper's ruling after the top-down review of
+// the position oracle: where code points of no display width share node's
+// column, the refusal is placed at the first of them node does not pass
+// over (a zero-width code point node refuses is itself the construct; one
+// node passes over is not). Where node's caret does not move across the
+// code points that share its column (after an escape character), or node's
+// own probes of them disagree, the position check is withheld: the detail
+// reads node's line and node's caret plus 1, and one stderr line names the
+// reason, the documented degraded state. Each input is written as escapes;
+// each position is the one node v24.14.0 gives for it, or withholds.
+async function placedWithheld(t, text, at, reason, why, file = 'src/a.ts') {
+  const { dir } = await strengthProject(t, { files: { [file]: text }, nodes: [[`${file}#run`, ['AC-101-1']]] });
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.equal(c?.result, 'blocked', `AC-101-1 is BLOCKED\n${r.stdout}${r.stderr}`);
+  syntaxAt(c.detail, `${file}:${at}`, why);
+  const line = `${WITHHELD}${file}:${at.split(':')[0]} is node's display column (position check withheld: ${reason})`;
+  assert.deepEqual(lines(r.stderr).filter((l) => l.startsWith(WITHHELD)), [line], `${why}: exactly one stderr line reads "${line}"\n${r.stderr}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+}
+const CARET_STILL = "node's caret does not move across the tie";
+const PROBES_DISAGREE = 'the probes disagree';
+
+// The seven red cases of the ruling, in its order.
+test('AC-19901-9: a combining mark at an operand position is the construct node refuses: src/a.ts holding let a = 1 + U+0301; places the refusal at 1:13 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = 1 + \u0301;', '1:13', 'node refuses the combining mark at column 13');
+});
+test('AC-19901-9: a zero width space node passes over, then a combining mark at an operand position: src/a.ts holding let a = 1 + U+200B U+0301; places the refusal at the combining mark, 1:14, with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = 1 + \u200b\u0301;', '1:14', 'node refuses the combining mark at column 14');
+});
+test('AC-19901-9: two combining marks after * are placed at the first: src/a.ts holding let a = 2 * U+0301 U+0301; places the refusal at 1:13 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = 2 * \u0301\u0301;', '1:13', 'node refuses the first combining mark at column 13');
+});
+test('AC-19901-9: three zero width joiners where the probes of node disagree are withheld: src/a.ts holding export const a = 1 U+200D U+200D U+200D; reads 1:20, the caret of node plus 1, with one withheld column line naming the probes disagree, exit 5', async (t) => {
+  await placedWithheld(t, 'export const a = 1 \u200d\u200d\u200d;', '1:20', PROBES_DISAGREE, 'the probes of node disagree on the three joiners');
+});
+test('AC-19901-9: an escape character in a string, then a refused token after an operator, is withheld: src/a.ts holding export const s = quote U+001B quote; const b = 1 + ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5', async (t) => {
+  await placedWithheld(t, "export const s = '\u001b'; const b = 1 + ;", '1:19', CARET_STILL, 'the renderer of node swallows the code points after the escape character');
+});
+test('AC-19901-9: an escape and an operating system command sequence in a string, then a refused token, is withheld: src/a.ts holding export const s = quote U+001B ]0;t U+0007 quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5', async (t) => {
+  await placedWithheld(t, "export const s = '\u001b]0;t\u0007'; const b = ;", '1:19', CARET_STILL, 'the renderer of node swallows the code points after the escape character');
+});
+test('AC-19901-9: an escape character in a string, then a refused token (esc-unclosed), is withheld: src/a.ts holding export const s = quote U+001B quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5', async (t) => {
+  await placedWithheld(t, "export const s = '\u001b'; const b = ;", '1:19', CARET_STILL, 'the renderer of node swallows the code points after the escape character');
+});
+
+// The seven green guards of the ruling, in its order.
+test('AC-19901-9: two combining marks node refuses are placed at the first (comb-comb): src/a.ts holding export const a = U+0301 U+0301; places the refusal at 1:18 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const a = \u0301\u0301;', '1:18', 'node refuses the first combining mark at column 18');
+});
+test('AC-19901-9: two zero width joiners node refuses are placed at the first (zwj-zwj): src/a.ts holding export const a = 1 U+200D U+200D; places the refusal at 1:20 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const a = 1 \u200d\u200d;', '1:20', 'node refuses the first joiner at column 20');
+});
+test('AC-19901-9: a byte order mark node passes over, then two combining marks: src/a.ts holding export const a = U+FEFF U+0301 U+0301; places the refusal at the first combining mark, 1:19, with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const a = \ufeff\u0301\u0301;', '1:19', 'node refuses the first combining mark at column 19');
+});
+test('AC-19901-9: two combining marks on line 2 after a CRLF line are placed at the first: src/a.ts holding export const z = 0; CRLF export const a = U+0301 U+0301; places the refusal at 2:18 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const z = 0;\r\nexport const a = \u0301\u0301;\r\n', '2:18', 'node refuses the first combining mark at column 18 of line 2');
+});
+test('AC-19901-9: two combining marks in a .vue script setup block are placed at the first, counted in the .vue file: src/a.vue holding a template line, a script setup lang ts line and export const a = U+0301 U+0301; places the refusal at 3:18 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, "<template><p/></template>\r\n<script setup lang='ts'>\r\nexport const a = \u0301\u0301;\r\n</script>\r\n", '3:18', 'node refuses the first combining mark at column 18 of line 3 of the .vue file', 'src/a.vue');
+});
+test('AC-19901-9: a form feed node passes over, then a zero width joiner it refuses (x-ff-zwj): src/a.ts holding let a = x U+000C U+200D; places the refusal at the joiner, 1:11, with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = x\u000c\u200d;', '1:11', 'node refuses the joiner at column 11');
+});
+test('AC-19901-9: a repeated label of three Hangul jungseong fillers is placed at the second label: src/a.ts holding U+1160 U+1160 U+1160: U+1160 U+1160 U+1160: while (true) break; places the refusal at 1:6 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, '\u1160\u1160\u1160: \u1160\u1160\u1160: while (true) break;', '1:6', 'node refuses the second label at column 6');
 });

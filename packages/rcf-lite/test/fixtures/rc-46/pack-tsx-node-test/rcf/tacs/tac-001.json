@@ -1,0 +1,16 @@
+{
+  "tacId": "TAC-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "Interval module",
+  "purpose": "Hold the interval operations as pure exported functions.",
+  "responsibilities": [
+    "Validate intervals",
+    "Detect overlap",
+    "Merge interval lists"
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:24:18.391Z"
+}

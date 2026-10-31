@@ -6,7 +6,7 @@
     "covered": 135,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 61
+    "retiredAcs": 62
   },
   "requirements": [
     {
@@ -11530,14 +11530,74 @@
         },
         {
           "id": "AC-19901-8",
+          "state": "retired",
+          "supersededBy": "AC-19901-9",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": null,
+          "now": "retired"
+        },
+        {
+          "id": "AC-19901-9",
           "covered": true,
           "testCases": [
-            "TC-282-a-bound-test-file-test-rcf-a-test-ts-or"
+            "TC-282-a-bound-test-file-test-rcf-a-test-py-or",
+            "TC-282-a-byte-order-mark-a-form-feed-and-a",
+            "TC-282-a-combining-mark-starting-a-token-is",
+            "TC-282-a-file-whose-lines-end-in-a-lone-cr",
+            "TC-282-a-lone-zero-width-joiner-is-placed-where",
+            "TC-282-a-refusal-whose-message-quotes-a-non",
+            "TC-282-a-syntax-error-after-a-character-node",
+            "TC-282-a-syntax-error-after-a-combining-mark-is",
+            "TC-282-a-tie-after-the-operator-and",
+            "TC-282-a-tie-after-the-operator-assignment",
+            "TC-282-a-tie-after-the-operator-divide",
+            "TC-282-a-tie-after-the-operator-equals",
+            "TC-282-a-tie-after-the-operator-exponent",
+            "TC-282-a-tie-after-the-operator-greater-than",
+            "TC-282-a-tie-after-the-operator-less-than",
+            "TC-282-a-tie-after-the-operator-minus",
+            "TC-282-a-tie-after-the-operator-not-equals",
+            "TC-282-a-tie-after-the-operator-nullish",
+            "TC-282-a-tie-after-the-operator-or",
+            "TC-282-a-tie-after-the-operator-plus",
+            "TC-282-a-tie-after-the-operator-remainder",
+            "TC-282-a-tie-after-the-operator-times",
+            "TC-282-an-arabic-indic-digit-starting-a-token",
+            "TC-282-an-entry-point-of-an-extension-the-views",
+            "TC-282-an-entry-point-the-strip-view-cannot",
+            "TC-282-an-entry-point-whose-error-carries-a-line",
+            "TC-282-an-unterminated-block-comment-is-placed",
+            "TC-282-an-unterminated-template-literal-is",
+            "TC-282-r-bom-comb-comb",
+            "TC-282-r-comb-comb",
+            "TC-282-r-comb-comb-crlf",
+            "TC-282-r-comb-comb-vue",
+            "TC-282-r-esc-op-withheld",
+            "TC-282-r-esc-osc-withheld",
+            "TC-282-r-esc-unclosed-withheld",
+            "TC-282-r-hangul3-label",
+            "TC-282-r-op-comb",
+            "TC-282-r-op-comb-comb",
+            "TC-282-r-op-zwsp-comb",
+            "TC-282-r-x-ff-zwj",
+            "TC-282-r-zwj-zwj",
+            "TC-282-r-zwj3-withheld",
+            "TC-282-the-detail-places-the-first-unreadable",
+            "TC-282-when-node-names-a-line-and-no-break-at-the-end",
+            "TC-282-when-node-names-a-line-and-no-column-the",
+            "TC-282-x-pos-22-two-zero-width-spaces-after-plus",
+            "TC-282-x-pos-22h-a-zero-width-space-after-times",
+            "TC-282-x-pos-22i-a-byte-order-mark-after-or",
+            "TC-282-x-pos-22j-a-zero-width-space-before-a-parenthesis",
+            "TC-282-x-pos-22k-two-byte-order-marks-on-line-2"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "verified"
+          "now": "notStarted"
         },
         {
           "id": "AC-19902-1",
@@ -11687,12 +11747,139 @@
           "id": "AC-19903-5",
           "covered": true,
           "testCases": [
-            "TC-284-rcf-audit-test-strength-never-deploys"
+            "TC-284-a-bound-test-writing-a-new-file-inside",
+            "TC-284-a-cache-file-the-project-already-holds",
+            "TC-284-a-nodetest-bound-test-writing-under-node",
+            "TC-284-a-scratch-directory-that-cannot-be",
+            "TC-284-a-vitest-config-whose-globalsetup-writes",
+            "TC-284-a-vitest-project-audited-end-to-end-with",
+            "TC-284-a-vitest-project-whose-runners-entry-carries",
+            "TC-284-a-vitest-project-with-a-vitest-config-ts",
+            "TC-284-a-vitest-runners-entry-run-through-sh-c",
+            "TC-284-a-vitest-runners-entry-whose-argv-ends",
+            "TC-284-on-an-error-exit-the-audit-still-runs",
+            "TC-284-rcf-audit-test-strength-never-deploys",
+            "TC-284-x-cache-3b-a-symlinked-project-node-modules",
+            "TC-284-x-cache-6-on-a-not-run-exit-the-backstop-runs"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
           "now": "verified"
+        },
+        {
+          "id": "AC-19903-6",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-bound-test-writing-a-file-at-an"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19903-7",
+          "covered": true,
+          "testCases": [
+            "TC-284-on-sigint-or-sigterm-while-a-bound-test",
+            "TC-284-on-sigint-or-sigterm-while-two-bound"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-1",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-ts-project-with-entry-src-index-ts-and"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-2",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-vitest-runners-entry-with-ac-101-1"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-3",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-playwright-pointer-naming-a-describe",
+            "TC-306-a-playwright-runners-entry-with-ac-101-1",
+            "TC-306-a-vitest-leaf-pointer-runs-its-own-test",
+            "TC-306-a-vitest-pointer-naming-the-bare-leaf",
+            "TC-306-a-vitest-runners-entry-whose-argv-names",
+            "TC-306-with-the-default-vitest-argv-and-jobs-1"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-4",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-script-data-src-x-lang-ts-block",
+            "TC-306-a-vue-code-node-whose-sfc-holds-a-script",
+            "TC-306-code-nodes-src-badge-tsx-badgelabel-src"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-5",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-vitest-pointer-test-cart-test-ts-cart"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-6",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-ts-bound-test-importing-vitest-that"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19904-7",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-code-node-file-holding-a-typescript",
+            "TC-306-a-namespace-after-an-astral-character-is",
+            "TC-306-an-enum-after-an-astral-character-on-its",
+            "TC-306-in-a-vue-script-block-a-syntax-error",
+            "TC-306-on-a-tab-indented-line-a-parameter-property",
+            "TC-306-on-a-tab-indented-line-an-enum",
+            "TC-306-the-column-counts-utf-16-units-an-emoji",
+            "TC-306-the-detail-names-the-construct-strip"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },
@@ -13223,6 +13410,11 @@
       "fbsId": "FBS-241",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-242",
+      "expectedEnd": "verified",
+      "now": "notStarted"
     }
   ],
   "unresolvedTestPointers": []

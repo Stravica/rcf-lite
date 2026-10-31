@@ -1,0 +1,1 @@
+{ "name": "fixture-b", "private": true, "type": "module", "devDependencies": { "vitest": "5.0.5" } }

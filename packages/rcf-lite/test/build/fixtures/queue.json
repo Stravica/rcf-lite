@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 131,
-    "notStarted": 58,
+    "items": 132,
+    "notStarted": 59,
     "inProgress": 2,
     "complete": 34,
     "verified": 37,
-    "actionable": 42,
+    "actionable": 43,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -216,7 +216,8 @@
     {
       "tier": 14,
       "fbsIds": [
-        "FBS-237"
+        "FBS-237",
+        "FBS-242"
       ]
     },
     {
@@ -1729,6 +1730,18 @@
         "FBS-237"
       ],
       "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-242",
+      "buildOrder": 242,
+      "tier": 14,
+      "title": "rcf audit test-strength: TypeScript test strength over tsx node:test, vitest and @playwright/test bound tests and .ts, .tsx and .vue Code Nodes",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-236"
+      ],
+      "state": "actionable",
       "blockedBy": []
     },
     {

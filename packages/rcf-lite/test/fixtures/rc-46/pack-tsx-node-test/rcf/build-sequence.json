@@ -1,0 +1,11 @@
+{
+  "bsId": "BS-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Initial build sequence",
+  "buildPhilosophy": "One build session delivers the whole module and its two criteria.",
+  "generationStrategy": "dependencyFirst",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:24:05.769Z"
+}

@@ -1,0 +1,28 @@
+{
+  "usId": "US-101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Preview the slug of a title",
+  "asA": "writer naming a new page",
+  "iWant": "to see the slug my title will get",
+  "soThat": "I can fix the title before the slug is used",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-101-1",
+      "description": "Given any title text, when it is slugified, then the slug holds only lower-case ASCII letters and digits joined by single hyphens, accented letters fold to their base letters, there is no hyphen at either end, text with no letters or digits gives an empty slug, a slug longer than the limit (60 by default) is cut back to the last whole word, a limit that is not a positive integer is refused, and isSlug accepts exactly strings of that form.",
+      "testable": true
+    },
+    {
+      "id": "AC-101-2",
+      "description": "Given the preview page, when a user submits a title, then the page shows that title's slug and keeps the title, escaped, in the form; with nothing submitted, or a title with no letters or digits, the page shows 'Nothing to preview yet.' and no slug.",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:28:50.783Z",
+  "tacIds": [
+    "TAC-001"
+  ]
+}

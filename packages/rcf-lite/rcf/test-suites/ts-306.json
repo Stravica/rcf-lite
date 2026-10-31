@@ -1,0 +1,168 @@
+{
+  "createdAt": "2026-10-29T09:32:31.933Z",
+  "updatedAt": "2026-10-31T01:22:27.955Z",
+  "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7"
+  ],
+  "id": "TS-306",
+  "usId": "US-19904",
+  "title": "rcf audit test-strength over TypeScript: tsx node:test, vitest and @playwright/test bound tests and .ts, .tsx and .vue Code Nodes (external, through bin/rcf.js)",
+  "testCases": [
+    {
+      "id": "TC-306-a-ts-project-with-entry-src-index-ts-and",
+      "acId": "AC-19904-1",
+      "description": "a .ts project with entry src/index.ts and no runner, AC-101-1 bound to test/totals.test.ts::sums the line items (node:test in one describe, importing ../src/index.ts) and claiming src/totals.ts#sumTotals, exits 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1)\", and likewise under a tsx runners entry and through a NodeNext .js specifier",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-1: a .ts project with entry src/index.ts and no runner, AC-101-1 bound to test/totals.test.ts::sums the line items (node:test in one describe, importing ../src/index.ts) and claiming src/totals.ts#sumTotals, exits 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1)\", and likewise under a tsx runners entry and through a NodeNext .js specifier"
+    },
+    {
+      "id": "TC-306-a-vitest-runners-entry-with-ac-101-1",
+      "acId": "AC-19904-2",
+      "description": "a vitest runners entry with AC-101-1 bound to test/cart.test.ts::cart > applies a percentage discount, importing ../src/index and claiming src/cart.ts#applyDiscount, exits 0, structural 1/1, both body mutants killed; a pointer naming a vitest describe title matches as a prefix of the title path and passes the same way",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-2: a vitest runners entry with AC-101-1 bound to test/cart.test.ts::cart > applies a percentage discount, importing ../src/index and claiming src/cart.ts#applyDiscount, exits 0, structural 1/1, both body mutants killed; a pointer naming a vitest describe title matches as a prefix of the title path and passes the same way"
+    },
+    {
+      "id": "TC-306-a-playwright-runners-entry-with-ac-101-1",
+      "acId": "AC-19904-3",
+      "description": "a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+    },
+    {
+      "id": "TC-306-code-nodes-src-badge-tsx-badgelabel-src",
+      "acId": "AC-19904-4",
+      "description": "Code Nodes src/Badge.tsx#badgeLabel, src/Counter.vue#clampStart (in <script lang=\"ts\">) and file-level src/Counter.vue under a vitest runners entry exit 0, each symbol with three mutants and the SFC one fileBlank",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-4: Code Nodes src/Badge.tsx#badgeLabel, src/Counter.vue#clampStart (in <script lang=\"ts\">) and file-level src/Counter.vue under a vitest runners entry exit 0, each symbol with three mutants and the SFC one fileBlank"
+    },
+    {
+      "id": "TC-306-a-vitest-pointer-test-cart-test-ts-cart",
+      "acId": "AC-19904-5",
+      "description": "a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+    },
+    {
+      "id": "TC-306-a-ts-bound-test-importing-vitest-that",
+      "acId": "AC-19904-6",
+      "description": "a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+    },
+    {
+      "id": "TC-306-a-code-node-file-holding-a-typescript",
+      "acId": "AC-19904-7",
+      "description": "a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+    },
+    {
+      "id": "TC-306-a-vue-code-node-whose-sfc-holds-a-script",
+      "acId": "AC-19904-4",
+      "description": "a .vue Code Node whose SFC holds a <script src> block makes the criterion BLOCKED, reason \"TEST_STRENGTH_UNSUPPORTED\", detail \"<file>:<line>:<col>: <construct>\" at the block, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-4: a .vue Code Node whose SFC holds a <script src> block makes the criterion BLOCKED, reason \"TEST_STRENGTH_UNSUPPORTED\", detail \"<file>:<line>:<col>: <construct>\" at the block, exit 5"
+    },
+    {
+      "id": "TC-306-a-script-data-src-x-lang-ts-block",
+      "acId": "AC-19904-4",
+      "description": "a <script data-src=\"x\" lang=\"ts\"> block declaring src/Counter.vue#clampStart is read (attributes other than src ignored): exit 0, three mutants on the symbol",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-4: a <script data-src=\"x\" lang=\"ts\"> block declaring src/Counter.vue#clampStart is read (attributes other than src ignored): exit 0, three mutants on the symbol"
+    },
+    {
+      "id": "TC-306-the-detail-names-the-construct-strip",
+      "acId": "AC-19904-7",
+      "description": "the detail names the construct strip mode refused at its own line and column: a parameter property private y on line 3 behind a class field private x, and an enum behind a declare enum",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: the detail names the construct strip mode refused at its own line and column: a parameter property private y on line 3 behind a class field private x, and an enum behind a declare enum"
+    },
+    {
+      "id": "TC-306-a-playwright-pointer-naming-a-describe",
+      "acId": "AC-19904-3",
+      "description": "a playwright pointer naming a describe title runs the tests of that describe through the describe-prefix form (followed by a space) and no test of a sibling describe whose title extends it, exit 0",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright pointer naming a describe title runs the tests of that describe through the describe-prefix form (followed by a space) and no test of a sibling describe whose title extends it, exit 0"
+    },
+    {
+      "id": "TC-306-a-vitest-pointer-naming-the-bare-leaf",
+      "acId": "AC-19904-3",
+      "description": "a vitest pointer naming the bare leaf title of a test nested two describes deep runs that test through the leaf form anchored at a title boundary, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest pointer naming the bare leaf title of a test nested two describes deep runs that test through the leaf form anchored at a title boundary, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-a-vitest-leaf-pointer-runs-its-own-test",
+      "acId": "AC-19904-3",
+      "description": "a vitest leaf pointer runs its own test and no test of the same describe whose longer title ends in the same words, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest leaf pointer runs its own test and no test of the same describe whose longer title ends in the same words, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-on-a-tab-indented-line-a-parameter-property",
+      "acId": "AC-19904-7",
+      "description": "on a tab-indented line the detail places a parameter property at its column counted with a tab as one character and names it: private y on line 3 behind a tab-indented class field, 3:22, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: on a tab-indented line the detail places a parameter property at its column counted with a tab as one character and names it: private y on line 3 behind a tab-indented class field, 3:22, exit 5"
+    },
+    {
+      "id": "TC-306-on-a-tab-indented-line-an-enum",
+      "acId": "AC-19904-7",
+      "description": "on a tab-indented line the detail places an enum at its column counted with a tab as one character and names it: enum B on line 2, 2:9, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: on a tab-indented line the detail places an enum at its column counted with a tab as one character and names it: enum B on line 2, 2:9, exit 5"
+    },
+    {
+      "id": "TC-306-an-enum-after-an-astral-character-on-its",
+      "acId": "AC-19904-7",
+      "description": "an enum after an astral character on its line is placed at its UTF-16 column and named: a string literal of U+1F680 then export enum E { A }, enum E at 1:31, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: an enum after an astral character on its line is placed at its UTF-16 column and named: a string literal of U+1F680 then export enum E { A }, enum E at 1:31, exit 5"
+    },
+    {
+      "id": "TC-306-a-namespace-after-an-astral-character-is",
+      "acId": "AC-19904-7",
+      "description": "a namespace after an astral character is placed and named: a string literal of U+1F680 then namespace N { ... }, namespace N at 1:24, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a namespace after an astral character is placed and named: a string literal of U+1F680 then namespace N { ... }, namespace N at 1:24, exit 5"
+    },
+    {
+      "id": "TC-306-in-a-vue-script-block-a-syntax-error",
+      "acId": "AC-19904-7",
+      "description": "in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5"
+    },
+    {
+      "id": "TC-306-the-column-counts-utf-16-units-an-emoji",
+      "acId": "AC-19904-7",
+      "description": "the column counts UTF-16 units: an emoji outside the Basic Multilingual Plane counts two: a string literal of U+1F600 then const b = ;, the gap at 1:34, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-7: the column counts UTF-16 units: an emoji outside the Basic Multilingual Plane counts two: a string literal of U+1F600 then const b = ;, the gap at 1:34, exit 5"
+    },
+    {
+      "id": "TC-306-a-vitest-runners-entry-whose-argv-names",
+      "acId": "AC-19904-3",
+      "description": "a vitest runners entry whose argv names its own --fsModuleCachePath runs, exit 0 with the PASS line, and the project gains nothing",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest runners entry whose argv names its own --fsModuleCachePath runs, exit 0 with the PASS line, and the project gains nothing"
+    },
+    {
+      "id": "TC-306-with-the-default-vitest-argv-and-jobs-1",
+      "acId": "AC-19904-3",
+      "description": "with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4"
+    }
+  ],
+  "status": "draft"
+}

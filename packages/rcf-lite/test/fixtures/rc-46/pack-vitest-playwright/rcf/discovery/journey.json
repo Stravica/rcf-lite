@@ -1,0 +1,70 @@
+{
+  "version": 1,
+  "ui": "light",
+  "declaredAt": "2026-10-28T22:25:48.662Z",
+  "declaredBy": null,
+  "declaredReason": null,
+  "declaredVia": "declare",
+  "asBuilt": false,
+  "screens": [
+    {
+      "id": "SCR-001",
+      "slug": "preview-page",
+      "title": null,
+      "wireframe": null,
+      "references": []
+    }
+  ],
+  "journeys": [
+    {
+      "id": "JNY-001",
+      "slug": "preview-a-slug",
+      "actor": "writer naming a new page",
+      "goal": "see the slug a title will get before using it",
+      "source": "discovery/preview-journey.txt",
+      "steps": [
+        {
+          "id": "JNY-001-001",
+          "slug": "open-preview",
+          "kind": "entry",
+          "screenId": "SCR-001",
+          "label": "Open the preview page",
+          "next": [
+            "JNY-001-002"
+          ],
+          "returnsTo": null
+        },
+        {
+          "id": "JNY-001-002",
+          "slug": "submit-text",
+          "kind": "step",
+          "screenId": "SCR-001",
+          "label": "Type a title and submit it",
+          "next": [
+            "JNY-001-003"
+          ],
+          "returnsTo": null
+        },
+        {
+          "id": "JNY-001-003",
+          "slug": "read-slug",
+          "kind": "exit",
+          "screenId": "SCR-001",
+          "label": "Read the slug shown for the title",
+          "next": [],
+          "returnsTo": null
+        }
+      ],
+      "interruptions": {
+        "lostEmail": "notApplicable: the page sends no email and needs no sign-in",
+        "closedTab": "JNY-001-001",
+        "deadBattery": "JNY-001-001",
+        "expiredLink": "notApplicable: the page carries no expiring link or token",
+        "switchedDevice": "JNY-001-001",
+        "lostSignal": "JNY-001-002"
+      },
+      "stepHighWaterMark": 3
+    }
+  ],
+  "review": null
+}

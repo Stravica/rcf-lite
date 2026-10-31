@@ -7,15 +7,18 @@
 // is none). A file-level Code Node on a path that is not source gets
 // fileBlank (the file is emptied). Rewrites are spliced into the text at
 // the token boundaries source.js finds, so the rest of each file is
-// byte-identical; they are applied only inside the scratch worktree.
+// byte-identical; they are applied only inside the scratch working copy.
+// TypeScript, JSX and Vue files (FBS-242) are read through their views
+// (source.js#sourceView), which keep every offset, so the rewrites land
+// in the original file.
 
 import { posix } from 'node:path';
 
-import { findDeclaration, parseSource, statementCalls } from './source.js';
+import { findDeclaration, parseFile, statementCalls } from './source.js';
 
 export const SOURCE_EXT = /\.(?:js|mjs|cjs)$/;
 // TAC-4155: a file-level Code Node on one of these is not a supported source.
-export const CODE_EXT = /\.(?:ts|tsx|jsx|py|rb|go|java|kt|rs|php|cs|swift)$/;
+export const CODE_EXT = /\.(?:ts|mts|cts|tsx|jsx|py|rb|go|java|kt|rs|php|cs|swift)$/;
 export const SYMBOL_OPERATORS = ['stubToThrow', 'noOp', 'callRemoval'];
 
 /** Split a Code Node path into its normalised file and its symbol (or null). */
@@ -80,7 +83,11 @@ export function removeCalls(target, sources, parsed) {
   const edits = new Map();
   for (const [path, text] of sources) {
     if (!text.includes(target.callName)) continue;
-    if (!parsed.has(path)) parsed.set(path, parseSource(text));
+    if (!parsed.has(path)) {
+      try { parsed.set(path, parseFile(path, text)); } catch { parsed.set(path, null); }
+    }
+    // A source file the views cannot read has no call site the audit can find.
+    if (!parsed.get(path)) continue;
     const sites = statementCalls(parsed.get(path), target.callName, { method: target.method });
     if (!sites.length) continue;
     let out = text;
@@ -117,7 +124,7 @@ export async function criterionMutants(nodes, { texts, sources, parsed }) {
     symbolLevel += 1;
     const text = texts.get(file);
     if (typeof text !== 'string') { unmutable.push(node.path); continue; }
-    if (!parsed.has(file)) parsed.set(file, parseSource(text));
+    if (!parsed.has(file)) parsed.set(file, parseFile(file, text));
     const src = parsed.get(file);
     const targets = mutableTargets(src, symbol);
     if (!targets.length) { unmutable.push(node.path); continue; }

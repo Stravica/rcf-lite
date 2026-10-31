@@ -1,0 +1,60 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "09e409f8b604d19e781f52ee65d8d662d5ffa30c",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-19904-7",
+      "text": "repeat-bug watch, position mapping: sourceColumn (src/audit/test-strength/source.js:508) maps the caret display column back through fixed partial width tables (ZERO_WIDTH and WIDE, :497 to :499) and textLine (:520) splits on \\n only, so the detail misplaces the first unreadable construct wherever node prints a character at a width the tables do not give or breaks a line on a lone CR; probe (an entry src/intervals.ts of one line, node bin/rcf.js audit test-strength --acs AC-101-1, exit 2 entry point unreadable): a string literal holding U+2705 (or U+231A) then const b = ; reads 1:34 for the gap at 1:33; a string literal holding U+1F680 then export enum E { A } reads 1:32 (enum) for the enum at 1:31 named enum E, the construct name lost as in R-3; the combining mark U+0E31 or U+20D7 reads 1:33 for 1:34; a file whose lines end in a lone CR reads 3:1 for 3:12; the column must be the position of the construct for every character and line break node accepts (AC-19901-9 too)"
+    },
+    {
+      "id": "F-2",
+      "locus": "build",
+      "acId": "AC-19903-5",
+      "text": "repeat-bug watch, cache isolation: cacheArgv (src/audit/test-strength/runner.js:122 to :125, appended at :134) keeps only the vitest module and results caches out of the project, but vitest loading a project vitest.config.ts writes node_modules/.vite-temp and each worktree links the project node_modules (runner.js:165), so the project gains node_modules/.vite-temp on every audit, the default argv and an argv override alike; and an override ending in a -- separator or running vitest through sh -c gets the flags where vitest does not read them, so node_modules/.vite/vitest/<hash>/results.json is written into the project; probe: the pack-vitest-playwright fixture with its vitest.config.ts and a vitest runners entry, node bin/rcf.js audit test-strength --acs AC-101-1, exit 0 PASS, the project tree before and after (node_modules included) gains those paths, and the same project without vitest.config.ts gains none; AC-19903-5 asks for no write outside rcf/verdicts/<H12>/ in the project; the round cases use b-vitest, which has no vitest config"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19904-7",
+      "text": "note, new criterion: the column counts UTF-16 units (sourceColumn, src/audit/test-strength/source.js:508), as lineCol does elsewhere in the audit, while ruling R-3 says it counts characters of the source line: a string literal holding U+1F600 before export enum E reads 1:31 where the enum is the 30th character; state the unit (AC-19901-9 too)"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19901-9",
+      "text": "note, new criterion: an invalid-syntax error node places with a line and no caret takes the column one past the end of that line (src/audit/test-strength/source.js:587), so an unterminated template opening at 2:18 reads 2:22 and an unterminated block comment opening at 2:1 reads 3:6 (node gives line 3); state the column of such an error and of a span over several lines"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "note, new criterion: under the F-8a forms a describe prefix ^cart also runs a describe titled cartography and a top-level leaf also runs nested tests with the same leaf (src/audit/test-strength/runner.js:36 to :41); judge reads only the exact title path (src/audit/test-strength/report.js:128 to :134), so no verdict changes, but those tests run under every mutant; state whether the prefix form ends at a title boundary"
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "note, new criterion: an argv override that names its own --fsModuleCachePath now exits 2 (vitest rejects the repeated option), where before the range it ran, and the hint (src/audit/test-strength/index.js:302) says the argv must carry the reporter flag though it does; a vitest that rejects the appended flags meets the same hint; state what happens when an override carries its own cache flags or the vitest in use lacks them (the open half of the R-6 note)"
+    }
+  ],
+  "recordedBy": "reviewer, round D RC-46 fix round 2 re-REVIEW",
+  "recordedAt": "2026-10-30T12:56:42.009Z"
+}

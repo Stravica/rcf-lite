@@ -1,0 +1,120 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "1bee2f8ce730a744637fbf7f919f1f7af6074651",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "test",
+      "acId": "AC-19904-4",
+      "text": "check 4, test axis: no test asserts the SFC clauses that a script block with a src attribute makes the criterion BLOCKED and that other attributes are ignored (test/cli/audit-test-strength-ts.test.js:211 drives only plain lang ts blocks), which let D6 through; add both cases, a src block BLOCKED and a data-src block read"
+    },
+    {
+      "id": "F-2",
+      "locus": "test",
+      "acId": "AC-19901-9",
+      "text": "check 4, test axis: the detail is asserted only as <file>:\\d+:\\d+ (test/cli/audit-test-strength.test.js:247), so a hard-coded 1:1 passes, and no test drives an entry point the views cannot read (exit 2 entry point unreadable); add a case with the first unreadable construct past line 1 and an unreadable-entry case, including an entry of an unreadable extension"
+    },
+    {
+      "id": "F-3",
+      "locus": "build",
+      "acId": "AC-19901-9",
+      "text": "gap (c), ruled D3: invalid TypeScript syntax is reported at 1:1 (src/audit/test-strength/source.js:502, and :500 for a construct the table does not place) though node gives the position; a probe with the error on line 3 reads src/a.ts:1:1: invalid TypeScript syntax (Expression expected); report the first unreadable construct where it is"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "ruled D2: the criterion says playwright -g is space-joined and $-anchored only, with no describe-prefix form, while the anchoring ruling and the code use a space-terminated prefix with no $ (src/audit/test-strength/runner.js:38; help src/cli/test-strength.js:93); amend AC-19904-3 to state the playwright describe-prefix form"
+    },
+    {
+      "id": "F-5",
+      "locus": "build",
+      "acId": "AC-19901-9",
+      "text": "ruled D4: an entry point whose extension the views cannot read is filtered out before the view check (src/audit/test-strength/index.js:210, :219), so it is never judged and the run does not exit 2 entry point unreadable as AC-19901-9 and help :120 say"
+    },
+    {
+      "id": "F-6",
+      "locus": "build",
+      "acId": "AC-19904-4",
+      "text": "ruled D6: the SFC attribute scan matches \\bsrc\\s*= and so takes data-src for src (src/audit/test-strength/source.js:527); a probe with <script data-src=\"x\" lang=\"ts\"> reads a <script> block with a src attribute, though other attributes must be ignored"
+    },
+    {
+      "id": "F-7",
+      "locus": "build",
+      "acId": "AC-19904-7",
+      "text": "ruled C1: the F6 detail names the first token that looks like the refused construct, not the construct strip mode refused (src/audit/test-strength/source.js:497): a class field private x ahead of a parameter property private y on line 3 reads 2:3 parameter property x, and a declare enum ahead of the real enum reads 1:9 enum A"
+    },
+    {
+      "id": "F-8",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "ruled C2: F1s vitest leaf form ^leaf$ (src/audit/test-strength/runner.js:35) cannot select a test inside a describe, since vitest matches -t against the full name, so a bare leaf pointer is never run, though FBS-242s approach and help src/cli/test-strength.js:94 promise the leaf title; amend the vitest form to allow the describe prefix and add a nested-describe case"
+    },
+    {
+      "id": "F-9",
+      "locus": "test",
+      "acId": "AC-19903-5",
+      "text": "ruled C3, blocking until disproved: vitest writes node_modules/.vite/vitest and node_modules/.vitest-cache, and the scratch worktrees link the project node_modules (src/audit/test-strength/runner.js:143 to :148), so an audit likely writes into the project; add an end-to-end case auditing a vitest project and asserting no new or changed path in the project tree, then point the cache into the run scratch if it is red"
+    },
+    {
+      "id": "F-10",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: on SIGINT or SIGTERM the audit removes its runner scratch directory and ends its detached runner process groups; today onSignal exits before the finally that removes the scratch and kills no active runner (src/audit/test-strength/runner.js:195 to :200, :207, :267) (ruled D1)"
+    },
+    {
+      "id": "F-11",
+      "locus": "spec",
+      "acId": "AC-19904-7",
+      "text": "note, new criterion: the help BLOCKED line uses <a> for both structural and notApplicable (src/cli/test-strength.js:127 and :128); give each count its own placeholder (ruled C4)"
+    },
+    {
+      "id": "F-12",
+      "locus": "spec",
+      "acId": "AC-19904-4",
+      "text": "note, new criterion: the .tsx JSX scan reads a generic arrow function such as <T,>(x: T) => x as a JSX tag and blocks the file, scan failed \",\" in the tag <T> (src/audit/test-strength/jsx.js:99, :153); state whether TypeScript generics in .tsx are read or blocked, and read them"
+    },
+    {
+      "id": "F-13",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: the callRemoval call-site search skips without a word any project source the views cannot read (src/audit/test-strength/mutants.js:90), so callRemoval can read notApplicable when the only caller sits in such a file; say so in the report or block the mutant"
+    },
+    {
+      "id": "F-14",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: a runner scratch directory that cannot be removed is pushed into the worktree list (src/audit/test-strength/runner.js:267) and printed as scratch worktree <dir> could not be removed (src/audit/test-strength/index.js:292, :318); name it as the runners scratch directory"
+    },
+    {
+      "id": "F-15",
+      "locus": "spec",
+      "acId": "AC-19904-6",
+      "text": "note, new criterion: no test asserts that the hint fires for a bound file importing @playwright/test, or that plain .js and .mjs files default to nodeTest silently (test/cli/audit-test-strength-ts.test.js:262 covers the vitest import alone)"
+    },
+    {
+      "id": "F-16",
+      "locus": "spec",
+      "acId": "AC-19904-7",
+      "text": "note, new criterion: no test asserts the clauses that a bound test file strip mode refuses blocks its criterion and that an entry point so held exits 2 entry point unreadable with the same detail (test/cli/audit-test-strength-ts.test.js:278 covers a Code Node file and a .tsx scan only)"
+    }
+  ],
+  "recordedBy": "reviewer, round D RC-46 REVIEW",
+  "recordedAt": "2026-10-29T22:33:07.569Z"
+}
