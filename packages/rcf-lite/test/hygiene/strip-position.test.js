@@ -1,18 +1,22 @@
 // Builder hygiene test (FBS-242, the stage-keeper's rulings 1 to 3 on the
-// design review): rcf audit test-strength turns an offset into
-// <line>:<col> through one conversion (src/audit/test-strength/source.js
-// positionOf: CRLF, a lone CR and LF are line breaks, the column counts
-// UTF-16 code units), reads node:module's strip-mode caret in a
-// width-neutral shadow of the file, and places an input that ends inside
-// a construct where the innermost one still open opens. This pins those
-// rules and the error shape the shadow reads on the engine floor
-// (package.json engines). It tests code hygiene only, is bound to no test
-// case, and sits outside the RCF suite.
+// design review, and the rulings on re-Review 3 and on the position
+// oracle): rcf audit test-strength turns an offset into <line>:<col>
+// through one conversion (src/audit/test-strength/source.js positionOf:
+// CRLF, a lone CR and LF are line breaks, the column counts UTF-16 code
+// units), takes node:module's strip-mode refusal at node's line and the
+// offset whose width, measured by node's own renderer, equals node's
+// caret, places an input that ends inside a construct where the innermost
+// one still open opens, and one that ends with nothing open at node's
+// line, column 1. A position node gives that the audit cannot check reads
+// node's display column with one stderr line saying so. This pins those
+// rules and the error shape it reads on the engine floor (package.json
+// engines). It tests code hygiene only, is bound to no test case, and
+// sits outside the RCF suite.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { stripTypeScriptTypes } from 'node:module';
-import { positionOf, sourceView } from '../../src/audit/test-strength/source.js';
+import { positionOf, refusalDetail, sourceView } from '../../src/audit/test-strength/source.js';
 
 function refusal(text) {
   const emit = process.emitWarning;
@@ -30,7 +34,7 @@ function refusal(text) {
 const at = (text) => {
   const v = sourceView('src/a.ts', text);
   assert.equal(v.ok, false, 'the strip view refuses the input');
-  assert.notEqual(v.unplaced, true, `the refusal is placed\n${v.detail}`);
+  assert.equal(v.warn, undefined, `the position node gave is checked\n${v.detail}\n${v.warn}`);
   return /^src\/a\.ts:(\d+:\d+): /.exec(v.detail)?.[1];
 };
 
@@ -56,7 +60,7 @@ test('hygiene: node\'s strip-mode error carries ":<line>" first and a caret line
   assert.equal(open.stack.split('\n').some((l) => /^\s*\^+\s*$/.test(l)), false);
 });
 
-test('hygiene: the shadow places node\'s caret at the UTF-16 column whatever precedes it on the line', () => {
+test('hygiene: node\'s caret, its width measured by node, places the refusal at the UTF-16 column whatever precedes it on the line', () => {
   assert.equal(at("export const s = '✅'; const b = ;\n"), '1:33');
   assert.equal(at("export const s = 'กั'; const b = ;\n"), '1:34');
   assert.equal(at("export const s = '\u{1F600}'; const b = ;\n"), '1:34');
@@ -71,4 +75,27 @@ test('hygiene: an input that ends inside a construct is placed where the innermo
   assert.equal(at('x;\nexport const t = `abc ${a}\nmore\n'), '2:18');
   assert.equal(at('x;\n/* open\nmore\n'), '2:1');
   assert.equal(at('export const t = `a ${[1, 2\n'), '1:23');
+});
+
+test('hygiene: a refusal node gives a caret for is placed where node places it, a character node\'s renderer draws with no width included', () => {
+  assert.equal(at('export const a = \u0301;'), '1:18');
+  assert.equal(at('export const a = 1; \u200d const b = 2;'), '1:21');
+  assert.equal(at('export const a = \u0663;'), '1:18');
+  assert.equal(at('\u00fc: \u00fc: while (true) break;'), '1:4');
+  assert.equal(at('export const b =\f\u0301;'), '1:18', 'a tie of widths goes to the offset node refuses a marker at');
+});
+
+test('hygiene: an input that ends with nothing open is placed at the line node names, column 1', () => {
+  assert.equal(at('export const a = 1;\nexport const b =\n'), '2:1');
+  assert.equal(at('export const a = 1 +'), '1:1');
+  assert.equal(at('export const a = 1;\nexport const b =\n\n'), '3:1', 'node names the trailing blank line');
+});
+
+test('hygiene: a position node gives that the audit cannot check reads node\'s line and its caret plus 1, with one stderr line saying so', () => {
+  const err = { code: 'ERR_INVALID_TYPESCRIPT_SYNTAX', message: 'Expression expected', stack: ':1\nabc\n          ^' };
+  assert.deepEqual(refusalDetail('src/a.ts', 'abc', 'abc', err), {
+    ok: false,
+    detail: 'src/a.ts:1:11: invalid TypeScript syntax (Expression expected)',
+    warn: "test-strength: column for src/a.ts:1 is node's display column (position check withheld: no offset has the width of the caret)",
+  });
 });

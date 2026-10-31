@@ -7,7 +7,7 @@
 // is none). A file-level Code Node on a path that is not source gets
 // fileBlank (the file is emptied). Rewrites are spliced into the text at
 // the token boundaries source.js finds, so the rest of each file is
-// byte-identical; they are applied only inside the scratch worktree.
+// byte-identical; they are applied only inside the scratch working copy.
 // TypeScript, JSX and Vue files (FBS-242) are read through their views
 // (source.js#sourceView), which keep every offset, so the rewrites land
 // in the original file.

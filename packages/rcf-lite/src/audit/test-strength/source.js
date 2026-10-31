@@ -541,53 +541,6 @@ function caretOf(err) {
   return { line: head ? Number(head[1]) : null, caret: k < 0 ? -1 : lines[k].indexOf('^'), shown: k < 0 ? null : lines[k - 1] };
 }
 
-const ID_CHAR = /[\p{ID_Continue}\u200c\u200d]/u;
-
-/**
- * The width-neutral shadow of a text (the stage-keeper's ruling 2): the
- * same UTF-16 length, every unit printable ASCII of display width one,
- * so node's caret index in it is the offset. Every CR becomes LF (node's
- * snippet splits on LF only); U+2028 and U+2029 become LF outside a
- * string and `z` inside one; tab, VT, FF and every other whitespace a
- * space; identifier characters `z` (`zz` when astral); any other
- * non-ASCII unit `z` inside a string (a string, template or regular
- * expression literal) and a space elsewhere, or, with `keep`, as written
- * outside literals.
- */
-function shadowOf(text, keep) {
-  const literal = new Uint8Array(text.length);
-  const mark = (tokens) => {
-    for (const t of tokens) {
-      if (t.type !== 'str' && t.type !== 'tpl' && t.type !== 'regex') continue;
-      literal.fill(1, t.start, t.end);
-      for (const part of t.inner ?? []) {
-        literal.fill(0, part.start, part.end);
-        mark(part.tokens);
-      }
-    }
-  };
-  mark(lex(text, 0, false).tokens);
-  let out = '';
-  for (let i = 0; i < text.length; i += 1) {
-    const u = text.charCodeAt(i);
-    if (u === 10 || u === 13) { out += '\n'; continue; }
-    if (u >= 0x20 && u < 0x7f) { out += text[i]; continue; }
-    const cp = text.codePointAt(i);
-    const ch = String.fromCodePoint(cp);
-    const units = ch.length;
-    let as;
-    if (u === 9 || u === 11 || u === 12) as = ' ';
-    else if (literal[i]) as = 'z';
-    else if (u === 0x2028 || u === 0x2029) as = '\n';
-    else if (/\s/u.test(ch)) as = ' ';
-    else if (ID_CHAR.test(ch)) as = 'z';
-    else as = keep ? ch : ' ';
-    out += as === ch ? ch : as.repeat(units);
-    i += units - 1;
-  }
-  return out;
-}
-
 /**
  * Where the innermost construct still open at the end of the input opens
  * (the stage-keeper's ruling 3): an unterminated block comment, template
@@ -601,74 +554,187 @@ function openAtEnd(text) {
   return brackets.length ? tokens[brackets[brackets.length - 1]].start : -1;
 }
 
-/**
- * The offset of the construct node's strip-mode error places in `text`,
- * or -1 when it cannot be placed. node stays the judge (the stage-keeper's
- * ruling 2): its caret is read in the width-neutral shadow, which node
- * refuses with the same code and message; with no caret, the input ends
- * inside a construct, placed where the innermost one still open opens.
- */
-function refusalOffset(text, err) {
-  const at = caretOf(err);
-  if (at.line === null) return -1;
-  if (at.caret < 0) return err.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX' ? openAtEnd(text) : -1;
-  for (const keep of [false, true]) {
-    const shadow = shadowOf(text, keep);
-    let again = null;
-    try { strip(shadow); } catch (e) { again = e; }
-    if (again?.code !== err.code || again.message !== err.message) continue;
-    const s = caretOf(again);
-    if (s.line === null || s.caret < 0) continue;
-    let start = 0;
-    for (let l = 1; l < s.line && start >= 0; l += 1) start = shadow.indexOf('\n', start) + 1 || -1;
-    if (start < 0) continue;
-    const end = shadow.indexOf('\n', start);
-    if (s.shown !== shadow.slice(start, end < 0 ? shadow.length : end)) continue;
-    return start + s.caret;
+// node's caret counts the display columns its own renderer gives the line
+// it echoes. The audit measures that width with node itself: the caret
+// node prints for the probe OPENER + <prefix> + CR + MARK, a line comment
+// the CR ends and a MARK node refuses. The comment is opened again after
+// each CR, U+2028 and U+2029 in the prefix (each ends a line comment).
+const MARK = '\u00a7';
+const OPENER = '////';
+let probeBase;
+
+/** node's caret for the probe of `prefix` after `opener`, less the openers again after a line end, or null. */
+function probeCaret(prefix, opener = OPENER) {
+  let again = 0;
+  const body = prefix.replace(/[\r\u2028\u2029]/g, (m) => { again += 1; return `${m}${OPENER}`; });
+  try {
+    strip(`${opener}${body}\r${MARK}`);
+  } catch (err) {
+    const c = caretOf(err).caret;
+    if (err?.message === `Unexpected character '${MARK}'` && c >= 0) return c - OPENER.length * again - (opener.length - OPENER.length);
   }
-  return -1;
+  return null;
 }
 
 /**
- * The strip-mode view of TypeScript text, or the refusal: "<file>:<line>:<col>:
+ * The start-up self-check of the probe, once per process: the caret of an
+ * empty prefix is readable (the base every width counts from), and a tab
+ * reads the same width after a 4- and an 8-character opener (the
+ * renderer's tab stops divide 4). The reason it fails, or null.
+ */
+function probeCheck() {
+  if (probeBase === undefined) {
+    const base = probeCaret('');
+    const tab4 = probeCaret('\t');
+    const tab8 = probeCaret('\t', `${OPENER}${OPENER}`);
+    if (base === null) probeBase = { why: 'the calibration caret is unreadable' };
+    else if (tab4 === null || tab4 !== tab8) probeBase = { why: 'tab stops differ between a 4- and an 8-character opener' };
+    else probeBase = { base };
+  }
+  return probeBase.why ?? null;
+}
+
+/** The offset where line `line` starts (CRLF, a lone CR and LF breaking lines, as positionOf counts them), or -1. */
+function lineStart(text, line) {
+  let at = 1;
+  for (let i = 0; i < text.length && at < line; i += 1) {
+    if (text[i] === '\r' && text[i + 1] === '\n') i += 1;
+    if (text[i] === '\n' || text[i] === '\r') {
+      at += 1;
+      if (at === line) return i + 1;
+    }
+  }
+  return line === 1 ? 0 : -1;
+}
+
+/**
+ * Where node's strip-mode refusal of `text` is, node being the oracle
+ * (the stage-keeper's rulings on re-Review 3 and on the position oracle):
+ * { at } an offset in `text`, { line } node's line at column 1, or
+ * { withheld, line, col } node's line and its caret plus 1 with the
+ * reason the position check was withheld.
+ *
+ * With a caret: node's line N is the line, and the offset is the one on
+ * it whose width, measured by node's renderer from the start of the line
+ * node echoes (after the last LF before line N), equals the caret. The
+ * search bisects the code point boundaries of the line, each width
+ * checked to lie between those already measured (W never decreases);
+ * offsets of equal width go to node, which refuses a MARK inserted at the
+ * largest offset it reaches before its own refusal. With no caret: the
+ * innermost construct still open at the end (openAtEnd), else node's line
+ * at column 1.
+ */
+function nodePosition(text, err) {
+  const { line, caret } = caretOf(err);
+  if (line === null) return { withheld: "node's error names no line", line: 1, col: 1 };
+  if (caret < 0) {
+    const open = err.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX' ? openAtEnd(text) : -1;
+    return open >= 0 ? { at: open } : { line };
+  }
+  const withheld = (why) => ({ withheld: why, line, col: caret + 1 });
+  const why = probeCheck();
+  if (why) return withheld(why);
+  const sN = lineStart(text, line);
+  if (sN < 0) return withheld("node's line is past the end of the input");
+  const echo = text.lastIndexOf('\n', sN - 1) + 1;
+  let eol = sN;
+  while (eol < text.length && text[eol] !== '\n' && text[eol] !== '\r') eol += 1;
+  const offsets = [];
+  for (let o = echo; o <= eol; o += text.codePointAt(o) > 0xffff ? 2 : 1) offsets.push(o);
+  const widths = new Map();
+  const W = (k) => {
+    if (!widths.has(k)) {
+      const c = probeCaret(text.slice(echo, offsets[k]));
+      widths.set(k, c === null ? null : c - probeBase.base);
+    }
+    return widths.get(k);
+  };
+  if (W(0) !== 0) return withheld('the width of an empty prefix is not 0');
+  let hi = offsets.length - 1;
+  const top = W(hi);
+  if (top === null) return withheld('a probe was refused elsewhere');
+  if (top < caret) return withheld('no offset has the width of the caret');
+  let lo = 0;
+  if (caret === 0) hi = 0;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    const w = W(mid);
+    if (w === null) return withheld('a probe was refused elsewhere');
+    if (w < W(lo) || w > W(hi)) return withheld('the width decreases');
+    if (w < caret) lo = mid; else hi = mid;
+  }
+  if (W(hi) !== caret) return withheld('no offset has the width of the caret');
+  const tied = [];
+  for (let k = hi; k < offsets.length; k += 1) {
+    const w = W(k);
+    if (w === null) return withheld('a probe was refused elsewhere');
+    if (w < caret) return withheld('the width decreases');
+    if (w > caret) break;
+    if (offsets[k] >= sN) tied.push(offsets[k]);
+  }
+  if (!tied.length) return withheld('no offset on node\'s line has the width of the caret');
+  if (tied.length === 1) return { at: tied[0] };
+  const reached = tied.filter((o) => {
+    try {
+      strip(`${text.slice(0, o)}${MARK}${text.slice(o)}`);
+    } catch (e) {
+      const m = caretOf(e);
+      return e?.message === `Unexpected character '${MARK}'` && m.line === line && m.caret === caret;
+    }
+    return false;
+  });
+  return reached.length ? { at: reached[reached.length - 1] } : withheld('a tie node does not resolve');
+}
+
+/**
+ * The detail of node's strip-mode refusal `err` of `text`: "<file>:<line>:<col>:
  * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6)
- * or "<file>:<line>:<col>: invalid TypeScript syntax (<message>)", at the
- * offset refusalOffset gives, counted in `source` (the file as committed,
- * of which `text` is a view of the same length) by positionOf. A refusal
- * it cannot place (the stage-keeper's ruling 4: no input reaches it) reads
- * node's line and column 1, marked `unplaced`.
+ * or "<file>:<line>:<col>: invalid TypeScript syntax (<message>)", placed
+ * where node places it (nodePosition) and counted in `source` (the file as
+ * committed, of which `text` is a view of the same length) by positionOf:
+ * a refusal with a caret at the offset node's caret gives, an input that
+ * ends inside a construct where the innermost one still open opens, and a
+ * refusal with a line and no caret (the input ends with nothing open) at
+ * that line, column 1. A position node gives that the probe cannot check
+ * reads node's line and its caret plus 1, with `warn` the stderr line that
+ * says so. No shadow of the text decides a position.
+ *
+ * @returns {{ ok: false, detail: string, warn?: string }}
+ */
+export function refusalDetail(file, text, source, err) {
+  const p = nodePosition(text, err);
+  const where = p.at === undefined ? `${file}:${p.line}:${p.col ?? 1}` : `${file}:${lineCol(source, p.at)}`;
+  const refused = (detail) => (p.withheld
+    ? { ok: false, detail, warn: `test-strength: column for ${file}:${p.line} is node's display column (position check withheld: ${p.withheld})` }
+    : { ok: false, detail });
+  if (err.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
+    const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
+    let named = what;
+    if (p.at !== undefined) {
+      // The construct node refused, named from the token at its offset
+      // (a parameter property's caret sits on the name after its modifier).
+      const { tokens } = parseSource(text);
+      const i = tokens.findIndex((t) => t.start === p.at);
+      for (const [re, is, name] of NON_ERASABLE) {
+        const k = i < 0 || !re.test(err.message) ? undefined : [i, i - 1].find((j) => j >= 0 && is(tokens, j));
+        if (k !== undefined) { named = name(tokens, k); break; }
+      }
+    }
+    return refused(`${where}: non-erasable TypeScript syntax (${named})`);
+  }
+  return refused(`${where}: invalid TypeScript syntax (${err.message})`);
+}
+
+/**
+ * The strip-mode view of TypeScript text, or node's refusal of it as
+ * refusalDetail places it.
  */
 function stripView(file, text, source = text) {
   try {
     return { ok: true, text: strip(text) };
   } catch (err) {
     if (err?.code !== 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX' && err?.code !== 'ERR_INVALID_TYPESCRIPT_SYNTAX') throw err;
-    const at = refusalOffset(text, err);
-    const where = (offset) => `${file}:${lineCol(source, offset)}`;
-    const unplaced = (what) => ({ ok: false, unplaced: true, detail: `${file}:${caretOf(err).line ?? 1}:1: ${what}` });
-    if (err.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
-      const { tokens } = parseSource(text);
-      const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
-      if (at >= 0) {
-        // The construct node refused, named from the token at its offset
-        // (a parameter property's caret sits on the name after its modifier).
-        const i = tokens.findIndex((t) => t.start === at);
-        let named = what;
-        for (const [re, is, name] of NON_ERASABLE) {
-          const k = i < 0 || !re.test(err.message) ? undefined : [i, i - 1].find((j) => j >= 0 && is(tokens, j));
-          if (k !== undefined) { named = name(tokens, k); break; }
-        }
-        return { ok: false, detail: `${where(at)}: non-erasable TypeScript syntax (${named})` };
-      }
-      for (const [re, is, name] of NON_ERASABLE) {
-        if (!re.test(err.message)) continue;
-        const k = tokens.findIndex((_, i) => is(tokens, i));
-        if (k >= 0) return { ok: false, detail: `${where(tokens[k].start)}: non-erasable TypeScript syntax (${name(tokens, k)})` };
-      }
-      return unplaced(`non-erasable TypeScript syntax (${what})`);
-    }
-    if (at >= 0) return { ok: false, detail: `${where(at)}: invalid TypeScript syntax (${err.message})` };
-    return unplaced(`invalid TypeScript syntax (${err.message})`);
+    return refusalDetail(file, text, source, err);
   }
 }
 

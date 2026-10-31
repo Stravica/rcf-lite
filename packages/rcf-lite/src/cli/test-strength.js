@@ -69,14 +69,19 @@ working copy writes nothing in the project's .git, and its
 node_modules directory is the audit's own, its entries linking the
 project's installed packages. Nothing in the project is written
 outside rcf/verdicts/<H12>/: the audit compares the project tree
-(node_modules and every dot directory included, .git excluded) before
-and after the bound tests run, and a path a bound test run wrote there
-exits 2 "test-strength: a bound test run wrote <path> in the project"
-and records nothing. No scratch directory outlives the run; one that
-cannot be removed is named in one stderr line "[warn] test-strength:
-scratch directory <dir> could not be removed". On SIGINT or SIGTERM
-the audit kills the process group of every bound test run it started,
-removes its scratch directory and exits 130 or 143.
+(node_modules and every dot directory included, .git excluded) and
+every node_modules directory on Node's module resolution path above
+it, up to the repository root, before and after the bound tests run,
+and a path a bound test run wrote there exits 2 "test-strength: a
+bound test run wrote <path> in the project" (a path above the project
+named relative to it) and records nothing. No scratch directory
+outlives the run; one that cannot be removed is named in one stderr
+line "[warn] test-strength: scratch directory <dir> could not be
+removed". On an error exit the audit still runs that comparison and
+the warn line, and its message names the scratch directory. On
+SIGINT or SIGTERM the audit kills the process group of every bound
+test run it started, removes its scratch directory and exits 130 or
+143.
 
 rcf/test-strength.json (required; written by the test-author):
   { "entry": [ { "kind": "bin" | "module" | "worker", "path": <path> } ],
@@ -140,8 +145,14 @@ syntax ("<file>:<line>:<col>: non-erasable TypeScript syntax
 with a src attribute. <line> and <col> are 1-based and place the
 first character of the construct in the file as committed: <line>
 counts the line breaks before it (CRLF, a lone CR or LF), <col> the
-UTF-16 code units from the start of that line; when the input ends
-inside a construct, it is where the innermost such construct opens.
+UTF-16 code units from the start of that line; for a construct strip
+mode refuses or a syntax error, it is where node's refusal places it
+(node's caret, its width measured by node); when the input ends inside
+a construct, it is where the innermost such construct opens; when node
+names a line and no column, it is that line, column 1. A column node
+gives that the audit cannot check reads node's display column, said
+so in one stderr line "test-strength: column for <file>:<line> is
+node's display column (position check withheld: <reason>)".
 A blocked criterion is not checked, gets no
 mutant and counts in no total but criteria and blocked. An entry point
 the views cannot read exits 2 "entry point unreadable".

@@ -19,7 +19,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { delimiter, join } from 'node:path';
+import { basename, delimiter, dirname, isAbsolute, join, relative, sep } from 'node:path';
 
 import { judge, readReport } from './report.js';
 
@@ -208,6 +208,49 @@ export function projectTree(root) {
   return seen;
 }
 
+/**
+ * The node_modules directories on Node's module resolution path above the
+ * project root (its NODE_MODULES_PATHS, a directory named node_modules
+ * itself skipped), from the root's parent up to the repository root
+ * `toplevel`, or up to the filesystem root when `toplevel` does not hold
+ * the project; present or not.
+ *
+ * @returns {string[]}
+ */
+export function resolutionPath(projectRoot, toplevel) {
+  const top = realpathSync(toplevel);
+  const root = realpathSync(projectRoot);
+  const up = relative(top, root);
+  const held = up !== '..' && !up.startsWith(`..${sep}`) && !isAbsolute(up);
+  const dirs = [];
+  for (let d = root; !(held && d === top) && dirname(d) !== d;) {
+    d = dirname(d);
+    if (basename(d) !== 'node_modules') dirs.push(join(d, 'node_modules'));
+  }
+  return dirs;
+}
+
+/**
+ * The tree the backstop compares (AC-19903-5, AC-19903-6; the stage-keeper's
+ * ruling on re-Review 3): the project tree, and every node_modules
+ * directory on Node's module resolution path up to the repository root
+ * (resolutionPath) as projectTree reads it, each path named relative to
+ * the project root.
+ *
+ * @returns {Map<string, string>}
+ */
+export function backstopTree(projectRoot, toplevel) {
+  const seen = projectTree(projectRoot);
+  const root = realpathSync(projectRoot);
+  for (const dir of resolutionPath(projectRoot, toplevel)) {
+    if (!existsSync(dir)) continue;
+    const rel = relative(root, dir).split(sep).join('/');
+    seen.set(rel, 'dir');
+    for (const [path, v] of projectTree(dir)) seen.set(`${rel}/${path}`, v);
+  }
+  return seen;
+}
+
 /** The first path (in sorted order) new, changed or deleted between two project trees, or null. */
 export function firstMoved(before, after) {
   const moved = [...after].filter(([path, v]) => before.get(path) !== v).map(([path]) => path);
@@ -275,6 +318,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
     },
   };
   let left = [];
+  let thrown = null;
   try {
     await makeWorkingCopies(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, root, made });
     let next = 0;
@@ -323,12 +367,16 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
     };
     await Promise.all(made.map((dir) => worker(dir)));
     if (failure) throw failure;
+  } catch (err) {
+    thrown = err;
   } finally {
     try { rmSync(scratch, { recursive: true, force: true, maxRetries: 5 }); } catch { /* named below */ }
     if (existsSync(scratch)) left = [scratch];
     process.removeListener('SIGINT', onSignal);
     process.removeListener('SIGTERM', onSignal);
   }
+  // An error leaves with the scratch it ran in and whether it is left (F-7).
+  if (thrown) throw Object.assign(thrown, { scratch, left });
   return { results, left };
 }
 

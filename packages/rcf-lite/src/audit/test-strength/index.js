@@ -10,7 +10,7 @@
 //   mutation     for criteria that pass it (mutants.js, runner.js):
 //                stubToThrow, noOp and callRemoval on each symbol-level
 //                Code Node, fileBlank on each file-level Code Node of a
-//                non-source path, in scratch worktrees of HEAD; at least
+//                non-source path, in scratch working copies of HEAD; at least
 //                one bound test must go red for each mutant
 //
 // Scope (TAC-4155): --acs, else the touchedAcIds of the newest REVIEW
@@ -36,7 +36,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { NotRunError, firstMoved, projectTree, runMutants, runUnmutated } from './runner.js';
+import { NotRunError, backstopTree, firstMoved, runMutants, runUnmutated } from './runner.js';
 import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
@@ -147,7 +147,7 @@ export async function auditTestStrength({
 
   const git = (args, input = null) => runGit(args, { cwd: projectRoot, deps, input });
   const rev = await git(['rev-parse', 'HEAD', '--show-toplevel', '--show-prefix']);
-  if (rev.code !== 0) return fail(2, 'test-strength: not a git repository with a commit; mutants run in a scratch worktree of HEAD');
+  if (rev.code !== 0) return fail(2, 'test-strength: not a git repository with a commit; mutants run in a scratch working copy of HEAD');
   const [head, toplevel, prefix = ''] = rev.stdout.split('\n');
 
   // --record names a reviewed head: it needs a REVIEW verdict, a clean
@@ -218,19 +218,24 @@ export async function auditTestStrength({
   // An entry point the views cannot read is the audit's own input: exit 2.
   for (const p of entryPaths) {
     const v = typeof texts.get(p) === 'string' ? sourceView(p, texts.get(p)) : { ok: true };
-    if (!v.ok) return fail(2, `test-strength: entry point unreadable: ${v.detail}`);
+    if (!v.ok) return fail(2, ...(v.warn ? [v.warn] : []), `test-strength: entry point unreadable: ${v.detail}`);
   }
 
   // A bound test file or a symbol-level Code Node file the audit cannot
   // read makes its criterion BLOCKED: each file's first unreadable
   // construct, in bound order (the bound tests, then the Code Nodes).
   const views = new Map();
+  // A position node gave that the audit could not check is said so in one stderr line each.
+  const placement = [];
   for (const c of criteria) {
     const read = [...new Set([...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path)).filter((n) => n.symbol).map((n) => n.file)])];
     const unread = [];
     for (const file of read) {
       if (typeof texts.get(file) !== 'string') continue;
-      if (!views.has(file)) views.set(file, sourceView(file, texts.get(file)));
+      if (!views.has(file)) {
+        views.set(file, sourceView(file, texts.get(file)));
+        if (views.get(file).warn) placement.push(views.get(file).warn);
+      }
       if (!views.get(file).ok) unread.push({ file, detail: views.get(file).detail });
     }
     if (unread.length) c.blocked = { files: unread.map((u) => u.file), detail: unread.map((u) => u.detail).join('; ') };
@@ -284,24 +289,33 @@ export async function auditTestStrength({
   // The unmutated run (RC-45): the bound tests of each criterion with a
   // mutant to run, once, before any mutant; a red one stops the run.
   const proved = criteria.filter((c) => c.mutants.some((m) => !m.result));
-  // The backstop (AC-19903-6): the project tree before any bound test runs,
-  // compared after them; a path a bound test run wrote there stops the run.
-  const before = proved.length ? projectTree(projectRoot) : null;
-  const wrote = (left) => {
+  // The backstop (AC-19903-5, AC-19903-6): the project tree and every
+  // node_modules directory on Node's resolution path up to the repository
+  // root, before any bound test runs, compared after them; a path a bound
+  // test run wrote there stops the run.
+  const before = proved.length ? backstopTree(projectRoot, toplevel) : null;
+  const wrote = () => {
     if (!before) return null;
-    const path = firstMoved(before, projectTree(projectRoot));
-    return path === null ? null : fail(2, ...left, `test-strength: a bound test run wrote ${path} in the project`);
+    const path = firstMoved(before, backstopTree(projectRoot, toplevel));
+    return path === null ? null : `test-strength: a bound test run wrote ${path} in the project`;
+  };
+  const leftLines = (dirs) => dirs.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`);
+  // An error exit still runs the backstop and the warn line, and names the scratch (F-7).
+  const cannotRun = (err, ...left) => {
+    const breach = wrote();
+    return fail(2, ...left, ...leftLines(err.left ?? []), ...(breach ? [breach] : []),
+      `test-strength: cannot run the bound tests${err.scratch ? ` in scratch directory ${err.scratch}` : ''}: ${err.message}`);
   };
   let unmutated;
   try {
     unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix });
   } catch (err) {
-    return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
+    return cannotRun(err);
   }
-  const leftUnmutated = unmutated.left.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`);
+  const leftUnmutated = leftLines(unmutated.left);
   if (unmutated.red) {
-    const breach = wrote(leftUnmutated);
-    if (breach) return breach;
+    const breach = wrote();
+    if (breach) return fail(2, ...leftUnmutated, breach);
     const { acId, test: t, result, verdict, names } = unmutated.red;
     const argv = t.runner.argv.join(' ');
     if (result === 'notRun') return fail(2, ...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`);
@@ -323,12 +337,12 @@ export async function auditTestStrength({
     run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix });
   } catch (err) {
     if (err instanceof NotRunError) return fail(2, ...leftUnmutated, `test-strength: ${err.message}`);
-    return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
+    return cannotRun(err, ...leftUnmutated);
   }
   runnable.forEach((m, i) => Object.assign(m, run.results[i]));
-  const warn = [...leftUnmutated, ...run.left.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`)];
-  const breach = wrote(warn);
-  if (breach) return breach;
+  const warn = [...placement, ...leftUnmutated, ...leftLines(run.left)];
+  const breach = wrote();
+  if (breach) return fail(2, ...leftUnmutated, ...leftLines(run.left), breach);
 
   // The report (TestStrengthReport v1) and the verdict line.
   const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0, blocked: 0 };
