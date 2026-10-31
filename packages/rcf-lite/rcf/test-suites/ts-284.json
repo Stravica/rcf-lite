@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-10-30T15:15:10.267Z",
+  "updatedAt": "2026-10-31T00:16:42.735Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -125,6 +125,27 @@
       "description": "a bound test writing a file at an absolute path in the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it, and records nothing even with --record",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-6: a bound test writing a file at an absolute path in the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it, and records nothing even with --record"
+    },
+    {
+      "id": "TC-284-on-an-error-exit-the-audit-still-runs",
+      "acId": "AC-19903-5",
+      "description": "on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming escape.txt and a \"[warn] test-strength: scratch directory <dir> could not be removed\" line for each scratch left",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-5: on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming escape.txt and a \"[warn] test-strength: scratch directory <dir> could not be removed\" line for each scratch left"
+    },
+    {
+      "id": "TC-284-on-sigint-or-sigterm-while-two-bound",
+      "acId": "AC-19903-7",
+      "description": "on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process of each bound test run's process group, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the project's .git as it was, and exits 130 for SIGINT and 143 for SIGTERM",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process of each bound test run's process group, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the project's .git as it was, and exits 130 for SIGINT and 143 for SIGTERM"
+    },
+    {
+      "id": "TC-284-a-bound-test-writing-a-new-file-inside",
+      "acId": "AC-19903-5",
+      "description": "a bound test writing a new file inside an installed package of an ancestor's node_modules (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a bound test writing a new file inside an installed package of an ancestor's node_modules (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record"
     }
   ],
   "status": "draft"

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-10-30T15:10:49.974Z",
+  "updatedAt": "2026-10-31T00:11:09.674Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-19903-5",
-      "description": "[must-not] rcf audit test-strength never deploys, never opens a network connection of its own and never writes outside rcf/verdicts/<H12>/ in the project, with or without --record: not in its working tree, not under its node_modules or an ancestor's up to the repository root, and not in its .git, whatever the runner kind, the runner's own configuration (a vitest or playwright config, a globalSetup) or a `runners` entry's `argv` (a trailing `--`, a shell launcher) leads a bound test run to write there by creating a path; every bound test runs in a working copy of HEAD the audit makes in its own scratch directory, whose node_modules directory is the audit's own, its entries linking the project's installed packages; a scratch directory that cannot be removed is named in one stderr line \"[warn] test-strength: scratch directory <dir> could not be removed\"; a malformed rcf/test-strength.json (unparsable, an entry kind outside bin, module and worker, or an empty harness list) exits 2 naming the field and runs no test.",
+      "description": "[must-not] rcf audit test-strength never deploys, never opens a network connection of its own and never writes outside rcf/verdicts/<H12>/ in the project, with or without --record: not in its working tree, not under its node_modules or an ancestor's up to the repository root, and not in its .git, whatever the runner kind, the runner's own configuration (a vitest or playwright config, a globalSetup) or a `runners` entry's `argv` (a trailing `--`, a shell launcher) leads a bound test run to write there by creating a path; every bound test runs in a working copy of HEAD the audit makes in its own scratch directory, whose node_modules directory is the audit's own, its entries linking the project's installed packages; a scratch directory that cannot be removed is named in one stderr line \"[warn] test-strength: scratch directory <dir> could not be removed\"; on an error exit the audit still runs the backstop and the warn line, and the message names the scratch path; a malformed rcf/test-strength.json (unparsable, an entry kind outside bin, module and worker, or an empty harness list) exits 2 naming the field and runs no test.",
       "testable": true,
       "verification": "external"
     },

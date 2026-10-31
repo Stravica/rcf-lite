@@ -20,7 +20,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -938,5 +938,174 @@ test('AC-19903-5: a scratch directory that cannot be removed is named in one std
     assert.equal(new Set(warns).size, warns.length, `each scratch directory is named in one line\n${r.stderr}`);
   } finally {
     writable(tmp);
+  }
+});
+
+// ------------------------------------------- round D fix round 3 (re-Review 3's F-1 and F-2, positions)
+// The re-Review 3 verdict at 5a880f2f (FINDINGS/FINDINGS) and the
+// stage-keeper's rulings on it: node is the oracle. Where node's strip-mode
+// error carries a caret, the detail places the refusal at node's line and
+// the caret's column; where it names a line and no column (the input ends
+// with nothing open), at that line, column 1 (F-2's sentence in
+// AC-19901-9). Each input is written as escapes, and each position is the
+// one node v24.14.0 gives for it. Each case reads the detail of a
+// symbol-level .ts Code Node file on line 1, then on line 2 after an LF
+// line and after a CRLF line, and the same detail through the entry point
+// src/intervals.ts ("entry point unreadable", exit 2).
+async function entryDetailOf(t, text, file = 'src/intervals.ts') {
+  const { dir } = await strengthProject(t, { config: { entry: [{ kind: 'module', path: file }], harness: ['test/_harness/**'] }, files: { [file]: text } });
+  const r = await strength(dir, ['--acs', 'AC-101-1'], nodeEnv());
+  const line = lines(r.stderr).find((l) => l.startsWith('test-strength: entry point unreadable: '));
+  assert.ok(line, `stderr carries "test-strength: entry point unreadable: "\n${r.stdout}${r.stderr}`);
+  assert.equal(r.code, 2, `the audit's own input unreadable: exit 2\n${r.stdout}${r.stderr}`);
+  return line.slice('test-strength: entry point unreadable: '.length);
+}
+const syntaxAt = (detail, at, why) => assert.ok(detail.startsWith(`${at}: invalid TypeScript syntax (`), `${why}: the detail starts "${at}: invalid TypeScript syntax ("\n${detail}`);
+async function placedWhereNodePlaces(t, text, col, why) {
+  syntaxAt(await blockedDetailOf(t, text), `src/a.ts:1:${col}`, why);
+  syntaxAt(await blockedDetailOf(t, `export const z = 0;\n${text}\n`), `src/a.ts:2:${col}`, `${why}, on line 2 after an LF line`);
+  syntaxAt(await blockedDetailOf(t, `export const z = 0;\r\n${text}\r\n`), `src/a.ts:2:${col}`, `${why}, on line 2 after a CRLF line`);
+  syntaxAt(await entryDetailOf(t, text), `src/intervals.ts:1:${col}`, `${why}, in the entry point`);
+}
+
+// F-1 (A-POS-6a): node refuses U+0301 as a token start, its caret at index 17.
+test('AC-19901-9: a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, 'export const a = \u0301;', 18, 'node places the unexpected U+0301 at column 18');
+});
+
+// F-1 (A-POS-6b): a lone U+200D, node's caret at index 20.
+test('AC-19901-9: a lone zero width joiner is placed where node places its refusal: src/a.ts holding export const a = 1; U+200D const b = 2; at 1:21 (2:21 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:21, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, 'export const a = 1; \u200d const b = 2;', 21, 'node places the unexpected U+200D at column 21');
+});
+
+// F-1 (A-POS-6c): U+0663 starting a token, node's caret at index 17.
+test('AC-19901-9: an Arabic-Indic digit starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0663; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, 'export const a = \u0663;', 18, 'node places the unexpected U+0663 at column 18');
+});
+
+// F-1 (A-POS-6h): node's message quotes the non-ASCII label, its caret at index 3.
+test('AC-19901-9: a refusal whose message quotes a non-ASCII identifier is placed where node places it: src/a.ts holding U+00FC: U+00FC: while (true) break; (the label declared twice) at 1:4 (2:4 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:4, exit 5 and exit 2', async (t) => {
+  await placedWhereNodePlaces(t, '\u00fc: \u00fc: while (true) break;', 4, 'node places the second label U+00FC at column 4');
+});
+
+// F-2 (A-POS-6f), a declared guard: node names line 2 and no column.
+test('AC-19901-9: when node names a line and no column, the input ending after an operator with nothing open, the refusal is placed at that line, column 1: src/a.ts ending in export const b = on line 2 at 2:1 (with CRLF line ends too, and on line 3 at 3:1), and the entry point src/intervals.ts at 2:1, exit 5 and exit 2', async (t) => {
+  syntaxAt(await blockedDetailOf(t, 'export const a = 1;\nexport const b =\n'), 'src/a.ts:2:1', 'node names line 2 and no column');
+  syntaxAt(await blockedDetailOf(t, 'export const a = 1;\r\nexport const b =\r\n'), 'src/a.ts:2:1', 'node names line 2 and no column, CRLF line ends');
+  syntaxAt(await blockedDetailOf(t, 'export const z = 0;\nexport const a = 1;\nexport const b =\n'), 'src/a.ts:3:1', 'node names line 3 and no column');
+  syntaxAt(await entryDetailOf(t, 'export const a = 1;\nexport const b =\n'), 'src/intervals.ts:2:1', 'node names line 2 and no column, in the entry point');
+});
+
+// F-2 (A-POS-6g), a declared guard: node names line 1 and no column.
+test('AC-19901-9: when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5', async (t) => {
+  syntaxAt(await blockedDetailOf(t, 'export const a = 1 +'), 'src/a.ts:1:1', 'node names line 1 and no column');
+  syntaxAt(await blockedDetailOf(t, 'export const z = 0;\nexport const a = 1 +'), 'src/a.ts:2:1', 'node names line 2 and no column');
+});
+
+// ------------------------------------------- round D fix round 3 (re-Review 3's F-5 and F-7)
+// F-7, the re-Review 3 verdict's F-7, and F-7's sentence in AC-19903-5: on
+// an error exit (here the mutant run failing on a mutated file it cannot
+// restore, the "cannot run the bound tests" path) the audit still runs the
+// backstop and the warn line, and names the scratch it leaves.
+test('AC-19903-5: on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with "test-strength: a bound test run wrote <path> in the project" naming escape.txt and a "[warn] test-strength: scratch directory <dir> could not be removed" line for each scratch left', async (t) => {
+  const side = scratch(t, 'rcf-h-errexit-');
+  const tmp = join(side, 'tmp');
+  mkdirSync(tmp);
+  const { dir } = await strengthProject(t);
+  const escaped = join(dir, 'escape.txt');
+  const failing = testFile([GREETS], {
+    imports: ["import { chmodSync, mkdirSync, writeFileSync } from 'node:fs';", "import { tmpdir } from 'node:os';", "import { join } from 'node:path';"],
+    top: [
+      `writeFileSync(${q(escaped)}, 'e');`,
+      "mkdirSync(join(tmpdir(), 'locked', 'in'), { recursive: true });",
+      "writeFileSync(join(tmpdir(), 'locked', 'in', 'f.txt'), 'x');",
+      "chmodSync(join(tmpdir(), 'locked'), 0o555);",
+      "chmodSync('src/greet.js', 0o444);",
+    ],
+  });
+  commit(dir, 'fixture: a bound test the mutant run cannot recover from', { 'test/rcf/a.test.js': failing });
+  try {
+    const r = await strength(dir, ['--acs', 'AC-101-1'], { ...nodeEnv(), TMPDIR: tmp });
+    assert.equal(r.code, 2, `an error exit: exit 2\n${r.stdout}${r.stderr}`);
+    const wrote = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
+    assert.ok(wrote, `the backstop runs on the error exit: stderr carries "test-strength: a bound test run wrote <path> in the project"\n${r.stdout}${r.stderr}`);
+    assert.ok(wrote[1].endsWith('escape.txt'), `the line names escape.txt\n${wrote[0]}`);
+    const named = lines(r.stderr).filter((l) => l.startsWith('[warn] test-strength: scratch')).map((w) => {
+      const m = /^\[warn\] test-strength: scratch directory (.+) could not be removed$/.exec(w);
+      assert.ok(m, `the line reads "[warn] test-strength: scratch directory <dir> could not be removed"\n${w}`);
+      return m[1];
+    });
+    const left = readdirSync(tmp).map((e) => join(tmp, e)).sort();
+    assert.notDeepEqual(left, [], `the bound test leaves the audit's scratch in its TMPDIR\n${r.stderr}`);
+    assert.deepEqual([...named].sort(), left, `the error exit names each scratch directory left in its TMPDIR, each in one line\n${r.stdout}${r.stderr}`);
+  } finally {
+    writable(tmp);
+  }
+});
+
+// F-5, the re-Review 3 verdict's F-5: the parts of AC-19903-7 the signal
+// case above leaves unasserted, as A-CACHE-5 ran them. Each bound test run
+// starts a child process of its own (in its process group) and records
+// both pids and its working directory; with --jobs 2 the signal lands while
+// two mutant runs are live, in two working copies.
+function gitTree(dir) {
+  const seen = new Map();
+  const walk = (rel) => {
+    for (const e of readdirSync(join(dir, rel), { withFileTypes: true })) {
+      const p = `${rel}/${e.name}`;
+      if (e.isDirectory()) { seen.set(`${p}/`, 'dir'); walk(p); } else seen.set(p, createHash('sha256').update(readFileSync(join(dir, p))).digest('hex'));
+    }
+  };
+  walk('.git');
+  return seen;
+}
+test('AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process of each bound test run\'s process group, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the project\'s .git as it was, and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
+  for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
+    const side = scratch(t, 'rcf-h-sig2-');
+    const tmp = join(side, 'tmp');
+    mkdirSync(tmp);
+    const runsFile = join(side, 'runs');
+    // Each run appends "<its pid> <its child's pid> <its working directory>", then waits 20 s.
+    const waiting = testFile([GREETS], {
+      imports: ["import { appendFileSync } from 'node:fs';", "import { spawn } from 'node:child_process';"],
+      top: [
+        "const kid = spawn(process.execPath, ['-e', 'setTimeout(() => {}, 300_000)'], { stdio: 'ignore' });",
+        `appendFileSync(${q(runsFile)}, \`\${process.pid} \${kid.pid} \${process.cwd()}\\n\`);`,
+        'await new Promise((r) => setTimeout(r, 20_000));',
+        'kid.kill();',
+      ],
+    });
+    const { dir } = await strengthProject(t, { files: { 'test/rcf/a.test.js': waiting } });
+    const gitBefore = gitTree(dir);
+    const runs = () => (existsSync(runsFile) ? readFileSync(runsFile, 'utf8') : '').split('\n').filter(Boolean).map((l) => {
+      const [pid, kid, ...cwd] = l.split(' ');
+      return { pid: Number(pid), kid: Number(kid), cwd: cwd.join(' ') };
+    });
+    let seen = [];
+    const reap = () => { for (const r of [...seen, ...runs()]) for (const p of [r.pid, r.kid]) if (p && alive(p)) process.kill(p, 'SIGKILL'); };
+    t.after(reap);
+    const child = spawn(process.execPath, [BIN, 'audit', 'test-strength', '--acs', 'AC-101-1', '--jobs', '2'], { cwd: dir, env: baseEnv({ ...nodeEnv(), TMPDIR: tmp }), stdio: 'ignore' });
+    const exited = new Promise((res) => child.on('exit', (code, sig) => res({ code, sig })));
+    try {
+      // The first run is the unmutated run (one working copy); the mutant runs follow, two at once.
+      const live = () => runs().slice(1).filter((r) => alive(r.pid) && alive(r.kid));
+      assert.ok(await until(() => live().length >= 2, 150_000), `${signal}: two mutant runs are live at once under --jobs 2\n${q(runs())}`);
+      const both = live();
+      assert.equal(new Set(both.map((r) => r.cwd)).size, 2, `${signal}: the two live runs sit in two working copies\n${q(both)}`);
+      for (const r of both) assert.ok(r.cwd.startsWith(realpathSync(tmp)), `${signal}: each working copy sits in the audit's scratch, in its TMPDIR\n${r.cwd}`);
+      child.kill(signal);
+      const { code, sig } = await exited;
+      seen = runs();
+      assert.equal(code, want, `${signal}: exit ${want} (got code ${code}, signal ${sig})`);
+      for (const r of seen) {
+        assert.equal(await until(() => !alive(r.pid) && !alive(r.kid), 10_000), true, `${signal}: every process of the group is killed: the bound test run ${r.pid} and its child ${r.kid}`);
+      }
+      assert.deepEqual(readdirSync(tmp), [], `${signal}: the audit's scratch directory, both working copies within it, is removed`);
+      assert.deepEqual(gitTree(dir), gitBefore, `${signal}: no path of the project's .git is new, changed or deleted`);
+    } finally {
+      if (child.exitCode === null && child.signalCode === null) child.kill('SIGKILL');
+      reap();
+      writable(tmp);
+    }
   }
 });

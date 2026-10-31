@@ -24,7 +24,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, rmSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, renameSync, rmSync, writeFileSync } from 'node:fs';
 import { delimiter, dirname, join, relative, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -812,4 +812,92 @@ test('AC-19903-6: a bound test writing a file at an absolute path in the project
   assert.equal(rec.code, 2, `with --record: exit 2\n${shown(rec)}`);
   wrote(rec);
   assert.equal(existsSync(join(a.dir, verdictPath(H, 'test-strength.json'))), false, `nothing is recorded\n${shown(rec)}`);
+});
+
+// ------------------------------------------- round D fix round 3 (re-Review 3's F-3 and F-4)
+// F-3, the re-Review 3 verdict's F-3 (A-CACHE-6), under the stage-keeper's
+// rulings on it: AC-19903-5 forbids a write under the project's
+// node_modules or an ancestor's up to the repository root, and rulings 6
+// and 8 make such a write the named exit 2 of the backstop, never a silent
+// pass. The layout of A-CACHE-2: a repository whose root holds an
+// installed package, node_modules/rootpkg (gitignored), and the project as
+// its subdirectory pkg, with its own devDependencies installed (round A
+// ruling 8), audited from pkg.
+async function nestedProject(t, name, { nodes, bind }) {
+  const made = await project(t, { name: 'nested' });
+  const root = dirname(made);
+  const dir = join(root, 'pkg');
+  renameSync(made, dir);
+  copyFixture(name, dir);
+  editStory(dir, 'US-101', (us) => { us.acceptanceCriteria = [criterion('AC-101-1', 'AC-101-1 holds for the fixture project')]; });
+  editFbs(dir, 'FBS-001', (f) => { f.acIds = ['AC-101-1']; f.executionStatus = 'inProgress'; });
+  writeText(dir, 'rcf/test-strength.json', configText(TS_CONFIG));
+  codeNodes(dir, nodes);
+  bindTests(dir, bind.map(([acId, file, title]) => ({ acId, pointer: `${file}::${title}` })), { realTests: false });
+  install(t, dir);
+  writeText(root, 'node_modules/rootpkg/package.json', `${q({ name: 'rootpkg', version: '1.0.0', type: 'module', main: 'index.js' }, null, 2)}\n`);
+  writeText(root, 'node_modules/rootpkg/index.js', 'export const root = 1;\n');
+  writeText(root, '.gitignore', 'node_modules/\n');
+  initRepo(root);
+  const H = commit(root, 'fixture: base');
+  return { root, dir, H };
+}
+
+test('AC-19903-5: a bound test writing a new file inside an installed package of an ancestor\'s node_modules (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with "test-strength: a bound test run wrote <path> in the project" naming the file, and records nothing even with --record', async (t) => {
+  const n = await nestedProject(t, 'a-tsx-node-test', {
+    nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
+  });
+  const written = join(n.root, 'node_modules', 'rootpkg', 'a6.txt');
+  const H = commit(n.root, 'fixture: a bound test writing in an ancestor\'s node_modules', {
+    'pkg/test/totals.test.ts': `import { realpathSync, writeFileSync } from 'node:fs';\nimport { join } from 'node:path';\n${readFileSync(join(n.dir, 'test', 'totals.test.ts'), 'utf8')}\nwriteFileSync(join(realpathSync('../node_modules/rootpkg'), 'a6.txt'), 'a6');\n`,
+  });
+  const named = (r) => {
+    const m = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
+    assert.ok(m, `stderr carries "test-strength: a bound test run wrote <path> in the project"\n${shown(r)}\nwritten: ${existsSync(written)}`);
+    assert.ok(m[1].endsWith('a6.txt'), `the line names a6.txt\n${m[0]}`);
+  };
+  const plain = await strength(n.dir, ['--acs', 'AC-101-1']);
+  assert.equal(plain.code, 2, `a bound test run wrote under an ancestor's node_modules: exit 2\n${shown(plain)}\nwritten: ${existsSync(written)}`);
+  named(plain);
+  rmSync(written, { force: true });
+  commit(n.root, 'REVIEW: verdict', { [`pkg/${verdictPath(H, 'review.json')}`]: reviewVerdict(H, { touchedAcIds: ['AC-101-1'] }) });
+  const rec = await strength(n.dir, ['--acs', 'AC-101-1', '--record']);
+  assert.equal(rec.code, 2, `with --record: exit 2\n${shown(rec)}`);
+  named(rec);
+  assert.equal(existsSync(join(n.dir, verdictPath(H, 'test-strength.json'))), false, `nothing is recorded\n${shown(rec)}`);
+  rmSync(written, { force: true });
+});
+
+// F-4, the re-Review 3 verdict's F-4: the freshness case of the
+// stage-keeper's ruling 9 (A-CACHE-4), a declared guard. The audit adds
+// no flag to vitest's argv, so with --jobs 1 every mutant of src/slug.ts
+// runs in the one working copy where vitest already transformed the file:
+// each mutant must be judged on its own text. With the bound spec's isSlug
+// expectations taken out, isSlug's mutants, run after slugify's were
+// killed in the same working copy, survive.
+test('AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the bound spec\'s isSlug expectations taken out isSlug\'s mutants read survived after slugify\'s were killed, exit 4', async (t) => {
+  const p = await packVitest(t);
+  const mutantsOf = (r, symbol) => crit(json(r.stdout), 'AC-101-1').mutants.filter((m) => m.symbol === symbol && m.result !== 'notApplicable');
+  const all = await strength(p.dir, ['--acs', 'AC-101-1', '--jobs', '1', '--json']);
+  assert.equal(all.code, 0, `every mutant killed: exit 0\n${shown(all)}`);
+  for (const symbol of ['src/slug.ts#slugify', 'src/slug.ts#isSlug']) {
+    const ms = mutantsOf(all, symbol);
+    assert.ok(ms.length > 0, `${symbol} has mutants\n${all.stdout}`);
+    for (const m of ms) assert.equal(m.result, 'killed', `${symbol} ${m.operator}: killed in the one working copy\n${all.stdout}`);
+  }
+  const line = await strength(p.dir, ['--acs', 'AC-101-1', '--jobs', '1']);
+  assert.match(out(line), passAny(p.H), `the PASS line\n${shown(line)}`);
+
+  const spec = 'tests/rcf/unit/US-101/AC-101-1.spec.ts';
+  const text = readFileSync(join(p.dir, spec), 'utf8');
+  const unasserted = text.replace(/\n {2}it\('TC-007: [\s\S]*?\n {2}\}\);\n/, '\n');
+  assert.ok(unasserted !== text && !/isSlug\(/.test(unasserted), 'the bound spec without its isSlug expectations');
+  commit(p.dir, 'fixture: the bound spec without its isSlug expectations', { [spec]: unasserted });
+  const some = await strength(p.dir, ['--acs', 'AC-101-1', '--jobs', '1', '--json']);
+  assert.equal(some.code, 4, `isSlug's mutants survive: the FAIL exit 4\n${shown(some)}`);
+  const slugify = mutantsOf(some, 'src/slug.ts#slugify');
+  assert.ok(slugify.length > 0 && slugify.every((m) => m.result === 'killed'), `slugify's mutants killed\n${some.stdout}`);
+  const isSlug = mutantsOf(some, 'src/slug.ts#isSlug');
+  assert.ok(isSlug.length > 0 && isSlug.every((m) => m.result === 'survived'), `isSlug's mutants survived, judged on their own text after slugify's were killed in the same working copy\n${some.stdout}`);
 });

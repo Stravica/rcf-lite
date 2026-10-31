@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-10-30T15:14:36.098Z",
+  "updatedAt": "2026-10-31T00:16:38.871Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -143,6 +143,48 @@
       "description": "an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5"
+    },
+    {
+      "id": "TC-282-a-combining-mark-starting-a-token-is",
+      "acId": "AC-19901-9",
+      "description": "a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2"
+    },
+    {
+      "id": "TC-282-a-lone-zero-width-joiner-is-placed-where",
+      "acId": "AC-19901-9",
+      "description": "a lone zero width joiner is placed where node places its refusal: src/a.ts holding export const a = 1; U+200D const b = 2; at 1:21 (2:21 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:21, exit 5 and exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a lone zero width joiner is placed where node places its refusal: src/a.ts holding export const a = 1; U+200D const b = 2; at 1:21 (2:21 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:21, exit 5 and exit 2"
+    },
+    {
+      "id": "TC-282-an-arabic-indic-digit-starting-a-token",
+      "acId": "AC-19901-9",
+      "description": "an Arabic-Indic digit starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0663; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an Arabic-Indic digit starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0663; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2"
+    },
+    {
+      "id": "TC-282-a-refusal-whose-message-quotes-a-non",
+      "acId": "AC-19901-9",
+      "description": "a refusal whose message quotes a non-ASCII identifier is placed where node places it: src/a.ts holding U+00FC: U+00FC: while (true) break; (the label declared twice) at 1:4 (2:4 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:4, exit 5 and exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a refusal whose message quotes a non-ASCII identifier is placed where node places it: src/a.ts holding U+00FC: U+00FC: while (true) break; (the label declared twice) at 1:4 (2:4 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:4, exit 5 and exit 2"
+    },
+    {
+      "id": "TC-282-when-node-names-a-line-and-no-column-the",
+      "acId": "AC-19901-9",
+      "description": "when node names a line and no column, the input ending after an operator with nothing open, the refusal is placed at that line, column 1: src/a.ts ending in export const b = on line 2 at 2:1 (with CRLF line ends too, and on line 3 at 3:1), and the entry point src/intervals.ts at 2:1, exit 5 and exit 2",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: when node names a line and no column, the input ending after an operator with nothing open, the refusal is placed at that line, column 1: src/a.ts ending in export const b = on line 2 at 2:1 (with CRLF line ends too, and on line 3 at 3:1), and the entry point src/intervals.ts at 2:1, exit 5 and exit 2"
+    },
+    {
+      "id": "TC-282-when-node-names-a-line-and-no-break-at-the-end",
+      "acId": "AC-19901-9",
+      "description": "when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5"
     }
   ],
   "status": "draft"
