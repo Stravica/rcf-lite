@@ -1,0 +1,68 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "861774ee3ec5201259ed456992d8d1b96eeb501f",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9",
+    "AC-19903-6",
+    "AC-19903-7"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19901-9",
+      "text": "note, new criterion: reach rule 4 (src/audit/test-strength/source.js:721 to :725) withholds with the probes disagree a tie whose zero-width code point node passes over when deleting it joins its neighbours into one token, though the marker and space probes agree on the construct: X5-POS-7 let a = x U+200B b; (node refuses b, 1:11; withheld at 1:10), X5-POS-9 const t = a = U+200B = b; (the second =, 1:15; withheld at 1:14), X5-POS-23 the same with U+FEFF; the Z5 row of the top-down review of the position oracle also had node quoting the code point; state in AC-19901-9 and AC-19904-7 whether such a tie is withheld or placed"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: a package linked into the project node_modules from a directory outside it (node_modules/extpkg a symbolic link) has a real location outside the real location of the node_modules, so a bound test write inside it lies under no forbidden root and the audit exits 0 with the PASS line (X5-CACHE-4; src/audit/test-strength/runner.js:254); state whether a linked package counts as under its node_modules"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: no test pins the out-of-scope restore fix of 657b5a8c (src/audit/test-strength/runner.js:412 to :416: a restore that fails becomes the failure, so every worker stops before the scratch is removed); js:1010 passes either way and the leak pin caught the old behaviour only by a race (CI run 41207286430 at b31e5010); add a deterministic case"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: the help (src/cli/test-strength.js:71 to :80) still states the backstop as the project tree and the node_modules on the resolution path, compared on an error exit; it does not state the real location through symbolic links, the project .git as a forbidden root, or every exit including a not-run or cannot-run exit, which AC-19903-5 now states"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-19901-9",
+      "text": "note, new criterion: the help position sentence (src/cli/test-strength.js:145 to :159) lacks the reach sentence of AC-19901-9 and AC-19904-7 (the first of the code points sharing the column that node does not pass over) and the clause which relaxes none of the positions above for an input node places"
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: firstMoved (src/audit/test-strength/runner.js:305) is exported with no caller in src/ since CN-1054 was retired; only test/hygiene/resolution-path.test.js imports it; remove it or give it a caller"
+    },
+    {
+      "id": "F-7",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: when the backstop finds a path after a thrown error, the finally (src/audit/test-strength/index.js:358 to :363) sets thrown to null, so the exit 2 names the path but not the error; state whether the error is named beside the backstop line"
+    }
+  ],
+  "recordedBy": "reviewer, round D RC-46 fix round 4 re-REVIEW",
+  "recordedAt": "2026-10-31T18:40:28.341Z"
+}
