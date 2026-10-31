@@ -1,5 +1,5 @@
 // Builder hygiene test (FBS-242, the stage-keeper's ruling on re-Review 3
-// and his design decision after re-Review 4: the backstop is a set of
+// and the design decision after re-Review 4: the backstop is a set of
 // forbidden roots resolved by real path): rcf audit test-strength compares
 // every path under the project root, the real location of its node_modules,
 // each ancestor's node_modules up to the repository root (the stop) and the
