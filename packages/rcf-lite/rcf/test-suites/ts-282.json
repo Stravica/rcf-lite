@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-10-31T09:04:41.075Z",
+  "updatedAt": "2026-10-31T12:46:13.524Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -318,6 +318,104 @@
       "description": "a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-op-comb",
+      "acId": "AC-19901-9",
+      "description": "a combining mark at an operand position is the construct node refuses: src/a.ts holding let a = 1 + U+0301; places the refusal at 1:13 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a combining mark at an operand position is the construct node refuses: src/a.ts holding let a = 1 + U+0301; places the refusal at 1:13 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-op-zwsp-comb",
+      "acId": "AC-19901-9",
+      "description": "a zero width space node passes over, then a combining mark at an operand position: src/a.ts holding let a = 1 + U+200B U+0301; places the refusal at the combining mark, 1:14, with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a zero width space node passes over, then a combining mark at an operand position: src/a.ts holding let a = 1 + U+200B U+0301; places the refusal at the combining mark, 1:14, with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-op-comb-comb",
+      "acId": "AC-19901-9",
+      "description": "two combining marks after * are placed at the first: src/a.ts holding let a = 2 * U+0301 U+0301; places the refusal at 1:13 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks after * are placed at the first: src/a.ts holding let a = 2 * U+0301 U+0301; places the refusal at 1:13 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-zwj3-withheld",
+      "acId": "AC-19901-9",
+      "description": "three zero width joiners where the probes of node disagree are withheld: src/a.ts holding export const a = 1 U+200D U+200D U+200D; reads 1:20, the caret of node plus 1, with one withheld column line naming the probes disagree, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: three zero width joiners where the probes of node disagree are withheld: src/a.ts holding export const a = 1 U+200D U+200D U+200D; reads 1:20, the caret of node plus 1, with one withheld column line naming the probes disagree, exit 5"
+    },
+    {
+      "id": "TC-282-r-esc-op-withheld",
+      "acId": "AC-19901-9",
+      "description": "an escape character in a string, then a refused token after an operator, is withheld: src/a.ts holding export const s = quote U+001B quote; const b = 1 + ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an escape character in a string, then a refused token after an operator, is withheld: src/a.ts holding export const s = quote U+001B quote; const b = 1 + ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5"
+    },
+    {
+      "id": "TC-282-r-esc-osc-withheld",
+      "acId": "AC-19901-9",
+      "description": "an escape and an operating system command sequence in a string, then a refused token, is withheld: src/a.ts holding export const s = quote U+001B ]0;t U+0007 quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an escape and an operating system command sequence in a string, then a refused token, is withheld: src/a.ts holding export const s = quote U+001B ]0;t U+0007 quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5"
+    },
+    {
+      "id": "TC-282-r-esc-unclosed-withheld",
+      "acId": "AC-19901-9",
+      "description": "an escape character in a string, then a refused token (esc-unclosed), is withheld: src/a.ts holding export const s = quote U+001B quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: an escape character in a string, then a refused token (esc-unclosed), is withheld: src/a.ts holding export const s = quote U+001B quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5"
+    },
+    {
+      "id": "TC-282-r-comb-comb",
+      "acId": "AC-19901-9",
+      "description": "two combining marks node refuses are placed at the first (comb-comb): src/a.ts holding export const a = U+0301 U+0301; places the refusal at 1:18 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks node refuses are placed at the first (comb-comb): src/a.ts holding export const a = U+0301 U+0301; places the refusal at 1:18 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-zwj-zwj",
+      "acId": "AC-19901-9",
+      "description": "two zero width joiners node refuses are placed at the first (zwj-zwj): src/a.ts holding export const a = 1 U+200D U+200D; places the refusal at 1:20 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two zero width joiners node refuses are placed at the first (zwj-zwj): src/a.ts holding export const a = 1 U+200D U+200D; places the refusal at 1:20 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-bom-comb-comb",
+      "acId": "AC-19901-9",
+      "description": "a byte order mark node passes over, then two combining marks: src/a.ts holding export const a = U+FEFF U+0301 U+0301; places the refusal at the first combining mark, 1:19, with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a byte order mark node passes over, then two combining marks: src/a.ts holding export const a = U+FEFF U+0301 U+0301; places the refusal at the first combining mark, 1:19, with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-comb-comb-crlf",
+      "acId": "AC-19901-9",
+      "description": "two combining marks on line 2 after a CRLF line are placed at the first: src/a.ts holding export const z = 0; CRLF export const a = U+0301 U+0301; places the refusal at 2:18 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks on line 2 after a CRLF line are placed at the first: src/a.ts holding export const z = 0; CRLF export const a = U+0301 U+0301; places the refusal at 2:18 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-comb-comb-vue",
+      "acId": "AC-19901-9",
+      "description": "two combining marks in a .vue script setup block are placed at the first, counted in the .vue file: src/a.vue holding a template line, a script setup lang ts line and export const a = U+0301 U+0301; places the refusal at 3:18 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks in a .vue script setup block are placed at the first, counted in the .vue file: src/a.vue holding a template line, a script setup lang ts line and export const a = U+0301 U+0301; places the refusal at 3:18 with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-x-ff-zwj",
+      "acId": "AC-19901-9",
+      "description": "a form feed node passes over, then a zero width joiner it refuses (x-ff-zwj): src/a.ts holding let a = x U+000C U+200D; places the refusal at the joiner, 1:11, with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a form feed node passes over, then a zero width joiner it refuses (x-ff-zwj): src/a.ts holding let a = x U+000C U+200D; places the refusal at the joiner, 1:11, with no withheld column line, exit 5"
+    },
+    {
+      "id": "TC-282-r-hangul3-label",
+      "acId": "AC-19901-9",
+      "description": "a repeated label of three Hangul jungseong fillers is placed at the second label: src/a.ts holding U+1160 U+1160 U+1160: U+1160 U+1160 U+1160: while (true) break; places the refusal at 1:6 with no withheld column line, exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a repeated label of three Hangul jungseong fillers is placed at the second label: src/a.ts holding U+1160 U+1160 U+1160: U+1160 U+1160 U+1160: while (true) break; places the refusal at 1:6 with no withheld column line, exit 5"
     }
   ],
   "status": "draft"

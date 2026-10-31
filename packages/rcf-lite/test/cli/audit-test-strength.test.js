@@ -1216,3 +1216,73 @@ test('AC-19901-9: a tie after the binary operator ?? is placed at the refused to
 test('AC-19901-9: a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5', async (t) => {
   await placedUnwithheld(t, 'let t = 0; t = ﻿;', '1:17', 'node refuses the ; after = at column 17');
 });
+
+// ------------------------------------------- round D fix round 4 (the reach rule R)
+// The reach rule R, the stage-keeper's ruling after the top-down review of
+// the position oracle: where code points of no display width share node's
+// column, the refusal is placed at the first of them node does not pass
+// over (a zero-width code point node refuses is itself the construct; one
+// node passes over is not). Where node's caret does not move across the
+// code points that share its column (after an escape character), or node's
+// own probes of them disagree, the position check is withheld: the detail
+// reads node's line and node's caret plus 1, and one stderr line names the
+// reason, the documented degraded state. Each input is written as escapes;
+// each position is the one node v24.14.0 gives for it, or withholds.
+async function placedWithheld(t, text, at, reason, why, file = 'src/a.ts') {
+  const { dir } = await strengthProject(t, { files: { [file]: text }, nodes: [[`${file}#run`, ['AC-101-1']]] });
+  const r = await strength(dir, ['--acs', 'AC-101-1', '--json'], nodeEnv());
+  const c = crit(json(r.stdout), 'AC-101-1');
+  assert.equal(c?.result, 'blocked', `AC-101-1 is BLOCKED\n${r.stdout}${r.stderr}`);
+  syntaxAt(c.detail, `${file}:${at}`, why);
+  const line = `${WITHHELD}${file}:${at.split(':')[0]} is node's display column (position check withheld: ${reason})`;
+  assert.deepEqual(lines(r.stderr).filter((l) => l.startsWith(WITHHELD)), [line], `${why}: exactly one stderr line reads "${line}"\n${r.stderr}`);
+  assert.equal(r.code, 5, `blocked criteria only: exit 5\n${r.stdout}${r.stderr}`);
+}
+const CARET_STILL = "node's caret does not move across the tie";
+const PROBES_DISAGREE = 'the probes disagree';
+
+// The seven red cases of the ruling, in its order.
+test('AC-19901-9: a combining mark at an operand position is the construct node refuses: src/a.ts holding let a = 1 + U+0301; places the refusal at 1:13 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = 1 + \u0301;', '1:13', 'node refuses the combining mark at column 13');
+});
+test('AC-19901-9: a zero width space node passes over, then a combining mark at an operand position: src/a.ts holding let a = 1 + U+200B U+0301; places the refusal at the combining mark, 1:14, with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = 1 + \u200b\u0301;', '1:14', 'node refuses the combining mark at column 14');
+});
+test('AC-19901-9: two combining marks after * are placed at the first: src/a.ts holding let a = 2 * U+0301 U+0301; places the refusal at 1:13 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = 2 * \u0301\u0301;', '1:13', 'node refuses the first combining mark at column 13');
+});
+test('AC-19901-9: three zero width joiners where the probes of node disagree are withheld: src/a.ts holding export const a = 1 U+200D U+200D U+200D; reads 1:20, the caret of node plus 1, with one withheld column line naming the probes disagree, exit 5', async (t) => {
+  await placedWithheld(t, 'export const a = 1 \u200d\u200d\u200d;', '1:20', PROBES_DISAGREE, 'the probes of node disagree on the three joiners');
+});
+test('AC-19901-9: an escape character in a string, then a refused token after an operator, is withheld: src/a.ts holding export const s = quote U+001B quote; const b = 1 + ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5', async (t) => {
+  await placedWithheld(t, "export const s = '\u001b'; const b = 1 + ;", '1:19', CARET_STILL, 'the renderer of node swallows the code points after the escape character');
+});
+test('AC-19901-9: an escape and an operating system command sequence in a string, then a refused token, is withheld: src/a.ts holding export const s = quote U+001B ]0;t U+0007 quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5', async (t) => {
+  await placedWithheld(t, "export const s = '\u001b]0;t\u0007'; const b = ;", '1:19', CARET_STILL, 'the renderer of node swallows the code points after the escape character');
+});
+test('AC-19901-9: an escape character in a string, then a refused token (esc-unclosed), is withheld: src/a.ts holding export const s = quote U+001B quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5', async (t) => {
+  await placedWithheld(t, "export const s = '\u001b'; const b = ;", '1:19', CARET_STILL, 'the renderer of node swallows the code points after the escape character');
+});
+
+// The seven green guards of the ruling, in its order.
+test('AC-19901-9: two combining marks node refuses are placed at the first (comb-comb): src/a.ts holding export const a = U+0301 U+0301; places the refusal at 1:18 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const a = \u0301\u0301;', '1:18', 'node refuses the first combining mark at column 18');
+});
+test('AC-19901-9: two zero width joiners node refuses are placed at the first (zwj-zwj): src/a.ts holding export const a = 1 U+200D U+200D; places the refusal at 1:20 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const a = 1 \u200d\u200d;', '1:20', 'node refuses the first joiner at column 20');
+});
+test('AC-19901-9: a byte order mark node passes over, then two combining marks: src/a.ts holding export const a = U+FEFF U+0301 U+0301; places the refusal at the first combining mark, 1:19, with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const a = \ufeff\u0301\u0301;', '1:19', 'node refuses the first combining mark at column 19');
+});
+test('AC-19901-9: two combining marks on line 2 after a CRLF line are placed at the first: src/a.ts holding export const z = 0; CRLF export const a = U+0301 U+0301; places the refusal at 2:18 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'export const z = 0;\r\nexport const a = \u0301\u0301;\r\n', '2:18', 'node refuses the first combining mark at column 18 of line 2');
+});
+test('AC-19901-9: two combining marks in a .vue script setup block are placed at the first, counted in the .vue file: src/a.vue holding a template line, a script setup lang ts line and export const a = U+0301 U+0301; places the refusal at 3:18 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, "<template><p/></template>\r\n<script setup lang='ts'>\r\nexport const a = \u0301\u0301;\r\n</script>\r\n", '3:18', 'node refuses the first combining mark at column 18 of line 3 of the .vue file', 'src/a.vue');
+});
+test('AC-19901-9: a form feed node passes over, then a zero width joiner it refuses (x-ff-zwj): src/a.ts holding let a = x U+000C U+200D; places the refusal at the joiner, 1:11, with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, 'let a = x\u000c\u200d;', '1:11', 'node refuses the joiner at column 11');
+});
+test('AC-19901-9: a repeated label of three Hangul jungseong fillers is placed at the second label: src/a.ts holding U+1160 U+1160 U+1160: U+1160 U+1160 U+1160: while (true) break; places the refusal at 1:6 with no withheld column line, exit 5', async (t) => {
+  await placedUnwithheld(t, '\u1160\u1160\u1160: \u1160\u1160\u1160: while (true) break;', '1:6', 'node refuses the second label at column 6');
+});
