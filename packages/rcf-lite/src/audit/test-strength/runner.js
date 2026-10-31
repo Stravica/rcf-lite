@@ -410,7 +410,10 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
         } catch (err) {
           failure = failure ?? err;
         } finally {
-          for (const [abs, bytes] of originals) writeFileSync(abs, bytes);
+          // A file the run cannot restore is the failure too, never a rejected worker.
+          for (const [abs, bytes] of originals) {
+            try { writeFileSync(abs, bytes); } catch (err) { failure = failure ?? err; }
+          }
         }
       }
     };
