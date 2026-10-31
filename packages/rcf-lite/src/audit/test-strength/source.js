@@ -562,17 +562,29 @@ function openAtEnd(text) {
 const MARK = '\u00a7';
 const OPENER = '////';
 let probeBase;
+// node's own message for MARK, read once from the calibration probe and
+// compared as one whole string (never a literal, never parsed).
+let markMessage;
+
+/** node's refusal of `text` as four values (code, message whole, node's line, node's caret), or null when node accepts it. */
+function refusalOf(text) {
+  try {
+    strip(text);
+  } catch (err) {
+    const { line, caret } = caretOf(err);
+    return { code: err?.code, message: err?.message, line, caret };
+  }
+  return null;
+}
+
+const sameRefusal = (a, b) => a !== null && b !== null && a.code === b.code && a.message === b.message && a.line === b.line && a.caret === b.caret;
 
 /** node's caret for the probe of `prefix` after `opener`, less the openers again after a line end, or null. */
 function probeCaret(prefix, opener = OPENER) {
   let again = 0;
   const body = prefix.replace(/[\r\u2028\u2029]/g, (m) => { again += 1; return `${m}${OPENER}`; });
-  try {
-    strip(`${opener}${body}\r${MARK}`);
-  } catch (err) {
-    const c = caretOf(err).caret;
-    if (err?.message === `Unexpected character '${MARK}'` && c >= 0) return c - OPENER.length * again - (opener.length - OPENER.length);
-  }
+  const r = refusalOf(`${opener}${body}\r${MARK}`);
+  if (r !== null && markMessage !== undefined && r.message === markMessage && r.caret >= 0) return r.caret - OPENER.length * again - (opener.length - OPENER.length);
   return null;
 }
 
@@ -584,6 +596,9 @@ function probeCaret(prefix, opener = OPENER) {
  */
 function probeCheck() {
   if (probeBase === undefined) {
+    // The calibration probe is read by its caret alone; its message is node's message for MARK.
+    const calibration = refusalOf(`${OPENER}\r${MARK}`);
+    if (calibration !== null && calibration.caret >= 0 && typeof calibration.message === 'string') markMessage = calibration.message;
     const base = probeCaret('');
     const tab4 = probeCaret('\t');
     const tab8 = probeCaret('\t', `${OPENER}${OPENER}`);
@@ -619,8 +634,8 @@ function lineStart(text, line) {
  * node echoes (after the last LF before line N), equals the caret. The
  * search bisects the code point boundaries of the line, each width
  * checked to lie between those already measured (W never decreases);
- * offsets of equal width go to node, which refuses a MARK inserted at the
- * largest offset it reaches before its own refusal. With no caret: the
+ * offsets of equal width go to node's own probes by the reach rule R
+ * (reach). With no caret: the
  * innermost construct still open at the end (openAtEnd), else node's line
  * at column 1.
  */
@@ -674,16 +689,41 @@ function nodePosition(text, err) {
   }
   if (!tied.length) return withheld('no offset on node\'s line has the width of the caret');
   if (tied.length === 1) return { at: tied[0] };
-  const reached = tied.filter((o) => {
-    try {
-      strip(`${text.slice(0, o)}${MARK}${text.slice(o)}`);
-    } catch (e) {
-      const m = caretOf(e);
-      return e?.message === `Unexpected character '${MARK}'` && m.line === line && m.caret === caret;
-    }
-    return false;
+  return reach(text, tied, { code: err?.code, message: err?.message, line, caret }, withheld);
+}
+
+/**
+ * The tie at node's caret, by the reach rule R (the stage-keeper's ruling
+ * on the position-oracle review), from node's own probes alone: 1, the
+ * guard, withheld when a tied code point but the last measures a non-zero
+ * width alone; 2, the largest offset where node refuses MARK with its own
+ * message for MARK at its line and caret; 3, only when 2 reaches none, the
+ * largest offset after the first where a space changes any of the four
+ * values, else the first; 4, withheld when the answer is the last offset
+ * and deleting every code point before it at once changes node's refusal.
+ */
+function reach(text, tied, original, withheld) {
+  const at = (o, s) => `${text.slice(0, o)}${s}${text.slice(o)}`;
+  const last = tied[tied.length - 1];
+  for (const o of tied.slice(0, -1)) {
+    const w = probeCaret(String.fromCodePoint(text.codePointAt(o)));
+    if (w === null) return withheld('a probe was refused elsewhere');
+    if (w - probeBase.base !== 0) return withheld("node's caret does not move across the tie");
+  }
+  const marked = tied.filter((o) => {
+    const r = refusalOf(at(o, MARK));
+    return r !== null && r.message === markMessage && r.line === original.line && r.caret === original.caret;
   });
-  return reached.length ? { at: reached[reached.length - 1] } : withheld('a tie node does not resolve');
+  let answer = marked.length ? marked[marked.length - 1] : undefined;
+  if (answer === undefined) {
+    const spaced = tied.slice(1).filter((o) => !sameRefusal(refusalOf(at(o, ' ')), original));
+    answer = spaced.length ? spaced[spaced.length - 1] : tied[0];
+  }
+  if (answer === last) {
+    const kept = tied.slice(0, -1).reduceRight((t, o) => `${t.slice(0, o)}${t.slice(o + (t.codePointAt(o) > 0xffff ? 2 : 1))}`, text);
+    if (!sameRefusal(refusalOf(kept), original)) return withheld('the probes disagree');
+  }
+  return { at: answer };
 }
 
 /**

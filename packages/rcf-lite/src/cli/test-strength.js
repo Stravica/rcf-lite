@@ -149,10 +149,14 @@ UTF-16 code units from the start of that line; for a construct strip
 mode refuses or a syntax error, it is where node's refusal places it
 (node's caret, its width measured by node); when the input ends inside
 a construct, it is where the innermost such construct opens; when node
-names a line and no column, it is that line, column 1. A column node
-gives that the audit cannot check reads node's display column, said
-so in one stderr line "test-strength: column for <file>:<line> is
-node's display column (position check withheld: <reason>)".
+names a line and no column, it is that line, column 1. When the audit
+cannot check the position node gives (node's caret does not move
+across the code points that share its column, as after an escape
+character, or node's own probes of them disagree), the refusal is
+placed at node's line, column node's caret index plus 1, and one
+stderr line names the reason, "test-strength: column for
+<file>:<line> is node's display column (position check withheld:
+<reason>)": a documented degraded state, never a silent one.
 A blocked criterion is not checked, gets no
 mutant and counts in no total but criteria and blocked. An entry point
 the views cannot read exits 2 "entry point unreadable".

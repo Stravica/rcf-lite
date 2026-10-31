@@ -36,7 +36,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { NotRunError, backstopTree, firstMoved, runMutants, runUnmutated } from './runner.js';
+import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, runMutants, runUnmutated } from './runner.js';
 import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
@@ -289,60 +289,83 @@ export async function auditTestStrength({
   // The unmutated run (RC-45): the bound tests of each criterion with a
   // mutant to run, once, before any mutant; a red one stops the run.
   const proved = criteria.filter((c) => c.mutants.some((m) => !m.result));
-  // The backstop (AC-19903-5, AC-19903-6): the project tree and every
-  // node_modules directory on Node's resolution path up to the repository
-  // root, before any bound test runs, compared after them; a path a bound
-  // test run wrote there stops the run.
-  const before = proved.length ? backstopTree(projectRoot, toplevel) : null;
+  // The backstop (AC-19903-5, AC-19903-6; the stage-keeper's design
+  // decision after re-Review 4): the forbidden roots, resolved by real path
+  // before any bound test runs, read again after them on every exit, in
+  // one finally; a path a bound test run wrote under one is the named exit
+  // 2 whatever else the run was about to report.
+  const roots = proved.length ? forbiddenRoots(projectRoot, toplevel) : null;
+  const before = roots ? backstopTree(projectRoot, toplevel, roots) : null;
+  const scratches = [];
   const wrote = () => {
     if (!before) return null;
-    const path = firstMoved(before, backstopTree(projectRoot, toplevel));
+    const path = firstForbidden(roots, before, backstopTree(projectRoot, toplevel, roots), scratches);
     return path === null ? null : `test-strength: a bound test run wrote ${path} in the project`;
   };
   const leftLines = (dirs) => dirs.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`);
+  // Each exit of the bound test runs, with the lines it gives when the backstop finds a path.
+  const exit = (lines, breached) => Object.assign(fail(2, ...lines), { breached });
   // An error exit still runs the backstop and the warn line, and names the scratch (F-7).
   const cannotRun = (err, ...left) => {
-    const breach = wrote();
-    return fail(2, ...left, ...leftLines(err.left ?? []), ...(breach ? [breach] : []),
-      `test-strength: cannot run the bound tests${err.scratch ? ` in scratch directory ${err.scratch}` : ''}: ${err.message}`);
+    const lines = [...left, ...leftLines(err.left ?? [])];
+    const line = `test-strength: cannot run the bound tests${err.scratch ? ` in scratch directory ${err.scratch}` : ''}: ${err.message}`;
+    return exit([...lines, line], (breach) => fail(2, ...lines, breach, line));
   };
   let unmutated;
-  try {
-    unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix });
-  } catch (err) {
-    return cannotRun(err);
-  }
-  const leftUnmutated = leftLines(unmutated.left);
-  if (unmutated.red) {
-    const breach = wrote();
-    if (breach) return fail(2, ...leftUnmutated, breach);
-    const { acId, test: t, result, verdict, names } = unmutated.red;
-    const argv = t.runner.argv.join(' ');
-    if (result === 'notRun') return fail(2, ...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`);
-    const lines = [`test-strength: the unmutated run is red for ${acId}: ${t.pointer} fails under runner ${argv}; no mutant was run`];
-    // The stage-keeper's ruling Q5: a report the audit cannot read names the reporter flag.
-    if (verdict === 'unreadable') {
-      const flag = t.runner.kind === 'nodeTest' ? '--test-reporter=tap' : (t.runner.kind === 'vitest' ? '--reporter=json --outputFile=<report>' : '--reporter=json');
-      lines.push(`test-strength: runner ${argv} gave no report the audit can read; its argv must carry the reporter flag (${flag})`);
-    }
-    if (!t.runner.matched && (HINT_EXT.test(t.file) || importSpecifiers(parseFile(t.file, texts.get(t.file))).some((sp) => sp === 'vitest' || sp === '@playwright/test'))) {
-      lines.push(`test-strength: declare a runner for ${t.file} in rcf/test-strength.json runners`);
-    }
-    return fail(2, ...leftUnmutated, ...lines);
-  }
-
-  const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
   let run;
+  let outcome = null;
+  let thrown = null;
   try {
-    run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix });
+    outcome = await (async () => {
+      try {
+        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+      } catch (err) {
+        return cannotRun(err);
+      }
+      const leftUnmutated = leftLines(unmutated.left);
+      if (unmutated.red) {
+        const breached = (breach) => fail(2, ...leftUnmutated, breach);
+        const { acId, test: t, result, verdict, names } = unmutated.red;
+        const argv = t.runner.argv.join(' ');
+        if (result === 'notRun') return exit([...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`], breached);
+        const lines = [`test-strength: the unmutated run is red for ${acId}: ${t.pointer} fails under runner ${argv}; no mutant was run`];
+        // The stage-keeper's ruling Q5: a report the audit cannot read names the reporter flag.
+        if (verdict === 'unreadable') {
+          const flag = t.runner.kind === 'nodeTest' ? '--test-reporter=tap' : (t.runner.kind === 'vitest' ? '--reporter=json --outputFile=<report>' : '--reporter=json');
+          lines.push(`test-strength: runner ${argv} gave no report the audit can read; its argv must carry the reporter flag (${flag})`);
+        }
+        if (!t.runner.matched && (HINT_EXT.test(t.file) || importSpecifiers(parseFile(t.file, texts.get(t.file))).some((sp) => sp === 'vitest' || sp === '@playwright/test'))) {
+          lines.push(`test-strength: declare a runner for ${t.file} in rcf/test-strength.json runners`);
+        }
+        return exit([...leftUnmutated, ...lines], breached);
+      }
+      const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
+      try {
+        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+      } catch (err) {
+        if (err instanceof NotRunError) {
+          const lines = [...leftUnmutated, ...leftLines(err.left ?? [])];
+          const line = `test-strength: ${err.message}`;
+          return exit([...lines, line], (breach) => fail(2, ...lines, breach, line));
+        }
+        return cannotRun(err, ...leftUnmutated);
+      }
+      runnable.forEach((m, i) => Object.assign(m, run.results[i]));
+      return null;
+    })();
   } catch (err) {
-    if (err instanceof NotRunError) return fail(2, ...leftUnmutated, `test-strength: ${err.message}`);
-    return cannotRun(err, ...leftUnmutated);
+    thrown = err;
+  } finally {
+    const breach = wrote();
+    if (breach) {
+      outcome = outcome?.breached ? outcome.breached(breach) : fail(2, ...leftLines(unmutated?.left ?? []), ...leftLines(run?.left ?? []), breach);
+      thrown = null;
+    }
   }
-  runnable.forEach((m, i) => Object.assign(m, run.results[i]));
+  if (thrown) throw thrown;
+  if (outcome) return fail(outcome.code, ...outcome.err);
+  const leftUnmutated = leftLines(unmutated.left);
   const warn = [...placement, ...leftUnmutated, ...leftLines(run.left)];
-  const breach = wrote();
-  if (breach) return fail(2, ...leftUnmutated, ...leftLines(run.left), breach);
 
   // The report (TestStrengthReport v1) and the verdict line.
   const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0, blocked: 0 };

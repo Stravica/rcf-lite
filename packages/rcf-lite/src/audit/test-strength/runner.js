@@ -19,7 +19,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, delimiter, dirname, isAbsolute, join, relative, sep } from 'node:path';
+import { basename, delimiter, dirname, join, relative, sep } from 'node:path';
 
 import { judge, readReport } from './report.js';
 
@@ -212,50 +212,98 @@ export function projectTree(root) {
  * The node_modules directories on Node's module resolution path above the
  * project root (its NODE_MODULES_PATHS, a directory named node_modules
  * itself skipped), from the root's parent up to the repository root
- * `toplevel`, or up to the filesystem root when `toplevel` does not hold
- * the project; present or not.
+ * `toplevel`, which holds the project and is the stop; present or not.
  *
  * @returns {string[]}
  */
 export function resolutionPath(projectRoot, toplevel) {
   const top = realpathSync(toplevel);
-  const root = realpathSync(projectRoot);
-  const up = relative(top, root);
-  const held = up !== '..' && !up.startsWith(`..${sep}`) && !isAbsolute(up);
+  const segs = relative(top, realpathSync(projectRoot)).split(sep).filter(Boolean);
   const dirs = [];
-  for (let d = root; !(held && d === top) && dirname(d) !== d;) {
-    d = dirname(d);
+  for (let k = segs.length - 1; k >= 0; k -= 1) {
+    const d = join(top, ...segs.slice(0, k));
     if (basename(d) !== 'node_modules') dirs.push(join(d, 'node_modules'));
   }
   return dirs;
 }
 
+/** The real path of `path`, through the real path of its nearest existing ancestor when it does not exist. */
+function realOf(path) {
+  const tail = [];
+  for (let d = path; ; d = dirname(d)) {
+    try { return join(realpathSync(d), ...[...tail].reverse()); } catch { /* not there: its parent */ }
+    if (dirname(d) === d) return path;
+    tail.push(basename(d));
+  }
+}
+
+const within = (path, root) => path === root || path.startsWith(root.endsWith(sep) ? root : `${root}${sep}`);
+
 /**
- * The tree the backstop compares (AC-19903-5, AC-19903-6; the stage-keeper's
- * ruling on re-Review 3): the project tree, and every node_modules
- * directory on Node's module resolution path up to the repository root
- * (resolutionPath) as projectTree reads it, each path named relative to
- * the project root.
+ * The forbidden roots (AC-19903-5, AC-19903-6; the stage-keeper's design
+ * decision after re-Review 4), resolved by real path once, at the start of
+ * the run: the project root, the real location of its node_modules (the
+ * target, when it is a symbolic link), the real location of each
+ * ancestor's node_modules up to the repository root (resolutionPath,
+ * present or not), and the repository's .git. Each is named relative to
+ * the project root; a root inside another one is read with it, the .git
+ * aside (the project tree leaves .git out).
+ *
+ * @returns {Array<{ name: string, real: string }>}
+ */
+export function forbiddenRoots(projectRoot, toplevel) {
+  const root = realpathSync(projectRoot);
+  const named = (dir) => relative(root, dir).split(sep).join('/');
+  const nested = [join(root, 'node_modules'), ...resolutionPath(projectRoot, toplevel)].map((d) => ({ name: named(d), real: realOf(d) }));
+  const git = { name: named(join(realpathSync(toplevel), '.git')), real: realOf(join(toplevel, '.git')) };
+  const roots = [{ name: '', real: root }];
+  for (const r of nested) if (!roots.some((o) => within(r.real, o.real))) roots.push(r);
+  return [...roots, git];
+}
+
+/**
+ * The tree the backstop compares (AC-19903-5, AC-19903-6): every path
+ * under each forbidden root (forbiddenRoots, resolved at the start of the
+ * run) as projectTree reads it, each named relative to the project root.
  *
  * @returns {Map<string, string>}
  */
-export function backstopTree(projectRoot, toplevel) {
-  const seen = projectTree(projectRoot);
-  const root = realpathSync(projectRoot);
-  for (const dir of resolutionPath(projectRoot, toplevel)) {
-    if (!existsSync(dir)) continue;
-    const rel = relative(root, dir).split(sep).join('/');
-    seen.set(rel, 'dir');
-    for (const [path, v] of projectTree(dir)) seen.set(`${rel}/${path}`, v);
+export function backstopTree(projectRoot, toplevel, roots = forbiddenRoots(projectRoot, toplevel)) {
+  const seen = new Map();
+  for (const { name, real } of roots) {
+    if (name && existsSync(real)) seen.set(name, 'dir');
+    for (const [path, v] of projectTree(real)) seen.set(name ? `${name}/${path}` : path, v);
   }
   return seen;
 }
 
-/** The first path (in sorted order) new, changed or deleted between two project trees, or null. */
-export function firstMoved(before, after) {
+/**
+ * The first path (in sorted order) new, changed or deleted between two
+ * backstop trees whose real path lies under a forbidden root and outside
+ * every scratch directory of the run (the working copies are in them), or
+ * null.
+ */
+export function firstForbidden(roots, before, after, scratches = []) {
+  const byName = [...roots].sort((a, b) => b.name.length - a.name.length);
+  for (const path of movedPaths(before, after)) {
+    const at = byName.find((r) => r.name === '' || path === r.name || path.startsWith(`${r.name}/`));
+    const abs = at.name ? join(at.real, path.slice(at.name.length)) : join(at.real, path);
+    const real = join(realOf(dirname(abs)), basename(abs));
+    if (roots.some((r) => within(real, r.real)) && !scratches.some((s) => within(real, s))) return path;
+  }
+  return null;
+}
+
+/** Every path new, changed or deleted between two trees, in sorted order. */
+function movedPaths(before, after) {
   const moved = [...after].filter(([path, v]) => before.get(path) !== v).map(([path]) => path);
   for (const path of before.keys()) if (!after.has(path)) moved.push(path);
-  return moved.sort()[0] ?? null;
+  return moved.sort();
+}
+
+/** The first path (in sorted order) new, changed or deleted between two project trees, or null. */
+export function firstMoved(before, after) {
+  return movedPaths(before, after)[0] ?? null;
 }
 
 /**
@@ -294,7 +342,7 @@ export class NotRunError extends Error {
  * @param {Array<{ edits: Map<string, string>, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.mutants
  * @returns {Promise<{ results: Array<{ result: string, killedBy: string[], loadError?: true, verdict?: string }>, left: string[] }>}
  */
-export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, unmutated = false }) {
+export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, unmutated = false, scratches = [] }) {
   const results = new Array(mutants.length);
   if (!mutants.length) return { results, left: [] };
   const made = [];
@@ -304,6 +352,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
   // those paths are capped near 108 bytes.
   const scratch = mkdtempSync(join(tmpdir(), 'rcf-ts-'));
   const root = realpathSync(scratch);
+  scratches.push(root);
   // The bound test runs under way: a signal kills each one's process group.
   const live = new Set();
   const onSignal = (signal) => stopOnSignal(signal, live, scratch);
@@ -394,9 +443,9 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
  * @param {Array<{ acId: string, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.criteria
  * @returns {Promise<{ red: { acId: string, test: object, result: string, verdict?: string, names?: string[] }|null, left: string[] }>}
  */
-export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix }) {
+export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix, scratches }) {
   const checks = criteria.map((c) => ({ acId: c.acId, edits: new Map(), tests: c.tests }));
-  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, unmutated: true });
+  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, unmutated: true, scratches });
   const at = results.findIndex((r) => r.result !== 'survived');
   if (at < 0) return { red: null, left };
   const r = results[at];
