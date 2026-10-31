@@ -1059,7 +1059,7 @@ function gitTree(dir) {
   walk('.git');
   return seen;
 }
-test('AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process of each bound test run\'s process group, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the project\'s .git as it was, and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
+test('AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process in the process group of each bound test run, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the .git of the project as it was, and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
   for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
     const side = scratch(t, 'rcf-h-sig2-');
     const tmp = join(side, 'tmp');

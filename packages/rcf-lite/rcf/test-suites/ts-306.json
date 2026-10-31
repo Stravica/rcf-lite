@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-10-31T00:16:44.046Z",
+  "updatedAt": "2026-10-31T01:22:27.955Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -159,9 +159,9 @@
     {
       "id": "TC-306-with-the-default-vitest-argv-and-jobs-1",
       "acId": "AC-19904-3",
-      "description": "with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the bound spec's isSlug expectations taken out isSlug's mutants read survived after slugify's were killed, exit 4",
+      "description": "with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the bound spec's isSlug expectations taken out isSlug's mutants read survived after slugify's were killed, exit 4"
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4"
     }
   ],
   "status": "draft"

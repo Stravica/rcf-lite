@@ -843,7 +843,7 @@ async function nestedProject(t, name, { nodes, bind }) {
   return { root, dir, H };
 }
 
-test('AC-19903-5: a bound test writing a new file inside an installed package of an ancestor\'s node_modules (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with "test-strength: a bound test run wrote <path> in the project" naming the file, and records nothing even with --record', async (t) => {
+test('AC-19903-5: a bound test writing a new file inside an installed package in the node_modules of an ancestor (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with "test-strength: a bound test run wrote <path> in the project" naming the file, and records nothing even with --record', async (t) => {
   const n = await nestedProject(t, 'a-tsx-node-test', {
     nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
     bind: [['AC-101-1', 'test/totals.test.ts', 'sums the line items']],
@@ -876,7 +876,7 @@ test('AC-19903-5: a bound test writing a new file inside an installed package of
 // each mutant must be judged on its own text. With the bound spec's isSlug
 // expectations taken out, isSlug's mutants, run after slugify's were
 // killed in the same working copy, survive.
-test('AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the bound spec\'s isSlug expectations taken out isSlug\'s mutants read survived after slugify\'s were killed, exit 4', async (t) => {
+test('AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4', async (t) => {
   const p = await packVitest(t);
   const mutantsOf = (r, symbol) => crit(json(r.stdout), 'AC-101-1').mutants.filter((m) => m.symbol === symbol && m.result !== 'notApplicable');
   const all = await strength(p.dir, ['--acs', 'AC-101-1', '--jobs', '1', '--json']);
