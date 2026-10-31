@@ -9,5 +9,7 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-31T05:20:03.979Z",
-  "updatedAt": "2026-10-31T05:20:03.979Z"
+  "updatedAt": "2026-10-31T13:16:20.996Z",
+  "title": "node's position of a strip-mode refusal",
+  "description": "Places node's strip-mode refusal, node being the oracle: node's line from its error, and the offset on that line whose width, measured by node's own renderer through the probe, equals node's caret, found by bisection with the widths checked monotone after the start-up self-check (probeCheck, which reads node's own message for MARK once from the calibration probe as one whole string); offsets of equal width go to the reach rule R (reach); with no caret, the innermost construct still open at the end, else node's line at column 1; a position node gives that the probes cannot check is withheld with node's line, its caret plus 1 and the reason."
 }

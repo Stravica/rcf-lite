@@ -2,11 +2,14 @@
   "cnId": "CN-1059",
   "path": "src/audit/test-strength/runner.js#backstopTree",
   "implementsAcIds": [
-    "AC-19903-5"
+    "AC-19903-5",
+    "AC-19903-6"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-31T05:20:10.125Z",
-  "updatedAt": "2026-10-31T05:20:10.125Z"
+  "updatedAt": "2026-10-31T13:16:26.244Z",
+  "title": "The tree the backstop compares",
+  "description": "Reads every path under each forbidden root (forbiddenRoots, resolved by real path at the start of the run) as projectTree reads it, each named relative to the project root: the tree compared before and after the bound test runs."
 }
