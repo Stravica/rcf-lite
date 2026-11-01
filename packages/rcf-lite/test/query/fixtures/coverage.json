@@ -11597,7 +11597,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19902-1",
@@ -11776,7 +11776,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19903-7",
@@ -11788,7 +11788,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-1",
@@ -11799,7 +11799,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-2",
@@ -11810,7 +11810,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-3",
@@ -11826,7 +11826,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-4",
@@ -11839,7 +11839,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-5",
@@ -11850,7 +11850,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-6",
@@ -11861,7 +11861,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         },
         {
           "id": "AC-19904-7",
@@ -11879,7 +11879,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "complete"
         }
       ]
     },
@@ -13414,7 +13414,7 @@
     {
       "fbsId": "FBS-242",
       "expectedEnd": "verified",
-      "now": "notStarted"
+      "now": "complete"
     }
   ],
   "unresolvedTestPointers": []
