@@ -1,0 +1,24 @@
+{
+  "name": "slug-preview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Synthetic fixture: a slug utility and its preview page; vitest specs plus one @playwright/test spec.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "test": "npm run test:rcf",
+    "test:rcf": "vitest run && playwright test",
+    "test:rcf:unit": "vitest run",
+    "test:rcf:ui": "playwright test",
+    "serve": "node src/preview-server.ts",
+    "type-check": "tsc -p tsconfig.json"
+  },
+  "devDependencies": {
+    "@playwright/test": "1.63.0",
+    "@types/node": "26.6.6",
+    "typescript": "7.0.2",
+    "vitest": "5.0.2"
+  }
+}

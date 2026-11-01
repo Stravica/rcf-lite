@@ -10,7 +10,7 @@
 //   mutation     for criteria that pass it (mutants.js, runner.js):
 //                stubToThrow, noOp and callRemoval on each symbol-level
 //                Code Node, fileBlank on each file-level Code Node of a
-//                non-source path, in scratch worktrees of HEAD; at least
+//                non-source path, in scratch working copies of HEAD; at least
 //                one bound test must go red for each mutant
 //
 // Scope (TAC-4155): --acs, else the touchedAcIds of the newest REVIEW
@@ -19,6 +19,14 @@
 // for the reviewed head H, beside the TEST verdict. Sources are read at
 // HEAD through git; the project's working tree is written only by
 // --record, and never deployed, served or networked.
+//
+// RC-46 (FBS-242, US-19904): each bound test file runs under the first
+// rcf/test-strength.json runners entry matching it (else the legacy
+// runner, else kind nodeTest), and the verb reads that runner's report.
+// TypeScript, JSX and Vue files are read through their views
+// (source.js). A file the audit cannot read makes its criterion BLOCKED
+// (result blocked, reason TEST_STRENGTH_UNSUPPORTED, the stage-keeper's
+// ruling Q2 (a)); exit precedence 2 over 4 (fail) over 5 (blocked) over 0.
 
 import { mkdirSync, writeFileSync } from 'node:fs';
 import { availableParallelism } from 'node:os';
@@ -26,9 +34,10 @@ import { dirname, join, posix } from 'node:path';
 
 import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.js';
 import { verdictFile } from '../../build/verdict.js';
-import { loadConfig } from './config.js';
+import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { runMutants, runUnmutated } from './runner.js';
+import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, runMutants, runUnmutated } from './runner.js';
+import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
 export const DEFAULT_MAX_MUTANTS = 200;
@@ -39,6 +48,10 @@ export const defaultJobs = () => Math.max(1, Math.floor(availableParallelism() /
 const FINALISE_CLASSES = new Set(Object.entries(CLASS_OWNERS).filter(([, owners]) => owners.includes('FINALISE')).map(([cls]) => cls));
 const TEST_CLASSES = new Set(['rcfTest', 'hygieneTest']);
 const s7 = (sha) => String(sha ?? '').slice(0, 7);
+const BLOCKED_REASON = 'TEST_STRENGTH_UNSUPPORTED';
+// AC-19904-6: a bound file with no runners entry that likely needs one.
+const HINT_EXT = /\.(?:ts|mts|cts|tsx|jsx|vue)$/;
+const byId = (a, b) => a.localeCompare(b, 'en', { numeric: true });
 
 /** True for a path inside rcf/verdicts/ or rcf/verify-reports/ at any depth. */
 function verdictOrEvidence(path) {
@@ -134,7 +147,7 @@ export async function auditTestStrength({
 
   const git = (args, input = null) => runGit(args, { cwd: projectRoot, deps, input });
   const rev = await git(['rev-parse', 'HEAD', '--show-toplevel', '--show-prefix']);
-  if (rev.code !== 0) return fail(2, 'test-strength: not a git repository with a commit; mutants run in a scratch worktree of HEAD');
+  if (rev.code !== 0) return fail(2, 'test-strength: not a git repository with a commit; mutants run in a scratch working copy of HEAD');
   const [head, toplevel, prefix = ''] = rev.stdout.split('\n');
 
   // --record names a reviewed head: it needs a REVIEW verdict, a clean
@@ -177,15 +190,16 @@ export async function auditTestStrength({
   if (unknown.length) return fail(2, ...unknown.map((id) => `test-strength: unknown criterion ${id}`));
   const reportHead = scope === 'reviewVerdict' || record ? review.head : head;
 
-  const criteria = ids.map((acId) => ({ acId, tests: boundTests(tree, acId), nodes: codeNodesOf(tree, acId) }));
+  const criteria = ids.map((acId) => ({
+    acId, tests: boundTests(tree, acId).map((t) => ({ ...t, runner: runnerFor(config, t.file) })), nodes: codeNodesOf(tree, acId),
+  }));
 
-  // Supported sources: JavaScript ESM and CommonJS only.
+  // A file-level Code Node on a code file is not a supported source (whole run).
   const unsupported = new Set();
   for (const c of criteria) {
-    for (const t of c.tests) if (!SOURCE_EXT.test(t.file)) unsupported.add(t.file);
     for (const n of c.nodes) {
       const { file, symbol } = splitNode(n.path);
-      if (symbol ? !SOURCE_EXT.test(file) : CODE_EXT.test(file)) unsupported.add(file);
+      if (!symbol && CODE_EXT.test(file)) unsupported.add(file);
     }
   }
   if (unsupported.size) return fail(2, ...[...unsupported].map((p) => `test-strength: ${p} is not a supported source (JavaScript ESM or CommonJS)`));
@@ -193,17 +207,45 @@ export async function auditTestStrength({
   // Everything is read at HEAD, as text.
   const tree0 = await git(['ls-tree', '-r', '--name-only', 'HEAD']);
   const files = new Set(tree0.stdout.split('\n').filter(Boolean));
-  const wanted = [...new Set(['package.json', ...criteria.flatMap((c) => [...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path).file)])])];
+  // Every entry but plain JavaScript is judged, an extension the views cannot read included.
+  const entryPaths = config.entry.map((e) => posix.normalize(e.path)).filter((p) => !SOURCE_EXT.test(p) && posix.extname(p) !== '');
+  const wanted = [...new Set(['package.json', ...entryPaths, ...criteria.flatMap((c) => [...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path).file)])])];
   const texts = new Map();
   (await readObjects(git, wanted.map((p) => `HEAD:./${p}`))).forEach((blob, i) => texts.set(wanted[i], blob.missing ? null : blob.text));
   for (const c of criteria) {
     for (const t of c.tests) if (typeof texts.get(t.file) !== 'string') return fail(2, `test-strength: bound test ${t.file} of ${c.acId} is not committed at ${s7(head)}`);
   }
+  // An entry point the views cannot read is the audit's own input: exit 2.
+  for (const p of entryPaths) {
+    const v = typeof texts.get(p) === 'string' ? sourceView(p, texts.get(p)) : { ok: true };
+    if (!v.ok) return fail(2, ...(v.warn ? [v.warn] : []), `test-strength: entry point unreadable: ${v.detail}`);
+  }
+
+  // A bound test file or a symbol-level Code Node file the audit cannot
+  // read makes its criterion BLOCKED: each file's first unreadable
+  // construct, in bound order (the bound tests, then the Code Nodes).
+  const views = new Map();
+  // A position node gave that the audit could not check is said so in one stderr line each.
+  const placement = [];
+  for (const c of criteria) {
+    const read = [...new Set([...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path)).filter((n) => n.symbol).map((n) => n.file)])];
+    const unread = [];
+    for (const file of read) {
+      if (typeof texts.get(file) !== 'string') continue;
+      if (!views.has(file)) {
+        views.set(file, sourceView(file, texts.get(file)));
+        if (views.get(file).warn) placement.push(views.get(file).warn);
+      }
+      if (!views.get(file).ok) unread.push({ file, detail: views.get(file).detail });
+    }
+    if (unread.length) c.blocked = { files: unread.map((u) => u.file), detail: unread.map((u) => u.detail).join('; ') };
+  }
   let pkg = null;
   try { pkg = texts.get('package.json') ? JSON.parse(texts.get('package.json')) : null; } catch { pkg = null; }
 
-  // Layer 1, structural, for every criterion first.
+  // Layer 1, structural, for every criterion first (a blocked one is not checked).
   for (const c of criteria) {
+    if (c.blocked) { c.structural = { checked: false }; continue; }
     const findings = [];
     for (const file of [...new Set(c.tests.map((t) => t.file))]) findings.push(...testFileFindings(file, texts.get(file), { config, files, pkg }));
     for (const n of c.nodes) {
@@ -217,7 +259,7 @@ export async function auditTestStrength({
   let sourceCache = null;
   const sources = async () => {
     if (sourceCache) return sourceCache;
-    const paths = [...files].filter((p) => SOURCE_EXT.test(p) && !p.split('/').includes('node_modules') && !TEST_CLASSES.has(classifyPath(p))
+    const paths = [...files].filter((p) => READ_EXT.test(p) && !/\.d\.[mc]?ts$/.test(p) && !p.split('/').includes('node_modules') && !TEST_CLASSES.has(classifyPath(p))
       && !config.harnessRe.some((re) => re.test(p)));
     sourceCache = new Map();
     (await readObjects(git, paths.map((p) => `HEAD:./${p}`))).forEach((blob, i) => { if (!blob.missing) sourceCache.set(paths[i], blob.text); });
@@ -225,9 +267,9 @@ export async function auditTestStrength({
   };
   const parsed = new Map();
   for (const c of criteria) {
-    c.reasons = c.structural.findings.slice();
+    c.reasons = c.blocked ? [] : c.structural.findings.slice();
     c.mutants = [];
-    if (c.structural.result === 'fail') continue;
+    if (c.blocked || c.structural.result === 'fail') continue;
     if (!c.nodes.length) c.reasons.push('no Code Node');
     if (!c.tests.length) c.reasons.push('unbound');
     if (!c.nodes.length) continue;
@@ -247,31 +289,92 @@ export async function auditTestStrength({
   // The unmutated run (RC-45): the bound tests of each criterion with a
   // mutant to run, once, before any mutant; a red one stops the run.
   const proved = criteria.filter((c) => c.mutants.some((m) => !m.result));
+  // The backstop (AC-19903-5, AC-19903-6; the stage-keeper's design
+  // decision after re-Review 4): the forbidden roots, resolved by real path
+  // before any bound test runs, read again after them on every exit, in
+  // one finally; a path a bound test run wrote under one is the named exit
+  // 2 whatever else the run was about to report.
+  const roots = proved.length ? forbiddenRoots(projectRoot, toplevel) : null;
+  const before = roots ? backstopTree(projectRoot, toplevel, roots) : null;
+  const scratches = [];
+  const wrote = () => {
+    if (!before) return null;
+    const path = firstForbidden(roots, before, backstopTree(projectRoot, toplevel, roots), scratches);
+    return path === null ? null : `test-strength: a bound test run wrote ${path} in the project`;
+  };
+  const leftLines = (dirs) => dirs.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`);
+  // Each exit of the bound test runs, with the lines it gives when the backstop finds a path.
+  const exit = (lines, breached) => Object.assign(fail(2, ...lines), { breached });
+  // An error exit still runs the backstop and the warn line, and names the scratch (F-7).
+  const cannotRun = (err, ...left) => {
+    const lines = [...left, ...leftLines(err.left ?? [])];
+    const line = `test-strength: cannot run the bound tests${err.scratch ? ` in scratch directory ${err.scratch}` : ''}: ${err.message}`;
+    return exit([...lines, line], (breach) => fail(2, ...lines, breach, line));
+  };
   let unmutated;
-  try {
-    unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, runner: config.runner, head, toplevel, prefix });
-  } catch (err) {
-    return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
-  }
-  const leftUnmutated = unmutated.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`);
-  if (unmutated.red) {
-    return fail(2, ...leftUnmutated, `test-strength: the unmutated run is red for ${unmutated.red.acId}: ${unmutated.red.pointer} fails under runner ${config.runner.join(' ')}; no mutant was run`);
-  }
-
-  const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
   let run;
+  let outcome = null;
+  let thrown = null;
   try {
-    run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, runner: config.runner, head, toplevel, prefix });
+    outcome = await (async () => {
+      try {
+        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+      } catch (err) {
+        return cannotRun(err);
+      }
+      const leftUnmutated = leftLines(unmutated.left);
+      if (unmutated.red) {
+        const breached = (breach) => fail(2, ...leftUnmutated, breach);
+        const { acId, test: t, result, verdict, names } = unmutated.red;
+        const argv = t.runner.argv.join(' ');
+        if (result === 'notRun') return exit([...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`], breached);
+        const lines = [`test-strength: the unmutated run is red for ${acId}: ${t.pointer} fails under runner ${argv}; no mutant was run`];
+        // The stage-keeper's ruling Q5: a report the audit cannot read names the reporter flag.
+        if (verdict === 'unreadable') {
+          const flag = t.runner.kind === 'nodeTest' ? '--test-reporter=tap' : (t.runner.kind === 'vitest' ? '--reporter=json --outputFile=<report>' : '--reporter=json');
+          lines.push(`test-strength: runner ${argv} gave no report the audit can read; its argv must carry the reporter flag (${flag})`);
+        }
+        if (!t.runner.matched && (HINT_EXT.test(t.file) || importSpecifiers(parseFile(t.file, texts.get(t.file))).some((sp) => sp === 'vitest' || sp === '@playwright/test'))) {
+          lines.push(`test-strength: declare a runner for ${t.file} in rcf/test-strength.json runners`);
+        }
+        return exit([...leftUnmutated, ...lines], breached);
+      }
+      const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
+      try {
+        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+      } catch (err) {
+        if (err instanceof NotRunError) {
+          const lines = [...leftUnmutated, ...leftLines(err.left ?? [])];
+          const line = `test-strength: ${err.message}`;
+          return exit([...lines, line], (breach) => fail(2, ...lines, breach, line));
+        }
+        return cannotRun(err, ...leftUnmutated);
+      }
+      runnable.forEach((m, i) => Object.assign(m, run.results[i]));
+      return null;
+    })();
   } catch (err) {
-    return fail(2, `test-strength: cannot run the bound tests: ${err.message}`);
+    thrown = err;
+  } finally {
+    const breach = wrote();
+    if (breach) {
+      outcome = outcome?.breached ? outcome.breached(breach) : fail(2, ...leftLines(unmutated?.left ?? []), ...leftLines(run?.left ?? []), breach);
+      thrown = null;
+    }
   }
-  runnable.forEach((m, i) => Object.assign(m, run.results[i]));
-  const warn = [...leftUnmutated, ...run.left.map((dir) => `[warn] test-strength: scratch worktree ${dir} could not be removed`)];
+  if (thrown) throw thrown;
+  if (outcome) return fail(outcome.code, ...outcome.err);
+  const leftUnmutated = leftLines(unmutated.left);
+  const warn = [...placement, ...leftUnmutated, ...leftLines(run.left)];
 
   // The report (TestStrengthReport v1) and the verdict line.
-  const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0 };
+  const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0, blocked: 0 };
   const items = [];
   const out = criteria.map((c) => {
+    if (c.blocked) {
+      totals.blocked += 1;
+      return { acId: c.acId, structural: c.structural, mutants: [], result: 'blocked', blocked: true, reason: BLOCKED_REASON, detail: c.blocked.detail };
+    }
     if (c.structural.result === 'pass') totals.structuralPassed += 1;
     for (const m of c.mutants) {
       totals[m.result] += 1;
@@ -281,28 +384,32 @@ export async function auditTestStrength({
     return {
       acId: c.acId,
       structural: c.structural,
-      mutants: c.mutants.map((m) => ({ symbol: m.symbol, operator: m.operator, result: m.result, killedBy: m.killedBy ?? [] })),
+      mutants: c.mutants.map((m) => ({ symbol: m.symbol, operator: m.operator, result: m.result, killedBy: m.killedBy ?? [], ...(m.loadError ? { loadError: true } : {}) })),
       result: c.reasons.length ? 'fail' : 'pass',
     };
   });
   const failing = out.filter((c) => c.result === 'fail').length;
+  const blocked = criteria.filter((c) => c.blocked).sort((a, b) => byId(a.acId, b.acId));
+  const blockedList = blocked.map((c) => `${c.acId} (${c.blocked.files.join(' and ')})`).join(', ');
   const report = {
     version: 1,
     head: reportHead,
     scope,
     criteria: out,
-    result: failing ? 'fail' : 'pass',
+    result: failing ? 'fail' : (blocked.length ? 'blocked' : 'pass'),
     totals,
     wallMs: Date.now() - t0,
     node: process.version,
   };
-  const line = failing
-    ? `test-strength: FAIL ${failing} of ${out.length} criteria at ${s7(reportHead)}: ${items.join('; ')}`
-    : `test-strength: PASS ${out.length} criteria at ${s7(reportHead)}: structural ${totals.structuralPassed}/${out.length}, mutants killed ${totals.killed + totals.timeout}/${total - totals.notApplicable} (timeout ${totals.timeout}, notApplicable ${totals.notApplicable})`;
+  const counts = `mutants killed ${totals.killed + totals.timeout}/${total - totals.notApplicable} (timeout ${totals.timeout}, notApplicable ${totals.notApplicable}`;
+  let line;
+  if (failing) line = `test-strength: FAIL ${failing} of ${out.length} criteria at ${s7(reportHead)}: ${items.join('; ')}${blocked.length ? `, blocked ${blocked.length}: ${blockedList}` : ''}`;
+  else if (blocked.length) line = `test-strength: BLOCKED ${out.length} criteria at ${s7(reportHead)}: structural ${totals.structuralPassed}/${out.length - blocked.length}, ${counts}, blocked ${blocked.length}): ${blockedList}`;
+  else line = `test-strength: PASS ${out.length} criteria at ${s7(reportHead)}: structural ${totals.structuralPassed}/${out.length}, ${counts})`;
   if (record) {
     const abs = join(projectRoot, verdictFile(reportHead, 'test-strength.json'));
     mkdirSync(dirname(abs), { recursive: true });
     writeFileSync(abs, `${JSON.stringify(report, null, 2)}\n`);
   }
-  return { code: failing ? 4 : 0, out: line, err: warn, report };
+  return { code: failing ? 4 : (blocked.length ? 5 : 0), out: line, err: warn, report };
 }

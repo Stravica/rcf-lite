@@ -1,0 +1,17 @@
+{
+  "tadId": "TAD-001",
+  "prdId": "PRD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "systemOverview": {
+    "executiveSummary": "A single TypeScript module of pure functions over half-open intervals, with no runtime dependencies.",
+    "systemPurpose": "Answer overlap and merge questions about half-open numeric intervals.",
+    "architecturalApproach": "Pure exported functions in one ESM TypeScript module, tested in-process with node:test through tsx.",
+    "keyCapabilities": [
+      "Overlap detection",
+      "Interval merge with validation"
+    ]
+  },
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:24:05.470Z"
+}

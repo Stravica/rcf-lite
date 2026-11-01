@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1061",
+  "path": "src/audit/test-strength/runner.js#forbiddenRoots",
+  "title": "The forbidden roots of the backstop",
+  "description": "Resolves by real path, once at the start of the run, the roots no bound test run may write under: the project root, the real location of its node_modules (the target of a symbolic link), the real location of each ancestor's node_modules up to the repository root, and the repository .git, each named relative to the project root.",
+  "implementsAcIds": [
+    "AC-19903-5",
+    "AC-19903-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-31T13:16:04.591Z",
+  "updatedAt": "2026-10-31T13:16:04.591Z"
+}

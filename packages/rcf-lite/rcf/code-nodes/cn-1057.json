@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1057",
+  "path": "src/audit/test-strength/source.js#refusalDetail",
+  "implementsAcIds": [
+    "AC-19904-7",
+    "AC-19901-9"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-31T05:20:06.071Z",
+  "updatedAt": "2026-10-31T13:16:23.403Z",
+  "title": "The detail of a strip-mode refusal",
+  "description": "Builds the detail <file>:<line>:<col>: non-erasable TypeScript syntax (<construct>) or invalid TypeScript syntax (<message>) at the position nodePosition gives, counted in the file as committed; a withheld position carries the stderr line test-strength: column for <file>:<line> is node's display column (position check withheld: <reason>), whose reasons include node's caret does not move across the tie and the probes disagree."
+}

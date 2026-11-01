@@ -1,0 +1,13 @@
+{
+  "adrId": "ADR-001",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "accepted",
+  "title": "TypeScript run natively, vitest in-process, Playwright for the page",
+  "context": "The module and the page are small, and the criteria split into in-process rules and one browser-visible behaviour.",
+  "decision": "Write TypeScript that Node runs with type stripping; test the rules with vitest and the page with @playwright/test against the pack's own server.",
+  "consequences": "No build step; two runners, so one criterion is bound to tests in both.",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:28:51.077Z"
+}

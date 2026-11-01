@@ -10,6 +10,20 @@
 // No parser dependency: the package carries none, and the verb needs
 // only declaration and statement boundaries, which bracket matching over
 // tokens gives. Source is read as text and never evaluated.
+//
+// TypeScript, JSX and Vue files (FBS-242, US-19904) are read through a
+// view of the same length as the file: node:module's
+// stripTypeScriptTypes in strip mode for .ts, .mts and .cts (types
+// become spaces), the JSX scanner for .tsx and .jsx, and for .vue the
+// SFC's <script> and <script setup> blocks in place with everything
+// else blanked. Offsets hold, so rewrites found in the view are spliced
+// into the original file. What a view cannot read is reported with its
+// position, never guessed.
+
+import { stripTypeScriptTypes } from 'node:module';
+import { extname } from 'node:path';
+
+import { blankJsx } from './jsx.js';
 
 // Multi-character punctuators, longest first.
 const PUNCT = ['>>>=', '...', '===', '!==', '**=', '<<=', '>>=', '>>>', '&&=', '||=', '??=', '=>', '==', '!=',
@@ -26,20 +40,33 @@ const OPENERS = { '(': ')', '[': ']', '{': '}' };
 const CLOSERS = new Set([')', ']', '}']);
 
 /**
- * Skip a template literal from just after its opening backtick; returns
- * the index after its closing backtick. `${...}` expressions are skipped
- * with the tokenizer itself, so strings and braces inside them are safe.
+ * Skip a template literal from just after its opening backtick (`at`).
+ * `${...}` expressions are read with the tokenizer itself, so strings and
+ * braces inside them are safe, and their tokens are kept as `inner`
+ * ({ start, end, tokens } per expression). Returns { end, inner, open }:
+ * end the index after the closing backtick; open, when the input ends
+ * inside the template, where the innermost construct still open opens.
  */
 function skipTemplate(text, at) {
+  const inner = [];
   let i = at;
   while (i < text.length) {
     const ch = text[i];
     if (ch === '\\') { i += 2; continue; }
-    if (ch === '`') return i + 1;
-    if (ch === '$' && text[i + 1] === '{') { i = lex(text, i + 2, true).end; continue; }
+    if (ch === '`') return { end: i + 1, inner };
+    if (ch === '$' && text[i + 1] === '{') {
+      const r = lex(text, i + 2, true);
+      inner.push({ start: i + 2, end: r.closed ? r.end - 1 : r.end, tokens: r.tokens });
+      if (!r.closed) {
+        const brackets = pairBrackets(r.tokens).open;
+        return { end: text.length, inner, open: r.open ?? (brackets.length ? r.tokens[brackets[brackets.length - 1]].start : at - 1) };
+      }
+      i = r.end;
+      continue;
+    }
     i += 1;
   }
-  return text.length;
+  return { end: text.length, inner, open: at - 1 };
 }
 
 function regexAllowed(prev) {
@@ -51,9 +78,12 @@ function regexAllowed(prev) {
 
 /**
  * Tokenize from `start`. With `nested` (a template expression) it stops
- * at the first unmatched "}" and returns the index after it.
+ * at the first unmatched "}" and returns the index after it (closed).
+ * A template token carries the tokens of its expressions (`inner`).
+ * When the input ends inside a block comment, a string or a template
+ * literal, `open` is where the innermost construct still open opens.
  *
- * @returns {{ tokens: Array<{ type: string, text: string, start: number, end: number, nl: boolean }>, end: number }}
+ * @returns {{ tokens: Array<{ type: string, text: string, start: number, end: number, nl: boolean, inner?: object[] }>, end: number, closed?: boolean, open?: number }}
  */
 function lex(text, start, nested) {
   const tokens = [];
@@ -61,6 +91,7 @@ function lex(text, start, nested) {
   let i = start;
   let nl = false;
   let depth = 0;
+  let open;
   if (!nested && i === 0 && text.startsWith('#!')) {
     while (i < n && text[i] !== '\n') i += 1;
   }
@@ -75,20 +106,26 @@ function lex(text, start, nested) {
     if (c === '/' && text[i + 1] === '*') {
       const close = text.indexOf('*/', i + 2);
       const end = close < 0 ? n : close + 2;
+      if (close < 0) open = i;
       if (/[\n\r\u2028\u2029]/.test(text.slice(i, end))) nl = true;
       i = end;
       continue;
     }
     const s = i;
     let type;
+    let inner;
     if (c === '"' || c === "'") {
       i += 1;
       while (i < n && text[i] !== c && text[i] !== '\n') i += text[i] === '\\' ? 2 : 1;
+      if (i >= n) open = s;
       i += 1;
       type = 'str';
     } else if (c === '`') {
-      i = skipTemplate(text, i + 1);
+      const r = skipTemplate(text, i + 1);
+      i = r.end;
+      if (r.open !== undefined) open = r.open;
       type = 'tpl';
+      inner = r.inner;
     } else if (ID_START.test(c) || (c === '#' && ID_START.test(text[i + 1] ?? ''))) {
       i += 1;
       while (i < n && ID_PART.test(text[i])) i += 1;
@@ -119,25 +156,23 @@ function lex(text, start, nested) {
       if (nested) {
         if (c === '{') depth += 1;
         if (c === '}') {
-          if (depth === 0) return { tokens, end: i };
+          if (depth === 0) return { tokens, end: i, closed: true };
           depth -= 1;
         }
       }
     }
-    tokens.push({ type, text: text.slice(s, i), start: s, end: i, nl });
+    tokens.push(inner ? { type, text: text.slice(s, i), start: s, end: i, nl, inner } : { type, text: text.slice(s, i), start: s, end: i, nl });
     nl = false;
   }
-  return { tokens, end: n };
+  return { tokens, end: n, closed: false, open };
 }
 
 /**
- * Tokenize one source file, with each bracket's partner (`match`) and
- * each token's bracket depth (`depth`).
- *
- * @param {string} text
+ * Pair the brackets of a token list: each bracket's partner (`match`),
+ * each token's bracket depth (`depth`), and the openers still unmatched
+ * at the end (`open`, token indices, innermost last).
  */
-export function parseSource(text) {
-  const { tokens } = lex(text, 0, false);
+function pairBrackets(tokens) {
   const match = new Array(tokens.length).fill(-1);
   const depth = new Array(tokens.length).fill(0);
   const stack = [];
@@ -152,6 +187,18 @@ export function parseSource(text) {
       depth[i] = stack.length;
     }
   });
+  return { match, depth, open: stack };
+}
+
+/**
+ * Tokenize one source file, with each bracket's partner (`match`) and
+ * each token's bracket depth (`depth`).
+ *
+ * @param {string} text
+ */
+export function parseSource(text) {
+  const { tokens } = lex(text, 0, false);
+  const { match, depth } = pairBrackets(tokens);
   return { text, tokens, match, depth };
 }
 
@@ -377,13 +424,13 @@ export function importSpecifiers(src) {
   return out;
 }
 
-/** Specifiers passed to mock.module(<string>, ...) (node:test module mocks). */
+/** Specifiers passed to mock.module(<string>, ...) (node:test module mocks) or vi.mock(<string>, ...) (vitest's). */
 export function mockedModules(src) {
   const { tokens } = src;
   const out = [];
   for (let i = 0; i + 4 < tokens.length; i += 1) {
-    if (word(tokens[i], 'mock') && punct(tokens[i + 1], '.') && word(tokens[i + 2], 'module')
-      && punct(tokens[i + 3], '(') && is(tokens[i + 4], 'str')) out.push(stringValue(tokens[i + 4]));
+    const mock = (word(tokens[i], 'mock') && word(tokens[i + 2], 'module')) || (word(tokens[i], 'vi') && word(tokens[i + 2], 'mock'));
+    if (mock && punct(tokens[i + 1], '.') && punct(tokens[i + 3], '(') && is(tokens[i + 4], 'str')) out.push(stringValue(tokens[i + 4]));
   }
   return out;
 }
@@ -431,4 +478,369 @@ export function statementCalls(src, name, { method }) {
     out.push([tokens[s].start, tokens[close].end]);
   }
   return out;
+}
+
+// ------------------------------------------------------------ views
+
+export const JS_EXT = /\.(?:js|mjs|cjs)$/;
+const TS_EXT = /\.(?:ts|mts|cts)$/;
+const JSX_EXT = /\.(?:tsx|jsx)$/;
+// Every file the audit reads: JavaScript, and TypeScript, JSX and Vue as US-19904 rules.
+export const READ_EXT = /\.(?:js|mjs|cjs|ts|mts|cts|tsx|jsx|vue)$/;
+
+/**
+ * The 1-based line and column of an offset (the stage-keeper's ruling 1):
+ * `line` counts the line breaks wholly before the offset, a line break
+ * being CRLF (one), a lone CR or LF (U+2028, U+2029, VT and FF are not);
+ * `col` counts UTF-16 code units from the start of that line, every unit
+ * one (a tab, a byte order mark, a combining mark, each half of a
+ * surrogate pair).
+ *
+ * @param {string} text
+ * @param {number} offset
+ * @returns {{ line: number, col: number }}
+ */
+export function positionOf(text, offset) {
+  let line = 1;
+  let start = 0;
+  for (let i = 0; i < offset; i += 1) {
+    const c = text[i];
+    if (c === '\n') { line += 1; start = i + 1; } else if (c === '\r') {
+      if (text[i + 1] !== '\n') { line += 1; start = i + 1; } else if (i + 1 < offset) { line += 1; start = i + 2; i += 1; }
+    }
+  }
+  return { line, col: offset - start + 1 };
+}
+
+const lineCol = (text, at) => { const p = positionOf(text, at); return `${p.line}:${p.col}`; };
+
+// The construct each strip-mode refusal names, found by its first token.
+const NON_ERASABLE = [
+  [/\benum\b/, (t, k) => word(t[k], 'enum') && is(t[k + 1], 'id'), (t, k) => `enum ${t[k + 1].text}`],
+  [/namespace|module/, (t, k) => (word(t[k], 'namespace') || word(t[k], 'module')) && (is(t[k + 1], 'id') || is(t[k + 1], 'str')), (t, k) => `namespace ${t[k + 1].text}`],
+  [/parameter propert/, (t, k) => ['public', 'private', 'protected', 'readonly'].some((w) => word(t[k], w)) && is(t[k + 1], 'id') && !punct(t[k + 2], '('), (t, k) => `parameter property ${t[k + 1].text}`],
+  [/import|export/, (t, k) => (word(t[k], 'import') || word(t[k], 'export')) && (punct(t[k + 1], '=') || (is(t[k + 1], 'id') && punct(t[k + 2], '='))), (t, k) => `${t[k].text} =`],
+];
+
+// stripTypeScriptTypes warns once that it is experimental; the audit's own output carries no such line.
+function strip(text) {
+  const emit = process.emitWarning;
+  process.emitWarning = () => {};
+  try {
+    return stripTypeScriptTypes(text, { mode: 'strip' });
+  } finally {
+    process.emitWarning = emit;
+  }
+}
+
+/** node's strip-mode error: the line its stack opens with (":<line>"), and its caret line's first caret with the line printed above it. */
+function caretOf(err) {
+  const lines = String(err?.stack ?? '').split('\n');
+  const head = /:(\d+)$/.exec(lines[0]);
+  const k = lines.findIndex((l, i) => i > 1 && /^\s*\^+\s*$/.test(l));
+  return { line: head ? Number(head[1]) : null, caret: k < 0 ? -1 : lines[k].indexOf('^'), shown: k < 0 ? null : lines[k - 1] };
+}
+
+/**
+ * Where the innermost construct still open at the end of the input opens
+ * (the stage-keeper's ruling 3): an unterminated block comment, template
+ * literal or string, else the last unmatched "(", "[" or "{". -1 when
+ * nothing is open.
+ */
+function openAtEnd(text) {
+  const { tokens, open } = lex(text, 0, false);
+  if (open !== undefined) return open;
+  const brackets = pairBrackets(tokens).open;
+  return brackets.length ? tokens[brackets[brackets.length - 1]].start : -1;
+}
+
+// node's caret counts the display columns its own renderer gives the line
+// it echoes. The audit measures that width with node itself: the caret
+// node prints for the probe OPENER + <prefix> + CR + MARK, a line comment
+// the CR ends and a MARK node refuses. The comment is opened again after
+// each CR, U+2028 and U+2029 in the prefix (each ends a line comment).
+const MARK = '\u00a7';
+const OPENER = '////';
+let probeBase;
+// node's own message for MARK, read once from the calibration probe and
+// compared as one whole string (never a literal, never parsed).
+let markMessage;
+
+/** node's refusal of `text` as four values (code, message whole, node's line, node's caret), or null when node accepts it. */
+function refusalOf(text) {
+  try {
+    strip(text);
+  } catch (err) {
+    const { line, caret } = caretOf(err);
+    return { code: err?.code, message: err?.message, line, caret };
+  }
+  return null;
+}
+
+const sameRefusal = (a, b) => a !== null && b !== null && a.code === b.code && a.message === b.message && a.line === b.line && a.caret === b.caret;
+
+/** node's caret for the probe of `prefix` after `opener`, less the openers again after a line end, or null. */
+function probeCaret(prefix, opener = OPENER) {
+  let again = 0;
+  const body = prefix.replace(/[\r\u2028\u2029]/g, (m) => { again += 1; return `${m}${OPENER}`; });
+  const r = refusalOf(`${opener}${body}\r${MARK}`);
+  if (r !== null && markMessage !== undefined && r.message === markMessage && r.caret >= 0) return r.caret - OPENER.length * again - (opener.length - OPENER.length);
+  return null;
+}
+
+/**
+ * The start-up self-check of the probe, once per process: the caret of an
+ * empty prefix is readable (the base every width counts from), and a tab
+ * reads the same width after a 4- and an 8-character opener (the
+ * renderer's tab stops divide 4). The reason it fails, or null.
+ */
+function probeCheck() {
+  if (probeBase === undefined) {
+    // The calibration probe is read by its caret alone; its message is node's message for MARK.
+    const calibration = refusalOf(`${OPENER}\r${MARK}`);
+    if (calibration !== null && calibration.caret >= 0 && typeof calibration.message === 'string') markMessage = calibration.message;
+    const base = probeCaret('');
+    const tab4 = probeCaret('\t');
+    const tab8 = probeCaret('\t', `${OPENER}${OPENER}`);
+    if (base === null) probeBase = { why: 'the calibration caret is unreadable' };
+    else if (tab4 === null || tab4 !== tab8) probeBase = { why: 'tab stops differ between a 4- and an 8-character opener' };
+    else probeBase = { base };
+  }
+  return probeBase.why ?? null;
+}
+
+/** The offset where line `line` starts (CRLF, a lone CR and LF breaking lines, as positionOf counts them), or -1. */
+function lineStart(text, line) {
+  let at = 1;
+  for (let i = 0; i < text.length && at < line; i += 1) {
+    if (text[i] === '\r' && text[i + 1] === '\n') i += 1;
+    if (text[i] === '\n' || text[i] === '\r') {
+      at += 1;
+      if (at === line) return i + 1;
+    }
+  }
+  return line === 1 ? 0 : -1;
+}
+
+/**
+ * Where node's strip-mode refusal of `text` is, node being the oracle
+ * (the stage-keeper's rulings on re-Review 3 and on the position oracle):
+ * { at } an offset in `text`, { line } node's line at column 1, or
+ * { withheld, line, col } node's line and its caret plus 1 with the
+ * reason the position check was withheld.
+ *
+ * With a caret: node's line N is the line, and the offset is the one on
+ * it whose width, measured by node's renderer from the start of the line
+ * node echoes (after the last LF before line N), equals the caret. The
+ * search bisects the code point boundaries of the line, each width
+ * checked to lie between those already measured (W never decreases);
+ * offsets of equal width go to node's own probes by the reach rule R
+ * (reach). With no caret: the
+ * innermost construct still open at the end (openAtEnd), else node's line
+ * at column 1.
+ */
+function nodePosition(text, err) {
+  const { line, caret } = caretOf(err);
+  if (line === null) return { withheld: "node's error names no line", line: 1, col: 1 };
+  if (caret < 0) {
+    const open = err.code === 'ERR_INVALID_TYPESCRIPT_SYNTAX' ? openAtEnd(text) : -1;
+    return open >= 0 ? { at: open } : { line };
+  }
+  const withheld = (why) => ({ withheld: why, line, col: caret + 1 });
+  const why = probeCheck();
+  if (why) return withheld(why);
+  const sN = lineStart(text, line);
+  if (sN < 0) return withheld("node's line is past the end of the input");
+  const echo = text.lastIndexOf('\n', sN - 1) + 1;
+  let eol = sN;
+  while (eol < text.length && text[eol] !== '\n' && text[eol] !== '\r') eol += 1;
+  const offsets = [];
+  for (let o = echo; o <= eol; o += text.codePointAt(o) > 0xffff ? 2 : 1) offsets.push(o);
+  const widths = new Map();
+  const W = (k) => {
+    if (!widths.has(k)) {
+      const c = probeCaret(text.slice(echo, offsets[k]));
+      widths.set(k, c === null ? null : c - probeBase.base);
+    }
+    return widths.get(k);
+  };
+  if (W(0) !== 0) return withheld('the width of an empty prefix is not 0');
+  let hi = offsets.length - 1;
+  const top = W(hi);
+  if (top === null) return withheld('a probe was refused elsewhere');
+  if (top < caret) return withheld('no offset has the width of the caret');
+  let lo = 0;
+  if (caret === 0) hi = 0;
+  while (hi - lo > 1) {
+    const mid = (lo + hi) >> 1;
+    const w = W(mid);
+    if (w === null) return withheld('a probe was refused elsewhere');
+    if (w < W(lo) || w > W(hi)) return withheld('the width decreases');
+    if (w < caret) lo = mid; else hi = mid;
+  }
+  if (W(hi) !== caret) return withheld('no offset has the width of the caret');
+  const tied = [];
+  for (let k = hi; k < offsets.length; k += 1) {
+    const w = W(k);
+    if (w === null) return withheld('a probe was refused elsewhere');
+    if (w < caret) return withheld('the width decreases');
+    if (w > caret) break;
+    if (offsets[k] >= sN) tied.push(offsets[k]);
+  }
+  if (!tied.length) return withheld('no offset on node\'s line has the width of the caret');
+  if (tied.length === 1) return { at: tied[0] };
+  return reach(text, tied, { code: err?.code, message: err?.message, line, caret }, withheld);
+}
+
+/**
+ * The tie at node's caret, by the reach rule R (the stage-keeper's ruling
+ * on the position-oracle review), from node's own probes alone: 1, the
+ * guard, withheld when a tied code point but the last measures a non-zero
+ * width alone; 2, the largest offset where node refuses MARK with its own
+ * message for MARK at its line and caret; 3, only when 2 reaches none, the
+ * largest offset after the first where a space changes any of the four
+ * values, else the first; 4, withheld when the answer is the last offset
+ * and deleting every code point before it at once changes node's refusal.
+ */
+function reach(text, tied, original, withheld) {
+  const at = (o, s) => `${text.slice(0, o)}${s}${text.slice(o)}`;
+  const last = tied[tied.length - 1];
+  for (const o of tied.slice(0, -1)) {
+    const w = probeCaret(String.fromCodePoint(text.codePointAt(o)));
+    if (w === null) return withheld('a probe was refused elsewhere');
+    if (w - probeBase.base !== 0) return withheld("node's caret does not move across the tie");
+  }
+  const marked = tied.filter((o) => {
+    const r = refusalOf(at(o, MARK));
+    return r !== null && r.message === markMessage && r.line === original.line && r.caret === original.caret;
+  });
+  let answer = marked.length ? marked[marked.length - 1] : undefined;
+  if (answer === undefined) {
+    const spaced = tied.slice(1).filter((o) => !sameRefusal(refusalOf(at(o, ' ')), original));
+    answer = spaced.length ? spaced[spaced.length - 1] : tied[0];
+  }
+  if (answer === last) {
+    const kept = tied.slice(0, -1).reduceRight((t, o) => `${t.slice(0, o)}${t.slice(o + (t.codePointAt(o) > 0xffff ? 2 : 1))}`, text);
+    if (!sameRefusal(refusalOf(kept), original)) return withheld('the probes disagree');
+  }
+  return { at: answer };
+}
+
+/**
+ * The detail of node's strip-mode refusal `err` of `text`: "<file>:<line>:<col>:
+ * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6)
+ * or "<file>:<line>:<col>: invalid TypeScript syntax (<message>)", placed
+ * where node places it (nodePosition) and counted in `source` (the file as
+ * committed, of which `text` is a view of the same length) by positionOf:
+ * a refusal with a caret at the offset node's caret gives, an input that
+ * ends inside a construct where the innermost one still open opens, and a
+ * refusal with a line and no caret (the input ends with nothing open) at
+ * that line, column 1. A position node gives that the probe cannot check
+ * reads node's line and its caret plus 1, with `warn` the stderr line that
+ * says so. No shadow of the text decides a position.
+ *
+ * @returns {{ ok: false, detail: string, warn?: string }}
+ */
+export function refusalDetail(file, text, source, err) {
+  const p = nodePosition(text, err);
+  const where = p.at === undefined ? `${file}:${p.line}:${p.col ?? 1}` : `${file}:${lineCol(source, p.at)}`;
+  const refused = (detail) => (p.withheld
+    ? { ok: false, detail, warn: `test-strength: column for ${file}:${p.line} is node's display column (position check withheld: ${p.withheld})` }
+    : { ok: false, detail });
+  if (err.code === 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX') {
+    const what = String(err.message).replace(/^TypeScript /, '').replace(/ is not supported in strip-only mode$/, '');
+    let named = what;
+    if (p.at !== undefined) {
+      // The construct node refused, named from the token at its offset
+      // (a parameter property's caret sits on the name after its modifier).
+      const { tokens } = parseSource(text);
+      const i = tokens.findIndex((t) => t.start === p.at);
+      for (const [re, is, name] of NON_ERASABLE) {
+        const k = i < 0 || !re.test(err.message) ? undefined : [i, i - 1].find((j) => j >= 0 && is(tokens, j));
+        if (k !== undefined) { named = name(tokens, k); break; }
+      }
+    }
+    return refused(`${where}: non-erasable TypeScript syntax (${named})`);
+  }
+  return refused(`${where}: invalid TypeScript syntax (${err.message})`);
+}
+
+/**
+ * The strip-mode view of TypeScript text, or node's refusal of it as
+ * refusalDetail places it.
+ */
+function stripView(file, text, source = text) {
+  try {
+    return { ok: true, text: strip(text) };
+  } catch (err) {
+    if (err?.code !== 'ERR_UNSUPPORTED_TYPESCRIPT_SYNTAX' && err?.code !== 'ERR_INVALID_TYPESCRIPT_SYNTAX') throw err;
+    return refusalDetail(file, text, source, err);
+  }
+}
+
+/** The JSX-blanked view, or "JSX scan failed at <file>:<line>:<col>: <what the scanner met>". */
+function jsxView(file, text) {
+  const r = blankJsx(text);
+  return r.ok ? r : { ok: false, detail: `JSX scan failed at ${file}:${lineCol(text, r.at)}: ${r.what}` };
+}
+
+/**
+ * The SFC script view (the stage-keeper's ruling Q9): every <script> and
+ * <script setup> block (lang ts, tsx or js) in place, in document order,
+ * everything else blanked with its line breaks kept. A block with a src
+ * attribute, or another lang, is unreadable.
+ */
+function sfcView(file, text) {
+  const view = text.replace(/[^\r\n]/g, ' ').split('');
+  const open = /<script\b([^>]*)>/gi;
+  const langs = new Set();
+  let m;
+  while ((m = open.exec(text))) {
+    const attrs = m[1];
+    const at = `${file}:${lineCol(text, m.index)}`;
+    if (/(?:^|\s)src\s*=/i.test(attrs)) return { ok: false, detail: `${at}: a <script> block with a src attribute` };
+    const lang = (/\blang\s*=\s*["']([^"']*)["']/i.exec(attrs)?.[1] ?? 'js').toLowerCase();
+    if (!['js', 'ts', 'tsx'].includes(lang)) return { ok: false, detail: `${at}: a <script lang="${lang}"> block` };
+    langs.add(lang);
+    const from = m.index + m[0].length;
+    const close = text.toLowerCase().indexOf('</script', from);
+    if (close < 0) return { ok: false, detail: `${at}: an unclosed <script> block` };
+    for (let k = from; k < close; k += 1) view[k] = text[k];
+    open.lastIndex = close;
+  }
+  let out = { ok: true, text: view.join('') };
+  if (langs.has('tsx')) out = jsxView(file, out.text);
+  if (out.ok && (langs.has('ts') || langs.has('tsx'))) out = stripView(file, out.text, text);
+  return out;
+}
+
+/**
+ * The view the audit reads a file through (same length as the file), or
+ * why it cannot: { ok: true, text } | { ok: false, detail }. A file of no
+ * readable kind reads "<file>:1:1: unsupported file type <ext>" (the
+ * stage-keeper's ruling F11).
+ *
+ * @param {string} file - project-relative path
+ * @param {string} text
+ */
+export function sourceView(file, text) {
+  if (JS_EXT.test(file)) return { ok: true, text };
+  if (TS_EXT.test(file)) return stripView(file, text);
+  if (JSX_EXT.test(file)) {
+    const r = jsxView(file, text);
+    return r.ok && file.endsWith('.tsx') ? stripView(file, r.text, text) : r;
+  }
+  if (file.endsWith('.vue')) return sfcView(file, text);
+  return { ok: false, detail: `${file}:1:1: unsupported file type ${extname(file) || '(none)'}` };
+}
+
+/**
+ * parseSource over a file's view, carrying the original text: token
+ * offsets index both, so a rewrite spliced at them edits the original.
+ * Throws when the view cannot be read.
+ */
+export function parseFile(file, text) {
+  const v = sourceView(file, text);
+  if (!v.ok) throw new Error(v.detail);
+  return { ...parseSource(v.text), text };
 }

@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1062",
+  "path": "src/audit/test-strength/runner.js#firstForbidden",
+  "title": "The first forbidden write",
+  "description": "Names the first path, in sorted order, new, changed or deleted between two backstop trees whose real path lies under a forbidden root and outside every scratch directory of the run; the path the exit 2 line names.",
+  "implementsAcIds": [
+    "AC-19903-6",
+    "AC-19903-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-31T13:16:07.489Z",
+  "updatedAt": "2026-10-31T13:16:07.489Z"
+}

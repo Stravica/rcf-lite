@@ -1,0 +1,12 @@
+{
+  "prdId": "PRD-001",
+  "productName": "slug-preview",
+  "version": "0.1.0",
+  "status": "draft",
+  "problemStatement": "Writers naming pages need to see the slug a title will get before they commit to it.",
+  "objectives": [
+    "Turn any title into a well-formed slug and show it on a preview page."
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:28:47.814Z"
+}

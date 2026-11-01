@@ -173,7 +173,7 @@ export function testStrengthReport(head, { scope = 'reviewVerdict', failing = []
   const killed = passing.length;
   return {
     version: 1, head, scope, criteria, result: failing.length ? 'fail' : 'pass',
-    totals: { criteria: criteria.length, structuralPassed: criteria.length, mutants: criteria.length, killed, survived: failing.length, timeout: 0, notApplicable: 0 },
+    totals: { criteria: criteria.length, structuralPassed: criteria.length, mutants: criteria.length, killed, survived: failing.length, timeout: 0, notApplicable: 0, blocked: 0 },
     wallMs: 10, node: process.version,
   };
 }

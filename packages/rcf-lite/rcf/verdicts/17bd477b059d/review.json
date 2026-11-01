@@ -1,0 +1,68 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "17bd477b059d577d4eed19b252357f3adaa41e95",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9",
+    "AC-19903-6",
+    "AC-19903-7"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-19904-7",
+      "text": "re-review 4, R3 F-1 (at da821a6a) not closed: repeat-bug watch, position mapping, third firing: the line comes from node, no shadow or width table is left and every detail goes through positionOf, but the marker tie-break of nodePosition (src/audit/test-strength/source.js:676 to :685) counts a tied offset only when node refuses the inserted marker with Unexpected character U+00A7; after a binary operator node refuses the marker with Expression expected instead, so a refusal whose token follows U+200B or U+FEFF (whitespace to node, width 0) leaves the tie unresolved and refusalDetail (:704) prints node line and caret plus 1 with the withheld line, not the UTF-16 column the criterion states; probes (sourceView of src/a.ts, and end to end through the entry point src/intervals.ts with node bin/rcf.js audit test-strength --acs AC-101-1): X-POS-22 const t = 1 + U+200B U+200B; reads 1:15 where node refuses the ; at 1:17 (a space inserted before the ; moves node caret from 14 to 15), X-POS-22h a * U+200B ; reads 1:22 for 1:23, X-POS-22i a || U+FEFF ; reads 1:23 for 1:24, X-POS-22j f(1 + U+200B ) reads 1:7 for 1:8, X-POS-22k on line 2 after a CRLF line 2 - U+FEFF U+FEFF ; reads 2:15 for 2:17; P-POS 84 of 84 in the view and 28 of 28 end to end and A-POS 34 of 34 pass; AC-19901-9 too; this is the third firing in position mapping, so the class goes to a design decision by the stage-keeper ruling"
+    },
+    {
+      "id": "F-2",
+      "locus": "build",
+      "acId": "AC-19903-5",
+      "text": "re-review 4, R3 F-3 (at da821a6a) not closed: repeat-bug watch, cache isolation, third firing: the backstop compares the project tree and the node_modules of every ancestor up to the repository root (resolutionPath src/audit/test-strength/runner.js:220 starts at the parent of the project root, backstopTree :242), but the node_modules of the project itself, the first directory of the Node resolution path, is left to projectTree, which records a symbolic link by its lstat and never walks it (:194); probe X-CACHE-3b: a project whose node_modules is a symbolic link to a directory outside the project and a nodeTest bound test writing realpath(node_modules/vitest)/x3b.txt; node bin/rcf.js audit test-strength --acs AC-101-1 exits 0 with the PASS line and project/node_modules/vitest/x3b.txt now exists, where the same write through a real node_modules (A-CACHE-1) exits 2 naming it; AC-19903-5 asks for no write under its node_modules and ruling 6 of the design review makes a write inside an installed package a named exit 2, never a silent breach; P-CACHE 9 of 9, A-CACHE 6 of 6 and 16 of 18 fresh cache shapes pass; this is the third firing in cache isolation, so the class goes to a design decision by the stage-keeper ruling"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: the NotRunError exit of the mutant run (src/audit/test-strength/index.js:339, a line the range did not change) runs neither the backstop nor the warn line and names no scratch; probe X-CACHE-6 (a bound test named from slugify output, so the noOp mutant leaves it not run, each run writing a new file inside the installed package rootpkg of the repository root node_modules) exits 2 with the not-run line alone while five new files under node_modules/rootpkg are named nowhere; the exits at :321 and :318 to :331 run the backstop and the warn line but name no scratch; state whether the error exit sentence of AC-19903-5 covers these exits (the F-7 text at da821a6a named errors other than a NotRunError)"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: the filesystem-root branch of resolutionPath (src/audit/test-strength/runner.js:224 and :226, held false) is unreachable from the audit: index.js:150 exits 2 when git rev-parse fails (probes X-CACHE-2 and X-CACHE-2b) and the toplevel git gives always holds the project; only test/hygiene/resolution-path.test.js:24 reaches it by a direct call"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-19901-9",
+      "text": "note, new criterion: the help (src/cli/test-strength.js:152 to :155) promises that a column the audit cannot check reads the node display column with a withheld stderr line (position-oracle ruling 5), while AC-19901-9 and AC-19904-7 state the UTF-16 column with no such clause; state the withheld placement in the criteria or drop it"
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": "AC-19903-6",
+      "text": "note, new criterion: backstopTree (CN-1059, src/audit/test-strength/runner.js:242) builds the tree AC-19903-6 compares but its Code Node claims AC-19903-5 alone; AC-19903-6 is claimed by CN-1053 projectTree and CN-1054 firstMoved only"
+    },
+    {
+      "id": "F-7",
+      "locus": "spec",
+      "acId": "AC-19903-5",
+      "text": "note, new criterion: the line test-strength: cannot run the bound tests in scratch directory <scratch>: <message> is not asserted (test/cli/audit-test-strength.test.js:1010 pins the warn lines only), and the path form the backstop line gives a file under an ancestor node_modules (../node_modules/rootpkg/a6.txt) is unasserted (test/cli/audit-test-strength-ts.test.js:846 checks the ending a6.txt)"
+    }
+  ],
+  "recordedBy": "reviewer, round D RC-46 fix round 3 re-REVIEW",
+  "recordedAt": "2026-10-31T08:28:24.801Z"
+}

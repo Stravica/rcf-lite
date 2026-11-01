@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1043",
+  "path": "src/audit/test-strength/report.js#readTap",
+  "implementsAcIds": [
+    "AC-19904-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-29T18:00:15.937Z",
+  "updatedAt": "2026-10-29T18:00:15.937Z"
+}

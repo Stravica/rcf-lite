@@ -1,0 +1,60 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "150ab8eac32f79ea5aa4bc78d20d097473c808c6",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-19901-9",
+      "text": "re-review, F-3 not closed: invalid TypeScript syntax whose node stack carries a line but no caret line still reads 1:1; a probe with an unclosed brace (node stack opens :4, Expected } got <eof>) reads src/a.ts:1:1: invalid TypeScript syntax, because diagnosticAt (src/audit/test-strength/source.js:493 to :498) returns null without a caret and :539 then writes 1:1; place it at the line node gives"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "ruled F-8a, F-8 open, route the next round: amend the vitest clause of AC-19904-3 to state vitest -t with the titles joined by \" > \"; a leaf as (^| > )<leaf>$ (anchored at the end and at a title boundary, so a nested test runs and a longer title ending in the same words does not); a full path as ^<titles joined by \" > \">$; the leaf and title text regex-escaped; the audit maps the space-joined fullName of the report back to the titles, never by splitting on spaces; with a nested-describe case and a longer-title near-miss case, then the builder changes the namePattern and the leaf-then-prefix try (src/audit/test-strength/runner.js:35, :253 to :256)"
+    },
+    {
+      "id": "F-3",
+      "locus": "build",
+      "acId": "AC-19901-9",
+      "text": "re-review, new in the fix round: diagnosticAt takes the column from the caret index in node stack (src/audit/test-strength/source.js:497), but node prints the source line with each tab expanded to four spaces, so on a tab-indented line the column is 3 too far per tab and the token lookup at :524 misses: probes read src/ledger.ts:3:25 (parameter property) for a tab-indented constructor(private y) whose y is at 3:22, src/a.ts:3:15 for invalid syntax at 3:12, and 2:12 for a tab-indented enum at 2:9 that the token search placed right before the range (the AC-19904-7 detail too); count columns in the source line, not the caret line"
+    },
+    {
+      "id": "F-4",
+      "locus": "build",
+      "acId": "AC-19903-5",
+      "text": "re-review, new in the fix round: cacheArgv returns no flags for a runner whose argv the project overrides (src/audit/test-strength/runner.js:116 to :119, comment :113 to :114), so a vitest runners entry with its own argv still writes node_modules/.vite/vitest and node_modules/.vitest-cache through the linked node_modules (runner.js:143 to :148) into the project, though AC-19903-5 has no override exception; keep the caches out of the project under an override too, with a case for it"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-19901-9",
+      "text": "note, new criterion: an entry point with no extension (bin/cli) is still not judged (src/audit/test-strength/index.js:211 keeps only entries with an extension); state how an extensionless entry is read and whether one the views cannot read exits 2 entry point unreadable"
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": "AC-19904-3",
+      "text": "note, new criterion: the vitest default argv now carries --fsModuleCachePath=<scratch>/vitest-cache --no-cache (src/audit/test-strength/runner.js:128) while AC-19904-3 and the help (src/cli/test-strength.js:84) state it as vitest run <file> -t <name> --reporter=json --outputFile=<report>; state the cache flags in the criterion and help, and what happens under a vitest without them"
+    }
+  ],
+  "recordedBy": "reviewer, round D RC-46 fix round re-REVIEW",
+  "recordedAt": "2026-10-30T04:19:56.524Z"
+}

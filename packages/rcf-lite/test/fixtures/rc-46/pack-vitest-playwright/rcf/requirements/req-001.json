@@ -1,0 +1,13 @@
+{
+  "reqId": "REQ-001",
+  "prdId": "PRD-001",
+  "title": "Slug generation and preview",
+  "description": "The product turns a title into a well-formed slug and shows that slug on a preview page.",
+  "category": "functional",
+  "domain": "text-slugs",
+  "priority": "must",
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:28:48.996Z"
+}

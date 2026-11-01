@@ -1,0 +1,25 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "4ded55aaff62c0166c078b1584c6c1616809ac41",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-1",
+    "AC-19904-2",
+    "AC-19904-3",
+    "AC-19904-4",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9",
+    "AC-19903-6",
+    "AC-19903-7"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [],
+  "recordedBy": "reviewer, round D RC-46 leak-pin round REVIEW",
+  "recordedAt": "2026-10-31T21:58:54.683Z"
+}

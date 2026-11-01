@@ -9,7 +9,16 @@ import { join } from 'node:path';
 
 export const CONFIG_FILE = 'rcf/test-strength.json';
 export const ENTRY_KINDS = ['bin', 'module', 'worker'];
-export const DEFAULT_RUNNER = ['node', '--test', '--test-name-pattern', '<name>', '<file>'];
+export const DEFAULT_RUNNER = ['node', '--test', '--test-reporter=tap', '--test-name-pattern', '<name>', '<file>'];
+// RC-46 (US-19904, the stage-keeper's rulings Q3 and F2): each runners
+// kind's default argv carries the reporter the audit reads; <report> is
+// a per-run temp path the audit sets and reads.
+export const RUNNER_KINDS = ['nodeTest', 'vitest', 'playwright'];
+export const KIND_ARGV = {
+  nodeTest: DEFAULT_RUNNER,
+  vitest: ['vitest', 'run', '<file>', '-t', '<name>', '--reporter=json', '--outputFile=<report>'],
+  playwright: ['playwright', 'test', '<file>', '-g', '<name>', '--reporter=json'],
+};
 
 const MISSING = `test-strength: no ${CONFIG_FILE}; declare entry and harness`;
 
@@ -41,7 +50,8 @@ const strings = (v) => Array.isArray(v) && v.every((s) => typeof s === 'string' 
  *
  * @param {string} projectRoot
  * @returns {{ ok: true, config: { entry: Array<{ kind: string, path: string }>, harness: string[], harnessRe: RegExp[],
- *   edge: string[], clock: string[], runner: string[] } } | { ok: false, line: string }}
+ *   edge: string[], clock: string[], runner: string[]|null,
+ *   runners: Array<{ kind: string, argv: string[]|null, filesRe: RegExp[] }> } } | { ok: false, line: string }}
  */
 export function loadConfig(projectRoot) {
   const abs = join(projectRoot, CONFIG_FILE);
@@ -67,6 +77,15 @@ export function loadConfig(projectRoot) {
   if (doc.runner !== undefined && (!strings(doc.runner) || doc.runner.length === 0 || !doc.runner.some((a) => a.includes('<file>')))) {
     return bad('runner must be an argv list holding a <file> placeholder');
   }
+  if (doc.runners !== undefined && !Array.isArray(doc.runners)) return bad('runners must list { files, kind, argv } entries');
+  for (const [i, r] of (doc.runners ?? []).entries()) {
+    if (!r || typeof r !== 'object' || Array.isArray(r)) return bad(`runners[${i}] must be an object { files, kind, argv }`);
+    if (!strings(r.files) || r.files.length === 0) return bad(`runners[${i}].files must list one or more globs`);
+    if (!RUNNER_KINDS.includes(r.kind)) return bad(`runners[${i}].kind ${JSON.stringify(r.kind)} is not ${RUNNER_KINDS.join(', ')}`);
+    if (r.argv !== undefined && (!strings(r.argv) || r.argv.length === 0 || !r.argv.some((a) => a.includes('<file>') || a.includes('<name>')))) {
+      return bad(`runners[${i}].argv must be an argv list holding a <file> or <name> placeholder`);
+    }
+  }
   if (doc.suiteCommand !== undefined && typeof doc.suiteCommand !== 'string') return bad('suiteCommand must be a string');
   return {
     ok: true,
@@ -76,7 +95,26 @@ export function loadConfig(projectRoot) {
       harnessRe: doc.harness.map(globToRegExp),
       edge: doc.edge ?? [],
       clock: doc.clock ?? [],
-      runner: doc.runner ?? DEFAULT_RUNNER,
+      runner: doc.runner ?? null,
+      runners: (doc.runners ?? []).map((r) => ({ kind: r.kind, argv: r.argv ?? null, filesRe: r.files.map(globToRegExp) })),
     },
   };
+}
+
+/**
+ * The runner of one bound test file (AC-19904-3): the first runners
+ * entry whose files glob matches it, else the legacy runner (judged by
+ * its exit code, as before RC-46), else kind nodeTest. `matched` is
+ * false when no runners entry matched; `override` is true when the argv
+ * is the project's own rather than the kind's default.
+ *
+ * @param {{ runner: string[]|null, runners: Array<{ kind: string, argv: string[]|null, filesRe: RegExp[] }> }} config
+ * @param {string} file - project-relative path
+ * @returns {{ kind: 'nodeTest'|'vitest'|'playwright'|'legacy', argv: string[], matched: boolean, override: boolean }}
+ */
+export function runnerFor(config, file) {
+  const hit = config.runners.find((r) => r.filesRe.some((re) => re.test(file)));
+  if (hit) return { kind: hit.kind, argv: hit.argv ?? KIND_ARGV[hit.kind], matched: true, override: Boolean(hit.argv) };
+  if (config.runner) return { kind: 'legacy', argv: config.runner, matched: false, override: true };
+  return { kind: 'nodeTest', argv: DEFAULT_RUNNER, matched: false, override: false };
 }

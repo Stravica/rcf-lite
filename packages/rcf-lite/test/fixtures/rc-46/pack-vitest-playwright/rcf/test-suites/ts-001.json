@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-28T22:29:00.142Z",
+  "updatedAt": "2026-10-28T22:29:22.853Z",
+  "purpose": "In-process verification of the US-101 criteria against src/slug.ts and src/preview-server.ts with vitest; one spec file per criterion, bound by its describe title.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-101-1",
+    "AC-101-2"
+  ],
+  "id": "TS-001",
+  "usId": "US-101",
+  "title": "US-101 vitest specs",
+  "testCases": [
+    {
+      "id": "TC-001-ac-101-1-a-slug-holds-only-lower-case",
+      "acId": "AC-101-1",
+      "description": "AC-101-1: a slug holds only lower-case letters and digits joined by single hyphens and is cut back to a whole word at the limit",
+      "status": "passing",
+      "testPointer": "tests/rcf/unit/US-101/AC-101-1.spec.ts::AC-101-1: a slug holds only lower-case letters and digits joined by single hyphens and is cut back to a whole word at the limit"
+    },
+    {
+      "id": "TC-001-ac-101-2-the-preview-page-shows-the-slug",
+      "acId": "AC-101-2",
+      "description": "AC-101-2: the preview page shows the slug of a submitted title, or a nothing-to-preview message",
+      "status": "passing",
+      "testPointer": "tests/rcf/unit/US-101/AC-101-2.spec.ts::AC-101-2: the preview page shows the slug of a submitted title, or a nothing-to-preview message"
+    }
+  ],
+  "status": "draft"
+}

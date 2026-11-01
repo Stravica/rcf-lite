@@ -291,7 +291,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Schemas-090 DEFINE (2026-10-20) added US-19401 (232 -> 233).
   // Pre-merge Finalise DEFINE (2026-10-22) added US-19005 (233 -> 234).
   // rcf-lite 0.37.0 DEFINE (2026-10-24) added US-19501..US-20402, 30 stories (234 -> 264).
-  assert.equal(tree.userStories.length, 264);
+  // rcf-lite round D RC-46 DEFINE (2026-10-29) added US-19904 under REQ-199 (264 -> 265).
+  assert.equal(tree.userStories.length, 265);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -466,7 +467,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Pre-merge Finalise DEFINE (2026-10-22) added FBS-230 (119 -> 120).
   // Downstream findings DEFINE (2026-10-23) added FBS-231 (120 -> 121).
   // rcf-lite 0.37.0 DEFINE (2026-10-24) added FBS-232..FBS-241 (121 -> 131).
-  assert.equal(tree.fbsItems.length, 131);
+  // rcf-lite round D RC-46 DEFINE (2026-10-29) added FBS-242 (131 -> 132).
+  assert.equal(tree.fbsItems.length, 132);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -606,7 +608,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Release-Verify flags DEFINE (2026-10-28) added TS-303, the e2e suite of US-19301 binding AC-19301-1 to AC-19301-6 and AC-19301-8 (243 -> 244).
   // Release-Verify flags DEFINE (2026-10-28) added TS-304, the e2e suite of US-19302 binding AC-19302-1 to AC-19302-4 (244 -> 245).
   // Release-Verify flags DEFINE (2026-10-28) added TS-305, the e2e suite of US-19005 binding AC-19005-5 (245 -> 246).
-  assert.equal(tree.testSuites.length, 246);
+  // rcf-lite round D RC-46 DEFINE (2026-10-29) added TS-306, the e2e suite of US-19904 binding AC-19904-1 to AC-19904-7 (246 -> 247).
+  assert.equal(tree.testSuites.length, 247);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');

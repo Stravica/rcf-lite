@@ -1,0 +1,30 @@
+{
+  "createdAt": "2026-10-28T22:24:25.766Z",
+  "updatedAt": "2026-10-28T22:24:50.997Z",
+  "purpose": "In-process verification of the US-101 criteria against src/intervals.ts with node:test through tsx; one spec file per criterion, bound by its describe title.",
+  "testLevel": "unit",
+  "acIds": [
+    "AC-101-1",
+    "AC-101-2"
+  ],
+  "id": "TS-001",
+  "usId": "US-101",
+  "title": "US-101 interval specs",
+  "testCases": [
+    {
+      "id": "TC-001-ac-101-1-two-intervals-overlap-only-when",
+      "acId": "AC-101-1",
+      "description": "AC-101-1: two intervals overlap only when they share a point, and touching ends do not overlap",
+      "status": "passing",
+      "testPointer": "tests/rcf/api/US-101/AC-101-1.spec.ts::AC-101-1: two intervals overlap only when they share a point, and touching ends do not overlap"
+    },
+    {
+      "id": "TC-001-ac-101-2-merging-combines-overlapping",
+      "acId": "AC-101-2",
+      "description": "AC-101-2: merging combines overlapping and touching intervals into a sorted disjoint list and rejects a malformed interval",
+      "status": "passing",
+      "testPointer": "tests/rcf/api/US-101/AC-101-2.spec.ts::AC-101-2: merging combines overlapping and touching intervals into a sorted disjoint list and rejects a malformed interval"
+    }
+  ],
+  "status": "draft"
+}

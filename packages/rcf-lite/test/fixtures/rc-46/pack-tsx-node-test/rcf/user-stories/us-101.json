@@ -1,0 +1,28 @@
+{
+  "usId": "US-101",
+  "prdId": "PRD-001",
+  "reqId": "REQ-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Combine half-open intervals",
+  "asA": "developer scheduling work in time ranges",
+  "iWant": "to test intervals for overlap and merge a list of them",
+  "soThat": "I can see which ranges collide and how much ground they cover",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-101-1",
+      "description": "Given two half-open intervals, when they are tested for overlap, then they overlap only when they share at least one point: touching ends do not overlap and an empty interval overlaps nothing.",
+      "testable": true
+    },
+    {
+      "id": "AC-101-2",
+      "description": "Given a list of half-open intervals in any order, when it is merged, then overlapping and touching intervals combine into one, empty intervals are dropped, the result is sorted by start, the input is not changed, and an interval with a non-finite bound or an end before its start rejects the merge with a RangeError.",
+      "testable": true
+    }
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:24:24.570Z",
+  "tacIds": [
+    "TAC-001"
+  ]
+}

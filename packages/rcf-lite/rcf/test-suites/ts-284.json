@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-10-24T16:56:43.423Z",
+  "updatedAt": "2026-10-31T09:04:42.656Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -48,6 +48,118 @@
       "description": "rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test"
+    },
+    {
+      "id": "TC-284-a-vitest-project-audited-end-to-end-with",
+      "acId": "AC-19903-5",
+      "description": "a vitest project audited end to end, with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project audited end to end, with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included"
+    },
+    {
+      "id": "TC-284-a-vitest-project-whose-runners-entry-carries",
+      "acId": "AC-19903-5",
+      "description": "a vitest project whose runners entry carries its own argv, audited end to end with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project whose runners entry carries its own argv, audited end to end with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included"
+    },
+    {
+      "id": "TC-284-on-sigint-or-sigterm-while-a-bound-test",
+      "acId": "AC-19903-7",
+      "description": "on SIGINT or SIGTERM while a bound test runs, rcf audit test-strength kills the process group of the bound test run, removes its scratch directory with its working copies, leaves no entry in .git/worktrees of the project and exits 130 for SIGINT and 143 for SIGTERM",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-7: on SIGINT or SIGTERM while a bound test runs, rcf audit test-strength kills the process group of the bound test run, removes its scratch directory with its working copies, leaves no entry in .git/worktrees of the project and exits 130 for SIGINT and 143 for SIGTERM"
+    },
+    {
+      "id": "TC-284-a-scratch-directory-that-cannot-be",
+      "acId": "AC-19903-5",
+      "description": "a scratch directory that cannot be removed is named in one stderr line \"[warn] test-strength: scratch directory <dir> could not be removed\" (a bound test leaving a directory it made read-only in its TMPDIR, the scratch of the audit)",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-5: a scratch directory that cannot be removed is named in one stderr line \"[warn] test-strength: scratch directory <dir> could not be removed\" (a bound test leaving a directory it made read-only in its TMPDIR, the scratch of the audit)"
+    },
+    {
+      "id": "TC-284-a-vitest-project-with-a-vitest-config-ts",
+      "acId": "AC-19903-5",
+      "description": "a vitest project with a vitest.config.ts, audited with the default argv, gains no path under node_modules, with and without --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project with a vitest.config.ts, audited with the default argv, gains no path under node_modules, with and without --record"
+    },
+    {
+      "id": "TC-284-a-vitest-runners-entry-whose-argv-ends",
+      "acId": "AC-19903-5",
+      "description": "a vitest runners entry whose argv ends in \"--\" writes no results cache into the project, with and without --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest runners entry whose argv ends in \"--\" writes no results cache into the project, with and without --record"
+    },
+    {
+      "id": "TC-284-a-vitest-runners-entry-run-through-sh-c",
+      "acId": "AC-19903-5",
+      "description": "a vitest runners entry run through sh -c writes nothing into the project, with and without --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest runners entry run through sh -c writes nothing into the project, with and without --record"
+    },
+    {
+      "id": "TC-284-a-vitest-config-whose-globalsetup-writes",
+      "acId": "AC-19903-5",
+      "description": "a vitest config whose globalSetup writes under node_modules/.cache leaves the project unchanged, with and without --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest config whose globalSetup writes under node_modules/.cache leaves the project unchanged, with and without --record"
+    },
+    {
+      "id": "TC-284-a-nodetest-bound-test-writing-under-node",
+      "acId": "AC-19903-5",
+      "description": "a nodeTest bound test writing under node_modules and beside the real path of node_modules leaves the project unchanged, with and without --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a nodeTest bound test writing under node_modules and beside the real path of node_modules leaves the project unchanged, with and without --record"
+    },
+    {
+      "id": "TC-284-a-cache-file-the-project-already-holds",
+      "acId": "AC-19903-5",
+      "description": "a cache file the project already holds under node_modules is not rewritten by a bound test run, with and without --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a cache file the project already holds under node_modules is not rewritten by a bound test run, with and without --record"
+    },
+    {
+      "id": "TC-284-a-bound-test-writing-a-file-at-an",
+      "acId": "AC-19903-6",
+      "description": "a bound test writing a file at an absolute path in the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it, and records nothing even with --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-6: a bound test writing a file at an absolute path in the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it, and records nothing even with --record"
+    },
+    {
+      "id": "TC-284-on-an-error-exit-the-audit-still-runs",
+      "acId": "AC-19903-5",
+      "description": "on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming escape.txt and a \"[warn] test-strength: scratch directory <dir> could not be removed\" line for each scratch left",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-5: on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming escape.txt and a \"[warn] test-strength: scratch directory <dir> could not be removed\" line for each scratch left"
+    },
+    {
+      "id": "TC-284-on-sigint-or-sigterm-while-two-bound",
+      "acId": "AC-19903-7",
+      "description": "on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process in the process group of each bound test run, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the .git of the project as it was, and exits 130 for SIGINT and 143 for SIGTERM",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process in the process group of each bound test run, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the .git of the project as it was, and exits 130 for SIGINT and 143 for SIGTERM"
+    },
+    {
+      "id": "TC-284-a-bound-test-writing-a-new-file-inside",
+      "acId": "AC-19903-5",
+      "description": "a bound test writing a new file inside an installed package in the node_modules of an ancestor (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a bound test writing a new file inside an installed package in the node_modules of an ancestor (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record"
+    },
+    {
+      "id": "TC-284-x-cache-3b-a-symlinked-project-node-modules",
+      "acId": "AC-19903-5",
+      "description": "a bound test writing a new file inside an installed package reached through a project node_modules that is a symbolic link to a directory outside the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a bound test writing a new file inside an installed package reached through a project node_modules that is a symbolic link to a directory outside the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record"
+    },
+    {
+      "id": "TC-284-x-cache-6-on-a-not-run-exit-the-backstop-runs",
+      "acId": "AC-19903-5",
+      "description": "on a not-run exit the audit still runs the backstop: a bound test whose title carries what sumTotals returns, so a mutant renames it, and whose every run writes a new file inside node_modules/rootpkg of the repository root, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming one of those files",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19903-5: on a not-run exit the audit still runs the backstop: a bound test whose title carries what sumTotals returns, so a mutant renames it, and whose every run writes a new file inside node_modules/rootpkg of the repository root, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming one of those files"
     }
   ],
   "status": "draft"

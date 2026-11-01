@@ -1,0 +1,11 @@
+{
+  "entry": [
+    { "kind": "module", "path": "src/slug.ts" },
+    { "kind": "bin", "path": "src/preview-server.ts" }
+  ],
+  "harness": ["tests/rcf/helpers/**"],
+  "edge": [],
+  "clock": [],
+  "runner": ["npx", "vitest", "run", "<file>", "-t", "<name>"],
+  "suiteCommand": "npx vitest run && npx playwright test"
+}

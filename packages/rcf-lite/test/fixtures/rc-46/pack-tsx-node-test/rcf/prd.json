@@ -1,0 +1,12 @@
+{
+  "prdId": "PRD-001",
+  "productName": "interval-kit",
+  "version": "0.1.0",
+  "status": "draft",
+  "problemStatement": "Callers need to combine half-open numeric intervals without re-deriving the edge cases each time.",
+  "objectives": [
+    "Provide overlap and merge operations on half-open intervals, with the edge cases pinned by tests."
+  ],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:24:04.881Z"
+}

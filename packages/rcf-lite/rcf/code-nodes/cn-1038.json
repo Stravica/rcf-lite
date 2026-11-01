@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1038",
+  "path": "src/audit/test-strength/report.js#readPlaywright",
+  "implementsAcIds": [
+    "AC-19904-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-10-29T18:00:03.787Z",
+  "updatedAt": "2026-10-29T18:00:03.787Z"
+}

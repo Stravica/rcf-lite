@@ -1,0 +1,16 @@
+{
+  "fbsId": "FBS-001",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 1,
+  "executionStatus": "notStarted",
+  "title": "Slug module and preview page",
+  "summary": "Deliver the slug module, the preview page and their vitest and Playwright specs.",
+  "acIds": [
+    "AC-101-1",
+    "AC-101-2"
+  ],
+  "dependsOnFbsIds": [],
+  "createdAt": "2026-01-01T00:00:00Z",
+  "updatedAt": "2026-10-28T22:28:51.639Z"
+}
