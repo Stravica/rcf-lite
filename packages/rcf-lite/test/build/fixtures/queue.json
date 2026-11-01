@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 132,
-    "notStarted": 59,
+    "notStarted": 58,
     "inProgress": 2,
-    "complete": 34,
+    "complete": 35,
     "verified": 37,
-    "actionable": 43,
+    "actionable": 42,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -1737,11 +1737,11 @@
       "buildOrder": 242,
       "tier": 14,
       "title": "rcf audit test-strength: TypeScript test strength over tsx node:test, vitest and @playwright/test bound tests and .ts, .tsx and .vue Code Nodes",
-      "executionStatus": "notStarted",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-236"
       ],
-      "state": "actionable",
+      "state": "complete",
       "blockedBy": []
     },
     {
