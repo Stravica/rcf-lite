@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.38.0"
+latest: "0.39.0"
 releases:
+  - version: "0.39.0"
+    date: "2026-11-01"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.39.0 gives TypeScript, TSX and Vue criteria the test-strength proof JavaScript criteria get: rcf audit test-strength runs each bound test through the runner rcf/test-strength.json declares for its file in the new runners field, tsx node:test, vitest or Playwright, reads that runner's report, and applies the structural check and the mutation proof to .ts, .tsx and .vue sources. A criterion whose bound test or Code Node file the audit cannot read is blocked on its own with exit 5 while the others are judged, and every bound test now runs in a working copy of HEAD in the audit's own scratch directory."
+      - "Breaking: a run with a blocked criterion exits 5 and light Finalise refuses it with exit 4, a bound test its runner did not run, a runner whose report the audit cannot read and a bound test run that writes in the project each exit 2, the default nodeTest argv gains --test-reporter=tap, and the recorded test-strength report gains totals.blocked and a blocked result, so runs that passed on 0.38.0 can fail. Declare a runner for each TypeScript test file, carry the reporter flag in any custom argv, make a blocked file readable before Finalise, and read totals.blocked in scripts that read the recorded report."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.38.0 and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged, so rcf doctor reports a clean hash, and an rcf/test-strength.json with no runners still loads. rcf-lite adds no dependency: tsx, vitest and Playwright come from the project."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.38.0"
     date: "2026-10-28"
     breaking: true
