@@ -1,0 +1,1248 @@
+{
+  "version": 1,
+  "release": "0.39.0",
+  "head": "c7ab1ed0d170fb824185720d343a597ae8467b3e",
+  "since": "6b9da8859675ff2b4172ad494bc4ab235f61fc4f",
+  "target": {
+    "kind": "package",
+    "name": "rcf-lite",
+    "version": "0.39.0",
+    "sha256": "79868198351af06e8eb34c9d5d4ef07e6e4899416b6b1ec1835e8cfd3e5c5b80",
+    "cold": true
+  },
+  "scope": {
+    "fbsIds": [
+      "FBS-219",
+      "FBS-220",
+      "FBS-225",
+      "FBS-226",
+      "FBS-230",
+      "FBS-224",
+      "FBS-236",
+      "FBS-237",
+      "FBS-238",
+      "FBS-239",
+      "FBS-242",
+      "FBS-241"
+    ],
+    "smokeSuites": [
+      "TS-279",
+      "TS-291",
+      "TS-285",
+      "TS-269"
+    ]
+  },
+  "perAc": [
+    {
+      "acId": "AC-19001-1",
+      "fbsId": "FBS-219",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/verify-report-hand.test.js::AC-19001-1: rcf verify run --url <preview-url> --fbs <fbs-id> --mode deterministic --hand verifier --verifier-id <id> writes rcf/verify-reports/<fbs-id>/<head12>.json valid as VerifyReport v1 and stdout ends \"verify report: <path> <verdict> <verified>/<total>\""
+      ]
+    },
+    {
+      "acId": "AC-19001-3",
+      "fbsId": "FBS-219",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/verify-report-hand.test.js::AC-19001-3: rcf verify run with --hand outside the five hands, or --hand without --fbs, exits 2 naming the flag and writes no report"
+      ]
+    },
+    {
+      "acId": "AC-19001-4",
+      "fbsId": "FBS-219",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/verify-report-hand.test.js::AC-19001-4: rcf verify run --package <name@version|tarball> --fbs <fbs-id> --hand verifier writes a report with target.kind \"package\" and target.packageRef and no target.url"
+      ]
+    },
+    {
+      "acId": "AC-19001-5",
+      "fbsId": "FBS-219",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/verify-report-hand.test.js::AC-19001-5: with a committed report under rcf/verify-reports/, rcf define validate exits 0 with no unknown-document error and the tree walker does not load it as a chain document"
+      ]
+    },
+    {
+      "acId": "AC-19001-6",
+      "fbsId": "FBS-219",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier writes only under rcf/verify-reports/<fbs-id>/; a second run for the same head exits 4 with \"verify report exists for head <sha7>; pass --replace\" and never overwrites",
+        "test/verify/verify-report-hand.test.js::AC-19001-6: rcf verify run --hand verifier --fbs <fbs-id> with --out <path> exits 2 naming --out and writes nothing: no report under rcf/verify-reports/ and nothing at the --out path"
+      ]
+    },
+    {
+      "acId": "AC-19002-8",
+      "fbsId": "FBS-220",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/finalise/administrative-finalise.test.js::AC-19002-8: rcf build finalise never spawns rcf verify run, the verifier package or the agent CLI, and every refusal leaves rcf/fbs/<fbs-id>.json byte-identical"
+      ]
+    },
+    {
+      "acId": "AC-19301-1",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-1: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --verifier-id v1 with both bound tests passing against the installed artefact exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; report verdict PASS, method suiteAsProbe, profile packagedArtefact, target kind package with sha256 and servedSha null, perAc evidence naming TS, file, test title and test number"
+      ]
+    },
+    {
+      "acId": "AC-19301-2",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-2: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with the AC-001-2 test failing exits 4 and prints \"verify report: <path> FAIL 1/2\"; verdict FAIL, verdictAuthority correctness, AC-001-2 fail with the failing title, AC-001-1 pass, runStats.counts verified 1 failed 1"
+      ]
+    },
+    {
+      "acId": "AC-19301-3",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-3: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with AC-001-2 unbound exits 4 and prints \"verify report: <path> BLOCKED 1/2\"; AC-001-2 critiqueOnly, runStats.counts.critiqueOnly 1, AC-001-1 suite still ran and passes"
+      ]
+    },
+    {
+      "acId": "AC-19301-4",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with the AC-001-1 test to-do or skip and an AC-001-2 title absent from the run exits 4; AC-001-1 skipped, AC-001-2 fail listing the title under notRun, verdict not PASS"
+      ]
+    },
+    {
+      "acId": "AC-19301-5",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-5: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with an HTTP probe on AC-001-1 and no --url resolves AC-001-1 pass with probeNotRun \"package target has no served URL\"; suites[] rows, <TS id>.tap and install.log under rcf/verify-reports/FBS-001/<head12>/, install { command, exitCode 0, logPath }, define validate exits 0"
+      ]
+    },
+    {
+      "acId": "AC-19301-6",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-6: rcf verify run --artefact <tgz> with --url, --mode agentScreenshotCritique, a --profile other than packagedArtefact, or a missing or non-gzip path exits 2 with a stderr line naming the flag and writes nothing under rcf/verify-reports/"
+      ]
+    },
+    {
+      "acId": "AC-19301-8",
+      "fbsId": "FBS-225",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe.test.js::AC-19301-8: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier leaves every file outside rcf/verify-reports/FBS-001/ byte-identical and git status clean beyond it, installs under the OS temporary directory, and never spawns a claude executable on PATH"
+      ]
+    },
+    {
+      "acId": "AC-19302-1",
+      "fbsId": "FBS-226",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-1: rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H packs with npm pack into the scratch directory, exits 0 and prints \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\"; target sha256 equals a separate npm pack of H, servedSha H, pack { command, exitCode 0 }",
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-1 (TD-1): rcf verify run --package . --fbs FBS-001 --hand verifier on a package whose prepack prints to stdout before the npm JSON exits 0 with \"verify report: rcf/verify-reports/FBS-001/<head12>.json PASS 2/2\", target servedSha H and the sha256 of a separate pack of H, and pack.exitCode the exit code npm returned",
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-1 (BH-1 b): rcf verify run --package . --fbs FBS-001 --hand verifier at clean head H with content git ignores but npm packs records servedSha H only on the bytes of a separate pack of H: exit 0, PASS 2/2, target.sha256 equals that pack, and the project is unchanged"
+      ]
+    },
+    {
+      "acId": "AC-19302-2",
+      "fbsId": "FBS-226",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-2: rcf verify run --artefact fixture-cli-0.9.0.tgz --fbs FBS-001 --hand verifier at head H records target.version 0.9.0, the tarball sha256, servedSha null and no pack object, and an npm wrapper on PATH logs install and never pack"
+      ]
+    },
+    {
+      "acId": "AC-19302-3",
+      "fbsId": "FBS-226",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-3: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier --offline with an unresolvable dependency exits 1 with stderr \"verify run: install failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/install.log\", the log exists and no report JSON is written",
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-3 (BH-2): rcf verify run --package . --fbs FBS-001 --hand verifier whose npm pack fails exits 1 with stderr \"verify run: pack failed (npm exit <n>); log rcf/verify-reports/FBS-001/<head12>/pack.log\", the log holds the npm output, no report JSON is written and nothing outside rcf/verify-reports/FBS-001/ changes",
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-3 (TD-2): in a project whose .gitignore carries *.log, the log at the report install.logPath, the log of a failed install and the log of a failed pack are not ignored: git check-ignore does not match them and git status lists them, with no new path outside rcf/verify-reports/FBS-001/"
+      ]
+    },
+    {
+      "acId": "AC-19302-4",
+      "fbsId": "FBS-226",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-4: rcf verify run --artefact <tgz> --fbs FBS-001 --hand verifier with --offline then without exits 0 both times; install.command carries --offline only on the first, install.registry offline then default; rcf build finalise never installs or reaches the network",
+        "test/verify/suite-as-probe-pack.test.js::AC-19302-4 (BH-3): rcf verify run --offline outside package target mode (a --url target, a --package <dir> with --url, a --package name@version or tarball name, or no target) exits 2 with the one stderr line \"[error] usage --offline applies only in package target mode (--artefact <tgz> | --package <dir>, with no --url)\" before any other check, and writes no report, no evidence directory and no --out file, calls no npm and spawns no agent CLI"
+      ]
+    },
+    {
+      "acId": "AC-19005-5",
+      "fbsId": "FBS-230",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/verify/loopback-target-run.test.js::AC-19005-5: rcf verify run --hand verifier --url <loopback-url> --engine <name> --served-sha <committed HEAD> records target { kind \"url\", url, engine, port, servedSha } in rcf/verify-reports/<fbs-id>/<head12>.json",
+        "test/verify/loopback-target-run.test.js::AC-19005-5: a --served-sha that is not the full sha of the committed HEAD exits 4 with \"verify report refused: --served-sha <value> is not the committed HEAD <sha7>\", writing no report and sending no probe",
+        "test/verify/loopback-target-run.test.js::AC-19005-5: a loopback --url with --hand exits 2 with \"[error] usage --engine <name> is required with --hand and a loopback --url\" with no --engine, and \"[error] usage --served-sha <sha> is required with --hand and a loopback --url\" with no --served-sha, writing no report and sending no probe",
+        "test/verify/loopback-target-run.test.js::AC-19005-5: whenever the target is not a --url (a directory, a tarball or a name@version) --engine and --served-sha each exit 2 with \"[error] usage --engine applies only to a --url target; a non-URL target (directory, tarball or name@version) has no served URL\" (and the same for --served-sha), with or without --hand, before any pack, install or engine call, writing no report"
+      ]
+    },
+    {
+      "acId": "AC-19004-6",
+      "fbsId": "FBS-224",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/stage-contract.test.js::AC-19004-6: rcf doctor on a project whose CLAUDE.md or AGENTS.md carries the pre-change managed block reports it drifted, names rcf doctor --fix and exits non-zero"
+      ]
+    },
+    {
+      "acId": "AC-19901-1",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-1: over a bin entry, a harness glob and AC-101-1 bound to a test importing only node:test, node:assert and test/_harness/run.js, with a symbol-level Code Node whose mutants all fail it, rcf audit test-strength --acs AC-101-1 exits 0 with the PASS line"
+      ]
+    },
+    {
+      "acId": "AC-19901-2",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-2: a bound test also importing src/store.js exits 4 with \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 imports src/store.js (not the app entry or the harness)\""
+      ]
+    },
+    {
+      "acId": "AC-19901-3",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-3: mock.module(\"../../src/mailer.js\") with edge [\"node:https\"] exits 4 with \"AC-101-1 mocks ../../src/mailer.js (not a declared edge)\"; mock.module(\"node:https\") in the same test is not a finding"
+      ]
+    },
+    {
+      "acId": "AC-19901-4",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-4: a Code Node src/notify.js#makeNotifier written makeNotifier({ sender = consoleSender } = {}) exits 4 with \"AC-101-1 silent default sender in src/notify.js#makeNotifier\"; a parameter named sender with no default is not a finding"
+      ]
+    },
+    {
+      "acId": "AC-19901-5",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-5: no rcf/test-strength.json exits 2 with \"test-strength: no rcf/test-strength.json; declare entry and harness\"; no scope and no REVIEW verdict exits 2 with the no-scope line; --acs AC-999-1 exits 2 naming AC-999-1"
+      ]
+    },
+    {
+      "acId": "AC-19901-6",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-6: the structural check never executes a test, the entry or a product module: a bound test that throws on import still yields its import finding, reported with no mutant run"
+      ]
+    },
+    {
+      "acId": "AC-19901-7",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.js and AC-101-2 passes, the structural check runs for both, mutants for AC-101-2 only, exit 4 names the imports finding, and --json lists mutants for AC-101-2 and none for AC-101-1"
+      ]
+    },
+    {
+      "acId": "AC-19902-1",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-1: a bound test asserting only that the CLI exits 0 over src/audit.js#writeAudit, called once per run and never asserted, exits 4 with \"AC-101-1 vacuous: noOp on src/audit.js#writeAudit survived 1 bound tests\" and the same for callRemoval, and --json lists those mutants survived"
+      ]
+    },
+    {
+      "acId": "AC-19902-2",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-2: AC-101-2 with no Code Node, AC-101-3 with only a file-level Code Node src/x.js and AC-101-4 with no bound test exit 4 with \"AC-101-2 no Code Node\", \"AC-101-3 no symbol-level Code Node\" and \"AC-101-4 unbound\""
+      ]
+    },
+    {
+      "acId": "AC-19902-3",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-3: a no-op mutant that hangs its bound test past --mutant-timeout 5 is recorded \"timeout\" and counted as killed, and a symbol with no statement-level call site records callRemoval \"notApplicable\" while the criterion passes"
+      ]
+    },
+    {
+      "acId": "AC-19902-4",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-4: with no --acs the scope is the touched AC-101-1 of the REVIEW verdict only: mutants touch only its symbols, git status and the hash of every tracked file are unchanged, and git worktree list shows only the main worktree"
+      ]
+    },
+    {
+      "acId": "AC-19902-5",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-5: a scope of 240 mutants exits 2 before running any test with \"test-strength: 240 mutants exceed --max-mutants 200; narrow the scope\"; with --max-mutants 300 it runs"
+      ]
+    },
+    {
+      "acId": "AC-19902-6",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-6: a round touching 8 criteria with 2 symbol-level Code Nodes each (48 mutants) and bound files of about 2 seconds finishes with --jobs 4 within 5 minutes, runs only those 8 files, and the json totals report mutants 48 and wallMs"
+      ]
+    },
+    {
+      "acId": "AC-19902-7",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-7: a class symbol expands to its methods (three operators each), a function-valued initialiser is mutated like a function, and a numeric constant, an object literal and a re-export fail \"no mutable symbol <path#symbol>\""
+      ]
+    },
+    {
+      "acId": "AC-19902-8",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-8: a file-level Code Node docs/x.md is blanked in the scratch worktree (fileBlank): a bound test reading it goes red, giving the PASS line with killed 1/1; a bound test that never reads it exits 4 \"AC-101-5 vacuous: fileBlank on docs/x.md survived 1 bound tests\""
+      ]
+    },
+    {
+      "acId": "AC-19903-1",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19903-1: at a REVIEW: commit for H touching AC-101-1, a passing --record exits 0 and writes rcf/verdicts/<H12>/test-strength.json as TestStrengthReport v1 (head H, scope reviewVerdict, criteria [AC-101-1]); a FAIL run with --record writes the report too and exits 4"
+      ]
+    },
+    {
+      "acId": "AC-19903-2",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19903-2: --record refuses a dirty tree (exit 4) and a BUILD: change to src/x.js after H (exit 4), needs a REVIEW verdict reachable from HEAD (exit 2, with or without --acs or --fbs), writes no file when refused, and accepts a FINALISE: commit inside FINALISE classes after H"
+      ]
+    },
+    {
+      "acId": "AC-19903-3",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19903-3: a Worker-style app (entry worker src/index.js, harness test/harness/**, edge undici) passes the structural check through test/harness/worker.js; a bound test importing src/routes/pay.js fails with \"imports src/routes/pay.js (not the app entry or the harness)\""
+      ]
+    },
+    {
+      "acId": "AC-19903-4",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19903-4: a library (entry module src/index.js) passes the structural check for a test importing the package by its own name or ../src/index.js, and fails it with the imports finding for ../src/internal.js"
+      ]
+    },
+    {
+      "acId": "AC-19903-5",
+      "fbsId": "FBS-236",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19903-5: rcf audit test-strength never deploys, opens no network connection of its own and writes nothing outside rcf/verdicts/<H12>/, with or without --record; a malformed rcf/test-strength.json exits 2 naming the field and runs no test",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project audited end to end, with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project whose runners entry carries its own argv, audited end to end with and without --record, has no new, changed or deleted path in its project tree outside rcf/verdicts/<H12>/, node_modules included",
+        "test/cli/audit-test-strength.test.js::AC-19903-5: a scratch directory that cannot be removed is named in one stderr line \"[warn] test-strength: scratch directory <dir> could not be removed\" (a bound test leaving a directory it made read-only in its TMPDIR, the scratch of the audit)",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest project with a vitest.config.ts, audited with the default argv, gains no path under node_modules, with and without --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest runners entry whose argv ends in \"--\" writes no results cache into the project, with and without --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest runners entry run through sh -c writes nothing into the project, with and without --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a vitest config whose globalSetup writes under node_modules/.cache leaves the project unchanged, with and without --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a nodeTest bound test writing under node_modules and beside the real path of node_modules leaves the project unchanged, with and without --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a cache file the project already holds under node_modules is not rewritten by a bound test run, with and without --record",
+        "test/cli/audit-test-strength.test.js::AC-19903-5: on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming escape.txt and a \"[warn] test-strength: scratch directory <dir> could not be removed\" line for each scratch left",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a bound test writing a new file inside an installed package in the node_modules of an ancestor (node_modules/rootpkg at the repository root, the project its subdirectory pkg) exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: a bound test writing a new file inside an installed package reached through a project node_modules that is a symbolic link to a directory outside the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming the file, and records nothing even with --record",
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-5: on a not-run exit the audit still runs the backstop: a bound test whose title carries what sumTotals returns, so a mutant renames it, and whose every run writes a new file inside node_modules/rootpkg of the repository root, exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming one of those files"
+      ]
+    },
+    {
+      "acId": "AC-20001-1",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree"
+      ]
+    },
+    {
+      "acId": "AC-20001-2",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\""
+      ]
+    },
+    {
+      "acId": "AC-20001-3",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\""
+      ]
+    },
+    {
+      "acId": "AC-20001-4",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse"
+      ]
+    },
+    {
+      "acId": "AC-20001-5",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+      ]
+    },
+    {
+      "acId": "AC-20001-6",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only"
+      ]
+    },
+    {
+      "acId": "AC-20001-7",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named"
+      ]
+    },
+    {
+      "acId": "AC-20001-8",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite"
+      ]
+    },
+    {
+      "acId": "AC-20001-9",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round"
+      ]
+    },
+    {
+      "acId": "AC-20002-1",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20002-1: with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\""
+      ]
+    },
+    {
+      "acId": "AC-20002-2",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\""
+      ]
+    },
+    {
+      "acId": "AC-20002-3",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20002-3: with no --ci-run finalise exits 4 \"ci evidence missing: pass --ci-run <ref>\", with AC-101-2 lacking a Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-2\", and an untouched criterion of the spec with no Code Node does not refuse"
+      ]
+    },
+    {
+      "acId": "AC-20002-4",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20002-4: an earlier BUILD: tests commit touching test/rcf/a.test.js makes finalise exit 4 \"finalise refused: separation FAIL: <s7> BUILD: touches test/rcf/a.test.js (class rcfTest, owned by DEFINE)\", and a Hand: mixed commit refuses the same way with the retired-mixed item"
+      ]
+    },
+    {
+      "acId": "AC-20002-5",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20002-5: over the happy run a spawn seam (RCF_SPAWN_LOG) records only git: finalise never re-runs the suite, test strength or the separation audit as a child process"
+      ]
+    },
+    {
+      "acId": "AC-20003-1",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20003-1: each retired flag (--report, --max-report-age 7, --mode deterministic, --url http://localhost:8787, --allow-pre-merge) makes finalise exit 2 with the no-verify-report line, spawn nothing and write nothing"
+      ]
+    },
+    {
+      "acId": "AC-20003-2",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20003-2: a committed FAIL or malformed VerifyReport under rcf/verify-reports/FBS-001/ leaves finalise output as without it (exit 0, the complete line), and a PASS report never stands in for a missing TEST verdict"
+      ]
+    },
+    {
+      "acId": "AC-20003-3",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20003-3: rcf build mark FBS-001 complete at inProgress exits 4 \"mark refused: complete is written only by rcf build finalise from the recorded verdicts\" leaving the file byte-identical, mark inProgress from notStarted still works, and every backward mark exits 4"
+      ]
+    },
+    {
+      "acId": "AC-20003-4",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20003-4: an amend round on FBS-001 at verified whose ReviewVerdict touches only testOnly criteria exits 0 with \"finalise: FBS-001 verified (unchanged: touched criteria are testOnly)\" and no write, and with an external criterion touched it writes complete"
+      ]
+    },
+    {
+      "acId": "AC-20003-5",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20003-5: across the fixtures of US-20003 no finalise run writes executionStatus verified on a spec that was not verified before it, in any mode or flag combination"
+      ]
+    },
+    {
+      "acId": "AC-19803-7",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key"
+      ]
+    },
+    {
+      "acId": "AC-19702-9",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19702-9: outside a git repository rcf build verdict review and rcf build verdict test each exit 4 with \"verdict refused: not a git repository; a verdict names a committed head\", and in a git fixture rcf build verdict test --tap naming a file that does not exist exits 2 with \"[error] usage --tap <file> cannot be read\"; no file appears under rcf/verdicts/"
+      ]
+    },
+    {
+      "acId": "AC-19803-8",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later"
+      ]
+    },
+    {
+      "acId": "AC-19604-8",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19604-8: with rcf/separation.json {\"classes\": {\"rcfTest\": [\"spec/**\"]}} at the head and a \"BUILD: code\" commit touching spec/a.js, rcf audit separation --base <base> run from the project subdirectory src/ resolves rcf/separation.json at the project root and exits 4 naming spec/a.js with \"(class rcfTest, owned by DEFINE)\", as it does from the project root"
+      ]
+    },
+    {
+      "acId": "AC-19701-7",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19701-7: rcf build verdict review --code MERGE --adequacy FINDINGS --finding \"test:AC-101-1:the bound test survives the noOp mutant\" exits 0 and review.json records findings [{ id \"F-1\", locus \"test\", acId \"AC-101-1\", text \"the bound test survives the noOp mutant\" }]"
+      ]
+    },
+    {
+      "acId": "AC-19703-12",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19703-12: rcf audit separation --help lists the round item \"<sha7> TEST: verdict head <x7> is not the reviewed head <H7>\" as TAC-4154 and AC-19703-5 write it, and no help line names the reviewed head \"<h7>\""
+      ]
+    },
+    {
+      "acId": "AC-19702-10",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-19702-10: an untracked report under rcf/verify-reports/ is not a dirty tree to rcf build verdict test (exit 0, test.json written), and an untracked rcf/verdicts/<H12>/test.json is not one to rcf verify run --hand verifier, while an uncommitted change to src/x.js still refuses each as dirty with exit 4"
+      ]
+    },
+    {
+      "acId": "AC-19902-9",
+      "fbsId": "FBS-237",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19902-9: a declared runner that fails on every bound test makes rcf audit test-strength --acs AC-101-1 exit 2 naming the runner and the bound test, with no mutant run and neither the PASS line nor a FAIL line",
+        "test/cli/audit-test-strength.test.js::AC-19902-9: a bound test red unmutated for want of an environment variable the runner does not set makes rcf audit test-strength --acs AC-101-1 exit 2 naming the default runner and the bound test, with no mutant run and neither result line"
+      ]
+    },
+    {
+      "acId": "AC-20101-1",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-1: with FBS-001 changed after v1.0.0 and FBS-002 unchanged, verify run --release 1.1.0 --since v1.0.0 --url <server> --record exits 0, prints the pass, PASS and recorded lines, writes FBS-001 verified and a ReleaseVerifyReport v1 whose perAc holds AC-101-1 only"
+      ]
+    },
+    {
+      "acId": "AC-20101-2",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-2: a failing e2e case of AC-101-1 exits 4 with the fail and FAIL lines, records verdict FAIL with verifiedFbsIds [] and leaves FBS-001 complete; a failing smoke writes no verified; two in-scope specs with one failing record verifiedFbsIds [\"FBS-001\"]"
+      ]
+    },
+    {
+      "acId": "AC-20101-3",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-3: testOnly-only, unit-bound, inProgress, unflagged and already-verified specs in scope take their listed outcomes, and a notStarted spec or a spec changed only by a flag, a supersession field or its FBS record is not in scope"
+      ]
+    },
+    {
+      "acId": "AC-20101-4",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-4: --record without --release or --since exits 2 with the usage line, --record with no rcf/release-verify.json exits 2 naming the missing smoke, a dirty tree exits 4 with the dirty line, and none writes a file"
+      ]
+    },
+    {
+      "acId": "AC-20101-5",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-5: without --record the PASS fixture run writes no status and nothing under rcf/verify-reports/releases/, leaving every rcf/fbs/ file byte-identical and git status unchanged, and with --out <file> outside the tree only that file appears"
+      ]
+    },
+    {
+      "acId": "AC-20101-6",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-6: over 150 specs and 800 criteria with 12 changed specs holding 40 external criteria bound by one e2e case of about 1 second each, the release Verify runs exactly those 40 cases plus the smoke suite and adds at most 10 seconds of overhead over the case durations"
+      ]
+    },
+    {
+      "acId": "AC-20101-7",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file"
+      ]
+    },
+    {
+      "acId": "AC-20102-1",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20102-1: a cold --package . release Verify runs the bound test with HOME and the npm cache inside the run scratch directory under the OS temp directory, a fresh cache, no FIXTURE_LEAK, and records target kind package with name, version, sha256 and cold true"
+      ]
+    },
+    {
+      "acId": "AC-20102-2",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20102-2: --offline in release mode exits 2 \"[error] usage --offline cannot install cold\", two targets or none exit 2 \"[error] usage give exactly one target: --url, --artefact or --package\", and an artefact whose dependency resolves nowhere exits 1 naming the install command and writes no report"
+      ]
+    },
+    {
+      "acId": "AC-20102-3",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20102-3: a user npmrc at the caller HOME setting an unreachable registry is ignored by the cold release Verify, which installs and runs with the default registry configuration"
+      ]
+    },
+    {
+      "acId": "AC-20102-4",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20102-4: a cold release Verify writes in the project only under rcf/verify-reports/releases/ and rcf/fbs/ (with --record), leaves no tarball, node_modules or lockfile change, and removes its scratch directory"
+      ]
+    },
+    {
+      "acId": "AC-20103-1",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20103-1: with rcf/verify-catalog.json and a local server, verify run --url <server> --fbs FBS-001 --mode deterministic (with the flags 0.36.x requires) still runs as an ad hoc probe with its 0.36.x output and exit codes and leaves every rcf/fbs/ file byte-identical"
+      ]
+    },
+    {
+      "acId": "AC-20103-2",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20103-2: --record with --mode deterministic or --mode agentScreenshotCritique exits 2 \"[error] usage release Verify runs the bound E2E tests; --mode probes are ad hoc only\" and runs nothing"
+      ]
+    },
+    {
+      "acId": "AC-20103-3",
+      "fbsId": "FBS-238",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/verify-release.test.js::AC-20103-3: the PASS fixture of the release story has no catalog and no probe field and still records verified, and a spawn seam over that run records no agent CLI"
+      ]
+    },
+    {
+      "acId": "AC-20201-1",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+      ]
+    },
+    {
+      "acId": "AC-20201-2",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file"
+      ]
+    },
+    {
+      "acId": "AC-20201-3",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\""
+      ]
+    },
+    {
+      "acId": "AC-20201-4",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\""
+      ]
+    },
+    {
+      "acId": "AC-20201-5",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles"
+      ]
+    },
+    {
+      "acId": "AC-20201-6",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line"
+      ]
+    },
+    {
+      "acId": "AC-20201-7",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command"
+      ]
+    },
+    {
+      "acId": "AC-20201-8",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing"
+      ]
+    },
+    {
+      "acId": "AC-20202-1",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20202-1: bundle FBS-001 --acs AC-101-2,AC-101-5 on a complete six-criterion spec emits json with round amend and touchedAcIds listing only those two criteria with their test cases and Code Nodes, and md titled \"Amend round on FBS-001: 2 criteria\" whose runbook starts at DEFINE"
+      ]
+    },
+    {
+      "acId": "AC-20202-2",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20202-2: --acs on an inProgress spec exits 2, an AC the spec does not scope exits 3 with the brokenReference line, and a retired AC exits 2 naming its successor"
+      ]
+    },
+    {
+      "acId": "AC-20202-3",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20202-3: an amend bundle on a verified spec is emitted the same way, --next with --acs exits 2, and --next over only complete or verified specs prints \"Next actionable: none\" and never selects an amend round"
+      ]
+    },
+    {
+      "acId": "AC-20202-4",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20202-4: an amend bundle names no criterion of FBS-001 outside --acs in md or json and leaves every rcf/fbs/ file byte-identical"
+      ]
+    },
+    {
+      "acId": "AC-20202-5",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20202-5: an amend bundle naming 8 criteria of a 152-criterion complete spec lists 8 criteria in json and is no more than 1.2 times the size of one naming 8 criteria of a 10-criterion spec"
+      ]
+    },
+    {
+      "acId": "AC-20203-1",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20203-1: with rcf/define/backstop.json (fromBuildOrder 1) and a complete-not-verified spec above it, bundle --next with a green record exits 0, emits the bundle and carries exactly one retired-file warn line"
+      ]
+    },
+    {
+      "acId": "AC-20203-2",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20203-2: rcf build backstop adopt --from FBS-001 exits 2 with the retired-adopt usage line and writes no file"
+      ]
+    },
+    {
+      "acId": "AC-20203-3",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20203-3: bundle --next --allow-unverified \"hotfix\" --base-suite <file> exits 2 with the retired-flag usage line and emits no bundle"
+      ]
+    },
+    {
+      "acId": "AC-20203-4",
+      "fbsId": "FBS-239",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20203-4: across the runs of this story, an existing rcf/define/backstop.json stays byte-identical and no command creates one"
+      ]
+    },
+    {
+      "acId": "AC-19904-1",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-1: a .ts project with entry src/index.ts and no runner, AC-101-1 bound to test/totals.test.ts::sums the line items (node:test in one describe, importing ../src/index.ts) and claiming src/totals.ts#sumTotals, exits 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1)\", and likewise under a tsx runners entry and through a NodeNext .js specifier"
+      ]
+    },
+    {
+      "acId": "AC-19904-2",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-2: a vitest runners entry with AC-101-1 bound to test/cart.test.ts::cart > applies a percentage discount, importing ../src/index and claiming src/cart.ts#applyDiscount, exits 0, structural 1/1, both body mutants killed; a pointer naming a vitest describe title matches as a prefix of the title path and passes the same way"
+      ]
+    },
+    {
+      "acId": "AC-19904-3",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright pointer naming a describe title runs the tests of that describe through the describe-prefix form (followed by a space) and no test of a sibling describe whose title extends it, exit 0",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest pointer naming the bare leaf title of a test nested two describes deep runs that test through the leaf form anchored at a title boundary, exit 0 with the PASS line",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest leaf pointer runs its own test and no test of the same describe whose longer title ends in the same words, exit 0 with the PASS line",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a vitest runners entry whose argv names its own --fsModuleCachePath runs, exit 0 with the PASS line, and the project gains nothing",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4"
+      ]
+    },
+    {
+      "acId": "AC-19904-4",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-4: Code Nodes src/Badge.tsx#badgeLabel, src/Counter.vue#clampStart (in <script lang=\"ts\">) and file-level src/Counter.vue under a vitest runners entry exit 0, each symbol with three mutants and the SFC one fileBlank",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-4: a .vue Code Node whose SFC holds a <script src> block makes the criterion BLOCKED, reason \"TEST_STRENGTH_UNSUPPORTED\", detail \"<file>:<line>:<col>: <construct>\" at the block, exit 5",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-4: a <script data-src=\"x\" lang=\"ts\"> block declaring src/Counter.vue#clampStart is read (attributes other than src ignored): exit 0, three mutants on the symbol"
+      ]
+    },
+    {
+      "acId": "AC-19904-5",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+      ]
+    },
+    {
+      "acId": "AC-19904-6",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+      ]
+    },
+    {
+      "acId": "AC-19904-7",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: the detail names the construct strip mode refused at its own line and column: a parameter property private y on line 3 behind a class field private x, and an enum behind a declare enum",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: on a tab-indented line the detail places a parameter property at its column counted with a tab as one character and names it: private y on line 3 behind a tab-indented class field, 3:22, exit 5",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: on a tab-indented line the detail places an enum at its column counted with a tab as one character and names it: enum B on line 2, 2:9, exit 5",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: an enum after an astral character on its line is placed at its UTF-16 column and named: a string literal of U+1F680 then export enum E { A }, enum E at 1:31, exit 5",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a namespace after an astral character is placed and named: a string literal of U+1F680 then namespace N { ... }, namespace N at 1:24, exit 5",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5",
+        "test/cli/audit-test-strength-ts.test.js::AC-19904-7: the column counts UTF-16 units: an emoji outside the Basic Multilingual Plane counts two: a string literal of U+1F600 then const b = ;, the gap at 1:34, exit 5"
+      ]
+    },
+    {
+      "acId": "AC-19901-9",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse (rcf/test-strength.json entry src/index.ts holding an enum on line 2) exits 2 with a stderr line starting \"test-strength: entry point unreadable\" and the detail",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point of an extension the views cannot read (rcf/test-strength.json entry bin/app.py) exits 2 with a stderr line starting \"test-strength: entry point unreadable\" and the detail naming the file",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with \"test-strength: entry point unreadable\" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a syntax error after a character node prints two columns wide is placed at its column: src/a.ts holding a string literal of U+2705 then const b = ;, the gap at 1:33, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a syntax error after a combining mark is placed at its column: src/a.ts holding a string literal of U+0E01 U+0E31 then const b = ;, the gap at 1:34, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a file whose lines end in a lone CR places the error on its line and column: src/a.ts of three CR-ended lines, the gap of the tab-indented const b = ; at 3:12, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a byte order mark, a form feed and a vertical tab count one column each: the gap of const b = ; at 1:19 after a byte order mark, 1:31 after a form feed and 1:31 after a vertical tab, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an unterminated template literal is placed where it opens: src/a.ts whose line 2 opens a template literal never closed, 2:18, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an unterminated block comment is placed where it opens: src/a.ts whose line 2 opens a block comment never closed, 2:1, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a lone zero width joiner is placed where node places its refusal: src/a.ts holding export const a = 1; U+200D const b = 2; at 1:21 (2:21 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:21, exit 5 and exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an Arabic-Indic digit starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0663; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a refusal whose message quotes a non-ASCII identifier is placed where node places it: src/a.ts holding U+00FC: U+00FC: while (true) break; (the label declared twice) at 1:4 (2:4 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:4, exit 5 and exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: when node names a line and no column, the input ending after an operator with nothing open, the refusal is placed at that line, column 1: src/a.ts ending in export const b = on line 2 at 2:1 (with CRLF line ends too, and on line 3 at 3:1), and the entry point src/intervals.ts at 2:1, exit 5 and exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: when node names a line and no column, the input ending after an operator with no line break, the refusal is placed at that line, column 1: src/a.ts holding export const a = 1 + at 1:1, and on line 2 at 2:1, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two zero width spaces before the token node refuses after a binary operator are no column: src/a.ts holding const t = 1 + U+200B U+200B; places the refused ; at 1:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:17, exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a zero width space before the token node refuses after * is no column: src/a.ts holding const total = cost * U+200B; places the refused ; at 1:23 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:23, exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a byte order mark before the token node refuses after || is no column: src/a.ts holding const okay = lefts || U+FEFF; places the refused ; at 1:24 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:24, exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a zero width space before a refused closing parenthesis after + is no column: src/a.ts holding g(1 + U+200B); places the refused ) at 1:8 with no withheld column line, exit 5, and the entry point src/intervals.ts at 1:8, exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two byte order marks before the token node refuses after - on line 2 after a CRLF line are no column: src/a.ts holding export const z = 0; CRLF const d = 9 - U+FEFF U+FEFF; places the refused ; at 2:17 with no withheld column line, exit 5, and the entry point src/intervals.ts at 2:17, exit 2",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator + is placed at the refused token: src/a.ts holding const t = a + U+200B; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator - is placed at the refused token: src/a.ts holding const t = a - U+200B; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator * is placed at the refused token: src/a.ts holding const t = a * U+200B; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator / is placed at the refused token: src/a.ts holding const t = a / U+200B; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator % is placed at the refused token: src/a.ts holding const t = a % U+200B; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator ** is placed at the refused token: src/a.ts holding const t = a ** U+200B; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator == is placed at the refused token: src/a.ts holding const t = a == U+200B; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator != is placed at the refused token: src/a.ts holding const t = a != U+FEFF; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator < is placed at the refused token: src/a.ts holding const t = a < U+FEFF; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator > is placed at the refused token: src/a.ts holding const t = a > U+FEFF; at 1:16 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator && is placed at the refused token: src/a.ts holding const t = a && U+FEFF; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator || is placed at the refused token: src/a.ts holding const t = a || U+FEFF; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the binary operator ?? is placed at the refused token: src/a.ts holding const t = a ?? U+FEFF; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a tie after the assignment operator = is placed at the refused token: src/a.ts holding let t = 0; t = U+FEFF; at 1:17 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a combining mark at an operand position is the construct node refuses: src/a.ts holding let a = 1 + U+0301; places the refusal at 1:13 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a zero width space node passes over, then a combining mark at an operand position: src/a.ts holding let a = 1 + U+200B U+0301; places the refusal at the combining mark, 1:14, with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks after * are placed at the first: src/a.ts holding let a = 2 * U+0301 U+0301; places the refusal at 1:13 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: three zero width joiners where the probes of node disagree are withheld: src/a.ts holding export const a = 1 U+200D U+200D U+200D; reads 1:20, the caret of node plus 1, with one withheld column line naming the probes disagree, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an escape character in a string, then a refused token after an operator, is withheld: src/a.ts holding export const s = quote U+001B quote; const b = 1 + ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an escape and an operating system command sequence in a string, then a refused token, is withheld: src/a.ts holding export const s = quote U+001B ]0;t U+0007 quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: an escape character in a string, then a refused token (esc-unclosed), is withheld: src/a.ts holding export const s = quote U+001B quote; const b = ; reads 1:19, the caret of node plus 1, with one withheld column line naming that the caret does not move across the tie, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks node refuses are placed at the first (comb-comb): src/a.ts holding export const a = U+0301 U+0301; places the refusal at 1:18 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two zero width joiners node refuses are placed at the first (zwj-zwj): src/a.ts holding export const a = 1 U+200D U+200D; places the refusal at 1:20 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a byte order mark node passes over, then two combining marks: src/a.ts holding export const a = U+FEFF U+0301 U+0301; places the refusal at the first combining mark, 1:19, with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks on line 2 after a CRLF line are placed at the first: src/a.ts holding export const z = 0; CRLF export const a = U+0301 U+0301; places the refusal at 2:18 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: two combining marks in a .vue script setup block are placed at the first, counted in the .vue file: src/a.vue holding a template line, a script setup lang ts line and export const a = U+0301 U+0301; places the refusal at 3:18 with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a form feed node passes over, then a zero width joiner it refuses (x-ff-zwj): src/a.ts holding let a = x U+000C U+200D; places the refusal at the joiner, 1:11, with no withheld column line, exit 5",
+        "test/cli/audit-test-strength.test.js::AC-19901-9: a repeated label of three Hangul jungseong fillers is placed at the second label: src/a.ts holding U+1160 U+1160 U+1160: U+1160 U+1160 U+1160: while (true) break; places the refusal at 1:6 with no withheld column line, exit 5"
+      ]
+    },
+    {
+      "acId": "AC-19903-6",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-ts.test.js::AC-19903-6: a bound test writing a file at an absolute path in the project exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it, and records nothing even with --record"
+      ]
+    },
+    {
+      "acId": "AC-19903-7",
+      "fbsId": "FBS-242",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength.test.js::AC-19903-7: on SIGINT or SIGTERM while a bound test runs, rcf audit test-strength kills the process group of the bound test run, removes its scratch directory with its working copies, leaves no entry in .git/worktrees of the project and exits 130 for SIGINT and 143 for SIGTERM",
+        "test/cli/audit-test-strength.test.js::AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process in the process group of each bound test run, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the .git of the project as it was, and exits 130 for SIGINT and 143 for SIGTERM"
+      ]
+    },
+    {
+      "acId": "AC-20401-1",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-1: rcf guidance build-cycle carries the five stage headings in order, TEST running the full RCF suite locally with nothing deployed, FINALISE before the merge writing complete, and a VERIFY (outside the build cycle) section with rcf verify run --record writing verified"
+      ]
+    },
+    {
+      "acId": "AC-20401-2",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-2: the Rounds section of rcf guidance build-cycle states, each in its own sentence, that a failed REVIEW (FINDINGS) or TEST closes the round, that the next round starts at DEFINE, that stage order is monotonic within a round, and that Finalise judges the last round only"
+      ]
+    },
+    {
+      "acId": "AC-20401-3",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-3: the managed block names the five stages with their prefixes, carries rcf build finalise <fbs-id> --ci-run <ref> writing complete before the merge, states that verified is written only by a release Verify, and its RULE 13 names merging before Finalise has written complete and not verified on the PR branch"
+      ]
+    },
+    {
+      "acId": "AC-20401-4",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-4: the closing runbook of rcf build bundle FBS-001 --base-suite <green> --format md lists the five stages in order with dispatch names, commit prefixes and the round commands, ending with the Verify-outside-the-round line, and --format json carries the same in completionContract"
+      ]
+    },
+    {
+      "acId": "AC-20401-5",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-5: no guidance topic, no part of the managed block and no bundle runbook (md or json) carries a 0.36.x verify step, a finalise report flag, Finalise writing verified, Hand: mixed, Separation-Reason, Hand: outside the 0.37.x transition, or a Build waiting for verified"
+      ]
+    },
+    {
+      "acId": "AC-20401-6",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-6: the Finalise line of rcf guidance overview reads as a pre-merge step that writes complete with no \"CI green, merge, then record\", and each stage section of rcf guidance build-cycle-playbook names the role that does the work of that stage, the playbook never using hand as a process concept"
+      ]
+    },
+    {
+      "acId": "AC-20401-7",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed block gains back the 0.36.1 Test-stage line, rcf doctor reports the block drifted with its drift row and exit code, and a fresh rcf init project reads clean"
+      ]
+    },
+    {
+      "acId": "AC-20401-8",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-8: the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone"
+      ]
+    },
+    {
+      "acId": "AC-20401-9",
+      "fbsId": "FBS-241",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/guidance/build-cycle-0-37.test.js::AC-20401-9: every sentence of rcf guidance build-cycle naming rcf audit separation as a check judges each commit by its stage prefix against the paths it touches, and none says the audit judges the Hand: trailer of a commit"
+      ]
+    }
+  ],
+  "smoke": [
+    {
+      "tsId": "TS-279",
+      "result": "pass",
+      "tests": [
+        "test/define/verification-end-state.test.js::AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete",
+        "test/define/verification-end-state.test.js::AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete",
+        "test/define/verification-end-state.test.js::AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown",
+        "test/define/verification-end-state.test.js::AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap",
+        "test/define/verification-end-state.test.js::AC-19803-6: a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows",
+        "test/cli/finalise-verdicts.test.js::AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key",
+        "test/cli/finalise-verdicts.test.js::AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later"
+      ]
+    },
+    {
+      "tsId": "TS-291",
+      "result": "pass",
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file",
+        "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\"",
+        "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\"",
+        "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles",
+        "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line",
+        "test/cli/build-base-suite.test.js::AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command",
+        "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing",
+        "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+      ]
+    },
+    {
+      "tsId": "TS-285",
+      "result": "pass",
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree",
+        "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\"",
+        "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\"",
+        "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse",
+        "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0",
+        "test/cli/finalise-verdicts.test.js::AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only",
+        "test/cli/finalise-verdicts.test.js::AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named",
+        "test/cli/finalise-verdicts.test.js::AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite",
+        "test/cli/finalise-verdicts.test.js::AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round"
+      ]
+    },
+    {
+      "tsId": "TS-269",
+      "result": "pass",
+      "tests": [
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\"",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\"",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-3: a commit with no stage prefix exits 4 with \"<s7> no stage prefix\" as its only item, also when it touches only Markdown outside rcf/",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-4: seven malformed prefixes each fail exit 4, each with the item \"<s7> malformed stage prefix\" naming its first token in double quotes, then \"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\"",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-5: a bad --base ref exits 2 \"separation: bad ref <ref>\", outside a git repository exits 1 \"separation: not a git repository\", a shallow clone exits 2 with the shallow line, each with nothing on stdout",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-6: --json over the five-commit branch plus a clean \"FINALISE: merge main\" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-10: a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as the only item of that commit"
+      ]
+    }
+  ],
+  "testOnlyOnly": [],
+  "unflagged": [],
+  "verdict": "PASS",
+  "verifiedFbsIds": [
+    "FBS-219",
+    "FBS-220",
+    "FBS-225",
+    "FBS-226",
+    "FBS-230",
+    "FBS-224",
+    "FBS-236",
+    "FBS-237",
+    "FBS-238",
+    "FBS-239",
+    "FBS-242",
+    "FBS-241"
+  ],
+  "startedAt": "2026-11-01T11:19:43.781Z",
+  "finishedAt": "2026-11-01T11:31:38.670Z",
+  "node": "v24.17.0"
+}
