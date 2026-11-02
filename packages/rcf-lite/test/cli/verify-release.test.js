@@ -378,6 +378,38 @@ test('AC-20101-8: a bound e2e case throwing "harness: node sits beside an agent 
   assert.equal(per('AC-103-1').result, 'pass');
 });
 
+// AC-20101-8's third reason (the stage-keeper's ruling on the stopped
+// DEFINE): FBS-001's bound e2e case ends its runner's process with exit
+// code 1 and prints nothing, so its runner's TAP reports no case for the
+// pointer (only the file's own "not ok" line), no diagnostic of the case,
+// and an empty stderr. Red at the round E DEFINE head, where the perAc
+// row carries the scope's blocked reason (null on a run row).
+async function noResultFixture(t) {
+  const f = await release(t, [{ id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] }], {
+    change: (d) => {
+      amend(d, 'US-101', 'AC-101-1');
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { process.exit(1); });\n`);
+    },
+  });
+  const file = 'test/rcf/us-101.test.js';
+  // The runner as the release Verify runs it, read here: its exit code, no case for the pointer, an empty stderr.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', `--test-name-pattern=(?:^| )${caseName('AC-101-1')}$`, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the case's run fails\n${probe.stdout}${probe.stderr}`);
+  assert.ok(!probe.stdout.includes(caseName('AC-101-1')), `the runner reports no case for the pointer, so no diagnostic of it\n${probe.stdout}`);
+  assert.equal(probe.stderr.trim(), '', `the runner prints no stderr line\n${probe.stderr}`);
+  return { ...f, pointer: `${file}::${caseName('AC-101-1')}`, code: probe.code };
+}
+
+test('AC-20101-8: a failing bound e2e case with neither a TAP diagnostic nor a stderr line gives its perAc row result "fail" with the reason "no result for <pointer> (exit <code>)"', async (t) => {
+  const { dir, pointer, code } = await noResultFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per.reason, `no result for ${pointer} (exit ${code})`, 'a failing case with neither a TAP diagnostic nor a stderr line carries "no result for <pointer> (exit <code>)"');
+});
+
 test('AC-20101-9: the line after each fail line reads "  reason: <reason>" and pass lines are unchanged', async (t) => {
   const { dir, lastErr } = await reasonFixture(t);
   const r = await verify(dir, releaseArgs());
