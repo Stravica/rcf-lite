@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-11-02T21:19:38.657Z",
+  "updatedAt": "2026-11-02T23:52:35.271Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -59,7 +59,7 @@
     },
     {
       "id": "AC-19903-8",
-      "description": "[happy] Given a fixture pnpm workspace whose rcf project is its root and a criterion bound to a node:test test in `apps/api/test/` importing a package installed only in `apps/api/node_modules`, when `rcf audit test-strength --acs <id>` runs, then the unmutated run is green and it exits 0 with every mutant killed (stdout the PASS line, no \"the unmutated run is red\" line).",
+      "description": "[happy] Given a fixture pnpm workspace whose rcf project is its root and a criterion bound to a node:test test in `apps/api/test/` importing a package installed only in `apps/api/node_modules`, when `rcf audit test-strength --acs <id>` runs over a working copy whose node_modules links follow TAC-4155's link set, then the unmutated run is green and it exits 0 with every mutant killed (stdout the PASS line, no \"the unmutated run is red\" line).",
       "testable": true,
       "verification": "external"
     },
