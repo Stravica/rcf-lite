@@ -335,6 +335,65 @@ test('AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 "[error
   assert.equal(porcelain(dir), '', 'writes no file');
 });
 
+// FBS-238 amend round (round E, the stage-keeper's ruling Q2 A): the
+// reason of each failing criterion. The fixture: FBS-001's bound e2e case
+// throws a host guard's message; FBS-002's bound e2e file is gone at HEAD,
+// so its runner reports no case and no diagnostic and its stderr is all
+// there is; FBS-003's case passes. Red at the round E DEFINE head, where
+// every perAc row carries the scope's blocked reason (null on a run row)
+// and no reason line is printed.
+const GUARD = 'harness: node sits beside an agent CLI in /opt/fixture/bin';
+const REASON_SPECS = [
+  { id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] },
+  { id: 'FBS-002', status: 'complete', us: 'US-102', criteria: [{ id: 'AC-102-1', flag: 'external', level: 'e2e' }] },
+  { id: 'FBS-003', status: 'complete', us: 'US-103', criteria: [{ id: 'AC-103-1', flag: 'external', level: 'e2e' }] },
+];
+async function reasonFixture(t) {
+  const f = await release(t, REASON_SPECS, {
+    change: (d) => {
+      for (const [us, ac] of [['US-101', 'AC-101-1'], ['US-102', 'AC-102-1'], ['US-103', 'AC-103-1']]) amend(d, us, ac);
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { throw new Error(${JSON.stringify(GUARD)}); });\n`);
+      git(d, 'rm', '-q', 'test/rcf/us-102.test.js');
+    },
+  });
+  // The runner's own last stderr line for the gone file, read here as the release Verify's runner meets it.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', 'test/rcf/us-102.test.js'], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the gone file's run fails\n${probe.stdout}${probe.stderr}`);
+  assert.ok(!/^not ok /m.test(probe.stdout), `the gone file's run reports no case and no diagnostic\n${probe.stdout}`);
+  const lastErr = probe.stderr.split('\n').map((l) => l.trim()).filter(Boolean).pop();
+  assert.ok(lastErr, `the gone file's run prints a stderr line\n${probe.stderr}`);
+  return { ...f, lastErr };
+}
+
+test('AC-20101-8: a bound e2e case throwing "harness: node sits beside an agent CLI in <dir>" gives its perAc row result "fail" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner', async (t) => {
+  const { dir, lastErr } = await reasonFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = (id) => JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === id);
+  assert.equal(per('AC-101-1').result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per('AC-101-1').reason, GUARD, 'the thrown message is the reason');
+  assert.equal(per('AC-102-1').result, 'fail', `AC-102-1 fails\n${r.stdout}`);
+  assert.equal(per('AC-102-1').reason, lastErr, 'a failing case with no diagnostic carries the runner\'s last stderr line');
+  assert.equal(per('AC-103-1').result, 'pass');
+});
+
+test('AC-20101-9: the line after each fail line reads "  reason: <reason>" and pass lines are unchanged', async (t) => {
+  const { dir, lastErr } = await reasonFixture(t);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const after = (line) => {
+    const i = out.indexOf(line);
+    assert.ok(i >= 0, `stdout carries "${line}"\n${r.stdout}`);
+    return out[i + 1];
+  };
+  assert.equal(after('AC-101-1 FBS-001 fail'), `  reason: ${GUARD}`, `the line after AC-101-1's fail line\n${r.stdout}`);
+  assert.equal(after('AC-102-1 FBS-002 fail'), `  reason: ${lastErr}`, `the line after AC-102-1's fail line\n${r.stdout}`);
+  assert.ok(!after('AC-103-1 FBS-003 pass').startsWith('  reason:'), `the pass line stands as it is, no reason line after it\n${r.stdout}`);
+  assert.ok(out.some((l) => l.startsWith('verify: release 1.1.0 FAIL 1/3 external criteria, smoke 1/1 ')), `the FAIL line\n${r.stdout}`);
+});
+
 // ---------------------------------------------------------------- US-20102
 
 // The fixture package: name fixture-app, version 1.1.0, shipping its rcf/

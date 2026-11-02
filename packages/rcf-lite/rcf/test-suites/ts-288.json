@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-10-24T17:50:39.928Z",
+  "updatedAt": "2026-11-02T20:19:29.120Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -64,6 +64,20 @@
       "description": "--since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file"
+    },
+    {
+      "id": "TC-288-a-bound-e2e-case-throwing-harness-node",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+    },
+    {
+      "id": "TC-288-the-line-after-each-fail-line-reads",
+      "acId": "AC-20101-9",
+      "description": "the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-9: the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged"
     }
   ],
   "status": "draft"
