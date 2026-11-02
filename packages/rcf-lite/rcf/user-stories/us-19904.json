@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:28:56.301Z",
-  "updatedAt": "2026-11-02T20:09:03.398Z",
+  "updatedAt": "2026-11-02T21:19:05.082Z",
   "asA": "verifier at the TEST stage on a TypeScript product",
   "iWant": "test strength to run each bound test through its declared runner and read that runner's report",
   "soThat": "TypeScript criteria get the proof JavaScript criteria get",
@@ -63,6 +63,12 @@
     {
       "id": "AC-19904-9",
       "description": "[happy] Given a nodeTest runners entry whose argv starts with a bare `tsx` installed in the test's package, when the audit runs from a shell whose PATH holds no `node_modules/.bin`, then the test runs (exit 0 with the PASS line, no \"cannot run the bound tests\" line).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-10",
+      "description": "[failure] Given an `rcf/test-strength.json` whose `runners` entry at index `<i>` carries a `\"cwd\"` key whose value is anything other than the string `\"project\"` (another string such as `\"package\"`, `null`, a number), when `rcf audit test-strength` runs, then it exits 2 as a malformed config with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" that names `runners[<i>].cwd`, as the audit names the other fields of a malformed `runners` entry (exit 2 and that stderr line).",
       "testable": true,
       "verification": "external"
     }

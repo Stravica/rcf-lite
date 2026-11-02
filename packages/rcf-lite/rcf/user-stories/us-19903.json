@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-11-02T20:09:02.787Z",
+  "updatedAt": "2026-11-02T21:19:38.657Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -77,7 +77,7 @@
     },
     {
       "id": "AC-19903-11",
-      "description": "[must-not] Given an rcf project in `packages/a` and a sibling `packages/b` with its own node_modules, when a bound test writes under `packages/b/node_modules` through the copy's links, then the audit exits 2 with \"test-strength: a bound test run wrote <path> in the project\".",
+      "description": "[must-not] Given an rcf project in `packages/a` and a sibling `packages/b` with its own node_modules, when a bound test writes under `packages/b/node_modules` through the copy's links, then the audit exits 2 with \"test-strength: a bound test run wrote <path> in the project\", `<path>` relative to the rcf project root (`../b/node_modules/bpkg/w.txt` for a write to `packages/b/node_modules/bpkg/w.txt`).",
       "testable": true,
       "verification": "external"
     },

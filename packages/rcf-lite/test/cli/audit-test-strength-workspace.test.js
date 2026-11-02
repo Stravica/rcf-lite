@@ -4,12 +4,13 @@
 // bound test runs at its package directory (the nearest directory at HEAD
 // from the test file up to the rcf project root holding a package.json,
 // else the rcf project root) with <file> relative to it, whatever its
-// runner kind; a runners entry may pin "cwd": "project"; a bare tsx in a
-// nodeTest argv resolves through its package's node_modules/.bin; the
-// backstop covers every linked node_modules; and the help keeps its
-// backstop sentence.
+// runner kind; a runners entry may pin "cwd": "project", and any other
+// cwd value is a malformed config; a bare tsx in a nodeTest argv resolves
+// through its package's node_modules/.bin; the backstop covers every
+// linked node_modules, naming a path relative to the rcf project root;
+// and the help keeps its backstop sentence.
 //
-// Criteria: 7, all external. Each test drives bin/rcf.js audit
+// Criteria: 8, all external. Each test drives bin/rcf.js audit
 // test-strength (or --help) as a child process over a scratch copy of a
 // committed fixture world under test/fixtures/round-e/ (ws-two, the
 // pnpm layout: package dependencies not hoisted, a workspace package
@@ -261,7 +262,7 @@ test('AC-19903-11: a bound test writing under a sibling package node_modules thr
   const r = await strength(w.dir, ['--acs', 'AC-101-1']);
   const m = lines(r.stderr).map((l) => /^test-strength: a bound test run wrote (.+) in the project$/.exec(l)).find(Boolean);
   assert.ok(m, `stderr carries "test-strength: a bound test run wrote <path> in the project"\n${shown(r)}`);
-  assert.ok(m[1].split(sep).join('/').endsWith('node_modules/bpkg/w.txt'), `the line names w.txt inside packages/b/node_modules/bpkg\n${m[0]}`);
+  assert.ok(m[1].split(sep).join('/').endsWith('../b/node_modules/bpkg/w.txt'), `the line names w.txt relative to the rcf project root (packages/a): ../b/node_modules/bpkg/w.txt\n${m[0]}`);
   assert.equal(r.code, 2, `a bound test run wrote under the sibling package's node_modules: exit 2\n${shown(r)}`);
 });
 
@@ -315,5 +316,24 @@ test('AC-19904-9: a nodeTest runners entry whose argv starts with a bare tsx ins
   noCannotRun(r);
   assert.equal(r.code, 0, `the bare tsx resolves through apps/api/node_modules/.bin and the test runs: exit 0\n${shown(r)}`);
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
+});
+
+// Red at the round E DEFINE head, where rcf/test-strength.json has no
+// runners cwd: the field is ignored and the bound test runs green.
+test('AC-19904-10: a runners entry whose "cwd" is anything other than "project" ("package", null, 1) exits 2 with a stderr line starting "test-strength: malformed rcf/test-strength.json" naming runners[<i>].cwd', async (t) => {
+  const file = 'apps/api/test/root.test.mjs';
+  for (const cwd of ['package', null, 1]) {
+    const w = await wsTwo(t, {
+      acs: ['AC-101-1'],
+      config: { entry: ENTRY_TWO, harness: HARNESS, runners: [{ files: ['test/**'], kind: 'nodeTest' }, { files: [file], kind: 'nodeTest', cwd }] },
+      nodes: [['apps/api/src/index.js#readRootPort', ['AC-101-1']]],
+      bind: [['AC-101-1', file, 'R1 readRootPort reads from the rcf project root']],
+    });
+    inPlace(w.dir, file);
+    const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+    const line = lines(r.stderr).find((l) => l.startsWith('test-strength: malformed rcf/test-strength.json'));
+    assert.ok(line && line.includes('runners[1].cwd'), `"cwd": ${q(cwd)}: a stderr line starting "test-strength: malformed rcf/test-strength.json" names runners[1].cwd\n${shown(r)}`);
+    assert.equal(r.code, 2, `"cwd": ${q(cwd)}: a malformed rcf/test-strength.json, exit 2\n${shown(r)}`);
+  }
 });
 
