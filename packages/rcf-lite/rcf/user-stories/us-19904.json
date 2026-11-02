@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:28:56.301Z",
-  "updatedAt": "2026-11-02T21:19:05.082Z",
+  "updatedAt": "2026-11-02T23:54:32.493Z",
   "asA": "verifier at the TEST stage on a TypeScript product",
   "iWant": "test strength to run each bound test through its declared runner and read that runner's report",
   "soThat": "TypeScript criteria get the proof JavaScript criteria get",
@@ -62,7 +62,7 @@
     },
     {
       "id": "AC-19904-9",
-      "description": "[happy] Given a nodeTest runners entry whose argv starts with a bare `tsx` installed in the test's package, when the audit runs from a shell whose PATH holds no `node_modules/.bin`, then the test runs (exit 0 with the PASS line, no \"cannot run the bound tests\" line).",
+      "description": "[happy] Given a nodeTest runners entry whose argv starts with a bare `tsx` installed in the test's package, or the legacy `runner` whose argv starts with a bare `tsx` installed only in the repository root's `node_modules/.bin`, when the audit runs from a shell whose PATH holds no `node_modules/.bin`, then the test runs (exit 0 with the PASS line, no \"cannot run the bound tests\" line). Every `node_modules/.bin` from the test's package directory up to the repository root joins the PATH of its bound test run, nearest first, ahead of the inherited PATH, for every runner kind (a nodeTest, vitest or playwright `runners` entry and the legacy `runner`) and for a `runners` entry with `\"cwd\": \"project\"`.",
       "testable": true,
       "verification": "external"
     },

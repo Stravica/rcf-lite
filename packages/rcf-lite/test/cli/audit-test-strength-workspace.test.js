@@ -5,8 +5,10 @@
 // from the test file up to the rcf project root holding a package.json,
 // else the rcf project root) with <file> relative to it, whatever its
 // runner kind; a runners entry may pin "cwd": "project", and any other
-// cwd value is a malformed config; a bare tsx in a nodeTest argv resolves
-// through its package's node_modules/.bin; the backstop covers every
+// cwd value is a malformed config; every node_modules/.bin from the test's
+// package up to the repository root joins PATH, so a bare tsx resolves
+// through its package's .bin under a nodeTest entry and through the
+// repository root's .bin under the legacy runner; the backstop covers every
 // linked node_modules, naming a path relative to the rcf project root;
 // and the help keeps its backstop sentence.
 //
@@ -26,7 +28,8 @@
 // audit's. Every run passes PATH from toolPath(['node', 'sh']), node's
 // directory first, and no node_modules/.bin. Red at the round E DEFINE
 // head: 0.39.0 links only the node_modules of the rcf project and its
-// ancestors and runs every bound test at the rcf project root. Imports:
+// ancestors, runs every bound test at the rcf project root, and puts a
+// node_modules/.bin on PATH for vitest and playwright only. Imports:
 // Node builtins and test/_harness/ only (GR-40).
 
 import { test } from 'node:test';
@@ -82,8 +85,10 @@ const link = (target, path) => { mkdirSync(dirname(path), { recursive: true }); 
 // root store only, reached from apps/api/node_modules/ms by a relative
 // link; @ws/lib a relative link to apps/lib inside a real scope
 // directory; a stand-in tsx (it runs node with the same arguments) in
-// apps/api/node_modules/.bin. Nothing of ms or @ws/lib at the root.
-function pnpmLayout(dir) {
+// apps/api/node_modules/.bin, or in `tsxBin` (the repository root's
+// node_modules/.bin for a root devDependency, nothing of it in apps/api).
+// Nothing of ms or @ws/lib at the root.
+function pnpmLayout(dir, { tsxBin = 'apps/api/node_modules/.bin' } = {}) {
   const store = 'node_modules/.pnpm/ms@2.1.3/node_modules/ms';
   writeText(dir, `${store}/package.json`, `${q({ name: 'ms', version: '2.1.3', main: 'index.js' }, null, 2)}\n`);
   writeText(dir, `${store}/index.js`, [
@@ -97,7 +102,7 @@ function pnpmLayout(dir) {
   ].join('\n'));
   link(`../../../${store}`, join(dir, 'apps', 'api', 'node_modules', 'ms'));
   link('../../../lib', join(dir, 'apps', 'api', 'node_modules', '@ws', 'lib'));
-  writeText(dir, 'apps/api/node_modules/.bin/tsx', [
+  writeText(dir, `${tsxBin}/tsx`, [
     '#!/usr/bin/env node',
     '// A stand-in for tsx: the fixture tests are plain JavaScript, so node runs them with the same arguments.',
     "const { spawnSync } = require('node:child_process');",
@@ -105,15 +110,15 @@ function pnpmLayout(dir) {
     'process.exit(r.status === null ? 1 : r.status);',
     '',
   ].join('\n'));
-  chmodSync(join(dir, 'apps', 'api', 'node_modules', '.bin', 'tsx'), 0o755);
+  chmodSync(join(dir, ...tsxBin.split('/'), 'tsx'), 0o755);
 }
 
 // ws-two in git at H: the rcf init project with the world laid over it,
-// the pnpm layout written, and the chain.
-async function wsTwo(t, spec) {
+// the pnpm layout written (`layout` as pnpmLayout takes it), and the chain.
+async function wsTwo(t, spec, layout = {}) {
   const dir = await project(t, { name: 'ws' });
   cpSync(join(WORLDS, 'ws-two'), dir, { recursive: true });
-  pnpmLayout(dir);
+  pnpmLayout(dir, layout);
   chain(dir, spec);
   initRepo(dir);
   const H = commit(dir, 'fixture: base');
@@ -315,6 +320,30 @@ test('AC-19904-9: a nodeTest runners entry whose argv starts with a bare tsx ins
   const r = await strength(w.dir, ['--acs', 'AC-101-1']);
   noCannotRun(r);
   assert.equal(r.code, 0, `the bare tsx resolves through apps/api/node_modules/.bin and the test runs: exit 0\n${shown(r)}`);
+  assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
+});
+
+// The stage-keeper's gate ruling 2: every node_modules/.bin from the
+// test's package up to the repository root joins PATH, under every runner
+// kind. Red at the round E DEFINE head for its own reason: 0.39.0 puts a
+// node_modules/.bin on PATH for vitest and playwright only, so a bare tsx
+// under the legacy runner resolves from the caller's PATH alone.
+test('AC-19904-9: the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line', async (t) => {
+  const file = 'apps/api/test/tsx.test.mjs';
+  const w = await wsTwo(t, {
+    acs: ['AC-101-1'],
+    config: { entry: ENTRY_TWO, harness: HARNESS, runner: ['tsx', '--test', '--test-name-pattern', '<name>', '<file>'] },
+    nodes: [['apps/api/src/index.js#clampPort', ['AC-101-1']]],
+    bind: [['AC-101-1', file, 'T1 clampPort keeps a port in range']],
+  }, { tsxBin: 'node_modules/.bin' });
+  const api = join(w.dir, 'apps', 'api');
+  const rootTsx = join(w.dir, 'node_modules', '.bin', 'tsx');
+  assert.ok(existsSync(rootTsx) && !existsSync(join(api, 'node_modules', '.bin', 'tsx')), 'tsx is installed in the repository root node_modules/.bin only, nothing of it in apps/api');
+  assert.ok(!nodeFirst().split(delimiter).some((d) => d.split(sep).includes('node_modules')), `the audit's PATH holds no node_modules/.bin\n${nodeFirst()}`);
+  inPlace(api, 'test/tsx.test.mjs', { argv: [rootTsx, '--test', 'test/tsx.test.mjs'] });
+  const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+  noCannotRun(r);
+  assert.equal(r.code, 0, `the bare tsx resolves through the repository root node_modules/.bin and the test runs: exit 0\n${shown(r)}`);
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
 });
 

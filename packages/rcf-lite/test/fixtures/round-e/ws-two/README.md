@@ -8,6 +8,8 @@ installed layout next to it (node_modules is never committed): `ms` only
 under `node_modules/.pnpm/ms@2.1.3/node_modules/ms`, linked from
 `apps/api/node_modules/ms` by a relative link, nothing of it at the root;
 `apps/api/node_modules/@ws/lib`, a relative link to `apps/lib` inside a real
-scope directory; and a stand-in `tsx` in `apps/api/node_modules/.bin`.
+scope directory; and a stand-in `tsx` in `apps/api/node_modules/.bin`
+(one test writes it in the root's `node_modules/.bin` instead, as a root
+devDependency, nothing of it in `apps/api`).
 Test files end in `.test.mjs` so the package suite's `test/**/*.test.js`
 glob never runs them.

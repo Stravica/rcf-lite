@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-02T21:20:02.078Z",
+  "updatedAt": "2026-11-02T23:55:06.260Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -183,6 +183,13 @@
       "description": "a runners entry whose \"cwd\" is anything other than \"project\" (\"package\", null, 1) exits 2 with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" naming runners[<i>].cwd",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-10: a runners entry whose \"cwd\" is anything other than \"project\" (\"package\", null, 1) exits 2 with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" naming runners[<i>].cwd"
+    },
+    {
+      "id": "TC-306-the-legacy-runner-whose-argv-starts-with",
+      "acId": "AC-19904-9",
+      "description": "the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line"
     }
   ],
   "status": "draft"
