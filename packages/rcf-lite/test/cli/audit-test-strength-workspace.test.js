@@ -218,8 +218,10 @@ test('AC-19903-10: every runner kind runs a bound test at its package directory:
   install(t, web);
   initRepo(dir);
   const H = commit(dir, 'fixture: base');
-  inPlace(web, 'test/title.test.ts', { argv: [join(web, 'node_modules', '.bin', 'vitest'), 'run', 'test/title.test.ts'] });
-  inPlace(web, 'e2e/title.spec.ts', { argv: [join(web, 'node_modules', '.bin', 'playwright'), 'test', 'e2e/title.spec.ts'] });
+  // vitest and Playwright keep caches under TMPDIR (playwright-transform-cache-<uid>): the test's own scratch holds them.
+  const tmp = scratch(t, 'rcf-h-tmp-');
+  inPlace(web, 'test/title.test.ts', { argv: [join(web, 'node_modules', '.bin', 'vitest'), 'run', 'test/title.test.ts'], env: { TMPDIR: tmp } });
+  inPlace(web, 'e2e/title.spec.ts', { argv: [join(web, 'node_modules', '.bin', 'playwright'), 'test', 'e2e/title.spec.ts'], env: { TMPDIR: tmp } });
   inPlace(join(dir, 'apps', 'js'), 'test/port.test.mjs');
   const r = await strength(dir, ['--acs', 'AC-101-1,AC-101-2,AC-101-3']);
   noCannotRun(r);
