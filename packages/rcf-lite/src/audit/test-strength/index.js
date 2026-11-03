@@ -129,6 +129,14 @@ function codeNodesOf(tree, acId) {
 
 const fail = (code, ...err) => ({ code, out: null, err, report: null });
 
+/** Every package.json directory at HEAD outside node_modules, repository-wide, relative to the repository root ('' for the root). */
+async function workspacePackages(git) {
+  const all = await git(['ls-tree', '-r', '-z', '--name-only', '--full-tree', 'HEAD']);
+  if (all.code !== 0) return [];
+  return all.stdout.split('\0').filter((p) => posix.basename(p) === 'package.json' && !p.split('/').includes('node_modules'))
+    .map((p) => (posix.dirname(p) === '.' ? '' : posix.dirname(p)));
+}
+
 /**
  * Resolve the scope, run both layers and (with record) write the report.
  *
@@ -294,7 +302,11 @@ export async function auditTestStrength({
   // before any bound test runs, read again after them on every exit, in
   // one finally; a path a bound test run wrote under one is the named exit
   // 2 whatever else the run was about to report.
-  const roots = proved.length ? forbiddenRoots(projectRoot, toplevel) : null;
+  // Round E (TAC-4155 responsibilities[4]): every package.json directory
+  // at HEAD outside node_modules, repository-wide, whose node_modules a
+  // working copy links and the backstop covers.
+  const packages = proved.length ? await workspacePackages(git) : [];
+  const roots = proved.length ? forbiddenRoots(projectRoot, toplevel, packages) : null;
   const before = roots ? backstopTree(projectRoot, toplevel, roots) : null;
   const scratches = [];
   const wrote = () => {
@@ -318,7 +330,7 @@ export async function auditTestStrength({
   try {
     outcome = await (async () => {
       try {
-        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, packages, scratches });
       } catch (err) {
         return cannotRun(err);
       }
@@ -341,7 +353,7 @@ export async function auditTestStrength({
       }
       const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
       try {
-        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, packages, scratches });
       } catch (err) {
         if (err instanceof NotRunError) {
           const lines = [...leftUnmutated, ...leftLines(err.left ?? [])];

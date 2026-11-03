@@ -17,9 +17,9 @@
 // is removed before the run returns, pass, fail, error or signal.
 
 import { spawn } from 'node:child_process';
-import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
+import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, delimiter, dirname, join, relative, sep } from 'node:path';
+import { basename, delimiter, dirname, join, relative, resolve, sep } from 'node:path';
 
 import { judge, readReport } from './report.js';
 
@@ -144,17 +144,51 @@ async function runBound(t, { cwd, ms, env, reports, live }) {
 const LINKED_DOT = new Set(['.bin', '.pnpm', '.modules.yaml', '.package-lock.json']);
 
 /**
+ * Link the entries of the repository's node_modules directory `from` into
+ * the working copy's `to`, a fresh directory (TAC-4155 responsibilities[4]):
+ * an entry that is itself a symbolic link is re-pointed to its own target
+ * inside the copy `dir` when that target is in the repository (`tops`, the
+ * repository root as git names it and its real path); every other entry
+ * links as 0.39.0 does, an absolute link to the project's own entry. A
+ * scope directory (@scope) is a fresh directory whose packages link by the
+ * same rule; dot entries other than LINKED_DOT are not linked.
+ */
+function linkModules(from, to, dir, tops) {
+  mkdirSync(to, { recursive: true });
+  for (const e of readdirSync(from, { withFileTypes: true })) {
+    if (e.name.startsWith('.') && !LINKED_DOT.has(e.name)) continue;
+    const entry = join(from, e.name);
+    if (e.name.startsWith('@') && e.isDirectory()) {
+      linkModules(entry, join(to, e.name), dir, tops);
+      continue;
+    }
+    let target = entry;
+    if (e.isSymbolicLink()) {
+      const own = resolve(dirname(entry), readlinkSync(entry));
+      const top = tops.find((t) => within(own, t));
+      if (top) target = join(dir, relative(top, own));
+    }
+    symlinkSync(target, join(to, e.name), e.isFile() ? 'file' : 'junction');
+  }
+}
+
+/**
  * Make `count` working copies of `head` in `root` (AC-19903-5): each a
  * shared clone of the repository (it writes nothing in the project's
  * .git) checked out detached at `head`, hooks off, so making one runs no
- * project code. Its node_modules, and each ancestor's up to the
- * repository root, is a fresh directory holding one link per top-level
- * entry of the project's (packages, scopes and LINKED_DOT), so the bound
- * tests resolve the same dependencies and a path any process creates
- * under node_modules lands in the working copy.
+ * project code. Its node_modules, each ancestor's up to the repository
+ * root and (round E, AC-19903-8, AC-19903-9) each `packages` directory's
+ * (every package.json directory at HEAD outside node_modules,
+ * repository-wide, relative to the repository root) is a fresh directory
+ * linking the repository's entries (linkModules), so the bound tests
+ * resolve the same dependencies, a workspace package linked by name
+ * resolves inside the working copy, and a path any process creates under
+ * node_modules lands in the working copy.
  */
-async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, made }) {
+async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, made, packages = [] }) {
   const segs = prefix.split('/').filter(Boolean);
+  const rels = [...segs.map((_, k) => segs.slice(0, segs.length - k).join('/')), '', ...packages];
+  const tops = [...new Set([toplevel, realpathSync(toplevel)])];
   for (let i = 1; i <= count; i += 1) {
     const dir = join(root, `wc-${i}`);
     const clone = await git(['clone', '--quiet', '--shared', '--no-checkout', toplevel, dir]);
@@ -162,16 +196,11 @@ async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, mad
     made.push(dir);
     const checkout = await git(['-C', dir, '-c', 'core.hooksPath=/dev/null', 'checkout', '--quiet', '--detach', head]);
     if (checkout.code !== 0) throw new Error(`git checkout failed: ${checkout.stderr.trim()}`);
-    for (let k = segs.length; k >= 0; k -= 1) {
-      const rel = segs.slice(0, k).join('/');
+    for (const rel of rels) {
       const from = join(toplevel, rel, 'node_modules');
       const to = join(dir, rel, 'node_modules');
       if (!existsSync(from) || existsSync(to)) continue;
-      mkdirSync(to, { recursive: true });
-      for (const e of readdirSync(from, { withFileTypes: true })) {
-        if (e.name.startsWith('.') && !LINKED_DOT.has(e.name)) continue;
-        symlinkSync(join(from, e.name), join(to, e.name), e.isFile() ? 'file' : 'junction');
-      }
+      linkModules(from, to, dir, tops);
     }
   }
 }
@@ -245,17 +274,21 @@ const within = (path, root) => path === root || path.startsWith(root.endsWith(se
  * the run: the project root, the real location of its node_modules (the
  * target, when it is a symbolic link), the real location of each
  * ancestor's node_modules up to the repository root (resolutionPath,
- * present or not), and the repository's .git. Each is named relative to
- * the project root; a root inside another one is read with it, the .git
- * aside (the project tree leaves .git out).
+ * present or not), the real location of each `packages` directory's
+ * node_modules a working copy links (round E, AC-19903-11; `packages`
+ * relative to the repository root), and the repository's .git. Each is
+ * named relative to the project root; a root inside another one is read
+ * with it, the .git aside (the project tree leaves .git out).
  *
  * @returns {Array<{ name: string, real: string }>}
  */
-export function forbiddenRoots(projectRoot, toplevel) {
+export function forbiddenRoots(projectRoot, toplevel, packages = []) {
   const root = realpathSync(projectRoot);
+  const top = realpathSync(toplevel);
   const named = (dir) => relative(root, dir).split(sep).join('/');
-  const nested = [join(root, 'node_modules'), ...resolutionPath(projectRoot, toplevel)].map((d) => ({ name: named(d), real: realOf(d) }));
-  const git = { name: named(join(realpathSync(toplevel), '.git')), real: realOf(join(toplevel, '.git')) };
+  const linked = packages.map((p) => join(top, p, 'node_modules')).filter((d) => existsSync(d));
+  const nested = [join(root, 'node_modules'), ...resolutionPath(projectRoot, toplevel), ...linked].map((d) => ({ name: named(d), real: realOf(d) }));
+  const git = { name: named(join(top, '.git')), real: realOf(join(toplevel, '.git')) };
   const roots = [{ name: '', real: root }];
   for (const r of nested) if (!roots.some((o) => within(r.real, o.real))) roots.push(r);
   return [...roots, git];
@@ -342,7 +375,7 @@ export class NotRunError extends Error {
  * @param {Array<{ edits: Map<string, string>, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.mutants
  * @returns {Promise<{ results: Array<{ result: string, killedBy: string[], loadError?: true, verdict?: string }>, left: string[] }>}
  */
-export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, unmutated = false, scratches = [] }) {
+export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, packages = [], unmutated = false, scratches = [] }) {
   const results = new Array(mutants.length);
   if (!mutants.length) return { results, left: [] };
   const made = [];
@@ -369,7 +402,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
   let left = [];
   let thrown = null;
   try {
-    await makeWorkingCopies(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, root, made });
+    await makeWorkingCopies(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, root, made, packages });
     let next = 0;
     let failure = null;
     // Workers never reject: the first error stops every worker, and the
@@ -446,9 +479,9 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
  * @param {Array<{ acId: string, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.criteria
  * @returns {Promise<{ red: { acId: string, test: object, result: string, verdict?: string, names?: string[] }|null, left: string[] }>}
  */
-export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix, scratches }) {
+export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix, packages = [], scratches }) {
   const checks = criteria.map((c) => ({ acId: c.acId, edits: new Map(), tests: c.tests }));
-  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, unmutated: true, scratches });
+  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, packages, unmutated: true, scratches });
   const at = results.findIndex((r) => r.result !== 'survived');
   if (at < 0) return { red: null, left };
   const r = results[at];
