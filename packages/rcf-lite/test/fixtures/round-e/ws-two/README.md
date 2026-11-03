@@ -24,5 +24,8 @@ test; every other test file is a node:test file.
 the rcf project root, so it runs at the root, where the package-relative
 `fixtures/config.json` it reads through `readPort` is missing: it is red
 there by design, the red unmutated run whose cwd hint names `.`.
+`apps/api/test/witness.test.mjs` (round F) appends a line to the file
+`RCF_ROUND_F_WITNESS` names on each run, so a test can tell whether the
+audit ran it.
 Test files end in `.test.mjs` so the package suite's `test/**/*.test.js`
 glob never runs them.

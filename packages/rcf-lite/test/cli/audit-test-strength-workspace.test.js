@@ -615,9 +615,11 @@ test('AC-19904-11: a red unmutated run at the rcf project root, of a test with n
 // covers none. A git stand-in, first on the audit's PATH, fails that
 // listing (exit 128, a "fatal:" line, as git does when it cannot read a
 // tree) and hands every other git call to the real git. The world is
-// AC-19903-8's (ms installed in apps/api/node_modules only), audited
-// first without the stand-in (green, as AC-19903-8 asserts) so the red is
-// the listing's. Red at the round F DEFINE head: the listing's failure is
+// AC-19903-8's (ms installed in apps/api/node_modules only), its bound
+// test apps/api/test/witness.test.mjs, which records each run in the file
+// RCF_ROUND_F_WITNESS names; audited first without the stand-in (green,
+// the witness recording the runs) so the red is the listing's, then with
+// it (the witness must stay empty: no bound test ran). Red at the round F DEFINE head: the listing's failure is
 // swallowed, apps/api/node_modules is not linked, and the unmutated run
 // is red with no named line.
 const STAND_IN_FATAL = 'fatal: unable to read tree (the git stand-in of this test)';
@@ -639,24 +641,31 @@ function gitStandIn(t) {
 }
 
 test('AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with "test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>" and runs no bound test', async (t) => {
+  const file = 'apps/api/test/witness.test.mjs';
   const w = await wsTwo(t, {
     acs: ['AC-101-1'],
     config: { entry: ENTRY_TWO, harness: HARNESS },
     nodes: [['apps/api/src/index.js#toMs', ['AC-101-1']]],
-    bind: [['AC-101-1', API_TEST, 'C1 toMs reads a duration through ms']],
+    bind: [['AC-101-1', file, 'W1 toMs reads a duration through ms, and each run is recorded']],
   });
-  inPlace(join(w.dir, 'apps', 'api'), 'test/api.test.mjs');
+  inPlace(join(w.dir, 'apps', 'api'), 'test/witness.test.mjs');
   const standIn = gitStandIn(t);
   const listing = run(join(standIn, 'git'), ['-c', 'core.quotePath=false', 'ls-tree', '-r', '-z', '--name-only', '--full-tree', 'HEAD'], { cwd: w.dir });
   assert.ok(listing.code === 128 && listing.stderr.trim() === STAND_IN_FATAL, `the stand-in fails the repository-wide listing\n${listing.stdout}${listing.stderr}`);
   assert.equal(run(join(standIn, 'git'), ['rev-parse', 'HEAD'], { cwd: w.dir }).stdout.trim(), w.H, 'the stand-in hands every other git call to the real git');
-  const control = await strength(w.dir, ['--acs', 'AC-101-1']);
+  // The run witness: the bound test appends a line to it on every run.
+  const witnessDir = scratch(t, 'rcf-h-witness-');
+  const witness = join(witnessDir, 'ran.log');
+  const control = await rcf(['audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: w.dir, env: { PATH: nodeFirst(), RCF_ROUND_F_WITNESS: witness }, timeout: 900_000 });
   assert.equal(control.code, 0, `without the stand-in the audit is green: exit 0\n${shown(control)}`);
-  const r = await rcf(['audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: w.dir, env: { PATH: [standIn, nodeFirst()].join(delimiter) }, timeout: 900_000 });
+  assert.ok(existsSync(witness) && readFileSync(witness, 'utf8').length > 0, 'without the stand-in the audit runs the bound test, and the witness records it');
+  writeText(witnessDir, 'ran.log', '');
+  const r = await rcf(['audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: w.dir, env: { PATH: [standIn, nodeFirst()].join(delimiter), RCF_ROUND_F_WITNESS: witness }, timeout: 900_000 });
   const err = lines(r.stderr);
   const named = `test-strength: cannot list the workspace packages at ${s7(w.H)}: git ls-tree failed: ${STAND_IN_FATAL}`;
   assert.ok(err.includes(named), `stderr carries "${named}"\n${shown(r)}`);
   noUnmutatedRed(r);
+  assert.equal(readFileSync(witness, 'utf8'), '', `no bound test ran: the witness records no run\n${shown(r)}`);
   assert.equal(r.code, 2, `the audit's own input failed: exit 2\n${shown(r)}`);
   assert.equal(r.stdout, '', `no verdict line\n${shown(r)}`);
 });
