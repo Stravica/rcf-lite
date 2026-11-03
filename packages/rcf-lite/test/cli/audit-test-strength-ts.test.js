@@ -21,9 +21,10 @@
 // .vue path with "is not a supported source (JavaScript ESM or
 // CommonJS)", exit 2, before any file is read. Round F (the stage-keeper's
 // ruling C13 on F-7's darwin finding): AC-19904-12, beside AC-19904-1,
-// the runner's scratch directory moving to a short path when a runner's
-// Unix socket path under it would pass the platform's limit (red at the
-// round F DEFINE head), with a declared regression guard under a short
+// the runner's scratch directory moving to a short path, /tmp/rcf-<6
+// chars> on darwin and on Linux alike, when a runner's Unix socket path
+// under it would pass the platform's limit (red at the round F DEFINE
+// head), with a declared regression guard under a short
 // temp directory (green there); criteria: 8. Imports: Node builtins and
 // test/_harness/ only (GR-40).
 
@@ -168,15 +169,17 @@ test('AC-19904-1: a .ts project with entry src/index.ts and no runner, AC-101-1 
 // socket path (Linux's is 108), so tsx fails with "listen EINVAL" and the
 // unmutated run is red. The ruling: when tmpdir() plus the scratch suffix
 // would pass the platform's limit, the runner's scratch moves to a short
-// path (/tmp/rcf-<6 chars> on darwin) and one line at the run's start says
-// so. AC-19904-1's fixture under its tsx runners entry, bound to
+// path (/tmp/rcf-<6 chars> on darwin, and by the pass 2 ruling 3 on Linux
+// too, TMPDIR defaulting to /tmp on both) and one line at the run's start
+// says so. AC-19904-1's fixture under its tsx runners entry, bound to
 // test/witness.test.ts (variants/tmpdir-witness: the test appends the
 // TMPDIR it sees, its runner's scratch, to the file
 // RCF_ROUND_F_TMPDIR_WITNESS names, before it calls sumTotals). Under a
 // temp directory whose own path passes 108 bytes, so any socket under it
 // passes both limits, the audit exits 0 with the PASS line, its first
 // stderr line says the scratch moves, and no run's TMPDIR lies under that
-// temp directory (on darwin each is /tmp/rcf-<6 chars>); the test first
+// temp directory (each is /tmp/rcf-<6 chars>, on darwin and on Linux
+// alike); the test first
 // shows tsx failing in place under a TMPDIR inside it and passing under a
 // short one, so the red is the socket path's. Red at the round F DEFINE
 // head: the scratch stays under the long temp directory, tsx cannot open
@@ -215,7 +218,7 @@ async function strengthUnder(t, dir, tmp) {
   return { r, seen: existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean) : [] };
 }
 
-test("AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin)", async (t) => {
+test("AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)", async (t) => {
   assert.ok(SOCKET_LIMIT[process.platform], `a platform with a Unix socket path limit: darwin or linux, not ${process.platform}`);
   const a = await witnessProject(t);
   const long = longTmp(t);
@@ -236,7 +239,7 @@ test("AC-19904-12: under a temp directory long enough that a runner's Unix socke
   assert.ok(seen.length >= 3, `the witness saw the unmutated run and each mutant's run\n${seen.join('\n')}`);
   for (const tmp of seen) {
     assert.ok(!tmp.startsWith(long), `a bound test run's TMPDIR ${tmp} is not under the long temp directory`);
-    if (process.platform === 'darwin') assert.match(tmp, /^\/tmp\/rcf-[A-Za-z0-9]{6}$/, `on darwin a bound test run's TMPDIR is /tmp/rcf-<6 chars>: ${tmp}`);
+    assert.match(tmp, /^\/tmp\/rcf-[A-Za-z0-9]{6}$/, `a bound test run's TMPDIR is /tmp/rcf-<6 chars>, on darwin and on Linux alike (here ${process.platform}): ${tmp}`);
   }
 });
 
