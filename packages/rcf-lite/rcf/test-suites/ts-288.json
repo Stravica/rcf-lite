@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-11-03T02:22:27.484Z",
+  "updatedAt": "2026-11-03T18:43:03.363Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -122,6 +122,62 @@
       "description": "no \"  reason:\" line follows a blocked line, in a run that also holds a failing row",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-8: no \"  reason:\" line follows a blocked line, in a run that also holds a failing row"
+    },
+    {
+      "id": "TC-288-a-thrown-backslash-is-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a backslash, which the TAP writes doubled inside single quotes (a Windows path), gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a backslash, which the TAP writes doubled inside single quotes (a Windows path), gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-a-backtick-quoted-message-is-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a single and a double quote, which the TAP writes inside backticks, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a single and a double quote, which the TAP writes inside backticks, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-an-escaped-single-quote-is-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds all three quote kinds, which the TAP writes inside single quotes with the single quote escaped, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds all three quote kinds, which the TAP writes inside single quotes with the single quote escaped, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-a-tab-escape-is-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a tab, which the TAP writes as its backslash escape inside single quotes, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a tab, which the TAP writes as its backslash escape inside single quotes, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-a-hex-escape-is-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a control character, which the TAP writes as a hex escape inside single quotes, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a control character, which the TAP writes as a hex escape inside single quotes, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-a-double-quoted-message-stays-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a single quote, which the TAP writes inside double quotes, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote, which the TAP writes inside double quotes, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-a-double-quoted-backslash-stays-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a single quote and a backslash, which the TAP writes inside double quotes with the backslash escaped, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote and a backslash, which the TAP writes inside double quotes with the backslash escaped, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-the-printed-reason-is-decoded",
+      "acId": "AC-20101-9",
+      "description": "a fail line whose case threw a message holding a backslash is followed by \"  reason: <reason>\" with the message as thrown",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-9: a fail line whose case threw a message holding a backslash is followed by \"  reason: <reason>\" with the message as thrown"
     }
   ],
   "status": "draft"
