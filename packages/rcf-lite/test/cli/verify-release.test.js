@@ -7,7 +7,9 @@
 //
 // Criteria: 16, all external (US-20101 9, US-20102 4, US-20103 3).
 // The round E cases of AC-20101-8 and AC-20101-9 are red until the
-// round's BUILD turns them green. Each test drives bin/rcf.js (or the
+// round's BUILD turns them green, but for two declared regression guards
+// of AC-20101-8 (a pass row's null reason, no reason line after a blocked
+// line), green throughout. Each test drives bin/rcf.js (or the
 // packed artefact) as a child process over a fixture project made by its
 // own rcf init, committed to git and tagged v1.0.0 at the release commit
 // R. The target
@@ -467,6 +469,106 @@ test('AC-20101-9: the line after each fail line reads "  reason: <reason>" and p
   assert.equal(after('AC-102-1 FBS-002 fail'), `  reason: ${lastErr}`, `the line after AC-102-1's fail line\n${r.stdout}`);
   assert.ok(!after('AC-103-1 FBS-003 pass').startsWith('  reason:'), `the pass line stands as it is, no reason line after it\n${r.stdout}`);
   assert.ok(out.some((l) => l.startsWith('verify: release 1.1.0 FAIL 1/3 external criteria, smoke 1/1 ')), `the FAIL line\n${r.stdout}`);
+});
+
+// The stage-keeper's DEFINE-3 ruling 2 (gate ruling 3's reason clauses no
+// test pinned): with several failing bound cases the first failing case in
+// the tests order of its row gives the reason, a pass row's reason stays
+// null, and no reason line follows a blocked line. The fixture: AC-101-1
+// (FBS-001) is bound to two e2e cases in one file, each failing with its
+// own one-line message, its suite listing the file's second case first,
+// so the row's tests order is the opposite of the order its runner runs
+// and reports the cases; AC-102-1 (FBS-002) is bound by a unit-level case
+// only, so its row is blocked ("no bound e2e test"); AC-103-1 (FBS-003)
+// passes. The first two tests are red at the round E DEFINE head, where
+// every run row's reason is null and no reason line is printed; the last
+// two are declared regression guards, green there and through the BUILD.
+const RUN_FIRST = { name: 'AC-101-1 runs first in its file', message: 'the case run first fails, listed second in the tests' };
+const LISTED_FIRST = { name: 'AC-101-1 is listed first in the tests', message: 'the case listed first in the tests fails, run second' };
+const ORDER_SPECS = [
+  { id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] },
+  { id: 'FBS-002', status: 'complete', us: 'US-102', criteria: [{ id: 'AC-102-1', flag: 'external', level: 'unit' }] },
+  { id: 'FBS-003', status: 'complete', us: 'US-103', criteria: [{ id: 'AC-103-1', flag: 'external', level: 'e2e' }] },
+];
+async function firstFailFixture(t) {
+  const file = 'test/rcf/us-101.test.js';
+  const pointer = (c) => `${file}::${c.name}`;
+  const f = await release(t, ORDER_SPECS, {
+    change: (d) => {
+      for (const [us, ac] of [['US-101', 'AC-101-1'], ['US-102', 'AC-102-1'], ['US-103', 'AC-103-1']]) amend(d, us, ac);
+      writeText(d, file, `${HEAD_SRC}${[RUN_FIRST, LISTED_FIRST].map((c) => `test(${JSON.stringify(c.name)}, () => { throw new Error(${JSON.stringify(c.message)}); });`).join('\n')}\n`);
+      const ts = readJson(d, 'rcf/test-suites/ts-001.json');
+      assert.ok(ts.usId === 'US-101' && ts.testLevel === 'e2e', `TS-001 is the US-101 e2e suite\n${JSON.stringify(ts)}`);
+      ts.testCases = [LISTED_FIRST, RUN_FIRST].map((c, i) => ({ id: `TC-001-case-${i + 1}`, acId: 'AC-101-1', description: c.name, status: 'pending', testPointer: pointer(c) }));
+      writeJson(d, 'rcf/test-suites/ts-001.json', ts);
+    },
+  });
+  // The runner as the release Verify runs it (one run of the file, one name
+  // pattern per case), read here: it runs and reports the file's first case
+  // first, each case not ok with its own message in its diagnostic.
+  const patterns = [LISTED_FIRST, RUN_FIRST].map((c) => `--test-name-pattern=(?:^| )${c.name}$`);
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', ...patterns, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the file's run fails\n${probe.stdout}${probe.stderr}`);
+  const tap = probe.stdout.split('\n');
+  const at = (c) => tap.findIndex((l) => new RegExp(`^not ok \\d+ - ${c.name}$`).test(l));
+  assert.ok(at(RUN_FIRST) >= 0 && at(LISTED_FIRST) > at(RUN_FIRST), `the runner reports "${RUN_FIRST.name}" first, then "${LISTED_FIRST.name}", each not ok\n${probe.stdout}`);
+  for (const c of [RUN_FIRST, LISTED_FIRST]) {
+    const end = tap.findIndex((l, i) => i > at(c) && l === '  ...');
+    assert.ok(tap.slice(at(c), end).includes(`  error: '${c.message}'`), `the diagnostic of "${c.name}" holds its own one-line message\n${probe.stdout}`);
+  }
+  return { ...f, tests: [pointer(LISTED_FIRST), pointer(RUN_FIRST)] };
+}
+const perAcOf = (file, id) => JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === id);
+
+test('AC-20101-8: with two failing bound e2e cases of different messages on one criterion, the first failing case in the tests order of its row gives the reason, not the case its runner reports first', async (t) => {
+  const { dir, tests } = await firstFailFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = perAcOf(file, 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.deepEqual(per.tests, tests, `the tests order of the row lists "${LISTED_FIRST.name}" first, the case the runner reports second`);
+  assert.equal(per.reason, LISTED_FIRST.message, 'the first failing case in the tests order of the row gives the reason');
+});
+
+test('AC-20101-9: with two failing bound e2e cases on one criterion, the line after its fail line reads "  reason: <reason>" with the message of the first failing case in the tests order of its row', async (t) => {
+  const { dir } = await firstFailFixture(t);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const i = out.indexOf('AC-101-1 FBS-001 fail');
+  assert.ok(i >= 0, `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  assert.equal(out[i + 1], `  reason: ${LISTED_FIRST.message}`, `the line after AC-101-1's fail line\n${r.stdout}`);
+});
+
+// A declared regression guard (green at the round E DEFINE head, where a
+// run row's reason is null): the BUILD gives a fail row its reason and a
+// pass row none.
+test('AC-20101-8: a pass row keeps its reason null in a run that also holds a failing row and a blocked row', async (t) => {
+  const { dir } = await firstFailFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  assert.equal(perAcOf(file, 'AC-101-1').result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(perAcOf(file, 'AC-102-1').result, 'blocked', `AC-102-1 is blocked\n${r.stdout}`);
+  const pass = perAcOf(file, 'AC-103-1');
+  assert.equal(pass.result, 'pass', `AC-103-1 passes\n${r.stdout}`);
+  assert.equal(pass.reason, null, `a pass row's reason stays null\n${JSON.stringify(pass)}`);
+});
+
+// A declared regression guard (green at the round E DEFINE head, where no
+// reason line is printed): the BUILD prints a reason line after each fail
+// line and none after a blocked line, though a blocked row has a reason.
+test('AC-20101-8: no "  reason:" line follows a blocked line, in a run that also holds a failing row', async (t) => {
+  const { dir } = await firstFailFixture(t);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  assert.ok(out.includes('AC-101-1 FBS-001 fail'), `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  const i = out.indexOf('AC-102-1 FBS-002 blocked');
+  assert.ok(i >= 0, `stdout carries "AC-102-1 FBS-002 blocked"\n${r.stdout}`);
+  assert.ok(!out[i + 1].startsWith('  reason:'), `no reason line follows the blocked line\n${r.stdout}`);
+  assert.ok(!out.includes('  reason: no bound e2e test'), `the blocked row's reason is never printed as a reason line\n${r.stdout}`);
 });
 
 // ---------------------------------------------------------------- US-20102

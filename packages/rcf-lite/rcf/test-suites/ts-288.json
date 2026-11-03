@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-11-03T00:08:24.601Z",
+  "updatedAt": "2026-11-03T02:22:27.484Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -94,6 +94,34 @@
       "description": "a failing bound e2e case whose assertion message spans several lines gives its perAc row result \"fail\" with the first non-empty line of that message as reason",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a failing bound e2e case whose assertion message spans several lines gives its perAc row result \"fail\" with the first non-empty line of that message as reason"
+    },
+    {
+      "id": "TC-288-with-two-failing-bound-e2e-cases-of",
+      "acId": "AC-20101-8",
+      "description": "with two failing bound e2e cases of different messages on one criterion, the first failing case in the tests order of its row gives the reason, not the case its runner reports first",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: with two failing bound e2e cases of different messages on one criterion, the first failing case in the tests order of its row gives the reason, not the case its runner reports first"
+    },
+    {
+      "id": "TC-288-with-two-failing-bound-e2e-cases-on-one",
+      "acId": "AC-20101-9",
+      "description": "with two failing bound e2e cases on one criterion, the line after its fail line reads \"  reason: <reason>\" with the message of the first failing case in the tests order of its row",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-9: with two failing bound e2e cases on one criterion, the line after its fail line reads \"  reason: <reason>\" with the message of the first failing case in the tests order of its row"
+    },
+    {
+      "id": "TC-288-a-pass-row-keeps-its-reason-null-in-a",
+      "acId": "AC-20101-8",
+      "description": "a pass row keeps its reason null in a run that also holds a failing row and a blocked row",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a pass row keeps its reason null in a run that also holds a failing row and a blocked row"
+    },
+    {
+      "id": "TC-288-no-reason-line-follows-a-blocked-line-in",
+      "acId": "AC-20101-8",
+      "description": "no \"  reason:\" line follows a blocked line, in a run that also holds a failing row",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: no \"  reason:\" line follows a blocked line, in a run that also holds a failing row"
     }
   ],
   "status": "draft"
