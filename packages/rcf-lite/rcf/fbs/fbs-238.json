@@ -40,6 +40,6 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 240,
-  "executionStatus": "complete",
+  "executionStatus": "verified",
   "title": "Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold"
 }
