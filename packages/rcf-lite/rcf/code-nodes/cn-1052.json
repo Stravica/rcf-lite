@@ -2,11 +2,13 @@
   "cnId": "CN-1052",
   "path": "src/audit/test-strength/runner.js#makeWorkingCopies",
   "implementsAcIds": [
-    "AC-19903-5"
+    "AC-19903-5",
+    "AC-19903-8",
+    "AC-19903-9"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-30T17:23:53.854Z",
-  "updatedAt": "2026-10-30T17:23:53.854Z"
+  "updatedAt": "2026-11-03T06:21:29.902Z"
 }
