@@ -24,7 +24,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { cpSync, existsSync, lstatSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
+import { cpSync, existsSync, lstatSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync, writeFileSync } from 'node:fs';
 import { delimiter, dirname, join, relative, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -152,6 +152,98 @@ test('AC-19904-1: a .ts project with entry src/index.ts and no runner, AC-101-1 
   const js = await strength(pack.dir, ['--acs', 'AC-101-1']);
   assert.equal(js.code, 0, `a NodeNext .js specifier resolves to the .ts entry: exit 0\n${shown(js)}`);
   assert.equal(out(js), passLine(pack.H, 1, 2, 2, 0, 1), shown(js));
+});
+
+// Round F, F-7 darwin (the stage-keeper's ruling C13, option (b)): the
+// leak pin's darwin run named AC-19904-1's tsx case as its inner failure.
+// The audit gives each runner its scratch directory, tmpdir()/rcf-ts-<6
+// chars>, as TMPDIR (src/audit/test-strength/runner.js :425), and tsx opens
+// its IPC socket at <TMPDIR>/tsx-<uid>/<pid>.pipe: under the pin's nested
+// TMPDIR that path is 106 bytes, past darwin's 104-byte limit for a Unix
+// socket path (Linux's is 108), so tsx fails with "listen EINVAL" and the
+// unmutated run is red. The ruling: when tmpdir() plus the scratch suffix
+// would pass the platform's limit, the runner's scratch moves to a short
+// path (/tmp/rcf-<6 chars> on darwin) and one line at the run's start says
+// so. AC-19904-1's fixture under its tsx runners entry, bound to
+// test/witness.test.ts (variants/tmpdir-witness: the test appends the
+// TMPDIR it sees, its runner's scratch, to the file
+// RCF_ROUND_F_TMPDIR_WITNESS names, before it calls sumTotals). Under a
+// temp directory whose own path passes 108 bytes, so any socket under it
+// passes both limits, the audit exits 0 with the PASS line, its first
+// stderr line says the scratch moves, and no run's TMPDIR lies under that
+// temp directory (on darwin each is /tmp/rcf-<6 chars>); the test first
+// shows tsx failing in place under a TMPDIR inside it and passing under a
+// short one, so the red is the socket path's. Red at the round F DEFINE
+// head: the scratch stays under the long temp directory, tsx cannot open
+// its socket, and the unmutated run is red (exit 2). And a declared
+// regression guard, green there: under a short temp directory (a
+// directory of its own under /tmp) the scratch stays under it and no line
+// says it moves.
+const WITNESS_TS = 'test/witness.test.ts';
+const WITNESS_CASE = 'records its TMPDIR and sums the line items';
+const SOCKET_LIMIT = { darwin: 104, linux: 108 };
+const movesLine = (tmp) => `test-strength: a runner's Unix socket path under ${tmp} would pass ${SOCKET_LIMIT[process.platform]} bytes, the limit on ${process.platform}; the scratch directory moves to a short path`;
+const MOVES_END = '; the scratch directory moves to a short path';
+const witnessProject = (t) => tsProject(t, 'a-tsx-node-test', {
+  variant: 'tmpdir-witness',
+  config: { ...TS_CONFIG, runners: [{ files: ['test/**'], kind: 'nodeTest', argv: TSX_ARGV }] },
+  nodes: [['src/totals.ts#sumTotals', ['AC-101-1']]],
+  bind: [['AC-101-1', WITNESS_TS, WITNESS_CASE]],
+});
+// A temp directory whose own path passes 108 bytes, nested in the test's scratch.
+function longTmp(t) {
+  let dir = scratch(t, 'rcf-h-tmp-');
+  while (dir.length <= 112) dir = join(dir, 'a-long-temp-directory');
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+// A short temp directory of its own under /tmp, removed after the test.
+function shortTmp(t) {
+  const dir = mkdtempSync('/tmp/rcf-h-');
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  return dir;
+}
+// The audit of AC-101-1 under the temp directory `tmp`, and the TMPDIR each bound test run saw.
+async function strengthUnder(t, dir, tmp) {
+  const witness = join(scratch(t, 'rcf-h-witness-'), 'tmpdirs.log');
+  const r = await rcf(['audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: dir, env: { PATH: nodeFirst(), TMPDIR: tmp, RCF_ROUND_F_TMPDIR_WITNESS: witness }, timeout: 900_000 });
+  return { r, seen: existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean) : [] };
+}
+
+test("AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin)", async (t) => {
+  assert.ok(SOCKET_LIMIT[process.platform], `a platform with a Unix socket path limit: darwin or linux, not ${process.platform}`);
+  const a = await witnessProject(t);
+  const long = longTmp(t);
+  // tsx itself, in place: under a TMPDIR inside the long one its socket cannot be opened; under a short one it runs.
+  const tsxIn = (tmp) => run(join(a.dir, 'node_modules', '.bin', 'tsx'), ['--test', '--test-reporter=tap', WITNESS_TS], { cwd: a.dir, env: { PATH: nodeFirst(), TMPDIR: tmp } });
+  const nested = join(long, 'rcf-ts-abcdef');
+  mkdirSync(nested);
+  const under = tsxIn(nested);
+  assert.notEqual(under.code, 0, `tsx cannot run with TMPDIR ${nested} (${nested.length} bytes)\n${under.stdout}${under.stderr}`);
+  const fits = tsxIn(shortTmp(t));
+  assert.equal(fits.code, 0, `tsx runs under a short TMPDIR\n${fits.stdout}${fits.stderr}`);
+  const { r, seen } = await strengthUnder(t, a.dir, long);
+  assert.equal(r.code, 0, `the scratch moves to a short path, so tsx opens its socket and the bound test runs: exit 0\n${shown(r)}`);
+  assert.equal(out(r), passLine(a.H, 1, 2, 2, 0, 1), shown(r));
+  const err = lines(r.stderr);
+  assert.equal(err[0], movesLine(long), `the run's first stderr line says the scratch directory moves\n${shown(r)}`);
+  assert.equal(err.filter((l) => l.endsWith(MOVES_END)).length, 1, `one such line per run\n${shown(r)}`);
+  assert.ok(seen.length >= 3, `the witness saw the unmutated run and each mutant's run\n${seen.join('\n')}`);
+  for (const tmp of seen) {
+    assert.ok(!tmp.startsWith(long), `a bound test run's TMPDIR ${tmp} is not under the long temp directory`);
+    if (process.platform === 'darwin') assert.match(tmp, /^\/tmp\/rcf-[A-Za-z0-9]{6}$/, `on darwin a bound test run's TMPDIR is /tmp/rcf-<6 chars>: ${tmp}`);
+  }
+});
+
+test("AC-19904-12: under a short temp directory the scratch directory stays under it and no line says it moves: the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line", async (t) => {
+  const a = await witnessProject(t);
+  const short = shortTmp(t);
+  const { r, seen } = await strengthUnder(t, a.dir, short);
+  assert.equal(r.code, 0, `exit 0\n${shown(r)}`);
+  assert.equal(out(r), passLine(a.H, 1, 2, 2, 0, 1), shown(r));
+  assert.ok(!lines(r.stderr).some((l) => l.endsWith(MOVES_END)), `no line says the scratch directory moves\n${shown(r)}`);
+  assert.ok(seen.length >= 3, `the witness saw the unmutated run and each mutant's run\n${seen.join('\n')}`);
+  for (const tmp of seen) assert.ok(tmp.startsWith(`${short}/`), `a bound test run's TMPDIR ${tmp} stays under the temp directory ${short}`);
 });
 
 test('AC-19904-2: a vitest runners entry with AC-101-1 bound to test/cart.test.ts::cart > applies a percentage discount, importing ../src/index and claiming src/cart.ts#applyDiscount, exits 0, structural 1/1, both body mutants killed; a pointer naming a vitest describe title matches as a prefix of the title path and passes the same way', async (t) => {

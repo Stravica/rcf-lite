@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-03T18:39:34.479Z",
+  "updatedAt": "2026-11-03T20:24:47.391Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -14,7 +14,8 @@
     "AC-19904-8",
     "AC-19904-9",
     "AC-19904-10",
-    "AC-19904-11"
+    "AC-19904-11",
+    "AC-19904-12"
   ],
   "id": "TS-306",
   "usId": "US-19904",
@@ -222,6 +223,20 @@
       "description": "a red unmutated run at the rcf project root, of a test with no package.json between it and the rcf project root and of a test under a \"cwd\": \"project\" runners entry, is followed by a line naming the cwd \".\" and pointing at \"cwd\": \"project\"",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run at the rcf project root, of a test with no package.json between it and the rcf project root and of a test under a \"cwd\": \"project\" runners entry, is followed by a line naming the cwd \".\" and pointing at \"cwd\": \"project\""
+    },
+    {
+      "id": "TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path",
+      "acId": "AC-19904-12",
+      "description": "under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin)",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin)"
+    },
+    {
+      "id": "TC-306-a-short-tmpdir-keeps-the-scratch-under-it",
+      "acId": "AC-19904-12",
+      "description": "under a short temp directory the scratch directory stays under it and no line says it moves: the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a short temp directory the scratch directory stays under it and no line says it moves: the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line"
     }
   ],
   "status": "draft"
