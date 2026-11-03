@@ -10,9 +10,10 @@
 // through its package's .bin under a nodeTest entry and through the
 // repository root's .bin under the legacy runner; the backstop covers every
 // linked node_modules, naming a path relative to the rcf project root;
-// and the help keeps its backstop sentence.
+// a red unmutated run names the cwd it ran at and points at "cwd":
+// "project"; and the help keeps its backstop sentence.
 //
-// Criteria: 8, all external. Each test drives bin/rcf.js audit
+// Criteria: 9, all external. Each test drives bin/rcf.js audit
 // test-strength (or --help) as a child process over a scratch copy of a
 // committed fixture world under test/fixtures/round-e/ (ws-two, the
 // pnpm layout: package dependencies not hoisted, a workspace package
@@ -398,3 +399,28 @@ test('AC-19904-10: a runners entry whose "cwd" is anything other than "project" 
   }
 });
 
+
+// The stage-keeper's gate addendum ruling 11: when the unmutated run is
+// red, the line right after the unmutated-run line names the cwd the run
+// ran at, relative to the rcf project root, and points at "cwd":
+// "project"; the unmutated-run line stays exact (AC-19902-9). The world is
+// AC-19904-8's without its "cwd": "project" entry. Red at the round E
+// DEFINE head, where every bound test runs at the rcf project root: the
+// test is green there, so the audit exits 0 and prints no red line.
+const cwdHint = (file, cwd) => `test-strength: ${file} ran at ${cwd}; a test that reads paths relative to the rcf project root pins "cwd": "project" on its runners entry`;
+
+test('AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no "cwd": "project" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at "cwd": "project"', async (t) => {
+  const file = 'apps/api/test/root.test.mjs';
+  const w = await wsTwo(t, {
+    acs: ['AC-101-1'],
+    config: { entry: ENTRY_TWO, harness: HARNESS },
+    nodes: [['apps/api/src/index.js#readRootPort', ['AC-101-1']]],
+    bind: [['AC-101-1', file, 'R1 readRootPort reads from the rcf project root']],
+  });
+  inPlace(w.dir, file);
+  const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+  const err = lines(r.stderr);
+  const red = err.findIndex((l) => /^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/.exec(l)?.[1] === `${file}::R1 readRootPort reads from the rcf project root`);
+  assert.ok(r.code === 2 && red >= 0, `run at apps/api the root-relative path is missing: exit 2 with "test-strength: the unmutated run is red for AC-101-1: ${file}::R1 ... fails under runner <argv>; no mutant was run"\n${shown(r)}`);
+  assert.equal(err[red + 1], cwdHint(file, 'apps/api'), `the line right after the unmutated-run line names the cwd apps/api and points at "cwd": "project"\n${shown(r)}`);
+});

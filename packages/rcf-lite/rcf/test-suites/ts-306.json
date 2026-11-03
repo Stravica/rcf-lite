@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-03T00:04:22.294Z",
+  "updatedAt": "2026-11-03T00:07:36.823Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -197,6 +197,13 @@
       "description": "a vitest runners entry with \"cwd\": \"project\" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a vitest runners entry with \"cwd\": \"project\" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-a-red-unmutated-run-of-a-bound-test-in",
+      "acId": "AC-19904-11",
+      "description": "a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
     }
   ],
   "status": "draft"

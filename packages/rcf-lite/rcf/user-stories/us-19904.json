@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:28:56.301Z",
-  "updatedAt": "2026-11-02T23:54:32.493Z",
+  "updatedAt": "2026-11-03T00:06:52.251Z",
   "asA": "verifier at the TEST stage on a TypeScript product",
   "iWant": "test strength to run each bound test through its declared runner and read that runner's report",
   "soThat": "TypeScript criteria get the proof JavaScript criteria get",
@@ -69,6 +69,12 @@
     {
       "id": "AC-19904-10",
       "description": "[failure] Given an `rcf/test-strength.json` whose `runners` entry at index `<i>` carries a `\"cwd\"` key whose value is anything other than the string `\"project\"` (another string such as `\"package\"`, `null`, a number), when `rcf audit test-strength` runs, then it exits 2 as a malformed config with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" that names `runners[<i>].cwd`, as the audit names the other fields of a malformed `runners` entry (exit 2 and that stderr line).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-11",
+      "description": "[failure] Given a bound test whose unmutated run is red, such as a test in `apps/api` that reads a path relative to the rcf project root with no `runners` entry pinning `\"cwd\": \"project\"` for it, when `rcf audit test-strength` runs, then the stderr line right after the unmutated-run line reads \"test-strength: <file> ran at <cwd>; a test that reads paths relative to the rcf project root pins \"cwd\": \"project\" on its runners entry\", `<file>` the bound test file and `<cwd>` the directory its run ran at, each a path relative to the rcf project root (`.` for the rcf project root itself; `apps/api/test/root.test.mjs` and `apps/api` for that test), and the unmutated-run line stays exactly as AC-19902-9 states it (exit 2, the unmutated-run line, then that hint line).",
       "testable": true,
       "verification": "external"
     }
