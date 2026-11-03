@@ -10,8 +10,8 @@
     "items": 132,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 36,
-    "verified": 36,
+    "complete": 34,
+    "verified": 38,
     "actionable": 42,
     "blocked": 16
   },
@@ -1710,12 +1710,12 @@
       "buildOrder": 240,
       "tier": 15,
       "title": "Release Verify outside the cycle: --record over the external criteria's bound E2E tests, release scope with smoke, packed artefact installed cold",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-235",
         "FBS-237"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
@@ -1737,11 +1737,11 @@
       "buildOrder": 242,
       "tier": 14,
       "title": "rcf audit test-strength: TypeScript test strength over tsx node:test, vitest and @playwright/test bound tests and .ts, .tsx and .vue Code Nodes",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [
         "FBS-236"
       ],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
