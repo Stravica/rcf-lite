@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-02T23:55:06.260Z",
+  "updatedAt": "2026-11-03T00:04:22.294Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -190,6 +190,13 @@
       "description": "the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-a-vitest-runners-entry-with-cwd-project",
+      "acId": "AC-19904-8",
+      "description": "a vitest runners entry with \"cwd\": \"project\" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a vitest runners entry with \"cwd\": \"project\" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line"
     }
   ],
   "status": "draft"

@@ -17,13 +17,15 @@
 // committed fixture world under test/fixtures/round-e/ (ws-two, the
 // pnpm layout: package dependencies not hoisted, a workspace package
 // link, a cwd-relative path; ws-sibling, an rcf project beside a sibling
-// package; ws-kinds, one package per runner kind), laid over the project
+// package; ws-kinds, one package per runner kind; ws-root-config, a
+// vitest config at the rcf project root with its test in a nested
+// package), laid over the project
 // the bin's own rcf init makes. The test writes the installed layout
 // (links and stand-in packages under node_modules, gitignored, as the
 // round D tests write node_modules/rootpkg), the rcf/test-strength.json
 // and the Code Node records its criterion's Given names, and commits the
 // world to git; ws-kinds installs apps/web's devDependencies with npm ci,
-// as the round D tests install theirs. Before each audit the bound tests
+// and ws-root-config its root's, as the round D tests install theirs. Before each audit the bound tests
 // are run in place at their package directory, so a red audit is the
 // audit's. Every run passes PATH from toolPath(['node', 'sh']), node's
 // directory first, and no node_modules/.bin. Red at the round E DEFINE
@@ -301,6 +303,36 @@ test('AC-19904-8: a runners entry with "cwd": "project" runs its tests at the rc
   noUnmutatedRed(r);
   assert.equal(r.code, 0, `the bound test runs at the rcf project root with ${file}: exit 0\n${shown(r)}`);
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
+});
+
+// The stage-keeper's gate ruling 6: a runner whose config sits at the
+// repository root with tests in nested packages pins "cwd": "project" on
+// its runners entry. A declared regression guard (green at the round E
+// DEFINE head, where every bound test runs at the rcf project root): the
+// nested check is collected through the root vitest config alone, so a
+// vitest entry with "cwd": "project" run at its package directory is red.
+test('AC-19904-8: a vitest runners entry with "cwd": "project" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line', async (t) => {
+  const dir = await project(t, { name: 'rootcfg' });
+  cpSync(join(WORLDS, 'ws-root-config'), dir, { recursive: true });
+  for (const f of ['package.json', 'package-lock.json']) cpSync(join(RC46, 'b-vitest', f), join(dir, f));
+  const file = 'apps/web/checks/title.check.mjs';
+  chain(dir, {
+    acs: ['AC-101-1'],
+    config: { entry: [{ kind: 'module', path: 'apps/web/src/index.js' }], harness: HARNESS, runners: [{ files: ['apps/web/checks/**'], kind: 'vitest', cwd: 'project' }] },
+    nodes: [['apps/web/src/index.js#slugify', ['AC-101-1']]],
+    bind: [['AC-101-1', file, 'title > slugs a title']],
+  });
+  install(t, dir);
+  initRepo(dir);
+  const H = commit(dir, 'fixture: base');
+  // vitest keeps caches under TMPDIR: the test's own scratch holds them.
+  const tmp = scratch(t, 'rcf-h-tmp-');
+  inPlace(dir, file, { argv: [join(dir, 'node_modules', '.bin', 'vitest'), 'run', file], env: { TMPDIR: tmp } });
+  const r = await strength(dir, ['--acs', 'AC-101-1']);
+  noCannotRun(r);
+  noUnmutatedRed(r);
+  assert.equal(r.code, 0, `the vitest entry runs at the rcf project root, where its config collects ${file}: exit 0\n${shown(r)}`);
+  assert.equal(out(r), passLine(H, 1, 2, 2, 0, 1), shown(r));
 });
 
 test('AC-19904-9: a nodeTest runners entry whose argv starts with a bare tsx installed in the test package runs from a PATH holding no node_modules/.bin, exit 0 with the PASS line', async (t) => {
