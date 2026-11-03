@@ -739,11 +739,13 @@ test('AC-19903-9: a workspace sibling linked by name in the rcf project root nod
 // the unmutated-run line with the "cwd": "project" hint, which points the
 // wrong way. The reviewer's probe, as a fixture: ws-hoisted with apps/lib's
 // main and exports naming dist/index.js, the build present in the
-// repository and gitignored. Red at the round F DEFINE head: the line
-// after the unmutated-run line is the cwd hint.
+// repository and gitignored. The reason line follows the hint, which
+// stays as the kept AC-19904-11 states it (whether the hint gives way to
+// the reason line here is the stage-keeper's ruling). Red at the round F
+// DEFINE head: nothing follows the hint.
 const entryReason = (h) => `test-strength: node_modules/@ws/lib points at apps/lib in the working copy, whose entry dist/index.js is not committed at ${s7(h)} (a working copy holds only what HEAD tracks)`;
 
-test('AC-19903-14: a red unmutated run of a bound test importing a workspace package whose entry is gitignored build output is followed by a line naming the link, the package and the entry not committed at HEAD, and no "cwd": "project" hint', async (t) => {
+test('AC-19903-14: a red unmutated run of a bound test importing a workspace package whose entry is gitignored build output gives, right after the "cwd": "project" hint, a line naming the link, the package and the entry not committed at HEAD', async (t) => {
   const w = await wsHoisted(t, {
     acs: ['AC-101-1'],
     config: { entry: ENTRY_HOISTED, harness: HARNESS },
@@ -757,6 +759,6 @@ test('AC-19903-14: a red unmutated run of a bound test importing a workspace pac
   const err = lines(r.stderr);
   const red = err.findIndex((l) => /^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/.exec(l)?.[1] === `${HOISTED_TEST}::H1 greet comes from the hoisted workspace library`);
   assert.ok(r.code === 2 && red >= 0, `the working copy's apps/lib holds no dist/: exit 2 with the unmutated-run line\n${shown(r)}`);
-  assert.equal(err[red + 1], entryReason(w.H), `the line right after the unmutated-run line names the link, the package and its entry not committed at HEAD\n${shown(r)}`);
-  assert.ok(!err.some((l) => l.endsWith('pins "cwd": "project" on its runners entry')), `no "cwd": "project" hint: the run's directory is not the cause\n${shown(r)}`);
+  assert.equal(err[red + 1], cwdHint(HOISTED_TEST, 'apps/api'), `the hint stays right after the unmutated-run line, as AC-19904-11 states it\n${shown(r)}`);
+  assert.equal(err[red + 2], entryReason(w.H), `the line right after the hint names the link, the package and its entry not committed at HEAD\n${shown(r)}`);
 });
