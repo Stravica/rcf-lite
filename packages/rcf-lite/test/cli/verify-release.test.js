@@ -600,6 +600,7 @@ const ESCAPE = {
   control: { message: 'esc\x1b[0m end', tap: "'esc\\x1B[0m end'" },
   doubleQuoted: { message: 'it\'s here', tap: '"it\'s here"' },
   doubleQuotedBackslash: { message: 'it\'s C:\\dir', tap: '"it\'s C:\\\\dir"' },
+  doubleQuotedControl: { message: 'it\'s\x1b[0m', tap: '"it\'s\\x1B[0m"' },
 };
 async function escapeFixture(t, message) {
   const f = await release(t, [{ id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] }], {
@@ -649,6 +650,13 @@ test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single 
 
 test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote and a backslash, which the TAP writes inside double quotes with the backslash escaped, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.doubleQuotedBackslash));
 
+// The stage-keeper's ruling C14 (TAC-4157 says "decoded"): a control
+// character inside a double-quoted value is written by node:test as a hex
+// escape too, which JSON.parse cannot read (JSON has no \x escape), so
+// the round F DEFINE head's yamlScalar falls back to the raw inner text.
+// Red there: the reason holds the four characters \x1B.
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote and a control character, which the TAP writes inside double quotes with the control character as a hex escape, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.doubleQuotedControl));
+
 test('AC-20101-9: a fail line whose case threw a message holding a backslash is followed by "  reason: <reason>" with the message as thrown', async (t) => {
   const { message, tap } = ESCAPE.backslash;
   const { dir, error, probe } = await escapeFixture(t, message);
@@ -661,13 +669,54 @@ test('AC-20101-9: a fail line whose case threw a message holding a backslash is 
   assert.equal(out[i + 1], `  reason: ${message}`, `the line after AC-101-1's fail line carries the message as thrown\n${r.stdout}`);
 });
 
+// Round F, F-5's printed line (the stage-keeper's ruling C14): the printed
+// reason line shows a decoded control character other than tab as its
+// JavaScript escape (\n, \r, else \x and two lowercase hex digits, \x1b
+// for escape), so the line stays one line and readable; a tab is printed
+// as a tab; nothing else is escaped (a backslash prints as itself, as
+// AC-20101-9's backslash case already asserts); the report's perAc reason
+// keeps the decoded characters (AC-20101-8), and the TAP keeps TAP's own
+// form (TAC-4157). Each case reads the case's TAP error value first,
+// as AC-20101-8's do. A line feed never reaches the reason: node:test
+// writes a message holding one as a block scalar, whose first non-empty
+// line is the reason, so no case drives \n. The tab case is red at the
+// round F DEFINE head (the printed line holds TAP's \t escape, a
+// backslash and a t, where the tab belongs) and so is the escape case (it
+// holds TAP's own escape passed through undecoded, \x1B in capitals, and
+// the backslash TAP doubled, where the decoded message gives
+// "esc\x1b[0m in C:\dir"); the carriage-return case is a declared
+// regression guard, green there (TAP's \r passes through and reads as the
+// JavaScript escape): the BUILD's decoding for AC-20101-8 must not print
+// the carriage return itself.
+const PRINTED = {
+  tab: { message: 'col\tvalue', tap: "'col\\tvalue'", printed: 'col\tvalue' },
+  control: { message: 'esc\x1b[0m in C:\\dir', tap: "'esc\\x1B[0m in C:\\\\dir'", printed: 'esc\\x1b[0m in C:\\dir' },
+  carriageReturn: { message: 'line one\rline two', tap: "'line one\\rline two'", printed: 'line one\\rline two' },
+};
+async function reasonPrints(t, { message, tap, printed }) {
+  const { dir, error, probe } = await escapeFixture(t, message);
+  assert.equal(error, tap, `node:test's TAP writes the case's error as ${tap}\n${probe}`);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const i = out.indexOf('AC-101-1 FBS-001 fail');
+  assert.ok(i >= 0, `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  assert.equal(out[i + 1], `  reason: ${printed}`, `the line after AC-101-1's fail line shows the decoded message, ${JSON.stringify(printed)}\n${JSON.stringify(out[i + 1])}\n${r.stdout}`);
+}
+
+test('AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by "  reason: <reason>" with the tab printed as a tab', (t) => reasonPrints(t, PRINTED.tab));
+
+test('AC-20101-11: a fail line whose case threw a message holding an escape character and a backslash, which the TAP writes as a capital hex escape and a doubled backslash, is followed by "  reason: <reason>" with the escape character printed as its JavaScript escape in lowercase hex and the backslash as itself', (t) => reasonPrints(t, PRINTED.control));
+
+test('AC-20101-11: a fail line whose case threw a message holding a carriage return is followed by "  reason: <reason>" with the carriage return printed as its JavaScript escape, the line staying one line', (t) => reasonPrints(t, PRINTED.carriageReturn));
+
 // Round F, F-6: rcf verify run --help states the reason rule as TAC-4157
 // interfaces[1] (the ReleaseVerifyReport's perAc reason) does, where the
 // 0.40.0 help (src/verify/cli/run.js :288 to :290) abbreviates it in a
 // parenthetical. Red at the round F DEFINE head: the help holds the
 // parenthetical and not the rule.
 const flat = (text) => text.split(/\s+/).filter(Boolean).join(' ');
-const REASON_RULE = 'A fail row\'s reason comes from the first failing case in the row\'s tests order: the first non-empty line of its TAP diagnostic\'s error, trimmed (the whole message when it is one line), else its runner\'s last non-empty stderr line, trimmed, else "no result for <pointer> (exit <code>)", <code> its runner\'s exit code; the file\'s own summary "not ok" line is never a case.';
+const REASON_RULE = 'A fail row\'s reason comes from the first failing case in the row\'s tests order: the first non-empty line of its TAP diagnostic\'s error, decoded and trimmed (the whole message when it is one line), else its runner\'s last non-empty stderr line, trimmed, else "no result for <pointer> (exit <code>)", <code> its runner\'s exit code; the file\'s own summary "not ok" line is never a case.';
 const REASON_ABBREVIATED = '(the first failing case\'s message, else its runner\'s last stderr line, else "no result for <pointer> (exit <code>)")';
 
 test('AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical', async (t) => {

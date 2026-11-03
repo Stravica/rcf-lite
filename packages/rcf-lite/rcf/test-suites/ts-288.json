@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-11-03T18:44:45.271Z",
+  "updatedAt": "2026-11-03T20:24:46.853Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -13,7 +13,8 @@
     "AC-20101-7",
     "AC-20101-8",
     "AC-20101-9",
-    "AC-20101-10"
+    "AC-20101-10",
+    "AC-20101-11"
   ],
   "id": "TS-288",
   "usId": "US-20101",
@@ -186,6 +187,34 @@
       "description": "rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical"
+    },
+    {
+      "id": "TC-288-a-double-quoted-hex-escape-is-decoded",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case whose one-line thrown message holds a single quote and a control character, which the TAP writes inside double quotes with the control character as a hex escape, gives its perAc row result \"fail\" with the message as thrown as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote and a control character, which the TAP writes inside double quotes with the control character as a hex escape, gives its perAc row result \"fail\" with the message as thrown as reason"
+    },
+    {
+      "id": "TC-288-the-printed-tab-is-a-tab",
+      "acId": "AC-20101-11",
+      "description": "a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by \"  reason: <reason>\" with the tab printed as a tab",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by \"  reason: <reason>\" with the tab printed as a tab"
+    },
+    {
+      "id": "TC-288-the-printed-escape-character-is-its-js-escape",
+      "acId": "AC-20101-11",
+      "description": "a fail line whose case threw a message holding an escape character and a backslash, which the TAP writes as a capital hex escape and a doubled backslash, is followed by \"  reason: <reason>\" with the escape character printed as its JavaScript escape in lowercase hex and the backslash as itself",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding an escape character and a backslash, which the TAP writes as a capital hex escape and a doubled backslash, is followed by \"  reason: <reason>\" with the escape character printed as its JavaScript escape in lowercase hex and the backslash as itself"
+    },
+    {
+      "id": "TC-288-the-printed-carriage-return-is-its-js-escape",
+      "acId": "AC-20101-11",
+      "description": "a fail line whose case threw a message holding a carriage return is followed by \"  reason: <reason>\" with the carriage return printed as its JavaScript escape, the line staying one line",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding a carriage return is followed by \"  reason: <reason>\" with the carriage return printed as its JavaScript escape, the line staying one line"
     }
   ],
   "status": "draft"

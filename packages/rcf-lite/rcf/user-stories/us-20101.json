@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:35:46.960Z",
-  "updatedAt": "2026-11-03T18:44:44.178Z",
+  "updatedAt": "2026-11-03T20:23:51.151Z",
   "asA": "operator (the operating engineer) running Verify before the promote",
   "iWant": "one command that runs the external criteria's E2E tests for the release scope plus the core journeys and records verified",
   "soThat": "verified means the release target passed, and nothing inside a build round can write it",
@@ -71,7 +71,13 @@
     },
     {
       "id": "AC-20101-10",
-      "description": "[happy] Given `rcf verify run --help`, when it runs, then it exits 0 and its output, whitespace collapsed, states the reason of a fail row as TAC-4157 interfaces[1] does, in the sentence \"A fail row's reason comes from the first failing case in the row's tests order: the first non-empty line of its TAP diagnostic's error, trimmed (the whole message when it is one line), else its runner's last non-empty stderr line, trimmed, else \"no result for <pointer> (exit <code>)\", <code> its runner's exit code; the file's own summary \"not ok\" line is never a case.\", in place of the parenthetical \"(the first failing case's message, else its runner's last stderr line, else \"no result for <pointer> (exit <code>)\")\", and still says each fail line is followed by \"  reason: <reason>\".",
+      "description": "[happy] Given `rcf verify run --help`, when it runs, then it exits 0 and its output, whitespace collapsed, states the reason of a fail row as TAC-4157 interfaces[1] does, in the sentence \"A fail row's reason comes from the first failing case in the row's tests order: the first non-empty line of its TAP diagnostic's error, decoded and trimmed (the whole message when it is one line), else its runner's last non-empty stderr line, trimmed, else \"no result for <pointer> (exit <code>)\", <code> its runner's exit code; the file's own summary \"not ok\" line is never a case.\", in place of the parenthetical \"(the first failing case's message, else its runner's last stderr line, else \"no result for <pointer> (exit <code>)\")\", and still says each fail line is followed by \"  reason: <reason>\".",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-20101-11",
+      "description": "[failure] Given a release Verify fixture whose bound e2e case throws a one-line message holding a control character (Unicode category Cc), which node:test's TAP writes as an escape inside a quoted value, when `rcf verify run --release <label>` prints its rows, then the \"  reason: <reason>\" line after that criterion's fail line (AC-20101-9) shows the decoded reason with each control character other than tab as its JavaScript escape, `\\n` for a line feed, `\\r` for a carriage return and `\\x` with two lowercase hex digits for any other (`\\x1b` for the escape character, which the TAP writes `\\x1B`), so the line stays one line and readable, and a tab as a tab; no other character is escaped (a backslash prints as itself), the report's perAc reason keeps the decoded characters themselves (AC-20101-8), and the TAP keeps TAP's own form.",
       "testable": true,
       "verification": "external"
     }
