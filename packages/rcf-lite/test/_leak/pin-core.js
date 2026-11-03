@@ -41,10 +41,18 @@ export function parseExecutedTests(tap) {
 // Throws an AssertionError that node:test surfaces as a failed
 // assertion in the pin test body. Returns `undefined` on a healthy
 // run so the caller can proceed to the leak-count assertion.
-export function assessPinChildRun({ code, signal, executedTests, floor }) {
+//
+// Round F (F-7): on a non-zero exit the message also names the child's
+// inner failing tests, `failures` as innerFailures gives them, each as
+// "<file>:<line> <title>" joined by "; ", or says that the child's TAP
+// named none (the transcript tail is then the only record).
+export function assessPinChildRun({ code, signal, executedTests, floor, failures = [] }) {
   if (code !== 0) {
+    const named = failures.length
+      ? `; ${failures.length} inner failing test(s): ${failures.map(innerFailureName).join('; ')}`
+      : "; the child's TAP names no failing test (see the child transcript tail)";
     throw new assert.AssertionError({
-      message: `pin invariant: child exit code must be 0, got code=${code} signal=${signal ?? 'none'}`,
+      message: `pin invariant: child exit code must be 0, got code=${code} signal=${signal ?? 'none'}${named}`,
       actual: code,
       expected: 0,
       operator: '==',
@@ -95,4 +103,58 @@ export function resolvePinTimeout(env = process.env) {
 // on every exit of the child so a later round can size the cap.
 export function innerWallTimeLine({ elapsedMs, capMs, source, timedOut }) {
   return `inner suite wall time: ${elapsedMs} ms (cap ${capMs} ms, ${source}${timedOut ? ', stopped at the cap' : ''})`;
+}
+
+// A location value as node:test's TAP reporter writes it in a YAML
+// diagnostic: util.inspect's quoting (single, double or backtick quotes,
+// backslash escapes), or a bare value.
+function tapValue(text) {
+  const q = text[0];
+  if ((q === "'" || q === '"' || q === '`') && text.length > 1 && text.endsWith(q)) {
+    return text.slice(1, -1).replace(/\\(.)/g, '$1');
+  }
+  return text;
+}
+
+// The inner failing tests of the child's TAP (round F, F-7): every
+// "not ok" test line at any depth that carries no TODO or SKIP directive,
+// less a parent whose diagnostic reads failureType 'subtestsFailed' (its
+// failing subtests are named instead), each as { file, line, title }:
+// the file and line of its diagnostic's location (the file relative to
+// `cwd` when it is inside it), and its title with the reporter's `\#` and
+// `\\` escapes undone. A test line with no location in its diagnostic
+// gives file and line null. Returns [] for anything but a string.
+export function innerFailures(tap, cwd = '') {
+  if (typeof tap !== 'string') return [];
+  const out = [];
+  const lines = tap.split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const m = lines[i].match(/^( *)not ok \d+ - (.*)$/);
+    if (!m) continue;
+    const d = m[2].match(/^(.*?) # (TODO|SKIP)\b.*$/);
+    if (d && !d[1].endsWith('\\')) continue;
+    const pad = m[1];
+    let location = null;
+    let parent = false;
+    if (lines[i + 1] === `${pad}  ---`) {
+      for (let j = i + 2; j < lines.length && lines[j] !== `${pad}  ...`; j += 1) {
+        const loc = lines[j].match(/^ *location: (.*)$/);
+        if (loc && lines[j].startsWith(`${pad}  location:`)) location = tapValue(loc[1]);
+        if (lines[j] === `${pad}  failureType: 'subtestsFailed'`) parent = true;
+      }
+    }
+    if (parent) continue;
+    const at = location ? location.match(/^(.*):(\d+):\d+$/) : null;
+    let file = at ? at[1] : null;
+    const root = cwd && !cwd.endsWith('/') ? `${cwd}/` : cwd;
+    if (file && root && file.startsWith(root)) file = file.slice(root.length);
+    out.push({ file, line: at ? Number(at[2]) : null, title: m[2].replace(/\\(.)/g, '$1') });
+  }
+  return out;
+}
+
+// One inner failing test as the pin names it: "<file>:<line> <title>",
+// or "<title> (no location)" when its diagnostic gave none.
+export function innerFailureName({ file, line, title }) {
+  return file === null ? `${title} (no location)` : `${file}:${line} ${title}`;
 }
