@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-11-03T20:19:18.876Z",
+  "updatedAt": "2026-11-03T20:20:22.237Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -89,7 +89,7 @@
     },
     {
       "id": "AC-19903-13",
-      "description": "[failure] Given a workspace package whose bound test needs its node_modules linked in the working copy (TAC-4155 responsibilities[4]), when the git ls-tree with which `rcf audit test-strength` lists every package.json directory at HEAD fails, then the audit exits 2 with the stderr line \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <git's stderr, trimmed>\", runs no bound test (no \"the unmutated run is red\" line) and prints no verdict line, where 0.40.0 went on as if the repository held no workspace package.",
+      "description": "[failure] Given a workspace package whose bound test needs its node_modules linked in the working copy (TAC-4155 responsibilities[4]), when either git ls-tree with which `rcf audit test-strength` reads HEAD fails, the listing of every package.json directory at HEAD or the listing of the files at HEAD (`git ls-tree -r --name-only HEAD`), then the audit exits 2 with a stderr line naming the command that failed, \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <git's stderr, trimmed>\" for the first and \"test-strength: cannot list the files at <h7>: git ls-tree -r --name-only HEAD failed: <git's stderr, trimmed>\" for the second, runs no bound test (no \"the unmutated run is red\" line) and prints no verdict line, where 0.40.0 went on as if the repository held no workspace package, or no file at HEAD.",
       "testable": true,
       "verification": "external"
     },
