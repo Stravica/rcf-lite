@@ -39,8 +39,21 @@
 // directory holding a stand-in tsx that exits 1 ahead of it). Red at the round E DEFINE
 // head: 0.39.0 links only the node_modules of the rcf project and its
 // ancestors, runs every bound test at the rcf project root, and puts a
-// node_modules/.bin on PATH for vitest and playwright only. Imports:
-// Node builtins and test/_harness/ only (GR-40).
+// node_modules/.bin on PATH for vitest and playwright only.
+//
+// Round F (the round E REVIEW notes F-1 to F-4 and F-8): three more
+// criteria, AC-19903-13 (a failing git ls-tree of the workspace packages
+// exits 2, named; a git stand-in first on PATH fails that listing),
+// AC-19903-14 (a re-pointed link whose package entry is not committed at
+// HEAD gets its own reason line) and AC-19903-15 (the help names the real
+// path of each node_modules and the repository's .git), red at the round
+// F DEFINE head until its BUILD; and three declared regression guards,
+// green there: AC-19904-11's hint at the rcf project root ("ran at ."),
+// and AC-19903-9 in npm's hoisted layout (test/fixtures/round-f/
+// ws-hoisted, the link in the rcf project's own node_modules re-pointed
+// into the copy, TAC-4155 responsibilities[4]), whose dist layout is the
+// AC-19903-14 world. Criteria: 12, all external. Imports: Node builtins
+// and test/_harness/ only (GR-40).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
