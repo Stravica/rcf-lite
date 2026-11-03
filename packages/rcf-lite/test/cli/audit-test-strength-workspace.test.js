@@ -44,7 +44,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, renameSync, symlinkSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, symlinkSync } from 'node:fs';
 import { delimiter, dirname, join, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -628,4 +628,65 @@ test('AC-19903-13: when git ls-tree fails as the audit lists the workspace packa
   noUnmutatedRed(r);
   assert.equal(r.code, 2, `the audit's own input failed: exit 2\n${shown(r)}`);
   assert.equal(r.stdout, '', `no verdict line\n${shown(r)}`);
+});
+
+
+// ws-hoisted (round F) in git at H: the rcf init project with the world
+// laid over it, npm's hoisted layout written (node_modules/@ws/lib in the
+// rcf project root's own node_modules, a relative link to apps/lib, as
+// npm links a workspace package; nothing in apps/api/node_modules), and
+// the chain. With `dist`, apps/lib's package.json names gitignored build
+// output, dist/index.js, as main and exports, and the build (a copy of
+// the source) is written in apps/lib/dist/, present in the repository and
+// absent at HEAD.
+const WORLDS_F = join(PACKAGE_ROOT, 'test', 'fixtures', 'round-f');
+const ENTRY_HOISTED = [{ kind: 'module', path: 'apps/lib/src/index.js' }];
+const HOISTED_TEST = 'apps/api/test/greet.test.mjs';
+async function wsHoisted(t, spec, { dist = false } = {}) {
+  const dir = await project(t, { name: 'hoist' });
+  cpSync(join(WORLDS_F, 'ws-hoisted'), dir, { recursive: true });
+  link('../../apps/lib', join(dir, 'node_modules', '@ws', 'lib'));
+  chain(dir, spec);
+  if (dist) {
+    writeText(dir, 'apps/lib/package.json', `${q({ name: '@ws/lib', version: '1.0.0', private: true, type: 'module', main: 'dist/index.js', exports: './dist/index.js' })}\n`);
+    writeText(dir, 'apps/lib/dist/index.js', readFileSync(join(dir, 'apps', 'lib', 'src', 'index.js'), 'utf8'));
+    writeText(dir, '.gitignore', 'node_modules/\napps/lib/dist/\n');
+  }
+  initRepo(dir);
+  const H = commit(dir, 'fixture: base');
+  return { dir, H };
+}
+
+// Round F, F-4 (the round E reviewer's note on AC-19903-8: TAC-4155
+// responsibilities[4] read two ways for a symbolic-link entry in the
+// node_modules of the rcf project and its ancestors; the stage-keeper
+// accepted the builder's reading, re-pointed into the copy, and ruled a
+// DEFINE sharpening, which this round's TAC-4155 text carries). The
+// hoisted layout puts the workspace package link in the rcf project's own
+// node_modules, not in apps/api's: only a copy that re-points that link
+// to the copy's apps/lib runs a mutant of apps/lib, where a link to the
+// project's own apps/lib (the other reading, 0.39.0's absolute link)
+// leaves every mutant survived (exit 4). AC-19903-9's Given ("a test in
+// apps/api importing @ws/lib by name (a workspace package link)") holds
+// for the link wherever npm puts it. A declared regression guard, green
+// at the round F DEFINE head (src/audit/test-strength/runner.js
+// linkModules re-points a symbolic-link entry in every node_modules it
+// links, the rcf project's and each ancestor's included).
+test('AC-19903-9: a workspace sibling linked by name in the rcf project root node_modules, npm hoisted layout, resolves inside the working copy: each mutant of apps/lib/src/index.js#greet is killed, exit 0 with the PASS line', async (t) => {
+  const w = await wsHoisted(t, {
+    acs: ['AC-101-1'],
+    config: { entry: ENTRY_HOISTED, harness: HARNESS },
+    nodes: [['apps/lib/src/index.js#greet', ['AC-101-1']]],
+    bind: [['AC-101-1', HOISTED_TEST, 'H1 greet comes from the hoisted workspace library']],
+  });
+  assert.ok(existsSync(join(w.dir, 'node_modules', '@ws', 'lib', 'package.json')) && !existsSync(join(w.dir, 'apps', 'api', 'node_modules')), 'the workspace package link sits in the rcf project root node_modules, nothing in apps/api/node_modules');
+  inPlace(join(w.dir, 'apps', 'api'), 'test/greet.test.mjs');
+  const r = await strength(w.dir, ['--acs', 'AC-101-1', '--json']);
+  noUnmutatedRed(r);
+  assert.equal(r.code, 0, `each mutant of apps/lib/src/index.js#greet is applied in the working copy's apps/lib, which the re-pointed link reaches, and killed: exit 0\n${shown(r)}`);
+  const mutants = json(r.stdout).criteria.find((c) => c.acId === 'AC-101-1').mutants.filter((m) => m.result !== 'notApplicable');
+  assert.ok(mutants.length > 0, `greet has mutants\n${r.stdout}`);
+  for (const m of mutants) assert.equal(m.result, 'killed', `${m.symbol} ${m.operator}: killed, never survived\n${r.stdout}`);
+  const line = await strength(w.dir, ['--acs', 'AC-101-1']);
+  assert.equal(out(line), passLine(w.H, 1, 2, 2, 0, 1), shown(line));
 });
