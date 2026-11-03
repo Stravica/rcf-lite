@@ -11791,6 +11791,62 @@
           "now": "verified"
         },
         {
+          "id": "AC-19903-8",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-bound-test-in-a-workspace-package"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-9",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-workspace-sibling-imported-by-name"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-10",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-bound-test-runs-at-its-package",
+            "TC-284-every-runner-kind-runs-a-bound-test-at"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-11",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-bound-test-writing-under-a-sibling"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-12",
+          "covered": true,
+          "testCases": [
+            "TC-284-rcf-audit-test-strength-help-keeps-the"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
           "id": "AC-19904-1",
           "covered": true,
           "testCases": [
@@ -11875,6 +11931,53 @@
             "TC-306-on-a-tab-indented-line-an-enum",
             "TC-306-the-column-counts-utf-16-units-an-emoji",
             "TC-306-the-detail-names-the-construct-strip"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19904-8",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-runners-entry-with-cwd-project-runs",
+            "TC-306-a-vitest-runners-entry-with-cwd-project"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19904-9",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-nodetest-runners-entry-whose-argv",
+            "TC-306-the-legacy-runner-whose-argv-starts-with",
+            "TC-306-the-path-order-a-bare-tsx-under-a"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19904-10",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-runners-entry-whose-cwd-is-anything"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19904-11",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-red-unmutated-run-of-a-bound-test-in"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
@@ -12175,6 +12278,34 @@
           "covered": true,
           "testCases": [
             "TC-288-since-naming-a-missing-ref-a-tree-or-a"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-20101-8",
+          "covered": true,
+          "testCases": [
+            "TC-288-a-bound-e2e-case-throwing-harness-node",
+            "TC-288-a-failing-bound-e2e-case-whose-assertion",
+            "TC-288-a-failing-bound-e2e-case-with-neither-a",
+            "TC-288-a-pass-row-keeps-its-reason-null-in-a",
+            "TC-288-no-reason-line-follows-a-blocked-line-in",
+            "TC-288-with-two-failing-bound-e2e-cases-of"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-20101-9",
+          "covered": true,
+          "testCases": [
+            "TC-288-the-line-after-each-fail-line-reads",
+            "TC-288-with-two-failing-bound-e2e-cases-on-one"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
