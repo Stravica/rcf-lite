@@ -21,12 +21,14 @@ const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
 /**
  * Run each file once with node --test, selecting only the named cases.
+ * Each run keeps its parsed TAP (each case's diagnostic error among it),
+ * its stderr and its exit code (round E, AC-20101-8: a fail row's reason).
  *
  * @param {object} p
  * @param {string} p.runDir
  * @param {string[]} p.pointers - test pointers (file::title)
  * @param {NodeJS.ProcessEnv} p.env
- * @returns {Promise<Map<string, ReturnType<typeof parseTap>>>} parsed TAP by file
+ * @returns {Promise<Map<string, ReturnType<typeof parseTap> & { stderr: string, code: number }>>} the run by file
  */
 export async function runCases({ runDir, pointers, env }) {
   const byFile = new Map();
@@ -43,19 +45,49 @@ export async function runCases({ runDir, pointers, env }) {
   for (const [file, titles] of byFile) {
     const patterns = [...titles].map((t) => `--test-name-pattern=(?:^| )${escapeRegExp(t)}$`);
     const r = await runChild(process.execPath, ['--test', '--test-reporter=tap', ...patterns, file], { cwd: runDir, env: childEnv });
-    runs.set(file, parseTap(r.stdout));
+    runs.set(file, { ...parseTap(r.stdout), stderr: r.stderr, code: r.code });
   }
   return runs;
 }
 
-// pass when the pointer's case was reported ok with no directive, else fail.
-function caseResult(runs, pointer) {
+// The pointer's case as its file's run reported it (the shallowest of
+// that title; the file's own summary line is never a case), or null.
+function reportedCase(runs, pointer) {
   const { file, testName } = splitTestPointer(pointer);
   let found = null;
   for (const t of runs.get(file)?.tests ?? []) {
     if (t.title === testName && (!found || t.depth < found.depth)) found = t;
   }
+  return found;
+}
+
+// pass when the pointer's case was reported ok with no directive, else fail.
+function caseResult(runs, pointer) {
+  const found = reportedCase(runs, pointer);
   return found && found.ok && !found.directive ? 'pass' : 'fail';
+}
+
+const firstLine = (text) => text.split('\n').map((l) => l.trim()).find(Boolean) ?? null;
+
+/**
+ * The reason of a fail row (round E, AC-20101-8; TAC-4157 interfaces[1]):
+ * from the first failing case in the row's tests order, the first
+ * non-empty line of its TAP diagnostic's error, trimmed, else its runner's
+ * last non-empty stderr line, trimmed, else "no result for <pointer>
+ * (exit <code>)".
+ *
+ * @param {Map<string, { stderr: string, code: number }>} runs
+ * @param {string[]} tests - the row's test pointers, in order
+ * @returns {string}
+ */
+function failReason(runs, tests) {
+  const pointer = tests.find((p) => caseResult(runs, p) === 'fail');
+  const error = reportedCase(runs, pointer)?.error;
+  if (error && firstLine(error)) return firstLine(error);
+  const run = runs.get(splitTestPointer(pointer).file);
+  const last = (run?.stderr ?? '').split('\n').map((l) => l.trim()).filter(Boolean).pop();
+  if (last) return last;
+  return `no result for ${pointer} (exit ${run?.code ?? 1})`;
 }
 
 /**
@@ -125,7 +157,7 @@ export async function runReleaseVerify({ projectRoot, release, since, head, smok
     const perAc = scope.rows.map((r) => {
       const tests = r.tests.map((t) => t.testPointer);
       const result = r.blocked ? 'blocked' : (tests.every((p) => caseResult(runs, p) === 'pass') ? 'pass' : 'fail');
-      return { acId: r.acId, fbsId: r.fbsId, result, reason: r.blocked, tests };
+      return { acId: r.acId, fbsId: r.fbsId, result, reason: result === 'fail' ? failReason(runs, tests) : r.blocked, tests };
     });
     const smoke = smokeSuites.map((tsId, i) => {
       const tests = smokePointers[i];

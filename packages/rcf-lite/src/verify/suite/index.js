@@ -121,18 +121,32 @@ function unescapeTitle(s) {
   return s.replace(/\\(.)/g, '$1');
 }
 
+// A YAML scalar as node:test's TAP reporter writes a diagnostic value on
+// one line: single-quoted, double-quoted or plain.
+function yamlScalar(text) {
+  if (text.startsWith("'") && text.endsWith("'") && text.length > 1) return text.slice(1, -1).replace(/''/g, "'");
+  if (text.startsWith('"') && text.endsWith('"') && text.length > 1) {
+    try { return JSON.parse(text); } catch { return text.slice(1, -1); }
+  }
+  return text;
+}
+
 /**
  * Parse node:test TAP output: every test line at any depth as
- * { ok, testNumber, title, directive, depth }, and the top-level summary
- * counts.
+ * { ok, testNumber, title, directive, depth, error }, and the top-level
+ * summary counts. error is the message of the test's own YAML diagnostic
+ * (its error key: a one-line scalar, or a block scalar's lines joined by
+ * newlines), or null when the test has none (FBS-238 round E, AC-20101-8).
  *
  * @param {string} tap
- * @returns {{ tests: Array<{ ok: boolean, testNumber: number, title: string, directive: 'TODO'|'SKIP'|null, depth: number }>, summary: Record<string, number> }}
+ * @returns {{ tests: Array<{ ok: boolean, testNumber: number, title: string, directive: 'TODO'|'SKIP'|null, depth: number, error: string|null }>, summary: Record<string, number> }}
  */
 export function parseTap(tap) {
   const tests = [];
   const summary = {};
-  for (const line of tap.split('\n')) {
+  const lines = tap.split('\n');
+  for (let i = 0; i < lines.length; i += 1) {
+    const line = lines[i];
     const m = line.match(/^( *)(not ok|ok) (\d+) - (.*)$/);
     if (m) {
       const d = m[4].match(/^(.*?) # (TODO|SKIP)\b.*$/);
@@ -144,7 +158,30 @@ export function parseTap(tap) {
         title: unescapeTitle(raw),
         directive: d && raw === d[1] ? d[2] : null,
         depth: m[1].length / 4,
+        error: null,
       });
+      continue;
+    }
+    // The YAML diagnostic of the test line just read, from "---" to "...".
+    const open = line.match(/^( *)---$/);
+    if (open && tests.length) {
+      const pad = open[1];
+      for (i += 1; i < lines.length && lines[i] !== `${pad}...`; i += 1) {
+        // An unclosed diagnostic ends at the first line outside its indent.
+        if (lines[i].trim() && !lines[i].startsWith(pad)) { i -= 1; break; }
+        const e = lines[i].match(/^( *)error: ?(.*)$/);
+        if (!e || e[1] !== pad) continue;
+        if (/^[|>][-+]?\d*$/.test(e[2])) {
+          const block = [];
+          while (i + 1 < lines.length && (lines[i + 1].trim() === '' || lines[i + 1].startsWith(`${pad}  `))) {
+            i += 1;
+            block.push(lines[i].slice(pad.length + 2));
+          }
+          tests[tests.length - 1].error = block.join('\n');
+        } else {
+          tests[tests.length - 1].error = yamlScalar(e[2]);
+        }
+      }
       continue;
     }
     const s = line.match(/^# (tests|pass|fail|cancelled|skipped|todo) (\d+)$/);
