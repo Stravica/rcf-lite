@@ -11,5 +11,14 @@ under `node_modules/.pnpm/ms@2.1.3/node_modules/ms`, linked from
 scope directory; and a stand-in `tsx` in `apps/api/node_modules/.bin`
 (one test writes it in the root's `node_modules/.bin` instead, as a root
 devDependency, nothing of it in `apps/api`).
+The PATH-order test keeps the stand-in `tsx` in `apps/api/node_modules/.bin`
+and also writes a stand-in `tsx` that exits 1 in the root's
+`node_modules/.bin` and another on the caller's PATH, and it installs the
+real vitest in the root's `node_modules` (npm ci of the rc-46 `b-vitest`
+lockfile in a scratch directory of its own, its entries then moved in), so
+vitest sits in the root's `node_modules/.bin` alone, nothing of it in
+`apps/api`; this world's own package.json stays as committed and no
+lockfile is written in it. `apps/api/test/vitest.test.mjs` is a vitest
+test; every other test file is a node:test file.
 Test files end in `.test.mjs` so the package suite's `test/**/*.test.js`
 glob never runs them.

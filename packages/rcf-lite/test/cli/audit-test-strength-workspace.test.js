@@ -6,9 +6,12 @@
 // else the rcf project root) with <file> relative to it, whatever its
 // runner kind; a runners entry may pin "cwd": "project", and any other
 // cwd value is a malformed config; every node_modules/.bin from the test's
-// package up to the repository root joins PATH, so a bare tsx resolves
-// through its package's .bin under a nodeTest entry and through the
-// repository root's .bin under the legacy runner; the backstop covers every
+// package up to the repository root joins PATH, nearest first, ahead of
+// the inherited PATH, under every runner kind and a "cwd": "project"
+// entry, so a bare tsx resolves through its package's .bin under a
+// nodeTest entry and through the repository root's .bin under the legacy
+// runner, the package's .bin comes before the root's and the caller's, and
+// vitest resolves through an ancestor's .bin; the backstop covers every
 // linked node_modules, naming a path relative to the rcf project root;
 // a red unmutated run names the cwd it ran at and points at "cwd":
 // "project"; and the help keeps its backstop sentence.
@@ -26,10 +29,14 @@
 // round D tests write node_modules/rootpkg), the rcf/test-strength.json
 // and the Code Node records its criterion's Given names, and commits the
 // world to git; ws-kinds installs apps/web's devDependencies with npm ci,
-// and ws-root-config its root's, as the round D tests install theirs. Before each audit the bound tests
+// and ws-root-config its root's, as the round D tests install theirs, and
+// the PATH-order test installs vitest for ws-two's root with npm ci in a
+// scratch directory of its own and moves it into the root's node_modules.
+// Before each audit the bound tests
 // are run in place at their package directory, so a red audit is the
 // audit's. Every run passes PATH from toolPath(['node', 'sh']), node's
-// directory first, and no node_modules/.bin. Red at the round E DEFINE
+// directory first, and no node_modules/.bin (the PATH-order test puts a
+// directory holding a stand-in tsx that exits 1 ahead of it). Red at the round E DEFINE
 // head: 0.39.0 links only the node_modules of the rcf project and its
 // ancestors, runs every bound test at the rcf project root, and puts a
 // node_modules/.bin on PATH for vitest and playwright only. Imports:
@@ -37,7 +44,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, cpSync, existsSync, mkdirSync, renameSync, symlinkSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, readdirSync, renameSync, symlinkSync } from 'node:fs';
 import { delimiter, dirname, join, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -89,9 +96,10 @@ const link = (target, path) => { mkdirSync(dirname(path), { recursive: true }); 
 // link; @ws/lib a relative link to apps/lib inside a real scope
 // directory; a stand-in tsx (it runs node with the same arguments) in
 // apps/api/node_modules/.bin, or in `tsxBin` (the repository root's
-// node_modules/.bin for a root devDependency, nothing of it in apps/api).
-// Nothing of ms or @ws/lib at the root.
-function pnpmLayout(dir, { tsxBin = 'apps/api/node_modules/.bin' } = {}) {
+// node_modules/.bin for a root devDependency, nothing of it in apps/api);
+// and a stand-in tsx that exits 1 in each directory `exitOneTsxBins`
+// names (none by default). Nothing of ms or @ws/lib at the root.
+function pnpmLayout(dir, { tsxBin = 'apps/api/node_modules/.bin', exitOneTsxBins = [] } = {}) {
   const store = 'node_modules/.pnpm/ms@2.1.3/node_modules/ms';
   writeText(dir, `${store}/package.json`, `${q({ name: 'ms', version: '2.1.3', main: 'index.js' }, null, 2)}\n`);
   writeText(dir, `${store}/index.js`, [
@@ -114,6 +122,21 @@ function pnpmLayout(dir, { tsxBin = 'apps/api/node_modules/.bin' } = {}) {
     '',
   ].join('\n'));
   chmodSync(join(dir, ...tsxBin.split('/'), 'tsx'), 0o755);
+  for (const bin of exitOneTsxBins) exitOneTsx(join(dir, ...bin.split('/')), `${bin}/tsx`);
+}
+
+// A stand-in tsx in `binDir` that must never be the one a run finds: it
+// runs nothing and exits 1, naming itself on stderr.
+function exitOneTsx(binDir, where) {
+  mkdirSync(binDir, { recursive: true });
+  writeText(binDir, 'tsx', [
+    '#!/usr/bin/env node',
+    `// A stand-in tsx that runs nothing and exits 1: ${where} is not the tsx the run must find first.`,
+    `process.stderr.write(${q(`the tsx stand-in in ${where} exits 1\n`)});`,
+    'process.exit(1);',
+    '',
+  ].join('\n'));
+  chmodSync(join(binDir, 'tsx'), 0o755);
 }
 
 // ws-two in git at H: the rcf init project with the world laid over it,
@@ -378,6 +401,105 @@ test('AC-19904-9: the legacy runner whose argv starts with a bare tsx installed 
   noCannotRun(r);
   assert.equal(r.code, 0, `the bare tsx resolves through the repository root node_modules/.bin and the test runs: exit 0\n${shown(r)}`);
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
+});
+
+// The real vitest in the repository root's node_modules, as a root
+// devDependency installs it: rc-46 b-vitest's package.json and lockfile
+// installed with npm ci in a scratch directory of its own (npm's temp
+// files in the test's scratch), then its node_modules entries moved into
+// the world's node_modules (gitignored), its .bin entries merged into the
+// root's .bin. The world's committed package.json stays its own and no
+// lockfile is written in it.
+function rootVitest(t, dir) {
+  const at = scratch(t, 'rcf-h-vitest-');
+  for (const f of ['package.json', 'package-lock.json']) cpSync(join(RC46, 'b-vitest', f), join(at, f));
+  install(t, at);
+  const from = join(at, 'node_modules');
+  const to = join(dir, 'node_modules');
+  mkdirSync(join(to, '.bin'), { recursive: true });
+  for (const e of readdirSync(from)) {
+    if (e === '.package-lock.json') continue;
+    const names = e === '.bin' ? readdirSync(join(from, e)).map((b) => join('.bin', b)) : [e];
+    for (const n of names) {
+      assert.ok(!existsSync(join(to, n)), `the world's node_modules holds no ${n} before vitest's install moves in`);
+      renameSync(join(from, n), join(to, n));
+    }
+  }
+}
+
+// The stage-keeper's DEFINE-3 ruling 1 (gate ruling 2's clauses no test
+// pinned): every node_modules/.bin from the test's package up to the
+// repository root joins PATH, nearest first, ahead of the inherited PATH,
+// under every runner kind and a "cwd": "project" entry. In ws-two a
+// passing stand-in tsx sits in apps/api/node_modules/.bin, a stand-in tsx
+// that exits 1 in the repository root's node_modules/.bin and another in a
+// directory on the caller's PATH (ahead of node's), and the real vitest in
+// the root's node_modules/.bin alone. Four audits of one world: a bare tsx
+// under a nodeTest runners entry, the legacy runner and a nodeTest entry
+// with "cwd": "project" (each green only when apps/api's .bin comes
+// first), and a vitest entry whose test sits in apps/api (green only when
+// the root's .bin, an ancestor's, joins PATH). Red at the round E DEFINE
+// head on its first audit: 0.39.0 puts no node_modules/.bin on PATH for a
+// nodeTest entry or the legacy runner, so the caller's tsx runs and exits
+// 1. A build adding only the package .bin, for nodeTest alone, is red on
+// the legacy audit.
+test('AC-19904-9: the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a "cwd": "project" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line', async (t) => {
+  const tsxArgv = ['tsx', '--test', '--test-reporter=tap', '--test-name-pattern', '<name>', '<file>'];
+  const files = { nodeTest: 'apps/api/test/tsx.test.mjs', legacy: 'apps/api/test/tsx-legacy.test.mjs', project: 'apps/api/test/tsx-project.test.mjs', vitest: 'apps/api/test/vitest.test.mjs' };
+  const acs = ['AC-101-1', 'AC-101-2', 'AC-101-3', 'AC-101-4'];
+  const w = await wsTwo(t, {
+    acs,
+    config: {
+      entry: ENTRY_TWO, harness: HARNESS,
+      runners: [
+        { files: [files.nodeTest], kind: 'nodeTest', argv: tsxArgv },
+        { files: [files.project], kind: 'nodeTest', cwd: 'project', argv: tsxArgv },
+        { files: [files.vitest], kind: 'vitest' },
+      ],
+      runner: ['tsx', '--test', '--test-name-pattern', '<name>', '<file>'],
+    },
+    nodes: [['apps/api/src/index.js#clampPort', acs]],
+    bind: [
+      ['AC-101-1', files.nodeTest, 'T1 clampPort keeps a port in range'],
+      ['AC-101-2', files.legacy, 'L1 clampPort keeps a port in range under the legacy runner'],
+      ['AC-101-3', files.project, 'P1 clampPort keeps a port in range at the rcf project root'],
+      ['AC-101-4', files.vitest, 'V1 clampPort keeps a port in range'],
+    ],
+  }, { exitOneTsxBins: ['node_modules/.bin'] });
+  rootVitest(t, w.dir);
+  const caller = scratch(t, 'rcf-h-caller-');
+  exitOneTsx(caller, 'the caller PATH');
+  const PATH = [caller, nodeFirst()].join(delimiter);
+  const api = join(w.dir, 'apps', 'api');
+  const apiTsx = join(api, 'node_modules', '.bin', 'tsx');
+  const rootTsx = join(w.dir, 'node_modules', '.bin', 'tsx');
+  const rootVitestBin = join(w.dir, 'node_modules', '.bin', 'vitest');
+  // The layout the ruling gives, before any audit.
+  assert.ok(existsSync(apiTsx) && existsSync(rootTsx) && existsSync(join(caller, 'tsx')), 'a tsx sits in apps/api/node_modules/.bin, in the repository root node_modules/.bin and on the caller PATH');
+  for (const tsx of [rootTsx, join(caller, 'tsx')]) assert.equal(run(tsx, ['--version'], { env: { PATH: nodeFirst() } }).code, 1, `${tsx} is a stand-in that exits 1`);
+  assert.ok(existsSync(rootVitestBin) && existsSync(join(w.dir, 'node_modules', 'vitest', 'package.json')), 'vitest is installed in the repository root node_modules, its binary in the root node_modules/.bin');
+  assert.ok(!existsSync(join(api, 'node_modules', 'vitest')) && !existsSync(join(api, 'node_modules', '.bin', 'vitest')), 'nothing of vitest sits in apps/api');
+  assert.ok(!PATH.split(delimiter).some((d) => d.split(sep).includes('node_modules')), `the audit's PATH holds no node_modules/.bin\n${PATH}`);
+  // Each bound test in place, as its package's own test script runs it (vitest's caches in the test's own scratch).
+  const tmp = scratch(t, 'rcf-h-tmp-');
+  inPlace(api, 'test/tsx.test.mjs', { argv: [apiTsx, '--test', 'test/tsx.test.mjs'] });
+  inPlace(api, 'test/tsx-legacy.test.mjs', { argv: [apiTsx, '--test', 'test/tsx-legacy.test.mjs'] });
+  inPlace(w.dir, files.project, { argv: [apiTsx, '--test', files.project] });
+  inPlace(api, 'test/vitest.test.mjs', { argv: [rootVitestBin, 'run', 'test/vitest.test.mjs'], env: { TMPDIR: tmp } });
+  const audits = [
+    ['AC-101-1', `the nodeTest runners entry: the bare tsx resolves to apps/api/node_modules/.bin/tsx, ahead of the repository root's and the caller's`],
+    ['AC-101-2', `the legacy runner: the bare tsx resolves to apps/api/node_modules/.bin/tsx, ahead of the repository root's and the caller's`],
+    ['AC-101-3', `the nodeTest runners entry with "cwd": "project": the bare tsx resolves to apps/api/node_modules/.bin/tsx, ahead of the repository root's and the caller's`],
+    ['AC-101-4', 'the vitest runners entry: vitest resolves through the repository root node_modules/.bin, an ancestor of apps/api'],
+  ];
+  for (const [acId, how] of audits) {
+    const r = await rcf(['audit', 'test-strength', '--acs', acId], { cwd: w.dir, env: { PATH }, timeout: 900_000 });
+    const err = lines(r.stderr);
+    assert.ok(!err.some((l) => l.startsWith('test-strength: cannot run the bound tests')), `${acId}, ${how}: no "cannot run the bound tests" line\n${shown(r)}`);
+    assert.ok(!err.some((l) => l.startsWith('test-strength: the unmutated run is red')), `${acId}, ${how}: no "the unmutated run is red" line\n${shown(r)}`);
+    assert.equal(r.code, 0, `${acId}, ${how}: exit 0\n${shown(r)}`);
+    assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), `${acId}, ${how}: the PASS line\n${shown(r)}`);
+  }
 });
 
 // Red at the round E DEFINE head, where rcf/test-strength.json has no

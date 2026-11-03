@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-03T00:08:24.313Z",
+  "updatedAt": "2026-11-03T02:15:48.489Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -208,6 +208,13 @@
       "description": "a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\"",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
+    },
+    {
+      "id": "TC-306-the-path-order-a-bare-tsx-under-a",
+      "acId": "AC-19904-9",
+      "description": "the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a \"cwd\": \"project\" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a \"cwd\": \"project\" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line"
     }
   ],
   "status": "draft"
