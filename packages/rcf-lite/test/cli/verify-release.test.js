@@ -677,8 +677,9 @@ test('AC-20101-9: a fail line whose case threw a message holding a backslash is 
 
 // Round F, F-5's printed line (the stage-keeper's ruling C14): the printed
 // reason line shows a decoded control character other than tab as its
-// JavaScript escape (\n, \r, else \x and two lowercase hex digits, \x1b
-// for escape), so the line stays one line and readable; a tab is printed
+// JavaScript escape (\n, \r, \x1b for the escape character; another
+// control character's spelling, any JavaScript escape, is the BUILD's and
+// no case drives one), so the line stays one line and readable; a tab is printed
 // as a tab; nothing else is escaped (a backslash prints as itself, as
 // AC-20101-9's backslash case already asserts); the report's perAc reason
 // keeps the decoded characters (AC-20101-8), and the TAP keeps TAP's own
