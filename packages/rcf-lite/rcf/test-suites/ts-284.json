@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-11-03T18:41:38.932Z",
+  "updatedAt": "2026-11-03T18:42:21.734Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -16,7 +16,8 @@
     "AC-19903-10",
     "AC-19903-11",
     "AC-19903-12",
-    "AC-19903-13"
+    "AC-19903-13",
+    "AC-19903-14"
   ],
   "id": "TS-284",
   "usId": "US-19903",
@@ -224,6 +225,13 @@
       "description": "a workspace sibling linked by name in the rcf project root node_modules, npm hoisted layout, resolves inside the working copy: each mutant of apps/lib/src/index.js#greet is killed, exit 0 with the PASS line",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling linked by name in the rcf project root node_modules, npm hoisted layout, resolves inside the working copy: each mutant of apps/lib/src/index.js#greet is killed, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-284-an-entry-not-at-head-gets-its-own-reason",
+      "acId": "AC-19903-14",
+      "description": "a red unmutated run of a bound test importing a workspace package whose entry is gitignored build output is followed by a line naming the link, the package and the entry not committed at HEAD, and no \"cwd\": \"project\" hint",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a red unmutated run of a bound test importing a workspace package whose entry is gitignored build output is followed by a line naming the link, the package and the entry not committed at HEAD, and no \"cwd\": \"project\" hint"
     }
   ],
   "status": "draft"

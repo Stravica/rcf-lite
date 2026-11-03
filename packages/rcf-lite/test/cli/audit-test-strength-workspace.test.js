@@ -690,3 +690,33 @@ test('AC-19903-9: a workspace sibling linked by name in the rcf project root nod
   const line = await strength(w.dir, ['--acs', 'AC-101-1']);
   assert.equal(out(line), passLine(w.H, 1, 2, 2, 0, 1), shown(line));
 });
+
+// Round F, F-3 (the round E reviewer's note on AC-19903-9, pre-existing in
+// 0.39.0's mutation proof): a re-pointed workspace link whose package's
+// entry is build output the repository does not track (a gitignored
+// dist/) reaches a package in the working copy without that entry, so the
+// bound test cannot load it and the unmutated run is red; 0.40.0 follows
+// the unmutated-run line with the "cwd": "project" hint, which points the
+// wrong way. The reviewer's probe, as a fixture: ws-hoisted with apps/lib's
+// main and exports naming dist/index.js, the build present in the
+// repository and gitignored. Red at the round F DEFINE head: the line
+// after the unmutated-run line is the cwd hint.
+const entryReason = (h) => `test-strength: node_modules/@ws/lib points at apps/lib in the working copy, whose entry dist/index.js is not committed at ${s7(h)} (a working copy holds only what HEAD tracks)`;
+
+test('AC-19903-14: a red unmutated run of a bound test importing a workspace package whose entry is gitignored build output is followed by a line naming the link, the package and the entry not committed at HEAD, and no "cwd": "project" hint', async (t) => {
+  const w = await wsHoisted(t, {
+    acs: ['AC-101-1'],
+    config: { entry: ENTRY_HOISTED, harness: HARNESS },
+    nodes: [['apps/lib/src/index.js#greet', ['AC-101-1']]],
+    bind: [['AC-101-1', HOISTED_TEST, 'H1 greet comes from the hoisted workspace library']],
+  }, { dist: true });
+  assert.ok(existsSync(join(w.dir, 'apps', 'lib', 'dist', 'index.js')), 'the build output is present in the repository');
+  assert.equal(run('git', ['ls-files', 'apps/lib/dist'], { cwd: w.dir }).stdout, '', 'and not committed: apps/lib/dist/ is gitignored');
+  inPlace(join(w.dir, 'apps', 'api'), 'test/greet.test.mjs');
+  const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+  const err = lines(r.stderr);
+  const red = err.findIndex((l) => /^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/.exec(l)?.[1] === `${HOISTED_TEST}::H1 greet comes from the hoisted workspace library`);
+  assert.ok(r.code === 2 && red >= 0, `the working copy's apps/lib holds no dist/: exit 2 with the unmutated-run line\n${shown(r)}`);
+  assert.equal(err[red + 1], entryReason(w.H), `the line right after the unmutated-run line names the link, the package and its entry not committed at HEAD\n${shown(r)}`);
+  assert.ok(!err.some((l) => l.endsWith('pins "cwd": "project" on its runners entry')), `no "cwd": "project" hint: the run's directory is not the cause\n${shown(r)}`);
+});

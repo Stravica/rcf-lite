@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-11-03T18:40:33.960Z",
+  "updatedAt": "2026-11-03T18:42:19.158Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -90,6 +90,12 @@
     {
       "id": "AC-19903-13",
       "description": "[failure] Given a workspace package whose bound test needs its node_modules linked in the working copy (TAC-4155 responsibilities[4]), when the git ls-tree with which `rcf audit test-strength` lists every package.json directory at HEAD fails, then the audit exits 2 with the stderr line \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <git's stderr, trimmed>\", runs no bound test (no \"the unmutated run is red\" line) and prints no verdict line, where 0.40.0 went on as if the repository held no workspace package.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-14",
+      "description": "[failure] Given a bound test importing a workspace package by name through a symbolic-link entry that the working copy re-points to the package inside the copy (TAC-4155 responsibilities[4]), whose package.json names as its entry (`exports` when it is a string, else `main`) a file present in the repository and not committed at HEAD, such as gitignored build output in `dist/`, when the unmutated run is red, then the stderr line right after the unmutated-run line reads \"test-strength: <link> points at <package> in the working copy, whose entry <entry> is not committed at <h7> (a working copy holds only what HEAD tracks)\", `<link>` the symbolic-link entry and `<package>` the package directory, each relative to the rcf project root (`node_modules/@ws/lib` and `apps/lib` in a hoisted npm workspace), and `<entry>` relative to the package directory (`dist/index.js`), and no \"cwd\": \"project\" hint line (AC-19904-11) is printed; the run exits 2.",
       "testable": true,
       "verification": "external"
     }
