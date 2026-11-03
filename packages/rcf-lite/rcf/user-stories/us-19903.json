@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-11-02T23:52:35.271Z",
+  "updatedAt": "2026-11-03T00:05:14.587Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -59,13 +59,13 @@
     },
     {
       "id": "AC-19903-8",
-      "description": "[happy] Given a fixture pnpm workspace whose rcf project is its root and a criterion bound to a node:test test in `apps/api/test/` importing a package installed only in `apps/api/node_modules`, when `rcf audit test-strength --acs <id>` runs over a working copy whose node_modules links follow TAC-4155's link set, then the unmutated run is green and it exits 0 with every mutant killed (stdout the PASS line, no \"the unmutated run is red\" line).",
+      "description": "[happy] Given a fixture pnpm workspace whose rcf project is its root and a criterion bound to a node:test test in `apps/api/test/` importing a package installed only in `apps/api/node_modules`, when `rcf audit test-strength --acs <id>` runs over a working copy whose node_modules links follow TAC-4155's link set, then the unmutated run is green and it exits 0 and no mutant survived (stdout the PASS line, no \"the unmutated run is red\" line).",
       "testable": true,
       "verification": "external"
     },
     {
       "id": "AC-19903-9",
-      "description": "[happy] Given a criterion whose Code Node is a symbol in `apps/lib`, bound to a test in `apps/api` importing `@ws/lib` by name (a workspace package link), when the audit runs, then each mutant is applied in the copy's `apps/lib` and a mutant the test catches is killed, never survived (exit 0 with the PASS line, and with --json every mutant of the symbol reads killed).",
+      "description": "[happy] Given a criterion whose Code Node is a symbol in `apps/lib`, bound to a test in `apps/api` importing `@ws/lib` by name (a workspace package link), when the audit runs, then each mutant is applied in the copy's `apps/lib` and a mutant the test catches is killed, never survived (exit 0 with the PASS line, and with --json no mutant of the symbol survived).",
       "testable": true,
       "verification": "external"
     },
