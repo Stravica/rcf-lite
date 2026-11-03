@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:35:46.960Z",
-  "updatedAt": "2026-11-02T21:21:45.016Z",
+  "updatedAt": "2026-11-02T23:58:19.586Z",
   "asA": "operator (the operating engineer) running Verify before the promote",
   "iWant": "one command that runs the external criteria's E2E tests for the release scope plus the core journeys and records verified",
   "soThat": "verified means the release target passed, and nothing inside a build round can write it",
@@ -59,7 +59,7 @@
     },
     {
       "id": "AC-20101-8",
-      "description": "[failure] Given a release Verify fixture whose bound e2e case throws \"harness: node sits beside an agent CLI in <dir>\", when `rcf verify run --release <label>` runs, then that criterion's perAc row reads \"fail\" with the thrown message as reason; a failing case with no diagnostic carries the runner's last stderr line; else \"no result for <pointer> (exit <code>)\", so a failing case with neither a TAP diagnostic nor a stderr line carries the reason \"no result for <pointer> (exit <code>)\", `<pointer>` its test pointer and `<code>` its runner's exit code (the ReleaseVerifyReport that `--out <file>` or `--record` writes: perAc result \"fail\", reason the message, the line or that no-result reason, where the scope's null stood).",
+      "description": "[failure] Given a release Verify fixture whose bound e2e case throws \"harness: node sits beside an agent CLI in <dir>\", when `rcf verify run --release <label>` runs, then that criterion's perAc row reads \"fail\" with the thrown message as reason, that is the first non-empty line of the TAP diagnostic's error, trimmed (the whole message when it is one line); a failing case with no diagnostic carries the runner's last non-empty stderr line, trimmed; else \"no result for <pointer> (exit <code>)\", so a failing case with neither a TAP diagnostic nor a stderr line carries the reason \"no result for <pointer> (exit <code>)\", `<pointer>` its test pointer and `<code>` its runner's exit code (the ReleaseVerifyReport that `--out <file>` or `--record` writes: perAc result \"fail\", reason the message, the line or that no-result reason, where the scope's null stood). A failing case whose assertion message spans several lines gives that message's first non-empty line. With several failing bound cases, the first failing case in the row's tests order gives the reason; the file's own summary \"not ok\" line is never a case. A pass row's reason stays null, and no reason line follows a pass or blocked line.",
       "testable": true,
       "verification": "external"
     },

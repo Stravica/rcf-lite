@@ -5,12 +5,12 @@
 // installed cold, and with --record writes the ReleaseVerifyReport and
 // verified; the catalog and agent probes stay optional ad hoc runs.
 //
-// Criteria: 14, all external (US-20101 7, US-20102 4, US-20103 3).
-// Every test is a node:test todo case ("FBS-238 round DEFINE", GR-35): it
-// runs and is red until FBS-238's round DEFINE drops the marker and BUILD
-// turns it green. Each drives bin/rcf.js (or the packed artefact) as a
-// child process over a fixture project made by its own rcf init,
-// committed to git and tagged v1.0.0 at the release commit R. The target
+// Criteria: 16, all external (US-20101 9, US-20102 4, US-20103 3).
+// The round E cases of AC-20101-8 and AC-20101-9 are red until the
+// round's BUILD turns them green. Each test drives bin/rcf.js (or the
+// packed artefact) as a child process over a fixture project made by its
+// own rcf init, committed to git and tagged v1.0.0 at the release commit
+// R. The target
 // is a local node:http server (the network edge, the only stand-in), or
 // the fixture package installed cold. Fixture cases append one JSON line
 // to a log outside the tree when they run, so a test sees which cases ran
@@ -408,6 +408,49 @@ test('AC-20101-8: a failing bound e2e case with neither a TAP diagnostic nor a s
   const per = JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === 'AC-101-1');
   assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
   assert.equal(per.reason, `no result for ${pointer} (exit ${code})`, 'a failing case with neither a TAP diagnostic nor a stderr line carries "no result for <pointer> (exit <code>)"');
+});
+
+// AC-20101-8's reason shape (the stage-keeper's gate ruling 3): the
+// reason is the first non-empty line of the TAP diagnostic's error,
+// trimmed. FBS-001's bound e2e case fails a deep-equal assertion, whose
+// message node:test writes as a block scalar of several lines. Red at the
+// round E DEFINE head, where the perAc row carries the scope's blocked
+// reason (null on a run row).
+async function multiLineFixture(t) {
+  const f = await release(t, [{ id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] }], {
+    change: (d) => {
+      amend(d, 'US-101', 'AC-101-1');
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { assert.deepEqual({ port: 80 }, { port: 8080 }); });\n`);
+    },
+  });
+  const file = 'test/rcf/us-101.test.js';
+  // The runner as the release Verify runs it, read here: the case's own
+  // diagnostic, its error a block scalar whose first non-empty line is the expected reason.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', `--test-name-pattern=(?:^| )${caseName('AC-101-1')}$`, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the case's run fails\n${probe.stdout}${probe.stderr}`);
+  const tap = probe.stdout.split('\n');
+  const at = tap.indexOf(`not ok 1 - ${caseName('AC-101-1')}`);
+  assert.ok(at >= 0, `the runner reports the case as not ok\n${probe.stdout}`);
+  const err = tap.findIndex((l, i) => i > at && /^ {2}error: [|>]/.test(l));
+  assert.ok(err > at, `the case's diagnostic holds its error as a block scalar\n${probe.stdout}`);
+  const block = [];
+  for (const l of tap.slice(err + 1)) {
+    if (l.trim() && !l.startsWith('    ')) break;
+    block.push(l.trim());
+  }
+  const message = block.filter(Boolean);
+  assert.ok(message.length > 1, `the assertion message spans several lines\n${probe.stdout}`);
+  return { ...f, first: message[0] };
+}
+
+test('AC-20101-8: a failing bound e2e case whose assertion message spans several lines gives its perAc row result "fail" with the first non-empty line of that message as reason', async (t) => {
+  const { dir, first } = await multiLineFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per.reason, first, 'a multi-line assertion message gives its first non-empty line, trimmed, as reason');
 });
 
 test('AC-20101-9: the line after each fail line reads "  reason: <reason>" and pass lines are unchanged', async (t) => {

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-11-02T21:22:12.897Z",
+  "updatedAt": "2026-11-02T23:58:20.163Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -85,6 +85,13 @@
       "description": "a failing bound e2e case with neither a TAP diagnostic nor a stderr line gives its perAc row result \"fail\" with the reason \"no result for <pointer> (exit <code>)\"",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a failing bound e2e case with neither a TAP diagnostic nor a stderr line gives its perAc row result \"fail\" with the reason \"no result for <pointer> (exit <code>)\""
+    },
+    {
+      "id": "TC-288-a-failing-bound-e2e-case-whose-assertion",
+      "acId": "AC-20101-8",
+      "description": "a failing bound e2e case whose assertion message spans several lines gives its perAc row result \"fail\" with the first non-empty line of that message as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a failing bound e2e case whose assertion message spans several lines gives its perAc row result \"fail\" with the first non-empty line of that message as reason"
     }
   ],
   "status": "draft"
