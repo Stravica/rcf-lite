@@ -19,7 +19,7 @@
 import { spawn } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
 import { tmpdir } from 'node:os';
-import { basename, delimiter, dirname, join, relative, resolve, sep } from 'node:path';
+import { basename, delimiter, dirname, join, posix, relative, resolve, sep } from 'node:path';
 
 import { judge, readReport } from './report.js';
 
@@ -62,10 +62,43 @@ function childEnv() {
   return env;
 }
 
-/** A vitest or playwright run also finds the project's own node_modules/.bin, as a package script would. */
-function kindEnv(env, runner, cwd) {
-  if (runner.kind !== 'vitest' && runner.kind !== 'playwright') return env;
-  return { ...env, PATH: [join(cwd, 'node_modules', '.bin'), env.PATH].filter(Boolean).join(delimiter) };
+/**
+ * The PATH of a bound test run (round E, AC-19904-9): every
+ * node_modules/.bin from the test's package directory `from` up to the
+ * repository root `top`, nearest first, ahead of the inherited PATH, as a
+ * package script finds them. One rule for every runner kind, a runners
+ * entry with "cwd": "project" included (its PATH still starts at the
+ * test's package).
+ */
+function kindEnv(env, from, top) {
+  const bins = [];
+  for (let d = from; ; d = dirname(d)) {
+    bins.push(join(d, 'node_modules', '.bin'));
+    if (d === top || dirname(d) === d) break;
+  }
+  return { ...env, PATH: [...bins, env.PATH].filter(Boolean).join(delimiter) };
+}
+
+/**
+ * The package directory of a bound test file (round E, AC-19903-10): the
+ * nearest directory at HEAD from the file up to the rcf project root
+ * holding a package.json, else the rcf project root (''), both relative
+ * to the rcf project root.
+ *
+ * @param {string} file - project-relative path
+ * @param {Set<string>} files - the project-relative paths at HEAD
+ * @returns {string}
+ */
+export function packageDir(file, files) {
+  for (let d = posix.dirname(file); d !== '.' && d !== ''; d = posix.dirname(d)) {
+    if (files.has(`${d}/package.json`)) return d;
+  }
+  return '';
+}
+
+/** The directory a bound test runs at, relative to the rcf project root: '' for the rcf project root ("cwd": "project"), else its package directory. */
+export function runDir(t) {
+  return t.runner.cwd === 'project' ? '' : (t.dir ?? '');
 }
 
 function killGroup(child) {
@@ -122,16 +155,22 @@ function runTest(argv, cwd, ms, env, live) {
  * with verdict pass, fail, loadError, unreadable (no report the audit can
  * read), notRun or ambiguous (and the leaves' names).
  */
-async function runBound(t, { cwd, ms, env, reports, live }) {
+async function runBound(t, { project, top, ms, env, reports, live }) {
   const report = t.runner.kind === 'vitest' ? reports.next() : '';
-  const argv = runnerArgv(t.runner, t, report);
+  // Round E (AC-19903-10, AC-19904-8): the run is at the test's package
+  // directory, or at the rcf project root for a "cwd": "project" entry,
+  // with <file> and the report match relative to it.
+  const at = runDir(t);
+  const cwd = at ? join(project, at) : project;
+  const file = at ? t.file.slice(at.length + 1) : t.file;
+  const argv = runnerArgv(t.runner, { ...t, file }, report);
   try {
-    const r = await runTest(argv, cwd, ms, kindEnv(env, t.runner, cwd), live);
+    const r = await runTest(argv, cwd, ms, kindEnv(env, join(project, t.dir ?? ''), top), live);
     if (r.timedOut) return { verdict: 'timeout', timedOut: true };
     if (t.runner.kind === 'legacy') return { verdict: r.code !== 0 ? 'fail' : 'pass' };
     let reportText = null;
     if (report && existsSync(report)) reportText = readFileSync(report, 'utf8');
-    const j = judge(readReport(t.runner.kind, { stdout: r.stdout, reportText, file: t.file }), t.name);
+    const j = judge(readReport(t.runner.kind, { stdout: r.stdout, reportText, file }), t.name);
     return { verdict: j.status, prefix: j.prefix, names: j.names };
   } finally {
     if (report && existsSync(report)) unlinkSync(report);
@@ -407,6 +446,8 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
     let failure = null;
     // Workers never reject: the first error stops every worker, and the
     // scratch is removed only once all of them have stopped.
+    // Each mutant's edits land in the copy's rcf project tree; each bound
+    // test runs at its own directory in the copy (runBound).
     const worker = async (dir) => {
       const cwd = join(dir, prefix);
       while (!failure && next < mutants.length) {
@@ -423,7 +464,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
           const deadline = Date.now() + timeoutMs;
           let outcome = { result: 'survived', killedBy: [] };
           for (const t of m.tests) {
-            const ctx = { cwd, env, reports, live };
+            const ctx = { project: cwd, top: dir, env, reports, live };
             let r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
             if (unmutated && r.verdict === 'notRun' && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
               t.prefix = true;
