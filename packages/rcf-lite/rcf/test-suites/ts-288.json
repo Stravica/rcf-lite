@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-11-02T23:58:20.163Z",
+  "updatedAt": "2026-11-03T00:08:24.601Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -10,7 +10,9 @@
     "AC-20101-4",
     "AC-20101-5",
     "AC-20101-6",
-    "AC-20101-7"
+    "AC-20101-7",
+    "AC-20101-8",
+    "AC-20101-9"
   ],
   "id": "TS-288",
   "usId": "US-20101",

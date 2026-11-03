@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-03T00:07:36.823Z",
+  "updatedAt": "2026-11-03T00:08:24.313Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -10,7 +10,11 @@
     "AC-19904-4",
     "AC-19904-5",
     "AC-19904-6",
-    "AC-19904-7"
+    "AC-19904-7",
+    "AC-19904-8",
+    "AC-19904-9",
+    "AC-19904-10",
+    "AC-19904-11"
   ],
   "id": "TS-306",
   "usId": "US-19904",
