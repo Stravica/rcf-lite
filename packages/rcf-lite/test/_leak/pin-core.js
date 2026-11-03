@@ -122,33 +122,39 @@ function tapValue(text) {
 // failing subtests are named instead), each as { file, line, title }:
 // the file and line of its diagnostic's location (the file relative to
 // `cwd` when it is inside it), and its title with the reporter's `\#` and
-// `\\` escapes undone. A test line with no location in its diagnostic
-// gives file and line null. Returns [] for anything but a string.
+// `\\` escapes undone. Each test line's own YAML diagnostic ("---" to
+// "...") is read for its location and failure type and then skipped, so
+// text inside it, such as an error message quoting a child's TAP, is
+// never read as a test line. The reporter writes a "#" in a title as
+// "\#", so an unescaped " # " always starts the directive. A test line
+// with no location in its diagnostic gives file and line null. Returns []
+// for anything but a string.
 export function innerFailures(tap, cwd = '') {
   if (typeof tap !== 'string') return [];
   const out = [];
   const lines = tap.split('\n');
+  const root = cwd && !cwd.endsWith('/') ? `${cwd}/` : cwd;
   for (let i = 0; i < lines.length; i += 1) {
-    const m = lines[i].match(/^( *)not ok \d+ - (.*)$/);
+    const m = lines[i].match(/^( *)(not ok|ok) \d+ - (.*)$/);
     if (!m) continue;
-    const d = m[2].match(/^(.*?) # (TODO|SKIP)\b.*$/);
-    if (d && !d[1].endsWith('\\')) continue;
     const pad = m[1];
     let location = null;
     let parent = false;
     if (lines[i + 1] === `${pad}  ---`) {
-      for (let j = i + 2; j < lines.length && lines[j] !== `${pad}  ...`; j += 1) {
-        const loc = lines[j].match(/^ *location: (.*)$/);
-        if (loc && lines[j].startsWith(`${pad}  location:`)) location = tapValue(loc[1]);
+      let j = i + 2;
+      for (; j < lines.length && lines[j] !== `${pad}  ...`; j += 1) {
+        // An unclosed diagnostic ends at the first line outside its indent.
+        if (lines[j].trim() && !lines[j].startsWith(`${pad}  `)) { j -= 1; break; }
+        if (lines[j].startsWith(`${pad}  location: `)) location = tapValue(lines[j].slice(pad.length + 'location: '.length + 2));
         if (lines[j] === `${pad}  failureType: 'subtestsFailed'`) parent = true;
       }
+      i = j;
     }
-    if (parent) continue;
+    if (m[2] === 'ok' || parent || / # (TODO|SKIP)\b/.test(m[3])) continue;
     const at = location ? location.match(/^(.*):(\d+):\d+$/) : null;
     let file = at ? at[1] : null;
-    const root = cwd && !cwd.endsWith('/') ? `${cwd}/` : cwd;
     if (file && root && file.startsWith(root)) file = file.slice(root.length);
-    out.push({ file, line: at ? Number(at[2]) : null, title: m[2].replace(/\\(.)/g, '$1') });
+    out.push({ file, line: at ? Number(at[2]) : null, title: m[3].replace(/\\(.)/g, '$1') });
   }
   return out;
 }

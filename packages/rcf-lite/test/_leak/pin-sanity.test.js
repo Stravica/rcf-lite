@@ -247,6 +247,42 @@ test('innerFailures keeps a location outside the child cwd absolute, gives a not
   assert.deepEqual(innerFailures(undefined, CWD), []);
 });
 
+// The Codex review of the round F DEFINE diff (C-3, C-4): the YAML
+// diagnostic of a test line is skipped whole, so an error message that
+// quotes a child's TAP names no phantom test; and an unescaped " # "
+// starts the directive even after a title that ends in an escaped
+// backslash.
+test('innerFailures skips each test line\'s YAML diagnostic, so an error message quoting a child TAP "not ok" line names no phantom test', () => {
+  const tap = [
+    'not ok 1 - real failure',
+    '  ---',
+    "  location: '/work/pkg/test/a.test.js:3:1'",
+    "  failureType: 'testCodeFailure'",
+    '  error: |-',
+    '    the child said:',
+    '    not ok 1 - phantom',
+    "    location: '/work/pkg/test/phantom.test.js:1:1'",
+    '  ...',
+    '# tests 1',
+  ].join('\n');
+  assert.deepEqual(innerFailures(tap, CWD), [{ file: 'test/a.test.js', line: 3, title: 'real failure' }]);
+});
+
+test('innerFailures reads a TODO or SKIP directive after a title that ends in an escaped backslash', () => {
+  const tap = [
+    'not ok 1 - path\\\\ # TODO',
+    '  ---',
+    "  location: '/work/pkg/test/a.test.js:3:1'",
+    '  ...',
+    'not ok 2 - dir\\\\ # SKIP not here',
+    'not ok 3 - ends\\\\',
+    '  ---',
+    "  location: '/work/pkg/test/a.test.js:9:1'",
+    '  ...',
+  ].join('\n');
+  assert.deepEqual(innerFailures(tap, CWD), [{ file: 'test/a.test.js', line: 9, title: 'ends\\' }]);
+});
+
 test('innerFailureName reads "<file>:<line> <title>", and "<title> (no location)" with no location', () => {
   assert.equal(innerFailureName({ file: 'test/a.test.js', line: 6, title: 'inner fails' }), 'test/a.test.js:6 inner fails');
   assert.equal(innerFailureName({ file: null, line: null, title: 'bare' }), 'bare (no location)');
@@ -292,6 +328,8 @@ test('innerFailures names the failing tests of a child node --test run over a sc
       "describe('group', () => {",
       "  test('nested fails', () => { throw new Error('boom'); });",
       '});',
+      "test('quotes a child TAP', () => { assert.fail('the child said:\\nnot ok 1 - phantom\\n# tests 1'); });",
+      "test('todo ends in a backslash \\\\', { todo: true }, () => { throw new Error('x'); });",
       '',
     ].join('\n'));
     const env = { ...process.env };
@@ -299,9 +337,12 @@ test('innerFailures names the failing tests of a child node --test run over a sc
     delete env.NODE_TEST_WORKER_ID;
     const r = spawnSync(process.execPath, ['--test', '--test-reporter=tap', '--test-concurrency=1', 'test/**/*.test.js'], { cwd: dir, env, encoding: 'utf8' });
     assert.notEqual(r.status, 0, `the scratch child exits non-zero\n${r.stdout}${r.stderr}`);
+    assert.match(r.stdout, /^ {4}not ok 1 - phantom$/m, 'the child TAP quotes a "not ok" line inside an error block');
+    assert.match(r.stdout, /^not ok \d+ - todo ends in a backslash \\\\ # TODO$/m, 'the child TAP writes the todo title with its backslash escaped, then the directive');
     assert.deepEqual(innerFailures(r.stdout, dir), [
       { file: 'test/a.test.js', line: 4, title: 'top fails' },
       { file: 'test/a.test.js', line: 6, title: 'nested fails' },
+      { file: 'test/a.test.js', line: 8, title: 'quotes a child TAP' },
     ], r.stdout);
   } finally {
     rmSync(dir, { recursive: true, force: true });
