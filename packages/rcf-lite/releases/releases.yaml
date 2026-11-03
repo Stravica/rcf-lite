@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.39.0"
+latest: "0.40.0"
 releases:
+  - version: "0.40.0"
+    date: "2026-11-03"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.40.0 gives bound tests in workspace packages the test-strength proof: rcf audit test-strength runs each bound test at its package directory, links every workspace package's node_modules into its working copies so a package's own dependencies resolve and a mutant in a sibling package is the code its tests import, and puts every node_modules/.bin from the test's package up to the repository root on the PATH of its run, while a runners entry may pin cwd project to run at the rcf project root. Each failing row of the release Verify now carries its reason, printed on the line after the fail line."
+      - "Breaking: a test that reads paths relative to the rcf project root can now run red unmutated and exit 2, a runners entry whose cwd is anything but project and a bound test run that writes under a sibling package's node_modules each exit 2, a red unmutated run and a release Verify fail line each gain a following line, and a fail row of the recorded release Verify report carries a reason where 0.39.0 wrote null, so runs that passed on 0.39.0 can fail. Move a test that reads project-relative paths to a runners entry with cwd project, skip the new line in scripts that read the line after a red unmutated run or a Verify fail line, and read the reason in scripts that read the recorded Verify report."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.39.0 and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged, so rcf doctor reports a clean hash, and an rcf/test-strength.json whose runners entries carry no cwd still loads. rcf-lite adds no dependency."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.39.0"
     date: "2026-11-01"
     breaking: true
