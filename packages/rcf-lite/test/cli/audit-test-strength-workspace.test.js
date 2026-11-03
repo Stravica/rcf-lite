@@ -41,19 +41,23 @@
 // ancestors, runs every bound test at the rcf project root, and puts a
 // node_modules/.bin on PATH for vitest and playwright only.
 //
-// Round F (the round E REVIEW notes F-1 to F-4 and F-8): three more
-// criteria, AC-19903-13 (a failing git ls-tree of the workspace packages
-// exits 2, named; a git stand-in first on PATH fails that listing),
-// AC-19903-14 (a re-pointed link whose package entry is not committed at
-// HEAD gets its own reason line) and AC-19903-15 (the help names the real
-// path of each node_modules and the repository's .git), red at the round
-// F DEFINE head until its BUILD; and three declared regression guards,
-// green there: AC-19904-11's hint at the rcf project root ("ran at ."),
-// and AC-19903-9 in npm's hoisted layout (test/fixtures/round-f/
-// ws-hoisted, the link in the rcf project's own node_modules re-pointed
-// into the copy, TAC-4155 responsibilities[4]), whose dist layout is the
-// AC-19903-14 world. Criteria: 12, all external. Imports: Node builtins
-// and test/_harness/ only (GR-40).
+// Round F (the round E REVIEW notes F-1 to F-4 and F-8, and the
+// stage-keeper's rulings on the first DEFINE pass, A and C): three more
+// criteria, AC-19903-13 (a failing git ls-tree as the audit reads HEAD,
+// the workspace packages' listing or the files at HEAD, exits 2 naming
+// the command; a git stand-in first on PATH fails one listing),
+// AC-19903-14 (F-9: a re-pointed link whose package entry, exports, then
+// main, then index.js, is not committed at HEAD stays at the repo's own
+// package with one notice line, and the run proceeds with its own exit)
+// and AC-19903-15 (the help names the real path of each node_modules and
+// the repository's .git), red at the round F DEFINE head until its BUILD;
+// and three declared regression guards, green there: AC-19904-11's hint
+// at the rcf project root ("ran at ."), and AC-19903-9 in npm's hoisted
+// layout (test/fixtures/round-f/ws-hoisted, the link in the rcf project's
+// own node_modules re-pointed into the copy, TAC-4155
+// responsibilities[4], its entry committed so no notice prints), whose
+// build-output layouts are the AC-19903-14 worlds. Criteria: 12, all
+// external. Imports: Node builtins and test/_harness/ only (GR-40).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

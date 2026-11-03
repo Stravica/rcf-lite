@@ -19,8 +19,13 @@
 // toolPath(['node']), as FBS-236's tests do, with node's directory first.
 // Red at the round's DEFINE head: 0.38.0 refuses every .ts, .tsx and
 // .vue path with "is not a supported source (JavaScript ESM or
-// CommonJS)", exit 2, before any file is read. Imports: Node builtins
-// and test/_harness/ only (GR-40).
+// CommonJS)", exit 2, before any file is read. Round F (the stage-keeper's
+// ruling C13 on F-7's darwin finding): AC-19904-12, beside AC-19904-1,
+// the runner's scratch directory moving to a short path when a runner's
+// Unix socket path under it would pass the platform's limit (red at the
+// round F DEFINE head), with a declared regression guard under a short
+// temp directory (green there); criteria: 8. Imports: Node builtins and
+// test/_harness/ only (GR-40).
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';

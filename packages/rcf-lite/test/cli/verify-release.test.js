@@ -5,7 +5,7 @@
 // installed cold, and with --record writes the ReleaseVerifyReport and
 // verified; the catalog and agent probes stay optional ad hoc runs.
 //
-// Criteria: 17, all external (US-20101 10, US-20102 4, US-20103 3).
+// Criteria: 18, all external (US-20101 11, US-20102 4, US-20103 3).
 // The round E cases of AC-20101-8 and AC-20101-9 are red until the
 // round's BUILD turns them green, but for two declared regression guards
 // of AC-20101-8 (a pass row's null reason, no reason line after a blocked
@@ -13,7 +13,13 @@
 // F-6): a case of AC-20101-8 for each escape form of node:test's TAP
 // error value and one of AC-20101-9 (red at the round F DEFINE head but
 // for the two double-quoted forms, declared guards), and AC-20101-10, the
-// verify run help's reason rule (red there). Each test drives bin/rcf.js (or the
+// verify run help's reason rule (red there). Round F's second DEFINE
+// pass (the stage-keeper's ruling C14, TAC-4157 "decoded"): a case of
+// AC-20101-8 for a control character inside double quotes (red), the help
+// rule reading "decoded and trimmed", and AC-20101-11, the printed reason
+// line showing a control character other than tab as its JavaScript
+// escape and a tab as a tab (red but for the carriage-return case, a
+// declared guard). Each test drives bin/rcf.js (or the
 // packed artefact) as a child process over a fixture project made by its
 // own rcf init, committed to git and tagged v1.0.0 at the release commit
 // R. The target
