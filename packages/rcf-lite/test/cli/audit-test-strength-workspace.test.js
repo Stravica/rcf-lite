@@ -309,6 +309,24 @@ test('AC-19903-12: rcf audit test-strength --help keeps the backstop sentence th
   assert.ok(flat.includes(BACKSTOP_SENTENCE), `the help, whitespace collapsed, holds the backstop sentence\n${BACKSTOP_SENTENCE}\n---\n${r.stdout}`);
 });
 
+// Round F, F-8 (the 0.40.0 Known issue "rcf audit test-strength --help
+// still describes the bound-test backstop more narrowly than the audit
+// applies it: the real path of node_modules and the repository's .git are
+// also checked"): the backstop paragraph names both roots
+// (src/audit/test-strength/runner.js forbiddenRoots: the real location
+// of each node_modules it compares, the target where node_modules is a
+// symbolic link, and the repository's .git, named relative to the
+// project). Red at the round F DEFINE head: the help names neither.
+const BACKSTOP_ROOTS_SENTENCE = 'Each node_modules directory it compares is read at its real path (where node_modules is a symbolic link, the directory it points to), and it compares the repository\'s .git as well, a write there named relative to the project (.git/<path> at the repository root, ../.git/<path> one directory below it).';
+
+test("AC-19903-15: rcf audit test-strength --help names the real path of each node_modules the backstop compares and the repository's .git, beside the backstop sentence", async (t) => {
+  const r = await rcf(['audit', 'test-strength', '--help'], { cwd: scratch(t, 'rcf-h-help-') });
+  assert.equal(r.code, 0, shown(r));
+  const flat = r.stdout.split(/\s+/).filter(Boolean).join(' ');
+  assert.ok(flat.includes(BACKSTOP_SENTENCE), `the help, whitespace collapsed, still holds the backstop sentence AC-19903-12 pins\n${r.stdout}`);
+  assert.ok(flat.includes(BACKSTOP_ROOTS_SENTENCE), `the help, whitespace collapsed, holds the sentence naming the real path of each node_modules and the repository's .git\n${BACKSTOP_ROOTS_SENTENCE}\n---\n${r.stdout}`);
+});
+
 // ---------------------------------------------------------------- US-19904
 
 // A declared regression guard (green at the round E DEFINE head, where
