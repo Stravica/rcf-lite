@@ -546,3 +546,31 @@ test('AC-19904-11: a red unmutated run of a bound test in apps/api reading a pat
   assert.ok(r.code === 2 && red >= 0, `run at apps/api the root-relative path is missing: exit 2 with "test-strength: the unmutated run is red for AC-101-1: ${file}::R1 ... fails under runner <argv>; no mutant was run"\n${shown(r)}`);
   assert.equal(err[red + 1], cwdHint(file, 'apps/api'), `the line right after the unmutated-run line names the cwd apps/api and points at "cwd": "project"\n${shown(r)}`);
 });
+
+// Round F, F-1 (the round E reviewer's note on AC-19904-11): a bound test
+// pins the hint at the rcf project root, "ran at ." (AC-19904-11: "`.` for
+// the rcf project root itself"), which no test asserted (the test above
+// asserts the apps/api form only). Two audits of ws-two, each a red
+// unmutated run at the rcf project root: test/package-path.test.mjs, with
+// no package.json between it and the rcf project root, and
+// apps/api/test/api.test.mjs under a runners entry with "cwd": "project",
+// each reading the package-relative fixtures/config.json where it is
+// missing. A declared regression guard, green at the round F DEFINE head
+// (src/audit/test-strength/index.js :347 prints `runDir(t) || '.'`).
+test('AC-19904-11: a red unmutated run at the rcf project root, of a test with no package.json between it and the rcf project root and of a test under a "cwd": "project" runners entry, is followed by a line naming the cwd "." and pointing at "cwd": "project"', async (t) => {
+  const rootFile = 'test/package-path.test.mjs';
+  const w = await wsTwo(t, {
+    acs: ['AC-101-1', 'AC-101-2'],
+    config: { entry: ENTRY_TWO, harness: HARNESS, runners: [{ files: [API_TEST], kind: 'nodeTest', cwd: 'project' }] },
+    nodes: [['apps/api/src/index.js#readPort', ['AC-101-1', 'AC-101-2']]],
+    bind: [['AC-101-1', rootFile, 'R2 readPort reads the package fixture from the rcf project root'], ['AC-101-2', API_TEST, 'C2 readPort reads the package fixture']],
+  });
+  assert.ok(!existsSync(join(w.dir, 'fixtures', 'config.json')) && existsSync(join(w.dir, 'apps', 'api', 'fixtures', 'config.json')), 'fixtures/config.json sits in apps/api only, nothing of it at the rcf project root');
+  for (const [acId, file, name] of [['AC-101-1', rootFile, 'R2 readPort reads the package fixture from the rcf project root'], ['AC-101-2', API_TEST, 'C2 readPort reads the package fixture']]) {
+    const r = await strength(w.dir, ['--acs', acId]);
+    const err = lines(r.stderr);
+    const red = err.findIndex((l) => /^test-strength: the unmutated run is red for AC-101-\d: (.+) fails under runner (.+); no mutant was run$/.exec(l)?.[1] === `${file}::${name}`);
+    assert.ok(r.code === 2 && red >= 0, `${acId}: run at the rcf project root the package-relative path is missing: exit 2 with "test-strength: the unmutated run is red for ${acId}: ${file}::${name} fails under runner <argv>; no mutant was run"\n${shown(r)}`);
+    assert.equal(err[red + 1], cwdHint(file, '.'), `${acId}: the line right after the unmutated-run line names the cwd "." and points at "cwd": "project"\n${shown(r)}`);
+  }
+});

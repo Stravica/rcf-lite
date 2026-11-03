@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-11-03T02:15:48.489Z",
+  "updatedAt": "2026-11-03T18:39:34.479Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -215,6 +215,13 @@
       "description": "the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a \"cwd\": \"project\" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a \"cwd\": \"project\" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-the-hint-names-dot-at-the-rcf-project-root",
+      "acId": "AC-19904-11",
+      "description": "a red unmutated run at the rcf project root, of a test with no package.json between it and the rcf project root and of a test under a \"cwd\": \"project\" runners entry, is followed by a line naming the cwd \".\" and pointing at \"cwd\": \"project\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run at the rcf project root, of a test with no package.json between it and the rcf project root and of a test under a \"cwd\": \"project\" runners entry, is followed by a line naming the cwd \".\" and pointing at \"cwd\": \"project\""
     }
   ],
   "status": "draft"

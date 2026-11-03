@@ -20,5 +20,9 @@ vitest sits in the root's `node_modules/.bin` alone, nothing of it in
 `apps/api`; this world's own package.json stays as committed and no
 lockfile is written in it. `apps/api/test/vitest.test.mjs` is a vitest
 test; every other test file is a node:test file.
+`test/package-path.test.mjs` (round F) has no package.json between it and
+the rcf project root, so it runs at the root, where the package-relative
+`fixtures/config.json` it reads through `readPort` is missing: it is red
+there by design, the red unmutated run whose cwd hint names `.`.
 Test files end in `.test.mjs` so the package suite's `test/**/*.test.js`
 glob never runs them.
