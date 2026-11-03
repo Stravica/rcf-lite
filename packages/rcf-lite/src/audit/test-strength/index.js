@@ -36,7 +36,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, runMutants, runUnmutated } from './runner.js';
+import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, packageDir, runDir, runMutants, runUnmutated } from './runner.js';
 import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
@@ -129,6 +129,14 @@ function codeNodesOf(tree, acId) {
 
 const fail = (code, ...err) => ({ code, out: null, err, report: null });
 
+/** Every package.json directory at HEAD outside node_modules, repository-wide, relative to the repository root ('' for the root). */
+async function workspacePackages(git) {
+  const all = await git(['ls-tree', '-r', '-z', '--name-only', '--full-tree', 'HEAD']);
+  if (all.code !== 0) return [];
+  return all.stdout.split('\0').filter((p) => posix.basename(p) === 'package.json' && !p.split('/').includes('node_modules'))
+    .map((p) => (posix.dirname(p) === '.' ? '' : posix.dirname(p)));
+}
+
 /**
  * Resolve the scope, run both layers and (with record) write the report.
  *
@@ -207,6 +215,8 @@ export async function auditTestStrength({
   // Everything is read at HEAD, as text.
   const tree0 = await git(['ls-tree', '-r', '--name-only', 'HEAD']);
   const files = new Set(tree0.stdout.split('\n').filter(Boolean));
+  // Round E (AC-19903-10): each bound test's package directory at HEAD.
+  for (const c of criteria) for (const t of c.tests) t.dir = packageDir(t.file, files);
   // Every entry but plain JavaScript is judged, an extension the views cannot read included.
   const entryPaths = config.entry.map((e) => posix.normalize(e.path)).filter((p) => !SOURCE_EXT.test(p) && posix.extname(p) !== '');
   const wanted = [...new Set(['package.json', ...entryPaths, ...criteria.flatMap((c) => [...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path).file)])])];
@@ -294,7 +304,11 @@ export async function auditTestStrength({
   // before any bound test runs, read again after them on every exit, in
   // one finally; a path a bound test run wrote under one is the named exit
   // 2 whatever else the run was about to report.
-  const roots = proved.length ? forbiddenRoots(projectRoot, toplevel) : null;
+  // Round E (TAC-4155 responsibilities[4]): every package.json directory
+  // at HEAD outside node_modules, repository-wide, whose node_modules a
+  // working copy links and the backstop covers.
+  const packages = proved.length ? await workspacePackages(git) : [];
+  const roots = proved.length ? forbiddenRoots(projectRoot, toplevel, packages) : null;
   const before = roots ? backstopTree(projectRoot, toplevel, roots) : null;
   const scratches = [];
   const wrote = () => {
@@ -318,7 +332,7 @@ export async function auditTestStrength({
   try {
     outcome = await (async () => {
       try {
-        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, packages, scratches });
       } catch (err) {
         return cannotRun(err);
       }
@@ -329,6 +343,8 @@ export async function auditTestStrength({
         const argv = t.runner.argv.join(' ');
         if (result === 'notRun') return exit([...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`], breached);
         const lines = [`test-strength: the unmutated run is red for ${acId}: ${t.pointer} fails under runner ${argv}; no mutant was run`];
+        // Round E (AC-19904-11): the next line names the directory the run ran at, relative to the rcf project root.
+        lines.push(`test-strength: ${t.file} ran at ${runDir(t) || '.'}; a test that reads paths relative to the rcf project root pins "cwd": "project" on its runners entry`);
         // The stage-keeper's ruling Q5: a report the audit cannot read names the reporter flag.
         if (verdict === 'unreadable') {
           const flag = t.runner.kind === 'nodeTest' ? '--test-reporter=tap' : (t.runner.kind === 'vitest' ? '--reporter=json --outputFile=<report>' : '--reporter=json');
@@ -341,7 +357,7 @@ export async function auditTestStrength({
       }
       const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
       try {
-        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, scratches });
+        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, packages, scratches });
       } catch (err) {
         if (err instanceof NotRunError) {
           const lines = [...leftUnmutated, ...leftLines(err.left ?? [])];

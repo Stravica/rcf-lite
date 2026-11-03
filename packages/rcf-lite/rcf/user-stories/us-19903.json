@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-10-31T09:01:53.762Z",
+  "updatedAt": "2026-11-03T00:05:14.587Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -54,6 +54,36 @@
     {
       "id": "AC-19903-7",
       "description": "[failure] On SIGINT or SIGTERM during a run, `rcf audit test-strength` kills the process group of every bound test run it started, removes its scratch directory (its working copies within it), leaves no entry in the project's .git, and exits 130 for SIGINT or 143 for SIGTERM.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-8",
+      "description": "[happy] Given a fixture pnpm workspace whose rcf project is its root and a criterion bound to a node:test test in `apps/api/test/` importing a package installed only in `apps/api/node_modules`, when `rcf audit test-strength --acs <id>` runs over a working copy whose node_modules links follow TAC-4155's link set, then the unmutated run is green and it exits 0 and no mutant survived (stdout the PASS line, no \"the unmutated run is red\" line).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-9",
+      "description": "[happy] Given a criterion whose Code Node is a symbol in `apps/lib`, bound to a test in `apps/api` importing `@ws/lib` by name (a workspace package link), when the audit runs, then each mutant is applied in the copy's `apps/lib` and a mutant the test catches is killed, never survived (exit 0 with the PASS line, and with --json no mutant of the symbol survived).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-10",
+      "description": "[happy] Given a test in `apps/api` reading `fixtures/config.json` relative to `apps/api`, when the audit runs, then it runs at its package directory with `<file>` relative to it and the unmutated run is green (exit 0 with the PASS line); a test with no package.json between it and the rcf project root runs at the rcf project root. The package directory is the default for every runner kind `rcf/test-strength.json` allows: a nodeTest, vitest or playwright `runners` entry and the legacy `runner` alike, so a bound test under each kind reading `fixtures/config.json` relative to its package runs green. A package is the nearest directory at HEAD from the test file up to the rcf project root holding a package.json, else the rcf project root.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-11",
+      "description": "[must-not] Given an rcf project in `packages/a` and a sibling `packages/b` with its own node_modules, when a bound test writes under `packages/b/node_modules` through the copy's links, then the audit exits 2 with \"test-strength: a bound test run wrote <path> in the project\", `<path>` relative to the rcf project root (`../b/node_modules/bpkg/w.txt` for a write to `packages/b/node_modules/bpkg/w.txt`).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-12",
+      "description": "[must-not] Given the help paragraph of `rcf audit test-strength` rewritten for workspace working copies, when `rcf audit test-strength --help` runs, then it exits 0 and its output, whitespace collapsed, still holds the backstop sentence \"Nothing in the project is written outside rcf/verdicts/<H12>/: the audit compares the project tree (node_modules and every dot directory included, .git excluded) and every node_modules directory on Node's module resolution path above it, up to the repository root, before and after the bound tests run, and a path a bound test run wrote there exits 2 \"test-strength: a bound test run wrote <path> in the project\" (a path above the project named relative to it) and records nothing.\"",
       "testable": true,
       "verification": "external"
     }

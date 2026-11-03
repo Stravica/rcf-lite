@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:35:46.960Z",
-  "updatedAt": "2026-10-26T00:07:43.277Z",
+  "updatedAt": "2026-11-02T23:58:19.586Z",
   "asA": "operator (the operating engineer) running Verify before the promote",
   "iWant": "one command that runs the external criteria's E2E tests for the release scope plus the core journeys and records verified",
   "soThat": "verified means the release target passed, and nothing inside a build round can write it",
@@ -54,6 +54,18 @@
     {
       "id": "AC-20101-7",
       "description": "[failure] Given --since naming a ref that does not resolve to a commit (a missing ref, a tree or a blob), rcf verify run --release 1.1.0 --since <ref> --url <server> --record exits 2 with stderr \"[error] usage --since <ref> does not resolve to a commit\"; given a commit that is not an ancestor of HEAD it exits 2 with \"[error] usage --since <ref> is not an ancestor of HEAD\"; none writes a file.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-20101-8",
+      "description": "[failure] Given a release Verify fixture whose bound e2e case throws \"harness: node sits beside an agent CLI in <dir>\", when `rcf verify run --release <label>` runs, then that criterion's perAc row reads \"fail\" with the thrown message as reason, that is the first non-empty line of the TAP diagnostic's error, trimmed (the whole message when it is one line); a failing case with no diagnostic carries the runner's last non-empty stderr line, trimmed; else \"no result for <pointer> (exit <code>)\", so a failing case with neither a TAP diagnostic nor a stderr line carries the reason \"no result for <pointer> (exit <code>)\", `<pointer>` its test pointer and `<code>` its runner's exit code (the ReleaseVerifyReport that `--out <file>` or `--record` writes: perAc result \"fail\", reason the message, the line or that no-result reason, where the scope's null stood). A failing case whose assertion message spans several lines gives that message's first non-empty line. With several failing bound cases, the first failing case in the row's tests order gives the reason; the file's own summary \"not ok\" line is never a case. A pass row's reason stays null, and no reason line follows a pass or blocked line.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-20101-9",
+      "description": "[failure] Given the same fixture, when the run prints its rows, then the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged (stdout: \"<AC id> <FBS id> fail\" stays an exact line, as AC-20101-2 asserts it, followed by \"  reason: <reason>\"; \"<AC id> <FBS id> pass\" has no reason line after it).",
       "testable": true,
       "verification": "external"
     }

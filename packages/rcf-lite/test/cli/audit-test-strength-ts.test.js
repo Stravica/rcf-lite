@@ -114,8 +114,9 @@ const reconfigure = (dir, config) => commit(dir, 'fixture: runner', { 'rcf/test-
 
 // node's directory ahead of git's: a host whose git directory also holds
 // an older node (one lane host's /usr/bin/node is v20, which strips no
-// types) must not shadow the node the runner names.
-const nodeFirst = () => { const [gitDir, ...rest] = toolPath(['node']).split(delimiter); return [...rest, gitDir].join(delimiter); };
+// types) must not shadow the node the runner names. sh too: a runners argv
+// may launch through sh, and on macOS sh sits in /bin, beside neither.
+const nodeFirst = () => { const [gitDir, ...rest] = toolPath(['node', 'sh']).split(delimiter); return [...rest, gitDir].join(delimiter); };
 const strength = (dir, args = []) => rcf(['audit', 'test-strength', ...args], { cwd: dir, env: { PATH: nodeFirst() }, timeout: 900_000 });
 const out = (r) => r.stdout.replace(/\n$/, '');
 const shown = (r) => `exit ${r.code}\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`;

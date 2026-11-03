@@ -935,7 +935,7 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19901-6   yes                    external   verified  verified    TC-282-the-structural-check-never-executes-a
                       AC-19901-7   yes                    external   verified  verified    TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101
                       AC-19901-8   retired (AC-19901-9)   external   -         retired     -
-                      AC-19901-9   yes                    external   verified  verified    TC-282-a-bound-test-file-test-rcf-a-test-py-or, TC-282-a-...
+                      AC-19901-9   yes                    external   verified  complete    TC-282-a-bound-test-file-test-rcf-a-test-py-or, TC-282-a-...
                       AC-19902-1   yes                    external   verified  verified    TC-283-a-bound-test-asserting-only-that-the-cli
                       AC-19902-2   yes                    external   verified  verified    TC-283-ac-101-2-with-no-code-node-ac-101-3-with
                       AC-19902-3   yes                    external   verified  verified    TC-283-a-no-op-mutant-that-hangs-its-bound-test
@@ -950,15 +950,24 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19903-3   yes                    external   verified  verified    TC-284-a-worker-style-app-entry-worker-src
                       AC-19903-4   yes                    external   verified  verified    TC-284-a-library-entry-module-src-index-js
                       AC-19903-5   yes                    external   verified  verified    TC-284-a-bound-test-writing-a-new-file-inside, TC-284-a-c...
-                      AC-19903-6   yes                    external   verified  verified    TC-284-a-bound-test-writing-a-file-at-an
-                      AC-19903-7   yes                    external   verified  verified    TC-284-on-sigint-or-sigterm-while-a-bound-test, TC-284-on...
-                      AC-19904-1   yes                    external   verified  verified    TC-306-a-ts-project-with-entry-src-index-ts-and
-                      AC-19904-2   yes                    external   verified  verified    TC-306-a-vitest-runners-entry-with-ac-101-1
-                      AC-19904-3   yes                    external   verified  verified    TC-306-a-playwright-pointer-naming-a-describe, TC-306-a-p...
-                      AC-19904-4   yes                    external   verified  verified    TC-306-a-script-data-src-x-lang-ts-block, TC-306-a-vue-co...
-                      AC-19904-5   yes                    external   verified  verified    TC-306-a-vitest-pointer-test-cart-test-ts-cart
-                      AC-19904-6   yes                    external   verified  verified    TC-306-a-ts-bound-test-importing-vitest-that
-                      AC-19904-7   yes                    external   verified  verified    TC-306-a-code-node-file-holding-a-typescript, TC-306-a-na...
+                      AC-19903-6   yes                    external   verified  complete    TC-284-a-bound-test-writing-a-file-at-an
+                      AC-19903-7   yes                    external   verified  complete    TC-284-on-sigint-or-sigterm-while-a-bound-test, TC-284-on...
+                      AC-19903-8   yes                    external   verified  complete    TC-284-a-bound-test-in-a-workspace-package
+                      AC-19903-9   yes                    external   verified  complete    TC-284-a-workspace-sibling-imported-by-name
+                      AC-19903-10  yes                    external   verified  complete    TC-284-a-bound-test-runs-at-its-package, TC-284-every-run...
+                      AC-19903-11  yes                    external   verified  complete    TC-284-a-bound-test-writing-under-a-sibling
+                      AC-19903-12  yes                    external   verified  complete    TC-284-rcf-audit-test-strength-help-keeps-the
+                      AC-19904-1   yes                    external   verified  complete    TC-306-a-ts-project-with-entry-src-index-ts-and
+                      AC-19904-2   yes                    external   verified  complete    TC-306-a-vitest-runners-entry-with-ac-101-1
+                      AC-19904-3   yes                    external   verified  complete    TC-306-a-playwright-pointer-naming-a-describe, TC-306-a-p...
+                      AC-19904-4   yes                    external   verified  complete    TC-306-a-script-data-src-x-lang-ts-block, TC-306-a-vue-co...
+                      AC-19904-5   yes                    external   verified  complete    TC-306-a-vitest-pointer-test-cart-test-ts-cart
+                      AC-19904-6   yes                    external   verified  complete    TC-306-a-ts-bound-test-importing-vitest-that
+                      AC-19904-7   yes                    external   verified  complete    TC-306-a-code-node-file-holding-a-typescript, TC-306-a-na...
+                      AC-19904-8   yes                    external   verified  complete    TC-306-a-runners-entry-with-cwd-project-runs, TC-306-a-vi...
+                      AC-19904-9   yes                    external   verified  complete    TC-306-a-nodetest-runners-entry-whose-argv, TC-306-the-le...
+                      AC-19904-10  yes                    external   verified  complete    TC-306-a-runners-entry-whose-cwd-is-anything
+                      AC-19904-11  yes                    external   verified  complete    TC-306-a-red-unmutated-run-of-a-bound-test-in
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
@@ -978,20 +987,22 @@ REQ-200      yes      AC-20001-1   yes                    external   verified  v
                       AC-20003-3   yes                    external   verified  verified    TC-287-rcf-build-mark-fbs-001-complete-at
                       AC-20003-4   yes                    external   verified  verified    TC-287-an-amend-round-on-fbs-001-at-verified
                       AC-20003-5   yes                    external   verified  verified    TC-287-across-the-fixtures-of-us-20003-no
-REQ-201      yes      AC-20101-1   yes                    external   verified  verified    TC-288-with-fbs-001-changed-after-v1-0-0-and
-                      AC-20101-2   yes                    external   verified  verified    TC-288-a-failing-e2e-case-of-ac-101-1-exits-4
-                      AC-20101-3   yes                    external   verified  verified    TC-288-testonly-only-unit-bound-inprogress
-                      AC-20101-4   yes                    external   verified  verified    TC-288-record-without-release-or-since-exits-2
-                      AC-20101-5   yes                    external   verified  verified    TC-288-without-record-the-pass-fixture-run
-                      AC-20101-6   yes                    external   verified  verified    TC-288-over-150-specs-and-800-criteria-with-12
-                      AC-20101-7   yes                    external   verified  verified    TC-288-since-naming-a-missing-ref-a-tree-or-a
-                      AC-20102-1   yes                    external   verified  verified    TC-289-a-cold-package-release-verify-runs-the
-                      AC-20102-2   yes                    external   verified  verified    TC-289-offline-in-release-mode-exits-2-error
-                      AC-20102-3   yes                    external   verified  verified    TC-289-a-user-npmrc-at-the-caller-home-setting
-                      AC-20102-4   yes                    external   verified  verified    TC-289-a-cold-release-verify-writes-in-the
-                      AC-20103-1   yes                    external   verified  verified    TC-290-with-rcf-verify-catalog-json-and-a-local
-                      AC-20103-2   yes                    external   verified  verified    TC-290-record-with-mode-deterministic-or-mode
-                      AC-20103-3   yes                    external   verified  verified    TC-290-the-pass-fixture-of-the-release-story
+REQ-201      yes      AC-20101-1   yes                    external   verified  complete    TC-288-with-fbs-001-changed-after-v1-0-0-and
+                      AC-20101-2   yes                    external   verified  complete    TC-288-a-failing-e2e-case-of-ac-101-1-exits-4
+                      AC-20101-3   yes                    external   verified  complete    TC-288-testonly-only-unit-bound-inprogress
+                      AC-20101-4   yes                    external   verified  complete    TC-288-record-without-release-or-since-exits-2
+                      AC-20101-5   yes                    external   verified  complete    TC-288-without-record-the-pass-fixture-run
+                      AC-20101-6   yes                    external   verified  complete    TC-288-over-150-specs-and-800-criteria-with-12
+                      AC-20101-7   yes                    external   verified  complete    TC-288-since-naming-a-missing-ref-a-tree-or-a
+                      AC-20101-8   yes                    external   verified  complete    TC-288-a-bound-e2e-case-throwing-harness-node, TC-288-a-f...
+                      AC-20101-9   yes                    external   verified  complete    TC-288-the-line-after-each-fail-line-reads, TC-288-with-t...
+                      AC-20102-1   yes                    external   verified  complete    TC-289-a-cold-package-release-verify-runs-the
+                      AC-20102-2   yes                    external   verified  complete    TC-289-offline-in-release-mode-exits-2-error
+                      AC-20102-3   yes                    external   verified  complete    TC-289-a-user-npmrc-at-the-caller-home-setting
+                      AC-20102-4   yes                    external   verified  complete    TC-289-a-cold-release-verify-writes-in-the
+                      AC-20103-1   yes                    external   verified  complete    TC-290-with-rcf-verify-catalog-json-and-a-local
+                      AC-20103-2   yes                    external   verified  complete    TC-290-record-with-mode-deterministic-or-mode
+                      AC-20103-3   yes                    external   verified  complete    TC-290-the-pass-fixture-of-the-release-story
 REQ-202      yes      AC-20201-1   yes                    external   verified  verified    TC-291-a-record-from-rcf-build-base-suite
                       AC-20201-2   yes                    external   verified  verified    TC-291-with-no-base-suite-rcf-build-bundle-next
                       AC-20201-3   yes                    external   verified  verified    TC-291-a-green-record-made-at-commit-a-while
@@ -1166,8 +1177,8 @@ FBS-234  verified  verified
 FBS-235  verified  verified
 FBS-236  verified  verified
 FBS-237  verified  verified
-FBS-238  verified  verified
+FBS-238  verified  complete
 FBS-239  verified  verified
 FBS-240  verified  notStarted
 FBS-241  verified  verified
-FBS-242  verified  verified
+FBS-242  verified  complete

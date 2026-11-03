@@ -1,0 +1,512 @@
+{
+  "version": 1,
+  "head": "4ce63ae2cf4121255a7b5bb8af697ca2539e78ba",
+  "scope": "reviewVerdict",
+  "criteria": [
+    {
+      "acId": "AC-19903-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-10",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#runBound",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-10: a bound test runs at its package directory, and a test with no package.json between it and the rcf project root runs at the rcf project root"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runBound",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-10: a bound test runs at its package directory, and a test with no package.json between it and the rcf project root runs at the rcf project root"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runBound",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#packageDir",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-10: a bound test runs at its package directory, and a test with no package.json between it and the rcf project root runs at the rcf project root"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#packageDir",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-10: a bound test runs at its package directory, and a test with no package.json between it and the rcf project root runs at the rcf project root"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#packageDir",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-11",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#forbiddenRoots",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-11: a bound test writing under a sibling package node_modules through the working copy links exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#forbiddenRoots",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-11: a bound test writing under a sibling package node_modules through the working copy links exits 2 with \"test-strength: a bound test run wrote <path> in the project\" naming it"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#forbiddenRoots",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-12",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-12: rcf audit test-strength --help keeps the backstop sentence the 0.39.0 Known issue names"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-12: rcf audit test-strength --help keeps the backstop sentence the 0.39.0 Known issue names"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#runBound",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a runners entry with \"cwd\": \"project\" runs its tests at the rcf project root with a project-relative file"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runBound",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a runners entry with \"cwd\": \"project\" runs its tests at the rcf project root with a project-relative file"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runBound",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a runners entry with \"cwd\": \"project\" runs its tests at the rcf project root with a project-relative file"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a runners entry with \"cwd\": \"project\" runs its tests at the rcf project root with a project-relative file"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#kindEnv",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: a nodeTest runners entry whose argv starts with a bare tsx installed in the test package runs from a PATH holding no node_modules/.bin, exit 0 with the PASS line"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#kindEnv",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: a nodeTest runners entry whose argv starts with a bare tsx installed in the test package runs from a PATH holding no node_modules/.bin, exit 0 with the PASS line"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#kindEnv",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-10",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-10: a runners entry whose \"cwd\" is anything other than \"project\" (\"package\", null, 1) exits 2 with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" naming runners[<i>].cwd"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-10: a runners entry whose \"cwd\" is anything other than \"project\" (\"package\", null, 1) exits 2 with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" naming runners[<i>].cwd"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-11",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/index.js#failReason",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#failReason",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#failReason",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/suite/index.js#parseTap",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/suite/index.js#parseTap",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/suite/index.js#parseTap",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-9: the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-9: the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "pass",
+  "totals": {
+    "criteria": 11,
+    "structuralPassed": 11,
+    "mutants": 51,
+    "killed": 38,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 13,
+    "blocked": 0
+  },
+  "wallMs": 54191,
+  "node": "v24.14.0"
+}

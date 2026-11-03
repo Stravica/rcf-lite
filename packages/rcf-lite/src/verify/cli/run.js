@@ -284,7 +284,11 @@ Optional:
                             (scratch HOME, empty npm cache, reduced
                             environment, RCF_TARGET_KIND=package). Prints
                             "<AC id> <FBS id> <pass|fail|blocked>" per
-                            criterion and the release verdict line. Exit 0
+                            criterion, each fail line followed by
+                            "  reason: <reason>" (the first failing case's
+                            message, else its runner's last stderr line,
+                            else "no result for <pointer> (exit <code>)"),
+                            and the release verdict line. Exit 0
                             PASS, 4 FAIL, 2 usage, 1 install failure.
                             --mode and --offline are refused in release mode
   --since <ref>             The last release's commit (a tag or sha); must

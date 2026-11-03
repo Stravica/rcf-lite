@@ -4609,6 +4609,28 @@ flowchart LR
   AC-19903-7 -.-> TC-284-on-sigint-or-sigterm-while-a-bound-test
   TC-284-on-sigint-or-sigterm-while-two-bound["TC-284-on-sigint-or-sigterm-while-two-bound"]
   AC-19903-7 -.-> TC-284-on-sigint-or-sigterm-while-two-bound
+  AC-19903-8["AC-19903-8"]
+  REQ-199 --> AC-19903-8
+  TC-284-a-bound-test-in-a-workspace-package["TC-284-a-bound-test-in-a-workspace-package"]
+  AC-19903-8 -.-> TC-284-a-bound-test-in-a-workspace-package
+  AC-19903-9["AC-19903-9"]
+  REQ-199 --> AC-19903-9
+  TC-284-a-workspace-sibling-imported-by-name["TC-284-a-workspace-sibling-imported-by-name"]
+  AC-19903-9 -.-> TC-284-a-workspace-sibling-imported-by-name
+  AC-19903-10["AC-19903-10"]
+  REQ-199 --> AC-19903-10
+  TC-284-a-bound-test-runs-at-its-package["TC-284-a-bound-test-runs-at-its-package"]
+  AC-19903-10 -.-> TC-284-a-bound-test-runs-at-its-package
+  TC-284-every-runner-kind-runs-a-bound-test-at["TC-284-every-runner-kind-runs-a-bound-test-at"]
+  AC-19903-10 -.-> TC-284-every-runner-kind-runs-a-bound-test-at
+  AC-19903-11["AC-19903-11"]
+  REQ-199 --> AC-19903-11
+  TC-284-a-bound-test-writing-under-a-sibling["TC-284-a-bound-test-writing-under-a-sibling"]
+  AC-19903-11 -.-> TC-284-a-bound-test-writing-under-a-sibling
+  AC-19903-12["AC-19903-12"]
+  REQ-199 --> AC-19903-12
+  TC-284-rcf-audit-test-strength-help-keeps-the["TC-284-rcf-audit-test-strength-help-keeps-the"]
+  AC-19903-12 -.-> TC-284-rcf-audit-test-strength-help-keeps-the
   AC-19904-1["AC-19904-1"]
   REQ-199 --> AC-19904-1
   TC-306-a-ts-project-with-entry-src-index-ts-and["TC-306-a-ts-project-with-entry-src-index-ts-and"]
@@ -4665,6 +4687,28 @@ flowchart LR
   AC-19904-7 -.-> TC-306-the-column-counts-utf-16-units-an-emoji
   TC-306-the-detail-names-the-construct-strip["TC-306-the-detail-names-the-construct-strip"]
   AC-19904-7 -.-> TC-306-the-detail-names-the-construct-strip
+  AC-19904-8["AC-19904-8"]
+  REQ-199 --> AC-19904-8
+  TC-306-a-runners-entry-with-cwd-project-runs["TC-306-a-runners-entry-with-cwd-project-runs"]
+  AC-19904-8 -.-> TC-306-a-runners-entry-with-cwd-project-runs
+  TC-306-a-vitest-runners-entry-with-cwd-project["TC-306-a-vitest-runners-entry-with-cwd-project"]
+  AC-19904-8 -.-> TC-306-a-vitest-runners-entry-with-cwd-project
+  AC-19904-9["AC-19904-9"]
+  REQ-199 --> AC-19904-9
+  TC-306-a-nodetest-runners-entry-whose-argv["TC-306-a-nodetest-runners-entry-whose-argv"]
+  AC-19904-9 -.-> TC-306-a-nodetest-runners-entry-whose-argv
+  TC-306-the-legacy-runner-whose-argv-starts-with["TC-306-the-legacy-runner-whose-argv-starts-with"]
+  AC-19904-9 -.-> TC-306-the-legacy-runner-whose-argv-starts-with
+  TC-306-the-path-order-a-bare-tsx-under-a["TC-306-the-path-order-a-bare-tsx-under-a"]
+  AC-19904-9 -.-> TC-306-the-path-order-a-bare-tsx-under-a
+  AC-19904-10["AC-19904-10"]
+  REQ-199 --> AC-19904-10
+  TC-306-a-runners-entry-whose-cwd-is-anything["TC-306-a-runners-entry-whose-cwd-is-anything"]
+  AC-19904-10 -.-> TC-306-a-runners-entry-whose-cwd-is-anything
+  AC-19904-11["AC-19904-11"]
+  REQ-199 --> AC-19904-11
+  TC-306-a-red-unmutated-run-of-a-bound-test-in["TC-306-a-red-unmutated-run-of-a-bound-test-in"]
+  AC-19904-11 -.-> TC-306-a-red-unmutated-run-of-a-bound-test-in
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -4771,6 +4815,26 @@ flowchart LR
   REQ-201 --> AC-20101-7
   TC-288-since-naming-a-missing-ref-a-tree-or-a["TC-288-since-naming-a-missing-ref-a-tree-or-a"]
   AC-20101-7 -.-> TC-288-since-naming-a-missing-ref-a-tree-or-a
+  AC-20101-8["AC-20101-8"]
+  REQ-201 --> AC-20101-8
+  TC-288-a-bound-e2e-case-throwing-harness-node["TC-288-a-bound-e2e-case-throwing-harness-node"]
+  AC-20101-8 -.-> TC-288-a-bound-e2e-case-throwing-harness-node
+  TC-288-a-failing-bound-e2e-case-whose-assertion["TC-288-a-failing-bound-e2e-case-whose-assertion"]
+  AC-20101-8 -.-> TC-288-a-failing-bound-e2e-case-whose-assertion
+  TC-288-a-failing-bound-e2e-case-with-neither-a["TC-288-a-failing-bound-e2e-case-with-neither-a"]
+  AC-20101-8 -.-> TC-288-a-failing-bound-e2e-case-with-neither-a
+  TC-288-a-pass-row-keeps-its-reason-null-in-a["TC-288-a-pass-row-keeps-its-reason-null-in-a"]
+  AC-20101-8 -.-> TC-288-a-pass-row-keeps-its-reason-null-in-a
+  TC-288-no-reason-line-follows-a-blocked-line-in["TC-288-no-reason-line-follows-a-blocked-line-in"]
+  AC-20101-8 -.-> TC-288-no-reason-line-follows-a-blocked-line-in
+  TC-288-with-two-failing-bound-e2e-cases-of["TC-288-with-two-failing-bound-e2e-cases-of"]
+  AC-20101-8 -.-> TC-288-with-two-failing-bound-e2e-cases-of
+  AC-20101-9["AC-20101-9"]
+  REQ-201 --> AC-20101-9
+  TC-288-the-line-after-each-fail-line-reads["TC-288-the-line-after-each-fail-line-reads"]
+  AC-20101-9 -.-> TC-288-the-line-after-each-fail-line-reads
+  TC-288-with-two-failing-bound-e2e-cases-on-one["TC-288-with-two-failing-bound-e2e-cases-on-one"]
+  AC-20101-9 -.-> TC-288-with-two-failing-bound-e2e-cases-on-one
   AC-20102-1["AC-20102-1"]
   REQ-201 --> AC-20102-1
   TC-289-a-cold-package-release-verify-runs-the["TC-289-a-cold-package-release-verify-runs-the"]
@@ -7313,6 +7377,17 @@ flowchart LR
   class AC-19903-7 ac;
   class TC-284-on-sigint-or-sigterm-while-a-bound-test tc;
   class TC-284-on-sigint-or-sigterm-while-two-bound tc;
+  class AC-19903-8 ac;
+  class TC-284-a-bound-test-in-a-workspace-package tc;
+  class AC-19903-9 ac;
+  class TC-284-a-workspace-sibling-imported-by-name tc;
+  class AC-19903-10 ac;
+  class TC-284-a-bound-test-runs-at-its-package tc;
+  class TC-284-every-runner-kind-runs-a-bound-test-at tc;
+  class AC-19903-11 ac;
+  class TC-284-a-bound-test-writing-under-a-sibling tc;
+  class AC-19903-12 ac;
+  class TC-284-rcf-audit-test-strength-help-keeps-the tc;
   class AC-19904-1 ac;
   class TC-306-a-ts-project-with-entry-src-index-ts-and tc;
   class AC-19904-2 ac;
@@ -7341,6 +7416,17 @@ flowchart LR
   class TC-306-on-a-tab-indented-line-an-enum tc;
   class TC-306-the-column-counts-utf-16-units-an-emoji tc;
   class TC-306-the-detail-names-the-construct-strip tc;
+  class AC-19904-8 ac;
+  class TC-306-a-runners-entry-with-cwd-project-runs tc;
+  class TC-306-a-vitest-runners-entry-with-cwd-project tc;
+  class AC-19904-9 ac;
+  class TC-306-a-nodetest-runners-entry-whose-argv tc;
+  class TC-306-the-legacy-runner-whose-argv-starts-with tc;
+  class TC-306-the-path-order-a-bare-tsx-under-a tc;
+  class AC-19904-10 ac;
+  class TC-306-a-runners-entry-whose-cwd-is-anything tc;
+  class AC-19904-11 ac;
+  class TC-306-a-red-unmutated-run-of-a-bound-test-in tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;
@@ -7395,6 +7481,16 @@ flowchart LR
   class TC-288-over-150-specs-and-800-criteria-with-12 tc;
   class AC-20101-7 ac;
   class TC-288-since-naming-a-missing-ref-a-tree-or-a tc;
+  class AC-20101-8 ac;
+  class TC-288-a-bound-e2e-case-throwing-harness-node tc;
+  class TC-288-a-failing-bound-e2e-case-whose-assertion tc;
+  class TC-288-a-failing-bound-e2e-case-with-neither-a tc;
+  class TC-288-a-pass-row-keeps-its-reason-null-in-a tc;
+  class TC-288-no-reason-line-follows-a-blocked-line-in tc;
+  class TC-288-with-two-failing-bound-e2e-cases-of tc;
+  class AC-20101-9 ac;
+  class TC-288-the-line-after-each-fail-line-reads tc;
+  class TC-288-with-two-failing-bound-e2e-cases-on-one tc;
   class AC-20102-1 ac;
   class TC-289-a-cold-package-release-verify-runs-the tc;
   class AC-20102-2 ac;

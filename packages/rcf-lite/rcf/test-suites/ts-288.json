@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-10-24T17:50:39.928Z",
+  "updatedAt": "2026-11-03T02:22:27.484Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -10,7 +10,9 @@
     "AC-20101-4",
     "AC-20101-5",
     "AC-20101-6",
-    "AC-20101-7"
+    "AC-20101-7",
+    "AC-20101-8",
+    "AC-20101-9"
   ],
   "id": "TS-288",
   "usId": "US-20101",
@@ -64,6 +66,62 @@
       "description": "--since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 \"[error] usage --since <ref> does not resolve to a commit\", a commit that is not an ancestor of HEAD exits 2 \"[error] usage --since <ref> is not an ancestor of HEAD\", and none writes a file"
+    },
+    {
+      "id": "TC-288-a-bound-e2e-case-throwing-harness-node",
+      "acId": "AC-20101-8",
+      "description": "a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+    },
+    {
+      "id": "TC-288-the-line-after-each-fail-line-reads",
+      "acId": "AC-20101-9",
+      "description": "the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-9: the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged"
+    },
+    {
+      "id": "TC-288-a-failing-bound-e2e-case-with-neither-a",
+      "acId": "AC-20101-8",
+      "description": "a failing bound e2e case with neither a TAP diagnostic nor a stderr line gives its perAc row result \"fail\" with the reason \"no result for <pointer> (exit <code>)\"",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a failing bound e2e case with neither a TAP diagnostic nor a stderr line gives its perAc row result \"fail\" with the reason \"no result for <pointer> (exit <code>)\""
+    },
+    {
+      "id": "TC-288-a-failing-bound-e2e-case-whose-assertion",
+      "acId": "AC-20101-8",
+      "description": "a failing bound e2e case whose assertion message spans several lines gives its perAc row result \"fail\" with the first non-empty line of that message as reason",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a failing bound e2e case whose assertion message spans several lines gives its perAc row result \"fail\" with the first non-empty line of that message as reason"
+    },
+    {
+      "id": "TC-288-with-two-failing-bound-e2e-cases-of",
+      "acId": "AC-20101-8",
+      "description": "with two failing bound e2e cases of different messages on one criterion, the first failing case in the tests order of its row gives the reason, not the case its runner reports first",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: with two failing bound e2e cases of different messages on one criterion, the first failing case in the tests order of its row gives the reason, not the case its runner reports first"
+    },
+    {
+      "id": "TC-288-with-two-failing-bound-e2e-cases-on-one",
+      "acId": "AC-20101-9",
+      "description": "with two failing bound e2e cases on one criterion, the line after its fail line reads \"  reason: <reason>\" with the message of the first failing case in the tests order of its row",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-9: with two failing bound e2e cases on one criterion, the line after its fail line reads \"  reason: <reason>\" with the message of the first failing case in the tests order of its row"
+    },
+    {
+      "id": "TC-288-a-pass-row-keeps-its-reason-null-in-a",
+      "acId": "AC-20101-8",
+      "description": "a pass row keeps its reason null in a run that also holds a failing row and a blocked row",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: a pass row keeps its reason null in a run that also holds a failing row and a blocked row"
+    },
+    {
+      "id": "TC-288-no-reason-line-follows-a-blocked-line-in",
+      "acId": "AC-20101-8",
+      "description": "no \"  reason:\" line follows a blocked line, in a run that also holds a failing row",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-8: no \"  reason:\" line follows a blocked line, in a run that also holds a failing row"
     }
   ],
   "status": "draft"

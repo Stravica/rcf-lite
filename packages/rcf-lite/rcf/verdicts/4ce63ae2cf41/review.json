@@ -1,0 +1,64 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "4ce63ae2cf4121255a7b5bb8af697ca2539e78ba",
+  "fbsIds": [
+    "FBS-242",
+    "FBS-238"
+  ],
+  "touchedAcIds": [
+    "AC-19903-8",
+    "AC-19903-9",
+    "AC-19903-10",
+    "AC-19903-11",
+    "AC-19903-12",
+    "AC-19904-8",
+    "AC-19904-9",
+    "AC-19904-10",
+    "AC-19904-11",
+    "AC-20101-8",
+    "AC-20101-9"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19904-11",
+      "text": "note, new criterion: a bound test pins the hint at the rcf project root (\"ran at .\" for a red unmutated run of a test with no package.json above it); the check 4 read found test/cli/audit-test-strength-workspace.test.js:534 asserts only the apps/api form, so the \".\" branch of src/audit/test-strength/index.js:347 is unpinned"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19903-11",
+      "text": "note, new criterion: a failing git ls-tree in workspacePackages (src/audit/test-strength/index.js:135) exits with a named error instead of returning no packages; at 4ce63ae2 the failure is swallowed, so the working copy links and the backstop roots silently drop every workspace package (production diff read, check 4)"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19903-9",
+      "text": "note, new criterion: a re-pointed workspace link whose target needs a path absent from the HEAD checkout (gitignored build output such as dist/) gets its own stderr reason; at 4ce63ae2 (src/audit/test-strength/runner.js:206 to :210) the copy link resolves to a package without its dist/, and a reviewer probe of a hoisted npm workspace consuming apps/lib through a gitignored dist/ exits 2 with the unmutated-run line and the \"cwd\": \"project\" hint, which points the wrong way (0.39.0 ran that test green unmutated, its mutants surviving)"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19903-8",
+      "text": "note, new criterion: TAC-4155 responsibilities[4] states whether a symbolic-link entry in the node_modules of the rcf project and its ancestors is re-pointed into the copy (the link form src/audit/test-strength/runner.js:206 to :208 applies at 4ce63ae2) or keeps its 0.39.0 absolute link; \"which stay linked as 0.39.0 links them\" reads two ways (builder gap (a); the stage-keeper accepted the builder reading for this round and rules a DEFINE sharpening next round)"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-20101-8",
+      "text": "note, new criterion: the reason decodes the quoted error scalar node:test TAP writes (src/verify/suite/index.js:126 to :131, yamlScalar): a thrown C:\\dir\\file gives the reason C:\\\\dir\\\\file and a message holding both quote kinds keeps its backtick quoting (reviewer probe at 4ce63ae2); a test-author case for each escape form under AC-20101-8, then the builder decodes it (the stage-keeper ruling on the independent review, note 1)"
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": "AC-20101-9",
+      "text": "note, new criterion: the verify run help (src/verify/cli/run.js:288 to :290) states the reason rule as TAC-4157 interfaces[1] does: the first non-empty line of the error of the first failing case in the row tests order, trimmed, else the last non-empty stderr line, else the no-result reason; at 4ce63ae2 the parenthetical abbreviates it (the stage-keeper ruling on the independent review, note 2)"
+    }
+  ],
+  "recordedBy": "reviewer, round E REVIEW",
+  "recordedAt": "2026-11-03T11:35:33.392Z"
+}

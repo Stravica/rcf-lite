@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:32:31.933Z",
-  "updatedAt": "2026-10-31T01:22:27.955Z",
+  "updatedAt": "2026-11-03T02:15:48.489Z",
   "purpose": "Each criterion of US-19904 driven through the bin as a child process over a scratch copy of a committed fixture project under test/fixtures/rc-46/, its own devDependencies installed with npm ci (RC-46, round D).",
   "testLevel": "e2e",
   "acIds": [
@@ -10,7 +10,11 @@
     "AC-19904-4",
     "AC-19904-5",
     "AC-19904-6",
-    "AC-19904-7"
+    "AC-19904-7",
+    "AC-19904-8",
+    "AC-19904-9",
+    "AC-19904-10",
+    "AC-19904-11"
   ],
   "id": "TS-306",
   "usId": "US-19904",
@@ -162,6 +166,55 @@
       "description": "with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-ts.test.js::AC-19904-3: with the default vitest argv and --jobs 1, every mutant of src/slug.ts runs in one working copy and is judged on its own text: each mutant of slugify and isSlug reads killed, exit 0 with the PASS line, and with the isSlug expectations of the bound spec taken out the mutants of isSlug read survived after those of slugify were killed, exit 4"
+    },
+    {
+      "id": "TC-306-a-runners-entry-with-cwd-project-runs",
+      "acId": "AC-19904-8",
+      "description": "a runners entry with \"cwd\": \"project\" runs its tests at the rcf project root with a project-relative file",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a runners entry with \"cwd\": \"project\" runs its tests at the rcf project root with a project-relative file"
+    },
+    {
+      "id": "TC-306-a-nodetest-runners-entry-whose-argv",
+      "acId": "AC-19904-9",
+      "description": "a nodeTest runners entry whose argv starts with a bare tsx installed in the test package runs from a PATH holding no node_modules/.bin, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: a nodeTest runners entry whose argv starts with a bare tsx installed in the test package runs from a PATH holding no node_modules/.bin, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-a-runners-entry-whose-cwd-is-anything",
+      "acId": "AC-19904-10",
+      "description": "a runners entry whose \"cwd\" is anything other than \"project\" (\"package\", null, 1) exits 2 with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" naming runners[<i>].cwd",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-10: a runners entry whose \"cwd\" is anything other than \"project\" (\"package\", null, 1) exits 2 with a stderr line starting \"test-strength: malformed rcf/test-strength.json\" naming runners[<i>].cwd"
+    },
+    {
+      "id": "TC-306-the-legacy-runner-whose-argv-starts-with",
+      "acId": "AC-19904-9",
+      "description": "the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: the legacy runner whose argv starts with a bare tsx installed only in the repository root node_modules/.bin runs a test in apps/api from a PATH holding no node_modules/.bin, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-a-vitest-runners-entry-with-cwd-project",
+      "acId": "AC-19904-8",
+      "description": "a vitest runners entry with \"cwd\": \"project\" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-8: a vitest runners entry with \"cwd\": \"project\" and a vitest config at the rcf project root runs its test in a nested package, exit 0 with the PASS line"
+    },
+    {
+      "id": "TC-306-a-red-unmutated-run-of-a-bound-test-in",
+      "acId": "AC-19904-11",
+      "description": "a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
+    },
+    {
+      "id": "TC-306-the-path-order-a-bare-tsx-under-a",
+      "acId": "AC-19904-9",
+      "description": "the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a \"cwd\": \"project\" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19904-9: the PATH order: a bare tsx under a nodeTest runners entry, the legacy runner and a \"cwd\": \"project\" entry resolves to the passing tsx in apps/api/node_modules/.bin ahead of the stand-ins that exit 1 in the repository root node_modules/.bin and on the caller PATH, and a vitest entry finds vitest in the repository root node_modules/.bin alone for its test in apps/api, each audit exit 0 with the PASS line"
     }
   ],
   "status": "draft"

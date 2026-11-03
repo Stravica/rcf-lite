@@ -72,7 +72,9 @@ export function targetLabel(target) {
 }
 
 /**
- * The per-criterion lines and the verdict line.
+ * The per-criterion lines, each fail line followed by "  reason: <reason>"
+ * (round E, AC-20101-9; none after a pass or blocked line), and the
+ * verdict line.
  *
  * @param {object} report - ReleaseVerifyReport v1
  * @returns {string[]}
@@ -81,7 +83,7 @@ export function releaseLines(report) {
   const passed = report.perAc.filter((r) => r.result === 'pass').length;
   const smokePassed = report.smoke.filter((s) => s.result === 'pass').length;
   return [
-    ...report.perAc.map((r) => `${r.acId} ${r.fbsId} ${r.result}`),
+    ...report.perAc.flatMap((r) => [`${r.acId} ${r.fbsId} ${r.result}`, ...(r.result === 'fail' ? [`  reason: ${r.reason}`] : [])]),
     `verify: release ${report.release} ${report.verdict} ${passed}/${report.perAc.length} external criteria, smoke ${smokePassed}/${report.smoke.length} (target ${targetLabel(report.target)})`,
   ];
 }

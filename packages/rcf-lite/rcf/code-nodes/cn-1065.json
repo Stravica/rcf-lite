@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1065",
+  "path": "src/audit/test-strength/runner.js#packageDir",
+  "implementsAcIds": [
+    "AC-19903-10"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-03T06:21:52.187Z",
+  "updatedAt": "2026-11-03T06:21:52.187Z"
+}

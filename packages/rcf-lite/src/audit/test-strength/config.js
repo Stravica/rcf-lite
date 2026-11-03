@@ -51,7 +51,7 @@ const strings = (v) => Array.isArray(v) && v.every((s) => typeof s === 'string' 
  * @param {string} projectRoot
  * @returns {{ ok: true, config: { entry: Array<{ kind: string, path: string }>, harness: string[], harnessRe: RegExp[],
  *   edge: string[], clock: string[], runner: string[]|null,
- *   runners: Array<{ kind: string, argv: string[]|null, filesRe: RegExp[] }> } } | { ok: false, line: string }}
+ *   runners: Array<{ kind: string, argv: string[]|null, cwd: 'project'|null, filesRe: RegExp[] }> } } | { ok: false, line: string }}
  */
 export function loadConfig(projectRoot) {
   const abs = join(projectRoot, CONFIG_FILE);
@@ -85,6 +85,8 @@ export function loadConfig(projectRoot) {
     if (r.argv !== undefined && (!strings(r.argv) || r.argv.length === 0 || !r.argv.some((a) => a.includes('<file>') || a.includes('<name>')))) {
       return bad(`runners[${i}].argv must be an argv list holding a <file> or <name> placeholder`);
     }
+    // Round E (AC-19904-10): cwd, when given, is "project".
+    if (r.cwd !== undefined && r.cwd !== 'project') return bad(`runners[${i}].cwd must be "project" when given`);
   }
   if (doc.suiteCommand !== undefined && typeof doc.suiteCommand !== 'string') return bad('suiteCommand must be a string');
   return {
@@ -96,7 +98,7 @@ export function loadConfig(projectRoot) {
       edge: doc.edge ?? [],
       clock: doc.clock ?? [],
       runner: doc.runner ?? null,
-      runners: (doc.runners ?? []).map((r) => ({ kind: r.kind, argv: r.argv ?? null, filesRe: r.files.map(globToRegExp) })),
+      runners: (doc.runners ?? []).map((r) => ({ kind: r.kind, argv: r.argv ?? null, cwd: r.cwd ?? null, filesRe: r.files.map(globToRegExp) })),
     },
   };
 }
@@ -106,15 +108,17 @@ export function loadConfig(projectRoot) {
  * entry whose files glob matches it, else the legacy runner (judged by
  * its exit code, as before RC-46), else kind nodeTest. `matched` is
  * false when no runners entry matched; `override` is true when the argv
- * is the project's own rather than the kind's default.
+ * is the project's own rather than the kind's default; `cwd` is "project"
+ * when the matched entry pins it (round E), else null (the test's package
+ * directory). The files globs match the project-relative path.
  *
- * @param {{ runner: string[]|null, runners: Array<{ kind: string, argv: string[]|null, filesRe: RegExp[] }> }} config
+ * @param {{ runner: string[]|null, runners: Array<{ kind: string, argv: string[]|null, cwd: 'project'|null, filesRe: RegExp[] }> }} config
  * @param {string} file - project-relative path
- * @returns {{ kind: 'nodeTest'|'vitest'|'playwright'|'legacy', argv: string[], matched: boolean, override: boolean }}
+ * @returns {{ kind: 'nodeTest'|'vitest'|'playwright'|'legacy', argv: string[], matched: boolean, override: boolean, cwd: 'project'|null }}
  */
 export function runnerFor(config, file) {
   const hit = config.runners.find((r) => r.filesRe.some((re) => re.test(file)));
-  if (hit) return { kind: hit.kind, argv: hit.argv ?? KIND_ARGV[hit.kind], matched: true, override: Boolean(hit.argv) };
-  if (config.runner) return { kind: 'legacy', argv: config.runner, matched: false, override: true };
-  return { kind: 'nodeTest', argv: DEFAULT_RUNNER, matched: false, override: false };
+  if (hit) return { kind: hit.kind, argv: hit.argv ?? KIND_ARGV[hit.kind], matched: true, override: Boolean(hit.argv), cwd: hit.cwd ?? null };
+  if (config.runner) return { kind: 'legacy', argv: config.runner, matched: false, override: true, cwd: null };
+  return { kind: 'nodeTest', argv: DEFAULT_RUNNER, matched: false, override: false, cwd: null };
 }

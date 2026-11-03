@@ -5,12 +5,14 @@
 // installed cold, and with --record writes the ReleaseVerifyReport and
 // verified; the catalog and agent probes stay optional ad hoc runs.
 //
-// Criteria: 14, all external (US-20101 7, US-20102 4, US-20103 3).
-// Every test is a node:test todo case ("FBS-238 round DEFINE", GR-35): it
-// runs and is red until FBS-238's round DEFINE drops the marker and BUILD
-// turns it green. Each drives bin/rcf.js (or the packed artefact) as a
-// child process over a fixture project made by its own rcf init,
-// committed to git and tagged v1.0.0 at the release commit R. The target
+// Criteria: 16, all external (US-20101 9, US-20102 4, US-20103 3).
+// The round E cases of AC-20101-8 and AC-20101-9 are red until the
+// round's BUILD turns them green, but for two declared regression guards
+// of AC-20101-8 (a pass row's null reason, no reason line after a blocked
+// line), green throughout. Each test drives bin/rcf.js (or the
+// packed artefact) as a child process over a fixture project made by its
+// own rcf init, committed to git and tagged v1.0.0 at the release commit
+// R. The target
 // is a local node:http server (the network edge, the only stand-in), or
 // the fixture package installed cold. Fixture cases append one JSON line
 // to a log outside the tree when they run, so a test sees which cases ran
@@ -333,6 +335,240 @@ test('AC-20101-7: --since naming a missing ref, a tree or a blob exits 2 "[error
   assert.equal(r.code, 2, `${r.stdout}${r.stderr}`);
   errHas(r, `[error] usage --since ${other} is not an ancestor of HEAD`);
   assert.equal(porcelain(dir), '', 'writes no file');
+});
+
+// FBS-238 amend round (round E, the stage-keeper's ruling Q2 A): the
+// reason of each failing criterion. The fixture: FBS-001's bound e2e case
+// throws a host guard's message; FBS-002's bound e2e file is gone at HEAD,
+// so its runner reports no case and no diagnostic and its stderr is all
+// there is; FBS-003's case passes. Red at the round E DEFINE head, where
+// every perAc row carries the scope's blocked reason (null on a run row)
+// and no reason line is printed.
+const GUARD = 'harness: node sits beside an agent CLI in /opt/fixture/bin';
+const REASON_SPECS = [
+  { id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] },
+  { id: 'FBS-002', status: 'complete', us: 'US-102', criteria: [{ id: 'AC-102-1', flag: 'external', level: 'e2e' }] },
+  { id: 'FBS-003', status: 'complete', us: 'US-103', criteria: [{ id: 'AC-103-1', flag: 'external', level: 'e2e' }] },
+];
+async function reasonFixture(t) {
+  const f = await release(t, REASON_SPECS, {
+    change: (d) => {
+      for (const [us, ac] of [['US-101', 'AC-101-1'], ['US-102', 'AC-102-1'], ['US-103', 'AC-103-1']]) amend(d, us, ac);
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { throw new Error(${JSON.stringify(GUARD)}); });\n`);
+      git(d, 'rm', '-q', 'test/rcf/us-102.test.js');
+    },
+  });
+  // The runner's own last stderr line for the gone file, read here as the release Verify's runner meets it.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', 'test/rcf/us-102.test.js'], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the gone file's run fails\n${probe.stdout}${probe.stderr}`);
+  assert.ok(!/^not ok /m.test(probe.stdout), `the gone file's run reports no case and no diagnostic\n${probe.stdout}`);
+  const lastErr = probe.stderr.split('\n').map((l) => l.trim()).filter(Boolean).pop();
+  assert.ok(lastErr, `the gone file's run prints a stderr line\n${probe.stderr}`);
+  return { ...f, lastErr };
+}
+
+test('AC-20101-8: a bound e2e case throwing "harness: node sits beside an agent CLI in <dir>" gives its perAc row result "fail" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner', async (t) => {
+  const { dir, lastErr } = await reasonFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = (id) => JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === id);
+  assert.equal(per('AC-101-1').result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per('AC-101-1').reason, GUARD, 'the thrown message is the reason');
+  assert.equal(per('AC-102-1').result, 'fail', `AC-102-1 fails\n${r.stdout}`);
+  assert.equal(per('AC-102-1').reason, lastErr, 'a failing case with no diagnostic carries the runner\'s last stderr line');
+  assert.equal(per('AC-103-1').result, 'pass');
+});
+
+// AC-20101-8's third reason (the stage-keeper's ruling on the stopped
+// DEFINE): FBS-001's bound e2e case ends its runner's process with exit
+// code 1 and prints nothing, so its runner's TAP reports no case for the
+// pointer (only the file's own "not ok" line), no diagnostic of the case,
+// and an empty stderr. Red at the round E DEFINE head, where the perAc
+// row carries the scope's blocked reason (null on a run row).
+async function noResultFixture(t) {
+  const f = await release(t, [{ id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] }], {
+    change: (d) => {
+      amend(d, 'US-101', 'AC-101-1');
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { process.exit(1); });\n`);
+    },
+  });
+  const file = 'test/rcf/us-101.test.js';
+  // The runner as the release Verify runs it, read here: its exit code, no case for the pointer, an empty stderr.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', `--test-name-pattern=(?:^| )${caseName('AC-101-1')}$`, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the case's run fails\n${probe.stdout}${probe.stderr}`);
+  assert.ok(!probe.stdout.includes(caseName('AC-101-1')), `the runner reports no case for the pointer, so no diagnostic of it\n${probe.stdout}`);
+  assert.equal(probe.stderr.trim(), '', `the runner prints no stderr line\n${probe.stderr}`);
+  return { ...f, pointer: `${file}::${caseName('AC-101-1')}`, code: probe.code };
+}
+
+test('AC-20101-8: a failing bound e2e case with neither a TAP diagnostic nor a stderr line gives its perAc row result "fail" with the reason "no result for <pointer> (exit <code>)"', async (t) => {
+  const { dir, pointer, code } = await noResultFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per.reason, `no result for ${pointer} (exit ${code})`, 'a failing case with neither a TAP diagnostic nor a stderr line carries "no result for <pointer> (exit <code>)"');
+});
+
+// AC-20101-8's reason shape (the stage-keeper's gate ruling 3): the
+// reason is the first non-empty line of the TAP diagnostic's error,
+// trimmed. FBS-001's bound e2e case fails a deep-equal assertion, whose
+// message node:test writes as a block scalar of several lines. Red at the
+// round E DEFINE head, where the perAc row carries the scope's blocked
+// reason (null on a run row).
+async function multiLineFixture(t) {
+  const f = await release(t, [{ id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] }], {
+    change: (d) => {
+      amend(d, 'US-101', 'AC-101-1');
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { assert.deepEqual({ port: 80 }, { port: 8080 }); });\n`);
+    },
+  });
+  const file = 'test/rcf/us-101.test.js';
+  // The runner as the release Verify runs it, read here: the case's own
+  // diagnostic, its error a block scalar whose first non-empty line is the expected reason.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', `--test-name-pattern=(?:^| )${caseName('AC-101-1')}$`, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the case's run fails\n${probe.stdout}${probe.stderr}`);
+  const tap = probe.stdout.split('\n');
+  const at = tap.indexOf(`not ok 1 - ${caseName('AC-101-1')}`);
+  assert.ok(at >= 0, `the runner reports the case as not ok\n${probe.stdout}`);
+  const err = tap.findIndex((l, i) => i > at && /^ {2}error: [|>]/.test(l));
+  assert.ok(err > at, `the case's diagnostic holds its error as a block scalar\n${probe.stdout}`);
+  const block = [];
+  for (const l of tap.slice(err + 1)) {
+    if (l.trim() && !l.startsWith('    ')) break;
+    block.push(l.trim());
+  }
+  const message = block.filter(Boolean);
+  assert.ok(message.length > 1, `the assertion message spans several lines\n${probe.stdout}`);
+  return { ...f, first: message[0] };
+}
+
+test('AC-20101-8: a failing bound e2e case whose assertion message spans several lines gives its perAc row result "fail" with the first non-empty line of that message as reason', async (t) => {
+  const { dir, first } = await multiLineFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per.reason, first, 'a multi-line assertion message gives its first non-empty line, trimmed, as reason');
+});
+
+test('AC-20101-9: the line after each fail line reads "  reason: <reason>" and pass lines are unchanged', async (t) => {
+  const { dir, lastErr } = await reasonFixture(t);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const after = (line) => {
+    const i = out.indexOf(line);
+    assert.ok(i >= 0, `stdout carries "${line}"\n${r.stdout}`);
+    return out[i + 1];
+  };
+  assert.equal(after('AC-101-1 FBS-001 fail'), `  reason: ${GUARD}`, `the line after AC-101-1's fail line\n${r.stdout}`);
+  assert.equal(after('AC-102-1 FBS-002 fail'), `  reason: ${lastErr}`, `the line after AC-102-1's fail line\n${r.stdout}`);
+  assert.ok(!after('AC-103-1 FBS-003 pass').startsWith('  reason:'), `the pass line stands as it is, no reason line after it\n${r.stdout}`);
+  assert.ok(out.some((l) => l.startsWith('verify: release 1.1.0 FAIL 1/3 external criteria, smoke 1/1 ')), `the FAIL line\n${r.stdout}`);
+});
+
+// The stage-keeper's DEFINE-3 ruling 2 (gate ruling 3's reason clauses no
+// test pinned): with several failing bound cases the first failing case in
+// the tests order of its row gives the reason, a pass row's reason stays
+// null, and no reason line follows a blocked line. The fixture: AC-101-1
+// (FBS-001) is bound to two e2e cases in one file, each failing with its
+// own one-line message, its suite listing the file's second case first,
+// so the row's tests order is the opposite of the order its runner runs
+// and reports the cases; AC-102-1 (FBS-002) is bound by a unit-level case
+// only, so its row is blocked ("no bound e2e test"); AC-103-1 (FBS-003)
+// passes. The first two tests are red at the round E DEFINE head, where
+// every run row's reason is null and no reason line is printed; the last
+// two are declared regression guards, green there and through the BUILD.
+const RUN_FIRST = { name: 'AC-101-1 runs first in its file', message: 'the case run first fails, listed second in the tests' };
+const LISTED_FIRST = { name: 'AC-101-1 is listed first in the tests', message: 'the case listed first in the tests fails, run second' };
+const ORDER_SPECS = [
+  { id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] },
+  { id: 'FBS-002', status: 'complete', us: 'US-102', criteria: [{ id: 'AC-102-1', flag: 'external', level: 'unit' }] },
+  { id: 'FBS-003', status: 'complete', us: 'US-103', criteria: [{ id: 'AC-103-1', flag: 'external', level: 'e2e' }] },
+];
+async function firstFailFixture(t) {
+  const file = 'test/rcf/us-101.test.js';
+  const pointer = (c) => `${file}::${c.name}`;
+  const f = await release(t, ORDER_SPECS, {
+    change: (d) => {
+      for (const [us, ac] of [['US-101', 'AC-101-1'], ['US-102', 'AC-102-1'], ['US-103', 'AC-103-1']]) amend(d, us, ac);
+      writeText(d, file, `${HEAD_SRC}${[RUN_FIRST, LISTED_FIRST].map((c) => `test(${JSON.stringify(c.name)}, () => { throw new Error(${JSON.stringify(c.message)}); });`).join('\n')}\n`);
+      const ts = readJson(d, 'rcf/test-suites/ts-001.json');
+      assert.ok(ts.usId === 'US-101' && ts.testLevel === 'e2e', `TS-001 is the US-101 e2e suite\n${JSON.stringify(ts)}`);
+      ts.testCases = [LISTED_FIRST, RUN_FIRST].map((c, i) => ({ id: `TC-001-case-${i + 1}`, acId: 'AC-101-1', description: c.name, status: 'pending', testPointer: pointer(c) }));
+      writeJson(d, 'rcf/test-suites/ts-001.json', ts);
+    },
+  });
+  // The runner as the release Verify runs it (one run of the file, one name
+  // pattern per case), read here: it runs and reports the file's first case
+  // first, each case not ok with its own message in its diagnostic.
+  const patterns = [LISTED_FIRST, RUN_FIRST].map((c) => `--test-name-pattern=(?:^| )${c.name}$`);
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', ...patterns, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the file's run fails\n${probe.stdout}${probe.stderr}`);
+  const tap = probe.stdout.split('\n');
+  const at = (c) => tap.findIndex((l) => new RegExp(`^not ok \\d+ - ${c.name}$`).test(l));
+  assert.ok(at(RUN_FIRST) >= 0 && at(LISTED_FIRST) > at(RUN_FIRST), `the runner reports "${RUN_FIRST.name}" first, then "${LISTED_FIRST.name}", each not ok\n${probe.stdout}`);
+  for (const c of [RUN_FIRST, LISTED_FIRST]) {
+    const end = tap.findIndex((l, i) => i > at(c) && l === '  ...');
+    assert.ok(tap.slice(at(c), end).includes(`  error: '${c.message}'`), `the diagnostic of "${c.name}" holds its own one-line message\n${probe.stdout}`);
+  }
+  return { ...f, tests: [pointer(LISTED_FIRST), pointer(RUN_FIRST)] };
+}
+const perAcOf = (file, id) => JSON.parse(readFileSync(file, 'utf8')).perAc.find((x) => x.acId === id);
+
+test('AC-20101-8: with two failing bound e2e cases of different messages on one criterion, the first failing case in the tests order of its row gives the reason, not the case its runner reports first', async (t) => {
+  const { dir, tests } = await firstFailFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = perAcOf(file, 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.deepEqual(per.tests, tests, `the tests order of the row lists "${LISTED_FIRST.name}" first, the case the runner reports second`);
+  assert.equal(per.reason, LISTED_FIRST.message, 'the first failing case in the tests order of the row gives the reason');
+});
+
+test('AC-20101-9: with two failing bound e2e cases on one criterion, the line after its fail line reads "  reason: <reason>" with the message of the first failing case in the tests order of its row', async (t) => {
+  const { dir } = await firstFailFixture(t);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const i = out.indexOf('AC-101-1 FBS-001 fail');
+  assert.ok(i >= 0, `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  assert.equal(out[i + 1], `  reason: ${LISTED_FIRST.message}`, `the line after AC-101-1's fail line\n${r.stdout}`);
+});
+
+// A declared regression guard (green at the round E DEFINE head, where a
+// run row's reason is null): the BUILD gives a fail row its reason and a
+// pass row none.
+test('AC-20101-8: a pass row keeps its reason null in a run that also holds a failing row and a blocked row', async (t) => {
+  const { dir } = await firstFailFixture(t);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  assert.equal(perAcOf(file, 'AC-101-1').result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(perAcOf(file, 'AC-102-1').result, 'blocked', `AC-102-1 is blocked\n${r.stdout}`);
+  const pass = perAcOf(file, 'AC-103-1');
+  assert.equal(pass.result, 'pass', `AC-103-1 passes\n${r.stdout}`);
+  assert.equal(pass.reason, null, `a pass row's reason stays null\n${JSON.stringify(pass)}`);
+});
+
+// A declared regression guard (green at the round E DEFINE head, where no
+// reason line is printed): the BUILD prints a reason line after each fail
+// line and none after a blocked line, though a blocked row has a reason.
+test('AC-20101-8: no "  reason:" line follows a blocked line, in a run that also holds a failing row', async (t) => {
+  const { dir } = await firstFailFixture(t);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  assert.ok(out.includes('AC-101-1 FBS-001 fail'), `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  const i = out.indexOf('AC-102-1 FBS-002 blocked');
+  assert.ok(i >= 0, `stdout carries "AC-102-1 FBS-002 blocked"\n${r.stdout}`);
+  assert.ok(!out[i + 1].startsWith('  reason:'), `no reason line follows the blocked line\n${r.stdout}`);
+  assert.ok(!out.includes('  reason: no bound e2e test'), `the blocked row's reason is never printed as a reason line\n${r.stdout}`);
 });
 
 // ---------------------------------------------------------------- US-20102

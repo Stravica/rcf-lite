@@ -62,19 +62,29 @@ records) gets fileBlank (the file is emptied); one on a .js, .mjs or
 .cjs file is never mutated. Each mutant is applied in a working copy
 of HEAD the audit makes in its own scratch directory under the OS temp
 directory, and only the criterion's bound tests run against it, each
-through its runner; at least one must go red (killed): its runner's
-report shows it failed, or its file failed to load. A mutant whose
-tests outlive --mutant-timeout is "timeout" and counts as killed. A
-working copy writes nothing in the project's .git, and its
-node_modules directory is the audit's own, its entries linking the
-project's installed packages. Nothing in the project is written
+through its runner at its package directory (Where a bound test runs,
+below); at least one must go red (killed): its runner's report shows
+it failed, or its file failed to load. A mutant whose tests outlive
+--mutant-timeout is "timeout" and counts as killed. A working copy
+writes nothing in the project's .git. In it the node_modules of the
+rcf project, of each ancestor up to the repository root and of every
+workspace package (every package.json directory at HEAD outside
+node_modules, repository-wide) is the audit's own directory linking
+the repository's installed entries: an entry that is itself a symbolic
+link, such as a workspace package linked by name, points at its own
+target inside the working copy when that target is in the repository,
+so a mutant in a sibling package is the code its tests import; every
+other entry links to the repository's own (a scope directory links its
+packages the same way). Nothing in the project is written
 outside rcf/verdicts/<H12>/: the audit compares the project tree
 (node_modules and every dot directory included, .git excluded) and
 every node_modules directory on Node's module resolution path above
 it, up to the repository root, before and after the bound tests run,
 and a path a bound test run wrote there exits 2 "test-strength: a
 bound test run wrote <path> in the project" (a path above the project
-named relative to it) and records nothing. No scratch directory
+named relative to it) and records nothing. That comparison also
+covers the node_modules of each linked sibling package, a write there
+named relative to the project (../b/node_modules/<path>). No scratch directory
 outlives the run; one that cannot be removed is named in one stderr
 line "[warn] test-strength: scratch directory <dir> could not be
 removed". On an error exit the audit still runs that comparison and
@@ -83,19 +93,39 @@ SIGINT or SIGTERM the audit kills the process group of every bound
 test run it started, removes its scratch directory and exits 130 or
 143.
 
+Where a bound test runs: at its package directory, the nearest
+directory at HEAD from the test file up to the rcf project root
+holding a package.json (the rcf project root when none does), with
+<file> relative to it, under every runner kind, the legacy runner
+included. A runners entry with "cwd": "project" runs its tests at the
+rcf project root with a project-relative <file> instead: a test that
+reads paths relative to the rcf project root, or a runner whose config
+sits at the repository root with tests in nested packages, pins it.
+Every node_modules/.bin from the test's package directory up to the
+repository root joins the PATH of its run, nearest first, ahead of the
+inherited PATH, under every runner kind and a "cwd": "project" entry
+alike, as a package script finds its tools. When the unmutated run is
+red, the next stderr line names where it ran: "test-strength: <file>
+ran at <cwd>; a test that reads paths relative to the rcf project root
+pins "cwd": "project" on its runners entry" (<file> and <cwd> relative
+to the rcf project root, "." for the root itself).
+
 rcf/test-strength.json (required; written by the test-author):
   { "entry": [ { "kind": "bin" | "module" | "worker", "path": <path> } ],
     "harness": [glob, ...], "edge": [specifier, ...],
     "clock": [specifier, ...],
     "runners": [ { "files": [glob], "kind": "nodeTest" | "vitest" | "playwright",
-                   "argv": [...] } ],
+                   "argv": [...], "cwd": "project" } ],
     "runner": [argv with <file> and <name>],
     "suiteCommand": <the project's RCF suite command> }
   entry and harness need one or more items.
   runners (optional): each bound test file runs under the first entry
   whose files glob matches it; an entry that matches no bound file is
-  allowed and silent. files globs: "**" spans directories, "*" and "?"
-  stay inside one segment. kind sets the default argv and the report
+  allowed and silent. files globs match the test file's path relative to
+  the rcf project root: "**" spans directories, "*" and "?" stay inside
+  one segment. cwd (optional) is "project": the entry's tests run at the
+  rcf project root with a project-relative <file>; without it they run
+  at their package directory. kind sets the default argv and the report
   the audit reads, and each default carries that reporter:
     nodeTest    node --test --test-reporter=tap --test-name-pattern <name> <file>
     vitest      vitest run <file> -t <name> --reporter=json --outputFile=<report>
@@ -122,11 +152,12 @@ rcf/test-strength.json (required; written by the test-author):
   or a describe title (run when a leaf under it ran, failed when any
   leaf under it failed). An entry is malformed (exit 2, naming
   runners[<i>]) when files is missing, empty or not a list of non-empty
-  strings, kind is none of the three, or argv holds neither <file> nor
-  <name>.
+  strings, kind is none of the three, argv holds neither <file> nor
+  <name>, or cwd is given and is not "project" (naming runners[<i>].cwd).
   runner (optional, the legacy runner beside runners): a bound test file
-  no runners entry matches runs under it, judged by its exit code; with
-  neither, the file runs under kind nodeTest.
+  no runners entry matches runs under it at its package directory,
+  judged by its exit code; with neither, the file runs under kind
+  nodeTest.
 Sources: JavaScript ESM and CommonJS (.js, .mjs, .cjs); .ts, .mts and
 .cts through node:module's stripTypeScriptTypes in strip mode; .tsx and
 .jsx through a JSX scanner; .vue through its <script> and <script setup>
