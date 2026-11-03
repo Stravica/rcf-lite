@@ -13,7 +13,12 @@ own node_modules link re-pointed into the working copy).
 `apps/api/src/index.js#welcome` is the api's own code, importing `@ws/lib`
 by name, and `apps/api/test/welcome.test.mjs` its test (F-9, the WESPA
 shape: the code under test lives in the package that imports the
-sibling). The F-9 tests rewrite `apps/lib`'s package.json to name an entry
+sibling). With `RCF_ROUND_F_WITNESS` set, `welcome.test.mjs` and
+`greet.test.mjs` append, on every run, the real path of the file `@ws/lib`
+resolves to, so a test can tell which `apps/lib` a run loaded.
+`apps/api/test/root.test.mjs` reads `apps/api/package.json` relative to the
+rcf project root, so it is red at `apps/api` (F-9 with the
+`"cwd": "project"` hint). The F-9 tests rewrite `apps/lib`'s package.json to name an entry
 that is gitignored build output (`dist/index.js` as `main` and `exports`,
 or one shape per step of the entry rule: `exports`, then `main`, then
 `index.js`), write that build next to the source (a copy of it), and add

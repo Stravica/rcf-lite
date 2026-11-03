@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-11-03T20:20:22.750Z",
+  "updatedAt": "2026-11-03T20:43:59.997Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -261,6 +261,13 @@
       "description": "when git ls-tree -r --name-only HEAD fails as the audit lists the files at HEAD, rcf audit test-strength exits 2 with \"test-strength: cannot list the files at <h7>: git ls-tree -r --name-only HEAD failed: <its stderr>\" and runs no bound test",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-13: when git ls-tree -r --name-only HEAD fails as the audit lists the files at HEAD, rcf audit test-strength exits 2 with \"test-strength: cannot list the files at <h7>: git ls-tree -r --name-only HEAD failed: <its stderr>\" and runs no bound test"
+    },
+    {
+      "id": "TC-284-the-notice-follows-the-hint-on-a-red-run",
+      "acId": "AC-19903-14",
+      "description": "on a red unmutated run from another cause, a test reading a path relative to the rcf project root, the \"cwd\": \"project\" hint stays right after the unmutated-run line and the one notice line follows the hint; exit 2 from the run itself",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: on a red unmutated run from another cause, a test reading a path relative to the rcf project root, the \"cwd\": \"project\" hint stays right after the unmutated-run line and the one notice line follows the hint; exit 2 from the run itself"
     }
   ],
   "status": "draft"

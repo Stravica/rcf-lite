@@ -61,7 +61,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, renameSync, symlinkSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, symlinkSync } from 'node:fs';
 import { delimiter, dirname, join, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -800,7 +800,9 @@ test('AC-19903-9: a workspace sibling linked by name in the rcf project root nod
 // mutant of welcome is killed: exit 0 and the PASS line. Bound to
 // greet.test.mjs with the Code Node in apps/lib, a mutant there is not the
 // code the test imports and survives: exit 4 and the FAIL line, the run's
-// own. Red at the round F DEFINE head: the link is re-pointed into the
+// own. In both, a run witness shows every run loaded the repo's own
+// apps/lib/dist/index.js (the kept link), so a copy given a build of its
+// own does not pass. Red at the round F DEFINE head: the link is re-pointed into the
 // copy, whose apps/lib holds no dist/, the import fails and the unmutated
 // run is red (exit 2, the unmutated-run line and the "cwd": "project"
 // hint).
@@ -815,6 +817,21 @@ const welcomeSpec = {
   nodes: [['apps/api/src/index.js#welcome', ['AC-101-1']]],
   bind: [['AC-101-1', WELCOME_TEST, 'H2 welcome greets through the workspace library']],
 };
+// The audit with the run witness set: the bound test (welcome.test.mjs or
+// greet.test.mjs) appends, on every run, the real path of the file @ws/lib
+// resolves to from apps/api/test.
+async function strengthLoaded(t, dir, args) {
+  const witness = join(scratch(t, 'rcf-h-witness-'), 'loaded.log');
+  const r = await rcf(['audit', 'test-strength', ...args], { cwd: dir, env: { PATH: nodeFirst(), RCF_ROUND_F_WITNESS: witness }, timeout: 900_000 });
+  return { r, loaded: existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean) : [] };
+}
+// Every run loaded the repo's own apps/lib/dist/index.js, through the kept
+// link, not a build output made or copied into a working copy.
+function repoOwnLoaded(w, loaded, runs) {
+  const own = realpathSync(join(w.dir, 'apps', 'lib', 'dist', 'index.js'));
+  assert.equal(loaded.length, runs, `the witness saw ${runs} runs, the unmutated run and each mutant's\n${loaded.join('\n')}`);
+  for (const path of loaded) assert.equal(path, own, `each run loaded the repo's own ${own}, not ${path}`);
+}
 
 test("AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry", async (t) => {
   const w = await wsHoisted(t, welcomeSpec, { lib: DIST });
@@ -822,11 +839,12 @@ test("AC-19903-14: a bound test whose code imports a workspace package by name, 
   assert.equal(run('git', ['ls-files', 'apps/lib/dist'], { cwd: w.dir }).stdout, '', 'and not committed: apps/lib/dist/ is gitignored');
   inPlace(join(w.dir, 'apps', 'api'), 'test/welcome.test.mjs');
   // Two mutants of welcome (stubToThrow, noOp) under --jobs 2: two working copies beside the unmutated run's.
-  const r = await strength(w.dir, ['--acs', 'AC-101-1', '--jobs', '2']);
+  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1', '--jobs', '2']);
   noUnmutatedRed(r);
   assert.equal(r.code, 0, `the link stays at the repo's own apps/lib, whose dist/ the test imports, and each mutant of welcome is killed: exit 0, no exit 2\n${shown(r)}`);
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
   assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `one notice line for the one link, however many working copies the run made\n${shown(r)}`);
+  repoOwnLoaded(w, loaded, 3);
 });
 
 test("AC-19903-14: with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line", async (t) => {
@@ -837,11 +855,33 @@ test("AC-19903-14: with the link kept at the repo's own package, a mutant in tha
     bind: [['AC-101-1', HOISTED_TEST, 'H1 greet comes from the hoisted workspace library']],
   }, { lib: DIST });
   inPlace(join(w.dir, 'apps', 'api'), 'test/greet.test.mjs');
-  const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1']);
   noUnmutatedRed(r);
   assert.equal(r.code, 4, `the test imports the repo's own apps/lib/dist/index.js, so each mutant of the copy's apps/lib/src/index.js#greet survives: exit 4, the run's own, no exit 2\n${shown(r)}`);
   assert.equal(out(r), `test-strength: FAIL 1 of 1 criteria at ${s7(w.H)}: AC-101-1 vacuous: stubToThrow on apps/lib/src/index.js#greet survived 1 bound tests; AC-101-1 vacuous: noOp on apps/lib/src/index.js#greet survived 1 bound tests`, shown(r));
   assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `the one notice line says mutants in apps/lib are not the code this test imports\n${shown(r)}`);
+  repoOwnLoaded(w, loaded, 3);
+});
+
+// C9 with A3: on a red unmutated run from another cause, the hint stays
+// right after the unmutated-run line (AC-19904-11) and the notice line
+// follows the hint ("the reason line becomes a notice line that follows
+// the hint; nothing about the hint changes"). The DIST world bound to
+// apps/api/test/root.test.mjs, which reads apps/api/package.json relative
+// to the rcf project root and so is red at apps/api, its package
+// directory, whichever apps/lib it loads. Red at the round F DEFINE head:
+// no notice line follows the hint.
+test('AC-19903-14: on a red unmutated run from another cause, a test reading a path relative to the rcf project root, the "cwd": "project" hint stays right after the unmutated-run line and the one notice line follows the hint; exit 2 from the run itself', async (t) => {
+  const file = 'apps/api/test/root.test.mjs';
+  const w = await wsHoisted(t, { ...welcomeSpec, bind: [['AC-101-1', file, 'H3 welcome greets the package named in apps/api/package.json, read from the rcf project root']] }, { lib: DIST });
+  inPlace(w.dir, file);
+  const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+  const err = lines(r.stderr);
+  const red = err.findIndex((l) => /^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/.exec(l)?.[1] === `${file}::H3 welcome greets the package named in apps/api/package.json, read from the rcf project root`);
+  assert.ok(r.code === 2 && red >= 0, `run at apps/api the root-relative path is missing: exit 2 with the unmutated-run line\n${shown(r)}`);
+  assert.equal(err[red + 1], cwdHint(file, 'apps/api'), `the hint stays right after the unmutated-run line, as AC-19904-11 states it\n${shown(r)}`);
+  assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `one notice line\n${shown(r)}`);
+  assert.ok(err.indexOf(notice(w.H, 'dist/index.js')) > red + 1, `the notice line follows the hint\n${shown(r)}`);
 });
 
 // The entry rule (the stage-keeper's ruling C10), one ws-hoisted world per
