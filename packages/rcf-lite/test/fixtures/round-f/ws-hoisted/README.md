@@ -23,5 +23,9 @@ that is gitignored build output (`dist/index.js` as `main` and `exports`,
 or one shape per step of the entry rule: `exports`, then `main`, then
 `index.js`), write that build next to the source (a copy of it), and add
 it to `.gitignore`, so the entry is present in the repository and absent
-at HEAD. Test files end in `.test.mjs` so the package suite's
+at HEAD. For the notice's position (pass 3), one test installs a real tsx in
+the rcf project root's node_modules (rc-46 a-tsx-node-test's package.json and
+lockfile, installed in a scratch directory and moved in) and binds a bare tsx
+runners entry, and another commits `apps/lib/src/odd.ts`, a file the audit
+cannot read with its position check withheld, for a second criterion. Test files end in `.test.mjs` so the package suite's
 `test/**/*.test.js` glob never runs them.

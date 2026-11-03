@@ -48,7 +48,11 @@
 // the command; a git stand-in first on PATH fails one listing),
 // AC-19903-14 (F-9: a re-pointed link whose package entry, exports, then
 // main, then index.js, is not committed at HEAD stays at the repo's own
-// package with one notice line, and the run proceeds with its own exit)
+// package with one notice line, a second form of it where the package has
+// no entry, and the run proceeds with its own exit; on a run that
+// proceeds the notice follows AC-19904-12's line when that line prints,
+// a real tsx in the hoisted world under a long temp directory, and leads
+// stderr otherwise, ahead of another criterion's withheld-column line)
 // and AC-19903-15 (the help names the real path of each node_modules and
 // the repository's .git), red at the round F DEFINE head until its BUILD;
 // and three declared regression guards, green there: AC-19904-11's hint
@@ -61,7 +65,7 @@
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { chmodSync, cpSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync, renameSync, symlinkSync } from 'node:fs';
+import { chmodSync, cpSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, renameSync, rmSync, symlinkSync } from 'node:fs';
 import { delimiter, dirname, join, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
@@ -438,16 +442,17 @@ test('AC-19904-9: the legacy runner whose argv starts with a bare tsx installed 
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
 });
 
-// The real vitest in the repository root's node_modules, as a root
-// devDependency installs it: rc-46 b-vitest's package.json and lockfile
-// installed with npm ci in a scratch directory of its own (npm's temp
-// files in the test's scratch), then its node_modules entries moved into
-// the world's node_modules (gitignored), its .bin entries merged into the
-// root's .bin. The world's committed package.json stays its own and no
-// lockfile is written in it.
-function rootVitest(t, dir) {
-  const at = scratch(t, 'rcf-h-vitest-');
-  for (const f of ['package.json', 'package-lock.json']) cpSync(join(RC46, 'b-vitest', f), join(at, f));
+// A real runner in the repository root's node_modules, as a root
+// devDependency installs it: an rc-46 fixture's package.json and lockfile
+// (b-vitest's for vitest, a-tsx-node-test's for tsx) installed with npm ci
+// in a scratch directory of its own (npm's temp files in the test's
+// scratch), then its node_modules entries moved into the world's
+// node_modules (gitignored), its .bin entries merged into the root's .bin.
+// The world's committed package.json stays its own and no lockfile is
+// written in it.
+function rootInstall(t, dir, fixture) {
+  const at = scratch(t, 'rcf-h-root-install-');
+  for (const f of ['package.json', 'package-lock.json']) cpSync(join(RC46, fixture, f), join(at, f));
   install(t, at);
   const from = join(at, 'node_modules');
   const to = join(dir, 'node_modules');
@@ -456,11 +461,12 @@ function rootVitest(t, dir) {
     if (e === '.package-lock.json') continue;
     const names = e === '.bin' ? readdirSync(join(from, e)).map((b) => join('.bin', b)) : [e];
     for (const n of names) {
-      assert.ok(!existsSync(join(to, n)), `the world's node_modules holds no ${n} before vitest's install moves in`);
+      assert.ok(!existsSync(join(to, n)), `the world's node_modules holds no ${n} before ${fixture}'s install moves in`);
       renameSync(join(from, n), join(to, n));
     }
   }
 }
+const rootVitest = (t, dir) => rootInstall(t, dir, 'b-vitest');
 
 // The stage-keeper's DEFINE-3 ruling 1 (gate ruling 2's clauses no test
 // pinned): every node_modules/.bin from the test's package up to the
@@ -732,12 +738,34 @@ async function wsHoisted(t, spec, { lib = null } = {}) {
 }
 
 // The F-9 notice line (the stage-keeper's ruling A3, word for word) for
-// the link node_modules/@ws/lib and the package apps/lib, and every such
-// line a run printed.
+// the link node_modules/@ws/lib and the package apps/lib, its second form
+// for a package with no entry (pass 2 ruling 2, word for word), and every
+// line of either form a run printed.
 const NOTICE_HEAD = "test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its entry ";
 const noticeTail = (h) => ` is build output not committed at ${s7(h)}; mutants in apps/lib are not the code this test imports`;
 const notice = (h, entry) => `${NOTICE_HEAD}${entry}${noticeTail(h)}`;
+const noEntryNotice = (h) => `test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its package.json names no entry committed at ${s7(h)} (no exports match for ".", no main, no index.js); mutants in apps/lib are not the code this test imports`;
 const notices = (r) => lines(r.stderr).filter((l) => l.startsWith("test-strength: node_modules/@ws/lib stays at the repo's own"));
+
+// AC-19904-12's line (its US-19904 test's form), and the temp directories
+// the notice's position on a run that proceeds turns on (pass 2 ruling 1):
+// one whose own path passes 108 bytes, nested in the test's scratch, so a
+// runner's Unix socket path under any scratch inside it passes the limit
+// on darwin and on Linux and AC-19904-12's line prints; and a short one of
+// its own under /tmp, removed after the test, under which it cannot.
+const SOCKET_LIMIT = { darwin: 104, linux: 108 };
+const movesLine = (tmp) => `test-strength: a runner's Unix socket path under ${tmp} would pass ${SOCKET_LIMIT[process.platform]} bytes, the limit on ${process.platform}; the scratch directory moves to a short path`;
+function longTmp(t) {
+  let dir = scratch(t, 'rcf-h-tmp-');
+  while (dir.length <= 112) dir = join(dir, 'a-long-temp-directory');
+  mkdirSync(dir, { recursive: true });
+  return dir;
+}
+function shortTmp(t) {
+  const dir = mkdtempSync('/tmp/rcf-h-');
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  return dir;
+}
 
 // Round F, F-4 (the round E reviewer's note on AC-19903-8: TAC-4155
 // responsibilities[4] read two ways for a symbolic-link entry in the
@@ -802,7 +830,9 @@ test('AC-19903-9: a workspace sibling linked by name in the rcf project root nod
 // code the test imports and survives: exit 4 and the FAIL line, the run's
 // own. In both, a run witness shows every run loaded the repo's own
 // apps/lib/dist/index.js (the kept link), so a copy given a build of its
-// own does not pass. Red at the round F DEFINE head: the link is re-pointed into the
+// own does not pass. Both are runs that proceed past a green unmutated
+// run, under a short temp directory (AC-19904-12's line cannot print), so
+// the notice line leads stderr (pass 2 ruling 1). Red at the round F DEFINE head: the link is re-pointed into the
 // copy, whose apps/lib holds no dist/, the import fails and the unmutated
 // run is red (exit 2, the unmutated-run line and the "cwd": "project"
 // hint).
@@ -819,10 +849,11 @@ const welcomeSpec = {
 };
 // The audit with the run witness set: the bound test (welcome.test.mjs or
 // greet.test.mjs) appends, on every run, the real path of the file @ws/lib
-// resolves to from apps/api/test.
-async function strengthLoaded(t, dir, args) {
+// resolves to from apps/api/test. `tmp`, when given, is the audit's
+// TMPDIR.
+async function strengthLoaded(t, dir, args, tmp) {
   const witness = join(scratch(t, 'rcf-h-witness-'), 'loaded.log');
-  const r = await rcf(['audit', 'test-strength', ...args], { cwd: dir, env: { PATH: nodeFirst(), RCF_ROUND_F_WITNESS: witness }, timeout: 900_000 });
+  const r = await rcf(['audit', 'test-strength', ...args], { cwd: dir, env: { PATH: nodeFirst(), RCF_ROUND_F_WITNESS: witness, ...(tmp ? { TMPDIR: tmp } : {}) }, timeout: 900_000 });
   return { r, loaded: existsSync(witness) ? readFileSync(witness, 'utf8').split('\n').filter(Boolean) : [] };
 }
 // Every run loaded the repo's own apps/lib/dist/index.js, through the kept
@@ -833,21 +864,22 @@ function repoOwnLoaded(w, loaded, runs) {
   for (const path of loaded) assert.equal(path, own, `each run loaded the repo's own ${own}, not ${path}`);
 }
 
-test("AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry", async (t) => {
+test("AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr", async (t) => {
   const w = await wsHoisted(t, welcomeSpec, { lib: DIST });
   assert.ok(existsSync(join(w.dir, 'apps', 'lib', 'dist', 'index.js')), 'the build output is present in the repository');
   assert.equal(run('git', ['ls-files', 'apps/lib/dist'], { cwd: w.dir }).stdout, '', 'and not committed: apps/lib/dist/ is gitignored');
   inPlace(join(w.dir, 'apps', 'api'), 'test/welcome.test.mjs');
   // Two mutants of welcome (stubToThrow, noOp) under --jobs 2: two working copies beside the unmutated run's.
-  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1', '--jobs', '2']);
+  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1', '--jobs', '2'], shortTmp(t));
   noUnmutatedRed(r);
   assert.equal(r.code, 0, `the link stays at the repo's own apps/lib, whose dist/ the test imports, and each mutant of welcome is killed: exit 0, no exit 2\n${shown(r)}`);
   assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
   assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `one notice line for the one link, however many working copies the run made\n${shown(r)}`);
+  assert.equal(lines(r.stderr)[0], notice(w.H, 'dist/index.js'), `a run that proceeds, with no AC-19904-12 line: the notice line leads stderr\n${shown(r)}`);
   repoOwnLoaded(w, loaded, 3);
 });
 
-test("AC-19903-14: with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line", async (t) => {
+test("AC-19903-14: with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line leading stderr", async (t) => {
   const w = await wsHoisted(t, {
     acs: ['AC-101-1'],
     config: { entry: ENTRY_HOISTED, harness: HARNESS },
@@ -855,11 +887,87 @@ test("AC-19903-14: with the link kept at the repo's own package, a mutant in tha
     bind: [['AC-101-1', HOISTED_TEST, 'H1 greet comes from the hoisted workspace library']],
   }, { lib: DIST });
   inPlace(join(w.dir, 'apps', 'api'), 'test/greet.test.mjs');
-  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1']);
+  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1'], shortTmp(t));
   noUnmutatedRed(r);
   assert.equal(r.code, 4, `the test imports the repo's own apps/lib/dist/index.js, so each mutant of the copy's apps/lib/src/index.js#greet survives: exit 4, the run's own, no exit 2\n${shown(r)}`);
   assert.equal(out(r), `test-strength: FAIL 1 of 1 criteria at ${s7(w.H)}: AC-101-1 vacuous: stubToThrow on apps/lib/src/index.js#greet survived 1 bound tests; AC-101-1 vacuous: noOp on apps/lib/src/index.js#greet survived 1 bound tests`, shown(r));
   assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `the one notice line says mutants in apps/lib are not the code this test imports\n${shown(r)}`);
+  assert.equal(lines(r.stderr)[0], notice(w.H, 'dist/index.js'), `a run that proceeds, with no AC-19904-12 line: the notice line leads stderr\n${shown(r)}`);
+  repoOwnLoaded(w, loaded, 3);
+});
+
+// Pass 2 ruling 1, "lead stderr" against the run's other lines: the DIST
+// world bound to welcome.test.mjs (AC-101-1, a run that proceeds) beside
+// AC-101-2, whose Code Node file apps/lib/src/odd.ts (committed) the audit
+// cannot read with its position check withheld (AC-19901-9's case of an
+// escape character in a string, then a refused token), so the run's
+// stderr also carries that criterion's withheld-column line: under a short
+// temp directory the one notice line is the first stderr line, ahead of
+// the withheld-column line, and the run's own verdict stands (AC-101-2
+// BLOCKED, exit 5 with the BLOCKED line). A notice printed after the run's
+// other lines fails here. Red at the round F DEFINE head: the link is
+// re-pointed into a copy without dist/ and the unmutated run is red (exit
+// 2).
+const ODD_TS = "export const s = '\u001b'; const b = 1 + ;";
+const WITHHELD_ODD = "test-strength: column for apps/lib/src/odd.ts:1 is node's display column (position check withheld: node's caret does not move across the tie)";
+test("AC-19903-14: on a run that proceeds with another stderr line, a criterion BLOCKED with its position check withheld, the one notice line leads stderr, ahead of the withheld-column line, and the run's own verdict stands: exit 5 with the BLOCKED line", async (t) => {
+  const w = await wsHoisted(t, {
+    acs: ['AC-101-1', 'AC-101-2'],
+    config: { entry: ENTRY_API, harness: HARNESS },
+    nodes: [['apps/api/src/index.js#welcome', ['AC-101-1']], ['apps/lib/src/odd.ts#s', ['AC-101-2']]],
+    bind: [['AC-101-1', WELCOME_TEST, 'H2 welcome greets through the workspace library'], ['AC-101-2', WELCOME_TEST, 'H2 welcome greets through the workspace library']],
+  }, { lib: { ...DIST, files: { 'src/odd.ts': ODD_TS } } });
+  assert.equal(run('git', ['ls-files', 'apps/lib/src/odd.ts'], { cwd: w.dir }).stdout.trim(), 'apps/lib/src/odd.ts', 'the unreadable Code Node file is committed');
+  inPlace(join(w.dir, 'apps', 'api'), 'test/welcome.test.mjs');
+  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1,AC-101-2'], shortTmp(t));
+  noUnmutatedRed(r);
+  assert.equal(r.code, 5, `AC-101-1 passes with the link kept and AC-101-2 is BLOCKED: exit 5, the run's own, no exit 2\n${shown(r)}`);
+  assert.equal(out(r), `test-strength: BLOCKED 2 criteria at ${s7(w.H)}: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-2 (apps/lib/src/odd.ts)`, shown(r));
+  const err = lines(r.stderr);
+  assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `one notice line\n${shown(r)}`);
+  assert.ok(err.includes(WITHHELD_ODD), `the run's stderr carries AC-101-2's withheld-column line\n${shown(r)}`);
+  assert.equal(err[0], notice(w.H, 'dist/index.js'), `a run that proceeds, with no AC-19904-12 line: the notice line leads stderr, ahead of the withheld-column line\n${shown(r)}`);
+  repoOwnLoaded(w, loaded, 3);
+});
+
+// Pass 2 ruling 1: on a run that proceeds, the notice lines follow
+// AC-19904-12's line when that line prints. The DIST world bound to
+// welcome.test.mjs under a nodeTest runners entry whose argv starts with a
+// bare tsx, the real tsx in the repository root's node_modules
+// (a-tsx-node-test's package.json and lockfile, installed as rootVitest
+// installs vitest), so its runner opens a Unix socket under its TMPDIR
+// (AC-19904-12's Given), run under a temp directory whose own path passes
+// 108 bytes: the audit exits 0 with the PASS line, AC-19904-12's line is
+// the first stderr line and the one notice line the second, and each run
+// loaded the repo's own apps/lib/dist/index.js. The test first shows tsx
+// running welcome.test.mjs in place at apps/api under a short TMPDIR and
+// failing under one inside the long temp directory, so AC-19904-12's
+// condition holds. Red at the round F DEFINE head: the scratch stays under
+// the long temp directory, so tsx cannot open its socket, and the link is
+// re-pointed into a copy without dist/; the unmutated run is red (exit 2).
+test("AC-19903-14: on a run that proceeds under a temp directory long enough that AC-19904-12's line prints, the notice line follows that line: a bare tsx runners entry over a bound test importing a workspace package whose entry is gitignored build output exits 0 with the PASS line, AC-19904-12's line first on stderr and the one notice line second", async (t) => {
+  assert.ok(SOCKET_LIMIT[process.platform], `a platform with a Unix socket path limit: darwin or linux, not ${process.platform}`);
+  const tsxArgv = ['tsx', '--test', '--test-reporter=tap', '--test-name-pattern', '<name>', '<file>'];
+  const w = await wsHoisted(t, { ...welcomeSpec, config: { ...welcomeSpec.config, runners: [{ files: ['apps/api/test/**'], kind: 'nodeTest', argv: tsxArgv }] } }, { lib: DIST });
+  rootInstall(t, w.dir, 'a-tsx-node-test');
+  const api = join(w.dir, 'apps', 'api');
+  const rootTsx = join(w.dir, 'node_modules', '.bin', 'tsx');
+  assert.ok(existsSync(rootTsx) && !existsSync(join(api, 'node_modules')), 'tsx is installed in the repository root node_modules/.bin, nothing in apps/api/node_modules');
+  assert.equal(run('git', ['status', '--porcelain'], { cwd: w.dir }).stdout, '', 'the install leaves the working tree clean: node_modules is gitignored');
+  const long = longTmp(t);
+  inPlace(api, 'test/welcome.test.mjs', { argv: [rootTsx, '--test', 'test/welcome.test.mjs'], env: { TMPDIR: shortTmp(t) } });
+  const nested = join(long, 'rcf-ts-abcdef');
+  mkdirSync(nested);
+  const under = run(rootTsx, ['--test', 'test/welcome.test.mjs'], { cwd: api, env: { PATH: nodeFirst(), TMPDIR: nested } });
+  assert.notEqual(under.code, 0, `tsx cannot run with TMPDIR ${nested} (${nested.length} bytes): its socket path passes the limit\n${under.stdout}${under.stderr}`);
+  const { r, loaded } = await strengthLoaded(t, w.dir, ['--acs', 'AC-101-1'], long);
+  noUnmutatedRed(r);
+  assert.equal(r.code, 0, `the scratch moves to a short path and the link stays at the repo's own apps/lib: each mutant of welcome is killed, exit 0\n${shown(r)}`);
+  assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
+  const err = lines(r.stderr);
+  assert.equal(err[0], movesLine(long), `AC-19904-12's line is the run's first stderr line\n${shown(r)}`);
+  assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `one notice line\n${shown(r)}`);
+  assert.equal(err[1], notice(w.H, 'dist/index.js'), `the notice line follows AC-19904-12's line\n${shown(r)}`);
   repoOwnLoaded(w, loaded, 3);
 });
 
@@ -895,8 +1003,8 @@ test('AC-19903-14: on a red unmutated run from another cause, a test reading a p
 // "default" last as Node requires; the require world's welcome loads
 // @ws/lib through createRequire, the subpath world's imports
 // @ws/lib/greet). A world with no entry (no "." subpath and no matching
-// condition) counts as not committed: its notice's <entry> is left open
-// here, a question for the stage-keeper. Red at the round F DEFINE head in
+// condition) counts as not committed, and its notice takes the second
+// form, word for word (pass 2 ruling 2). Red at the round F DEFINE head in
 // every notice world: where the entry is build output the link is
 // re-pointed into a copy without it and the unmutated run is red (exit
 // 2); where there is no entry the run passes and nothing prints.
@@ -936,7 +1044,7 @@ const ENTRY_WORLDS = [
   ['main, committed, before index.js naming build output', { pkg: { main: 'src/index.js' }, built: { 'index.js': SRC_LIB } }, null],
 ];
 
-test('AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, a committed one is re-pointed with none, and each run exits 0 with the PASS line', async (t) => {
+test('AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line', async (t) => {
   const wrong = [];
   for (const [step, lib, entry] of ENTRY_WORLDS) {
     const w = await wsHoisted(t, welcomeSpec, { lib });
@@ -949,8 +1057,8 @@ test('AC-19903-14: the package entry is read in the order exports (a string, or 
       want = 'no notice (the entry is committed: the link is re-pointed)';
       held = got.length === 0;
     } else if (entry === NO_ENTRY) {
-      want = `one notice, "${NOTICE_HEAD}<entry>${noticeTail(w.H)}" (no entry)`;
-      held = got.length === 1 && got[0].startsWith(NOTICE_HEAD) && got[0].endsWith(noticeTail(w.H));
+      want = `one notice in its no-entry form, "${noEntryNotice(w.H)}"`;
+      held = got.length === 1 && got[0] === noEntryNotice(w.H);
     } else {
       want = `one notice, "${notice(w.H, entry)}"`;
       held = got.length === 1 && got[0] === notice(w.H, entry);

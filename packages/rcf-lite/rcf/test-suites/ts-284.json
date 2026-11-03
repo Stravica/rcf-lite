@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-11-03T20:43:59.997Z",
+  "updatedAt": "2026-11-03T21:11:12.473Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -237,23 +237,23 @@
     {
       "id": "TC-284-a-link-whose-entry-is-not-at-head-stays",
       "acId": "AC-19903-14",
-      "description": "a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry",
+      "description": "a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry"
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
     },
     {
       "id": "TC-284-a-mutant-in-the-kept-package-survives",
       "acId": "AC-19903-14",
-      "description": "with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line",
+      "description": "with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line leading stderr",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line"
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line leading stderr"
     },
     {
       "id": "TC-284-the-entry-is-read-exports-main-index-js",
       "acId": "AC-19903-14",
-      "description": "the package entry is read in the order exports (a string, or the conditional map resolved for \".\" in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, a committed one is re-pointed with none, and each run exits 0 with the PASS line",
+      "description": "the package entry is read in the order exports (a string, or the conditional map resolved for \".\" in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for \".\" in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, a committed one is re-pointed with none, and each run exits 0 with the PASS line"
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for \".\" in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line"
     },
     {
       "id": "TC-284-a-failing-files-listing-exits-2-named",
@@ -268,6 +268,20 @@
       "description": "on a red unmutated run from another cause, a test reading a path relative to the rcf project root, the \"cwd\": \"project\" hint stays right after the unmutated-run line and the one notice line follows the hint; exit 2 from the run itself",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: on a red unmutated run from another cause, a test reading a path relative to the rcf project root, the \"cwd\": \"project\" hint stays right after the unmutated-run line and the one notice line follows the hint; exit 2 from the run itself"
+    },
+    {
+      "id": "TC-284-the-notice-leads-stderr-ahead-of-other-lines",
+      "acId": "AC-19903-14",
+      "description": "on a run that proceeds with another stderr line, a criterion BLOCKED with its position check withheld, the one notice line leads stderr, ahead of the withheld-column line, and the run's own verdict stands: exit 5 with the BLOCKED line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: on a run that proceeds with another stderr line, a criterion BLOCKED with its position check withheld, the one notice line leads stderr, ahead of the withheld-column line, and the run's own verdict stands: exit 5 with the BLOCKED line"
+    },
+    {
+      "id": "TC-284-the-notice-follows-the-short-path-line",
+      "acId": "AC-19903-14",
+      "description": "on a run that proceeds under a temp directory long enough that AC-19904-12's line prints, the notice line follows that line: a bare tsx runners entry over a bound test importing a workspace package whose entry is gitignored build output exits 0 with the PASS line, AC-19904-12's line first on stderr and the one notice line second",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: on a run that proceeds under a temp directory long enough that AC-19904-12's line prints, the notice line follows that line: a bare tsx runners entry over a bound test importing a workspace package whose entry is gitignored build output exits 0 with the PASS line, AC-19904-12's line first on stderr and the one notice line second"
     }
   ],
   "status": "draft"
