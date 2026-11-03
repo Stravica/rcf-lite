@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-11-03T02:23:46.468Z",
+  "updatedAt": "2026-11-03T18:40:36.892Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -15,7 +15,8 @@
     "AC-19903-9",
     "AC-19903-10",
     "AC-19903-11",
-    "AC-19903-12"
+    "AC-19903-12",
+    "AC-19903-13"
   ],
   "id": "TS-284",
   "usId": "US-19903",
@@ -209,6 +210,13 @@
       "description": "rcf audit test-strength --help keeps the backstop sentence the 0.39.0 Known issue names",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-12: rcf audit test-strength --help keeps the backstop sentence the 0.39.0 Known issue names"
+    },
+    {
+      "id": "TC-284-a-failing-workspace-listing-exits-2-named",
+      "acId": "AC-19903-13",
+      "description": "when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>\" and runs no bound test",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>\" and runs no bound test"
     }
   ],
   "status": "draft"

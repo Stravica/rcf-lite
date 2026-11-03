@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:31:45.453Z",
-  "updatedAt": "2026-11-03T00:05:14.587Z",
+  "updatedAt": "2026-11-03T18:40:33.960Z",
   "asA": "chain author on a downstream product (a Worker-style web app or a library), and the verifier recording the result",
   "iWant": "to declare my app entry and harness once and have the result recorded beside the TEST verdict",
   "soThat": "Finalise reads test strength for the reviewed head without running anything",
@@ -84,6 +84,12 @@
     {
       "id": "AC-19903-12",
       "description": "[must-not] Given the help paragraph of `rcf audit test-strength` rewritten for workspace working copies, when `rcf audit test-strength --help` runs, then it exits 0 and its output, whitespace collapsed, still holds the backstop sentence \"Nothing in the project is written outside rcf/verdicts/<H12>/: the audit compares the project tree (node_modules and every dot directory included, .git excluded) and every node_modules directory on Node's module resolution path above it, up to the repository root, before and after the bound tests run, and a path a bound test run wrote there exits 2 \"test-strength: a bound test run wrote <path> in the project\" (a path above the project named relative to it) and records nothing.\"",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19903-13",
+      "description": "[failure] Given a workspace package whose bound test needs its node_modules linked in the working copy (TAC-4155 responsibilities[4]), when the git ls-tree with which `rcf audit test-strength` lists every package.json directory at HEAD fails, then the audit exits 2 with the stderr line \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <git's stderr, trimmed>\", runs no bound test (no \"the unmutated run is red\" line) and prints no verdict line, where 0.40.0 went on as if the repository held no workspace package.",
       "testable": true,
       "verification": "external"
     }

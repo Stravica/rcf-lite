@@ -574,3 +574,58 @@ test('AC-19904-11: a red unmutated run at the rcf project root, of a test with n
     assert.equal(err[red + 1], cwdHint(file, '.'), `${acId}: the line right after the unmutated-run line names the cwd "." and points at "cwd": "project"\n${shown(r)}`);
   }
 });
+
+// Round F, F-2 (the round E reviewer's note on AC-19903-11): a failing git
+// ls-tree when the audit lists the workspace packages (every package.json
+// directory at HEAD, repository-wide: src/audit/test-strength/index.js
+// :134, the audit's one git ls-tree with --full-tree) exits 2 with a named
+// error, where 0.40.0 swallows it and goes on with no workspace package:
+// the working copies link no package's node_modules and the backstop
+// covers none. A git stand-in, first on the audit's PATH, fails that
+// listing (exit 128, a "fatal:" line, as git does when it cannot read a
+// tree) and hands every other git call to the real git. The world is
+// AC-19903-8's (ms installed in apps/api/node_modules only), audited
+// first without the stand-in (green, as AC-19903-8 asserts) so the red is
+// the listing's. Red at the round F DEFINE head: the listing's failure is
+// swallowed, apps/api/node_modules is not linked, and the unmutated run
+// is red with no named line.
+const STAND_IN_FATAL = 'fatal: unable to read tree (the git stand-in of this test)';
+function gitStandIn(t) {
+  const dir = scratch(t, 'rcf-h-git-');
+  const realGit = join(toolPath().split(delimiter)[0], 'git');
+  writeText(dir, 'git', [
+    '#!/bin/sh',
+    '# A git stand-in: the repository-wide listing of the files at HEAD (git ls-tree with --full-tree) fails as git',
+    '# does when it cannot read the tree; every other git call runs the real git.',
+    'case " $* " in',
+    `  *" ls-tree "*" --full-tree "*) echo ${q(STAND_IN_FATAL)} >&2; exit 128 ;;`,
+    'esac',
+    `exec ${q(realGit)} "$@"`,
+    '',
+  ].join('\n'));
+  chmodSync(join(dir, 'git'), 0o755);
+  return dir;
+}
+
+test('AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with "test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>" and runs no bound test', async (t) => {
+  const w = await wsTwo(t, {
+    acs: ['AC-101-1'],
+    config: { entry: ENTRY_TWO, harness: HARNESS },
+    nodes: [['apps/api/src/index.js#toMs', ['AC-101-1']]],
+    bind: [['AC-101-1', API_TEST, 'C1 toMs reads a duration through ms']],
+  });
+  inPlace(join(w.dir, 'apps', 'api'), 'test/api.test.mjs');
+  const standIn = gitStandIn(t);
+  const listing = run(join(standIn, 'git'), ['-c', 'core.quotePath=false', 'ls-tree', '-r', '-z', '--name-only', '--full-tree', 'HEAD'], { cwd: w.dir });
+  assert.ok(listing.code === 128 && listing.stderr.trim() === STAND_IN_FATAL, `the stand-in fails the repository-wide listing\n${listing.stdout}${listing.stderr}`);
+  assert.equal(run(join(standIn, 'git'), ['rev-parse', 'HEAD'], { cwd: w.dir }).stdout.trim(), w.H, 'the stand-in hands every other git call to the real git');
+  const control = await strength(w.dir, ['--acs', 'AC-101-1']);
+  assert.equal(control.code, 0, `without the stand-in the audit is green: exit 0\n${shown(control)}`);
+  const r = await rcf(['audit', 'test-strength', '--acs', 'AC-101-1'], { cwd: w.dir, env: { PATH: [standIn, nodeFirst()].join(delimiter) }, timeout: 900_000 });
+  const err = lines(r.stderr);
+  const named = `test-strength: cannot list the workspace packages at ${s7(w.H)}: git ls-tree failed: ${STAND_IN_FATAL}`;
+  assert.ok(err.includes(named), `stderr carries "${named}"\n${shown(r)}`);
+  noUnmutatedRed(r);
+  assert.equal(r.code, 2, `the audit's own input failed: exit 2\n${shown(r)}`);
+  assert.equal(r.stdout, '', `no verdict line\n${shown(r)}`);
+});
