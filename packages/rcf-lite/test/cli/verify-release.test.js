@@ -657,6 +657,23 @@ test('AC-20101-9: a fail line whose case threw a message holding a backslash is 
   assert.equal(out[i + 1], `  reason: ${message}`, `the line after AC-101-1's fail line carries the message as thrown\n${r.stdout}`);
 });
 
+// Round F, F-6: rcf verify run --help states the reason rule as TAC-4157
+// interfaces[1] (the ReleaseVerifyReport's perAc reason) does, where the
+// 0.40.0 help (src/verify/cli/run.js :288 to :290) abbreviates it in a
+// parenthetical. Red at the round F DEFINE head: the help holds the
+// parenthetical and not the rule.
+const flat = (text) => text.split(/\s+/).filter(Boolean).join(' ');
+const REASON_RULE = 'A fail row\'s reason comes from the first failing case in the row\'s tests order: the first non-empty line of its TAP diagnostic\'s error, trimmed (the whole message when it is one line), else its runner\'s last non-empty stderr line, trimmed, else "no result for <pointer> (exit <code>)", <code> its runner\'s exit code; the file\'s own summary "not ok" line is never a case.';
+const REASON_ABBREVIATED = '(the first failing case\'s message, else its runner\'s last stderr line, else "no result for <pointer> (exit <code>)")';
+
+test('AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical', async (t) => {
+  const r = await rcf(['verify', 'run', '--help'], { cwd: scratch(t, 'rcf-h-help-') });
+  assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  assert.ok(flat(r.stdout).includes(flat(REASON_RULE)), `the help, whitespace collapsed, holds the reason rule\n${REASON_RULE}\n---\n${r.stdout}`);
+  assert.ok(!flat(r.stdout).includes(flat(REASON_ABBREVIATED)), `the help no longer holds the abbreviated parenthetical\n${REASON_ABBREVIATED}\n---\n${r.stdout}`);
+  assert.ok(flat(r.stdout).includes(flat('each fail line followed by "  reason: <reason>"')), `the help still says each fail line is followed by the reason line\n${r.stdout}`);
+});
+
 // ---------------------------------------------------------------- US-20102
 
 // The fixture package: name fixture-app, version 1.1.0, shipping its rcf/

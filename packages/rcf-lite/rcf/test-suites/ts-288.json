@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:50:16.015Z",
-  "updatedAt": "2026-11-03T18:43:03.363Z",
+  "updatedAt": "2026-11-03T18:44:45.271Z",
   "purpose": "FBS-238: the external criteria of US-20101, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-238's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -12,7 +12,8 @@
     "AC-20101-6",
     "AC-20101-7",
     "AC-20101-8",
-    "AC-20101-9"
+    "AC-20101-9",
+    "AC-20101-10"
   ],
   "id": "TS-288",
   "usId": "US-20101",
@@ -178,6 +179,13 @@
       "description": "a fail line whose case threw a message holding a backslash is followed by \"  reason: <reason>\" with the message as thrown",
       "status": "pending",
       "testPointer": "test/cli/verify-release.test.js::AC-20101-9: a fail line whose case threw a message holding a backslash is followed by \"  reason: <reason>\" with the message as thrown"
+    },
+    {
+      "id": "TC-288-the-help-states-the-full-reason-rule",
+      "acId": "AC-20101-10",
+      "description": "rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical",
+      "status": "pending",
+      "testPointer": "test/cli/verify-release.test.js::AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical"
     }
   ],
   "status": "draft"

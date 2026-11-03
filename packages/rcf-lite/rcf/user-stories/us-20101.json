@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:35:46.960Z",
-  "updatedAt": "2026-11-02T23:58:19.586Z",
+  "updatedAt": "2026-11-03T18:44:44.178Z",
   "asA": "operator (the operating engineer) running Verify before the promote",
   "iWant": "one command that runs the external criteria's E2E tests for the release scope plus the core journeys and records verified",
   "soThat": "verified means the release target passed, and nothing inside a build round can write it",
@@ -66,6 +66,12 @@
     {
       "id": "AC-20101-9",
       "description": "[failure] Given the same fixture, when the run prints its rows, then the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged (stdout: \"<AC id> <FBS id> fail\" stays an exact line, as AC-20101-2 asserts it, followed by \"  reason: <reason>\"; \"<AC id> <FBS id> pass\" has no reason line after it).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-20101-10",
+      "description": "[happy] Given `rcf verify run --help`, when it runs, then it exits 0 and its output, whitespace collapsed, states the reason of a fail row as TAC-4157 interfaces[1] does, in the sentence \"A fail row's reason comes from the first failing case in the row's tests order: the first non-empty line of its TAP diagnostic's error, trimmed (the whole message when it is one line), else its runner's last non-empty stderr line, trimmed, else \"no result for <pointer> (exit <code>)\", <code> its runner's exit code; the file's own summary \"not ok\" line is never a case.\", in place of the parenthetical \"(the first failing case's message, else its runner's last stderr line, else \"no result for <pointer> (exit <code>)\")\", and still says each fail line is followed by \"  reason: <reason>\".",
       "testable": true,
       "verification": "external"
     }
