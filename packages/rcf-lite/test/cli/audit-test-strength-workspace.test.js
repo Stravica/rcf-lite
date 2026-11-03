@@ -675,27 +675,38 @@ test('AC-19903-13: when git ls-tree fails as the audit lists the workspace packa
 // laid over it, npm's hoisted layout written (node_modules/@ws/lib in the
 // rcf project root's own node_modules, a relative link to apps/lib, as
 // npm links a workspace package; nothing in apps/api/node_modules), and
-// the chain. With `dist`, apps/lib's package.json names gitignored build
-// output, dist/index.js, as main and exports, and the build (a copy of
-// the source) is written in apps/lib/dist/, present in the repository and
-// absent at HEAD.
+// the chain. With `lib` (F-9), apps/lib's package.json is { name, version,
+// private, type "module", ...lib.pkg }; each of lib.files is written and
+// committed; each of lib.built (the build, a copy of the source) is
+// written in apps/lib and gitignored, so it is present in the repository
+// and absent at HEAD; and lib.api, when given, replaces
+// apps/api/src/index.js.
 const WORLDS_F = join(PACKAGE_ROOT, 'test', 'fixtures', 'round-f');
 const ENTRY_HOISTED = [{ kind: 'module', path: 'apps/lib/src/index.js' }];
 const HOISTED_TEST = 'apps/api/test/greet.test.mjs';
-async function wsHoisted(t, spec, { dist = false } = {}) {
+async function wsHoisted(t, spec, { lib = null } = {}) {
   const dir = await project(t, { name: 'hoist' });
   cpSync(join(WORLDS_F, 'ws-hoisted'), dir, { recursive: true });
   link('../../apps/lib', join(dir, 'node_modules', '@ws', 'lib'));
   chain(dir, spec);
-  if (dist) {
-    writeText(dir, 'apps/lib/package.json', `${q({ name: '@ws/lib', version: '1.0.0', private: true, type: 'module', main: 'dist/index.js', exports: './dist/index.js' })}\n`);
-    writeText(dir, 'apps/lib/dist/index.js', readFileSync(join(dir, 'apps', 'lib', 'src', 'index.js'), 'utf8'));
-    writeText(dir, '.gitignore', 'node_modules/\napps/lib/dist/\n');
+  if (lib) {
+    writeText(dir, 'apps/lib/package.json', `${q({ name: '@ws/lib', version: '1.0.0', private: true, type: 'module', ...lib.pkg })}\n`);
+    for (const [path, text] of Object.entries({ ...lib.files, ...lib.built })) writeText(dir, `apps/lib/${path}`, text);
+    writeText(dir, '.gitignore', ['node_modules/', ...Object.keys(lib.built ?? {}).map((p) => `apps/lib/${p}`), ''].join('\n'));
+    if (lib.api) writeText(dir, 'apps/api/src/index.js', lib.api);
   }
   initRepo(dir);
   const H = commit(dir, 'fixture: base');
   return { dir, H };
 }
+
+// The F-9 notice line (the stage-keeper's ruling A3, word for word) for
+// the link node_modules/@ws/lib and the package apps/lib, and every such
+// line a run printed.
+const NOTICE_HEAD = "test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its entry ";
+const noticeTail = (h) => ` is build output not committed at ${s7(h)}; mutants in apps/lib are not the code this test imports`;
+const notice = (h, entry) => `${NOTICE_HEAD}${entry}${noticeTail(h)}`;
+const notices = (r) => lines(r.stderr).filter((l) => l.startsWith("test-strength: node_modules/@ws/lib stays at the repo's own"));
 
 // Round F, F-4 (the round E reviewer's note on AC-19903-8: TAC-4155
 // responsibilities[4] read two ways for a symbolic-link entry in the
@@ -708,10 +719,15 @@ async function wsHoisted(t, spec, { dist = false } = {}) {
 // project's own apps/lib (the other reading, 0.39.0's absolute link)
 // leaves every mutant survived (exit 4). AC-19903-9's Given ("a test in
 // apps/api importing @ws/lib by name (a workspace package link)") holds
-// for the link wherever npm puts it. A declared regression guard, green
-// at the round F DEFINE head (src/audit/test-strength/runner.js
-// linkModules re-points a symbolic-link entry in every node_modules it
-// links, the rcf project's and each ancestor's included).
+// for the link wherever npm puts it. The guard moves with F-9 (the
+// stage-keeper's ruling 8): the accepted reading now carries the
+// exception, a link whose package entry is not committed at HEAD stays at
+// the repo's own package; apps/lib's entry here, ./src/index.js, is
+// committed, so the link is re-pointed and no F-9 notice prints. A
+// declared regression guard, green at the round F DEFINE head
+// (src/audit/test-strength/runner.js linkModules re-points a
+// symbolic-link entry in every node_modules it links, the rcf project's
+// and each ancestor's included, and prints no notice).
 test('AC-19903-9: a workspace sibling linked by name in the rcf project root node_modules, npm hoisted layout, resolves inside the working copy: each mutant of apps/lib/src/index.js#greet is killed, exit 0 with the PASS line', async (t) => {
   const w = await wsHoisted(t, {
     acs: ['AC-101-1'],
@@ -729,36 +745,148 @@ test('AC-19903-9: a workspace sibling linked by name in the rcf project root nod
   for (const m of mutants) assert.equal(m.result, 'killed', `${m.symbol} ${m.operator}: killed, never survived\n${r.stdout}`);
   const line = await strength(w.dir, ['--acs', 'AC-101-1']);
   assert.equal(out(line), passLine(w.H, 1, 2, 2, 0, 1), shown(line));
+  assert.deepEqual(notices(line), [], `apps/lib's entry ./src/index.js is committed at HEAD: the link is re-pointed, and no notice says it stays\n${shown(line)}`);
 });
 
-// Round F, F-3 (the round E reviewer's note on AC-19903-9, pre-existing in
-// 0.39.0's mutation proof): a re-pointed workspace link whose package's
-// entry is build output the repository does not track (a gitignored
-// dist/) reaches a package in the working copy without that entry, so the
-// bound test cannot load it and the unmutated run is red; 0.40.0 follows
-// the unmutated-run line with the "cwd": "project" hint, which points the
-// wrong way. The reviewer's probe, as a fixture: ws-hoisted with apps/lib's
-// main and exports naming dist/index.js, the build present in the
-// repository and gitignored. The reason line follows the hint, which
-// stays as the kept AC-19904-11 states it (whether the hint gives way to
-// the reason line here is the stage-keeper's ruling). Red at the round F
-// DEFINE head: nothing follows the hint.
-const entryReason = (h) => `test-strength: node_modules/@ws/lib points at apps/lib in the working copy, whose entry dist/index.js is not committed at ${s7(h)} (a working copy holds only what HEAD tracks)`;
+// Round F, F-9 (the stage-keeper's rulings A1 to A4, C10 and C11; F-3's
+// reason line is gone): 0.40.0 re-points a workspace link into the
+// working copy even when the package's entry is build output the
+// repository does not track (a gitignored dist/), so the copy's package
+// has no entry, the import fails and the unmutated run is red, where
+// 0.39.0 linked the repo's own built package and the test ran (the WESPA
+// finding: apps/api-service's tests import its own source, which imports
+// backend-common by name, main dist/index.js). The ruling: a re-pointed
+// link whose package entry is not committed at HEAD stays at the repo's
+// own package, the run proceeds, and one notice line per link per run says
+// so; no exit 2, the exit code is the run's own. The package entry:
+// exports (a string, or the conditional map resolved for "." in the order
+// import, default, require, a nested map walked the same way; no match is
+// no entry, which counts as not committed), then main, then index.js.
+// ws-hoisted with lib DIST: apps/lib's main and exports name
+// dist/index.js, the build present in the repository and gitignored. Bound
+// to apps/api/test/welcome.test.mjs (welcome, the api's own code, imports
+// @ws/lib by name), with the link kept at the repo's own apps/lib every
+// mutant of welcome is killed: exit 0 and the PASS line. Bound to
+// greet.test.mjs with the Code Node in apps/lib, a mutant there is not the
+// code the test imports and survives: exit 4 and the FAIL line, the run's
+// own. Red at the round F DEFINE head: the link is re-pointed into the
+// copy, whose apps/lib holds no dist/, the import fails and the unmutated
+// run is red (exit 2, the unmutated-run line and the "cwd": "project"
+// hint).
+const SRC_LIB = readFileSync(join(WORLDS_F, 'ws-hoisted', 'apps', 'lib', 'src', 'index.js'), 'utf8');
+const CJS_LIB = "'use strict';\n\nexports.greet = function greet(name) {\n  return name ? `hello ${name}` : 'hello';\n};\n";
+const DIST = { pkg: { main: 'dist/index.js', exports: './dist/index.js' }, built: { 'dist/index.js': SRC_LIB } };
+const ENTRY_API = [{ kind: 'module', path: 'apps/api/src/index.js' }];
+const WELCOME_TEST = 'apps/api/test/welcome.test.mjs';
+const welcomeSpec = {
+  acs: ['AC-101-1'],
+  config: { entry: ENTRY_API, harness: HARNESS },
+  nodes: [['apps/api/src/index.js#welcome', ['AC-101-1']]],
+  bind: [['AC-101-1', WELCOME_TEST, 'H2 welcome greets through the workspace library']],
+};
 
-test('AC-19903-14: a red unmutated run of a bound test importing a workspace package whose entry is gitignored build output gives, right after the "cwd": "project" hint, a line naming the link, the package and the entry not committed at HEAD', async (t) => {
+test("AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry", async (t) => {
+  const w = await wsHoisted(t, welcomeSpec, { lib: DIST });
+  assert.ok(existsSync(join(w.dir, 'apps', 'lib', 'dist', 'index.js')), 'the build output is present in the repository');
+  assert.equal(run('git', ['ls-files', 'apps/lib/dist'], { cwd: w.dir }).stdout, '', 'and not committed: apps/lib/dist/ is gitignored');
+  inPlace(join(w.dir, 'apps', 'api'), 'test/welcome.test.mjs');
+  // Two mutants of welcome (stubToThrow, noOp) under --jobs 2: two working copies beside the unmutated run's.
+  const r = await strength(w.dir, ['--acs', 'AC-101-1', '--jobs', '2']);
+  noUnmutatedRed(r);
+  assert.equal(r.code, 0, `the link stays at the repo's own apps/lib, whose dist/ the test imports, and each mutant of welcome is killed: exit 0, no exit 2\n${shown(r)}`);
+  assert.equal(out(r), passLine(w.H, 1, 2, 2, 0, 1), shown(r));
+  assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `one notice line for the one link, however many working copies the run made\n${shown(r)}`);
+});
+
+test("AC-19903-14: with the link kept at the repo's own package, a mutant in that package is not the code the test imports: each mutant of apps/lib/src/index.js#greet survives, exit 4 with the FAIL line, the run's own exit, and the one notice line", async (t) => {
   const w = await wsHoisted(t, {
     acs: ['AC-101-1'],
     config: { entry: ENTRY_HOISTED, harness: HARNESS },
     nodes: [['apps/lib/src/index.js#greet', ['AC-101-1']]],
     bind: [['AC-101-1', HOISTED_TEST, 'H1 greet comes from the hoisted workspace library']],
-  }, { dist: true });
-  assert.ok(existsSync(join(w.dir, 'apps', 'lib', 'dist', 'index.js')), 'the build output is present in the repository');
-  assert.equal(run('git', ['ls-files', 'apps/lib/dist'], { cwd: w.dir }).stdout, '', 'and not committed: apps/lib/dist/ is gitignored');
+  }, { lib: DIST });
   inPlace(join(w.dir, 'apps', 'api'), 'test/greet.test.mjs');
   const r = await strength(w.dir, ['--acs', 'AC-101-1']);
-  const err = lines(r.stderr);
-  const red = err.findIndex((l) => /^test-strength: the unmutated run is red for AC-101-1: (.+) fails under runner (.+); no mutant was run$/.exec(l)?.[1] === `${HOISTED_TEST}::H1 greet comes from the hoisted workspace library`);
-  assert.ok(r.code === 2 && red >= 0, `the working copy's apps/lib holds no dist/: exit 2 with the unmutated-run line\n${shown(r)}`);
-  assert.equal(err[red + 1], cwdHint(HOISTED_TEST, 'apps/api'), `the hint stays right after the unmutated-run line, as AC-19904-11 states it\n${shown(r)}`);
-  assert.equal(err[red + 2], entryReason(w.H), `the line right after the hint names the link, the package and its entry not committed at HEAD\n${shown(r)}`);
+  noUnmutatedRed(r);
+  assert.equal(r.code, 4, `the test imports the repo's own apps/lib/dist/index.js, so each mutant of the copy's apps/lib/src/index.js#greet survives: exit 4, the run's own, no exit 2\n${shown(r)}`);
+  assert.equal(out(r), `test-strength: FAIL 1 of 1 criteria at ${s7(w.H)}: AC-101-1 vacuous: stubToThrow on apps/lib/src/index.js#greet survived 1 bound tests; AC-101-1 vacuous: noOp on apps/lib/src/index.js#greet survived 1 bound tests`, shown(r));
+  assert.deepEqual(notices(r), [notice(w.H, 'dist/index.js')], `the one notice line says mutants in apps/lib are not the code this test imports\n${shown(r)}`);
+});
+
+// The entry rule (the stage-keeper's ruling C10), one ws-hoisted world per
+// step, each bound to the welcome test: the step's entry is gitignored
+// build output (the link kept, a notice naming the entry) where a later
+// step names a committed file, or committed (the link re-pointed, no
+// notice) where a later step names build output, so an audit reading the
+// steps in another order gives another answer in at least one world. The
+// run proceeds in every world: exit 0 and the PASS line. Node resolves
+// each world in place the same way (conditions in Node's key order,
+// "default" last as Node requires; the require world's welcome loads
+// @ws/lib through createRequire, the subpath world's imports
+// @ws/lib/greet). A world with no entry (no "." subpath and no matching
+// condition) counts as not committed: its notice's <entry> is left open
+// here, a question for the stage-keeper. Red at the round F DEFINE head in
+// every notice world: where the entry is build output the link is
+// re-pointed into a copy without it and the unmutated run is red (exit
+// 2); where there is no entry the run passes and nothing prints.
+const NO_ENTRY = Symbol('no entry');
+const API_REQUIRE = [
+  "import { createRequire } from 'node:module';",
+  '',
+  'const require = createRequire(import.meta.url);',
+  '',
+  "// The api's own code: it reaches the workspace library by name through require.",
+  'export function welcome(name) {',
+  "  const { greet } = require('@ws/lib');",
+  '  return `${greet(name)}, welcome`;',
+  '}',
+  '',
+].join('\n');
+const API_SUBPATH = [
+  "import { greet } from '@ws/lib/greet';",
+  '',
+  "// The api's own code: it reaches the workspace library through its ./greet subpath export.",
+  'export function welcome(name) {',
+  '  return `${greet(name)}, welcome`;',
+  '}',
+  '',
+].join('\n');
+const ENTRY_WORLDS = [
+  ['exports, a string, before main', { pkg: { exports: './dist/index.js', main: 'src/index.js' }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
+  ['exports, a committed string, before main naming build output', { pkg: { exports: './src/index.js', main: 'dist/index.js' }, built: { 'dist/index.js': SRC_LIB } }, null],
+  ['the "." subpath: import before default', { pkg: { exports: { '.': { import: './dist/index.js', default: './src/index.js' } } }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
+  ['a condition map: default before require', { pkg: { exports: { require: './dist/index.cjs', default: './src/index.js' } }, built: { 'dist/index.cjs': CJS_LIB } }, null],
+  ['a nested map walked the same way', { pkg: { exports: { '.': { import: { types: './dist/index.d.ts', default: './dist/index.js' }, default: './src/index.js' } } }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
+  ['require, with no import or default condition', { pkg: { exports: { require: './dist/index.cjs' } }, built: { 'dist/index.cjs': CJS_LIB }, api: API_REQUIRE }, 'dist/index.cjs'],
+  ['no matching condition: no entry', { pkg: { exports: { node: './src/index.js' } } }, NO_ENTRY],
+  ['no "." subpath: no entry', { pkg: { exports: { './greet': './src/index.js' } }, api: API_SUBPATH }, NO_ENTRY],
+  ['main, with no exports, before index.js', { pkg: { main: 'dist/index.js' }, files: { 'index.js': "export * from './src/index.js';\n" }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
+  ['index.js, with no exports or main', { pkg: {}, built: { 'index.js': SRC_LIB } }, 'index.js'],
+  ['main, committed, before index.js naming build output', { pkg: { main: 'src/index.js' }, built: { 'index.js': SRC_LIB } }, null],
+];
+
+test('AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, a committed one is re-pointed with none, and each run exits 0 with the PASS line', async (t) => {
+  const wrong = [];
+  for (const [step, lib, entry] of ENTRY_WORLDS) {
+    const w = await wsHoisted(t, welcomeSpec, { lib });
+    inPlace(join(w.dir, 'apps', 'api'), 'test/welcome.test.mjs');
+    const r = await strength(w.dir, ['--acs', 'AC-101-1']);
+    const got = notices(r);
+    let want;
+    let held;
+    if (entry === null) {
+      want = 'no notice (the entry is committed: the link is re-pointed)';
+      held = got.length === 0;
+    } else if (entry === NO_ENTRY) {
+      want = `one notice, "${NOTICE_HEAD}<entry>${noticeTail(w.H)}" (no entry)`;
+      held = got.length === 1 && got[0].startsWith(NOTICE_HEAD) && got[0].endsWith(noticeTail(w.H));
+    } else {
+      want = `one notice, "${notice(w.H, entry)}"`;
+      held = got.length === 1 && got[0] === notice(w.H, entry);
+    }
+    if (!(held && r.code === 0 && out(r) === passLine(w.H, 1, 2, 2, 0, 1))) {
+      wrong.push(`${step}, apps/lib/package.json ${q(lib.pkg)}: want exit 0, the PASS line and ${want}\n${shown(r)}`);
+    }
+  }
+  assert.deepEqual(wrong, [], `each world's entry is read in the rule's order\n${wrong.join('\n---\n')}`);
 });
