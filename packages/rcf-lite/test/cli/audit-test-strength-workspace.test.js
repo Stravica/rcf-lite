@@ -744,7 +744,7 @@ async function wsHoisted(t, spec, { lib = null } = {}) {
 const NOTICE_HEAD = "test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its entry ";
 const noticeTail = (h) => ` is build output not committed at ${s7(h)}; mutants in apps/lib are not the code this test imports`;
 const notice = (h, entry) => `${NOTICE_HEAD}${entry}${noticeTail(h)}`;
-const noEntryNotice = (h) => `test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its package.json names no entry committed at ${s7(h)} (no exports match for ".", no main, no index.js); mutants in apps/lib are not the code this test imports`;
+const noEntryNotice = (h) => `test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its package.json names no entry committed at ${s7(h)} (exports names no entry for "."); mutants in apps/lib are not the code this test imports`;
 const notices = (r) => lines(r.stderr).filter((l) => l.startsWith("test-strength: node_modules/@ws/lib stays at the repo's own"));
 
 // AC-19904-12's line (its US-19904 test's form), and the temp directories
