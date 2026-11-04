@@ -1,13 +1,13 @@
 {
   "createdAt": "2026-10-24T11:31:40.389Z",
-  "updatedAt": "2026-11-03T00:00:31.868Z",
+  "updatedAt": "2026-11-03T20:19:27.532Z",
   "purpose": "Proves a touched criterion's bound tests are real: they enter only through the app entry and the shared harness, and at least one goes red when each Code Node symbol implementing the criterion is broken, so a test that stays green against broken code is reported vacuous.",
   "responsibilities": [
     "resolve the scope: --acs, else the touchedAcIds of the newest REVIEW verdict reachable from HEAD, else the --fbs acIds",
     "structural check over every bound test file of each touched criterion: imports, module mocks, and silent defaults in the Code Node symbols",
     "mutation proof: for each symbol-level Code Node of each touched criterion apply stub-to-throw, no-op and call removal, and for each file-level Code Node of a touched criterion on a path that is not source (not .js, .mjs or .cjs and not one of the code extensions the interface lists) apply fileBlank (blank the file), in a scratch worktree and run only that criterion's bound tests",
     "print one verdict line, emit json, and with --record write rcf/verdicts/<h12>/test-strength.json for the reviewed head",
-    "working copies: every bound test run, unmutated or under a mutant, runs in a working copy of HEAD, a shared clone in the run's scratch directory; every package.json directory at HEAD outside node_modules, repository-wide, gets its node_modules linked in the copy, beside the node_modules of the rcf project and of each ancestor up to the repository root, which stay linked as 0.39.0 links them (a repository root with no package.json included); an entry that is itself a symbolic link is re-pointed to its own target inside the copy when that target is in the repository; every other entry links as 0.39.0 does (an absolute link to the project's own entry)"
+    "working copies: every bound test run, unmutated or under a mutant, runs in a working copy of HEAD, a shared clone in the run's scratch directory; the copy links the node_modules of the rcf project, of each ancestor up to the repository root (a repository root with no package.json included) and of every package.json directory at HEAD outside node_modules, repository-wide; in each of them, the rcf project's and each ancestor's included, an entry that is itself a symbolic link is re-pointed to its own target inside the copy when that target is in the repository, except that a link whose package entry is not committed at HEAD stays at the repo's own package; every other entry links as 0.39.0 does (an absolute link to the project's own entry)"
   ],
   "interfaces": [
     {

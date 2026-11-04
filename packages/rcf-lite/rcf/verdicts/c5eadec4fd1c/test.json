@@ -1,0 +1,21 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "c5eadec4fd1cdfcf088e089d9aa865a90c9eeb9b",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "result": "FAIL",
+  "suite": {
+    "pass": 171,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "runtime": "node v24.14.0, the four touched test files once in a full clone at b189f30, Linux",
+  "node": "v24.14.0",
+  "reason": "Round closed by the stage-keeper (Dave ruling 52): the light Finalise pre-check refuses this round as reviewed. REVIEW at c5eadec4 scoped four criteria; the chain changed ten since ac6895e8 (AC-19903-9, AC-19904-11, AC-20101-8 to -11 omitted) and FBS-238 has no passed review after 867586f0. The four touched test files are green; the round re-opens at DEFINE.",
+  "recordedBy": "verifier",
+  "recordedAt": "2026-11-04T13:04:26.767Z"
+}

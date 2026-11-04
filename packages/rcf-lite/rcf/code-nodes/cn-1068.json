@@ -2,11 +2,12 @@
   "cnId": "CN-1068",
   "path": "src/verify/release/report.js#releaseLines",
   "implementsAcIds": [
-    "AC-20101-9"
+    "AC-20101-9",
+    "AC-20101-11"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-11-03T06:22:00.270Z",
-  "updatedAt": "2026-11-03T06:22:00.270Z"
+  "updatedAt": "2026-11-04T03:41:53.513Z"
 }

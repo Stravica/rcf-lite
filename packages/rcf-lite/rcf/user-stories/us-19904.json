@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-29T09:28:56.301Z",
-  "updatedAt": "2026-11-03T00:06:52.251Z",
+  "updatedAt": "2026-11-03T20:59:49.927Z",
   "asA": "verifier at the TEST stage on a TypeScript product",
   "iWant": "test strength to run each bound test through its declared runner and read that runner's report",
   "soThat": "TypeScript criteria get the proof JavaScript criteria get",
@@ -75,6 +75,12 @@
     {
       "id": "AC-19904-11",
       "description": "[failure] Given a bound test whose unmutated run is red, such as a test in `apps/api` that reads a path relative to the rcf project root with no `runners` entry pinning `\"cwd\": \"project\"` for it, when `rcf audit test-strength` runs, then the stderr line right after the unmutated-run line reads \"test-strength: <file> ran at <cwd>; a test that reads paths relative to the rcf project root pins \"cwd\": \"project\" on its runners entry\", `<file>` the bound test file and `<cwd>` the directory its run ran at, each a path relative to the rcf project root (`.` for the rcf project root itself; `apps/api/test/root.test.mjs` and `apps/api` for that test), and the unmutated-run line stays exactly as AC-19902-9 states it (exit 2, the unmutated-run line, then that hint line).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19904-12",
+      "description": "[failure] Given a bound test whose runner opens a Unix socket under its TMPDIR (tsx at `<TMPDIR>/tsx-<uid>/<pid>.pipe`, as under AC-19904-1's tsx `runners` entry), when `rcf audit test-strength` runs with a temp directory (`tmpdir()`) long enough that `tmpdir()` plus the scratch suffix (the scratch directory `rcf-ts-<6 chars>` and a runner's socket path under it) would pass the platform's limit for a Unix socket path, 104 bytes on darwin and 108 on Linux, then each runner's scratch directory, which is its TMPDIR, moves to a short path, `/tmp/rcf-<6 chars>` on darwin and on Linux alike, the run goes on as AC-19904-1 states it (exit 0 and its PASS line), and the run's first stderr line, printed once per run, reads \"test-strength: a runner's Unix socket path under <tmpdir> would pass <limit> bytes, the limit on <platform>; the scratch directory moves to a short path\", `<tmpdir>` the temp directory, `<limit>` 104 or 108 and `<platform>` darwin or linux; under a temp directory short enough, the scratch directory stays under it and no such line prints. 0.40.0 kept the scratch under the long temp directory, tsx failed with \"listen EINVAL\" and the unmutated run was red (exit 2).",
       "testable": true,
       "verification": "external"
     }

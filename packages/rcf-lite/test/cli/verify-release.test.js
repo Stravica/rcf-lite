@@ -5,11 +5,21 @@
 // installed cold, and with --record writes the ReleaseVerifyReport and
 // verified; the catalog and agent probes stay optional ad hoc runs.
 //
-// Criteria: 16, all external (US-20101 9, US-20102 4, US-20103 3).
+// Criteria: 18, all external (US-20101 11, US-20102 4, US-20103 3).
 // The round E cases of AC-20101-8 and AC-20101-9 are red until the
 // round's BUILD turns them green, but for two declared regression guards
 // of AC-20101-8 (a pass row's null reason, no reason line after a blocked
-// line), green throughout. Each test drives bin/rcf.js (or the
+// line), green throughout. Round F (the round E REVIEW notes F-5 and
+// F-6): a case of AC-20101-8 for each escape form of node:test's TAP
+// error value and one of AC-20101-9 (red at the round F DEFINE head but
+// for the two double-quoted forms, declared guards), and AC-20101-10, the
+// verify run help's reason rule (red there). Round F's second DEFINE
+// pass (the stage-keeper's ruling C14, TAC-4157 "decoded"): a case of
+// AC-20101-8 for a control character inside double quotes (red), the help
+// rule reading "decoded and trimmed", and AC-20101-11, the printed reason
+// line showing a control character other than tab as its JavaScript
+// escape and a tab as a tab (red but for the carriage-return case, a
+// declared guard). Each test drives bin/rcf.js (or the
 // packed artefact) as a child process over a fixture project made by its
 // own rcf init, committed to git and tagged v1.0.0 at the release commit
 // R. The target
@@ -569,6 +579,159 @@ test('AC-20101-8: no "  reason:" line follows a blocked line, in a run that also
   assert.ok(i >= 0, `stdout carries "AC-102-1 FBS-002 blocked"\n${r.stdout}`);
   assert.ok(!out[i + 1].startsWith('  reason:'), `no reason line follows the blocked line\n${r.stdout}`);
   assert.ok(!out.includes('  reason: no bound e2e test'), `the blocked row's reason is never printed as a reason line\n${r.stdout}`);
+});
+
+// Round F, F-5 (the round E reviewer's note on AC-20101-8, the
+// stage-keeper's ruling on the independent review, note 1): the reason is
+// the message as thrown, so it decodes the quoted error value node:test's
+// TAP reporter writes. The reporter writes a one-line message through
+// util.inspect: single-quoted with its backslash escapes (\\ for a
+// backslash, \' when the message holds all three quote kinds, \t and \xNN
+// for control characters), double-quoted when the message holds a single
+// quote and no double quote, and backtick-quoted when it holds both and no
+// backtick. Each fixture: FBS-001's one bound e2e case throws the message;
+// the test first reads, from the runner as the release Verify runs it,
+// that the case's diagnostic holds the error in the escape form named, so
+// each case is non-vacuous for its form. The single-quoted and backtick
+// forms are red at the round F DEFINE head (src/verify/suite/index.js
+// yamlScalar strips the quotes and decodes '' only, a YAML rule, so a
+// backslash stays doubled and a backtick-quoted value keeps its
+// backticks); the two double-quoted forms are declared regression guards,
+// green there (JSON.parse decodes them) and through the BUILD.
+const ESCAPE = {
+  backslash: { message: 'C:\\dir\\file', tap: "'C:\\\\dir\\\\file'" },
+  backtick: { message: 'it\'s "quoted"', tap: '`it\'s "quoted"`' },
+  threeQuotes: { message: 'it\'s "q" and `b`', tap: "'it\\'s \"q\" and `b`'" },
+  tab: { message: 'col\tvalue', tap: "'col\\tvalue'" },
+  control: { message: 'esc\x1b[0m end', tap: "'esc\\x1B[0m end'" },
+  doubleQuoted: { message: 'it\'s here', tap: '"it\'s here"' },
+  doubleQuotedBackslash: { message: 'it\'s C:\\dir', tap: '"it\'s C:\\\\dir"' },
+  doubleQuotedControl: { message: 'it\'s\x1b[0m', tap: '"it\'s\\x1B[0m"' },
+};
+async function escapeFixture(t, message) {
+  const f = await release(t, [{ id: 'FBS-001', status: 'complete', us: 'US-101', criteria: [{ id: 'AC-101-1', flag: 'external', level: 'e2e' }] }], {
+    change: (d) => {
+      amend(d, 'US-101', 'AC-101-1');
+      writeText(d, 'test/rcf/us-101.test.js', `${HEAD_SRC}test(${JSON.stringify(caseName('AC-101-1'))}, () => { throw new Error(${JSON.stringify(message)}); });\n`);
+    },
+  });
+  const file = 'test/rcf/us-101.test.js';
+  // The runner as the release Verify runs it, read here: the case's own diagnostic and its one-line error value.
+  const probe = run(process.execPath, ['--test', '--test-reporter=tap', `--test-name-pattern=(?:^| )${caseName('AC-101-1')}$`, file], { cwd: f.dir });
+  assert.notEqual(probe.code, 0, `the case's run fails\n${probe.stdout}${probe.stderr}`);
+  const tap = probe.stdout.split('\n');
+  const at = tap.indexOf(`not ok 1 - ${caseName('AC-101-1')}`);
+  assert.ok(at >= 0, `the runner reports the case as not ok\n${probe.stdout}`);
+  const end = tap.findIndex((l, i) => i > at && l === '  ...');
+  const error = tap.slice(at, end).find((l) => l.startsWith('  error: '));
+  return { ...f, error: error ? error.slice('  error: '.length) : null, probe: probe.stdout };
+}
+
+// One escape form: the TAP value is in that form, and the perAc reason of
+// the --out report is the message as thrown.
+async function reasonDecodes(t, { message, tap }) {
+  const { dir, error, probe } = await escapeFixture(t, message);
+  assert.equal(error, tap, `node:test's TAP writes the case's error as ${tap}\n${probe}`);
+  const file = join(scratch(t, 'rcf-h-out-'), 'report.json');
+  const r = await verify(dir, releaseArgs(['--out', file]));
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const per = perAcOf(file, 'AC-101-1');
+  assert.equal(per.result, 'fail', `AC-101-1 fails\n${r.stdout}`);
+  assert.equal(per.reason, message, `the reason is the message as thrown, the TAP value ${tap} decoded`);
+}
+
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a backslash, which the TAP writes doubled inside single quotes (a Windows path), gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.backslash));
+
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single and a double quote, which the TAP writes inside backticks, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.backtick));
+
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds all three quote kinds, which the TAP writes inside single quotes with the single quote escaped, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.threeQuotes));
+
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a tab, which the TAP writes as its backslash escape inside single quotes, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.tab));
+
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a control character, which the TAP writes as a hex escape inside single quotes, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.control));
+
+// Declared regression guards (green at the round F DEFINE head, where
+// JSON.parse decodes a double-quoted value): the BUILD's decoding keeps them.
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote, which the TAP writes inside double quotes, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.doubleQuoted));
+
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote and a backslash, which the TAP writes inside double quotes with the backslash escaped, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.doubleQuotedBackslash));
+
+// The stage-keeper's ruling C14 (TAC-4157 says "decoded"): a control
+// character inside a double-quoted value is written by node:test as a hex
+// escape too, which JSON.parse cannot read (JSON has no \x escape), so
+// the round F DEFINE head's yamlScalar falls back to the raw inner text.
+// Red there: the reason holds the four characters \x1B.
+test('AC-20101-8: a bound e2e case whose one-line thrown message holds a single quote and a control character, which the TAP writes inside double quotes with the control character as a hex escape, gives its perAc row result "fail" with the message as thrown as reason', (t) => reasonDecodes(t, ESCAPE.doubleQuotedControl));
+
+test('AC-20101-9: a fail line whose case threw a message holding a backslash is followed by "  reason: <reason>" with the message as thrown', async (t) => {
+  const { message, tap } = ESCAPE.backslash;
+  const { dir, error, probe } = await escapeFixture(t, message);
+  assert.equal(error, tap, `node:test's TAP writes the case's error as ${tap}\n${probe}`);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const i = out.indexOf('AC-101-1 FBS-001 fail');
+  assert.ok(i >= 0, `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  assert.equal(out[i + 1], `  reason: ${message}`, `the line after AC-101-1's fail line carries the message as thrown\n${r.stdout}`);
+});
+
+// Round F, F-5's printed line (the stage-keeper's ruling C14): the printed
+// reason line shows a decoded control character other than tab as its
+// JavaScript escape (\n, \r, \x1b for the escape character; another
+// control character's spelling, any JavaScript escape, is the BUILD's and
+// no case drives one), so the line stays one line and readable; a tab is printed
+// as a tab; nothing else is escaped (a backslash prints as itself, as
+// AC-20101-9's backslash case already asserts); the report's perAc reason
+// keeps the decoded characters (AC-20101-8), and the TAP keeps TAP's own
+// form (TAC-4157). Each case reads the case's TAP error value first,
+// as AC-20101-8's do. A line feed never reaches the reason: node:test
+// writes a message holding one as a block scalar, whose first non-empty
+// line is the reason, so no case drives \n. The tab case is red at the
+// round F DEFINE head (the printed line holds TAP's \t escape, a
+// backslash and a t, where the tab belongs) and so is the escape case (it
+// holds TAP's own escape passed through undecoded, \x1B in capitals, and
+// the backslash TAP doubled, where the decoded message gives
+// "esc\x1b[0m in C:\dir"); the carriage-return case is a declared
+// regression guard, green there (TAP's \r passes through and reads as the
+// JavaScript escape): the BUILD's decoding for AC-20101-8 must not print
+// the carriage return itself.
+const PRINTED = {
+  tab: { message: 'col\tvalue', tap: "'col\\tvalue'", printed: 'col\tvalue' },
+  control: { message: 'esc\x1b[0m in C:\\dir', tap: "'esc\\x1B[0m in C:\\\\dir'", printed: 'esc\\x1b[0m in C:\\dir' },
+  carriageReturn: { message: 'line one\rline two', tap: "'line one\\rline two'", printed: 'line one\\rline two' },
+};
+async function reasonPrints(t, { message, tap, printed }) {
+  const { dir, error, probe } = await escapeFixture(t, message);
+  assert.equal(error, tap, `node:test's TAP writes the case's error as ${tap}\n${probe}`);
+  const r = await verify(dir, releaseArgs());
+  assert.equal(r.code, 4, `${r.stdout}${r.stderr}`);
+  const out = lines(r.stdout);
+  const i = out.indexOf('AC-101-1 FBS-001 fail');
+  assert.ok(i >= 0, `stdout carries "AC-101-1 FBS-001 fail"\n${r.stdout}`);
+  assert.equal(out[i + 1], `  reason: ${printed}`, `the line after AC-101-1's fail line shows the decoded message, ${JSON.stringify(printed)}\n${JSON.stringify(out[i + 1])}\n${r.stdout}`);
+}
+
+test('AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by "  reason: <reason>" with the tab printed as a tab', (t) => reasonPrints(t, PRINTED.tab));
+
+test('AC-20101-11: a fail line whose case threw a message holding an escape character and a backslash, which the TAP writes as a capital hex escape and a doubled backslash, is followed by "  reason: <reason>" with the escape character printed as its JavaScript escape in lowercase hex and the backslash as itself', (t) => reasonPrints(t, PRINTED.control));
+
+test('AC-20101-11: a fail line whose case threw a message holding a carriage return is followed by "  reason: <reason>" with the carriage return printed as its JavaScript escape, the line staying one line', (t) => reasonPrints(t, PRINTED.carriageReturn));
+
+// Round F, F-6: rcf verify run --help states the reason rule as TAC-4157
+// interfaces[1] (the ReleaseVerifyReport's perAc reason) does, where the
+// 0.40.0 help (src/verify/cli/run.js :288 to :290) abbreviates it in a
+// parenthetical. Red at the round F DEFINE head: the help holds the
+// parenthetical and not the rule.
+const flat = (text) => text.split(/\s+/).filter(Boolean).join(' ');
+const REASON_RULE = 'A fail row\'s reason comes from the first failing case in the row\'s tests order: the first non-empty line of its TAP diagnostic\'s error, decoded and trimmed (the whole message when it is one line), else its runner\'s last non-empty stderr line, trimmed, else "no result for <pointer> (exit <code>)", <code> its runner\'s exit code; the file\'s own summary "not ok" line is never a case.';
+const REASON_ABBREVIATED = '(the first failing case\'s message, else its runner\'s last stderr line, else "no result for <pointer> (exit <code>)")';
+
+test('AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical', async (t) => {
+  const r = await rcf(['verify', 'run', '--help'], { cwd: scratch(t, 'rcf-h-help-') });
+  assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
+  assert.ok(flat(r.stdout).includes(flat(REASON_RULE)), `the help, whitespace collapsed, holds the reason rule\n${REASON_RULE}\n---\n${r.stdout}`);
+  assert.ok(!flat(r.stdout).includes(flat(REASON_ABBREVIATED)), `the help no longer holds the abbreviated parenthetical\n${REASON_ABBREVIATED}\n---\n${r.stdout}`);
+  assert.ok(flat(r.stdout).includes(flat('each fail line followed by "  reason: <reason>"')), `the help still says each fail line is followed by the reason line\n${r.stdout}`);
 });
 
 // ---------------------------------------------------------------- US-20102

@@ -23,6 +23,12 @@
 // suite's wall time on every exit of the child so the cap can be
 // sized from measurements; at the cap it stops the child and fails
 // naming the cap and the time.
+//
+// Round F (F-7): whenever the child exits non-zero (or is stopped), the
+// pin names each inner failing test, its file and line (from the TAP
+// diagnostic's location) and its title, in a diagnostic and in the
+// assertion message, where it printed only the transcript's last 800
+// characters before.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -40,6 +46,8 @@ import {
   innerWallTimeLine,
   PIN_TIMEOUT_ENV,
   DEFAULT_PIN_TIMEOUT_MS,
+  innerFailures,
+  innerFailureName,
 } from './pin-core.js';
 
 const PIN_SPAWNED = process.env.RCF_LEAK_PIN_SPAWNED === '1';
@@ -97,7 +105,9 @@ async function runSuite({ cwd, tmp, log, capMs }) {
       killTimer = setTimeout(() => child.kill('SIGKILL'), 30 * 1000);
     }, capMs);
     const chunks = [];
-    child.stdout.on('data', (b) => chunks.push(b));
+    // The child's TAP alone, for naming its failing tests (F-7).
+    const tapChunks = [];
+    child.stdout.on('data', (b) => { chunks.push(b); tapChunks.push(b); });
     child.stderr.on('data', (b) => chunks.push(b));
     child.on('error', (err) => {
       clearTimeout(timer);
@@ -108,7 +118,7 @@ async function runSuite({ cwd, tmp, log, capMs }) {
       clearTimeout(timer);
       clearTimeout(killTimer);
       log.push(Buffer.concat(chunks).toString('utf8'));
-      resolveRun({ code, signal, elapsedMs: Math.round(performance.now() - started), timedOut });
+      resolveRun({ code, signal, elapsedMs: Math.round(performance.now() - started), timedOut, tap: Buffer.concat(tapChunks).toString('utf8') });
     });
   });
 }
@@ -127,7 +137,7 @@ test(
       const before = new Set(await readdir(isolated));
       assert.equal(before.size, 0, 'pin invariant: isolated TMPDIR should start empty');
 
-      const { code, signal, elapsedMs, timedOut } = await runSuite({
+      const { code, signal, elapsedMs, timedOut, tap } = await runSuite({
         cwd: pkgRoot,
         tmp: isolated,
         log: transcript,
@@ -173,6 +183,14 @@ test(
       // so the pin's own transcript still shows the child ran.
       const childTail = (transcript[0] ?? '').slice(-800);
       t.diagnostic(`child transcript tail:\n${childTail}`);
+      // F-7: a child that exits non-zero, or is stopped, has each inner
+      // failing test named, file, line and title, beside the tail.
+      const failures = code !== 0 ? innerFailures(tap, pkgRoot) : [];
+      if (code !== 0) {
+        t.diagnostic(failures.length
+          ? `child inner failing tests (${failures.length}):\n${failures.map((f) => `  ${innerFailureName(f)}`).join('\n')}`
+          : "child inner failing tests: none named in the child's TAP");
+      }
       t.diagnostic(`leaked temp dir count: ${leaked.length} across ${byPrefix.size} prefixes`);
       if (topFamilies) t.diagnostic(`top prefixes (grep \`mkdtemp(join(tmpdir(), '<prefix>'\` to find the creating test):\n${topFamilies}`);
 
@@ -189,7 +207,7 @@ test(
       // as a non-zero exit does.
       if (timedOut) {
         throw new assert.AssertionError({
-          message: `pin invariant: the inner suite passed the cap of ${cap.ms} ms (${cap.source}) and was stopped after ${elapsedMs} ms; raise ${PIN_TIMEOUT_ENV} to give it longer`,
+          message: `pin invariant: the inner suite passed the cap of ${cap.ms} ms (${cap.source}) and was stopped after ${elapsedMs} ms; raise ${PIN_TIMEOUT_ENV} to give it longer${failures.length ? `; ${failures.length} inner failing test(s) before the stop: ${failures.map(innerFailureName).join('; ')}` : ''}`,
           actual: elapsedMs,
           expected: cap.ms,
           operator: '<=',
@@ -200,6 +218,7 @@ test(
         signal,
         executedTests,
         floor: EXECUTED_TESTS_FLOOR,
+        failures,
       });
 
       assert.equal(

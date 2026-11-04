@@ -1,0 +1,1270 @@
+{
+  "version": 1,
+  "head": "4cdf51af7d0d6a7200481808231a50f727193c96",
+  "scope": "reviewVerdict",
+  "criteria": [
+    {
+      "acId": "AC-19904-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/report.js#readPlaywright",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#readPlaywright",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#readPlaywright",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#namePattern",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#namePattern",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#namePattern",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-3: a playwright runners entry with AC-101-1 bound to e2e/slug.spec.ts::slug > slugs a title (no browser fixture) and, under a vitest entry, to test/slug.test.ts, exits 0 with each mutant of src/slug.ts#slugify killed; --help documents runners; an argv override with no reporter flag fails the unmutated run naming --reporter"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#runUnmutated",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runUnmutated",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runUnmutated",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#judge",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#judge",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-5: a vitest pointer test/cart.test.ts::cart > applies no discount, naming no test in its file, exits 2 with \"test-strength: bound test <file>::<name> was not run by runner <argv>\" and scores no mutant"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#judge",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/report.js#readTap",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#readTap",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/report.js#readTap",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#runnerFor",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#runnerFor",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#runnerFor",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-6: a .ts bound test importing vitest that matches no runners entry, with no runner, prints the unmutated-run line plus \"declare a runner for <file> in rcf/test-strength.json runners\" and exits 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-7",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/jsx.js#blankJsx",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/jsx.js#blankJsx",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/jsx.js#blankJsx",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#stripView",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#stripView",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#stripView",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#positionOf",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#positionOf",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#positionOf",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#openAtEnd",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#openAtEnd",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: in a .vue script block a syntax error after a wide character is placed in the .vue file, and an unclosed bracket inside a template expression at end of input is placed at the bracket: src/a.vue 3:33 and src/a.ts 1:23, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#openAtEnd",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#nodePosition",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#nodePosition",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#nodePosition",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#refusalDetail",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#refusalDetail",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#refusalDetail",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\" and a detail naming the file and \"non-erasable TypeScript syntax\", the run exits 5, and light Finalise refuses it like a fail"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19901-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/source.js#sourceView",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#sourceView",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#sourceView",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#stripView",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#stripView",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#stripView",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#positionOf",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#positionOf",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#positionOf",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#openAtEnd",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with \"test-strength: entry point unreadable\" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#openAtEnd",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: an entry point the strip view cannot parse whose input ends inside a construct (src/index.ts with the brace of if (a) { left open) exits 2 with \"test-strength: entry point unreadable\" and a detail at the innermost brace still open at the end of input, 3:10, never 1:1 or the end of the file"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#openAtEnd",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#nodePosition",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#nodePosition",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#nodePosition",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#refusalDetail",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#refusalDetail",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: the detail places the first unreadable construct of a symbol-level .ts Code Node at its own line and column past line 1: invalid TypeScript syntax on line 3, and a parameter property the strip view refuses on line 3, exit 5"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#refusalDetail",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#reach",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#reach",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a combining mark starting a token is placed where node places its refusal: src/a.ts holding export const a = U+0301; at 1:18 (2:18 after an LF or a CRLF line), and the entry point src/intervals.ts at 1:18, exit 5 and exit 2"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/source.js#reach",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/config.js#loadConfig",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-8: a bound test in a workspace package resolves a dependency installed only in its package"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-9: a workspace sibling imported by name resolves inside the working copy"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-11",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19904-11: a red unmutated run of a bound test in apps/api reading a path relative to the rcf project root, with no \"cwd\": \"project\" entry, exits 2 with the unmutated-run line followed by a line naming the cwd apps/api and pointing at \"cwd\": \"project\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19904-12",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#scratchPlace",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#scratchPlace",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#scratchPlace",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-ts.test.js::AC-19904-12: under a temp directory long enough that a runner's Unix socket path under the scratch passes 104 bytes on darwin (108 on Linux), the tsx runners entry of AC-19904-1's fixture exits 0 with the PASS line, its first stderr line says the scratch directory moves to a short path, and every bound test run's TMPDIR is that short path (/tmp/rcf-<6 chars> on darwin and on Linux)"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-13",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/index.js#workspacePackages",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>\" and runs no bound test"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#workspacePackages",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>\" and runs no bound test"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#workspacePackages",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>\" and runs no bound test"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-13: when git ls-tree fails as the audit lists the workspace packages, rcf audit test-strength exits 2 with \"test-strength: cannot list the workspace packages at <h7>: git ls-tree failed: <its stderr>\" and runs no bound test"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-14",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#makeWorkingCopies",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#linkModules",
+          "operator": "callRemoval",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#keptLine",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#keptLine",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#keptLine",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#packageEntry",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#packageEntry",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#packageEntry",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: a bound test whose code imports a workspace package by name, its entry gitignored build output not committed at HEAD, runs with the link kept at the repo's own package: exit 0 with the PASS line, and one notice line naming the link, the package and the entry, leading stderr"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19903-15",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-15: rcf audit test-strength --help names the real path of each node_modules the backstop compares and the repository's .git, beside the backstop sentence"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-workspace.test.js::AC-19903-15: rcf audit test-strength --help names the real path of each node_modules the backstop compares and the repository's .git, beside the backstop sentence"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-8",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#runCases",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/index.js#failReason",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#failReason",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/index.js#failReason",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/suite/index.js#parseTap",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/suite/index.js#parseTap",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-8: a bound e2e case throwing \"harness: node sits beside an agent CLI in <dir>\" gives its perAc row result \"fail\" with the thrown message as reason, and a failing case with no diagnostic carries the last stderr line of its runner"
+          ]
+        },
+        {
+          "symbol": "src/verify/suite/index.js#parseTap",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-9",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-9: the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-9: the line after each fail line reads \"  reason: <reason>\" and pass lines are unchanged"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-10",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/cli/run.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-10: rcf verify run --help states the reason rule of a fail row as TAC-4157 interfaces[1] does, in place of the abbreviated parenthetical"
+          ]
+        },
+        {
+          "symbol": "src/verify/cli/run.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20101-11",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by \"  reason: <reason>\" with the tab printed as a tab"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by \"  reason: <reason>\" with the tab printed as a tab"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#releaseLines",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/verify/release/report.js#printedReason",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by \"  reason: <reason>\" with the tab printed as a tab"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#printedReason",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/verify-release.test.js::AC-20101-11: a fail line whose case threw a message holding a tab, which the TAP writes as its backslash escape, is followed by \"  reason: <reason>\" with the tab printed as a tab"
+          ]
+        },
+        {
+          "symbol": "src/verify/release/report.js#printedReason",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "pass",
+  "totals": {
+    "criteria": 16,
+    "structuralPassed": 16,
+    "mutants": 147,
+    "killed": 104,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 43,
+    "blocked": 0
+  },
+  "wallMs": 285157,
+  "node": "v24.14.0"
+}

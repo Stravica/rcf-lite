@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1073",
+  "path": "src/verify/release/report.js#printedReason",
+  "implementsAcIds": [
+    "AC-20101-11"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-04T03:41:49.624Z",
+  "updatedAt": "2026-11-04T03:41:49.624Z"
+}
