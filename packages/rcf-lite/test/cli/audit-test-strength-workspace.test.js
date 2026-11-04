@@ -348,6 +348,22 @@ test("AC-19903-15: rcf audit test-strength --help names the real path of each no
   assert.ok(flat.includes(BACKSTOP_ROOTS_SENTENCE), `the help, whitespace collapsed, holds the sentence naming the real path of each node_modules and the repository's .git\n${BACKSTOP_ROOTS_SENTENCE}\n---\n${r.stdout}`);
 });
 
+// Round F fix round, the owner's rulings 33 and 34 (Review 1 F-5): the
+// help documented a method path form <file>#<Class>.<method> that
+// `rcf define create cn` refuses by design. The help says instead that a
+// class symbol expands to all its methods and that the TC pointer, not
+// the Code Node, gives method precision. Red at the fix round DEFINE
+// head: the help still prints the method path form.
+const CLASS_SYMBOL_SENTENCE = 'a class symbol expands to all its methods; the TC pointer chooses which test runs, not which methods are mutated';
+
+test('AC-19903-15: rcf audit test-strength --help says a class symbol expands to all its methods and the TC pointer chooses which test runs, not which methods are mutated, and prints no method path form <file>#<Class>.<method>', async (t) => {
+  const r = await rcf(['audit', 'test-strength', '--help'], { cwd: scratch(t, 'rcf-h-help-') });
+  assert.equal(r.code, 0, shown(r));
+  const flat = r.stdout.split(/\s+/).filter(Boolean).join(' ');
+  assert.ok(flat.includes(CLASS_SYMBOL_SENTENCE), `the help, whitespace collapsed, holds the class-symbol sentence\n${CLASS_SYMBOL_SENTENCE}\n---\n${r.stdout}`);
+  assert.ok(!flat.includes('#<Class>.<method>'), `the help prints no method path form <file>#<Class>.<method>\n${r.stdout}`);
+});
+
 // ---------------------------------------------------------------- US-19904
 
 // A declared regression guard (green at the round E DEFINE head, where
