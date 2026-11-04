@@ -1,7 +1,9 @@
 // The bounded job runner of `rcf audit test-strength` (FBS-236, US-19902,
 // TAC-4155, ADR-4156; FBS-242, US-19904). Mutants run in working copies
 // of HEAD inside one scratch directory of the run under the OS temp
-// directory, one working copy per job and one mutant at a time per job:
+// directory (round F, AC-19904-12: /tmp/rcf-<6 chars> when a runner's Unix
+// socket path there would pass the platform's limit), one working copy per
+// job and one mutant at a time per job:
 // the mutant's files are written in the working copy, only its
 // criterion's bound tests run (each through the runner its file resolves
 // to, one test name per run), and the files are restored. A bound test fails when its runner's report says so (the
@@ -12,9 +14,11 @@
 // written (AC-19903-5): a working copy is a shared clone, which writes
 // nothing in the project's .git, and its node_modules is a directory of
 // the run's own linking the project's installed packages, so a path any
-// process creates there stays in the working copy. Each runner gets the
-// scratch as its TMPDIR, and the scratch, with every working copy in it,
-// is removed before the run returns, pass, fail, error or signal.
+// process creates there stays in the working copy (round F, AC-19903-14:
+// a workspace package link whose package entry is not committed at HEAD
+// stays at the repo's own package). Each runner gets the scratch as its
+// TMPDIR, and the scratch, with every working copy in it, is removed
+// before the run returns, pass, fail, error or signal.
 
 import { spawn } from 'node:child_process';
 import { existsSync, lstatSync, mkdirSync, mkdtempSync, readdirSync, readFileSync, readlinkSync, realpathSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from 'node:fs';
@@ -177,6 +181,102 @@ async function runBound(t, { project, top, ms, env, reports, live }) {
   }
 }
 
+// The Unix socket path limit by platform, the terminating NUL included
+// (sockaddr_un's sun_path): 104 bytes on darwin, 108 on Linux.
+export const SOCKET_PATH_LIMIT = { darwin: 104, linux: 108 };
+// The widest process id a runner can get: darwin's highest is 99998; Linux's
+// pid_max is at most 2^22 (4194304).
+const PID_WIDTH = { darwin: 5, linux: 7 };
+
+/**
+ * Where a run's scratch directories go (round F, AC-19904-12; the
+ * stage-keeper's ruling C13): `prefix` for mkdtemp, tmpdir()/rcf-ts- as
+ * before, unless a runner's Unix socket path under such a scratch would
+ * pass the platform's limit (tsx opens its IPC socket at
+ * <TMPDIR>/tsx-<uid>/<pid>.pipe, measured here with the widest pid), when
+ * it is /tmp/rcf- on darwin and on Linux alike and `line` is the one stderr
+ * line the run prints first; else `line` is null.
+ *
+ * @param {string} [tmp] - the temp directory, tmpdir()
+ * @param {string} [platform]
+ * @returns {{ prefix: string, line: string|null }}
+ */
+export function scratchPlace(tmp = tmpdir(), platform = process.platform) {
+  const prefix = join(tmp, 'rcf-ts-');
+  const limit = SOCKET_PATH_LIMIT[platform];
+  if (!limit) return { prefix, line: null };
+  const uid = typeof process.getuid === 'function' ? process.getuid() : 0;
+  const socket = `${prefix}XXXXXX/tsx-${uid}/${'9'.repeat(PID_WIDTH[platform])}.pipe`;
+  if (Buffer.byteLength(socket) < limit) return { prefix, line: null };
+  return {
+    prefix: '/tmp/rcf-',
+    line: `test-strength: a runner's Unix socket path under ${tmp} would pass ${limit} bytes, the limit on ${platform}; the scratch directory moves to a short path`,
+  };
+}
+
+// The conditions a package entry is read under, in this order (round F,
+// AC-19903-14; the stage-keeper's ruling C10: Node's ESM order).
+const ENTRY_CONDITIONS = ['import', 'default', 'require'];
+const entryPath = (target) => posix.normalize(target).replace(/^\.\//, '');
+
+/** An exports target resolved under ENTRY_CONDITIONS: a path, null for no entry, undefined for no match (the next condition is tried). */
+function exportsTarget(target) {
+  if (typeof target === 'string') return entryPath(target);
+  if (Array.isArray(target)) {
+    for (const t of target) {
+      const r = exportsTarget(t);
+      if (r !== undefined) return r;
+    }
+    return undefined;
+  }
+  if (target === null) return null;
+  if (typeof target !== 'object') return undefined;
+  for (const condition of ENTRY_CONDITIONS) {
+    if (!Object.hasOwn(target, condition)) continue;
+    const r = exportsTarget(target[condition]);
+    if (r !== undefined) return r;
+  }
+  return undefined;
+}
+
+/**
+ * The entry of a package (round F, AC-19903-14; the stage-keeper's ruling
+ * C10), from its package.json `pkg` (null when there is none): `exports`
+ * first (a string is the entry; a map of subpaths is read at its "."
+ * subpath, any other map is the "." subpath's conditions, resolved in the
+ * order import, default, require, a nested map walked the same way; no "."
+ * subpath and no matching condition is no entry), else `main`, else
+ * index.js. Resolves { entry, main } (`entry` relative to the package
+ * directory, null for no entry; `main` true when it is main's).
+ *
+ * @param {object|null} pkg
+ * @returns {{ entry: string|null, main: boolean }}
+ */
+export function packageEntry(pkg) {
+  if (pkg && pkg.exports !== undefined) {
+    const exp = pkg.exports;
+    const subpaths = exp && typeof exp === 'object' && !Array.isArray(exp) && Object.keys(exp).some((k) => k.startsWith('.'));
+    const target = subpaths ? (Object.hasOwn(exp, '.') ? exportsTarget(exp['.']) : null) : exportsTarget(exp);
+    return { entry: target ?? null, main: false };
+  }
+  if (pkg && typeof pkg.main === 'string' && pkg.main.trim()) return { entry: entryPath(pkg.main), main: true };
+  return { entry: pkg ? 'index.js' : null, main: false };
+}
+
+/**
+ * True when a package's entry is committed at HEAD (AC-19903-14): `entry`
+ * relative to the package directory `pkgDir`, both against `committed`, the
+ * repository-relative paths at HEAD. A main entry is found as Node finds
+ * one (the path, then with .js, .json or .node, then its index.js,
+ * index.json or index.node); an exports entry or index.js only as named.
+ */
+function entryCommitted(committed, pkgDir, { entry, main }) {
+  if (entry === null) return false;
+  const at = pkgDir ? `${pkgDir}/${entry}` : entry;
+  const tries = main ? [at, `${at}.js`, `${at}.json`, `${at}.node`, `${at}/index.js`, `${at}/index.json`, `${at}/index.node`] : [at];
+  return tries.some((p) => committed.has(p));
+}
+
 // The dot entries of a node_modules directory a working copy links: the
 // package manager's own (binaries, the pnpm store, their manifests). Any
 // other dot entry is a cache and is not linked.
@@ -188,24 +288,44 @@ const LINKED_DOT = new Set(['.bin', '.pnpm', '.modules.yaml', '.package-lock.jso
  * an entry that is itself a symbolic link is re-pointed to its own target
  * inside the copy `dir` when that target is in the repository (`tops`, the
  * repository root as git names it and its real path); every other entry
- * links as 0.39.0 does, an absolute link to the project's own entry. A
- * scope directory (@scope) is a fresh directory whose packages link by the
- * same rule; dot entries other than LINKED_DOT are not linked.
+ * links as 0.39.0 does, an absolute link to the project's own entry. Round
+ * F (AC-19903-14): a link to a package in the repository outside every
+ * node_modules (a workspace package), whose package entry (packageEntry,
+ * read from its package.json in the copy, which is HEAD's) is not in
+ * `committed`, stays at the repo's own package, an absolute link to the
+ * project's own entry, and is recorded in `kept` (its link and package
+ * relative to the rcf project root `project`, and its entry). A scope
+ * directory (@scope) is a fresh directory whose packages link by the same
+ * rule; dot entries other than LINKED_DOT are not linked.
  */
-function linkModules(from, to, dir, tops) {
+function linkModules(from, to, dir, tops, keep) {
   mkdirSync(to, { recursive: true });
   for (const e of readdirSync(from, { withFileTypes: true })) {
     if (e.name.startsWith('.') && !LINKED_DOT.has(e.name)) continue;
     const entry = join(from, e.name);
     if (e.name.startsWith('@') && e.isDirectory()) {
-      linkModules(entry, join(to, e.name), dir, tops);
+      linkModules(entry, join(to, e.name), dir, tops, keep);
       continue;
     }
     let target = entry;
     if (e.isSymbolicLink()) {
       const own = resolve(dirname(entry), readlinkSync(entry));
       const top = tops.find((t) => within(own, t));
-      if (top) target = join(dir, relative(top, own));
+      if (top) {
+        const pkgDir = relative(top, own).split(sep).join('/');
+        target = join(dir, relative(top, own));
+        if (keep && !pkgDir.split('/').includes('node_modules')) {
+          let pkg = null;
+          try { pkg = JSON.parse(readFileSync(join(target, 'package.json'), 'utf8')); } catch { pkg = null; }
+          const read = packageEntry(pkg && typeof pkg === 'object' ? pkg : null);
+          if (!entryCommitted(keep.committed, pkgDir, read)) {
+            target = entry;
+            const named = (abs) => relative(keep.project, abs).split(sep).join('/');
+            const link = named(entry);
+            if (!keep.kept.has(link)) keep.kept.set(link, { link, package: named(own), entry: read.entry });
+          }
+        }
+      }
     }
     symlinkSync(target, join(to, e.name), e.isFile() ? 'file' : 'junction');
   }
@@ -224,10 +344,12 @@ function linkModules(from, to, dir, tops) {
  * resolves inside the working copy, and a path any process creates under
  * node_modules lands in the working copy.
  */
-async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, made, packages = [] }) {
+async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, made, packages = [], committed = null, kept = null }) {
   const segs = prefix.split('/').filter(Boolean);
   const rels = [...segs.map((_, k) => segs.slice(0, segs.length - k).join('/')), '', ...packages];
   const tops = [...new Set([toplevel, realpathSync(toplevel)])];
+  // Round F (AC-19903-14): with the files at HEAD, a link whose package entry is not committed stays.
+  const keep = committed && kept ? { committed, kept, project: join(toplevel, prefix) } : null;
   for (let i = 1; i <= count; i += 1) {
     const dir = join(root, `wc-${i}`);
     const clone = await git(['clone', '--quiet', '--shared', '--no-checkout', toplevel, dir]);
@@ -239,7 +361,7 @@ async function makeWorkingCopies(git, { count, head, toplevel, prefix, root, mad
       const from = join(toplevel, rel, 'node_modules');
       const to = join(dir, rel, 'node_modules');
       if (!existsSync(from) || existsSync(to)) continue;
-      linkModules(from, to, dir, tops);
+      linkModules(from, to, dir, tops, keep);
     }
   }
 }
@@ -414,15 +536,16 @@ export class NotRunError extends Error {
  * @param {Array<{ edits: Map<string, string>, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.mutants
  * @returns {Promise<{ results: Array<{ result: string, killedBy: string[], loadError?: true, verdict?: string }>, left: string[] }>}
  */
-export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, packages = [], unmutated = false, scratches = [] }) {
+export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, packages = [], unmutated = false, scratches = [], scratchAt = scratchPlace().prefix, committed = null, kept = null }) {
   const results = new Array(mutants.length);
   if (!mutants.length) return { results, left: [] };
   const made = [];
   // The working copies, the runners' temp files and caches, and vitest's
-  // report files stay in one scratch directory of this run. Its name is
-  // short: a runner may open a Unix socket under TMPDIR (tsx does), and
-  // those paths are capped near 108 bytes.
-  const scratch = mkdtempSync(join(tmpdir(), 'rcf-ts-'));
+  // report files stay in one scratch directory of this run, at `scratchAt`
+  // (scratchPlace). Its name is short: a runner may open a Unix socket
+  // under TMPDIR (tsx does), and a Unix socket path is capped at 104 bytes
+  // on darwin and 108 on Linux, its terminating NUL included.
+  const scratch = mkdtempSync(scratchAt);
   const root = realpathSync(scratch);
   scratches.push(root);
   // The bound test runs under way: a signal kills each one's process group.
@@ -441,7 +564,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
   let left = [];
   let thrown = null;
   try {
-    await makeWorkingCopies(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, root, made, packages });
+    await makeWorkingCopies(git, { count: Math.min(jobs, mutants.length), head, toplevel, prefix, root, made, packages, committed, kept });
     let next = 0;
     let failure = null;
     // Workers never reject: the first error stops every worker, and the
@@ -520,9 +643,9 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
  * @param {Array<{ acId: string, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.criteria
  * @returns {Promise<{ red: { acId: string, test: object, result: string, verdict?: string, names?: string[] }|null, left: string[] }>}
  */
-export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix, packages = [], scratches }) {
+export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix, packages = [], scratches, scratchAt, committed = null, kept = null }) {
   const checks = criteria.map((c) => ({ acId: c.acId, edits: new Map(), tests: c.tests }));
-  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, packages, unmutated: true, scratches });
+  const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, packages, unmutated: true, scratches, scratchAt, committed, kept });
   const at = results.findIndex((r) => r.result !== 'survived');
   if (at < 0) return { red: null, left };
   const r = results[at];

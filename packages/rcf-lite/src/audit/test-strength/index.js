@@ -36,7 +36,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
-import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, packageDir, runDir, runMutants, runUnmutated } from './runner.js';
+import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, packageDir, runDir, runMutants, runUnmutated, scratchPlace } from './runner.js';
 import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
 
@@ -129,12 +129,33 @@ function codeNodesOf(tree, acId) {
 
 const fail = (code, ...err) => ({ code, out: null, err, report: null });
 
-/** Every package.json directory at HEAD outside node_modules, repository-wide, relative to the repository root ('' for the root). */
+/**
+ * The repository's files at HEAD, repository-wide (`committed`, relative to
+ * the repository root), and every package.json directory among them
+ * outside node_modules (`packages`, '' for the root). Round F
+ * (AC-19903-13): a failing listing is `failed`, git's stderr trimmed.
+ *
+ * @returns {Promise<{ packages: string[], committed: Set<string> } | { failed: string }>}
+ */
 async function workspacePackages(git) {
   const all = await git(['ls-tree', '-r', '-z', '--name-only', '--full-tree', 'HEAD']);
-  if (all.code !== 0) return [];
-  return all.stdout.split('\0').filter((p) => posix.basename(p) === 'package.json' && !p.split('/').includes('node_modules'))
+  if (all.code !== 0) return { failed: all.stderr.trim() };
+  const paths = all.stdout.split('\0').filter(Boolean);
+  const packages = paths.filter((p) => posix.basename(p) === 'package.json' && !p.split('/').includes('node_modules'))
     .map((p) => (posix.dirname(p) === '.' ? '' : posix.dirname(p)));
+  return { packages, committed: new Set(paths) };
+}
+
+/**
+ * The notice line of a link a working copy keeps at the repo's own package
+ * (round F, AC-19903-14; the stage-keeper's rulings A3 and, for a package
+ * with no entry, pass 2 ruling 2).
+ */
+function keptLine({ link, package: pkg, entry }, head) {
+  const why = entry === null
+    ? `its package.json names no entry committed at ${s7(head)} (no exports match for ".", no main, no index.js)`
+    : `its entry ${entry} is build output not committed at ${s7(head)}`;
+  return `test-strength: ${link} stays at the repo's own ${pkg}: ${why}; mutants in ${pkg} are not the code this test imports`;
 }
 
 /**
@@ -212,8 +233,9 @@ export async function auditTestStrength({
   }
   if (unsupported.size) return fail(2, ...[...unsupported].map((p) => `test-strength: ${p} is not a supported source (JavaScript ESM or CommonJS)`));
 
-  // Everything is read at HEAD, as text.
+  // Everything is read at HEAD, as text. Round F (AC-19903-13): a failing listing is the audit's own input.
   const tree0 = await git(['ls-tree', '-r', '--name-only', 'HEAD']);
+  if (tree0.code !== 0) return fail(2, `test-strength: cannot list the files at ${s7(head)}: git ls-tree -r --name-only HEAD failed: ${tree0.stderr.trim()}`);
   const files = new Set(tree0.stdout.split('\n').filter(Boolean));
   // Round E (AC-19903-10): each bound test's package directory at HEAD.
   for (const c of criteria) for (const t of c.tests) t.dir = packageDir(t.file, files);
@@ -306,11 +328,22 @@ export async function auditTestStrength({
   // 2 whatever else the run was about to report.
   // Round E (TAC-4155 responsibilities[4]): every package.json directory
   // at HEAD outside node_modules, repository-wide, whose node_modules a
-  // working copy links and the backstop covers.
-  const packages = proved.length ? await workspacePackages(git) : [];
+  // working copy links and the backstop covers; round F (AC-19903-13), a
+  // failing listing is the audit's own input, before any bound test runs;
+  // (AC-19903-14) the files at HEAD say which package entry is committed.
+  const listed = proved.length ? await workspacePackages(git) : { packages: [], committed: new Set() };
+  if (listed.failed !== undefined) return fail(2, `test-strength: cannot list the workspace packages at ${s7(head)}: git ls-tree failed: ${listed.failed}`);
+  const { packages, committed } = listed;
+  // Round F (AC-19904-12): where the scratch directories go, and the run's first stderr line when they move.
+  const place = scratchPlace();
+  const moved = proved.length && place.line ? [place.line] : [];
+  // Round F (AC-19903-14): each link a working copy keeps at the repo's own package, once per link per run.
+  const kept = new Map();
+  const keptLines = () => [...kept.values()].map((k) => keptLine(k, head));
+  const opts = { head, toplevel, prefix, packages, scratches: [], scratchAt: place.prefix, committed, kept };
   const roots = proved.length ? forbiddenRoots(projectRoot, toplevel, packages) : null;
   const before = roots ? backstopTree(projectRoot, toplevel, roots) : null;
-  const scratches = [];
+  const { scratches } = opts;
   const wrote = () => {
     if (!before) return null;
     const path = firstForbidden(roots, before, backstopTree(projectRoot, toplevel, roots), scratches);
@@ -319,9 +352,13 @@ export async function auditTestStrength({
   const leftLines = (dirs) => dirs.map((dir) => `[warn] test-strength: scratch directory ${dir} could not be removed`);
   // Each exit of the bound test runs, with the lines it gives when the backstop finds a path.
   const exit = (lines, breached) => Object.assign(fail(2, ...lines), { breached });
+  // Round F: AC-19904-12's line leads stderr, then the notices of the kept
+  // links (AC-19903-14), then every other line, whatever the exit; on a red
+  // unmutated run the notices follow the "cwd": "project" hint instead.
+  const lead = (lines, notices = true) => [...moved, ...(notices ? keptLines() : []), ...lines];
   // An error exit still runs the backstop and the warn line, and names the scratch (F-7).
   const cannotRun = (err, ...left) => {
-    const lines = [...left, ...leftLines(err.left ?? [])];
+    const lines = lead([...left, ...leftLines(err.left ?? [])]);
     const line = `test-strength: cannot run the bound tests${err.scratch ? ` in scratch directory ${err.scratch}` : ''}: ${err.message}`;
     return exit([...lines, line], (breach) => fail(2, ...lines, breach, line));
   };
@@ -332,19 +369,21 @@ export async function auditTestStrength({
   try {
     outcome = await (async () => {
       try {
-        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, packages, scratches });
+        unmutated = await runUnmutated({ git, criteria: proved, timeoutMs: mutantTimeoutS * 1000, ...opts });
       } catch (err) {
         return cannotRun(err);
       }
       const leftUnmutated = leftLines(unmutated.left);
       if (unmutated.red) {
-        const breached = (breach) => fail(2, ...leftUnmutated, breach);
+        const breached = (breach) => fail(2, ...lead([...leftUnmutated, breach]));
         const { acId, test: t, result, verdict, names } = unmutated.red;
         const argv = t.runner.argv.join(' ');
-        if (result === 'notRun') return exit([...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`], breached);
+        if (result === 'notRun') return exit(lead([...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`]), breached);
         const lines = [`test-strength: the unmutated run is red for ${acId}: ${t.pointer} fails under runner ${argv}; no mutant was run`];
         // Round E (AC-19904-11): the next line names the directory the run ran at, relative to the rcf project root.
         lines.push(`test-strength: ${t.file} ran at ${runDir(t) || '.'}; a test that reads paths relative to the rcf project root pins "cwd": "project" on its runners entry`);
+        // Round F (AC-19903-14): the notices of the kept links follow the hint.
+        lines.push(...keptLines());
         // The stage-keeper's ruling Q5: a report the audit cannot read names the reporter flag.
         if (verdict === 'unreadable') {
           const flag = t.runner.kind === 'nodeTest' ? '--test-reporter=tap' : (t.runner.kind === 'vitest' ? '--reporter=json --outputFile=<report>' : '--reporter=json');
@@ -353,14 +392,14 @@ export async function auditTestStrength({
         if (!t.runner.matched && (HINT_EXT.test(t.file) || importSpecifiers(parseFile(t.file, texts.get(t.file))).some((sp) => sp === 'vitest' || sp === '@playwright/test'))) {
           lines.push(`test-strength: declare a runner for ${t.file} in rcf/test-strength.json runners`);
         }
-        return exit([...leftUnmutated, ...lines], breached);
+        return exit(lead([...leftUnmutated, ...lines], false), breached);
       }
       const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
       try {
-        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, head, toplevel, prefix, packages, scratches });
+        run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, ...opts });
       } catch (err) {
         if (err instanceof NotRunError) {
-          const lines = [...leftUnmutated, ...leftLines(err.left ?? [])];
+          const lines = lead([...leftUnmutated, ...leftLines(err.left ?? [])]);
           const line = `test-strength: ${err.message}`;
           return exit([...lines, line], (breach) => fail(2, ...lines, breach, line));
         }
@@ -374,14 +413,14 @@ export async function auditTestStrength({
   } finally {
     const breach = wrote();
     if (breach) {
-      outcome = outcome?.breached ? outcome.breached(breach) : fail(2, ...leftLines(unmutated?.left ?? []), ...leftLines(run?.left ?? []), breach);
+      outcome = outcome?.breached ? outcome.breached(breach) : fail(2, ...lead([...leftLines(unmutated?.left ?? []), ...leftLines(run?.left ?? []), breach]));
       thrown = null;
     }
   }
   if (thrown) throw thrown;
   if (outcome) return fail(outcome.code, ...outcome.err);
   const leftUnmutated = leftLines(unmutated.left);
-  const warn = [...placement, ...leftUnmutated, ...leftLines(run.left)];
+  const warn = lead([...placement, ...leftUnmutated, ...leftLines(run.left)]);
 
   // The report (TestStrengthReport v1) and the verdict line.
   const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0, blocked: 0 };
