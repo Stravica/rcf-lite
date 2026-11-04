@@ -1060,7 +1060,7 @@ const ENTRY_WORLDS = [
   ['main, committed, before index.js naming build output', { pkg: { main: 'src/index.js' }, built: { 'index.js': SRC_LIB } }, null],
 ];
 
-test('AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." by Node\'s rule, the first matching key in the map\'s own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line', async (t) => {
+test(`AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." by Node's rule, the first matching key in the map's own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line`, async (t) => {
   const wrong = [];
   for (const [step, lib, entry] of ENTRY_WORLDS) {
     const w = await wsHoisted(t, welcomeSpec, { lib });
