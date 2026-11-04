@@ -761,6 +761,7 @@ const NOTICE_HEAD = "test-strength: node_modules/@ws/lib stays at the repo's own
 const noticeTail = (h) => ` is build output not committed at ${s7(h)}; mutants in apps/lib are not the code this test imports`;
 const notice = (h, entry) => `${NOTICE_HEAD}${entry}${noticeTail(h)}`;
 const noEntryNotice = (h) => `test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its package.json names no entry committed at ${s7(h)} (exports names no entry for "."); mutants in apps/lib are not the code this test imports`;
+const noEntryNoticePlain = (h) => `test-strength: node_modules/@ws/lib stays at the repo's own apps/lib: its package.json names no entry committed at ${s7(h)} (no main, no index.js); mutants in apps/lib are not the code this test imports`;
 const notices = (r) => lines(r.stderr).filter((l) => l.startsWith("test-strength: node_modules/@ws/lib stays at the repo's own"));
 
 // AC-19904-12's line (its US-19904 test's form), and the temp directories
@@ -1025,6 +1026,10 @@ test('AC-19903-14: on a red unmutated run from another cause, a test reading a p
 // re-pointed into a copy without it and the unmutated run is red (exit
 // 2); where there is no entry the run passes and nothing prints.
 const NO_ENTRY = Symbol('no entry');
+// A package.json with no exports field takes the notice's other
+// no-entry form, (no main, no index.js) (ruling 42); its api reaches the
+// library by a file path, as a package with no entry allows.
+const NO_ENTRY_PLAIN = Symbol('no entry, no exports');
 const API_REQUIRE = [
   "import { createRequire } from 'node:module';",
   '',
@@ -1046,6 +1051,15 @@ const API_SUBPATH = [
   '}',
   '',
 ].join('\n');
+const API_DEEP = [
+  "import { greet } from '@ws/lib/src/index.js';",
+  '',
+  "// The api's own code: it reaches the workspace library by a file path inside the package, which has no entry.",
+  'export function welcome(name) {',
+  '  return `${greet(name)}, welcome`;',
+  '}',
+  '',
+].join('\n');
 const ENTRY_WORLDS = [
   ['exports, a string, before main', { pkg: { exports: './dist/index.js', main: 'src/index.js' }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
   ['exports, a committed string, before main naming build output', { pkg: { exports: './src/index.js', main: 'dist/index.js' }, built: { 'dist/index.js': SRC_LIB } }, null],
@@ -1058,6 +1072,7 @@ const ENTRY_WORLDS = [
   ['main, with no exports, before index.js', { pkg: { main: 'dist/index.js' }, files: { 'index.js': "export * from './src/index.js';\n" }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
   ['index.js, with no exports or main', { pkg: {}, built: { 'index.js': SRC_LIB } }, 'index.js'],
   ['main, committed, before index.js naming build output', { pkg: { main: 'src/index.js' }, built: { 'index.js': SRC_LIB } }, null],
+  ['no exports, no main, no index.js: no entry', { pkg: {}, api: API_DEEP }, NO_ENTRY_PLAIN],
 ];
 
 test(`AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." by Node's rule, the first matching key in the map's own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line`, async (t) => {
@@ -1075,6 +1090,9 @@ test(`AC-19903-14: the package entry is read in the order exports (a string, or 
     } else if (entry === NO_ENTRY) {
       want = `one notice in its no-entry form, "${noEntryNotice(w.H)}"`;
       held = got.length === 1 && got[0] === noEntryNotice(w.H);
+    } else if (entry === NO_ENTRY_PLAIN) {
+      want = `one notice in its no-entry form without exports, "${noEntryNoticePlain(w.H)}"`;
+      held = got.length === 1 && got[0] === noEntryNoticePlain(w.H);
     } else {
       want = `one notice, "${notice(w.H, entry)}"`;
       held = got.length === 1 && got[0] === notice(w.H, entry);
