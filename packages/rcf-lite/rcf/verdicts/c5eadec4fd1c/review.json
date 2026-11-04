@@ -1,0 +1,38 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "c5eadec4fd1cdfcf088e089d9aa865a90c9eeb9b",
+  "fbsIds": [
+    "FBS-242"
+  ],
+  "touchedAcIds": [
+    "AC-19904-12",
+    "AC-19903-13",
+    "AC-19903-14",
+    "AC-19903-15"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19903-14",
+      "text": "note, new criterion: the entry worlds of the AC-19903-14 entry test (test/cli/audit-test-strength-workspace.test.js:1066 to :1070) do not pin the key order of the map itself: no world puts one active condition ahead of another that a fixed priority would rank first (default before import, import before node), so a packageEntry walking node, import, module-sync, default in a fixed order instead of Object.entries (src/audit/test-strength/runner.js:235) passes every world, and exportsTarget is no Code Node, so no mutant reaches the order; add such a world (check 4)"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19903-14",
+      "text": "note, new criterion: Node v24.14.0 also treats node-addons as an active condition for an import (a package with exports {\"node-addons\": \"./a.js\", \"default\": \"./b.js\"} imports a.js), while the criterion and ENTRY_CONDITIONS (src/audit/test-strength/runner.js:220) list node, import, module-sync and default, so packageEntry reads b.js for that package; the criterion names node-addons among the active conditions or says why it is left out (check 4, probe)"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19903-14",
+      "text": "note, new criterion: the index.js fallback is read from the working tree, not HEAD (existsSync on the package directory in the repository, src/audit/test-strength/runner.js:327), so an index.js committed at HEAD but deleted from the working tree reads as no entry and takes the (no main, no index.js) form; the criterion says where index.js is looked for (check 7, builder note 1)"
+    }
+  ],
+  "recordedBy": "reviewer",
+  "recordedAt": "2026-11-04T12:30:54.548Z"
+}
