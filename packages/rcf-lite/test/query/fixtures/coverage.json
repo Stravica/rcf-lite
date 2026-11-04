@@ -11879,7 +11879,8 @@
           "id": "AC-19903-15",
           "covered": true,
           "testCases": [
-            "TC-284-the-help-names-the-real-path-and-git-roots"
+            "TC-284-the-help-names-the-real-path-and-git-roots",
+            "TC-284-the-help-says-a-class-symbol-expands-to-its-methods"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
