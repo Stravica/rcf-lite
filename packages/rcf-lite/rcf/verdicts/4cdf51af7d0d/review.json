@@ -1,0 +1,39 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "4cdf51af7d0d6a7200481808231a50f727193c96",
+  "fbsIds": [
+    "FBS-242",
+    "FBS-238"
+  ],
+  "touchedAcIds": [
+    "AC-19904-3",
+    "AC-19904-5",
+    "AC-19904-6",
+    "AC-19904-7",
+    "AC-19901-9",
+    "AC-19903-8",
+    "AC-19903-9",
+    "AC-19904-11",
+    "AC-19904-12",
+    "AC-19903-13",
+    "AC-19903-14",
+    "AC-19903-15",
+    "AC-20101-8",
+    "AC-20101-9",
+    "AC-20101-10",
+    "AC-20101-11"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19903-14",
+      "text": "note, new criterion: the test-strength help copy of the package entry rule (src/cli/test-strength.js:89, \"else index.js\") does not say where index.js is looked for, while AC-19903-14 (rcf/user-stories/us-19903.json:98) now says the package directory in the working tree of the project, not HEAD, and the code reads the working tree (src/audit/test-strength/runner.js:327); a criterion that rcf audit test-strength --help names the working-tree read (Review 3 check 4)"
+    }
+  ],
+  "recordedBy": "reviewer",
+  "recordedAt": "2026-11-04T16:21:19.495Z"
+}
