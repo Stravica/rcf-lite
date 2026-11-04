@@ -11805,6 +11805,7 @@
           "id": "AC-19903-9",
           "covered": true,
           "testCases": [
+            "TC-284-a-hoisted-workspace-link-resolves-in-the-copy",
             "TC-284-a-workspace-sibling-imported-by-name"
           ],
           "unresolvedTestCases": [],
@@ -11840,6 +11841,45 @@
           "covered": true,
           "testCases": [
             "TC-284-rcf-audit-test-strength-help-keeps-the"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-13",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-failing-files-listing-exits-2-named",
+            "TC-284-a-failing-workspace-listing-exits-2-named"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-14",
+          "covered": true,
+          "testCases": [
+            "TC-284-a-link-whose-entry-is-not-at-head-stays",
+            "TC-284-a-mutant-in-the-kept-package-survives",
+            "TC-284-the-entry-is-read-exports-main-index-js",
+            "TC-284-the-notice-follows-the-hint-on-a-red-run",
+            "TC-284-the-notice-follows-the-short-path-line",
+            "TC-284-the-notice-leads-stderr-ahead-of-other-lines"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19903-15",
+          "covered": true,
+          "testCases": [
+            "TC-284-the-help-names-the-real-path-and-git-roots"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
@@ -11977,7 +12017,20 @@
           "id": "AC-19904-11",
           "covered": true,
           "testCases": [
-            "TC-306-a-red-unmutated-run-of-a-bound-test-in"
+            "TC-306-a-red-unmutated-run-of-a-bound-test-in",
+            "TC-306-the-hint-names-dot-at-the-rcf-project-root"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-19904-12",
+          "covered": true,
+          "testCases": [
+            "TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path",
+            "TC-306-a-short-tmpdir-keeps-the-scratch-under-it"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
@@ -12288,10 +12341,18 @@
           "id": "AC-20101-8",
           "covered": true,
           "testCases": [
+            "TC-288-a-backtick-quoted-message-is-decoded",
             "TC-288-a-bound-e2e-case-throwing-harness-node",
+            "TC-288-a-double-quoted-backslash-stays-decoded",
+            "TC-288-a-double-quoted-hex-escape-is-decoded",
+            "TC-288-a-double-quoted-message-stays-decoded",
             "TC-288-a-failing-bound-e2e-case-whose-assertion",
             "TC-288-a-failing-bound-e2e-case-with-neither-a",
+            "TC-288-a-hex-escape-is-decoded",
             "TC-288-a-pass-row-keeps-its-reason-null-in-a",
+            "TC-288-a-tab-escape-is-decoded",
+            "TC-288-a-thrown-backslash-is-decoded",
+            "TC-288-an-escaped-single-quote-is-decoded",
             "TC-288-no-reason-line-follows-a-blocked-line-in",
             "TC-288-with-two-failing-bound-e2e-cases-of"
           ],
@@ -12305,7 +12366,32 @@
           "covered": true,
           "testCases": [
             "TC-288-the-line-after-each-fail-line-reads",
+            "TC-288-the-printed-reason-is-decoded",
             "TC-288-with-two-failing-bound-e2e-cases-on-one"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-20101-10",
+          "covered": true,
+          "testCases": [
+            "TC-288-the-help-states-the-full-reason-rule"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "verified"
+        },
+        {
+          "id": "AC-20101-11",
+          "covered": true,
+          "testCases": [
+            "TC-288-the-printed-carriage-return-is-its-js-escape",
+            "TC-288-the-printed-escape-character-is-its-js-escape",
+            "TC-288-the-printed-tab-is-a-tab"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
