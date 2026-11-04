@@ -1073,6 +1073,7 @@ const ENTRY_WORLDS = [
   ['index.js, with no exports or main', { pkg: {}, built: { 'index.js': SRC_LIB } }, 'index.js'],
   ['main, committed, before index.js naming build output', { pkg: { main: 'src/index.js' }, built: { 'index.js': SRC_LIB } }, null],
   ['no exports, no main, no index.js: no entry', { pkg: {}, api: API_DEEP }, NO_ENTRY_PLAIN],
+  ['the "." subpath: default before import, the map\'s own order', { pkg: { exports: { '.': { default: './src/index.js', import: './dist/index.js' } } }, built: { 'dist/index.js': SRC_LIB } }, null],
 ];
 
 test(`AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." by Node's rule, the first matching key in the map's own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line`, async (t) => {
