@@ -1052,15 +1052,15 @@ const ENTRY_WORLDS = [
   ['the "." subpath: import before default', { pkg: { exports: { '.': { import: './dist/index.js', default: './src/index.js' } } }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
   ['a condition map: default before require', { pkg: { exports: { require: './dist/index.cjs', default: './src/index.js' } }, built: { 'dist/index.cjs': CJS_LIB } }, null],
   ['a nested map walked the same way', { pkg: { exports: { '.': { import: { types: './dist/index.d.ts', default: './dist/index.js' }, default: './src/index.js' } } }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
-  ['require, with no import or default condition', { pkg: { exports: { require: './dist/index.cjs' } }, built: { 'dist/index.cjs': CJS_LIB }, api: API_REQUIRE }, 'dist/index.cjs'],
-  ['no matching condition: no entry', { pkg: { exports: { node: './src/index.js' } } }, NO_ENTRY],
+  ['require, with no import or default condition', { pkg: { exports: { require: './dist/index.cjs' } }, built: { 'dist/index.cjs': CJS_LIB }, api: API_REQUIRE }, NO_ENTRY],
+  ['the "." map: node, an active condition', { pkg: { exports: { node: './src/index.js' } } }, null],
   ['no "." subpath: no entry', { pkg: { exports: { './greet': './src/index.js' } }, api: API_SUBPATH }, NO_ENTRY],
   ['main, with no exports, before index.js', { pkg: { main: 'dist/index.js' }, files: { 'index.js': "export * from './src/index.js';\n" }, built: { 'dist/index.js': SRC_LIB } }, 'dist/index.js'],
   ['index.js, with no exports or main', { pkg: {}, built: { 'index.js': SRC_LIB } }, 'index.js'],
   ['main, committed, before index.js naming build output', { pkg: { main: 'src/index.js' }, built: { 'index.js': SRC_LIB } }, null],
 ];
 
-test('AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line', async (t) => {
+test('AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for "." by Node\'s rule, the first matching key in the map\'s own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line', async (t) => {
   const wrong = [];
   for (const [step, lib, entry] of ENTRY_WORLDS) {
     const w = await wsHoisted(t, welcomeSpec, { lib });

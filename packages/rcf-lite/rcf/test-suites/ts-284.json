@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-11-03T21:11:12.473Z",
+  "updatedAt": "2026-11-04T09:13:46.773Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -251,9 +251,9 @@
     {
       "id": "TC-284-the-entry-is-read-exports-main-index-js",
       "acId": "AC-19903-14",
-      "description": "the package entry is read in the order exports (a string, or the conditional map resolved for \".\" in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line",
+      "description": "the package entry is read in the order exports (a string, or the conditional map resolved for \".\" by Node's rule, the first matching key in the map's own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for \".\" in the order import, default, require, a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line"
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: the package entry is read in the order exports (a string, or the conditional map resolved for \".\" by Node's rule, the first matching key in the map's own order among the active conditions for an import from Node (node, import, module-sync, default), a nested map walked the same way, no match no entry), then main, then index.js: an entry not committed at HEAD keeps the link with a notice naming it, no entry keeps it with the no-entry form of the notice, a committed one is re-pointed with none, and each run exits 0 with the PASS line"
     },
     {
       "id": "TC-284-a-failing-files-listing-exits-2-named",
