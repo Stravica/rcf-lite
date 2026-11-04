@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1069",
+  "path": "src/audit/test-strength/index.js#workspacePackages",
+  "implementsAcIds": [
+    "AC-19903-13"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-04T03:41:47.515Z",
+  "updatedAt": "2026-11-04T03:41:47.515Z"
+}
