@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.40.0"
+latest: "0.40.1"
 releases:
+  - version: "0.40.1"
+    date: "2026-11-04"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.40.1 fixes rcf audit test-strength for workspaces whose packages are built: a bound test that imports a workspace package whose entry is build output not committed at HEAD runs again, against the repository's own built package as on 0.39.0, with a notice that mutants in that package are not the code the test imports."
+      - "It also moves the audit's scratch directory to a short path when a long temp directory would break a runner's Unix socket, and says so, exits 2 with a named error when git cannot list HEAD, and decodes each failing release Verify row's reason from the TAP and prints it readably."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.40.0 and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged, so rcf doctor reports a clean hash. rcf-lite adds no dependency."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.40.0"
     date: "2026-11-03"
     breaking: true
