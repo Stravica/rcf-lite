@@ -56,9 +56,9 @@ symbol-level Code Node (<path>#<symbol>) three mutants, stubToThrow (the
 body throws), noOp (the body is empty) and callRemoval (each
 statement-level call of the symbol in the project's source becomes a
 no-op; notApplicable when there is none). A function, a method or a
-function-valued initialiser is mutable (a method node's path is
-<file>#<Class>.<method>); a class symbol (<file>#<Class>) expands to its
-methods; any other symbol fails "no mutable symbol". A file-level Code
+function-valued initialiser is mutable; a class symbol expands to all
+its methods; the TC pointer chooses which test runs, not which methods
+are mutated; any other symbol fails "no mutable symbol". A file-level Code
 Node on a path that is not source (docs, JSON, YAML, workflows, chain
 records) gets fileBlank (the file is emptied); one on a .js, .mjs or
 .cjs file is never mutated. Each mutant is applied in a working copy
