@@ -121,12 +121,34 @@ function unescapeTitle(s) {
   return s.replace(/\\(.)/g, '$1');
 }
 
-// A YAML scalar as node:test's TAP reporter writes a diagnostic value on
-// one line: single-quoted, double-quoted or plain.
+// The one-letter escapes of a JavaScript string literal.
+const ONE_LETTER = { b: '\b', f: '\f', n: '\n', r: '\r', t: '\t', v: '\v' };
+
+// One backslash escape of a JavaScript string literal, read as the
+// character(s) it encodes: \xHH, \uHHHH, \u{H...}, a one-letter escape,
+// \0 (not before a digit), else the escaped character itself (\\, \',
+// \", \`).
+function unescapeOne(match, body, at, whole) {
+  if (body[0] === 'x' || body[0] === 'u') {
+    const code = Number.parseInt(body[1] === '{' ? body.slice(2, -1) : body.slice(1), 16);
+    if (code <= 0x10ffff) return String.fromCodePoint(code);
+    return match;
+  }
+  if (body === '0' && !/[0-9]/.test(whole[at + match.length] ?? '')) return '\0';
+  return ONE_LETTER[body] ?? body;
+}
+
+// A diagnostic value as node:test's TAP reporter writes it on one line
+// (round F, AC-20101-8; TAC-4157 interfaces[1], "decoded"): a string
+// value is written by util.inspect as a JavaScript string literal,
+// single-quoted, double-quoted when it holds a single quote and no double
+// quote, or backtick-quoted when it holds both and no backtick, with its
+// backslash escapes (\\, \', \t, \xHH for a control character and so on).
+// A quoted value is read as the string it encodes; a plain one as it is.
 function yamlScalar(text) {
-  if (text.startsWith("'") && text.endsWith("'") && text.length > 1) return text.slice(1, -1).replace(/''/g, "'");
-  if (text.startsWith('"') && text.endsWith('"') && text.length > 1) {
-    try { return JSON.parse(text); } catch { return text.slice(1, -1); }
+  const q = text[0];
+  if ((q === "'" || q === '"' || q === '`') && text.length > 1 && text.endsWith(q)) {
+    return text.slice(1, -1).replace(/\\(x[0-9a-fA-F]{2}|u\{[0-9a-fA-F]+\}|u[0-9a-fA-F]{4}|[\s\S])/g, unescapeOne);
   }
   return text;
 }
@@ -135,8 +157,9 @@ function yamlScalar(text) {
  * Parse node:test TAP output: every test line at any depth as
  * { ok, testNumber, title, directive, depth, error }, and the top-level
  * summary counts. error is the message of the test's own YAML diagnostic
- * (its error key: a one-line scalar, or a block scalar's lines joined by
- * newlines), or null when the test has none (FBS-238 round E, AC-20101-8).
+ * (its error key: a one-line scalar, a quoted one decoded (round F,
+ * AC-20101-8), or a block scalar's lines joined by newlines), or null
+ * when the test has none (FBS-238 round E, AC-20101-8).
  *
  * @param {string} tap
  * @returns {{ tests: Array<{ ok: boolean, testNumber: number, title: string, directive: 'TODO'|'SKIP'|null, depth: number, error: string|null }>, summary: Record<string, number> }}
@@ -169,7 +192,8 @@ export function parseTap(tap) {
       for (i += 1; i < lines.length && lines[i] !== `${pad}...`; i += 1) {
         // An unclosed diagnostic ends at the first line outside its indent.
         if (lines[i].trim() && !lines[i].startsWith(pad)) { i -= 1; break; }
-        const e = lines[i].match(/^( *)error: ?(.*)$/);
+        // A one-line value may hold U+2028 or U+2029, which util.inspect leaves as they are.
+        const e = lines[i].match(/^( *)error: ?([^\r\n]*)$/);
         if (!e || e[1] !== pad) continue;
         if (/^[|>][-+]?\d*$/.test(e[2])) {
           const block = [];

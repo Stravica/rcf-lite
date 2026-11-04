@@ -285,10 +285,20 @@ Optional:
                             environment, RCF_TARGET_KIND=package). Prints
                             "<AC id> <FBS id> <pass|fail|blocked>" per
                             criterion, each fail line followed by
-                            "  reason: <reason>" (the first failing case's
-                            message, else its runner's last stderr line,
-                            else "no result for <pointer> (exit <code>)"),
-                            and the release verdict line. Exit 0
+                            "  reason: <reason>", and the release verdict
+                            line. A fail row's reason comes from the first
+                            failing case in the row's tests order: the
+                            first non-empty line of its TAP diagnostic's
+                            error, decoded and trimmed (the whole message
+                            when it is one line), else its runner's last
+                            non-empty stderr line, trimmed, else "no result
+                            for <pointer> (exit <code>)", <code> its
+                            runner's exit code; the file's own summary
+                            "not ok" line is never a case. The reason line
+                            shows each control character in it other than
+                            tab as its JavaScript escape (\\n, \\r, \\x1b),
+                            so it stays one line; the report keeps the
+                            reason as decoded. Exit 0
                             PASS, 4 FAIL, 2 usage, 1 install failure.
                             --mode and --offline are refused in release mode
   --since <ref>             The last release's commit (a tag or sha); must
