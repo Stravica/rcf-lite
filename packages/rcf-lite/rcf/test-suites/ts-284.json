@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:42.133Z",
-  "updatedAt": "2026-11-04T09:13:46.773Z",
+  "updatedAt": "2026-11-04T09:15:29.086Z",
   "purpose": "FBS-236: the external criteria of US-19903, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -282,6 +282,13 @@
       "description": "on a run that proceeds under a temp directory long enough that AC-19904-12's line prints, the notice line follows that line: a bare tsx runners entry over a bound test importing a workspace package whose entry is gitignored build output exits 0 with the PASS line, AC-19904-12's line first on stderr and the one notice line second",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-14: on a run that proceeds under a temp directory long enough that AC-19904-12's line prints, the notice line follows that line: a bare tsx runners entry over a bound test importing a workspace package whose entry is gitignored build output exits 0 with the PASS line, AC-19904-12's line first on stderr and the one notice line second"
+    },
+    {
+      "id": "TC-284-the-help-says-a-class-symbol-expands-to-its-methods",
+      "acId": "AC-19903-15",
+      "description": "rcf audit test-strength --help says a class symbol expands to all its methods and the TC pointer chooses which test runs, not which methods are mutated, and prints no method path form <file>#<Class>.<method>",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-workspace.test.js::AC-19903-15: rcf audit test-strength --help says a class symbol expands to all its methods and the TC pointer chooses which test runs, not which methods are mutated, and prints no method path form <file>#<Class>.<method>"
     }
   ],
   "status": "draft"
