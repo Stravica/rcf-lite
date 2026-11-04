@@ -149,11 +149,12 @@ async function workspacePackages(git) {
 /**
  * The notice line of a link a working copy keeps at the repo's own package
  * (round F, AC-19903-14; the stage-keeper's rulings A3 and, for a package
- * with no entry, pass 2 ruling 2).
+ * with no entry, pass 2 ruling 2, its parenthetical naming what the entry
+ * read found, ruling 22).
  */
-function keptLine({ link, package: pkg, entry }, head) {
+function keptLine({ link, package: pkg, entry, exports }, head) {
   const why = entry === null
-    ? `its package.json names no entry committed at ${s7(head)} (no exports match for ".", no main, no index.js)`
+    ? `its package.json names no entry committed at ${s7(head)} ${exports ? '(exports names no entry for ".")' : '(no main, no index.js)'}`
     : `its entry ${entry} is build output not committed at ${s7(head)}`;
   return `test-strength: ${link} stays at the repo's own ${pkg}: ${why}; mutants in ${pkg} are not the code this test imports`;
 }

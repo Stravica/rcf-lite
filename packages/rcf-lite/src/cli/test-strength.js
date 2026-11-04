@@ -90,8 +90,9 @@ stays at the repo's own <package>: its entry <entry> is build output
 not committed at <h7>; mutants in <package> are not the code this test
 imports", or, for a package with no entry, "test-strength: <link> stays
 at the repo's own <package>: its package.json names no entry committed
-at <h7> (no exports match for ".", no main, no index.js); mutants in
-<package> are not the code this test imports" (<link> and <package>
+at <h7> (exports names no entry for ".") when the package.json has an
+exports field, else (no main, no index.js); mutants in <package> are
+not the code this test imports" (<link> and <package>
 relative to the rcf project root, <entry> to the package); it changes
 no exit code, and a mutant in that package survives. Every other entry
 links to the repository's own (a scope directory links its packages

@@ -246,21 +246,25 @@ function exportsTarget(target) {
  * subpath, any other map is the "." subpath's conditions, resolved in the
  * order import, default, require, a nested map walked the same way; no "."
  * subpath and no matching condition is no entry), else `main`, else
- * index.js. Resolves { entry, main } (`entry` relative to the package
- * directory, null for no entry; `main` true when it is main's).
+ * index.js when the package directory holds one (`indexJs`; none is no
+ * entry). Resolves { entry, main, exports } (`entry` relative to the
+ * package directory, null for no entry; `main` true when it is main's;
+ * `exports` true when the package.json has an exports field, which the
+ * no-entry notice names, Review 1 F-4 and the stage-keeper's ruling 22).
  *
  * @param {object|null} pkg
- * @returns {{ entry: string|null, main: boolean }}
+ * @param {boolean} [indexJs]
+ * @returns {{ entry: string|null, main: boolean, exports: boolean }}
  */
-export function packageEntry(pkg) {
+export function packageEntry(pkg, indexJs = true) {
   if (pkg && pkg.exports !== undefined) {
     const exp = pkg.exports;
     const subpaths = exp && typeof exp === 'object' && !Array.isArray(exp) && Object.keys(exp).some((k) => k.startsWith('.'));
     const target = subpaths ? (Object.hasOwn(exp, '.') ? exportsTarget(exp['.']) : null) : exportsTarget(exp);
-    return { entry: target ?? null, main: false };
+    return { entry: target ?? null, main: false, exports: true };
   }
-  if (pkg && typeof pkg.main === 'string' && pkg.main.trim()) return { entry: entryPath(pkg.main), main: true };
-  return { entry: pkg ? 'index.js' : null, main: false };
+  if (pkg && typeof pkg.main === 'string' && pkg.main.trim()) return { entry: entryPath(pkg.main), main: true, exports: false };
+  return { entry: pkg && indexJs ? 'index.js' : null, main: false, exports: false };
 }
 
 /**
@@ -294,7 +298,8 @@ const LINKED_DOT = new Set(['.bin', '.pnpm', '.modules.yaml', '.package-lock.jso
  * read from its package.json in the copy, which is HEAD's) is not in
  * `committed`, stays at the repo's own package, an absolute link to the
  * project's own entry, and is recorded in `kept` (its link and package
- * relative to the rcf project root `project`, and its entry). A scope
+ * relative to the rcf project root `project`, its entry, and whether its
+ * package.json has an exports field). A scope
  * directory (@scope) is a fresh directory whose packages link by the same
  * rule; dot entries other than LINKED_DOT are not linked.
  */
@@ -317,12 +322,12 @@ function linkModules(from, to, dir, tops, keep) {
         if (keep && !pkgDir.split('/').includes('node_modules')) {
           let pkg = null;
           try { pkg = JSON.parse(readFileSync(join(target, 'package.json'), 'utf8')); } catch { pkg = null; }
-          const read = packageEntry(pkg && typeof pkg === 'object' ? pkg : null);
+          const read = packageEntry(pkg && typeof pkg === 'object' ? pkg : null, existsSync(join(own, 'index.js')));
           if (!entryCommitted(keep.committed, pkgDir, read)) {
             target = entry;
             const named = (abs) => relative(keep.project, abs).split(sep).join('/');
             const link = named(entry);
-            if (!keep.kept.has(link)) keep.kept.set(link, { link, package: named(own), entry: read.entry });
+            if (!keep.kept.has(link)) keep.kept.set(link, { link, package: named(own), entry: read.entry, exports: read.exports });
           }
         }
       }
