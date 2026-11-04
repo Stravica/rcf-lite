@@ -1,0 +1,60 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "867586f0439a826deda6ddda84f02d03b6763b62",
+  "fbsIds": [
+    "FBS-242",
+    "FBS-238"
+  ],
+  "touchedAcIds": [
+    "AC-19904-12",
+    "AC-19903-13",
+    "AC-19903-14",
+    "AC-19903-15",
+    "AC-20101-8",
+    "AC-20101-10",
+    "AC-20101-11"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "test",
+      "acId": "AC-19903-5",
+      "text": "Item 1 (the stage-keeper ruling 29; the independent review D1): the two AC-19903-5 tests at test/cli/audit-test-strength.test.js:919 and :1010 hand the audit a nested TMPDIR (join(side, tmp) at :921 and :1012, 72 and 73 bytes on darwin) and assert the scratch sits under it, while AC-19904-12 moves the scratch unconditionally once a runner Unix socket path there would pass 104 bytes (src/audit/test-strength/runner.js:204-214), so both go red on darwin and the leak pin with them (green on Linux and in CI). Fix round DEFINE: the test-author restates both with a short TMPDIR, mkdtemp of /tmp/rcf-h-, so the under-TMPDIR assertion holds on darwin and Linux."
+    },
+    {
+      "id": "F-2",
+      "locus": "test",
+      "acId": "AC-19903-7",
+      "text": "Item 1 (the stage-keeper ruling 29; the independent review D1): the two AC-19903-7 tests at test/cli/audit-test-strength.test.js:887 and :1066 hand the audit a nested TMPDIR (join(side, tmp) at :890 and :1069, 69 and 70 bytes on darwin) and assert the scratch or its working copies sit under it; under the leak pin longer TMPDIR they cross the 104-byte darwin limit and the unconditional AC-19904-12 move (src/audit/test-strength/runner.js:204-214) puts the scratch at /tmp/rcf-<6 chars>, so both go red on darwin. Fix round DEFINE: the test-author restates both with a short TMPDIR, mkdtemp of /tmp/rcf-h-."
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19903-14",
+      "text": "Item 2 (the stage-keeper rulings 22 and 30; the independent review D2, spec half): the no-entry notice of AC-19903-14 in rcf/user-stories/us-19903.json:98 and its test at test/cli/audit-test-strength-workspace.test.js:747 (both no-entry worlds of :1047, at :1040 and :1041, each carrying exports) fix one parenthetical, (no exports match for \".\", no main, no index.js), where ruling 22 says it describes what was read: (exports names no entry for \".\") when exports exists, else (no main, no index.js). Fix round DEFINE: the test-author restates the criterion text and both worlds expected lines, and words the case with no package.json at HEAD, the only case the else form reaches while a package.json with no exports and no main reads index.js as its entry."
+    },
+    {
+      "id": "F-4",
+      "locus": "build",
+      "acId": "AC-19903-14",
+      "text": "Item 2, build half (the independent review D2): keptLine at src/audit/test-strength/index.js:154-158 receives only entry null from linkModules (src/audit/test-strength/runner.js:317-327) and prints the fixed parenthetical, and the help repeats it (src/cli/test-strength.js:93). Fix round BUILD, after the restated tests: the runner passes what packageEntry (runner.js:255) read, and keptLine and the help print the read-dependent form of ruling 22."
+    },
+    {
+      "id": "F-5",
+      "locus": "build",
+      "acId": null,
+      "text": "The stage-keeper ruling 33: the test-strength help states a method Code Node path <file>#<Class>.<method> (src/cli/test-strength.js:59-60, added in da3672bb), a form rcf define create cn refuses by design (src/cli/create.js:421, dotted symbols are not admitted). Fix round BUILD: the form comes out of the help, which says a class symbol expands to all its methods and the TC pointer chooses which test runs, not which methods are mutated; the test-author restates any test that asserts the form."
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": "AC-19903-14",
+      "text": "note, new criterion: a link kept at the repository package (AC-19903-14; src/audit/test-strength/runner.js:317-327) points the working copy at the repository itself, and the backstop roots (forbiddenRoots, runner.js:446-456: the rcf project root, the node_modules on the resolution path and of each linked package, and .git) do not cover a kept package directory outside the rcf project root (a sibling apps/lib beside an rcf project at apps/api), so a write the kept package makes under its own directory during a bound test run lands in the repository unseen, where 0.40.0 kept it in the copy. A criterion should state that the backstop also compares each kept package directory, a write there named relative to the project."
+    }
+  ],
+  "recordedBy": "reviewer, round F REVIEW",
+  "recordedAt": "2026-11-04T07:14:35.271Z"
+}
