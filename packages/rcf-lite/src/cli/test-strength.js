@@ -82,9 +82,11 @@ committed at HEAD (gitignored build output such as dist/index.js): that
 link stays at the repository's own package, as 0.39.0 links it, the
 built entry the test imports (the audit never runs a project's build).
 The entry is the package.json "exports" (a string, or the "." subpath,
-or a map of conditions, resolved under import, then default, then
-require, a nested map walked the same way; no "." subpath and no
-matching condition is no entry), else "main", else index.js. Each such
+or a map of conditions, resolved by Node's rule, the first matching key
+in the map's own order among the active conditions for an import from
+Node (node, import, module-sync, default), a nested map walked the same
+way; no "." subpath and no matching condition is no entry), else
+"main", else index.js. Each such
 link is named once per run in one stderr line, "test-strength: <link>
 stays at the repo's own <package>: its entry <entry> is build output
 not committed at <h7>; mutants in <package> are not the code this test

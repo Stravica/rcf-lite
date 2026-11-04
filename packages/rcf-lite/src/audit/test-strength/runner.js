@@ -214,12 +214,13 @@ export function scratchPlace(tmp = tmpdir(), platform = process.platform) {
   };
 }
 
-// The conditions a package entry is read under, in this order (round F,
-// AC-19903-14; the stage-keeper's ruling C10: Node's ESM order).
-const ENTRY_CONDITIONS = ['import', 'default', 'require'];
+// The conditions active for an import from Node, which a package entry is
+// read under (round F, AC-19903-14; the stage-keeper's ruling 36: the
+// first matching key in the map's own order, as Node 24 takes it).
+const ENTRY_CONDITIONS = new Set(['node', 'import', 'module-sync', 'default']);
 const entryPath = (target) => posix.normalize(target).replace(/^\.\//, '');
 
-/** An exports target resolved under ENTRY_CONDITIONS: a path, null for no entry, undefined for no match (the next condition is tried). */
+/** An exports target resolved under ENTRY_CONDITIONS in the map's own key order: a path, null for no entry, undefined for no match (the next key is tried). */
 function exportsTarget(target) {
   if (typeof target === 'string') return entryPath(target);
   if (Array.isArray(target)) {
@@ -231,20 +232,21 @@ function exportsTarget(target) {
   }
   if (target === null) return null;
   if (typeof target !== 'object') return undefined;
-  for (const condition of ENTRY_CONDITIONS) {
-    if (!Object.hasOwn(target, condition)) continue;
-    const r = exportsTarget(target[condition]);
+  for (const [condition, value] of Object.entries(target)) {
+    if (!ENTRY_CONDITIONS.has(condition)) continue;
+    const r = exportsTarget(value);
     if (r !== undefined) return r;
   }
   return undefined;
 }
 
 /**
- * The entry of a package (round F, AC-19903-14; the stage-keeper's ruling
- * C10), from its package.json `pkg` (null when there is none): `exports`
+ * The entry of a package (round F, AC-19903-14; the stage-keeper's rulings
+ * C10 and 36), from its package.json `pkg` (null when there is none): `exports`
  * first (a string is the entry; a map of subpaths is read at its "."
- * subpath, any other map is the "." subpath's conditions, resolved in the
- * order import, default, require, a nested map walked the same way; no "."
+ * subpath, any other map is the "." subpath's conditions, resolved by the
+ * first key in the map's own order among node, import, module-sync and
+ * default (ruling 36), a nested map walked the same way; no "."
  * subpath and no matching condition is no entry), else `main`, else
  * index.js when the package directory holds one (`indexJs`; none is no
  * entry). Resolves { entry, main, exports } (`entry` relative to the
