@@ -20,7 +20,7 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
 import { createHash } from 'node:crypto';
-import { chmodSync, existsSync, mkdirSync, readFileSync, readdirSync, realpathSync } from 'node:fs';
+import { chmodSync, existsSync, mkdirSync, mkdtempSync, readFileSync, readdirSync, realpathSync, rmSync } from 'node:fs';
 import { join } from 'node:path';
 import { pathToFileURL } from 'node:url';
 
@@ -886,7 +886,7 @@ const until = async (fn, ms) => { const end = Date.now() + ms; while (!fn() && D
 
 test('AC-19903-7: on SIGINT or SIGTERM while a bound test runs, rcf audit test-strength kills the process group of the bound test run, removes its scratch directory with its working copies, leaves no entry in .git/worktrees of the project and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
   for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
-    const side = scratch(t, 'rcf-h-sig-');
+    const side = mkdtempSync('/tmp/rcf-h-'); t.after(() => rmSync(side, { recursive: true, force: true }));
     const tmp = join(side, 'tmp');
     mkdirSync(tmp);
     const pidFile = join(side, 'pid');
@@ -917,7 +917,7 @@ test('AC-19903-7: on SIGINT or SIGTERM while a bound test runs, rcf audit test-s
 });
 
 test('AC-19903-5: a scratch directory that cannot be removed is named in one stderr line "[warn] test-strength: scratch directory <dir> could not be removed" (a bound test leaving a directory it made read-only in its TMPDIR, the scratch of the audit)', async (t) => {
-  const side = scratch(t, 'rcf-h-locked-');
+  const side = mkdtempSync('/tmp/rcf-h-'); t.after(() => rmSync(side, { recursive: true, force: true }));
   const tmp = join(side, 'tmp');
   mkdirSync(tmp);
   // The bound test's TMPDIR is the audit's scratch: it leaves a directory there whose entries cannot be removed.
@@ -1008,7 +1008,7 @@ test('AC-19901-9: when node names a line and no column, the input ending after a
 // restore, the "cannot run the bound tests" path) the audit still runs the
 // backstop and the warn line, and names the scratch it leaves.
 test('AC-19903-5: on an error exit the audit still runs the backstop and the warn line: a bound test writing escape.txt in the project, leaving a read-only directory in its scratch and making src/greet.js of its working copy read-only, so the mutant run cannot restore it, exits 2 with "test-strength: a bound test run wrote <path> in the project" naming escape.txt and a "[warn] test-strength: scratch directory <dir> could not be removed" line for each scratch left', async (t) => {
-  const side = scratch(t, 'rcf-h-errexit-');
+  const side = mkdtempSync('/tmp/rcf-h-'); t.after(() => rmSync(side, { recursive: true, force: true }));
   const tmp = join(side, 'tmp');
   mkdirSync(tmp);
   const { dir } = await strengthProject(t);
@@ -1065,7 +1065,7 @@ function gitTree(dir) {
 }
 test('AC-19903-7: on SIGINT or SIGTERM while two bound test runs are live under --jobs 2, rcf audit test-strength kills every process in the process group of each bound test run, a child process each test started included, removes its scratch directory with both working copies, leaves every path of the .git of the project as it was, and exits 130 for SIGINT and 143 for SIGTERM', async (t) => {
   for (const [signal, want] of [['SIGINT', 130], ['SIGTERM', 143]]) {
-    const side = scratch(t, 'rcf-h-sig2-');
+    const side = mkdtempSync('/tmp/rcf-h-'); t.after(() => rmSync(side, { recursive: true, force: true }));
     const tmp = join(side, 'tmp');
     mkdirSync(tmp);
     const runsFile = join(side, 'runs');
