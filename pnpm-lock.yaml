@@ -14,8 +14,8 @@ importers:
         specifier: '>=0.0.40'
         version: 0.0.80
       '@stravica-ai/rcf-schemas':
-        specifier: 0.11.0-rc.0
-        version: 0.11.0-rc.0
+        specifier: 0.11.0
+        version: 0.11.0
       ajv:
         specifier: ^8.20.0
         version: 8.20.0
@@ -92,8 +92,8 @@ packages:
     engines: {node: '>=18'}
     hasBin: true
 
-  '@stravica-ai/rcf-schemas@0.11.0-rc.0':
-    resolution: {integrity: sha512-7iLKYOavBpe7pZRgPUQSlyksH4VlvC5F3BO1Kxx4P1lvM8TF1tyGPDz+oKf5lxYNTIhu0XIBc1PjperYgwtXqQ==}
+  '@stravica-ai/rcf-schemas@0.11.0':
+    resolution: {integrity: sha512-QYbp6DkI3+8pH8TDrmUM71dI1D15IPEx4wXMmcPsYjra9EzYCgjrjrsZ8WbdqF/f2NVYrXl5p4kHI/CaMjYXuw==}
     engines: {node: '>=24.0.0'}
 
   '@types/d3-array@3.2.2':
@@ -990,7 +990,7 @@ snapshots:
       playwright: 1.63.0-alpha-2026-08-31
       playwright-core: 1.63.0-alpha-2026-08-31
 
-  '@stravica-ai/rcf-schemas@0.11.0-rc.0': {}
+  '@stravica-ai/rcf-schemas@0.11.0': {}
 
   '@types/d3-array@3.2.2': {}
 
