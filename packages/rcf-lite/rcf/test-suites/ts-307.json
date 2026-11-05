@@ -1,0 +1,134 @@
+{
+  "createdAt": "2026-11-05T16:08:14.828Z",
+  "updatedAt": "2026-11-05T16:08:24.517Z",
+  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15)",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15"
+  ],
+  "id": "TS-307",
+  "usId": "US-19905",
+  "title": "US-19905 criteria (round G, the per-criterion proof level)",
+  "testCases": [
+    {
+      "id": "TC-307-golden-absent-0-40-1",
+      "acId": "AC-19905-1",
+      "description": "a chain with no proof on any criterion gives rcf audit test-strength --record the 0.40.1 output byte for byte: the same stdout line, the same exit code and the same record bytes, every field but wallMs and node compared, in the golden test-strength-proof-absent-0-40-1.json",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-1: a chain with no proof on any criterion gives rcf audit test-strength --record the 0.40.1 output byte for byte: the same stdout line, the same exit code and the same record bytes, every field but wallMs and node compared, in the golden test-strength-proof-absent-0-40-1.json"
+    },
+    {
+      "id": "TC-307-external-flag-stays-full",
+      "acId": "AC-19905-2",
+      "description": "a criterion with verification external and no proof is judged at full: with no Code Node rcf audit test-strength exits 4 naming \"no Code Node\", and with a symbol-level Code Node the mutants run (totals.mutants above 0) and a vacuous bound test fails it",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-2: a criterion with verification external and no proof is judged at full: with no Code Node rcf audit test-strength exits 4 naming \"no Code Node\", and with a symbol-level Code Node the mutants run (totals.mutants above 0) and a vacuous bound test fails it"
+    },
+    {
+      "id": "TC-307-journey-e2e-passes",
+      "acId": "AC-19905-3",
+      "description": "a criterion with proof journey bound to an e2e-level test, with a unit-level bound test importing src/ and a Code Node whose mutants that e2e test would let survive, passes: exit 0, the PASS line with structural 1/1 and mutants killed 0/0, and the criterion reads result pass, proof journey, mutants [] and structural pass with no findings",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-3: a criterion with proof journey bound to an e2e-level test, with a unit-level bound test importing src/ and a Code Node whose mutants that e2e test would let survive, passes: exit 0, the PASS line with structural 1/1 and mutants killed 0/0, and the criterion reads result pass, proof journey, mutants [] and structural pass with no findings"
+    },
+    {
+      "id": "TC-307-journey-unit-only-fails",
+      "acId": "AC-19905-4",
+      "description": "a criterion with proof journey whose only bound tests sit in a unit-level suite fails: exit 4, the FAIL line \"test-strength: FAIL 1 of 1 criteria at <H7>: AC-101-1 journey: no e2e-level bound test\", result fail, proof journey and mutants []",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-4: a criterion with proof journey whose only bound tests sit in a unit-level suite fails: exit 4, the FAIL line \"test-strength: FAIL 1 of 1 criteria at <H7>: AC-101-1 journey: no e2e-level bound test\", result fail, proof journey and mutants []"
+    },
+    {
+      "id": "TC-307-external-not-applicable",
+      "acId": "AC-19905-5",
+      "description": "a criterion with proof external yields result notApplicable with reason \"external: proved by the release Verify\", no structural check and no mutants, exit 0, totals.criteriaNotApplicable 1, and the PASS line ending \"; external 1: AC-101-2 (external: proved by the release Verify)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-5: a criterion with proof external yields result notApplicable with reason \"external: proved by the release Verify\", no structural check and no mutants, exit 0, totals.criteriaNotApplicable 1, and the PASS line ending \"; external 1: AC-101-2 (external: proved by the release Verify)\""
+    },
+    {
+      "id": "TC-307-mix-still-fails",
+      "acId": "AC-19905-6",
+      "description": "a mix still fails: one full criterion failing plus two external ones under --record exits 4, the line opens \"test-strength: FAIL 1 of 3 criteria at <H7>: AC-101-1 vacuous:\", the record reads result fail with AC-101-1 fail and AC-101-2 and AC-101-3 notApplicable",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-6: a mix still fails: one full criterion failing plus two external ones under --record exits 4, the line opens \"test-strength: FAIL 1 of 3 criteria at <H7>: AC-101-1 vacuous:\", the record reads result fail with AC-101-1 fail and AC-101-2 and AC-101-3 notApplicable"
+    },
+    {
+      "id": "TC-307-finalise-pass-plus-not-applicable",
+      "acId": "AC-19905-7",
+      "description": "rcf build finalise accepts a record whose touched set is pass (AC-101-1, full) plus notApplicable (AC-101-2, proof external), writing complete with exit 0, and refuses with exit 4 \"finalise refused: test-strength at <H7> fails for AC-101-1\" when the full criterion fails beside the notApplicable one",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-7: rcf build finalise accepts a record whose touched set is pass (AC-101-1, full) plus notApplicable (AC-101-2, proof external), writing complete with exit 0, and refuses with exit 4 \"finalise refused: test-strength at <H7> fails for AC-101-1\" when the full criterion fails beside the notApplicable one"
+    },
+    {
+      "id": "TC-307-finalise-code-nodes-by-level",
+      "acId": "AC-19905-8",
+      "description": "rcf build finalise requires no Code Node on a journey or an external criterion and still requires one on a full criterion: with AC-101-1 proof journey and AC-101-2 proof external, neither with a Code Node, it exits 0; with AC-101-1 full (proof absent) and no Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-1\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-8: rcf build finalise requires no Code Node on a journey or an external criterion and still requires one on a full criterion: with AC-101-1 proof journey and AC-101-2 proof external, neither with a Code Node, it exits 0; with AC-101-1 full (proof absent) and no Code Node it exits 3 \"finalise refused: missing Code Node for AC-101-1\""
+    },
+    {
+      "id": "TC-307-verdict-tap-presence-by-level",
+      "acId": "AC-19905-9",
+      "description": "rcf build verdict test --result PASS passes (exit 0, test.json written) when the bound test of an external-level criterion is absent from the TAP, and still refuses with exit 4 \"verdict refused: the TAP summary does not include bound test <pointer> of AC-101-1\" when the bound test of a full-level criterion is absent",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-9: rcf build verdict test --result PASS passes (exit 0, test.json written) when the bound test of an external-level criterion is absent from the TAP, and still refuses with exit 4 \"verdict refused: the TAP summary does not include bound test <pointer> of AC-101-1\" when the bound test of a full-level criterion is absent"
+    },
+    {
+      "id": "TC-307-writer-carries-proof",
+      "acId": "AC-19905-10",
+      "description": "rcf define create ac --from-file with \"proof\": \"journey\" writes it and define read shows it; rcf define update <ac> --set proof=external sets it; a later --set verification=testOnly preserves proof external; and define validate exits 0",
+      "status": "pending",
+      "testPointer": "test/define/proof-field.test.js::AC-19905-10: rcf define create ac --from-file with \"proof\": \"journey\" writes it and define read shows it; rcf define update <ac> --set proof=external sets it; a later --set verification=testOnly preserves proof external; and define validate exits 0"
+    },
+    {
+      "id": "TC-307-proof-light-refused",
+      "acId": "AC-19905-11",
+      "description": "proof light through rcf define update --set and through a create ac body exits 3 with the line \"[error] validation <ac> proof must be equal to one of the allowed values (allowed: full, journey, external)\" naming the criterion, and leaves us-101.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/define/proof-field.test.js::AC-19905-11: proof light through rcf define update --set and through a create ac body exits 3 with the line \"[error] validation <ac> proof must be equal to one of the allowed values (allowed: full, journey, external)\" naming the criterion, and leaves us-101.json byte-identical"
+    },
+    {
+      "id": "TC-307-separation-unchanged",
+      "acId": "AC-19905-12",
+      "description": "rcf audit separation is unchanged on a round whose test-strength record carries a notApplicable criterion: over DEFINE:, BUILD:, REVIEW: and TEST: commits it exits 0 with the line \"separation: PASS 4 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 0, merges 0, transition 0\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-proof.test.js::AC-19905-12: rcf audit separation is unchanged on a round whose test-strength record carries a notApplicable criterion: over DEFINE:, BUILD:, REVIEW: and TEST: commits it exits 0 with the line \"separation: PASS 4 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 0, merges 0, transition 0\""
+    },
+    {
+      "id": "TC-307-pin-update-probe-path-only-refused",
+      "acId": "AC-19905-13",
+      "description": "rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.11.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19905-13: rcf define update US-101 --ac AC-101-1 --probe {\"path\":\"/\"} at rcf-schemas 0.11.0 exits 3 with a stderr line naming AC-101-1 and \"missing assertion\" and the four assertion fields, and leaves rcf/user-stories/us-101.json byte-identical"
+    },
+    {
+      "id": "TC-307-pin-catalog-path-only-fails",
+      "acId": "AC-19905-14",
+      "description": "at rcf-schemas 0.11.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19905-14: at rcf-schemas 0.11.0 an rcf/verify-catalog.json entry { \"path\": \"/\" } resolves \"fail\" with failedExpectation \"missing assertion\" (never \"expectStatus\"), never \"pass\", counted under runStats.counts.failed, rcf verify run --mode deterministic exits 4, and rcf define validate exits 3 naming the key"
+    },
+    {
+      "id": "TC-307-pin-ac-level-path-only-refused",
+      "acId": "AC-19905-15",
+      "description": "at rcf-schemas 0.11.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4",
+      "status": "pending",
+      "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19905-15: at rcf-schemas 0.11.0 an AC-level probe { \"path\": \"/\" } already on disk fails rcf define validate with exit 3 naming AC-101-1, and rcf verify run --mode deterministic records it \"fail\" with failedExpectation \"missing assertion\", never \"pass\", exit 4"
+    }
+  ],
+  "status": "draft"
+}

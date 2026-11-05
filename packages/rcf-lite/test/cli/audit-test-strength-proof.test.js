@@ -191,6 +191,7 @@ test('AC-19905-3: a criterion with proof journey bound to an e2e-level test, wit
   assert.equal(out(r), passLine(H, 1, '1/1', rep.totals));
   assert.equal(out(r), `test-strength: PASS 1 criteria at ${s7(H)}: structural 1/1, mutants killed 0/0 (timeout 0, notApplicable 0)`);
   const c = crit(rep, 'AC-101-1');
+  assert.deepEqual(Object.keys(c), ['acId', 'proof', 'structural', 'mutants', 'result'], 'the key order: proof directly after acId');
   assert.equal(c.result, 'pass');
   assert.equal(c.proof, 'journey');
   assert.deepEqual(c.mutants, []);
@@ -218,6 +219,7 @@ test('AC-19905-5: a criterion with proof external yields result notApplicable wi
   assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
   const rep = json((await strength(dir, ['--acs', 'AC-101-1,AC-101-2', '--json'])).stdout);
   const c = crit(rep, 'AC-101-2');
+  assert.deepEqual(Object.keys(c), ['acId', 'proof', 'structural', 'mutants', 'result', 'reason'], 'the key order');
   assert.deepEqual(c, { acId: 'AC-101-2', proof: 'external', structural: { checked: false }, mutants: [], result: 'notApplicable', reason: EXTERNAL_REASON });
   assert.equal(rep.totals.criteria, 2);
   assert.equal(rep.totals.criteriaNotApplicable, 1, 'the summary counts the external criterion');

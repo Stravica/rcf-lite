@@ -1,0 +1,106 @@
+{
+  "createdAt": "2026-11-05T16:08:02.639Z",
+  "updatedAt": "2026-11-05T16:08:12.317Z",
+  "asA": "definer at DEFINE and verifier at the TEST stage",
+  "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
+  "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
+  "description": "Round G (0.41.0, T2, the stage-keeper's rulings 1 to 20): acceptanceCriterion.proof (rcf-schemas 0.11.0, enum full | journey | external, optional, no schema default), read by rcf audit test-strength, rcf build verdict test and rcf build finalise, carried by the writer; absent means full everywhere. Also the successors of AC-19502-3 to AC-19502-5 (FBS-232), whose Given names the pin at rcf-schemas 0.11.0 (ruling 17).",
+  "usId": "US-19905",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "The definer sets each criterion's proof level at DEFINE, and every verb reads it, absent meaning full",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19905-1",
+      "description": "[must-not] Given a fixture chain with no proof on any criterion (US-101 with AC-101-1 bound to an e2e-level test that kills the mutants of its symbol-level Code Node src/greet.js#greet, a REVIEW: MERGE/PASS commit for H touching AC-101-1, every fixture commit at fixed author and committer dates and the init-written declaredAt pinned), when rcf audit test-strength --record runs, then its stdout line, its exit code and the bytes of rcf/verdicts/<H12>/test-strength.json equal the golden test/cli/fixtures/test-strength-proof-absent-0-40-1.json generated from rcf-lite 0.40.1, every field compared in its order except exactly two, wallMs and node; a chain with no proof must not gain a proof field, a totals key or a line suffix (absent means full, everywhere: the stage-keeper's ruling 6).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-2",
+      "description": "[must-not] Given a criterion with verification external and no proof, rcf audit test-strength must not infer a level from the flag: it judges the criterion at full (explicit only: the stage-keeper's ruling 7). With no Code Node it exits 4 with the FAIL line naming \"AC-101-1 no Code Node\"; with a symbol-level Code Node the mutants run (totals.mutants above 0), a vacuous bound test fails it with result \"fail\" and exit 4, and the report carries no proof field on it.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-3",
+      "description": "[must-not] Given a criterion with proof journey bound to a test in an e2e-level suite (test-suite testLevel \"e2e\") and to a test in a unit-level suite that imports src/ directly, with a symbol-level Code Node whose mutants the e2e test would let survive, when rcf audit test-strength --acs AC-101-1 runs, then the structural check reads the bound tests of e2e-level suites only and no mutant is built or run: it exits 0 with the line \"test-strength: PASS 1 criteria at <H7>: structural 1/1, mutants killed 0/0 (timeout 0, notApplicable 0)\", and --json reports the criterion with the keys acId, proof, structural, mutants, result in that order, proof \"journey\", structural { \"result\": \"pass\", \"findings\": [] }, mutants [] and result \"pass\", with totals.mutants 0 and no Code Node reason (the stage-keeper's ruling 9).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-4",
+      "description": "[failure] Given a criterion with proof journey whose only bound tests sit in a unit-level suite (no e2e-level bound test), when rcf audit test-strength --acs AC-101-1 runs, then it exits 4 with the line \"test-strength: FAIL 1 of 1 criteria at <H7>: AC-101-1 journey: no e2e-level bound test\", and --json reports the criterion with proof \"journey\", mutants [] and result \"fail\" (the stage-keeper's ruling 9).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-5",
+      "description": "[must-not] Given AC-101-1 at full with a strong bound test and its Code Node, and AC-101-2 with verification external and proof external bound to a vacuous test and with no Code Node, when rcf audit test-strength --acs AC-101-1,AC-101-2 runs, then AC-101-2 gets no structural check, no mutants and no Code Node reason: the command exits 0; --json reports AC-101-2 with exactly the keys acId, proof, structural, mutants, result, reason in that order, as proof \"external\", structural { \"checked\": false }, mutants [], result \"notApplicable\", reason \"external: proved by the release Verify\"; totals.criteria is 2 and totals.criteriaNotApplicable is 1 (a key present only when at least one criterion is external, so totals.notApplicable still counts mutants); result is \"pass\"; and the stdout line is the PASS line over the full criteria (\"test-strength: PASS 2 criteria at <H7>: structural 1/1, mutants killed <k>/<n> (timeout <t>, notApplicable <m>)\", the counts over the full criteria as today) followed by \"; external 1: AC-101-2 (external: proved by the release Verify)\", the external ids in id order, comma-separated (the stage-keeper's ruling 9).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-6",
+      "description": "[failure] Given AC-101-1 at full bound to a vacuous test, AC-101-2 and AC-101-3 each with verification external and proof external, and a REVIEW: MERGE/PASS commit for H touching all three, when rcf audit test-strength --record runs, then a mix still fails: it exits 4, the stdout line opens \"test-strength: FAIL 1 of 3 criteria at <H7>: AC-101-1 vacuous:\", and rcf/verdicts/<H12>/test-strength.json reads result \"fail\" with criteria AC-101-1 \"fail\", AC-101-2 \"notApplicable\" and AC-101-3 \"notApplicable\" in that order (the stage-keeper's ruling 11).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-7",
+      "description": "[failure] Given a fixture round on FBS-001 (DEFINE:, BUILD:, REVIEW: MERGE/PASS touching AC-101-1 and AC-101-2, TEST: PASS) where AC-101-1 is at full with a Code Node and AC-101-2 has proof external and no Code Node, and the test-strength record at H reads AC-101-1 \"pass\" and AC-101-2 \"notApplicable\", when rcf build finalise FBS-001 --ci-run run-7 runs, then it exits 0 and FBS-001 reads complete; with the record reading AC-101-1 \"fail\" beside AC-101-2 \"notApplicable\" it exits 4 with the stderr line \"finalise refused: test-strength at <H7> fails for AC-101-1\", naming the full criterion only, and FBS-001 stays inProgress (the stage-keeper's ruling 9).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-8",
+      "description": "[failure] Given a fixture round as in AC-19905-7 where AC-101-1 has proof journey (record \"pass\") and AC-101-2 has proof external (record \"notApplicable\"), neither with a Code Node, rcf build finalise FBS-001 --ci-run run-7 exits 0 and FBS-001 reads complete; given AC-101-1 at full (no proof, record \"pass\") with no Code Node beside AC-101-2 external, it exits 3 with the stderr line \"finalise refused: missing Code Node for AC-101-1\": no Code Node is required on a journey or external criterion and one still is on a full criterion (the stage-keeper's ruling 9).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-9",
+      "description": "[failure] Given a fixture branch with a REVIEW: MERGE/PASS commit for H touching AC-101-1 and AC-101-2, each bound to a test, AC-101-2 with verification external and proof external, when rcf build verdict test --fbs FBS-001 --result PASS --tap <file> runs over a passing TAP that lacks AC-101-2's bound test, then it exits 0 and writes rcf/verdicts/<H12>/test.json with result \"PASS\"; with AC-101-1 at proof full and a passing TAP that lacks AC-101-1's bound test it still exits 4 with the stderr line \"verdict refused: the TAP summary does not include bound test test/rcf/a.test.js::first behaviour holds of AC-101-1\" (the stage-keeper's ruling 9).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-10",
+      "description": "[failure] Given the rcf-schemas pin carrying acceptanceCriterion.proof and a fixture project, rcf define create ac --parent US-101 --from-file with \"proof\": \"journey\" exits 0 and rcf define read US-101 --field acceptanceCriteria shows the criterion with proof \"journey\"; rcf define update AC-101-1 --set proof=external exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\" and sets proof \"external\"; a later rcf define update AC-101-1 --set verification=testOnly preserves proof \"external\" and the created criterion keeps \"journey\"; rcf define validate exits 0 (the writer carries proof through --from-file and preserves it under --set: the stage-keeper's ruling 10).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-11",
+      "description": "[failure] Given the rcf-schemas pin carrying acceptanceCriterion.proof and a fixture project, rcf define update AC-101-1 --set proof=light exits 3 with the stderr line \"[error] validation AC-101-1 proof must be equal to one of the allowed values (allowed: full, journey, external)\", and rcf define create ac --parent US-101 --from-file with a body carrying \"proof\": \"light\" exits 3 with the same line naming the criterion the create would make; rcf/user-stories/us-101.json is byte-identical after each (the stage-keeper's ruling 5).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-12",
+      "description": "[must-not] Given a fixture round on a feature branch with one DEFINE:, one BUILD:, one REVIEW: and one TEST: commit whose test-strength record carries a \"notApplicable\" criterion beside a \"pass\", rcf audit separation --base main --head HEAD must not change its reading: it exits 0 with the line \"separation: PASS 4 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 0, merges 0, transition 0\" (audit separation unchanged: the stage-keeper's ruling 9; a round closes on a record-level fail only).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-13",
+      "description": "[failure] Given the pin at rcf-schemas 0.11.0 and a fixture chain whose US-101 holds AC-101-1 with no probe, when rcf define update US-101 --ac AC-101-1 --probe '{\"path\":\"/\"}' runs (a probe with path only, carrying none of expectStatus, expectHeader, expectBody or selector), then it exits 3, stderr carries a line naming AC-101-1 and \"missing assertion\" and listing the four assertion fields, and rcf/user-stories/us-101.json is byte-identical to its state before the command.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-14",
+      "description": "[must-not] Given the pin at rcf-schemas 0.11.0, a fixture chain whose FBS-001 scopes AC-101-1 and AC-101-2, an rcf/verify-catalog.json at catalogVersion 1 whose AC-101-1 entry is { \"path\": \"/\" } and whose AC-101-2 entry is { \"path\": \"/\", \"expectStatus\": 200 }, and a local server answering GET / with 200, when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs, then it exits 4, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\" (never \"expectStatus\" or another single assertion name, which the 0.9.0 acProbe subschema error would otherwise name first), never \"pass\", runStats.counts.failed counts it and runStats.counts.verified counts AC-101-2 only; and rcf define validate on that chain exits 3 naming the key AC-101-1.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-15",
+      "description": "[must-not] Given the pin at rcf-schemas 0.11.0 and a fixture chain whose rcf/user-stories/us-101.json already carries an AC-level probe { \"path\": \"/\" } on AC-101-1 (written to disk, not through the CLI), when rcf define validate runs, then it exits 3 naming AC-101-1 and its probe; and when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs on that tree, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\", never \"pass\", and the command exits 4.",
+      "testable": true,
+      "verification": "external"
+    }
+  ]
+}
