@@ -105,3 +105,9 @@ engineer verb that matches the check by hand.
   REQ id outside the closed grammar fails `skeleton:resolvedBy`; the
   question returns the title hit as a suggestion rather than the
   compute accepting it silently.
+
+## The promise rule
+
+Write a criterion only for a buyer promise: money, auth and access, privacy, data integrity, a claim the product makes, or a core journey; the builder covers everything else with ordinary unit tests.
+
+Set each criterion's proof level (full, journey or external) at DEFINE; a criterion with no proof level is full.
