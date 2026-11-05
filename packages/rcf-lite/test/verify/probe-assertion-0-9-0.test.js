@@ -2,25 +2,24 @@
 //
 // Declared skeletons, one per AC, bound by the US-19401 test suite. The
 // owning spec's Define fill round (test-author hand; FBS-227 for AC-19401-1 to -4, FBS-228 for AC-19401-12) turns each todo into a test
-// that drives bin/rcf.js in the test/verify/probe-catalog.test.js world (scaffoldChain, a local target server)
+// that drives bin/rcf.js in the test/verify/probe-catalog.test.js world (a fixture chain, a local target server)
 // and is red for the right reason before Build starts. The supersession
 // fixtures validate only once the pin reads rcf-schemas 0.9.0. These
-// fixtures use initProject in-process; a body that runs rcf init or rcf
-// doctor must pin claudeFreePath as test/guidance/stage-contract.test.js does.
+// fixtures are built through the app entry by the shared harness
+// (test/_harness/: rcf init under the pinned claudeFreePath, then the
+// chain records written in the scratch copy), the stage-keeper's ruling 38.
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { execFile } from 'node:child_process';
 import { createServer } from 'node:http';
 import { existsSync } from 'node:fs';
 import { createRequire } from 'node:module';
-import { readFile, writeFile } from 'node:fs/promises';
+import { readFile } from 'node:fs/promises';
 import { dirname, join, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import { scaffoldChain } from './helpers/chain.js';
-import { scratchDir } from '../_helpers/scratch.js';
 import { rcf as harnessRcf } from '../_harness/spawn.js';
-import { criterion, editFbs, editStory, project as harnessProject, scratch as harnessScratch } from '../_harness/fixture.js';
+import { criterion, editFbs, editStory, project as harnessProject, scratch as harnessScratch, writeJson } from '../_harness/fixture.js';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 // The package under test: in the clone packages/rcf-lite, inside
@@ -129,10 +128,11 @@ function ac(id, extra = {}) {
   };
 }
 
-// US-101 carries `acs` (written to disk verbatim by scaffoldChain, never
-// through the CLI); FBS-001 scopes all of them; `catalog` is written to
+// A harness project (rcf init through bin/rcf.js) whose US-101 carries
+// `acs` (written to disk verbatim by editStory, never through the CLI);
+// FBS-001 scopes all of them; `catalog` is written to
 // rcf/verify-catalog.json at catalogVersion 1 when given.
-async function fixtureChain({ acs, catalog }) {
+async function fixtureChain(t, { acs, catalog }) {
   const acIds = acs.map((a) => a.id);
   const fbs = {
     fbsId: 'FBS-001', prdId: 'PRD-001', bsId: 'BS-001', buildOrder: 1,
@@ -140,16 +140,18 @@ async function fixtureChain({ acs, catalog }) {
     summary: `FBS-001 binds ${acIds.join(', ')}.`, acIds, dependsOnFbsIds: [],
     createdAt: '2026-10-20T00:00:00.000Z', updatedAt: '2026-10-20T00:00:00.000Z',
   };
-  const { root } = await scaffoldChain({ acceptanceCriteria: acs, fbsItems: [fbs] });
-  if (catalog) {
-    await writeFile(join(root, 'rcf', 'verify-catalog.json'),
-      `${JSON.stringify({ catalogVersion: 1, probes: catalog }, null, 2)}\n`, 'utf8');
-  }
+  const root = await harnessProject(t, { name: 'probe-0-9-0' });
+  editStory(root, 'US-101', (us) => {
+    us.acceptanceCriteria = acs;
+    us.title = 'Core purchase journey';
+  });
+  editFbs(root, 'FBS-001', () => fbs);
+  if (catalog) writeJson(root, 'rcf/verify-catalog.json', { catalogVersion: 1, probes: catalog });
   return root;
 }
 
-async function verifyRun(root, url) {
-  const out = join(await scratchDir('rcf-probe-0-9-0-report-'), 'report.json');
+async function verifyRun(t, root, url) {
+  const out = join(harnessScratch(t, 'rcf-probe-0-9-0-report-'), 'report.json');
   const result = await rcf(['verify', 'run', '--repo', root, '--profile', 'ci', '--url', url,
     '--out', out, '--provision-mode', 'skip', '--mode', 'deterministic', '--fbs', 'FBS-001'], { cwd: root });
   let report = null;
@@ -202,7 +204,7 @@ test('AC-19905-13: rcf define update US-101 --ac AC-101-1 --probe {"path":"/"} a
   await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.11.0', assertPinGiven);
 
   await t.test('a path-only --probe is refused with exit 3, one stderr line naming AC-101-1, "missing assertion" and the four fields, and the story bytes unchanged', async () => {
-    const root = await fixtureChain({ acs: [ac('AC-101-1'), ac('AC-101-2')] });
+    const root = await fixtureChain(t, { acs: [ac('AC-101-1'), ac('AC-101-2')] });
     const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
     const before = await readFile(usPath);
     assert.equal(JSON.parse(before.toString('utf8')).acceptanceCriteria[0].probe, undefined, 'AC-101-1 starts with no probe');
@@ -221,7 +223,7 @@ test('AC-19905-14: at rcf-schemas 0.11.0 an rcf/verify-catalog.json entry { "pat
   await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.11.0', assertPinGiven);
 
   const target = await startTarget(t);
-  const root = await fixtureChain({
+  const root = await fixtureChain(t, {
     acs: [ac('AC-101-1'), ac('AC-101-2')],
     catalog: {
       'AC-101-1': { path: '/' },
@@ -234,7 +236,7 @@ test('AC-19905-14: at rcf-schemas 0.11.0 an rcf/verify-catalog.json entry { "pat
   // red proof is the bumped pin, where the subschema's first error would
   // name "expectStatus".
   await t.test('guard at 0.8.0, red under the bump: verify run --mode deterministic exits 4, AC-101-1 "fail" with failedExpectation exactly "missing assertion", failed counts it, verified counts AC-101-2 only', async () => {
-    const { code, stderr, report } = await verifyRun(root, target.url);
+    const { code, stderr, report } = await verifyRun(t, root, target.url);
     assertMissingAssertionFail(report, 'AC-101-1');
     assert.equal(perAc(report, 'AC-101-2').result, 'pass', 'the control probe with expectStatus passes');
     assert.equal(report.run.runStats.counts.failed, 1, 'runStats.counts.failed counts AC-101-1');
@@ -254,8 +256,8 @@ test('AC-19905-15: at rcf-schemas 0.11.0 an AC-level probe { "path": "/" } alrea
   await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.11.0', assertPinGiven);
 
   const target = await startTarget(t);
-  // Written to disk by the scaffold, never through rcf define update.
-  const root = await fixtureChain({ acs: [ac('AC-101-1', { probe: { path: '/' } })] });
+  // Written to disk by the harness, never through rcf define update.
+  const root = await fixtureChain(t, { acs: [ac('AC-101-1', { probe: { path: '/' } })] });
 
   await t.test('rcf define validate exits 3 with a line naming AC-101-1 and its probe', async () => {
     const r = await rcf(['define', 'validate'], { cwd: root });
@@ -267,7 +269,7 @@ test('AC-19905-15: at rcf-schemas 0.11.0 an AC-level probe { "path": "/" } alrea
   // Guard at 0.8.0 (the AC-level case already resolves "fail"); the red
   // proof is the bumped pin.
   await t.test('guard at 0.8.0, red under the bump: verify run --mode deterministic records AC-101-1 "fail" with failedExpectation exactly "missing assertion" and exits 4', async () => {
-    const { code, stderr, report } = await verifyRun(root, target.url);
+    const { code, stderr, report } = await verifyRun(t, root, target.url);
     assertMissingAssertionFail(report, 'AC-101-1');
     assert.equal(code, 4, `the run exits 4; stderr:\n${stderr}`);
   });
