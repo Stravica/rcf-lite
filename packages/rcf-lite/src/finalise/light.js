@@ -133,14 +133,16 @@ function judgeMergeSuite(M, mergeSuite) {
 }
 
 /**
- * Test strength at H for every touched criterion (AC-20002-1).
+ * Test strength at H for every touched criterion (AC-20002-1). A
+ * criterion reads pass, or notApplicable (an external proof level,
+ * FBS-243, AC-19905-7); the chain's proof is not checked here.
  */
 async function judgeTestStrength(git, H, touched) {
   const [blob] = await readObjects(git, [`HEAD:./${verdictAt(H, 'test-strength.json')}`]);
   const record = parse(blob);
   if (!record) return refuse(4, `finalise refused: no test-strength record at ${s7(H)}`);
   const byAc = new Map((record.criteria ?? []).map((c) => [c?.acId, c]));
-  const fails = touched.filter((id) => byAc.has(id) && byAc.get(id)?.result !== 'pass');
+  const fails = touched.filter((id) => byAc.has(id) && !['pass', 'notApplicable'].includes(byAc.get(id)?.result));
   if (fails.length) return refuse(4, `finalise refused: test-strength at ${s7(H)} fails for ${fails.join(', ')}`);
   const omits = touched.filter((id) => !byAc.has(id));
   if (omits.length) return refuse(4, `finalise refused: test-strength at ${s7(H)} omits ${omits.join(', ')}`);
@@ -252,7 +254,8 @@ export async function judgeFinalise({ projectRoot, tree, fbsId, ciRun, mergeSuit
 
 /**
  * Touched criteria with no Code Node (AC-20002-3, slice scope); none
- * when the spec carries the noCodeNodes declaration (RC-36).
+ * when the spec carries the noCodeNodes declaration (RC-36). A criterion
+ * whose proof is journey or external needs none (FBS-243, AC-19905-8).
  *
  * @param {object} tree
  * @param {object} fbs
@@ -261,7 +264,9 @@ export async function judgeFinalise({ projectRoot, tree, fbsId, ciRun, mergeSuit
  */
 export function missingCodeNodes(tree, fbs, touched) {
   if (hasNoCodeNodesDeclaration(fbs)) return [];
-  return touched.filter((id) => (tree.cnByAcId?.get(id) ?? []).length === 0).sort();
+  const light = new Set();
+  for (const us of tree.userStories ?? []) for (const ac of us.acceptanceCriteria ?? []) if (ac?.proof === 'journey' || ac?.proof === 'external') light.add(ac.id);
+  return touched.filter((id) => !light.has(id) && (tree.cnByAcId?.get(id) ?? []).length === 0).sort();
 }
 
 /**
