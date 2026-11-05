@@ -835,14 +835,14 @@ REQ-195      yes      AC-19501-1   yes                    external   verified  v
                       AC-19501-2   yes                    external   verified  verified    TC-266-rcf-define-update-ac-101-1-set
                       AC-19501-3   yes                    external   verified  verified    TC-266-a-verification-value-outside-external
                       AC-19501-4   yes                    external   verified  verified    TC-266-after-the-pin-move-rcf-define-validate
-                      AC-19501-5   yes                    testOnly   complete  complete    TC-267-the-rcf-schemas-pin-names-the-release, TC-267-vali...
+                      AC-19501-5   retired (AC-19905-16)  testOnly   -         retired     TC-267-the-rcf-schemas-pin-names-the-release, TC-267-vali...
                       AC-19501-6   yes                    testOnly   complete  complete    TC-267-the-installed-rcf-schemas-at-the-new-pin
                       AC-19501-7   yes                    testOnly   complete  complete    TC-267-define-validate-over-the-own-chain-at
                       AC-19502-1   yes                    testOnly   complete  complete    TC-268-the-pnpm-lock-yaml-importer-entry-for
                       AC-19502-2   yes                    testOnly   complete  complete    TC-268-every-code-node-implementing-a-criterion
-                      AC-19502-3   yes                    external   verified  verified    TC-268-update-probe-path-only-refused
-                      AC-19502-4   yes                    external   verified  verified    TC-268-catalog-path-only-still-fails
-                      AC-19502-5   yes                    external   verified  verified    TC-268-ac-level-path-only-refused
+                      AC-19502-3   retired (AC-19905-13)  external   -         retired     TC-268-update-probe-path-only-refused
+                      AC-19502-4   retired (AC-19905-14)  external   -         retired     TC-268-catalog-path-only-still-fails
+                      AC-19502-5   retired (AC-19905-15)  external   -         retired     TC-268-ac-level-path-only-refused
 REQ-196      yes      AC-19601-1   yes                    external   verified  verified    TC-269-rcf-audit-separation-over-a-define-build
                       AC-19601-2   yes                    external   verified  verified    TC-269-a-build-add-test-commit-touching-test-x
                       AC-19601-3   yes                    external   verified  verified    TC-269-a-commit-with-no-stage-prefix-exits-4
@@ -972,6 +972,22 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19904-10  yes                    external   verified  verified    TC-306-a-runners-entry-whose-cwd-is-anything
                       AC-19904-11  yes                    external   verified  verified    TC-306-a-red-unmutated-run-of-a-bound-test-in, TC-306-the...
                       AC-19904-12  yes                    external   verified  verified    TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path, T...
+                      AC-19905-1   yes                    external   verified  notStarted  TC-307-golden-absent-0-40-1
+                      AC-19905-2   yes                    external   verified  notStarted  TC-307-external-flag-stays-full
+                      AC-19905-3   yes                    external   verified  notStarted  TC-307-journey-e2e-passes
+                      AC-19905-4   yes                    external   verified  notStarted  TC-307-journey-unit-only-fails
+                      AC-19905-5   yes                    external   verified  notStarted  TC-307-external-not-applicable
+                      AC-19905-6   yes                    external   verified  notStarted  TC-307-mix-still-fails
+                      AC-19905-7   yes                    external   verified  notStarted  TC-307-finalise-pass-plus-not-applicable
+                      AC-19905-8   yes                    external   verified  notStarted  TC-307-finalise-code-nodes-by-level
+                      AC-19905-9   yes                    external   verified  notStarted  TC-307-verdict-tap-presence-by-level
+                      AC-19905-10  yes                    external   verified  notStarted  TC-307-writer-carries-proof
+                      AC-19905-11  yes                    external   verified  notStarted  TC-307-proof-light-refused
+                      AC-19905-12  yes                    external   verified  notStarted  TC-307-separation-unchanged
+                      AC-19905-13  yes                    external   verified  notStarted  TC-307-pin-update-probe-path-only-refused
+                      AC-19905-14  yes                    external   verified  notStarted  TC-307-pin-catalog-path-only-fails
+                      AC-19905-15  yes                    external   verified  notStarted  TC-307-pin-ac-level-path-only-refused
+                      AC-19905-16  yes                    testOnly   complete  notStarted  TC-307-pin-coverage-golden-0-11-0, TC-307-pin-own-chain-v...
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
@@ -1188,3 +1204,4 @@ FBS-239  verified  verified
 FBS-240  verified  notStarted
 FBS-241  verified  verified
 FBS-242  verified  verified
+FBS-243  verified  notStarted
