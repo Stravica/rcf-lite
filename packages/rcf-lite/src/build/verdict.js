@@ -300,7 +300,12 @@ export async function recordTestVerdict({ projectRoot, tree, fbsIds, result, tap
     }
     if (failing > 0) return refuse(`the TAP summary reports ${failing} failing; record --result FAIL`);
     const names = tapTestNames(tap);
+    // FBS-243 (ruling 9): the bound tests of an external-level criterion are
+    // proved by the release Verify and are exempt from the presence check.
+    const external = new Set();
+    for (const us of tree.userStories ?? []) for (const ac of us.acceptanceCriteria ?? []) if (ac?.proof === 'external') external.add(ac.id);
     for (const acId of review.touchedAcIds ?? []) {
+      if (external.has(acId)) continue;
       for (const { tsId, tcId } of tree.tcsByAcId?.get(acId) ?? []) {
         const tc = (tree.byId.get(tsId)?.testCases ?? []).find((c) => c?.id === tcId);
         const pointer = typeof tc?.testPointer === 'string' ? tc.testPointer : null;
