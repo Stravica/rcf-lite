@@ -1098,6 +1098,10 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     // 0.10.0, external | testOnly) travels in --from-file like scope; the
     // schema check below refuses any other value.
     ...(body?.verification !== undefined ? { verification: body.verification } : {}),
+    // FBS-243 (AC-19905-10): the criterion's proof level (rcf-schemas
+    // 0.11.0, full | journey | external) travels in --from-file like
+    // verification; the schema check below refuses any other value.
+    ...(body?.proof !== undefined ? { proof: body.proof } : {}),
   };
   const acReplay = resolveReplay({
     kind: 'ac',
@@ -1178,6 +1182,9 @@ function detectSeededPhantomAcIndex(acs, parentUsId) {
   // verification=...) is operator-authored like scope; replacing the seed
   // would drop it.
   if (ac.verification !== undefined) return -1;
+  // FBS-243: a proof level set on the seed (define update --set
+  // proof=...) is operator-authored like verification.
+  if (ac.proof !== undefined) return -1;
   if (ac.provenance !== undefined) return -1;
   return 0;
 }

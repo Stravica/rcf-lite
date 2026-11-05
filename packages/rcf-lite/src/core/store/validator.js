@@ -148,7 +148,8 @@ function detailOf(e) {
 
 /**
  * Where an error sits, for the message: Ajv's instance path, except that
- * an error on a criterion's verification flag (rcf-schemas 0.10.0) names
+ * an error on a criterion's verification flag (rcf-schemas 0.10.0) or its
+ * proof level (rcf-schemas 0.11.0, FBS-243, AC-19905-11) names
  * the criterion by id, so `define update <ac-id>` and `define create ac`,
  * whose error line carries no document id, say which criterion and which
  * field were refused (FBS-232, AC-19501-3). Every other path is unchanged.
@@ -161,9 +162,9 @@ function detailOf(e) {
 function locationOf(e, doc, kind) {
   const path = e?.instancePath || '/';
   if (kind !== 'userStory') return path;
-  const m = /^\/acceptanceCriteria\/(\d+)\/verification$/.exec(path);
+  const m = /^\/acceptanceCriteria\/(\d+)\/(verification|proof)$/.exec(path);
   const acId = m ? doc?.acceptanceCriteria?.[Number(m[1])]?.id : undefined;
-  return typeof acId === 'string' ? `${acId} verification` : path;
+  return typeof acId === 'string' ? `${acId} ${m[2]}` : path;
 }
 
 /**
