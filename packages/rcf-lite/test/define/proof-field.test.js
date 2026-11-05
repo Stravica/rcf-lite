@@ -19,7 +19,7 @@ import { createRequire } from 'node:module';
 import { join } from 'node:path';
 
 import { BIN, rcf } from '../_harness/spawn.js';
-import { project, readJson, readText, scratch, writeJson } from '../_harness/fixture.js';
+import { editStory, project, readJson, readText, scratch, writeJson } from '../_harness/fixture.js';
 
 function assertPinCarriesProof() {
   const req = createRequire(BIN);
@@ -33,6 +33,12 @@ const PROOF_LINE = (acId) => `[error] validation ${acId} proof must be equal to 
 test('AC-19905-10: rcf define create ac --from-file with "proof": "journey" writes it and define read shows it; rcf define update <ac> --set proof=external sets it; a later --set verification=testOnly preserves proof external; and define validate exits 0', async (t) => {
   assertPinCarriesProof();
   const dir = await project(t, { name: 'proof-writer' });
+  // Given AC-101-1 is an authored criterion, not the init seed: create ac
+  // replaces a lone seed (the writer's seeded-phantom rule), so the update
+  // half must act on a criterion the create leaves in place (ruling 33).
+  editStory(dir, 'US-101', (us) => {
+    us.acceptanceCriteria[0].description = '[happy] an authored criterion the update half acts on';
+  });
   const bodyDir = scratch(t, 'rcf-h-body-');
   writeJson(bodyDir, 'ac.json', { description: '[happy] proof fixture', testable: true, verification: 'external', proof: 'journey' });
   const c = await rcf(['define', 'create', 'ac', '--parent', 'US-101', '--from-file', join(bodyDir, 'ac.json')], { cwd: dir });
@@ -42,6 +48,7 @@ test('AC-19905-10: rcf define create ac --from-file with "proof": "journey" writ
   const created = JSON.parse(read.stdout).find((a) => a.description === '[happy] proof fixture');
   assert.ok(created, `the new criterion is listed\n${read.stdout}`);
   assert.equal(created.proof, 'journey', 'define read shows proof journey');
+  assert.notEqual(created.id, 'AC-101-1', 'the create makes a new criterion beside the authored AC-101-1');
 
   const u = await rcf(['define', 'update', 'AC-101-1', '--set', 'proof=external'], { cwd: dir });
   assert.equal(u.code, 0, `${u.stdout}${u.stderr}`);
