@@ -37,7 +37,9 @@ const ASSERTION_FIELDS = ['expectStatus', 'expectHeader', 'expectBody', 'selecto
 // reads the pin at rcf-schemas 0.11.0, so the three are bound to the
 // successors and the package under test pins rcf-schemas 0.11.0 and the
 // copy bin/rcf.js resolves reads 0.11.0 (red until the pin move at the
-// Build-to-Review seam, ruling 16). Both are read relative to this file,
+// Build-to-Review seam, ruling 16). The stage-keeper's ruling 21 (round
+// G): AC-19501-5 is retired the same way, succeeded by AC-19905-16, so
+// all four tests read the 0.11.0 Given. Both are read relative to this file,
 // so inside the artefact run they are the artefact's own pin and its own
 // installed dependency.
 async function assertPinGiven() {
@@ -174,8 +176,8 @@ function assertMissingAssertionFail(report, acId) {
   assert.equal(failed, 'missing assertion', `${acId}: failedExpectation is exactly "missing assertion"`);
 }
 
-test('AC-19501-5: with @stravica-ai/rcf-schemas 0.10.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0', async (t) => {
-  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.10.0', assertPinGiven);
+test('AC-19905-16: with @stravica-ai/rcf-schemas 0.11.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no "[error]" line and node bin/rcf.js audit coverage --strict exits 0', async (t) => {
+  await t.test('Given: the package under test pins and installs @stravica-ai/rcf-schemas 0.11.0', assertPinGiven);
 
   // The package under test's bin/rcf.js runs from this repository's
   // packages/rcf-lite in both worlds, full validation included.

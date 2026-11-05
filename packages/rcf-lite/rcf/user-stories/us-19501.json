@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:21:40.250Z",
-  "updatedAt": "2026-10-26T00:07:38.021Z",
+  "updatedAt": "2026-11-05T17:22:35.194Z",
   "asA": "test-author writing criteria at DEFINE on a product built with rcf-lite",
   "iWant": "to set verification external or testOnly on each criterion through rcf define create ac and rcf define update",
   "soThat": "the flag is a validated field that Review, coverage and Verify read, not a convention in prose",
@@ -43,7 +43,10 @@
       "id": "AC-19501-5",
       "description": "[happy] Given packages/rcf-lite/package.json after the slice, when its dependencies are read, then \"@stravica-ai/rcf-schemas\" names the rcf-schemas release that carries verification (0.10.0 or the version that release takes), node bin/rcf.js define validate over this repository's own chain from packages/rcf-lite exits 0, and node bin/rcf.js audit coverage --strict exits with the same code and the same gap list as before the pin move.",
       "testable": true,
-      "verification": "testOnly"
+      "verification": "testOnly",
+      "supersededBy": "AC-19905-16",
+      "supersededOn": "2026-11-05",
+      "supersessionNote": "Retired 2026-11-05 (the stage-keeper's ruling 21 on the round G DEFINE, as ruling 17): round G moves the rcf-schemas pin past 0.10.0 (to 0.11.0, the stage-keeper's ruling 16), and this criterion's bound test shares the pin Given that ruling 17 moved to 0.11.0 while its text names 0.10.0; AC-19905-16 restates every clause still in force with the Given \"the pin at rcf-schemas 0.11.0\" (round A ruling 5: a built criterion is retired and succeeded, never reworded)."
     },
     {
       "id": "AC-19501-6",

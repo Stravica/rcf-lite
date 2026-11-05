@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:02.639Z",
-  "updatedAt": "2026-11-05T16:08:12.317Z",
+  "updatedAt": "2026-11-05T17:22:33.917Z",
   "asA": "definer at DEFINE and verifier at the TEST stage",
   "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
   "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
@@ -101,6 +101,12 @@
       "description": "[must-not] Given the pin at rcf-schemas 0.11.0 and a fixture chain whose rcf/user-stories/us-101.json already carries an AC-level probe { \"path\": \"/\" } on AC-101-1 (written to disk, not through the CLI), when rcf define validate runs, then it exits 3 naming AC-101-1 and its probe; and when rcf verify run --url <server> --fbs FBS-001 --mode deterministic runs on that tree, the report records AC-101-1 with result \"fail\" and evidence.failedExpectation \"missing assertion\", never \"pass\", and the command exits 4.",
       "testable": true,
       "verification": "external"
+    },
+    {
+      "id": "AC-19905-16",
+      "description": "[happy] Given the pin at rcf-schemas 0.11.0 (packages/rcf-lite/package.json's dependencies name \"@stravica-ai/rcf-schemas\" exactly 0.11.0, a release that carries verification, and the copy bin/rcf.js resolves is 0.11.0), when node bin/rcf.js define validate and node bin/rcf.js audit coverage --strict run over this repository's own chain from packages/rcf-lite, then define validate exits 0 with no \"[error]\" line, and audit coverage --strict exits with the same code and the same gap list as before the pin move (exit 0, no gap).",
+      "testable": true,
+      "verification": "testOnly"
     }
   ]
 }
