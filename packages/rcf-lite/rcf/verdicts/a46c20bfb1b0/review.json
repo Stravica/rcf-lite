@@ -1,0 +1,56 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "a46c20bfb1b02a5552c5737a2a6beed961be95d5",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "test",
+      "acId": "AC-19905-10",
+      "text": "the update half acts on the init seed AC-101-1, which create ac replaces, so \"the created criterion keeps proof journey\" cannot hold (test/define/proof-field.test.js:33, :54); the test-author reworks the fixture to a non-seed criterion"
+    },
+    {
+      "id": "F-2",
+      "locus": "build",
+      "acId": "AC-19905-12",
+      "text": "no Code Node implements AC-19905-12, so test strength reads FAIL; the builder adds one for the separation audit symbol the criterion test drives"
+    },
+    {
+      "id": "F-3",
+      "locus": "build",
+      "acId": null,
+      "text": "the pin-move reds AC-19905-13 to AC-19905-16 (test/verify/probe-assertion-0-9-0.test.js :179, :201, :220, :253; test/define/pin-move-0-11-0.test.js:82): the last BUILD: commit moves the rcf-schemas pin to exactly 0.11.0"
+    },
+    {
+      "id": "F-4",
+      "locus": "build",
+      "acId": null,
+      "text": "test/rcf-tree.test.js:548 expects 621 codeNode files and finds 630; code-node-count is re-recorded by its declared generator after the Code Node change"
+    }
+  ],
+  "recordedBy": "reviewer, round G seam REVIEW",
+  "recordedAt": "2026-11-05T21:58:23.999Z"
+}
