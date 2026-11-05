@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:14.828Z",
-  "updatedAt": "2026-11-05T17:22:57.528Z",
+  "updatedAt": "2026-11-05T17:52:58.635Z",
   "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16)",
   "testLevel": "e2e",
   "acIds": [
@@ -136,6 +136,13 @@
       "description": "with @stravica-ai/rcf-schemas 0.11.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0",
       "status": "pending",
       "testPointer": "test/verify/probe-assertion-0-9-0.test.js::AC-19905-16: with @stravica-ai/rcf-schemas 0.11.0 pinned and installed, node bin/rcf.js define validate over the chain of this repository exits 0 with no \"[error]\" line and node bin/rcf.js audit coverage --strict exits 0"
+    },
+    {
+      "id": "TC-307-pin-coverage-golden-0-11-0",
+      "acId": "AC-19905-16",
+      "description": "at the commit that moves the rcf-schemas pin to 0.11.0, audit coverage --strict over the own chain exits with the same code and gap list as the coverage golden recorded at the round G base before the pin move, the gap list differing only by the criteria round G retired",
+      "status": "pending",
+      "testPointer": "test/define/pin-move-0-11-0.test.js::AC-19905-16: at the commit that moves the rcf-schemas pin to 0.11.0, audit coverage --strict over the own chain exits with the same code and gap list as the coverage golden recorded at the round G base before the pin move, the gap list differing only by the criteria round G retired"
     }
   ],
   "status": "draft"
