@@ -1,0 +1,50 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "48867b644054fe455a6e856d2cb3864b864df956",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16",
+    "AC-19905-17",
+    "AC-19905-18",
+    "AC-19905-19",
+    "AC-19905-20",
+    "AC-19905-21",
+    "AC-19905-22"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": null,
+      "text": "src/blueprint/apply.js:271-316 applyBlueprint replaces an owned user story from a new blueprint version verbatim, so a version can lighten an existing criterion (absent or full to journey or external, journey to external) with no reason and no decision in rcf/define/decisions-ledger.json; ruling 40 named define update only, so the gap is in the spec (P1-2 from the Codex re-review, class spec by ruling 46 of the stage-keeper); the test-author adds criteria refusing that replacement (exit 2, naming the criterion and both levels) unless --reason <text> is given, which writes the same resolved decision, a first application at any level staying direct (ruling 49)"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": null,
+      "text": "src/build/verdict.js:155 and src/finalise/light.js:201 neither rcf build verdict review nor light Finalise checks that every criterion lighter at head than at base has a resolved decision in rcf/define/decisions-ledger.json naming that criterion and both levels, so any write path (blueprint apply, a hand edit to a story JSON, a future writer) can lighten a criterion past the gate (ruling 48 of the stage-keeper, class spec); the test-author adds criteria making both refuse and name each such criterion, pass when every lightening has its decision, and stay silent for creations and tightenings"
+    }
+  ],
+  "recordedBy": "reviewer, round G gate FINDINGS 2",
+  "recordedAt": "2026-11-06T04:19:40.955Z"
+}
