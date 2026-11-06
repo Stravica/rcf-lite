@@ -1,0 +1,38 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "69ed501056c007ebac701239ecd81af7be6acad9",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19905-10",
+      "text": "src/core/store/writer.js:1573 updateInline lets define update <ac> --set proof=journey|external lighten an existing full criterion with no reason recorded, and the test-strength, Test verdict and light Finalise exemptions follow at once; FBS-243 never asked for a guard (P1-1 from the Codex gate, re-classed spec by the stage-keeper); the test-author adds criteria refusing a lightening update without a non-empty reason recorded in the chain, and amends AC-19905-10 to carry one"
+    }
+  ],
+  "recordedBy": "reviewer, round G gate FINDINGS",
+  "recordedAt": "2026-11-06T01:51:08.966Z"
+}
