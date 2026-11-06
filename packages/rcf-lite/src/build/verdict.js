@@ -182,16 +182,15 @@ export async function recordReviewVerdict({ projectRoot, tree, fbsIds, acIds, co
   if (existsSync(join(projectRoot, rel))) {
     return { code: 4, out: null, err: [`verdict refused: a review verdict for ${s7(state.head)} already exists at ${rel}`] };
   }
-  // A passing verdict only: no criterion lighter at HEAD than at the
-  // base without a resolved decision (rulings 48 and 51). Every other
-  // pair is recorded; with no base the verdict is recorded as before.
+  // A passing verdict only: a base that resolves, and no criterion
+  // lighter at HEAD than at the base without a resolved decision
+  // (rulings 48, 51 and 58). Every other pair is recorded, base or none.
   if (code === 'MERGE' && adequacy === 'PASS') {
     const base = await resolveBase(git);
-    if (base) {
-      const lighter = await undecidedLightenings(git, base, state.head);
-      if (lighter === null) return { code: 4, out: null, err: [`verdict refused: cannot compare the criteria at ${s7(base)} and ${s7(state.head)}`] };
-      if (lighter) return { code: 4, out: null, err: [`verdict refused: proof lightened since ${s7(base)} without a resolved decision in rcf/define/decisions-ledger.json: ${lighter}`] };
-    }
+    if (!base) return { code: 4, out: null, err: ['verdict refused: no merge-base with origin/main or main'] };
+    const lighter = await undecidedLightenings(git, base, state.head);
+    if (lighter === null) return { code: 4, out: null, err: [`verdict refused: cannot compare the criteria at ${s7(base)} and ${s7(state.head)}`] };
+    if (lighter) return { code: 4, out: null, err: [`verdict refused: proof lightened since ${s7(base)} without a resolved decision in rcf/define/decisions-ledger.json: ${lighter}`] };
   }
   writeVerdict(projectRoot, rel, {
     verdictVersion: 1,
