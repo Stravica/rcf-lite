@@ -50,7 +50,9 @@ test('AC-19905-10: rcf define create ac --from-file with "proof": "journey" writ
   assert.equal(created.proof, 'journey', 'define read shows proof journey');
   assert.notEqual(created.id, 'AC-101-1', 'the create makes a new criterion beside the authored AC-101-1');
 
-  const u = await rcf(['define', 'update', 'AC-101-1', '--set', 'proof=external'], { cwd: dir });
+  // The lightening (absent, so full, to external) carries its reason
+  // (the stage-keeper's rulings 40 and 42; AC-19905-17 to -22 hold the guard).
+  const u = await rcf(['define', 'update', 'AC-101-1', '--set', 'proof=external', '--reason', 'the release Verify proves it'], { cwd: dir });
   assert.equal(u.code, 0, `${u.stdout}${u.stderr}`);
   assert.equal(u.stdout.trim(), 'AC-101-1 updated at rcf/user-stories/us-101.json');
   assert.equal(acOf(dir, 'AC-101-1').proof, 'external');

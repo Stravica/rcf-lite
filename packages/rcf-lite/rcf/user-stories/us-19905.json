@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:02.639Z",
-  "updatedAt": "2026-11-05T17:22:33.917Z",
+  "updatedAt": "2026-11-06T01:58:23.949Z",
   "asA": "definer at DEFINE and verifier at the TEST stage",
   "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
   "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
@@ -68,7 +68,7 @@
     },
     {
       "id": "AC-19905-10",
-      "description": "[failure] Given the rcf-schemas pin carrying acceptanceCriterion.proof and a fixture project, rcf define create ac --parent US-101 --from-file with \"proof\": \"journey\" exits 0 and rcf define read US-101 --field acceptanceCriteria shows the criterion with proof \"journey\"; rcf define update AC-101-1 --set proof=external exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\" and sets proof \"external\"; a later rcf define update AC-101-1 --set verification=testOnly preserves proof \"external\" and the created criterion keeps \"journey\"; rcf define validate exits 0 (the writer carries proof through --from-file and preserves it under --set: the stage-keeper's ruling 10).",
+      "description": "[failure] Given the rcf-schemas pin carrying acceptanceCriterion.proof and a fixture project, rcf define create ac --parent US-101 --from-file with \"proof\": \"journey\" exits 0 and rcf define read US-101 --field acceptanceCriteria shows the criterion with proof \"journey\"; rcf define update AC-101-1 --set proof=external --reason \"the release Verify proves it\" exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\" and sets proof \"external\"; a later rcf define update AC-101-1 --set verification=testOnly preserves proof \"external\" and the created criterion keeps \"journey\"; rcf define validate exits 0 (the writer carries proof through --from-file and preserves it under --set: the stage-keeper's ruling 10; the lightening carries its reason, rulings 40 and 42, the guard in AC-19905-17 to -22).",
       "testable": true,
       "verification": "external"
     },
@@ -107,6 +107,42 @@
       "description": "[happy] Given the pin at rcf-schemas 0.11.0 (packages/rcf-lite/package.json's dependencies name \"@stravica-ai/rcf-schemas\" exactly 0.11.0, a release that carries verification, and the copy bin/rcf.js resolves is 0.11.0), when node bin/rcf.js define validate and node bin/rcf.js audit coverage --strict run over this repository's own chain from packages/rcf-lite, then define validate exits 0 with no \"[error]\" line, and audit coverage --strict exits with the same code and the same gap list as before the pin move (exit 0, no gap).",
       "testable": true,
       "verification": "testOnly"
+    },
+    {
+      "id": "AC-19905-17",
+      "description": "[failure] Given a fixture project made by rcf init, rcf define update AC-101-1 --set proof=external with no --reason, on the lone init seed and on an authored AC-101-1 with no proof (absent counts as full), and rcf define update AC-101-1 --set proof=journey on the authored one, each exit 2 with the line \"[error] usage update: refusing to lighten <ac> proof from <from> to <to> without a reason (pass --reason <text>, non-empty)\" naming AC-101-1 and the levels (from full to external, from full to journey) on stderr; us-101.json stays byte-identical and rcf/define/decisions-ledger.json is not written; AC-101-1 still carries no proof (the stage-keeper's rulings 40 and 42, the gate's F-1).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-18",
+      "description": "[failure] Given a fixture project made by rcf init, with authored AC-101-1 at proof journey and AC-101-2 at proof full, rcf define update AC-101-1 --set proof=external with no --reason, and rcf define update AC-101-2 --set proof=journey with --reason \"\" and with --reason of spaces only, each exit 2 with the line \"[error] usage update: refusing to lighten <ac> proof from <from> to <to> without a reason (pass --reason <text>, non-empty)\" (from journey to external; from full to journey); us-101.json stays byte-identical and rcf/define/decisions-ledger.json is not written; the levels stay journey and full (rulings 40 and 42).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-19",
+      "description": "[failure] Given a fixture project made by rcf init, with authored AC-101-1 (no proof) and AC-101-2 (proof journey), rcf define update <ac> --from-file with the body {\"proof\": \"external\"} and no --reason exits 2 for each with the line \"[error] usage update: refusing to lighten <ac> proof from <from> to <to> without a reason (pass --reason <text>, non-empty)\" (from full to external; from journey to external); us-101.json stays byte-identical and rcf/define/decisions-ledger.json is not written (rulings 40 and 42; the gate's P1-1 fix names --from-file).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-20",
+      "description": "[failure] Given a fixture project made by rcf init, with authored AC-101-1 and AC-101-2 (proof full), rcf define update US-101 --from-file with an acceptanceCriteria array that keeps both criteria and sets AC-101-2's proof to journey, with no --reason, exits 2 with the line \"[error] usage update: refusing to lighten <ac> proof from <from> to <to> without a reason (pass --reason <text>, non-empty)\" naming AC-101-2 (from full to journey); us-101.json stays byte-identical and rcf/define/decisions-ledger.json is not written (rulings 40 and 42; the gate's P1-1 fix names parent-story rewrites).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-21",
+      "description": "[happy] Given a fixture project made by rcf init, with authored AC-101-1 and AC-101-2 (no proof) and an empty decisions ledger, rcf define update AC-101-1 --set proof=external --reason \"the release Verify proves it\" exits 0, prints \"AC-101-1 updated at rcf/user-stories/us-101.json\" and sets proof external, and rcf define update AC-101-2 --from-file {\"proof\": \"journey\"} --reason \"only the e2e journey proves this\" exits 0 and sets proof journey; rcf define ledger decisions list --json then lists exactly two decisions, each with blocks the criterion id, status resolved, answer the reason text verbatim, and a question naming the criterion id and its from and to levels (full and external; full and journey); rcf define validate exits 0 (the reason's home is the decisions ledger, rcf/define/decisions-ledger.json: ruling 43).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-22",
+      "description": "[edge] Given a fixture project made by rcf init, with the guard in force (rcf define update AC-101-1 --set proof=external on an authored criterion with no proof and no --reason is refused as in AC-19905-17), rcf define create ac --parent US-101 --from-file with proof external (replacing the lone init seed) and with proof journey each exit 0 and write the level, and tightening the external criterion with rcf define update <ac> --set proof=journey, then proof=full, then proof=full again each exit 0 with no --reason; rcf define ledger decisions list --json lists no decision (creating at any level and tightening stay direct: ruling 42).",
+      "testable": true,
+      "verification": "external"
     }
   ]
 }

@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-11-05T16:08:14.828Z",
-  "updatedAt": "2026-11-05T17:52:58.635Z",
-  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16)",
+  "updatedAt": "2026-11-06T01:58:04.219Z",
+  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22)",
   "testLevel": "e2e",
   "acIds": [
     "AC-19905-1",
@@ -19,7 +19,13 @@
     "AC-19905-13",
     "AC-19905-14",
     "AC-19905-15",
-    "AC-19905-16"
+    "AC-19905-16",
+    "AC-19905-17",
+    "AC-19905-18",
+    "AC-19905-19",
+    "AC-19905-20",
+    "AC-19905-21",
+    "AC-19905-22"
   ],
   "id": "TS-307",
   "usId": "US-19905",
@@ -143,6 +149,48 @@
       "description": "at the commit that moves the rcf-schemas pin to 0.11.0, audit coverage --strict over the own chain exits with the same code and gap list as the coverage golden recorded at the round G base before the pin move, the gap list differing only by the criteria round G retired",
       "status": "pending",
       "testPointer": "test/define/pin-move-0-11-0.test.js::AC-19905-16: at the commit that moves the rcf-schemas pin to 0.11.0, audit coverage --strict over the own chain exits with the same code and gap list as the coverage golden recorded at the round G base before the pin move, the gap list differing only by the criteria round G retired"
+    },
+    {
+      "id": "TC-307-guard-refuses-set-from-full",
+      "acId": "AC-19905-17",
+      "description": "rcf define update <ac> --set proof=external or proof=journey on a criterion whose proof is absent (full), the init seed included, without --reason exits 2 with the refusal line naming the criterion and the levels, and writes nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-17: rcf define update <ac> --set proof=external or proof=journey on a criterion whose proof is absent (full), the init seed included, without --reason exits 2 with the refusal line naming the criterion and the levels, and writes nothing"
+    },
+    {
+      "id": "TC-307-guard-refuses-journey-and-blank-reason",
+      "acId": "AC-19905-18",
+      "description": "journey to external without --reason, and full to journey with an empty or whitespace-only --reason, exit 2 with the refusal line and write nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-18: journey to external without --reason, and full to journey with an empty or whitespace-only --reason, exit 2 with the refusal line and write nothing"
+    },
+    {
+      "id": "TC-307-guard-refuses-from-file",
+      "acId": "AC-19905-19",
+      "description": "rcf define update <ac> --from-file with a body lightening proof, without --reason, exits 2 with the refusal line and writes nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-19: rcf define update <ac> --from-file with a body lightening proof, without --reason, exits 2 with the refusal line and writes nothing"
+    },
+    {
+      "id": "TC-307-guard-refuses-parent-story-rewrite",
+      "acId": "AC-19905-20",
+      "description": "rcf define update <us> --from-file rewriting acceptanceCriteria so an existing criterion is lighter, without --reason, exits 2 with the refusal line naming that criterion and writes nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-20: rcf define update <us> --from-file rewriting acceptanceCriteria so an existing criterion is lighter, without --reason, exits 2 with the refusal line naming that criterion and writes nothing"
+    },
+    {
+      "id": "TC-307-guard-records-reason-in-decisions-ledger",
+      "acId": "AC-19905-21",
+      "description": "a lightening update with a non-empty --reason exits 0, sets the level, and records a resolved decision naming the criterion, the from and to levels and the reason, which rcf define ledger decisions list reads back",
+      "status": "pending",
+      "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-21: a lightening update with a non-empty --reason exits 0, sets the level, and records a resolved decision naming the criterion, the from and to levels and the reason, which rcf define ledger decisions list reads back"
+    },
+    {
+      "id": "TC-307-guard-leaves-create-and-tightening-direct",
+      "acId": "AC-19905-22",
+      "description": "with the guard in force, rcf define create ac at any proof level, the lone init seed replaced included, and tightening (external to journey, journey to full, full to full) exit 0 with no --reason and record no decision",
+      "status": "pending",
+      "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-22: with the guard in force, rcf define create ac at any proof level, the lone init seed replaced included, and tightening (external to journey, journey to full, full to full) exit 0 with no --reason and record no decision"
     }
   ],
   "status": "draft"
