@@ -395,7 +395,7 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   cpSync(join(FIXTURES, 'a-tsx-node-test', 'variants', 'enum'), dir, { recursive: true });
   codeNodes(dir, [['src/totals.ts#sumTotals', ['AC-101-1']]]);
   const H = commit(dir, 'BUILD: code');
-  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: ['AC-101-1'] }) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { base: git(dir, 'merge-base', 'main', H), touchedAcIds: ['AC-101-1'] }) });
 
   const r = await strength(dir, ['--acs', 'AC-101-1', '--record']);
   assert.equal(r.code, 5, `a blocked criterion: exit 5\n${shown(r)}`);

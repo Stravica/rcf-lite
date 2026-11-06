@@ -162,7 +162,7 @@ async function finaliseRound(t, { edit } = {}) {
     };
   }
   const H = commit(dir, 'BUILD: code', files);
-  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: BOTH }) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { base: git(dir, 'merge-base', 'main', H), touchedAcIds: BOTH }) });
   commit(dir, 'TEST: verdict', {
     [verdictPath(H, 'test.json')]: testVerdict(H),
     [verdictPath(H, 'test-strength.json')]: testStrengthReport(H, { passing: BOTH }),

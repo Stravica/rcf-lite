@@ -45,7 +45,8 @@ const BOTH = ['AC-101-1', 'AC-101-2'];
 const LIGHTER = (base, items) => `proof lightened since ${s7(base)} without a resolved decision in ${LEDGER}: ${items}`;
 const COMPARE = (base, head, reason) => `cannot compare the criteria at ${s7(base)} and ${s7(head)}: ${reason}`;
 const DIRTY_REVIEW = 'verdict refused: working tree is dirty; a verdict names a committed head';
-const DIRTY_FINALISE = 'finalise refused: working tree is dirty; finalise judges a committed head';
+// The first dirty path in git status order (ruling 72 F11).
+const DIRTY_FINALISE = (path) => `finalise refused: working tree is dirty at ${path}; finalise judges a committed head`;
 
 const errHas = (r, line) => assert.ok(lines(r.stderr).includes(line), `stderr carries "${line}"\nexit ${r.code}\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`);
 
@@ -125,7 +126,7 @@ async function round(t, { name = 'snap', base, define, post, acIds = BOTH } = {}
     };
   });
   ctx.H = commit(dir, 'BUILD: code', files);
-  commit(dir, 'REVIEW: verdict', { [verdictPath(ctx.H, 'review.json')]: reviewVerdict(ctx.H, { touchedAcIds: acIds }) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(ctx.H, 'review.json')]: reviewVerdict(ctx.H, { base: git(dir, 'merge-base', 'main', ctx.H), touchedAcIds: acIds }) });
   commit(dir, 'TEST: verdict', {
     [verdictPath(ctx.H, 'test.json')]: testVerdict(ctx.H),
     [verdictPath(ctx.H, 'test-strength.json')]: testStrengthReport(ctx.H, { passing: acIds }),
@@ -255,7 +256,7 @@ const succeeded = (baseProof, successorProof, decision) => ({
 });
 
 // AC-101-2 at baseProof on main; on the branch retired with supersededBy
-// naming no criterion at head (or itself, by: 'AC-101-2').
+// naming no criterion at head (a self link is a cycle, AC-19905-55).
 const orphaned = (baseProof, { by = 'AC-101-9', decision = false, answer } = {}) => ({
   base: ({ dir }) => { if (baseProof) setProof(dir, US, 'AC-101-2', baseProof); },
   define: async ({ dir }) => {
@@ -383,12 +384,11 @@ test('AC-19905-44: AC-101-2 retired with supersededBy AC-101-3, a successor crea
   }
 });
 
-test('AC-19905-45: AC-101-2 retired with supersededBy naming no criterion at head (or itself), at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded', async (t) => {
+test('AC-19905-45: AC-101-2 retired with a supersededBy chain ending on an id that names no criterion at head, at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded', async (t) => {
   const cases = [
     ['full', orphaned(undefined), ''],
     ['journey', orphaned('journey'), ''],
     ['external', orphaned('external'), ''],
-    ['self', orphaned(undefined, { by: 'AC-101-2' }), ''],
     ['answerless', orphaned(undefined, { decision: true, answer: null }), ' (answer missing)'],
   ];
   for (const [name, opts, suffix] of cases) {
@@ -409,9 +409,9 @@ test('AC-19905-46: criteria created at head with no predecessor at journey and a
 
 // The three dirty states, each outside rcf/verdicts/ and rcf/verify-reports/.
 const DIRTY = [
-  ['staged', ({ dir }) => { touch(dir); git(dir, 'add', US); }],
-  ['unstaged', ({ dir }) => touch(dir)],
-  ['untracked', ({ dir }) => writeText(dir, 'rcf/define/scratch.md', 'an uncommitted note\n')],
+  ['staged', ({ dir }) => { touch(dir); git(dir, 'add', US); }, US],
+  ['unstaged', ({ dir }) => touch(dir), US],
+  ['untracked', ({ dir }) => writeText(dir, 'rcf/define/scratch.md', 'an uncommitted note\n'), 'rcf/define/scratch.md'],
 ];
 
 test('AC-19905-47: a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build verdict review exit 4 with "verdict refused: working tree is dirty; a verdict names a committed head" for MERGE/PASS and for FINDINGS/FINDINGS, writing no review.json and leaving git status --porcelain unchanged', async (t) => {
@@ -429,14 +429,14 @@ test('AC-19905-47: a staged, an unstaged or an untracked change outside rcf/verd
   }
 });
 
-test('AC-19905-48: in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with "finalise refused: working tree is dirty; finalise judges a committed head", leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged', async (t) => {
-  for (const [name, post] of DIRTY) {
+test('AC-19905-48: in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with "finalise refused: working tree is dirty at <path>; finalise judges a committed head" naming the first dirty path, leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged', async (t) => {
+  for (const [name, post, path] of DIRTY) {
     const rnd = await round(t, { name: `snap-dirty-fin-${name}`, post });
     const st = porcelain(rnd.dir);
     const fbs = readText(rnd.dir, FBS);
     const n = await finalise(rnd);
     assert.equal(n.code, 4, `${name}: build finalise exits 4\nstdout:\n${n.stdout}\nstderr:\n${n.stderr}`);
-    errHas(n, DIRTY_FINALISE);
+    errHas(n, DIRTY_FINALISE(path));
     assert.equal(readText(rnd.dir, FBS), fbs, `${name}: rcf/fbs/fbs-001.json is byte-identical`);
     assert.equal(porcelain(rnd.dir), st, `${name}: git status --porcelain is unchanged`);
   }

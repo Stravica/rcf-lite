@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-11-05T16:08:14.828Z",
-  "updatedAt": "2026-11-06T11:10:47.688Z",
-  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30), and the gate failing closed: a passing review verdict refused when the base cannot be resolved, and a resolved decision with an absent, empty or whitespace-only answer counted as undecided at Review and light Finalise (AC-19905-31 to -34), and the gate story discovery from two complete snapshots: a C-quoted, renamed, moved, split or shadowed story, a symlink or gitlink, a duplicated id, an unparseable story or an unreadable blob, a deleted criterion, a lighter successor and a retirement with no successor at Review and light Finalise, and a dirty working tree refusing both (AC-19905-35 to -49)",
+  "updatedAt": "2026-11-06T13:50:49.408Z",
+  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30), and the gate failing closed: a passing review verdict refused when the base cannot be resolved, and a resolved decision with an absent, empty or whitespace-only answer counted as undecided at Review and light Finalise (AC-19905-31 to -34), and the gate story discovery from two complete snapshots: a C-quoted, renamed, moved, split or shadowed story, a symlink or gitlink, a duplicated id, an unparseable story or an unreadable blob, a deleted criterion, a lighter successor and a retirement with no successor at Review and light Finalise, and a dirty working tree refusing both (AC-19905-35 to -49), and the gate's base, successor chains, fresh decisions and Finalise at the current HEAD: the base agreement of origin/main and main, a base equal to the judged head, the base recorded in the Review verdict and reused by light Finalise, transitive supersededBy chains, loops, the heaviest from-level, a criterion live again, decisions resolved inside the range, criterion and ledger changes after the reviewed head at Finalise and the TEST verdict, changes main brought, story and ledger classes in rcf/separation.json, merges judged against both parents, a retired criterion deleted, the validating loader, an unrecognised proof value, spelling-independent separation, the test-suite snapshot and touched set, the walker cross-check, a project in a subdirectory and the fault order (AC-19905-50 to -73)",
   "testLevel": "e2e",
   "acIds": [
     "AC-19905-1",
@@ -52,7 +52,31 @@
     "AC-19905-46",
     "AC-19905-47",
     "AC-19905-48",
-    "AC-19905-49"
+    "AC-19905-49",
+    "AC-19905-50",
+    "AC-19905-51",
+    "AC-19905-52",
+    "AC-19905-53",
+    "AC-19905-54",
+    "AC-19905-55",
+    "AC-19905-56",
+    "AC-19905-57",
+    "AC-19905-58",
+    "AC-19905-59",
+    "AC-19905-60",
+    "AC-19905-61",
+    "AC-19905-62",
+    "AC-19905-63",
+    "AC-19905-64",
+    "AC-19905-65",
+    "AC-19905-66",
+    "AC-19905-67",
+    "AC-19905-68",
+    "AC-19905-69",
+    "AC-19905-70",
+    "AC-19905-71",
+    "AC-19905-72",
+    "AC-19905-73"
   ],
   "id": "TS-307",
   "usId": "US-19905",
@@ -376,9 +400,9 @@
     {
       "id": "TC-307-snapshot-retired-no-successor-refused",
       "acId": "AC-19905-45",
-      "description": "AC-101-2 retired with supersededBy naming no criterion at head (or itself), at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded",
+      "description": "AC-101-2 retired with a supersededBy chain ending on an id that names no criterion at head, at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded",
       "status": "pending",
-      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-45: AC-101-2 retired with supersededBy naming no criterion at head (or itself), at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded"
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-45: AC-101-2 retired with a supersededBy chain ending on an id that names no criterion at head, at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded"
     },
     {
       "id": "TC-307-snapshot-new-and-at-level-successor-pass",
@@ -397,9 +421,9 @@
     {
       "id": "TC-307-snapshot-finalise-dirty-tree-refused",
       "acId": "AC-19905-48",
-      "description": "in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with \"finalise refused: working tree is dirty; finalise judges a committed head\", leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged",
+      "description": "in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with \"finalise refused: working tree is dirty at <path>; finalise judges a committed head\" naming the first dirty path, leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged",
       "status": "pending",
-      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-48: in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with \"finalise refused: working tree is dirty; finalise judges a committed head\", leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged"
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-48: in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with \"finalise refused: working tree is dirty at <path>; finalise judges a committed head\" naming the first dirty path, leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged"
     },
     {
       "id": "TC-307-snapshot-decided-controls-pass",
@@ -407,6 +431,188 @@
       "description": "with each matching decision resolved with a non-empty answer in the same DEFINE: commit, the C-quoted rename, the rename, move and split, the shadow copy (beside an unparseable zz/broken.json and a notes.txt the walker does not load), the lighter successor and the retirement with no successor at no proof and at journey let rcf build verdict review MERGE/PASS exit 0 writing review.json and light Finalise exit 0 writing complete",
       "status": "pending",
       "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-49: with each matching decision resolved with a non-empty answer in the same DEFINE: commit, the C-quoted rename, the rename, move and split, the shadow copy (beside an unparseable zz/broken.json and a notes.txt the walker does not load), the lighter successor and the retirement with no successor at no proof and at journey let rcf build verdict review MERGE/PASS exit 0 writing review.json and light Finalise exit 0 writing complete"
+    },
+    {
+      "id": "TC-307-snapshot9b-base-agreement",
+      "acId": "AC-19905-50",
+      "description": "with origin/main at an older main commit, before AC-101-3 was added, and main at the fork, so their merge-bases with the judged head differ, while the branch sets AC-101-3 external, rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one line naming both merge-bases, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-50: with origin/main at an older main commit, before AC-101-3 was added, and main at the fork, so their merge-bases with the judged head differ, while the branch sets AC-101-3 external, rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one line naming both merge-bases, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-base-equals-head",
+      "acId": "AC-19905-51",
+      "description": "with main moved to HEAD of the round and no origin/main, so the base is the judged head, rcf build verdict review MERGE/PASS exits 4 with \"verdict refused: the base <B7> equals the judged head <J7>\", and light Finalise over a verdict recording base H exits 4 with the same line for H, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-51: with main moved to HEAD of the round and no origin/main, so the base is the judged head, rcf build verdict review MERGE/PASS exits 4 with \"verdict refused: the base <B7> equals the judged head <J7>\", and light Finalise over a verdict recording base H exits 4 with the same line for H, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-review-records-base",
+      "acId": "AC-19905-52",
+      "description": "rcf build verdict review MERGE/PASS writes review.json with base, the 40-hex merge-base of HEAD with main, placed after head",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-52: rcf build verdict review MERGE/PASS writes review.json with base, the 40-hex merge-base of HEAD with main, placed after head"
+    },
+    {
+      "id": "TC-307-snapshot9b-finalise-base-a",
+      "acId": "AC-19905-53",
+      "description": "(a) light Finalise over a MERGE/PASS review verdict that records no base exits 4 naming the verdict path and the remedy, writing nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-53 (a): light Finalise over a MERGE/PASS review verdict that records no base exits 4 naming the verdict path and the remedy, writing nothing"
+    },
+    {
+      "id": "TC-307-snapshot9b-finalise-base-b",
+      "acId": "AC-19905-53",
+      "description": "(b) light Finalise over a MERGE/PASS review verdict whose base is not 40 lower-case hex exits 4 naming the verdict path and the remedy, writing nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-53 (b): light Finalise over a MERGE/PASS review verdict whose base is not 40 lower-case hex exits 4 naming the verdict path and the remedy, writing nothing"
+    },
+    {
+      "id": "TC-307-snapshot9b-finalise-base-c",
+      "acId": "AC-19905-53",
+      "description": "(c) light Finalise over a MERGE/PASS review verdict whose base is a commit other than the merge-base of H exits 4 naming the verdict path, both bases and the remedy, writing nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-53 (c): light Finalise over a MERGE/PASS review verdict whose base is a commit other than the merge-base of H exits 4 naming the verdict path, both bases and the remedy, writing nothing"
+    },
+    {
+      "id": "TC-307-snapshot9b-successor-chain",
+      "acId": "AC-19905-54",
+      "description": "a supersededBy chain followed past a criterion created and retired in the same range, AC-101-2 to AC-101-3 to AC-101-4 at external, makes both verbs exit 4 with the lightening line naming the terminal AC-101-4 from full; a chain whose second link names no criterion at head names AC-101-2 retired with no successor; writing nothing, FINDINGS still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-54: a supersededBy chain followed past a criterion created and retired in the same range, AC-101-2 to AC-101-3 to AC-101-4 at external, makes both verbs exit 4 with the lightening line naming the terminal AC-101-4 from full; a chain whose second link names no criterion at head names AC-101-2 retired with no successor; writing nothing, FINDINGS still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-successor-loop",
+      "acId": "AC-19905-55",
+      "description": "a supersededBy chain that loops, AC-101-2 to itself or AC-101-2 to AC-101-3 (created in the range) and back, makes both verbs exit 4 with the cannot-compare line \"the supersededBy chain from AC-101-2 loops at <head7>\", writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-55: a supersededBy chain that loops, AC-101-2 to itself or AC-101-2 to AC-101-3 (created in the range) and back, makes both verbs exit 4 with the cannot-compare line \"the supersededBy chain from AC-101-2 loops at <head7>\", writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-heaviest-from-level",
+      "acId": "AC-19905-56",
+      "description": "a successor that existed at the base is compared with the heaviest of its own base level and that of every predecessor, one item per successor: AC-101-3 (journey at the base) succeeding AC-101-2 (full) names AC-101-3 from full to journey; AC-101-3 (full at the base) lightened to external while succeeding AC-101-2 (external) names AC-101-3 from full to external once; AC-101-2 (full) and AC-101-3 (journey) converging on AC-101-4 at external name AC-101-4 from full to external, with or without a decision from journey; writing nothing, FINDINGS still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-56: a successor that existed at the base is compared with the heaviest of its own base level and that of every predecessor, one item per successor: AC-101-3 (journey at the base) succeeding AC-101-2 (full) names AC-101-3 from full to journey; AC-101-3 (full at the base) lightened to external while succeeding AC-101-2 (external) names AC-101-3 from full to external once; AC-101-2 (full) and AC-101-3 (journey) converging on AC-101-4 at external name AC-101-4 from full to external, with or without a decision from journey; writing nothing, FINDINGS still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-retired-live-again",
+      "acId": "AC-19905-57",
+      "description": "a criterion retired at the base and live again at head is compared as live: AC-101-2 (full, retired at the base to AC-101-3) restored at external names AC-101-2 from full to external at both verbs, and restored at its base level passes both",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-57: a criterion retired at the base and live again at head is compared as live: AC-101-2 (full, retired at the base to AC-101-3) restored at external names AC-101-2 from full to external at both verbs, and restored at its base level passes both"
+    },
+    {
+      "id": "TC-307-snapshot9b-stale-decision",
+      "acId": "AC-19905-58",
+      "description": "a decision already resolved in the ledger at the base authorises nothing: \"Lighten AC-101-1 proof from full to external?\" resolved at the base with AC-101-1 lightened at head, and \"Retire AC-101-2 with no successor?\" resolved at the base with AC-101-2 retired to no criterion at head, make both verbs exit 4 with the lightening line, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-58: a decision already resolved in the ledger at the base authorises nothing: \"Lighten AC-101-1 proof from full to external?\" resolved at the base with AC-101-1 lightened at head, and \"Retire AC-101-2 with no successor?\" resolved at the base with AC-101-2 retired to no criterion at head, make both verbs exit 4 with the lightening line, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-fresh-decision-controls",
+      "acId": "AC-19905-59",
+      "description": "with each matching decision added and resolved with a non-empty answer inside the range (or open at the base and resolved inside it), the two-hop chain, the dangling chain, the existing successor, the convergence and the lightening of AC-19905-58 pass: rcf build verdict review MERGE/PASS exits 0 writing review.json and light Finalise exits 0 writing complete",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-59: with each matching decision added and resolved with a non-empty answer inside the range (or open at the base and resolved inside it), the two-hop chain, the dangling chain, the existing successor, the convergence and the lightening of AC-19905-58 pass: rcf build verdict review MERGE/PASS exits 0 writing review.json and light Finalise exits 0 writing complete"
+    },
+    {
+      "id": "TC-307-snapshot9b-finalise-head-changed",
+      "acId": "AC-19905-60",
+      "description": "a change after the reviewed head H that main did not bring refuses light Finalise with \"finalise refused: the criteria changed after the reviewed head <H7>: <items>; reopen Review\": a FINALISE: commit setting AC-101-1 external, a FINALISE: commit adding a resolved decision to rcf/define/decisions-ledger.json, and a FINALISE: merge main whose merge commit itself sets AC-101-1 external, writing nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-60: a change after the reviewed head H that main did not bring refuses light Finalise with \"finalise refused: the criteria changed after the reviewed head <H7>: <items>; reopen Review\": a FINALISE: commit setting AC-101-1 external, a FINALISE: commit adding a resolved decision to rcf/define/decisions-ledger.json, and a FINALISE: merge main whose merge commit itself sets AC-101-1 external, writing nothing"
+    },
+    {
+      "id": "TC-307-snapshot9b-test-path-head-changed",
+      "acId": "AC-19905-61",
+      "description": "with REVIEW MERGE/PASS at H and a FINALISE: commit after it changing AC-101-1 to external or adding a decision to rcf/define/decisions-ledger.json, rcf build verdict test --result PASS exits 4 with \"verdict refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\" and writes no test.json (the refusal of today, pinned)",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-61: with REVIEW MERGE/PASS at H and a FINALISE: commit after it changing AC-101-1 to external or adding a decision to rcf/define/decisions-ledger.json, rcf build verdict test --result PASS exits 4 with \"verdict refused: HEAD differs from the reviewed head <H7> outside rcf/verdicts/, rcf/verify-reports/ and FINALISE classes\" and writes no test.json (the refusal of today, pinned)"
+    },
+    {
+      "id": "TC-307-snapshot9b-main-brought-change",
+      "acId": "AC-19905-62",
+      "description": "a change main brought in after the fork passes light Finalise: FINALISE: merge main bringing a story US-102 added on main and a decision added to the ledger on main, with --merge-suite naming a green record at the merge head, exits 0 and writes complete",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-62: a change main brought in after the fork passes light Finalise: FINALISE: merge main bringing a story US-102 added on main and a decision added to the ledger on main, with --merge-suite naming a green record at the merge head, exits 0 and writes complete"
+    },
+    {
+      "id": "TC-307-snapshot9b-exempting-class",
+      "acId": "AC-19905-63",
+      "description": "rcf/separation.json classing a story path as chainStatus or the ledger as lockfile makes rcf define validate exit 3 naming rcf/separation.json, the class and the path, and rcf build verdict review MERGE/PASS and light Finalise exit 4 with \"<prefix> rcf/separation.json classes <path> as <class>; a story or ledger path is always criteria\", writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-63: rcf/separation.json classing a story path as chainStatus or the ledger as lockfile makes rcf define validate exit 3 naming rcf/separation.json, the class and the path, and rcf build verdict review MERGE/PASS and light Finalise exit 4 with \"<prefix> rcf/separation.json classes <path> as <class>; a story or ledger path is always criteria\", writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-merge-both-parents",
+      "acId": "AC-19905-64",
+      "description": "a FINALISE: merge whose second parent is a commit off the branch, not on main, changing rcf/user-stories/us-101.json makes rcf audit separation exit 4 naming the merge as touching that path (class criteria, owned by DEFINE), and light Finalise exit 4 with that separation item, writing nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-64: a FINALISE: merge whose second parent is a commit off the branch, not on main, changing rcf/user-stories/us-101.json makes rcf audit separation exit 4 naming the merge as touching that path (class criteria, owned by DEFINE), and light Finalise exit 4 with that separation item, writing nothing"
+    },
+    {
+      "id": "TC-307-snapshot9b-retired-then-deleted",
+      "acId": "AC-19905-65",
+      "description": "a criterion retired at the base (AC-101-2, to AC-101-3) and deleted at head makes both verbs exit 4 with the cannot-compare line \"AC-101-2 is absent at <head7>\", writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-65: a criterion retired at the base (AC-101-2, to AC-101-3) and deleted at head makes both verbs exit 4 with the cannot-compare line \"AC-101-2 is absent at <head7>\", writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-validating-loader",
+      "acId": "AC-19905-66",
+      "description": "a story that parses but fails schema validation, rcf/user-stories/us-102.json at the base (removed at head) or the committed head blob of us-101.json (its working copy valid), makes both verbs exit 4 with the cannot-compare line \"<path> fails schema validation at <rev7>\", writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-66: a story that parses but fails schema validation, rcf/user-stories/us-102.json at the base (removed at head) or the committed head blob of us-101.json (its working copy valid), makes both verbs exit 4 with the cannot-compare line \"<path> fails schema validation at <rev7>\", writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-unrecognised-proof",
+      "acId": "AC-19905-67",
+      "description": "a proof value outside full, journey and external, on AC-101-2 at the base or in the committed head blob of us-101.json, is a cannot-compare fault \"<path> fails schema validation at <rev7>\" at both verbs, never skipped, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-67: a proof value outside full, journey and external, on AC-101-2 at the base or in the committed head blob of us-101.json, is a cannot-compare fault \"<path> fails schema validation at <rev7>\" at both verbs, never skipped, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-separation-spelling",
+      "acId": "AC-19905-68",
+      "description": "the separation audit classes a story or chain path whatever its spelling: a DEFINE: commit adding rcf/user-stories/us-101-\"q.json, rcf/user-stories/us-ü.json and rcf/test-suites/ts-\"q.json passes, a BUILD: commit touching rcf/user-stories/us-101-\"q.json fails naming it (class criteria, owned by DEFINE), and light Finalise passes the decided C-quoted rename of AC-19905-49",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-68: the separation audit classes a story or chain path whatever its spelling: a DEFINE: commit adding rcf/user-stories/us-101-\"q.json, rcf/user-stories/us-ü.json and rcf/test-suites/ts-\"q.json passes, a BUILD: commit touching rcf/user-stories/us-101-\"q.json fails naming it (class criteria, owned by DEFINE), and light Finalise passes the decided C-quoted rename of AC-19905-49"
+    },
+    {
+      "id": "TC-307-snapshot9b-test-suite-touched-set",
+      "acId": "AC-19905-69",
+      "description": "the touched set comes from the test-suite snapshots: with the review verdict touching AC-101-1 only and a base test suite at rcf/test-suites/ts-\"q.json (a spelling Git C-quotes) binding AC-101-2, deleted at head, light Finalise exits 4 with \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\", writing nothing",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-69: the touched set comes from the test-suite snapshots: with the review verdict touching AC-101-1 only and a base test suite at rcf/test-suites/ts-\"q.json (a spelling Git C-quotes) binding AC-101-2, deleted at head, light Finalise exits 4 with \"finalise refused: touched criteria omit AC-101-2 changed since <base7>\", writing nothing"
+    },
+    {
+      "id": "TC-307-snapshot9b-walker-cross-check",
+      "acId": "AC-19905-70",
+      "description": "a head snapshot whose levels or ids differ from the chain the walker loads at HEAD (a clean filter commits AC-101-1 with no proof while its working copy says external, or commits an extra AC-101-9) makes both verbs exit 4 with the cannot-compare line \"the chain loaded at HEAD differs from <HEAD7> for <ids>\", writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-70: a head snapshot whose levels or ids differ from the chain the walker loads at HEAD (a clean filter commits AC-101-1 with no proof while its working copy says external, or commits an extra AC-101-9) makes both verbs exit 4 with the cannot-compare line \"the chain loaded at HEAD differs from <HEAD7> for <ids>\", writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-subdirectory-refused",
+      "acId": "AC-19905-71",
+      "description": "with the project in a subdirectory of the repository (as packages/rcf-lite is), a base criterion deleted at head makes both verbs exit 4 with the cannot-compare line \"AC-101-2 is absent at <head7>\", writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-71: with the project in a subdirectory of the repository (as packages/rcf-lite is), a base criterion deleted at head makes both verbs exit 4 with the cannot-compare line \"AC-101-2 is absent at <head7>\", writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot9b-subdirectory-passes",
+      "acId": "AC-19905-72",
+      "description": "with the project in a subdirectory of the repository, a lightening of AC-101-1 with its decision resolved inside the range lets rcf build verdict review MERGE/PASS exit 0 writing review.json with base the merge-base of HEAD with main, and light Finalise exit 0 writing complete",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-72: with the project in a subdirectory of the repository, a lightening of AC-101-1 with its decision resolved inside the range lets rcf build verdict review MERGE/PASS exit 0 writing review.json with base the merge-base of HEAD with main, and light Finalise exit 0 writing complete"
+    },
+    {
+      "id": "TC-307-snapshot9b-fault-order",
+      "acId": "AC-19905-73",
+      "description": "with AC-101-2 and AC-101-3 deleted and AC-101-1 and AC-101-4 lightened without a decision, both verbs exit 4 with exactly two lines, the cannot-compare line listing every absent id then the lightening line listing the rest in id order; with also an unparseable base us-102.json, the snapshot fault is the one line",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot-9b.test.js::AC-19905-73: with AC-101-2 and AC-101-3 deleted and AC-101-1 and AC-101-4 lightened without a decision, both verbs exit 4 with exactly two lines, the cannot-compare line listing every absent id then the lightening line listing the rest in id order; with also an unparseable base us-102.json, the snapshot fault is the one line"
     }
   ],
   "status": "draft"

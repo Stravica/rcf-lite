@@ -277,7 +277,7 @@ async function round(t, { extra = {}, cn = BOTH, strength: entries }) {
     };
   });
   const H = commit(dir, 'BUILD: code', files);
-  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: BOTH }) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { base: git(dir, 'merge-base', 'main', H), touchedAcIds: BOTH }) });
   commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H), [verdictPath(H, 'test-strength.json')]: record(H, entries) });
   return { dir, H };
 }
@@ -337,7 +337,7 @@ async function verdictRound(t, extra) {
   commit(dir, 'fixture: base chain');
   git(dir, 'switch', '-q', '-c', 'feature');
   const H = commit(dir, 'BUILD: code', { 'src/x.js': 'export const x = 1;\n' });
-  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: BOTH }) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { base: git(dir, 'merge-base', 'main', H), touchedAcIds: BOTH }) });
   return { dir, H };
 }
 const tapOf = (t, names) => writeTap(join(scratch(t, 'rcf-h-tap-'), 'suite.tap'), [...names.map((name) => ({ name })), { name: 'other test 1' }]);

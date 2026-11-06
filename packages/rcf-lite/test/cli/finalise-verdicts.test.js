@@ -83,7 +83,7 @@ function buildCommit(dir, { cn = BOTH, subject = 'BUILD: code', trailers = [], f
 // A REVIEW: commit adding review.json for the current HEAD; returns H.
 function reviewCommit(dir, opts = {}) {
   const H = sha(dir);
-  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { touchedAcIds: BOTH, ...opts }) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { base: git(dir, 'merge-base', 'main', H), touchedAcIds: BOTH, ...opts }) });
   return H;
 }
 
@@ -110,9 +110,13 @@ async function happy(t, { base: baseOpts, define = { status: 'inProgress' }, bui
 
 // A commit on main touching a file the branch never touches, then a clean
 // "FINALISE: merge main" on the branch; returns the merge head M.
+// Main moves on after the fork with a note and a story of its own (US-102),
+// so the merge brings a story the reviewed head never held (ruling 72 F3).
 function mergeMain(dir) {
   git(dir, 'switch', '-q', 'main');
-  commit(dir, 'chore: main moves on', { 'notes.txt': 'main moved\n' });
+  const us = readJson(dir, 'rcf/user-stories/us-101.json');
+  const story = { ...us, usId: 'US-102', title: 'story US-102 from main', acceptanceCriteria: [criterion('AC-102-1', '[happy] main behaviour holds', { given: 'a fixture project', when: 'the fixture runs', then: 'main behaviour holds', verification: 'external' })] };
+  commit(dir, 'chore: main moves on', { 'notes.txt': 'main moved\n', 'rcf/user-stories/us-102.json': story });
   git(dir, 'switch', '-q', 'feature');
   git(dir, 'merge', '-q', '--no-ff', '-m', 'FINALISE: merge main', 'main');
   return sha(dir);

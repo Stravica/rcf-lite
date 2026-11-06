@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:34.032Z",
-  "updatedAt": "2026-10-26T23:43:11.049Z",
+  "updatedAt": "2026-11-06T13:49:48.430Z",
   "purpose": "Records the REVIEW and TEST verdicts of a round as files committed by REVIEW: and TEST: commits, and judges stage order within a round, so round boundaries show in git and Finalise can judge the last round only.",
   "responsibilities": [
     "write rcf/verdicts/<h12>/review.json from rcf build verdict review at the reviewed head H (the committed HEAD)",
@@ -21,7 +21,7 @@
     {
       "name": "ReviewVerdict v1",
       "kind": "recordShape",
-      "description": "fields: verdictVersion (1), stage (\"review\"), head (40-hex reviewed head H), fbsIds (array), touchedAcIds (array; every id scoped by one of fbsIds), code (MERGE | FINDINGS), adequacy (PASS | FINDINGS), findings (array of { id \"F-<n>\", locus spec | build | test, acId (AC id or null), text }), recordedBy (string), recordedAt (ISO time). Passed when code is MERGE and adequacy is PASS; failed otherwise (a failed verdict closes the round)."
+      "description": "fields: verdictVersion (1), stage (\"review\"), head (40-hex reviewed head H), base (optional; 40-hex lower-case: the merge-base B of H with origin/main, else main, that the gate judged; the review verb writes it on every MERGE/PASS verdict from rcf-lite 0.41.0, and light Finalise reads it at its touched-set and lightening checks and refuses a MERGE/PASS verdict whose base is missing, malformed or not the base agreement of H, naming the verdict path and \"re-record the Review verdict at 0.41.0 on the same head\"; ruling 73), fbsIds (array), touchedAcIds (array; every id scoped by one of fbsIds), code (MERGE | FINDINGS), adequacy (PASS | FINDINGS), findings (array of { id \"F-<n>\", locus spec | build | test, acId (AC id or null), text }), recordedBy (string), recordedAt (ISO time). Passed when code is MERGE and adequacy is PASS; failed otherwise (a failed verdict closes the round)."
     },
     {
       "name": "TestVerdict v1",
