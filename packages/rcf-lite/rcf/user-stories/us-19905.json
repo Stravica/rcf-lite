@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:02.639Z",
-  "updatedAt": "2026-11-06T01:58:23.949Z",
+  "updatedAt": "2026-11-06T04:28:15.428Z",
   "asA": "definer at DEFINE and verifier at the TEST stage",
   "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
   "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
@@ -141,6 +141,54 @@
     {
       "id": "AC-19905-22",
       "description": "[edge] Given a fixture project made by rcf init, with the guard in force (rcf define update AC-101-1 --set proof=external on an authored criterion with no proof and no --reason is refused as in AC-19905-17), rcf define create ac --parent US-101 --from-file with proof external (replacing the lone init seed) and with proof journey each exit 0 and write the level, and tightening the external criterion with rcf define update <ac> --set proof=journey, then proof=full, then proof=full again each exit 0 with no --reason; rcf define ledger decisions list --json lists no decision (creating at any level and tightening stay direct: ruling 42).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-23",
+      "description": "[failure] Given a git fixture project made by rcf init whose base commit on main carries authored criteria of US-101 scoped by FBS-001 (notStarted) and, on branch feature, a commit hand-editing us-101.json to lighten AC-101-1 from no proof to external with no decision in rcf/define/decisions-ledger.json, rcf build verdict review --fbs FBS-001 --acs <every criterion> with --code MERGE --adequacy PASS exits 4 with the one stderr line \"verdict refused: proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external\", writes no rcf/verdicts/<h12>/review.json and leaves git status --porcelain unchanged; the same for AC-101-1 from journey to external; and with AC-101-1 lightened from no proof to journey and AC-101-2 from journey to external in one commit the one line names each in criterion id order (\"AC-101-1 from full to journey, AC-101-2 from journey to external\"), for --code FINDINGS --adequacy FINDINGS as for MERGE/PASS (every review verdict is refused while a lightening stands undecided); the base is the merge-base of HEAD with the first of origin/main and main that resolves, as light Finalise computes it (ruling 48).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-24",
+      "description": "[failure] Given a fixture round that reaches every earlier light Finalise check (on main US-101 with AC-101-1 and AC-101-2 bound to resolving tests and FBS-001 notStarted; on branch feature DEFINE: marking FBS-001 inProgress, BUILD: with a Code Node per criterion at H, REVIEW: MERGE/PASS at H touching both, TEST: PASS at H with a passing test-strength record) whose DEFINE: commit hand-edits us-101.json to lighten AC-101-1 from no proof to external with no decision, rcf build finalise FBS-001 --ci-run run-7 exits 4 with the one stderr line \"finalise refused: proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external\", leaves rcf/fbs/fbs-001.json byte-identical (inProgress, no complete written) and git status --porcelain unchanged; with AC-101-1 lightened to journey and AC-101-2 to external the line names \"AC-101-1 from full to journey, AC-101-2 from full to external\"; the base is the merge-base of HEAD with the first of origin/main and main that resolves, as light Finalise computes it; where the check sits in Finalise's order is the builder's (ruling 48).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-25",
+      "description": "[happy] Given the fixture of AC-19905-23 with AC-101-1 hand-lightened from no proof to external and rcf build verdict review refused with its line, a decision added by rcf define ledger decisions add --question \"Lighten AC-101-1 proof from full to external?\" --option \"a:lighten AC-101-1 proof from full to external\" --option \"b:keep AC-101-1 proof at full\" --default b --blocks AC-101-1, resolved by rcf define ledger decisions resolve <id> --answer \"the release Verify proves it\" and committed, lets rcf build verdict review exit 0 and write review.json for HEAD; and in a git fixture whose base commit has blueprint spa (contributing spa-REQ-001 and spa-US-101, its source outside the project) 1.0.0 applied with AC-999-1 at no proof and FBS-001 scoping AC-101-1 and AC-999-1, rcf define blueprint add of spa 2.0.0 setting AC-999-1 proof external with --reason \"the release Verify proves it\" exits 0 and writes one resolved decision blocking AC-999-1 with question \"Lighten AC-999-1 proof from full to external?\" (read back by rcf define ledger decisions list --json), and once committed rcf build verdict review --acs AC-101-1,AC-999-1 exits 0: a resolved decision whose blocks is the criterion id and whose question names both levels in that form satisfies the gate, whichever verb wrote it (ruling 48).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-26",
+      "description": "[edge] Given a git fixture whose base commit carries AC-101-1 (no proof), AC-101-2 (external) and AC-101-3 (journey) scoped by FBS-001, a branch commit that lightens AC-101-1 to external, tightens AC-101-2 to journey and AC-101-3 to full, and creates AC-101-4 at journey and AC-101-5 at external (FBS-001 scoping all five) makes rcf build verdict review exit 4 with the line of AC-19905-23 naming \"AC-101-1 from full to external\" only; once the AC-101-1 decision of AC-19905-25 is added, resolved and committed, the review verdict over all five exits 0: creating a criterion at any level and tightening need no decision (ruling 48).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-27",
+      "description": "[failure] Given a fixture project made by rcf init with blueprint spa (contributing spa-REQ-001 and spa-US-101, its source outside the project) 1.0.0 applied (spa-US-101 with AC-999-1 at no proof and AC-999-2 at journey), rcf define blueprint add of spa 2.0.0 lightening AC-999-1 to external without --reason exits 2 with the one stderr line \"[error] blueprint add: refusing to lighten AC-999-1 proof from full to external without a reason (pass --reason <text>, non-empty)\"; spa 2.0.0 lightening AC-999-2 to external with --reason \"\" exits 2 with that line for AC-999-2 from journey to external, and spa 2.0.0 lightening AC-999-1 to journey with a whitespace-only --reason exits 2 with it for AC-999-1 from full to journey; each refusal leaves rcf/user-stories/spa-us-101.json, rcf/manifest.json (spa still at 1.0.0) and rcf/define/decisions-ledger.json byte-identical (ruling 49; the line is define update's, AC-19905-17, under the verb's own prefix).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-28",
+      "description": "[happy] Given the fixture of AC-19905-27, rcf define blueprint add of spa 2.0.0 lightening AC-999-1 (no proof) and AC-999-2 (journey) to external with --reason \"the release Verify proves it\" exits 0 and writes proof external on both, and rcf define ledger decisions list --json lists exactly two decisions in criterion order, each with blocks the criterion id, status resolved, answer the reason verbatim and question \"Lighten AC-999-1 proof from full to external?\" and \"Lighten AC-999-2 proof from journey to external?\" (ruling 49; the decision AC-19905-21 writes).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-29",
+      "description": "[edge] Given a fixture project made by rcf init, a first application of blueprint spa (contributing spa-REQ-001 and spa-US-101, its source outside the project) 1.0.0 whose AC-999-1 is at journey and AC-999-2 at external exits 0, writes both levels and lists no decision in rcf define ledger decisions list --json; a later rcf define blueprint add of spa 2.0.0 lightening AC-999-1 to external without --reason is refused with the line of AC-19905-27 for AC-999-1 from journey to external (a first application at any level stays direct, like create ac: ruling 49).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-30",
+      "description": "[edge] Given a fixture project made by rcf init with authored AC-101-1 (no proof), rcf define update AC-101-1 --set proof=external --reason \"the release Verify proves it\" exits 0; with us-101.json restored to its bytes from before it (a crash after the ledger write), the same command again exits 0, AC-101-1 carries proof external, and rcf define ledger decisions list --json lists exactly one decision blocking AC-101-1 (resolved, answer the reason, question \"Lighten AC-101-1 proof from full to external?\"); the same for rcf define blueprint add of spa 2.0.0 lightening AC-999-1 from no proof to external with --reason, run again after every file under rcf/ but the decisions ledger is restored to its bytes from before it: exactly one decision for AC-999-1; a retry of the same lightening is idempotent on the criterion id, both levels and the reason (ruling 47).",
       "testable": true,
       "verification": "external"
     }

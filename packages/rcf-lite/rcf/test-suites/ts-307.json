@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-11-05T16:08:14.828Z",
-  "updatedAt": "2026-11-06T01:58:04.219Z",
-  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22)",
+  "updatedAt": "2026-11-06T04:28:21.255Z",
+  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30)",
   "testLevel": "e2e",
   "acIds": [
     "AC-19905-1",
@@ -25,7 +25,15 @@
     "AC-19905-19",
     "AC-19905-20",
     "AC-19905-21",
-    "AC-19905-22"
+    "AC-19905-22",
+    "AC-19905-23",
+    "AC-19905-24",
+    "AC-19905-25",
+    "AC-19905-26",
+    "AC-19905-27",
+    "AC-19905-28",
+    "AC-19905-29",
+    "AC-19905-30"
   ],
   "id": "TS-307",
   "usId": "US-19905",
@@ -191,6 +199,62 @@
       "description": "with the guard in force, rcf define create ac at any proof level, the lone init seed replaced included, and tightening (external to journey, journey to full, full to full) exit 0 with no --reason and record no decision",
       "status": "pending",
       "testPointer": "test/define/proof-downgrade-guard.test.js::AC-19905-22: with the guard in force, rcf define create ac at any proof level, the lone init seed replaced included, and tightening (external to journey, journey to full, full to full) exit 0 with no --reason and record no decision"
+    },
+    {
+      "id": "TC-307-gate-review-refuses-undecided-lightening",
+      "acId": "AC-19905-23",
+      "description": "a hand edit committed after the base lightening an authored criterion from no proof to external, from journey to external, or two criteria at once, with no decision, makes rcf build verdict review exit 4 with the one stated line naming each criterion and both levels, and write no review.json",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-invariant.test.js::AC-19905-23: a hand edit committed after the base lightening an authored criterion from no proof to external, from journey to external, or two criteria at once, with no decision, makes rcf build verdict review exit 4 with the one stated line naming each criterion and both levels, and write no review.json"
+    },
+    {
+      "id": "TC-307-gate-finalise-refuses-undecided-lightening",
+      "acId": "AC-19905-24",
+      "description": "in a round that reaches every earlier Finalise check, a DEFINE: hand edit lightening AC-101-1 from no proof to external, or AC-101-1 to journey and AC-101-2 to external, with no decision makes rcf build finalise exit 4 with the one stated line naming each criterion and both levels, and leaves rcf/fbs/fbs-001.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-invariant.test.js::AC-19905-24: in a round that reaches every earlier Finalise check, a DEFINE: hand edit lightening AC-101-1 from no proof to external, or AC-101-1 to journey and AC-101-2 to external, with no decision makes rcf build finalise exit 4 with the one stated line naming each criterion and both levels, and leaves rcf/fbs/fbs-001.json byte-identical"
+    },
+    {
+      "id": "TC-307-gate-passes-with-resolved-decision",
+      "acId": "AC-19905-25",
+      "description": "with the refusal shown first, a resolved decision added through rcf define ledger decisions add and resolve, in the guard shape, and committed lets rcf build verdict review exit 0; and a blueprint version replacement lightening AC-999-1 with --reason, which writes that decision, lets the review verdict exit 0",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-invariant.test.js::AC-19905-25: with the refusal shown first, a resolved decision added through rcf define ledger decisions add and resolve, in the guard shape, and committed lets rcf build verdict review exit 0; and a blueprint version replacement lightening AC-999-1 with --reason, which writes that decision, lets the review verdict exit 0"
+    },
+    {
+      "id": "TC-307-gate-silent-for-creations-and-tightenings",
+      "acId": "AC-19905-26",
+      "description": "with a refusal on a lightened criterion shown first, a criterion new at head at journey or external and tightenings (external to journey, journey to full) need no decision: once the lightening is decided rcf build verdict review exits 0, and the refusal never names the created or tightened criteria",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-invariant.test.js::AC-19905-26: with a refusal on a lightened criterion shown first, a criterion new at head at journey or external and tightenings (external to journey, journey to full) need no decision: once the lightening is decided rcf build verdict review exits 0, and the refusal never names the created or tightened criteria"
+    },
+    {
+      "id": "TC-307-blueprint-replacement-refuses-unreasoned-lightening",
+      "acId": "AC-19905-27",
+      "description": "a blueprint version replacement lightening an existing criterion (no proof to external, journey to external) without --reason, or with an empty or whitespace-only one, exits 2 with the refusal line naming the criterion and both levels, and leaves the story, the manifest and the decisions ledger byte-identical",
+      "status": "pending",
+      "testPointer": "test/define/blueprint-proof-lightening.test.js::AC-19905-27: a blueprint version replacement lightening an existing criterion (no proof to external, journey to external) without --reason, or with an empty or whitespace-only one, exits 2 with the refusal line naming the criterion and both levels, and leaves the story, the manifest and the decisions ledger byte-identical"
+    },
+    {
+      "id": "TC-307-blueprint-replacement-records-reason-in-decisions-ledger",
+      "acId": "AC-19905-28",
+      "description": "the same replacement with a non-empty --reason exits 0, writes the lighter levels, and writes one resolved decision per lightened criterion (blocks the criterion id, answer the reason verbatim, question naming the criterion and both levels), read back by rcf define ledger decisions list --json",
+      "status": "pending",
+      "testPointer": "test/define/blueprint-proof-lightening.test.js::AC-19905-28: the same replacement with a non-empty --reason exits 0, writes the lighter levels, and writes one resolved decision per lightened criterion (blocks the criterion id, answer the reason verbatim, question naming the criterion and both levels), read back by rcf define ledger decisions list --json"
+    },
+    {
+      "id": "TC-307-blueprint-first-application-direct",
+      "acId": "AC-19905-29",
+      "description": "a first application of a blueprint whose criteria are at journey or external exits 0 with no decision written, and a later replacement lightening one of them without --reason is refused (exit 2) in the same fixture",
+      "status": "pending",
+      "testPointer": "test/define/blueprint-proof-lightening.test.js::AC-19905-29: a first application of a blueprint whose criteria are at journey or external exits 0 with no decision written, and a later replacement lightening one of them without --reason is refused (exit 2) in the same fixture"
+    },
+    {
+      "id": "TC-307-reasoned-lightening-retry-idempotent",
+      "acId": "AC-19905-30",
+      "description": "a retry of the same reasoned lightening after a crash between the ledger write and the story write (rcf define update --set proof=external --reason, and a blueprint replacement with --reason) exits 0, writes the level, and leaves exactly one decision for that criterion, both levels and that reason",
+      "status": "pending",
+      "testPointer": "test/define/blueprint-proof-lightening.test.js::AC-19905-30: a retry of the same reasoned lightening after a crash between the ledger write and the story write (rcf define update --set proof=external --reason, and a blueprint replacement with --reason) exits 0, writes the level, and leaves exactly one decision for that criterion, both levels and that reason"
     }
   ],
   "status": "draft"
