@@ -1,0 +1,31 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "69ed501056c007ebac701239ecd81af7be6acad9",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [],
+  "recordedBy": "reviewer, round G merge-gate REVIEW",
+  "recordedAt": "2026-11-06T01:34:25.871Z"
+}
