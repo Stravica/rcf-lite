@@ -1530,19 +1530,24 @@ function refuseUnreasonedLightening(lightenings, reason, documentId) {
 /**
  * The decisions ledger body with one resolved decision per lightening
  * appended (blocks the criterion id, answer the reason verbatim),
- * built and validated through the ledger module; no write. Returns
- * `{ body }` or an RcfError.
+ * built and validated through the ledger module; no write. A lightening
+ * whose resolved decision is already there (same criterion, both
+ * levels and reason: a retry, ruling 47) adds none. Returns `{ body }`
+ * or an RcfError.
  */
 export async function ledgerWithLightenings(projectRoot, lightenings, reason) {
   const now = nowIso();
   try {
     let body = await loadLedger({ projectRoot, name: 'decisions' });
     for (const { acId, from, to } of lightenings) {
+      const question = `Lighten ${acId} proof from ${from} to ${to}?`;
+      const retry = (body.decisions ?? []).some((d) => d?.status === 'resolved' && d.blocks === acId && d.question === question && d.answer === reason);
+      if (retry) continue;
       const added = addEntry({
         name: 'decisions',
         body,
         entry: {
-          question: `Lighten ${acId} proof from ${from} to ${to}?`,
+          question,
           options: [
             { letter: 'a', text: `lighten ${acId} proof from ${from} to ${to}` },
             { letter: 'b', text: `keep ${acId} proof at ${from}` },
