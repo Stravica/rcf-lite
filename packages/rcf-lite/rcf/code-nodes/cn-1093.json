@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-1093",
+  "path": "src/finalise/light.js#resolveBase",
+  "implementsAcIds": [
+    "AC-19905-23",
+    "AC-19905-24"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T05:32:16.048Z",
+  "updatedAt": "2026-11-06T05:32:16.048Z"
+}

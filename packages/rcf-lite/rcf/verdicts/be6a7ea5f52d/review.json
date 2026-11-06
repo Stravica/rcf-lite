@@ -1,0 +1,56 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "be6a7ea5f52d109884916a7114ccc8ba2a6645b4",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "test",
+      "acId": "AC-19905-13",
+      "text": "test/verify/probe-assertion-0-9-0.test.js:20-21 imports test/verify/helpers/chain.js (which imports #core/store) and test/_helpers/scratch.js, outside the test-strength harness, so test strength cannot read the criterion; the test-author routes the file through the app entry and test/_harness/"
+    },
+    {
+      "id": "F-2",
+      "locus": "test",
+      "acId": "AC-19905-14",
+      "text": "the same two imports in test/verify/probe-assertion-0-9-0.test.js:20-21; the same fix"
+    },
+    {
+      "id": "F-3",
+      "locus": "test",
+      "acId": "AC-19905-15",
+      "text": "the same two imports in test/verify/probe-assertion-0-9-0.test.js:20-21; the same fix"
+    },
+    {
+      "id": "F-4",
+      "locus": "test",
+      "acId": "AC-19905-16",
+      "text": "the same two imports in test/verify/probe-assertion-0-9-0.test.js:20-21; the same fix"
+    }
+  ],
+  "recordedBy": "reviewer, round G pin-pass REVIEW",
+  "recordedAt": "2026-11-05T23:53:59.741Z"
+}

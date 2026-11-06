@@ -100,3 +100,9 @@ reading lands; a short freeze-prep window is the common case.
 The verb exits 0. Nothing else is said; the readings stay in the probe
 ledger. A later tree change makes them stale and the next invocation
 of the verb will require fresh readings at the new hash.
+
+## The promise rule
+
+Write a criterion only for a buyer promise: money, auth and access, privacy, data integrity, a claim the product makes, or a core journey; the builder covers everything else with ordinary unit tests.
+
+Set each criterion's proof level (full, journey or external) at DEFINE; a criterion with no proof level is full.

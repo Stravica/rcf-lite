@@ -152,9 +152,10 @@ export { PACKAGE_ROOT };
 
 export const verdictPath = (head, file) => `rcf/verdicts/${head.slice(0, 12)}/${file}`;
 
-export function reviewVerdict(head, { fbsIds = ['FBS-001'], touchedAcIds = ['AC-101-1'], code = 'MERGE', adequacy = 'PASS', findings, recordedBy = 'reviewer' } = {}) {
+// base (ruling 73): the 40-hex review base B, written after head when given.
+export function reviewVerdict(head, { base, fbsIds = ['FBS-001'], touchedAcIds = ['AC-101-1'], code = 'MERGE', adequacy = 'PASS', findings, recordedBy = 'reviewer' } = {}) {
   const f = findings ?? (code === 'MERGE' && adequacy === 'PASS' ? [] : [{ id: 'F-1', locus: 'build', acId: null, text: 'fixture finding' }]);
-  return { verdictVersion: 1, stage: 'review', head, fbsIds, touchedAcIds, code, adequacy, findings: f, recordedBy, recordedAt: '2026-10-24T00:00:00.000Z' };
+  return { verdictVersion: 1, stage: 'review', head, ...(base === undefined ? {} : { base }), fbsIds, touchedAcIds, code, adequacy, findings: f, recordedBy, recordedAt: '2026-10-24T00:00:00.000Z' };
 }
 
 export function testVerdict(head, { fbsIds = ['FBS-001'], result = 'PASS', suite, runtime = 'fixture app on localhost', reason = null, recordedBy = 'verifier' } = {}) {

@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1083",
+  "path": "src/cli/separation.js#main",
+  "implementsAcIds": [
+    "AC-19905-12"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-05T22:02:29.103Z",
+  "updatedAt": "2026-11-05T22:02:29.103Z"
+}

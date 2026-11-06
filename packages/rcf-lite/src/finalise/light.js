@@ -13,8 +13,9 @@
 // green --merge-suite record at the newest FINALISE: merge head after H,
 // test strength at H for every touched criterion, touched criteria
 // covering every criterion changed since the base (and every live
-// criterion of a spec at inProgress), Code Nodes for every touched
-// criterion, then the separation audit over the range.
+// criterion of a spec at inProgress), no criterion lighter at H than at
+// the base without a resolved decision (ruling 48), Code Nodes for every
+// touched criterion, then the separation audit over the range.
 
 import { readFileSync } from 'node:fs';
 
@@ -133,14 +134,16 @@ function judgeMergeSuite(M, mergeSuite) {
 }
 
 /**
- * Test strength at H for every touched criterion (AC-20002-1).
+ * Test strength at H for every touched criterion (AC-20002-1). A
+ * criterion reads pass, or notApplicable (an external proof level,
+ * FBS-243, AC-19905-7); the chain's proof is not checked here.
  */
 async function judgeTestStrength(git, H, touched) {
   const [blob] = await readObjects(git, [`HEAD:./${verdictAt(H, 'test-strength.json')}`]);
   const record = parse(blob);
   if (!record) return refuse(4, `finalise refused: no test-strength record at ${s7(H)}`);
   const byAc = new Map((record.criteria ?? []).map((c) => [c?.acId, c]));
-  const fails = touched.filter((id) => byAc.has(id) && byAc.get(id)?.result !== 'pass');
+  const fails = touched.filter((id) => byAc.has(id) && !['pass', 'notApplicable'].includes(byAc.get(id)?.result));
   if (fails.length) return refuse(4, `finalise refused: test-strength at ${s7(H)} fails for ${fails.join(', ')}`);
   const omits = touched.filter((id) => !byAc.has(id));
   if (omits.length) return refuse(4, `finalise refused: test-strength at ${s7(H)} omits ${omits.join(', ')}`);
@@ -179,8 +182,61 @@ export async function changedCriteria(git, base, H, acIds) {
   return acIds.filter((id) => key(before, id) !== key(after, id));
 }
 
+// Proof levels by weight (the guard's PROOF_RANK); an absent proof counts as full.
+const PROOF_RANK = { external: 0, journey: 1, full: 2 };
+const DECISIONS_LEDGER = 'rcf/define/decisions-ledger.json';
+
+/**
+ * The criteria of rcf/user-stories/ lighter at `head` than at `base`
+ * (absent or full to journey or external, journey to external) with no
+ * resolved decision in rcf/define/decisions-ledger.json at `head` whose
+ * blocks is the criterion id and whose question is "Lighten <ac> proof
+ * from <from> to <to>?" (ruling 48). A decision counts only with an
+ * answer that is a non-empty string after trimming (ruling 59); an
+ * absent, empty or whitespace-only answer leaves the lightening named,
+ * with " (answer missing)" after it. A criterion absent at the base is a
+ * creation and is never named, nor is a tightening. Returns the named
+ * line, "<ac> from <from> to <to>" joined with ", " in criterion id
+ * order, empty when none, or null when git cannot compare the sides.
+ *
+ * @param {Function} git
+ * @param {string} base
+ * @param {string} head
+ * @returns {Promise<string|null>}
+ */
+export async function undecidedLightenings(git, base, head) {
+  const diff = await git(['diff', '--name-only', '--relative', '--no-renames', base, head, '--', 'rcf/user-stories/']);
+  if (diff.code !== 0) return null;
+  const paths = diff.stdout.split('\n').filter((p) => p.endsWith('.json'));
+  if (!paths.length) return '';
+  const blobs = await readObjects(git, [...paths.flatMap((p) => [`${base}:./${p}`, `${head}:./${p}`]), `${head}:./${DECISIONS_LEDGER}`]);
+  const [before, after] = [new Map(), new Map()];
+  paths.forEach((p, i) => {
+    [before, after].forEach((map, k) => {
+      for (const ac of parse(blobs[2 * i + k])?.acceptanceCriteria ?? []) if (ac?.id) map.set(ac.id, ac.proof ?? 'full');
+    });
+  });
+  const [decided, answerless] = [new Set(), new Set()];
+  for (const d of parse(blobs.at(-1))?.decisions ?? []) {
+    if (d?.status !== 'resolved' || typeof d.blocks !== 'string') continue;
+    const answered = typeof d.answer === 'string' && d.answer.trim() !== '';
+    (answered ? decided : answerless).add(`${d.blocks}\n${d.question}`);
+  }
+  const out = [];
+  for (const [acId, to] of after) {
+    const from = before.get(acId);
+    if (from === undefined || !(from in PROOF_RANK) || !(to in PROOF_RANK)) continue;
+    if (PROOF_RANK[to] >= PROOF_RANK[from]) continue;
+    const key = `${acId}\nLighten ${acId} proof from ${from} to ${to}?`;
+    if (decided.has(key)) continue;
+    out.push({ acId, from, to, missing: answerless.has(key) });
+  }
+  out.sort((a, b) => a.acId.localeCompare(b.acId, 'en', { numeric: true }));
+  return out.map(({ acId, from, to, missing }) => `${acId} from ${from} to ${to}${missing ? ' (answer missing)' : ''}`).join(', ');
+}
+
 /** The merge-base of HEAD with the first of origin/main and main that resolves. */
-async function resolveBase(git) {
+export async function resolveBase(git) {
   for (const ref of BASE_REFS) {
     const mb = await git(['merge-base', ref, 'HEAD']);
     if (mb.code === 0 && mb.stdout.trim()) return mb.stdout.trim();
@@ -239,6 +295,10 @@ export async function judgeFinalise({ projectRoot, tree, fbsId, ciRun, mergeSuit
     if (left.length) return refuse(4, `finalise refused: touched criteria omit ${left.join(', ')} of ${fbsId} (inProgress)`);
   }
 
+  const lighter = await undecidedLightenings(git, base, H);
+  if (lighter === null) return refuse(4, `finalise refused: cannot compare the criteria at ${s7(base)} and ${s7(H)}`);
+  if (lighter) return refuse(4, `finalise refused: proof lightened since ${s7(base)} without a resolved decision in ${DECISIONS_LEDGER}: ${lighter}`);
+
   const missing = missingCodeNodes(tree, fbs, touched);
   if (missing.length) return refuse(3, `finalise refused: missing Code Node for ${missing.join(', ')}`);
 
@@ -252,7 +312,8 @@ export async function judgeFinalise({ projectRoot, tree, fbsId, ciRun, mergeSuit
 
 /**
  * Touched criteria with no Code Node (AC-20002-3, slice scope); none
- * when the spec carries the noCodeNodes declaration (RC-36).
+ * when the spec carries the noCodeNodes declaration (RC-36). A criterion
+ * whose proof is journey or external needs none (FBS-243, AC-19905-8).
  *
  * @param {object} tree
  * @param {object} fbs
@@ -261,7 +322,9 @@ export async function judgeFinalise({ projectRoot, tree, fbsId, ciRun, mergeSuit
  */
 export function missingCodeNodes(tree, fbs, touched) {
   if (hasNoCodeNodesDeclaration(fbs)) return [];
-  return touched.filter((id) => (tree.cnByAcId?.get(id) ?? []).length === 0).sort();
+  const light = new Set();
+  for (const us of tree.userStories ?? []) for (const ac of us.acceptanceCriteria ?? []) if (ac?.proof === 'journey' || ac?.proof === 'external') light.add(ac.id);
+  return touched.filter((id) => !light.has(id) && (tree.cnByAcId?.get(id) ?? []).length === 0).sort();
 }
 
 /**

@@ -73,7 +73,7 @@ async function lightRound(t, { cn }) {
   editFbs(dir, 'FBS-001', (f) => ({ ...f, executionStatus: 'inProgress', summary: `${f.summary} Round opened.` }));
   commit(dir, 'DEFINE: round');
   const H = commit(dir, 'BUILD: code', { 'src/x.js': 'export function first() { return 1; }\n', ...(cn ? { 'rcf/code-nodes/cn-001.json': CN_001 } : {}) });
-  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H) });
+  commit(dir, 'REVIEW: verdict', { [verdictPath(H, 'review.json')]: reviewVerdict(H, { base: harnessGit(dir, 'merge-base', 'main', H) }) });
   commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H), [verdictPath(H, 'test-strength.json')]: testStrengthReport(H) });
   return dir;
 }

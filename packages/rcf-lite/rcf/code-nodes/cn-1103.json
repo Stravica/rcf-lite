@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1103",
+  "path": "src/finalise/light.js#undecidedLightenings",
+  "implementsAcIds": [
+    "AC-19905-32",
+    "AC-19905-33",
+    "AC-19905-34"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T07:38:51.406Z",
+  "updatedAt": "2026-11-06T07:38:51.406Z"
+}

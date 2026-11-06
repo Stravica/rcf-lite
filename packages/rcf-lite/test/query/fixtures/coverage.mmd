@@ -4007,6 +4007,7 @@ flowchart LR
   AC-19501-4 -.-> TC-266-after-the-pin-move-rcf-define-validate
   AC-19501-5["AC-19501-5"]
   REQ-195 --> AC-19501-5
+  AC-19501-5 -. supersededBy .-> AC-19905-16
   TC-267-the-rcf-schemas-pin-names-the-release["TC-267-the-rcf-schemas-pin-names-the-release"]
   AC-19501-5 -.-> TC-267-the-rcf-schemas-pin-names-the-release
   TC-267-validate-own-chain-0-10-0["TC-267-validate-own-chain-0-10-0"]
@@ -4029,14 +4030,17 @@ flowchart LR
   AC-19502-2 -.-> TC-268-every-code-node-implementing-a-criterion
   AC-19502-3["AC-19502-3"]
   REQ-195 --> AC-19502-3
+  AC-19502-3 -. supersededBy .-> AC-19905-13
   TC-268-update-probe-path-only-refused["TC-268-update-probe-path-only-refused"]
   AC-19502-3 -.-> TC-268-update-probe-path-only-refused
   AC-19502-4["AC-19502-4"]
   REQ-195 --> AC-19502-4
+  AC-19502-4 -. supersededBy .-> AC-19905-14
   TC-268-catalog-path-only-still-fails["TC-268-catalog-path-only-still-fails"]
   AC-19502-4 -.-> TC-268-catalog-path-only-still-fails
   AC-19502-5["AC-19502-5"]
   REQ-195 --> AC-19502-5
+  AC-19502-5 -. supersededBy .-> AC-19905-15
   TC-268-ac-level-path-only-refused["TC-268-ac-level-path-only-refused"]
   AC-19502-5 -.-> TC-268-ac-level-path-only-refused
   REQ-196["REQ-196"]
@@ -4745,6 +4749,144 @@ flowchart LR
   AC-19904-12 -.-> TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path
   TC-306-a-short-tmpdir-keeps-the-scratch-under-it["TC-306-a-short-tmpdir-keeps-the-scratch-under-it"]
   AC-19904-12 -.-> TC-306-a-short-tmpdir-keeps-the-scratch-under-it
+  AC-19905-1["AC-19905-1"]
+  REQ-199 --> AC-19905-1
+  TC-307-golden-absent-0-40-1["TC-307-golden-absent-0-40-1"]
+  AC-19905-1 -.-> TC-307-golden-absent-0-40-1
+  AC-19905-2["AC-19905-2"]
+  REQ-199 --> AC-19905-2
+  TC-307-external-flag-stays-full["TC-307-external-flag-stays-full"]
+  AC-19905-2 -.-> TC-307-external-flag-stays-full
+  AC-19905-3["AC-19905-3"]
+  REQ-199 --> AC-19905-3
+  TC-307-journey-e2e-passes["TC-307-journey-e2e-passes"]
+  AC-19905-3 -.-> TC-307-journey-e2e-passes
+  AC-19905-4["AC-19905-4"]
+  REQ-199 --> AC-19905-4
+  TC-307-journey-unit-only-fails["TC-307-journey-unit-only-fails"]
+  AC-19905-4 -.-> TC-307-journey-unit-only-fails
+  AC-19905-5["AC-19905-5"]
+  REQ-199 --> AC-19905-5
+  TC-307-external-not-applicable["TC-307-external-not-applicable"]
+  AC-19905-5 -.-> TC-307-external-not-applicable
+  AC-19905-6["AC-19905-6"]
+  REQ-199 --> AC-19905-6
+  TC-307-mix-still-fails["TC-307-mix-still-fails"]
+  AC-19905-6 -.-> TC-307-mix-still-fails
+  AC-19905-7["AC-19905-7"]
+  REQ-199 --> AC-19905-7
+  TC-307-finalise-pass-plus-not-applicable["TC-307-finalise-pass-plus-not-applicable"]
+  AC-19905-7 -.-> TC-307-finalise-pass-plus-not-applicable
+  AC-19905-8["AC-19905-8"]
+  REQ-199 --> AC-19905-8
+  TC-307-finalise-code-nodes-by-level["TC-307-finalise-code-nodes-by-level"]
+  AC-19905-8 -.-> TC-307-finalise-code-nodes-by-level
+  AC-19905-9["AC-19905-9"]
+  REQ-199 --> AC-19905-9
+  TC-307-verdict-tap-presence-by-level["TC-307-verdict-tap-presence-by-level"]
+  AC-19905-9 -.-> TC-307-verdict-tap-presence-by-level
+  AC-19905-10["AC-19905-10"]
+  REQ-199 --> AC-19905-10
+  TC-307-writer-carries-proof["TC-307-writer-carries-proof"]
+  AC-19905-10 -.-> TC-307-writer-carries-proof
+  AC-19905-11["AC-19905-11"]
+  REQ-199 --> AC-19905-11
+  TC-307-proof-light-refused["TC-307-proof-light-refused"]
+  AC-19905-11 -.-> TC-307-proof-light-refused
+  AC-19905-12["AC-19905-12"]
+  REQ-199 --> AC-19905-12
+  TC-307-separation-unchanged["TC-307-separation-unchanged"]
+  AC-19905-12 -.-> TC-307-separation-unchanged
+  AC-19905-13["AC-19905-13"]
+  REQ-199 --> AC-19905-13
+  TC-307-pin-update-probe-path-only-refused["TC-307-pin-update-probe-path-only-refused"]
+  AC-19905-13 -.-> TC-307-pin-update-probe-path-only-refused
+  AC-19905-14["AC-19905-14"]
+  REQ-199 --> AC-19905-14
+  TC-307-pin-catalog-path-only-fails["TC-307-pin-catalog-path-only-fails"]
+  AC-19905-14 -.-> TC-307-pin-catalog-path-only-fails
+  AC-19905-15["AC-19905-15"]
+  REQ-199 --> AC-19905-15
+  TC-307-pin-ac-level-path-only-refused["TC-307-pin-ac-level-path-only-refused"]
+  AC-19905-15 -.-> TC-307-pin-ac-level-path-only-refused
+  AC-19905-16["AC-19905-16"]
+  REQ-199 --> AC-19905-16
+  TC-307-pin-coverage-golden-0-11-0["TC-307-pin-coverage-golden-0-11-0"]
+  AC-19905-16 -.-> TC-307-pin-coverage-golden-0-11-0
+  TC-307-pin-own-chain-validates["TC-307-pin-own-chain-validates"]
+  AC-19905-16 -.-> TC-307-pin-own-chain-validates
+  AC-19905-17["AC-19905-17"]
+  REQ-199 --> AC-19905-17
+  TC-307-guard-refuses-set-from-full["TC-307-guard-refuses-set-from-full"]
+  AC-19905-17 -.-> TC-307-guard-refuses-set-from-full
+  AC-19905-18["AC-19905-18"]
+  REQ-199 --> AC-19905-18
+  TC-307-guard-refuses-journey-and-blank-reason["TC-307-guard-refuses-journey-and-blank-reason"]
+  AC-19905-18 -.-> TC-307-guard-refuses-journey-and-blank-reason
+  AC-19905-19["AC-19905-19"]
+  REQ-199 --> AC-19905-19
+  TC-307-guard-refuses-from-file["TC-307-guard-refuses-from-file"]
+  AC-19905-19 -.-> TC-307-guard-refuses-from-file
+  AC-19905-20["AC-19905-20"]
+  REQ-199 --> AC-19905-20
+  TC-307-guard-refuses-parent-story-rewrite["TC-307-guard-refuses-parent-story-rewrite"]
+  AC-19905-20 -.-> TC-307-guard-refuses-parent-story-rewrite
+  AC-19905-21["AC-19905-21"]
+  REQ-199 --> AC-19905-21
+  TC-307-guard-records-reason-in-decisions-ledger["TC-307-guard-records-reason-in-decisions-ledger"]
+  AC-19905-21 -.-> TC-307-guard-records-reason-in-decisions-ledger
+  AC-19905-22["AC-19905-22"]
+  REQ-199 --> AC-19905-22
+  TC-307-guard-leaves-create-and-tightening-direct["TC-307-guard-leaves-create-and-tightening-direct"]
+  AC-19905-22 -.-> TC-307-guard-leaves-create-and-tightening-direct
+  AC-19905-23["AC-19905-23"]
+  REQ-199 --> AC-19905-23
+  TC-307-gate-review-refuses-undecided-lightening["TC-307-gate-review-refuses-undecided-lightening"]
+  AC-19905-23 -.-> TC-307-gate-review-refuses-undecided-lightening
+  AC-19905-24["AC-19905-24"]
+  REQ-199 --> AC-19905-24
+  TC-307-gate-finalise-refuses-undecided-lightening["TC-307-gate-finalise-refuses-undecided-lightening"]
+  AC-19905-24 -.-> TC-307-gate-finalise-refuses-undecided-lightening
+  AC-19905-25["AC-19905-25"]
+  REQ-199 --> AC-19905-25
+  TC-307-gate-passes-with-resolved-decision["TC-307-gate-passes-with-resolved-decision"]
+  AC-19905-25 -.-> TC-307-gate-passes-with-resolved-decision
+  AC-19905-26["AC-19905-26"]
+  REQ-199 --> AC-19905-26
+  TC-307-gate-silent-for-creations-and-tightenings["TC-307-gate-silent-for-creations-and-tightenings"]
+  AC-19905-26 -.-> TC-307-gate-silent-for-creations-and-tightenings
+  AC-19905-27["AC-19905-27"]
+  REQ-199 --> AC-19905-27
+  TC-307-blueprint-replacement-refuses-unreasoned-lightening["TC-307-blueprint-replacement-refuses-unreasoned-lightening"]
+  AC-19905-27 -.-> TC-307-blueprint-replacement-refuses-unreasoned-lightening
+  AC-19905-28["AC-19905-28"]
+  REQ-199 --> AC-19905-28
+  TC-307-blueprint-replacement-records-reason-in-decisions-ledger["TC-307-blueprint-replacement-records-reason-in-decisions-ledger"]
+  AC-19905-28 -.-> TC-307-blueprint-replacement-records-reason-in-decisions-ledger
+  AC-19905-29["AC-19905-29"]
+  REQ-199 --> AC-19905-29
+  TC-307-blueprint-first-application-direct["TC-307-blueprint-first-application-direct"]
+  AC-19905-29 -.-> TC-307-blueprint-first-application-direct
+  AC-19905-30["AC-19905-30"]
+  REQ-199 --> AC-19905-30
+  TC-307-reasoned-lightening-retry-idempotent["TC-307-reasoned-lightening-retry-idempotent"]
+  AC-19905-30 -.-> TC-307-reasoned-lightening-retry-idempotent
+  AC-19905-31["AC-19905-31"]
+  REQ-199 --> AC-19905-31
+  TC-307-gate-review-refuses-no-base["TC-307-gate-review-refuses-no-base"]
+  AC-19905-31 -.-> TC-307-gate-review-refuses-no-base
+  AC-19905-32["AC-19905-32"]
+  REQ-199 --> AC-19905-32
+  TC-307-gate-review-refuses-answerless-decision["TC-307-gate-review-refuses-answerless-decision"]
+  AC-19905-32 -.-> TC-307-gate-review-refuses-answerless-decision
+  AC-19905-33["AC-19905-33"]
+  REQ-199 --> AC-19905-33
+  TC-307-gate-finalise-refuses-answerless-decision["TC-307-gate-finalise-refuses-answerless-decision"]
+  AC-19905-33 -.-> TC-307-gate-finalise-refuses-answerless-decision
+  AC-19905-34["AC-19905-34"]
+  REQ-199 --> AC-19905-34
+  TC-307-gate-review-answered-decision-passes["TC-307-gate-review-answered-decision-passes"]
+  AC-19905-34 -.-> TC-307-gate-review-answered-decision-passes
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7511,6 +7653,75 @@ flowchart LR
   class AC-19904-12 ac;
   class TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path tc;
   class TC-306-a-short-tmpdir-keeps-the-scratch-under-it tc;
+  class AC-19905-1 ac;
+  class TC-307-golden-absent-0-40-1 tc;
+  class AC-19905-2 ac;
+  class TC-307-external-flag-stays-full tc;
+  class AC-19905-3 ac;
+  class TC-307-journey-e2e-passes tc;
+  class AC-19905-4 ac;
+  class TC-307-journey-unit-only-fails tc;
+  class AC-19905-5 ac;
+  class TC-307-external-not-applicable tc;
+  class AC-19905-6 ac;
+  class TC-307-mix-still-fails tc;
+  class AC-19905-7 ac;
+  class TC-307-finalise-pass-plus-not-applicable tc;
+  class AC-19905-8 ac;
+  class TC-307-finalise-code-nodes-by-level tc;
+  class AC-19905-9 ac;
+  class TC-307-verdict-tap-presence-by-level tc;
+  class AC-19905-10 ac;
+  class TC-307-writer-carries-proof tc;
+  class AC-19905-11 ac;
+  class TC-307-proof-light-refused tc;
+  class AC-19905-12 ac;
+  class TC-307-separation-unchanged tc;
+  class AC-19905-13 ac;
+  class TC-307-pin-update-probe-path-only-refused tc;
+  class AC-19905-14 ac;
+  class TC-307-pin-catalog-path-only-fails tc;
+  class AC-19905-15 ac;
+  class TC-307-pin-ac-level-path-only-refused tc;
+  class AC-19905-16 ac;
+  class TC-307-pin-coverage-golden-0-11-0 tc;
+  class TC-307-pin-own-chain-validates tc;
+  class AC-19905-17 ac;
+  class TC-307-guard-refuses-set-from-full tc;
+  class AC-19905-18 ac;
+  class TC-307-guard-refuses-journey-and-blank-reason tc;
+  class AC-19905-19 ac;
+  class TC-307-guard-refuses-from-file tc;
+  class AC-19905-20 ac;
+  class TC-307-guard-refuses-parent-story-rewrite tc;
+  class AC-19905-21 ac;
+  class TC-307-guard-records-reason-in-decisions-ledger tc;
+  class AC-19905-22 ac;
+  class TC-307-guard-leaves-create-and-tightening-direct tc;
+  class AC-19905-23 ac;
+  class TC-307-gate-review-refuses-undecided-lightening tc;
+  class AC-19905-24 ac;
+  class TC-307-gate-finalise-refuses-undecided-lightening tc;
+  class AC-19905-25 ac;
+  class TC-307-gate-passes-with-resolved-decision tc;
+  class AC-19905-26 ac;
+  class TC-307-gate-silent-for-creations-and-tightenings tc;
+  class AC-19905-27 ac;
+  class TC-307-blueprint-replacement-refuses-unreasoned-lightening tc;
+  class AC-19905-28 ac;
+  class TC-307-blueprint-replacement-records-reason-in-decisions-ledger tc;
+  class AC-19905-29 ac;
+  class TC-307-blueprint-first-application-direct tc;
+  class AC-19905-30 ac;
+  class TC-307-reasoned-lightening-retry-idempotent tc;
+  class AC-19905-31 ac;
+  class TC-307-gate-review-refuses-no-base tc;
+  class AC-19905-32 ac;
+  class TC-307-gate-review-refuses-answerless-decision tc;
+  class AC-19905-33 ac;
+  class TC-307-gate-finalise-refuses-answerless-decision tc;
+  class AC-19905-34 ac;
+  class TC-307-gate-review-answered-decision-passes tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;

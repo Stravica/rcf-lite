@@ -49,6 +49,9 @@ const FINALISE_CLASSES = new Set(Object.entries(CLASS_OWNERS).filter(([, owners]
 const TEST_CLASSES = new Set(['rcfTest', 'hygieneTest']);
 const s7 = (sha) => String(sha ?? '').slice(0, 7);
 const BLOCKED_REASON = 'TEST_STRENGTH_UNSUPPORTED';
+// FBS-243 (the stage-keeper's ruling 9): the reasons of the two lighter proof levels.
+const EXTERNAL_REASON = 'external: proved by the release Verify';
+const JOURNEY_REASON = 'journey: no e2e-level bound test';
 // AC-19904-6: a bound file with no runners entry that likely needs one.
 const HINT_EXT = /\.(?:ts|mts|cts|tsx|jsx|vue)$/;
 const byId = (a, b) => a.localeCompare(b, 'en', { numeric: true });
@@ -102,11 +105,27 @@ function chainAcIds(tree) {
   return ids;
 }
 
-/** A criterion's bound tests, one per distinct test pointer "<file>::<name>". */
-function boundTests(tree, acId) {
+/**
+ * Each criterion's proof level as the chain carries it (FBS-243); a
+ * criterion with no proof is absent from the map and is judged at full
+ * (ruling 6). Nothing infers a level (ruling 7).
+ */
+function chainProofs(tree) {
+  const proofs = new Map();
+  for (const us of tree.userStories ?? []) for (const ac of us.acceptanceCriteria ?? []) if (ac?.id && ac.proof !== undefined) proofs.set(ac.id, ac.proof);
+  return proofs;
+}
+
+/**
+ * A criterion's bound tests, one per distinct test pointer "<file>::<name>".
+ * e2eOnly keeps the tests whose test suite has testLevel e2e (a journey
+ * criterion's structural check, FBS-243).
+ */
+function boundTests(tree, acId, { e2eOnly = false } = {}) {
   const out = [];
   const seen = new Set();
   for (const { tsId, tcId } of tree.tcsByAcId?.get(acId) ?? []) {
+    if (e2eOnly && tree.byId?.get(tsId)?.testLevel !== 'e2e') continue;
     const tc = (tree.byId?.get(tsId)?.testCases ?? []).find((c) => c?.id === tcId);
     const pointer = typeof tc?.testPointer === 'string' ? tc.testPointer : null;
     const sep = pointer ? pointer.indexOf('::') : -1;
@@ -220,9 +239,15 @@ export async function auditTestStrength({
   if (unknown.length) return fail(2, ...unknown.map((id) => `test-strength: unknown criterion ${id}`));
   const reportHead = scope === 'reviewVerdict' || record ? review.head : head;
 
-  const criteria = ids.map((acId) => ({
-    acId, tests: boundTests(tree, acId).map((t) => ({ ...t, runner: runnerFor(config, t.file) })), nodes: codeNodesOf(tree, acId),
-  }));
+  // FBS-243 (ruling 9): a journey criterion reads its e2e-level bound tests
+  // and no Code Node; an external one reads neither. Absent proof is full.
+  const proofs = chainProofs(tree);
+  const criteria = ids.map((acId) => {
+    const proof = proofs.get(acId);
+    const light = proof === 'journey' || proof === 'external';
+    const tests = proof === 'external' ? [] : boundTests(tree, acId, { e2eOnly: proof === 'journey' });
+    return { acId, proof, tests: tests.map((t) => ({ ...t, runner: runnerFor(config, t.file) })), nodes: light ? [] : codeNodesOf(tree, acId) };
+  });
 
   // A file-level Code Node on a code file is not a supported source (whole run).
   const unsupported = new Set();
@@ -278,7 +303,7 @@ export async function auditTestStrength({
 
   // Layer 1, structural, for every criterion first (a blocked one is not checked).
   for (const c of criteria) {
-    if (c.blocked) { c.structural = { checked: false }; continue; }
+    if (c.blocked || c.proof === 'external') { c.structural = { checked: false }; continue; }
     const findings = [];
     for (const file of [...new Set(c.tests.map((t) => t.file))]) findings.push(...testFileFindings(file, texts.get(file), { config, files, pkg }));
     for (const n of c.nodes) {
@@ -300,9 +325,11 @@ export async function auditTestStrength({
   };
   const parsed = new Map();
   for (const c of criteria) {
-    c.reasons = c.blocked ? [] : c.structural.findings.slice();
+    c.reasons = c.blocked || c.proof === 'external' ? [] : c.structural.findings.slice();
     c.mutants = [];
-    if (c.blocked || c.structural.result === 'fail') continue;
+    if (c.blocked || c.proof === 'external' || c.structural.result === 'fail') continue;
+    // A journey criterion has no mutants and needs no Code Node (ruling 9).
+    if (c.proof === 'journey') { if (!c.tests.length) c.reasons.push(JOURNEY_REASON); continue; }
     if (!c.nodes.length) c.reasons.push('no Code Node');
     if (!c.tests.length) c.reasons.push('unbound');
     if (!c.nodes.length) continue;
@@ -426,10 +453,15 @@ export async function auditTestStrength({
   // The report (TestStrengthReport v1) and the verdict line.
   const totals = { criteria: criteria.length, structuralPassed: 0, mutants: total, killed: 0, survived: 0, timeout: 0, notApplicable: 0, blocked: 0 };
   const items = [];
+  // proof is reported directly after acId only when the chain carries it (ruling 6).
+  const proofOf = (c) => (c.proof !== undefined ? { proof: c.proof } : {});
   const out = criteria.map((c) => {
+    if (c.proof === 'external') {
+      return { acId: c.acId, proof: c.proof, structural: c.structural, mutants: [], result: 'notApplicable', reason: EXTERNAL_REASON };
+    }
     if (c.blocked) {
       totals.blocked += 1;
-      return { acId: c.acId, structural: c.structural, mutants: [], result: 'blocked', blocked: true, reason: BLOCKED_REASON, detail: c.blocked.detail };
+      return { acId: c.acId, ...proofOf(c), structural: c.structural, mutants: [], result: 'blocked', blocked: true, reason: BLOCKED_REASON, detail: c.blocked.detail };
     }
     if (c.structural.result === 'pass') totals.structuralPassed += 1;
     for (const m of c.mutants) {
@@ -439,12 +471,16 @@ export async function auditTestStrength({
     items.push(...c.reasons.map((r) => `${c.acId} ${r}`));
     return {
       acId: c.acId,
+      ...proofOf(c),
       structural: c.structural,
       mutants: c.mutants.map((m) => ({ symbol: m.symbol, operator: m.operator, result: m.result, killedBy: m.killedBy ?? [], ...(m.loadError ? { loadError: true } : {}) })),
       result: c.reasons.length ? 'fail' : 'pass',
     };
   });
   const failing = out.filter((c) => c.result === 'fail').length;
+  // The external criteria, counted in the summary only when there is one.
+  const external = out.filter((c) => c.result === 'notApplicable').map((c) => c.acId).sort(byId);
+  if (external.length) totals.criteriaNotApplicable = external.length;
   const blocked = criteria.filter((c) => c.blocked).sort((a, b) => byId(a.acId, b.acId));
   const blockedList = blocked.map((c) => `${c.acId} (${c.blocked.files.join(' and ')})`).join(', ');
   const report = {
@@ -461,7 +497,7 @@ export async function auditTestStrength({
   let line;
   if (failing) line = `test-strength: FAIL ${failing} of ${out.length} criteria at ${s7(reportHead)}: ${items.join('; ')}${blocked.length ? `, blocked ${blocked.length}: ${blockedList}` : ''}`;
   else if (blocked.length) line = `test-strength: BLOCKED ${out.length} criteria at ${s7(reportHead)}: structural ${totals.structuralPassed}/${out.length - blocked.length}, ${counts}, blocked ${blocked.length}): ${blockedList}`;
-  else line = `test-strength: PASS ${out.length} criteria at ${s7(reportHead)}: structural ${totals.structuralPassed}/${out.length}, ${counts})`;
+  else line = `test-strength: PASS ${out.length} criteria at ${s7(reportHead)}: structural ${totals.structuralPassed}/${out.length - external.length}, ${counts})${external.length ? `; external ${external.length}: ${external.join(', ')} (${EXTERNAL_REASON})` : ''}`;
   if (record) {
     const abs = join(projectRoot, verdictFile(reportHead, 'test-strength.json'));
     mkdirSync(dirname(abs), { recursive: true });

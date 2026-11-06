@@ -6,7 +6,7 @@
     "covered": 135,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 62
+    "retiredAcs": 66
   },
   "requirements": [
     {
@@ -10409,15 +10409,17 @@
         },
         {
           "id": "AC-19501-5",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19905-16",
+          "covered": false,
           "testCases": [
             "TC-267-the-rcf-schemas-pin-names-the-release",
             "TC-267-validate-own-chain-0-10-0"
           ],
           "unresolvedTestCases": [],
           "verification": "testOnly",
-          "expectedEnd": "complete",
-          "now": "complete"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-19501-6",
@@ -10465,36 +10467,42 @@
         },
         {
           "id": "AC-19502-3",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19905-13",
+          "covered": false,
           "testCases": [
             "TC-268-update-probe-path-only-refused"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-19502-4",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19905-14",
+          "covered": false,
           "testCases": [
             "TC-268-catalog-path-only-still-fails"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-19502-5",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19905-15",
+          "covered": false,
           "testCases": [
             "TC-268-ac-level-path-only-refused"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         }
       ]
     },
@@ -12037,6 +12045,381 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "verified"
+        },
+        {
+          "id": "AC-19905-1",
+          "covered": true,
+          "testCases": [
+            "TC-307-golden-absent-0-40-1"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-2",
+          "covered": true,
+          "testCases": [
+            "TC-307-external-flag-stays-full"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-3",
+          "covered": true,
+          "testCases": [
+            "TC-307-journey-e2e-passes"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-4",
+          "covered": true,
+          "testCases": [
+            "TC-307-journey-unit-only-fails"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-5",
+          "covered": true,
+          "testCases": [
+            "TC-307-external-not-applicable"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-6",
+          "covered": true,
+          "testCases": [
+            "TC-307-mix-still-fails"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-7",
+          "covered": true,
+          "testCases": [
+            "TC-307-finalise-pass-plus-not-applicable"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-8",
+          "covered": true,
+          "testCases": [
+            "TC-307-finalise-code-nodes-by-level"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-9",
+          "covered": true,
+          "testCases": [
+            "TC-307-verdict-tap-presence-by-level"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-10",
+          "covered": true,
+          "testCases": [
+            "TC-307-writer-carries-proof"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-11",
+          "covered": true,
+          "testCases": [
+            "TC-307-proof-light-refused"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-12",
+          "covered": true,
+          "testCases": [
+            "TC-307-separation-unchanged"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-13",
+          "covered": true,
+          "testCases": [
+            "TC-307-pin-update-probe-path-only-refused"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-14",
+          "covered": true,
+          "testCases": [
+            "TC-307-pin-catalog-path-only-fails"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-15",
+          "covered": true,
+          "testCases": [
+            "TC-307-pin-ac-level-path-only-refused"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-16",
+          "covered": true,
+          "testCases": [
+            "TC-307-pin-coverage-golden-0-11-0",
+            "TC-307-pin-own-chain-validates"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-17",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-set-from-full"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-18",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-journey-and-blank-reason"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-19",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-from-file"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-20",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-parent-story-rewrite"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-21",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-records-reason-in-decisions-ledger"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-22",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-leaves-create-and-tightening-direct"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-23",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-refuses-undecided-lightening"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-24",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-finalise-refuses-undecided-lightening"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-25",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-passes-with-resolved-decision"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-26",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-silent-for-creations-and-tightenings"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-27",
+          "covered": true,
+          "testCases": [
+            "TC-307-blueprint-replacement-refuses-unreasoned-lightening"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-28",
+          "covered": true,
+          "testCases": [
+            "TC-307-blueprint-replacement-records-reason-in-decisions-ledger"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-29",
+          "covered": true,
+          "testCases": [
+            "TC-307-blueprint-first-application-direct"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-30",
+          "covered": true,
+          "testCases": [
+            "TC-307-reasoned-lightening-retry-idempotent"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-31",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-refuses-no-base"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-32",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-refuses-answerless-decision"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-33",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-finalise-refuses-answerless-decision"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-34",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-answered-decision-passes"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },
@@ -13633,6 +14016,11 @@
       "fbsId": "FBS-242",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-243",
+      "expectedEnd": "verified",
+      "now": "notStarted"
     }
   ],
   "unresolvedTestPointers": []

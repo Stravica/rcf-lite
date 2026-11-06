@@ -20,7 +20,8 @@
 import { mkdir, rename, stat, unlink, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 
-import { rcfError } from '../errors/index.js';
+import { addEntry, ledgerRelPath, loadLedger, resolveEntry, saveLedger } from '../../define/ledgers.js';
+import { isRcfError, rcfError } from '../errors/index.js';
 import { idNumber, normaliseId } from './ids.js';
 import { pathForId, subdirFor } from './loader.js';
 import { validateDocument } from './validator.js';
@@ -1098,6 +1099,10 @@ async function createInlineAc({ projectRoot, tree, options, body, walkErrors = [
     // 0.10.0, external | testOnly) travels in --from-file like scope; the
     // schema check below refuses any other value.
     ...(body?.verification !== undefined ? { verification: body.verification } : {}),
+    // FBS-243 (AC-19905-10): the criterion's proof level (rcf-schemas
+    // 0.11.0, full | journey | external) travels in --from-file like
+    // verification; the schema check below refuses any other value.
+    ...(body?.proof !== undefined ? { proof: body.proof } : {}),
   };
   const acReplay = resolveReplay({
     kind: 'ac',
@@ -1178,6 +1183,9 @@ function detectSeededPhantomAcIndex(acs, parentUsId) {
   // verification=...) is operator-authored like scope; replacing the seed
   // would drop it.
   if (ac.verification !== undefined) return -1;
+  // FBS-243: a proof level set on the seed (define update --set
+  // proof=...) is operator-authored like verification.
+  if (ac.proof !== undefined) return -1;
   if (ac.provenance !== undefined) return -1;
   return 0;
 }
@@ -1407,6 +1415,11 @@ export async function updateDocument({ projectRoot, tree, id, patch, sets = [], 
     const err = applyDotPath(next, path, value);
     if (err) return rcfError({ kind: 'usage', message: err, documentId: id });
   }
+  // Round G (rulings 40 to 43): a story rewrite that lightens an
+  // existing criterion's proof needs a non-empty reason.
+  const lightenings = kind === 'userStory' ? proofLightenings(doc.acceptanceCriteria, next.acceptanceCriteria) : [];
+  const refusal = refuseUnreasonedLightening(lightenings, options.reason, id);
+  if (refusal) return refusal;
   // Refuse to update immutable fields.
   const immutableTouched = ['id', 'createdAt', 'schemaVersion'].filter((f) => {
     // Fields at top level only.
@@ -1455,12 +1468,112 @@ export async function updateDocument({ projectRoot, tree, id, patch, sets = [], 
   if (options.dryRun) {
     return { id, filePath: relPath, body: next, dryRun: true };
   }
+  if (lightenings.length > 0) {
+    const ledger = await ledgerWithLightenings(projectRoot, lightenings, options.reason);
+    if (isRcfError(ledger)) return ledger;
+    const saveErr = await saveLightenings(projectRoot, ledger);
+    if (saveErr) return saveErr;
+  }
   try {
     await writeJsonAtomic(absPath, next);
   } catch (err) {
     return rcfError({ kind: 'ioFailure', message: `update: write failed: ${err.message}`, filePath: relPath, stack: err.stack });
   }
   return { id, filePath: relPath, body: next };
+}
+
+// ---------------------------------------------------------------------------
+// Proof downgrade guard (round G, US-19905; rulings 40 to 43)
+// ---------------------------------------------------------------------------
+
+// Proof levels by weight; an absent `proof` counts as full.
+const PROOF_RANK = { external: 0, journey: 1, full: 2 };
+
+/**
+ * The existing criteria whose proof an update lightens (absent or full
+ * to journey or external, journey to external), in `after` order. A
+ * criterion with no entry in `before` is a create, never a lightening.
+ *
+ * @param {Array<{ id: string, proof?: string }>} before
+ * @param {Array<{ id: string, proof?: string }>} after
+ * @returns {Array<{ acId: string, from: string, to: string }>}
+ */
+export function proofLightenings(before, after) {
+  const prior = new Map((Array.isArray(before) ? before : []).map((ac) => [ac?.id, ac]));
+  const out = [];
+  for (const ac of Array.isArray(after) ? after : []) {
+    const prev = prior.get(ac?.id);
+    if (!prev) continue;
+    const from = prev.proof ?? 'full';
+    const to = ac.proof ?? 'full';
+    if (!(from in PROOF_RANK) || !(to in PROOF_RANK)) continue;
+    if (PROOF_RANK[to] < PROOF_RANK[from]) out.push({ acId: ac.id, from, to });
+  }
+  return out;
+}
+
+/**
+ * Refuse a lightening that carries no non-empty reason, naming the
+ * first lightened criterion. Null when the update may proceed.
+ */
+function refuseUnreasonedLightening(lightenings, reason, documentId) {
+  if (lightenings.length === 0) return null;
+  if (typeof reason === 'string' && reason.trim().length > 0) return null;
+  const { acId, from, to } = lightenings[0];
+  return rcfError({
+    kind: 'usage',
+    message: `update: refusing to lighten ${acId} proof from ${from} to ${to} without a reason (pass --reason <text>, non-empty)`,
+    documentId,
+  });
+}
+
+/**
+ * The decisions ledger body with one resolved decision per lightening
+ * appended (blocks the criterion id, answer the reason verbatim),
+ * built and validated through the ledger module; no write. A lightening
+ * whose resolved decision is already there (same criterion, both
+ * levels and reason: a retry, ruling 47) adds none. Returns `{ body }`
+ * or an RcfError.
+ */
+export async function ledgerWithLightenings(projectRoot, lightenings, reason) {
+  const now = nowIso();
+  try {
+    let body = await loadLedger({ projectRoot, name: 'decisions' });
+    for (const { acId, from, to } of lightenings) {
+      const question = `Lighten ${acId} proof from ${from} to ${to}?`;
+      const retry = (body.decisions ?? []).some((d) => d?.status === 'resolved' && d.blocks === acId && d.question === question && d.answer === reason);
+      if (retry) continue;
+      const added = addEntry({
+        name: 'decisions',
+        body,
+        entry: {
+          question,
+          options: [
+            { letter: 'a', text: `lighten ${acId} proof from ${from} to ${to}` },
+            { letter: 'b', text: `keep ${acId} proof at ${from}` },
+          ],
+          default: 'b',
+          blocks: acId,
+        },
+        now,
+      });
+      body = resolveEntry({
+        name: 'decisions', body: added.body, id: added.entry.id, patch: { answer: reason, answeredAt: now }, now,
+      }).body;
+    }
+    return { body };
+  } catch (err) {
+    return rcfError({ kind: 'validation', message: `update: ${err.message}`, filePath: ledgerRelPath('decisions') });
+  }
+}
+
+export async function saveLightenings(projectRoot, ledger) {
+  try {
+    await saveLedger({ projectRoot, name: 'decisions', body: ledger.body });
+  } catch (err) {
+    return rcfError({ kind: 'ioFailure', message: `update: write failed: ${err.message}`, filePath: ledgerRelPath('decisions'), stack: err.stack });
+  }
+  return null;
 }
 
 function rootKindTreeKey(kind) {
@@ -1574,6 +1687,11 @@ async function updateInline({ projectRoot, tree, inline, id, patch, sets, option
   if (Object.prototype.hasOwnProperty.call(entry, 'id') && entry.id !== id) {
     return rcfError({ kind: 'usage', message: 'update: refusing to modify immutable field(s): id', documentId: id });
   }
+  // Round G (rulings 40 to 43): lightening the criterion's proof needs
+  // a non-empty reason.
+  const lightenings = inline.kind === 'ac' ? proofLightenings([entries[idx]], [entry]) : [];
+  const refusal = refuseUnreasonedLightening(lightenings, options.reason, id);
+  if (refusal) return refusal;
   const nextParent = { ...parent, [arrayField]: [...entries.slice(0, idx), entry, ...entries.slice(idx + 1)], updatedAt: nowIso() };
   const kind = inline.kind === 'ac' ? 'userStory' : 'testSuite';
   const relPath = `rcf/${subdirFor(kind)}/${parentId.toLowerCase()}.json`;
@@ -1588,6 +1706,12 @@ async function updateInline({ projectRoot, tree, inline, id, patch, sets, option
   if (gateErr) return { ...gateErr, documentId: parentId };
   if (options.dryRun) {
     return { id, filePath: relPath, parentId, body: entry, dryRun: true };
+  }
+  if (lightenings.length > 0) {
+    const ledger = await ledgerWithLightenings(projectRoot, lightenings, options.reason);
+    if (isRcfError(ledger)) return ledger;
+    const saveErr = await saveLightenings(projectRoot, ledger);
+    if (saveErr) return saveErr;
   }
   try {
     await writeJsonAtomic(pathForKindFile(projectRoot, kind, parentId), nextParent);

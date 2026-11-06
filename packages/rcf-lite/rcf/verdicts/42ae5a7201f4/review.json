@@ -1,0 +1,58 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "42ae5a7201f45504972e6750a5af5d069b6cc044",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16",
+    "AC-19905-17",
+    "AC-19905-18",
+    "AC-19905-19",
+    "AC-19905-20",
+    "AC-19905-21",
+    "AC-19905-22",
+    "AC-19905-23",
+    "AC-19905-24",
+    "AC-19905-25",
+    "AC-19905-26",
+    "AC-19905-27",
+    "AC-19905-28",
+    "AC-19905-29",
+    "AC-19905-30"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": null,
+      "text": "src/build/verdict.js:189 recordReviewVerdict runs the lightening check only inside if (base), so when resolveBase finds neither origin/main nor main the check is skipped and a MERGE/PASS verdict is written whatever the chain holds; light Finalise already refuses that state (src/finalise/light.js:277), and the criteria never named the no-base case, so the gap is in the spec (P1-4 from the second Codex re-review, class spec by ruling 57 of the stage-keeper); the test-author adds criteria making the review verb refuse MERGE/PASS with a named line and write nothing when no base resolves, FINDINGS still recorded (ruling 58)"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": null,
+      "text": "src/finalise/light.js:216 undecidedLightenings builds its decided set from status, blocks and question only, never the answer, so a decision resolved with no answer (rcf define ledger decisions resolve <id> without --answer) satisfies both rcf build verdict review and light Finalise; the criteria never named an answerless decision, so the gap is in the spec (P1-5 from the second Codex re-review, class spec by ruling 57 of the stage-keeper); the test-author adds criteria making the shared check treat a resolved decision with an empty or whitespace-only answer as undecided at both gates, the refusal naming the criterion and the missing answer, a decision with a non-empty answer still passing (ruling 59)"
+    }
+  ],
+  "recordedBy": "reviewer, round G gate FINDINGS 3",
+  "recordedAt": "2026-11-06T07:18:47.145Z"
+}
