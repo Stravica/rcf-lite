@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1094",
+  "path": "src/finalise/light.js#judgeFinalise",
+  "implementsAcIds": [
+    "AC-19905-24"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T05:32:16.691Z",
+  "updatedAt": "2026-11-06T05:32:16.691Z"
+}
