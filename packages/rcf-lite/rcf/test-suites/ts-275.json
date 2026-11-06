@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:07.403Z",
-  "updatedAt": "2026-10-26T21:31:14.539Z",
+  "updatedAt": "2026-11-06T23:21:57.046Z",
   "purpose": "FBS-234: the external criteria of US-19703, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -90,13 +90,6 @@
       "description": "a TEST: commit adding a PASS test.json with no REVIEW: in the range fails \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; one adding only rcf/verify-reports/ evidence passes as no verdict",
       "status": "pending",
       "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the range fails \"<s7> TEST: verdict with no passed REVIEW verdict in the round\"; one adding only rcf/verify-reports/ evidence passes as no verdict"
-    },
-    {
-      "id": "TC-275-a-test-strength-adding-a-failing-test",
-      "acId": "AC-19703-11",
-      "description": "a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\"",
-      "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19703-11: a \"TEST: strength\" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\""
     },
     {
       "id": "TC-275-separation-help-reviewed-head-casing",

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:38.538Z",
-  "updatedAt": "2026-10-26T21:31:08.535Z",
+  "updatedAt": "2026-11-06T23:21:56.360Z",
   "asA": "test-author starting a new round, and the stage-keeper judging the branch",
   "iWant": "rcf audit separation to refuse any stage regression except a new round right after a failed verdict",
   "soThat": "every fix round re-runs all five stages and no BUILD or DEFINE commit slips in after a passed review",
@@ -79,7 +79,10 @@
       "id": "AC-19703-11",
       "description": "[edge] Given a fixture branch DEFINE:, BUILD:, REVIEW: (MERGE/PASS), TEST: (PASS at H), \"TEST: strength\" adding rcf/verdicts/<H12>/test-strength.json with result fail, then \"DEFINE: triage\", rcf audit separation exits 0: the failing record closes the round; the same branch with \"BUILD: fix\" after the failing record exits 4 with \"<s7> BUILD: after a failed verdict; the next round starts at DEFINE:\".",
       "testable": true,
-      "verification": "external"
+      "verification": "external",
+      "supersededBy": "AC-20502-4",
+      "supersededOn": "2026-11-06",
+      "supersessionNote": "Retired 2026-11-06 (rcf-lite 0.41.0 DEFINE pass 1, test-author, retired and succeeded, never reworded): A failing test-strength record no longer closes the round in rcf audit separation (ruling R1 option 1; R2 leaves strict round order otherwise unchanged); AC-20502-4 states the 0.41.0 rule."
     },
     {
       "id": "AC-19703-12",

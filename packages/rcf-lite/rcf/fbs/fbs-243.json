@@ -1,0 +1,41 @@
+{
+  "createdAt": "2026-11-06T23:21:03.753Z",
+  "updatedAt": "2026-11-06T23:21:04.429Z",
+  "summary": "rcf-lite 0.41.0, the stripped twelve-rule process (Baz decision 14): the npm package stops shipping its own rcf/ (privacy), test strength becomes a recorded report that refuses nothing (integrity: Finalise and the TEST verdict refuse on structure only, a failing record no longer closes the round), and the managed agent-instructions block, rcf guidance build-cycle, the bundle runbook and rcf guidance overview state the twelve rules (product claim, core journey through rcf init and rcf doctor --fix).",
+  "approach": "Builder orientation (the test-author's reading of the code at 892bc858e169, not a build): package.json:29 drops \"rcf\" from files. src/finalise/light.js:136-148 judgeTestStrength keeps the no-record and omits refusals and replaces the fails refusal with one stdout line per non-pass touched criterion (\"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\"; the omits check must no longer sit behind the fails check). src/build/verdict.js:312-316 drops the PASS refusal on a failing record. src/audit/separation.js:411-413 stops closing the round on a failing test-strength record. Help text for finalise, verdict test and test-strength follows (src/cli/build.js, src/cli/test-strength.js:278-293). guidance/managed/agent-instructions-block.md: the operator register (:12-75) goes whole, RULE 13 becomes \"Deliver in rounds: the twelve rules\" as one numbered list 1 to 12, the five-role build loop (:342-394) keeps only the commands; regenerate the hash and the harness-template.md fence with scripts/gen-managed-artefacts.mjs. guidance/build-cycle.md: the twelve rules as one numbered list, the DEFINE exit rule 6 verbatim with \"No throwaway.\", the FINALISE paragraph \"requires the test-strength record\" and \"never refuses on its result\"; overview.md:34 and :46 (closer kept word for word; \"the test-strength report shows it, and the reviewer judges it\"); build-cycle-playbook.md:29, :126; src/build/bundle.js:287-305 runbook DEFINE (rule 6) and REVIEW (\"test strength is recorded for the reviewer's adequacy verdict\") lines; goldens regenerate through their generators. Keep green: AC-20401-3 (RULE 13 still names \"merging before Finalise has written complete\", e.g. in rule 10) and AC-20401-5 (no sentence with \"Hand:\" outside the 0.37.x transition, so the twelve rules carry no Hand: trailer sentence).",
+  "deliverables": [
+    "package.json files without rcf (builder)",
+    "src/finalise/light.js, src/build/verdict.js, src/audit/separation.js and their help text (builder)",
+    "guidance/managed/agent-instructions-block.md, its .hash and the harness-template.md mirror via scripts/gen-managed-artefacts.mjs (builder)",
+    "guidance/build-cycle.md, guidance/overview.md, guidance/build-cycle-playbook.md, src/build/bundle.js runbook (builder)",
+    "Code Nodes for every criterion of this spec (builder)",
+    "Goldens this round moves (bundle-fbs-001, bundle-next-029, queue, coverage, code-node-count), regenerated through their declared generators with Generated-By (builder)",
+    "README.md:64 and :85, CHANGELOG, releases/releases.yaml 0.41.0 entry, breaking true, minAgentAction rerun-init (builder and stage-keeper, hygiene)"
+  ],
+  "notes": "Round rcf-lite 0.41.0 DEFINE pass 1 of 2, 2026-11-06 (test-author, lane r-20261106-230606-df3f, claude-opus-5-5). Contract w-2026-11-06-dave-025 as ruled by Dave 2026-11-06 23:0xZ: R0 E1 (rule 3 is text: proof level chosen at DEFINE and recorded with the round, every touched criterion still needs a bound test and a Code Node, no proof field), R1 option 1 (report, not gate), R2 no tool change, R3 and R4 yes, R5 yes; C4 cut, so the brief's AC-C1 and AC-C2 are struck and 0.40.1 base-suite behaviour stands. Tier T3: an adversarial Codex bypass pass runs on this pass's head before BUILD. Brief criteria map: AC-A1 AC-20501-1, AC-A2 AC-20501-2, AC-B1 to AC-B5 AC-20502-1 to -5, AC-D1 to AC-D3 AC-20503-1 to -3, AC-E1 to AC-E3 AC-20504-1 to -3. Retired and succeeded (0.40.1 truth): AC-20002-1 by AC-20502-2, AC-19702-7 by AC-20502-3, AC-19703-11 by AC-20502-4, AC-20401-8 by AC-20503-1.",
+  "riskLevel": "high",
+  "estimatedSize": "medium",
+  "domain": "functional",
+  "acIds": [
+    "AC-20501-1",
+    "AC-20501-2",
+    "AC-20502-1",
+    "AC-20502-2",
+    "AC-20502-3",
+    "AC-20502-4",
+    "AC-20502-5",
+    "AC-20503-1",
+    "AC-20503-2",
+    "AC-20503-3",
+    "AC-20504-1",
+    "AC-20504-2",
+    "AC-20504-3"
+  ],
+  "fbsId": "FBS-243",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 245,
+  "executionStatus": "inProgress",
+  "title": "rcf-lite 0.41.0: rcf/ out of the tarball, test strength a report, and the twelve rules in the managed block, the guidance and the runbook",
+  "dependsOnFbsIds": []
+}

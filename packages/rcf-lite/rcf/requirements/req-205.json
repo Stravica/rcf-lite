@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-11-06T23:17:31.822Z",
+  "updatedAt": "2026-11-06T23:17:32.017Z",
+  "description": "rcf-lite 0.41.0 ships the stripped twelve-rule process (Baz decision 14, built from main at 892bc858e169, round G out): the npm package no longer ships its own rcf/ folder; test strength is a recorded report that refuses nothing, so the tool referees structure, never adequacy; the managed agent-instructions block, rcf guidance build-cycle, the bundle runbook and rcf guidance overview state the twelve rules of the build cycle.",
+  "category": "functional",
+  "domain": "functional",
+  "priority": "must",
+  "rationale": "Baz decisions 11, 12 and 14 (2026-11-06); bloat analysis section 7 (K15, K21); round contract rows C1, C3, C5, C6 and C7; Dave's rulings R0 E1, R1 option 1, R3, R4, R5; C4 cut (ruling 7).",
+  "tags": [
+    "capability:build-sequence",
+    "capability:project-init"
+  ],
+  "deliveredBy": {
+    "tacId": "TAC-4160"
+  },
+  "reqId": "REQ-205",
+  "prdId": "PRD-001",
+  "title": "rcf-lite 0.41.0: the package keeps its own chain private, test strength is a report, and the shipped text states the twelve rules",
+  "version": "0.1.0",
+  "status": "draft",
+  "shapeClassification": {
+    "shapes": [
+      "none"
+    ],
+    "reason": "keyword-scan",
+    "classifiedAt": "2026-11-06T23:17:32.014Z"
+  }
+}
