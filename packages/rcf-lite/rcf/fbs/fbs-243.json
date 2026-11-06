@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-06T23:21:03.753Z",
-  "updatedAt": "2026-11-06T23:21:04.429Z",
+  "updatedAt": "2026-11-06T23:56:49.251Z",
   "summary": "rcf-lite 0.41.0, the stripped twelve-rule process (Baz decision 14): the npm package stops shipping its own rcf/ (privacy), test strength becomes a recorded report that refuses nothing (integrity: Finalise and the TEST verdict refuse on structure only, a failing record no longer closes the round), and the managed agent-instructions block, rcf guidance build-cycle, the bundle runbook and rcf guidance overview state the twelve rules (product claim, core journey through rcf init and rcf doctor --fix).",
   "approach": "Builder orientation (the test-author's reading of the code at 892bc858e169, not a build): package.json:29 drops \"rcf\" from files. src/finalise/light.js:136-148 judgeTestStrength keeps the no-record and omits refusals and replaces the fails refusal with one stdout line per non-pass touched criterion (\"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\"; the omits check must no longer sit behind the fails check). src/build/verdict.js:312-316 drops the PASS refusal on a failing record. src/audit/separation.js:411-413 stops closing the round on a failing test-strength record. Help text for finalise, verdict test and test-strength follows (src/cli/build.js, src/cli/test-strength.js:278-293). guidance/managed/agent-instructions-block.md: the operator register (:12-75) goes whole, RULE 13 becomes \"Deliver in rounds: the twelve rules\" as one numbered list 1 to 12, the five-role build loop (:342-394) keeps only the commands; regenerate the hash and the harness-template.md fence with scripts/gen-managed-artefacts.mjs. guidance/build-cycle.md: the twelve rules as one numbered list, the DEFINE exit rule 6 verbatim with \"No throwaway.\", the FINALISE paragraph \"requires the test-strength record\" and \"never refuses on its result\"; overview.md:34 and :46 (closer kept word for word; \"the test-strength report shows it, and the reviewer judges it\"); build-cycle-playbook.md:29, :126; src/build/bundle.js:287-305 runbook DEFINE (rule 6) and REVIEW (\"test strength is recorded for the reviewer's adequacy verdict\") lines; goldens regenerate through their generators. Keep green: AC-20401-3 (RULE 13 still names \"merging before Finalise has written complete\", e.g. in rule 10) and AC-20401-5 (no sentence with \"Hand:\" outside the 0.37.x transition, so the twelve rules carry no Hand: trailer sentence).",
   "deliverables": [
@@ -35,7 +35,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 245,
-  "executionStatus": "inProgress",
+  "executionStatus": "notStarted",
   "title": "rcf-lite 0.41.0: rcf/ out of the tarball, test strength a report, and the twelve rules in the managed block, the guidance and the runbook",
   "dependsOnFbsIds": []
 }
