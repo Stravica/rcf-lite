@@ -32,6 +32,9 @@ const OPTION_SPEC = {
   // is the deliberate manual override: a logged operator decision
   // that skips the post-merge runtime check finalise runs.
   'acknowledge-verified-override': { type: 'boolean' },
+  // Round G (US-19905, rulings 40 to 43): the recorded reason a
+  // lightening of an existing criterion's proof level needs.
+  reason: { type: 'string' },
   // FBS-218 (issue 349): set the optional probe on one AC of a US.
   ac: { type: 'string' },
   probe: { type: 'string' },
@@ -58,6 +61,13 @@ Options:
                             the sole path to verified; the override is
                             a deliberate, logged operator decision that
                             skips the post-merge runtime check.
+  --reason <text>           AC or US only: the reason for lightening an
+                            existing criterion's proof (absent or full to
+                            journey or external, journey to external).
+                            The writer refuses a lightening without a
+                            non-empty reason and records the reason as a
+                            resolved decision in
+                            rcf/define/decisions-ledger.json
   --ac <ac-id>              US only: the acceptance criterion --probe or
                             --probe-file applies to
   --probe <json>            Set the AC's probe (rcf-schemas $defs/acProbe:
@@ -208,6 +218,8 @@ export async function main(argv, deps = {}) {
       // the writer's default refuses executionStatus=verified on FBS;
       // this flag routes the operator's deliberate override through.
       allowVerifiedOverride: Boolean(flags['acknowledge-verified-override']),
+      // Round G (rulings 40 to 43): the proof downgrade guard's reason.
+      reason: flags.reason,
     },
     walkErrors: walkResult.errors,
   });
