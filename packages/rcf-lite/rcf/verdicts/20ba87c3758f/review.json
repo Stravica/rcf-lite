@@ -1,0 +1,86 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "20ba87c3758fdb47bdf57ff80fd96c00d4eec31f",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5",
+    "AC-19905-6",
+    "AC-19905-7",
+    "AC-19905-8",
+    "AC-19905-9",
+    "AC-19905-10",
+    "AC-19905-11",
+    "AC-19905-12",
+    "AC-19905-13",
+    "AC-19905-14",
+    "AC-19905-15",
+    "AC-19905-16",
+    "AC-19905-17",
+    "AC-19905-18",
+    "AC-19905-19",
+    "AC-19905-20",
+    "AC-19905-21",
+    "AC-19905-22",
+    "AC-19905-23",
+    "AC-19905-24",
+    "AC-19905-25",
+    "AC-19905-26",
+    "AC-19905-27",
+    "AC-19905-28",
+    "AC-19905-29",
+    "AC-19905-30",
+    "AC-19905-31",
+    "AC-19905-32",
+    "AC-19905-33",
+    "AC-19905-34"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19905-23",
+      "text": "P1 The gate story set is not the walker story set: undecidedLightenings (src/finalise/light.js:208 to :217) lists every .json under rcf/user-stories/ recursively and merges criteria by id with the last listed file winning, while the walker loads only flat rcf/user-stories/*.json (src/core/store/loader.js:190 and :203). Reproduced on a scratch copy of 20ba87c: AC-1001-1 lightened from full to external in us-1001.json beside an unloaded copy of the base story at rcf/user-stories/zz/shadow.json; define validate exits 0 and the chain reads AC-1001-1 as external, yet build verdict review MERGE/PASS exits 0 with no decision and undecidedLightenings, the call light Finalise makes at light.js:298, returns empty. Found in the independent reading before the reproduction."
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19905-24",
+      "text": "P1 The gate reads story blobs while the walker reads through symlinks: a story file replaced by a symlink to a lightened copy outside rcf/user-stories/ reads as no criteria at the gate (src/finalise/light.js:212 and :216, parse at :34 to :37) while the walker loads the lightened story. Reproduced on a scratch copy of 20ba87c: us-1001.json a symlink to ../../p16-us-1001.json carrying AC-1001-1 at external; define validate exits 0 and the chain reads AC-1001-1 as external, yet build verdict review MERGE/PASS exits 0 with no decision and undecidedLightenings returns empty. changedCriteria (light.js:165 to :178) shares the discovery, so the Finalise touched-set check misses the same files."
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19905-27",
+      "text": "note, new criterion: P3 The blueprint refusal branch at src/blueprint/apply.js:253 to :256 sits in applyBlueprint, which only CN-058 and CN-096 claim, for criteria outside FBS-243, so test strength over AC-19905-1 to -34 never mutates it; the detection half is claimed by CN-1097 (replacementLightenings) and CN-1099 to CN-1101. No gate reads it."
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19905-27",
+      "text": "note, new criterion: P3 replacementLightenings (src/blueprint/apply.js:548 to :555) swallows a read or parse failure of the owned story or the incoming file and skips that story, so the blueprint write-path guard fails open there; the review gate backs it."
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": "AC-19905-30",
+      "text": "note, new criterion: P3 The retry skip at src/core/store/writer.js:1544 matches the reason verbatim, so a retry whose reason differs only in surrounding whitespace adds a second resolved decision (over-records, never a silent lightening)."
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, new criterion: P3 undecidedLightenings reads a story blob that does not parse as no criteria (src/finalise/light.js:216), so an unparseable base-side story turns each of its head criteria into a creation (fail open); not reachable while the base is validated main."
+    }
+  ],
+  "recordedBy": "reviewer, round G merge-gate re-review 3",
+  "recordedAt": "2026-11-06T09:45:40.773Z"
+}
