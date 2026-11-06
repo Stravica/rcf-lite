@@ -4815,6 +4815,30 @@ flowchart LR
   AC-19905-16 -.-> TC-307-pin-coverage-golden-0-11-0
   TC-307-pin-own-chain-validates["TC-307-pin-own-chain-validates"]
   AC-19905-16 -.-> TC-307-pin-own-chain-validates
+  AC-19905-17["AC-19905-17"]
+  REQ-199 --> AC-19905-17
+  TC-307-guard-refuses-set-from-full["TC-307-guard-refuses-set-from-full"]
+  AC-19905-17 -.-> TC-307-guard-refuses-set-from-full
+  AC-19905-18["AC-19905-18"]
+  REQ-199 --> AC-19905-18
+  TC-307-guard-refuses-journey-and-blank-reason["TC-307-guard-refuses-journey-and-blank-reason"]
+  AC-19905-18 -.-> TC-307-guard-refuses-journey-and-blank-reason
+  AC-19905-19["AC-19905-19"]
+  REQ-199 --> AC-19905-19
+  TC-307-guard-refuses-from-file["TC-307-guard-refuses-from-file"]
+  AC-19905-19 -.-> TC-307-guard-refuses-from-file
+  AC-19905-20["AC-19905-20"]
+  REQ-199 --> AC-19905-20
+  TC-307-guard-refuses-parent-story-rewrite["TC-307-guard-refuses-parent-story-rewrite"]
+  AC-19905-20 -.-> TC-307-guard-refuses-parent-story-rewrite
+  AC-19905-21["AC-19905-21"]
+  REQ-199 --> AC-19905-21
+  TC-307-guard-records-reason-in-decisions-ledger["TC-307-guard-records-reason-in-decisions-ledger"]
+  AC-19905-21 -.-> TC-307-guard-records-reason-in-decisions-ledger
+  AC-19905-22["AC-19905-22"]
+  REQ-199 --> AC-19905-22
+  TC-307-guard-leaves-create-and-tightening-direct["TC-307-guard-leaves-create-and-tightening-direct"]
+  AC-19905-22 -.-> TC-307-guard-leaves-create-and-tightening-direct
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7614,6 +7638,18 @@ flowchart LR
   class AC-19905-16 ac;
   class TC-307-pin-coverage-golden-0-11-0 tc;
   class TC-307-pin-own-chain-validates tc;
+  class AC-19905-17 ac;
+  class TC-307-guard-refuses-set-from-full tc;
+  class AC-19905-18 ac;
+  class TC-307-guard-refuses-journey-and-blank-reason tc;
+  class AC-19905-19 ac;
+  class TC-307-guard-refuses-from-file tc;
+  class AC-19905-20 ac;
+  class TC-307-guard-refuses-parent-story-rewrite tc;
+  class AC-19905-21 ac;
+  class TC-307-guard-records-reason-in-decisions-ledger tc;
+  class AC-19905-22 ac;
+  class TC-307-guard-leaves-create-and-tightening-direct tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;

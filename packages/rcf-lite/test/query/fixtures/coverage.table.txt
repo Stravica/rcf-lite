@@ -988,6 +988,12 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19905-14  yes                    external   verified  notStarted  TC-307-pin-catalog-path-only-fails
                       AC-19905-15  yes                    external   verified  notStarted  TC-307-pin-ac-level-path-only-refused
                       AC-19905-16  yes                    testOnly   complete  notStarted  TC-307-pin-coverage-golden-0-11-0, TC-307-pin-own-chain-v...
+                      AC-19905-17  yes                    external   verified  notStarted  TC-307-guard-refuses-set-from-full
+                      AC-19905-18  yes                    external   verified  notStarted  TC-307-guard-refuses-journey-and-blank-reason
+                      AC-19905-19  yes                    external   verified  notStarted  TC-307-guard-refuses-from-file
+                      AC-19905-20  yes                    external   verified  notStarted  TC-307-guard-refuses-parent-story-rewrite
+                      AC-19905-21  yes                    external   verified  notStarted  TC-307-guard-records-reason-in-decisions-ledger
+                      AC-19905-22  yes                    external   verified  notStarted  TC-307-guard-leaves-create-and-tightening-direct
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise

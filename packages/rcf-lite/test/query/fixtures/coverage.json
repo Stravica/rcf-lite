@@ -12222,6 +12222,72 @@
           "verification": "testOnly",
           "expectedEnd": "complete",
           "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-17",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-set-from-full"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-18",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-journey-and-blank-reason"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-19",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-from-file"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-20",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-refuses-parent-story-rewrite"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-21",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-records-reason-in-decisions-ledger"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-22",
+          "covered": true,
+          "testCases": [
+            "TC-307-guard-leaves-create-and-tightening-direct"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },
