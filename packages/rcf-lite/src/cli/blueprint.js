@@ -155,7 +155,10 @@ Options:
                          not scaffold one -- use \`supersede\` for that).
   --reason <text>        (supersede, add --resolve) Optional operator
                          note attached to the manifest.resolutions[]
-                         record.
+                         record. (add) Required, non-empty, when a
+                         version replacement lightens a criterion's
+                         proof; recorded as the answer of its resolved
+                         decision in rcf/define/decisions-ledger.json.
   --companion <role>=<slug>
                          (add only, repeatable) Pin a companion
                          provider at apply time; writes the pin to
@@ -415,6 +418,7 @@ export async function main(argv, deps = {}) {
         libraryBands: resolved.libraryBands,
       } : {}),
       resolveDeclarations: resolveDeclarations.value,
+      reason: parsed.values.reason,
       now,
       dryRun: parsed.values['dry-run'] === true,
     });

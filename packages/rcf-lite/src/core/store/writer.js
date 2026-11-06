@@ -1498,7 +1498,7 @@ const PROOF_RANK = { external: 0, journey: 1, full: 2 };
  * @param {Array<{ id: string, proof?: string }>} after
  * @returns {Array<{ acId: string, from: string, to: string }>}
  */
-function proofLightenings(before, after) {
+export function proofLightenings(before, after) {
   const prior = new Map((Array.isArray(before) ? before : []).map((ac) => [ac?.id, ac]));
   const out = [];
   for (const ac of Array.isArray(after) ? after : []) {
@@ -1533,7 +1533,7 @@ function refuseUnreasonedLightening(lightenings, reason, documentId) {
  * built and validated through the ledger module; no write. Returns
  * `{ body }` or an RcfError.
  */
-async function ledgerWithLightenings(projectRoot, lightenings, reason) {
+export async function ledgerWithLightenings(projectRoot, lightenings, reason) {
   const now = nowIso();
   try {
     let body = await loadLedger({ projectRoot, name: 'decisions' });
@@ -1562,7 +1562,7 @@ async function ledgerWithLightenings(projectRoot, lightenings, reason) {
   }
 }
 
-async function saveLightenings(projectRoot, ledger) {
+export async function saveLightenings(projectRoot, ledger) {
   try {
     await saveLedger({ projectRoot, name: 'decisions', body: ledger.body });
   } catch (err) {

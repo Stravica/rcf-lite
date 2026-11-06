@@ -12,8 +12,9 @@ import { dirname, join, resolve } from 'node:path';
 
 import { readFile } from 'node:fs/promises';
 
-import { rcfError } from '../core/errors/index.js';
+import { isRcfError, rcfError } from '../core/errors/index.js';
 import { subdirFor } from '#core/store';
+import { ledgerWithLightenings, proofLightenings, saveLightenings } from '../core/store/writer.js';
 import { detectCrossBlueprintClaims, detectGlobalAdrConflicts } from './conflicts.js';
 import { detectContributionsOutOfBand } from './library-registry.js';
 import { loadBlueprint } from './loader.js';
@@ -73,6 +74,11 @@ import { APPLY_DISPOSITION_PROMPT, initialiseLedger } from './disposition-ledger
  *        (topic missing from the incoming ADR set, no existing applied
  *        blueprint on the topic) are refused with an rcfError. Reads
  *        `manifest.resolutions[]` for id-mint monotonicity.
+ * @param {string} [args.reason]
+ *        The add's --reason (ruling 52): with a version replacement that
+ *        lightens an owned user story's criterion, the answer of the one
+ *        resolved decision per lightened criterion; without a non-empty
+ *        one such a replacement is refused (ruling 49).
  * @param {Date} [args.now]
  * @param {boolean} [args.dryRun]
  * @param {(src: string, dest: string) => Promise<void>} [args._copyFileForTest]
@@ -81,7 +87,7 @@ import { APPLY_DISPOSITION_PROMPT, initialiseLedger } from './disposition-ledger
  *        prove the rollback runs. Never used in production.
  * @returns {Promise<ApplyResult | import('../core/errors/index.js').RcfError>}
  */
-export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, allowNoAuthYet = false, elicitAnswers = null, customAuthReadLine = null, now = new Date(), dryRun = false, _copyFileForTest }) {
+export async function applyBlueprint({ projectRoot, tree, source, displaySource, namespaceOverride, effectiveSlug, libraryPrefix, libraryBands, resolveDeclarations, reason, allowNoAuthYet = false, elicitAnswers = null, customAuthReadLine = null, now = new Date(), dryRun = false, _copyFileForTest }) {
   const hintSource = typeof displaySource === 'string' && displaySource.length > 0 ? displaySource : source;
   const blueprint = await loadBlueprint(source);
   if (blueprint.kind) return blueprint; // RcfError
@@ -242,6 +248,18 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
   // keeps every id-bearing file invisible to the walker until the
   // whole batch is ready to commit.
   const stampedContributions = stamped.contributions;
+  // Proof lightening guard (round G, US-19905; rulings 46 and 49): a
+  // version replacement whose owned user story lightens an existing
+  // criterion needs a non-empty --reason and records one resolved
+  // decision per lightened criterion, written before the story. A
+  // first application owns nothing and stays direct at any level.
+  const lightenings = await replacementLightenings(projectRoot, blueprint.source, stampedContributions, ownedIds);
+  if (lightenings.length > 0 && !(typeof reason === 'string' && reason.trim().length > 0)) {
+    const { acId, from, to } = lightenings[0];
+    return rcfError({ kind: 'usage', message: `refusing to lighten ${acId} proof from ${from} to ${to} without a reason (pass --reason <text>, non-empty)` });
+  }
+  const ledger = lightenings.length > 0 && !dryRun ? await ledgerWithLightenings(projectRoot, lightenings, reason) : null;
+  if (isRcfError(ledger)) return ledger;
   const writtenContributions = [];
   const copyFileImpl = _copyFileForTest ?? copyFile;
   if (dryRun) {
@@ -302,6 +320,13 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
         return rollback(wrapped);
       }
       stagedWrites.push({ tmpAbs, absDest, relDest, id: c.id, kind: c.kind, c });
+    }
+    if (ledger) {
+      const saveErr = await saveLightenings(projectRoot, ledger);
+      if (saveErr) {
+        for (const w of stagedWrites) await unlink(w.tmpAbs).catch(() => {});
+        return saveErr;
+      }
     }
     // Commit phase. Rename each sidecar into place. A rename failure
     // rolls the still-sideloaded remainder back, plus best-effort undo
@@ -512,6 +537,25 @@ function preserveScope(manifestRecord, source) {
   if (source.scope === 'global') manifestRecord.scope = 'global';
   if (typeof source.topic === 'string') manifestRecord.topic = source.topic;
   return manifestRecord;
+}
+
+/**
+ * The criteria an owned user story's replacement lightens, in
+ * contribution then criterion order: each owned `us` contribution
+ * already on disk compared by criterion id with its incoming file (an
+ * absent proof counts as full). None for a first application.
+ */
+async function replacementLightenings(projectRoot, blueprintSource, contributions, ownedIds) {
+  const out = [];
+  for (const c of contributions) {
+    if (c.kind !== 'us' || !ownedIds.has(c.id)) continue;
+    const read = (abs) => readFile(abs, 'utf8').then((text) => JSON.parse(text)).catch(() => null);
+    const before = await read(join(projectRoot, destPathFor(c)));
+    const after = await read(resolve(blueprintSource, 'contributions', c.path));
+    if (!before || !after) continue;
+    out.push(...proofLightenings(before.acceptanceCriteria, after.acceptanceCriteria));
+  }
+  return out;
 }
 
 function destPathFor(c) {
