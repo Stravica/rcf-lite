@@ -12288,6 +12288,94 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-23",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-refuses-undecided-lightening"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-24",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-finalise-refuses-undecided-lightening"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-25",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-passes-with-resolved-decision"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-26",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-silent-for-creations-and-tightenings"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-27",
+          "covered": true,
+          "testCases": [
+            "TC-307-blueprint-replacement-refuses-unreasoned-lightening"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-28",
+          "covered": true,
+          "testCases": [
+            "TC-307-blueprint-replacement-records-reason-in-decisions-ledger"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-29",
+          "covered": true,
+          "testCases": [
+            "TC-307-blueprint-first-application-direct"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-30",
+          "covered": true,
+          "testCases": [
+            "TC-307-reasoned-lightening-retry-idempotent"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },

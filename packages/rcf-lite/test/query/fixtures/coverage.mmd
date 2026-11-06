@@ -4839,6 +4839,38 @@ flowchart LR
   REQ-199 --> AC-19905-22
   TC-307-guard-leaves-create-and-tightening-direct["TC-307-guard-leaves-create-and-tightening-direct"]
   AC-19905-22 -.-> TC-307-guard-leaves-create-and-tightening-direct
+  AC-19905-23["AC-19905-23"]
+  REQ-199 --> AC-19905-23
+  TC-307-gate-review-refuses-undecided-lightening["TC-307-gate-review-refuses-undecided-lightening"]
+  AC-19905-23 -.-> TC-307-gate-review-refuses-undecided-lightening
+  AC-19905-24["AC-19905-24"]
+  REQ-199 --> AC-19905-24
+  TC-307-gate-finalise-refuses-undecided-lightening["TC-307-gate-finalise-refuses-undecided-lightening"]
+  AC-19905-24 -.-> TC-307-gate-finalise-refuses-undecided-lightening
+  AC-19905-25["AC-19905-25"]
+  REQ-199 --> AC-19905-25
+  TC-307-gate-passes-with-resolved-decision["TC-307-gate-passes-with-resolved-decision"]
+  AC-19905-25 -.-> TC-307-gate-passes-with-resolved-decision
+  AC-19905-26["AC-19905-26"]
+  REQ-199 --> AC-19905-26
+  TC-307-gate-silent-for-creations-and-tightenings["TC-307-gate-silent-for-creations-and-tightenings"]
+  AC-19905-26 -.-> TC-307-gate-silent-for-creations-and-tightenings
+  AC-19905-27["AC-19905-27"]
+  REQ-199 --> AC-19905-27
+  TC-307-blueprint-replacement-refuses-unreasoned-lightening["TC-307-blueprint-replacement-refuses-unreasoned-lightening"]
+  AC-19905-27 -.-> TC-307-blueprint-replacement-refuses-unreasoned-lightening
+  AC-19905-28["AC-19905-28"]
+  REQ-199 --> AC-19905-28
+  TC-307-blueprint-replacement-records-reason-in-decisions-ledger["TC-307-blueprint-replacement-records-reason-in-decisions-ledger"]
+  AC-19905-28 -.-> TC-307-blueprint-replacement-records-reason-in-decisions-ledger
+  AC-19905-29["AC-19905-29"]
+  REQ-199 --> AC-19905-29
+  TC-307-blueprint-first-application-direct["TC-307-blueprint-first-application-direct"]
+  AC-19905-29 -.-> TC-307-blueprint-first-application-direct
+  AC-19905-30["AC-19905-30"]
+  REQ-199 --> AC-19905-30
+  TC-307-reasoned-lightening-retry-idempotent["TC-307-reasoned-lightening-retry-idempotent"]
+  AC-19905-30 -.-> TC-307-reasoned-lightening-retry-idempotent
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7650,6 +7682,22 @@ flowchart LR
   class TC-307-guard-records-reason-in-decisions-ledger tc;
   class AC-19905-22 ac;
   class TC-307-guard-leaves-create-and-tightening-direct tc;
+  class AC-19905-23 ac;
+  class TC-307-gate-review-refuses-undecided-lightening tc;
+  class AC-19905-24 ac;
+  class TC-307-gate-finalise-refuses-undecided-lightening tc;
+  class AC-19905-25 ac;
+  class TC-307-gate-passes-with-resolved-decision tc;
+  class AC-19905-26 ac;
+  class TC-307-gate-silent-for-creations-and-tightenings tc;
+  class AC-19905-27 ac;
+  class TC-307-blueprint-replacement-refuses-unreasoned-lightening tc;
+  class AC-19905-28 ac;
+  class TC-307-blueprint-replacement-records-reason-in-decisions-ledger tc;
+  class AC-19905-29 ac;
+  class TC-307-blueprint-first-application-direct tc;
+  class AC-19905-30 ac;
+  class TC-307-reasoned-lightening-retry-idempotent tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;

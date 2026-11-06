@@ -994,6 +994,14 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19905-20  yes                    external   verified  notStarted  TC-307-guard-refuses-parent-story-rewrite
                       AC-19905-21  yes                    external   verified  notStarted  TC-307-guard-records-reason-in-decisions-ledger
                       AC-19905-22  yes                    external   verified  notStarted  TC-307-guard-leaves-create-and-tightening-direct
+                      AC-19905-23  yes                    external   verified  notStarted  TC-307-gate-review-refuses-undecided-lightening
+                      AC-19905-24  yes                    external   verified  notStarted  TC-307-gate-finalise-refuses-undecided-lightening
+                      AC-19905-25  yes                    external   verified  notStarted  TC-307-gate-passes-with-resolved-decision
+                      AC-19905-26  yes                    external   verified  notStarted  TC-307-gate-silent-for-creations-and-tightenings
+                      AC-19905-27  yes                    external   verified  notStarted  TC-307-blueprint-replacement-refuses-unreasoned-lightening
+                      AC-19905-28  yes                    external   verified  notStarted  TC-307-blueprint-replacement-records-reason-in-decisions-...
+                      AC-19905-29  yes                    external   verified  notStarted  TC-307-blueprint-first-application-direct
+                      AC-19905-30  yes                    external   verified  notStarted  TC-307-reasoned-lightening-retry-idempotent
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
