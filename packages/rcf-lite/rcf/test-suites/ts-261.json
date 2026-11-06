@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-22T11:21:26.487Z",
-  "updatedAt": "2026-10-27T01:53:39.708Z",
+  "updatedAt": "2026-11-06T11:11:12.985Z",
   "purpose": "Bind one red test per criterion of US-19005 (FBS-230), each driving bin/rcf.js over fixture git repositories with a bare local remote and servers on 127.0.0.1, so the Build hand makes them green against the pre-merge Finalise rule of ADR-4151.",
   "testLevel": "integration",
   "acIds": [
@@ -87,7 +87,7 @@
       "acId": "AC-19005-8",
       "description": "verified on the branch, merged with --no-ff, rcf build finalise on main confirms: exit 0, verified-from line, FBS byte-identical, clean tree, nothing but git spawned",
       "status": "failing",
-      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again after a FINALISE: status commit and after a further FINALISE: commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
     },
     {
       "id": "TC-261-allow-pre-merge-no-op",
@@ -115,7 +115,7 @@
       "acId": "AC-19005-8",
       "description": "End to end: the loopback report verified on the feature branch, merged with --no-ff, confirms on main with exit 0 and no write",
       "status": "failing",
-      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again after a FINALISE: status commit and after a further FINALISE: commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
     },
     {
       "id": "TC-261-verify-run-loopback-flags-url-only",

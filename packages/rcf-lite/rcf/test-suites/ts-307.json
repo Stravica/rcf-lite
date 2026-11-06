@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-11-05T16:08:14.828Z",
-  "updatedAt": "2026-11-06T07:25:34.845Z",
-  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30), and the gate failing closed: a passing review verdict refused when the base cannot be resolved, and a resolved decision with an absent, empty or whitespace-only answer counted as undecided at Review and light Finalise (AC-19905-31 to -34)",
+  "updatedAt": "2026-11-06T11:10:47.688Z",
+  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30), and the gate failing closed: a passing review verdict refused when the base cannot be resolved, and a resolved decision with an absent, empty or whitespace-only answer counted as undecided at Review and light Finalise (AC-19905-31 to -34), and the gate story discovery from two complete snapshots: a C-quoted, renamed, moved, split or shadowed story, a symlink or gitlink, a duplicated id, an unparseable story or an unreadable blob, a deleted criterion, a lighter successor and a retirement with no successor at Review and light Finalise, and a dirty working tree refusing both (AC-19905-35 to -49)",
   "testLevel": "e2e",
   "acIds": [
     "AC-19905-1",
@@ -37,7 +37,22 @@
     "AC-19905-31",
     "AC-19905-32",
     "AC-19905-33",
-    "AC-19905-34"
+    "AC-19905-34",
+    "AC-19905-35",
+    "AC-19905-36",
+    "AC-19905-37",
+    "AC-19905-38",
+    "AC-19905-39",
+    "AC-19905-40",
+    "AC-19905-41",
+    "AC-19905-42",
+    "AC-19905-43",
+    "AC-19905-44",
+    "AC-19905-45",
+    "AC-19905-46",
+    "AC-19905-47",
+    "AC-19905-48",
+    "AC-19905-49"
   ],
   "id": "TS-307",
   "usId": "US-19905",
@@ -287,6 +302,111 @@
       "description": "with the answerless refusal shown first, a decision resolved with a non-empty --answer and committed lets rcf build verdict review exit 0 and write review.json for HEAD",
       "status": "pending",
       "testPointer": "test/define/proof-gate-fail-closed.test.js::AC-19905-34: with the answerless refusal shown first, a decision resolved with a non-empty --answer and committed lets rcf build verdict review exit 0 and write review.json for HEAD"
+    },
+    {
+      "id": "TC-307-snapshot-quoted-rename-lightening-refused",
+      "acId": "AC-19905-35",
+      "description": "a base story at a path Git C-quotes (us-101-\"q.json), renamed at head to us-101.json with AC-101-1 lightened from no proof to external in the same commit and no decision, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-1, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-35: a base story at a path Git C-quotes (us-101-\"q.json), renamed at head to us-101.json with AC-101-1 lightened from no proof to external in the same commit and no decision, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-1, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-rename-move-split-lightening-refused",
+      "acId": "AC-19905-36",
+      "description": "a story file renamed (us-101.json to checkout-us-101.json), a criterion moved into an existing story file and a story split into a new file, each lightening one criterion from no proof to external in the same commit with no decision, make rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming that criterion, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-36: a story file renamed (us-101.json to checkout-us-101.json), a criterion moved into an existing story file and a story split into a new file, each lightening one criterion from no proof to external in the same commit with no decision, make rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming that criterion, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-rename-move-split-same-level-passes",
+      "acId": "AC-19905-37",
+      "description": "the same rename, move and split with every criterion at its base level let rcf build verdict review MERGE/PASS exit 0 writing review.json and light Finalise exit 0 writing complete",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-37: the same rename, move and split with every criterion at its base level let rcf build verdict review MERGE/PASS exit 0 writing review.json and light Finalise exit 0 writing complete"
+    },
+    {
+      "id": "TC-307-snapshot-shadow-copy-does-not-hide",
+      "acId": "AC-19905-38",
+      "description": "a byte copy of the base us-101.json at rcf/user-stories/zz/shadow.json, which the walker does not load, does not hide AC-101-1 lightened from no proof to external in us-101.json with no decision: rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-1, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-38: a byte copy of the base us-101.json at rcf/user-stories/zz/shadow.json, which the walker does not load, does not hide AC-101-1 lightened from no proof to external in us-101.json with no decision: rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-1, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-symlink-gitlink-fail-closed",
+      "acId": "AC-19905-39",
+      "description": "a symlink or a gitlink under rcf/user-stories/, at head or at the base, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the path, its kind and the side, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-39: a symlink or a gitlink under rcf/user-stories/, at head or at the base, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the path, its kind and the side, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-duplicate-id-fail-closed",
+      "acId": "AC-19905-40",
+      "description": "a criterion id declared twice, at the base across two story files or in the committed head blob of us-101.json, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the id and the side, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-40: a criterion id declared twice, at the base across two story files or in the committed head blob of us-101.json, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the id and the side, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-unparseable-story-fail-closed",
+      "acId": "AC-19905-41",
+      "description": "a story file that will not parse, at the base (rcf/user-stories/us-102.json, removed at head) or in the committed head blob of us-101.json, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the path and the side, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-41: a story file that will not parse, at the base (rcf/user-stories/us-102.json, removed at head) or in the committed head blob of us-101.json, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the path and the side, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-unreadable-blob-fail-closed",
+      "acId": "AC-19905-42",
+      "description": "the blob of us-101.json missing from the object store, at the base or at head (the working copy intact), makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the path and the side, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-42: the blob of us-101.json missing from the object store, at the base or at head (the working copy intact), makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the path and the side, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-deleted-criterion-fail-closed",
+      "acId": "AC-19905-43",
+      "description": "a base criterion absent at head, deleted outright or deleted and re-added under a new id at external, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the deleted id, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-43: a base criterion absent at head, deleted outright or deleted and re-added under a new id at external, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one cannot-compare line naming the deleted id, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-lighter-successor-refused",
+      "acId": "AC-19905-44",
+      "description": "AC-101-2 retired with supersededBy AC-101-3, a successor created at external while AC-101-2 was at no proof or journey at the base, with no decision, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming the successor and the predecessor base level, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-44: AC-101-2 retired with supersededBy AC-101-3, a successor created at external while AC-101-2 was at no proof or journey at the base, with no decision, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming the successor and the predecessor base level, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-retired-no-successor-refused",
+      "acId": "AC-19905-45",
+      "description": "AC-101-2 retired with supersededBy naming no criterion at head (or itself), at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-45: AC-101-2 retired with supersededBy naming no criterion at head (or itself), at no proof, journey or external at the base, with no decision or with a decision resolved with no answer, makes rcf build verdict review MERGE/PASS and light Finalise exit 4 with the one lightening line naming AC-101-2 retired with no successor, writing nothing; FINDINGS is still recorded"
+    },
+    {
+      "id": "TC-307-snapshot-new-and-at-level-successor-pass",
+      "acId": "AC-19905-46",
+      "description": "criteria created at head with no predecessor at journey and at external, and a successor at the level of its predecessor or heavier, need no decision: rcf build verdict review MERGE/PASS exits 0 writing review.json and light Finalise exits 0 writing complete",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-46: criteria created at head with no predecessor at journey and at external, and a successor at the level of its predecessor or heavier, need no decision: rcf build verdict review MERGE/PASS exits 0 writing review.json and light Finalise exits 0 writing complete"
+    },
+    {
+      "id": "TC-307-snapshot-review-dirty-tree-refused",
+      "acId": "AC-19905-47",
+      "description": "a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build verdict review exit 4 with \"verdict refused: working tree is dirty; a verdict names a committed head\" for MERGE/PASS and for FINDINGS/FINDINGS, writing no review.json and leaving git status --porcelain unchanged",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-47: a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build verdict review exit 4 with \"verdict refused: working tree is dirty; a verdict names a committed head\" for MERGE/PASS and for FINDINGS/FINDINGS, writing no review.json and leaving git status --porcelain unchanged"
+    },
+    {
+      "id": "TC-307-snapshot-finalise-dirty-tree-refused",
+      "acId": "AC-19905-48",
+      "description": "in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with \"finalise refused: working tree is dirty; finalise judges a committed head\", leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-48: in a round that reaches every earlier light Finalise check, a staged, an unstaged or an untracked change outside rcf/verdicts/ and rcf/verify-reports/ makes rcf build finalise exit 4 with \"finalise refused: working tree is dirty; finalise judges a committed head\", leaving rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged"
+    },
+    {
+      "id": "TC-307-snapshot-decided-controls-pass",
+      "acId": "AC-19905-49",
+      "description": "with each matching decision resolved with a non-empty answer in the same DEFINE: commit, the C-quoted rename, the rename, move and split, the shadow copy (beside an unparseable zz/broken.json and a notes.txt the walker does not load), the lighter successor and the retirement with no successor at no proof and at journey let rcf build verdict review MERGE/PASS exit 0 writing review.json and light Finalise exit 0 writing complete",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-snapshot.test.js::AC-19905-49: with each matching decision resolved with a non-empty answer in the same DEFINE: commit, the C-quoted rename, the rename, move and split, the shadow copy (beside an unparseable zz/broken.json and a notes.txt the walker does not load), the lighter successor and the retirement with no successor at no proof and at journey let rcf build verdict review MERGE/PASS exit 0 writing review.json and light Finalise exit 0 writing complete"
     }
   ],
   "status": "draft"

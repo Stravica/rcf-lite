@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:33:43.317Z",
-  "updatedAt": "2026-10-26T00:07:42.460Z",
+  "updatedAt": "2026-11-06T11:07:41.295Z",
   "asA": "stage-keeper on the PR branch before the merge",
   "iWant": "rcf build finalise to write complete when the last round's REVIEW, TEST and test-strength records hold at the reviewed head",
   "soThat": "the merge carries complete and no verify report is ever needed inside the cycle",
@@ -41,7 +41,7 @@
     },
     {
       "id": "AC-20001-5",
-      "description": "[edge] Given the happy fixture finalised once (FBS-001 complete), when rcf build finalise FBS-001 --ci-run run-7 runs again at the same head or after a further FINALISE: commit, then it exits 0, stdout is \"finalise: FBS-001 complete (unchanged)\" and rcf/fbs/fbs-001.json is byte-identical; given an earlier round (REVIEW FINDINGS, then DEFINE:, BUILD:, REVIEW: MERGE/PASS, TEST: PASS), Finalise judges only the last round and exits 0.",
+      "description": "[edge] Given the happy fixture finalised once (FBS-001 complete) and its status write committed as \"FINALISE: status\", when rcf build finalise FBS-001 --ci-run run-7 runs again, and again after a further FINALISE: commit, then each run exits 0, stdout is \"finalise: FBS-001 complete (unchanged)\" and rcf/fbs/fbs-001.json is byte-identical; given an earlier round (REVIEW FINDINGS, then DEFINE:, BUILD:, REVIEW: MERGE/PASS, TEST: PASS), Finalise judges only the last round and exits 0.",
       "testable": true,
       "verification": "external"
     },

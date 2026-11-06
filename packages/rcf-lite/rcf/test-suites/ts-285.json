@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:34:47.999Z",
-  "updatedAt": "2026-10-24T17:34:50.368Z",
+  "updatedAt": "2026-11-06T11:07:41.943Z",
   "purpose": "FBS-237: the external criteria of US-20001, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-237's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -49,9 +49,9 @@
     {
       "id": "TC-285-run-again-at-the-same-head-or-after-a",
       "acId": "AC-20001-5",
-      "description": "run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0",
+      "description": "run again after a FINALISE: status commit and after a further FINALISE: commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0",
       "status": "pending",
-      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
+      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20001-5: run again after a FINALISE: status commit and after a further FINALISE: commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0"
     },
     {
       "id": "TC-285-after-a-clean-finalise-merge-main",

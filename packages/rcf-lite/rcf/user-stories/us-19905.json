@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:02.639Z",
-  "updatedAt": "2026-11-06T07:25:13.559Z",
+  "updatedAt": "2026-11-06T11:10:11.040Z",
   "asA": "definer at DEFINE and verifier at the TEST stage",
   "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
   "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
@@ -213,6 +213,96 @@
     {
       "id": "AC-19905-34",
       "description": "[happy] Given the fixture of AC-19905-32 with AC-101-1 hand-lightened from no proof to external, its decision resolved with no --answer and committed, and rcf build verdict review MERGE/PASS refused with the line of AC-19905-32, a second decision added in the same guard shape, resolved by rcf define ledger decisions resolve <id> --answer \"the release Verify proves it\" and committed, lets rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy PASS exit 0 and write rcf/verdicts/<h12>/review.json for HEAD: any non-empty answer satisfies the gate (rulings 54 and 59).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-35",
+      "description": "[failure] Given the fixture round of AC-19905-24 that reaches every earlier light Finalise check (the base chain on main: US-101 holding AC-101-1 and AC-101-2 at no proof, scoped by FBS-001 notStarted; on branch feature a DEFINE: commit marking FBS-001 inProgress and carrying the edit below, a BUILD: commit with a Code Node per criterion FBS-001 scopes (H), REVIEW: MERGE/PASS and TEST: PASS at H), with US-101's story file at rcf/user-stories/us-101-\"q.json at the base (a spelling Git C-quotes even under core.quotePath=false; the walker's stem rule refuses it at head, so the spelling is reachable only at the base) and the DEFINE: commit renaming it to rcf/user-stories/us-101.json and setting AC-101-1 proof external with no decision, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external\" (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): both snapshots come from a NUL-delimited tree listing and blob reads, so no path spelling hides a story (P1-6, rulings 62 and 64).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-36",
+      "description": "[failure] Given the round of AC-19905-35 (US-101 at rcf/user-stories/us-101.json) whose DEFINE: commit (a) renames the story file to rcf/user-stories/checkout-us-101.json (usId checkout-US-101) and sets AC-101-1 proof external; (b) with spa-US-101 at rcf/user-stories/spa-us-101.json holding AC-101-3 at the base, moves AC-101-2 out of us-101.json into spa-us-101.json at proof external; or (c) splits AC-101-2 out of us-101.json into a new story file rcf/user-stories/spa-us-101.json (usId spa-US-101) at proof external; each with no decision, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: <ac> from full to external\", <ac> AC-101-1 for (a) and AC-101-2 for (b) and (c) (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): the snapshots are compared by criterion id, so renaming, moving or splitting story files cannot change the outcome (ruling 62).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-37",
+      "description": "[happy] Given the rename, the move and the split of AC-19905-36 with every criterion kept at its base level, rcf build verdict review --code MERGE --adequacy PASS exits 0 and writes rcf/verdicts/<h12>/review.json for HEAD, and rcf build finalise FBS-001 --ci-run run-7 exits 0 and writes complete on FBS-001: a change of story file layout alone is no lightening (ruling 62).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-38",
+      "description": "[failure] Given the round of AC-19905-35 whose DEFINE: commit copies the base us-101.json byte for byte to rcf/user-stories/zz/shadow.json (a file the walker does not load: it reads only the direct *.json entries of rcf/user-stories/) and sets AC-101-1 proof external in us-101.json with no decision, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external\" (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): both snapshots select story files with the walker's own predicate, so a copy where the walker does not look cannot hide a lightening (F-1, ruling 65).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-39",
+      "description": "[failure] Given the round of AC-19905-35 with (a) at head rcf/user-stories/us-101.json a symlink (tree mode 120000) to rcf/stories-src/us-101.json, a copy with AC-101-1 at proof external; (b) at the base rcf/user-stories/us-102.json a symlink to us-101.json, removed at head; (c) at head a gitlink (tree mode 160000) at rcf/user-stories/vendored; or (d) at the base the same gitlink, removed at head, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> cannot compare the criteria at <base7> and <head7>: <path> is a symlink at <rev7>\" or \"<prefix> cannot compare the criteria at <base7> and <head7>: <path> is a gitlink at <rev7>\", <path> the entry's path from the project root and <rev7> the side holding it (<head7> for (a) and (c), <base7> for (b) and (d)) (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise; <head7> is HEAD for the review verb and the reviewed head H for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a link under the story root fails closed at either side, whatever its name, since the tree snapshot cannot read what the walker would follow (F-2, ruling 65).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-40",
+      "description": "[failure] Given the round of AC-19905-35 with (a) at the base AC-101-1 declared in us-101.json and again in rcf/user-stories/spa-us-101.json (usId spa-US-101), the second file removed at head; or (b) at head the committed blob of us-101.json declaring AC-101-1 twice while its working copy, which the walker reads, declares it once (a clean filter in the fixture's own git config makes the difference), then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> cannot compare the criteria at <base7> and <head7>: AC-101-1 is declared more than once at <rev7>\", <rev7> <base7> for (a) and <head7> for (b) (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise; <head7> is HEAD for the review verb and the reviewed head H for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a snapshot with a criterion id declared twice cannot be built, so the gate fails closed (ruling 62).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-41",
+      "description": "[failure] Given the round of AC-19905-35 with (a) at the base rcf/user-stories/us-102.json holding text that is not JSON, removed at head (F-6); or (b) at head the committed blob of us-101.json not JSON while its working copy parses (a clean filter in the fixture's own git config), then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> cannot compare the criteria at <base7> and <head7>: <path> does not parse at <rev7>\", <path> rcf/user-stories/us-102.json at <base7> for (a) and rcf/user-stories/us-101.json at <head7> for (b) (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise; <head7> is HEAD for the review verb and the reviewed head H for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a story that will not parse fails closed on the base side and the head side alike (F-6, rulings 62 and 67).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-42",
+      "description": "[failure] Given the round of AC-19905-35 whose DEFINE: commit amends AC-101-1's description (so the base and head blobs of us-101.json differ), with (a) the base blob or (b) the head blob of rcf/user-stories/us-101.json removed from the object store after the TEST: commit (the working copy intact), then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> cannot compare the criteria at <base7> and <head7>: rcf/user-stories/us-101.json cannot be read at <rev7>\", <rev7> <base7> for (a) and <head7> for (b) (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise; <head7> is HEAD for the review verb and the reviewed head H for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a story blob the snapshot cannot read fails closed (ruling 62).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-43",
+      "description": "[failure] Given the round of AC-19905-35 whose DEFINE: commit (a) deletes AC-101-2 from us-101.json, FBS-001 scoping AC-101-1; or (b) deletes AC-101-2 and adds AC-101-3 at proof external, FBS-001 scoping AC-101-1 and AC-101-3, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> cannot compare the criteria at <base7> and <head7>: AC-101-2 is absent at <head7>\" (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise; <head7> is HEAD for the review verb and the reviewed head H for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a base criterion absent at head, and not retired, fails closed, since criteria are retired through the define verbs and never deleted (ruling 66).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-44",
+      "description": "[failure] Given the round of AC-19905-35 with AC-101-2 at no proof or at journey at the base, whose DEFINE: commit retires AC-101-2 (supersededBy AC-101-3, supersededOn, supersessionNote) and creates AC-101-3 at proof external, FBS-001 scoping AC-101-1 to AC-101-3, with no decision, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-3 from <from> to external\", <from> AC-101-2's base level (full or journey) (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a successor's head level is compared with its predecessor's base level, and a lighter one, at any level, needs the resolved decision \"Lighten AC-101-3 proof from <from> to external?\" (rulings 66 and 69).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-45",
+      "description": "[failure] Given the round of AC-19905-35 with AC-101-2 at no proof, journey or external at the base, whose DEFINE: commit retires AC-101-2 with supersededBy AC-101-9 (no criterion of that id at head) or with supersededBy AC-101-2 (itself), with no decision, or with a decision added by rcf define ledger decisions add --question \"Retire AC-101-2 with no successor?\" --blocks AC-101-2 and resolved with no --answer, then rcf build verdict review --fbs FBS-001 --acs <the criteria FBS-001 scopes> --code MERGE --adequacy PASS, run at HEAD of the round, and rcf build finalise FBS-001 --ci-run run-7 each exit 4 with the one stderr line \"<prefix> proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-2 retired with no successor\", and for the answerless decision \"<prefix> proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-2 retired with no successor (answer missing)\" (<prefix> is \"verdict refused:\" for the review verb and \"finalise refused:\" for light Finalise); each writes nothing (no rcf/verdicts/<h12>/review.json for HEAD, rcf/fbs/fbs-001.json byte-identical, git status --porcelain unchanged), and rcf build verdict review --code FINDINGS --adequacy FINDINGS still exits 0 and writes review.json (ruling 51): a criterion retired with no successor, at any level, needs a resolved decision blocking it whose question is \"Retire <ac> with no successor?\" and whose answer is non-empty (rulings 59, 66 and 69).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-46",
+      "description": "[happy] Given the round of AC-19905-35 whose DEFINE: commit (a) creates AC-101-3 at journey and AC-101-4 at external with no predecessor; (b) with AC-101-2 at journey at the base, retires it to a successor AC-101-3 at no proof (full); or (c) the same with AC-101-3 at journey; each with no decision and FBS-001 scoping every criterion, then rcf build verdict review --code MERGE --adequacy PASS exits 0 and writes rcf/verdicts/<h12>/review.json for HEAD, and rcf build finalise FBS-001 --ci-run run-7 exits 0 and writes complete: a new criterion may start at any level, and a successor at or above its predecessor's base level is no lightening (ruling 66).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-47",
+      "description": "[failure] Given the round of AC-19905-35 at its TEST: commit with (a) a staged edit or (b) an unstaged edit of rcf/user-stories/us-101.json, or (c) an untracked rcf/define/scratch.md (each outside rcf/verdicts/ and rcf/verify-reports/), rcf build verdict review --code MERGE --adequacy PASS and rcf build verdict review --code FINDINGS --adequacy FINDINGS each exit 4 with the one stderr line \"verdict refused: working tree is dirty; a verdict names a committed head\", write no rcf/verdicts/<h12>/review.json and leave git status --porcelain unchanged: a verdict names a committed head, FINDINGS included (today's refusal, pinned; rulings 62 and 68).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-48",
+      "description": "[failure] Given the three dirty states of AC-19905-47 in the round that reaches every earlier light Finalise check, rcf build finalise FBS-001 --ci-run run-7 exits 4 with the one stderr line \"finalise refused: working tree is dirty; finalise judges a committed head\", leaves rcf/fbs/fbs-001.json byte-identical and git status --porcelain unchanged: light Finalise judges committed state under the review verb's rule (any staged, unstaged or untracked change outside rcf/verdicts/ and rcf/verify-reports/), with no carve-out for its own status write, which is committed as \"FINALISE: status\" before the next Finalise (rulings 62, 68 and 69).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-49",
+      "description": "[happy] Given each refusing fixture of AC-19905-35, AC-19905-36 (a) to (c), AC-19905-38, AC-19905-44 (AC-101-2 at no proof) and AC-19905-45 (AC-101-2 at no proof and at journey, supersededBy AC-101-9) with its matching decision added by rcf define ledger decisions add (--question \"Lighten <ac> proof from <from> to <to>?\" or \"Retire <ac> with no successor?\", --blocks <ac>) and resolved with a non-empty --answer in the same DEFINE: commit, and for AC-19905-38 also an unparseable rcf/user-stories/zz/broken.json and a rcf/user-stories/notes.txt, rcf build verdict review --code MERGE --adequacy PASS exits 0 and writes rcf/verdicts/<h12>/review.json for HEAD, and rcf build finalise FBS-001 --ci-run run-7 exits 0 and writes complete (for the C-quoted fixture the review verb only: light Finalise's later separation audit judges that path on its own): the decision is matched on its criterion and both levels, any non-empty answer satisfies it, and files the walker does not load change nothing (rulings 54, 59 and 65).",
       "testable": true,
       "verification": "external"
     }

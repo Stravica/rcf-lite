@@ -222,16 +222,17 @@ test('AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit re
   assert.equal(out(rd), completeLine(M, d.H));
 });
 
-test('AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with "finalise: FBS-001 complete (unchanged)" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0', async (t) => {
+test('AC-20001-5: run again after a FINALISE: status commit and after a further FINALISE: commit, finalise exits 0 with "finalise: FBS-001 complete (unchanged)" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0', async (t) => {
   const a = await happy(t);
   const first = await finalise(a.dir);
   assert.equal(first.code, 0, `${first.stdout}${first.stderr}`);
   const bytes = fbsText(a.dir);
+  commit(a.dir, 'FINALISE: status');
   const again = await finalise(a.dir);
   assert.equal(again.code, 0, `${again.stdout}${again.stderr}`);
   assert.equal(out(again), 'finalise: FBS-001 complete (unchanged)');
-  assert.equal(fbsText(a.dir), bytes, 'byte-identical at the same head');
-  commit(a.dir, 'FINALISE: status');
+  assert.equal(fbsText(a.dir), bytes, 'byte-identical after the FINALISE: status commit');
+  commit(a.dir, 'FINALISE: note', {}, { allowEmpty: true });
   const after = await finalise(a.dir);
   assert.equal(after.code, 0, `${after.stdout}${after.stderr}`);
   assert.equal(out(after), 'finalise: FBS-001 complete (unchanged)');
@@ -268,6 +269,7 @@ test('AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suit
   const one = await finalise(dir);
   assert.equal(one.code, 0, `${one.stdout}${one.stderr}`);
   assert.deepEqual([status(dir, 'FBS-001'), status(dir, 'FBS-002')], ['complete', 'inProgress'], 'finalising FBS-001 writes complete on FBS-001 only');
+  commit(dir, 'FINALISE: status FBS-001');
   const two = await finalise(dir, [], {}, 'FBS-002');
   assert.equal(two.code, 0, `${two.stdout}${two.stderr}`);
   assert.deepEqual([status(dir, 'FBS-001'), status(dir, 'FBS-002')], ['complete', 'complete'], 'finalising FBS-002 writes complete on FBS-002');
