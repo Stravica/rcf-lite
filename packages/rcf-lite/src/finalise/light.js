@@ -191,7 +191,10 @@ const DECISIONS_LEDGER = 'rcf/define/decisions-ledger.json';
  * (absent or full to journey or external, journey to external) with no
  * resolved decision in rcf/define/decisions-ledger.json at `head` whose
  * blocks is the criterion id and whose question is "Lighten <ac> proof
- * from <from> to <to>?" (ruling 48). A criterion absent at the base is a
+ * from <from> to <to>?" (ruling 48). A decision counts only with an
+ * answer that is a non-empty string after trimming (ruling 59); an
+ * absent, empty or whitespace-only answer leaves the lightening named,
+ * with " (answer missing)" after it. A criterion absent at the base is a
  * creation and is never named, nor is a tightening. Returns the named
  * line, "<ac> from <from> to <to>" joined with ", " in criterion id
  * order, empty when none, or null when git cannot compare the sides.
@@ -213,19 +216,23 @@ export async function undecidedLightenings(git, base, head) {
       for (const ac of parse(blobs[2 * i + k])?.acceptanceCriteria ?? []) if (ac?.id) map.set(ac.id, ac.proof ?? 'full');
     });
   });
-  const decided = new Set((parse(blobs.at(-1))?.decisions ?? [])
-    .filter((d) => d?.status === 'resolved' && typeof d.blocks === 'string')
-    .map((d) => `${d.blocks}\n${d.question}`));
+  const [decided, answerless] = [new Set(), new Set()];
+  for (const d of parse(blobs.at(-1))?.decisions ?? []) {
+    if (d?.status !== 'resolved' || typeof d.blocks !== 'string') continue;
+    const answered = typeof d.answer === 'string' && d.answer.trim() !== '';
+    (answered ? decided : answerless).add(`${d.blocks}\n${d.question}`);
+  }
   const out = [];
   for (const [acId, to] of after) {
     const from = before.get(acId);
     if (from === undefined || !(from in PROOF_RANK) || !(to in PROOF_RANK)) continue;
     if (PROOF_RANK[to] >= PROOF_RANK[from]) continue;
-    if (decided.has(`${acId}\nLighten ${acId} proof from ${from} to ${to}?`)) continue;
-    out.push({ acId, from, to });
+    const key = `${acId}\nLighten ${acId} proof from ${from} to ${to}?`;
+    if (decided.has(key)) continue;
+    out.push({ acId, from, to, missing: answerless.has(key) });
   }
   out.sort((a, b) => a.acId.localeCompare(b.acId, 'en', { numeric: true }));
-  return out.map(({ acId, from, to }) => `${acId} from ${from} to ${to}`).join(', ');
+  return out.map(({ acId, from, to, missing }) => `${acId} from ${from} to ${to}${missing ? ' (answer missing)' : ''}`).join(', ');
 }
 
 /** The merge-base of HEAD with the first of origin/main and main that resolves. */
