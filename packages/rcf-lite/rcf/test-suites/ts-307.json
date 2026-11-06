@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-11-05T16:08:14.828Z",
-  "updatedAt": "2026-11-06T04:28:21.255Z",
-  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30)",
+  "updatedAt": "2026-11-06T07:25:34.845Z",
+  "purpose": "Round G: the per-criterion proof level and the pin successors, every test driving bin/rcf.js against a fixture project (e2e): test strength, the Test verdict, Finalise and separation per level (AC-19905-1 to -9, -12), the writer and the enum refusal (AC-19905-10, -11), and the probe shapes at the pin at rcf-schemas 0.11.0 (AC-19905-13 to -15, and the own chain at that pin, AC-19905-16), and the proof downgrade guard: a lightening update refused without a non-empty --reason, the reason recorded in the decisions ledger, creating and tightening direct (AC-19905-17 to -22), and the gate invariant and the blueprint lightening path: rcf build verdict review and light Finalise refuse a criterion lighter at head than at the base without a resolved decision, blueprint version replacement refused without --reason, the reasoned retry idempotent (AC-19905-23 to -30), and the gate failing closed: a passing review verdict refused when the base cannot be resolved, and a resolved decision with an absent, empty or whitespace-only answer counted as undecided at Review and light Finalise (AC-19905-31 to -34)",
   "testLevel": "e2e",
   "acIds": [
     "AC-19905-1",
@@ -33,7 +33,11 @@
     "AC-19905-27",
     "AC-19905-28",
     "AC-19905-29",
-    "AC-19905-30"
+    "AC-19905-30",
+    "AC-19905-31",
+    "AC-19905-32",
+    "AC-19905-33",
+    "AC-19905-34"
   ],
   "id": "TS-307",
   "usId": "US-19905",
@@ -255,6 +259,34 @@
       "description": "a retry of the same reasoned lightening after a crash between the ledger write and the story write (rcf define update --set proof=external --reason, and a blueprint replacement with --reason) exits 0, writes the level, and leaves exactly one decision for that criterion, both levels and that reason",
       "status": "pending",
       "testPointer": "test/define/blueprint-proof-lightening.test.js::AC-19905-30: a retry of the same reasoned lightening after a crash between the ledger write and the story write (rcf define update --set proof=external --reason, and a blueprint replacement with --reason) exits 0, writes the level, and leaves exactly one decision for that criterion, both levels and that reason"
+    },
+    {
+      "id": "TC-307-gate-review-refuses-no-base",
+      "acId": "AC-19905-31",
+      "description": "in a git fixture whose only branch is renamed after the base commit so neither origin/main nor main resolves, rcf build verdict review MERGE/PASS exits 4 naming no merge-base with origin/main or main and writes no review.json, with no lightening and with a hand lightening and no decision; FINDINGS/FINDINGS exits 0 and writes review.json",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-fail-closed.test.js::AC-19905-31: in a git fixture whose only branch is renamed after the base commit so neither origin/main nor main resolves, rcf build verdict review MERGE/PASS exits 4 naming no merge-base with origin/main or main and writes no review.json, with no lightening and with a hand lightening and no decision; FINDINGS/FINDINGS exits 0 and writes review.json"
+    },
+    {
+      "id": "TC-307-gate-review-refuses-answerless-decision",
+      "acId": "AC-19905-32",
+      "description": "a hand lightening of AC-101-1 from no proof to external whose resolved decision has no answer (resolved with no --answer, with an empty --answer, or hand-edited to an empty answer) or a whitespace-only answer makes rcf build verdict review MERGE/PASS exit 4 with the one stated line naming the criterion, both levels and the missing answer, and write no review.json; beside an undecided lightening of AC-101-2 both are named in criterion id order",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-fail-closed.test.js::AC-19905-32: a hand lightening of AC-101-1 from no proof to external whose resolved decision has no answer (resolved with no --answer, with an empty --answer, or hand-edited to an empty answer) or a whitespace-only answer makes rcf build verdict review MERGE/PASS exit 4 with the one stated line naming the criterion, both levels and the missing answer, and write no review.json; beside an undecided lightening of AC-101-2 both are named in criterion id order"
+    },
+    {
+      "id": "TC-307-gate-finalise-refuses-answerless-decision",
+      "acId": "AC-19905-33",
+      "description": "in a round that reaches every earlier Finalise check, a DEFINE: hand edit lightening AC-101-1 from no proof to external with a resolved decision that has no answer or a whitespace-only answer makes rcf build finalise exit 4 with the one stated line naming the criterion and the missing answer, and leaves rcf/fbs/fbs-001.json byte-identical",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-fail-closed.test.js::AC-19905-33: in a round that reaches every earlier Finalise check, a DEFINE: hand edit lightening AC-101-1 from no proof to external with a resolved decision that has no answer or a whitespace-only answer makes rcf build finalise exit 4 with the one stated line naming the criterion and the missing answer, and leaves rcf/fbs/fbs-001.json byte-identical"
+    },
+    {
+      "id": "TC-307-gate-review-answered-decision-passes",
+      "acId": "AC-19905-34",
+      "description": "with the answerless refusal shown first, a decision resolved with a non-empty --answer and committed lets rcf build verdict review exit 0 and write review.json for HEAD",
+      "status": "pending",
+      "testPointer": "test/define/proof-gate-fail-closed.test.js::AC-19905-34: with the answerless refusal shown first, a decision resolved with a non-empty --answer and committed lets rcf build verdict review exit 0 and write review.json for HEAD"
     }
   ],
   "status": "draft"

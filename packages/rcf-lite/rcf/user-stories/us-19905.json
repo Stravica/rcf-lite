@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:02.639Z",
-  "updatedAt": "2026-11-06T05:18:41.129Z",
+  "updatedAt": "2026-11-06T07:25:13.559Z",
   "asA": "definer at DEFINE and verifier at the TEST stage",
   "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
   "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
@@ -189,6 +189,30 @@
     {
       "id": "AC-19905-30",
       "description": "[edge] Given a fixture project made by rcf init with authored AC-101-1 (no proof), rcf define update AC-101-1 --set proof=external --reason \"the release Verify proves it\" exits 0; with us-101.json restored to its bytes from before it (a crash after the ledger write), the same command again exits 0, AC-101-1 carries proof external, and rcf define ledger decisions list --json lists exactly one decision blocking AC-101-1 (resolved, answer the reason, question \"Lighten AC-101-1 proof from full to external?\"); the same for rcf define blueprint add of spa 2.0.0 lightening AC-999-1 from no proof to external with --reason, run again after every file under rcf/ but the decisions ledger is restored to its bytes from before it: exactly one decision for AC-999-1; a retry of the same lightening is idempotent on the criterion id, both levels and the reason (ruling 47).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-31",
+      "description": "[failure] Given a git fixture project made by rcf init whose base commit carries authored AC-101-1 of US-101 (no proof) scoped by FBS-001 and whose only branch is then renamed (git branch -m main feature) so neither origin/main nor main resolves, rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy PASS exits 4 with the one stderr line \"verdict refused: no merge-base with origin/main or main\", writes no rcf/verdicts/<h12>/review.json and leaves git status --porcelain unchanged; the same after a committed hand edit of us-101.json lightening AC-101-1 from no proof to external with no decision; and in that fixture rcf build verdict review with --code FINDINGS --adequacy FINDINGS exits 0 and writes rcf/verdicts/<h12>/review.json for HEAD: a passing verdict is refused whenever the base cannot be resolved, with or without a lightening, as light Finalise refuses it (\"finalise refused: no merge-base with origin/main or main\"), and FINDINGS is still recorded (ruling 58).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-32",
+      "description": "[failure] Given the fixture of AC-19905-23 (base on main, branch feature) with a committed hand edit of us-101.json lightening AC-101-1 from no proof to external and a decision added by rcf define ledger decisions add --question \"Lighten AC-101-1 proof from full to external?\" --option \"a:lighten AC-101-1 proof from full to external\" --option \"b:keep AC-101-1 proof at full\" --default b --blocks AC-101-1, resolved by rcf define ledger decisions resolve <id> with no --answer and committed, rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy PASS exits 4 with the one stderr line \"verdict refused: proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external (answer missing)\", writes no rcf/verdicts/<h12>/review.json and leaves git status --porcelain unchanged; the same when the decision is resolved with --answer \"\" (no answer field is written), when its answer field is hand-edited to the empty string, and when it is resolved with the whitespace-only --answer \"   \"; and with AC-101-2 also lightened from no proof to external with no decision, the one line names both in criterion id order (\"AC-101-1 from full to external (answer missing), AC-101-2 from full to external\"): a resolved decision whose answer is absent, empty or whitespace-only counts as undecided, and the refusal names the criterion, both levels and the missing answer (ruling 59).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-33",
+      "description": "[failure] Given the fixture round of AC-19905-24 that reaches every earlier light Finalise check, whose DEFINE: commit hand-edits us-101.json to lighten AC-101-1 from no proof to external and adds a decision in the guard shape (blocks AC-101-1, question \"Lighten AC-101-1 proof from full to external?\") resolved by rcf define ledger decisions resolve <id> with no --answer, rcf build finalise FBS-001 --ci-run run-7 exits 4 with the one stderr line \"finalise refused: proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external (answer missing)\", leaves rcf/fbs/fbs-001.json byte-identical (inProgress, no complete written) and git status --porcelain unchanged; the same when the decision is resolved with the whitespace-only --answer \"   \" (ruling 59).",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-34",
+      "description": "[happy] Given the fixture of AC-19905-32 with AC-101-1 hand-lightened from no proof to external, its decision resolved with no --answer and committed, and rcf build verdict review MERGE/PASS refused with the line of AC-19905-32, a second decision added in the same guard shape, resolved by rcf define ledger decisions resolve <id> --answer \"the release Verify proves it\" and committed, lets rcf build verdict review --fbs FBS-001 --acs AC-101-1 --code MERGE --adequacy PASS exit 0 and write rcf/verdicts/<h12>/review.json for HEAD: any non-empty answer satisfies the gate (rulings 54 and 59).",
       "testable": true,
       "verification": "external"
     }
