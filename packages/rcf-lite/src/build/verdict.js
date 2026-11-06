@@ -21,6 +21,7 @@ import { existsSync, readFileSync, mkdirSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 
 import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../audit/separation.js';
+import { resolveBase, undecidedLightenings } from '../finalise/light.js';
 
 const VERDICTS = 'rcf/verdicts';
 const DIRTY = 'verdict refused: working tree is dirty; a verdict names a committed head';
@@ -146,7 +147,8 @@ function writeVerdict(projectRoot, rel, doc) {
  * review). Exit 0 written; 3 a broken reference (an unknown FBS, a
  * criterion no named FBS scopes, or, for a spec at inProgress, touched
  * criteria that omit a live criterion of it); 4 refused (a dirty tree,
- * or a review verdict for HEAD already present).
+ * a review verdict for HEAD already present, or a MERGE/PASS verdict
+ * while a criterion is lighter than at the base with no decision).
  *
  * @param {{ projectRoot: string, tree: object, fbsIds: string[], acIds: string[], code: string, adequacy: string,
  *   findings: object[], by?: string, deps?: object }} opts
@@ -172,13 +174,24 @@ export async function recordReviewVerdict({ projectRoot, tree, fbsIds, acIds, co
   }
   if (omits.length) return { code: 3, out: null, err: omits };
 
-  const git = (args) => runGit(args, { cwd: projectRoot, deps });
+  const git = (args, input = null) => runGit(args, { cwd: projectRoot, deps, input });
   const state = await treeState(git);
   if (!state) return { code: 4, out: null, err: ['verdict refused: not a git repository; a verdict names a committed head'] };
   if (state.dirty) return { code: 4, out: null, err: [DIRTY] };
   const rel = verdictFile(state.head, 'review.json');
   if (existsSync(join(projectRoot, rel))) {
     return { code: 4, out: null, err: [`verdict refused: a review verdict for ${s7(state.head)} already exists at ${rel}`] };
+  }
+  // A passing verdict only: no criterion lighter at HEAD than at the
+  // base without a resolved decision (rulings 48 and 51). Every other
+  // pair is recorded; with no base the verdict is recorded as before.
+  if (code === 'MERGE' && adequacy === 'PASS') {
+    const base = await resolveBase(git);
+    if (base) {
+      const lighter = await undecidedLightenings(git, base, state.head);
+      if (lighter === null) return { code: 4, out: null, err: [`verdict refused: cannot compare the criteria at ${s7(base)} and ${s7(state.head)}`] };
+      if (lighter) return { code: 4, out: null, err: [`verdict refused: proof lightened since ${s7(base)} without a resolved decision in rcf/define/decisions-ledger.json: ${lighter}`] };
+    }
   }
   writeVerdict(projectRoot, rel, {
     verdictVersion: 1,
