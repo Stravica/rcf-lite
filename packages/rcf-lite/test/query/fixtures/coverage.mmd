@@ -4871,6 +4871,22 @@ flowchart LR
   REQ-199 --> AC-19905-30
   TC-307-reasoned-lightening-retry-idempotent["TC-307-reasoned-lightening-retry-idempotent"]
   AC-19905-30 -.-> TC-307-reasoned-lightening-retry-idempotent
+  AC-19905-31["AC-19905-31"]
+  REQ-199 --> AC-19905-31
+  TC-307-gate-review-refuses-no-base["TC-307-gate-review-refuses-no-base"]
+  AC-19905-31 -.-> TC-307-gate-review-refuses-no-base
+  AC-19905-32["AC-19905-32"]
+  REQ-199 --> AC-19905-32
+  TC-307-gate-review-refuses-answerless-decision["TC-307-gate-review-refuses-answerless-decision"]
+  AC-19905-32 -.-> TC-307-gate-review-refuses-answerless-decision
+  AC-19905-33["AC-19905-33"]
+  REQ-199 --> AC-19905-33
+  TC-307-gate-finalise-refuses-answerless-decision["TC-307-gate-finalise-refuses-answerless-decision"]
+  AC-19905-33 -.-> TC-307-gate-finalise-refuses-answerless-decision
+  AC-19905-34["AC-19905-34"]
+  REQ-199 --> AC-19905-34
+  TC-307-gate-review-answered-decision-passes["TC-307-gate-review-answered-decision-passes"]
+  AC-19905-34 -.-> TC-307-gate-review-answered-decision-passes
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7698,6 +7714,14 @@ flowchart LR
   class TC-307-blueprint-first-application-direct tc;
   class AC-19905-30 ac;
   class TC-307-reasoned-lightening-retry-idempotent tc;
+  class AC-19905-31 ac;
+  class TC-307-gate-review-refuses-no-base tc;
+  class AC-19905-32 ac;
+  class TC-307-gate-review-refuses-answerless-decision tc;
+  class AC-19905-33 ac;
+  class TC-307-gate-finalise-refuses-answerless-decision tc;
+  class AC-19905-34 ac;
+  class TC-307-gate-review-answered-decision-passes tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;

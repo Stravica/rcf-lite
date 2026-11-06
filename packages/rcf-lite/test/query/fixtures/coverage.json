@@ -12376,6 +12376,50 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-31",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-refuses-no-base"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-32",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-refuses-answerless-decision"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-33",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-finalise-refuses-answerless-decision"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19905-34",
+          "covered": true,
+          "testCases": [
+            "TC-307-gate-review-answered-decision-passes"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },

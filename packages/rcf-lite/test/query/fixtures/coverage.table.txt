@@ -1002,6 +1002,10 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19905-28  yes                    external   verified  notStarted  TC-307-blueprint-replacement-records-reason-in-decisions-...
                       AC-19905-29  yes                    external   verified  notStarted  TC-307-blueprint-first-application-direct
                       AC-19905-30  yes                    external   verified  notStarted  TC-307-reasoned-lightening-retry-idempotent
+                      AC-19905-31  yes                    external   verified  notStarted  TC-307-gate-review-refuses-no-base
+                      AC-19905-32  yes                    external   verified  notStarted  TC-307-gate-review-refuses-answerless-decision
+                      AC-19905-33  yes                    external   verified  notStarted  TC-307-gate-finalise-refuses-answerless-decision
+                      AC-19905-34  yes                    external   verified  notStarted  TC-307-gate-review-answered-decision-passes
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
