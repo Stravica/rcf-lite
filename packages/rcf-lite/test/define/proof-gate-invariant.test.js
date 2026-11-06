@@ -119,8 +119,12 @@ test('AC-19905-23: a hand edit committed after the base lightening an authored c
   const c = await baseChain(t, [{}, { proof: 'journey' }, {}], { name: 'gate-two' });
   handEdit(c.dir, { 'AC-101-1': 'journey', 'AC-101-2': 'external' });
   await assertReviewRefused(c.dir, c.ids, REVIEW_REFUSAL(c.base, [['AC-101-1', 'full', 'journey'], ['AC-101-2', 'journey', 'external']]));
-  // Every review verdict is refused while the lightening stands undecided, FINDINGS as well as MERGE.
-  await assertReviewRefused(c.dir, c.ids, REVIEW_REFUSAL(c.base, [['AC-101-1', 'full', 'journey'], ['AC-101-2', 'journey', 'external']]), FINDINGS);
+  // Only a passing verdict is refused: a FINDINGS verdict is recorded while the lightening stands undecided (ruling 51).
+  const findings = await review(c.dir, c.ids, FINDINGS);
+  const rel = verdictPath(sha(c.dir), 'review.json');
+  assert.equal(findings.code, 0, `build verdict review FINDINGS/FINDINGS exits 0\nstdout:\n${findings.stdout}\nstderr:\n${findings.stderr}`);
+  assert.ok(lines(findings.stdout).includes(`verdict: review FINDINGS/FINDINGS at ${s7(sha(c.dir))} written to ${rel}`), `stdout names the written verdict\nstdout:\n${findings.stdout}`);
+  assert.ok(existsSync(join(c.dir, rel)), `${rel} for HEAD is written`);
 });
 
 // ------------------------------------------------- light Finalise fixture

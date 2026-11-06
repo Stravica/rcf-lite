@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-05T16:08:02.639Z",
-  "updatedAt": "2026-11-06T04:28:15.428Z",
+  "updatedAt": "2026-11-06T05:18:41.129Z",
   "asA": "definer at DEFINE and verifier at the TEST stage",
   "iWant": "each criterion to carry a proof level, full, journey or external, that test strength, the Test verdict and Finalise read",
   "soThat": "a buyer promise keeps the full mutation proof, a core journey is proved by an end-to-end test, and a deployed promise is proved by the release Verify, while a chain that sets no level behaves exactly as 0.40.1 did",
@@ -146,7 +146,7 @@
     },
     {
       "id": "AC-19905-23",
-      "description": "[failure] Given a git fixture project made by rcf init whose base commit on main carries authored criteria of US-101 scoped by FBS-001 (notStarted) and, on branch feature, a commit hand-editing us-101.json to lighten AC-101-1 from no proof to external with no decision in rcf/define/decisions-ledger.json, rcf build verdict review --fbs FBS-001 --acs <every criterion> with --code MERGE --adequacy PASS exits 4 with the one stderr line \"verdict refused: proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external\", writes no rcf/verdicts/<h12>/review.json and leaves git status --porcelain unchanged; the same for AC-101-1 from journey to external; and with AC-101-1 lightened from no proof to journey and AC-101-2 from journey to external in one commit the one line names each in criterion id order (\"AC-101-1 from full to journey, AC-101-2 from journey to external\"), for --code FINDINGS --adequacy FINDINGS as for MERGE/PASS (every review verdict is refused while a lightening stands undecided); the base is the merge-base of HEAD with the first of origin/main and main that resolves, as light Finalise computes it (ruling 48).",
+      "description": "[failure] Given a git fixture project made by rcf init whose base commit on main carries authored criteria of US-101 scoped by FBS-001 (notStarted) and, on branch feature, a commit hand-editing us-101.json to lighten AC-101-1 from no proof to external with no decision in rcf/define/decisions-ledger.json, rcf build verdict review --fbs FBS-001 --acs <every criterion> with --code MERGE --adequacy PASS exits 4 with the one stderr line \"verdict refused: proof lightened since <base7> without a resolved decision in rcf/define/decisions-ledger.json: AC-101-1 from full to external\", writes no rcf/verdicts/<h12>/review.json and leaves git status --porcelain unchanged; the same for AC-101-1 from journey to external; and with AC-101-1 lightened from no proof to journey and AC-101-2 from journey to external in one commit the one line names each in criterion id order (\"AC-101-1 from full to journey, AC-101-2 from journey to external\"); in that two-criterion fixture, after the MERGE/PASS refusal, rcf build verdict review with --code FINDINGS --adequacy FINDINGS exits 0 and writes rcf/verdicts/<h12>/review.json for HEAD (only a passing MERGE/PASS verdict is refused while a lightening stands undecided; a FINDINGS verdict is always recorded); the base is the merge-base of HEAD with the first of origin/main and main that resolves, as light Finalise computes it (rulings 48 and 51).",
       "testable": true,
       "verification": "external"
     },
