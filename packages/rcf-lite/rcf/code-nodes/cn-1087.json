@@ -1,0 +1,18 @@
+{
+  "cnId": "CN-1087",
+  "path": "src/core/store/writer.js#proofLightenings",
+  "implementsAcIds": [
+    "AC-19905-10",
+    "AC-19905-17",
+    "AC-19905-18",
+    "AC-19905-19",
+    "AC-19905-20",
+    "AC-19905-21",
+    "AC-19905-22"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T02:51:45.246Z",
+  "updatedAt": "2026-11-06T02:51:45.246Z"
+}

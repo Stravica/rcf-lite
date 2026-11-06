@@ -1,0 +1,13 @@
+{
+  "cnId": "CN-1089",
+  "path": "src/core/store/writer.js#ledgerWithLightenings",
+  "implementsAcIds": [
+    "AC-19905-10",
+    "AC-19905-21"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T02:51:46.535Z",
+  "updatedAt": "2026-11-06T02:51:46.535Z"
+}

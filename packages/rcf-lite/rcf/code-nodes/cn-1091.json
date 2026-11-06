@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1091",
+  "path": "src/cli/update.js#main",
+  "implementsAcIds": [
+    "AC-19905-10",
+    "AC-19905-18",
+    "AC-19905-21"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T02:51:47.805Z",
+  "updatedAt": "2026-11-06T02:51:47.805Z"
+}

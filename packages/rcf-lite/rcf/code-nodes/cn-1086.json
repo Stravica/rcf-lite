@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1086",
+  "path": "src/core/store/writer.js#updateDocument",
+  "implementsAcIds": [
+    "AC-19905-20"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-06T02:51:44.584Z",
+  "updatedAt": "2026-11-06T02:51:44.584Z"
+}
