@@ -6,7 +6,7 @@
     "covered": 136,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 66
+    "retiredAcs": 67
   },
   "requirements": [
     {
@@ -11962,7 +11962,9 @@
         },
         {
           "id": "AC-19904-7",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-20502-1",
+          "covered": false,
           "testCases": [
             "TC-306-a-code-node-file-holding-a-typescript",
             "TC-306-a-namespace-after-an-astral-character-is",
@@ -11975,8 +11977,8 @@
           ],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-19904-8",
