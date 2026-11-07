@@ -128,8 +128,95 @@ function assertBlock(block, where) {
   for (const k of KEPT) assert.ok(hs.includes(k), `${where} keeps the heading "${k}"`);
 }
 
+// DEFINE pass 2 (G3, ruling 13): AC-20503-1's test, strengthened. The
+// phrase checks above can pass while most of the ruled harness text
+// stays, so the block is parsed into its regions (the preamble under
+// "## RCF", then one region per "###" heading) and judged region by
+// region against the 0.40.1 block's own regions (the fixture the 0.40.1
+// rcf init wrote; no 0.41.0 product text is authored here):
+//   - the heading list is the 0.40.1 list with RULE 13 renamed, nothing
+//     added, removed or moved;
+//   - the operator register is absent: in 0.40.1 it is the preamble from
+//     its first bulleted paragraph to its end (the bullets and the
+//     "Before / after" example); no paragraph or bullet of it survives
+//     anywhere in the block, and the preamble carries no list item and
+//     no indented example;
+//   - RULE 13 carries one numbered list, the twelve rules in order (rules
+//     5 and 6 verbatim), and no other numbered item;
+//   - the Build loop keeps only the retained commands: its backticked
+//     rcf commands are exactly the 0.40.1 Build loop's, and the five-role
+//     text is gone (no sentence of the 0.40.1 Build loop that names two
+//     or more of the five hands, or the Hand: trailer, survives anywhere
+//     in the block, and no Build loop sentence names two or more hands).
+const HANDS = ['test-author', 'builder', 'reviewer', 'verifier', 'stage-keeper'];
+const handsIn = (s) => HANDS.filter((h) => new RegExp(`\\b${h}s?\\b`, 'i').test(s)).length;
+const sentences = (text) => flat(text).split(/(?<=[.!?:])\s+(?=[A-Z`"])/).filter(Boolean);
+const paragraphs = (text) => text.split(/\n\s*\n/).map((p) => p.replace(/\s+$/, '')).filter((p) => p.trim());
+// { preamble, regions: [{ level, heading, body }] } of a managed block.
+function regions(block) {
+  const ls = lines(block);
+  const out = [];
+  let preamble = [];
+  let cur = null;
+  for (const l of ls) {
+    const m = headingOf(l);
+    if (m) { cur = { level: m[1].length, heading: m[2], body: [] }; out.push(cur); continue; }
+    if (cur && cur.level >= 3) cur.body.push(l);
+    else preamble.push(l);
+  }
+  return { preamble: preamble.join('\n'), regions: out.map((r) => ({ ...r, body: r.body.join('\n') })) };
+}
+// The bullets and paragraphs of the 0.40.1 operator register.
+function register0401(pre) {
+  const ps = paragraphs(pre);
+  const at = ps.findIndex((p) => /^- /m.test(p));
+  assert.ok(at >= 0, 'given: the 0.40.1 preamble carries the operator register (a bulleted paragraph)');
+  const units = [];
+  for (const p of ps.slice(at)) {
+    const [lead, ...bullets] = p.split(/\n(?=- )/);
+    units.push(flat(lead), ...bullets.map((b) => flat(b.replace(/^- /, ''))));
+  }
+  return units.filter((u) => u.length >= 20);
+}
+const commandsIn = (text) => [...new Set([...flat(text).matchAll(/`(rcf [^`]+)`/g)].map((m) => m[1]))].sort();
+
+function assertRegions(block, where) {
+  const was = regions(inner(readFileSync(FIXTURE_0_40_1, 'utf8'), 'the 0.40.1 fixture').inside);
+  const now = regions(block);
+  const name = (r) => `${'#'.repeat(r.level)} ${r.heading}`;
+  const expected = was.regions.map((r) => (/^RULE 13\b/.test(r.heading) ? '### RULE 13: Deliver in rounds: the twelve rules' : name(r)));
+  assert.deepEqual(now.regions.map(name), expected, `${where}: the headings are the 0.40.1 headings with RULE 13 renamed, none added, removed or moved`);
+
+  // The operator register.
+  const lead = (now.regions.find((r) => r.level === 2)?.body ?? '') + now.preamble;
+  assert.deepEqual(lines(lead).filter((l) => /^\s*[-*] |^\s*\d+\. /.test(l)), [], `${where}: the preamble carries no list item`);
+  assert.deepEqual(lines(lead).filter((l) => /^ {2,}\S/.test(l)), [], `${where}: the preamble carries no indented example`);
+  const whole = flat(block);
+  const kept = register0401(was.preamble + (was.regions.find((r) => r.level === 2)?.body ?? '')).filter((u) => whole.includes(u));
+  assert.deepEqual(kept, [], `${where}: no paragraph or bullet of the 0.40.1 operator register survives`);
+
+  // RULE 13.
+  const r13 = now.regions.find((r) => /^RULE 13\b/.test(r.heading));
+  assertTwelve(r13.body, `${where} RULE 13`);
+  const numbered = items(r13.body).filter(Boolean).map((i) => i.n);
+  assert.deepEqual(numbered, [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12], `${where}: RULE 13 carries one numbered list, the twelve rules, and no other numbered item`);
+
+  // The Build loop.
+  const loopWas = was.regions.find((r) => r.heading === 'Build loop').body;
+  const loopNow = now.regions.find((r) => r.heading === 'Build loop')?.body ?? '';
+  assert.deepEqual(commandsIn(loopNow), commandsIn(loopWas), `${where}: the Build loop keeps exactly the 0.40.1 Build loop's rcf commands`);
+  const roleText = sentences(loopWas).filter((s) => handsIn(s) >= 2 || s.includes('`Hand:`'));
+  assert.ok(roleText.length >= 2, 'given: the 0.40.1 Build loop carries the five-role text');
+  const survived = roleText.filter((s) => whole.includes(s));
+  assert.deepEqual(survived.map((s) => s.slice(0, 90)), [], `${where}: no five-role sentence of the 0.40.1 Build loop survives`);
+  const assigning = sentences(loopNow).filter((s) => handsIn(s) >= 2);
+  assert.deepEqual(assigning.map((s) => s.slice(0, 120)), [], `${where}: no Build loop sentence names two or more of the five hands`);
+}
+
 test('AC-20503-1: rcf guidance managed/agent-instructions-block prints RULE 13 as "Deliver in rounds: the twelve rules" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings', async () => {
-  assertBlock(await guidance('managed/agent-instructions-block'), 'the managed block');
+  const block = await guidance('managed/agent-instructions-block');
+  assertRegions(block, 'the managed block');
+  assertBlock(block, 'the managed block');
 });
 
 // The text between the managed markers of a file.

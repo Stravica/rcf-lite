@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-06T23:19:42.817Z",
-  "updatedAt": "2026-11-06T23:20:42.267Z",
+  "updatedAt": "2026-11-07T00:17:14.171Z",
   "asA": "team running rounds with rcf-lite",
   "iWant": "test strength recorded as a report the reviewer reads, never a refusal",
   "soThat": "the tool referees structure, never adequacy, and the adequacy judgement stays with the reviewer",
@@ -39,6 +39,12 @@
     {
       "id": "AC-20502-5",
       "description": "[happy] `rcf audit test-strength` keeps its exit codes: 4 when a criterion fails, 5 when one is blocked and none fails, 2 on a red unmutated run, 0 when every criterion passes.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20502-6",
+      "description": "[failure] Given reviewed head H and a committed `rcf/verdicts/<H12>/test-strength.json`, when `rcf build finalise` runs, then it accepts the record only when it is a valid TestStrengthReport v1 (a JSON object with `version` 1, a 40-hex `head`, a `scope` of `acs`, `reviewVerdict` or `fbs`, a `criteria` array whose every row carries a string `acId` and a `result` of `pass`, `fail` or `blocked`, a top-level `result` of `pass`, `fail` or `blocked`, and a `totals` object) whose embedded `head` equals H and which covers the touched criteria; a record whose embedded head is another commit exits 4 \"finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head\", an invalid record exits 4 \"finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1\", and a missing record exits 4 \"finalise refused: no test-strength record at <H7>\", each leaving the spec file and the working tree unchanged. Mutant rows and totals inside the record are not re-verified.",
       "testable": true,
       "verification": "testOnly"
     }

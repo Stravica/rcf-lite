@@ -6,7 +6,7 @@
 // a failing record; a failing record no longer closes the round in the
 // separation audit, whose strict round order is otherwise unchanged.
 //
-// Criteria: AC-20502-1 to AC-20502-4 (AC-20502-5, the audit's own exit
+// Criteria: AC-20502-1 to AC-20502-4 and AC-20502-6 (AC-20502-5, the audit's own exit
 // codes, is bound to the existing audit tests that pin them). Each test
 // drives bin/rcf.js as a child process over a fixture project made by its
 // own rcf init and committed to git, or over a fixture git repository for
@@ -139,6 +139,58 @@ test('AC-20502-2: finalise still refuses with exit 4 "finalise refused: no test-
   // The record judges AC-101-1 fail and omits AC-101-2: the omission refuses, the result does not.
   const c = await round(t, (H) => strength(H, { fail: ['AC-101-1'] }));
   await refuses(c.dir, `finalise refused: test-strength at ${s7(c.H)} omits AC-101-2`);
+});
+
+// DEFINE pass 2 (G1, ruling 11): the record at H is the structural sign
+// that the proof ran at H, so finalise checks what it is, not only where
+// it sits. A valid TestStrengthReport v1 is the shape `rcf audit
+// test-strength --record` writes: a JSON object with version 1, a
+// 40-hex head, a scope of acs, reviewVerdict or fbs, a criteria array
+// whose every row carries a string acId and a result of pass, fail or
+// blocked, a top-level result of pass, fail or blocked, and a totals
+// object. Mutant rows and totals are not re-verified (out of round).
+test('AC-20502-6: finalise accepts the test-strength record at H only when it is a valid TestStrengthReport v1 whose embedded head is H and which covers the touched criteria; a record for another head exits 4 "finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head", an invalid record exits 4 "finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1", a missing one exits 4 "finalise refused: no test-strength record at <H7>", each leaving the spec and working tree unchanged', async (t) => {
+  const refuses = async (dir, line, what) => {
+    const before = { st: porcelain(dir), fbs: readText(dir, 'rcf/fbs/fbs-001.json') };
+    const r = await finalise(dir);
+    assert.equal(r.code, 4, `${what} is refused with exit 4\n${show(r)}`);
+    assert.ok(lines(r.stderr).includes(line), `${what}: stderr carries "${line}"\n${show(r)}`);
+    assert.equal(readText(dir, 'rcf/fbs/fbs-001.json'), before.fbs, `${what}: the spec file is byte-identical`);
+    assert.equal(porcelain(dir), before.st, `${what}: git status --porcelain is unchanged`);
+  };
+
+  // Control: a valid record for H covering both criteria is accepted.
+  const ok = await round(t, (H) => strength(H, { pass: BOTH }));
+  const rok = await finalise(ok.dir);
+  assert.equal(rok.code, 0, `a valid record for H is accepted\n${show(rok)}`);
+
+  // Another head: the same valid report, produced for the base commit of
+  // the branch (a real commit, not H), copied under rcf/verdicts/<H12>/.
+  const other = await round(t, (H) => strength(H, { pass: BOTH }));
+  const X = sha(other.dir, 'main');
+  assert.notEqual(X, other.H, 'given: the other head is not H');
+  const moved = strength(X, { pass: BOTH });
+  commit(other.dir, 'TEST: strength', { [verdictPath(other.H, 'test-strength.json')]: moved });
+  await refuses(other.dir, `finalise refused: test-strength record at ${s7(other.H)} is for ${s7(X)}, not the reviewed head`, 'a record for another head');
+
+  // Missing: no record at H names the missing record.
+  const none = await round(t, null);
+  await refuses(none.dir, `finalise refused: no test-strength record at ${s7(none.H)}`, 'a missing record');
+
+  // Invalid: each is at H, mentions both touched criteria where it can,
+  // and is not a TestStrengthReport v1.
+  const invalid = {
+    'a file that is not JSON': () => '{"version": 1, "head": ',
+    'a version 2 report': (H) => ({ ...strength(H, { pass: BOTH }), version: 2 }),
+    'a report with no head': (H) => { const r = strength(H, { pass: BOTH }); delete r.head; return r; },
+    'a report whose criteria are an object keyed by acId': (H) => { const r = strength(H, { pass: BOTH }); r.criteria = Object.fromEntries(r.criteria.map((c) => [c.acId, c])); return r; },
+    'a report with a criterion row whose result is "ok"': (H) => { const r = strength(H, { pass: BOTH }); r.criteria[1].result = 'ok'; return r; },
+    'a report with no totals': (H) => { const r = strength(H, { pass: BOTH }); delete r.totals; return r; },
+  };
+  for (const [what, make] of Object.entries(invalid)) {
+    const bad = await round(t, make);
+    await refuses(bad.dir, `finalise refused: test-strength record at ${s7(bad.H)} is not a valid TestStrengthReport v1`, what);
+  }
 });
 
 // ------------------------------------------------------- verdict test

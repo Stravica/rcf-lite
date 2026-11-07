@@ -3,7 +3,8 @@
 // holds this repository's own chain: verdicts naming reviewers, the
 // rulings ledger. Nothing at runtime reads it.
 //
-// Criteria: AC-20501-1 (the real npm pack lists nothing under rcf/) and
+// Criteria: AC-20501-1 (the real npm pack lists nothing under rcf/),
+// AC-20501-3 (no packed file carries development-chain material) and
 // AC-20501-2 (the journey: the tarball npm pack writes, installed into a
 // fresh empty directory, runs rcf init, rcf doctor, rcf guidance
 // build-cycle, the MCP server's resource listing and rcf audit view
@@ -158,4 +159,63 @@ test('AC-20501-2: the tarball npm pack produces, installed into a fresh empty di
 
   const reads = existsSync(log) ? readFileSync(log, 'utf8').split('\n').filter(Boolean) : [];
   assert.deepEqual(reads.slice(0, 10), [], `no command reads under ${join(pkg, 'rcf')} (${reads.length} reads)`);
+});
+
+// DEFINE pass 2 (G2, ruling 12): taking rcf/ out of the tarball keeps the
+// promise only if no other packed file carries the development chain. The
+// test packs the real tarball, unpacks it with tar into a scratch
+// directory and reads every packed file, line by line, against the
+// patterns below. Each pattern names one kind of development-chain
+// material; the names are the estate's operator, stage-keeper and
+// reviewers (Barry, also Baz; Dave; Dex). Generic product copy that tells
+// an adopter to record their own operator's ruling (rcf discover
+// preflight, req-baseline, ui-classify, blueprint ADR stubs) is not a
+// development ruling and does not match: the ruling pattern needs a date
+// or a ruling number after it. Vendor quotations in blueprints ("verbatim
+// quote on ADR-1306") do not match: a verbatim quote counts only in an
+// operator or relay context.
+const CHAIN = [
+  ['a named operator, stage-keeper or reviewer', /\b(?:Dave|Baz|Barry|Dex)\b/],
+  ['a dispatch id (d-YYYY-MM-DD-NNN)', /\bd-\d{4}-\d{2}-\d{2}-\d{3}\b/],
+  ['a work-item id (w-YYYY-MM-DD-...)', /\bw-\d{4}-\d{2}-\d{2}-[a-z0-9][a-z0-9-]*/],
+  ['a lane job id (r-YYYYMMDD-HHMMSS-xxxx)', /\br-\d{8}-\d{6}-[0-9a-f]{4}\b/],
+  ['a relay id (a UUID in relay context)', /\brelay\b[^\n]{0,40}\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i],
+  ['a verdict record', /"verdictVersion"\s*:\s*\d|"scope"\s*:\s*"reviewVerdict"/],
+  ['a quoted or cited development ruling', /\b(?:relay|operator)\b[^\n]{0,80}\bverbatim quote|\bruled by the operator\b|\b(?:operator|stage-keeper)(?:'s)? (?:rulings?|decisions?|constraints?),?\s+(?:of |on |\()?(?:\d{4}-\d{2}-\d{2}|[A-Z]?\d+\b)/i],
+];
+
+function walk(dir) {
+  return readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));
+}
+
+test('AC-20501-3: no file in the tarball npm pack produces carries development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id; no verdict record; no quoted or cited development ruling', { timeout: 300_000 }, async (t) => {
+  const out = scratch(t, 'rcf-h-pack-scan-');
+  const packed = await npm(['pack', '--json', '--pack-destination', out], { cwd: PACKAGE_ROOT });
+  assert.equal(packed.code, 0, show(packed));
+  const [entry] = packJson(packed.stdout);
+  const tgz = join(out, entry.filename);
+  const unpacked = join(out, 'unpacked');
+  mkdirSync(unpacked);
+  const tar = await sh('tar', ['-xzf', tgz, '-C', unpacked], { cwd: out });
+  assert.equal(tar.code, 0, show(tar));
+  const root = join(unpacked, 'package');
+  const files = walk(root).map((f) => f.slice(root.length + 1).split('\\').join('/')).sort();
+  assert.deepEqual(files, entry.files.map((f) => f.path).sort(), 'the scan reads exactly the files npm pack lists');
+  assert.ok(files.includes('bin/rcf.js') && files.some((f) => f.startsWith('guidance/')), 'the tarball is the real package');
+
+  const hits = [];
+  for (const rel of files) {
+    readFileSync(join(root, rel), 'utf8').split('\n').forEach((line, i) => {
+      for (const [kind, re] of CHAIN) {
+        const m = re.exec(line);
+        if (m) hits.push(`${rel}:${i + 1}: ${kind}: "${m[0]}"`);
+      }
+    });
+  }
+  const byFile = new Map();
+  for (const h of hits) { const f = h.slice(0, h.indexOf(':')); byFile.set(f, (byFile.get(f) ?? 0) + 1); }
+  const summary = [...byFile].map(([f, n]) => `${f} (${n})`).join('\n');
+  const discovery = hits.filter((h) => h.startsWith('guidance/discovery/'));
+  assert.deepEqual(discovery, [], `guidance/discovery/ carries no development-chain material (${discovery.length} lines)`);
+  assert.deepEqual(hits.slice(0, 40), [], `no packed file carries development-chain material: ${hits.length} lines in ${byFile.size} files\n${summary}`);
 });

@@ -1,11 +1,12 @@
 {
   "createdAt": "2026-11-06T23:21:21.730Z",
-  "updatedAt": "2026-11-06T23:21:31.886Z",
+  "updatedAt": "2026-11-07T00:17:15.442Z",
   "purpose": "Each criterion of US-20501 driven through the real npm pack in packages/rcf-lite and, for the journey, the tarball it writes installed into a fresh directory and run through the installed package's own bin with a read-logging preload (test/fixtures/read-log/hook.mjs).",
   "testLevel": "e2e",
   "acIds": [
     "AC-20501-1",
-    "AC-20501-2"
+    "AC-20501-2",
+    "AC-20501-3"
   ],
   "id": "TS-307",
   "usId": "US-20501",
@@ -24,6 +25,13 @@
       "description": "the tarball npm pack produces, installed into a fresh empty directory, runs rcf init, rcf doctor, rcf guidance build-cycle, the MCP resource listing and rcf audit view --port <p> (stopped by its own pid), each exit 0, with no read under the installed package rcf/",
       "status": "pending",
       "testPointer": "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-2: the tarball npm pack produces, installed into a fresh empty directory, runs rcf init, rcf doctor, rcf guidance build-cycle, the MCP resource listing and rcf audit view --port <p> (stopped by its own pid), each exit 0, with no read under the installed package rcf/"
+    },
+    {
+      "id": "TC-307-no-packed-file-carries-development-chain",
+      "acId": "AC-20501-3",
+      "description": "AC-20501-3: no file in the tarball npm pack produces carries development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id; no verdict record; no quoted or cited development ruling",
+      "status": "pending",
+      "testPointer": "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-3: no file in the tarball npm pack produces carries development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id; no verdict record; no quoted or cited development ruling"
     }
   ],
   "status": "draft"
