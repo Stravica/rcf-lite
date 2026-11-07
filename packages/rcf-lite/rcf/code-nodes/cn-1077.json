@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1077",
+  "path": "src/finalise/light.js#judgeFinalise",
+  "title": "Finalise passes the strength notes through",
+  "description": "Carries the test-strength notes from judgeTestStrength on the successful outcome so the CLI prints them.",
+  "implementsAcIds": [
+    "AC-20502-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:40:57.487Z",
+  "updatedAt": "2026-11-07T00:40:57.487Z"
+}

@@ -172,7 +172,7 @@ releases:
     date: "2026-10-07"
     breaking: false
     headlines:
-      - "rcf-lite 0.32.5 ships two chain-shape fixes surfaced by Dex on the discovery-viewer-command-page branch (reporter). The dogfood walker in test/rcf-tree.test.js now mirrors the sidecar-ledger carve-out from src/define/ledgers.js by importing the new DEFINE_RELATIVE_DIR constant and ignoring rcf/define/, so the first `pnpm rcf define ledger brief add` on a fresh tree no longer blows up three dogfood assertions (issue 321). A new guidance/discovery/ (and companion docs/discovery/) subdir gives project discovery artefacts a predictable home outside the three locked methodology inventories; a first-time contributor can now land a discovery brief without touching the methodology lock or the pack manifest (issue 322). The 0.32.1 through 0.32.4 fixes carry forward unchanged."
+      - "rcf-lite 0.32.5 ships two chain-shape fixes surfaced by a consumer project on its discovery-viewer-command-page branch (the reporter). The dogfood walker in test/rcf-tree.test.js now mirrors the sidecar-ledger carve-out from src/define/ledgers.js by importing the new DEFINE_RELATIVE_DIR constant and ignoring rcf/define/, so the first `pnpm rcf define ledger brief add` on a fresh tree no longer blows up three dogfood assertions (issue 321). A new guidance/discovery/ (and companion docs/discovery/) subdir gives project discovery artefacts a predictable home outside the three locked methodology inventories; a first-time contributor can now land a discovery brief without touching the methodology lock or the pack manifest (issue 322). The 0.32.1 through 0.32.4 fixes carry forward unchanged."
     minAgentAction: null
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
@@ -180,7 +180,7 @@ releases:
     date: "2026-10-07"
     breaking: false
     headlines:
-      - "rcf-lite 0.32.4 is the stop-word follow-up to 0.32.3 after Dex's second-consumer check of PR 318 on WESPA (issue 319). Patterns 2 and 3 of extractThenFieldTokens (prose `<name> field` and `fields: <name>`) now share a broader English stop-word set and reuse pattern 4's file-extension and path-context skips, so the AC-130-1 WESPA then-clause `declares NO join-shaped fields: the earlier jurisdiction ...` stops reading `the` as a record field. Pattern 3 additionally walks a comma-separated list after `fields:` so a real prose field list such as `required fields: userID, email, createdAt` yields every token it names. The 0.32.1, 0.32.2 and 0.32.3 fixes carry forward unchanged."
+      - "rcf-lite 0.32.4 is the stop-word follow-up to 0.32.3 after a second consumer's check of PR 318 on WESPA (issue 319). Patterns 2 and 3 of extractThenFieldTokens (prose `<name> field` and `fields: <name>`) now share a broader English stop-word set and reuse pattern 4's file-extension and path-context skips, so the AC-130-1 WESPA then-clause `declares NO join-shaped fields: the earlier jurisdiction ...` stops reading `the` as a record field. Pattern 3 additionally walks a comma-separated list after `fields:` so a real prose field list such as `required fields: userID, email, createdAt` yields every token it names. The 0.32.1, 0.32.2 and 0.32.3 fixes carry forward unchanged."
     minAgentAction: null
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
@@ -196,7 +196,7 @@ releases:
     date: "2026-10-06"
     breaking: false
     headlines:
-      - "rcf-lite 0.32.2 ships two Dex-lane fixes on top of 0.32.1. D6 consistency:unsatisfiable now context-gates backticked identifiers in AC then-clauses so enum values, query-string parameter names, sort and filter literals, env-var names and config knobs stop being read as record-shape field names (issue 311; expected drop on WESPA 345 unsatisfiable findings, 187 true positives remain, AC-12113-2 class unchanged), and `rcf discover req-baseline opt-out` and `rcf define ledger concerns add` honour `--dry-run` by writing nothing (issue 310)."
+      - "rcf-lite 0.32.2 ships two consumer-reported fixes on top of 0.32.1. D6 consistency:unsatisfiable now context-gates backticked identifiers in AC then-clauses so enum values, query-string parameter names, sort and filter literals, env-var names and config knobs stop being read as record-shape field names (issue 311; expected drop on WESPA 345 unsatisfiable findings, 187 true positives remain, AC-12113-2 class unchanged), and `rcf discover req-baseline opt-out` and `rcf define ledger concerns add` honour `--dry-run` by writing nothing (issue 310)."
     minAgentAction: null
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
@@ -261,7 +261,7 @@ releases:
     date: "2026-09-22"
     breaking: false
     headlines:
-      - "rcf-lite 0.28.3 is a small batched fix release for the residuals Dex's 0.28.2 round-trip surfaced and one HQ-side viewer bug caught the same day. The feedback redactor no longer folds the git protocol sentinel git@<host> inside git+ssh, ssh or git URLs as an email, so an evidence pointer copied verbatim from a git remote or clone URL survives as evidence. Bare git remotes and single-letter trailing labels like a.b.c are also protected as URI userinfo and filename fragments; real emails in surrounding prose still fold."
+      - "rcf-lite 0.28.3 is a small batched fix release for the residuals a consumer's 0.28.2 round-trip surfaced and one HQ-side viewer bug caught the same day. The feedback redactor no longer folds the git protocol sentinel git@<host> inside git+ssh, ssh or git URLs as an email, so an evidence pointer copied verbatim from a git remote or clone URL survives as evidence. Bare git remotes and single-letter trailing labels like a.b.c are also protected as URI userinfo and filename fragments; real emails in surrounding prose still fold."
       - "The redactor emits a visible stderr warning when identity folding is disabled, so an operator whose rcf/.identity/profile.md is missing, empty, a placeholder, or contains only reserved nouns is no longer left thinking their identity is in force when it silently is not. Feedback status --json now exposes the destination source field the preview surface already prints, and --evidence pointers now render with the label matching their shape (command / path:line / id) rather than always (command)."
       - "The live-view server snapshots its shipped static assets (style.css, mermaid.min.js, live-client.js) at startup instead of reading them from disk per request, so a checkout branch switch during the server's lifetime can no longer silently change the served CSS."
     minAgentAction: null

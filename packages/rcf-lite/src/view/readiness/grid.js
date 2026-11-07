@@ -4,7 +4,7 @@
 // pass/total/state and a failing-count link into the blocking table
 // filtered to that stage.
 //
-// Viewer read-only (Dave constraint F7, ADR-4139): no command text,
+// Viewer read-only (ADR-4139): no command text,
 // no write affordance. The failing count is a hash link
 // (#tab=readiness&sub=blocking&stage=<D>) picked up by the blocking
 // FilterBar wire (page-init.js).

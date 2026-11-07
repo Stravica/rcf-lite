@@ -21,7 +21,7 @@ The cycle's contract is twelve rules. The stage sections below apply them.
 
 ## The five stages
 
-Each stage is done by its own role and ends in a commit whose subject opens with the stage prefix: `DEFINE:`, `BUILD:`, `REVIEW:`, `TEST:` or `FINALISE:`. Where a commit carries a `Hand:` trailer, it agrees with the prefix. No Build starts until the RCF suite is green on the base: every bundle needs `--base-suite <file>`, a record `rcf build base-suite --out <file>` writes at a clean committed base.
+Each stage is done by its own role and ends in a commit whose subject opens with the stage prefix: `DEFINE:`, `BUILD:`, `REVIEW:`, `TEST:` or `FINALISE:`. No Build starts until the RCF suite is green on the base: every bundle needs `--base-suite <file>`, a record `rcf build base-suite --out <file>` writes at a clean committed base.
 
 ### DEFINE (commit prefix DEFINE:, role test-author)
 

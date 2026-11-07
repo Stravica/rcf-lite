@@ -51,8 +51,8 @@ prototype as evidence (statements sourced to its files and lines),
 run them through intake and the PO loop like any document, and
 rebuild from the tree. The prototype is a quarry.
 
-"Grow the prototype" is named here as rejected, with the provenance
-reason from Dex's note: a shape reaching the project tree without
+"Grow the prototype" is named here as rejected, with this provenance
+reason: a shape reaching the project tree without
 the PO loop that owns every settled shape is a shape without a known
 origin, and no amount of auditing after the fact can restore the
 owner.

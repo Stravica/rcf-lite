@@ -1,5 +1,5 @@
-// Build-tab renderers (viewer UI refresh PR 5, w-2026-10-02-dave-010
-// decisions 2, 3, 6, 12, 14; design doc section 5.6).
+// Build-tab renderers (viewer UI refresh PR 5, decisions 2, 3, 6,
+// 12, 14; design doc section 5.6).
 //
 // This module ships the Build tab's own small pieces:
 //   - renderBuildStats(stats): the one-line totals card above the

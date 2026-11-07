@@ -1,5 +1,5 @@
-// Architecture tab renderers (viewer UI refresh PR 4, w-2026-10-02-dave-010
-// decisions 5 and 14, design doc section 5.5).
+// Architecture tab renderers (viewer UI refresh PR 4, decisions 5
+// and 14, design doc section 5.5).
 //
 // The Architecture tab shows the TAD as six collapsed sections, one per
 // canonical area, with a one-line preview on each summary. An absent

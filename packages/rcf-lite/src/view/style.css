@@ -1,12 +1,12 @@
 /*
  * RCF view stylesheet.
  *
- * Viewer UI refresh PR 1 (w-2026-10-02-dave-010, Dex / wespa relay
- * f0384046 on 2026-10-02): replaces the earlier single-theme indigo
+ * Viewer UI refresh PR 1 (wespa request, 2026-10-02):
+ * replaces the earlier single-theme indigo
  * palette with the Stravica brand kit tokens (--sv-* cobalt / ink /
  * paper) in a light + dark pair. theme=light|dark on the root page
  * wins; theme=auto (and absent) falls through to prefers-color-scheme,
- * with absent defaulting to light per Dex's wespa requirements.
+ * with absent defaulting to light per wespa's requirements.
  *
  * The viewer fills the viewport height and owns its scrolling (the
  * host is a fixed box in wespa, 56px header plus a sidebar); nothing
@@ -236,7 +236,7 @@ header.app-header .bar {
   color: var(--sv-ink);
   overflow: hidden;
   text-overflow: ellipsis;
-  /* w-2026-10-06-dave-001 (issue 295): .product is a flex container; the
+  /* Issue 295: .product is a flex container; the
      ellipsis only triggers when its child is itself free to shrink below
      intrinsic. min-width:0 unlocks that. */
   min-width: 0;
@@ -252,7 +252,7 @@ nav.tabs {
   display: flex;
   gap: 0.25rem;
   margin-left: 1rem;
-  /* w-2026-10-06-dave-001 (issue 295): the tablist grows to fill the
+  /* Issue 295: the tablist grows to fill the
      bar but never shrinks below its intrinsic width (flex-shrink:0),
      so every main tab stays visible and the Find button in .tools
      never sits on top of a clipped tab. .product carries the shrink
@@ -795,7 +795,7 @@ code {
 /* Shell footer: one compact muted line - version, GitHub, docs
    links (new tab, rel="noopener", never target="_top") and the
    live-update pill as the current viewer's connection dot. Hidden
-   under data-embed="1" per the Dex / wespa contract. */
+   under data-embed="1" per the embedding contract. */
 footer.app-footer {
   max-width: 1280px;
   width: 100%;
@@ -818,7 +818,7 @@ footer.app-footer a {
 
 footer.app-footer a:hover { text-decoration: underline; }
 
-/* operator ruling 2026-10-04 w-2026-10-04-dave-001: separator was `--sv-control`
+/* Separator was `--sv-control`
    which fell under 4.5:1 in both themes (3.51:1 light, 4.21:1 dark);
    `--sv-muted` is the "muted text" token designed for this. */
 footer.app-footer .sep { color: var(--sv-muted); }
@@ -883,7 +883,7 @@ footer.app-footer .live.disconnected .dot { background: #b03a2e; }
 }
 
 /* --------------------------------------------------------------------
- * Deep-link scope overlay (w-2026-08-30-dave-020)
+ * Deep-link scope overlay
  * -------------------------------------------------------------------- */
 
 body.rcf-scoped #rcf-live-content [data-doc-id]:not(.rcf-in-scope):not(.rcf-scope-ancestor) {
@@ -1162,7 +1162,7 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 .pm-mini-review { color: var(--sv-link); background: var(--sv-active); border-color: var(--sv-link); }
 .pm-mini-draft { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
 .pm-mini-needsRevision { color: var(--sv-danger); background: var(--sv-dangerbg); border-color: var(--sv-danger); }
-/* operator ruling 2026-10-04 w-2026-10-04-dave-001: `--sv-control` on `--sv-raised`
+/* `--sv-control` on `--sv-raised`
    was 3.51:1 light / 4.21:1 dark, below the 4.5:1 floor for small text.
    `--sv-muted` is the matching muted-text token and clears AA in both. */
 .pm-mini-superseded { color: var(--sv-muted); background: var(--sv-raised); border-color: var(--sv-border); }
@@ -1239,7 +1239,7 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 }
 .pm-blueprint-cap-count {
   font-weight: 500;
-  /* operator ruling 2026-10-04 w-2026-10-04-dave-001: `--sv-control` fell under
+  /* `--sv-control` fell under
      the 4.5:1 small-text floor; switched to `--sv-muted`. */
   color: var(--sv-muted);
   margin-left: 0.25rem;
@@ -1247,7 +1247,7 @@ details.pm-bucket[open] > summary.pm-bucket-heading {
 .pm-blueprint-cap-body { display: block; }
 
 /* --------------------------------------------------------------------
- * Viewer UI refresh PR 2 (w-2026-10-02-dave-010): shared component
+ * Viewer UI refresh PR 2: shared component
  * stylesheet. Mounted alongside the pre-existing selectors so each
  * component (DocRow, FilterBar, Badge, EmptyState, Toast, SubTabStrip)
  * can be mounted by later tabs without touching the base rules.
@@ -2286,7 +2286,7 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
   cursor: pointer;
   transition: background-color 0.1s ease-out, border-color 0.1s ease-out, color 0.1s ease-out;
 }
-/* operator ruling 2026-10-04 w-2026-10-04-dave-001: hover previously fell back to
+/* Hover previously fell back to
    a hard-coded light grey (`#f0f3f8`) because `--sv-surface-hover` was
    never declared; in dark that painted dark ink on a light grey and
    made the FIND button unreadable. The hover now uses `--sv-active`
@@ -2329,7 +2329,7 @@ details.rcf-row.rcf-row--inner > summary { padding: 0.4rem 0.6rem; }
 }
 
 /* --------------------------------------------------------------------
- * Three-state theme control (ADR-4137, operator ruling 2026-10-04).
+ * Three-state theme control (ADR-4137).
  *
  * Sits in `.tools` right of the SearchButton in non-embed mode; absent
  * from the DOM entirely under `data-embed="1"` (page-init.js removes

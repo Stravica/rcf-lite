@@ -39,7 +39,7 @@ const SEEDDATA_PATTERNS = /\b(admin[\s-]?(created|seeded)|seeded|pre[\s-]?popula
  * consumed by build's pre-flight scanner (verification-integrity-cluster-spec
  * §5.3 / §8.4). Verify's original inline SERVICE_PATTERNS regex is
  * superseded — a single shared source removes the class of drift that
- * shipped the d-2026-07-30-142 "email channel" miss.
+ * shipped the "email channel" miss.
  *
  * @param {object} ac - a flattened AC ({acId, description, given, when, then})
  * @returns {'authAccount'|'serviceSandbox'|'seedData'|null}
@@ -217,7 +217,7 @@ export async function runProvisioning({ acs = [], url, provisionPath, mode = 'ru
       // serviceSandbox / seedData: v1 honest BLOCK unless an out-of-band
       // route exists. Issue #353: the message now names `--provision-mode
       // skip` as the remedy for operator-managed sandboxes / pre-populated
-      // test data so the next person does not need Dex to tell them.
+      // test data so the next person does not need someone to tell them.
       const reason = `cannot provision: ${kind} (out-of-band route required; §6 v1 deferred). If the prerequisite is supplied out of band, re-run with \`--provision-mode skip\` (the mode is disclosed on report.provisioning.mode).`;
       provisioning.blocked.push({ kind, reason });
       for (const acId of dependentAcIds) blockedAcs.push({ acId, reason });
@@ -234,7 +234,7 @@ export async function runProvisioning({ acs = [], url, provisionPath, mode = 'ru
     });
     // Surface the write failure as data instead of discarding it: a failed
     // credential write means the run's provisioned accounts are unusable
-    // downstream, and silently swallowing it hid a real fault (w-2026-07-21-006).
+    // downstream, and silently swallowing it hid a real fault.
     // Only the message + path are recorded — never the credentials themselves.
     if (writeErr) {
       provisioning.provisionWriteError = { message: writeErr.message, filePath: writeErr.filePath ?? provisionPath };

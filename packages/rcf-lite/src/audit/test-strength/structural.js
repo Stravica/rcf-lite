@@ -15,7 +15,7 @@ import { defaultedParams, findDeclaration, importSpecifiers, mockedModules, pars
 // ADR-4156: the parameter and option names a silent default hides.
 export const SILENT_NAMES = new Set(['logger', 'log', 'emitter', 'events', 'sender', 'mailer', 'notifier']);
 
-// The stage-keeper's ruling Q10: the JavaScript forms first, then .ts and /index.ts.
+// Resolution order: the JavaScript forms first, then .ts and /index.ts.
 const RESOLVE_SUFFIXES = ['', '.js', '.mjs', '.cjs', '/index.js', '/index.mjs', '/index.cjs', '.ts', '/index.ts'];
 
 /** The first string target of a package.json exports or imports value. */

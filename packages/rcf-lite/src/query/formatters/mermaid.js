@@ -66,7 +66,7 @@ export function formatMermaid(result, verb) {
 function renderCoverageMermaid(result) {
   const lines = ['flowchart LR'];
   const seenIds = new Set();
-  // w-2026-07-28-005: TCs whose pointer does not resolve carry the
+  // TCs whose pointer does not resolve carry the
   // `broken` class on top of `tc` - dashed red stroke, so a stub TC is
   // visibly not the same thing as a resolving one. FBS-228: a retired
   // criterion carries a dotted supersededBy edge to its successor.

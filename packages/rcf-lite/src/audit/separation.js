@@ -353,7 +353,7 @@ const sha7 = (sha) => (typeof sha === 'string' ? sha.slice(0, 7) : '');
  * reviewed head records PASS or FAIL (FAIL closes the round); a
  * test-strength.json is a report and closes nothing (AC-20502-4). After a TEST PASS,
  * a TEST: commit adding a FAIL test.json keyed to its own parent is legal
- * after TEST: or FINALISE: and closes the round (stage-keeper ruling 3).
+ * after TEST: or FINALISE: and closes the round.
  * After a closing verdict only DEFINE: may follow, starting the next
  * round. A REVIEW: or TEST: commit adding no verdict file counts as no
  * verdict. Items carry no sha.

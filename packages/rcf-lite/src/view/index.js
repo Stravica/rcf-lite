@@ -24,7 +24,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const VENDORED_MERMAID_PATH = resolve(here, 'vendored', 'mermaid.min.js');
 export const STYLE_CSS_PATH = resolve(here, 'style.css');
 export const LIVE_CLIENT_PATH = resolve(here, 'live-client.js');
-// Viewer UI refresh PR 1 (Dex / wespa 2026-10-02 #263): the former
+// Viewer UI refresh PR 1 (wespa #263): the former
 // inline <script> block from html-page.js now lives at this path and
 // is served over the new /page-init.js route. Release notes name it so
 // wespa's proxy allow-list is extended before any version pin bump.

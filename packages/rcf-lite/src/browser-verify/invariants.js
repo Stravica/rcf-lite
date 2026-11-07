@@ -342,7 +342,7 @@ function checkNoInlineStyleBlocks(ctx) {
  * styled /login (Playwright's page.goto follows redirects by default,
  * so the resolved response is 200 from the redirect target and the
  * downstream styled/CSP assertions pass against the wrong surface).
- * Watchpost partial-acceptance w-2026-08-24-003 / AC-1601-14; ported
+ * Watchpost partial-acceptance AC-1601-14; ported
  * into the SPA blueprint TAC-209 v1.0.1.
  *
  * The invariant is opt-in: when the driver does NOT populate

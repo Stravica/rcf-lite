@@ -7,7 +7,7 @@
 // FBS-206 reshape: the panel is a SubTabStrip (Overview, Questions,
 // Blocking, Coverage, Trace) with five sub-panels; one is visible at
 // a time. For-engineers DocRow, stage chips and stage-detail retired
-// (viewer-read-only ADR-4139 and Dave's FBS-204/206 binding ruling).
+// (viewer-read-only ADR-4139 and FBS-204/206).
 // "On me" / "On engineers" vocabulary replaces persona pills in the
 // user-facing text. The freeze state renders in plain words with
 // what resolves each failing gate. The Trace sub-view is an empty

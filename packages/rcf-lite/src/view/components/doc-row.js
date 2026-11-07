@@ -1,5 +1,5 @@
-// Shared DocRow collapsible (viewer UI refresh PR 2, decision 2 / w-
-// 2026-10-02-dave-010): one markup shape for every per-document row on
+// Shared DocRow collapsible (viewer UI refresh PR 2, decision 2):
+// one markup shape for every per-document row on
 // every list tab (REQ, US, TAC, ADR, FBS). Closed by default, hidden-
 // by-filter via `[hidden]`, deep-link-navigable via `data-doc-id` and
 // the raw document id as the anchor.

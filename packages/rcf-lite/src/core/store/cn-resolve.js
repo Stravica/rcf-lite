@@ -2,7 +2,7 @@
 //
 // This is the STALENESS DETECTOR - X2's headline advantage over sidecar
 // approaches (S5/S6; testPointer was the same shape until tp-resolve.js
-// gave it its own working-tree check for the test axis, w-2026-07-28-005).
+// gave it its own working-tree check for the test axis).
 // Every CN declares a `path` (file-level
 // "src/foo.js" or symbol-level "src/foo.js#symbol"). This module checks
 // each path against the CHECKED-OUT WORKING TREE and reports the CNs whose

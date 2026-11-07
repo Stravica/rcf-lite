@@ -203,8 +203,13 @@ depth for each stage.
     in the document once; preferences are recorded as defaults with a
     reason; noise is dropped.
 
-A failure the operator has to point out is a failure you did not check
-for.
+The failures these rules guard against are agent-side self-checks:
+skipping a layer, gold-plating past the criteria, editing a test to
+pass instead of fixing the code,
+merging before Finalise has written complete on the PR branch,
+marking a stage done without its referee output. You catch each one
+before the stage ends. A failure the operator has to point out is a
+failure you did not check for.
 
 ### RULE 14: Check freshness at session start; offer, never install.
 
@@ -339,11 +344,11 @@ review`. TEST (`TEST:`) runs the full RCF suite against a locally
 running app, nothing deployed, and records `rcf build verdict test`.
 FINALISE (`FINALISE:`), on a REVIEW MERGE and a TEST PASS with CI green,
 runs `rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch,
-which checks the recorded verdicts and writes complete before the
-merge, then merges. Every commit carries its stage prefix, and the
-separation audit judges that prefix against the paths the commit
-touches. A failed REVIEW or TEST closes the round, and the next round
-starts at DEFINE. Drive the whole queue, not one item.
+which checks the recorded verdicts and writes complete
+before the merge, then merges. Every commit carries its stage prefix,
+and the separation audit judges that prefix against the paths the
+commit touches. A failed REVIEW or TEST closes the round, and the next
+round starts at DEFINE. Drive the whole queue, not one item.
 After each item's Finalise, bundle the next actionable item until the
 queue reports complete. If your harness can spawn sub-agents, run each
 FBS in its own worker so the driving context stays clean across the

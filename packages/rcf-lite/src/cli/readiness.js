@@ -576,7 +576,7 @@ function decideExitCode(result, checkStage, level, litmus, ledgers, stderr) {
   }
 
   // --litmus policy (0.30.0 PR 7, ADR-4131 extended; R9 clarified
-  // 2026-10-03, w-2026-10-03-dave-011). Count distinct readers who
+  // 2026-10-03). Count distinct readers who
   // have landed a probe-ledger entry at the current LITMUS HASH whose
   // finding begins litmus:<reader>:; exit 4 when fewer than n have
   // attested. The litmus hash is the tree hash computed with the

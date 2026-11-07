@@ -12,7 +12,7 @@
 //   - `packages/rcf-lite/src/verify/provision/index.js` (verify's provisioning
 //     heuristic, spec §5.3 / §8.4); verify's existing `SERVICE_PATTERNS`
 //     regex is superseded by this shared set so the "email channel" miss
-//     that motivated the whole cluster (d-2026-07-30-142 investigation)
+//     that motivated the whole cluster
 //     cannot recur from regex drift between packages.
 //
 // The pattern set is data, not a classifier: consumers own the "what field

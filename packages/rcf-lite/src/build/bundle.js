@@ -183,7 +183,7 @@ export function assembleBundle(tree, { fbsId, acIds: touchedAcIds }) {
   // Section 6 - existing test surface. Presence reporting off the
   // walker maps, not a coverage verdict (§D7). The per-AC `covered`
   // flag here is PRESENCE-based (at least one TC row via tcsByAcId);
-  // since w-2026-07-28-005, computeCoverage's own leaf test is stricter
+  // since the pointer-resolution change, computeCoverage's own leaf test is stricter
   // (the TC's testPointer must resolve to a real test). `rcf coverage`
   // is the coverage surface; this section only lists what is on the
   // tree, pointers included, so the builder can see what exists.

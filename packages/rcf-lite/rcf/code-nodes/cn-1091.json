@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1091",
+  "path": "src/build/formatters/markdown.js#pushRunbook",
+  "title": "Runbook drops the 0.37.x Hand line",
+  "description": "The md runbook says a Hand: trailer, where present, agrees with the stage prefix.",
+  "implementsAcIds": [
+    "AC-20504-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:06.888Z",
+  "updatedAt": "2026-11-07T00:41:06.888Z"
+}

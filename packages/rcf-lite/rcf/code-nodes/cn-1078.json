@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1078",
+  "path": "src/cli/finalise.js#main",
+  "title": "Finalise prints the strength notes",
+  "description": "Prints each recorded-not-refused test-strength line on stdout before the complete line.",
+  "implementsAcIds": [
+    "AC-20502-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:40:58.143Z",
+  "updatedAt": "2026-11-07T00:40:58.143Z"
+}

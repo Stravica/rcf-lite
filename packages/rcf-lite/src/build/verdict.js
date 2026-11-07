@@ -269,8 +269,8 @@ export async function recordTestVerdict({ projectRoot, tree, fbsIds, result, tap
   }
   const H = review ? review.head : state.head;
 
-  // One test verdict per head. A FAIL after a PASS at H is keyed to HEAD
-  // (stage-keeper ruling 3), so the PASS at H stays byte-identical.
+  // One test verdict per head. A FAIL after a PASS at H is keyed to HEAD,
+  // so the PASS at H stays byte-identical.
   let target = H;
   const atH = verdictFile(H, 'test.json');
   if (existsSync(join(projectRoot, atH))) {

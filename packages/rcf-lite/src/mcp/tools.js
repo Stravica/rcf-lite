@@ -927,7 +927,7 @@ function resolveTarget(tree, id) {
     const entry = (us.acceptanceCriteria ?? []).find((ac) => ac.id === id);
     return entry ? { doc: entry } : null;
   }
-  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3, consumer-path
+  // 0.8.0 slug-train (landmine 3, consumer-path
   // straggler): widened `\d{3}` -> `\d{3,}` in lockstep with rcf-schemas
   // 0.4.3's TC pattern. Under the previous shape a `read TC-1000-x` MCP
   // call silently returned null even when the TC existed -- the same
@@ -1147,7 +1147,7 @@ export function createToolRegistry({ projectRoot, log }) {
       }
       // OQ-P7-8: strict gaps return data ({ok: false}), never isError.
       // Phase 10 (D11): withCode layers the informational code axis on.
-      // w-2026-07-28-005: pointer resolution gates "covered" - same rule
+      // Pointer resolution gates "covered" - same rule
       // as the CLI, one resolution pass against the working tree.
       // Referee-guarantee train (REQ-164 / US-16401): strict is the
       // shipped default; pass `mode: 'shallow-any'` (or the legacy
@@ -1295,7 +1295,7 @@ export function createToolRegistry({ projectRoot, log }) {
       if (kind === 'tc') {
         if (!args.acId) return usageErrorResult('create tc: acId is required');
         body.acId = args.acId;
-        // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug returns
+        // 0.8.0 slug-train (landmine 4): deriveSlug returns
         // '' on empty derivation; TC keeps its historical 'tc' fallback
         // locally rather than letting deriveSlug bake it in.
         options.slug = args.slug ?? (deriveSlug(body.description) || 'tc');

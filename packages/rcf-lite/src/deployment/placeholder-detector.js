@@ -1,7 +1,7 @@
 // Canonical placeholder-credential-shape detector for the deployment-gate
-// class cure (spa-US-1132 / TAC-210, w-2026-08-24-006).
+// class cure (spa-US-1132 / TAC-210).
 //
-// The watchpost first production review (w-2026-08-24-005) shipped with
+// The watchpost first production review shipped with
 // RESEND_API_KEY set to a placeholder value; the only login path (magic-link
 // email) was inert; sign-off still said DEPLOYED. The gap was filed as a
 // "quirk" note in status.md rather than blocked at gate time. This module

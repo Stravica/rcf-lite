@@ -132,7 +132,7 @@ Failure modes:
 
 **Second gate on Stage 3: `rcf build review <fbs-id>`.** After `rcf define validate` clears the tree, run the test-theatre audit. The audit asks the meta-question the diff review does not: are the tests themselves honest? Five finding categories run deterministically over the FBS's in-scope ACs and their covering TSes:
 
-- `mockOnlyIntegrationClaim` - an integration-level TS whose every TC records `runtimeProvenance.profile` in `{mock, stub, fixture}` while at least one bound AC's aggregated attestation is `live` or `sandboxed`. This is the exact failure the whole 0.7.0 verification-integrity surface exists to catch (d-2026-07-30-142). Severity: block.
+- `mockOnlyIntegrationClaim` - an integration-level TS whose every TC records `runtimeProvenance.profile` in `{mock, stub, fixture}` while at least one bound AC's aggregated attestation is `live` or `sandboxed`. This is the exact failure the whole 0.7.0 verification-integrity surface exists to catch. Severity: block.
 - `testPointerBroken` - a TC's `testPointer` fails to resolve to a real test in the working tree. Severity: block.
 - `acIdsCoverageDrift` - a TS covers an AC the parent FBS does not claim in `acIds[]`. Severity: warn. (The reverse - an FBS claims an AC no TS covers - is caught by `coverage --strict` which already exits 4 on that.)
 - `attestationDrift` (recorded as `otherDeclared` with a `kindDescription`) - `declaredMockOnly × live`. Severity: warn.
