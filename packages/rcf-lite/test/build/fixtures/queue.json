@@ -10,8 +10,8 @@
     "items": 133,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 35,
-    "verified": 38,
+    "complete": 34,
+    "verified": 39,
     "actionable": 42,
     "blocked": 16
   },
@@ -1781,9 +1781,9 @@
       "buildOrder": 245,
       "tier": 0,
       "title": "rcf-lite 0.41.0: rcf/ out of the tarball, test strength a report, and the twelve rules in the managed block, the guidance and the runbook",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     }
   ],
