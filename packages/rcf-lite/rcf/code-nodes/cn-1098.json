@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1098",
+  "path": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+  "title": "Inline-style refusal without a work-item id",
+  "description": "The inline <style> block refusal detail no longer names a development work item.",
+  "implementsAcIds": [
+    "AC-20501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T11:38:34.820Z",
+  "updatedAt": "2026-11-07T11:38:34.820Z"
+}

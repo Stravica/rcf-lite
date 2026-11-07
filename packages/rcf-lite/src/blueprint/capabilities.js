@@ -140,7 +140,7 @@ export function buildRefusalMessage({ slug, refusalMessageId, requiredCapabiliti
       `at least one of: ${requiredCapabilities.join(', ')}`,
       `or an operator override with --${allowSkipFlag}.`,
       `The shipped provider is messaging-queue-cloudflare (v1.0.0+); a future`,
-      `messaging-queue-postgres sibling (operator decision 7) will provide the same`,
+      `messaging-queue-postgres sibling will provide the same`,
       `capability when demand mints it.`,
       '',
       'Applied blueprints on this project:',
