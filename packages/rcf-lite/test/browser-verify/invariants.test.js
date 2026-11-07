@@ -159,8 +159,8 @@ test('noInlineStyleBlocks fails when the DOM carries an inline <style> block (w-
   const inv = results.find((r) => r.invariant === 'noInlineStyleBlocks');
   assert.equal(inv.verdict, 'fail');
   assert.equal(inv.severity, 'block');
-  assert.match(inv.detail, /inline <style>/i);
-  assert.match(inv.detail, /w-2026-08-24-003/);
+  // AC-20501-3 (0.41.0): the detail reads exactly this, with no work-item id.
+  assert.equal(inv.detail, 'inline <style> block present in the rendered HTML; ship style-src \'unsafe-inline\' would be required for it to render (watchpost run4 class defect). Serve the stylesheet from a same-origin route and reference it via <link rel="stylesheet">.');
 });
 
 test('authenticatedLandsOnRequestedPath passes when the driver does not report a landedPath (opt-in / backward compatible)', () => {
@@ -196,10 +196,8 @@ test('authenticatedLandsOnRequestedPath fails when a session-broken authenticate
   const inv = results.find((r) => r.invariant === 'authenticatedLandsOnRequestedPath');
   assert.equal(inv.verdict, 'fail');
   assert.equal(inv.severity, 'block');
-  assert.match(inv.detail, /landed on '\/login'/);
-  assert.match(inv.detail, /requested '\/monitors'/);
-  assert.match(inv.detail, /AC-1131-3 pathMismatch/);
-  assert.match(inv.detail, /w-2026-08-24-003/);
+  // AC-20501-3 (0.41.0): the detail reads exactly this, with no work-item id.
+  assert.equal(inv.detail, "authenticated navigation landed on '/login' (requested '/monitors'); a silent redirect chain to another surface (e.g. a session-broken 302 to /login) validated the redirect target's styled state instead of the requested route (AC-1131-3 pathMismatch; watchpost AC-1601-14).");
 });
 
 test('authenticatedLandsOnRequestedPath does not fire when the request was unauthenticated and the route is public', () => {
