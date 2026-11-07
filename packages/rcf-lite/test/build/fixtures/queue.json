@@ -7,9 +7,9 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 132,
+    "items": 133,
     "notStarted": 58,
-    "inProgress": 2,
+    "inProgress": 3,
     "complete": 34,
     "verified": 38,
     "actionable": 42,
@@ -73,7 +73,8 @@
         "FBS-210",
         "FBS-218",
         "FBS-231",
-        "FBS-232"
+        "FBS-232",
+        "FBS-243"
       ]
     },
     {
@@ -1773,6 +1774,16 @@
         "FBS-239"
       ],
       "state": "actionable",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-243",
+      "buildOrder": 245,
+      "tier": 0,
+      "title": "rcf-lite 0.41.0: rcf/ out of the tarball, test strength a report, and the twelve rules in the managed block, the guidance and the runbook",
+      "executionStatus": "inProgress",
+      "dependsOnFbsIds": [],
+      "state": "inProgress",
       "blockedBy": []
     }
   ],
