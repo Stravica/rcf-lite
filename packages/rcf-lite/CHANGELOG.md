@@ -6,6 +6,8 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.41.0] - 2026-11-07
+
 0.41.0 ships the twelve-rule build cycle in the public package. Test strength becomes a recorded report that refuses nothing, the managed agent-instructions block states the twelve rules in place of the operator-register text, and the package stops shipping its own `rcf/` folder and development-chain notes. Breaking (pre-1.0, breaking is minor): Finalise and the TEST verdict exit 0 where 0.40.1 exited 4 on a failing test-strength record, and the managed block changed, so rerun `rcf init` or `rcf doctor --fix`.
 
 ### Changed
@@ -27,10 +29,6 @@ Upgrading from 0.40.1:
 - Rerun `rcf init` or `rcf doctor --fix`. The managed block in CLAUDE.md and AGENTS.md now states the twelve rules of the build cycle; `rcf doctor` reports exit 3 until you do. Text outside the markers is not touched.
 - Test strength is a report. `rcf build finalise` still needs a test-strength record at the reviewed head covering the touched criteria, and now also refuses one that is not a valid TestStrengthReport v1 for that head, but no longer refuses on a failed or blocked result, and `rcf build verdict test --result PASS` no longer refuses on one. The reviewer's adequacy verdict is the judgement. To keep a hard gate, fail your CI on `rcf audit test-strength` exit 4; its exit codes are unchanged.
 - The package no longer ships its own `rcf/` folder. Your project's `rcf/` is unaffected; no chain file needs migration, and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged.
-
-### Known issues
-
-- Three refusal messages still carry development-chain text that existing tests pin: the two inline-style and landed-path refusal details in `src/browser-verify/invariants.js` name an internal work item, and the `jobs-background-no-queue` refusal in `src/blueprint/capabilities.js` cites a ruling. Removing them needs those tests changed first.
 
 ## [0.40.1] - 2026-11-04
 

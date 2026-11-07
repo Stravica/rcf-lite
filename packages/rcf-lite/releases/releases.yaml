@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.40.1"
+latest: "0.41.0"
 releases:
+  - version: "0.41.0"
+    date: "2026-11-07"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.41.0 ships the twelve-rule build cycle: the managed agent-instructions block and rcf guidance build-cycle state the twelve rules, and the block drops its operator-register text."
+      - "Breaking: test strength is a recorded report, so rcf build finalise and rcf build verdict test --result PASS exit 0 where 0.40.1 exited 4 on a failing record; Finalise still needs a valid record for the reviewed head covering the touched criteria, and a team that wants a gate fails its CI on rcf audit test-strength exit 4."
+      - "Rerun rcf init or rcf doctor --fix to take the new managed block; rcf doctor reports exit 3 until then. The package no longer ships its own rcf/ folder; your project's rcf/ and the @stravica-ai/rcf-schemas 0.10.0 pin are unchanged."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.40.1"
     date: "2026-11-04"
     breaking: false
