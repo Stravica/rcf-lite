@@ -101,7 +101,7 @@ Not hits, and the widened pattern must stay clear of them: `src/feedback/redact.
 | `blueprints/observability-*`, `application-error-handling`, `application-api-rest`, `application-admin-console` | 1 to 2 each | `wsd` inside the class B spec paths or "WSD" as a source |
 | `blueprints/security-auth-magic-link/assets/principal-registry-samples/allow-list-file.md` | 1 | "WESPA" in a sample allow-list |
 
-Not in the set, and worth saying so: `WAIF`, `CodeOps`, `InfoSec`, `SPi`, `Solvians`, `Innovations Team` return nothing. `Stravica` and `stravica.ai` appear throughout as the publisher and are not consumer material.
+`Stravica` and `stravica.ai` appear throughout as the publisher and are not consumer material.
 
 ### 2.3 The widened pattern set
 
@@ -111,7 +111,7 @@ Added to `CHAIN`, one entry per class, in the test's own shape (kind, regex):
 ['a cited ruling of any named authority', /\b(?:maintainer|owner|operator|stage-keeper|reviewer)(?:'s)?\s+(?:rulings?|decisions?)\b[^\n]{0,24}?\b\d{4}-\d{2}-\d{2}\b/i],
 ['an internal specification or estate path',  /\bprojects\/[a-z0-9-]+\/(?:specs?|docs|wireframes|notes)\/|\bagents\/(?:dex|dave|barry)\/|\bstravica-(?:pa|library-[a-z]+)\b/],
 ['a developer home directory',                 /(?:^|[^A-Za-z0-9_.\/-])(?:\/Users|\/home)\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]/],
-['a consumer project, team or developer handle', /\b(?:WESPA|Wespa|wespa|WAIF|Waif|Backstory|backstory|CodeOps|InfoSec Recall|WSD|wsd|thefoot)\b/],
+['a consumer project, team or developer handle', /\b(?:WESPA|Wespa|wespa|Backstory|backstory|WSD|wsd|thefoot)\b/],
 ```
 
 Notes on each: the ruling pattern keeps the existing rule that a ruling needs a date after it, so the product copy that tells an adopter to record "the operator's ruling" still does not match; the home-directory pattern needs a user segment with no space and a further segment, which clears `redact.js`'s `/Users/john doe` examples and the error-handling story's bare "no /Users/"; the consumer pattern is case-sensitive on the three spellings that occur, and `wsd` is included because the team name travels in `rcf-lite-wsd` and "WSD-lens". The first entry can replace today's third alternative of the ruling pattern rather than sit beside it.
