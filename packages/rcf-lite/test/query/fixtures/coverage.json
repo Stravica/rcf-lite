@@ -2,11 +2,11 @@
   "ok": true,
   "strict": true,
   "totals": {
-    "requirements": 135,
-    "covered": 135,
+    "requirements": 136,
+    "covered": 136,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 62
+    "retiredAcs": 66
   },
   "requirements": [
     {
@@ -11009,14 +11009,14 @@
         },
         {
           "id": "AC-19702-7",
-          "covered": true,
-          "testCases": [
-            "TC-274-a-failing-test-strength-record-at-h"
-          ],
+          "state": "retired",
+          "supersededBy": "AC-20502-3",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-19702-8",
@@ -11163,14 +11163,14 @@
         },
         {
           "id": "AC-19703-11",
-          "covered": true,
-          "testCases": [
-            "TC-275-a-test-strength-adding-a-failing-test"
-          ],
+          "state": "retired",
+          "supersededBy": "AC-20502-4",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-19703-12",
@@ -12146,14 +12146,14 @@
         },
         {
           "id": "AC-20002-1",
-          "covered": true,
-          "testCases": [
-            "TC-286-with-no-test-strength-record-at-h"
-          ],
+          "state": "retired",
+          "supersededBy": "AC-20502-2",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-20002-2",
@@ -12895,14 +12895,14 @@
         },
         {
           "id": "AC-20401-8",
-          "covered": true,
-          "testCases": [
-            "TC-297-the-build-loop-section-of-rcf-guidance"
-          ],
+          "state": "retired",
+          "supersededBy": "AC-20503-1",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": [],
           "verification": "external",
-          "expectedEnd": "verified",
-          "now": "verified"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-20401-9",
@@ -12969,6 +12969,181 @@
           "verification": "testOnly",
           "expectedEnd": "complete",
           "now": "complete"
+        }
+      ]
+    },
+    {
+      "id": "REQ-205",
+      "covered": true,
+      "coverageClass": "covered",
+      "acs": [
+        {
+          "id": "AC-20501-1",
+          "covered": true,
+          "testCases": [
+            "TC-307-npm-pack-dry-run-json-in-packages-rcf"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20501-2",
+          "covered": true,
+          "testCases": [
+            "TC-307-the-tarball-npm-pack-produces-installed"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20501-3",
+          "covered": true,
+          "testCases": [
+            "TC-307-no-packed-file-carries-development-chain"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20502-1",
+          "covered": true,
+          "testCases": [
+            "TC-308-with-a-test-strength-record-at-h"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20502-2",
+          "covered": true,
+          "testCases": [
+            "TC-308-finalise-still-refuses-with-exit-4"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20502-3",
+          "covered": true,
+          "testCases": [
+            "TC-308-rcf-build-verdict-test-fbs-fbs-001"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20502-4",
+          "covered": true,
+          "testCases": [
+            "TC-308-rcf-audit-separation-passes-a-range"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20502-5",
+          "covered": true,
+          "testCases": [
+            "TC-308-regression-guard-for-ac-20502-5-exit-0",
+            "TC-308-regression-guard-for-ac-20502-5-exit-2-a",
+            "TC-308-regression-guard-for-ac-20502-5-exit-4-a",
+            "TC-308-regression-guard-for-ac-20502-5-exit-5"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20502-6",
+          "covered": true,
+          "testCases": [
+            "TC-308-finalise-accepts-only-a-valid-test-strength"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20503-1",
+          "covered": true,
+          "testCases": [
+            "TC-309-rcf-guidance-managed-agent-instructions"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20503-2",
+          "covered": true,
+          "testCases": [
+            "TC-309-rcf-init-in-a-fresh-directory-writes-the"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20503-3",
+          "covered": true,
+          "testCases": [
+            "TC-309-on-a-project-whose-claude-md-carries-the"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20504-1",
+          "covered": true,
+          "testCases": [
+            "TC-310-rcf-guidance-build-cycle-and-rcf-docs"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20504-2",
+          "covered": true,
+          "testCases": [
+            "TC-310-the-runbook-rcf-build-bundle-prints-in"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-20504-3",
+          "covered": true,
+          "testCases": [
+            "TC-310-rcf-guidance-overview-keeps-the-tool"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "notStarted"
         }
       ]
     }
@@ -13633,6 +13808,11 @@
       "fbsId": "FBS-242",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-243",
+      "expectedEnd": "verified",
+      "now": "notStarted"
     }
   ],
   "unresolvedTestPointers": []
