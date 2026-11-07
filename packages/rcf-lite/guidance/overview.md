@@ -31,7 +31,7 @@ Every RCF query is one of three questions:
 
 ## The build cycle in five lines
 
-1. **Define** - the test-author writes the tests for every in-scope acceptance criterion in the spec bundle and proves them red.
+1. **Define** - the test-author writes the tests for every in-scope acceptance criterion in the spec bundle; each new test is red at the DEFINE head with its failing assertion recorded.
 2. **Build** - the builder implements to those criteria and nothing beyond them.
 3. **Review** - validate the tree, then re-read the diff against every in-scope criterion and record the verdict.
 4. **Test** - run the full RCF suite against a locally running app and record the verdict.
@@ -43,7 +43,7 @@ The normative statement is `rcf://docs/build-cycle`; the deep guidance is the `r
 
 ## Mechanical, not semantic
 
-The tool referees structure, never adequacy. `rcf define validate` proves every document matches its schema and every reference resolves; `rcf audit coverage` proves every acceptance criterion has a test case whose `testPointer` resolves to a real, named test in the tree - a test-case row with a dead or missing pointer is reported as `covered-unresolved`, never as coverage. Neither proves that the acceptance criteria capture the requirement's intent, or that a test asserts the right behaviour: a renamed test is caught, a gutted test that kept its name is not. That judgement belongs to the agent and the human operating the loop. The tool's contribution is to make the structural half of confidence mechanical, so judgement is spent only where judgement is needed.
+The tool referees structure, never adequacy. `rcf define validate` proves every document matches its schema and every reference resolves; `rcf audit coverage` proves every acceptance criterion has a test case whose `testPointer` resolves to a real, named test in the tree - a test-case row with a dead or missing pointer is reported as `covered-unresolved`, never as coverage. Neither proves that the acceptance criteria capture the requirement's intent, or that a test asserts the right behaviour: a renamed test is caught; a gutted test that kept its name is not refused, but the test-strength report shows it, and the reviewer judges it. That judgement belongs to the agent and the human operating the loop. The tool's contribution is to make the structural half of confidence mechanical, so judgement is spent only where judgement is needed.
 
 ---
 

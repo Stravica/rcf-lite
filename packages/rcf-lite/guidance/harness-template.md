@@ -22,72 +22,6 @@ This block is managed by `rcf doctor`. Anything you write inside the
 `rcf:managed:begin` / `rcf:managed:end` markers is rewritten when the
 package upgrades. Add your own project rules outside the markers.
 
-How to talk to your operator. The rules and ids in this file are your
-working vocabulary, not the conversation's. The operator may be
-non-technical; the method must be invisible in what they read.
-- Plain language. Method terms (FBS, docs-review gate, elicitation
-  playbook) and document ids (PRD-001, REQ-002) belong in files,
-  commands and validation output. In conversation say "the build plan",
-  "the requirements", "a quick review of the docs". An id appears only
-  when pointing the operator at a specific file, or after the operator
-  uses it first.
-- Never cite a rule. The rules below shape what you do, silently.
-  "Per RULE 1" means nothing to the operator and reads as bureaucracy.
-- Concise and decision-led. Routine turns are one to three sentences:
-  what happened, what is next, and at most ONE question - the single
-  thing you need, stated first, never buried under sections. No
-  multi-section essays for routine turns.
-- Self-serve before asking. Anything a command or file read can answer
-  (git state, remotes, whether a file exists), check it yourself; do
-  not ask the operator to look it up for you.
-- Never re-ask a granted permission. Track what the operator has
-  authorised and act on it. Asking again reads as not listening.
-- Do not announce work you are about to do; do it, then report.
-  "I'll now run coverage and check the tree" burns a turn. Run the
-  check, report the outcome. Announce only when the work needs
-  authorisation you do not already have, or when it will take long
-  enough that silence would look like a stall.
-- When the operator asks whether something works, answer with
-  evidence. Run the check, cite the command and the output. "Yes,
-  the health endpoint returns 200 - `curl -sS localhost:8080/health`
-  -> `{ok:true}`" is the shape. Never answer from memory of what
-  should be true; the method exists to make that class of answer
-  impossible.
-- Tone: it is in hand. The operator steers; you drive. Confident
-  without hedging, and plainly honest when something is genuinely
-  blocked or ambiguous.
-- Blueprints and libraries. When the operator asks for a starting
-  shape, list what is available (the packaged shelf and any libraries
-  registered on this project) in plain words and offer one that fits.
-  The operator chooses; you do not pick for them. Registering a
-  library is a trust decision the operator makes; when it lands,
-  relay it in a sentence ("added the WSD library to this project").
-  Library-qualified names like `wsd:auth-oauth2`, the ids each apply
-  stamps, and the exact CLI lines belong in files and in `rcf`
-  output, not in the conversation.
-- Companion suggestions. When you apply a service blueprint that
-  declares suggested companions, tell the operator the resolved
-  companion set in plain language, name what each companion
-  contributes, and offer the apply command. Do not apply a companion
-  without the operator's explicit go. Where a registered library
-  provides a role, prefer the library over the shelf provider in
-  your suggestion, and say so. The mechanism is suggestion, never
-  compulsion.
-
-Before / after - the same first status after project setup:
-
-  Too much: four sections walking the operator through PRD-001,
-  TAD-001, BS-001, REQ-001 and US-101, quoting RULE 1 and RULE 5,
-  explaining the docs-review gate, asking whether a git remote exists,
-  re-asking for push permission already granted, with the one real
-  question (the product's name) at the bottom.
-
-  Right: "Brief read - good shape. I'm committing the scaffold and
-  pushing now; the remote's already wired. Next is a short round of
-  questions to pin down what we're building - your brief already
-  answers most of it. One thing first: keep 'Field Notes' as the
-  working name, or settle the real name now?"
-
 ### RULE 1: Elicit first; never fabricate.
 
 Before authoring or rewriting any RCF document, run the elicitation
@@ -219,25 +153,71 @@ should happen when nothing matches, want me to add a check for that?"
 beats "AC-207 has no covering TS". Method terms and document ids belong
 in files and command output; the conversation carries the intent behind
 them. An id appears only when you are pointing the operator at a
-specific file, or after the operator used it first. The general
-register for talking to the operator is set higher in this file; this
-rule is that register applied to findings.
+specific file, or after the operator used it first.
 
-### RULE 13: The method's failure modes are yours to catch.
+### RULE 13: Deliver in rounds: the twelve rules
 
-The failure modes the method exists to guard against are agent-side
-self-checks, not defects for the operator to spot and name. Skipping a
-layer, gold-plating past the AC set, editing a test to pass instead of
-fixing the code, merging before Finalise has written complete on the
-PR branch, drifting off the bundle, inventing a fact the stakeholder never gave you, treating a
-rubber-stamp read as review, marking a stage done without its referee
-output: you catch each one before the stage ends. Before you commit a
-stage, run the self-check: every in-scope AC maps to a diff location;
-every planned step traces to an AC id; the referee output actually ran
-and named the id you were working on; nothing landed the bundle did not
-ask for. A failure the operator has to point out is a failure you did
-not check for. The depth for each stage's self-check lives in the
-build-cycle playbook.
+Every change, a bug fix included, is delivered in rounds. These twelve
+rules are the round's contract; `rcf guidance build-cycle` carries the
+depth for each stage.
+
+1. **The chain.** Every requirement traces to criteria, every criterion
+   to one bound test, and every test to recorded evidence. The referee
+   is the tool: `rcf define validate` and `rcf audit coverage --strict`
+   both exit 0 at every stage exit, or the stage has not exited.
+2. **Criteria only for promises.** A criterion is written only for a
+   promise to a buyer: money, access, privacy, integrity, a product
+   claim or a core journey. Everything else the product needs is the
+   builder's hygiene tests, and a hygiene test is never bound to a
+   criterion.
+3. **Proof level.** Each touched criterion's proof level is chosen at
+   DEFINE and recorded with the round: full (its test-strength report is
+   one the reviewer reads), journey (its bound test is one end-to-end
+   test) or external (`verification: external`, proven again by the
+   release Verify). At every level a touched criterion still has a bound
+   test and a Code Node. The tool reports test strength and refuses on
+   none of its results.
+4. **Five stages.** DEFINE, BUILD, REVIEW, TEST, FINALISE, in that
+   order, one hand and one commit prefix each. Every job runs all five;
+   there is no shortcut around the stages.
+5. **Separation.** The hand that writes production code never writes or
+   edits a criterion-bound test, a binding or criterion text. The audit
+   enforces this by path on every commit, and the merge check runs the
+   audit. This rule is never lightened.
+6. **DEFINE exit.** Each new test is red at the DEFINE head with its
+   failing assertion recorded, and the suite fails on exactly the new
+   tests. No throwaway.
+7. **BUILD exit.** The reds are green and nothing beyond the criteria is
+   built. A test that cannot pass without being changed is a stop for
+   the owner, never an edit.
+8. **REVIEW.** One reviewer judges the diff against the criteria the
+   change claims, on three classes only: buyer harm, a vacuous test, and
+   a test or criterion the builder edited. Everything else is a note.
+   Test strength is recorded for the reviewer's adequacy verdict. One
+   re-gate; a second FINDINGS goes to the owner.
+9. **TEST.** The bound suites, less the external-level tests, run
+   against a running instance of the reviewed head. PASS, FAIL or
+   BLOCKED is recorded at that head; BLOCKED changes neither the head
+   nor the round budget and is escalated as a missing prerequisite.
+10. **FINALISE.** FINALISE writes complete from the recorded verdicts,
+    before the merge, so the merge carries it. verified is written by
+    the release Verify, outside the round, and no build waits for it. A
+    FINALISE failure is escalated with its exit code and output, never
+    skipped.
+11. **Round budget.** A round is two DEFINE passes and a date, both set
+    when it opens. After the first BUILD a note is a candidate for a
+    later round, never a reopening of DEFINE. Only the three classes in
+    rule 8 can prevent a merge, and at TEST only the failure of an
+    in-scope bound criterion blocks. Over budget, the owner gets a plain
+    choice.
+12. **Spec readiness.** One cold question count before BUILD and, for a
+    change to what the tool refuses, one whole-plan adversarial pass at
+    DEFINE, each sorted into gaps, preferences and noise. Gaps are fixed
+    in the document once; preferences are recorded as defaults with a
+    reason; noise is dropped.
+
+A failure the operator has to point out is a failure you did not check
+for.
 
 ### RULE 14: Check freshness at session start; offer, never install.
 
@@ -362,23 +342,21 @@ Record the base first: `rcf build base-suite --out <file>` runs the RCF
 suite at a clean committed base, and no Build starts until it is green
 there. Run `rcf build bundle <fbs-id> --base-suite <file>` to get the
 spec bundle for the next actionable item, then execute the five-stage
-runbook it prints. Each stage is done by its own role: DEFINE (`DEFINE:`),
-the test-author writes the AC-based and E2E tests and their TS / TC
-bindings and marks pickup with `rcf build mark <fbs-id> inProgress`;
-BUILD (`BUILD:`), the builder writes production code, Code Nodes and
-code-hygiene unit tests only; REVIEW (`REVIEW:`), the reviewer runs the
-scoped gate, `rcf audit separation` and `rcf audit test-strength
---record`, and records `rcf build verdict review`; TEST (`TEST:`), the
-verifier runs the full RCF suite against a locally running app, nothing
-deployed, and records `rcf build verdict test`; FINALISE (`FINALISE:`),
-the stage-keeper, on a REVIEW MERGE and a TEST PASS with CI green, runs
-`rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch, which
-checks the recorded verdicts and writes complete before the merge, then
-merges. Every commit carries its stage prefix, and the separation audit
-judges that prefix against the paths the commit touches.
-The `Hand:` trailer is optional through 0.37.x: where a commit carries
-one, it agrees with the prefix. A failed REVIEW or TEST closes the round, and
-the next round starts at DEFINE. Drive the whole queue, not one item.
+runbook it prints under the twelve rules of RULE 13. DEFINE (`DEFINE:`)
+writes the criterion-based and E2E tests and their TS / TC bindings and
+marks pickup with `rcf build mark <fbs-id> inProgress`. BUILD (`BUILD:`)
+writes production code, Code Nodes and code-hygiene unit tests only.
+REVIEW (`REVIEW:`) runs the scoped gate, `rcf audit separation` and
+`rcf audit test-strength --record`, and records `rcf build verdict
+review`. TEST (`TEST:`) runs the full RCF suite against a locally
+running app, nothing deployed, and records `rcf build verdict test`.
+FINALISE (`FINALISE:`), on a REVIEW MERGE and a TEST PASS with CI green,
+runs `rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch,
+which checks the recorded verdicts and writes complete before the
+merge, then merges. Every commit carries its stage prefix, and the
+separation audit judges that prefix against the paths the commit
+touches. A failed REVIEW or TEST closes the round, and the next round
+starts at DEFINE. Drive the whole queue, not one item.
 After each item's Finalise, bundle the next actionable item until the
 queue reports complete. If your harness can spawn sub-agents, run each
 FBS in its own worker so the driving context stays clean across the

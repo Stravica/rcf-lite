@@ -66,9 +66,10 @@ Classes (defaults, matched at any depth, first match wins) and owners:
                     (DEFINE)
 REVIEW and TEST own only their verdict and evidence classes.
 
-Transition (through 0.37.x): a Hand: trailer is read only to check that
-it agrees with the stage's role. An agreeing trailer counts under
-transition, a disagreeing one fails, and Hand: mixed fails as retired.
+Hand: trailer: optional, read only to check that it agrees with the
+stage's role. An agreeing trailer counts under transition, a
+disagreeing one fails, and a Hand: mixed trailer fails (retired at
+0.37.0).
 
 rcf/separation.json is read from the head commit through git, and
 classes criteria itself:
@@ -89,8 +90,9 @@ commit: a REVIEW: commit's rcf/verdicts/<h12>/review.json (written by
 rcf build verdict review) must name its parent, and MERGE/PASS passes;
 a TEST: commit's test.json (rcf build verdict test) must name the
 reviewed head, and needs a passed REVIEW verdict in the round. A failed
-review, a TEST FAIL or a failing test-strength.json closes the round,
-and the next commit must be DEFINE:, starting the next round. After a
+review or a TEST FAIL closes the round, and the next commit must be
+DEFINE:, starting the next round; a test-strength.json is a report and
+closes nothing. After a
 TEST PASS, a TEST: commit adding a FAIL test.json keyed to its own
 parent is legal after TEST: or FINALISE:, and closes the round. A
 REVIEW: or TEST: commit adding no verdict file counts as no verdict.
