@@ -3,7 +3,7 @@
 // live-client filter. Nothing here reads process.env, prints, or
 // mutates state.
 //
-// Scope model (spec: w-2026-08-30-dave-020, operator-ratified 2026-08-30):
+// Scope model:
 //   * blueprint scope  -> the applied blueprint's namespaced
 //     contribution ids, read from manifest.blueprints[].contributions[].
 //     The applied record IS the truth (project-local), never the
@@ -143,7 +143,7 @@ async function resolveSourceAbs(projectRoot, source, resolveImpl) {
   // through the blueprint resolver against the project registry and the
   // packaged shelf. Without this, the applied-record's source is a
   // token the FS cannot open and every contribution renders as
-  // missingSource in /scope.json (integration review d-2026-08-31-046).
+  // missingSource in /scope.json.
   // A relative filesystem path still falls through to the pre-fix
   // resolve() below so an existing manifest carrying `./blueprint-foo`
   // keeps its behaviour.

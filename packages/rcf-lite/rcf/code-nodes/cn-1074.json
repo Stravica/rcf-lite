@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-1074",
+  "path": "src/finalise/light.js#judgeTestStrength",
+  "title": "Test-strength record as structure at Finalise",
+  "description": "Requires a valid TestStrengthReport v1 at H for H covering the touched criteria; refuses missing, invalid, other-head and omitting records with exit 4; returns one recorded-not-refused line per non-pass touched criterion instead of refusing on the result.",
+  "implementsAcIds": [
+    "AC-20502-1",
+    "AC-20502-2",
+    "AC-20502-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:40:55.551Z",
+  "updatedAt": "2026-11-07T00:40:55.551Z"
+}

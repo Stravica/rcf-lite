@@ -215,13 +215,13 @@ const OPTION_SPEC = {
   // repeatable; --answers <file> reads a JSON object mapping elicit
   // ids to values. Both feed the elicitation phase in applyBlueprint.
   'allow-no-auth-yet': { type: 'boolean' },
-  // Infra round 5 T-2 (spec 5.2, operator decision 6): object-storage-s3
+  // Infra round 5 T-2 (spec 5.2): object-storage-s3
   // declares allowSkipFlag "allow-no-secrets-yet" so the override for
   // its requiresAppliedCapabilities gate stays semantically aligned
   // with the credential-pair discipline the spec names, rather than
   // reusing the auth-flavoured flag.
   'allow-no-secrets-yet': { type: 'boolean' },
-  // Infra round 5 T-4 (spec 5.4, operator decision 5): jobs-background
+  // Infra round 5 T-4 (spec 5.4): jobs-background
   // declares allowSkipFlag "allow-no-queue-yet" so the override for
   // its requiresAppliedCapabilities gate stays semantically aligned
   // with the queue-capability discipline the spec names, rather than
@@ -324,7 +324,7 @@ export async function main(argv, deps = {}) {
     // record's `source`. For shelf and path resolves the record must
     // carry the RESOLVED ABSOLUTE PATH, which is the pre-#120 behaviour
     // that /scope.json and `blueprint list --category` both depend on
-    // to load the shipping source file (integration review d-2026-08-31-046).
+    // to load the shipping source file (integration review).
     const source = resolved.resolved;
     const resolveDeclarations = parseResolveOptions(parsed.values.resolve, parsed.values.reason);
     if (resolveDeclarations.error) {

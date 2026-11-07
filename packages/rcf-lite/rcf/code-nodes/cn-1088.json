@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1088",
+  "path": "guidance/overview.md",
+  "title": "Overview: the report shows a gutted test",
+  "description": "The closer kept; a gutted test is shown by the test-strength report and the reviewer judges it.",
+  "implementsAcIds": [
+    "AC-20504-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:04.884Z",
+  "updatedAt": "2026-11-07T00:41:04.884Z"
+}

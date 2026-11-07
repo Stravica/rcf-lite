@@ -23,7 +23,7 @@ export function formatTable(result, verb) {
   return '';
 }
 
-// w-2026-07-28-005: three-state cell vocabulary. 'unresolved' = TC rows
+// Three-state cell vocabulary. 'unresolved' = TC rows
 // exist but none of their pointers resolves to a real test - the stub-TC
 // state, shown as its own word rather than folded into yes/no. FBS-228:
 // a retired criterion reads 'retired (<successor>)' instead, whatever its

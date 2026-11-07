@@ -10,8 +10,7 @@ walks into a tree whose shape is honest about what is still owed.
 ## When to run
 
 Run this pass in parallel with the product-owner intent loop and
-reconcile when Intent completes (ruling R3 2026-10-05 under
-w-2026-10-05-dave-001). Nothing in the draft pass changes the PO
+reconcile when Intent completes (ruling R3 2026-10-05). Nothing in the draft pass changes the PO
 question set, so drafting shapes while the owner answers questions
 cannot destabilise the loop or create a question that was not there.
 The draft pass reads only the brief ledger, the decisions ledger and

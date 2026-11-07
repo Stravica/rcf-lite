@@ -289,14 +289,14 @@ export async function main(argv, deps = {}) {
   }
   if (kind === 'tc') {
     if (!flags.ac) { stderr.write('[error] usage create tc: --ac is required\n'); return 2; }
-    // w-2026-07-28-005: a TC without a pointer is a coverage claim with
+    // A TC without a pointer is a coverage claim with
     // nothing behind it; refuse at the usage layer with the fix in hand.
     if (!flags['test-pointer']) {
       stderr.write('[error] usage create tc: --test-pointer is required (format filePath::testName; coverage counts a TC only when its pointer resolves to a real test)\n');
       return 2;
     }
     body.acId = flags.ac;
-    // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug returns ''
+    // 0.8.0 slug-train (landmine 4): deriveSlug returns ''
     // on empty derivation; TC keeps its historical 'tc' fallback locally
     // rather than letting deriveSlug bake it in.
     options.slug = flags.slug ?? (deriveSlug(body.description) || 'tc');
@@ -309,7 +309,7 @@ export async function main(argv, deps = {}) {
   if (isRcfError(result)) {
     return handleWriterError(result, stderr);
   }
-  // Ruling R1 extension 2026-10-05 (PR 292 follow-up, w-2026-10-05-dave-013):
+  // Ruling R1 extension 2026-10-05 (PR 292 follow-up):
   // a same-id replay with identical content exits 0 with 'unchanged';
   // the file is not rewritten. Mirrors `rcf define ledger add --id`.
   if (result.status === 'unchanged') {

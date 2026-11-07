@@ -59,7 +59,7 @@ function canonicalKind(kind) {
  * those stamps landed; every other field is deep-compared. Add a field
  * here whenever a writer path or a post-create hook starts stamping one.
  * Ruling R1 extension (PR 292 follow-up; list made exhaustive on the
- * PR 293 landing review, d-2026-10-05-015 finding 2).
+ * PR 293 landing review).
  */
 export const REPLAY_IGNORE_FIELDS = Object.freeze([
   // Writer clock: assembleBody / createCn stamp it on every create and
@@ -223,7 +223,7 @@ const OWN_ID_FIELD = {
 
 /**
  * Every id of a given kind that is occupied, from every source the
- * allocator must respect (w-2026-07-28-017):
+ * allocator must respect:
  *
  *   - the id each loaded doc DECLARES (`d.reqId`), and
  *   - the id it is FILED under (its `byId` key, derived from the
@@ -300,7 +300,7 @@ export function nextIdForKind(tree, kind, opts = {}) {
       if (!match) {
         throw new TypeError('nextIdForKind us requires opts.parentId matching REQ-XXX');
       }
-      // w-2026-07-28-017: the group is a NUMBER, not a string. `REQ-001`
+      // The group is a NUMBER, not a string. `REQ-001`
       // and `REQ-0001` are one requirement, so their user stories share
       // one numbering group.
       const groupNum = Number(normaliseId(match[1]));
@@ -314,10 +314,10 @@ export function nextIdForKind(tree, kind, opts = {}) {
       //   - all-encoded tree (or empty): the historical rule, extend
       //     `US-<groupLabel><nextLocal>`.
       //   - all-flat tree: extend the flat sequence past the highest
-      //     existing US number (issue #256 / w-2026-09-29-dave-005).
+      //     existing US number (issue #256).
       //   - mixed tree: refuse the mint with an explicit error naming
       //     both schemes, so an operator normalises the tree before a
-      //     new id is issued (Dave disposition 2026-09-30).
+      //     new id is issued.
       // AC minting is unchanged; #256 was reproduced against USes only.
       // Classification prefers the doc's declared reqId (unambiguous) over
       // the id-only heuristic. Without that, a legacy US-163 filed under
@@ -410,7 +410,7 @@ export function nextIdForKind(tree, kind, opts = {}) {
       const mUs = /^US-(\d+)$/.exec(usId);
       if (!mUs) throw new TypeError('nextIdForKind ac: unrecognised US id');
       const usSuffix = mUs[1];
-      // w-2026-07-28-017: match the AC's group and local number
+      // Match the AC's group and local number
       // numerically, so `AC-101-01` and `AC-0101-1` both count against
       // `US-101` instead of being read as unrelated ids.
       const normalisedSuffix = normaliseId(usSuffix);
@@ -434,7 +434,7 @@ export function nextIdForKind(tree, kind, opts = {}) {
       if (typeof slug !== 'string' || slug.length === 0) {
         throw new TypeError('nextIdForKind tc requires opts.slug');
       }
-      // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened to
+      // 0.8.0 slug-train (landmine 3): widened to
       // `\d{3,}` in lockstep with rcf-schemas 0.4.3.
       const mTs = /^TS-(\d{3,})$/.exec(tsId);
       if (!mTs) throw new TypeError('nextIdForKind tc: unrecognised TS id');
@@ -445,13 +445,13 @@ export function nextIdForKind(tree, kind, opts = {}) {
   }
 }
 
-// w-2026-07-28-017: `Number()` already folded leading zeros here, so the
+// `Number()` already folded leading zeros here, so the
 // high-water mark was never fooled by spelling. What WAS wrong is the id
 // set fed in (see `occupiedIdsOfKind`). Comparison stays numeric and the
 // emitted id is always the canonical three-digit-minimum spelling, so a
 // freshly allocated id is never a leading-zero variant of a taken one.
 //
-// 0.8.0 slug-train (w-2026-07-28-012 landmine 2): the previous shape used
+// 0.8.0 slug-train (landmine 2): the previous shape used
 // `^<PREFIX>-(\\d+)$` and slug-blindly ignored any id whose number was
 // followed by a slug tail. Verified empirically: /^FBS-(\d+)$/.test(
 // 'FBS-003-user-login') === false, so a slugged id was invisible to the
@@ -461,7 +461,7 @@ export function nextIdForKind(tree, kind, opts = {}) {
 // -- that helper's whole job is to parse a number out of any id shape the
 // schemas admit (numeric-only OR slug-suffixed), so numeric-only and
 // slugged ids feed into the SAME high-water mark and cannot collide by
-// spelling. w-2026-07-28-017's `occupiedIdsOfKind` already feeds the
+// spelling. `occupiedIdsOfKind` already feeds the
 // right ids in; landmine 2 is that this reader could not parse them.
 function nextFlatId(prefix, ids) {
   let max = 0;
@@ -602,7 +602,7 @@ export async function createDocument({ projectRoot, tree, kind, body, options = 
   }
 
   // Allocate id (or take the override). Ruling R1 2026-10-05 extended
-  // under w-2026-10-05-dave-013 (PR 292 follow-up): a replayed turn
+  // (PR 292 follow-up): a replayed turn
   // that carries `--id <existing>` with identical content is a no-op
   // that returns `{ status: 'unchanged', body: existing }`; different
   // content refuses with `kind: 'conflict'` naming the differing
@@ -1216,7 +1216,7 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
   if (typeof description !== 'string' || description.length === 0) {
     return rcfError({ kind: 'usage', message: 'create tc: --description is required' });
   }
-  // w-2026-07-28-005: a TC without a test pointer is a coverage claim with
+  // A TC without a test pointer is a coverage claim with
   // nothing behind it; the schema overlay refuses it anyway, but refuse
   // here first with a usable message.
   const testPointer = options.testPointer ?? body?.testPointer;
@@ -1226,12 +1226,12 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
       message: 'create tc: --test-pointer is required (format filePath::testName; coverage counts a TC only when its pointer resolves to a real test)',
     });
   }
-  // 0.8.0 slug-train (w-2026-07-28-012 landmine 4): deriveSlug now returns
+  // 0.8.0 slug-train (landmine 4): deriveSlug now returns
   // '' on empty derivation so the TC-specific `|| 'tc'` fallback is applied
   // here rather than leaking the literal 'tc' into non-TC callers. See
   // deriveSlug for the full argument.
   const slug = options.slug ?? (deriveSlug(description) || 'tc');
-  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened `\d{3}` ->
+  // 0.8.0 slug-train (landmine 3): widened `\d{3}` ->
   // `\d{3,}` in lockstep with rcf-schemas 0.4.3.
   const tsSuffix = /^TS-(\d{3,})$/.exec(parentTsId)?.[1];
   if (!tsSuffix) {
@@ -1302,7 +1302,7 @@ async function createInlineTc({ projectRoot, tree, options, body, walkErrors = [
  * like "...-saved-whil" chopped mid-word). A single unbroken word
  * longer than the limit keeps its 40-char prefix (no boundary exists).
  *
- * 0.8.0 slug-train (w-2026-07-28-012 landmine 4): returns '' when no
+ * 0.8.0 slug-train (landmine 4): returns '' when no
  * slug can be derived (empty / non-word / whitespace input). The previous
  * shape returned the literal 'tc' as a fallback, which leaked the TC
  * kind-specific default into every slug caller -- an FBS whose title
@@ -1535,7 +1535,7 @@ function checkCrossLinks(tree, kind, doc, docId) {
 function resolveInlineId(id) {
   if (typeof id !== 'string') return null;
   if (/^AC-\d+(-\d+)?$/.test(id)) return { kind: 'ac' };
-  // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened `\d{3}` -> `\d{3,}`
+  // 0.8.0 slug-train (landmine 3): widened `\d{3}` -> `\d{3,}`
   // in lockstep with rcf-schemas 0.4.3. A TC-1000-... would otherwise fail
   // the inline resolver even though the schema admits it.
   if (/^TC-\d{3,}-[a-z0-9-]+$/.test(id)) return { kind: 'tc' };

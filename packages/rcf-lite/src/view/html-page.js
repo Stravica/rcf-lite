@@ -12,8 +12,7 @@
 // `window.rcfPage.init()` so the live client can re-invoke it after
 // every SSE innerHTML swap.
 //
-// Viewer UI refresh PR 1 (w-2026-10-02-dave-010, Dex / wespa relay
-// f0384046 on 2026-10-02):
+// Viewer UI refresh PR 1 (wespa request, 2026-10-02):
 //   - compact Stravica-brand shell: data-theme light|dark|auto on
 //     <html>, data-embed=1 suppresses the brand block and the footer
 //     and keeps the tab nav sticky, viewport-height scroll box owned
@@ -469,7 +468,7 @@ function renderPrdRequirementSelector(model) {
 }
 
 /**
- * Viewer UI refresh PR 4 (w-2026-10-02-dave-010 decisions 5 and 14,
+ * Viewer UI refresh PR 4 (decisions 5 and 14,
  * design doc section 5.5). The Architecture tab renders:
  *   1. A compact page-head carrying the TAD id, its status pill and
  *      the TAC / ADR tallies.
@@ -678,7 +677,7 @@ function buildAdrFilterText(adr) {
 }
 
 /**
- * Viewer UI refresh PR 5 (w-2026-10-02-dave-010 decisions 2, 3, 6, 12,
+ * Viewer UI refresh PR 5 (decisions 2, 3, 6, 12,
  * 14; design doc section 5.6). The Build tab renders:
  *
  *   1. BuildStats card: totals from `computeQueue` (items, verified,
@@ -847,8 +846,8 @@ function buildSpecFilterText(fbs) {
 }
 
 /**
- * Viewer UI refresh PR 2 (shell polish, operator ruling 2026-10-02; decision 17)
- * with the issue-295 flip (w-2026-10-06-dave-001): the one-bar header
+ * Viewer UI refresh PR 2 (shell polish; decision 17)
+ * with the issue-295 flip: the one-bar header
  * carries the project name only, sourced from `prd.productName` first
  * (the human-readable name an owner edits via `rcf define update
  * PRD-001 --set productName=...`), then `manifest.projectName` (the
@@ -886,7 +885,7 @@ function renderProductBlock(header) {
     // empty state (brief) survives screen-reader output too.
     return '<div class="product"></div>';
   }
-  // w-2026-10-06-dave-001 (issue 295): .product .name clips its text
+  // Issue 295: .product .name clips its text
   // with text-overflow:ellipsis so a long project name yields rather
   // than pushing the tablist off the bar; the title attribute carries
   // the full name so hover reveals it. Both the title and the body go

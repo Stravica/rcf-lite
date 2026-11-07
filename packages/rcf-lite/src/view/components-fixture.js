@@ -246,7 +246,7 @@ export function renderComponentsFixturePage() {
 <body data-rcf-fixture="components">
   <header class="rcf-fixture-header">
     <h1>Viewer UI refresh &middot; shared component fixtures</h1>
-    <p>PR 2 (w-2026-10-02-dave-010). Each block renders a single component with a representative payload. Toggle theme to check both colour sets.</p>
+    <p>Each block renders a single component with a representative payload. Toggle theme to check both colour sets.</p>
     <div class="rcf-fixture-themes" role="group" aria-label="Theme">
       <span>Theme</span>
       <button type="button" data-rcf-fixture-theme="light" aria-pressed="false">Light</button>

@@ -1,5 +1,5 @@
 // The JSX scanner of `rcf audit test-strength` (FBS-242, US-19904,
-// AC-19904-4, the stage-keeper's ruling Q8): each JSX element in a .tsx
+// AC-19904-4): each JSX element in a .tsx
 // or .jsx file is blanked to a same-length expression (`0` and spaces,
 // line breaks kept), so the rest of the file keeps its offsets and the
 // tokenizer reads it as plain script. Accepted: elements, self-closing

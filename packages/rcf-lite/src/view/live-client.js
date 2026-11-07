@@ -3,7 +3,7 @@
 // stream, in-place `innerHTML` swaps into `#rcf-live-content`, persists
 // `<details>` open-set + main scrollTop to `localStorage` across every
 // swap and every full reload, AND applies the URL-driven scope filter
-// (deep-link deep-links: blueprint / node — w-2026-08-30-dave-020) on
+// (deep-link deep-links: blueprint / node) on
 // every load and every swap.
 //
 // Vanilla classic script (no ESM syntax) so the base HTML script tag
@@ -185,7 +185,7 @@
   function fetchScope(slug, fetchImpl) {
     var f = typeof fetchImpl === 'function' ? fetchImpl : (typeof fetch === 'function' ? fetch : null);
     if (!f) return Promise.reject(new Error('no fetch available'));
-    // Dex / wespa 2026-10-02 (#263, PR 1): asset references are relative
+    // wespa (#263, PR 1): asset references are relative
     // so the viewer works under the proxy mount (/rcf-viewer/) without
     // path rewrites.
     var url = './scope.json?blueprint=' + encodeURIComponent(slug);
@@ -413,7 +413,7 @@
       setState('disconnected');
       return;
     }
-    // Dex / wespa 2026-10-02 (#263, PR 1): relative so the stream
+    // wespa (#263, PR 1): relative so the stream
     // works under the proxy mount without a rewrite rule.
     var source = new EventSourceCtor('./events');
 
@@ -511,7 +511,7 @@
   // the panels back in line with the aria-selected button and re-run
   // Mermaid in the visible one.
   function resyncTabsAfterSwap(doc, win) {
-    // Issue 297 (w-2026-10-06-dave-003, AC-18001-8): the authoritative
+    // Issue 297 (AC-18001-8): the authoritative
     // tab list is the server-rendered nav.tabs itself, not a parallel
     // array that can drift. Earlier the list was hand-copied here and
     // omitted 'readiness' (added as tab 1 in US-18001); a Readiness

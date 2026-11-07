@@ -9,7 +9,7 @@
 // surfaces a failure mode the built-in cannot handle, the swap-in is
 // banked (same module interface, no caller changes).
 //
-// Issue #336 (reporter Dex, 2026-10-08): on Linux the recursive fs.watch
+// Issue #336 (2026-10-08): on Linux the recursive fs.watch
 // reports the first rename over a file, then goes permanently blind to
 // that path (next rename or write never fires). Editors that save by
 // write-temp-then-rename (vim backupcopy=no, JetBrains safe-write) hit

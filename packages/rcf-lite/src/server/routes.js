@@ -5,9 +5,9 @@
 // GET /mermaid.min.js-> vendored mermaid runtime
 // GET /live-client.js-> phase 3.8 live client script
 // GET /page-init.js  -> viewer UI refresh PR 1 shell / router script
-//                      (Dex / wespa 2026-10-02 #263; release-noted so
+//                      (wespa #263; release-noted so
 //                      the proxy's route allow-list is extended).
-// GET /scope.json    -> deep-link scope resolver (w-2026-08-30-dave-020)
+// GET /scope.json    -> deep-link scope resolver
 // GET /index.json    -> viewer UI refresh PR 7 ID lookup index built
 //                      from BuiltTreeModel on every rewalk; `{ rows }`
 //                      with one row per document id plus one per AC
@@ -77,7 +77,7 @@ const MIME = {
  * @property {string} mermaidPath
  * @property {string} liveClientPath
  * @property {((req: import('node:http').IncomingMessage, res: import('node:http').ServerResponse) => Promise<void>|void)} [scope]
- *           Deep-link scope handler (w-2026-08-30-dave-020). Optional so
+ *           Deep-link scope handler. Optional so
  *           the router stays usable in tests that mount only the static
  *           routes without a project root.
  */

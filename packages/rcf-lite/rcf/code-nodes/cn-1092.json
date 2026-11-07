@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1092",
+  "path": "package.json",
+  "title": "rcf/ out of the npm files list",
+  "description": "The package files list no longer carries rcf, so the tarball ships no rcf/ folder.",
+  "implementsAcIds": [
+    "AC-20501-1",
+    "AC-20501-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:07.535Z",
+  "updatedAt": "2026-11-07T00:41:07.535Z"
+}
