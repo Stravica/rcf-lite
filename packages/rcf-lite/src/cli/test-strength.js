@@ -275,6 +275,11 @@ flags, and refuses (exit 4) a dirty working tree or a HEAD that differs
 from the reviewed head outside rcf/verdicts/, rcf/verify-reports/ and
 FINALISE classes. It writes nothing else.
 
+The record is a report: rcf build finalise requires one at the reviewed
+head covering the touched criteria and prints each criterion that is
+not pass, but neither finalise nor rcf build verdict test refuses on
+its result. To keep a hard gate, fail your CI on this command's exit 4.
+
 Exit codes (precedence 2 over 4 over 5 over 0):
   0  every criterion passes
   4  a criterion fails, or --record refused

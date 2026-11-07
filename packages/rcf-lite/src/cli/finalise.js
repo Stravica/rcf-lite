@@ -64,7 +64,11 @@ Checks, in this order; the first refusal exits:
   - TEST PASS at H and no FAIL TestVerdict after it;
   - with a FINALISE: merge after H, --merge-suite naming a green
     base-suite record at the newest merge head;
-  - test strength at H for every touched criterion;
+  - a test-strength record at H: a valid TestStrengthReport v1 whose
+    head is H and which covers every touched criterion (its result
+    never refuses: each touched criterion that is fail or blocked
+    prints "test-strength at <H7>: <AC id> <fail|blocked>: <reason>;
+    recorded, not refused");
   - the touched criteria cover every criterion changed since the base
     (the merge-base with origin/main, else main) and, for a spec at
     inProgress at H, every live criterion it scopes;
@@ -102,7 +106,7 @@ Exit codes:
   3  the tree does not validate, a touched criterion has no Code Node,
      or the write is refused
   4  refused: CI evidence missing, or a recorded verdict, the round, the
-     merge suite, test strength, the touched criteria or the separation
+     merge suite, the test-strength record, the touched criteria or the separation
      audit does not hold; the FBS is left unchanged
 `;
 
@@ -192,6 +196,7 @@ export async function main(argv, deps = {}) {
       return 1;
     }
   }
+  for (const note of verdict.notes ?? []) stdout.write(`${note}\n`);
   if (!flags.quiet) stdout.write(`${verdict.out}\n`);
   return 0;
 }

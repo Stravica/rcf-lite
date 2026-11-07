@@ -11,7 +11,8 @@
 // after H but the REVIEW: commit adding the verdict for H and TEST: or
 // FINALISE: commits, TEST PASS at H and no FAIL TestVerdict after it, a
 // green --merge-suite record at the newest FINALISE: merge head after H,
-// test strength at H for every touched criterion, touched criteria
+// a valid test-strength record for H covering every touched criterion
+// (its result is printed, never refused), touched criteria
 // covering every criterion changed since the base (and every live
 // criterion of a spec at inProgress), Code Nodes for every touched
 // criterion, then the separation audit over the range.
@@ -133,18 +134,64 @@ function judgeMergeSuite(M, mergeSuite) {
 }
 
 /**
- * Test strength at H for every touched criterion (AC-20002-1).
+ * Test strength at H for every touched criterion (AC-20002-1). The
+ * record is structure, not a gate (AC-20502-1, AC-20502-2, AC-20502-6):
+ * it must exist at H, be a valid TestStrengthReport v1 whose embedded
+ * head is H, and cover every touched criterion. Its result never
+ * refuses: each touched criterion that is not pass becomes one
+ * "recorded, not refused" line. Mutant rows and totals are not
+ * re-verified.
  */
 async function judgeTestStrength(git, H, touched) {
   const [blob] = await readObjects(git, [`HEAD:./${verdictAt(H, 'test-strength.json')}`]);
+  if (!blob || blob.missing) return refuse(4, `finalise refused: no test-strength record at ${s7(H)}`);
   const record = parse(blob);
-  if (!record) return refuse(4, `finalise refused: no test-strength record at ${s7(H)}`);
-  const byAc = new Map((record.criteria ?? []).map((c) => [c?.acId, c]));
-  const fails = touched.filter((id) => byAc.has(id) && byAc.get(id)?.result !== 'pass');
-  if (fails.length) return refuse(4, `finalise refused: test-strength at ${s7(H)} fails for ${fails.join(', ')}`);
+  if (!isStrengthReport(record)) return refuse(4, `finalise refused: test-strength record at ${s7(H)} is not a valid TestStrengthReport v1`);
+  if (record.head !== H) return refuse(4, `finalise refused: test-strength record at ${s7(H)} is for ${s7(record.head)}, not the reviewed head`);
+  const byAc = new Map(record.criteria.map((c) => [c.acId, c]));
   const omits = touched.filter((id) => !byAc.has(id));
   if (omits.length) return refuse(4, `finalise refused: test-strength at ${s7(H)} omits ${omits.join(', ')}`);
-  return { ok: true };
+  const notes = touched
+    .filter((id) => byAc.get(id).result !== 'pass')
+    .map((id) => `test-strength at ${s7(H)}: ${id} ${byAc.get(id).result}: ${strengthReason(byAc.get(id))}; recorded, not refused`);
+  return { ok: true, notes };
+}
+
+const STRENGTH_RESULTS = new Set(['pass', 'fail', 'blocked']);
+const STRENGTH_SCOPES = new Set(['acs', 'reviewVerdict', 'fbs']);
+
+/**
+ * The shape `rcf audit test-strength --record` writes (AC-20502-6).
+ *
+ * @param {unknown} r
+ * @returns {boolean}
+ */
+export function isStrengthReport(r) {
+  const isObject = (v) => v !== null && typeof v === 'object' && !Array.isArray(v);
+  return isObject(r)
+    && r.version === 1
+    && typeof r.head === 'string' && /^[0-9a-f]{40}$/.test(r.head)
+    && STRENGTH_SCOPES.has(r.scope)
+    && Array.isArray(r.criteria)
+    && r.criteria.every((c) => isObject(c) && typeof c.acId === 'string' && STRENGTH_RESULTS.has(c.result))
+    && STRENGTH_RESULTS.has(r.result)
+    && isObject(r.totals);
+}
+
+/**
+ * Why a criterion row is not pass: its reason and detail when blocked,
+ * else its structural findings and each survived mutant.
+ *
+ * @param {object} row
+ * @returns {string}
+ */
+function strengthReason(row) {
+  if (row.result === 'blocked') return [row.reason, row.detail].filter((v) => typeof v === 'string' && v).join(': ') || 'blocked';
+  const findings = Array.isArray(row.structural?.findings) ? row.structural.findings.map(String) : [];
+  const survived = (Array.isArray(row.mutants) ? row.mutants : [])
+    .filter((m) => m?.result === 'survived')
+    .map((m) => `${m.operator} on ${m.symbol} survived`);
+  return [...findings, ...survived].join(', ') || row.result;
 }
 
 /**
@@ -247,7 +294,7 @@ export async function judgeFinalise({ projectRoot, tree, fbsId, ciRun, mergeSuit
   const items = sep.rows.filter((r) => r.verdict === 'fail').flatMap((r) => r.items.map((item) => `${s7(r.sha)} ${item}`));
   if (items.length) return refuse(4, `finalise refused: separation FAIL: ${items.join('; ')}`);
 
-  return planOutcome({ tree, fbs, touched, statusAtH, H, ciRun, mergeHead: merge.info, head: sep.head });
+  return { ...planOutcome({ tree, fbs, touched, statusAtH, H, ciRun, mergeHead: merge.info, head: sep.head }), notes: strength.notes };
 }
 
 /**
