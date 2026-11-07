@@ -1052,21 +1052,21 @@ REQ-204      yes      AC-20401-1   yes                    external   verified  v
                       AC-20402-4   yes                    testOnly   complete  complete    TC-298-the-root-readme-md-and-packages-rcf-lite
                       AC-20402-5   yes                    testOnly   complete  complete    TC-298-the-sentence-of-docs-how-it-works-md
                       AC-20402-6   yes                    testOnly   complete  complete    TC-298-the-comment-introducing-the-separation
-REQ-205      yes      AC-20501-1   yes                    testOnly   complete  notStarted  TC-307-npm-pack-dry-run-json-in-packages-rcf
-                      AC-20501-2   yes                    external   verified  notStarted  TC-307-the-tarball-npm-pack-produces-installed
-                      AC-20501-3   yes                    testOnly   complete  notStarted  TC-307-no-packed-file-carries-development-chain
-                      AC-20502-1   yes                    testOnly   complete  notStarted  TC-308-with-a-test-strength-record-at-h
-                      AC-20502-2   yes                    testOnly   complete  notStarted  TC-308-finalise-still-refuses-with-exit-4
-                      AC-20502-3   yes                    testOnly   complete  notStarted  TC-308-rcf-build-verdict-test-fbs-fbs-001
-                      AC-20502-4   yes                    testOnly   complete  notStarted  TC-308-rcf-audit-separation-passes-a-range
-                      AC-20502-5   yes                    testOnly   complete  notStarted  TC-308-regression-guard-for-ac-20502-5-exit-0, TC-308-reg...
-                      AC-20502-6   yes                    testOnly   complete  notStarted  TC-308-finalise-accepts-only-a-valid-test-strength
-                      AC-20503-1   yes                    testOnly   complete  notStarted  TC-309-rcf-guidance-managed-agent-instructions
-                      AC-20503-2   yes                    testOnly   complete  notStarted  TC-309-rcf-init-in-a-fresh-directory-writes-the
-                      AC-20503-3   yes                    testOnly   complete  notStarted  TC-309-on-a-project-whose-claude-md-carries-the
-                      AC-20504-1   yes                    testOnly   complete  notStarted  TC-310-rcf-guidance-build-cycle-and-rcf-docs
-                      AC-20504-2   yes                    testOnly   complete  notStarted  TC-310-the-runbook-rcf-build-bundle-prints-in
-                      AC-20504-3   yes                    testOnly   complete  notStarted  TC-310-rcf-guidance-overview-keeps-the-tool
+REQ-205      yes      AC-20501-1   yes                    testOnly   complete  inProgress  TC-307-npm-pack-dry-run-json-in-packages-rcf
+                      AC-20501-2   yes                    external   verified  inProgress  TC-307-the-tarball-npm-pack-produces-installed
+                      AC-20501-3   yes                    testOnly   complete  inProgress  TC-307-no-packed-file-carries-development-chain
+                      AC-20502-1   yes                    testOnly   complete  inProgress  TC-308-with-a-test-strength-record-at-h
+                      AC-20502-2   yes                    testOnly   complete  inProgress  TC-308-finalise-still-refuses-with-exit-4
+                      AC-20502-3   yes                    testOnly   complete  inProgress  TC-308-rcf-build-verdict-test-fbs-fbs-001
+                      AC-20502-4   yes                    testOnly   complete  inProgress  TC-308-rcf-audit-separation-passes-a-range
+                      AC-20502-5   yes                    testOnly   complete  inProgress  TC-308-regression-guard-for-ac-20502-5-exit-0, TC-308-reg...
+                      AC-20502-6   yes                    testOnly   complete  inProgress  TC-308-finalise-accepts-only-a-valid-test-strength
+                      AC-20503-1   yes                    testOnly   complete  inProgress  TC-309-rcf-guidance-managed-agent-instructions
+                      AC-20503-2   yes                    testOnly   complete  inProgress  TC-309-rcf-init-in-a-fresh-directory-writes-the
+                      AC-20503-3   yes                    testOnly   complete  inProgress  TC-309-on-a-project-whose-claude-md-carries-the
+                      AC-20504-1   yes                    testOnly   complete  inProgress  TC-310-rcf-guidance-build-cycle-and-rcf-docs
+                      AC-20504-2   yes                    testOnly   complete  inProgress  TC-310-the-runbook-rcf-build-bundle-prints-in
+                      AC-20504-3   yes                    testOnly   complete  inProgress  TC-310-rcf-guidance-overview-keeps-the-tool
 
 Spec end state (information, never a gap):
 Spec     end       now
@@ -1203,4 +1203,4 @@ FBS-239  verified  verified
 FBS-240  verified  notStarted
 FBS-241  verified  verified
 FBS-242  verified  verified
-FBS-243  verified  notStarted
+FBS-243  verified  inProgress
