@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1087",
+  "path": "guidance/build-cycle.md",
+  "title": "Build cycle states the twelve rules",
+  "description": "The twelve rules section, rule 6 at the DEFINE exit, strength as a report at REVIEW and FINALISE, and rule 11 in Rounds.",
+  "implementsAcIds": [
+    "AC-20504-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:04.197Z",
+  "updatedAt": "2026-11-07T00:41:04.197Z"
+}

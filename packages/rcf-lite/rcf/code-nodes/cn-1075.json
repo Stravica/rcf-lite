@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1075",
+  "path": "src/finalise/light.js#isStrengthReport",
+  "title": "TestStrengthReport v1 shape check",
+  "description": "True for the shape rcf audit test-strength --record writes: version 1, a 40-hex head, scope acs|reviewVerdict|fbs, criteria rows with a string acId and result pass|fail|blocked, a top-level result and a totals object.",
+  "implementsAcIds": [
+    "AC-20502-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:40:56.187Z",
+  "updatedAt": "2026-11-07T00:40:56.187Z"
+}

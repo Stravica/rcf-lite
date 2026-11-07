@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-11-06T23:21:23.100Z",
+  "updatedAt": "2026-11-07T00:17:16.808Z",
+  "purpose": "Each criterion of US-20503 asserted on what bin/rcf.js prints or writes: the block through rcf guidance, rcf init in a fresh directory, rcf doctor and rcf doctor --fix over test/fixtures/managed-block-0-40-1/CLAUDE.md (the block the 0.40.1 rcf init wrote).",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20503-1",
+    "AC-20503-2",
+    "AC-20503-3"
+  ],
+  "id": "TS-309",
+  "usId": "US-20503",
+  "title": "The twelve-rule managed block through rcf guidance, rcf init and rcf doctor (through bin/rcf.js)",
+  "testCases": [
+    {
+      "id": "TC-309-rcf-guidance-managed-agent-instructions",
+      "acId": "AC-20503-1",
+      "description": "rcf guidance managed/agent-instructions-block prints RULE 13 as \"Deliver in rounds: the twelve rules\" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings. Amended at DEFINE pass 2 (ruling 13, G3): the test parses the block into its regions and proves, against the 0.40.1 block's own regions, that the headings are the 0.40.1 headings with RULE 13 renamed, the operator-register region is absent, RULE 13 carries the twelve rules in order with rules 5 and 6 verbatim, and the Build loop keeps exactly its rcf commands with no five-role sentence",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-1: rcf guidance managed/agent-instructions-block prints RULE 13 as \"Deliver in rounds: the twelve rules\" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings"
+    },
+    {
+      "id": "TC-309-rcf-init-in-a-fresh-directory-writes-the",
+      "acId": "AC-20503-2",
+      "description": "rcf init in a fresh directory writes the twelve-rule block between the managed markers of CLAUDE.md and of AGENTS.md",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-2: rcf init in a fresh directory writes the twelve-rule block between the managed markers of CLAUDE.md and of AGENTS.md"
+    },
+    {
+      "id": "TC-309-on-a-project-whose-claude-md-carries-the",
+      "acId": "AC-20503-3",
+      "description": "on a project whose CLAUDE.md carries the 0.40.1 block, rcf doctor exits 3 naming the stale block, rcf doctor --fix rewrites only the text between the markers, and a second rcf doctor exits 0",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-3: on a project whose CLAUDE.md carries the 0.40.1 block, rcf doctor exits 3 naming the stale block, rcf doctor --fix rewrites only the text between the markers, and a second rcf doctor exits 0"
+    }
+  ],
+  "status": "draft"
+}

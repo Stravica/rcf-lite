@@ -350,10 +350,10 @@ const sha7 = (sha) => (typeof sha === 'string' ? sha.slice(0, 7) : '');
  * or move to a later one. A REVIEW: commit adding a review.json for its
  * parent records the round's verdict: passed (MERGE/PASS) opens TEST,
  * failed closes the round. A TEST: commit adding a test.json for the
- * reviewed head records PASS or FAIL (FAIL closes the round), and one
- * adding a failing test-strength.json closes it too. After a TEST PASS,
+ * reviewed head records PASS or FAIL (FAIL closes the round); a
+ * test-strength.json is a report and closes nothing (AC-20502-4). After a TEST PASS,
  * a TEST: commit adding a FAIL test.json keyed to its own parent is legal
- * after TEST: or FINALISE: and closes the round (stage-keeper ruling 3).
+ * after TEST: or FINALISE: and closes the round.
  * After a closing verdict only DEFINE: may follow, starting the next
  * round. A REVIEW: or TEST: commit adding no verdict file counts as no
  * verdict. Items carry no sha.
@@ -408,10 +408,7 @@ export function judgeRounds(commits) {
       }
     } else if (c.stage === 'TEST') {
       for (const v of verdicts) {
-        if (v.kind === 'testStrength') {
-          if (v.doc.result === 'fail') closed = true;
-          continue;
-        }
+        if (v.kind === 'testStrength') continue;
         if (v.kind !== 'test') continue;
         if (reviewed === null) {
           items.push('TEST: verdict with no passed REVIEW verdict in the round');

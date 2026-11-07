@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1096",
+  "path": "src/view/components-fixture.js#renderComponentsFixturePage",
+  "title": "Fixture page without a work-item id",
+  "description": "The fixture page header no longer names a development work item.",
+  "implementsAcIds": [
+    "AC-20501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:10.173Z",
+  "updatedAt": "2026-11-07T00:41:10.173Z"
+}

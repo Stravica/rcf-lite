@@ -52,7 +52,7 @@ Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or
 
 **DEFINE FBS-001: TODO: name this build session** - commit prefix `DEFINE:`, role test-author.
 
-The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red and marks pickup; it never writes production code.
+The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion and marks pickup; it never writes production code. Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway.
 
     rcf audit coverage --strict
 
@@ -68,7 +68,7 @@ The builder makes the red tests green with production code, Code Nodes and code-
 
 **REVIEW FBS-001: TODO: name this build session** - commit prefix `REVIEW:`, role reviewer.
 
-The reviewer validates the tree, runs the separation audit (each commit's stage prefix against the paths it touches) and the test-strength proof, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H.
+The reviewer validates the tree, runs the separation audit (each commit's stage prefix against the paths it touches) and the test-strength audit, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H. Test strength is recorded for the reviewer's adequacy verdict; its result refuses nothing.
 
     rcf define validate
 
@@ -90,6 +90,6 @@ On the PR branch before the merge, with CI green, the stage-keeper runs the ligh
 
     rcf build finalise FBS-001 --ci-run <ref>
 
-Every commit carries its stage prefix; the `Hand:` trailer is optional through 0.37.x.
+Every commit carries its stage prefix.
 
 Verify is outside the round: rcf verify run --release <label> --since <ref> --record before the promote

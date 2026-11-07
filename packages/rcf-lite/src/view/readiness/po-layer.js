@@ -14,8 +14,7 @@
 //     engineer surface now).
 //
 // Viewer read-only (ADR-4139): no CLI command text, no write
-// affordance. Dave constraints F2 and F4 keep operator names out of
-// src/tests/fixtures.
+// affordance. Operator names stay out of src/tests/fixtures.
 
 import { escapeHtml } from '../doc-renderers/helpers.js';
 import { formatVerdictLines } from '../../query/readiness.js';

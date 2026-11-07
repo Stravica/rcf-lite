@@ -61,7 +61,7 @@ Fuller Codex support is on the roadmap; for now the recommended path is Claude C
 
 ## Finalise
 
-The build cycle ends at complete. `rcf build finalise <fbs-id> --ci-run <ref>` is the light Finalise and runs on the PR branch before the merge: it checks the last round's recorded REVIEW verdict, TEST verdict and test-strength record, a Code Node on every touched criterion and the separation audit over the range, then writes complete, spawning nothing but git. The complete write is committed on the branch and the merge carries it. Finalise never reads a verify report and never writes verified; its report-era flags (`--report`, `--max-report-age`, `--mode`, `--url` and the rest) are retired and exit 2. A release Verify writes verified: `rcf verify run --release <label> --since <ref> --record` runs, outside the build cycle and before the promote, the bound E2E tests of the specs changed since the last release, and the next Build never waits for it. `rcf guidance build-cycle` prints the five-stage contract.
+The build cycle ends at complete. `rcf build finalise <fbs-id> --ci-run <ref>` is the light Finalise and runs on the PR branch before the merge: it checks the last round's recorded REVIEW verdict and TEST verdict, requires a test-strength record at the reviewed head and prints it (it refuses on structure, never on the record's result), checks a Code Node on every touched criterion and the separation audit over the range, then writes complete, spawning nothing but git. The complete write is committed on the branch and the merge carries it. Finalise never reads a verify report and never writes verified; its report-era flags (`--report`, `--max-report-age`, `--mode`, `--url` and the rest) are retired and exit 2. A release Verify writes verified: `rcf verify run --release <label> --since <ref> --record` runs, outside the build cycle and before the promote, the bound E2E tests of the specs changed since the last release, and the next Build never waits for it. `rcf guidance build-cycle` prints the five-stage contract.
 
 ## Migrating from the pre-0.7.1 packages
 
@@ -82,7 +82,7 @@ The full migration story, the ratified ruling sheet and the registry runbook liv
 
 ## This repo runs on it
 
-The umbrella's own PRD, requirements, user stories, acceptance criteria, architecture and build queue live as JSON under [`rcf/`](./rcf), validated against the open [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas). The build queue in there is the one that drove the tool's own development. The artefacts are the demo.
+The umbrella's own PRD, requirements, user stories, acceptance criteria, architecture and build queue live as JSON under [`rcf/`](https://github.com/Stravica/rcf-lite/tree/main/packages/rcf-lite/rcf), validated against the open [`@stravica-ai/rcf-schemas`](https://github.com/Stravica/rcf-schemas). The build queue in there is the one that drove the tool's own development. The artefacts are the demo.
 
 See them the way you'd see your own project's:
 

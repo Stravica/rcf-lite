@@ -26,7 +26,7 @@ This section is one item's five stages. A project is a queue of them, and finish
 
 ## 3. Stage 1 - Define
 
-The role for this stage is the test-author: it writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red, and never writes production code. Its commits open with `DEFINE:`.
+The role for this stage is the test-author: it writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion and never writes production code. Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway. Its commits open with `DEFINE:`.
 
 What good looks like:
 
@@ -123,7 +123,7 @@ $ rcf define validate
 rcf define validate: tree is clean.
 ```
 
-Exit 0 when clean; exit 3 with issue lines when not (section 9 shows the failure shape). Then `rcf audit separation --base <trunk>` judges each commit's stage prefix against the paths it touches, `rcf audit test-strength --record` records the structural and mutation proof for the touched criteria, and `rcf build verdict review --fbs <fbs-id> --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS` records the verdict for the `REVIEW:` commit to add.
+Exit 0 when clean; exit 3 with issue lines when not (section 9 shows the failure shape). Then `rcf audit separation --base <trunk>` judges each commit's stage prefix against the paths it touches, `rcf audit test-strength --record` records the structural and mutation report for the touched criteria (a report the reviewer reads; its result refuses nothing), and `rcf build verdict review --fbs <fbs-id> --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS` records the verdict for the `REVIEW:` commit to add.
 
 Failure modes:
 
@@ -132,7 +132,7 @@ Failure modes:
 
 **Second gate on Stage 3: `rcf build review <fbs-id>`.** After `rcf define validate` clears the tree, run the test-theatre audit. The audit asks the meta-question the diff review does not: are the tests themselves honest? Five finding categories run deterministically over the FBS's in-scope ACs and their covering TSes:
 
-- `mockOnlyIntegrationClaim` - an integration-level TS whose every TC records `runtimeProvenance.profile` in `{mock, stub, fixture}` while at least one bound AC's aggregated attestation is `live` or `sandboxed`. This is the exact failure the whole 0.7.0 verification-integrity surface exists to catch (d-2026-07-30-142). Severity: block.
+- `mockOnlyIntegrationClaim` - an integration-level TS whose every TC records `runtimeProvenance.profile` in `{mock, stub, fixture}` while at least one bound AC's aggregated attestation is `live` or `sandboxed`. This is the exact failure the whole 0.7.0 verification-integrity surface exists to catch. Severity: block.
 - `testPointerBroken` - a TC's `testPointer` fails to resolve to a real test in the working tree. Severity: block.
 - `acIdsCoverageDrift` - a TS covers an AC the parent FBS does not claim in `acIds[]`. Severity: warn. (The reverse - an FBS claims an AC no TS covers - is caught by `coverage --strict` which already exits 4 on that.)
 - `attestationDrift` (recorded as `otherDeclared` with a `kindDescription`) - `declaredMockOnly × live`. Severity: warn.

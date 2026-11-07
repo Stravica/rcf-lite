@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1086",
+  "path": "guidance/managed/agent-instructions-block.hash",
+  "title": "Managed block hash regenerated",
+  "description": "The hash rcf doctor compares, regenerated from the twelve-rule block so a 0.40.1 block reads stale.",
+  "implementsAcIds": [
+    "AC-20503-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:03.542Z",
+  "updatedAt": "2026-11-07T00:41:03.542Z"
+}

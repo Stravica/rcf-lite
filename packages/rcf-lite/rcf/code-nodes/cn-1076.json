@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1076",
+  "path": "src/finalise/light.js#strengthReason",
+  "title": "Reason text for a non-pass strength row",
+  "description": "The reason a criterion row is fail or blocked: its blocked reason and detail, else its structural findings and each survived mutant as \"<operator> on <symbol> survived\".",
+  "implementsAcIds": [
+    "AC-20502-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:40:56.821Z",
+  "updatedAt": "2026-11-07T00:40:56.821Z"
+}

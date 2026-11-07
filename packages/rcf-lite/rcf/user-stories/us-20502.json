@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-11-06T23:19:42.817Z",
+  "updatedAt": "2026-11-07T00:17:14.171Z",
+  "asA": "team running rounds with rcf-lite",
+  "iWant": "test strength recorded as a report the reviewer reads, never a refusal",
+  "soThat": "the tool referees structure, never adequacy, and the adequacy judgement stays with the reviewer",
+  "description": "Integrity: what the tool refuses (contract C3, ruling R1 option 1).",
+  "usId": "US-20502",
+  "prdId": "PRD-001",
+  "reqId": "REQ-205",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Test strength is a recorded report: Finalise and the TEST verdict refuse on structure, never on its result",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20502-1",
+      "description": "[happy] Given a round whose REVIEW MERGE/PASS at H, TEST PASS at H, Code Nodes, CI ref and separation all pass, and whose test-strength record at H covers every touched criterion with at least one criterion of result `fail` or `blocked`, when `rcf build finalise <fbs> --ci-run <ref>` runs, then it writes `complete`, exits 0, and its stdout carries, beside the complete line, one line per such criterion and none for a passing one: `test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused`, where <reason> names the symbol of each survived mutant for `fail` and carries the record's reason (TEST_STRENGTH_UNSUPPORTED) for `blocked`.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20502-2",
+      "description": "[failure] Given a round otherwise fit to finalise, when `rcf build finalise <fbs> --ci-run <ref>` runs with no test-strength record at H, then it exits 4 with 0.40.1's message \"finalise refused: no test-strength record at <H7>\"; and when the record omits a touched criterion, whatever the results of the criteria it does hold (a `fail` included), it exits 4 with \"finalise refused: test-strength at <H7> omits <ids>\"; either way the spec file and the git status are unchanged.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20502-3",
+      "description": "[happy] Given a REVIEW MERGE/PASS at H and a test-strength record at H whose result is `fail`, when `rcf build verdict test --fbs <fbs> --result PASS --tap <file> --runtime <text>` runs with a TAP file holding every bound test, then it exits 0 and writes rcf/verdicts/<H12>/test.json with result PASS and head H.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20502-4",
+      "description": "[happy] Given a range DEFINE:, BUILD: (H), REVIEW: MERGE/PASS at H, a TEST: PASS at H and a TEST: commit adding a failing test-strength record for H (in either order), then a FINALISE: commit, when `rcf audit separation --base <base>` runs, then it passes (exit 0); strict round order is otherwise unchanged: a DEFINE: after BUILD: with no failed REVIEW or TEST verdict between still fails with \"<s7> DEFINE: after BUILD: without a failed verdict (stage order is monotonic within a round)\".",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20502-5",
+      "description": "[happy] `rcf audit test-strength` keeps its exit codes: 4 when a criterion fails, 5 when one is blocked and none fails, 2 on a red unmutated run, 0 when every criterion passes.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20502-6",
+      "description": "[failure] Given reviewed head H and a committed `rcf/verdicts/<H12>/test-strength.json`, when `rcf build finalise` runs, then it accepts the record only when it is a valid TestStrengthReport v1 (a JSON object with `version` 1, a 40-hex `head`, a `scope` of `acs`, `reviewVerdict` or `fbs`, a `criteria` array whose every row carries a string `acId` and a `result` of `pass`, `fail` or `blocked`, a top-level `result` of `pass`, `fail` or `blocked`, and a `totals` object) whose embedded `head` equals H and which covers the touched criteria; a record whose embedded head is another commit exits 4 \"finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head\", an invalid record exits 4 \"finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1\", and a missing record exits 4 \"finalise refused: no test-strength record at <H7>\", each leaving the spec file and the working tree unchanged. Mutant rows and totals inside the record are not re-verified.",
+      "testable": true,
+      "verification": "testOnly"
+    }
+  ],
+  "tacIds": [
+    "TAC-4160"
+  ]
+}

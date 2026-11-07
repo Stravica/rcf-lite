@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1093",
+  "path": "src/ruleset/ruleset.json",
+  "title": "Ruleset without development provenance",
+  "description": "The provenance block naming internal documents and a work item is removed; nothing reads it.",
+  "implementsAcIds": [
+    "AC-20501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:08.206Z",
+  "updatedAt": "2026-11-07T00:41:08.206Z"
+}

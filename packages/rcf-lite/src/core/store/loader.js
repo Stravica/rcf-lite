@@ -171,7 +171,7 @@ export async function loadDocument({ projectRoot, id }) {
  * fields); this is just the load-time enumeration required to bring every
  * on-disk file into memory. Callers derive the document id from the
  * filename stem by upper-casing the PREFIX segment only (0.8.0
- * slug-train, w-2026-07-28-012 landmine 1); slug tails stay verbatim
+ * slug-train, landmine 1); slug tails stay verbatim
  * because rcf-schemas 0.4.3 admits lower-case kebab tails on FBS / CN /
  * ADR / TAC and a full-stem fold would silently detach the graph.
  *

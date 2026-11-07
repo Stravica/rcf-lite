@@ -329,7 +329,7 @@ function checkNoInlineStyleBlocks(ctx) {
   if (!/<style\b/i.test(dom)) return { verdict: 'pass' };
   return {
     verdict: 'fail',
-    detail: 'inline <style> block present in the rendered HTML; ship style-src \'unsafe-inline\' would be required for it to render (watchpost run4 class defect, w-2026-08-24-003). Serve the stylesheet from a same-origin route and reference it via <link rel="stylesheet">.',
+    detail: 'inline <style> block present in the rendered HTML; ship style-src \'unsafe-inline\' would be required for it to render (watchpost run4 class defect). Serve the stylesheet from a same-origin route and reference it via <link rel="stylesheet">.',
   };
 }
 
@@ -342,7 +342,7 @@ function checkNoInlineStyleBlocks(ctx) {
  * styled /login (Playwright's page.goto follows redirects by default,
  * so the resolved response is 200 from the redirect target and the
  * downstream styled/CSP assertions pass against the wrong surface).
- * Watchpost partial-acceptance w-2026-08-24-003 / AC-1601-14; ported
+ * Watchpost partial-acceptance AC-1601-14; ported
  * into the SPA blueprint TAC-209 v1.0.1.
  *
  * The invariant is opt-in: when the driver does NOT populate
@@ -362,7 +362,7 @@ function checkAuthenticatedLandsOnRequestedPath(ctx) {
   if (ctx.landedPath === ctx.routePath) return { verdict: 'pass' };
   return {
     verdict: 'fail',
-    detail: `authenticated navigation landed on '${ctx.landedPath}' (requested '${ctx.routePath}'); a silent redirect chain to another surface (e.g. a session-broken 302 to /login) validated the redirect target's styled state instead of the requested route (AC-1131-3 pathMismatch; watchpost AC-1601-14, w-2026-08-24-003).`,
+    detail: `authenticated navigation landed on '${ctx.landedPath}' (requested '${ctx.routePath}'); a silent redirect chain to another surface (e.g. a session-broken 302 to /login) validated the redirect target's styled state instead of the requested route (AC-1131-3 pathMismatch; watchpost AC-1601-14).`,
   };
 }
 

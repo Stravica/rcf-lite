@@ -231,8 +231,8 @@ function readVerdict(abs) {
  * tree, a test verdict already present, and for PASS: no REVIEW
  * MERGE/PASS for H, a change after H outside rcf/verdicts/,
  * rcf/verify-reports/ and FINALISE classes, failing tests, a bound test
- * of a touched criterion missing from the TAP, or a failing test-strength
- * record at H).
+ * of a touched criterion missing from the TAP). A failing test-strength
+ * record at H is a report, never a refusal (AC-20502-3).
  *
  * @param {{ projectRoot: string, tree: object, fbsIds: string[], result: string, tapFile: string, runtime: string,
  *   reason?: string|null, by?: string, deps?: object }} opts
@@ -269,8 +269,8 @@ export async function recordTestVerdict({ projectRoot, tree, fbsIds, result, tap
   }
   const H = review ? review.head : state.head;
 
-  // One test verdict per head. A FAIL after a PASS at H is keyed to HEAD
-  // (stage-keeper ruling 3), so the PASS at H stays byte-identical.
+  // One test verdict per head. A FAIL after a PASS at H is keyed to HEAD,
+  // so the PASS at H stays byte-identical.
   let target = H;
   const atH = verdictFile(H, 'test.json');
   if (existsSync(join(projectRoot, atH))) {
@@ -308,11 +308,6 @@ export async function recordTestVerdict({ projectRoot, tree, fbsIds, result, tap
         if (sep < 0) continue;
         if (!names.has(pointer.slice(sep + 2))) return refuse(`the TAP summary does not include bound test ${pointer} of ${acId}`);
       }
-    }
-    const strength = readVerdict(join(projectRoot, verdictFile(H, 'test-strength.json')));
-    if (strength?.result === 'fail') {
-      const ids = (strength.criteria ?? []).filter((c) => c?.result === 'fail').map((c) => c.acId);
-      return refuse(`test-strength at ${s7(H)} fails for ${ids.join(',')}; record --result FAIL`);
     }
   }
 

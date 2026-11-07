@@ -10,7 +10,7 @@ import { join } from 'node:path';
 export const CONFIG_FILE = 'rcf/test-strength.json';
 export const ENTRY_KINDS = ['bin', 'module', 'worker'];
 export const DEFAULT_RUNNER = ['node', '--test', '--test-reporter=tap', '--test-name-pattern', '<name>', '<file>'];
-// RC-46 (US-19904, the stage-keeper's rulings Q3 and F2): each runners
+// RC-46 (US-19904): each runners
 // kind's default argv carries the reporter the audit reads; <report> is
 // a per-run temp path the audit sets and reads.
 export const RUNNER_KINDS = ['nodeTest', 'vitest', 'playwright'];

@@ -51,8 +51,8 @@ prototype as evidence (statements sourced to its files and lines),
 run them through intake and the PO loop like any document, and
 rebuild from the tree. The prototype is a quarry.
 
-"Grow the prototype" is rejected. The provenance reason is the one
-Dex's note gives: a shape reaching the project tree without the PO
+"Grow the prototype" is rejected. The provenance reason is this: a
+shape reaching the project tree without the PO
 loop that owns every settled shape is a shape without a known
 origin, and no amount of auditing after the fact can restore the
 owner.

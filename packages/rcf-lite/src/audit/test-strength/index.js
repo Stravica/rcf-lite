@@ -148,9 +148,8 @@ async function workspacePackages(git) {
 
 /**
  * The notice line of a link a working copy keeps at the repo's own package
- * (round F, AC-19903-14; the stage-keeper's rulings A3 and, for a package
- * with no entry, pass 2 ruling 2, its parenthetical naming what the entry
- * read found, ruling 22).
+ * (round F, AC-19903-14; for a package with no entry, its parenthetical
+ * names what the entry read found).
  */
 function keptLine({ link, package: pkg, entry, exports }, head) {
   const why = entry === null
@@ -385,7 +384,7 @@ export async function auditTestStrength({
         lines.push(`test-strength: ${t.file} ran at ${runDir(t) || '.'}; a test that reads paths relative to the rcf project root pins "cwd": "project" on its runners entry`);
         // Round F (AC-19903-14): the notices of the kept links follow the hint.
         lines.push(...keptLines());
-        // The stage-keeper's ruling Q5: a report the audit cannot read names the reporter flag.
+        // A report the audit cannot read names the reporter flag.
         if (verdict === 'unreadable') {
           const flag = t.runner.kind === 'nodeTest' ? '--test-reporter=tap' : (t.runner.kind === 'vitest' ? '--reporter=json --outputFile=<report>' : '--reporter=json');
           lines.push(`test-strength: runner ${argv} gave no report the audit can read; its argv must carry the reporter flag (${flag})`);

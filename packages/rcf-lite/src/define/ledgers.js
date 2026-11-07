@@ -398,7 +398,7 @@ export function nextIdFor(name, body) {
  * updated body. Pure over its inputs (does not write to disk); the
  * CLI calls `saveLedger` with the result.
  *
- * Ruling R1 2026-10-05 (w-2026-10-05-dave-001): `add` is idempotent by
+ * Ruling R1 2026-10-05: `add` is idempotent by
  * id. When `args.id` is set (the harness carries it on a replayed
  * turn):
  *   - no entry with that id exists: honour the override and add the

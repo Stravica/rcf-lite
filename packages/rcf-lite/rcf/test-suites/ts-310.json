@@ -1,0 +1,38 @@
+{
+  "createdAt": "2026-11-06T23:21:23.780Z",
+  "updatedAt": "2026-11-06T23:21:38.661Z",
+  "purpose": "Each criterion of US-20504 asserted on what bin/rcf.js prints (rcf guidance, rcf build bundle md and json) and what the MCP server serves over stdio (resources/list, resources/read).",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-20504-1",
+    "AC-20504-2",
+    "AC-20504-3"
+  ],
+  "id": "TS-310",
+  "usId": "US-20504",
+  "title": "The twelve rules in rcf guidance, rcf://docs, the bundle runbook and the overview (through bin/rcf.js and rcf mcp)",
+  "testCases": [
+    {
+      "id": "TC-310-rcf-guidance-build-cycle-and-rcf-docs",
+      "acId": "AC-20504-1",
+      "description": "rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\"",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\""
+    },
+    {
+      "id": "TC-310-the-runbook-rcf-build-bundle-prints-in",
+      "acId": "AC-20504-2",
+      "description": "the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text and REVIEW the line that test strength is recorded for the reviewer's adequacy verdict",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-2: the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text and REVIEW the line that test strength is recorded for the reviewer's adequacy verdict"
+    },
+    {
+      "id": "TC-310-rcf-guidance-overview-keeps-the-tool",
+      "acId": "AC-20504-3",
+      "description": "rcf guidance overview keeps \"The tool referees structure, never adequacy.\" word for word and says the test-strength report shows a gutted test and the reviewer judges it",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-3: rcf guidance overview keeps \"The tool referees structure, never adequacy.\" word for word and says the test-strength report shows a gutted test and the reviewer judges it"
+    }
+  ],
+  "status": "draft"
+}

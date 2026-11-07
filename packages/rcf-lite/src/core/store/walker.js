@@ -37,7 +37,7 @@ import { allStepIds } from '../../discovery/state.js';
  * segment, which was correct for suffix families but yielded
  * `SPA-req-001` for a prefix-family stem `spa-req-001`. That id then
  * failed `pathForId` at load time and every consuming verb refused with
- * "Unrecognised document id" (w-2026-08-19-003).
+ * "Unrecognised document id".
  *
  * Defensive fallback: for stems that match no family pattern (a
  * genuinely garbage filename), keep the old first-dash upper-case fold
@@ -248,8 +248,8 @@ async function loadChildKind(kind, { projectRoot, tree, errors }) {
   }
   for (const entry of listing.files) {
     const stem = entry.replace(/\.json$/, '');
-    // 0.8.0 slug-train (w-2026-07-28-012 landmine 1 / d-2026-07-28-011
-    // recon): upper-case the PREFIX segment only. Full-stem toUpperCase
+    // 0.8.0 slug-train (landmine 1): upper-case the PREFIX
+    // segment only. Full-stem toUpperCase
     // was lossless while every id was `<PREFIX>-<digits>`; the moment a
     // slug lands (`fbs-004-user-login.json` -> body `FBS-004-user-login`),
     // the whole-stem fold produced `FBS-004-USER-LOGIN` in tree.byId /
@@ -380,7 +380,7 @@ export async function walkTree({ projectRoot }) {
   // Referential integrity + graph inversion.
   invertGraph(tree);
   collectBrokenReferences(tree, errors);
-  // Uniqueness (w-2026-07-28-017). Runs last so a colliding id is
+  // Uniqueness. Runs last so a colliding id is
   // reported alongside, not instead of, the reference breakage it causes.
   collectDuplicateIds(tree, errors);
 
@@ -602,7 +602,7 @@ export function simulateWriteErrors({ tree, preErrors = [], upserts = [], delete
   post.evals = sortById(post.evals, 'id');
   invertGraph(post);
   collectBrokenReferences(post, errors);
-  // w-2026-07-28-017: uniqueness is part of the post-write gate, so a
+  // Uniqueness is part of the post-write gate, so a
   // write verb refuses to INTRODUCE a duplicate id (e.g. an `ac create`
   // that would re-issue a taken AC number) while a tree that already
   // carries duplicates stays repairable.
@@ -645,7 +645,7 @@ function collectAllAcIds(tree) {
 }
 
 // ---------------------------------------------------------------------------
-// globallyUniqueIds (w-2026-07-28-017)
+// globallyUniqueIds
 // ---------------------------------------------------------------------------
 //
 // SCOPE: ids are GLOBAL across the whole tree, not scoped per parent.
@@ -1039,7 +1039,7 @@ function collectBrokenReferences(tree, errors) {
       }
     }
     // Inline TC id pattern check: `TC-<TS-suffix>-<slug>`.
-    // 0.8.0 slug-train (w-2026-07-28-012 landmine 3): widened from
+    // 0.8.0 slug-train (landmine 3): widened from
     // `\d{3}` (three-digit-exact) to `\d{3,}` in lockstep with
     // rcf-schemas 0.4.3's TS/TC pattern widening. The pre-0.8.0 shape
     // silently skipped every TS above 999: a TS-1000 failed the exact

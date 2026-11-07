@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1089",
+  "path": "guidance/build-cycle-playbook.md",
+  "title": "Playbook DEFINE and REVIEW follow rule 6",
+  "description": "Stage 1 states rule 6 and no throwaway; the REVIEW step reads the strength record as a report.",
+  "implementsAcIds": [
+    "AC-20504-1"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:05.563Z",
+  "updatedAt": "2026-11-07T00:41:05.563Z"
+}

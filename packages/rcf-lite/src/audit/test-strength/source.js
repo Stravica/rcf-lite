@@ -489,7 +489,7 @@ const JSX_EXT = /\.(?:tsx|jsx)$/;
 export const READ_EXT = /\.(?:js|mjs|cjs|ts|mts|cts|tsx|jsx|vue)$/;
 
 /**
- * The 1-based line and column of an offset (the stage-keeper's ruling 1):
+ * The 1-based line and column of an offset:
  * `line` counts the line breaks wholly before the offset, a line break
  * being CRLF (one), a lone CR or LF (U+2028, U+2029, VT and FF are not);
  * `col` counts UTF-16 code units from the start of that line, every unit
@@ -542,8 +542,8 @@ function caretOf(err) {
 }
 
 /**
- * Where the innermost construct still open at the end of the input opens
- * (the stage-keeper's ruling 3): an unterminated block comment, template
+ * Where the innermost construct still open at the end of the input opens:
+ * an unterminated block comment, template
  * literal or string, else the last unmatched "(", "[" or "{". -1 when
  * nothing is open.
  */
@@ -728,7 +728,7 @@ function reach(text, tied, original, withheld) {
 
 /**
  * The detail of node's strip-mode refusal `err` of `text`: "<file>:<line>:<col>:
- * non-erasable TypeScript syntax (<construct>)" (the stage-keeper's ruling F6)
+ * non-erasable TypeScript syntax (<construct>)"
  * or "<file>:<line>:<col>: invalid TypeScript syntax (<message>)", placed
  * where node places it (nodePosition) and counted in `source` (the file as
  * committed, of which `text` is a view of the same length) by positionOf:
@@ -785,7 +785,7 @@ function jsxView(file, text) {
 }
 
 /**
- * The SFC script view (the stage-keeper's ruling Q9): every <script> and
+ * The SFC script view: every <script> and
  * <script setup> block (lang ts, tsx or js) in place, in document order,
  * everything else blanked with its line breaks kept. A block with a src
  * attribute, or another lang, is unreadable.
@@ -817,8 +817,7 @@ function sfcView(file, text) {
 /**
  * The view the audit reads a file through (same length as the file), or
  * why it cannot: { ok: true, text } | { ok: false, detail }. A file of no
- * readable kind reads "<file>:1:1: unsupported file type <ext>" (the
- * stage-keeper's ruling F11).
+ * readable kind reads "<file>:1:1: unsupported file type <ext>".
  *
  * @param {string} file - project-relative path
  * @param {string} text

@@ -213,7 +213,7 @@ export async function main(argv, deps = {}) {
     }
   }
 
-  // w-2026-07-28-005: resolve every TC's testPointer against the working
+  // Resolve every TC's testPointer against the working
   // tree first - "covered" means a pointer that resolves to a real test,
   // and a TC that fails resolution surfaces as covered-unresolved.
   const testPointers = await resolveTestPointers({ projectRoot, tree });

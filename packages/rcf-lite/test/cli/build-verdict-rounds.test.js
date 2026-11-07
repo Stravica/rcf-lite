@@ -289,23 +289,6 @@ test('AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE
   assert.equal(readText(dir, verdictPath(H, 'test.json')), hBytes, "H's test.json is byte-identical");
 });
 
-test('AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 "verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason', async (t) => {
-  const { dir, H } = await verdictProject(t);
-  reviewCommit(dir);
-  commit(dir, 'TEST: strength', { [verdictPath(H, 'test-strength.json')]: testStrengthReport(H, { passing: ['AC-101-1'], failing: ['AC-101-2'] }) });
-  const r = await testVerb(dir, ['--fbs', 'FBS-001', '--result', 'PASS', '--tap', tap(t, boundTests()), '--runtime', 'fixture app']);
-  assert.equal(r.code, 4);
-  assert.ok(errLine(r, `verdict refused: test-strength at ${s7(H)} fails for AC-101-2; record --result FAIL`), r.stderr);
-  assert.equal(existsSync(join(dir, verdictPath(H, 'test.json'))), false, 'nothing is written');
-  const f = await testVerb(dir, ['--fbs', 'FBS-001', '--result', 'FAIL', '--reason', 'test strength fails', '--tap', tap(t, boundTests()), '--runtime', 'fixture app']);
-  assert.equal(f.code, 0, `${f.stdout}${f.stderr}`);
-  assert.equal(JSON.parse(readText(dir, verdictPath(H, 'test.json'))).result, 'FAIL');
-  const clean = await verdictProject(t);
-  reviewCommit(clean.dir);
-  const ok = await testVerb(clean.dir, ['--fbs', 'FBS-001', '--result', 'PASS', '--tap', tap(t, boundTests()), '--runtime', 'fixture app']);
-  assert.equal(ok.code, 0, `with no test-strength record PASS is not refused\n${ok.stdout}${ok.stderr}`);
-});
-
 test('AC-19702-8: --fbs must equal the fbsIds of the REVIEW verdict as a set (exit 2 naming both, nothing written; FBS-002,FBS-001 writes), and the default recordedBy is "reviewer" for review and "verifier" for test', async (t) => {
   const { dir, H } = await verdictProject(t, { fbs002: true });
   const rv = await review(dir, ['--fbs', 'FBS-001,FBS-002', '--acs', 'AC-101-1,AC-101-2', '--code', 'MERGE', '--adequacy', 'PASS']);
@@ -543,21 +526,5 @@ test('AC-19703-10: a TEST: commit adding a PASS test.json with no REVIEW: in the
   {
     const { dir, base } = repo(t); B(dir); commit(dir, 'TEST: verdict', { 'rcf/verify-reports/FBS-001/a.json': '{"verdict":"PASS"}\n' });
     const r = await sep(dir, ['--base', base]); assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
-  }
-});
-
-test('AC-19703-11: a "TEST: strength" adding a failing test-strength.json closes the round: DEFINE: next passes, BUILD: next fails "<s7> BUILD: after a failed verdict; the next round starts at DEFINE:"', async (t) => {
-  const start = () => {
-    const r = repo(t); D(r.dir); const h = B(r.dir); R(r.dir); T(r.dir, h);
-    commit(r.dir, 'TEST: strength', { [verdictPath(h, 'test-strength.json')]: testStrengthReport(h, { passing: [], failing: ['AC-101-1'] }) });
-    return r;
-  };
-  {
-    const { dir, base } = start(); D(dir, 'DEFINE: triage');
-    const r = await sep(dir, ['--base', base]); assert.equal(r.code, 0, `${r.stdout}${r.stderr}`);
-  }
-  {
-    const { dir, base } = start(); const c = B(dir, 'BUILD: fix');
-    const r = await sep(dir, ['--base', base]); assert.equal(r.code, 4); has(r, `${s7(c)} BUILD: after a failed verdict; the next round starts at DEFINE:`);
   }
 });

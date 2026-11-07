@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:35:05.043Z",
-  "updatedAt": "2026-10-26T21:31:56.821Z",
+  "updatedAt": "2026-11-06T23:21:55.680Z",
   "purpose": "FBS-234: the external criteria of US-19702, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-234's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -60,13 +60,6 @@
       "description": "after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H",
       "status": "pending",
       "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19702-6: after REVIEW: MERGE/PASS, TEST: PASS at H and a clean FINALISE: merge at M, --result FAIL writes rcf/verdicts/<M12>/test.json with head M and leaves the test.json of H byte-identical; --result PASS at M refuses on the verdict of H"
-    },
-    {
-      "id": "TC-274-a-failing-test-strength-record-at-h",
-      "acId": "AC-19702-7",
-      "description": "a failing test-strength record at H refuses --result PASS (exit 4 \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason",
-      "status": "pending",
-      "testPointer": "test/cli/build-verdict-rounds.test.js::AC-19702-7: a failing test-strength record at H refuses --result PASS (exit 4 \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\", nothing written), --result FAIL --reason writes FAIL, and with no record PASS is not refused for that reason"
     },
     {
       "id": "TC-274-fbs-must-equal-the-review-verdict",

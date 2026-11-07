@@ -69,7 +69,7 @@ export function entityDomId(itemId) {
 // Document-id prefixes the viewer's hash router can resolve to a
 // rendered node via findByDocId. Non-document prefixes (profile, ADR,
 // D1..D8, TAD.*) render as plain text in the blocking table because
-// their anchor would be dead. Dave ruling 2026-10-08: chain ids are
+// their anchor would be dead. Chain ids are
 // content, rendered as a prefix link (when the prefix is a resolvable
 // doc id) with the full composite id in a data attribute, never as a
 // visible shell command fragment.
@@ -472,7 +472,7 @@ function renderBlockingRow(r, { stageSel, personaSel }) {
   const hidden = (stageSel && stageSel !== r.stage) || (personaSel && personaSel !== r.persona);
   const hiddenAttr = hidden ? ' hidden' : '';
   const title = r.question ? ` title="${escapeHtml(r.question)}"` : '';
-  // Dave ruling 2026-10-08 (AC-18003-7 amended): no shell command text
+  // AC-18003-7 (amended): no shell command text
   // visible; chain ids render as a prefix link with a plain-English
   // label (the row's check/why/resolved cells carry that label),
   // and the full composite id stays in the DOM in a data attribute

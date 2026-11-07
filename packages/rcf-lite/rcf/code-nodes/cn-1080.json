@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1080",
+  "path": "src/build/verdict.js#recordTestVerdict",
+  "title": "TEST PASS not refused by a failing strength record",
+  "description": "rcf build verdict test --result PASS no longer reads the test-strength record at H; a failing record is a report.",
+  "implementsAcIds": [
+    "AC-20502-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:40:59.454Z",
+  "updatedAt": "2026-11-07T00:40:59.454Z"
+}

@@ -22,7 +22,7 @@ import {
   readLogTail,
 } from '../view-supervisor/index.js';
 import { parsePersistUntil } from '../view-supervisor/persist-until.js';
-// Deep-link scope resolution (w-2026-08-30-dave-020).
+// Deep-link scope resolution.
 import { contributionsForBlueprint, listAppliedSlugs, treeHasId } from '../view/scope.js';
 
 export const DEFAULT_PORT = 4373;
@@ -95,7 +95,7 @@ Options:
   --test-host       Mount the wespa host fixture at /test-host.html
                     plus its client script at /test-host.js. Off by
                     default; the fixture is a test-suite proof that
-                    the viewer honours Dex's embedding contract (viewer
+                    the viewer honours the embedding contract (viewer
                     UI refresh PR 9; TAC-4134, ADR-4136), not a shipped
                     UI, so wespa's reverse-proxy allow-list is
                     unaffected. Can also be set via RCF_VIEW_TEST_HOST=1.
@@ -527,7 +527,7 @@ async function runSubverb({ subverb, argv, deps }) {
 }
 
 // -------------------------------------------------------------------
-// `rcf audit view open` (w-2026-08-30-dave-020).
+// `rcf audit view open`.
 //
 // Resolves a scoped deep-link into the running (or default) view
 // server and prints the URL. The agent-facing surface: during a

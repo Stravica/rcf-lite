@@ -1140,7 +1140,7 @@ async function runGitCheckIgnore(projectRoot, relativePath) {
 
 /**
  * Generate a fresh entry id: `fb-<yyyymmdd>-<12-hex>`. Ruling R2
- * (Dave 2026-09-16): 12-hex tail with a uniqueness probe on append
+ * (2026-09-16): 12-hex tail with a uniqueness probe on append
  * so a busy day's 100+ findings do not collide (a 16-bit tail had a
  * ~7.6% collision at 100 finds/day, which converted a distinct
  * finding into a state transition on the old one via the fold-by-id

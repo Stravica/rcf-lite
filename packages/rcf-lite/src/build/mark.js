@@ -20,12 +20,12 @@ import { LIFECYCLE } from './queue.js';
 /** The refusal line of rcf build mark <fbs-id> complete (AC-20003-3). */
 export const MARK_COMPLETE_REFUSED = 'mark refused: complete is written only by rcf build finalise from the recorded verdicts';
 
-// Phase 10 (X2 CodeNode bridge, D17, operator ruling 2026-07-10): the
+// Phase 10 (X2 CodeNode bridge, D17): the
 // mark-complete CN gate. The no-code-nodes declaration is a dedicated
 // `noCodeNodes: boolean` field on the FBS schema (rcf-schemas@0.3.1) - NOT
 // a free-form convention string. An unvalidated magic value would silently
 // fail on a typo, which is exactly the failure mode this feature exists to
-// make visible (operator ruling 2026-07-10).
+// make visible.
 /**
  * True when the FBS already carries the `--no-code-nodes` declaration.
  * @param {object} fbs
@@ -72,7 +72,7 @@ export function planMark(tree, { fbsId, status }) {
     });
   }
   const from = fbs.executionStatus;
-  // The mark ladder caps at `complete` (w-2026-07-22-004). `verified` means
+  // The mark ladder caps at `complete`. `verified` means
   // "independently verified against the running deploy" - it is written only by
   // a release Verify outside the build cycle (`rcf verify run --release`).
   // Letting `--mark verified` promote with no verify run would let the builder

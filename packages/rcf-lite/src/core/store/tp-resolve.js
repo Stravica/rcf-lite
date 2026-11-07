@@ -1,4 +1,4 @@
-// Test-pointer working-tree resolution (w-2026-07-28-005).
+// Test-pointer working-tree resolution.
 //
 // This is the test-axis twin of `cn-resolve.js`. Every Test Case declares a
 // `testPointer` (`filePath::testName`). This module checks each pointer

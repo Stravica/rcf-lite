@@ -1,0 +1,581 @@
+{
+  "version": 1,
+  "head": "2073af3b54f9e295d471112b6d94ec177d6c6eda",
+  "scope": "reviewVerdict",
+  "criteria": [
+    {
+      "acId": "AC-20501-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "package.json",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-1: npm pack --dry-run --json in packages/rcf-lite lists no file whose path starts with rcf/"
+          ],
+          "loadError": true
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20501-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "package.json",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-2: the tarball npm pack produces, installed into a fresh empty directory, runs rcf init, rcf doctor, rcf guidance build-cycle, the MCP resource listing and rcf audit view --port <p> (stopped by its own pid), each exit 0, with no read under the installed package rcf/"
+          ],
+          "loadError": true
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20501-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/ruleset/ruleset.json",
+          "operator": "fileBlank",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/view/components-fixture.js#renderComponentsFixturePage",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/view/components-fixture.js#renderComponentsFixturePage",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/view/components-fixture.js#renderComponentsFixturePage",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/blueprint/capabilities.js#buildRefusalMessage",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/blueprint/capabilities.js#buildRefusalMessage",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/blueprint/capabilities.js#buildRefusalMessage",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkAuthenticatedLandsOnRequestedPath",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkAuthenticatedLandsOnRequestedPath",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkAuthenticatedLandsOnRequestedPath",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20502-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/finalise/light.js#strengthReason",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#strengthReason",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#strengthReason",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeFinalise",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-1: with a test-strength record at H covering both touched criteria and a non-pass result, finalise writes complete and exits 0, printing one \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\" line per such criterion"
+          ]
+        },
+        {
+          "symbol": "src/cli/finalise.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20502-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-2: finalise still refuses with exit 4 \"finalise refused: no test-strength record at <H7>\" with no record at H, and \"finalise refused: test-strength at <H7> omits <ids>\" when the record omits a touched criterion, a failing criterion in the same record notwithstanding"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-2: finalise still refuses with exit 4 \"finalise refused: no test-strength record at <H7>\" with no record at H, and \"finalise refused: test-strength at <H7> omits <ids>\" when the record omits a touched criterion, a failing criterion in the same record notwithstanding"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20502-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/verdict.js#recordTestVerdict",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-3: rcf build verdict test --fbs FBS-001 --result PASS --tap <file> --runtime <text> records PASS and exits 0 when the test-strength record at H has result fail"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#recordTestVerdict",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-3: rcf build verdict test --fbs FBS-001 --result PASS --tap <file> --runtime <text> records PASS and exits 0 when the test-strength record at H has result fail"
+          ]
+        },
+        {
+          "symbol": "src/build/verdict.js#recordTestVerdict",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20502-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/separation.js#judgeRounds",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-4: rcf audit separation passes a range where a TEST: commit adds a failing test-strength record and a FINALISE: commit follows, and a DEFINE: after BUILD: with no failed REVIEW or TEST verdict still fails"
+          ]
+        },
+        {
+          "symbol": "src/audit/separation.js#judgeRounds",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-4: rcf audit separation passes a range where a TEST: commit adds a failing test-strength record and a FINALISE: commit follows, and a DEFINE: after BUILD: with no failed REVIEW or TEST verdict still fails"
+          ]
+        },
+        {
+          "symbol": "src/audit/separation.js#judgeRounds",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20502-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20502-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-6: finalise accepts the test-strength record at H only when it is a valid TestStrengthReport v1 whose embedded head is H and which covers the touched criteria; a record for another head exits 4 \"finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head\", an invalid record exits 4 \"finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1\", a missing one exits 4 \"finalise refused: no test-strength record at <H7>\", each leaving the spec and working tree unchanged"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-6: finalise accepts the test-strength record at H only when it is a valid TestStrengthReport v1 whose embedded head is H and which covers the touched criteria; a record for another head exits 4 \"finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head\", an invalid record exits 4 \"finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1\", a missing one exits 4 \"finalise refused: no test-strength record at <H7>\", each leaving the spec and working tree unchanged"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#judgeTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/finalise/light.js#isStrengthReport",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-6: finalise accepts the test-strength record at H only when it is a valid TestStrengthReport v1 whose embedded head is H and which covers the touched criteria; a record for another head exits 4 \"finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head\", an invalid record exits 4 \"finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1\", a missing one exits 4 \"finalise refused: no test-strength record at <H7>\", each leaving the spec and working tree unchanged"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#isStrengthReport",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/strength-report-0-41-0.test.js::AC-20502-6: finalise accepts the test-strength record at H only when it is a valid TestStrengthReport v1 whose embedded head is H and which covers the touched criteria; a record for another head exits 4 \"finalise refused: test-strength record at <H7> is for <X7>, not the reviewed head\", an invalid record exits 4 \"finalise refused: test-strength record at <H7> is not a valid TestStrengthReport v1\", a missing one exits 4 \"finalise refused: no test-strength record at <H7>\", each leaving the spec and working tree unchanged"
+          ]
+        },
+        {
+          "symbol": "src/finalise/light.js#isStrengthReport",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20503-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-1: rcf guidance managed/agent-instructions-block prints RULE 13 as \"Deliver in rounds: the twelve rules\" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20503-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-2: rcf init in a fresh directory writes the twelve-rule block between the managed markers of CLAUDE.md and of AGENTS.md"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20503-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-3: on a project whose CLAUDE.md carries the 0.40.1 block, rcf doctor exits 3 naming the stale block, rcf doctor --fix rewrites only the text between the markers, and a second rcf doctor exits 0"
+          ]
+        },
+        {
+          "symbol": "guidance/managed/agent-instructions-block.hash",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-3: on a project whose CLAUDE.md carries the 0.40.1 block, rcf doctor exits 3 naming the stale block, rcf doctor --fix rewrites only the text between the markers, and a second rcf doctor exits 0"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20504-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/build-cycle.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\""
+          ]
+        },
+        {
+          "symbol": "guidance/build-cycle-playbook.md",
+          "operator": "fileBlank",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\""
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\""
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#pushRunbook",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\""
+          ]
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#pushRunbook",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/build/formatters/markdown.js#pushRunbook",
+          "operator": "callRemoval",
+          "result": "survived",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-20504-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-2: the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text and REVIEW the line that test strength is recorded for the reviewer's adequacy verdict"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-2: the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text and REVIEW the line that test strength is recorded for the reviewer's adequacy verdict"
+          ]
+        },
+        {
+          "symbol": "src/build/bundle.js#runbookStages",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20504-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/overview.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-3: rcf guidance overview keeps \"The tool referees structure, never adequacy.\" word for word and says the test-strength report shows a gutted test and the reviewer judges it"
+          ]
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "fail",
+  "totals": {
+    "criteria": 15,
+    "structuralPassed": 15,
+    "mutants": 58,
+    "killed": 31,
+    "survived": 12,
+    "timeout": 0,
+    "notApplicable": 15,
+    "blocked": 0
+  },
+  "wallMs": 69894,
+  "node": "v24.15.0"
+}
