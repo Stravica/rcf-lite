@@ -35,7 +35,7 @@ import { delimiter, dirname, join, relative, sep } from 'node:path';
 
 import { PACKAGE_ROOT, lines, rcf, run, toolPath } from '../_harness/spawn.js';
 import { commit, git, initRepo, s7, s12 } from '../_harness/git.js';
-import { bindTests, criterion, editFbs, editStory, project, readJson, reviewVerdict, scratch, testVerdict, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
+import { bindTests, criterion, editFbs, editStory, project, readJson, reviewVerdict, scratch, verdictPath, writeJson, writeText } from '../_harness/fixture.js';
 import { json } from '../_harness/capture.js';
 
 const FIXTURES = join(PACKAGE_ROOT, 'test', 'fixtures', 'rc-46');
@@ -376,7 +376,7 @@ test('AC-19904-6: a .ts bound test importing vitest that matches no runners entr
   noResultLine(r);
 });
 
-test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result "blocked", reason "TEST_STRENGTH_UNSUPPORTED" and a detail naming the file and "non-erasable TypeScript syntax", the run exits 5, and light Finalise refuses it like a fail', async (t) => {
+test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion BLOCKED (stage-keeper ruling Q2 (a)): the record carries result "blocked", reason "TEST_STRENGTH_UNSUPPORTED" and a detail naming the file and "non-erasable TypeScript syntax", and the run exits 5', async (t) => {
   // The round as the stage-keeper runs it: base on main, then on a branch
   // DEFINE: (FBS-001 inProgress), BUILD: (the enum source and its Code
   // Node, H), REVIEW: MERGE/PASS at H, the audit's --record, TEST: PASS.
@@ -425,10 +425,10 @@ test('AC-19904-7: a Code Node file holding a TypeScript enum makes the criterion
   const blockedLine = new RegExp(`^test-strength: BLOCKED 1 criteria at ${s7(H)}: structural 0/0, mutants killed 0/0 \\(timeout 0, notApplicable 0, blocked 1\\): AC-101-1 \\(src/totals\\.ts\\)$`);
   assert.ok(lines(r.stdout).some((l) => blockedLine.test(l)), `the summary line is the BLOCKED line ending "AC-101-1 (src/totals.ts)"\n${shown(r)}`);
 
-  commit(dir, 'TEST: verdict', { [verdictPath(H, 'test.json')]: testVerdict(H) });
-  const fin = await rcf(['build', 'finalise', 'FBS-001', '--ci-run', 'run-7'], { cwd: dir });
-  assert.equal(fin.code, 4, shown(fin));
-  assert.ok(lines(fin.stderr).includes(`finalise refused: test-strength at ${s7(H)} fails for AC-101-1`), `light Finalise refuses the blocked criterion like a fail\n${shown(fin)}`);
+  // 0.41.0: AC-19904-7's last clause (light Finalise refuses a blocked
+  // criterion like a fail) is retired, succeeded by AC-20502-1: Finalise
+  // records a blocked result and refuses none; its bound test is in
+  // test/cli/strength-report-0-41-0.test.js.
 
   // Ruling 5: a .tsx Code Node file holding a deliberately broken JSX
   // element (a scan the JSX scanner cannot complete) is BLOCKED the same
