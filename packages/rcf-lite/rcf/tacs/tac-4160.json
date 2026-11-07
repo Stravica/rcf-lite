@@ -1,0 +1,25 @@
+{
+  "createdAt": "2026-11-06T23:17:17.566Z",
+  "updatedAt": "2026-11-06T23:17:17.566Z",
+  "purpose": "rcf-lite 0.41.0, the stripped twelve-rule process in the public package (Baz decision 14): the npm package stops shipping its own rcf/, test strength becomes a recorded report that refuses nothing, and the managed block, the build-cycle guidance, the bundle runbook and the overview state the twelve rules.",
+  "responsibilities": [
+    "package.json files: rcf/ leaves the tarball (contract row C1)",
+    "src/finalise/light.js, src/build/verdict.js, src/audit/separation.js: no refusal on a test-strength result; Finalise still needs the record at H covering the touched criteria and prints one line per non-pass criterion (C3)",
+    "guidance/managed/agent-instructions-block.md, its hash and harness-template.md mirror: RULE 13 the twelve rules, the operator register and the five-role loop out (C5)",
+    "guidance/build-cycle.md, overview.md, build-cycle-playbook.md and the bundle runbook in src/build/bundle.js: the twelve rules, rule 6 verbatim, test strength a report (C6, C7 under ruling R0 E1)"
+  ],
+  "interfaces": [
+    {
+      "name": "rcf build finalise test-strength line (0.41.0)",
+      "kind": "fileFormat",
+      "description": "format: one stdout line per touched criterion whose test-strength result at H is fail or blocked: \"test-strength at <H7>: <AC id> <fail|blocked>: <reason>; recorded, not refused\", the reason naming each survived mutant's symbol for fail and the record's reason (TEST_STRENGTH_UNSUPPORTED) for blocked."
+    }
+  ],
+  "notes": "Round contract w-2026-11-06-dave-025 as ruled in Dave's rulings of 2026-11-06 23:0xZ (R0 E1, R1 option 1, R2 no tool change, R3 and R4 yes, R5 yes; C4 cut). Base main at 892bc858e169 (0.40.1).",
+  "tacId": "TAC-4160",
+  "prdId": "PRD-001",
+  "tadId": "TAD-001",
+  "version": "0.1.0",
+  "status": "draft",
+  "name": "rcf-lite 0.41.0: the twelve-rule process in the public package"
+}

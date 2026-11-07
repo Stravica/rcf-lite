@@ -31,9 +31,9 @@ const escapeRegExp = (s) => s.replace(/[.*+?^${}()|[\]\\/]/g, '\\$&');
 const SEP = ' > ';
 
 /**
- * The name filter of one bound test (the stage-keeper's ruling F1):
- * nodeTest and the legacy runner an escaped `^name$`; vitest (ruling
- * F-8a) the titles joined by " > ", each regex-escaped, a leaf as
+ * The name filter of one bound test:
+ * nodeTest and the legacy runner an escaped `^name$`; vitest
+ * the titles joined by " > ", each regex-escaped, a leaf as
  * `(^| > )<leaf>$` (a nested test runs, a longer title ending in the
  * same words does not), a full path as `^<titles>$`, `^prefix` for a
  * describe prefix; playwright the segments space-joined and
@@ -189,8 +189,8 @@ export const SOCKET_PATH_LIMIT = { darwin: 104, linux: 108 };
 const PID_WIDTH = { darwin: 5, linux: 7 };
 
 /**
- * Where a run's scratch directories go (round F, AC-19904-12; the
- * stage-keeper's ruling C13): `prefix` for mkdtemp, tmpdir()/rcf-ts- as
+ * Where a run's scratch directories go (round F, AC-19904-12):
+ * `prefix` for mkdtemp, tmpdir()/rcf-ts- as
  * before, unless a runner's Unix socket path under such a scratch would
  * pass the platform's limit (tsx opens its IPC socket at
  * <TMPDIR>/tsx-<uid>/<pid>.pipe, measured here with the widest pid), when
@@ -215,8 +215,8 @@ export function scratchPlace(tmp = tmpdir(), platform = process.platform) {
 }
 
 // The conditions active for an import from Node, which a package entry is
-// read under (round F, AC-19903-14; the stage-keeper's ruling 36: the
-// first matching key in the map's own order, as Node 24 takes it).
+// read under (round F, AC-19903-14; the first matching key in the map's
+// own order, as Node 24 takes it).
 const ENTRY_CONDITIONS = new Set(['node', 'import', 'module-sync', 'default']);
 const entryPath = (target) => posix.normalize(target).replace(/^\.\//, '');
 
@@ -252,7 +252,7 @@ function exportsTarget(target) {
  * entry). Resolves { entry, main, exports } (`entry` relative to the
  * package directory, null for no entry; `main` true when it is main's;
  * `exports` true when the package.json has an exports field, which the
- * no-entry notice names, Review 1 F-4 and the stage-keeper's ruling 22).
+ * no-entry notice names, Review 1 F-4).
  *
  * @param {object|null} pkg
  * @param {boolean} [indexJs]

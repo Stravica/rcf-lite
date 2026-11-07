@@ -1413,7 +1413,7 @@ const SUBMIT_OPTIONS = /** @type {const} */ ({
  * ghIssueGetBody, and only candidates whose body carries
  * `rcf-feedback-fingerprint: <fp>` on its own line AND whose anchor /
  * kind / target markers do not disagree with the entry's are counted
- * as verified matches (0.28.2, issue #234, operator ruling 2026-09-21).
+ * as verified matches (0.28.2, issue #234).
  * A search hit that does not verify is a NON-MATCH and is dropped
  * before the fold decision. Zero verified hits -> create; one -> fold
  * comment on that number; many -> fold on the lowest and mention the
@@ -1608,7 +1608,7 @@ async function handleSubmit(argv, ctx) {
         searchMatches = searchOpen.value?.matches ?? [];
       }
 
-      // 0.28.2 (issue #234, operator ruling 2026-09-21): the search hit
+      // 0.28.2 (issue #234): the search hit
       // alone is not a fold decision. Re-read each candidate body via
       // ghIssueGetBody and keep only those whose body carries
       // `rcf-feedback-fingerprint: <fp>` on its own line AND whose

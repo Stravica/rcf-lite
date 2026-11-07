@@ -1,5 +1,5 @@
 // `rcf define freeze` subcommand handler (REQ-176; proposal
-// 2026-09-22 §2.1, §2.5, §3.2 D8, §8.2 v3; operator ruling 2026-09-24 renumbering
+// 2026-09-22 §2.1, §2.5, §3.2 D8, §8.2 v3; the 2026-09-24 renumbering
 // puts this verb in 0.29.0).
 //
 // The freeze verb is the only close verb: no change-object is minted,
@@ -423,7 +423,7 @@ async function runFreeze({
   }
 
   // --litmus check (ADR-4131 extended, 0.30.0 PR 7; R9 clarified
-  // 2026-10-03, w-2026-10-03-dave-011). Count distinct readers who
+  // 2026-10-03). Count distinct readers who
   // have landed a probe-ledger entry at the current LITMUS HASH whose
   // finding begins litmus:<reader>:; refuse (exit 4 and write nothing)
   // when fewer than n have attested. The litmus hash is the tree hash

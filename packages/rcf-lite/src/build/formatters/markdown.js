@@ -428,6 +428,6 @@ function pushRunbook(lines, bundle) {
     lines.push(s.does, '');
     for (const c of s.commands) lines.push(`    ${c}`, '');
   }
-  lines.push('Every commit carries its stage prefix; the `Hand:` trailer is optional through 0.37.x.', '');
+  lines.push('Every commit carries its stage prefix.', '');
   lines.push(VERIFY_LINE);
 }

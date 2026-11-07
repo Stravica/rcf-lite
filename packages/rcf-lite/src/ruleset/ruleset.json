@@ -1,12 +1,6 @@
 {
   "$schemaComment": "rcf-lite shared standards ruleset v1. Machine-readable contract consumed by build-lite's chain-admissibility lint, verify's per-AC scope check, and (from the umbrella release that adds it) rcf-define-lite's elicitation checklist. camelCase per estate convention. The rulesetVersion is stamped at load time from the umbrella package.json (see src/ruleset/index.js) per NV-BL-SR-02: there is no separate ruleset semver, its version is the rcf-lite umbrella version.",
   "id": "rcf-lite-ruleset",
-  "provenance": {
-    "requirementsDoc": "projects/rcf-build-lite/docs/2026-08-06_build-lite-nextver-requirements.md",
-    "rulingSheet": "projects/rcf-build-lite/docs/2026-08-06_nextver-ruling-sheet.md",
-    "designWorkItem": "w-2026-07-28-012",
-    "ratifiedItems": [1, 2, 3, 4, 6, 7, 8, 11, 14, 15, 16, 17, 19]
-  },
   "admissibilityRules": [
     {
       "id": "NV-BL-ADM-01",

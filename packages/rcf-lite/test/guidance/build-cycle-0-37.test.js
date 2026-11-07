@@ -275,23 +275,6 @@ test('AC-20401-7: in a project initialised by the bin whose CLAUDE.md managed bl
 // joined paragraph by paragraph, so a sentence wrapped over lines is one.
 const prose = (text) => text.split(/\n\s*\n/).map((p) => p.replace(/\s*\n\s*/g, ' ')).join('\n');
 
-test('AC-20401-8: the Build loop section of rcf guidance managed/agent-instructions-block says every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence names the hand of each stage by the Hand: trailer alone', async () => {
-  const loop = section(await guidance('managed/agent-instructions-block'), 'Build loop');
-  assert.ok(loop !== null, 'a section headed "Build loop"');
-  const ss = sentences(prose(loop));
-  // Any sentence that makes the Hand: trailer mandatory (the stage-keeper's
-  // ruling RC-26 on the round C DEFINE), in today's words or any other: it
-  // names the trailer, says it is on every (or each, or all) commit, required
-  // or mandatory, or that a commit must carry it, and does not say it is
-  // optional, not needed or there only where present.
-  const makesHandMandatory = (s) => /`?Hand:`?|\bHand trailer\b/.test(s)
-    && (/\b(every|each|all) commits?\b/i.test(s) || /\b(required|mandatory)\b/i.test(s) || /\bmust (carry|include|have|add|name)\b/i.test(s))
-    && !/\boptional\b|\bnot (?:required|mandatory|needed)\b|\bneed not\b|\bno longer\b|\b(where|when|if) present\b/i.test(s);
-  assert.deepEqual(ss.filter(makesHandMandatory), [], 'no sentence makes the Hand: trailer mandatory');
-  assert.ok(ss.some((s) => /\bevery commit\b/i.test(s) && /stage prefix/.test(s)), `a sentence says every commit carries its stage prefix\n${ss.join('\n')}`);
-  assert.ok(ss.some((s) => /Hand:/.test(s) && /optional/.test(s) && /0\.37\.x/.test(s)), `a sentence says the Hand: trailer is optional through 0.37.x\n${ss.join('\n')}`);
-});
-
 test('AC-20401-9: every sentence of rcf guidance build-cycle naming rcf audit separation as a check judges each commit by its stage prefix against the paths it touches, and none says the audit judges the Hand: trailer of a commit', async () => {
   const ss = sentences(prose(await guidance('build-cycle'))).filter((s) => s.includes('rcf audit separation'));
   assert.ok(ss.length > 0, 'build-cycle names rcf audit separation');

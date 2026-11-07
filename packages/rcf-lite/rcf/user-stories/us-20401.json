@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:41:43.042Z",
-  "updatedAt": "2026-10-27T23:07:08.154Z",
+  "updatedAt": "2026-11-06T23:21:57.741Z",
   "asA": "test-author, builder, reviewer, verifier or stage-keeper reading rcf-lite's guidance in an agent session",
   "iWant": "the stage I am in named by its commit prefix with exactly what it does and what it records",
   "soThat": "no session follows the 0.36.x shape of verifying inside the cycle",
@@ -61,7 +61,10 @@
       "id": "AC-20401-8",
       "description": "[happy] When rcf guidance managed/agent-instructions-block runs, then its Build loop section says that every commit carries its stage prefix and that the Hand: trailer is optional through 0.37.x, and no sentence of it makes the Hand: trailer mandatory, in today's words or any other (it does not say, for example, that each stage's hand is named in every commit's Hand: trailer).",
       "testable": true,
-      "verification": "external"
+      "verification": "external",
+      "supersededBy": "AC-20503-1",
+      "supersededOn": "2026-11-06",
+      "supersessionNote": "Retired 2026-11-06 (rcf-lite 0.41.0 DEFINE pass 1, test-author, retired and succeeded, never reworded): The managed block no longer says the Hand: trailer is optional through 0.37.x: the five-role build loop goes and RULE 13 states the twelve rules (ruling R5, contract row C5); AC-20503-1 bars \"optional through 0.37.x\"."
     },
     {
       "id": "AC-20401-9",

@@ -5,9 +5,9 @@
 // Validation runs on load (FBS-001 / AC-701-3): the published bundle is the
 // contract, no local overlays. The `testPointer` conditional-required rule
 // (required for TCs with status `passing` or `failing`, optional for
-// `pending` or `skipped`) landed in the shared schema at rcf-schemas 0.5.0
-// (w-2026-08-27-dave-001), replacing the pre-0.12 local strictness overlay
-// that required a pointer on every TC (w-2026-07-28-005). Referential
+// `pending` or `skipped`) landed in the shared schema at rcf-schemas 0.5.0,
+// replacing the pre-0.12 local strictness overlay
+// that required a pointer on every TC. Referential
 // -integrity checking lives in the walker (D8); this module is
 // schema-shape-only.
 
@@ -34,11 +34,11 @@ import evalSchema from '@stravica-ai/rcf-schemas/schemas/eval.schema.json' with 
 
 import { rcfError } from '../errors/index.js';
 
-// w-2026-07-28-005 strictness overlay retired at rcf-lite 0.12.0. The
+// The TC test-pointer strictness overlay retired at rcf-lite 0.12.0. The
 // durable landing (`testPointer` required on Test Cases with status
 // `passing` or `failing`, `minLength: 1` when present, and OPTIONAL for
-// `pending` or `skipped`) shipped in @stravica-ai/rcf-schemas 0.5.0
-// (w-2026-08-27-dave-001). rcf-lite now inherits the rule from the shared
+// `pending` or `skipped`) shipped in @stravica-ai/rcf-schemas 0.5.0.
+// rcf-lite now inherits the rule from the shared
 // schema, unmodified.
 
 /**

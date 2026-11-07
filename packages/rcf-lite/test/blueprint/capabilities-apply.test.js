@@ -303,9 +303,15 @@ test('jobs-background apply refuses on a bare project with the jobs-background-n
   assert.match(result.message, /queue/);
   assert.match(result.message, /messaging-queue-cloudflare/);
   assert.match(result.message, /--allow-no-queue-yet/);
-  // Public-record hygiene (2026-10-17): the shown provenance names the
-  // operator role, not a person; meaning kept.
-  assert.match(result.message, /messaging-queue-postgres sibling \(operator\s+decision 7\)/);
+  // AC-20501-3 (0.41.0): the message carries no development-chain
+  // citation; the future-sibling sentence reads exactly this, line wraps
+  // aside, and tells the adopter the same thing.
+  const flat = result.message.replace(/\s+/g, ' ');
+  assert.ok(
+    flat.includes('The shipped provider is messaging-queue-cloudflare (v1.0.0+); a future messaging-queue-postgres sibling will provide the same capability when demand mints it.'),
+    `the future-sibling sentence carries no "(operator decision 7)"\n${result.message}`,
+  );
+  assert.doesNotMatch(result.message, /operator\s+decision/);
 });
 
 test('jobs-background --allow-no-queue-yet override writes sidecar with queue-family notes (TC-051-jobs-background-allow-skip)', async () => {

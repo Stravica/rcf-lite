@@ -41,7 +41,7 @@ import {
  * @property {string} currentTreeHash
  * @property {string} litmusHash
  *   The current tree hash computed with the probes ledger excluded
- *   (ADR-4131 extended, 0.30.0 PR 7 R9, w-2026-10-03-dave-011). The
+ *   (ADR-4131 extended, 0.30.0 PR 7 R9). The
  *   probes ledger is inside `currentTreeHash` (ADR-4120), so a litmus
  *   reading referencing `currentTreeHash` can never match the hash
  *   recomputed after the write that landed the reading. `litmusHash`
@@ -368,7 +368,7 @@ export function computeReadiness(tree, args = {}) {
       frozenAt: delta.frozenAt,
       treeHash: delta.treeHash,
       currentTreeHash: delta.currentTreeHash,
-      // ADR-4131 extended, 0.30.0 PR 7 R9 (w-2026-10-03-dave-011).
+      // ADR-4131 extended, 0.30.0 PR 7 R9.
       // The content-stable hash the harness pins litmus readings to:
       // computed over the tree + brief / decisions / concerns ledgers,
       // excluding the probes ledger so a reader write does not shift
@@ -635,7 +635,7 @@ export function parseLitmusFlag(raw) {
 /**
  * Compute the litmus hash of a tree + ledger bundle: the tree hash
  * recomputed with the probes ledger excluded (ADR-4131 extended,
- * 0.30.0 PR 7 R9, w-2026-10-03-dave-011). The returned string is a
+ * 0.30.0 PR 7 R9). The returned string is a
  * `sha256:<hex>` that is stable under writes to the probes ledger
  * (so n readers can land `litmus:<reader>:` entries at the same
  * hash) and that shifts the same way `currentTreeHash` shifts under

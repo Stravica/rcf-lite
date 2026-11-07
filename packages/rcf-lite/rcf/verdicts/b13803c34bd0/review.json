@@ -1,0 +1,49 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "b13803c34bd0230df99454fd6804858ad058a5ff",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-20501-1",
+    "AC-20501-2",
+    "AC-20501-3",
+    "AC-20502-1",
+    "AC-20502-2",
+    "AC-20502-3",
+    "AC-20502-4",
+    "AC-20502-5",
+    "AC-20502-6",
+    "AC-20503-1",
+    "AC-20503-2",
+    "AC-20503-3",
+    "AC-20504-1",
+    "AC-20504-2",
+    "AC-20504-3"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "test",
+      "acId": "AC-20501-3",
+      "text": "three tests assert the old wording of the strings the no-development-chain-material scan now rejects (test/blueprint/capabilities-apply.test.js TC-051-jobs-background-refuse; test/browser-verify/invariants.test.js noInlineStyleBlocks and authenticatedLandsOnRequestedPath); the builder stopped rather than edit them. Corrected tests are round 2's DEFINE (ruling 3)."
+    },
+    {
+      "id": "F-2",
+      "locus": "test",
+      "acId": null,
+      "text": "AC-19904-7's bound test (test/cli/audit-test-strength-ts.test.js, TS-306) asserts the Finalise exit-4 refusal that AC-20502-1 removes; the builder stopped. Round 2's DEFINE retires AC-19904-7 for AC-20502-1 and drops the assertion (ruling 3)."
+    },
+    {
+      "id": "F-3",
+      "locus": "build",
+      "acId": "AC-20501-3",
+      "text": "src/blueprint/capabilities.js:143, src/browser-verify/invariants.js:332 and :365 still carry the development-chain fragments; untouched because their tests pinned the old text. Round 2's BUILD."
+    }
+  ],
+  "recordedBy": "stage-keeper, dave (ruling 3: a builder stop on a wrong test is recorded as REVIEW FINDINGS at the BUILD head)",
+  "recordedAt": "2026-11-07T11:33:26.407Z"
+}

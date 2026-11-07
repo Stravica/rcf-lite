@@ -1,0 +1,37 @@
+{
+  "createdAt": "2026-11-06T23:19:41.949Z",
+  "updatedAt": "2026-11-07T00:17:13.524Z",
+  "asA": "adopter installing rcf-lite from npm",
+  "iWant": "the package to carry only the tool, not rcf-lite's own requirements chain",
+  "soThat": "reviewer names, verdicts and the rulings ledger of the tool's own development never land in my node_modules",
+  "description": "Privacy: rcf/ leaves the npm files (contract C1, ruling R3).",
+  "usId": "US-20501",
+  "prdId": "PRD-001",
+  "reqId": "REQ-205",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "An adopter installs rcf-lite from npm and receives none of rcf-lite's own chain",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-20501-1",
+      "description": "[must-not] Given packages/rcf-lite at the reviewed head, when `npm pack --dry-run --json` runs in packages/rcf-lite (the real npm pack, its prepack included), then it exits 0 and the file list it prints holds no file whose path starts with `rcf/`.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20501-2",
+      "description": "[happy] Given the tarball `npm pack` produces in packages/rcf-lite, installed with `npm install <tarball>` into a fresh empty directory, when the installed package's bin runs, in that directory, `rcf init`, `rcf doctor`, `rcf guidance build-cycle`, the MCP server (`rcf mcp`) answering `resources/list`, and `rcf audit view --port <p>` (then stopped with SIGTERM sent to its own pid), then each exits 0, the installed package holds no `rcf/` folder, and no command reads, stats or lists any path under the installed package's `rcf/`. External: the 0.41.0 release Verify also runs this journey.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-20501-3",
+      "description": "[must-not] Given the tarball `npm pack` produces in packages/rcf-lite, when every packed file is read (including `guidance/`, `guidance/discovery/`, `src/`, `blueprints/`, `fixtures/`, `releases/` and `CHANGELOG.md`), then none carries rcf-lite development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id (shapes `relay <uuid>`, `w-YYYY-MM-DD-...`, `d-YYYY-MM-DD-NNN`, `r-YYYYMMDD-HHMMSS-xxxx`); no verdict record; no quoted or cited development ruling. In particular the tarball carries neither `Dave 2026-10-07` nor relay `9d3dd0a3-e7e5-4c6a-985e-c3962be38d4c`.",
+      "testable": true,
+      "verification": "testOnly"
+    }
+  ],
+  "tacIds": [
+    "TAC-4160"
+  ]
+}

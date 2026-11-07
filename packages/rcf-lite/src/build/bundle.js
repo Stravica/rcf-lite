@@ -183,7 +183,7 @@ export function assembleBundle(tree, { fbsId, acIds: touchedAcIds }) {
   // Section 6 - existing test surface. Presence reporting off the
   // walker maps, not a coverage verdict (§D7). The per-AC `covered`
   // flag here is PRESENCE-based (at least one TC row via tcsByAcId);
-  // since w-2026-07-28-005, computeCoverage's own leaf test is stricter
+  // since the pointer-resolution change, computeCoverage's own leaf test is stricter
   // (the TC's testPointer must resolve to a real test). `rcf coverage`
   // is the coverage surface; this section only lists what is on the
   // tree, pointers included, so the builder can see what exists.
@@ -284,7 +284,7 @@ export const VERIFY_LINE = 'Verify is outside the round: rcf verify run --releas
 export function runbookStages(fbsId, title) {
   const stage = (name, role, does, commands) => ({ stage: name, dispatch: `${name} ${fbsId}: ${title}`, prefix: `${name}:`, role, does, commands });
   return [
-    stage('DEFINE', 'test-author', 'The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion, proves each new test red and marks pickup; it never writes production code.', [
+    stage('DEFINE', 'test-author', 'The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion and marks pickup; it never writes production code. Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway.', [
       'rcf audit coverage --strict',
       `rcf build mark ${fbsId} inProgress`,
     ]),
@@ -292,7 +292,7 @@ export function runbookStages(fbsId, title) {
       'rcf build base-suite --out <file>',
       'rcf define create cn --path <file>[#symbol] --acs <ac-ids>',
     ]),
-    stage('REVIEW', 'reviewer', 'The reviewer validates the tree, runs the separation audit (each commit\'s stage prefix against the paths it touches) and the test-strength proof, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H.', [
+    stage('REVIEW', 'reviewer', 'The reviewer validates the tree, runs the separation audit (each commit\'s stage prefix against the paths it touches) and the test-strength audit, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H. Test strength is recorded for the reviewer\'s adequacy verdict; its result refuses nothing.', [
       'rcf define validate',
       'rcf audit separation --base <trunk>',
       'rcf audit test-strength --record',

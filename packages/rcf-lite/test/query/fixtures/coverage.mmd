@@ -4224,8 +4224,7 @@ flowchart LR
   AC-19702-6 -.-> TC-274-after-review-merge-pass-test-pass-at-h
   AC-19702-7["AC-19702-7"]
   REQ-197 --> AC-19702-7
-  TC-274-a-failing-test-strength-record-at-h["TC-274-a-failing-test-strength-record-at-h"]
-  AC-19702-7 -.-> TC-274-a-failing-test-strength-record-at-h
+  AC-19702-7 -. supersededBy .-> AC-20502-3
   AC-19702-8["AC-19702-8"]
   REQ-197 --> AC-19702-8
   TC-274-fbs-must-equal-the-review-verdict["TC-274-fbs-must-equal-the-review-verdict"]
@@ -4280,8 +4279,7 @@ flowchart LR
   AC-19703-10 -.-> TC-275-a-test-commit-adding-a-pass-test-json
   AC-19703-11["AC-19703-11"]
   REQ-197 --> AC-19703-11
-  TC-275-a-test-strength-adding-a-failing-test["TC-275-a-test-strength-adding-a-failing-test"]
-  AC-19703-11 -.-> TC-275-a-test-strength-adding-a-failing-test
+  AC-19703-11 -. supersededBy .-> AC-20502-4
   AC-19703-12["AC-19703-12"]
   REQ-197 --> AC-19703-12
   TC-275-separation-help-reviewed-head-casing["TC-275-separation-help-reviewed-head-casing"]
@@ -4699,6 +4697,7 @@ flowchart LR
   AC-19904-6 -.-> TC-306-a-ts-bound-test-importing-vitest-that
   AC-19904-7["AC-19904-7"]
   REQ-199 --> AC-19904-7
+  AC-19904-7 -. supersededBy .-> AC-20502-1
   TC-306-a-code-node-file-holding-a-typescript["TC-306-a-code-node-file-holding-a-typescript"]
   AC-19904-7 -.-> TC-306-a-code-node-file-holding-a-typescript
   TC-306-a-namespace-after-an-astral-character-is["TC-306-a-namespace-after-an-astral-character-is"]
@@ -4784,8 +4783,7 @@ flowchart LR
   AC-20001-9 -.-> TC-285-with-fbs-001-at-notstarted-finalise
   AC-20002-1["AC-20002-1"]
   REQ-200 --> AC-20002-1
-  TC-286-with-no-test-strength-record-at-h["TC-286-with-no-test-strength-record-at-h"]
-  AC-20002-1 -.-> TC-286-with-no-test-strength-record-at-h
+  AC-20002-1 -. supersededBy .-> AC-20502-2
   AC-20002-2["AC-20002-2"]
   REQ-200 --> AC-20002-2
   TC-286-when-the-reviewverdict-touches-only-ac["TC-286-when-the-reviewverdict-touches-only-ac"]
@@ -5078,8 +5076,7 @@ flowchart LR
   AC-20401-7 -.-> TC-297-in-a-project-initialised-by-the-bin
   AC-20401-8["AC-20401-8"]
   REQ-204 --> AC-20401-8
-  TC-297-the-build-loop-section-of-rcf-guidance["TC-297-the-build-loop-section-of-rcf-guidance"]
-  AC-20401-8 -.-> TC-297-the-build-loop-section-of-rcf-guidance
+  AC-20401-8 -. supersededBy .-> AC-20503-1
   AC-20401-9["AC-20401-9"]
   REQ-204 --> AC-20401-9
   TC-297-every-sentence-of-rcf-guidance-build["TC-297-every-sentence-of-rcf-guidance-build"]
@@ -5104,6 +5101,73 @@ flowchart LR
   REQ-204 --> AC-20402-6
   TC-298-the-comment-introducing-the-separation["TC-298-the-comment-introducing-the-separation"]
   AC-20402-6 -.-> TC-298-the-comment-introducing-the-separation
+  REQ-205["REQ-205"]
+  AC-20501-1["AC-20501-1"]
+  REQ-205 --> AC-20501-1
+  TC-307-npm-pack-dry-run-json-in-packages-rcf["TC-307-npm-pack-dry-run-json-in-packages-rcf"]
+  AC-20501-1 -.-> TC-307-npm-pack-dry-run-json-in-packages-rcf
+  AC-20501-2["AC-20501-2"]
+  REQ-205 --> AC-20501-2
+  TC-307-the-tarball-npm-pack-produces-installed["TC-307-the-tarball-npm-pack-produces-installed"]
+  AC-20501-2 -.-> TC-307-the-tarball-npm-pack-produces-installed
+  AC-20501-3["AC-20501-3"]
+  REQ-205 --> AC-20501-3
+  TC-307-no-packed-file-carries-development-chain["TC-307-no-packed-file-carries-development-chain"]
+  AC-20501-3 -.-> TC-307-no-packed-file-carries-development-chain
+  AC-20502-1["AC-20502-1"]
+  REQ-205 --> AC-20502-1
+  TC-308-with-a-test-strength-record-at-h["TC-308-with-a-test-strength-record-at-h"]
+  AC-20502-1 -.-> TC-308-with-a-test-strength-record-at-h
+  AC-20502-2["AC-20502-2"]
+  REQ-205 --> AC-20502-2
+  TC-308-finalise-still-refuses-with-exit-4["TC-308-finalise-still-refuses-with-exit-4"]
+  AC-20502-2 -.-> TC-308-finalise-still-refuses-with-exit-4
+  AC-20502-3["AC-20502-3"]
+  REQ-205 --> AC-20502-3
+  TC-308-rcf-build-verdict-test-fbs-fbs-001["TC-308-rcf-build-verdict-test-fbs-fbs-001"]
+  AC-20502-3 -.-> TC-308-rcf-build-verdict-test-fbs-fbs-001
+  AC-20502-4["AC-20502-4"]
+  REQ-205 --> AC-20502-4
+  TC-308-rcf-audit-separation-passes-a-range["TC-308-rcf-audit-separation-passes-a-range"]
+  AC-20502-4 -.-> TC-308-rcf-audit-separation-passes-a-range
+  AC-20502-5["AC-20502-5"]
+  REQ-205 --> AC-20502-5
+  TC-308-regression-guard-for-ac-20502-5-exit-0["TC-308-regression-guard-for-ac-20502-5-exit-0"]
+  AC-20502-5 -.-> TC-308-regression-guard-for-ac-20502-5-exit-0
+  TC-308-regression-guard-for-ac-20502-5-exit-2-a["TC-308-regression-guard-for-ac-20502-5-exit-2-a"]
+  AC-20502-5 -.-> TC-308-regression-guard-for-ac-20502-5-exit-2-a
+  TC-308-regression-guard-for-ac-20502-5-exit-4-a["TC-308-regression-guard-for-ac-20502-5-exit-4-a"]
+  AC-20502-5 -.-> TC-308-regression-guard-for-ac-20502-5-exit-4-a
+  TC-308-regression-guard-for-ac-20502-5-exit-5["TC-308-regression-guard-for-ac-20502-5-exit-5"]
+  AC-20502-5 -.-> TC-308-regression-guard-for-ac-20502-5-exit-5
+  AC-20502-6["AC-20502-6"]
+  REQ-205 --> AC-20502-6
+  TC-308-finalise-accepts-only-a-valid-test-strength["TC-308-finalise-accepts-only-a-valid-test-strength"]
+  AC-20502-6 -.-> TC-308-finalise-accepts-only-a-valid-test-strength
+  AC-20503-1["AC-20503-1"]
+  REQ-205 --> AC-20503-1
+  TC-309-rcf-guidance-managed-agent-instructions["TC-309-rcf-guidance-managed-agent-instructions"]
+  AC-20503-1 -.-> TC-309-rcf-guidance-managed-agent-instructions
+  AC-20503-2["AC-20503-2"]
+  REQ-205 --> AC-20503-2
+  TC-309-rcf-init-in-a-fresh-directory-writes-the["TC-309-rcf-init-in-a-fresh-directory-writes-the"]
+  AC-20503-2 -.-> TC-309-rcf-init-in-a-fresh-directory-writes-the
+  AC-20503-3["AC-20503-3"]
+  REQ-205 --> AC-20503-3
+  TC-309-on-a-project-whose-claude-md-carries-the["TC-309-on-a-project-whose-claude-md-carries-the"]
+  AC-20503-3 -.-> TC-309-on-a-project-whose-claude-md-carries-the
+  AC-20504-1["AC-20504-1"]
+  REQ-205 --> AC-20504-1
+  TC-310-rcf-guidance-build-cycle-and-rcf-docs["TC-310-rcf-guidance-build-cycle-and-rcf-docs"]
+  AC-20504-1 -.-> TC-310-rcf-guidance-build-cycle-and-rcf-docs
+  AC-20504-2["AC-20504-2"]
+  REQ-205 --> AC-20504-2
+  TC-310-the-runbook-rcf-build-bundle-prints-in["TC-310-the-runbook-rcf-build-bundle-prints-in"]
+  AC-20504-2 -.-> TC-310-the-runbook-rcf-build-bundle-prints-in
+  AC-20504-3["AC-20504-3"]
+  REQ-205 --> AC-20504-3
+  TC-310-rcf-guidance-overview-keeps-the-tool["TC-310-rcf-guidance-overview-keeps-the-tool"]
+  AC-20504-3 -.-> TC-310-rcf-guidance-overview-keeps-the-tool
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -7250,7 +7314,6 @@ flowchart LR
   class AC-19702-6 ac;
   class TC-274-after-review-merge-pass-test-pass-at-h tc;
   class AC-19702-7 ac;
-  class TC-274-a-failing-test-strength-record-at-h tc;
   class AC-19702-8 ac;
   class TC-274-fbs-must-equal-the-review-verdict tc;
   class AC-19702-9 ac;
@@ -7278,7 +7341,6 @@ flowchart LR
   class AC-19703-10 ac;
   class TC-275-a-test-commit-adding-a-pass-test-json tc;
   class AC-19703-11 ac;
-  class TC-275-a-test-strength-adding-a-failing-test tc;
   class AC-19703-12 ac;
   class TC-275-separation-help-reviewed-head-casing tc;
   class REQ-198 req;
@@ -7531,7 +7593,6 @@ flowchart LR
   class AC-20001-9 ac;
   class TC-285-with-fbs-001-at-notstarted-finalise tc;
   class AC-20002-1 ac;
-  class TC-286-with-no-test-strength-record-at-h tc;
   class AC-20002-2 ac;
   class TC-286-when-the-reviewverdict-touches-only-ac tc;
   class AC-20002-3 ac;
@@ -7680,7 +7741,6 @@ flowchart LR
   class AC-20401-7 ac;
   class TC-297-in-a-project-initialised-by-the-bin tc;
   class AC-20401-8 ac;
-  class TC-297-the-build-loop-section-of-rcf-guidance tc;
   class AC-20401-9 ac;
   class TC-297-every-sentence-of-rcf-guidance-build tc;
   class AC-20402-2 ac;
@@ -7693,6 +7753,40 @@ flowchart LR
   class TC-298-the-sentence-of-docs-how-it-works-md tc;
   class AC-20402-6 ac;
   class TC-298-the-comment-introducing-the-separation tc;
+  class REQ-205 req;
+  class AC-20501-1 ac;
+  class TC-307-npm-pack-dry-run-json-in-packages-rcf tc;
+  class AC-20501-2 ac;
+  class TC-307-the-tarball-npm-pack-produces-installed tc;
+  class AC-20501-3 ac;
+  class TC-307-no-packed-file-carries-development-chain tc;
+  class AC-20502-1 ac;
+  class TC-308-with-a-test-strength-record-at-h tc;
+  class AC-20502-2 ac;
+  class TC-308-finalise-still-refuses-with-exit-4 tc;
+  class AC-20502-3 ac;
+  class TC-308-rcf-build-verdict-test-fbs-fbs-001 tc;
+  class AC-20502-4 ac;
+  class TC-308-rcf-audit-separation-passes-a-range tc;
+  class AC-20502-5 ac;
+  class TC-308-regression-guard-for-ac-20502-5-exit-0 tc;
+  class TC-308-regression-guard-for-ac-20502-5-exit-2-a tc;
+  class TC-308-regression-guard-for-ac-20502-5-exit-4-a tc;
+  class TC-308-regression-guard-for-ac-20502-5-exit-5 tc;
+  class AC-20502-6 ac;
+  class TC-308-finalise-accepts-only-a-valid-test-strength tc;
+  class AC-20503-1 ac;
+  class TC-309-rcf-guidance-managed-agent-instructions tc;
+  class AC-20503-2 ac;
+  class TC-309-rcf-init-in-a-fresh-directory-writes-the tc;
+  class AC-20503-3 ac;
+  class TC-309-on-a-project-whose-claude-md-carries-the tc;
+  class AC-20504-1 ac;
+  class TC-310-rcf-guidance-build-cycle-and-rcf-docs tc;
+  class AC-20504-2 ac;
+  class TC-310-the-runbook-rcf-build-bundle-prints-in tc;
+  class AC-20504-3 ac;
+  class TC-310-rcf-guidance-overview-keeps-the-tool tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

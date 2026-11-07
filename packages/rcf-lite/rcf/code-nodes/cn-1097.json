@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1097",
+  "path": "src/blueprint/capabilities.js#buildRefusalMessage",
+  "title": "Jobs-background refusal without a decision reference",
+  "description": "The no-queue refusal names the shipped provider and the future sibling without a development decision reference.",
+  "implementsAcIds": [
+    "AC-20501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T11:38:34.175Z",
+  "updatedAt": "2026-11-07T11:38:34.175Z"
+}

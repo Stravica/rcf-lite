@@ -46,8 +46,8 @@ export function listBlueprints(tree) {
  * legacy manifests pre-#128, bare shelf sugar (`application-spa`).
  * Both re-resolve through `resolveBlueprintSource` against `projectRoot`
  * before we hand a filesystem path to the loader; without this every
- * such row would render under `uncategorised` (integration review
- * d-2026-08-31-046).
+ * such row would render under `uncategorised` (found in integration
+ * review).
  *
  * @param {ReturnType<typeof listBlueprints>} rows
  * @param {object} [opts]

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1082",
+  "path": "src/audit/separation.js#judgeRounds",
+  "title": "A failing strength record closes no round",
+  "description": "In strict round order a TEST: commit adding a test-strength.json closes nothing; failed REVIEW and TEST FAIL still close the round.",
+  "implementsAcIds": [
+    "AC-20502-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:00.821Z",
+  "updatedAt": "2026-11-07T00:41:00.821Z"
+}

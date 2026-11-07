@@ -10,7 +10,7 @@
 //
 // (2) assertNoTargetTop(renderedHtml)
 //     Greps the server-rendered HTML for target="_top" and target='_top'
-//     and refuses on any match. Dex's contract (section 9) bans
+//     and refuses on any match. The embedding contract (section 9) bans
 //     target="_top" links so a legitimate in-iframe navigation never
 //     breaks the embedding host out of its box.
 //
@@ -19,7 +19,7 @@
 //     vendored and .min.js) and asserts every localStorage.* and shared
 //     storage.* call site uses a key literal starting with
 //     "rcf-view:v1:" (or references STORAGE_NS declared equal to that
-//     prefix). Dex's contract (section 9) requires the viewer namespace
+//     prefix). The embedding contract (section 9) requires the viewer namespace
 //     every localStorage key because the viewer shares localStorage
 //     with the wespa SPA.
 

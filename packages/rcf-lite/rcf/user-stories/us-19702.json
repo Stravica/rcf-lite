@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T11:27:36.705Z",
-  "updatedAt": "2026-10-27T10:18:52.155Z",
+  "updatedAt": "2026-11-06T23:21:55.026Z",
   "asA": "verifier at the TEST stage",
   "iWant": "to record PASS or FAIL for the reviewed head from the TAP summary of the full RCF suite",
   "soThat": "the TEST pass is a branch commit that names the code it tested",
@@ -55,7 +55,10 @@
       "id": "AC-19702-7",
       "description": "[failure] Given a fixture at H whose rcf/verdicts/<H12>/test-strength.json records result fail for AC-101-2 and a TAP summary of 0 failing, rcf build verdict test --fbs FBS-001 --result PASS exits 4 with stderr \"verdict refused: test-strength at <H7> fails for AC-101-2; record --result FAIL\" and writes nothing; --result FAIL --reason \"test strength fails\" writes result FAIL; with no test-strength record at H, PASS is not refused for that reason.",
       "testable": true,
-      "verification": "external"
+      "verification": "external",
+      "supersededBy": "AC-20502-3",
+      "supersededOn": "2026-11-06",
+      "supersessionNote": "Retired 2026-11-06 (rcf-lite 0.41.0 DEFINE pass 1, test-author, retired and succeeded, never reworded): rcf build verdict test --result PASS is no longer refused by a failing test-strength record (ruling R1 option 1); AC-20502-3 states the 0.41.0 rule."
     },
     {
       "id": "AC-19702-8",

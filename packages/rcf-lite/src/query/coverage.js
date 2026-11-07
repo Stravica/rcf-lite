@@ -2,7 +2,7 @@
 // REQ chain (PRD -> REQ -> US -> AC -> TS -> TC) and report whether at
 // least one full chain reaches a TC leaf per REQ.
 //
-// w-2026-07-28-005: the TC leaf test is RESOLUTION-GATED. A TC counts as
+// The TC leaf test is RESOLUTION-GATED. A TC counts as
 // covering its AC only when its `testPointer` resolves to a real test in
 // the working tree (see core's tp-resolve.js). Callers resolve pointers
 // first (async, fs-touching) and pass the result in via
@@ -108,7 +108,7 @@ import { isHygieneTestPath } from '../audit/separation.js';
  * INFORMATIONAL code axis onto every AC - `codeClass` is one of
  * `implemented-and-covered` / `implemented-uncovered` / `unimplemented`
  * (deterministic edge counting via `tree.cnByAcId` / `tree.tcsByAcId`,
- * with the covered leg gated on pointer resolution per w-2026-07-28-005),
+ * with the covered leg gated on pointer resolution),
  * or `retired` for a criterion carrying `supersededBy`, which counts
  * toward no code total (AC-19401-18), plus a tree-wide `codeNodeOrphans` list (CN docs with empty
  * `implementsAcIds`). None of this blocks - `ok` / exit code are
@@ -147,7 +147,7 @@ export function computeCoverage(tree, opts = {}) {
   for (const req of reqs) {
     const acs = collectAcs(tree, req.reqId, { withCode, testPointers, unresolvedByKey });
     // The real verdict counts only resolving TCs; the structural verdict
-    // is the pre-w-2026-07-28-005 rule (a TC row exists). A REQ that
+    // is the older presence rule (a TC row exists). A REQ that
     // passes structurally but not really is 'covered-unresolved' - the
     // stub-TC state, made visible instead of counted. FBS-228: retired
     // criteria leave both verdicts, in strict and shallow-any alike.
@@ -400,7 +400,7 @@ export function hygieneTestFile(tree, tsId, tcId) {
 /**
  * Collect every AC under a REQ (across all its USs) with per-AC coverage
  * signal + the list of TC ids referencing that AC. A TC only counts
- * towards `covered` when its pointer resolves (w-2026-07-28-005); the
+ * towards `covered` when its pointer resolves; the
  * unresolved subset is carried per AC and accumulated into the caller's
  * `unresolvedByKey` detail map. Phase 10: when `withCode`, also attaches
  * `cnIds` and the D11 `codeClass` (the covered leg is resolution-gated

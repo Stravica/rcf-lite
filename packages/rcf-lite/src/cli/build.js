@@ -222,8 +222,9 @@ test    Reads the newest review.json reachable from HEAD whose fbsIds
         One test verdict per head: a FAIL after a PASS at H is keyed to
         HEAD instead. --result PASS needs a REVIEW MERGE/PASS for H, no
         change after H outside rcf/verdicts/, rcf/verify-reports/ and
-        FINALISE classes, 0 failing, every bound test of the touched
-        criteria in the TAP, and no failing test-strength.json at H.
+        FINALISE classes, 0 failing and every bound test of the touched
+        criteria in the TAP; a failing test-strength.json at H is a
+        report and never refuses it.
         FAIL with 0 failing needs --reason. recordedBy defaults to
         "verifier". Prints "verdict: test <result> at <h7> (<n> pass, <n>
         fail, <n> skip, <n> todo) written to <path>".
@@ -237,8 +238,7 @@ Exit codes:
      scope, touched criteria omitting a live criterion of an inProgress
      spec), or a chain that fails validation
   4  refused (a dirty tree, a verdict already recorded for the head, or
-     a PASS the review, the diff since H, the TAP or test strength
-     does not support)
+     a PASS the review, the diff since H or the TAP does not support)
 `;
 
 const VERDICT_OPTIONS = {

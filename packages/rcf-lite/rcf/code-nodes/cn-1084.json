@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1084",
+  "path": "src/cli/test-strength.js#HELP",
+  "title": "Test-strength help: a report, gate in CI",
+  "description": "The audit test-strength help says finalise and verdict test never refuse on the record result, and a team keeps a gate by failing CI on the audit exit 4.",
+  "implementsAcIds": [
+    "AC-20502-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:02.224Z",
+  "updatedAt": "2026-11-07T00:41:02.224Z"
+}

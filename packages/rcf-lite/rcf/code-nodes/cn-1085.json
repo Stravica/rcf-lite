@@ -1,0 +1,16 @@
+{
+  "cnId": "CN-1085",
+  "path": "guidance/managed/agent-instructions-block.md",
+  "title": "Managed block carries the twelve rules",
+  "description": "The operator-register preamble and RULE 12 pointer are gone; RULE 13 is Deliver in rounds: the twelve rules; the Build loop keeps its commands and names no hands.",
+  "implementsAcIds": [
+    "AC-20503-1",
+    "AC-20503-2",
+    "AC-20503-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:02.861Z",
+  "updatedAt": "2026-11-07T00:41:02.861Z"
+}

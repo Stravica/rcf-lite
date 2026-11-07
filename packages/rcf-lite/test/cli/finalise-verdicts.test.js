@@ -348,15 +348,6 @@ test('AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarte
 
 // ---------------------------------------------------------------- US-20002
 
-test('AC-20002-1: with no test-strength record at H finalise exits 4 "no test-strength record at <H7>", with AC-101-2 failing "test-strength at <H7> fails for AC-101-2", and with a record covering AC-101-1 only "test-strength at <H7> omits AC-101-2"', async (t) => {
-  const a = await happy(t, { testOpts: { strength: null } });
-  await refuses(a.dir, [], 4, `finalise refused: no test-strength record at ${s7(a.H)}`);
-  const b = await happy(t, { testOpts: { strength: { passing: ['AC-101-1'], failing: ['AC-101-2'] } } });
-  await refuses(b.dir, [], 4, `finalise refused: test-strength at ${s7(b.H)} fails for AC-101-2`);
-  const c = await happy(t, { testOpts: { strength: { passing: ['AC-101-1'] } } });
-  await refuses(c.dir, [], 4, `finalise refused: test-strength at ${s7(c.H)} omits AC-101-2`);
-});
-
 test('AC-20002-2: when the ReviewVerdict touches only AC-101-1 but the round DEFINE: changed the then text of AC-101-2 or added a test case bound to it, finalise exits 4 "finalise refused: touched criteria omit AC-101-2 changed since <base7>"', async (t) => {
   const thenText = (d) => editStory(d, 'US-101', (us) => { us.acceptanceCriteria.find((a) => a.id === 'AC-101-2').then = 'second behaviour holds, amended'; });
   const newCase = (d) => bindTests(d, [{ acId: 'AC-101-2', pointer: 'test/rcf/b.test.js::second behaviour holds again' }], { tsId: 'TS-002' });

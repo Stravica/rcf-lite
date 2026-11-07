@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T17:34:50.634Z",
-  "updatedAt": "2026-10-24T17:34:51.966Z",
+  "updatedAt": "2026-11-06T23:21:54.335Z",
   "purpose": "FBS-237: the external criteria of US-20002, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-237's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -14,13 +14,6 @@
   "usId": "US-20002",
   "title": "US-20002 external criteria (FBS-237)",
   "testCases": [
-    {
-      "id": "TC-286-with-no-test-strength-record-at-h",
-      "acId": "AC-20002-1",
-      "description": "with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\"",
-      "status": "pending",
-      "testPointer": "test/cli/finalise-verdicts.test.js::AC-20002-1: with no test-strength record at H finalise exits 4 \"no test-strength record at <H7>\", with AC-101-2 failing \"test-strength at <H7> fails for AC-101-2\", and with a record covering AC-101-1 only \"test-strength at <H7> omits AC-101-2\""
-    },
     {
       "id": "TC-286-when-the-reviewverdict-touches-only-ac",
       "acId": "AC-20002-2",

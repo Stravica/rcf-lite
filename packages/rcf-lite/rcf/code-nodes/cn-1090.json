@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1090",
+  "path": "src/build/bundle.js#runbookStages",
+  "title": "Runbook DEFINE rule 6 and REVIEW report line",
+  "description": "The DEFINE stage text carries rule 6 and No throwaway; the REVIEW stage says test strength is recorded for the reviewer adequacy verdict.",
+  "implementsAcIds": [
+    "AC-20504-1",
+    "AC-20504-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-07T00:41:06.216Z",
+  "updatedAt": "2026-11-07T00:41:06.216Z"
+}

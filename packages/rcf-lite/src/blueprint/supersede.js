@@ -3,7 +3,7 @@
 // Scaffolds a project-level ADR at `rcf/adrs/adr-NNN-<kebab-topic>.json`
 // that supersedes the CONFLICT PAIR on the topic (one currently-applied
 // blueprint's scope:global ADR + one incoming (would-be-applied)
-// blueprint's scope:global ADR — operator ruling, w-2026-08-19-008 round 3),
+// blueprint's scope:global ADR),
 // and appends a matching `manifest.resolutions[]` record so the conflict
 // detector honours the resolution when the operator re-runs
 // `rcf define blueprint add <incoming source>`.

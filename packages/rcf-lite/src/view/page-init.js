@@ -1,6 +1,6 @@
 // Page init script. Classic (non-module) browser script extracted from
-// the former inline <script> block in html-page.js: wespa (Dex,
-// 2026-10-02) pins inline scripts by CSP hash, so the viewer now
+// the former inline <script> block in html-page.js: wespa pins
+// inline scripts by CSP hash, so the viewer now
 // serves this logic as a cacheable asset at ./page-init.js and the
 // shell page carries no inline script at all. PR 1 (viewer UI
 // refresh) also folds in the shell contract:
@@ -84,8 +84,8 @@
     st.choice = mode;
   }
 
-  // Three-state theme control (ADR-4137 standalone-theme-persistence,
-  // operator ruling 2026-10-04 w-2026-10-04-dave-001). The control writes
+  // Three-state theme control (ADR-4137 standalone-theme-persistence).
+  // The control writes
   // `rcf-view:v1:theme` in non-embed mode only; under embed the control
   // is removed from the DOM entirely and the key is never read or
   // written. The key sits under the shared `rcf-view:v1:` namespace so
@@ -258,7 +258,7 @@
 
   // Build a URL that keeps the host query untouched (?embed=, ?theme=,
   // ?blueprint=, ?ticket=, ...) and only swaps the hash. Required by
-  // Dex's embed contract: embed/theme survive every in-viewer navigation.
+  // the embedding contract: embed/theme survive every in-viewer navigation.
   function urlWithHash(hash) {
     var base = window.location.pathname + window.location.search;
     if (!hash) return base;
@@ -392,7 +392,7 @@
     }
     panel.setAttribute('data-pm-loading', 'true');
     var xhr = new XMLHttpRequest();
-    // Dex / wespa 2026-10-02: asset references are relative so the
+    // wespa: asset references are relative so the
     // reverse-proxy mount point can live anywhere under its origin.
     xhr.open('GET', './product-map/' + name, true);
     xhr.onreadystatechange = function () {
@@ -769,7 +769,7 @@
       writeHash(readinessHashFragment(), true);
       return;
     }
-    // Hash write preserves ?embed=/?theme=/... (Dex contract, PR 1).
+    // Hash write preserves ?embed=/?theme=/... (embedding contract, PR 1).
     writeHash('#tab=' + name, true);
   }
 
@@ -1875,7 +1875,7 @@
   // rank first (exact > prefix > contains), then every query word must
   // match title or snippet, title above snippet; 20 results; matches
   // marked. A pick writes `#tab=<tab>&entity=<id>` through writeHash so
-  // `?embed=` and `?theme=` survive (Dex contract, PR 1).
+  // `?embed=` and `?theme=` survive (embedding contract, PR 1).
 
   var lookupRows = null;
   var lookupFetching = false;
@@ -2182,7 +2182,7 @@
       resolveHash(window.location.hash);
       return;
     }
-    // writeHash preserves ?embed=/?theme=/... (Dex contract, PR 1); the
+    // writeHash preserves ?embed=/?theme=/... (embedding contract, PR 1); the
     // Router's hashchange listener then activates the tab and opens
     // every ancestor DocRow (resolveHash).
     writeHash('#tab=' + encodeURIComponent(tab) + '&entity=' + encodeURIComponent(id), false);
@@ -2959,7 +2959,7 @@
   // same position at first paint. The hash-router owns tab + entity, so we
   // promote the tab/sub/entity query params into the hash fragment at boot
   // when no explicit hash is already set. embed/theme stay in the query so
-  // urlWithHash keeps the Dex contract.
+  // urlWithHash keeps the embedding contract.
   function bootHashFromQuery() {
     if (window.location.hash) return;
     var q = parseQuery(window.location.search);
