@@ -1,0 +1,30 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "2073af3b54f9e295d471112b6d94ec177d6c6eda",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-20501-1",
+    "AC-20501-2",
+    "AC-20501-3",
+    "AC-20502-1",
+    "AC-20502-2",
+    "AC-20502-3",
+    "AC-20502-4",
+    "AC-20502-5",
+    "AC-20502-6",
+    "AC-20503-1",
+    "AC-20503-2",
+    "AC-20503-3",
+    "AC-20504-1",
+    "AC-20504-2",
+    "AC-20504-3"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [],
+  "recordedBy": "reviewer, claude-opus-5-5",
+  "recordedAt": "2026-11-07T13:03:47.086Z"
+}
