@@ -1053,7 +1053,7 @@ REQ-204      yes      AC-20401-1   yes                    external   verified  v
                       AC-20402-5   yes                    testOnly   complete  complete    TC-298-the-sentence-of-docs-how-it-works-md
                       AC-20402-6   yes                    testOnly   complete  complete    TC-298-the-comment-introducing-the-separation
 REQ-205      yes      AC-20501-1   yes                    testOnly   complete  complete    TC-307-npm-pack-dry-run-json-in-packages-rcf
-                      AC-20501-2   yes                    external   verified  complete    TC-307-the-tarball-npm-pack-produces-installed
+                      AC-20501-2   yes                    external   verified  verified    TC-307-the-tarball-npm-pack-produces-installed
                       AC-20501-3   yes                    testOnly   complete  complete    TC-307-no-packed-file-carries-development-chain
                       AC-20502-1   yes                    testOnly   complete  complete    TC-308-with-a-test-strength-record-at-h
                       AC-20502-2   yes                    testOnly   complete  complete    TC-308-finalise-still-refuses-with-exit-4
@@ -1203,4 +1203,4 @@ FBS-239  verified  verified
 FBS-240  verified  notStarted
 FBS-241  verified  verified
 FBS-242  verified  verified
-FBS-243  verified  complete
+FBS-243  verified  verified

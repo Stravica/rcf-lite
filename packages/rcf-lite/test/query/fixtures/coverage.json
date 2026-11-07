@@ -12999,7 +12999,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "complete"
+          "now": "verified"
         },
         {
           "id": "AC-20501-3",
@@ -13814,7 +13814,7 @@
     {
       "fbsId": "FBS-243",
       "expectedEnd": "verified",
-      "now": "complete"
+      "now": "verified"
     }
   ],
   "unresolvedTestPointers": []
