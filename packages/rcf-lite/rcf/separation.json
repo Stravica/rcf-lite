@@ -1,5 +1,5 @@
 {
-  "classes": { "production": ["test/_harness/spawn.js"] },
+  "classes": { "production": ["test/_harness/spawn.js", "test/_helpers/feedback-lock-pause.mjs", "test/_helpers/feedback-break-pause.mjs"] },
   "generators": [
     {
       "id": "queue-goldens",

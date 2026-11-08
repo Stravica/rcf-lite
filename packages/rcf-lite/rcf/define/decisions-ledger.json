@@ -3459,6 +3459,26 @@
       "answer": "a. The round opens on these terms, 2026-11-08.",
       "answeredAt": "2026-11-08T14:11:09.904Z",
       "resolvedAt": "2026-11-08T14:11:09.904Z"
+    },
+    {
+      "id": 158,
+      "question": "ROUND OPEN, 2026-11-08: the lockfix round, a testOnly amend round on FBS-243, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-20501-1 (full), AC-20501-2 (full), AC-20501-3 (full). DEFINE HEAD: 5244a8e8. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-09T12:00:00Z. TIER: T1 (the maintainers' operating note). KNOWN INTERMITTENT BASE: the base-suite record was taken unarranged on the plain host; the base is intermittently red on one AC-16103-4 case (three Stop hooks breaking the hold of a stopped move) through the check-then-use race in two test preloads that this round repairs, so a green base record is a true run that did not hit it; the round proves the defect with its own red test, which forces the interleaving on every host. ANCHOR: a testOnly amend round on FBS-243 scoped to AC-20501-1, AC-20501-2 and AC-20501-3, the anchor an earlier test-harness fix round used. The round repairs a check-then-use race in two test preloads (test/_helpers/feedback-lock-pause.mjs and test/_helpers/feedback-break-pause.mjs) that makes the AC-16103-4 test of three Stop hooks breaking a stopped move's hold fail intermittently, and adds one unbound red test that forces the interleaving; no product code and no criterion changes. The fix is proven by that red test going green and by test/feedback/feedback-store-lock-break.test.js passing in TEST. AC-16103-4 and FBS-231 are not claimed as touched, no criterion is flagged, and no spec is marked. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-08T23:52:50.455Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-08.",
+      "answeredAt": "2026-11-08T23:52:54.753Z",
+      "resolvedAt": "2026-11-08T23:52:54.753Z"
     }
   ]
 }
