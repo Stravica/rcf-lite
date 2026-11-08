@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1102",
+  "path": "test/_harness/spawn.js#toolPath",
+  "title": "Harness tool PATH: the pinned directories plus each named tool's",
+  "description": "Seeds with the pinned PATH's directories split on the delimiter, then adds the first directory holding each named tool, each directory once; refuses a missing tool and a tool beside claude. A shared test-harness helper bound to no criterion.",
+  "implementsAcIds": [],
+  "dependencies": [
+    "CN-1100"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-08T15:50:58.251Z",
+  "updatedAt": "2026-11-08T15:50:58.251Z"
+}

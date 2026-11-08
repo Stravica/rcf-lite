@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1100",
+  "path": "test/_harness/spawn.js#claudeFreePath",
+  "title": "Harness pinned PATH: git and sh, no agent CLI",
+  "description": "The first inherited directory holding git, then the first holding sh, each once and delimiter-joined; refuses a PATH with no git or no sh and either directory holding claude. A shared test-harness helper bound to no criterion.",
+  "implementsAcIds": [],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-08T15:50:48.953Z",
+  "updatedAt": "2026-11-08T15:50:48.953Z"
+}

@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1101",
+  "path": "test/_harness/spawn.js#baseEnv",
+  "title": "Harness child environment: pinned PATH, fixture git, no automatic maintenance",
+  "description": "The environment every harness child runs in: the pinned PATH, CI, global and system git config shut out, a fixture identity, and maintenance.auto=false appended after any inherited git command-line config entries (index n, count n + 1). A shared test-harness helper bound to no criterion.",
+  "implementsAcIds": [],
+  "dependencies": [
+    "CN-1100"
+  ],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-08T15:50:55.946Z",
+  "updatedAt": "2026-11-08T15:50:55.946Z"
+}
