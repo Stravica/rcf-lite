@@ -17,19 +17,30 @@ export const PACKAGE_ROOT = resolve(here, '..', '..');
 export const BIN = join(PACKAGE_ROOT, 'bin', 'rcf.js');
 
 /**
- * A PATH that reaches git and no agent CLI. `rcf init` probes the agent
- * CLI from PATH; node comes from process.execPath, so node's own
- * directory is never on it. Refuses loudly if a claude is reachable.
+ * A PATH that reaches git and sh and no agent CLI: the first inherited
+ * directory holding git, then the first holding sh, each once (one
+ * directory where git and sh share it, as on merged-usr Linux; two on
+ * macOS, where sh is only in /bin). `rcf init` probes the agent CLI from
+ * PATH; node comes from process.execPath, so node's own directory is
+ * never on it. Refuses loudly if git or sh is missing or a claude is
+ * reachable.
  */
 export function claudeFreePath(inherited = process.env.PATH ?? '') {
   const dirs = inherited.split(delimiter).filter(Boolean);
-  const gitDir = dirs.find((d) => existsSync(join(d, 'git')));
-  if (!gitDir) throw new Error(`harness: no git on the inherited PATH\n${inherited}`);
-  if (existsSync(join(gitDir, 'claude'))) throw new Error(`harness: the pinned PATH reaches an agent CLI in ${gitDir}`);
-  return gitDir;
+  const out = [];
+  for (const tool of ['git', 'sh']) {
+    const dir = dirs.find((d) => existsSync(join(d, tool)));
+    if (!dir) throw new Error(`harness: no ${tool} on the inherited PATH\n${inherited}`);
+    if (existsSync(join(dir, 'claude'))) throw new Error(`harness: the pinned PATH reaches an agent CLI in ${dir}`);
+    if (!out.includes(dir)) out.push(dir);
+  }
+  return out.join(delimiter);
 }
 
-/** The environment every child runs in: pinned PATH, CI, no global git config, a fixture identity. */
+/**
+ * The environment every child runs in: pinned PATH, CI, no global git
+ * config, a fixture identity, and no automatic git maintenance.
+ */
 export function baseEnv(extra = {}) {
   const env = {
     ...process.env,
@@ -43,6 +54,15 @@ export function baseEnv(extra = {}) {
     GIT_COMMITTER_EMAIL: 'fixture@example.com',
     ...extra,
   };
+  // With global and system config shut out, git's built-in defaults apply,
+  // and automatic maintenance can repack a fixture repository's loose
+  // objects away in the background while a test copies .git/objects.
+  // Switched off through git's command-line config, appended after any
+  // entries the environment already carries (index n, count n + 1).
+  const n = Number(env.GIT_CONFIG_COUNT) || 0;
+  env[`GIT_CONFIG_KEY_${n}`] = 'maintenance.auto';
+  env[`GIT_CONFIG_VALUE_${n}`] = 'false';
+  env.GIT_CONFIG_COUNT = String(n + 1);
   // A nested node --test must print its own output, not report to ours.
   delete env.NODE_TEST_CONTEXT;
   return env;
@@ -88,13 +108,14 @@ export function lines(text) {
 }
 
 /**
- * A PATH that reaches git plus the directories holding each named tool
- * (for example npm, for a cold package install), and no agent CLI.
- * Refuses loudly if a tool is missing or a directory holds a claude.
+ * A PATH that reaches git and sh plus the directories holding each named
+ * tool (for example npm, for a cold package install), each directory
+ * once, and no agent CLI. Refuses loudly if a tool is missing or a
+ * directory holds a claude.
  */
 export function toolPath(tools = [], inherited = process.env.PATH ?? '') {
   const dirs = inherited.split(delimiter).filter(Boolean);
-  const out = [claudeFreePath(inherited)];
+  const out = claudeFreePath(inherited).split(delimiter);
   for (const tool of tools) {
     const dir = dirs.find((d) => existsSync(join(d, tool)));
     if (!dir) throw new Error(`harness: no ${tool} on the inherited PATH`);

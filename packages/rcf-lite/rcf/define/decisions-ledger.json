@@ -3439,6 +3439,26 @@
       "answer": "The operator, 2026-10-24: \"product owner\"",
       "answeredAt": "2026-10-27T03:18:53.334Z",
       "resolvedAt": "2026-10-27T03:18:53.334Z"
+    },
+    {
+      "id": 157,
+      "question": "ROUND OPEN, 2026-11-08: the harness round, a testOnly amend round on FBS-243, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-20501-1 (full), AC-20501-2 (full), AC-20501-3 (full). DEFINE HEAD: 6a4509de. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-09T12:00:00Z. TIER: T1 (the maintainers' operating note). ARRANGED BASE: the base-suite record was taken on an arranged host, disclosed: a tools directory mirroring the system tool directories (a symlink for every executable in /usr/bin and /bin, no agent CLI) first on PATH, and git automatic maintenance switched off through GIT_CONFIG_COUNT, GIT_CONFIG_KEY_0 and GIT_CONFIG_VALUE_0; each masks one of the two harness defects this round repairs; TEST runs with neither. ANCHOR: a testOnly amend round on FBS-243 scoped to AC-20501-1, AC-20501-2 and AC-20501-3, whose bound tests the harness's missing sh fails on macOS. The second harness fix (git automatic maintenance off for every git child the harness starts) rides in the same round under this anchor: it is proven by its own contract test and by test/define/readiness-own-chain.test.js going green in TEST. That file's criteria (AC-20301-1 to -4, AC-20302-1 to -4 and AC-20303-1 to -4, scoped by FBS-240, which is notStarted) are not claimed as touched, and FBS-240 is not marked. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-08T14:11:04.940Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-08.",
+      "answeredAt": "2026-11-08T14:11:09.904Z",
+      "resolvedAt": "2026-11-08T14:11:09.904Z"
     }
   ]
 }

@@ -1,0 +1,18 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "7d219fd37df2989d8ab5fcc0309862194ca4d502",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "touchedAcIds": [
+    "AC-20501-1",
+    "AC-20501-2",
+    "AC-20501-3"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [],
+  "recordedBy": "reviewer",
+  "recordedAt": "2026-11-08T16:37:50.239Z"
+}

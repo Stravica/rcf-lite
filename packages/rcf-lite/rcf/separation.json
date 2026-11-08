@@ -1,5 +1,5 @@
 {
-  "classes": {},
+  "classes": { "production": ["test/_harness/spawn.js"] },
   "generators": [
     {
       "id": "queue-goldens",
