@@ -1,0 +1,21 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "7d219fd37df2989d8ab5fcc0309862194ca4d502",
+  "fbsIds": [
+    "FBS-243"
+  ],
+  "result": "PASS",
+  "suite": {
+    "pass": 4282,
+    "fail": 0,
+    "skip": 3,
+    "todo": 17,
+    "cancelled": 0
+  },
+  "runtime": "packed artefact: npm pack of 7d219fd37df2 installed into a clean scratch project on Node 24; the RCF suite from the reviewed head's checkout",
+  "node": "v24.14.0",
+  "reason": null,
+  "recordedBy": "verifier",
+  "recordedAt": "2026-11-08T18:04:20.239Z"
+}
