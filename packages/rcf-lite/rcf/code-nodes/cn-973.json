@@ -2,11 +2,12 @@
   "cnId": "CN-973",
   "path": "src/audit/test-strength/structural.js#silentDefaults",
   "implementsAcIds": [
-    "AC-19901-4"
+    "AC-19901-4",
+    "AC-19905-1"
   ],
   "dependencies": [],
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-10-26T08:49:29.544Z",
-  "updatedAt": "2026-10-26T08:49:29.544Z"
+  "updatedAt": "2026-11-09T14:02:02.204Z"
 }
