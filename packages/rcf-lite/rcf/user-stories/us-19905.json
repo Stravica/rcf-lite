@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-09T07:25:00.153Z",
-  "updatedAt": "2026-11-09T07:27:20.267Z",
+  "updatedAt": "2026-11-09T10:59:59.593Z",
   "description": "The Python round (0.42.0): rcf audit test-strength reads symbol-level .py Code Nodes through the host's python3 with the standard library ast module only, and judges each def and each method of a class with the JavaScript operator set (stubToThrow, noOp and callRemoval), so the TestStrengthReport v1 shape is unchanged; python3 absent or below 3.9 makes such a criterion BLOCKED with a detail naming python3 and the floor, never a crash; a Code Node #symbol on a Python def resolves at rcf define validate.",
   "usId": "US-19905",
   "prdId": "PRD-001",
@@ -26,13 +26,19 @@
     },
     {
       "id": "AC-19905-3",
-      "description": "[failure] Given AC-101-1 claiming a symbol-level `.py` Code Node and AC-101-2 claiming a `.js` one, when `rcf audit test-strength --acs AC-101-1,AC-101-2` runs with no `python3` on PATH, or with a `python3` that reports a version below 3.9, then AC-101-1 is reported per criterion as blocked, reason `TEST_STRENGTH_UNSUPPORTED`, with a detail of the form `<file>: Python sources need python3 >= 3.9 on PATH (python3 not found)` or `(python3 is <version>)`, AC-101-2 is judged as before, the run exits 5 with the BLOCKED summary line, and the audit never crashes; a whole-run exit 2 stays reserved for the audit's own unreadable inputs.",
+      "description": "[failure] Given AC-101-1 claiming a symbol-level `.py` Code Node and AC-101-2 claiming a `.js` one, when `rcf audit test-strength --acs AC-101-1,AC-101-2` runs with no `python3` on PATH, with a `python3` that reports a version below 3.9, or with one that gives no version (its `--version` exits non-zero, times out or prints no parseable version), then AC-101-1 is reported per criterion as blocked, reason `TEST_STRENGTH_UNSUPPORTED`, with a detail of the form `<file>: Python sources need python3 >= 3.9 on PATH (python3 not found)`, `(python3 is <version>)` or `(python3 gave no version)`, AC-101-2 is judged as before, the run exits 5 with the BLOCKED summary line, and the audit never crashes; a whole-run exit 2 stays reserved for the audit's own unreadable inputs.",
       "testable": true,
       "verification": "external"
     },
     {
       "id": "AC-19905-4",
-      "description": "[happy] Given a Code Node `src/mod.py#canonical` where `src/mod.py` declares `def canonical(` or `async def canonical(` at any indentation, `rcf define validate` resolves the symbol and reports no staleCode for it; after the def is renamed, validate reports staleCode with rule symbolResolves; a Code Node on a Python `class X` keeps resolving.",
+      "description": "[happy] Given a Code Node `src/mod.py#canonical` where `src/mod.py` declares `def canonical(` (type parameters on the same line included, `def canonical[T](`) or `async def canonical(` at any indentation, `rcf define validate` resolves the symbol and reports no staleCode for it; after the def is renamed, validate reports staleCode with rule symbolResolves; a Code Node on a Python `class X` keeps resolving.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-5",
+      "description": "[failure] Given AC-101-1 claiming a symbol-level Code Node in a `.py` file the host's `python3` cannot read (the file does not parse on that `python3`, a syntax error or syntax newer than it, or the audit's structure read of the file fails) and AC-101-2 claiming a `.js` one, when `rcf audit test-strength --acs AC-101-1,AC-101-2` runs with `python3` 3.9 or later on PATH, then AC-101-1 is recorded per criterion as a named outcome that is never a pass and never a guess: `result` \"blocked\", `reason` `TEST_STRENGTH_UNSUPPORTED` and a `detail` naming the file (for a file that does not parse, `<file>:<line>:<col>: <the SyntaxError message>` from the 1-based line and column `python3` reports); AC-101-2 is judged as before, the run exits 5 with the BLOCKED summary line, and the audit never crashes.",
       "testable": true,
       "verification": "external"
     }
