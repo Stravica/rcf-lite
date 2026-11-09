@@ -99,13 +99,21 @@ function norm(p) {
   if (p === undefined || p === null || typeof p === 'number' || typeof p === 'object' && !(p instanceof URL) && !Buffer.isBuffer(p)) return null;
   let d = resolve(p instanceof URL ? p.pathname : String(p));
   const rest = [];
-  while (!real.existsSync(d)) {
+  for (;;) {
+    if (real.existsSync(d)) {
+      // d can go between existsSync and realpathSync (another process lets
+      // its lock go): it is then missing, and the walk goes on up.
+      try {
+        return join(real.realpathSync(d), ...rest);
+      } catch (err) {
+        if (err?.code !== 'ENOENT') throw err;
+      }
+    }
     rest.unshift(basename(d));
     const up = dirname(d);
     if (up === d) return null;
     d = up;
   }
-  return join(real.realpathSync(d), ...rest);
 }
 
 if (dir && env.RCF_TEST_PAUSE_MAIN) {
