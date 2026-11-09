@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 133,
-    "notStarted": 58,
+    "items": 134,
+    "notStarted": 59,
     "inProgress": 2,
     "complete": 35,
     "verified": 38,
-    "actionable": 42,
+    "actionable": 43,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -225,7 +225,8 @@
       "tier": 15,
       "fbsIds": [
         "FBS-238",
-        "FBS-239"
+        "FBS-239",
+        "FBS-244"
       ]
     },
     {
@@ -1784,6 +1785,19 @@
       "executionStatus": "complete",
       "dependsOnFbsIds": [],
       "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-244",
+      "buildOrder": 246,
+      "tier": 15,
+      "title": "rcf audit test-strength: symbol-level Python Code Nodes judged through the host python3, and the Python def anchor",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [
+        "FBS-236",
+        "FBS-242"
+      ],
+      "state": "actionable",
       "blockedBy": []
     }
   ],
