@@ -28,8 +28,13 @@ const PROBE_TIMEOUT_MS = 10_000;
 const READ_TIMEOUT_MS = 30_000;
 
 // The structure reader. Positions are ast's: 1-based lines, 0-based
-// columns in UTF-8 bytes. A file python3 cannot parse gives the
-// SyntaxError's line, column (1-based) and message instead.
+// columns in UTF-8 bytes. A body's span is [startLine, startCol, endLine,
+// endCol, decorated]: ast places a decorated def or class at its `def` or
+// `class` line, so when the first statement of a body is one, the span
+// starts at its earliest decorator's expression and decorated is 1 (the
+// splice then starts at that decorator's `@`). A file python3 cannot
+// parse gives the SyntaxError's line, column (1-based) and message
+// instead.
 const READER = [
   'import ast, json, sys',
   'text = sys.stdin.buffer.read().decode("utf-8-sig", "surrogateescape")',
@@ -40,7 +45,10 @@ const READER = [
   '    raise SystemExit(0)',
   'FN = (ast.FunctionDef, ast.AsyncFunctionDef)',
   'def body(n):',
-  '    return [n.body[0].lineno, n.body[0].col_offset, n.body[-1].end_lineno, n.body[-1].end_col_offset]',
+  '    s, e = n.body[0], n.body[-1]',
+  '    d = getattr(s, "decorator_list", None)',
+  '    a = d[0] if d else s',
+  '    return [a.lineno, a.col_offset, e.end_lineno, e.end_col_offset, 1 if d else 0]',
   'def named(n):',
   '    while isinstance(n, ast.Attribute):',
   '        n = n.value',
@@ -199,9 +207,17 @@ export function pyTargets(py, symbol) {
  * @param {string} label - the mutant's symbol, named in the raised error
  */
 export function pyRewriteBody(py, target, operator, label) {
-  const [l1, c1, l2, c2] = target.body;
+  const [l1, c1, l2, c2, decorated] = target.body;
+  let from = pyOffset(py, l1, c1);
+  if (decorated) {
+    // Back from the earliest decorator's expression to its `@`: only
+    // blanks and line continuations may stand between them.
+    let i = from - 1;
+    while (i >= 0 && ' \t\f\r\n\\'.includes(py.text[i])) i -= 1;
+    if (py.text[i] === '@') from = i;
+  }
   const stmt = operator === 'noOp' ? 'pass' : `raise RuntimeError(${JSON.stringify(`rcf test-strength: stubToThrow on ${label}`)})`;
-  return `${py.text.slice(0, pyOffset(py, l1, c1))}${stmt}${py.text.slice(pyOffset(py, l2, c2))}`;
+  return `${py.text.slice(0, from)}${stmt}${py.text.slice(pyOffset(py, l2, c2))}`;
 }
 
 /**
