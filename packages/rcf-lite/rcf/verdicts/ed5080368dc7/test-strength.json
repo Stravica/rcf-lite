@@ -1,0 +1,146 @@
+{
+  "version": 1,
+  "head": "ed5080368dc793aa28d25054965a6b6cf00efffc",
+  "scope": "acs",
+  "criteria": [
+    {
+      "acId": "AC-20501-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "package.json",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-1: npm pack --dry-run --json in packages/rcf-lite lists no file whose path starts with rcf/"
+          ],
+          "loadError": true
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20501-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "package.json",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-2: the tarball npm pack produces, installed into a fresh empty directory, runs rcf init, rcf doctor, rcf guidance build-cycle, the MCP resource listing and rcf audit view --port <p> (stopped by its own pid), each exit 0, with no read under the installed package rcf/"
+          ],
+          "loadError": true
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20501-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/ruleset/ruleset.json",
+          "operator": "fileBlank",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/view/components-fixture.js#renderComponentsFixturePage",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/view/components-fixture.js#renderComponentsFixturePage",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/view/components-fixture.js#renderComponentsFixturePage",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/blueprint/capabilities.js#buildRefusalMessage",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/blueprint/capabilities.js#buildRefusalMessage",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/blueprint/capabilities.js#buildRefusalMessage",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkNoInlineStyleBlocks",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkAuthenticatedLandsOnRequestedPath",
+          "operator": "stubToThrow",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkAuthenticatedLandsOnRequestedPath",
+          "operator": "noOp",
+          "result": "survived",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/browser-verify/invariants.js#checkAuthenticatedLandsOnRequestedPath",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "fail"
+    }
+  ],
+  "result": "fail",
+  "totals": {
+    "criteria": 3,
+    "structuralPassed": 3,
+    "mutants": 15,
+    "killed": 2,
+    "survived": 9,
+    "timeout": 0,
+    "notApplicable": 4,
+    "blocked": 0
+  },
+  "wallMs": 78605,
+  "node": "v24.14.0"
+}
