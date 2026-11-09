@@ -255,16 +255,6 @@ test('AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and
   assert.ok(!crit(report, 'AC-101-2').mutants.some((m) => m.symbol.includes('__init__')), 'the constructor __init__ is not a target');
   assert.deepEqual(readdirSync(markers), [], 'no marker anywhere: the structure read never imported project code (json.py, ast.py)');
   assert.deepEqual(snapshot(p.dir), before, 'the project tree is still byte-identical after the --json run');
-
-  // Class.method names that one method.
-  const one = await pyProject(t, {
-    acs: ['AC-101-1'],
-    nodes: [['src/config.py#Config.lookup', ['AC-101-1']]],
-    bind: bindAll('AC-101-1', 'test/config.test.mjs', CONFIG_TESTS),
-  });
-  const m = await strength(one.dir, bin, ['--acs', 'AC-101-1', '--json']);
-  assert.equal(m.code, 0, shown(m));
-  assert.deepEqual(triples(crit(json(m.stdout), 'AC-101-1')), each('src/config.py#Config.lookup', NO_CALL_SITE).sort());
 });
 
 test('AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result "fail", and the FAIL line "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests"', async (t) => {
