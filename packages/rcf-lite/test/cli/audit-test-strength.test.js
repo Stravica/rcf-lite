@@ -232,11 +232,14 @@ test('AC-19901-7: with --acs AC-101-1,AC-101-2 where AC-101-1 imports src/store.
   assert.ok(crit(report, 'AC-101-2').mutants.length > 0, 'mutants for AC-101-2');
 });
 
-// AC-19901-9 succeeds the retired AC-19901-8 (round D, RC-46; the
-// stage-keeper's retire-and-succeed ruling): a file the audit cannot read
-// is BLOCKED per criterion (stage-keeper ruling Q2 (a)), never a
-// whole-run exit 2.
-test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result "blocked", reason "TEST_STRENGTH_UNSUPPORTED", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read', async (t) => {
+// AC-19901-10 succeeds the retired AC-19901-9 (the Python round; the
+// stage-keeper's retire-and-succeed ruling), as AC-19901-9 succeeded
+// AC-19901-8 (round D, RC-46): a file the audit cannot read is BLOCKED
+// per criterion (stage-keeper ruling Q2 (a)), never a whole-run exit 2.
+// Symbol-level .py Code Nodes are read from 0.42.0 (US-19905), so the
+// unreadable Code Node here is src/x.rb; a .py bound test file is still
+// unreadable.
+test('AC-19901-10: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result "blocked", reason "TEST_STRENGTH_UNSUPPORTED", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read', async (t) => {
   const PY_TEST = 'def test_greets():\n    assert True\n';
   const blocked = (report, file) => {
     const c = crit(report, 'AC-101-1');
@@ -259,16 +262,16 @@ test('AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code N
   assert.doesNotMatch(a.stderr, /not a supported source/);
   blocked(json(a.stdout), 'test/rcf/a.test.py');
 
-  const pyNode = await strengthProject(t, {
+  const rbNode = await strengthProject(t, {
     acs,
-    files: { 'src/x.py': 'def run():\n    return 1\n' },
-    nodes: [['src/x.py#run', ['AC-101-1']], ['src/greet.js#greet', acs]],
+    files: { 'src/x.rb': 'def run\n  1\nend\n' },
+    nodes: [['src/x.rb#run', ['AC-101-1']], ['src/greet.js#greet', acs]],
     bind: [['AC-101-1', 'test/rcf/a.test.js', GREETS.name], ['AC-101-2', 'test/rcf/a.test.js', GREETS.name]],
   });
-  const b = await strength(pyNode.dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
+  const b = await strength(rbNode.dir, ['--acs', 'AC-101-1,AC-101-2', '--json'], nodeEnv());
   assert.equal(b.code, 5, `a blocked criterion beside a passing one: exit 5\n${b.stdout}${b.stderr}`);
   assert.doesNotMatch(b.stderr, /not a supported source/);
-  blocked(json(b.stdout), 'src/x.py');
+  blocked(json(b.stdout), 'src/x.rb');
 
   // The stage-keeper's ruling 1 on the DEFINE's questions: a blocked and a
   // failing criterion together, the fail verdict and its exit code win and

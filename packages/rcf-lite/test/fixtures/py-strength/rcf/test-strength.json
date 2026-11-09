@@ -1,0 +1,5 @@
+{
+  "entry": [{ "kind": "module", "path": "src/slug.js" }],
+  "harness": ["test/_harness/**"],
+  "runners": [{ "files": ["test/**"], "kind": "nodeTest" }]
+}

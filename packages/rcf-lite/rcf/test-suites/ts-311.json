@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-11-09T07:36:01.365Z",
+  "updatedAt": "2026-11-09T07:36:57.538Z",
+  "purpose": "Each criterion of US-19905 driven through bin/rcf.js as a child process: rcf audit test-strength over a scratch copy of the committed fixture test/fixtures/py-strength/ (a small Python project whose node:test tests run the Python through python3) laid over a project made by the bin's own rcf init and committed to git, under a PATH of one scratch directory with the host's python3, none, or a shim that reports 3.8.18; and rcf define validate over a project holding a Python def and class.",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4"
+  ],
+  "id": "TS-311",
+  "usId": "US-19905",
+  "title": "Python sources in the test-strength audit and the Python def anchor through bin/rcf.js",
+  "testCases": [
+    {
+      "id": "TC-311-ac-101-1-claiming-the-top-level-def-src",
+      "acId": "AC-19905-1",
+      "description": "AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical; and src/config.py#Config.lookup names that one method",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical; and src/config.py#Config.lookup names that one method"
+    },
+    {
+      "id": "TC-311-ac-101-1-claiming-src-paths-py-record",
+      "acId": "AC-19905-2",
+      "description": "AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), leaves the noOp mutant survived: exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), leaves the noOp mutant survived: exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+    },
+    {
+      "id": "TC-311-with-no-python3-on-path-ac-101-1",
+      "acId": "AC-19905-3",
+      "description": "with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\"; the audit never crashes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\"; the audit never crashes"
+    },
+    {
+      "id": "TC-311-a-code-node-src-mod-py-canonical",
+      "acId": "AC-19905-4",
+      "description": "a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level or async def canonical( indented in a class (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving",
+      "status": "pending",
+      "testPointer": "test/cli/validate-py-def-anchor.test.js::AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level or async def canonical( indented in a class (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving"
+    }
+  ],
+  "status": "draft"
+}

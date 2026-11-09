@@ -1,0 +1,255 @@
+// FBS-244 (US-19905): rcf audit test-strength over Python sources. A
+// symbol-level .py Code Node (a def, a class, or Class.method) is read
+// through the host's python3 with the standard library ast module only
+// and mutated with the JavaScript operator set (stubToThrow, noOp,
+// callRemoval), so the TestStrengthReport v1 shape is unchanged; python3
+// absent or below 3.9 blocks the criterion with a detail naming python3
+// and the floor.
+//
+// Criteria: AC-19905-1 to AC-19905-3, all external. Each test drives
+// bin/rcf.js audit test-strength as a child process over a scratch copy
+// of the committed fixture test/fixtures/py-strength/ (a small Python
+// project beside one JavaScript module, whose node:test tests run the
+// Python through python3 as a child process; no npm dependencies, no
+// keychain, no network, no secrets), laid over the project the bin's own
+// rcf init makes. The test writes the Code Node records and the bound
+// test cases its criterion's Given names into the copy (a fixture's
+// rcf/code-nodes/ is production class, so none is committed) and
+// commits it to git. Every run gets a PATH of one scratch directory of
+// its own: git, sh and node linked from the host, and python3 linked to
+// the host's interpreter (its sys.executable), left out, or the
+// committed shim that reports 3.8.18. A test that needs the host's
+// python3 fails where the host has none; nothing is skipped.
+// Red at the round's DEFINE head: every symbol-level .py Code Node
+// blocks its criterion with the detail "<file>:1:1: unsupported file
+// type .py", exit 5. None of these tests resolves a Code Node through
+// rcf define validate. Imports: Node builtins and test/_harness/ only.
+
+import { test } from 'node:test';
+import assert from 'node:assert/strict';
+import { execFileSync } from 'node:child_process';
+import { createHash } from 'node:crypto';
+import { chmodSync, copyFileSync, cpSync, existsSync, mkdirSync, readdirSync, readFileSync, symlinkSync } from 'node:fs';
+import { delimiter, join, relative, sep } from 'node:path';
+
+import { PACKAGE_ROOT, rcf } from '../_harness/spawn.js';
+import { commit, gitTry, initRepo, s7 } from '../_harness/git.js';
+import { bindTests, criterion, editFbs, editStory, project, scratch, writeJson } from '../_harness/fixture.js';
+import { json } from '../_harness/capture.js';
+
+const FIXTURE = join(PACKAGE_ROOT, 'test', 'fixtures', 'py-strength');
+const SHIM_38 = join(FIXTURE, 'shims', 'python3-3.8', 'python3');
+
+const PATHS_TESTS = ['canonical collapses repeated slashes and drops a trailing slash', 'warm remembers the canonical form of every path'];
+const CONFIG_TESTS = ['lookup returns the value of a key', 'from_text reads a JSON object', 'fetch returns the value of a key from the event loop'];
+const RECORD_TEST = 'record runs without an error';
+const SLUG_TEST = 'slug joins the lower-cased words with hyphens';
+const bindAll = (acId, file, names) => names.map((name) => [acId, file, name]);
+
+function codeNodes(dir, nodes) {
+  nodes.forEach(([path, acIds], i) => {
+    const n = String(i + 1).padStart(3, '0');
+    writeJson(dir, `rcf/code-nodes/cn-${n}.json`, {
+      cnId: `CN-${n}`, path, title: `fixture node ${path}`, description: `Fixture Code Node on ${path}.`,
+      implementsAcIds: acIds, dependencies: [], version: '0.1.0', status: 'draft',
+      createdAt: '2026-01-01T00:00:00Z', updatedAt: '2026-01-01T00:00:00Z',
+    });
+  });
+}
+
+// The fixture in git at H: the rcf init project (US-101, FBS-001) with
+// the fixture's files over it (its shims/ left out), US-101 holding
+// `acs` (FBS-001 scoping them at inProgress), Code Nodes [[path, acIds]]
+// and bound tests [[acId, file, name]].
+async function pyProject(t, { acs, nodes, bind }) {
+  const dir = await project(t, { name: 'py' });
+  cpSync(FIXTURE, dir, { recursive: true, filter: (p) => relative(FIXTURE, p).split(sep)[0] !== 'shims' });
+  editStory(dir, 'US-101', (us) => { us.acceptanceCriteria = acs.map((id) => criterion(id, `${id} holds for the fixture project`)); });
+  editFbs(dir, 'FBS-001', (f) => { f.acIds = acs; f.executionStatus = 'inProgress'; });
+  codeNodes(dir, nodes);
+  bindTests(dir, bind.map(([acId, file, name]) => ({ acId, pointer: `${file}::${name}` })), { realTests: false });
+  initRepo(dir);
+  const H = commit(dir, 'fixture: base');
+  return { dir, H };
+}
+
+// The first directory on the inherited PATH holding tool.
+function onPath(tool) {
+  const dir = (process.env.PATH ?? '').split(delimiter).filter(Boolean).find((d) => existsSync(join(d, tool)));
+  assert.ok(dir, `the host has ${tool} on PATH: this test needs it and fails without it (nothing is skipped)`);
+  return join(dir, tool);
+}
+
+// The host's Python interpreter itself, as it names itself (a launcher
+// such as a version manager's shim resolves to the interpreter it runs).
+function hostPython() {
+  const exe = execFileSync(onPath('python3'), ['-c', 'import sys; print(sys.executable)'], { encoding: 'utf8' }).trim();
+  assert.ok(exe !== '' && existsSync(exe), `python3 names its interpreter: ${JSON.stringify(exe)}`);
+  return exe;
+}
+
+// A PATH of one scratch directory: git, sh and node linked from the
+// host, and python3 as given: 'host' (linked to the host's interpreter),
+// a shim script (copied in, executable) or null (no python3 at all).
+function binPath(t, python3) {
+  const dir = join(scratch(t, 'rcf-h-bin-'), 'bin');
+  mkdirSync(dir);
+  symlinkSync(onPath('git'), join(dir, 'git'));
+  symlinkSync(onPath('sh'), join(dir, 'sh'));
+  symlinkSync(process.execPath, join(dir, 'node'));
+  if (python3 === 'host') symlinkSync(hostPython(), join(dir, 'python3'));
+  else if (python3) {
+    copyFileSync(python3, join(dir, 'python3'));
+    chmodSync(join(dir, 'python3'), 0o755);
+  }
+  return dir;
+}
+
+// The python3 on that PATH is 3.9 or later (the criterion's Given).
+function atFloor(bin) {
+  const v = execFileSync(join(bin, 'python3'), ['--version'], { encoding: 'utf8' }).trim();
+  const m = /^Python (\d+)\.(\d+)\./.exec(v);
+  assert.ok(m && (Number(m[1]) > 3 || (Number(m[1]) === 3 && Number(m[2]) >= 9)), `the host's python3 is 3.9 or later: ${v}`);
+}
+
+// Every file under dir but .git, path -> sha256.
+function snapshot(dir) {
+  const files = {};
+  const walk = (rel) => {
+    for (const e of readdirSync(join(dir, rel), { withFileTypes: true })) {
+      const r = rel ? `${rel}/${e.name}` : e.name;
+      if (r === '.git') continue;
+      if (e.isDirectory()) walk(r);
+      else files[r] = createHash('sha256').update(readFileSync(join(dir, r))).digest('hex');
+    }
+  };
+  walk('');
+  return files;
+}
+
+const strength = (dir, bin, args) => rcf(['audit', 'test-strength', ...args], { cwd: dir, env: { PATH: bin }, timeout: 600_000 });
+const out = (r) => r.stdout.replace(/\n$/, '');
+const shown = (r) => `exit ${r.code}\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`;
+const crit = (report, acId) => report.criteria.find((c) => c.acId === acId);
+const triples = (c) => c.mutants.map((m) => `${m.symbol} ${m.operator} ${m.result}`).sort();
+const each = (symbol, results) => Object.entries(results).map(([op, res]) => `${symbol} ${op} ${res}`);
+const KILLED_ALL = { stubToThrow: 'killed', noOp: 'killed', callRemoval: 'killed' };
+const NO_CALL_SITE = { stubToThrow: 'killed', noOp: 'killed', callRemoval: 'notApplicable' };
+const noCrash = (r) => assert.doesNotMatch(r.stderr, /^\s+at \S/m, `no stack trace on stderr: the audit never crashes\n${shown(r)}`);
+
+// ---------------------------------------------------------------- US-19905
+
+test('AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with "test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical; and src/config.py#Config.lookup names that one method', async (t) => {
+  const bin = binPath(t, 'host');
+  atFloor(bin);
+  const p = await pyProject(t, {
+    acs: ['AC-101-1', 'AC-101-2'],
+    nodes: [['src/paths.py#canonical', ['AC-101-1']], ['src/config.py#Config', ['AC-101-2']]],
+    bind: [...bindAll('AC-101-1', 'test/paths.test.mjs', PATHS_TESTS), ...bindAll('AC-101-2', 'test/config.test.mjs', CONFIG_TESTS)],
+  });
+  const before = snapshot(p.dir);
+  const r = await strength(p.dir, bin, ['--acs', 'AC-101-1,AC-101-2']);
+  assert.equal(r.code, 0, `every Python mutant killed: exit 0\n${shown(r)}`);
+  assert.equal(out(r), `test-strength: PASS 2 criteria at ${s7(p.H)}: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)`, shown(r));
+  assert.deepEqual(snapshot(p.dir), before, 'the project tree is byte-identical after the run: every mutant was written to the working copy');
+  assert.equal(gitTry(p.dir, 'status', '--porcelain', '-uall').stdout, '', 'git status is clean after the run');
+
+  const j = await strength(p.dir, bin, ['--acs', 'AC-101-1,AC-101-2', '--json']);
+  assert.equal(j.code, 0, shown(j));
+  const report = json(j.stdout);
+  // TestStrengthReport v1, the shape the JavaScript path writes.
+  assert.deepEqual(Object.keys(report).sort(), ['criteria', 'head', 'node', 'result', 'scope', 'totals', 'version', 'wallMs'], JSON.stringify(report));
+  assert.equal(report.version, 1);
+  assert.equal(report.head, p.H);
+  assert.equal(report.scope, 'acs');
+  assert.equal(report.result, 'pass');
+  assert.deepEqual(report.totals, { criteria: 2, structuralPassed: 2, mutants: 15, killed: 12, survived: 0, timeout: 0, notApplicable: 3, blocked: 0 });
+  const pointers = new Map([
+    ['AC-101-1', PATHS_TESTS.map((n) => `test/paths.test.mjs::${n}`)],
+    ['AC-101-2', CONFIG_TESTS.map((n) => `test/config.test.mjs::${n}`)],
+  ]);
+  for (const c of report.criteria) {
+    assert.deepEqual(Object.keys(c).sort(), ['acId', 'mutants', 'result', 'structural'], JSON.stringify(c));
+    assert.deepEqual(c.structural, { result: 'pass', findings: [] }, JSON.stringify(c));
+    assert.equal(c.result, 'pass', JSON.stringify(c));
+    for (const m of c.mutants) {
+      assert.deepEqual(Object.keys(m).sort(), ['killedBy', 'operator', 'result', 'symbol'], JSON.stringify(m));
+      if (m.result === 'killed') {
+        assert.ok(m.killedBy.length >= 1 && m.killedBy.every((x) => pointers.get(c.acId).includes(x)), `a killed mutant names the bound tests that went red\n${JSON.stringify(m)}`);
+      } else {
+        assert.deepEqual(m.killedBy, [], JSON.stringify(m));
+      }
+    }
+  }
+  // canonical is called as a statement in warm, so callRemoval scores;
+  // merge is called as a statement in from_text; lookup, from_text and
+  // fetch have no statement-level call site.
+  assert.deepEqual(triples(crit(report, 'AC-101-1')), each('src/paths.py#canonical', KILLED_ALL).sort());
+  assert.deepEqual(triples(crit(report, 'AC-101-2')), [
+    ...each('src/config.py#Config.lookup', NO_CALL_SITE),
+    ...each('src/config.py#Config.merge', KILLED_ALL),
+    ...each('src/config.py#Config.from_text', NO_CALL_SITE),
+    ...each('src/config.py#Config.fetch', NO_CALL_SITE),
+  ].sort());
+  assert.ok(!crit(report, 'AC-101-2').mutants.some((m) => m.symbol.includes('__init__')), 'the constructor __init__ is not a target');
+
+  // Class.method names that one method.
+  const one = await pyProject(t, {
+    acs: ['AC-101-1'],
+    nodes: [['src/config.py#Config.lookup', ['AC-101-1']]],
+    bind: bindAll('AC-101-1', 'test/config.test.mjs', CONFIG_TESTS),
+  });
+  const m = await strength(one.dir, bin, ['--acs', 'AC-101-1', '--json']);
+  assert.equal(m.code, 0, shown(m));
+  assert.deepEqual(triples(crit(json(m.stdout), 'AC-101-1')), each('src/config.py#Config.lookup', NO_CALL_SITE).sort());
+});
+
+test('AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), leaves the noOp mutant survived: exit 4, AC-101-1 result "fail", and the FAIL line "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests"', async (t) => {
+  const bin = binPath(t, 'host');
+  atFloor(bin);
+  const p = await pyProject(t, {
+    acs: ['AC-101-1'],
+    nodes: [['src/paths.py#record', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/record.test.mjs', RECORD_TEST]],
+  });
+  const r = await strength(p.dir, bin, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 4, `a surviving mutant: the FAIL exit 4\n${shown(r)}`);
+  assert.equal(out(r), `test-strength: FAIL 1 of 1 criteria at ${s7(p.H)}: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests`, shown(r));
+  const j = await strength(p.dir, bin, ['--acs', 'AC-101-1', '--json']);
+  assert.equal(j.code, 4, shown(j));
+  const c = crit(json(j.stdout), 'AC-101-1');
+  assert.equal(c.result, 'fail', JSON.stringify(c));
+  // stubToThrow raises, so the weak test still kills it; nothing calls record as a statement.
+  assert.deepEqual(triples(c), each('src/paths.py#record', { stubToThrow: 'killed', noOp: 'survived', callRemoval: 'notApplicable' }).sort());
+});
+
+test('AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail "src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with "test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)"; with a python3 that reports 3.8.18 the detail ends "(python3 is 3.8.18)"; the audit never crashes', async (t) => {
+  const p = await pyProject(t, {
+    acs: ['AC-101-1', 'AC-101-2'],
+    nodes: [['src/paths.py#canonical', ['AC-101-1']], ['src/slug.js#slug', ['AC-101-2']]],
+    bind: [...bindAll('AC-101-1', 'test/paths.test.mjs', PATHS_TESTS), ['AC-101-2', 'test/slug.test.mjs', SLUG_TEST]],
+  });
+  for (const [python3, why] of [[null, 'python3 not found'], [SHIM_38, 'python3 is 3.8.18']]) {
+    const bin = binPath(t, python3);
+    assert.equal(existsSync(join(bin, 'python3')), python3 !== null, `python3 on the PATH: ${python3 ?? 'none'}`);
+    const j = await strength(p.dir, bin, ['--acs', 'AC-101-1,AC-101-2', '--json']);
+    assert.equal(j.code, 5, `a blocked criterion beside a passing one: exit 5 (${why})\n${shown(j)}`);
+    noCrash(j);
+    const report = json(j.stdout);
+    const c = crit(report, 'AC-101-1');
+    assert.equal(c.result, 'blocked', JSON.stringify(c));
+    assert.equal(c.reason, 'TEST_STRENGTH_UNSUPPORTED', JSON.stringify(c));
+    assert.equal(c.blocked, true, JSON.stringify(c));
+    assert.equal(c.detail, `src/paths.py: Python sources need python3 >= 3.9 on PATH (${why})`, JSON.stringify(c));
+    assert.deepEqual(c.mutants, [], JSON.stringify(c));
+    const js = crit(report, 'AC-101-2');
+    assert.equal(js.result, 'pass', `the .js criterion is judged as before (${why})\n${JSON.stringify(js)}`);
+    assert.deepEqual(triples(js), each('src/slug.js#slug', NO_CALL_SITE).sort());
+    assert.equal(report.result, 'blocked', JSON.stringify(report));
+    assert.equal(report.totals.blocked, 1, JSON.stringify(report.totals));
+    const r = await strength(p.dir, bin, ['--acs', 'AC-101-1,AC-101-2']);
+    assert.equal(r.code, 5, shown(r));
+    noCrash(r);
+    assert.equal(out(r), `test-strength: BLOCKED 2 criteria at ${s7(p.H)}: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)`, shown(r));
+  }
+});
