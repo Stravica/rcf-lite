@@ -12075,7 +12075,8 @@
           "testCases": [
             "TC-311-ac-101-1-claiming-src-paths-py-record",
             "TC-311-canonical-call-removal-survives",
-            "TC-311-config-methods-survive-unexercised"
+            "TC-311-config-methods-survive-unexercised",
+            "TC-311-decorated-first-statement-noop-survives"
           ],
           "unresolvedTestCases": [],
           "verification": "external",
