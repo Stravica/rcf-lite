@@ -6,6 +6,11 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+### Added
+
+- **Python sources in the test-strength audit (FBS-244, AC-19905-1 to AC-19905-3, AC-19905-5).** `rcf audit test-strength` judges a symbol-level Code Node on a `.py` file (a top-level `def`, async included, or a class, whose methods but `__init__` are the targets) where it exited 5 `TEST_STRENGTH_UNSUPPORTED` before. The file is read through the host's `python3` with the standard library `ast` module only (`python3 -I -B` in a scratch directory, the file on stdin): nothing is installed and no project code is imported. The operators are the JavaScript ones, spliced into the working copy so the rest of the file stays byte for byte as committed: stubToThrow (the body raises), noOp (the body is `pass`) and callRemoval (each statement-level call in the project's `.py` files becomes `None`). The TestStrengthReport v1 shape is unchanged. With no `python3` on PATH, one below 3.9 or one that gives no version, the criterion is blocked with the detail `<file>: Python sources need python3 >= 3.9 on PATH (python3 not found)` (or `(python3 is <version>)`, `(python3 gave no version)`) and the other criteria are still judged; a `.py` file `python3` cannot parse is blocked with `<file>:<line>:<col>: <message>` as `python3` reports it. A `.py` bound test file is still unreadable, and a file-level `.py` Code Node still exits 2.
+- **The `def` anchor (AC-19905-4).** `rcf define validate` resolves a Code Node `#symbol` on a Python `def` or `async def` at any indentation, type parameters included; a renamed `def` is `staleCode` `symbolResolves`.
+
 ## [0.41.0] - 2026-11-07
 
 0.41.0 ships the twelve-rule build cycle in the public package. Test strength becomes a recorded report that refuses nothing, the managed agent-instructions block states the twelve rules in place of the operator-register text, and the package stops shipping its own `rcf/` folder and development-chain notes. Breaking (pre-1.0, breaking is minor): Finalise and the TEST verdict exit 0 where 0.40.1 exited 4 on a failing test-strength record, and the managed block changed, so rerun `rcf init` or `rcf doctor --fix`.

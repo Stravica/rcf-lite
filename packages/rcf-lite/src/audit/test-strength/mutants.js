@@ -10,10 +10,12 @@
 // byte-identical; they are applied only inside the scratch working copy.
 // TypeScript, JSX and Vue files (FBS-242) are read through their views
 // (source.js#sourceView), which keep every offset, so the rewrites land
-// in the original file.
+// in the original file. Python files (FBS-244) are read through the host's
+// python3 (python.js), with the same three operators spliced at its spans.
 
 import { posix } from 'node:path';
 
+import { PY_EXT, pyRemoveCalls, pyRewriteBody, pyTargets } from './python.js';
 import { findDeclaration, parseFile, statementCalls } from './source.js';
 
 export const SOURCE_EXT = /\.(?:js|mjs|cjs)$/;
@@ -107,9 +109,13 @@ export function removeCalls(target, sources, parsed) {
  * mutated).
  *
  * @param {Array<{ path: string }>} nodes
- * @param {{ texts: Map<string, string|null>, sources: () => Promise<Map<string, string>>, parsed: Map<string, object> }} ctx
+ * A symbol-level node on a .py file is read through `python`
+ * (python.js#pythonReader) and its call sites are sought in the
+ * project's .py files only.
+ *
+ * @param {{ texts: Map<string, string|null>, sources: () => Promise<Map<string, string>>, parsed: Map<string, object>, python: ReturnType<typeof pythonReader> }} ctx
  */
-export async function criterionMutants(nodes, { texts, sources, parsed }) {
+export async function criterionMutants(nodes, { texts, sources, parsed, python }) {
   const mutants = [];
   const unmutable = [];
   let symbolLevel = 0;
@@ -124,6 +130,23 @@ export async function criterionMutants(nodes, { texts, sources, parsed }) {
     symbolLevel += 1;
     const text = texts.get(file);
     if (typeof text !== 'string') { unmutable.push(node.path); continue; }
+    // A .py symbol (US-19905): read through python3, the same three operators spliced at its spans.
+    if (PY_EXT.test(file)) {
+      const py = python.read(file, text);
+      const targets = py.ok ? pyTargets(py, symbol) : [];
+      if (!targets.length) { unmutable.push(node.path); continue; }
+      for (const target of targets) {
+        const label = `${file}#${target.name}`;
+        for (const operator of ['stubToThrow', 'noOp']) {
+          mutants.push({ symbol: label, operator, edits: new Map([[file, pyRewriteBody(py, target, operator, label)]]) });
+        }
+        const edits = pyRemoveCalls(target, await sources(), python);
+        mutants.push(edits.size
+          ? { symbol: label, operator: 'callRemoval', edits }
+          : { symbol: label, operator: 'callRemoval', edits: null, result: 'notApplicable' });
+      }
+      continue;
+    }
     if (!parsed.has(file)) parsed.set(file, parseFile(file, text));
     const src = parsed.get(file);
     const targets = mutableTargets(src, symbol);

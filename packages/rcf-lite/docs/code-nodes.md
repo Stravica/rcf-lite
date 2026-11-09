@@ -37,7 +37,9 @@ There is no separate `granularity` field: it is derived from the presence of `#`
 `rcf define validate` checks every Code Node's `path` against the working tree:
 
 1. The file must exist (`fileResolves`).
-2. If the path carries `#symbol`, a declaration matching that name must be found in the file (`symbolResolves`) - a deterministic scan for `function` / `class` / `const|let|var` / method-at-line-start / object-field declarations. No AST, no execution, no semantic judgement (the same no-LLM boundary the rest of `rcf` holds to).
+2. If the path carries `#symbol`, a declaration matching that name must be found in the file (`symbolResolves`) - a deterministic scan for `function` / `class` / `const|let|var` / method-at-line-start / object-field declarations, and a Python `def` (or `async def`) at any indentation, type parameters included (`def name[T](`). No AST, no execution, no semantic judgement (the same no-LLM boundary the rest of `rcf` holds to).
+
+`rcf audit test-strength` mutates symbol-level Code Nodes. A symbol-level Code Node on a `.py` file (a `def` or a class) is read through the host's `python3`, 3.9 or later, with the standard library `ast` module only: nothing is installed and no project code is imported. Without a usable `python3` the criterion is blocked with a detail naming `python3` and the floor. A file-level Code Node on a `.py` file is still not a supported source.
 
 Either failure is a structured `staleCode` error, **exit 3**, naming the CN and the unresolved path or symbol. The fix is a one-field edit:
 

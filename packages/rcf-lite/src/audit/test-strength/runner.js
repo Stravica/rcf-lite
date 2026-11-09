@@ -528,6 +528,23 @@ export class NotRunError extends Error {
 }
 
 /**
+ * After a .py file is written in a working copy (a mutant, or its
+ * restore), its cached bytecode there goes (__pycache__/<stem>.*.pyc): a
+ * bound test run that writes bytecode would otherwise import a stale one,
+ * since Python checks it only by the source's size and whole-second mtime.
+ *
+ * @param {string} abs - the written file
+ */
+export function dropBytecode(abs) {
+  if (!abs.endsWith('.py')) return;
+  const cache = join(dirname(abs), '__pycache__');
+  const stem = `${basename(abs, '.py')}.`;
+  let names;
+  try { names = readdirSync(cache); } catch { return; }
+  for (const name of names) if (name.startsWith(stem) && name.endsWith('.pyc')) rmSync(join(cache, name), { force: true });
+}
+
+/**
  * Run the mutants. Each mutant { edits, tests } rewrites `edits`
  * (project-relative path -> text) and runs `tests` ({ file, name,
  * pointer, runner }) in order until one fails or the mutant's deadline
@@ -590,6 +607,7 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
             const abs = join(cwd, file);
             originals.push([abs, readFileSync(abs)]);
             writeFileSync(abs, text);
+            dropBytecode(abs);
           }
           const deadline = Date.now() + timeoutMs;
           let outcome = { result: 'survived', killedBy: [] };
@@ -616,7 +634,10 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
         } finally {
           // A file the run cannot restore is the failure too, never a rejected worker.
           for (const [abs, bytes] of originals) {
-            try { writeFileSync(abs, bytes); } catch (err) { failure = failure ?? err; }
+            try {
+              writeFileSync(abs, bytes);
+              dropBytecode(abs);
+            } catch (err) { failure = failure ?? err; }
           }
         }
       }

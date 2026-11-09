@@ -201,9 +201,15 @@ rcf/test-strength.json (required; written by the test-author):
 Sources: JavaScript ESM and CommonJS (.js, .mjs, .cjs); .ts, .mts and
 .cts through node:module's stripTypeScriptTypes in strip mode; .tsx and
 .jsx through a JSX scanner; .vue through its <script> and <script setup>
-blocks (lang ts, tsx or js). A file-level Code Node on .ts .mts .cts .tsx
-.jsx .py .rb .go .java .kt .rs .php .cs .swift exits 2; one on a .vue
-file gets fileBlank.
+blocks (lang ts, tsx or js); a symbol-level Code Node on a .py file (a
+def, async included, a class, or Class.method) through the host's
+python3 (3.9 or later, from PATH) with the standard library ast module
+only, nothing installed and no project code imported, the same three
+operators spliced into the file (stubToThrow raises, noOp is pass,
+callRemoval turns each statement-level call in the project's .py files
+into None). A file-level Code Node on .ts .mts .cts .tsx .jsx .py .rb
+.go .java .kt .rs .php .cs .swift exits 2; one on a .vue file gets
+fileBlank.
 
 Blocked: a bound test file or a symbol-level Code Node file the audit
 cannot read makes its criterion blocked (result "blocked", reason
@@ -213,10 +219,16 @@ cannot read makes its criterion blocked (result "blocked", reason
 syntax ("<file>:<line>:<col>: non-erasable TypeScript syntax
 (<construct>)"), a failed JSX scan ("JSX scan failed at
 <file>:<line>:<col>: <what the scanner met>") or a .vue script block
-with a src attribute. <line> and <col> are 1-based and place the
-first character of the construct in the file as committed: <line>
-counts the line breaks before it (CRLF, a lone CR or LF), <col> the
-UTF-16 code units from the start of that line; for a construct strip
+with a src attribute. A .py Code Node file is blocked when python3 is
+unusable ("<file>: Python sources need python3 >= 3.9 on PATH (python3
+not found)", "(python3 is <version>)" or "(python3 gave no version)"),
+when python3 cannot parse it ("<file>:<line>:<col>: <message>", the
+1-based line and column of python3's SyntaxError) or when the read
+fails ("<file>: python3 structure read failed (<why>)"); a .py bound
+test file is a file of another type. Elsewhere <line> and <col> are
+1-based and place the first character of the construct in the file
+as committed: <line> counts the line breaks before it (CRLF, a lone
+CR or LF), <col> the UTF-16 code units from the start of that line; for a construct strip
 mode refuses or a syntax error, it is where node's refusal places it
 (node's caret, its width measured by node); when the input ends inside
 a construct, it is where the innermost such construct opens; when node

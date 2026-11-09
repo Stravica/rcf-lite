@@ -135,6 +135,8 @@ export function testFileFindings(file, text, { config, files, pkg }) {
  * @returns {string[]}
  */
 export function silentDefaults(cnPath, text) {
+  // A .py symbol (US-19905) has no silent-default scan: Python parity is not built, so it gives no finding.
+  if (/\.py#/.test(cnPath)) return [];
   const symbol = cnPath.slice(cnPath.indexOf('#') + 1);
   const [head, member] = symbol.split('.');
   const src = parseFile(cnPath.slice(0, cnPath.indexOf('#')), text);

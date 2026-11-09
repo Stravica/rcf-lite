@@ -12,7 +12,7 @@
 //
 // Determinism (spec D6/D13 hold): file existence is `fs.stat`; symbol
 // presence is a fixed set of declaration-anchor regexes (function / class /
-// const|let|var / method-at-line-start / object-field). No LLM, no
+// const|let|var / method-at-line-start / object-field / Python def). No LLM, no
 // semantic judgement, no parsing beyond regex. Fully reproducible given a
 // working tree.
 //
@@ -57,6 +57,7 @@ function anchorsFor(symbol) {
     new RegExp(`\\b(?:const|let|var)\\s+${s}\\b`), // binding decl
     new RegExp(`^\\s*(?:async\\s+)?(?:static\\s+)?(?:get\\s+|set\\s+)?${s}\\s*\\(`, 'm'), // method/def at line start
     new RegExp(`^\\s*${s}\\s*[:=]`, 'm'), // object-literal / class-field form
+    new RegExp(`^\\s*(?:async\\s+)?def\\s+${s}\\s*[[(]`, 'm'), // Python def, any indentation (type parameters included)
   ];
 }
 
