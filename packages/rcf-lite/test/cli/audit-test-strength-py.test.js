@@ -383,6 +383,78 @@ test('AC-19905-2: AC-101-1 claiming src/paths.py#canonical, bound only to "canon
   assert.deepEqual(triples(c), each('src/paths.py#canonical', { stubToThrow: 'killed', noOp: 'killed', callRemoval: 'survived' }).sort(), JSON.stringify(c));
 });
 
+// src/deco.py: two top-level defs whose first body statement is decorated
+// (no docstring before it), a nested def in make and a nested class in
+// build, and a test that shows
+// both run and nothing more, so a make or build whose body is pass passes it.
+const DECO = [
+  '"""Top-level functions whose first body statement is decorated."""',
+  'import dataclasses',
+  'import functools',
+  '',
+  '',
+  'def make(log, path):',
+  '    @functools.lru_cache(maxsize=None)',
+  '    def norm(p):',
+  '        return p.strip("/")',
+  '    log.append(norm(path))',
+  '',
+  '',
+  'def build(log, name):',
+  '    @dataclasses.dataclass',
+  '    class Item:',
+  '        name: str',
+  '    log.append(Item(name).name)',
+  '',
+].join('\n');
+// The kind and decorator count of each top-level def's first body statement.
+const DECO_FIRSTS = [
+  'import ast, json, sys',
+  'tree = ast.parse(sys.stdin.read())',
+  'print(json.dumps({n.name: [type(n.body[0]).__name__, len(getattr(n.body[0], "decorator_list", []))] for n in tree.body if isinstance(n, ast.FunctionDef)}))',
+].join('\n');
+const DECO_TEST_NAME = 'make and build run without an error';
+const DECO_TEST = [
+  "// A deliberately weak test: it shows that make and build run and nothing more.",
+  "import { test } from 'node:test';",
+  "import assert from 'node:assert/strict';",
+  "import { python } from './_harness/python.mjs';",
+  '',
+  `test(${JSON.stringify(DECO_TEST_NAME)}, () => {`,
+  "  const r = python(['from deco import build, make', 'make([], \"a/\")', 'build([], \"a\")']);",
+  '  assert.equal(r.code, 0, r.stderr);',
+  '});',
+  '',
+].join('\n');
+
+test('AC-19905-2: AC-101-1 claiming src/deco.py#make, whose first body statement is a decorated nested def, and src/deco.py#build, whose first body statement is a decorated nested class, bound only to a test that shows both run, leaves the noOp mutant on each survived (the spliced module still parses, decorators included) while stubToThrow is killed: exit 4, AC-101-1 result "fail", and the FAIL line naming both noOp survivors', async (t) => {
+  const bin = binPath(t, 'host');
+  atFloor(bin);
+  const p = await pyProject(t, {
+    acs: ['AC-101-1'],
+    nodes: [['src/deco.py#make', ['AC-101-1']], ['src/deco.py#build', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/deco.test.mjs', DECO_TEST_NAME]],
+    files: { 'src/deco.py': DECO, 'test/deco.test.mjs': DECO_TEST },
+  });
+  // The Given as written parses on the host's python3, so any mutant that does not parse is the splice's,
+  // and the first body statement of make is a decorated def and of build a decorated class.
+  assert.equal(syntaxError('src/deco.py', DECO), null, 'the host python3 parses src/deco.py');
+  const firsts = JSON.parse(execFileSync(hostPython(), ['-I', '-B', '-c', DECO_FIRSTS], { input: DECO, encoding: 'utf8' }));
+  assert.deepEqual(firsts, { make: ['FunctionDef', 1], build: ['ClassDef', 1] }, 'each target opens with a decorated nested def or class');
+  const r = await strength(p.dir, bin, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 4, `surviving noOp mutants: the FAIL exit 4\n${shown(r)}`);
+  assert.deepEqual(failItems(r, s7(p.H)), vacuous('AC-101-1', 1, [['src/deco.py#make', 'noOp'], ['src/deco.py#build', 'noOp']]), shown(r));
+  const j = await strength(p.dir, bin, ['--acs', 'AC-101-1', '--json']);
+  assert.equal(j.code, 4, shown(j));
+  const c = crit(json(j.stdout), 'AC-101-1');
+  assert.equal(c.result, 'fail', JSON.stringify(c));
+  // stubToThrow raises, so the weak test still kills it; nothing calls make or build as a statement.
+  assert.deepEqual(triples(c), [
+    ...each('src/deco.py#make', { stubToThrow: 'killed', noOp: 'survived', callRemoval: 'notApplicable' }),
+    ...each('src/deco.py#build', { stubToThrow: 'killed', noOp: 'survived', callRemoval: 'notApplicable' }),
+  ].sort(), JSON.stringify(c));
+});
+
 test('AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail "src/broken.py:<line>:<col>: <the SyntaxError message>" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with "test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)"; the audit never crashes', async (t) => {
   const bin = binPath(t, 'host');
   atFloor(bin);
