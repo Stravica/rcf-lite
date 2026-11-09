@@ -1,0 +1,28 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "715f26cb801999402bee9197cbef49ccc09057c5",
+  "fbsIds": [
+    "FBS-244"
+  ],
+  "touchedAcIds": [
+    "AC-19901-10",
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5"
+  ],
+  "code": "MERGE",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19905-1",
+      "text": "TW-T1 T1 at test/cli/audit-test-strength-py.test.js:197 ends with a tail that writes the Code Node src/config.py#Config.lookup and expects exit 0, but the Code Node path schema refuses a dotted symbol, so the audit exits 3 before any test-strength code runs; the test is wrong for the round's grammar, the code is not"
+    }
+  ],
+  "recordedBy": "reviewer",
+  "recordedAt": "2026-11-09T16:41:57.061Z"
+}
