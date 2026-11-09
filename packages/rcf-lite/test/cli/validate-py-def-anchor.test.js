@@ -4,12 +4,14 @@
 // the bin's own rcf init makes, holding src/mod.py and two Code Node
 // records written into the copy: src/mod.py#canonical (the def) and
 // src/mod.py#Settings (a Python class X, the control). src/mod.py is
-// written twice: canonical as a top-level def, then as an async def
-// indented inside the class; no other line of either names canonical
-// at its start. Red at the round's DEFINE head: no declaration anchor
-// matches "def canonical(", so validate reports staleCode
-// symbolResolves on CN-001 while the def is there. Imports: Node
-// builtins and test/_harness/ only.
+// written three times: canonical as a top-level def, as an async def
+// indented inside the class, and as a top-level def with type
+// parameters on one line (def canonical[T](path):); no other line of
+// any of them names canonical at its start. Red at the round's DEFINE
+// head: no declaration anchor matches "def canonical(" or
+// "def canonical[", so validate reports staleCode symbolResolves on
+// CN-001 while the def is there. Imports: Node builtins and
+// test/_harness/ only.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -44,6 +46,20 @@ const NESTED = (name) => L(
   `    async def ${name}(self, path):`,
   '        return path.strip("/")',
 );
+// canonical as a top-level def with type parameters, after the class.
+const TYPED = (name) => L(
+  '"""A module for the def anchor: a class, then a top-level def with type parameters."""',
+  '',
+  '',
+  'class Settings:',
+  '    """A Python class X: the control, resolving before and after."""',
+  '',
+  '    title = "settings"',
+  '',
+  '',
+  `def ${name}[T](path):`,
+  '    return path',
+);
 
 function codeNode(dir, n, path) {
   const id = `CN-${String(n).padStart(3, '0')}`;
@@ -58,12 +74,12 @@ const validate = (dir) => rcf(['define', 'validate', '--json'], { cwd: dir });
 const shown = (r) => `exit ${r.code}\nstdout:\n${r.stdout}\nstderr:\n${r.stderr}`;
 const stale = (r) => (json(r.stdout).issues ?? []).filter((i) => i.kind === 'staleCode').map((i) => `${i.id} ${i.rule}`);
 
-test('AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level or async def canonical( indented in a class (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving', async (t) => {
+test('AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level, async def canonical( indented in a class, or def canonical[T]( with type parameters at the top level (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving', async (t) => {
   const dir = await project(t, { name: 'pydef' });
   codeNode(dir, 1, 'src/mod.py#canonical');
   codeNode(dir, 2, 'src/mod.py#Settings');
 
-  for (const [shape, text] of [['a top-level def', TOP], ['an async def indented in a class', NESTED]]) {
+  for (const [shape, text] of [['a top-level def', TOP], ['an async def indented in a class', NESTED], ['a top-level def with type parameters', TYPED]]) {
     writeText(dir, 'src/mod.py', text('canonical'));
     const ok = await validate(dir);
     assert.deepEqual(stale(ok), [], `${shape}: no staleCode for src/mod.py#canonical or src/mod.py#Settings\n${shown(ok)}`);

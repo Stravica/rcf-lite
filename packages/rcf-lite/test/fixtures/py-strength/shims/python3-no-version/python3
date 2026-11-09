@@ -1,0 +1,6 @@
+#!/bin/sh
+# A python3 that gives no version: whatever it is asked, --version
+# included, it prints nothing and exits 1 (as a platform python3 stub
+# without its developer tools, or a version manager's shim with no
+# version selected, can).
+exit 1

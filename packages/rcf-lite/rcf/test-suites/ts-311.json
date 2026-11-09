@@ -1,13 +1,14 @@
 {
   "createdAt": "2026-11-09T07:36:01.365Z",
-  "updatedAt": "2026-11-09T07:36:57.538Z",
-  "purpose": "Each criterion of US-19905 driven through bin/rcf.js as a child process: rcf audit test-strength over a scratch copy of the committed fixture test/fixtures/py-strength/ (a small Python project whose node:test tests run the Python through python3) laid over a project made by the bin's own rcf init and committed to git, under a PATH of one scratch directory with the host's python3, none, or a shim that reports 3.8.18; and rcf define validate over a project holding a Python def and class.",
+  "updatedAt": "2026-11-09T11:00:06.739Z",
+  "purpose": "Each criterion of US-19905 driven through bin/rcf.js as a child process: rcf audit test-strength over a scratch copy of the committed fixture test/fixtures/py-strength/ (a small Python project whose node:test tests run the Python through python3) laid over a project made by the bin's own rcf init and committed to git, under a PATH of one scratch directory with the host's python3, none, a shim that reports 3.8.18 or a shim that gives no version; and rcf define validate over a project holding a Python def and class.",
   "testLevel": "e2e",
   "acIds": [
     "AC-19905-1",
     "AC-19905-2",
     "AC-19905-3",
-    "AC-19905-4"
+    "AC-19905-4",
+    "AC-19905-5"
   ],
   "id": "TS-311",
   "usId": "US-19905",
@@ -16,30 +17,93 @@
     {
       "id": "TC-311-ac-101-1-claiming-the-top-level-def-src",
       "acId": "AC-19905-1",
-      "description": "AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical; and src/config.py#Config.lookup names that one method",
+      "description": "AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical; and src/config.py#Config.lookup names that one method"
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
     },
     {
       "id": "TC-311-ac-101-1-claiming-src-paths-py-record",
       "acId": "AC-19905-2",
-      "description": "AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), leaves the noOp mutant survived: exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\"",
+      "description": "AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\"",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), leaves the noOp mutant survived: exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
     },
     {
       "id": "TC-311-with-no-python3-on-path-ac-101-1",
       "acId": "AC-19905-3",
-      "description": "with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\"; the audit never crashes",
+      "description": "with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\"; the audit never crashes"
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
     },
     {
       "id": "TC-311-a-code-node-src-mod-py-canonical",
       "acId": "AC-19905-4",
-      "description": "a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level or async def canonical( indented in a class (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving",
+      "description": "a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level, async def canonical( indented in a class, or def canonical[T]( with type parameters at the top level (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving",
       "status": "pending",
-      "testPointer": "test/cli/validate-py-def-anchor.test.js::AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level or async def canonical( indented in a class (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving"
+      "testPointer": "test/cli/validate-py-def-anchor.test.js::AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level, async def canonical( indented in a class, or def canonical[T]( with type parameters at the top level (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving"
+    },
+    {
+      "id": "TC-311-cross-file-call-site-remember-word",
+      "acId": "AC-19905-1",
+      "description": "AC-101-1 claiming src/words.py#remember_word, whose only statement-level call site is in another file (src/report.py), bound to a test that goes red when that call is removed, scores callRemoval killed, never notApplicable: exit 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 3/3 (timeout 0, notApplicable 0)\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming src/words.py#remember_word, whose only statement-level call site is in another file (src/report.py), bound to a test that goes red when that call is removed, scores callRemoval killed, never notApplicable: exit 0 with \"test-strength: PASS 1 criteria at <h7>: structural 1/1, mutants killed 3/3 (timeout 0, notApplicable 0)\""
+    },
+    {
+      "id": "TC-311-record-non-ascii-crlf-splice",
+      "acId": "AC-19905-1",
+      "description": "AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+    },
+    {
+      "id": "TC-311-config-methods-survive-unexercised",
+      "acId": "AC-19905-2",
+      "description": "AC-101-1 claiming the class src/config.py#Config, bound only to \"lookup returns the value of a key\", reads fail with exit 4: lookup stubToThrow and noOp killed; merge, from_text (the decorated classmethod) and fetch (the async method) stubToThrow and noOp survived and merge callRemoval survived, each survivor named vacuous in the FAIL line (every method splice leaves the module importable)",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming the class src/config.py#Config, bound only to \"lookup returns the value of a key\", reads fail with exit 4: lookup stubToThrow and noOp killed; merge, from_text (the decorated classmethod) and fetch (the async method) stubToThrow and noOp survived and merge callRemoval survived, each survivor named vacuous in the FAIL line (every method splice leaves the module importable)"
+    },
+    {
+      "id": "TC-311-config-method-splices-importable",
+      "acId": "AC-19905-1",
+      "description": "AC-101-1 claiming the class src/config.py#Config, bound only to \"lookup returns the value of a key\", reads fail with exit 4: lookup stubToThrow and noOp killed; merge, from_text (the decorated classmethod) and fetch (the async method) stubToThrow and noOp survived and merge callRemoval survived, each survivor named vacuous in the FAIL line (every method splice leaves the module importable)",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming the class src/config.py#Config, bound only to \"lookup returns the value of a key\", reads fail with exit 4: lookup stubToThrow and noOp killed; merge, from_text (the decorated classmethod) and fetch (the async method) stubToThrow and noOp survived and merge callRemoval survived, each survivor named vacuous in the FAIL line (every method splice leaves the module importable)"
+    },
+    {
+      "id": "TC-311-canonical-call-removal-survives",
+      "acId": "AC-19905-2",
+      "description": "AC-101-1 claiming src/paths.py#canonical, bound only to \"canonical collapses repeated slashes and drops a trailing slash\", leaves callRemoval (the statement call in warm) survived while stubToThrow and noOp are killed: exit 4 and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: callRemoval on src/paths.py#canonical survived 1 bound tests\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#canonical, bound only to \"canonical collapses repeated slashes and drops a trailing slash\", leaves callRemoval (the statement call in warm) survived while stubToThrow and noOp are killed: exit 4 and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: callRemoval on src/paths.py#canonical survived 1 bound tests\""
+    },
+    {
+      "id": "TC-311-canonical-call-removal-scored",
+      "acId": "AC-19905-1",
+      "description": "AC-101-1 claiming src/paths.py#canonical, bound only to \"canonical collapses repeated slashes and drops a trailing slash\", leaves callRemoval (the statement call in warm) survived while stubToThrow and noOp are killed: exit 4 and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: callRemoval on src/paths.py#canonical survived 1 bound tests\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#canonical, bound only to \"canonical collapses repeated slashes and drops a trailing slash\", leaves callRemoval (the statement call in warm) survived while stubToThrow and noOp are killed: exit 4 and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: callRemoval on src/paths.py#canonical survived 1 bound tests\""
+    },
+    {
+      "id": "TC-311-unparseable-py-code-node-blocked",
+      "acId": "AC-19905-5",
+      "description": "AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+    },
+    {
+      "id": "TC-311-unparseable-py-not-judged",
+      "acId": "AC-19905-1",
+      "description": "AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+    },
+    {
+      "id": "TC-311-unparseable-py-js-still-judged",
+      "acId": "AC-19905-3",
+      "description": "AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
     }
   ],
   "status": "draft"

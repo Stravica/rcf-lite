@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-10-24T16:56:37.476Z",
-  "updatedAt": "2026-11-09T07:38:06.593Z",
+  "updatedAt": "2026-11-09T10:59:25.490Z",
   "purpose": "FBS-236: the external criteria of US-19901, driving bin/rcf.js against fixture projects (e2e); todo cases until FBS-236's round DEFINE",
   "testLevel": "e2e",
   "acIds": [
@@ -417,6 +417,13 @@
       "description": "a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-10: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+    },
+    {
+      "id": "TC-282-a-py-code-node-python3-cannot-parse-blocked",
+      "acId": "AC-19901-10",
+      "description": "AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
     }
   ],
   "status": "draft"
