@@ -4413,8 +4413,7 @@ flowchart LR
   AC-19901-8 -. supersededBy .-> AC-19901-9
   AC-19901-9["AC-19901-9"]
   REQ-199 --> AC-19901-9
-  TC-282-a-bound-test-file-test-rcf-a-test-py-or["TC-282-a-bound-test-file-test-rcf-a-test-py-or"]
-  AC-19901-9 -.-> TC-282-a-bound-test-file-test-rcf-a-test-py-or
+  AC-19901-9 -. supersededBy .-> AC-19901-10
   TC-282-a-byte-order-mark-a-form-feed-and-a["TC-282-a-byte-order-mark-a-form-feed-and-a"]
   AC-19901-9 -.-> TC-282-a-byte-order-mark-a-form-feed-and-a
   TC-282-a-combining-mark-starting-a-token-is["TC-282-a-combining-mark-starting-a-token-is"]
@@ -4513,6 +4512,12 @@ flowchart LR
   AC-19901-9 -.-> TC-282-x-pos-22j-a-zero-width-space-before-a-parenthesis
   TC-282-x-pos-22k-two-byte-order-marks-on-line-2["TC-282-x-pos-22k-two-byte-order-marks-on-line-2"]
   AC-19901-9 -.-> TC-282-x-pos-22k-two-byte-order-marks-on-line-2
+  AC-19901-10["AC-19901-10"]
+  REQ-199 --> AC-19901-10
+  TC-282-a-py-code-node-python3-cannot-parse-blocked["TC-282-a-py-code-node-python3-cannot-parse-blocked"]
+  AC-19901-10 -.-> TC-282-a-py-code-node-python3-cannot-parse-blocked
+  TC-282-a-py-test-file-or-an-rb-code-node-blocked["TC-282-a-py-test-file-or-an-rb-code-node-blocked"]
+  AC-19901-10 -.-> TC-282-a-py-test-file-or-an-rb-code-node-blocked
   AC-19902-1["AC-19902-1"]
   REQ-199 --> AC-19902-1
   TC-283-a-bound-test-asserting-only-that-the-cli["TC-283-a-bound-test-asserting-only-that-the-cli"]
@@ -4744,6 +4749,42 @@ flowchart LR
   AC-19904-12 -.-> TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path
   TC-306-a-short-tmpdir-keeps-the-scratch-under-it["TC-306-a-short-tmpdir-keeps-the-scratch-under-it"]
   AC-19904-12 -.-> TC-306-a-short-tmpdir-keeps-the-scratch-under-it
+  AC-19905-1["AC-19905-1"]
+  REQ-199 --> AC-19905-1
+  TC-311-ac-101-1-claiming-the-top-level-def-src["TC-311-ac-101-1-claiming-the-top-level-def-src"]
+  AC-19905-1 -.-> TC-311-ac-101-1-claiming-the-top-level-def-src
+  TC-311-canonical-call-removal-scored["TC-311-canonical-call-removal-scored"]
+  AC-19905-1 -.-> TC-311-canonical-call-removal-scored
+  TC-311-config-method-splices-importable["TC-311-config-method-splices-importable"]
+  AC-19905-1 -.-> TC-311-config-method-splices-importable
+  TC-311-cross-file-call-site-remember-word["TC-311-cross-file-call-site-remember-word"]
+  AC-19905-1 -.-> TC-311-cross-file-call-site-remember-word
+  TC-311-record-non-ascii-crlf-splice["TC-311-record-non-ascii-crlf-splice"]
+  AC-19905-1 -.-> TC-311-record-non-ascii-crlf-splice
+  TC-311-unparseable-py-not-judged["TC-311-unparseable-py-not-judged"]
+  AC-19905-1 -.-> TC-311-unparseable-py-not-judged
+  AC-19905-2["AC-19905-2"]
+  REQ-199 --> AC-19905-2
+  TC-311-ac-101-1-claiming-src-paths-py-record["TC-311-ac-101-1-claiming-src-paths-py-record"]
+  AC-19905-2 -.-> TC-311-ac-101-1-claiming-src-paths-py-record
+  TC-311-canonical-call-removal-survives["TC-311-canonical-call-removal-survives"]
+  AC-19905-2 -.-> TC-311-canonical-call-removal-survives
+  TC-311-config-methods-survive-unexercised["TC-311-config-methods-survive-unexercised"]
+  AC-19905-2 -.-> TC-311-config-methods-survive-unexercised
+  AC-19905-3["AC-19905-3"]
+  REQ-199 --> AC-19905-3
+  TC-311-unparseable-py-js-still-judged["TC-311-unparseable-py-js-still-judged"]
+  AC-19905-3 -.-> TC-311-unparseable-py-js-still-judged
+  TC-311-with-no-python3-on-path-ac-101-1["TC-311-with-no-python3-on-path-ac-101-1"]
+  AC-19905-3 -.-> TC-311-with-no-python3-on-path-ac-101-1
+  AC-19905-4["AC-19905-4"]
+  REQ-199 --> AC-19905-4
+  TC-311-a-code-node-src-mod-py-canonical["TC-311-a-code-node-src-mod-py-canonical"]
+  AC-19905-4 -.-> TC-311-a-code-node-src-mod-py-canonical
+  AC-19905-5["AC-19905-5"]
+  REQ-199 --> AC-19905-5
+  TC-311-unparseable-py-code-node-blocked["TC-311-unparseable-py-code-node-blocked"]
+  AC-19905-5 -.-> TC-311-unparseable-py-code-node-blocked
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7408,7 +7449,6 @@ flowchart LR
   class TC-282-with-acs-ac-101-1-ac-101-2-where-ac-101 tc;
   class AC-19901-8 ac;
   class AC-19901-9 ac;
-  class TC-282-a-bound-test-file-test-rcf-a-test-py-or tc;
   class TC-282-a-byte-order-mark-a-form-feed-and-a tc;
   class TC-282-a-combining-mark-starting-a-token-is tc;
   class TC-282-a-file-whose-lines-end-in-a-lone-cr tc;
@@ -7458,6 +7498,9 @@ flowchart LR
   class TC-282-x-pos-22i-a-byte-order-mark-after-or tc;
   class TC-282-x-pos-22j-a-zero-width-space-before-a-parenthesis tc;
   class TC-282-x-pos-22k-two-byte-order-marks-on-line-2 tc;
+  class AC-19901-10 ac;
+  class TC-282-a-py-code-node-python3-cannot-parse-blocked tc;
+  class TC-282-a-py-test-file-or-an-rb-code-node-blocked tc;
   class AC-19902-1 ac;
   class TC-283-a-bound-test-asserting-only-that-the-cli tc;
   class AC-19902-2 ac;
@@ -7573,6 +7616,24 @@ flowchart LR
   class AC-19904-12 ac;
   class TC-306-a-long-tmpdir-moves-the-scratch-to-a-short-path tc;
   class TC-306-a-short-tmpdir-keeps-the-scratch-under-it tc;
+  class AC-19905-1 ac;
+  class TC-311-ac-101-1-claiming-the-top-level-def-src tc;
+  class TC-311-canonical-call-removal-scored tc;
+  class TC-311-config-method-splices-importable tc;
+  class TC-311-cross-file-call-site-remember-word tc;
+  class TC-311-record-non-ascii-crlf-splice tc;
+  class TC-311-unparseable-py-not-judged tc;
+  class AC-19905-2 ac;
+  class TC-311-ac-101-1-claiming-src-paths-py-record tc;
+  class TC-311-canonical-call-removal-survives tc;
+  class TC-311-config-methods-survive-unexercised tc;
+  class AC-19905-3 ac;
+  class TC-311-unparseable-py-js-still-judged tc;
+  class TC-311-with-no-python3-on-path-ac-101-1 tc;
+  class AC-19905-4 ac;
+  class TC-311-a-code-node-src-mod-py-canonical tc;
+  class AC-19905-5 ac;
+  class TC-311-unparseable-py-code-node-blocked tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;
