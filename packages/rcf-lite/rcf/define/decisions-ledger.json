@@ -3479,6 +3479,26 @@
       "answer": "a. The round opens on these terms, 2026-11-08.",
       "answeredAt": "2026-11-08T23:52:54.753Z",
       "resolvedAt": "2026-11-08T23:52:54.753Z"
+    },
+    {
+      "id": 159,
+      "question": "ROUND OPEN, 2026-11-09: the Python round (release 0.42.0), a new-spec round on FBS-244, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-19905-1 (full), AC-19905-2 (full), AC-19905-3 (full), AC-19905-4 (full), AC-19901-10 (full). DEFINE HEAD: cb4f7214. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-09T20:00:00Z. TIER: T2 (the maintainers' operating note). SCOPE: rcf audit test-strength judges symbol-level .py Code Nodes through the host python3 with the standard library ast module only and the JavaScript operator set (stubToThrow, noOp, callRemoval), the TestStrengthReport v1 shape unchanged; python3 absent or below 3.9 is a per-criterion BLOCKED; a Code Node #symbol on a Python def resolves at validate; AC-19901-9 is retired and succeeded by AC-19901-10, never reworded. OUT OF SCOPE: silent-default parity for Python symbols, Python test runners and test pointers (a .py bound test file stays BLOCKED), further mutation operators, and file-level .py Code Nodes (they keep the whole-run exit 2). FBS-244 is minted notStarted in this pass and stays notStarted until FINALISE; FINALISE cuts 0.42.0 on the pull request branch. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-09T07:27:34.734Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-09.",
+      "answeredAt": "2026-11-09T07:27:43.291Z",
+      "resolvedAt": "2026-11-09T07:27:43.291Z"
     }
   ]
 }

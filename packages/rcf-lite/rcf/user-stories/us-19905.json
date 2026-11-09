@@ -1,0 +1,43 @@
+{
+  "createdAt": "2026-11-09T07:25:00.153Z",
+  "updatedAt": "2026-11-09T07:27:20.267Z",
+  "description": "The Python round (0.42.0): rcf audit test-strength reads symbol-level .py Code Nodes through the host's python3 with the standard library ast module only, and judges each def and each method of a class with the JavaScript operator set (stubToThrow, noOp and callRemoval), so the TestStrengthReport v1 shape is unchanged; python3 absent or below 3.9 makes such a criterion BLOCKED with a detail naming python3 and the floor, never a crash; a Code Node #symbol on a Python def resolves at rcf define validate.",
+  "usId": "US-19905",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Python sources in the test-strength audit",
+  "asA": "maintainer of a Python project whose RCF chain claims Python Code Nodes",
+  "iWant": "rcf audit test-strength to judge my Python sources the way it judges JavaScript",
+  "soThat": "my strength record judges each criterion instead of blocking every one",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19905-1",
+      "description": "[happy] Given a project whose criterion AC-101-1 claims a symbol-level Code Node on a top-level Python function `src/paths.py#canonical` and AC-101-2 claims one on a Python class `src/config.py#Config`, each bound to node:test tests that drive the Python through the host's `python3` as a child process, when `rcf audit test-strength --acs AC-101-1,AC-101-2` runs with `python3` 3.9 or later on PATH, then each `.py` symbol is read through `python3` with the standard library `ast` module only, each mutable target carries the mutants stubToThrow, noOp and callRemoval (callRemoval notApplicable where the function has no statement-level call site in the project's `.py` files), a class's targets are its methods other than `__init__`, a `Class.method` symbol names that one method, decorated and async methods are targets like any other, every mutant is written to the audit's working copy and never to the project tree, the TestStrengthReport is v1 with its shape unchanged, and with every mutant killed the run exits 0 with the PASS line.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-2",
+      "description": "[failure] Given a project whose criterion AC-101-1 claims `src/paths.py#record` and is bound to a test that cannot tell the function's body from `pass`, when `rcf audit test-strength --acs AC-101-1` runs, then the noOp mutant on `src/paths.py#record` survives, AC-101-1 reads `result` \"fail\" with the vacuous reason the JavaScript path gives (`vacuous: noOp on src/paths.py#record survived <n> bound tests`), the FAIL line names it, and the run exits 4.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-3",
+      "description": "[failure] Given AC-101-1 claiming a symbol-level `.py` Code Node and AC-101-2 claiming a `.js` one, when `rcf audit test-strength --acs AC-101-1,AC-101-2` runs with no `python3` on PATH, or with a `python3` that reports a version below 3.9, then AC-101-1 is reported per criterion as blocked, reason `TEST_STRENGTH_UNSUPPORTED`, with a detail of the form `<file>: Python sources need python3 >= 3.9 on PATH (python3 not found)` or `(python3 is <version>)`, AC-101-2 is judged as before, the run exits 5 with the BLOCKED summary line, and the audit never crashes; a whole-run exit 2 stays reserved for the audit's own unreadable inputs.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19905-4",
+      "description": "[happy] Given a Code Node `src/mod.py#canonical` where `src/mod.py` declares `def canonical(` or `async def canonical(` at any indentation, `rcf define validate` resolves the symbol and reports no staleCode for it; after the def is renamed, validate reports staleCode with rule symbolResolves; a Code Node on a Python `class X` keeps resolving.",
+      "testable": true,
+      "verification": "external"
+    }
+  ],
+  "tacIds": [
+    "TAC-4155"
+  ]
+}
