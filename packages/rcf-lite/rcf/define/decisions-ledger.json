@@ -3528,6 +3528,10 @@
         {
           "letter": "a",
           "text": "splice offsets come from the ast spans (lineno, col_offset, end_lineno, end_col_offset) converted from UTF-8 byte offsets to the file's string offsets; line endings are preserved byte for byte, CRLF included; everything outside the spliced span stays byte-identical"
+        },
+        {
+          "letter": "b",
+          "text": "no recorded reading: the offsets and what stays byte-identical are the builder's call"
         }
       ],
       "default": "a",
@@ -3545,6 +3549,10 @@
         {
           "letter": "a",
           "text": "python3 on PATH whose --version exits non-zero, times out or prints no parseable version is the same per-criterion BLOCKED, reason TEST_STRENGTH_UNSUPPORTED, detail '<file>: Python sources need python3 >= 3.9 on PATH (python3 gave no version)'; JS criteria are still judged, exit 5, never a crash"
+        },
+        {
+          "letter": "b",
+          "text": "a python3 that gives no version is treated as absent and its detail reads (python3 not found)"
         }
       ],
       "default": "a",
@@ -3562,6 +3570,10 @@
         {
           "letter": "a",
           "text": "a claimed .py Code Node file that fails ast.parse (a syntax error, or syntax newer than the host python3) is per-criterion BLOCKED, reason TEST_STRENGTH_UNSUPPORTED, detail '<file>:<line>:<col>: <the SyntaxError message>' from the error's 1-based line and column; other criteria are still judged, exit 5; a non-claimed .py file that fails to parse is skipped as a call-site source, as unreadable JS is"
+        },
+        {
+          "letter": "b",
+          "text": "a claimed .py file that does not parse makes the whole run exit 2"
         }
       ],
       "default": "a",
@@ -3579,6 +3591,10 @@
         {
           "letter": "a",
           "text": "a structure-read helper failure (a non-zero exit without a SyntaxError report, a signal, a timeout, or malformed output) is the same per-criterion BLOCKED, reason TEST_STRENGTH_UNSUPPORTED, detail '<file>: python3 structure read failed (<first stderr line, or timeout, or malformed output>)'; JS criteria are still judged, exit 5, no stack trace"
+        },
+        {
+          "letter": "b",
+          "text": "a failed structure read makes the whole run exit 2"
         }
       ],
       "default": "a",
@@ -3596,6 +3612,10 @@
         {
           "letter": "a",
           "text": "after writing each .py mutant edit, and after restoring it, the audit deletes that module's cached bytecode (__pycache__/<stem>.*.pyc) in the working copy, so no Python run executes a stale mutant"
+        },
+        {
+          "letter": "b",
+          "text": "no step: the bytecode Python caches in the working copy is left as it is"
         }
       ],
       "default": "a",
@@ -3613,6 +3633,10 @@
         {
           "letter": "a",
           "text": "the structure-read helper runs as python3 -I -B with its program on argv or stdin and the file text on stdin, and its working directory is a scratch directory, never the project tree"
+        },
+        {
+          "letter": "b",
+          "text": "the helper runs as plain python3 -c with the project root as its working directory"
         }
       ],
       "default": "a",
@@ -3630,6 +3654,10 @@
         {
           "letter": "a",
           "text": "in this release a .py entry in rcf/test-strength.json keeps the whole-run exit 2 per AC-19901-10; a Python project declares an extensionless bin, or the module its node:test harness drives, as its entry; the help Sources paragraph and docs/code-nodes.md say so"
+        },
+        {
+          "letter": "b",
+          "text": "a .py entry in rcf/test-strength.json is judged as Python in this release"
         }
       ],
       "default": "a",
@@ -3647,6 +3675,10 @@
         {
           "letter": "a",
           "text": "the helper program is written to the Python 3.9 grammar and standard library (no match statement, nothing newer than 3.9) and reads any ast field newer than 3.9 with getattr(node, field, None)"
+        },
+        {
+          "letter": "b",
+          "text": "the helper may use any grammar the host python3 accepts"
         }
       ],
       "default": "a",
@@ -3664,6 +3696,10 @@
         {
           "letter": "a",
           "text": "the def anchor accepts a '[' or '(' after the name, so a single-line def with type parameters resolves; a def split across lines stays a recorded candidate"
+        },
+        {
+          "letter": "b",
+          "text": "the def anchor accepts only a ( after the name, and a def with type parameters reads as staleCode"
         }
       ],
       "default": "a",
