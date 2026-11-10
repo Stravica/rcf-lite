@@ -115,7 +115,7 @@
       "path": "adrs/adr-3002-messaging-queue-cloudflare-delivery-semantics.json",
       "scope": "global",
       "topic": "deliverySemantics",
-      "standardsTraceClause": "WSD-005 clauses on at-least-once and out-of-order tolerance"
+      "standardsTraceClause": "Messaging standard clauses on at-least-once and out-of-order tolerance"
     },
     {
       "id": "ADR-3003-messaging-queue-cloudflare-max-attempts-floor",

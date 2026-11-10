@@ -320,7 +320,7 @@ export async function main(argv, deps = {}) {
     // supersede hint (so the operator sees exactly the string they can
     // copy back into a fresh shell). It is ONLY forwarded to the applier
     // as `displaySource` for library-qualified resolves - spec §5.3
-    // requires the qualified typed ref (`wsd:auth-oauth2`) to be the
+    // requires the qualified typed ref (`acme:auth-oauth2`) to be the
     // record's `source`. For shelf and path resolves the record must
     // carry the RESOLVED ABSOLUTE PATH, which is the pre-#120 behaviour
     // that /scope.json and `blueprint list --category` both depend on

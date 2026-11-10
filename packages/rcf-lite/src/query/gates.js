@@ -2258,7 +2258,7 @@ const STOP_PATTERN_23 = new Set([
  * Issue 311 (0.32.2): a bare backticked identifier (pattern 1) was
  * reading error-enum values, pagination query-string keys, sort and
  * filter-mode literals, env-var and config-knob names as record-shape
- * fields and false-positiving 345 of 532 ACs on WESPA. Pattern 1 is
+ * fields and false-positiving 345 of 532 ACs on a consumer tree. Pattern 1 is
  * now context-gated: ALL_CAPS tokens (enum values, env vars,
  * constants) are skipped unconditionally; other backticked tokens
  * count only when a field-signalling word sits within a short
@@ -2311,7 +2311,7 @@ function extractThenFieldTokens(thenClause, shapeNames = new Set()) {
   // not just the first. Three skips apply to every candidate:
   //   - STOP_PATTERN_23 (English stop words such as `the` from
   //     `declares NO join-shaped fields: the earlier jurisdiction
-  //     ...`, the AC-130-1 WESPA shape in issue 319);
+  //     ...`, the AC-130-1 consumer shape in issue 319);
   //   - PATTERN_4_FILE_EXTENSION_SKIP (file-extension tokens such
   //     as `md`, `json`, `yaml`);
   //   - path context (two characters before `fields:` contain `/`),
@@ -2363,7 +2363,7 @@ function extractThenFieldTokens(thenClause, shapeNames = new Set()) {
   // explicit field evidence in its immediate neighbourhood AND no
   // overlapping non-field context. ALL_CAPS tokens (enum values, env
   // vars, constants) are skipped unconditionally; record-shape field
-  // names in the WSD AI tree and the rcf-schemas canon are camelCase
+  // names in a consumer tree and the rcf-schemas canon are camelCase
   // or lower snake_case.
   const WINDOW = 36;
   const POS_BEFORE = /(?:\bsets?|\bsetting|\bwrites?|\bwriting|\bincludes?|\bincluding|\breturns?|\breturning|\bcontains?|\bcontaining|\bnames?|\bnaming|\bemits?|\bemitting|\bholds?|\bholding|\bcarries|\bcarrying|\badds?|\badding|\bhas|\bhave|\bhad|\bwith\s+(?:a|an|the))\s*$/i;

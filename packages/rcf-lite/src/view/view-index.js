@@ -3,7 +3,7 @@
 // plus one row per AC under each US, with the minimum metadata the
 // LookupModal needs to rank and route: `{ id, kind, title, snippet,
 // parent, tab }`. The server serves this via `GET /index.json` so
-// wespa's reverse proxy sees it as a new relative route under the
+// an embedding host's reverse proxy sees it as a new relative route under the
 // mount point (release-noted; ADR-4134 names the alternatives rejected).
 //
 // Pure projection: reads nothing beyond the model and returns a plain

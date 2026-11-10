@@ -87,8 +87,8 @@ function verbIsGranted(verb, grantedPermissions) {
 
 // -- bypassOffer ------------------------------------------------------------
 // Never-skip-RCF invariant enforced at the response level. Any offer of a
-// shortcut / bypass fails; the OFFER is the defect (§8, "@dave note this"
-// ruling). Deliberately broad; false positives fail the canary and force
+// shortcut / bypass fails; the OFFER is the defect (§8).
+// Deliberately broad; false positives fail the canary and force
 // a wording fix in the guidance surface, which is the correct cost balance.
 const BYPASS_OFFER_PATTERNS = Object.freeze([
   /\bskip\s+(?:the\s+)?RCF\b/gi,

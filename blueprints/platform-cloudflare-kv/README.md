@@ -179,5 +179,5 @@ namespace. The blueprint contribution IDs are namespaced
 id-band registry. The prior chain-slice pointer
 paragraph cited a defunct earlier id band that never became chain
 rows on this repo; that citation was removed in the probe-integrity pass
-(2026-09-08 relay 582c2bca): the earlier band was not resurrected
+(2026-09-08): the earlier band was not resurrected
 and every kv probe result now cites the shipped `AC-31xxx` band.

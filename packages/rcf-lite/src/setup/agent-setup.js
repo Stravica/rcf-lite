@@ -286,8 +286,8 @@ async function writeFragmentToFile(target, file, block) {
  *   preferred as the write target, else an existing AGENTS.md). We
  *   never invent the other convention's file when one already exists.
  * - A fresh repo (neither present) gets BOTH CLAUDE.md and AGENTS.md,
- *   so the wiring is vendor-neutral by default (operator ruling
- *   2026-07-16). The same marked block goes into each.
+ *   so the wiring is vendor-neutral by default. The same marked
+ *   block goes into each.
  * Idempotent throughout: re-running replaces the marked block in place,
  * never duplicating it, in whichever file(s) are touched.
  *

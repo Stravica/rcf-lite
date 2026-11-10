@@ -46,7 +46,7 @@ Probe-integrity patch. No capability change.
 
 ## 1.0.0 - 2026-09-08
 
-Initial release. Round-7 blueprint of the Hetzner spec at `projects/blueprint-library/specs/hetzner-round-7-spec-2026-09-07.md`.
+Initial release. Round-7 blueprint of the Hetzner design (2026-09-07).
 
 - Mints capability `tunnelBridge` and global topic `edgeIngressBridge`.
 - Five REQs, eight USs, three TACs, three ADRs; five Node-only probes.

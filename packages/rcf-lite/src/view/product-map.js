@@ -9,7 +9,7 @@
 // by-blueprint grouping added under AC-17008-1) on
 // manifest.blueprints[].contributions[] carried on model.manifest.
 //
-// Spec: projects/rcf-lite-wsd/docs/2026-09-21_product-map-proposal.md.
+// Spec: the 2026-09-21 product map proposal.
 // Chain: REQ-170 (tab) + REQ-171 (capability tag convention) + US-17008
 // (blueprint badge and by-blueprint grouping, AC-17008-1).
 //

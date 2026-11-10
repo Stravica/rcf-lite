@@ -1,5 +1,5 @@
 // Page init script. Classic (non-module) browser script extracted from
-// the former inline <script> block in html-page.js: wespa pins
+// the former inline <script> block in html-page.js: an embedding host pins
 // inline scripts by CSP hash, so the viewer now
 // serves this logic as a cacheable asset at ./page-init.js and the
 // shell page carries no inline script at all. PR 1 (viewer UI
@@ -214,7 +214,7 @@
     if (messageListenerWired) return;
     messageListenerWired = true;
     window.addEventListener('message', function (ev) {
-      // Same-origin only: wespa reverse-proxies the viewer under its
+      // Same-origin only: an embedding host reverse-proxies the viewer under its
       // own origin, so a legitimate theme ping comes from the viewer's
       // own origin. Anything else is a cross-origin posting we ignore.
       if (!ev || ev.origin !== window.location.origin) return;
@@ -392,7 +392,7 @@
     }
     panel.setAttribute('data-pm-loading', 'true');
     var xhr = new XMLHttpRequest();
-    // wespa: asset references are relative so the
+    // Embedding: asset references are relative so the
     // reverse-proxy mount point can live anywhere under its origin.
     xhr.open('GET', './product-map/' + name, true);
     xhr.onreadystatechange = function () {

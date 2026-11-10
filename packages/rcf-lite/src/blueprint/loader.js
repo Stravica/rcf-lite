@@ -59,7 +59,7 @@ const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/u;
  *                                  applying operator supplies the value
  *                                  at apply.
  * @property {string}   [standardsTraceClause] ADR only. Standard clause
- *                                  identifier verbatim (`WSD-001 clause 3.1`,
+ *                                  identifier verbatim (`STD-001 clause 3.1`,
  *                                  `RFC 7807 section 3.1`) or the sentinel
  *                                  `"generic enterprise practice"`. Required
  *                                  on every ADR contribution when the
@@ -75,7 +75,7 @@ const EMOJI_RE = /[\u{1F300}-\u{1FAFF}\u{2600}-\u{27BF}\u{1F000}-\u{1F2FF}]/u;
 
 /**
  * @typedef {object} StandardsTraceEntry
- * @property {string} id       standard identifier (e.g. `WSD-001`)
+ * @property {string} id       standard identifier (e.g. `STD-001`)
  * @property {string} version  standard version (free-form)
  */
 

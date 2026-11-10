@@ -17,7 +17,7 @@ A shipped, org-neutral error-handling contract for a rcf-lite application. Two b
 
 ## When it does not fit
 
-- A project standing on an organisation with a shipped error-handling library (`wsd-error-handling`, `acme-error-shape`) that provides the `errorHandling` role. The companion-suggestion mechanism resolves to the library over this shelf fallback.
+- A project standing on an organisation with a shipped error-handling library (`acme-error-handling`, `other-error-shape`) that provides the `errorHandling` role. The companion-suggestion mechanism resolves to the library over this shelf fallback.
 - A project whose transport is not yet served by any transport blueprint the shelf ships. The delegation contract (ADR-1703) still holds; the project supplies its own `transportWriter`.
 
 ## What a good outcome looks like

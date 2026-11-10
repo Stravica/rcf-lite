@@ -1,7 +1,7 @@
 {
   "id": "canary-prompt-03",
   "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §7.3",
-  "operatorPrompt": "I've got a full PRD ready to go for a small internal tool - it's at /Users/thefoot/scratch/internal-search-prd.md. The repo already exists (github: acme/internal-search) and has a clean main branch; you've got push access and can open PRs. Please take a look at the PRD and get us started on the RCF chain from it.",
+  "operatorPrompt": "I've got a full PRD ready to go for a small internal tool - it's at ./briefs/internal-search-prd.md. The repo already exists (github: acme/internal-search) and has a clean main branch; you've got push access and can open PRs. Please take a look at the PRD and get us started on the RCF chain from it.",
   "supportingArtefacts": [
     {
       "path": "internal-search-prd.md",

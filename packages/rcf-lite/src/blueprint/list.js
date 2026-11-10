@@ -42,7 +42,7 @@ export function listBlueprints(tree) {
  * uncategorised group rather than skip it.
  *
  * A row's `source` may be a non-path token in two ratified cases: an
- * external-library colon ref (`wsd:auth-oauth2`, spec §5.3) and, on
+ * external-library colon ref (`acme:auth-oauth2`, spec §5.3) and, on
  * legacy manifests pre-#128, bare shelf sugar (`application-spa`).
  * Both re-resolve through `resolveBlueprintSource` against `projectRoot`
  * before we hand a filesystem path to the loader; without this every

@@ -138,7 +138,7 @@ export async function detectCustomisations({ projectRoot, record, _readFile, _lo
 async function resolveSourceAbs(projectRoot, source, resolveImpl) {
   if (typeof source !== 'string' || source.length === 0) return null;
   if (isAbsolute(source)) return source;
-  // Non-path sources - a library colon ref (`wsd:auth-oauth2`), an
+  // Non-path sources - a library colon ref (`acme:auth-oauth2`), an
   // `@stock/<slug>` sugar, or a bare shelf slug - need re-resolution
   // through the blueprint resolver against the project registry and the
   // packaged shelf. Without this, the applied-record's source is a

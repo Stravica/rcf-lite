@@ -92,12 +92,12 @@ Options:
                     and CI is unset).
   --verbose         Log each watch event and each SSE broadcast to
                     stderr.
-  --test-host       Mount the wespa host fixture at /test-host.html
+  --test-host       Mount the host shell fixture at /test-host.html
                     plus its client script at /test-host.js. Off by
                     default; the fixture is a test-suite proof that
                     the viewer honours the embedding contract (viewer
                     UI refresh PR 9; TAC-4134, ADR-4136), not a shipped
-                    UI, so wespa's reverse-proxy allow-list is
+                    UI, so an embedder's reverse-proxy allow-list is
                     unaffected. Can also be set via RCF_VIEW_TEST_HOST=1.
   --help            Print this help and exit.
 
@@ -157,8 +157,8 @@ export function parseArgs(argv) {
         opts.help = true;
         break;
       case '--test-host':
-        // Viewer UI refresh PR 9 (TAC-4134, ADR-4136): mount the wespa
-        // host fixture at /test-host.html plus its client at
+        // Viewer UI refresh PR 9 (TAC-4134, ADR-4136): mount the host
+        // shell fixture at /test-host.html plus its client at
         // /test-host.js. Off by default; the fixture is a test-suite
         // proof, not a shipped UI.
         opts.testHost = true;

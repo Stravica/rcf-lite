@@ -43,4 +43,4 @@ The registry reads the file once at start (or reloads on a project-owned signal)
 
 ## Why the blueprint does not ship it
 
-Two reasons. First, the reload story is project-specific: some projects want a SIGHUP reload, some want a filesystem watcher, some want a restart-required posture. Second, the file location and permissions are project deployment concerns; hardcoding `/etc/app/...` in the blueprint is a WESPA leak of exactly the shape the authoring standard's provenance rule forbids. The blueprint documents the pattern here so a project writing it does not reinvent the shape.
+Two reasons. First, the reload story is project-specific: some projects want a SIGHUP reload, some want a filesystem watcher, some want a restart-required posture. Second, the file location and permissions are project deployment concerns; hardcoding `/etc/app/...` in the blueprint is a consumer leak of exactly the shape the authoring standard's provenance rule forbids. The blueprint documents the pattern here so a project writing it does not reinvent the shape.

@@ -38,9 +38,9 @@ import { createSseHub } from './sse.js';
  * @property {typeof renderModelToPage} [renderImpl] - injectable walker
  *   for tests; defaults to the real `renderModelToPage`.
  * @property {boolean} [testHost=false] - viewer UI refresh PR 9 (TAC-4134,
- *   ADR-4136): when true, mount the wespa host fixture at /test-host.html
+ *   ADR-4136): when true, mount the host shell fixture at /test-host.html
  *   plus its embed-client script at /test-host.js. Off by default so
- *   wespa's proxy allow-list is unaffected.
+ *   an embedding host's proxy allow-list is unaffected.
  */
 
 /**
@@ -187,7 +187,7 @@ export async function startServer(args) {
     loadStaticAsset(VENDORED_MERMAID_PATH, 'application/javascript; charset=utf-8'),
     loadStaticAsset(LIVE_CLIENT_PATH, 'application/javascript; charset=utf-8'),
     loadStaticAsset(PAGE_INIT_PATH, 'application/javascript; charset=utf-8'),
-    // Viewer UI refresh PR 9 (TAC-4134): the wespa host fixture client
+    // Viewer UI refresh PR 9 (TAC-4134): the host shell fixture client
     // only loads when testHost is on. Keeping the read behind the gate
     // means a startup under default options never touches the file.
     testHost

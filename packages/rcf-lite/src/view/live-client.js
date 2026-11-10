@@ -11,8 +11,8 @@
 // so `test/view/live-client.test.js` can drive them via `node:vm` without
 // jsdom.
 //
-// Spec: projects/rcf-build-lite/specs/phase-3.8-live-view.md D12, D13a,
-// D13b, D14. Deep-link overlay: see `src/view/scope.js`
+// Spec: the phase 3.8 live-view design, D12, D13a, D13b and D14.
+// Deep-link overlay: see `src/view/scope.js`
 // (server-side truth) and `test/view/scope-client.test.js`
 // (browser-side proofs).
 
@@ -185,7 +185,7 @@
   function fetchScope(slug, fetchImpl) {
     var f = typeof fetchImpl === 'function' ? fetchImpl : (typeof fetch === 'function' ? fetch : null);
     if (!f) return Promise.reject(new Error('no fetch available'));
-    // wespa (#263, PR 1): asset references are relative
+    // Embedding (PR 1): asset references are relative
     // so the viewer works under the proxy mount (/rcf-viewer/) without
     // path rewrites.
     var url = './scope.json?blueprint=' + encodeURIComponent(slug);
@@ -413,7 +413,7 @@
       setState('disconnected');
       return;
     }
-    // wespa (#263, PR 1): relative so the stream
+    // Embedding (PR 1): relative so the stream
     // works under the proxy mount without a rewrite rule.
     var source = new EventSourceCtor('./events');
 

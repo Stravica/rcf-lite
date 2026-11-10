@@ -283,8 +283,8 @@ export async function main(argv, deps = {}) {
       result = await runPlaywrightMcpRedundantCheck(ctx);
     } else if (check === 'probe-path-owner') {
       // Fires whenever more than one applied blueprint teaches probe paths.
-      // Runs on every project (not gated on browser-facing). Spec:
-      // projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.
+      // Runs on every project (not gated on browser-facing). The owning
+      // blueprint's topics page: blueprints/observability-probe-endpoints/docs/topics.md.
       result = await runProbePathOwnerCheck(ctx);
     } else if (check === 'feedback-destinations') {
       // Feedback destination coverage across the library registry
@@ -844,7 +844,7 @@ async function runProbePathOwnerCheck(ctx) {
       drift.push({
         item: `multiple-${topic}-owners`,
         file: 'rcf/manifest.json',
-        message: `more than one applied blueprint teaches probe paths on topic '${topic}': ${slugs}. ${remedy}. Spec: projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.`,
+        message: `more than one applied blueprint teaches probe paths on topic '${topic}': ${slugs}. ${remedy}. See the observability-probe-endpoints blueprint's docs/topics.md.`,
         refusedByFix: true,
       });
     }

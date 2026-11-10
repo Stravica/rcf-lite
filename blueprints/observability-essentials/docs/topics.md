@@ -12,7 +12,7 @@ From v2.0.0 the observability-essentials blueprint claims ONE global topic (`sta
 
 ### Historical global topics (dropped in v2.0.0)
 
-The alignment ratified in `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md` moved probe-path ownership to `observability-probe-endpoints` as the sole shelf-wide claimant. The two rows below record what this blueprint used to claim; the ADRs stay on disk as scope-local historical context and their titles carry a "Historical: ... superseded by observability-probe-endpoints" prefix.
+The probe-path alignment ratified on 2026-09-04 moved probe-path ownership to `observability-probe-endpoints` as the sole shelf-wide claimant. The two rows below record what this blueprint used to claim; the ADRs stay on disk as scope-local historical context and their titles carry a "Historical: ... superseded by observability-probe-endpoints" prefix.
 
 | Historical topic string | Was claimed by | Replaced by | Migration reference |
 |---|---|---|---|

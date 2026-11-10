@@ -531,8 +531,8 @@ export function redact(input, context = {}) {
   // rule-3 bare-remote stash can gate on the host allowlist too. Rule
   // 4 narrowing (0.28.2, issue #233, design amendment R5d): a token
   // whose trailing dot-label is a known file extension is NOT a
-  // hostname, killing the `Backstory-product-brief.md` and
-  // `intake.json` false positives the operator hit in the WSD round-trip.
+  // hostname, killing the `Acme-product-brief.md` and
+  // `intake.json` false positives the operator hit in a consumer round-trip.
   // The bundled shortlist lives in redact-allowlist.json under the
   // `extensions` field; the operator overlay merges via
   // context.allowExtensions.
@@ -568,7 +568,7 @@ export function redact(input, context = {}) {
   // rule 5b), a hyphen or another word character (a longer host
   // suffix or a filename-internal segment). Adding `-` to the
   // lookbehind is the 0.28.2 (issue #233) fix that stops
-  // `Backstory-product-brief.md` folding on its internal
+  // `Acme-product-brief.md` folding on its internal
   // `product-brief.md` slice; the extension-refusal step below is the
   // second layer. Design amendment R5e (0.28.3, issue #247): the
   // `{2,}` trailing class also functions as the single-letter-TLD
@@ -580,7 +580,7 @@ export function redact(input, context = {}) {
     // trailing dot-label is a known file extension is not a hostname;
     // leave it intact and record no ledger row (we are not redacting,
     // we are correctly leaving alone). This narrowing catches shapes
-    // like `report.log`, `intake.json` and `Backstory-example.md`
+    // like `report.log`, `intake.json` and `Acme-example.md`
     // that pass the lookbehind guard because they start after a
     // whitespace or line boundary.
     const lastDot = host.lastIndexOf('.');

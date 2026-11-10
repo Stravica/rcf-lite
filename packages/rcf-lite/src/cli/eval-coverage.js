@@ -1,7 +1,7 @@
 // `rcf audit eval coverage` subcommand handler. Sibling of `rcf audit
 // coverage`; grades non-deterministic AC coverage by EVAL docs rather
-// than TS/TC coverage. See spec section 4 of
-// projects/rcf-lite-wsd/specs/rcf-eval-node-spec-2026-09-04.md.
+// than TS/TC coverage. See section 4 of the EVAL node design
+// (2026-09-04).
 //
 // Coverage rule (spec 2.3): an AC counts as covered by EVAL only when
 // at least one EVAL document lists its id in acIds[], is not

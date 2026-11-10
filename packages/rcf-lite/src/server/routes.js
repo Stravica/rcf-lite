@@ -5,7 +5,7 @@
 // GET /mermaid.min.js-> vendored mermaid runtime
 // GET /live-client.js-> phase 3.8 live client script
 // GET /page-init.js  -> viewer UI refresh PR 1 shell / router script
-//                      (wespa #263; release-noted so
+//                      (an embedder's request; release-noted so
 //                      the proxy's route allow-list is extended).
 // GET /scope.json    -> deep-link scope resolver
 // GET /index.json    -> viewer UI refresh PR 7 ID lookup index built
@@ -16,15 +16,15 @@
 //                      fixture page (release-noted). Static page, no
 //                      live-walk coupling, so it is always available
 //                      even before the first rewalk completes.
-// GET /test-host.html -> viewer UI refresh PR 9 wespa host fixture
+// GET /test-host.html -> viewer UI refresh PR 9 host shell fixture
 //                      page (TAC-4134, ADR-4136). Only served when
 //                      `deps.testHost === true`; 404 otherwise so
-//                      wespa's reverse-proxy allow-list is unaffected.
-//                      Mimics the wespa shell (56px header, resizable
+//                      an embedder's reverse-proxy allow-list is unaffected.
+//                      Mimics an embedding host shell (56px header, resizable
 //                      sidebar) and iframes the viewer at `./?embed=1
 //                      &theme=light`. Test-suite proof only; not a
 //                      shipped UI.
-// GET /test-host.js  -> viewer UI refresh PR 9 wespa host fixture
+// GET /test-host.js  -> viewer UI refresh PR 9 host shell fixture
 //                      client script. Same testHost gate as the HTML.
 // Everything else -> 404 text/plain.
 //
@@ -157,7 +157,7 @@ export function createRouter(deps) {
       return;
     }
     if (path === '/test-host.html' && deps.testHost) {
-      // Viewer UI refresh PR 9 (TAC-4134, ADR-4136): the wespa host
+      // Viewer UI refresh PR 9 (TAC-4134, ADR-4136): the host shell
       // fixture is only mounted when the server was started with
       // testHost: true. No X-Frame-Options, no CSP; the viewer's
       // framing lint asserts the same on GET /.

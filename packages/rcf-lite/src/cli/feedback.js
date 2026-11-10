@@ -553,7 +553,7 @@ async function handleAdd(argv, ctx) {
  * - `file`: `path:line` (a non-space token ending in `:<digits>`) OR
  *   a bare filesystem path shape - a slash-bearing, non-whitespace
  *   token that ends in a known file extension. This is the shape a
- *   `--evidence rcf/.blueprint-libraries/wsd/1.0.0/library.json`
+ *   `--evidence rcf/.blueprint-libraries/acme/1.0.0/library.json`
  *   argument carries (issue #245).
  * - `command`: anything else. This is the fallback shape for a bare
  *   verb invocation like `rcf feedback preview` or `pnpm --filter
@@ -2103,8 +2103,8 @@ function at(now) {
 // A search hit alone is not a fold: submit re-reads the candidate
 // body and folds only when the fingerprint line is literally present
 // on its own line AND the anchor / kind / target markers do not
-// contradict the entry's. This is the code side of the operator's ruling on
-// #234 (2026-09-21) and of the amended AC-15701-2.
+// contradict the entry's. This is the code side of the fold decision
+// for issue #234 and of the amended AC-15701-2.
 
 /**
  * True when `body` contains a line reading exactly
@@ -2623,8 +2623,8 @@ async function readOwnVersion() {
 /**
  * Lookup a blueprint entry on `rcf/manifest.json:blueprints[]` by ref.
  * The lookup accepts a shelf slug (`security-auth-magic-link`), a
- * prefix:slug shape (`wsd:std-error-envelope`) and an effective slug
- * (`wsd-std-error-envelope`). Slice 3 lands the full resolver; slice 1
+ * prefix:slug shape (`acme:std-error-envelope`) and an effective slug
+ * (`acme-std-error-envelope`). Slice 3 lands the full resolver; slice 1
  * just needs the yes/no answer for the exit-3 branch.
  *
  * @param {string} projectRoot
@@ -2637,7 +2637,7 @@ async function lookupBlueprintRecord(projectRoot, ref) {
     // Delegate to the resolver's own findBlueprintRecord so the
     // qualified-ref safety (F-slice-3-01) applies here too; slice-1
     // stamping and slice-3 destination resolution walk the same
-    // matcher, so a qualified WSD ref never picks up a shelf record
+    // matcher, so a qualified library ref never picks up a shelf record
     // by slug collision.
     return findBlueprintRecord(manifest, ref);
   } catch { /* fall through to null */ }

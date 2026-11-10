@@ -7,7 +7,7 @@
 # `package.json:version` so a release cannot ship without its own entry.
 #
 # Contract lives in
-#   projects/rcf-lite-wsd/specs/update-awareness-spec-2026-08-28.md
+#   the internal design note update-awareness-spec-2026-08-28.md
 # section 1 (ratified 2026-08-30).
 #
 # Editing rules at release time:
@@ -200,7 +200,7 @@ releases:
     date: "2026-10-07"
     breaking: false
     headlines:
-      - "rcf-lite 0.32.4 is the stop-word follow-up to 0.32.3 after a second consumer's check of PR 318 on WESPA (issue 319). Patterns 2 and 3 of extractThenFieldTokens (prose `<name> field` and `fields: <name>`) now share a broader English stop-word set and reuse pattern 4's file-extension and path-context skips, so the AC-130-1 WESPA then-clause `declares NO join-shaped fields: the earlier jurisdiction ...` stops reading `the` as a record field. Pattern 3 additionally walks a comma-separated list after `fields:` so a real prose field list such as `required fields: userID, email, createdAt` yields every token it names. The 0.32.1, 0.32.2 and 0.32.3 fixes carry forward unchanged."
+      - "rcf-lite 0.32.4 is the stop-word follow-up to 0.32.3 after a second consumer's check of PR 318 on its tree (issue 319). Patterns 2 and 3 of extractThenFieldTokens (prose `<name> field` and `fields: <name>`) now share a broader English stop-word set and reuse pattern 4's file-extension and path-context skips, so the AC-130-1 consumer then-clause `declares NO join-shaped fields: the earlier jurisdiction ...` stops reading `the` as a record field. Pattern 3 additionally walks a comma-separated list after `fields:` so a real prose field list such as `required fields: userID, email, createdAt` yields every token it names. The 0.32.1, 0.32.2 and 0.32.3 fixes carry forward unchanged."
     minAgentAction: null
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
@@ -216,7 +216,7 @@ releases:
     date: "2026-10-06"
     breaking: false
     headlines:
-      - "rcf-lite 0.32.2 ships two consumer-reported fixes on top of 0.32.1. D6 consistency:unsatisfiable now context-gates backticked identifiers in AC then-clauses so enum values, query-string parameter names, sort and filter literals, env-var names and config knobs stop being read as record-shape field names (issue 311; expected drop on WESPA 345 unsatisfiable findings, 187 true positives remain, AC-12113-2 class unchanged), and `rcf discover req-baseline opt-out` and `rcf define ledger concerns add` honour `--dry-run` by writing nothing (issue 310)."
+      - "rcf-lite 0.32.2 ships two consumer-reported fixes on top of 0.32.1. D6 consistency:unsatisfiable now context-gates backticked identifiers in AC then-clauses so enum values, query-string parameter names, sort and filter literals, env-var names and config knobs stop being read as record-shape field names (issue 311; expected drop on a consumer tree 345 unsatisfiable findings, 187 true positives remain, AC-12113-2 class unchanged), and `rcf discover req-baseline opt-out` and `rcf define ledger concerns add` honour `--dry-run` by writing nothing (issue 310)."
     minAgentAction: null
     notesUrl: "https://stravica.ai/docs/rcf/changelog/"
 
@@ -261,7 +261,7 @@ releases:
     date: "2026-10-03"
     breaking: true
     headlines:
-      - "rcf-lite 0.29.0 lands the viewer UI refresh train in one release: a rebuilt shell with the Stravica brand tokens, light and dark theme and an embed contract; shared components across Requirements, Architecture, Build and Readiness; a Build DAG sub-tab with click-to-highlight closure, dependency inspector and an unconnected lane; fast ID lookup over a new ./index.json served from the viewer root (Cmd/Ctrl+F from any tab); the Readiness tab Product Owner redesign; and a same-origin test-host fixture that pins the embedding contract with three in-suite guards. For wespa embedders, the reverse-proxy allow-list for /rcf-viewer/* MUST add /page-init.js and /index.json before the version pin bump; /test-host.html and /test-host.js stay 404 by default so the allow-list is unchanged by the embedding-proof fixture."
+      - "rcf-lite 0.29.0 lands the viewer UI refresh train in one release: a rebuilt shell with the Stravica brand tokens, light and dark theme and an embed contract; shared components across Requirements, Architecture, Build and Readiness; a Build DAG sub-tab with click-to-highlight closure, dependency inspector and an unconnected lane; fast ID lookup over a new ./index.json served from the viewer root (Cmd/Ctrl+F from any tab); the Readiness tab Product Owner redesign; and a same-origin test-host fixture that pins the embedding contract with three in-suite guards. For embedders, the reverse-proxy allow-list for /rcf-viewer/* MUST add /page-init.js and /index.json before the version pin bump; /test-host.html and /test-host.js stay 404 by default so the allow-list is unchanged by the embedding-proof fixture."
       - "The DEFINE readiness persona split arrives too: every gate check carries a persona (product owner or engineer), two readiness levels (intent-complete, ready-to-build), the Readiness tab moves to tab one, and rcf define readiness gains --level and --persona flags with a persona-grouped text report."
       - "The first three DEFINE step 3 PRs ship: document intake into the brief ledger via a statement file parser and the mechanical intake scans; a new rcf define ledger <name> update <id> subverb with a closed resolvedBy pointer grammar (REQ-nnn, TAD.entity:<name>, PRD.user:<name>, TAD.system:<name>, TAC-nnnn, omitted:<reason>) and the D2 skeleton:resolvedBy title-hit fallback dropped; a rcf define questions verb with three new MCP tools and two argument-free prompts for the harness-driven loop; and the [draft] shapes gate across TAC purpose, interface and core-entity homes with a DISCOVERY prototypes doctrine."
     minAgentAction: rerun-init
@@ -291,7 +291,7 @@ releases:
     date: "2026-09-22"
     breaking: false
     headlines:
-      - "rcf-lite 0.28.2 is a batched fix release for the seven defects the operator's WSD-lens dogfood on 0.28.1 surfaced, plus three unreported dry-run gaps folded into the same release. Feedback submit no longer folds unrelated findings into one issue and no longer replaces the report with a +1 stub. Submit re-reads every candidate issue body and folds only on a verified fingerprint match, refusing to fold across differing anchor or target; every fold comment now carries the full report. The redactor also stops rewriting .md filenames as hostnames: a candidate whose trailing dot-label is on a bundled extensions shortlist in redact-allowlist.json is left intact."
+      - "rcf-lite 0.28.2 is a batched fix release for the seven defects the operator's consumer-lens dogfood on 0.28.1 surfaced, plus three unreported dry-run gaps folded into the same release. Feedback submit no longer folds unrelated findings into one issue and no longer replaces the report with a +1 stub. Submit re-reads every candidate issue body and folds only on a verified fingerprint match, refusing to fold across differing anchor or target; every fold comment now carries the full report. The redactor also stops rewriting .md filenames as hostnames: a candidate whose trailing dot-label is on a bundled extensions shortlist in redact-allowlist.json is left intact."
       - "The five discover verbs share one schema pass across --dry-run and the write path (intake, preflight, review, ui-baseline init, browser-verify). A preview now reports the same validation error the real run would refuse on, so intake --dry-run --input catches a fidelity enum miss and preflight --dry-run --input catches a kebab-case service id. intake and preflight --help advertise their allowed values."
       - "Three more build defects ride along: discover intake dedupes findings before writing the record so a shared branch that fires on two artefacts lands as one finding, req-baseline sweep --yes now allocates distinct AC ids across a batch on one user story, and the TAD review surface renders dataStores, coreEntities and externalSystems as tables instead of raw JSON.stringify blobs."
     minAgentAction: null
@@ -301,7 +301,7 @@ releases:
     date: "2026-09-17"
     breaking: false
     headlines:
-      - "rcf-lite 0.28.1 fixes three defects the first WSD-lens round-trip surfaced on 0.28.0. Feedback on a library-owned blueprint now reaches the library owner even when the blueprint was applied by its bare slug, so a colleague running rcf define blueprint add application-spa against a project with a registered WSD library that also owns application-spa no longer sees the finding silently routed to Stravica/rcf-lite."
+      - "rcf-lite 0.28.1 fixes three defects the first consumer-lens round-trip surfaced on 0.28.0. Feedback on a library-owned blueprint now reaches the library owner even when the blueprint was applied by its bare slug, so a colleague running rcf define blueprint add application-spa against a project with a registered consumer library that also owns application-spa no longer sees the finding silently routed to Stravica/rcf-lite."
       - "The operator-identity redactor no longer folds the canonical noun agent when it appears in an operator's ## Name line. The docs URL how-the-agent-files-feedback and prose like when the agent stops survive; real given names still fold. A common-noun stopword set (agent, user, admin, api, code, system, and the rest) is exported as RESERVED_IDENTITY_TOKENS."
       - "The rcf feedback add help text now names --evidence as required and repeatable, matching the shipped behaviour and AC-15501-1. A README callout box discloses the rename from the retired @stravica-ai/rcf-build-lite name to rcf-lite so a colleague hitting no matching version on the old name has a paste-ready recovery command."
     minAgentAction: null

@@ -12,17 +12,17 @@
 // `window.rcfPage.init()` so the live client can re-invoke it after
 // every SSE innerHTML swap.
 //
-// Viewer UI refresh PR 1 (wespa request, 2026-10-02):
+// Viewer UI refresh PR 1 (an embedder's request, 2026-10-02):
 //   - compact Stravica-brand shell: data-theme light|dark|auto on
 //     <html>, data-embed=1 suppresses the brand block and the footer
 //     and keeps the tab nav sticky, viewport-height scroll box owned
 //     by <main>, never scrolls horizontally.
 //   - asset and SSE references are RELATIVE (./live-client.js,
 //     ./page-init.js, ./style.css, ./mermaid.min.js, ./product-map/,
-//     ./events, ./scope.json) so the wespa reverse-proxy mount under
+//     ./events, ./scope.json) so an embedding host's reverse-proxy mount under
 //     /rcf-viewer/ keeps working without rewrites (issue #263).
 //   - the single former inline script lives at ./page-init.js;
-//     wespa's CSP pins inline scripts by hash and we no longer have
+//     an embedding host's CSP pins inline scripts by hash and we no longer have
 //     any. page-init.js carries the theme/embed boot, origin-checked
 //     postMessage listener for { type:"rcf-view-theme", theme } and
 //     the Router (#tab=&sub=&entity=, bare #REQ-002, host query

@@ -45,7 +45,7 @@ Four ADRs record the load-bearing decisions:
   https://docs.hetzner.com/cloud/servers/backups-snapshots/overview.
 - `ADR-3803` provisioning tool: `hcloud` default, `raw-api`
   alternative, Terraform rejected on second toolchain and state file
-  grounds per maintainer ruling 2026-09-07.
+  grounds.
 - `ADR-3804` hardening baseline: the six blocks named below.
 
 ## Two provisioner paths: hcloud and raw-api
@@ -85,7 +85,7 @@ FAILS naming the missing line.
 |---|---|---|
 | `provisioning-tool` | `hcloud`, `raw-api` | `hcloud` (ADR-3803) |
 | `server-type` | `cx23`, `cx33`, `cx43`, `cpx11`..`cpx41`, `cax11`..`cax31` | `cx23` |
-| `location` | `fsn1`, `nbg1`, `hel1`, `ash`, `hil` | `fsn1` (maintainer ruling 2026-09-07 09:50Z) |
+| `location` | `fsn1`, `nbg1`, `hel1`, `ash`, `hil` | `fsn1` (shipped default) |
 | `image` | any Hetzner image slug | `ubuntu-24.04` |
 | `ssh-source-prefixes` | CSV of CIDR ranges | `203.0.113.0/24` (example only; supply the real prefix set) |
 | `firewall-id` | existing firewall id or empty | empty (create from `firewallRules`) |
@@ -196,7 +196,7 @@ Blueprint acceptance never depends on the ops-host migration.
 
 ## Rejected alternatives
 
-- Terraform. Adds a second toolchain and a state file that nobody in
-  the estate needs. maintainer ruling 2026-09-07 09:50Z.
+- Terraform. Adds a second toolchain and a state file that a typical
+  applying project does not need.
 - A Load Balancer blueprint. Out of scope for round-7; may ship as
   a follow-up if a second Hetzner consumer needs it.

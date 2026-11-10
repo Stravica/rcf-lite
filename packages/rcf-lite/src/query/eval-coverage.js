@@ -5,7 +5,7 @@
 // non-superseded EVAL whose most recent runRecord[] entry is not
 // `pending`).
 //
-// spec: `projects/rcf-lite-wsd/specs/rcf-eval-node-spec-2026-09-04.md`
+// spec: the EVAL node design (2026-09-04),
 // sections 2.3 and 4. Determinism absence resolves to `deterministic`;
 // deterministic ACs are never gated by this audit. `--strict` refuses
 // only when a nonDeterministic AC lacks a resolving EVAL. Presence of

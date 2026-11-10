@@ -272,7 +272,7 @@ export function detectPrefixCollision({ libraryPrefix, registry, coreSlugs }) {
 }
 
 /**
- * Extract the leading numeric block from an id like `wsd-auth-oauth2-REQ-1101`
+ * Extract the leading numeric block from an id like `acme-auth-oauth2-REQ-1101`
  * or `ADR-1300-deploy-cloudflare-workers`. Returns `{ number }` or null.
  * We do NOT reimplement the id grammar here; the numeric portion of
  * either family shape is unambiguous: the run of digits between two

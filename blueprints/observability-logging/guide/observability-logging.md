@@ -17,7 +17,7 @@ A shipped, org-neutral logging contract for a rcf-lite project. Every log emissi
 
 ## When it does not fit
 
-- A project standing on an organisation with a shipped logging library (`wsd-logging`, `acme-log-emit`) that provides the `logging` role. Register the library and the companion-suggestion mechanism resolves to the library's provider over this shelf fallback.
+- A project standing on an organisation with a shipped logging library (`acme-logging`, `other-log-emit`) that provides the `logging` role. Register the library and the companion-suggestion mechanism resolves to the library's provider over this shelf fallback.
 - A project that needs multi-line stack trace emission for a legacy consumer. This blueprint ships single-line JSON only; a project-level `logging` topic supersede lets the project author a different contract.
 
 ## What a good outcome looks like

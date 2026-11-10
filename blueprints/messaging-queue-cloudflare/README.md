@@ -29,7 +29,7 @@ A directed producer-to-consumer worklist queue on Cloudflare Queues, accessed th
 ## The four ADRs
 
 - **ADR-3001 adapter**: Cloudflare Queues v1.0.0 shipped first adapter. `recommendedDefault: true`. Standards trace clause: Cloudflare Queues documented per-message and per-batch limits.
-- **ADR-3002 delivery semantics** (`scope: global`, topic `deliverySemantics`): at-least-once as the shipped shape; conflicts by design with future exactly-once or at-most-once siblings. Standards trace clause: WSD-005 clauses on at-least-once and out-of-order tolerance.
+- **ADR-3002 delivery semantics** (`scope: global`, topic `deliverySemantics`): at-least-once as the shipped shape; conflicts by design with future exactly-once or at-most-once siblings. Standards trace clause: the messaging standard's clauses on at-least-once and out-of-order tolerance.
 - **ADR-3003 max-attempts floor**: `max_retries` default 3, floor 1, ceiling 100 per Cloudflare Queues platform limits. `elicited: true`. Standards trace clause: Cloudflare Queues default retry limit 3 and documented ceiling 100.
 - **ADR-3004 batch defaults**: `max_batch_size` default 10 (ceiling 100), `max_batch_timeout` default 5 seconds (ceiling 60 seconds). `elicited: true`. Standards trace clause: Cloudflare Queues per-consumer batch settings.
 

@@ -4,7 +4,7 @@
 
 | Topic | Owning ADR | Meaning | Composition note |
 |---|---|---|---|
-| `errorHandling` | `ADR-1701-application-error-handling-record-shape` | Internal error record shape: code, category, message, correlationId, cause chain, redacted context. Minted here at v1.0.0. | Transport-agnostic. Composing blueprints that want a different internal record shape conflict by design; the operator resolves at project level. A library-registered errorHandling provider (wsd-error-handling, acme-error-shape) is preferred over this shelf provider by the companion-suggestion mechanism. |
+| `errorHandling` | `ADR-1701-application-error-handling-record-shape` | Internal error record shape: code, category, message, correlationId, cause chain, redacted context. Minted here at v1.0.0. | Transport-agnostic. Composing blueprints that want a different internal record shape conflict by design; the operator resolves at project level. A library-registered errorHandling provider (acme-error-handling, other-error-shape) is preferred over this shelf provider by the companion-suggestion mechanism. |
 
 ## Distinction from `errorEnvelope`
 
