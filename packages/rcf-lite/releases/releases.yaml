@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.41.0"
+latest: "0.42.0"
 releases:
+  - version: "0.42.0"
+    date: "2026-11-10"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.42.0 brings Python sources into rcf audit test-strength: a symbol-level Code Node on a .py file (a def, async included, a class, or Class.method) is judged through the host's python3 with the standard library ast module only, with the same stubToThrow, noOp and callRemoval mutants as JavaScript, in the TestStrengthReport v1 shape unchanged, where 0.41.0 blocked every such criterion."
+      - "With no python3 on PATH, or one below 3.9, a Python criterion reads blocked with a detail naming python3 and the floor, and the other criteria are still judged; rcf define validate now resolves a Code Node #symbol on a Python def or async def."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.41.0, rcf-lite adds no dependency and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.41.0"
     date: "2026-11-07"
     breaking: true
