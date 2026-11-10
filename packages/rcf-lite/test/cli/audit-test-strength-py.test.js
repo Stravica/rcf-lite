@@ -455,6 +455,77 @@ test('AC-19905-2: AC-101-1 claiming src/deco.py#make, whose first body statement
   ].sort(), JSON.stringify(c));
 });
 
+// src/paren.py: a top-level def whose first body statement is a nested def
+// under a fully parenthesised decorator, @(deco) (PEP 614, Python 3.9 and
+// later), where ast places the decorator's expression after the paren, and
+// a test that shows wrap runs and nothing more, so a wrap whose body is
+// pass passes it.
+const PAREN = [
+  '"""A top-level function whose first body statement has a parenthesised decorator."""',
+  '',
+  '',
+  'def deco(f):',
+  '    return f',
+  '',
+  '',
+  'def wrap(log, path):',
+  '    @(deco)',
+  '    def norm(p):',
+  '        return p.strip("/")',
+  '    log.append(norm(path))',
+  '',
+].join('\n');
+// For wrap's first body statement: its kind, its decorator count, its
+// first decorator's line as written and the character just before the
+// position ast gives that decorator's expression.
+const PAREN_FIRST = [
+  'import ast, json, sys',
+  'text = sys.stdin.read()',
+  'lines = text.split("\\n")',
+  'wrap = next(n for n in ast.parse(text).body if isinstance(n, ast.FunctionDef) and n.name == "wrap")',
+  'first = wrap.body[0]',
+  'd = first.decorator_list[0]',
+  'print(json.dumps([type(first).__name__, len(first.decorator_list), lines[d.lineno - 1].strip(), lines[d.lineno - 1][d.col_offset - 1]]))',
+].join('\n');
+const PAREN_TEST_NAME = 'wrap runs without an error';
+const PAREN_TEST = [
+  "// A deliberately weak test: it shows that wrap runs and nothing more.",
+  "import { test } from 'node:test';",
+  "import assert from 'node:assert/strict';",
+  "import { python } from './_harness/python.mjs';",
+  '',
+  `test(${JSON.stringify(PAREN_TEST_NAME)}, () => {`,
+  "  const r = python(['from paren import wrap', 'wrap([], \"a/\")']);",
+  '  assert.equal(r.code, 0, r.stderr);',
+  '});',
+  '',
+].join('\n');
+
+test('AC-19905-2: AC-101-1 claiming src/paren.py#wrap, whose first body statement is a nested def under the fully parenthesised decorator @(deco) (PEP 614), bound only to a test that shows wrap runs, leaves the noOp mutant survived (the spliced module still parses, the parenthesised decorator included) while stubToThrow is killed: exit 4, AC-101-1 result "fail", and the FAIL line "test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paren.py#wrap survived 1 bound tests"', async (t) => {
+  const bin = binPath(t, 'host');
+  atFloor(bin);
+  const p = await pyProject(t, {
+    acs: ['AC-101-1'],
+    nodes: [['src/paren.py#wrap', ['AC-101-1']]],
+    bind: [['AC-101-1', 'test/paren.test.mjs', PAREN_TEST_NAME]],
+    files: { 'src/paren.py': PAREN, 'test/paren.test.mjs': PAREN_TEST },
+  });
+  // The Given as written parses on the host's python3, so any mutant that does not parse is the splice's,
+  // and wrap opens with a nested def under one decorator written @(deco), whose expression ast places after the paren.
+  assert.equal(syntaxError('src/paren.py', PAREN), null, 'the host python3 parses src/paren.py');
+  const first = JSON.parse(execFileSync(hostPython(), ['-I', '-B', '-c', PAREN_FIRST], { input: PAREN, encoding: 'utf8' }));
+  assert.deepEqual(first, ['FunctionDef', 1, '@(deco)', '('], 'wrap opens with a nested def under the parenthesised decorator @(deco)');
+  const r = await strength(p.dir, bin, ['--acs', 'AC-101-1']);
+  assert.equal(r.code, 4, `a surviving noOp mutant: the FAIL exit 4\n${shown(r)}`);
+  assert.equal(out(r), `test-strength: FAIL 1 of 1 criteria at ${s7(p.H)}: AC-101-1 vacuous: noOp on src/paren.py#wrap survived 1 bound tests`, shown(r));
+  const j = await strength(p.dir, bin, ['--acs', 'AC-101-1', '--json']);
+  assert.equal(j.code, 4, shown(j));
+  const c = crit(json(j.stdout), 'AC-101-1');
+  assert.equal(c.result, 'fail', JSON.stringify(c));
+  // stubToThrow raises, so the weak test still kills it; nothing calls wrap as a statement.
+  assert.deepEqual(triples(c), each('src/paren.py#wrap', { stubToThrow: 'killed', noOp: 'survived', callRemoval: 'notApplicable' }).sort(), JSON.stringify(c));
+});
+
 test('AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail "src/broken.py:<line>:<col>: <the SyntaxError message>" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with "test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)"; the audit never crashes', async (t) => {
   const bin = binPath(t, 'host');
   atFloor(bin);

@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-09T07:36:01.365Z",
-  "updatedAt": "2026-11-09T18:46:10.459Z",
+  "updatedAt": "2026-11-10T07:28:32.841Z",
   "purpose": "Each criterion of US-19905 driven through bin/rcf.js as a child process: rcf audit test-strength over a scratch copy of the committed fixture test/fixtures/py-strength/ (a small Python project whose node:test tests run the Python through python3) laid over a project made by the bin's own rcf init and committed to git, under a PATH of one scratch directory with the host's python3, none, a shim that reports 3.8.18 or a shim that gives no version; and rcf define validate over a project holding a Python def and class.",
   "testLevel": "e2e",
   "acIds": [
@@ -111,6 +111,13 @@
       "description": "AC-101-1 claiming src/deco.py#make, whose first body statement is a decorated nested def, and src/deco.py#build, whose first body statement is a decorated nested class, bound only to a test that shows both run, leaves the noOp mutant on each survived (the spliced module still parses, decorators included) while stubToThrow is killed: exit 4, AC-101-1 result \"fail\", and the FAIL line naming both noOp survivors",
       "status": "pending",
       "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/deco.py#make, whose first body statement is a decorated nested def, and src/deco.py#build, whose first body statement is a decorated nested class, bound only to a test that shows both run, leaves the noOp mutant on each survived (the spliced module still parses, decorators included) while stubToThrow is killed: exit 4, AC-101-1 result \"fail\", and the FAIL line naming both noOp survivors"
+    },
+    {
+      "id": "TC-311-parenthesised-decorator-first-noop-survives",
+      "acId": "AC-19905-2",
+      "description": "AC-101-1 claiming src/paren.py#wrap, whose first body statement is a nested def under the fully parenthesised decorator @(deco) (PEP 614), bound only to a test that shows wrap runs, leaves the noOp mutant survived (the spliced module still parses, the parenthesised decorator included) while stubToThrow is killed: exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paren.py#wrap survived 1 bound tests\"",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paren.py#wrap, whose first body statement is a nested def under the fully parenthesised decorator @(deco) (PEP 614), bound only to a test that shows wrap runs, leaves the noOp mutant survived (the spliced module still parses, the parenthesised decorator included) while stubToThrow is killed: exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paren.py#wrap survived 1 bound tests\""
     }
   ],
   "status": "draft"
