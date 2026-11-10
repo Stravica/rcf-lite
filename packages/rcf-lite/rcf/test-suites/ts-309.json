@@ -1,12 +1,13 @@
 {
   "createdAt": "2026-11-06T23:21:23.100Z",
-  "updatedAt": "2026-11-07T00:17:16.808Z",
+  "updatedAt": "2026-11-10T19:51:04.753Z",
   "purpose": "Each criterion of US-20503 asserted on what bin/rcf.js prints or writes: the block through rcf guidance, rcf init in a fresh directory, rcf doctor and rcf doctor --fix over test/fixtures/managed-block-0-40-1/CLAUDE.md (the block the 0.40.1 rcf init wrote).",
   "testLevel": "e2e",
   "acIds": [
     "AC-20503-1",
     "AC-20503-2",
-    "AC-20503-3"
+    "AC-20503-3",
+    "AC-20503-4"
   ],
   "id": "TS-309",
   "usId": "US-20503",
@@ -32,6 +33,13 @@
       "description": "on a project whose CLAUDE.md carries the 0.40.1 block, rcf doctor exits 3 naming the stale block, rcf doctor --fix rewrites only the text between the markers, and a second rcf doctor exits 0",
       "status": "pending",
       "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-3: on a project whose CLAUDE.md carries the 0.40.1 block, rcf doctor exits 3 naming the stale block, rcf doctor --fix rewrites only the text between the markers, and a second rcf doctor exits 0"
+    },
+    {
+      "id": "TC-309-ac-20503-4-on-a-project-whose-claude-md",
+      "acId": "AC-20503-4",
+      "description": "AC-20503-4: on a project whose CLAUDE.md carries a stale managed block with a CRLF line ending, or the end of the file, right after the end marker, rcf doctor --fix exits 2 naming CLAUDE.md and writes nothing",
+      "status": "pending",
+      "testPointer": "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-4: on a project whose CLAUDE.md carries a stale managed block with a CRLF line ending, or the end of the file, right after the end marker, rcf doctor --fix exits 2 naming CLAUDE.md and writes nothing"
     }
   ],
   "status": "draft"

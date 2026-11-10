@@ -15,7 +15,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { spawn } from 'node:child_process';
-import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { existsSync, mkdirSync, readFileSync, readdirSync, writeFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 import { BIN, PACKAGE_ROOT, baseEnv, lines, rcf } from '../_harness/spawn.js';
@@ -290,6 +290,42 @@ test('AC-20503-3: on a project whose CLAUDE.md carries the 0.40.1 block, rcf doc
   assert.equal(d2.code, 0, `a second rcf doctor exits 0\n${d2.stdout}${d2.stderr}`);
 });
 
+// Every file under `dir` (outside .git/) as { path: bytes in base64 }.
+function snapshot(dir, at = '') {
+  const out = {};
+  for (const e of readdirSync(join(dir, at), { withFileTypes: true })) {
+    const rel = at ? `${at}/${e.name}` : e.name;
+    if (rel === '.git') continue;
+    if (e.isDirectory()) Object.assign(out, snapshot(dir, rel));
+    else out[rel] = readFileSync(join(dir, rel)).toString('base64');
+  }
+  return out;
+}
+
+test('AC-20503-4: on a project whose CLAUDE.md carries a stale managed block with a CRLF line ending, or the end of the file, right after the end marker, rcf doctor --fix exits 2 naming CLAUDE.md and writes nothing', async (t) => {
+  const old = readFileSync(FIXTURE_0_40_1, 'utf8');
+  const at = old.indexOf(END);
+  assert.ok(at > 0 && old[at + END.length] === '\n' && old.length > at + END.length + 1, 'given: the 0.40.1 fixture has its end marker followed by LF and project text below it');
+  const cases = [
+    ['a CRLF line ending after the end marker', `${old.slice(0, at + END.length)}\r\n${old.slice(at + END.length + 1)}`],
+    ['the end of the file right after the end marker', old.slice(0, at + END.length)],
+  ];
+  for (const [what, text] of cases) {
+    const dir = join(scratch(t, 'rcf-h-doctoreol-'), 'proj');
+    mkdirSync(dir);
+    const init = await rcf(['init'], { cwd: dir });
+    assert.equal(init.code, 0, `${init.stdout}${init.stderr}`);
+    writeFileSync(join(dir, 'CLAUDE.md'), text);
+    const d1 = await rcf(['doctor'], { cwd: dir });
+    assert.ok(lines(d1.stdout).some((l) => /\[agent-instructions\]/.test(l) && /stale/.test(l) && /CLAUDE\.md/.test(l)), `given (${what}): rcf doctor names the stale block in CLAUDE.md\n${d1.stdout}${d1.stderr}`);
+    const before = snapshot(dir);
+    const fix = await rcf(['doctor', '--fix'], { cwd: dir });
+    assert.equal(fix.code, 2, `${what}: rcf doctor --fix exits 2\n${fix.stdout}${fix.stderr}`);
+    assert.ok(/CLAUDE\.md/.test(`${fix.stdout}${fix.stderr}`), `${what}: rcf doctor --fix names CLAUDE.md\n${fix.stdout}${fix.stderr}`);
+    assert.deepEqual(snapshot(dir), before, `${what}: rcf doctor --fix writes nothing (every file byte-identical)`);
+  }
+});
+
 // --------------------------------------------------- guidance and runbook
 
 // A minimal MCP stdio client over bin/rcf.js mcp: initialize, then each
@@ -371,8 +407,10 @@ const mdCommands = (stageText) => lines(stageText).filter((l) => /^ {4}rcf /.tes
 const mdProse = (stageText) => flat(lines(stageText).filter((l) => !/^ {4}rcf /.test(l)).join('\n'));
 const strengthRun = (c) => /^rcf audit test-strength\b/.test(c);
 const recordsStrength = (c) => strengthRun(c) && /--record\b/.test(c);
-// A sentence that runs the recording audit beside the REVIEW verdict.
-const recordAtReview = (text) => flat(text).split(/(?<=[.!?])\s+/).filter((s) => s.includes('rcf audit test-strength --record') && s.includes('rcf build verdict review'));
+// A sentence that runs the recording audit beside the REVIEW verdict:
+// a backticked rcf audit test-strength command carrying --record in any
+// argument position, or the contiguous command written out.
+const recordAtReview = (text) => flat(text).split(/(?<=[.!?])\s+/).filter((s) => (commandsIn(s).some(recordsStrength) || s.includes('rcf audit test-strength --record')) && s.includes('rcf build verdict review'));
 
 test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with no throwaway, REVIEW runs test strength read-only and TEST records it, the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook carries the superseded rule 6 or REVIEW-recording text', async (t) => {
   const cli = await guidance('build-cycle');
@@ -392,7 +430,7 @@ test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the 
     assert.ok(flat(define).includes(DEFINE_EXIT), `${where}: the DEFINE exit reads "${DEFINE_EXIT}"\n${flat(define)}`);
     const review = section(text, /^REVIEW\b/);
     assert.ok(review !== null, `${where} has a REVIEW section`);
-    assert.ok(flat(review).includes('rcf audit test-strength') && !flat(review).includes('rcf audit test-strength --record') && !RECORDED_FOR_REVIEW(flat(review)) && /read-only|unrecorded/i.test(review), `${where}: the REVIEW section runs rcf audit test-strength read-only, with no --record and no line that strength is recorded for the reviewer's verdict\n${flat(review)}`);
+    assert.ok(flat(review).includes('rcf audit test-strength') && !commandsIn(review).some(recordsStrength) && !flat(review).includes('rcf audit test-strength --record') && !RECORDED_FOR_REVIEW(flat(review)) && /read-only|unrecorded/i.test(review), `${where}: the REVIEW section runs rcf audit test-strength read-only, with no --record in any of its commands and no line that strength is recorded for the reviewer's verdict\n${flat(review)}`);
     const testStage = section(text, /^TEST\b/);
     assert.ok(testStage !== null, `${where} has a TEST section`);
     assert.ok(flat(testStage).includes('rcf audit test-strength --record'), `${where}: the TEST section runs rcf audit test-strength --record\n${flat(testStage)}`);
@@ -428,6 +466,101 @@ test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the 
   sweep('the bundle (md)', md, false);
   sweep('completionContract', JSON.stringify(contract), false);
   assert.deepEqual(stale, [], `no guidance document or bundle runbook carries "${PROVEN}", "${OLD_RULE_6}" or REVIEW recording test strength (${stale.length} found)`);
+});
+
+// AC-20504-4: the inline code spans of a markdown document (fenced blocks
+// left out), whitespace flattened.
+function inlineSpans(markdown) {
+  const kept = [];
+  let fence = false;
+  for (const l of lines(markdown)) {
+    if (/^\s*(?:```|~~~)/.test(l)) { fence = !fence; continue; }
+    if (!fence) kept.push(l);
+  }
+  return [...flat(kept.join('\n')).matchAll(/(`+)([^`]+?)\1(?!`)/g)].map((m) => m[2].trim());
+}
+const isRcfCommand = (span) => /^(?:npx\s+)?rcf\s/.test(span);
+// A command read as one command with its arguments: { argv } or { error }.
+// Quotes and <...> / [...] placeholders must balance; a shell operator
+// outside a quote or a placeholder means the span is not one command.
+function readCommand(span) {
+  const s = span.trim();
+  const argv = [];
+  let cur = '';
+  let open = false;
+  const pairs = { '<': '>', '[': ']' };
+  for (let i = 0; i < s.length;) {
+    const c = s[i];
+    if (/\s/.test(c)) { if (open) { argv.push(cur); cur = ''; open = false; } i++; continue; }
+    if (c === "'" || c === '"') {
+      const j = s.indexOf(c, i + 1);
+      if (j < 0) return { error: `an unclosed ${c} quote` };
+      cur += s.slice(i, j + 1); open = true; i = j + 1; continue;
+    }
+    if (pairs[c]) {
+      let depth = 0;
+      let j = i;
+      for (; j < s.length; j++) {
+        if (s[j] === c) depth++;
+        else if (s[j] === pairs[c] && --depth === 0) break;
+      }
+      if (j >= s.length) return { error: `an unclosed ${c} placeholder` };
+      cur += s.slice(i, j + 1); open = true; i = j + 1; continue;
+    }
+    if (c === '>' || c === ']') return { error: `a stray ${c}` };
+    if ('|;&\\'.includes(c) || (c === '$' && s[i + 1] === '(')) return { error: `the shell operator ${c === '$' ? '$(' : c} outside a quote or a placeholder` };
+    cur += c; open = true; i++;
+  }
+  if (open) argv.push(cur);
+  return { argv };
+}
+
+test('guidance command reader canaries: readCommand reads plain commands, quotes and placeholders, and names every span it cannot read', () => {
+  assert.deepEqual(readCommand('rcf audit test-strength --acs <AC ids> --record').argv, ['rcf', 'audit', 'test-strength', '--acs', '<AC ids>', '--record']);
+  assert.deepEqual(readCommand('rcf build verdict test --runtime "<text>" [--tap <file>]').argv, ['rcf', 'build', 'verdict', 'test', '--runtime', '"<text>"', '[--tap <file>]']);
+  for (const [span, error] of [
+    ['rcf build verdict review --code MERGE|FINDINGS', /shell operator \|/],
+    ['rcf audit test-strength; rcf build verdict review', /shell operator ;/],
+    ['rcf audit test-strength && rcf build finalise', /shell operator &/],
+    ['rcf build verdict test --runtime "unclosed', /unclosed " quote/],
+    ['rcf audit test-strength --acs <AC ids --record', /unclosed < placeholder/],
+    ['rcf audit coverage > out.txt', /stray >/],
+    ['rcf audit test-strength --acs $(cat ids)', /shell operator \$\(/],
+  ]) assert.match(readCommand(span).error ?? '', error, `"${span}" is not read as one command`);
+  assert.deepEqual(inlineSpans('Run `rcf define validate` then\n```\nrcf audit coverage | head\n```\nand `rcf audit\ncoverage --strict`.'), ['rcf define validate', 'rcf audit coverage --strict']);
+});
+
+test('AC-20504-4: every inline rcf command in every document rcf guidance serves and every rcf://docs/ resource reads as one command with its arguments; a span that does not is named by document and text', async (t) => {
+  const topics = await rcf(['guidance', '--list'], {});
+  assert.equal(topics.code, 0, topics.stderr);
+  const names = [...new Set(lines(topics.stdout).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean))];
+  assert.ok(names.includes('build-cycle') && names.includes('overview') && names.length >= 10, `rcf guidance --list lists the topics (${names.length})\n${topics.stdout}`);
+  const docs = [];
+  for (const name of names) {
+    const r = await rcf(['guidance', name], {});
+    assert.equal(r.code, 0, `rcf guidance ${name}\n${r.stderr}`);
+    docs.push([`rcf guidance ${name}`, r.stdout]);
+  }
+  const dir = await project(t, { name: 'mcpcmd041' });
+  const listed = await mcp(dir, [{ method: 'resources/list', params: {} }]);
+  assert.equal(listed.code, 0, listed.stderr);
+  const uris = (listed.results[0]?.resources ?? []).map((r) => r.uri).filter((u) => u.startsWith('rcf://docs/'));
+  assert.ok(uris.includes('rcf://docs/build-cycle'), `the MCP server lists rcf://docs/build-cycle\n${uris.join('\n')}`);
+  const read = await mcp(dir, uris.map((uri) => ({ method: 'resources/read', params: { uri } })));
+  assert.equal(read.code, 0, read.stderr);
+  uris.forEach((uri, k) => docs.push([uri, (read.results[k]?.contents ?? []).map((c) => c.text ?? '').join('\n')]));
+
+  let commands = 0;
+  const unread = [];
+  for (const [where, text] of docs) {
+    for (const span of inlineSpans(text).filter(isRcfCommand)) {
+      commands++;
+      const { error } = readCommand(span);
+      if (error) unread.push(`${where}: \`${span}\`: ${error}`);
+    }
+  }
+  assert.ok(commands >= 100, `given: the served documents carry inline rcf commands (${commands})`);
+  assert.deepEqual(unread, [], `every inline rcf command in a served document reads as one command (${unread.length} do not)\n${unread.join('\n')}`);
 });
 
 test('AC-20504-2: the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text, REVIEW rcf audit test-strength read-only with no --record, and TEST rcf audit test-strength --record', async (t) => {

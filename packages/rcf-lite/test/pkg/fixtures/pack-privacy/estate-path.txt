@@ -1,2 +1,3 @@
 The probe layout is specified in {{projects}}/sample-product/specs/probe-layout.md section 4.
 The plan was drafted in agents/sample-agent/notes/2026-01-01/plan.md before the build.
+The review notes sit in {{projects}}/Sample_Product.v2/docs/review.md beside the plan.

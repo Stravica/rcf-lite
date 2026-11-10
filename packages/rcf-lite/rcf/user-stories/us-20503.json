@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-06T23:19:43.636Z",
-  "updatedAt": "2026-11-10T15:33:39.528Z",
+  "updatedAt": "2026-11-10T19:40:28.928Z",
   "asA": "adopter whose agents read the managed block rcf init writes",
   "iWant": "the block to state the twelve rules of the build cycle and none of the harness text",
   "soThat": "every agent in my project works to the public method, and an upgrade through rcf doctor --fix leaves my own text alone",
@@ -27,6 +27,12 @@
     {
       "id": "AC-20503-3",
       "description": "[happy] Given a project whose CLAUDE.md carries, between project text of its own, the managed block the 0.40.1 `rcf init` wrote, when `rcf doctor` runs, then it exits 3 naming the stale agent-instructions block in CLAUDE.md; when `rcf doctor --fix` runs, then it exits 0 and rewrites only the text between the markers, to the block of AC-20503-1, the text above and below the markers byte-identical; and a second `rcf doctor` exits 0.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20503-4",
+      "description": "[must-not] Given a project whose CLAUDE.md carries a stale managed block whose end marker is followed by a CRLF line ending, or by the end of the file, when `rcf doctor --fix` runs, then it exits 2, names CLAUDE.md, and writes nothing: the file stays byte-identical, so no rewrite changes a byte outside the markers.",
       "testable": true,
       "verification": "testOnly"
     }

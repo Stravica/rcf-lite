@@ -1,13 +1,15 @@
 {
   "createdAt": "2026-11-06T23:21:21.730Z",
-  "updatedAt": "2026-11-10T15:32:38.454Z",
+  "updatedAt": "2026-11-10T19:51:04.152Z",
   "purpose": "Each criterion of US-20501 driven through the real npm pack in packages/rcf-lite and, for the journey, the tarball it writes installed into a fresh directory and run through the installed package's own bin with a read-logging preload (test/fixtures/read-log/hook.mjs).",
   "testLevel": "e2e",
   "acIds": [
     "AC-20501-1",
     "AC-20501-2",
     "AC-20501-3",
-    "AC-20501-4"
+    "AC-20501-4",
+    "AC-20501-5",
+    "AC-20501-6"
   ],
   "id": "TS-307",
   "usId": "US-20501",
@@ -40,6 +42,27 @@
       "description": "AC-20501-4: no file in the tarball npm pack produces carries a developer home directory, an internal specification or estate path, or a consumer project, team or developer handle; the consumer names come from RCF_PRIVACY_FORBIDDEN_TERMS (the repository secret in CI), and a run without it prints one line naming the skipped class and still checks the generic shapes",
       "status": "pending",
       "testPointer": "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-4: no file in the tarball npm pack produces carries a developer home directory, an internal specification or estate path, or a consumer project, team or developer handle"
+    },
+    {
+      "id": "TC-307-ac-20501-4-workflows-every-workflow-step",
+      "acId": "AC-20501-4",
+      "description": "AC-20501-4 workflows: every workflow step that runs the package test suite maps RCF_PRIVACY_FORBIDDEN_TERMS from the repository secret of the same name",
+      "status": "pending",
+      "testPointer": "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-4 workflows: every workflow step that runs the package test suite maps RCF_PRIVACY_FORBIDDEN_TERMS from the repository secret of the same name"
+    },
+    {
+      "id": "TC-307-ac-20501-5-every-file-in-the-tarball-npm",
+      "acId": "AC-20501-5",
+      "description": "AC-20501-5: every file in the tarball npm pack produces reads as plain text to the privacy scan, or is named as unscanned unless its path is on the decisions-ledger allow-list",
+      "status": "pending",
+      "testPointer": "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-5: every file in the tarball npm pack produces reads as plain text to the privacy scan, or is named as unscanned unless its path is on the decisions-ledger allow-list"
+    },
+    {
+      "id": "TC-307-ac-20501-6-where-the-consumer-list-is",
+      "acId": "AC-20501-6",
+      "description": "AC-20501-6: where the consumer list is expected (the workflow steps that run the suite declare RCF_PRIVACY_TERMS_EXPECTED), an empty list fails the privacy check by name; where it is not expected, the consumer class is reported as skipped with one printed line, never as passed",
+      "status": "pending",
+      "testPointer": "test/pkg/pack-privacy-0-41-0.test.js::AC-20501-6: where the consumer list is expected (the workflow steps that run the suite declare RCF_PRIVACY_TERMS_EXPECTED), an empty list fails the privacy check by name; where it is not expected, the consumer class is reported as skipped with one printed line, never as passed"
     }
   ],
   "status": "draft"
