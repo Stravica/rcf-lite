@@ -1,0 +1,28 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "9335d5e1bd88793df1f4be9c0dea6c5bb217cc21",
+  "fbsIds": [
+    "FBS-244"
+  ],
+  "touchedAcIds": [
+    "AC-19901-10",
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-19905-2",
+      "text": "R1 src/audit/test-strength/python.js:43 takes a target's body span from its first statement's lineno and col_offset, which for a decorated nested def or class is the def or class line, so its decorators stay and the noOp and stubToThrow splices leave a module that does not parse; both mutants then read killed by the import failure, and a bound test that cannot tell the body from pass reads PASS with exit 0 where AC-19905-2 says the noOp mutant survives and the run exits 4"
+    }
+  ],
+  "recordedBy": "reviewer",
+  "recordedAt": "2026-11-09T18:15:19.708Z"
+}

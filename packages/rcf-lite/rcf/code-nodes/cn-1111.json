@@ -1,0 +1,10 @@
+{
+  "cnId": "CN-1111",
+  "path": "src/audit/test-strength/runner.js#dropBytecode",
+  "implementsAcIds": [],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-09T14:01:50.311Z",
+  "updatedAt": "2026-11-09T14:01:50.311Z"
+}

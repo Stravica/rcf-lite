@@ -3479,6 +3479,236 @@
       "answer": "a. The round opens on these terms, 2026-11-08.",
       "answeredAt": "2026-11-08T23:52:54.753Z",
       "resolvedAt": "2026-11-08T23:52:54.753Z"
+    },
+    {
+      "id": 159,
+      "question": "ROUND OPEN, 2026-11-09: the Python round (release 0.42.0), a new-spec round on FBS-244, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-19905-1 (full), AC-19905-2 (full), AC-19905-3 (full), AC-19905-4 (full), AC-19901-10 (full). DEFINE HEAD: cb4f7214. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-09T20:00:00Z. TIER: T2 (the maintainers' operating note). SCOPE: rcf audit test-strength judges symbol-level .py Code Nodes through the host python3 with the standard library ast module only and the JavaScript operator set (stubToThrow, noOp, callRemoval), the TestStrengthReport v1 shape unchanged; python3 absent or below 3.9 is a per-criterion BLOCKED; a Code Node #symbol on a Python def resolves at validate; AC-19901-9 is retired and succeeded by AC-19901-10, never reworded. OUT OF SCOPE: silent-default parity for Python symbols, Python test runners and test pointers (a .py bound test file stays BLOCKED), further mutation operators, and file-level .py Code Nodes (they keep the whole-run exit 2). FBS-244 is minted notStarted in this pass and stays notStarted until FINALISE; FINALISE cuts 0.42.0 on the pull request branch. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-09T07:27:34.734Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-09.",
+      "answeredAt": "2026-11-09T07:27:43.291Z",
+      "resolvedAt": "2026-11-09T07:27:43.291Z"
+    },
+    {
+      "id": 160,
+      "question": "ROUND SCOPE, 2026-11-09: the Python round (release 0.42.0) on FBS-244, DEFINE pass 2, the reserve pass. The spec-readiness question count and the whole-plan pass, both run before the first BUILD, found gaps that change tests and criteria; this pass spends the reserve on them, once. CRITERIA IN SCOPE (proof level): AC-19905-1 (full), AC-19905-2 (full), AC-19905-3 (full), AC-19905-4 (full), AC-19905-5 (full, new: a claimed .py Code Node python3 cannot read is a named per-criterion BLOCKED, never a pass and never a guess), AC-19901-10 (full). WORDING ONLY, MEANING KEPT: AC-19905-3 names a python3 that gives no version beside one absent or below 3.9; AC-19905-4 names a def with type parameters on its line. BUDGET: both DEFINE passes are now spent. DUE: 2026-11-09T20:00:00Z. Does the round continue on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round continues on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not continue"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:22.605Z",
+      "status": "resolved",
+      "answer": "a. The round continues on these terms, 2026-11-09.",
+      "answeredAt": "2026-11-09T11:01:22.982Z",
+      "resolvedAt": "2026-11-09T11:01:22.982Z"
+    },
+    {
+      "id": 161,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, spec readiness Q4) Where do the offsets of a Python mutant's splice come from, and what of the file stays byte-identical?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "splice offsets come from the ast spans (lineno, col_offset, end_lineno, end_col_offset) converted from UTF-8 byte offsets to the file's string offsets; line endings are preserved byte for byte, CRLF included; everything outside the spliced span stays byte-identical"
+        },
+        {
+          "letter": "b",
+          "text": "no recorded reading: the offsets and what stays byte-identical are the builder's call"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:23.180Z",
+      "status": "resolved",
+      "answer": "a. Reason: a mis-spliced mutant that fails to load counts as killed, which would hide a vacuous test from the audit built to find it.",
+      "answeredAt": "2026-11-09T11:01:23.562Z",
+      "resolvedAt": "2026-11-09T11:01:23.562Z"
+    },
+    {
+      "id": 162,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, spec readiness Q5) What does rcf audit test-strength do with a python3 on PATH that gives no version?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "python3 on PATH whose --version exits non-zero, times out or prints no parseable version is the same per-criterion BLOCKED, reason TEST_STRENGTH_UNSUPPORTED, detail '<file>: Python sources need python3 >= 3.9 on PATH (python3 gave no version)'; JS criteria are still judged, exit 5, never a crash"
+        },
+        {
+          "letter": "b",
+          "text": "a python3 that gives no version is treated as absent and its detail reads (python3 not found)"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:23.769Z",
+      "status": "resolved",
+      "answer": "a. Reason: real hosts reach it (a platform python3 stub without developer tools, a version-manager shim with no version selected).",
+      "answeredAt": "2026-11-09T11:01:24.157Z",
+      "resolvedAt": "2026-11-09T11:01:24.157Z"
+    },
+    {
+      "id": 163,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, spec readiness Q6) What does rcf audit test-strength do with a claimed .py Code Node file that fails ast.parse, and with a non-claimed .py file that fails it?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a claimed .py Code Node file that fails ast.parse (a syntax error, or syntax newer than the host python3) is per-criterion BLOCKED, reason TEST_STRENGTH_UNSUPPORTED, detail '<file>:<line>:<col>: <the SyntaxError message>' from the error's 1-based line and column; other criteria are still judged, exit 5; a non-claimed .py file that fails to parse is skipped as a call-site source, as unreadable JS is"
+        },
+        {
+          "letter": "b",
+          "text": "a claimed .py file that does not parse makes the whole run exit 2"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:24.355Z",
+      "status": "resolved",
+      "answer": "a. Reason: it mirrors AC-19901-10 for JS, and the 3.9 floor makes newer syntax likely.",
+      "answeredAt": "2026-11-09T11:01:24.803Z",
+      "resolvedAt": "2026-11-09T11:01:24.803Z"
+    },
+    {
+      "id": 164,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, spec readiness Q7, a default) What does rcf audit test-strength do when the structure read fails after a good python3 probe?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "a structure-read helper failure (a non-zero exit without a SyntaxError report, a signal, a timeout, or malformed output) is the same per-criterion BLOCKED, reason TEST_STRENGTH_UNSUPPORTED, detail '<file>: python3 structure read failed (<first stderr line, or timeout, or malformed output>)'; JS criteria are still judged, exit 5, no stack trace"
+        },
+        {
+          "letter": "b",
+          "text": "a failed structure read makes the whole run exit 2"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:24.995Z",
+      "status": "resolved",
+      "answer": "a. Reason: it keeps Python environment faults per criterion and the whole-run exit 2 for the audit's own unreadable inputs; rare, so no test this round.",
+      "answeredAt": "2026-11-09T11:01:25.400Z",
+      "resolvedAt": "2026-11-09T11:01:25.400Z"
+    },
+    {
+      "id": 165,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, whole-plan W3) How does the audit keep a Python run from executing a stale mutant's bytecode?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "after writing each .py mutant edit, and after restoring it, the audit deletes that module's cached bytecode (__pycache__/<stem>.*.pyc) in the working copy, so no Python run executes a stale mutant"
+        },
+        {
+          "letter": "b",
+          "text": "no step: the bytecode Python caches in the working copy is left as it is"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:25.599Z",
+      "status": "resolved",
+      "answer": "a. Reason: Python validates bytecode by mtime and size, so two equal-size mutants written in the same second could otherwise run the first one's bytecode; a same-second collision cannot be forced deterministically, so this line is the close and REVIEW reads the mechanism.",
+      "answeredAt": "2026-11-09T11:01:25.976Z",
+      "resolvedAt": "2026-11-09T11:01:25.976Z"
+    },
+    {
+      "id": 166,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, whole-plan W5) How is the structure-read helper started, so that the read never imports project code?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the structure-read helper runs as python3 -I -B with its program on argv or stdin and the file text on stdin, and its working directory is a scratch directory, never the project tree"
+        },
+        {
+          "letter": "b",
+          "text": "the helper runs as plain python3 -c with the project root as its working directory"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:26.189Z",
+      "status": "resolved",
+      "answer": "a. Reason: plain python3 -c with the project root as cwd puts the cwd first on the import path, so a project-root ast.py or json.py would run project code during the read.",
+      "answeredAt": "2026-11-09T11:01:26.573Z",
+      "resolvedAt": "2026-11-09T11:01:26.573Z"
+    },
+    {
+      "id": 167,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, whole-plan W6) What does release 0.42.0 do with a .py entry in rcf/test-strength.json?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "in this release a .py entry in rcf/test-strength.json keeps the whole-run exit 2 per AC-19901-10; a Python project declares an extensionless bin, or the module its node:test harness drives, as its entry; the help Sources paragraph and docs/code-nodes.md say so"
+        },
+        {
+          "letter": "b",
+          "text": "a .py entry in rcf/test-strength.json is judged as Python in this release"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:26.784Z",
+      "status": "resolved",
+      "answer": "a. Reason: judging a .py entry changes AC-19901-10's meaning, a scope call kept as a candidate for the owner.",
+      "answeredAt": "2026-11-09T11:01:27.161Z",
+      "resolvedAt": "2026-11-09T11:01:27.161Z"
+    },
+    {
+      "id": 168,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, whole-plan W8) Which Python grammar and standard library is the structure-read helper written to?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the helper program is written to the Python 3.9 grammar and standard library (no match statement, nothing newer than 3.9) and reads any ast field newer than 3.9 with getattr(node, field, None)"
+        },
+        {
+          "letter": "b",
+          "text": "the helper may use any grammar the host python3 accepts"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:27.346Z",
+      "status": "resolved",
+      "answer": "a. Reason: the 3.9 floor is never exercised by a real 3.9 interpreter in this round, so REVIEW reads the helper against this line.",
+      "answeredAt": "2026-11-09T11:01:27.753Z",
+      "resolvedAt": "2026-11-09T11:01:27.753Z"
+    },
+    {
+      "id": 169,
+      "question": "(rcf-lite 0.42.0 DEFINE, pass 2, open class on AC-19905-4) Which def lines does the Code Node def anchor resolve?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the def anchor accepts a '[' or '(' after the name, so a single-line def with type parameters resolves; a def split across lines stays a recorded candidate"
+        },
+        {
+          "letter": "b",
+          "text": "the def anchor accepts only a ( after the name, and a def with type parameters reads as staleCode"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-244",
+      "addedAt": "2026-11-09T11:01:27.946Z",
+      "status": "resolved",
+      "answer": "a. Reason: an open-class check: a text anchor decides only instances, and a false staleCode would be a guess, so the class is closed in the mechanism for single-line defs.",
+      "answeredAt": "2026-11-09T11:01:28.342Z",
+      "resolvedAt": "2026-11-09T11:01:28.342Z"
     }
   ]
 }

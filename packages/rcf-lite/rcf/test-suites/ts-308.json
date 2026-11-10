@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-06T23:21:22.406Z",
-  "updatedAt": "2026-11-07T00:17:16.154Z",
+  "updatedAt": "2026-11-09T07:38:18.142Z",
   "purpose": "Each criterion of US-20502 driven through bin/rcf.js as a child process over a fixture project made by its own rcf init and committed to git (or a fixture git repository for the audit), with well-formed verdict and TestStrengthReport records keyed to their heads; AC-20502-5 is bound to the existing audit tests that pin each exit code (regression guards).",
   "testLevel": "e2e",
   "acIds": [
@@ -60,9 +60,9 @@
     {
       "id": "TC-308-regression-guard-for-ac-20502-5-exit-5",
       "acId": "AC-20502-5",
-      "description": "regression guard for AC-20502-5 (exit 5, one criterion blocked and none failing): AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read",
+      "description": "regression guard for AC-20502-5 (exit 5, one criterion blocked and none failing): AC-19901-10: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-9: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.py, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+      "testPointer": "test/cli/audit-test-strength.test.js::AC-19901-10: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
     },
     {
       "id": "TC-308-regression-guard-for-ac-20502-5-exit-2-a",

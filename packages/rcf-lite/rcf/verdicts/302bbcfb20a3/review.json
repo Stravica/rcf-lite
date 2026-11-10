@@ -1,0 +1,28 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "302bbcfb20a394ffda907a1f977b8d39da81ad56",
+  "fbsIds": [
+    "FBS-244"
+  ],
+  "touchedAcIds": [
+    "AC-19901-10",
+    "AC-19905-1",
+    "AC-19905-2",
+    "AC-19905-3",
+    "AC-19905-4",
+    "AC-19905-5"
+  ],
+  "code": "FINDINGS",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-19905-2",
+      "text": "R2 src/audit/test-strength/python.js:216 backs up from a decorated first statement's earliest decorator expression to its @ over blanks and continuations only; a parenthesised decorator such as @(cache) stops the backtrack at the paren, so the noOp and stubToThrow splices leave '@(' behind, the mutant does not parse and reads killed through the load error, and a test that cannot tell the body from pass reads PASS exit 0 where AC-19905-2 says noOp survives, exit 4"
+    }
+  ],
+  "recordedBy": "reviewer",
+  "recordedAt": "2026-11-09T20:01:32.638Z"
+}

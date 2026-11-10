@@ -1,0 +1,8 @@
+#!/bin/sh
+# A python3 that reports a version below the test-strength audit's floor
+# (3.9). It answers --version and -V as python3 does and runs nothing else.
+case "$1" in
+  --version|-V) echo "Python 3.8.18"; exit 0 ;;
+esac
+echo "python3 3.8.18 (fixture shim): only --version and -V are answered" >&2
+exit 2

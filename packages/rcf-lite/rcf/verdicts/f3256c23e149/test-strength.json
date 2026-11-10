@@ -1,0 +1,543 @@
+{
+  "version": 1,
+  "head": "f3256c23e149f969ea4d77c2475f81b12d6fd00e",
+  "scope": "acs",
+  "criteria": [
+    {
+      "acId": "AC-102-1",
+      "structural": {
+        "result": "fail",
+        "findings": [
+          "imports src/core/store/init.js (not the app entry or the harness)",
+          "imports src/core/store/walker.js (not the app entry or the harness)",
+          "imports test/_helpers/scratch.js (not the app entry or the harness)",
+          "imports src/discovery/record.js (not the app entry or the harness)"
+        ]
+      },
+      "mutants": [],
+      "result": "fail"
+    },
+    {
+      "acId": "AC-19901-10",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-10: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength.test.js::AC-19901-10: a bound test file test/rcf/a.test.py, or a symbol-level Code Node on src/x.rb, makes AC-101-1 BLOCKED (result \"blocked\", reason \"TEST_STRENGTH_UNSUPPORTED\", detail naming the file) while AC-101-2 is still judged, exit 5; a malformed runners entry exits 2; .js, .mjs and .cjs files are read"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19905-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonReader",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonReader",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonReader",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyTargets",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyTargets",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyTargets",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRewriteBody",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRewriteBody",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRewriteBody",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRemoveCalls",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRemoveCalls",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRemoveCalls",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/structural.js#silentDefaults",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/structural.js#silentDefaults",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/structural.js#silentDefaults",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/runner.js#runMutants",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/mutants.js#criterionMutants",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/mutants.js#criterionMutants",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-1: AC-101-1 claiming the top-level def src/paths.py#canonical and AC-101-2 the class src/config.py#Config, bound to node:test tests that run the Python through python3, exits 0 with \"test-strength: PASS 2 criteria at <h7>: structural 2/2, mutants killed 12/12 (timeout 0, notApplicable 3)\": three mutants on the def and on each method but __init__ (the classmethod and the async method included), callRemoval killed at a statement-level call site and notApplicable with none, the TestStrengthReport v1 shape unchanged, the project tree byte-identical, and a project-root json.py and ast.py that leave a marker when imported never imported (no marker afterwards); and src/config.py#Config.lookup names that one method"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/mutants.js#criterionMutants",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19905-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRewriteBody",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRewriteBody",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyRewriteBody",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyOffset",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyOffset",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pyOffset",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#lineStarts",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#lineStarts",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-2: AC-101-1 claiming src/paths.py#record, bound only to a test that shows record runs (test/record.test.mjs), where src/paths.py has non-ASCII text on lines of its own before the body (a character outside the Basic Multilingual Plane included) and CRLF line endings, leaves the noOp mutant survived (the spliced module still parses): exit 4, AC-101-1 result \"fail\", and the FAIL line \"test-strength: FAIL 1 of 1 criteria at <h7>: AC-101-1 vacuous: noOp on src/paths.py#record survived 1 bound tests\""
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#lineStarts",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19905-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/python.js#probePython",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#probePython",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#probePython",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonReader",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonReader",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonReader",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-3: with no python3 on PATH, AC-101-1 claiming src/paths.py#canonical is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/paths.py: Python sources need python3 >= 3.9 on PATH (python3 not found)\", while AC-101-2 claiming src/slug.js#slug is judged pass, exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/paths.py)\"; with a python3 that reports 3.8.18 the detail ends \"(python3 is 3.8.18)\", and with a python3 that prints nothing and exits 1 on --version \"(python3 gave no version)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19905-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/core/store/cn-resolve.js#anchorsFor",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/validate-py-def-anchor.test.js::AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level, async def canonical( indented in a class, or def canonical[T]( with type parameters at the top level (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving"
+          ]
+        },
+        {
+          "symbol": "src/core/store/cn-resolve.js#anchorsFor",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/validate-py-def-anchor.test.js::AC-19905-4: a Code Node src/mod.py#canonical resolves at rcf define validate where src/mod.py declares def canonical( at the top level, async def canonical( indented in a class, or def canonical[T]( with type parameters at the top level (exit 0, no staleCode); after the def is renamed validate exits 3 with staleCode rule symbolResolves on that Code Node alone; the Code Node src/mod.py#Settings on a Python class keeps resolving"
+          ]
+        },
+        {
+          "symbol": "src/core/store/cn-resolve.js#anchorsFor",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19905-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/python.js#pythonStructure",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-py.test.js::AC-19905-5: AC-101-1 claiming src/broken.py#parse, a .py file the host python3 cannot parse, is blocked, reason TEST_STRENGTH_UNSUPPORTED, detail \"src/broken.py:<line>:<col>: <the SyntaxError message>\" from the 1-based line and column the host python3 reports, never a pass and never a guess, while AC-101-2 claiming src/slug.js#slug is judged pass: exit 5 with \"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed 2/2 (timeout 0, notApplicable 1, blocked 1): AC-101-1 (src/broken.py)\"; the audit never crashes"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20502-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [],
+      "result": "fail"
+    }
+  ],
+  "result": "fail",
+  "totals": {
+    "criteria": 8,
+    "structuralPassed": 7,
+    "mutants": 60,
+    "killed": 40,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 20,
+    "blocked": 0
+  },
+  "wallMs": 173231,
+  "node": "v24.14.0"
+}

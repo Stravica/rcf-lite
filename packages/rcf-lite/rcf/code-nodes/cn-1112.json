@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1112",
+  "path": "src/core/store/cn-resolve.js#anchorsFor",
+  "implementsAcIds": [
+    "AC-19905-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-09T14:01:51.336Z",
+  "updatedAt": "2026-11-09T14:01:51.336Z"
+}

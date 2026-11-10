@@ -6,7 +6,7 @@
     "covered": 136,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 67
+    "retiredAcs": 68
   },
   "requirements": [
     {
@@ -11541,9 +11541,10 @@
         },
         {
           "id": "AC-19901-9",
-          "covered": true,
+          "state": "retired",
+          "supersededBy": "AC-19901-10",
+          "covered": false,
           "testCases": [
-            "TC-282-a-bound-test-file-test-rcf-a-test-py-or",
             "TC-282-a-byte-order-mark-a-form-feed-and-a",
             "TC-282-a-combining-mark-starting-a-token-is",
             "TC-282-a-file-whose-lines-end-in-a-lone-cr",
@@ -11596,8 +11597,20 @@
           ],
           "unresolvedTestCases": [],
           "verification": "external",
+          "expectedEnd": null,
+          "now": "retired"
+        },
+        {
+          "id": "AC-19901-10",
+          "covered": true,
+          "testCases": [
+            "TC-282-a-py-code-node-python3-cannot-parse-blocked",
+            "TC-282-a-py-test-file-or-an-rb-code-node-blocked"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
           "expectedEnd": "verified",
-          "now": "verified"
+          "now": "complete"
         },
         {
           "id": "AC-19902-1",
@@ -12039,6 +12052,71 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "verified"
+        },
+        {
+          "id": "AC-19905-1",
+          "covered": true,
+          "testCases": [
+            "TC-311-ac-101-1-claiming-the-top-level-def-src",
+            "TC-311-canonical-call-removal-scored",
+            "TC-311-config-method-splices-importable",
+            "TC-311-cross-file-call-site-remember-word",
+            "TC-311-record-non-ascii-crlf-splice",
+            "TC-311-unparseable-py-not-judged"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19905-2",
+          "covered": true,
+          "testCases": [
+            "TC-311-ac-101-1-claiming-src-paths-py-record",
+            "TC-311-canonical-call-removal-survives",
+            "TC-311-config-methods-survive-unexercised",
+            "TC-311-decorated-first-statement-noop-survives",
+            "TC-311-parenthesised-decorator-first-noop-survives"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19905-3",
+          "covered": true,
+          "testCases": [
+            "TC-311-unparseable-py-js-still-judged",
+            "TC-311-with-no-python3-on-path-ac-101-1"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19905-4",
+          "covered": true,
+          "testCases": [
+            "TC-311-a-code-node-src-mod-py-canonical"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19905-5",
+          "covered": true,
+          "testCases": [
+            "TC-311-unparseable-py-code-node-blocked"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
         }
       ]
     },
@@ -13813,6 +13891,11 @@
     },
     {
       "fbsId": "FBS-243",
+      "expectedEnd": "verified",
+      "now": "complete"
+    },
+    {
+      "fbsId": "FBS-244",
       "expectedEnd": "verified",
       "now": "complete"
     }

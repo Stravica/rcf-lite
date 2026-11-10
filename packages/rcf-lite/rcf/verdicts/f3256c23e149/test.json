@@ -1,0 +1,21 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "f3256c23e149f969ea4d77c2475f81b12d6fd00e",
+  "fbsIds": [
+    "FBS-244"
+  ],
+  "result": "PASS",
+  "suite": {
+    "pass": 15,
+    "fail": 0,
+    "skip": 0,
+    "todo": 0,
+    "cancelled": 0
+  },
+  "runtime": "packed artefact: npm pack of f3256c23e149 installed into a clean scratch project on Node 24; the touched criteria's bound tests from the reviewed head's checkout; the full RCF suite on CI at that head",
+  "node": "v24.14.0",
+  "reason": null,
+  "recordedBy": "verifier",
+  "recordedAt": "2026-11-10T08:47:53.471Z"
+}

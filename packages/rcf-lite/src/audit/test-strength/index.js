@@ -24,7 +24,8 @@
 // rcf/test-strength.json runners entry matching it (else the legacy
 // runner, else kind nodeTest), and the verb reads that runner's report.
 // TypeScript, JSX and Vue files are read through their views
-// (source.js). A file the audit cannot read makes its criterion BLOCKED
+// (source.js); symbol-level .py Code Nodes through the host's python3
+// (python.js, FBS-244, US-19905). A file the audit cannot read makes its criterion BLOCKED
 // (result blocked, reason TEST_STRENGTH_UNSUPPORTED, the stage-keeper's
 // ruling Q2 (a)); exit precedence 2 over 4 (fail) over 5 (blocked) over 0.
 
@@ -36,6 +37,7 @@ import { CLASS_OWNERS, classifyPath, readObjects, runGit } from '../separation.j
 import { verdictFile } from '../../build/verdict.js';
 import { loadConfig, runnerFor } from './config.js';
 import { CODE_EXT, SOURCE_EXT, criterionMutants, splitNode } from './mutants.js';
+import { PY_EXT, pythonReader } from './python.js';
 import { NotRunError, backstopTree, firstForbidden, forbiddenRoots, packageDir, runDir, runMutants, runUnmutated, scratchPlace } from './runner.js';
 import { READ_EXT, importSpecifiers, parseFile, sourceView } from './source.js';
 import { silentDefaults, testFileFindings } from './structural.js';
@@ -257,13 +259,22 @@ export async function auditTestStrength({
   // read makes its criterion BLOCKED: each file's first unreadable
   // construct, in bound order (the bound tests, then the Code Nodes).
   const views = new Map();
+  // US-19905: a symbol-level .py Code Node file is read through the host's
+  // python3 (python.js); a .py bound test file is still a file the audit cannot read.
+  const python = pythonReader();
   // A position node gave that the audit could not check is said so in one stderr line each.
   const placement = [];
   for (const c of criteria) {
-    const read = [...new Set([...c.tests.map((t) => t.file), ...c.nodes.map((n) => splitNode(n.path)).filter((n) => n.symbol).map((n) => n.file)])];
+    const testFiles = new Set(c.tests.map((t) => t.file));
+    const read = [...new Set([...testFiles, ...c.nodes.map((n) => splitNode(n.path)).filter((n) => n.symbol).map((n) => n.file)])];
     const unread = [];
     for (const file of read) {
       if (typeof texts.get(file) !== 'string') continue;
+      if (PY_EXT.test(file) && !testFiles.has(file)) {
+        const py = python.read(file, texts.get(file));
+        if (!py.ok) unread.push({ file, detail: py.detail });
+        continue;
+      }
       if (!views.has(file)) {
         views.set(file, sourceView(file, texts.get(file)));
         if (views.get(file).warn) placement.push(views.get(file).warn);
@@ -291,7 +302,7 @@ export async function auditTestStrength({
   let sourceCache = null;
   const sources = async () => {
     if (sourceCache) return sourceCache;
-    const paths = [...files].filter((p) => READ_EXT.test(p) && !/\.d\.[mc]?ts$/.test(p) && !p.split('/').includes('node_modules') && !TEST_CLASSES.has(classifyPath(p))
+    const paths = [...files].filter((p) => (READ_EXT.test(p) || PY_EXT.test(p)) && !/\.d\.[mc]?ts$/.test(p) && !p.split('/').includes('node_modules') && !TEST_CLASSES.has(classifyPath(p))
       && !config.harnessRe.some((re) => re.test(p)));
     sourceCache = new Map();
     (await readObjects(git, paths.map((p) => `HEAD:./${p}`))).forEach((blob, i) => { if (!blob.missing) sourceCache.set(paths[i], blob.text); });
@@ -305,7 +316,7 @@ export async function auditTestStrength({
     if (!c.nodes.length) c.reasons.push('no Code Node');
     if (!c.tests.length) c.reasons.push('unbound');
     if (!c.nodes.length) continue;
-    const built = await criterionMutants(c.nodes, { texts, sources, parsed });
+    const built = await criterionMutants(c.nodes, { texts, sources, parsed, python });
     if (!built.symbolLevel && built.fileLevelSource) c.reasons.push('no symbol-level Code Node');
     c.reasons.push(...built.unmutable.map((p) => `no mutable symbol ${p}`));
     for (const m of built.mutants) {
