@@ -1,0 +1,2 @@
+The brief is described in detail at {{users}}/someone/scratch/brief.md.
+Logs were copied from {{home}}/someone/work/run.log for the report.

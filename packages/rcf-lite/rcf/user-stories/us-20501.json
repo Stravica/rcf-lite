@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-06T23:19:41.949Z",
-  "updatedAt": "2026-11-07T00:17:13.524Z",
+  "updatedAt": "2026-11-10T15:28:17.404Z",
   "asA": "adopter installing rcf-lite from npm",
   "iWant": "the package to carry only the tool, not rcf-lite's own requirements chain",
   "soThat": "reviewer names, verdicts and the rulings ledger of the tool's own development never land in my node_modules",
@@ -27,6 +27,12 @@
     {
       "id": "AC-20501-3",
       "description": "[must-not] Given the tarball `npm pack` produces in packages/rcf-lite, when every packed file is read (including `guidance/`, `guidance/discovery/`, `src/`, `blueprints/`, `fixtures/`, `releases/` and `CHANGELOG.md`), then none carries rcf-lite development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id (shapes `relay <uuid>`, `w-YYYY-MM-DD-...`, `d-YYYY-MM-DD-NNN`, `r-YYYYMMDD-HHMMSS-xxxx`); no verdict record; no quoted or cited development ruling. In particular the tarball carries neither `Dave 2026-10-07` nor relay `9d3dd0a3-e7e5-4c6a-985e-c3962be38d4c`.",
+      "testable": true,
+      "verification": "testOnly"
+    },
+    {
+      "id": "AC-20501-4",
+      "description": "[must-not] Given the tarball `npm pack` produces in packages/rcf-lite, when every packed file is read (including `guidance/`, `src/`, `blueprints/`, `fixtures/`, `releases/` and `CHANGELOG.md`), then none carries a developer home directory (a path `/Users/<name>/...` or `/home/<name>/...`), an internal specification or estate path (a path `projects/<name>/specs/`, `spec/`, `docs/`, `wireframes/` or `notes/`, or a path into a maintainer's agent workspace, `agents/<name>/notes/` and kin), or the name of a consumer project, a consuming team or a developer handle. The consumer, team and handle names are a list the maintainers keep outside the public tree, read from the repository secret `RCF_PRIVACY_FORBIDDEN_TERMS` (one whole-word, case-sensitive term per line).",
       "testable": true,
       "verification": "testOnly"
     }

@@ -3709,6 +3709,48 @@
       "answer": "a. Reason: an open-class check: a text anchor decides only instances, and a false staleCode would be a guess, so the class is closed in the mechanism for single-line defs.",
       "answeredAt": "2026-11-09T11:01:28.342Z",
       "resolvedAt": "2026-11-09T11:01:28.342Z"
+    },
+    {
+      "id": 170,
+      "question": "ROUND OPEN, 2026-11-10: round 3, an amend round on FBS-243, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-20501-3 (journey), AC-20501-4 (journey; new in this pass, minted under US-20501 and joined to FBS-243), AC-20502-1 (full), AC-20502-3 (full), AC-20502-4 (full), AC-20502-5 (full), AC-20502-6 (full), AC-20503-1 (journey), AC-20504-1 (journey), AC-20504-2 (journey). DEFINE HEAD: 622d783c030cb842ccbb40dfaa43f421beba0b2a. BUDGET: two DEFINE passes; this is pass 1. BUDGET: binding an open-class ruling as its sibling criterion spends the reserve pass, the round's last DEFINE pass; after that, a later REVIEW or TEST finding that needs a test halts the round OVER_BUDGET; overnight an extra pass is allowed, with a written line per pass (what it fixes, why DEFINE could not have caught it, what says this pass closes it); two consecutive passes on one finding class is circling: stop and relay. DUE: 2026-11-11T06:00:00Z. TIER: T2 (the maintainers' operating note). AC-20501-3 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20503-1 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20504-1 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20504-2 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20501-4 at journey: new in this round, with no level at the base; owner ruling of 2026-11-07, recorded with the maintainers. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T15:34:12.570Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-10.",
+      "answeredAt": "2026-11-10T15:34:16.997Z",
+      "resolvedAt": "2026-11-10T15:34:16.997Z"
+    },
+    {
+      "id": 171,
+      "question": "ROUND READINGS, 2026-11-10: round 3 on FBS-243, DEFINE pass 1, how the round's recorded rulings shape its tests. AC-20501-3 keeps its meaning: its bound test's cited-ruling kind now names any authority (maintainer, owner, operator, stage-keeper, reviewer) followed by a date or a ruling number. AC-20501-4 is a new criterion beside it, bound in TS-307 by a new test case over the same unpacked tarball: the committed test carries only generic shapes (a developer home directory; a project specification, docs, wireframes or notes path; a maintainer agent-workspace path); the consumer, team and handle names are read at run time from RCF_PRIVACY_FORBIDDEN_TERMS, which CI fills from the repository secret of that name; without it the class prints one skip line and the other shapes still run; a hit on that class shows the term's position in the list, never the term; canary and near-miss fixtures under test/pkg/fixtures/pack-privacy/ prove the scan itself, and their forbidden shapes are filled in at run time. CHANGELOG.md and releases/releases.yaml are reworded in place, with no allow-list. AC-20503-1, AC-20504-1 and AC-20504-2 are amended in wording to the current rule 6 and to the recorded process ruling that TEST records test strength while REVIEW runs the audit read-only. AC-20502-1, AC-20502-3, AC-20502-4, AC-20502-5 and AC-20502-6 are in the round for their Code Node re-points only; their bound tests are unchanged. Tests rewritten outside the round's criteria, declared for the TEST strength record and neither claimed in scope nor flagged: the AC-20503-2 and AC-20503-3 tests (the twelve-rule helper they share moves with rules 6 and 8) and the AC-206-1 host fixture test (it now pins the neutral fixture name host-shell). Do the round's tests read the rulings this way?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the tests read the rulings this way"
+        },
+        {
+          "letter": "b",
+          "text": "they do not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T15:34:22.966Z",
+      "status": "resolved",
+      "answer": "a. The tests read the rulings this way, 2026-11-10.",
+      "answeredAt": "2026-11-10T15:34:26.695Z",
+      "resolvedAt": "2026-11-10T15:34:26.695Z"
     }
   ]
 }

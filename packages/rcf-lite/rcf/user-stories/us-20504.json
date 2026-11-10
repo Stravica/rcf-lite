@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-06T23:19:44.448Z",
-  "updatedAt": "2026-11-06T23:20:43.647Z",
+  "updatedAt": "2026-11-10T15:33:42.326Z",
   "asA": "agent or operator reading rcf guidance or a spec bundle",
   "iWant": "the build cycle, the runbook and the overview to state the twelve rules, rule 6 verbatim and test strength as a report",
   "soThat": "what the tool says and what it does agree",
@@ -14,13 +14,13 @@
   "acceptanceCriteria": [
     {
       "id": "AC-20504-1",
-      "description": "[happy] `rcf guidance build-cycle` and the MCP resource `rcf://docs/build-cycle` each state the twelve rules as one list numbered 1 to 12, read as AC-20503-1 reads them (rule 3 under ruling R0 E1, rules 5 and 6 verbatim); the DEFINE section's exit reads \"Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway.\"; the FINALISE section says Finalise requires the test-strength record and never refuses on its result. No document `rcf guidance` serves (every topic of `rcf guidance --list`, every `rcf://docs/` resource) and no runbook `rcf build bundle` prints (md, and json `completionContract`) contains \"proven red for the right reason\".",
+      "description": "[happy] `rcf guidance build-cycle` and the MCP resource `rcf://docs/build-cycle` each state the twelve rules as one list numbered 1 to 12, read as AC-20503-1 reads them (rule 3 under ruling R0 E1, rules 5 and 6 verbatim); the DEFINE section's exit reads \"From the named base-suite record, only the newly added or changed test cases fail at the DEFINE head, and each fails at its recorded assertion; an unrecorded baseline failure makes DEFINE BLOCKED. There is no throwaway implementation: the test-author proves red, and green is the builder's to prove.\"; the REVIEW section runs `rcf audit test-strength` read-only, with no `--record` and no line that test strength is recorded for the reviewer's adequacy verdict, and the TEST section runs `rcf audit test-strength --record`; the FINALISE section says Finalise requires the test-strength record and never refuses on its result. No document `rcf guidance` serves (every topic of `rcf guidance --list`, every `rcf://docs/` resource) and no runbook `rcf build bundle` prints (md, and json `completionContract`) contains \"proven red for the right reason\", \"the suite fails on exactly the new tests\" or \"test strength is recorded for the reviewer's adequacy verdict\", and no such document has a sentence that runs `rcf audit test-strength --record` beside `rcf build verdict review`.",
       "testable": true,
       "verification": "testOnly"
     },
     {
       "id": "AC-20504-2",
-      "description": "[happy] The runbook `rcf build bundle <fbs> --base-suite <green>` prints, in `--format md` and in the `--format json` `completionContract`, gives the DEFINE stage the rule 6 text (\"Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests.\", with no throwaway) and the REVIEW stage the line that test strength is recorded for the reviewer's adequacy verdict.",
+      "description": "[happy] The runbook `rcf build bundle <fbs> --base-suite <green>` prints, in `--format md` and in the `--format json` `completionContract`, gives the DEFINE stage the rule 6 text (\"From the named base-suite record, only the newly added or changed test cases fail at the DEFINE head, and each fails at its recorded assertion; an unrecorded baseline failure makes DEFINE BLOCKED.\", with no throwaway), gives the REVIEW stage `rcf audit test-strength` run read-only, with no `--record` among its commands and no line that test strength is recorded for the reviewer's adequacy verdict, and gives the TEST stage `rcf audit test-strength --record` among its commands.",
       "testable": true,
       "verification": "testOnly"
     },

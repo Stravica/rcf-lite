@@ -1,0 +1,2 @@
+The probe layout is specified in {{projects}}/sample-product/specs/probe-layout.md section 4.
+The plan was drafted in agents/sample-agent/notes/2026-01-01/plan.md before the build.

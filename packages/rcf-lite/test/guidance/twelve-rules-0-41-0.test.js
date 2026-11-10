@@ -70,8 +70,16 @@ function twelve(text) {
 }
 
 const RULE_5 = 'The hand that writes production code never writes or edits a criterion-bound test, a binding or criterion text. The audit enforces this by path on every commit, and the merge check runs the audit.';
-const RULE_6 = 'Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests.';
-const DEFINE_EXIT = 'Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway.';
+// Rule 6 and the DEFINE exit as the process states them since round 3:
+// red is measured against the named base-suite record, changed cases
+// count beside new ones, and an unrecorded baseline failure is BLOCKED.
+const RULE_6 = 'From the named base-suite record, only the newly added or changed test cases fail at the DEFINE head, and each fails at its recorded assertion; an unrecorded baseline failure makes DEFINE BLOCKED.';
+const NO_THROWAWAY = "There is no throwaway implementation: the test-author proves red, and green is the builder's to prove.";
+const DEFINE_EXIT = `${RULE_6} ${NO_THROWAWAY}`;
+// The superseded texts: the old rule 6, and REVIEW recording test
+// strength. TEST owns the record; REVIEW runs the audit read-only.
+const OLD_RULE_6 = 'the suite fails on exactly the new tests';
+const RECORDED_FOR_REVIEW = (s) => /test[- ]strength is recorded for the reviewer'?s adequacy verdict/i.test(s);
 
 // The twelve rules, in order, as rule 3 to rule 11 must read them (rulings R0 E1 and R4).
 function assertTwelve(text, where) {
@@ -85,7 +93,7 @@ function assertTwelve(text, where) {
   at(5, (s) => s.includes(RULE_5), `states separation verbatim: "${RULE_5}"`);
   at(6, (s) => s.includes(RULE_6) && /no throwaway/i.test(s), `states red-first verbatim: "${RULE_6}" and no throwaway`);
   at(7, (s) => /BUILD/.test(s), 'is the BUILD exit');
-  at(8, (s) => /REVIEW/.test(s), 'is REVIEW');
+  at(8, (s) => /REVIEW/.test(s) && !RECORDED_FOR_REVIEW(s), "is REVIEW, with no sentence that test strength is recorded for the reviewer's adequacy verdict");
   at(9, (s) => /TEST/.test(s), 'is TEST');
   at(10, (s) => /FINALISE/.test(s) && /complete/.test(s), 'is FINALISE writing complete');
   at(11, (s) => /round budget/i.test(s) && /two DEFINE passes/.test(s), 'is the round budget of two DEFINE passes');
@@ -204,7 +212,22 @@ function assertRegions(block, where) {
   // The Build loop.
   const loopWas = was.regions.find((r) => r.heading === 'Build loop').body;
   const loopNow = now.regions.find((r) => r.heading === 'Build loop')?.body ?? '';
-  assert.deepEqual(commandsIn(loopNow), commandsIn(loopWas), `${where}: the Build loop keeps exactly the 0.40.1 Build loop's rcf commands`);
+  const readOnly = (c) => /^rcf audit test-strength\b/.test(c) && !/--record\b/.test(c);
+  assert.deepEqual(commandsIn(loopNow).filter((c) => !readOnly(c)), commandsIn(loopWas), `${where}: the Build loop keeps exactly the 0.40.1 Build loop's rcf commands, beside REVIEW's read-only rcf audit test-strength`);
+  // Round 3: TEST owns test strength. The Build loop's REVIEW passage runs
+  // rcf audit test-strength read-only, with no --record; its TEST passage
+  // records it; no sentence of the block says REVIEW records it.
+  const loopFlat = flat(loopNow);
+  const reviewAt = loopFlat.indexOf('REVIEW (`REVIEW:`)');
+  const testAt = loopFlat.indexOf('TEST (`TEST:`)');
+  const finaliseAt = loopFlat.indexOf('FINALISE (`FINALISE:`)');
+  assert.ok(reviewAt >= 0 && testAt > reviewAt && finaliseAt > testAt, `${where}: the Build loop names REVIEW, TEST and FINALISE in that order\n${loopFlat}`);
+  const reviewPart = commandsIn(loopFlat.slice(reviewAt, testAt));
+  const testPart = commandsIn(loopFlat.slice(testAt, finaliseAt));
+  assert.ok(reviewPart.some(readOnly) && !reviewPart.some((c) => /test-strength/.test(c) && /--record\b/.test(c)), `${where}: the Build loop's REVIEW runs rcf audit test-strength read-only, with no --record\n${reviewPart.join('\n')}`);
+  assert.ok(testPart.some((c) => /^rcf audit test-strength\b/.test(c) && /--record\b/.test(c)), `${where}: the Build loop's TEST runs rcf audit test-strength --record\n${testPart.join('\n')}`);
+  assert.ok(!whole.includes(OLD_RULE_6), `${where} carries no "${OLD_RULE_6}"`);
+  assert.ok(!RECORDED_FOR_REVIEW(whole), `${where} carries no sentence that test strength is recorded for the reviewer's adequacy verdict`);
   const roleText = sentences(loopWas).filter((s) => handsIn(s) >= 2 || s.includes('`Hand:`'));
   assert.ok(roleText.length >= 2, 'given: the 0.40.1 Build loop carries the five-role text');
   const survived = roleText.filter((s) => whole.includes(s));
@@ -340,12 +363,18 @@ function jsonStage(contract, stage) {
   };
   walk(contract);
   assert.equal(found.length, 1, `completionContract carries one ${stage} stage\n${JSON.stringify(contract).slice(0, 1500)}`);
-  return JSON.stringify(found[0]);
+  return found[0];
 }
-const REVIEW_STRENGTH = (s) => /test[- ]strength is recorded for the reviewer'?s adequacy verdict/i.test(s);
 const PROVEN = 'proven red for the right reason';
+// The md runbook commands of one stage: its indented code lines.
+const mdCommands = (stageText) => lines(stageText).filter((l) => /^ {4}rcf /.test(l)).map((l) => l.trim());
+const mdProse = (stageText) => flat(lines(stageText).filter((l) => !/^ {4}rcf /.test(l)).join('\n'));
+const strengthRun = (c) => /^rcf audit test-strength\b/.test(c);
+const recordsStrength = (c) => strengthRun(c) && /--record\b/.test(c);
+// A sentence that runs the recording audit beside the REVIEW verdict.
+const recordAtReview = (text) => flat(text).split(/(?<=[.!?])\s+/).filter((s) => s.includes('rcf audit test-strength --record') && s.includes('rcf build verdict review'));
 
-test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with "No throwaway.", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says "proven red for the right reason"', async (t) => {
+test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with no throwaway, REVIEW runs test strength read-only and TEST records it, the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook carries the superseded rule 6 or REVIEW-recording text', async (t) => {
   const cli = await guidance('build-cycle');
   const dir = await project(t, { name: 'mcp041' });
   const listed = await mcp(dir, [{ method: 'resources/list', params: {} }]);
@@ -361,6 +390,12 @@ test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the 
     const define = section(text, /^DEFINE\b/);
     assert.ok(define !== null, `${where} has a DEFINE section`);
     assert.ok(flat(define).includes(DEFINE_EXIT), `${where}: the DEFINE exit reads "${DEFINE_EXIT}"\n${flat(define)}`);
+    const review = section(text, /^REVIEW\b/);
+    assert.ok(review !== null, `${where} has a REVIEW section`);
+    assert.ok(flat(review).includes('rcf audit test-strength') && !flat(review).includes('rcf audit test-strength --record') && !RECORDED_FOR_REVIEW(flat(review)) && /read-only|unrecorded/i.test(review), `${where}: the REVIEW section runs rcf audit test-strength read-only, with no --record and no line that strength is recorded for the reviewer's verdict\n${flat(review)}`);
+    const testStage = section(text, /^TEST\b/);
+    assert.ok(testStage !== null, `${where} has a TEST section`);
+    assert.ok(flat(testStage).includes('rcf audit test-strength --record'), `${where}: the TEST section runs rcf audit test-strength --record\n${flat(testStage)}`);
     const fin = section(text, /^FINALISE\b/);
     assert.ok(fin !== null, `${where} has a FINALISE section`);
     const ss = flat(fin).split(/(?<=[.!?])\s+/);
@@ -372,27 +407,45 @@ test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the 
   assert.equal(topics.code, 0, topics.stderr);
   const names = [...new Set(lines(topics.stdout).map((l) => l.trim().split(/\s+/)[0]).filter(Boolean))];
   assert.ok(names.includes('build-cycle') && names.includes('overview'), `rcf guidance --list lists the topics\n${topics.stdout}`);
+  // Every served document and both runbook forms, swept for the
+  // superseded texts; a served document also carries no sentence that
+  // runs the recording audit beside the REVIEW verdict.
+  const stale = [];
+  const sweep = (where, text, sentences = true) => {
+    const f = flat(text);
+    if (f.includes(PROVEN)) stale.push(`${where}: "${PROVEN}"`);
+    if (f.includes(OLD_RULE_6)) stale.push(`${where}: "${OLD_RULE_6}"`);
+    if (RECORDED_FOR_REVIEW(f)) stale.push(`${where}: test strength recorded for the reviewer's adequacy verdict`);
+    if (sentences) for (const s of recordAtReview(text)) stale.push(`${where}: records strength beside the REVIEW verdict: "${s.slice(0, 160)}"`);
+  };
   for (const name of names) {
     const r = await rcf(['guidance', name], {});
     assert.equal(r.code, 0, `rcf guidance ${name}\n${r.stderr}`);
-    assert.ok(!flat(r.stdout).includes(PROVEN), `rcf guidance ${name} carries no "${PROVEN}"`);
+    sweep(`rcf guidance ${name}`, r.stdout);
   }
-  for (const [uri, text] of Object.entries(served)) assert.ok(!flat(text).includes(PROVEN), `${uri} carries no "${PROVEN}"`);
+  for (const [uri, text] of Object.entries(served)) sweep(uri, text);
   const { md, contract } = await runbooks(t);
-  assert.ok(!flat(md).includes(PROVEN), `the bundle (md) carries no "${PROVEN}"`);
-  assert.ok(!flat(JSON.stringify(contract)).includes(PROVEN), `completionContract carries no "${PROVEN}"`);
+  sweep('the bundle (md)', md, false);
+  sweep('completionContract', JSON.stringify(contract), false);
+  assert.deepEqual(stale, [], `no guidance document or bundle runbook carries "${PROVEN}", "${OLD_RULE_6}" or REVIEW recording test strength (${stale.length} found)`);
 });
 
-test("AC-20504-2: the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text and REVIEW the line that test strength is recorded for the reviewer's adequacy verdict", async (t) => {
+test('AC-20504-2: the runbook rcf build bundle prints, in md and in the json completionContract, gives DEFINE the rule 6 text, REVIEW rcf audit test-strength read-only with no --record, and TEST rcf audit test-strength --record', async (t) => {
   const { runbook, contract } = await runbooks(t);
-  const mdDefine = flat(mdStage(runbook, 'DEFINE'));
-  assert.ok(mdDefine.includes(RULE_6) && /no throwaway/i.test(mdDefine), `the md DEFINE stage carries "${RULE_6}" and no throwaway\n${mdDefine}`);
-  const mdReview = flat(mdStage(runbook, 'REVIEW'));
-  assert.ok(REVIEW_STRENGTH(mdReview), `the md REVIEW stage says test strength is recorded for the reviewer's adequacy verdict\n${mdReview}`);
-  const jDefine = flat(jsonStage(contract, 'DEFINE'));
-  assert.ok(jDefine.includes(RULE_6) && /no throwaway/i.test(jDefine), `the json DEFINE stage carries "${RULE_6}" and no throwaway\n${jDefine}`);
-  const jReview = flat(jsonStage(contract, 'REVIEW'));
-  assert.ok(REVIEW_STRENGTH(jReview), `the json REVIEW stage says test strength is recorded for the reviewer's adequacy verdict\n${jReview}`);
+  const forms = [
+    ['md', (s) => mdProse(mdStage(runbook, s)), (s) => mdCommands(mdStage(runbook, s))],
+    ['json', (s) => flat(String(jsonStage(contract, s).does ?? '')), (s) => jsonStage(contract, s).commands ?? []],
+  ];
+  for (const [fmt, prose, commands] of forms) {
+    const define = prose('DEFINE');
+    assert.ok(define.includes(RULE_6) && /no throwaway/i.test(define), `the ${fmt} DEFINE stage carries "${RULE_6}" and no throwaway\n${define}`);
+    const review = prose('REVIEW');
+    const reviewCommands = commands('REVIEW');
+    assert.ok(reviewCommands.some(strengthRun) && !reviewCommands.some((c) => /--record\b/.test(c)), `the ${fmt} REVIEW stage runs rcf audit test-strength with no --record\n${reviewCommands.join('\n')}`);
+    assert.ok(!RECORDED_FOR_REVIEW(review) && /read-only|unrecorded/i.test(review), `the ${fmt} REVIEW stage says the audit runs read-only and carries no line that strength is recorded for the reviewer's verdict\n${review}`);
+    const testCommands = commands('TEST');
+    assert.ok(testCommands.some(recordsStrength), `the ${fmt} TEST stage runs rcf audit test-strength --record\n${testCommands.join('\n')}`);
+  }
 });
 
 test('AC-20504-3: rcf guidance overview keeps "The tool referees structure, never adequacy." word for word and says the test-strength report shows a gutted test and the reviewer judges it', async () => {

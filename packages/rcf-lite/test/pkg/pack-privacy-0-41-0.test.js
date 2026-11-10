@@ -14,6 +14,18 @@
 // fs call under node_modules/rcf-lite/rcf/. npm install reaches the
 // registry for the package's dependencies (ajv, ajv-formats,
 // @stravica-ai/rcf-schemas). Imports: Node builtins and test/_harness/ only.
+//
+// AC-20501-4 (no packed file carries a developer home directory, an
+// internal specification or estate path, or a consumer project, team or
+// developer handle) reads the same unpacked tarball as AC-20501-3. Its
+// home and estate shapes are generic and live here; the consumer, team
+// and handle names are not committed anywhere in this tree: they come
+// from the RCF_PRIVACY_FORBIDDEN_TERMS environment variable (newline
+// separated, one whole-word, case-sensitive term per line), which CI
+// fills from the repository secret of the same name. With it unset or
+// empty the consumer-name class prints one line saying so and the other
+// classes still run. A hit on that class prints the term's position in
+// the list, never the term.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -181,41 +193,169 @@ const CHAIN = [
   ['a lane job id (r-YYYYMMDD-HHMMSS-xxxx)', /\br-\d{8}-\d{6}-[0-9a-f]{4}\b/],
   ['a relay id (a UUID in relay context)', /\brelay\b[^\n]{0,40}\b[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}\b/i],
   ['a verdict record', /"verdictVersion"\s*:\s*\d|"scope"\s*:\s*"reviewVerdict"/],
-  ['a quoted or cited development ruling', /\b(?:relay|operator)\b[^\n]{0,80}\bverbatim quote|\bruled by the operator\b|\b(?:operator|stage-keeper)(?:'s)? (?:rulings?|decisions?|constraints?),?\s+(?:of |on |\()?(?:\d{4}-\d{2}-\d{2}|[A-Z]?\d+\b)/i],
+  ['a quoted or cited development ruling', /\b(?:relay|operator)\b[^\n]{0,80}\bverbatim quote|\bruled by the operator\b|\b(?:maintainer|owner|operator|stage-keeper|reviewer)(?:'s)? (?:rulings?|decisions?|constraints?),?\s+(?:of |on |\()?(?:\d{4}-\d{2}-\d{2}|[A-Z]?\d+\b)|\b(?:maintainer|owner|operator|stage-keeper|reviewer)(?:'s)?\s+(?:rulings?|decisions?)\b[^\n]{0,24}?\b\d{4}-\d{2}-\d{2}\b/i],
 ];
+// Round 3: the cited-ruling kind names any authority (maintainer, owner,
+// operator, stage-keeper, reviewer), so "maintainer ruling <date>" is
+// caught as "operator's ruling <date>" always was; it still needs a date
+// or a ruling number after it, so product copy telling an adopter to
+// record the owner's or the operator's ruling does not match.
+
+// AC-20501-4's generic shapes. An estate path is a project's
+// specification, docs, wireframes or notes folder, or a maintainer's
+// agent workspace folder; a home directory needs a user segment with no
+// space and a further segment, so "/Users/john doe/work", "~/.cache" and
+// a bare "no /Users/" do not match.
+const PRIVATE = [
+  ['an internal specification or estate path', /\bprojects\/[a-z0-9-]+\/(?:specs?|docs|wireframes|notes)\/|\bagents\/[a-z0-9-]+\/(?:notes|staging|work|journal|briefs|roles|templates|operating-notes)\//],
+  ['a developer home directory', /(?:^|[^A-Za-z0-9_.\/-])(?:\/Users|\/home)\/[A-Za-z0-9._-]+\/[A-Za-z0-9._-]/],
+];
+const CONSUMER_KIND = 'a consumer project, team or developer handle';
+const TERMS_VAR = 'RCF_PRIVACY_FORBIDDEN_TERMS';
+const CONSUMER_SKIPPED = `consumer-name class skipped: ${TERMS_VAR} not set`;
+
+// The consumer, team and handle terms: one per line, blank lines ignored.
+function forbiddenTerms(env = process.env) {
+  return String(env[TERMS_VAR] ?? '').split('\n').map((s) => s.trim()).filter(Boolean);
+}
+let skipNoted = false;
+function noteConsumerSkip() {
+  if (skipNoted) return;
+  skipNoted = true;
+  console.log(CONSUMER_SKIPPED);
+}
+const escapeRe = (s) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+// A matcher is { kind, match(line) -> the text a hit shows, or null }.
+const fromPairs = (pairs) => pairs.map(([kind, re]) => ({ kind, match: (line) => re.exec(line)?.[0] ?? null }));
+// The consumer class: whole word, case-sensitive; a hit shows the term's
+// position in the list, never the term.
+function consumerMatchers(terms) {
+  if (!terms.length) return [];
+  const res = terms.map((term) => new RegExp(`(?<![A-Za-z0-9_])${escapeRe(term)}(?![A-Za-z0-9_])`));
+  return [{ kind: CONSUMER_KIND, match: (line) => { const k = res.findIndex((re) => re.test(line)); return k < 0 ? null : `term ${k + 1} of ${terms.length}`; } }];
+}
+// Every hit of `text` (file `rel`) against `matchers`, one per line and kind.
+function scanText(rel, text, matchers) {
+  const hits = [];
+  text.split('\n').forEach((line, i) => {
+    for (const { kind, match } of matchers) {
+      const shown = match(line);
+      if (shown !== null) hits.push({ rel, line: i + 1, kind, shown });
+    }
+  });
+  return hits;
+}
+const hitLine = (h) => `${h.rel}:${h.line}: ${h.kind}: "${h.shown}"`;
+function perFile(hits) {
+  const byFile = new Map();
+  for (const h of hits) byFile.set(h.rel, (byFile.get(h.rel) ?? 0) + 1);
+  return { byFile, summary: [...byFile].map(([f, n]) => `${f} (${n})`).join('\n') };
+}
 
 function walk(dir) {
   return readdirSync(dir, { withFileTypes: true }).flatMap((e) => (e.isDirectory() ? walk(join(dir, e.name)) : [join(dir, e.name)]));
 }
 
-test('AC-20501-3: no file in the tarball npm pack produces carries development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id; no verdict record; no quoted or cited development ruling', { timeout: 300_000 }, async (t) => {
-  const out = scratch(t, 'rcf-h-pack-scan-');
-  const packed = await npm(['pack', '--json', '--pack-destination', out], { cwd: PACKAGE_ROOT });
-  assert.equal(packed.code, 0, show(packed));
-  const [entry] = packJson(packed.stdout);
-  const tgz = join(out, entry.filename);
-  const unpacked = join(out, 'unpacked');
-  mkdirSync(unpacked);
-  const tar = await sh('tar', ['-xzf', tgz, '-C', unpacked], { cwd: out });
-  assert.equal(tar.code, 0, show(tar));
-  const root = join(unpacked, 'package');
-  const files = walk(root).map((f) => f.slice(root.length + 1).split('\\').join('/')).sort();
-  assert.deepEqual(files, entry.files.map((f) => f.path).sort(), 'the scan reads exactly the files npm pack lists');
-  assert.ok(files.includes('bin/rcf.js') && files.some((f) => f.startsWith('guidance/')), 'the tarball is the real package');
+// The real tarball, packed and unpacked once per file run and read by
+// both scans: { root, files } with files exactly the ones npm pack lists.
+let packedOnce = null;
+function packedTarball() {
+  packedOnce ??= (async () => {
+    const out = scratch(undefined, 'rcf-h-pack-scan-');
+    const packed = await npm(['pack', '--json', '--pack-destination', out], { cwd: PACKAGE_ROOT });
+    assert.equal(packed.code, 0, show(packed));
+    const [entry] = packJson(packed.stdout);
+    const tgz = join(out, entry.filename);
+    const unpacked = join(out, 'unpacked');
+    mkdirSync(unpacked);
+    const tar = await sh('tar', ['-xzf', tgz, '-C', unpacked], { cwd: out });
+    assert.equal(tar.code, 0, show(tar));
+    const root = join(unpacked, 'package');
+    const files = walk(root).map((f) => f.slice(root.length + 1).split('\\').join('/')).sort();
+    assert.deepEqual(files, entry.files.map((f) => f.path).sort(), 'the scan reads exactly the files npm pack lists');
+    assert.ok(files.includes('bin/rcf.js') && files.some((f) => f.startsWith('guidance/')), 'the tarball is the real package');
+    return { root, files };
+  })();
+  return packedOnce;
+}
+function scanPack({ root, files }, matchers) {
+  return files.flatMap((rel) => scanText(rel, readFileSync(join(root, rel), 'utf8'), matchers));
+}
 
-  const hits = [];
-  for (const rel of files) {
-    readFileSync(join(root, rel), 'utf8').split('\n').forEach((line, i) => {
-      for (const [kind, re] of CHAIN) {
-        const m = re.exec(line);
-        if (m) hits.push(`${rel}:${i + 1}: ${kind}: "${m[0]}"`);
-      }
-    });
-  }
-  const byFile = new Map();
-  for (const h of hits) { const f = h.slice(0, h.indexOf(':')); byFile.set(f, (byFile.get(f) ?? 0) + 1); }
-  const summary = [...byFile].map(([f, n]) => `${f} (${n})`).join('\n');
+test('AC-20501-3: no file in the tarball npm pack produces carries development-chain material: no named reviewer, stage-keeper or operator; no relay, work-item, dispatch or lane job id; no verdict record; no quoted or cited development ruling', { timeout: 300_000 }, async () => {
+  const found = scanPack(await packedTarball(), fromPairs(CHAIN));
+  const hits = found.map(hitLine);
+  const { byFile, summary } = perFile(found);
   const discovery = hits.filter((h) => h.startsWith('guidance/discovery/'));
   assert.deepEqual(discovery, [], `guidance/discovery/ carries no development-chain material (${discovery.length} lines)`);
   assert.deepEqual(hits.slice(0, 40), [], `no packed file carries development-chain material: ${hits.length} lines in ${byFile.size} files\n${summary}`);
+});
+
+test('AC-20501-4: no file in the tarball npm pack produces carries a developer home directory, an internal specification or estate path, or a consumer project, team or developer handle', { timeout: 300_000 }, async () => {
+  const terms = forbiddenTerms();
+  if (!terms.length) noteConsumerSkip();
+  const hits = scanPack(await packedTarball(), [...fromPairs(PRIVATE), ...consumerMatchers(terms)]);
+  const { byFile, summary } = perFile(hits);
+  assert.deepEqual(hits.slice(0, 40).map(hitLine), [], `no packed file carries a developer home directory, an internal specification or estate path, or a consumer name: ${hits.length} lines in ${byFile.size} files\n${summary}`);
+});
+
+// The scan itself, on fixtures: each canary in test/pkg/fixtures/pack-privacy/
+// plants lines of one kind and each is caught by exactly that kind; the
+// near-miss file is caught by none. A fixture is a template: the shapes
+// this file forbids are filled in at run time, so the public tree never
+// carries one, and the consumer canary plants each term the environment
+// supplies, so no term is ever written down.
+const FIXTURES = join(PACKAGE_ROOT, 'test', 'pkg', 'fixtures', 'pack-privacy');
+const CANARIES = [
+  ['ruling.txt', 'a quoted or cited development ruling'],
+  ['estate-path.txt', 'an internal specification or estate path'],
+  ['home-directory.txt', 'a developer home directory'],
+  ['consumer-name.txt', CONSUMER_KIND],
+];
+// The planted lines of one template, filled: a line holding {{term}} or
+// {{inword}} is repeated once per term, and dropped when there is none.
+function planted(file, terms) {
+  const out = [];
+  for (const line of readFileSync(join(FIXTURES, file), 'utf8').split('\n')) {
+    if (!line.trim()) continue;
+    const base = line.replaceAll('{{users}}', '/Users').replaceAll('{{home}}', '/home').replaceAll('{{projects}}', 'projects');
+    if (/\{\{(?:term|inword)\}\}/.test(base)) {
+      for (const term of terms) out.push(base.replaceAll('{{term}}', term).replaceAll('{{inword}}', `x${term}x`));
+    } else out.push(base);
+  }
+  return out;
+}
+
+test('pack-privacy scan canaries: every planted line of test/pkg/fixtures/pack-privacy/ is caught by exactly its own kind', () => {
+  const terms = forbiddenTerms();
+  if (!terms.length) noteConsumerSkip();
+  const all = [...fromPairs(CHAIN), ...fromPairs(PRIVATE), ...consumerMatchers(terms)];
+  let count = 0;
+  for (const [file, kind] of CANARIES) {
+    const ls = planted(file, terms);
+    if (file === 'consumer-name.txt') {
+      assert.equal(ls.length, terms.length, `${file} plants one line per term`);
+      for (const [k, l] of ls.entries()) {
+        const kinds = scanText(file, l, all).map((h) => h.kind);
+        assert.ok(kinds.includes(kind), `${file}: the line planting term ${k + 1} of ${terms.length} is caught as ${kind}`);
+        assert.deepEqual(kinds.filter((x) => fromPairs(PRIVATE).some((p) => p.kind === x)), [], `${file}: the line planting term ${k + 1} is caught by no generic shape`);
+      }
+    } else {
+      assert.ok(ls.length >= 2, `${file} plants at least two lines`);
+      for (const l of ls) assert.deepEqual(scanText(file, l, all).map((h) => h.kind), [kind], `${file}: "${l}" is caught by exactly ${kind}`);
+    }
+    count += ls.length;
+  }
+  assert.ok(count >= 6, `the canaries plant ${count} lines`);
+});
+
+test('pack-privacy scan near-misses: no line of test/pkg/fixtures/pack-privacy/near-misses.txt is caught by any kind', () => {
+  const terms = forbiddenTerms();
+  if (!terms.length) noteConsumerSkip();
+  const all = [...fromPairs(CHAIN), ...fromPairs(PRIVATE), ...consumerMatchers(terms)];
+  const ls = planted('near-misses.txt', terms);
+  assert.ok(ls.length >= 6, `near-misses.txt holds ${ls.length} lines`);
+  const hits = ls.flatMap((l) => scanText('near-misses.txt', l, all)).map(hitLine);
+  assert.deepEqual(hits, [], 'no near-miss is caught');
 });

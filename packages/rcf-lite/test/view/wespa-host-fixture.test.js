@@ -53,8 +53,9 @@ function makeMinimalModel() {
 test('renderTestHostPage: HTML5 document, no inline script, iframe src is ./?embed=1&theme=light', () => {
   const html = renderTestHostPage();
   assert.match(html, /^<!DOCTYPE html>/);
-  assert.match(html, /<html lang="en-GB" data-rcf-test-host="wespa">/);
-  assert.match(html, /<title>Wespa host fixture - rcf-lite viewer embed proof<\/title>/);
+  // The fixture carries a neutral name (host-shell): it names no consumer.
+  assert.match(html, /<html lang="en-GB" data-rcf-test-host="host-shell">/);
+  assert.match(html, /<title>Host shell fixture - rcf-lite viewer embed proof<\/title>/);
   // AC-206-1: iframe src is literally ./?embed=1&theme=light (the &
   // is HTML-encoded in attribute context).
   assert.match(html, /<iframe[^>]*src="\.\/\?embed=1&amp;theme=light"[^>]*>/);
@@ -64,7 +65,7 @@ test('renderTestHostPage: HTML5 document, no inline script, iframe src is ./?emb
   const inlineScripts = html.match(/<script(?![^>]*\bsrc=)[^>]*>[\s\S]*?<\/script>/g) ?? [];
   assert.equal(inlineScripts.length, 0, 'the fixture must not carry any inline <script> block');
   // 56px header and resizable sidebar shell.
-  assert.match(html, /header class="wespa-header"/);
+  assert.match(html, /header class="host-shell-header"/);
   assert.match(html, /height: 56px/);
   assert.match(html, /\[data-rcf-host-sidebar\]|data-rcf-host-sidebar\b/);
   assert.match(html, /data-rcf-host-sidebar-drag/);
