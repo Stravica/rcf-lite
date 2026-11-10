@@ -31,7 +31,7 @@ const AUTHORING_CMD = 'rcf define update TAD-001 --set';
  *              has content; must return a non-empty string
  *
  * Design decision: deploymentArchitecture is omitted - the wireframe
- * (projects/rcf-lite-wsd/wireframes/2026-10-02_architecture.html) lands
+ * (the 2026-10-02 architecture wireframe) lands
  * on these six and so does the design doc section 5.5.
  */
 const TAD_SECTIONS = [

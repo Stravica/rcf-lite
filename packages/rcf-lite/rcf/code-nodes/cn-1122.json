@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1122",
+  "path": "src/core/fixtures/register-canary/canary-prompt-03.json",
+  "title": "Register canary prompt 03: a project-relative PRD path",
+  "description": "The canary operator prompt points at ./briefs/internal-search-prd.md, a project-relative path naming no home directory or developer.",
+  "implementsAcIds": [
+    "AC-20501-3",
+    "AC-20501-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:35.437Z",
+  "updatedAt": "2026-11-10T21:48:35.437Z"
+}

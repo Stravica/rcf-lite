@@ -7,7 +7,8 @@
 // Exit codes:
 // - 0 clean (every check enabled reports clean).
 // - 3 drift (at least one check reports drift).
-// - 2 usage error.
+// - 2 usage error, or a --fix refused before any write because a
+//   managed-block rewrite would change a byte outside the markers.
 //
 // --fix contract (§2.7): rewrites managed blocks WHOLESALE inside the
 // markers; every byte outside the markers is preserved verbatim. Files
@@ -35,6 +36,7 @@ import {
   applyFix as applyManagedBlockFix,
   classifyBlock,
   hashInnerContent,
+  spliceRefusal,
 } from '../setup/managed-block.js';
 import {
   composeGitignoreBlock,
@@ -248,6 +250,17 @@ export async function main(argv, deps = {}) {
   const discoveryNotice = await buildDiscoveryDeclarationNotice(cwd);
   if (discoveryNotice) notices.push(discoveryNotice);
 
+  // --fix keeps every byte outside the markers or writes nothing: a
+  // stale block whose rewrite would change an outside byte refuses the
+  // whole run before any check writes (exit 2, naming the file).
+  if (ctx.fix && enabled.includes('agent-instructions')) {
+    const refusals = await agentInstructionsSpliceRefusals(ctx);
+    if (refusals.length > 0) {
+      for (const r of refusals) stderr.write(`[error] refused doctor --fix: ${r.file}: ${r.reason}; nothing was written. Make the end marker the end of its own line with a line feed, then re-run \`rcf doctor --fix\`.\n`);
+      return 2;
+    }
+  }
+
   for (const check of enabled) {
     let result;
     if (check === 'agent-instructions') result = await runAgentInstructionsCheck(ctx);
@@ -270,8 +283,8 @@ export async function main(argv, deps = {}) {
       result = await runPlaywrightMcpRedundantCheck(ctx);
     } else if (check === 'probe-path-owner') {
       // Fires whenever more than one applied blueprint teaches probe paths.
-      // Runs on every project (not gated on browser-facing). Spec:
-      // projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.
+      // Runs on every project (not gated on browser-facing). The owning
+      // blueprint's topics page: blueprints/observability-probe-endpoints/docs/topics.md.
       result = await runProbePathOwnerCheck(ctx);
     } else if (check === 'feedback-destinations') {
       // Feedback destination coverage across the library registry
@@ -369,6 +382,31 @@ function writeHumanSummary({ stdout, ok, drift, writes, fixed, quiet }) {
 /* ------------------------------------------------------------------ */
 /* Check: agent-instructions                                          */
 /* ------------------------------------------------------------------ */
+
+/**
+ * The agent-instruction files whose stale managed block `--fix` cannot
+ * rewrite without changing a byte outside the markers, each with why.
+ *
+ * @param {{ projectRoot: string, canonicalHash: string }} ctx
+ * @returns {Promise<Array<{ file: string, reason: string }>>}
+ */
+export async function agentInstructionsSpliceRefusals(ctx) {
+  const blockOpts = { markerBegin: MARKER_BEGIN, markerEnd: MARKER_END, legacyMarkerBegin: LEGACY_MARKER_BEGIN, legacyMarkerEnd: LEGACY_MARKER_END };
+  const out = [];
+  for (const name of ['CLAUDE.md', 'AGENTS.md']) {
+    let text;
+    try {
+      text = await readFile(join(ctx.projectRoot, name), 'utf8');
+    } catch (err) {
+      if (/** @type {NodeJS.ErrnoException} */ (err).code === 'ENOENT') continue;
+      throw err;
+    }
+    if (classifyBlock(text, ctx.canonicalHash, blockOpts) !== 'stale-hash') continue;
+    const reason = spliceRefusal(text, blockOpts);
+    if (reason) out.push({ file: name, reason });
+  }
+  return out;
+}
 
 async function runAgentInstructionsCheck(ctx) {
   const drift = [];
@@ -806,7 +844,7 @@ async function runProbePathOwnerCheck(ctx) {
       drift.push({
         item: `multiple-${topic}-owners`,
         file: 'rcf/manifest.json',
-        message: `more than one applied blueprint teaches probe paths on topic '${topic}': ${slugs}. ${remedy}. Spec: projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md section 9.`,
+        message: `more than one applied blueprint teaches probe paths on topic '${topic}': ${slugs}. ${remedy}. See the observability-probe-endpoints blueprint's docs/topics.md.`,
         refusedByFix: true,
       });
     }

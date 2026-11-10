@@ -309,7 +309,7 @@ export function nextIdForKind(tree, kind, opts = {}) {
       // ENCODED (`US-<reqNum><localTwoDigit>` where the reqNum names an
       // existing REQ and local is 01..99) or FLAT (a bare sequential
       // number that carries no parent-encoded suffix, as produced by
-      // legacy trees migrated in from WESPA v1). Classification decides
+      // legacy trees migrated in from a v1 consumer tree). Classification decides
       // the allocation rule:
       //   - all-encoded tree (or empty): the historical rule, extend
       //     `US-<groupLabel><nextLocal>`.

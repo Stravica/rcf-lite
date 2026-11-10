@@ -48,7 +48,7 @@ import { APPLY_DISPOSITION_PROMPT, initialiseLedger } from './disposition-ledger
  *        `<libraryPrefix>-<blueprintSlug>`. When set, this becomes BOTH the
  *        stamping namespace (so contributions inherit the library prefix) AND
  *        the value written into `manifest.blueprints[].slug` on the applied
- *        record, so `rcf define blueprint remove wsd-auth-oauth2` reads back
+ *        record, so `rcf define blueprint remove acme-auth-oauth2` reads back
  *        cleanly. `namespaceOverride` still wins over `effectiveSlug` if both
  *        are set (operator explicitly chose a different namespace).
  * @param {string} [args.libraryPrefix] - the registered library prefix the
@@ -326,7 +326,7 @@ export async function applyBlueprint({ projectRoot, tree, source, displaySource,
 
   // Update manifest.blueprints[]. The applied record's `source` field
   // carries the qualified typed ref for library-resolved blueprints
-  // (`wsd:auth-oauth2`) so `rcf define blueprint upgrade` reads back
+  // (`acme:auth-oauth2`) so `rcf define blueprint upgrade` reads back
   // cleanly (spec §5.3); local-path applies carry the absolute path as
   // today. When the apply resolved through a registered external
   // library the record additionally carries `libraryPrefix`: the

@@ -24,15 +24,15 @@ const here = dirname(fileURLToPath(import.meta.url));
 export const VENDORED_MERMAID_PATH = resolve(here, 'vendored', 'mermaid.min.js');
 export const STYLE_CSS_PATH = resolve(here, 'style.css');
 export const LIVE_CLIENT_PATH = resolve(here, 'live-client.js');
-// Viewer UI refresh PR 1 (wespa #263): the former
+// Viewer UI refresh PR 1 (an embedder's request): the former
 // inline <script> block from html-page.js now lives at this path and
 // is served over the new /page-init.js route. Release notes name it so
-// wespa's proxy allow-list is extended before any version pin bump.
+// an embedding host's proxy allow-list is extended before any version pin bump.
 export const PAGE_INIT_PATH = resolve(here, 'page-init.js');
-// Viewer UI refresh PR 9 (TAC-4134, ADR-4136): wespa host fixture
+// Viewer UI refresh PR 9 (TAC-4134, ADR-4136): host shell fixture
 // client script. Served over /test-host.js only when the server is
 // started with testHost: true (CLI --test-host or RCF_VIEW_TEST_HOST=1).
-// Off the default route surface so wespa's proxy allow-list is
+// Off the default route surface so an embedding host's proxy allow-list is
 // unaffected.
 export const TEST_HOST_CLIENT_PATH = resolve(here, 'test-host', 'embed-client.js');
 
@@ -159,7 +159,7 @@ export async function renderModelToPage({ projectRoot }) {
   };
   // Viewer UI refresh PR 7 (TAC-4132, ADR-4134): the ID lookup index
   // is built on every rewalk from BuiltTreeModel and served from the
-  // new `./index.json` route (release-noted so wespa's proxy allow-
+  // new `./index.json` route (release-noted so an embedding host's proxy allow-
   // list is extended before the version pin bump). One row per doc id
   // plus one row per AC under each US.
   const indexJson = serialiseViewIndex(model);

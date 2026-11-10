@@ -125,13 +125,13 @@ export function parseGithubSource(sourceRef) {
 /**
  * Look up a blueprint record on `manifest.blueprints[]` by ref. Accepts
  * the shelf slug (`security-auth-magic-link`), the prefix:slug form
- * (`wsd:std-error-envelope`) and the effective slug already stamped
- * onto the record (`wsd-std-error-envelope`).
+ * (`acme:std-error-envelope`) and the effective slug already stamped
+ * onto the record (`acme-std-error-envelope`).
  *
  * F-slice-3-01: a QUALIFIED ref (`prefix:slug`) must resolve to a
  * record whose libraryPrefix matches the qualifier. Falling back to
  * an unqualified shelf record on slug collision would route a
- * private WSD finding to the public Stravica/rcf-lite repo. The
+ * private library finding to the public Stravica/rcf-lite repo. The
  * matcher therefore has two passes: first, any record whose stamped
  * effectiveSlug OR (slug + libraryPrefix) matches the qualifier
  * wins; only when the ref is unqualified do bare-slug matches apply.
@@ -147,7 +147,7 @@ export function findBlueprintRecord(manifest, ref) {
   // Qualified `prefix:slug` (and the equivalent `prefix-slug`
   // effective-slug shape) must NEVER match a shelf record whose
   // libraryPrefix does not equal the qualifier. F-slice-3-01: a
-  // qualified WSD ref must not fall back to a public shelf record
+  // qualified library ref must not fall back to a public shelf record
   // on slug collision.
   if (ref.includes(':')) {
     const [pre, slug] = ref.split(':');

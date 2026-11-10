@@ -71,9 +71,8 @@ the rendered YAML alongside the manifest.
 
 ## Six hardening baseline blocks (ADR-3804)
 
-The rendered YAML lands the six blocks per the estate baseline at
-`operator/knowledge/systems/environments/hetzner-cloud/overview.md`
-Security posture baseline and the Debian unattended-upgrades wiki
+The rendered YAML lands the six blocks per the shipped Hetzner Cloud
+security posture baseline and the Debian unattended-upgrades wiki
 at https://wiki.debian.org/UnattendedUpgrades.
 
 1. SSH key-only. `PasswordAuthentication no`.

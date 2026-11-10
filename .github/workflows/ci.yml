@@ -82,7 +82,15 @@ jobs:
         env:
           RCF_LINT_SHELF: root
           RCF_LINT_MODE: hard
+      # The pack-privacy check's consumer-name class reads its term list
+      # from a repository secret (masked if a step ever prints it; never
+      # committed). The list is expected only in this repository's own
+      # runs, so a fork's push or pull request reports the class as
+      # skipped instead of failing for a secret it cannot read.
       - run: pnpm -r test
+        env:
+          RCF_PRIVACY_FORBIDDEN_TERMS: ${{ secrets.RCF_PRIVACY_FORBIDDEN_TERMS }}
+          RCF_PRIVACY_TERMS_EXPECTED: ${{ github.repository == 'Stravica/rcf-lite' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
   # Commit separation (ADR-4149): judge each commit's stage prefix over
   # the pull request's range. Pull requests only, never on main after a
   # squash; full-depth checkout of the pull request's own head, since the

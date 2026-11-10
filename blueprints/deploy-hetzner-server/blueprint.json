@@ -46,7 +46,7 @@
     },
     {
       "id": "location",
-      "prompt": "Hetzner data centre. fsn1 (Falkenstein) is the shipped default per maintainer ruling 2026-09-07 09:50Z on the Q2 ratification.",
+      "prompt": "Hetzner data centre. fsn1 (Falkenstein) is the shipped default.",
       "kind": "enum",
       "options": [
         "fsn1",
@@ -227,7 +227,7 @@
       "path": "adrs/adr-3804-deploy-hetzner-server-hardening-baseline.json",
       "recommendedDefault": true,
       "elicited": false,
-      "standardsTraceClause": "Debian unattended-upgrades wiki AND the estate baseline at operator/knowledge/systems/environments/hetzner-cloud/overview.md Security posture baseline per hetzner-baseline-spec-2026-09-07.md"
+      "standardsTraceClause": "Debian unattended-upgrades wiki AND the shipped Hetzner Cloud security posture baseline"
     }
   ],
   "updatedAt": "2026-09-12T02:07:23.000Z"

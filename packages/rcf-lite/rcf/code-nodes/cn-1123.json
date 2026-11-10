@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1123",
+  "path": "../../blueprints/deploy-hetzner-server/blueprint.json",
+  "title": "deploy-hetzner-server manifest: shipped defaults without a cited ruling",
+  "description": "The location prompt states fsn1 as the shipped default and the hardening trace clause names the shipped security posture baseline, with no dated maintainer citation or internal path.",
+  "implementsAcIds": [
+    "AC-20501-3"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:37.667Z",
+  "updatedAt": "2026-11-10T21:48:37.667Z"
+}

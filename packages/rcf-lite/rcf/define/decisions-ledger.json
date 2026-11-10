@@ -3709,6 +3709,342 @@
       "answer": "a. Reason: an open-class check: a text anchor decides only instances, and a false staleCode would be a guess, so the class is closed in the mechanism for single-line defs.",
       "answeredAt": "2026-11-09T11:01:28.342Z",
       "resolvedAt": "2026-11-09T11:01:28.342Z"
+    },
+    {
+      "id": 170,
+      "question": "ROUND OPEN, 2026-11-10: round 3, an amend round on FBS-243, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-20501-3 (journey), AC-20501-4 (journey; new in this pass, minted under US-20501 and joined to FBS-243), AC-20502-1 (full), AC-20502-3 (full), AC-20502-4 (full), AC-20502-5 (full), AC-20502-6 (full), AC-20503-1 (journey), AC-20504-1 (journey), AC-20504-2 (journey). DEFINE HEAD: 622d783c030cb842ccbb40dfaa43f421beba0b2a. BUDGET: two DEFINE passes; this is pass 1. BUDGET: binding an open-class ruling as its sibling criterion spends the reserve pass, the round's last DEFINE pass; after that, a later REVIEW or TEST finding that needs a test halts the round OVER_BUDGET; overnight an extra pass is allowed, with a written line per pass (what it fixes, why DEFINE could not have caught it, what says this pass closes it); two consecutive passes on one finding class is circling: stop and relay. DUE: 2026-11-11T06:00:00Z. TIER: T2 (the maintainers' operating note). AC-20501-3 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20503-1 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20504-1 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20504-2 at journey: owner ruling of 2026-11-07, recorded with the maintainers. AC-20501-4 at journey: new in this round, with no level at the base; owner ruling of 2026-11-07, recorded with the maintainers. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T15:34:12.570Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-10.",
+      "answeredAt": "2026-11-10T15:34:16.997Z",
+      "resolvedAt": "2026-11-10T15:34:16.997Z"
+    },
+    {
+      "id": 171,
+      "question": "ROUND READINGS, 2026-11-10: round 3 on FBS-243, DEFINE pass 1, how the round's recorded rulings shape its tests. AC-20501-3 keeps its meaning: its bound test's cited-ruling kind now names any authority (maintainer, owner, operator, stage-keeper, reviewer) followed by a date or a ruling number. AC-20501-4 is a new criterion beside it, bound in TS-307 by a new test case over the same unpacked tarball: the committed test carries only generic shapes (a developer home directory; a project specification, docs, wireframes or notes path; a maintainer agent-workspace path); the consumer, team and handle names are read at run time from RCF_PRIVACY_FORBIDDEN_TERMS, which CI fills from the repository secret of that name; without it the class prints one skip line and the other shapes still run; a hit on that class shows the term's position in the list, never the term; canary and near-miss fixtures under test/pkg/fixtures/pack-privacy/ prove the scan itself, and their forbidden shapes are filled in at run time. CHANGELOG.md and releases/releases.yaml are reworded in place, with no allow-list. AC-20503-1, AC-20504-1 and AC-20504-2 are amended in wording to the current rule 6 and to the recorded process ruling that TEST records test strength while REVIEW runs the audit read-only. AC-20502-1, AC-20502-3, AC-20502-4, AC-20502-5 and AC-20502-6 are in the round for their Code Node re-points only; their bound tests are unchanged. Tests rewritten outside the round's criteria, declared for the TEST strength record and neither claimed in scope nor flagged: the AC-20503-2 and AC-20503-3 tests (the twelve-rule helper they share moves with rules 6 and 8) and the AC-206-1 host fixture test (it now pins the neutral fixture name host-shell). Do the round's tests read the rulings this way?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the tests read the rulings this way"
+        },
+        {
+          "letter": "b",
+          "text": "they do not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T15:34:22.966Z",
+      "status": "resolved",
+      "answer": "a. The tests read the rulings this way, 2026-11-10.",
+      "answeredAt": "2026-11-10T15:34:26.695Z",
+      "resolvedAt": "2026-11-10T15:34:26.695Z"
+    },
+    {
+      "id": 172,
+      "question": "Count item Q1 (AC-20501-3), a gap routed to the open-class step, recorded by the stage-keeper 2026-11-10: a spelling of development-chain material that the bound test's pattern list does not name is an input the mechanism cannot decide; what the product does with it is stated by the criterion bound beside AC-20501-3 in this pass, under the open-class ruling recorded with the maintainers. AC-20501-3 keeps its meaning, and its test takes no separate change for this item. Is this the reading?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the reading is recorded"
+        },
+        {
+          "letter": "b",
+          "text": "it is not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:09.497Z",
+      "status": "resolved",
+      "answer": "a. The reading is recorded, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:09.881Z",
+      "resolvedAt": "2026-11-10T19:50:09.881Z"
+    },
+    {
+      "id": 173,
+      "question": "Count item Q2 (AC-20501-4), a reading, recorded by the stage-keeper 2026-11-10: the promise covers every consumer project, consuming team and developer-handle name (the maintainers' standing rule is no such name in a public tree); the list read from RCF_PRIVACY_FORBIDDEN_TERMS is the mechanism and decides only the names it lists; a name not on the list is an input the mechanism cannot decide, covered by the criterion bound beside AC-20501-4 in this pass. The criterion's text is unchanged. Is this the reading?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the reading is recorded"
+        },
+        {
+          "letter": "b",
+          "text": "it is not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:10.080Z",
+      "status": "resolved",
+      "answer": "a. The reading is recorded, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:10.462Z",
+      "resolvedAt": "2026-11-10T19:50:10.462Z"
+    },
+    {
+      "id": 174,
+      "question": "Count item Q3 (AC-20501-4), a reading, recorded by the stage-keeper 2026-11-10: the bound test's shapes are the instances it decides, not a definition of 'and kin': the agent-workspace folders notes, staging, work, journal, briefs, roles, templates and operating-notes; the project folders spec, specs, docs, wireframes and notes; a project or agent name segment of letters, digits, dot, underscore and hyphen (widened in this pass from lowercase letters, digits and hyphen); and a home user segment with no space. Any other shape is an input the mechanism cannot decide, covered by the same criterion as item Q2. The criterion's text is unchanged. Is this the reading?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the reading is recorded"
+        },
+        {
+          "letter": "b",
+          "text": "it is not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:10.682Z",
+      "status": "resolved",
+      "answer": "a. The reading is recorded, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:11.075Z",
+      "resolvedAt": "2026-11-10T19:50:11.075Z"
+    },
+    {
+      "id": 175,
+      "question": "Whole-plan item H2b (AC-20501-4), a preference, recorded by the stage-keeper 2026-11-10: a developer home directory's user segment is a login name and carries no space, so a home path whose user segment holds a space is not the shape the criterion names, and the near-miss fixture keeps that line. Reason: no supported operating system makes a developer home directory with a space in the account name, and widening the shape would flag ordinary prose. Is this the default?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the default is recorded"
+        },
+        {
+          "letter": "b",
+          "text": "it is not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:11.269Z",
+      "status": "resolved",
+      "answer": "a. The default is recorded, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:11.749Z",
+      "resolvedAt": "2026-11-10T19:50:11.749Z"
+    },
+    {
+      "id": 176,
+      "question": "Whole-plan item H3 (AC-20501-3 and AC-20501-4), a gap routed to the open-class step, recorded by the stage-keeper 2026-11-10: the scan reads every packed file as UTF-8 text and decodes nothing, so a packed file that is not plain text, or text that encodes a forbidden shape (an escape sequence, base64, another encoding, a compressed or binary file), is an input the mechanism cannot decide; at this head every packed file is plain text; what the product does with such a file is stated by the criterion bound beside each of the two criteria in this pass. No separate test. Is this the reading?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the reading is recorded"
+        },
+        {
+          "letter": "b",
+          "text": "it is not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:11.965Z",
+      "status": "resolved",
+      "answer": "a. The reading is recorded, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:12.361Z",
+      "resolvedAt": "2026-11-10T19:50:12.361Z"
+    },
+    {
+      "id": 177,
+      "question": "Open class, decided as a class: AC-206-1 (input class \"The one test-host page at /test-host.html\"; mechanism \"A deterministic render checked by regex, plus one HTTP round trip (the test-host fixture test, lines 53-78 and 103-130)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:12.551Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:12.967Z",
+      "resolvedAt": "2026-11-10T19:50:12.967Z"
+    },
+    {
+      "id": 178,
+      "question": "Open class, decided as a class: AC-20502-1 (input class \"Any number of touched criteria and of survived mutants per non-pass criterion\"; mechanism \"A traversal over every survived mutant of each non-pass row (finalise/light.js:188-194)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:13.161Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:13.541Z",
+      "resolvedAt": "2026-11-10T19:50:13.541Z"
+    },
+    {
+      "id": 179,
+      "question": "Open class, decided as a class: AC-20502-3 (input class \"Any TAP file passed to rcf build verdict test --result PASS alongside a failing strength record\"; mechanism \"A TAP summary parser and a test-point name parser (verdict.js:61-89), with set membership checked per bound pointer (:302-309)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:13.766Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:14.171Z",
+      "resolvedAt": "2026-11-10T19:50:14.171Z"
+    },
+    {
+      "id": 180,
+      "question": "Open class, decided as a class: AC-20502-4 (input class \"Commit ranges of any length, with the strength and TEST commits in either order\"; mechanism \"A stage-order state machine over every commit, with verdicts typed by file (separation.js:93-97, 411)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:14.392Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:14.811Z",
+      "resolvedAt": "2026-11-10T19:50:14.811Z"
+    },
+    {
+      "id": 181,
+      "question": "Open class, decided as a class: AC-20502-6 (input class \"Any JSON value committed as the test-strength record at H\"; mechanism \"A structural predicate with finite allow-lists, head equality and set coverage (finalise/light.js:161-174)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:15.000Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:15.424Z",
+      "resolvedAt": "2026-11-10T19:50:15.424Z"
+    },
+    {
+      "id": 182,
+      "question": "Open class, decided as a class: AC-20503-2 (input class \"A fresh empty directory where rcf init runs\"; mechanism \"Exact equality between the text inside the markers and the printed block (twelve-rules:253-265)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:15.627Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:16.028Z",
+      "resolvedAt": "2026-11-10T19:50:16.028Z"
+    },
+    {
+      "id": 183,
+      "question": "Open class, decided as a class: AC-20504-2 (input class \"Runbooks for any FBS id and title, in md and json\"; mechanism \"One runbookStages constructor (bundle.js:284-305), plus a per-command --record check (twelve-rules:444)\"): the mechanism decides the whole class, so no input is undecidable; the whole-plan pass's statement is the record, with no ruling and no sibling criterion. Is this the record?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the record stands"
+        },
+        {
+          "letter": "b",
+          "text": "it does not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:16.227Z",
+      "status": "resolved",
+      "answer": "a. The record stands, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:16.638Z",
+      "resolvedAt": "2026-11-10T19:50:16.638Z"
+    },
+    {
+      "id": 184,
+      "question": "PACK PRIVACY ALLOW-LIST, 2026-11-10: AC-20501-5 names a packed file the privacy scan cannot read as plain text; these paths are allowed past that check, because each holds a published hash or vendored third-party code rather than text that could carry development-chain or private material, and each is still read as text by the AC-20501-3 and AC-20501-4 scans: `guidance/managed/agent-instructions-block.hash` (the SHA-256 of the managed block that rcf doctor compares), `guidance/managed/legacy-fragment-hashes.json` (SHA-256 hashes of earlier managed fragments that rcf doctor recognises), `src/view/vendored/mermaid.min.js` (the vendored diagram library bundle, which embeds an image and the base64 alphabet). Are these paths allowed past the unscanned check?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "these paths are allowed past the unscanned check"
+        },
+        {
+          "letter": "b",
+          "text": "they are not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:16.824Z",
+      "status": "resolved",
+      "answer": "a. These paths are allowed past the unscanned check, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:17.190Z",
+      "resolvedAt": "2026-11-10T19:50:17.190Z"
+    },
+    {
+      "id": 185,
+      "question": "ROUND READINGS, RESERVE PASS, 2026-11-10: round 3 on FBS-243, DEFINE pass 2 of 2 (the reserve, the round's last DEFINE pass), how the open-class rulings recorded with the maintainers shape the tests. AC-20501-3 keeps its meaning; its scan now also reads each packed file with its newlines folded to spaces, scans every packed path, and matches the names the repository's own history records (every author of a commit carrying a Hand: trailer, and every Hand-Id owner) whole-word without regard to case, the four literal names staying as a floor. AC-20501-4 keeps its meaning; its project and agent name segments take letters of either case, digits, dot, underscore and hyphen; it scans every packed path; its consumer list is matched whole-word without regard to case (its wording amended to say so); its consumer class is reported as its own subtest, skipped where the list is neither set nor expected. A workflow-config case bound to AC-20501-4 checks that every workflow step running the suite maps RCF_PRIVACY_FORBIDDEN_TERMS from the repository secret. New criteria beside the open-class ones, each testOnly with no proof level recorded (full): AC-20501-5 (a packed file the scan cannot read as plain text is named and fails, past only by the decisions-ledger allow-list), AC-20501-6 (where the list is expected, declared by RCF_PRIVACY_TERMS_EXPECTED on each workflow step that runs the suite, an empty or missing list fails by name; elsewhere the class is reported as skipped with one printed line, as the earlier readings entry says for a local run), AC-20503-4 (rcf doctor --fix refuses with exit 2 and writes nothing when the end marker is followed by a CRLF line ending or by the end of the file), AC-20504-4 (an inline rcf command in a served document that does not read as one command is named and fails). AC-20504-1's REVIEW and sentence checks judge each backticked command for --record in any argument position (its wording amended to say so). Do the round's tests read the rulings this way?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the tests read the rulings this way"
+        },
+        {
+          "letter": "b",
+          "text": "they do not"
+        }
+      ],
+      "default": "a",
+      "blocks": "FBS-243",
+      "addedAt": "2026-11-10T19:50:17.437Z",
+      "status": "resolved",
+      "answer": "a. The tests read the rulings this way, 2026-11-10.",
+      "answeredAt": "2026-11-10T19:50:17.811Z",
+      "resolvedAt": "2026-11-10T19:50:17.811Z"
     }
   ]
 }

@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1117",
+  "path": "../../.github/workflows/ci.yml",
+  "title": "CI suite step: the consumer term list from the repository secret",
+  "description": "The pnpm -r test step maps RCF_PRIVACY_FORBIDDEN_TERMS from the repository secret of the same name and sets RCF_PRIVACY_TERMS_EXPECTED from the github context: true in the repository's own runs, false for a fork.",
+  "implementsAcIds": [
+    "AC-20501-4",
+    "AC-20501-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:22.868Z",
+  "updatedAt": "2026-11-10T21:48:22.868Z"
+}

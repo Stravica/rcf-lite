@@ -171,17 +171,18 @@ depth for each stage.
    edits a criterion-bound test, a binding or criterion text. The audit
    enforces this by path on every commit, and the merge check runs the
    audit. This rule is never lightened.
-6. **DEFINE exit.** Each new test is red at the DEFINE head with its
-   failing assertion recorded, and the suite fails on exactly the new
-   tests. No throwaway.
+6. **DEFINE exit.** From the named base-suite record, only the newly
+   added or changed test cases fail at the DEFINE head, and each fails
+   at its recorded assertion; an unrecorded baseline failure makes
+   DEFINE BLOCKED. There is no throwaway implementation: the
+   test-author proves red, and green is the builder's to prove.
 7. **BUILD exit.** The reds are green and nothing beyond the criteria is
    built. A test that cannot pass without being changed is a stop for
    the owner, never an edit.
 8. **REVIEW.** One reviewer judges the diff against the criteria the
    change claims, on three classes only: buyer harm, a vacuous test, and
    a test or criterion the builder edited. Everything else is a note.
-   Test strength is recorded for the reviewer's adequacy verdict. One
-   re-gate; a second FINDINGS goes to the owner.
+   One re-gate; a second FINDINGS goes to the owner.
 9. **TEST.** The bound suites, less the external-level tests, run
    against a running instance of the reviewed head. PASS, FAIL or
    BLOCKED is recorded at that head; BLOCKED changes neither the head
@@ -339,9 +340,11 @@ writes the criterion-based and E2E tests and their TS / TC bindings and
 marks pickup with `rcf build mark <fbs-id> inProgress`. BUILD (`BUILD:`)
 writes production code, Code Nodes and code-hygiene unit tests only.
 REVIEW (`REVIEW:`) runs the scoped gate, `rcf audit separation` and
-`rcf audit test-strength --record`, and records `rcf build verdict
-review`. TEST (`TEST:`) runs the full RCF suite against a locally
-running app, nothing deployed, and records `rcf build verdict test`.
+`rcf audit test-strength` read-only (no record), and records `rcf build
+verdict review`. TEST (`TEST:`) runs the full RCF suite against a
+locally running app, nothing deployed, records the test-strength report
+at the reviewed head with `rcf audit test-strength --record`, and
+records `rcf build verdict test`.
 FINALISE (`FINALISE:`), on a REVIEW MERGE and a TEST PASS with CI green,
 runs `rcf build finalise <fbs-id> --ci-run <ref>` on the PR branch,
 which checks the recorded verdicts and writes complete

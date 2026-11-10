@@ -5159,6 +5159,20 @@ flowchart LR
   REQ-205 --> AC-20501-3
   TC-307-no-packed-file-carries-development-chain["TC-307-no-packed-file-carries-development-chain"]
   AC-20501-3 -.-> TC-307-no-packed-file-carries-development-chain
+  AC-20501-4["AC-20501-4"]
+  REQ-205 --> AC-20501-4
+  TC-307-ac-20501-4-no-file-in-the-tarball-npm["TC-307-ac-20501-4-no-file-in-the-tarball-npm"]
+  AC-20501-4 -.-> TC-307-ac-20501-4-no-file-in-the-tarball-npm
+  TC-307-ac-20501-4-workflows-every-workflow-step["TC-307-ac-20501-4-workflows-every-workflow-step"]
+  AC-20501-4 -.-> TC-307-ac-20501-4-workflows-every-workflow-step
+  AC-20501-5["AC-20501-5"]
+  REQ-205 --> AC-20501-5
+  TC-307-ac-20501-5-every-file-in-the-tarball-npm["TC-307-ac-20501-5-every-file-in-the-tarball-npm"]
+  AC-20501-5 -.-> TC-307-ac-20501-5-every-file-in-the-tarball-npm
+  AC-20501-6["AC-20501-6"]
+  REQ-205 --> AC-20501-6
+  TC-307-ac-20501-6-where-the-consumer-list-is["TC-307-ac-20501-6-where-the-consumer-list-is"]
+  AC-20501-6 -.-> TC-307-ac-20501-6-where-the-consumer-list-is
   AC-20502-1["AC-20502-1"]
   REQ-205 --> AC-20502-1
   TC-308-with-a-test-strength-record-at-h["TC-308-with-a-test-strength-record-at-h"]
@@ -5201,6 +5215,10 @@ flowchart LR
   REQ-205 --> AC-20503-3
   TC-309-on-a-project-whose-claude-md-carries-the["TC-309-on-a-project-whose-claude-md-carries-the"]
   AC-20503-3 -.-> TC-309-on-a-project-whose-claude-md-carries-the
+  AC-20503-4["AC-20503-4"]
+  REQ-205 --> AC-20503-4
+  TC-309-ac-20503-4-on-a-project-whose-claude-md["TC-309-ac-20503-4-on-a-project-whose-claude-md"]
+  AC-20503-4 -.-> TC-309-ac-20503-4-on-a-project-whose-claude-md
   AC-20504-1["AC-20504-1"]
   REQ-205 --> AC-20504-1
   TC-310-rcf-guidance-build-cycle-and-rcf-docs["TC-310-rcf-guidance-build-cycle-and-rcf-docs"]
@@ -5213,6 +5231,10 @@ flowchart LR
   REQ-205 --> AC-20504-3
   TC-310-rcf-guidance-overview-keeps-the-tool["TC-310-rcf-guidance-overview-keeps-the-tool"]
   AC-20504-3 -.-> TC-310-rcf-guidance-overview-keeps-the-tool
+  AC-20504-4["AC-20504-4"]
+  REQ-205 --> AC-20504-4
+  TC-310-ac-20504-4-every-inline-rcf-command-in["TC-310-ac-20504-4-every-inline-rcf-command-in"]
+  AC-20504-4 -.-> TC-310-ac-20504-4-every-inline-rcf-command-in
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -7827,6 +7849,13 @@ flowchart LR
   class TC-307-the-tarball-npm-pack-produces-installed tc;
   class AC-20501-3 ac;
   class TC-307-no-packed-file-carries-development-chain tc;
+  class AC-20501-4 ac;
+  class TC-307-ac-20501-4-no-file-in-the-tarball-npm tc;
+  class TC-307-ac-20501-4-workflows-every-workflow-step tc;
+  class AC-20501-5 ac;
+  class TC-307-ac-20501-5-every-file-in-the-tarball-npm tc;
+  class AC-20501-6 ac;
+  class TC-307-ac-20501-6-where-the-consumer-list-is tc;
   class AC-20502-1 ac;
   class TC-308-with-a-test-strength-record-at-h tc;
   class AC-20502-2 ac;
@@ -7848,12 +7877,16 @@ flowchart LR
   class TC-309-rcf-init-in-a-fresh-directory-writes-the tc;
   class AC-20503-3 ac;
   class TC-309-on-a-project-whose-claude-md-carries-the tc;
+  class AC-20503-4 ac;
+  class TC-309-ac-20503-4-on-a-project-whose-claude-md tc;
   class AC-20504-1 ac;
   class TC-310-rcf-guidance-build-cycle-and-rcf-docs tc;
   class AC-20504-2 ac;
   class TC-310-the-runbook-rcf-build-bundle-prints-in tc;
   class AC-20504-3 ac;
   class TC-310-rcf-guidance-overview-keeps-the-tool tc;
+  class AC-20504-4 ac;
+  class TC-310-ac-20504-4-every-inline-rcf-command-in tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

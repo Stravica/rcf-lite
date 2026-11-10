@@ -4,7 +4,7 @@
 
 | Topic | Owning ADR | Meaning | Composition note |
 |---|---|---|---|
-| `logging` | `ADR-1601-observability-logging-line-shape` | Structured single-line JSON emission contract with the shared minimum field set. | Shelf-canonical claim from v1.0.0. A composing blueprint that ships a different logging contract (structured multi-line, per-service special format, non-JSON) conflicts by design; the operator resolves at project level via `rcf define blueprint supersede logging --incoming <source>`. A library-registered logging provider (wsd-logging, acme-log-emit) is preferred over this shelf provider by the companion-suggestion mechanism. |
+| `logging` | `ADR-1601-observability-logging-line-shape` | Structured single-line JSON emission contract with the shared minimum field set. | Shelf-canonical claim from v1.0.0. A composing blueprint that ships a different logging contract (structured multi-line, per-service special format, non-JSON) conflicts by design; the operator resolves at project level via `rcf define blueprint supersede logging --incoming <source>`. A library-registered logging provider (acme-logging, other-log-emit) is preferred over this shelf provider by the companion-suggestion mechanism. |
 
 ## Deliberately unclaimed topics
 

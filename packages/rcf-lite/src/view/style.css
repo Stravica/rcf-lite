@@ -1,15 +1,15 @@
 /*
  * RCF view stylesheet.
  *
- * Viewer UI refresh PR 1 (wespa request, 2026-10-02):
+ * Viewer UI refresh PR 1 (an embedder's request, 2026-10-02):
  * replaces the earlier single-theme indigo
  * palette with the Stravica brand kit tokens (--sv-* cobalt / ink /
  * paper) in a light + dark pair. theme=light|dark on the root page
  * wins; theme=auto (and absent) falls through to prefers-color-scheme,
- * with absent defaulting to light per wespa's requirements.
+ * with absent defaulting to light per the embedding host's requirements.
  *
  * The viewer fills the viewport height and owns its scrolling (the
- * host is a fixed box in wespa, 56px header plus a sidebar); nothing
+ * host is a fixed box in the embedding host, 56px header plus a sidebar); nothing
  * scrolls horizontally at narrow widths; the tab nav stays sticky
  * while content scrolls. embed=1 stamps data-embed on <html>, which
  * hides the brand block and the footer but keeps the tabstrip.

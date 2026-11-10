@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1121",
+  "path": "src/core/fixtures/register-canary/canary-prompt-01.json",
+  "title": "Register canary prompt 01: a project-relative brief path",
+  "description": "The canary operator prompt points at ./briefs/canary-brief.md, a project-relative path naming no home directory or developer.",
+  "implementsAcIds": [
+    "AC-20501-3",
+    "AC-20501-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:33.420Z",
+  "updatedAt": "2026-11-10T21:48:33.420Z"
+}

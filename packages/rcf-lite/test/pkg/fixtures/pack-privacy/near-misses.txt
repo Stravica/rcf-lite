@@ -1,0 +1,8 @@
+A redaction example may use /Users/john doe/work, with a space in the user segment.
+Caches live under ~/.cache on Linux and ~/Library/Caches on macOS.
+Error text carries no /Users/, no /home/ and no user segment.
+Record the operator's ruling in the decisions ledger before the build starts.
+The owner's decision is recorded with the round, beside the proof levels.
+Source for the sample sits in projects/demo/src/index.js and tests in projects/demo/test/.
+The hands are listed in agents/README.md and in .claude/agents/reviewer.md.
+A word that only contains a term, such as {{inword}}, is not the term.

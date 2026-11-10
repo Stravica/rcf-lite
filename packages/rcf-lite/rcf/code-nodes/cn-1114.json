@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1114",
+  "path": "src/cli/doctor.js#agentInstructionsSpliceRefusals",
+  "title": "doctor --fix refuses an unsafe managed-block splice before any write",
+  "description": "Lists CLAUDE.md and AGENTS.md files whose stale managed block cannot be rewritten without changing a byte outside the markers; doctor --fix then exits 2 naming each file and writes nothing.",
+  "implementsAcIds": [
+    "AC-20503-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:16.880Z",
+  "updatedAt": "2026-11-10T21:48:16.880Z"
+}

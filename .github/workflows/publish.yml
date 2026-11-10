@@ -39,7 +39,12 @@ jobs:
           registry-url: 'https://registry.npmjs.org/'
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      # The pack-privacy check's consumer-name list comes from a
+      # repository secret, expected in this repository's own runs only.
       - run: pnpm -r test
+        env:
+          RCF_PRIVACY_FORBIDDEN_TERMS: ${{ secrets.RCF_PRIVACY_FORBIDDEN_TERMS }}
+          RCF_PRIVACY_TERMS_EXPECTED: ${{ github.repository == 'Stravica/rcf-lite' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository) }}
       # Register-regression canary (Track D §7). INFORMATIONAL ONLY, NEVER A
       # RELEASE GATE. The canary infrastructure runs against the MOCK subagent
       # driver in v1: MOCK_DRIVER_MARKER stamps every record and the aggregate

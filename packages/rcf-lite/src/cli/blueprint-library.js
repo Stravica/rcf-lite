@@ -69,7 +69,7 @@ Verbs:
                            root (a directory containing library.json);
                          - a git ref pinned to an annotated tag or a
                            commit sha, e.g.
-                           git+https://github.com/wsd-team/wsd-blueprint-library.git#v1.2.0
+                           git+https://github.com/acme/acme-blueprint-library.git#v1.2.0
                            or git+ssh://git@github.com/... . Floating
                            branches (main, master, HEAD, latest) refuse.
                          - a tarball URL (.tar / .tar.gz / .tgz) paired

@@ -34,7 +34,7 @@ import { rcfError } from '../core/errors/index.js';
 export async function readAppliedBlueprintCapabilities(appliedRecord, projectRoot) {
   if (!appliedRecord || typeof appliedRecord.source !== 'string') return [];
   const src = appliedRecord.source;
-  // A qualified typed ref (`wsd:auth-oauth2`) never resolves as a file
+  // A qualified typed ref (`acme:auth-oauth2`) never resolves as a file
   // path. Skip it; the library-resolved source blueprint is not on
   // this local tree.
   if (/^[a-z][a-z0-9-]*:[a-z]/i.test(src) && !src.startsWith('/') && !src.startsWith('.')) return [];

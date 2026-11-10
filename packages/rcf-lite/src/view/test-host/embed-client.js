@@ -1,4 +1,4 @@
-// Wespa host fixture client (viewer UI refresh PR 9; TAC-4134).
+// Host shell fixture client (viewer UI refresh PR 9; TAC-4134).
 // Served at /test-host.js by the viewer's dev server when --test-host
 // is on (RCF_VIEW_TEST_HOST=1 equivalent). Wires three fixture
 // behaviours:
@@ -8,7 +8,7 @@
 //     event.origin itself; the viewer does, and the fixture READS the
 //     iframe's data-theme attribute as evidence.
 //   - Sidebar drag: a 6px handle on the sidebar's right edge sets
-//     --wespa-sidebar-width on the <main> grid; clamped to 64..400 px
+//     --host-shell-sidebar-width on the <main> grid; clamped to 64..400 px
 //     live.
 //   - Collapse/Expand: snaps the sidebar between 64 px (collapsed) and
 //     200 px (expanded) and toggles the .collapsed class.
@@ -58,10 +58,10 @@
   }
 
   function setSidebarWidth(px) {
-    var shell = document.querySelector('main.wespa-shell');
+    var shell = document.querySelector('main.host-shell');
     if (!shell) return;
     var clamped = Math.max(SIDEBAR_MIN, Math.min(SIDEBAR_MAX, Math.round(px)));
-    shell.style.setProperty('--wespa-sidebar-width', clamped + 'px');
+    shell.style.setProperty('--host-shell-sidebar-width', clamped + 'px');
     var aside = document.querySelector('[data-rcf-host-sidebar]');
     if (aside) {
       if (clamped <= SIDEBAR_MIN) aside.classList.add('collapsed');

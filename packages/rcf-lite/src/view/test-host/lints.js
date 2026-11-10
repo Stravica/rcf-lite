@@ -1,11 +1,11 @@
 // Three embedding lints (viewer UI refresh PR 9; TAC-4134, ADR-4136).
 // Pure assertions each caller composes into whatever test harness it
-// owns; test/view/wespa-host-fixture.test.js is the suite caller.
+// owns; the host fixture suite under test/view/ is the suite caller.
 //
 // (1) assertFramingHeaders(response)
 //     Refuses on X-Frame-Options, on CSP frame-ancestors that forbids
 //     same-origin, or on any header the viewer sets that would block
-//     wespa's same-origin iframe mount. The viewer today sets neither,
+//     an embedding host's same-origin iframe mount. The viewer today sets neither,
 //     so a passing run proves the browser accepts the iframe.
 //
 // (2) assertNoTargetTop(renderedHtml)
@@ -21,7 +21,7 @@
 //     "rcf-view:v1:" (or references STORAGE_NS declared equal to that
 //     prefix). The embedding contract (section 9) requires the viewer namespace
 //     every localStorage key because the viewer shares localStorage
-//     with the wespa SPA.
+//     with the embedding host's single-page app.
 
 import { readFile, readdir } from 'node:fs/promises';
 import { join, extname } from 'node:path';

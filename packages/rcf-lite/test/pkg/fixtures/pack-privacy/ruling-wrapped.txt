@@ -1,0 +1,2 @@
+The region default follows the maintainer ruling
+2026-01-01 on the pilot, wrapped across two lines.

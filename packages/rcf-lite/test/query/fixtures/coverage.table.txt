@@ -1061,6 +1061,9 @@ REQ-204      yes      AC-20401-1   yes                    external   verified  v
 REQ-205      yes      AC-20501-1   yes                    testOnly   complete  complete    TC-307-npm-pack-dry-run-json-in-packages-rcf
                       AC-20501-2   yes                    external   verified  verified    TC-307-the-tarball-npm-pack-produces-installed
                       AC-20501-3   yes                    testOnly   complete  complete    TC-307-no-packed-file-carries-development-chain
+                      AC-20501-4   yes                    testOnly   complete  complete    TC-307-ac-20501-4-no-file-in-the-tarball-npm, TC-307-ac-2...
+                      AC-20501-5   yes                    testOnly   complete  complete    TC-307-ac-20501-5-every-file-in-the-tarball-npm
+                      AC-20501-6   yes                    testOnly   complete  complete    TC-307-ac-20501-6-where-the-consumer-list-is
                       AC-20502-1   yes                    testOnly   complete  complete    TC-308-with-a-test-strength-record-at-h
                       AC-20502-2   yes                    testOnly   complete  complete    TC-308-finalise-still-refuses-with-exit-4
                       AC-20502-3   yes                    testOnly   complete  complete    TC-308-rcf-build-verdict-test-fbs-fbs-001
@@ -1070,9 +1073,11 @@ REQ-205      yes      AC-20501-1   yes                    testOnly   complete  c
                       AC-20503-1   yes                    testOnly   complete  complete    TC-309-rcf-guidance-managed-agent-instructions
                       AC-20503-2   yes                    testOnly   complete  complete    TC-309-rcf-init-in-a-fresh-directory-writes-the
                       AC-20503-3   yes                    testOnly   complete  complete    TC-309-on-a-project-whose-claude-md-carries-the
+                      AC-20503-4   yes                    testOnly   complete  complete    TC-309-ac-20503-4-on-a-project-whose-claude-md
                       AC-20504-1   yes                    testOnly   complete  complete    TC-310-rcf-guidance-build-cycle-and-rcf-docs
                       AC-20504-2   yes                    testOnly   complete  complete    TC-310-the-runbook-rcf-build-bundle-prints-in
                       AC-20504-3   yes                    testOnly   complete  complete    TC-310-rcf-guidance-overview-keeps-the-tool
+                      AC-20504-4   yes                    testOnly   complete  complete    TC-310-ac-20504-4-every-inline-rcf-command-in
 
 Spec end state (information, never a gap):
 Spec     end       now

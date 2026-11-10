@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1125",
+  "path": "src/view/test-host/fixture.js#renderTestHostPage",
+  "title": "Host shell fixture page: a neutral host name",
+  "description": "renderTestHostPage returns the host shell fixture with a neutral data-rcf-test-host value, title, brand and class names (host-shell), naming no consumer.",
+  "implementsAcIds": [
+    "AC-20501-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:50.874Z",
+  "updatedAt": "2026-11-10T21:48:50.874Z"
+}

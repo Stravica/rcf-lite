@@ -4,7 +4,7 @@ The fifth content blueprint on the rcf-build-lite blueprint mechanism (design br
 
 ## Breaking change in v2.0.0 (2026-09-04)
 
-This blueprint no longer claims the shelf-wide `healthProbes` or `readinessSemantics` global topics. Path binding moved to `observability-probe-endpoints` (spec `projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md`, section 4). Essentials-alone projects now supply `probeInterface.paths.liveness` and `probeInterface.paths.readiness` at boot (a one-line configuration change per environment). Projects that compose `observability-probe-endpoints` v1.1.0 or later inherit its resolved path set automatically and see no functional change beyond the topic ownership. See CHANGELOG.md for the full migration checklist.
+This blueprint no longer claims the shelf-wide `healthProbes` or `readinessSemantics` global topics. Path binding moved to `observability-probe-endpoints` (the probe-path alignment design of 2026-09-04, section 4). Essentials-alone projects now supply `probeInterface.paths.liveness` and `probeInterface.paths.readiness` at boot (a one-line configuration change per environment). Projects that compose `observability-probe-endpoints` v1.1.0 or later inherit its resolved path set automatically and see no functional change beyond the topic ownership. See CHANGELOG.md for the full migration checklist.
 
 ## Apply
 

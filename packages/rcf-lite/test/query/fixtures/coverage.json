@@ -13091,6 +13091,40 @@
           "now": "complete"
         },
         {
+          "id": "AC-20501-4",
+          "covered": true,
+          "testCases": [
+            "TC-307-ac-20501-4-no-file-in-the-tarball-npm",
+            "TC-307-ac-20501-4-workflows-every-workflow-step"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
+        },
+        {
+          "id": "AC-20501-5",
+          "covered": true,
+          "testCases": [
+            "TC-307-ac-20501-5-every-file-in-the-tarball-npm"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
+        },
+        {
+          "id": "AC-20501-6",
+          "covered": true,
+          "testCases": [
+            "TC-307-ac-20501-6-where-the-consumer-list-is"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
+        },
+        {
           "id": "AC-20502-1",
           "covered": true,
           "testCases": [
@@ -13193,6 +13227,17 @@
           "now": "complete"
         },
         {
+          "id": "AC-20503-4",
+          "covered": true,
+          "testCases": [
+            "TC-309-ac-20503-4-on-a-project-whose-claude-md"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
+        },
+        {
           "id": "AC-20504-1",
           "covered": true,
           "testCases": [
@@ -13219,6 +13264,17 @@
           "covered": true,
           "testCases": [
             "TC-310-rcf-guidance-overview-keeps-the-tool"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
+        },
+        {
+          "id": "AC-20504-4",
+          "covered": true,
+          "testCases": [
+            "TC-310-ac-20504-4-every-inline-rcf-command-in"
           ],
           "unresolvedTestCases": [],
           "verification": "testOnly",

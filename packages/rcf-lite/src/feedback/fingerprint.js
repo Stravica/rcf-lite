@@ -71,8 +71,8 @@ export function fingerprintInput(entry) {
  * Derive the targetKey portion of the canonical input.
  *
  *   blueprint: effectiveSlug from the entry.target if present, else
- *              a normalised form of the ref (`wsd:std-error-envelope`
- *              becomes `wsd-std-error-envelope`; already-dashed
+ *              a normalised form of the ref (`acme:std-error-envelope`
+ *              becomes `acme-std-error-envelope`; already-dashed
  *              refs pass through unchanged).
  *   core:      the verb path from entry.target.ref, lower-cased with
  *              whitespace collapsed to single spaces.

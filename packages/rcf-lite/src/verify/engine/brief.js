@@ -21,7 +21,7 @@ export const DEFAULT_PERSONA = 'generic-sceptic';
  *      non-empty strings. The existing structured disprove line is used.
  *   2. Otherwise, if `description` is a non-empty string, verify falls back
  *      to a description-based disprove line so the walk has real adversarial
- *      content to run against (the slice-1 Backstory chains author ACs this
+ *      content to run against (the slice-1 consumer chains author ACs this
  *      way; prior to the fix those produced an empty-text disprove line).
  *   3. If neither form carries any criterion text, that is a hard failure
  *      naming the acId; never a silent empty-text run against nothing. A

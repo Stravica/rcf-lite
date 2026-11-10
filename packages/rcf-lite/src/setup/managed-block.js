@@ -132,10 +132,33 @@ export function composeBlock(canonicalText, markerBegin, markerEnd) {
 }
 
 /**
+ * Why an in-place rewrite of a stale block in `fileText` would change a
+ * byte outside the markers, or null when it would not. The composed
+ * block ends in the end marker and one line feed, so the rewrite keeps
+ * every outside byte only when the end marker is followed by a line
+ * feed: a CRLF line ending, any other byte, or the end of the file right
+ * after the end marker would be altered, and `--fix` refuses instead.
+ *
+ * @param {string} fileText
+ * @param {BlockOptions} opts
+ * @returns {string | null}
+ */
+export function spliceRefusal(fileText, opts) {
+  const loc = locateMarkers(fileText, opts.markerBegin, opts.markerEnd);
+  if (!loc) return null;
+  const after = loc.beginIndex + opts.markerBegin.length + loc.innerText.length + opts.markerEnd.length;
+  if (after >= fileText.length) return 'the end marker is the end of the file, so a rewrite would add a line feed after it';
+  if (fileText[after] === '\r') return 'the end marker is followed by a CRLF line ending, so a rewrite would change it';
+  if (fileText[after] !== '\n') return 'the end marker is not followed by a line feed, so a rewrite would change the byte after it';
+  return null;
+}
+
+/**
  * Rewrite `fileText` in place with the composed block:
  * - `clean`: return the input unchanged (idempotent no-op).
  * - `stale-hash`: splice the composed block over the current pair,
- *   preserving every byte outside the markers.
+ *   preserving every byte outside the markers (`rcf doctor --fix`
+ *   refuses first when `spliceRefusal` names a byte it would change).
  * - `legacy-markers`: splice the composed block over the legacy pair,
  *   preserving every byte outside the legacy markers.
  * - `missing-block`: append the composed block at end of file, adding a

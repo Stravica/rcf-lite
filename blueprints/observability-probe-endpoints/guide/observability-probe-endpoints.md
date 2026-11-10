@@ -81,7 +81,7 @@ Shipping this doc set costs the project the following. Every process pays the pr
 
 ## Composing with observability-essentials and application-api-rest
 
-From v1.1.0 this blueprint is the single owner of probe-path binding on the core shelf. The composition is documented in the ratified rcf-lite probe-path alignment spec (`projects/rcf-lite-wsd/specs/rcf-lite-probe-path-alignment-spec-2026-09-04.md`) and verified by the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js`.
+From v1.1.0 this blueprint is the single owner of probe-path binding on the core shelf. The composition is documented in the ratified rcf-lite probe-path alignment design (2026-09-04) and verified by the compose test at `packages/rcf-lite/test/blueprint/probe-path-alignment.test.js`.
 
 - observability-essentials (v2.0.0 and up) contributes body shape, dep registry, probe-secrecy, status page, and notification sink; it defers path binding to this blueprint when composed, and reads `probeInterface.paths` from project configuration when it is applied alone. Its `healthProbes` and `readinessSemantics` global claims were dropped in v2.0.0; this blueprint is now the sole `scope: global` claimant on both topics.
 - application-api-rest (v2.0.0 and up) contributes the request pipeline, auth middleware, error envelope, versioning, logging, migrations and meta endpoint; it defers probe paths to this blueprint (including the optional startup path). Its auth-middleware installer consumes the exempt path set this blueprint emits and no other; adjacent routes never fall under the same exemption.

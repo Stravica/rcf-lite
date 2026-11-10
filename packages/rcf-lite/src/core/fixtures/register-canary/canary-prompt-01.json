@@ -1,7 +1,7 @@
 {
   "id": "canary-prompt-01",
   "specSource": "elicitation-and-playbook-hardening-0.7.0-spec.md §7.3",
-  "operatorPrompt": "The app I want you to build is described in detail in this brief: /Users/thefoot/scratch/canary-brief.md\n\nYou are currently homed in a brand new cloned repo - uninitialised. You have my approval to manage the code pushes, branches, PRs and actions/workflows for this repository.\n\nRead the brief and then tell me whats next please?",
+  "operatorPrompt": "The app I want you to build is described in detail in this brief: ./briefs/canary-brief.md\n\nYou are currently homed in a brand new cloned repo - uninitialised. You have my approval to manage the code pushes, branches, PRs and actions/workflows for this repository.\n\nRead the brief and then tell me whats next please?",
   "supportingArtefacts": [
     {
       "path": "canary-brief.md",

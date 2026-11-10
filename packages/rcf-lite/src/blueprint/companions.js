@@ -38,7 +38,7 @@ export const COMPANIONS_SCHEMA_VERSION = 1;
  * @typedef {object} ResolvedCompanion
  * @property {string} role           lower camelCase role name
  * @property {string} reason         verbatim from the service blueprint's suggestedCompanions[]
- * @property {string|null} provider  library-qualified slug ("wsd:logging"),
+ * @property {string|null} provider  library-qualified slug ("acme:logging"),
  *                                   bare shelf slug ("observability-logging"),
  *                                   applied slug, or null when unresolved
  * @property {'appliedProvider'|'pinnedLibrary'|'pinnedShelf'|'registeredLibrary'|'shelfFallback'|'ambiguousLibraries'|'unresolved'} origin
@@ -243,7 +243,7 @@ export async function enumerateAppliedProviders({ tree, role }) {
   const out = [];
   for (const bp of applied) {
     if (typeof bp.source !== 'string' || bp.source.length === 0) continue;
-    // Library-qualified sources (wsd:auth-oauth2) resolve through the
+    // Library-qualified sources (acme:auth-oauth2) resolve through the
     // library cache; skipping them here is fine because the library
     // enumeration also covers them (a library-applied provider is
     // catchable in the applied tier only when a manual reader passes
@@ -409,7 +409,7 @@ export function renderCompanionLines(resolved) {
  *
  * @param {object} args
  * @param {string} args.role
- * @param {string[]} args.providers   library-qualified slugs, e.g. ["wsd:logging","acme:log-emit"]
+ * @param {string[]} args.providers   library-qualified slugs, e.g. ["acme:logging","other:log-emit"]
  * @param {string} [args.serviceSlug] service blueprint being applied; used in the resolution paths
  * @returns {string}
  */

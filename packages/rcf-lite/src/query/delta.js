@@ -14,7 +14,7 @@
 // whitespace, no trailing separators. A hand reformat that changes
 // nothing is not a change; that is what an operator expects, and it
 // costs one canonicalise per document per read (milliseconds at the
-// backstory-scale tree of 700 criteria). Hashing raw bytes would be
+// consumer-scale tree of 700 criteria). Hashing raw bytes would be
 // one line shorter and would report drift after `rcf define update`
 // rewrote a file it did not semantically touch (ADR-4120).
 //
