@@ -157,8 +157,8 @@ export function spliceRefusal(fileText, opts) {
  * Rewrite `fileText` in place with the composed block:
  * - `clean`: return the input unchanged (idempotent no-op).
  * - `stale-hash`: splice the composed block over the current pair,
- *   preserving every byte outside the markers; refused (null) when
- *   `spliceRefusal` names a byte the splice would change.
+ *   preserving every byte outside the markers (`rcf doctor --fix`
+ *   refuses first when `spliceRefusal` names a byte it would change).
  * - `legacy-markers`: splice the composed block over the legacy pair,
  *   preserving every byte outside the legacy markers.
  * - `missing-block`: append the composed block at end of file, adding a
@@ -183,7 +183,7 @@ export function applyFix(fileText, canonicalText, opts, canonicalHash) {
   }
   if (state === 'stale-hash') {
     const loc = locateMarkers(fileText, opts.markerBegin, opts.markerEnd);
-    if (!loc || spliceRefusal(fileText, opts)) return null;
+    if (!loc) return null;
     const nextText = fileText.slice(0, loc.beginIndex) + composed + fileText.slice(loc.endIndex);
     return { nextText, action: 'replaced' };
   }
