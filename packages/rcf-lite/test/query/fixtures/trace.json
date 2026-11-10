@@ -679,7 +679,7 @@
       "id": "TC-229-fixture-shell",
       "kind": "tc",
       "depth": 3,
-      "title": "renderTestHostPage returns an HTML5 document with a 56px wespa-header, data-rcf-host-sidebar + data-rcf-host-sidebar-drag markers, data-rcf-host-theme light/dark toggles, an iframe whose src is literally './?embed=1&theme=light' (HTML-entity encoded), a '<script src=./test-host.js defer>' line and zero inline <script> blocks."
+      "title": "renderTestHostPage returns an HTML5 document with a neutral host-shell name (data-rcf-test-host=host-shell, title Host shell fixture), a 56px host-shell-header, data-rcf-host-sidebar + data-rcf-host-sidebar-drag markers, data-rcf-host-theme light/dark toggles, an iframe whose src is literally './?embed=1&theme=light' (HTML-entity encoded), a '<script src=./test-host.js defer>' line and zero inline <script> blocks."
     },
     {
       "id": "TC-229-test-host-http-roundtrip",
