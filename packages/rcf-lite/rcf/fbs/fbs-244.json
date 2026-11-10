@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-09T07:26:55.787Z",
-  "updatedAt": "2026-11-09T10:59:46.440Z",
+  "updatedAt": "2026-11-10T08:50:48.667Z",
   "acIds": [
     "AC-19905-1",
     "AC-19905-2",
@@ -13,7 +13,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 246,
-  "executionStatus": "notStarted",
+  "executionStatus": "inProgress",
   "title": "rcf audit test-strength: symbol-level Python Code Nodes judged through the host python3, and the Python def anchor",
   "summary": "Test strength judges Python sources: a symbol-level .py Code Node (a def, a class, or Class.method) is read through the host's python3 with the standard library ast module only and mutated with the JavaScript operator set (stubToThrow, noOp, callRemoval), so a Python product's strength record judges each criterion instead of blocking every one, in the TestStrengthReport v1 shape unchanged; python3 absent, below 3.9 or giving no version is a per-criterion BLOCKED naming python3 and the floor, and a claimed .py file python3 cannot read (it does not parse, or the structure read fails) is a per-criterion BLOCKED naming the file, never a pass; a Code Node #symbol on a Python def resolves at rcf define validate. AC-19901-10 succeeds the retired AC-19901-9 with the 0.42.0 readable set.",
   "dependsOnFbsIds": [
