@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1119",
+  "path": "CHANGELOG.md",
+  "title": "CHANGELOG: history reworded with no consumer name or internal path",
+  "description": "Release history names no consumer, team or developer, cites internal design notes by file name only, and carries no hash value the privacy scan cannot read as text.",
+  "implementsAcIds": [
+    "AC-20501-4",
+    "AC-20501-5"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:29.900Z",
+  "updatedAt": "2026-11-10T21:48:29.900Z"
+}

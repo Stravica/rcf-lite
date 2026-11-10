@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1113",
+  "path": "src/setup/managed-block.js#spliceRefusal",
+  "title": "Why a stale-block rewrite would change an outside byte",
+  "description": "Returns the reason an in-place rewrite of a stale managed block would change a byte outside the markers (a CRLF, another byte or the end of the file right after the end marker), or null when the end marker is followed by a line feed.",
+  "implementsAcIds": [
+    "AC-20503-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:14.719Z",
+  "updatedAt": "2026-11-10T21:48:14.719Z"
+}

@@ -1,8 +1,8 @@
 {
   "cnId": "CN-1083",
-  "path": "src/cli/separation.js#HELP",
-  "title": "Separation help: the strength record closes nothing",
-  "description": "The audit separation help says a test-strength.json closes no round and drops the 0.37.x transition label from the Hand: trailer paragraph.",
+  "path": "src/cli/separation.js#main",
+  "title": "Separation command entry: the strength record closes nothing",
+  "description": "rcf audit separation's command entry, through which a TEST: commit adding a failing test-strength record closes no round. Re-pointed from the help constant, which the strength audit cannot mutate.",
   "implementsAcIds": [
     "AC-20502-4"
   ],
@@ -10,5 +10,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-11-07T00:41:01.528Z",
-  "updatedAt": "2026-11-07T00:41:01.528Z"
+  "updatedAt": "2026-11-10T21:47:07.630Z"
 }

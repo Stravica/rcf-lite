@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1126",
+  "path": "src/cli/doctor.js#runProbePathOwnerCheck",
+  "title": "Probe-path owner check message: cites the owning blueprint",
+  "description": "The multiple-owners message points at the observability-probe-endpoints blueprint's docs/topics.md instead of an internal specification path.",
+  "implementsAcIds": [
+    "AC-20501-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:52.884Z",
+  "updatedAt": "2026-11-10T21:48:52.884Z"
+}

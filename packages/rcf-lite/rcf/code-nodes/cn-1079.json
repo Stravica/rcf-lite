@@ -1,8 +1,8 @@
 {
   "cnId": "CN-1079",
-  "path": "src/cli/finalise.js#HELP",
-  "title": "Finalise help: the strength record is structure",
-  "description": "The finalise help states the record must be a valid TestStrengthReport v1 for H covering the touched criteria and that its result never refuses.",
+  "path": "src/cli/finalise.js#main",
+  "title": "Finalise command entry: the strength record is structure",
+  "description": "rcf build finalise's command entry, through which the strength-record checks run: the record must be a valid TestStrengthReport v1 for H covering the touched criteria, and its result never refuses. Re-pointed from the help constant, which the strength audit cannot mutate.",
   "implementsAcIds": [
     "AC-20502-1",
     "AC-20502-6"
@@ -11,5 +11,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-11-07T00:40:58.818Z",
-  "updatedAt": "2026-11-07T00:40:58.818Z"
+  "updatedAt": "2026-11-10T21:47:04.072Z"
 }

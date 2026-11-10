@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1116",
+  "path": "guidance/build-cycle-playbook.md",
+  "title": "build-cycle playbook: each inline rcf command reads as one command",
+  "description": "Alternatives in inline rcf commands are written as one placeholder (<MERGE|FINDINGS>, <PASS|FAIL>, <true|false>), so every span reads as one command with its arguments.",
+  "implementsAcIds": [
+    "AC-20504-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:20.697Z",
+  "updatedAt": "2026-11-10T21:48:20.697Z"
+}

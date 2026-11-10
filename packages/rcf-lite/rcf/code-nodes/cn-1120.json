@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1120",
+  "path": "releases/releases.yaml",
+  "title": "Releases feed: headlines with no consumer name or internal path",
+  "description": "The releases feed names no consumer, team or developer and cites its contract design note by file name only.",
+  "implementsAcIds": [
+    "AC-20501-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:31.734Z",
+  "updatedAt": "2026-11-10T21:48:31.734Z"
+}

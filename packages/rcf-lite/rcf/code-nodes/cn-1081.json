@@ -1,8 +1,8 @@
 {
   "cnId": "CN-1081",
-  "path": "src/cli/build.js#VERDICT_HELP",
-  "title": "Verdict help: no strength refusal",
-  "description": "The verdict test help no longer lists a failing test-strength.json as a PASS refusal.",
+  "path": "src/cli/build.js#verdictMain",
+  "title": "Verdict command entry: no strength refusal",
+  "description": "rcf build verdict's command entry, through which verdict test records PASS whatever the test-strength record's result. Re-pointed from the help constant, which the strength audit cannot mutate.",
   "implementsAcIds": [
     "AC-20502-3"
   ],
@@ -10,5 +10,5 @@
   "version": "0.1.0",
   "status": "draft",
   "createdAt": "2026-11-07T00:41:00.142Z",
-  "updatedAt": "2026-11-07T00:41:00.142Z"
+  "updatedAt": "2026-11-10T21:47:05.807Z"
 }

@@ -1,0 +1,15 @@
+{
+  "cnId": "CN-1118",
+  "path": "../../.github/workflows/publish.yml",
+  "title": "Publish suite step: the consumer term list from the repository secret",
+  "description": "The publish workflow's pnpm -r test step maps RCF_PRIVACY_FORBIDDEN_TERMS from the repository secret and sets RCF_PRIVACY_TERMS_EXPECTED from the github context, as the CI step does.",
+  "implementsAcIds": [
+    "AC-20501-4",
+    "AC-20501-6"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-10T21:48:24.912Z",
+  "updatedAt": "2026-11-10T21:48:24.912Z"
+}
