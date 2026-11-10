@@ -181,7 +181,7 @@ Deep guidance: rcf://docs/build-cycle and the rcf_execute_build_cycle prompt, or
 
 **DEFINE FBS-001: Document store core** - commit prefix `DEFINE:`, role test-author.
 
-The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion and marks pickup; it never writes production code. Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway.
+The test-author writes the AC-based and E2E tests and their TS / TC bindings for every in-scope criterion and marks pickup; it never writes production code. From the named base-suite record, only the newly added or changed test cases fail at the DEFINE head, and each fails at its recorded assertion; an unrecorded baseline failure makes DEFINE BLOCKED. There is no throwaway implementation: the test-author proves red, and green is the builder's to prove.
 
     rcf audit coverage --strict
 
@@ -197,19 +197,21 @@ The builder makes the red tests green with production code, Code Nodes and code-
 
 **REVIEW FBS-001: Document store core** - commit prefix `REVIEW:`, role reviewer.
 
-The reviewer validates the tree, runs the separation audit (each commit's stage prefix against the paths it touches) and the test-strength audit, re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H. Test strength is recorded for the reviewer's adequacy verdict; its result refuses nothing.
+The reviewer validates the tree, runs the separation audit (each commit's stage prefix against the paths it touches) and the test-strength audit read-only (unrecorded: the recorded report is TEST's), re-reads the diff against every in-scope criterion and records the verdict at the reviewed head H.
 
     rcf define validate
 
     rcf audit separation --base <trunk>
 
-    rcf audit test-strength --record
+    rcf audit test-strength
 
     rcf build verdict review --fbs FBS-001 --acs <AC ids> --code MERGE|FINDINGS --adequacy PASS|FINDINGS
 
 **TEST FBS-001: Document store core** - commit prefix `TEST:`, role verifier.
 
-The verifier runs the full RCF suite against a locally running app serving H, nothing deployed, and records its TAP; a failed REVIEW or TEST closes the round and the next round starts at DEFINE.
+The verifier runs the full RCF suite against a locally running app serving H, nothing deployed, records the test-strength report at H (its result refuses nothing) and records its TAP; a failed REVIEW or TEST closes the round and the next round starts at DEFINE.
+
+    rcf audit test-strength --record --acs <AC ids>
 
     rcf build verdict test --fbs FBS-001 --result PASS|FAIL --tap <file> --runtime "<text>"
 
