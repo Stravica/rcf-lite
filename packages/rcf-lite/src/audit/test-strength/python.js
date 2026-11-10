@@ -31,12 +31,16 @@ const READ_TIMEOUT_MS = 30_000;
 // columns in UTF-8 bytes. A body's span is [startLine, startCol, endLine,
 // endCol, decorated]: ast places a decorated def or class at its `def` or
 // `class` line, so when the first statement of a body is one, the span
-// starts at its earliest decorator's expression and decorated is 1 (the
-// splice then starts at that decorator's `@`). A file python3 cannot
-// parse gives the SyntaxError's line, column (1-based) and message
-// instead.
+// starts at its earliest decorator's `@` and decorated is 1. The `@` is
+// taken from the source's tokens (the stdlib tokenize module), never from
+// the decorator's expression: for a parenthesised decorator such as
+// `@(name)` ast places the expression after the paren, and comments and
+// line breaks may stand inside it. It is the last `@` token before the
+// expression, since only brackets, blanks and comments come between. A
+// file python3 cannot parse gives the SyntaxError's line, column
+// (1-based) and message instead.
 const READER = [
-  'import ast, json, sys',
+  'import ast, io, json, sys, tokenize',
   'text = sys.stdin.buffer.read().decode("utf-8-sig", "surrogateescape")',
   'try:',
   '    tree = ast.parse(text, sys.argv[1])',
@@ -44,11 +48,23 @@ const READER = [
   '    print(json.dumps({"syntax": [getattr(e, "lineno", None) or 1, getattr(e, "offset", None) or 1, getattr(e, "msg", None) or str(e)]}))',
   '    raise SystemExit(0)',
   'FN = (ast.FunctionDef, ast.AsyncFunctionDef)',
+  'ats = []',
+  'def at(a):',
+  '    if not ats:',
+  '        ats.append([])',
+  '        try:',
+  '            for t in tokenize.generate_tokens(io.StringIO(text, newline=None).readline):',
+  '                if t.type == tokenize.OP and t.string == "@":',
+  '                    ats[0].append((t.start[0], len(t.line[:t.start[1]].encode("utf-8", "surrogateescape"))))',
+  '        except (tokenize.TokenError, SyntaxError, ValueError):',
+  '            pass',
+  '    p = [x for x in ats[0] if x < (a.lineno, a.col_offset)]',
+  '    return list(max(p)) if p else [a.lineno, a.col_offset]',
   'def body(n):',
   '    s, e = n.body[0], n.body[-1]',
   '    d = getattr(s, "decorator_list", None)',
-  '    a = d[0] if d else s',
-  '    return [a.lineno, a.col_offset, e.end_lineno, e.end_col_offset, 1 if d else 0]',
+  '    l, c = at(d[0]) if d else (s.lineno, s.col_offset)',
+  '    return [l, c, e.end_lineno, e.end_col_offset, 1 if d else 0]',
   'def named(n):',
   '    while isinstance(n, ast.Attribute):',
   '        n = n.value',
@@ -209,11 +225,12 @@ export function pyTargets(py, symbol) {
 export function pyRewriteBody(py, target, operator, label) {
   const [l1, c1, l2, c2, decorated] = target.body;
   let from = pyOffset(py, l1, c1);
-  if (decorated) {
-    // Back from the earliest decorator's expression to its `@`: only
-    // blanks and line continuations may stand between them.
+  if (decorated && py.text[from] !== '@') {
+    // The reader found no `@` token (its tokenize pass failed): back from
+    // the earliest decorator's expression to its `@` over blanks, line
+    // continuations and opening parens.
     let i = from - 1;
-    while (i >= 0 && ' \t\f\r\n\\'.includes(py.text[i])) i -= 1;
+    while (i >= 0 && ' \t\f\r\n\\('.includes(py.text[i])) i -= 1;
     if (py.text[i] === '@') from = i;
   }
   const stmt = operator === 'noOp' ? 'pass' : `raise RuntimeError(${JSON.stringify(`rcf test-strength: stubToThrow on ${label}`)})`;
