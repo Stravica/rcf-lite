@@ -9,8 +9,8 @@
   "totals": {
     "items": 134,
     "notStarted": 58,
-    "inProgress": 3,
-    "complete": 35,
+    "inProgress": 2,
+    "complete": 36,
     "verified": 38,
     "actionable": 42,
     "blocked": 16
@@ -1792,12 +1792,12 @@
       "buildOrder": 246,
       "tier": 15,
       "title": "rcf audit test-strength: symbol-level Python Code Nodes judged through the host python3, and the Python def anchor",
-      "executionStatus": "inProgress",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [
         "FBS-236",
         "FBS-242"
       ],
-      "state": "inProgress",
+      "state": "complete",
       "blockedBy": []
     }
   ],
