@@ -7575,7 +7575,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "inProgress"
         },
         {
           "id": "AC-17505-2",
@@ -7586,7 +7586,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "inProgress"
         },
         {
           "id": "AC-17505-3",
@@ -7597,7 +7597,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "inProgress"
         },
         {
           "id": "AC-17505-4",
@@ -7608,7 +7608,7 @@
           "unresolvedTestCases": [],
           "verification": "external",
           "expectedEnd": "verified",
-          "now": "notStarted"
+          "now": "inProgress"
         }
       ]
     },
@@ -13946,7 +13946,7 @@
     {
       "fbsId": "FBS-245",
       "expectedEnd": "verified",
-      "now": "notStarted"
+      "now": "inProgress"
     }
   ],
   "unresolvedTestPointers": []

@@ -601,10 +601,10 @@ REQ-175      yes      AC-17501-1   yes                    unflagged  unknown   c
                       AC-17504-3   yes                    unflagged  unknown   notStarted  TC-232-litmus-reader-count
                       AC-17504-4   yes                    unflagged  unknown   notStarted  TC-232-cli-litmus-shortfall-exits-4, TC-232-parse-litmus-...
                       AC-17504-5   yes                    unflagged  unknown   notStarted  TC-232-cli-litmus-no-process-spawn
-                      AC-17505-1   yes                    external   verified  notStarted  TC-312-frozen-tree-with-an-empty-delta-brief
-                      AC-17505-2   yes                    external   verified  notStarted  TC-312-cli-report-and-readiness-tab-verdict
-                      AC-17505-3   yes                    external   verified  notStarted  TC-312-frozen-tree-empty-delta-profile-md
-                      AC-17505-4   yes                    external   verified  notStarted  TC-312-frozen-tree-with-one-changed-document
+                      AC-17505-1   yes                    external   verified  inProgress  TC-312-frozen-tree-with-an-empty-delta-brief
+                      AC-17505-2   yes                    external   verified  inProgress  TC-312-cli-report-and-readiness-tab-verdict
+                      AC-17505-3   yes                    external   verified  inProgress  TC-312-frozen-tree-empty-delta-profile-md
+                      AC-17505-4   yes                    external   verified  inProgress  TC-312-frozen-tree-with-one-changed-document
 REQ-176      yes      AC-17601-1   yes                    unflagged  unknown   notStarted  TC-218-happy
                       AC-17601-2   yes                    unflagged  unknown   notStarted  TC-218-refuse
                       AC-17601-3   yes                    unflagged  unknown   notStarted  TC-218-ack
@@ -1215,4 +1215,4 @@ FBS-241  verified  verified
 FBS-242  verified  verified
 FBS-243  verified  verified
 FBS-244  verified  verified
-FBS-245  verified  notStarted
+FBS-245  verified  inProgress
