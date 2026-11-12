@@ -280,3 +280,20 @@ export function computeDelta(tree, freeze, ledgers) {
     currentDocHashes: { ...currentHashes },
   };
 }
+
+/**
+ * True when the tree is frozen and nothing has moved since the freeze:
+ * no document (ledgers included) changed, added or removed. An
+ * unfrozen delta is never empty (the whole tree is the delta, proposal
+ * §2.2). Pure; reads only the three id lists and the frozen flag, so
+ * it accepts a `DeltaResult` or the readiness result's `delta` block
+ * with `frozen` passed alongside (US-17505, FBS-245).
+ *
+ * @param {{ frozen?: boolean, changed?: string[], added?: string[], removed?: string[] } | null | undefined} delta
+ * @returns {boolean}
+ */
+export function isEmptyDelta(delta) {
+  if (!delta || delta.frozen !== true) return false;
+  const len = (list) => (Array.isArray(list) ? list.length : 0);
+  return len(delta.changed) === 0 && len(delta.added) === 0 && len(delta.removed) === 0;
+}

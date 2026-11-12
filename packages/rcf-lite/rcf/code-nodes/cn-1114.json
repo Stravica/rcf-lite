@@ -1,0 +1,14 @@
+{
+  "cnId": "CN-1114",
+  "path": "src/query/gates.js#checkD1Brief",
+  "implementsAcIds": [
+    "AC-17505-1",
+    "AC-17505-3",
+    "AC-17505-4"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-12T14:57:44.803Z",
+  "updatedAt": "2026-11-12T14:57:44.803Z"
+}

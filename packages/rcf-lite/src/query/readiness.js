@@ -15,7 +15,7 @@
 
 import { computeQueue } from '../build/queue.js';
 import { computeCoverage } from './coverage.js';
-import { computeDelta, computeTreeHash, hashDocument } from './delta.js';
+import { computeDelta, computeTreeHash, hashDocument, isEmptyDelta } from './delta.js';
 import { computeImpact } from './impact.js';
 import { isProbeRunner } from '../define/probe-runner.js';
 import {
@@ -58,6 +58,10 @@ import {
  *   content, not to its own body).
  * @property {string | null} buildAt   fbsId at the queue head, or null
  * @property {number} fbsTotal
+ * @property {number} fbsBuilt  FBS complete or verified (US-17505)
+ * @property {boolean} nothingPending
+ *   Frozen with an empty delta: no document changed, added or removed
+ *   since the freeze (US-17505, FBS-245).
  */
 
 /**
@@ -377,6 +381,10 @@ export function computeReadiness(tree, args = {}) {
       litmusHash: computeLitmusHash(tree, activeLedgers),
       buildAt: queue.nextActionable ?? null,
       fbsTotal,
+      // US-17505 (FBS-245): the built count and the nothing-pending flag
+      // the verdict and tree lines read.
+      fbsBuilt: queue.totals.complete + queue.totals.verified,
+      nothingPending: isEmptyDelta(delta),
     },
     delta: {
       changed: delta.changed,
@@ -708,8 +716,14 @@ export function formatVerdictLines(result) {
         .join(', ');
       return `Intent-complete: no; ${n} question${n === 1 ? '' : 's'} for the product owner (${detail}).`;
     })();
+  // US-17505 (FBS-245): a frozen tree with nothing pending is not
+  // "freezeable", it is frozen; the line says so and that nothing waits.
+  const t = result.tree ?? {};
+  const allBuilt = Number(t.fbsTotal) > 0 && t.fbsBuilt === t.fbsTotal;
   const buildLine = l.readyToBuild.ok
-    ? `Ready-to-build: yes. Freezeable at ${shortHash(result.tree.currentTreeHash)}.`
+    ? (t.nothingPending === true
+      ? `Ready-to-build: yes. Frozen at ${shortHash(t.currentTreeHash)}; nothing pending${allBuilt ? ' and every FBS built' : ''}.`
+      : `Ready-to-build: yes. Freezeable at ${shortHash(t.currentTreeHash)}.`)
     : (() => {
       const blockers = l.readyToBuild.blockedBy;
       const stages = [...new Set(blockers.map((b) => b.stage))].sort();
@@ -737,6 +751,9 @@ export function shortHash(hash) {
  * One-line tree summary matching proposal §6.2:
  *   "Frozen at 9f3a2c on 2026-09-20. 4 documents changed since, 11
  *    impacted. Build at FBS-031 of 41; 2 FBS impacted."
+ *   "Frozen at 9f3a2c on 2026-09-20. 0 documents changed since, 0
+ *    impacted. Built 41 of 41; 0 FBS impacted." (every FBS complete
+ *    or verified, US-17505)
  *   "Unfrozen. 30 documents; the whole tree is the delta."
  *
  * @param {ReadinessResult} result
@@ -751,10 +768,15 @@ export function formatTreeLine(result) {
   }
   const changedCount = d.changed.length + d.added.length + d.removed.length;
   const impactedCount = d.impacted.length;
-  const buildAt = t.buildAt ?? '(none)';
   const impactedFbs = d.impactedFbs.length;
   const at = t.frozenAt ? t.frozenAt.split('T')[0] : '(no timestamp)';
-  return `Frozen at ${shortHash(t.treeHash)} on ${at}. ${changedCount} document${changedCount === 1 ? '' : 's'} changed since, ${impactedCount} impacted. Build at ${buildAt} of ${t.fbsTotal}; ${impactedFbs} FBS impacted.`;
+  // US-17505 (FBS-245): a fully built queue has no head; say it is built
+  // rather than "Build at (none)".
+  const allBuilt = !t.buildAt && Number(t.fbsTotal) > 0 && t.fbsBuilt === t.fbsTotal;
+  const build = allBuilt
+    ? `Built ${t.fbsBuilt} of ${t.fbsTotal}`
+    : `Build at ${t.buildAt ?? '(none)'} of ${t.fbsTotal}`;
+  return `Frozen at ${shortHash(t.treeHash)} on ${at}. ${changedCount} document${changedCount === 1 ? '' : 's'} changed since, ${impactedCount} impacted. ${build}; ${impactedFbs} FBS impacted.`;
 }
 
 // Re-export for CLI convenience.

@@ -44,6 +44,7 @@
 // mark them).
 
 import { computeQueue } from '../build/queue.js';
+import { isEmptyDelta } from './delta.js';
 import { isOptedOut } from '../req-baseline/opt-out.js';
 import { BRIEF_KINDS, parseResolvedBy } from '../define/ledgers.js';
 import { applicableConcernsForShapes } from '../define/concern-catalogue.js';
@@ -1023,18 +1024,29 @@ export function checkD1Brief(ctx) {
   // "at least one statement since the freeze"). briefSince is the
   // delta's own high-water-mark projection; on an unfrozen tree the
   // rule is "the brief itself" so every statement counts.
+  //
+  // US-17505 (FBS-245): on a frozen tree whose delta is empty (no
+  // document changed, added or removed since the freeze) there is no
+  // change for a brief statement to describe, so the check is not
+  // applicable: ok with a total of 0, the per-check form of the
+  // notApplicable fold D2 to D5 take on the same empty delta. Any
+  // change opens a delta and the rule applies again.
   const highWater = Number.isFinite(ctx.freeze?.briefStatements) ? Number(ctx.freeze?.briefStatements) : 0;
   const since = statements.filter((s) => Number(s?.id) > highWater);
-  checks.push(makeCheck(
-    'brief:sinceFreeze',
-    'delta',
-    Math.max(since.length, 1),
-    since.length === 0 && (ctx.freeze ? true : statements.length === 0)
-      ? [{ id: 'brief-ledger', why: ctx.freeze
-        ? 'no new brief statement since the freeze'
-        : 'brief ledger holds no statements' }]
-      : [],
-  ));
+  if (ctx.freeze && isEmptyDelta(ctx.delta)) {
+    checks.push(makeCheck('brief:sinceFreeze', 'delta', 0, []));
+  } else {
+    checks.push(makeCheck(
+      'brief:sinceFreeze',
+      'delta',
+      Math.max(since.length, 1),
+      since.length === 0 && (ctx.freeze ? true : statements.length === 0)
+        ? [{ id: 'brief-ledger', why: ctx.freeze
+          ? 'no new brief statement since the freeze'
+          : 'brief ledger holds no statements' }]
+        : [],
+    ));
+  }
 
   // Check 2: every statement kinded from the closed set.
   const badKind = [];

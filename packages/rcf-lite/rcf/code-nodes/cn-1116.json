@@ -1,0 +1,12 @@
+{
+  "cnId": "CN-1116",
+  "path": "src/query/readiness.js#formatVerdictLines",
+  "implementsAcIds": [
+    "AC-17505-2"
+  ],
+  "dependencies": [],
+  "version": "0.1.0",
+  "status": "draft",
+  "createdAt": "2026-11-12T14:57:46.030Z",
+  "updatedAt": "2026-11-12T14:57:46.030Z"
+}
