@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 134,
-    "notStarted": 58,
+    "items": 135,
+    "notStarted": 59,
     "inProgress": 2,
     "complete": 34,
     "verified": 40,
-    "actionable": 42,
+    "actionable": 43,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -74,7 +74,8 @@
         "FBS-218",
         "FBS-231",
         "FBS-232",
-        "FBS-243"
+        "FBS-243",
+        "FBS-245"
       ]
     },
     {
@@ -1798,6 +1799,16 @@
         "FBS-242"
       ],
       "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-245",
+      "buildOrder": 247,
+      "tier": 0,
+      "title": "rcf define readiness: a frozen tree with nothing pending reads ready, and the tree line reports a fully built queue",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
       "blockedBy": []
     }
   ],
