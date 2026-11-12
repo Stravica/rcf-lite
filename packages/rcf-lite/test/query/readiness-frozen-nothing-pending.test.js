@@ -251,6 +251,15 @@ test('AC-17505-3: a frozen tree with an empty delta and a profile.md with no rev
 
 test('AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze', async (t) => {
   const root = await frozenProject(t);
+  // The contrast: the same tree before the edit has an empty delta and
+  // brief:sinceFreeze ok at 0 of 0, so the failure below is the one
+  // changed document's doing and not a check that never folds.
+  const before = await readinessJson(root);
+  assertEmptyDelta(before);
+  const sinceBefore = check(before, 'D1', 'brief:sinceFreeze');
+  assert.equal(sinceBefore.ok, true, `brief:sinceFreeze failing before the edit: ${JSON.stringify(sinceBefore.failing)}`);
+  assert.equal(sinceBefore.total, 0);
+
   const us = readJson(root, 'rcf/user-stories/us-101.json');
   us.title = 'operator ships widget (v2)';
   us.updatedAt = '2026-11-02T09:00:00Z';
