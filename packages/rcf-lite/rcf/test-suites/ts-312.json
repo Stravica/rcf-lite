@@ -1,8 +1,8 @@
 {
   "createdAt": "2026-11-12T14:54:52.860Z",
-  "updatedAt": "2026-11-12T16:30:43.484Z",
+  "updatedAt": "2026-11-12T23:08:26.912Z",
   "purpose": "Each criterion of US-17505 driven through the app entry, bin/rcf.js, over the shared harness: a fixture project made by rcf init, seeded, frozen through rcf define freeze and read through rcf define readiness (text and --json), with the viewer's Readiness tab fetched from rcf audit view over loopback for the verdict and tree lines.",
-  "testLevel": "integration",
+  "testLevel": "e2e",
   "acIds": [
     "AC-17505-1",
     "AC-17505-2",
