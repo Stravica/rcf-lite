@@ -6,45 +6,24 @@
 // frozen tree with a non-empty delta still asks for a brief statement
 // since the freeze.
 //
-// Every case scaffolds a synthetic widget project in a scratch dir,
-// freezes it through the freeze verb and reads readiness through the
-// readiness verb (text and --json), so the assertions run against the
-// same compute the CLI and the viewer's Readiness tab render.
+// Every case drives the app entry, bin/rcf.js, through the shared
+// harness (GR-40): the fixture project is made by rcf init and rcf
+// discover journey declare --ui none (test/_harness/fixture.js), its
+// chain records are shaped by writing their JSON in the scratch copy,
+// it is frozen through rcf define freeze, and readiness is read through
+// rcf define readiness (text and --json). AC-17505-2 also reads the
+// viewer's Readiness tab from rcf audit view over loopback
+// (test/_harness/servers.js), so the verdict and tree lines are the
+// shared formatter's output as both surfaces print it. Imports: Node
+// builtins and test/_harness/ only.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import { join } from 'node:path';
-import { Writable } from 'node:stream';
 
-import { initProject } from '#core/store/init.js';
-
-import { main as freezeMain } from '../../src/cli/freeze.js';
-import { main as readinessMain } from '../../src/cli/readiness.js';
-import { renderReadinessPanel } from '../../src/view/readiness.js';
-import { declareUiNoneForTests } from '../_helpers/d0.js';
-import { scratchDir } from '../_helpers/scratch.js';
-
-function makeSink() {
-  const chunks = [];
-  const stream = new Writable({
-    write(chunk, _enc, cb) { chunks.push(chunk); cb(); },
-  });
-  Object.defineProperty(stream, 'text', { get() { return Buffer.concat(chunks).toString('utf8'); } });
-  return stream;
-}
-
-async function runVerb(main, argv, cwd) {
-  const stdout = makeSink();
-  const stderr = makeSink();
-  const code = await main(argv, { stdout, stderr, cwd });
-  return { code, stdout: stdout.text, stderr: stderr.text };
-}
-
-async function writeJson(path, body) {
-  await mkdir(join(path, '..'), { recursive: true });
-  await writeFile(path, `${JSON.stringify(body, null, 2)}\n`, 'utf8');
-}
+import { lines, rcf } from '../_harness/spawn.js';
+import { viewerPage } from '../_harness/servers.js';
+import { json } from '../_harness/capture.js';
+import { project, readJson, writeJson, writeText } from '../_harness/fixture.js';
 
 const AT = '2026-11-01T09:00:00Z';
 
@@ -57,17 +36,16 @@ const AT = '2026-11-01T09:00:00Z';
  * @param {string} root
  * @param {{ fbsStatus?: string }} [opts]
  */
-async function seedFreezeableTree(root, { fbsStatus = 'notStarted' } = {}) {
-  await mkdir(join(root, 'rcf', '.identity'), { recursive: true });
-  await writeFile(join(root, 'rcf', '.identity', 'profile.md'), '## Register\nproductOwner\n\n## Surface\nviewer\n', 'utf8');
-  await writeJson(join(root, 'rcf', 'requirements', 'req-001.json'), {
+function seedFreezeableTree(root, { fbsStatus = 'notStarted' } = {}) {
+  writeText(root, 'rcf/.identity/profile.md', '## Register\nproductOwner\n\n## Surface\nviewer\n');
+  writeJson(root, 'rcf/requirements/req-001.json', {
     reqId: 'REQ-001', prdId: 'PRD-001', title: 'ship the widget',
     description: 'One real requirement to ship the widget end-to-end.',
     category: 'functional', domain: 'ops', priority: 'must', version: '0.1.0', status: 'draft',
     shapeClassification: { shapes: ['httpApi'], reason: 'keyword-scan', classifiedAt: AT },
     createdAt: AT, updatedAt: AT,
   });
-  await writeJson(join(root, 'rcf', 'user-stories', 'us-101.json'), {
+  writeJson(root, 'rcf/user-stories/us-101.json', {
     usId: 'US-101', prdId: 'PRD-001', reqId: 'REQ-001', version: '0.1.0', status: 'draft',
     title: 'operator ships widget', asA: 'operator', iWant: 'to ship the widget', soThat: 'downstream teams can use it',
     tacIds: ['TAC-001'],
@@ -78,19 +56,19 @@ async function seedFreezeableTree(root, { fbsStatus = 'notStarted' } = {}) {
     ],
     createdAt: AT, updatedAt: AT,
   });
-  await writeJson(join(root, 'rcf', 'tacs', 'tac-001.json'), {
+  writeJson(root, 'rcf/tacs/tac-001.json', {
     tacId: 'TAC-001', prdId: 'PRD-001', tadId: 'TAD-001', version: '0.1.0', status: 'draft',
     name: 'widget shipper', purpose: 'Ships the widget over http.',
     responsibilities: ['Accept a POST', 'Return 201 with the widget id'],
     interfaces: [{ name: 'ship', kind: 'httpRoute', description: 'method: POST\npath: /widgets\nrequest: { widget }\nresponse: { id }\nerrors: [422]' }],
     createdAt: AT, updatedAt: AT,
   });
-  await writeJson(join(root, 'rcf', 'adrs', 'adr-001.json'), {
+  writeJson(root, 'rcf/adrs/adr-001.json', {
     adrId: 'ADR-001', prdId: 'PRD-001', tadId: 'TAD-001', version: '0.1.0', status: 'accepted',
     title: 'Deploy target: a single server', context: 'Deployment target chosen.', decision: 'Use one server.',
     consequences: 'Ownership stays with the ops team.', createdAt: AT, updatedAt: AT,
   });
-  await writeJson(join(root, 'rcf', 'tad.json'), {
+  writeJson(root, 'rcf/tad.json', {
     tadId: 'TAD-001', prdId: 'PRD-001', version: '0.1.0', status: 'draft',
     systemOverview: {
       executiveSummary: 'Widget system.', systemPurpose: 'Ship widgets.',
@@ -100,17 +78,17 @@ async function seedFreezeableTree(root, { fbsStatus = 'notStarted' } = {}) {
     operationalConcerns: { healthChecks: 'GET /healthz returns 200 with build info', logging: 'structured JSON to stdout' },
     createdAt: AT, updatedAt: AT,
   });
-  await writeJson(join(root, 'rcf', 'fbs', 'fbs-001.json'), {
+  writeJson(root, 'rcf/fbs/fbs-001.json', {
     fbsId: 'FBS-001', prdId: 'PRD-001', bsId: 'BS-001', buildOrder: 1, executionStatus: fbsStatus,
     title: 'ship the widget', summary: 'Implement the http route and its three ACs.',
     acIds: ['AC-101-1', 'AC-101-2', 'AC-101-3'], dependsOnFbsIds: [], createdAt: AT, updatedAt: AT,
   });
-  await writeJson(join(root, 'rcf', 'define', 'brief-ledger.json'), {
+  writeJson(root, 'rcf/define/brief-ledger.json', {
     ledger: 'brief',
     statements: [{ id: 1, kind: 'capability', text: 'ship the widget', resolvedBy: 'REQ-001', status: 'open', addedAt: AT }],
   });
   const concerns = ['auth', 'errorEnvelope', 'loggingAudit', 'performance', 'concurrencyIdempotency'];
-  await writeJson(join(root, 'rcf', 'define', 'concern-ledger.json'), {
+  writeJson(root, 'rcf/define/concern-ledger.json', {
     ledger: 'concerns',
     concerns: concerns.map((concern, i) => ({
       id: i + 1, reqId: 'REQ-001', concern, disposition: 'waived', reason: 'test fixture',
@@ -120,27 +98,27 @@ async function seedFreezeableTree(root, { fbsStatus = 'notStarted' } = {}) {
 }
 
 /**
- * Scaffold, seed and freeze a project; return its root. The freeze
- * must succeed (exit 0) so every case starts from a real freeze record.
+ * A fixture project (rcf init, D0 declared none), seeded and frozen
+ * through rcf define freeze; returns its root. The freeze must succeed
+ * (exit 0) so every case starts from a real freeze record.
  *
  * @param {import('node:test').TestContext} t
- * @param {{ fbsStatus?: string }} [opts]
+ * @param {{ fbsStatus?: string, name?: string }} [opts]
  */
-async function frozenProject(t, opts) {
-  const root = await scratchDir(t, 'readiness-frozen-');
-  const init = await initProject({ projectRoot: root });
-  assert.ok(init && Array.isArray(init.created), `initProject failed: ${JSON.stringify(init)}`);
-  await declareUiNoneForTests(root);
-  await seedFreezeableTree(root, opts);
-  const freeze = await runVerb(freezeMain, [], root);
+async function frozenProject(t, { name = 'frozen', ...opts } = {}) {
+  const root = await project(t, { name });
+  seedFreezeableTree(root, opts);
+  const freeze = await rcf(['define', 'freeze'], { cwd: root });
   assert.equal(freeze.code, 0, `freeze exit ${freeze.code}; stderr:\n${freeze.stderr}`);
   return root;
 }
 
+const readiness = (root, args = []) => rcf(['define', 'readiness', ...args], { cwd: root });
+
 async function readinessJson(root) {
-  const r = await runVerb(readinessMain, ['--json'], root);
+  const r = await readiness(root, ['--json']);
   assert.equal(r.code, 0, `readiness --json exit ${r.code}; stderr:\n${r.stderr}`);
-  return JSON.parse(r.stdout);
+  return json(r.stdout);
 }
 
 function stage(result, id) {
@@ -169,6 +147,14 @@ function shortHashOf(result) {
 
 function htmlDecode(s) {
   return s.replace(/&#39;/g, "'").replace(/&quot;/g, '"').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&amp;/g, '&');
+}
+
+/** The viewer's page over loopback (rcf audit view), entity-decoded. */
+async function readinessTab(root) {
+  const page = await viewerPage(root, '/');
+  assert.equal(page.status, 200, `viewer status ${page.status}; stderr:\n${page.stderr}`);
+  assert.match(page.html, /class="rcf-readiness-panel"/, 'the viewer page carries the Readiness tab');
+  return htmlDecode(page.html);
 }
 
 test('AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok', async (t) => {
@@ -201,33 +187,33 @@ test('AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, 
   const intentLine = 'Intent-complete: yes. Every product-owner question is answered.';
   const buildLine = `Ready-to-build: yes. Frozen at ${h}; nothing pending.`;
 
-  const text = await runVerb(readinessMain, [], root);
+  const text = await readiness(root);
   assert.equal(text.code, 0, text.stderr);
-  const lines = text.stdout.split('\n');
-  assert.ok(lines.includes(intentLine), `CLI report lacks "${intentLine}":\n${text.stdout}`);
-  assert.ok(lines.includes(buildLine), `CLI report lacks "${buildLine}":\n${text.stdout}`);
-  assert.match(lines[0], /Build at FBS-001 of 1; 0 FBS impacted\.$/);
+  const out = lines(text.stdout);
+  assert.ok(out.includes(intentLine), `CLI report lacks "${intentLine}":\n${text.stdout}`);
+  assert.ok(out.includes(buildLine), `CLI report lacks "${buildLine}":\n${text.stdout}`);
+  assert.match(out[0], /Build at FBS-001 of 1; 0 FBS impacted\.$/);
 
-  const html = htmlDecode(renderReadinessPanel(result, { profile: null }));
+  const html = await readinessTab(root);
   assert.ok(html.includes(intentLine), 'Readiness tab lacks the Intent-complete line');
   assert.ok(html.includes(buildLine), 'Readiness tab lacks the Ready-to-build line');
 
   // Nothing pending and every FBS built.
-  const builtRoot = await frozenProject(t, { fbsStatus: 'complete' });
+  const builtRoot = await frozenProject(t, { fbsStatus: 'complete', name: 'built' });
   const built = await readinessJson(builtRoot);
   assertEmptyDelta(built);
   const hb = shortHashOf(built);
   const builtLine = `Ready-to-build: yes. Frozen at ${hb}; nothing pending and every FBS built.`;
 
-  const builtText = await runVerb(readinessMain, [], builtRoot);
+  const builtText = await readiness(builtRoot);
   assert.equal(builtText.code, 0, builtText.stderr);
-  const builtLines = builtText.stdout.split('\n');
-  assert.ok(builtLines.includes(intentLine), `CLI report lacks "${intentLine}":\n${builtText.stdout}`);
-  assert.ok(builtLines.includes(builtLine), `CLI report lacks "${builtLine}":\n${builtText.stdout}`);
-  assert.doesNotMatch(builtLines[0], /Build at \(none\)/);
-  assert.match(builtLines[0], /\. Built 1 of 1; 0 FBS impacted\.$/);
+  const builtOut = lines(builtText.stdout);
+  assert.ok(builtOut.includes(intentLine), `CLI report lacks "${intentLine}":\n${builtText.stdout}`);
+  assert.ok(builtOut.includes(builtLine), `CLI report lacks "${builtLine}":\n${builtText.stdout}`);
+  assert.doesNotMatch(builtOut[0], /Build at \(none\)/);
+  assert.match(builtOut[0], /\. Built 1 of 1; 0 FBS impacted\.$/);
 
-  const builtHtml = htmlDecode(renderReadinessPanel(built, { profile: null }));
+  const builtHtml = await readinessTab(builtRoot);
   assert.ok(builtHtml.includes(builtLine), 'Readiness tab lacks the every-FBS-built Ready-to-build line');
   assert.ok(builtHtml.includes('Built 1 of 1; 0 FBS impacted.'), 'Readiness tab lacks the Built 1 of 1 tree line');
   assert.doesNotMatch(builtHtml, /Build at \(none\)/);
@@ -236,7 +222,7 @@ test('AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, 
 test('AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone', async (t) => {
   const root = await frozenProject(t);
   // profile.md is not a tree document, so the delta stays empty.
-  await writeFile(join(root, 'rcf', '.identity', 'profile.md'), '## Register\nproductOwner\n', 'utf8');
+  writeText(root, 'rcf/.identity/profile.md', '## Register\nproductOwner\n');
   const result = await readinessJson(root);
   assertEmptyDelta(result);
 
@@ -255,9 +241,9 @@ test('AC-17505-3: a frozen tree with an empty delta and a profile.md with no rev
   );
   assert.equal(result.levels.readyToBuild.ok, false);
 
-  const text = await runVerb(readinessMain, [], root);
+  const text = await readiness(root);
   assert.ok(
-    text.stdout.split('\n').includes('Intent-complete: no; 1 question for the product owner (D1/brief:profile).'),
+    lines(text.stdout).includes('Intent-complete: no; 1 question for the product owner (D1/brief:profile).'),
     `CLI report:\n${text.stdout}`,
   );
   assert.match(text.stdout, /^Ready-to-build: no; /m);
@@ -265,11 +251,10 @@ test('AC-17505-3: a frozen tree with an empty delta and a profile.md with no rev
 
 test('AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze', async (t) => {
   const root = await frozenProject(t);
-  const usPath = join(root, 'rcf', 'user-stories', 'us-101.json');
-  const us = JSON.parse(await readFile(usPath, 'utf8'));
+  const us = readJson(root, 'rcf/user-stories/us-101.json');
   us.title = 'operator ships widget (v2)';
   us.updatedAt = '2026-11-02T09:00:00Z';
-  await writeFile(usPath, `${JSON.stringify(us, null, 2)}\n`, 'utf8');
+  writeJson(root, 'rcf/user-stories/us-101.json', us);
 
   const result = await readinessJson(root);
   assert.equal(result.tree.frozen, true);

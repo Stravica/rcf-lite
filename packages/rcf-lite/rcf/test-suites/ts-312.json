@@ -1,7 +1,7 @@
 {
   "createdAt": "2026-11-12T14:54:52.860Z",
-  "updatedAt": "2026-11-12T14:54:55.207Z",
-  "purpose": "Each criterion of US-17505 driven through the real freeze verb and the readiness verb (text and --json) over a synthetic scratch project, with the viewer's renderReadinessPanel over the same --json result for the verdict and tree lines.",
+  "updatedAt": "2026-11-12T16:30:43.484Z",
+  "purpose": "Each criterion of US-17505 driven through the app entry, bin/rcf.js, over the shared harness: a fixture project made by rcf init, seeded, frozen through rcf define freeze and read through rcf define readiness (text and --json), with the viewer's Readiness tab fetched from rcf audit view over loopback for the verdict and tree lines.",
   "testLevel": "integration",
   "acIds": [
     "AC-17505-1",
@@ -11,7 +11,7 @@
   ],
   "id": "TS-312",
   "usId": "US-17505",
-  "title": "Readiness on a frozen tree with nothing pending: the readiness and freeze verbs over a synthetic scratch project, and the Readiness tab render of the same result",
+  "title": "Readiness on a frozen tree with nothing pending: the freeze and readiness verbs through bin/rcf.js over a harness fixture project, and the Readiness tab served by the viewer for the same tree",
   "testCases": [
     {
       "id": "TC-312-frozen-tree-with-an-empty-delta-brief",
