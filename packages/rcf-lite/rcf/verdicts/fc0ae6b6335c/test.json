@@ -1,0 +1,21 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "fc0ae6b6335c5bf06fac4c4f1a0deac6bd169402",
+  "fbsIds": [
+    "FBS-245"
+  ],
+  "result": "PASS",
+  "suite": {
+    "pass": 4297,
+    "fail": 0,
+    "skip": 4,
+    "todo": 17,
+    "cancelled": 0
+  },
+  "runtime": "rcf-lite 0.42.0 from bin/rcf.js at 0f14349 on Node v24.15.0, smarthome01",
+  "node": "v24.15.0",
+  "reason": null,
+  "recordedBy": "verifier",
+  "recordedAt": "2026-11-12T20:25:50.919Z"
+}

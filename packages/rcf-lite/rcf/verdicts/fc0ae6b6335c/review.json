@@ -1,0 +1,44 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "fc0ae6b6335c5bf06fac4c4f1a0deac6bd169402",
+  "fbsIds": [
+    "FBS-245"
+  ],
+  "touchedAcIds": [
+    "AC-17505-1",
+    "AC-17505-2",
+    "AC-17505-3",
+    "AC-17505-4"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 carried from the prior verdict: (PV F-5) Generated-By is not the first trailer on a2059053, d4e62fef, 0a15c65f, e34182a9 and d33eba82 (Hand: builder comes first); does not block: trailer order is none of the three blocking classes. Unchanged at fc0ae6b: no commit since d33eba8 rewrote that history."
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-17505-2",
+      "text": "note, carried: P3 carried from the prior verdict: (PV F-6) formatVerdictLines allBuilt (src/query/readiness.js:722) has no buildAt term while formatTreeLine allBuilt (:775) does, so the two can disagree when buildAt is set and every FBS reads built; does not block: no criterion clause reads on the disagreement. Unchanged at fc0ae6b: no src/ change since d33eba8, and the AC-17505-2 case at :202 to :219 still reads a fully built tree with no build head."
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-17505-2",
+      "text": "note, carried: P3 carried from the prior verdict: (PV F-7) the every FBS built verdict line is reachable only on a tree frozen after the build, since an FBS status write after a freeze changes that document hash (src/query/delta.js:97) and opens the delta; does not block: the boundary decision 170 records as out of scope, not a regression. Unchanged at fc0ae6b: the case still seeds the FBS complete before the freeze (:202)."
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 carried from the prior verdict: (PV F-8) mint collision with open PR 454, which also mints decision 170 onward and CN-1113 to CN-1117 (it adds CN-1113 to CN-1126); the second to merge re-mints its decision and Code Node ids and moves its code-node-count golden; does not block: no record here is broken by it. Unchanged at fc0ae6b: PR 454 is still open and unmerged, main has not moved."
+    }
+  ],
+  "recordedBy": "reviewer, PR 455 re-gate REVIEW",
+  "recordedAt": "2026-11-12T19:01:50.790Z"
+}

@@ -6,6 +6,14 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.42.1] - 2026-11-12
+
+0.42.1 fixes one readiness fault: a frozen tree with nothing pending reads ready. Right after `rcf define freeze`, with no document changed, added or removed since the freeze, `rcf define readiness` and the viewer's Readiness tab no longer block on D1 `brief:sinceFreeze` and D8; the verdict line names the freeze and says nothing is pending, and the tree line reads `Built <n> of <n>` when every FBS is built. breaking: false; no flag, verb form, exit code or record field changes. minAgentAction: null; the managed agent-instructions block is unchanged since 0.42.0, rcf-lite adds no dependency and the `@stravica-ai/rcf-schemas` 0.10.0 pin is unchanged.
+
+### Fixed
+
+- **A frozen tree with nothing pending reads ready (FBS-245, AC-17505-1 to AC-17505-4).** Right after `rcf define freeze`, on a tree whose delta is empty (no document changed, added or removed since the freeze), `rcf define readiness` and the viewer's Readiness tab no longer read `Intent-complete: no` on D1 `brief:sinceFreeze` and `Ready-to-build: no; blocked on D1, D8`. `brief:sinceFreeze` is not applicable on that empty delta (ok, 0/0), as D2 to D5 already are, so the lines read `Intent-complete: yes. Every product-owner question is answered.` and `Ready-to-build: yes. Frozen at <hash>; nothing pending.` (`nothing pending and every FBS built.` when every FBS is complete or verified), and `Freezeable:` reads `yes`. The tree line reads `Built <n> of <n>` in place of `Build at (none) of <n>` when every FBS is built. A frozen tree with any change since the freeze still asks for a brief statement, and the unfrozen tree is unchanged.
+
 ## [0.42.0] - 2026-11-10
 
 0.42.0 brings Python sources into `rcf audit test-strength` and the Code Node resolver. A symbol-level Code Node on a `.py` file is judged through the host's `python3` (3.9 or later, standard library `ast` only, nothing installed) with the JavaScript operator set, in the TestStrengthReport v1 shape unchanged, and `rcf define validate` resolves a `#symbol` on a Python `def`. breaking: false; a Python criterion that read blocked (exit 5) on 0.41.0 is now judged, so it can pass (exit 0) or fail (exit 4), and no flag, verb form, `rcf/test-strength.json` field or record field changes (the help of `rcf audit test-strength` gains text only). minAgentAction: null; the managed agent-instructions block is unchanged since 0.41.0, rcf-lite adds no dependency and the `@stravica-ai/rcf-schemas` 0.10.0 pin is unchanged.

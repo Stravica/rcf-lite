@@ -7565,6 +7565,50 @@
           "verification": "unflagged",
           "expectedEnd": "unknown",
           "now": "notStarted"
+        },
+        {
+          "id": "AC-17505-1",
+          "covered": true,
+          "testCases": [
+            "TC-312-frozen-tree-with-an-empty-delta-brief"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-17505-2",
+          "covered": true,
+          "testCases": [
+            "TC-312-cli-report-and-readiness-tab-verdict"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-17505-3",
+          "covered": true,
+          "testCases": [
+            "TC-312-frozen-tree-empty-delta-profile-md"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-17505-4",
+          "covered": true,
+          "testCases": [
+            "TC-312-frozen-tree-with-one-changed-document"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
         }
       ]
     },
@@ -13898,6 +13942,11 @@
       "fbsId": "FBS-244",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-245",
+      "expectedEnd": "verified",
+      "now": "complete"
     }
   ],
   "unresolvedTestPointers": []

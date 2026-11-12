@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.42.0"
+latest: "0.42.1"
 releases:
+  - version: "0.42.1"
+    date: "2026-11-12"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.42.1 fixes readiness on a frozen tree with nothing pending: right after rcf define freeze, with no document changed since, rcf define readiness and the viewer's Readiness tab read Intent-complete: yes and Ready-to-build: yes. Frozen at <hash>; nothing pending. where 0.42.0 blocked on D1 brief:sinceFreeze and D8."
+      - "When every FBS is complete or verified the verdict line adds 'and every FBS built' and the tree line reads Built n of n in place of Build at (none) of n; a frozen tree with any change since the freeze still asks for a brief statement, and the unfrozen tree is unchanged."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.42.0, rcf-lite adds no dependency and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.42.0"
     date: "2026-11-10"
     breaking: false
