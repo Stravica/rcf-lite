@@ -1,0 +1,280 @@
+{
+  "version": 1,
+  "head": "fc0ae6b6335c5bf06fac4c4f1a0deac6bd169402",
+  "scope": "acs",
+  "criteria": [
+    {
+      "acId": "AC-17505-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+          ]
+        },
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+          ]
+        },
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+          ]
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+          ]
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/query/readiness.js#computeReadiness",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#computeReadiness",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#computeReadiness",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-17505-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/query/readiness.js#computeReadiness",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#computeReadiness",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#computeReadiness",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/query/readiness.js#formatVerdictLines",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#formatVerdictLines",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#formatVerdictLines",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/query/readiness.js#formatTreeLine",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#formatTreeLine",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+          ]
+        },
+        {
+          "symbol": "src/query/readiness.js#formatTreeLine",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-17505-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone"
+          ]
+        },
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone"
+          ]
+        },
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone"
+          ]
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone"
+          ]
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-17505-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze"
+          ]
+        },
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze"
+          ]
+        },
+        {
+          "symbol": "src/query/delta.js#isEmptyDelta",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze"
+          ]
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze"
+          ]
+        },
+        {
+          "symbol": "src/query/gates.js#checkD1Brief",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "pass",
+  "totals": {
+    "criteria": 4,
+    "structuralPassed": 4,
+    "mutants": 30,
+    "killed": 20,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 10,
+    "blocked": 0
+  },
+  "wallMs": 27145,
+  "node": "v24.15.0"
+}
