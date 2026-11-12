@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 135,
-    "notStarted": 59,
-    "inProgress": 2,
+    "notStarted": 58,
+    "inProgress": 3,
     "complete": 34,
     "verified": 40,
-    "actionable": 43,
+    "actionable": 42,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -1806,9 +1806,9 @@
       "buildOrder": 247,
       "tier": 0,
       "title": "rcf define readiness: a frozen tree with nothing pending reads ready, and the tree line reports a fully built queue",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     }
   ],
