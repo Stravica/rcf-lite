@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-11-12T14:54:52.860Z",
+  "updatedAt": "2026-11-12T14:54:55.207Z",
+  "purpose": "Each criterion of US-17505 driven through the real freeze verb and the readiness verb (text and --json) over a synthetic scratch project, with the viewer's renderReadinessPanel over the same --json result for the verdict and tree lines.",
+  "testLevel": "integration",
+  "acIds": [
+    "AC-17505-1",
+    "AC-17505-2",
+    "AC-17505-3",
+    "AC-17505-4"
+  ],
+  "id": "TS-312",
+  "usId": "US-17505",
+  "title": "Readiness on a frozen tree with nothing pending: the readiness and freeze verbs over a synthetic scratch project, and the Readiness tab render of the same result",
+  "testCases": [
+    {
+      "id": "TC-312-frozen-tree-with-an-empty-delta-brief",
+      "acId": "AC-17505-1",
+      "description": "frozen tree with an empty delta: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, freezeable and both levels ok",
+      "status": "pending",
+      "testPointer": "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+    },
+    {
+      "id": "TC-312-cli-report-and-readiness-tab-verdict",
+      "acId": "AC-17505-2",
+      "description": "CLI report and Readiness tab verdict lines on a frozen tree with nothing pending, with and without every FBS built, and the Built N of N tree line",
+      "status": "pending",
+      "testPointer": "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+    },
+    {
+      "id": "TC-312-frozen-tree-empty-delta-profile-md",
+      "acId": "AC-17505-3",
+      "description": "frozen tree, empty delta, profile.md without a review-surface marker: blocks on D1/brief:profile alone and brief:sinceFreeze stays ok at 0 of 0",
+      "status": "pending",
+      "testPointer": "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone"
+    },
+    {
+      "id": "TC-312-frozen-tree-with-one-changed-document",
+      "acId": "AC-17505-4",
+      "description": "frozen tree with one changed document and no brief statement since the freeze: brief:sinceFreeze still fails on brief-ledger and D1 is failing",
+      "status": "pending",
+      "testPointer": "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze"
+    }
+  ],
+  "status": "draft"
+}
