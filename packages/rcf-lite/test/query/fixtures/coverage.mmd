@@ -2888,6 +2888,22 @@ flowchart LR
   REQ-175 --> AC-17504-5
   TC-232-cli-litmus-no-process-spawn["TC-232-cli-litmus-no-process-spawn"]
   AC-17504-5 -.-> TC-232-cli-litmus-no-process-spawn
+  AC-17505-1["AC-17505-1"]
+  REQ-175 --> AC-17505-1
+  TC-312-frozen-tree-with-an-empty-delta-brief["TC-312-frozen-tree-with-an-empty-delta-brief"]
+  AC-17505-1 -.-> TC-312-frozen-tree-with-an-empty-delta-brief
+  AC-17505-2["AC-17505-2"]
+  REQ-175 --> AC-17505-2
+  TC-312-cli-report-and-readiness-tab-verdict["TC-312-cli-report-and-readiness-tab-verdict"]
+  AC-17505-2 -.-> TC-312-cli-report-and-readiness-tab-verdict
+  AC-17505-3["AC-17505-3"]
+  REQ-175 --> AC-17505-3
+  TC-312-frozen-tree-empty-delta-profile-md["TC-312-frozen-tree-empty-delta-profile-md"]
+  AC-17505-3 -.-> TC-312-frozen-tree-empty-delta-profile-md
+  AC-17505-4["AC-17505-4"]
+  REQ-175 --> AC-17505-4
+  TC-312-frozen-tree-with-one-changed-document["TC-312-frozen-tree-with-one-changed-document"]
+  AC-17505-4 -.-> TC-312-frozen-tree-with-one-changed-document
   REQ-176["REQ-176"]
   AC-17601-1["AC-17601-1"]
   REQ-176 --> AC-17601-1
@@ -6704,6 +6720,14 @@ flowchart LR
   class TC-232-parse-litmus-flag tc;
   class AC-17504-5 ac;
   class TC-232-cli-litmus-no-process-spawn tc;
+  class AC-17505-1 ac;
+  class TC-312-frozen-tree-with-an-empty-delta-brief tc;
+  class AC-17505-2 ac;
+  class TC-312-cli-report-and-readiness-tab-verdict tc;
+  class AC-17505-3 ac;
+  class TC-312-frozen-tree-empty-delta-profile-md tc;
+  class AC-17505-4 ac;
+  class TC-312-frozen-tree-with-one-changed-document tc;
   class REQ-176 req;
   class AC-17601-1 ac;
   class TC-218-happy tc;
