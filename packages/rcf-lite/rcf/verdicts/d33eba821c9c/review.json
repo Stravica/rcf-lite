@@ -1,0 +1,68 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "d33eba821c9cdbcb8087f36b5426b17074d4abc3",
+  "fbsIds": [
+    "FBS-245"
+  ],
+  "touchedAcIds": [
+    "AC-17505-1",
+    "AC-17505-2",
+    "AC-17505-3",
+    "AC-17505-4"
+  ],
+  "code": "MERGE",
+  "adequacy": "FINDINGS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "test",
+      "acId": "AC-17505-1",
+      "text": "P1 vacuous test: the bound case at test/query/readiness-frozen-nothing-pending.test.js:174 imports src/core/store/init.js, src/cli/freeze.js, src/cli/readiness.js and the viewer renderReadinessPanel from src/view/readiness.js directly (imports :20 to :26) instead of driving bin/rcf.js or test/_harness/**, the only entry points rcf/test-strength.json admits; rcf audit test-strength --acs at d33eba8 exits 4, FAIL 4 of 4 criteria, AC-17505-1 imports (not the app entry or the harness). Fix for the test-author: drive the case through the admitted entry points and keep the assertions."
+    },
+    {
+      "id": "F-2",
+      "locus": "test",
+      "acId": "AC-17505-2",
+      "text": "P1 vacuous test: the bound case at test/query/readiness-frozen-nothing-pending.test.js:195 imports src/core/store/init.js, src/cli/freeze.js, src/cli/readiness.js and the viewer renderReadinessPanel from src/view/readiness.js directly (imports :20 to :26) instead of driving bin/rcf.js or test/_harness/**, the only entry points rcf/test-strength.json admits; rcf audit test-strength --acs at d33eba8 exits 4, FAIL 4 of 4 criteria, AC-17505-2 imports (not the app entry or the harness). Fix for the test-author: drive the case through the admitted entry points and keep the assertions."
+    },
+    {
+      "id": "F-3",
+      "locus": "test",
+      "acId": "AC-17505-3",
+      "text": "P1 vacuous test: the bound case at test/query/readiness-frozen-nothing-pending.test.js:236 imports src/core/store/init.js, src/cli/freeze.js, src/cli/readiness.js and the viewer renderReadinessPanel from src/view/readiness.js directly (imports :20 to :26) instead of driving bin/rcf.js or test/_harness/**, the only entry points rcf/test-strength.json admits; rcf audit test-strength --acs at d33eba8 exits 4, FAIL 4 of 4 criteria, AC-17505-3 imports (not the app entry or the harness). Fix for the test-author: drive the case through the admitted entry points and keep the assertions."
+    },
+    {
+      "id": "F-4",
+      "locus": "test",
+      "acId": "AC-17505-4",
+      "text": "P1 vacuous test: the bound case at test/query/readiness-frozen-nothing-pending.test.js:266 imports src/core/store/init.js, src/cli/freeze.js, src/cli/readiness.js and the viewer renderReadinessPanel from src/view/readiness.js directly (imports :20 to :26) instead of driving bin/rcf.js or test/_harness/**, the only entry points rcf/test-strength.json admits; rcf audit test-strength --acs at d33eba8 exits 4, FAIL 4 of 4 criteria, AC-17505-4 imports (not the app entry or the harness). Fix for the test-author: drive the case through the admitted entry points and keep the assertions."
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 Generated-By is not the first trailer on a2059053, d4e62fef, 0a15c65f, e34182a9 and d33eba82 (Hand: builder comes first); does not block: trailer order is none of the three blocking classes."
+    },
+    {
+      "id": "F-6",
+      "locus": "spec",
+      "acId": "AC-17505-2",
+      "text": "note, carried: P3 formatVerdictLines allBuilt (src/query/readiness.js:722) has no buildAt term while formatTreeLine allBuilt (:775) does, so the two can disagree when buildAt is set and every FBS reads built; does not block: no criterion clause reads on the disagreement."
+    },
+    {
+      "id": "F-7",
+      "locus": "spec",
+      "acId": "AC-17505-2",
+      "text": "note, carried: P3 the every FBS built verdict line is reachable only on a tree frozen after the build, since an FBS status write after a freeze changes that document hash (src/query/delta.js:97) and opens the delta; does not block: the boundary decision 170 records as out of scope, not a regression."
+    },
+    {
+      "id": "F-8",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 mint collision with open PR 454, which also mints decision 170 onward and CN-1113 to CN-1117 (it adds CN-1113 to CN-1126); the second to merge re-mints its decision and Code Node ids and moves its code-node-count golden; does not block: no record here is broken by it."
+    }
+  ],
+  "recordedBy": "reviewer, PR 455 merge-gate REVIEW",
+  "recordedAt": "2026-11-12T16:26:23.871Z"
+}
