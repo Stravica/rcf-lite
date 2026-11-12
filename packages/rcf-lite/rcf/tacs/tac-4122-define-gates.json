@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-09-24T14:30:00Z",
-  "updatedAt": "2026-10-05T12:00:00Z",
+  "updatedAt": "2026-11-12T14:52:18.763Z",
   "tacId": "TAC-4122-define-gates",
   "prdId": "PRD-001",
   "tadId": "TAD-001",
@@ -40,7 +40,8 @@
     "DEFINE step 3 ruling R5 2026-10-05: `shapes:entityJoin` is tree-wide by definition and runs before any scope-driven `notApplicable` short-circuit (ADR-4138's `evaluateTreeWideChecks` helper). D4, D5 and D6 inherited the same ordering shape in PRs 6 and 7; the helper governs every stage with a tree-wide check (`shapes:draftSettled`, `shapes:entityJoin`, `skeleton:standardsCited`). A narrowed scope that excludes every recordShape still reports an entityJoin finding.",
     "DEFINE step 3 ruling R6 2026-10-05: `extractInterfacePathTokens` whitelists the usual bare repo names (`Dockerfile`, `Makefile`, `LICENSE`, `Procfile`, `Containerfile`, `Justfile`, `Rakefile`, `Gemfile`, `CODEOWNERS`) so `shapes:pathsResolve` checks a `path: Dockerfile` token. The slash-or-extension rule stays for everything else; the whitelist is exported from `gates.js` for the test.",
     "DEFINE step 3 ruling R7 2026-10-05: `skeleton:standardsCited` runs tree-wide regardless of the D2 scope's own early-return; the check sits inside D2's `checks[]` under the ADR-4138 helper, so a narrowed D2 scope that excludes every REQ/PRD/TAD/brief statement still reports an uncited pack.",
-    "DEFINE step 3 ruling R8 2026-10-05: for `standards:<pack>` concern-ledger entries, both `applied` and `waived` dispositions satisfy `skeleton:standardsCited` alongside a citation. The CHECK_QUESTION heading reads 'Every registered standards pack is cited, applied or waived' (spec section 4 row 'Standards-ingestion check' amended)."
+    "DEFINE step 3 ruling R8 2026-10-05: for `standards:<pack>` concern-ledger entries, both `applied` and `waived` dispositions satisfy `skeleton:standardsCited` alongside a citation. The CHECK_QUESTION heading reads 'Every registered standards pack is cited, applied or waived' (spec section 4 row 'Standards-ingestion check' amended).",
+    "FBS-245 (US-17505): on a frozen tree whose delta is empty (isEmptyDelta in src/query/delta.js: no changed, added or removed id), checkD1Brief's brief:sinceFreeze is not applicable and reads ok with a total of 0, the way D2 to D5 fold to notApplicable on that empty delta; brief:kinds, brief:openQuestions and brief:profile run as before, and D8 freeze:priorGates passes when D1 does. A frozen tree with a non-empty delta keeps the at-least-one-statement-since-the-freeze rule; an unfrozen tree is unchanged."
   ],
   "internalStructure": "Every stage function follows the same shape: 1) decide notApplicable per section 3.2 and return { state: 'notApplicable' } with a single-check summary; 2) build checks[] as a list of { name, ok, over, pass, total, failing: [{ id, why }] }; 3) fold to state: 'passed' if every ok is true; 'failing' otherwise, unless the stage is D3/D5/D6 AND freeze.gates[<gate>].state === 'acknowledged' AND freeze.gates[<gate>].at.hash === currentTreeHash, in which case state is 'acknowledged'. Blocking-vs-warn is a property of the stage, not of the state: D3/D5/D6 use the acknowledged fold, D1/D2/D4/D7/D8 do not. The caller (readiness) folds the array of stage results into freezeable and nextAction.",
   "interfaces": [

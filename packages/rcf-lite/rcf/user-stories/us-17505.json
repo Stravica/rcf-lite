@@ -1,0 +1,44 @@
+{
+  "createdAt": "2026-11-12T14:51:02.475Z",
+  "updatedAt": "2026-11-12T14:52:39.873Z",
+  "usId": "US-17505",
+  "prdId": "PRD-001",
+  "reqId": "REQ-175",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "readiness reads clean on a frozen tree with nothing pending",
+  "asA": "a product owner or engineer reading readiness after a freeze",
+  "iWant": "readiness on a frozen tree with nothing changed since the freeze to read ready, naming nothing to wait for",
+  "soThat": "a finished, frozen project does not read as blocked on a brief statement nobody needs to write",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-17505-1",
+      "description": "[happy] Given a frozen tree whose delta is empty (no document changed, added or removed since the freeze) and whose brief has no statement since the freeze, when readiness is computed, then brief:sinceFreeze is ok with a total of 0, D1 and D8 are passed, and freezeable, levels.intentComplete.ok and levels.readyToBuild.ok are all true.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-17505-2",
+      "description": "[happy] Given that frozen tree with nothing pending, when rcf define readiness prints its text report and the viewer's Readiness tab renders the same result, then both carry the lines 'Intent-complete: yes. Every product-owner question is answered.' and 'Ready-to-build: yes. Frozen at <short hash>; nothing pending.'; with every FBS complete or verified the second line reads 'Ready-to-build: yes. Frozen at <short hash>; nothing pending and every FBS built.' and the tree line reads 'Built <n> of <n>' in place of 'Build at (none) of <n>'.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-17505-3",
+      "description": "[failure] Given a frozen tree with an empty delta whose profile.md carries no review-surface marker, when readiness is computed, then brief:profile fails, the Intent-complete line names D1/brief:profile and no other check, Ready-to-build is no, and brief:sinceFreeze stays ok with a total of 0.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-17505-4",
+      "description": "[must-not] Given a frozen tree where one document changed since the freeze and the brief has no statement since the freeze, when readiness is computed, then brief:sinceFreeze must not pass: it fails on brief-ledger with 'no new brief statement since the freeze' and D1 is failing, as before this round.",
+      "testable": true,
+      "verification": "external"
+    }
+  ],
+  "description": "User story under REQ-175 for the frozen-nothing-pending round (FBS-245). On a frozen tree whose delta is empty (no document changed, added or removed since the freeze), D1 brief:sinceFreeze is not applicable, the way D2 to D5 already fold to notApplicable on an empty delta, so the readiness verdict reads ready and names nothing to wait for. The Ready-to-build line on that tree reads 'Ready-to-build: yes. Frozen at <short hash>; nothing pending.' (with ' and every FBS built' before the full stop when every FBS is complete or verified), the CLI report and the viewer's Readiness tab print the same lines through formatVerdictLines, and the tree line reads 'Built <n> of <n>' in place of 'Build at (none) of <n>' when every FBS is built. A frozen tree with a non-empty delta keeps the rule that a brief statement since the freeze is asked for; an unfrozen tree is unchanged.",
+  "tacIds": [
+    "TAC-4122-define-gates",
+    "TAC-4123-define-readiness"
+  ]
+}

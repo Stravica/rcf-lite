@@ -3709,6 +3709,26 @@
       "answer": "a. Reason: an open-class check: a text anchor decides only instances, and a false staleCode would be a guess, so the class is closed in the mechanism for single-line defs.",
       "answeredAt": "2026-11-09T11:01:28.342Z",
       "resolvedAt": "2026-11-09T11:01:28.342Z"
+    },
+    {
+      "id": 170,
+      "question": "ROUND OPEN, 2026-11-12: the frozen-nothing-pending round, a new-spec fix round on FBS-245, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-17505-1 (full), AC-17505-2 (full), AC-17505-3 (full), AC-17505-4 (full). DEFINE HEAD: 622d783c. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-14T18:00:00Z. TIER: T1 (proposed; the maintainer confirms or resets it at review). DEFECT: right after rcf define freeze, on a tree whose delta is empty (no document changed, added or removed since the freeze), rcf define readiness and the viewer's Readiness tab read 'Intent-complete: no' on D1 brief:sinceFreeze and 'Ready-to-build: no; blocked on D1, D8', although D2 to D5 already fold to notApplicable on that empty delta and nothing is waiting on anyone. With every FBS built, the tree line also reads 'Build at (none) of N'. SCOPE: on a frozen tree with an empty delta, brief:sinceFreeze is not applicable (ok, total 0) so D1 and D8 pass on their other checks; the Ready-to-build verdict line reads 'Ready-to-build: yes. Frozen at <hash>; nothing pending.' (with 'and every FBS built' when every FBS is complete or verified); the tree line reads 'Built N of N' when every FBS is built. A frozen tree with a non-empty delta keeps today's rule (a brief statement since the freeze is asked for), and the unfrozen tree is unchanged. OUT OF SCOPE: FBS executionStatus writes after a freeze count as changed documents in the delta (the delta model is unchanged); the freeze verb's own summary line. FBS-245 is minted notStarted in this pass. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-12T14:50:56.303Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-12, as proposed by the contributor; the maintainer confirms or reopens it at review.",
+      "answeredAt": "2026-11-12T14:51:01.853Z",
+      "resolvedAt": "2026-11-12T14:51:01.853Z"
     }
   ]
 }
