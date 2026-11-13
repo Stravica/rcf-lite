@@ -1,13 +1,14 @@
 {
   "createdAt": "2026-11-13T13:58:06.945Z",
-  "updatedAt": "2026-11-13T13:58:17.967Z",
-  "purpose": "Each criterion of US-19906 driven through the app entry, bin/rcf.js: rcf audit test-strength run in git fixture projects made by rcf init (a small app, its own harness, rcf/test-strength.json, Code Nodes and bound test cases, a REVIEW verdict where --record runs), over a bound test skipped by node:test, a criterion with a skipped and a run bound test, two bound tests that outlive --mutant-timeout together, and the help's --mutant-timeout text.",
+  "updatedAt": "2026-11-13T15:20:10.813Z",
+  "purpose": "Each criterion of US-19906 driven through the app entry, bin/rcf.js: rcf audit test-strength run in git fixture projects made by rcf init (a small app, its own harness, rcf/test-strength.json, Code Nodes and bound test cases, a REVIEW verdict where --record runs), over a bound test skipped by node:test, a criterion with a skipped and a run bound test, two bound tests that outlive --mutant-timeout together, a bound-test pointer that matches no test or two beside a skipped one, and the help's --mutant-timeout text and exit codes.",
   "testLevel": "e2e",
   "acIds": [
     "AC-19906-1",
     "AC-19906-2",
     "AC-19906-3",
-    "AC-19906-4"
+    "AC-19906-4",
+    "AC-19906-5"
   ],
   "id": "TS-313",
   "usId": "US-19906",
@@ -30,16 +31,23 @@
     {
       "id": "TC-313-ac-19906-3-a-budget-kill-in-the",
       "acId": "AC-19906-3",
-      "description": "AC-19906-3: a budget kill in the unmutated run exits 2 with one line naming the timeout, the budget, the flag, the test reached and the budget over all of a criterion's bound tests together, never fails under runner; the typical profile inside the budget passes",
+      "description": "AC-19906-3: a budget kill in the unmutated run, two tests of about 4 s each under --mutant-timeout 6, exits 2 with one line naming the timeout, the budget, the flag, the test reached and the budget over all of a criterion's bound tests together, never fails under runner; the typical profile inside the budget passes",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-3: a budget kill in the unmutated run, two bound tests of about 2 s each under --mutant-timeout 3, exits 2 with one line naming \"timed out\", the budget, the flag, the test reached, the budget over all of a criterion's bound tests together and \"no mutant was run\", never \"fails under runner\"; under --mutant-timeout 30 the same pair of 0.2 s tests passes"
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-3: a budget kill in the unmutated run, two bound tests of about 4 s each under --mutant-timeout 6, exits 2 with one line naming \"timed out\", the budget, the flag, the test reached, the budget over all of a criterion's bound tests together and \"no mutant was run\", never \"fails under runner\"; under --mutant-timeout 30 the same pair of 0.2 s tests passes"
     },
     {
       "id": "TC-313-ac-19906-4-the-mutant-timeout-option",
       "acId": "AC-19906-4",
-      "description": "AC-19906-4: the --mutant-timeout option text of both help forms states the budget covers all of a criterion's bound tests together in the unmutated run and each mutant run",
+      "description": "AC-19906-4: the --mutant-timeout option text of both help forms states the budget covers all of a criterion's bound tests together in the unmutated run and each mutant run, and their exit codes state exit 5 for a blocked criterion and exit 2 for a bound-test pointer that matches no test, or more than one",
       "status": "pending",
-      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-4: rcf audit test-strength --help and rcf help audit test-strength state in the --mutant-timeout option text that the budget covers all of a criterion's bound tests together in the unmutated run and in each mutant run"
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-4: rcf audit test-strength --help and rcf help audit test-strength state in the --mutant-timeout option text that the budget covers all of a criterion's bound tests together in the unmutated run and in each mutant run, that exit 5 is a blocked criterion (an unreadable bound test or Code Node file, or bound tests that all skipped) and none fails, and that exit 2 covers a bound-test pointer that matches no test, or more than one"
+    },
+    {
+      "id": "TC-313-ac-19906-5-a-broken-bound-test-pointer",
+      "acId": "AC-19906-5",
+      "description": "AC-19906-5: a bound-test pointer that matches no test in its file, or matches two, beside a criterion whose only bound test is skipped, exits 2 under --record with nothing recorded and the not-run line naming that pointer, never the skipped test",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-5: AC-101-2 bound by a pointer that matches no test in its file, or matches two, beside AC-101-1 whose only bound test is skipped, still exits 2 under --record with nothing recorded and the not-run line naming that pointer, never the skipped test"
     }
   ],
   "status": "draft"
