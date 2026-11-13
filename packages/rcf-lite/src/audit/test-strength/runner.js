@@ -554,8 +554,9 @@ export function dropBytecode(abs) {
  * named in `skipped`; a mutant whose bound tests all skipped is never
  * killed, and with `unmutated` its result is skipped. With
  * `unmutated` a bound test the runner did not run is the result notRun
- * (a vitest or playwright name is first tried as a leaf, then as a
- * describe prefix, which every later run of it then uses); otherwise it
+ * (a vitest or playwright name not run, or run only as skipped leaves, is
+ * first tried as a leaf, then as a describe prefix, which every later run
+ * of it then uses); otherwise it
  * stops the run with a NotRunError.
  *
  * @param {object} opts
@@ -618,10 +619,13 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
           for (const t of m.tests) {
             const ctx = { project: cwd, top: dir, env, reports, live };
             let r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
-            if (unmutated && r.verdict === 'notRun' && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
+            const unmatched = (v) => v.verdict === 'notRun' || v.verdict === 'skipped';
+            if (unmutated && unmatched(r) && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
+              // A runner that reports the leaves its name filter left out as skipped is tried as a describe prefix too.
               t.prefix = true;
-              r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
-              if (r.verdict === 'notRun') t.prefix = false;
+              const again = await runBound(t, { ...ctx, ms: deadline - Date.now() });
+              if (unmatched(again)) t.prefix = false;
+              else r = again;
             }
             if (r.timedOut) { outcome = { result: 'timeout', killedBy: [t.pointer] }; break; }
             if (r.verdict === 'skipped') { skipped.push(t.pointer); continue; }
