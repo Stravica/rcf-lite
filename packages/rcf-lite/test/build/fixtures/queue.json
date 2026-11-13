@@ -8,11 +8,11 @@
   },
   "totals": {
     "items": 136,
-    "notStarted": 59,
-    "inProgress": 2,
+    "notStarted": 58,
+    "inProgress": 3,
     "complete": 34,
     "verified": 41,
-    "actionable": 43,
+    "actionable": 42,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -1817,9 +1817,9 @@
       "buildOrder": 248,
       "tier": 0,
       "title": "rcf audit test-strength: a criterion whose bound tests all skip is recorded blocked; a budget timeout is named as a timeout",
-      "executionStatus": "notStarted",
+      "executionStatus": "inProgress",
       "dependsOnFbsIds": [],
-      "state": "actionable",
+      "state": "inProgress",
       "blockedBy": []
     }
   ],
