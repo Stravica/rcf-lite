@@ -1,0 +1,178 @@
+{
+  "version": 1,
+  "release": "0.42.2",
+  "head": "ac5dd10f84c75992f4ebc4a8017c795aa8659b81",
+  "since": "63e1ea715528f2fc4604e8156c751844638e57e8",
+  "target": {
+    "kind": "package",
+    "name": "rcf-lite",
+    "version": "0.42.2",
+    "sha256": "e2d08b57c4b083ae9b7456c0fe991968f5793b9f486b3ff3233068f4779f0034",
+    "cold": true
+  },
+  "scope": {
+    "fbsIds": [
+      "FBS-245",
+      "FBS-246"
+    ],
+    "smokeSuites": [
+      "TS-279",
+      "TS-291",
+      "TS-285",
+      "TS-269"
+    ]
+  },
+  "perAc": [
+    {
+      "acId": "AC-17505-1",
+      "fbsId": "FBS-245",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-1: a frozen tree with an empty delta reads ready: brief:sinceFreeze ok at 0 of 0, D1 and D8 passed, both levels ok"
+      ]
+    },
+    {
+      "acId": "AC-17505-2",
+      "fbsId": "FBS-245",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-2: the CLI report and the Readiness tab read Ready-to-build yes, frozen with nothing pending, and on a fully built queue name every FBS built and read Built 1 of 1"
+      ]
+    },
+    {
+      "acId": "AC-17505-3",
+      "fbsId": "FBS-245",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-3: a frozen tree with an empty delta and a profile.md with no review-surface marker blocks on D1/brief:profile alone"
+      ]
+    },
+    {
+      "acId": "AC-17505-4",
+      "fbsId": "FBS-245",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/query/readiness-frozen-nothing-pending.test.js::AC-17505-4: a frozen tree with one changed document and no brief statement since the freeze still fails brief:sinceFreeze"
+      ]
+    },
+    {
+      "acId": "AC-19906-1",
+      "fbsId": "FBS-246",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-skipped.test.js::AC-19906-1: AC-101-1 whose only bound test is skipped is recorded blocked naming the skipped test while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+      ]
+    },
+    {
+      "acId": "AC-19906-2",
+      "fbsId": "FBS-246",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-skipped.test.js::AC-19906-2: AC-101-1 bound to a skipped test and a passing one is judged on the one that ran: exit 0 with the PASS line, every killed mutant names the test that ran, and the record entry names the skipped test outside its mutant rows"
+      ]
+    },
+    {
+      "acId": "AC-19906-3",
+      "fbsId": "FBS-246",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-skipped.test.js::AC-19906-3: a budget kill in the unmutated run, two bound tests of about 4 s each under --mutant-timeout 6, exits 2 with one line naming \"timed out\", the budget, the flag, the test reached, the budget over all of a criterion's bound tests together and \"no mutant was run\", never \"fails under runner\"; under --mutant-timeout 30 the same pair of 0.2 s tests passes"
+      ]
+    },
+    {
+      "acId": "AC-19906-4",
+      "fbsId": "FBS-246",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-skipped.test.js::AC-19906-4: rcf audit test-strength --help and rcf help audit test-strength state in the --mutant-timeout option text that the budget covers all of a criterion's bound tests together in the unmutated run and in each mutant run, that exit 5 is a blocked criterion (an unreadable bound test or Code Node file, or bound tests that all skipped) and none fails, and that exit 2 covers a bound-test pointer that matches no test, or more than one"
+      ]
+    },
+    {
+      "acId": "AC-19906-5",
+      "fbsId": "FBS-246",
+      "result": "pass",
+      "reason": null,
+      "tests": [
+        "test/cli/audit-test-strength-skipped.test.js::AC-19906-5: AC-101-2 bound by a pointer that matches no test in its file, or matches two, beside AC-101-1 whose only bound test is skipped, still exits 2 under --record with nothing recorded and the not-run line naming that pointer, never the skipped test"
+      ]
+    }
+  ],
+  "smoke": [
+    {
+      "tsId": "TS-279",
+      "result": "pass",
+      "tests": [
+        "test/define/verification-end-state.test.js::AC-19803-1: over FBS-001 (complete) scoping AC-101-1 (external) and AC-101-2 (testOnly), both bound, audit coverage --format json exits 0 with rows external/verified/complete and testOnly/complete/complete and the spec entry expectedEnd verified, now complete",
+        "test/define/verification-end-state.test.js::AC-19803-2: with FBS-001 at verified the testOnly AC-101-2 reads now complete and the external AC-101-1 now verified; FBS-002 scoping only testOnly criteria reads expectedEnd complete",
+        "test/define/verification-end-state.test.js::AC-19803-3: in --format table the unflagged AC-101-3 row shows flag unflagged, end unknown, now complete; the retired AC-101-4 shows now retired with no end; a spec with an unflagged criterion and no external one shows end unknown",
+        "test/define/verification-end-state.test.js::AC-19803-4: audit coverage --strict exits with the same code and the same gaps before and after the flag of a criterion or the status of its spec changes, and a criterion short of its end state is never a gap",
+        "test/define/verification-end-state.test.js::AC-19803-6: a hand-edited \"verification\": \"sometimes\" on AC-101-1 makes audit coverage exit 3 with a line naming AC-101-1 and the field verification, and print no coverage rows",
+        "test/cli/finalise-verdicts.test.js::AC-19803-7: with AC-101-1 bound by one test case into test/hygiene/a.test.js and one into test/rcf/a.test.js, and AC-101-2 bound only into test/rcf/a.test.js, audit coverage --format json gives the AC-101-1 row hygieneTestCases [{ id, file \"test/hygiene/a.test.js\" }] beside testCases naming only the RCF-suite case, and the AC-101-2 row no hygieneTestCases key",
+        "test/cli/finalise-verdicts.test.js::AC-19803-8: with AC-101-1 (external) scoped by both FBS-001 (complete) and FBS-002 (inProgress), audit coverage --format json reads its now from the scoping spec latest in buildOrder: inProgress when FBS-002 is later, complete when FBS-001 is later"
+      ]
+    },
+    {
+      "tsId": "TS-291",
+      "result": "pass",
+      "tests": [
+        "test/cli/build-base-suite.test.js::AC-20201-2: with no --base-suite rcf build bundle --next exits 4 with the not-recorded line and emits no bundle, and a malformed record file exits 2 naming the file",
+        "test/cli/build-base-suite.test.js::AC-20201-3: a green record made at commit A while the base (git merge-base of HEAD with the trunk) is the later commit B makes bundle --next exit 4 \"backstop: base suite recorded at <A7>, base is <B7>; record it again\"",
+        "test/cli/build-base-suite.test.js::AC-20201-4: a record at B with exitCode 1 and tap fail 3 refuses bundle --next, the explicit bundle FBS-002 and an amend bundle with exit 4 \"backstop: base suite red at <B7>: exit 1, 3 failing; no Build starts until the RCF suite is green on the base\"",
+        "test/cli/build-base-suite.test.js::AC-20201-5: no flag emits a bundle on a red or missing record (--override, --strict, --format), and the backstop never reads verified: every earlier spec complete and none verified with a green record bundles",
+        "test/cli/build-base-suite.test.js::AC-20201-6: rcf build base-suite refuses a dirty tree with exit 4, refuses --out rcf/base.json with exit 2, and for a command printing no TAP records tap null with green by the exit code and one warn line",
+        "test/cli/build-base-suite.test.js::AC-20201-7: with a green record for the base, bundle --next finishes within 2 seconds, starts at most one git process more than the same bundle without --base-suite, and never spawns the suite command",
+        "test/cli/build-base-suite.test.js::AC-20201-8: with rcf/test-strength.json declaring suiteCommand, rcf build base-suite --out <file> with no --command runs it and records it as the command, and a different --command exits 2 with the usage line and writes nothing",
+        "test/cli/build-base-suite.test.js::AC-20201-1: a record from rcf build base-suite --command node --test \"test/rcf/**/*.test.js\" reading green at a clean committed HEAD B makes bundle --next exit 0 with the FBS-002 bundle while FBS-001 is complete and not verified, and the same record bundles from a branch whose HEAD is a DEFINE: commit adding a failing RCF test after B"
+      ]
+    },
+    {
+      "tsId": "TS-285",
+      "result": "pass",
+      "tests": [
+        "test/cli/finalise-verdicts.test.js::AC-20001-1: over DEFINE:, BUILD:, REVIEW: MERGE/PASS at H touching both criteria and TEST: PASS with a passing test-strength record at H, and no rcf/verify-reports/, finalise FBS-001 --ci-run run-7 exits 0 with the complete line, writes executionStatus complete and changes nothing else in the tree",
+        "test/cli/finalise-verdicts.test.js::AC-20001-2: with no REVIEW: commit finalise exits 4 \"finalise refused: no REVIEW verdict for FBS-001 on the branch\", and with a ReviewVerdict MERGE/FINDINGS it exits 4 \"finalise refused: REVIEW at <H7> is MERGE/FINDINGS; a failed verdict closes the round\"",
+        "test/cli/finalise-verdicts.test.js::AC-20001-3: with the TEST: commit absent finalise exits 4 \"no TEST verdict at <H7>\", with a TestVerdict FAIL at H \"TEST at <H7> is FAIL\", and with a TEST PASS at H then a FAIL TestVerdict at the later head M \"TEST at <M7> is FAIL; a failed verdict closes the round\"",
+        "test/cli/finalise-verdicts.test.js::AC-20001-4: a BUILD: late fix or a DEFINE: amend after the TEST: commit refuses with exit 4 \"finalise refused: REVIEW reopened by <s7> <STAGE>: after the reviewed head <H7>\", while a FINALISE: lockfile commit and a clean FINALISE: merge of main (with a green --merge-suite at the merge head) do not refuse",
+        "test/cli/finalise-verdicts.test.js::AC-20001-5: run again at the same head or after a FINALISE: status commit, finalise exits 0 with \"finalise: FBS-001 complete (unchanged)\" and a byte-identical spec file, and after an earlier round closed by REVIEW FINDINGS it judges only the last round and exits 0",
+        "test/cli/finalise-verdicts.test.js::AC-20001-6: after a clean FINALISE: merge main, finalise with --merge-suite naming a green record at the merge head exits 0 with the info line, and a two-spec round finalised spec by spec writes complete on the named spec only",
+        "test/cli/finalise-verdicts.test.js::AC-20001-7: on every refusal finalise leaves rcf/fbs/<fbs-id>.json byte-identical and git status --porcelain unchanged, and never writes complete on any spec other than the one named",
+        "test/cli/finalise-verdicts.test.js::AC-20001-8: after a clean FINALISE: merge main at M, finalise refuses with exit 4 without --merge-suite, with a record whose head is not M, and with a red record at M, each with its line and a byte-identical spec file, while a FINALISE: status commit with no merge needs no --merge-suite",
+        "test/cli/finalise-verdicts.test.js::AC-20001-9: with FBS-001 at notStarted finalise exits 4 with the notStarted refusal line and writes nothing; at inProgress it writes complete; at complete or verified it runs as an amend round"
+      ]
+    },
+    {
+      "tsId": "TS-269",
+      "result": "pass",
+      "tests": [
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-1: rcf audit separation over a DEFINE:, BUILD:, REVIEW:, TEST: and FINALISE: branch exits 0 and prints exactly \"separation: PASS 5 commits (base <b7>, head <h7>): DEFINE 1, BUILD 1, REVIEW 1, TEST 1, FINALISE 1, merges 0, transition 0\"",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-2: a \"BUILD: add test\" commit touching test/x.test.js exits 4 with \"separation: FAIL 1 of 1 commits (base <b7>, head <h7>): <s7> BUILD: touches test/x.test.js (class rcfTest, owned by DEFINE)\"",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-3: a commit with no stage prefix exits 4 with \"<s7> no stage prefix\" as its only item, also when it touches only Markdown outside rcf/",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-4: seven malformed prefixes each fail exit 4, each with the item \"<s7> malformed stage prefix\" naming its first token in double quotes, then \"; use DEFINE:, BUILD:, REVIEW:, TEST: or FINALISE:\"",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-5: a bad --base ref exits 2 \"separation: bad ref <ref>\", outside a git repository exits 1 \"separation: not a git repository\", a shallow clone exits 2 with the shallow line, each with nothing on stdout",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-6: --json over the five-commit branch plus a clean \"FINALISE: merge main\" prints six SeparationRow v2 objects in range order with exactly the v2 keys; the BUILD row is builder with production and hygieneTest; the merge row reads merge true, stage FINALISE, paths []",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-7: REVIEW:, TEST: and FINALISE: commits outside their classes fail exit 4, neutral paths being open to DEFINE and BUILD only",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-8: rcf audit separation never writes, reads files only through git at commits in the range, judges --head without a checkout, and spawns only git",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-9: over 200 prefixed commits touching 20 paths each across four classes the audit finishes within 10 seconds and spawns at most 4 git processes plus one per merge",
+        "test/cli/audit-separation-stage-prefix.test.js::AC-19601-10: a \"BUILD: mixed\" commit with Hand: test-author touching criteria and an RCF test, then a malformed \"define: x\", print each cause as its own item in check order and the malformed prefix as the only item of that commit"
+      ]
+    }
+  ],
+  "testOnlyOnly": [],
+  "unflagged": [],
+  "verdict": "PASS",
+  "verifiedFbsIds": [
+    "FBS-245",
+    "FBS-246"
+  ],
+  "startedAt": "2026-11-13T21:46:21.206Z",
+  "finishedAt": "2026-11-13T21:47:35.306Z",
+  "node": "v24.15.0"
+}
