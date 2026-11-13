@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 135,
-    "notStarted": 58,
+    "items": 136,
+    "notStarted": 59,
     "inProgress": 2,
     "complete": 34,
     "verified": 41,
-    "actionable": 42,
+    "actionable": 43,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -75,7 +75,8 @@
         "FBS-231",
         "FBS-232",
         "FBS-243",
-        "FBS-245"
+        "FBS-245",
+        "FBS-246"
       ]
     },
     {
@@ -1809,6 +1810,16 @@
       "executionStatus": "verified",
       "dependsOnFbsIds": [],
       "state": "verified",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-246",
+      "buildOrder": 248,
+      "tier": 0,
+      "title": "rcf audit test-strength: a criterion whose bound tests all skip is recorded blocked; a budget timeout is named as a timeout",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
       "blockedBy": []
     }
   ],
