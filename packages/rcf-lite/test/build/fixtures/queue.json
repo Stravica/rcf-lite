@@ -10,8 +10,8 @@
     "items": 135,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 35,
-    "verified": 40,
+    "complete": 34,
+    "verified": 41,
     "actionable": 42,
     "blocked": 16
   },
@@ -1806,9 +1806,9 @@
       "buildOrder": 247,
       "tier": 0,
       "title": "rcf define readiness: a frozen tree with nothing pending reads ready, and the tree line reports a fully built queue",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     }
   ],
