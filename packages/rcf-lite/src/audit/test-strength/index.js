@@ -326,7 +326,7 @@ export async function auditTestStrength({
     if (!c.tests.length) c.mutants = [];
   }
 
-  const total = criteria.reduce((n, c) => n + c.mutants.length, 0);
+  let total = criteria.reduce((n, c) => n + c.mutants.length, 0);
   if (total > maxMutants) return fail(2, `test-strength: ${total} mutants exceed --max-mutants ${maxMutants}; narrow the scope`);
 
   // The unmutated run (RC-45): the bound tests of each criterion with a
@@ -390,6 +390,10 @@ export async function auditTestStrength({
         const { acId, test: t, result, verdict, names } = unmutated.red;
         const argv = t.runner.argv.join(' ');
         if (result === 'notRun') return exit(lead([...leftUnmutated, `test-strength: ${new NotRunError(t, verdict === 'ambiguous' ? names : null).message}`]), breached);
+        // AC-19906-3: a kill at the budget is a timeout, never a red test.
+        if (result === 'timeout') {
+          return exit(lead([...leftUnmutated, `test-strength: the unmutated run for ${acId} timed out at the budget of ${mutantTimeoutS} s (--mutant-timeout) while ${t.pointer} ran; the budget covers all of a criterion's bound tests together; no mutant was run`]), breached);
+        }
         const lines = [`test-strength: the unmutated run is red for ${acId}: ${t.pointer} fails under runner ${argv}; no mutant was run`];
         // Round E (AC-19904-11): the next line names the directory the run ran at, relative to the rcf project root.
         lines.push(`test-strength: ${t.file} ran at ${runDir(t) || '.'}; a test that reads paths relative to the rcf project root pins "cwd": "project" on its runners entry`);
@@ -404,6 +408,16 @@ export async function auditTestStrength({
           lines.push(`test-strength: declare a runner for ${t.file} in rcf/test-strength.json runners`);
         }
         return exit(lead([...leftUnmutated, ...lines], false), breached);
+      }
+      // AC-19906-1, AC-19906-2: a criterion whose bound tests all skipped
+      // is blocked and runs no mutant; one with some skipped is judged on
+      // the bound tests that ran and names the skipped ones.
+      for (const s of unmutated.skipped) {
+        const c = proved.find((p) => p.acId === s.acId);
+        if (!s.all) { c.skipped = s.pointers; continue; }
+        c.blocked = { files: [...new Set(c.tests.map((t) => t.file))], detail: `bound tests that all skipped: ${s.pointers.join(', ')}` };
+        total -= c.mutants.length;
+        c.mutants = [];
       }
       const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
       try {
@@ -452,6 +466,7 @@ export async function auditTestStrength({
       structural: c.structural,
       mutants: c.mutants.map((m) => ({ symbol: m.symbol, operator: m.operator, result: m.result, killedBy: m.killedBy ?? [], ...(m.loadError ? { loadError: true } : {}) })),
       result: c.reasons.length ? 'fail' : 'pass',
+      ...(c.skipped ? { skipped: c.skipped } : {}),
     };
   });
   const failing = out.filter((c) => c.result === 'fail').length;
