@@ -254,8 +254,12 @@ Prints one line (none under --json):
     blocked <m>): <AC id> (<file>[ and <file>]), ...
 <n> is the criteria in scope; <b> those less the blocked ones; blocked
 ids ascend. <k> counts timeouts; <total> excludes notApplicable mutants.
-Before any mutant the bound tests run once unmutated; one red, or one
-its runner did not run, exits 2 with no result line. A git ls-tree of
+Before any mutant the bound tests run once unmutated; one red or timed
+out, or a bound-test pointer that matches no test or more than one,
+exits 2 with no result line. A bound test its runner reports skipped
+neither kills a mutant nor ends a run; a criterion whose bound tests all
+skipped is blocked, and one with some skipped is judged on the bound
+tests that ran. A git ls-tree of
 HEAD that fails exits 2 before any bound test runs, naming the command:
 "test-strength: cannot list the workspace packages at <h7>: git ls-tree
 failed: <git's stderr>" or "test-strength: cannot list the files at
@@ -278,7 +282,9 @@ Options:
   --json                     Print the TestStrengthReport v1 object alone
   --jobs <n>                 Mutants run at once, one working copy each
                              (default: half the CPU count, at least 1)
-  --mutant-timeout <seconds> Time limit per mutant (default ${DEFAULT_MUTANT_TIMEOUT_S})
+  --mutant-timeout <seconds> Time limit for all of a criterion's bound
+                             tests together, in the unmutated run and in
+                             each mutant run (default ${DEFAULT_MUTANT_TIMEOUT_S})
   --max-mutants <n>          Refuse a scope with more mutants (default ${DEFAULT_MAX_MUTANTS})
   --help                     Print this help
 
@@ -295,13 +301,14 @@ its result. To keep a hard gate, fail your CI on this command's exit 4.
 Exit codes (precedence 2 over 4 over 5 over 0):
   0  every criterion passes
   4  a criterion fails, or --record refused
-  5  blocked: a criterion the audit cannot read, and none fails
+  5  a criterion is blocked (an unreadable bound test or Code Node
+     file, or bound tests that all skipped) and none fails
   2  usage or a whole-run failure: no or malformed
      rcf/test-strength.json, an unreadable entry point, no scope, an
      unknown id, a file-level Code Node on a code file, more mutants
      than --max-mutants, a git ls-tree of HEAD that fails, a bound test
-     not committed, red unmutated or
-     not run by its runner (or matching several tests), a runner that
+     not committed, a red or timed-out unmutated run, a bound-test
+     pointer that matches no test, or more than one, a runner that
      cannot run, a bound test run that wrote in the project, or
      --record with no REVIEW verdict
   3  the chain does not load

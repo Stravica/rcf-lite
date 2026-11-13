@@ -1,0 +1,49 @@
+{
+  "createdAt": "2026-11-13T13:55:38.702Z",
+  "updatedAt": "2026-11-13T15:19:55.051Z",
+  "asA": "maintainer whose round records test strength for every touched criterion",
+  "iWant": "rcf audit test-strength to record a criterion whose bound tests all skip as blocked, to judge a criterion on the bound tests that ran, and to name a budget timeout as a timeout",
+  "soThat": "one skipped bound test never costs the round its strength record, and a slow criterion never reads as a red test",
+  "description": "The 0.42.2 round: a criterion whose bound tests all skip (node:test skip, the TAP # SKIP directive) is recorded per criterion as blocked with a reason naming the skipped test, while the other criteria are judged and the record is written; a criterion with some skipped and some run bound tests is judged on the ones that ran; a budget kill in the unmutated run exits 2 with a line naming the timeout, the budget, the --mutant-timeout flag and the test reached, never 'fails under runner'; and the help says the budget covers all of a criterion's bound tests together. The exit codes AC-20502-5 states are unchanged.",
+  "tacIds": [
+    "TAC-4155"
+  ],
+  "usId": "US-19906",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "A skipped bound test and a budget timeout in the test-strength audit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19906-1",
+      "description": "[failure] Given a fixture project where AC-101-1's only bound test is skipped (node:test `{ skip: true }`, its TAP test point carrying the `# SKIP` directive) and AC-101-2's bound test passes over a symbol-level Code Node whose mutants it kills, at a REVIEW verdict for H touching both, when `rcf audit test-strength --acs AC-101-1,AC-101-2 --record` runs, then AC-101-1 is recorded per criterion as blocked and AC-101-2 is judged as usual (pass): the run exits 5, stdout is the BLOCKED line AC-19904-7 rules, naming AC-101-1 with the skipped test's file (\"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed <x>/<y> (timeout <t>, notApplicable <n>, blocked 1): AC-101-1 (<file>)\"), and `rcf/verdicts/<H12>/test-strength.json` is written naming both criteria, AC-101-1's entry carrying `result` \"blocked\", `blocked` true and `mutants` [], its reason and detail as `rcf build finalise` prints them (`<reason>: <detail>`) naming the skipped bound test as `<file>::<name>`; the report's `result` reads \"blocked\", its `totals.blocked` 1, and the blocked criterion contributes zero to every mutant count. Given also AC-101-3 bound to a test one of whose mutants survives, the same run over AC-101-1,AC-101-2,AC-101-3 exits 4 with the FAIL line naming AC-101-3's finding and ending \", blocked 1: AC-101-1 (<file>)\", and the record still names all three, AC-101-1 blocked, AC-101-2 pass and AC-101-3 fail. A skipped bound test is a test its runner reports, so this is not the whole-run exit 2 AC-19901-10 keeps for a runner that reports no bound test.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19906-2",
+      "description": "[edge] Given AC-101-1 bound to two tests in bound order, the first skipped (node:test `t.skip()`, its TAP test point carrying the `# SKIP` directive) and the second passing over a symbol-level Code Node whose mutants it kills, at a REVIEW verdict for H touching AC-101-1, when `rcf audit test-strength --acs AC-101-1 --record` runs, then the criterion is judged on the bound test that ran, in both runner passes: in the unmutated run the skipped test is reported and is not red, and in the mutation pass it neither kills a mutant nor ends the run; the run exits 0 with the PASS line, and in `rcf/verdicts/<H12>/test-strength.json` AC-101-1's entry reads `result` \"pass\", every killed mutant names the second test in `killedBy` and none names the skipped one, and the entry names the skipped bound test as `<file>::<name>` outside its mutant rows; nothing is not run, and no stderr line reads \"was not run by runner\".",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19906-3",
+      "description": "[failure] Given AC-101-1 bound to two tests that each wait about 4 seconds, so that each alone fits a budget of 6 seconds with 2 seconds to spare and the two together overrun it by 2 seconds, when `rcf audit test-strength --acs AC-101-1 --mutant-timeout 6` runs, then the unmutated run is killed at the budget while the second test runs, and the run exits 2 (the exit AC-20502-5 keeps for a red unmutated run) with no result line and one stderr line that holds the words \"timed out\", the budget \"6 s\", the flag \"--mutant-timeout\", the test reached as `<file>::<name>`, the words \"all of a criterion's bound tests together\" (the budget covers them all) and \"no mutant was run\"; no stderr line reads \"fails under runner\". Given the same two tests waiting about 0.2 seconds each and `--mutant-timeout 30`, a budget they fit together, the run is judged as usual and exits 0 with the PASS line. A measured per-criterion budget is out of scope.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19906-4",
+      "description": "[happy] `rcf audit test-strength --help` and `rcf help audit test-strength` each exit 0 and state, in the text of the `--mutant-timeout <seconds>` option, that the budget covers all of a criterion's bound tests together in the unmutated run and in each mutant run: the option text holds the words \"all of a criterion's bound tests together\", \"the unmutated run\" and \"each mutant run\". In their exit codes, read with the help's line wrapping folded to single spaces, each states exit 5 as \"a criterion is blocked (an unreadable bound test or Code Node file, or bound tests that all skipped) and none fails\", and names under exit 2 \"a bound-test pointer that matches no test, or more than one\" in place of the clause \"one its runner did not run\", which neither help holds.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19906-5",
+      "description": "[must-not] Given AC-101-1 whose only bound test is skipped (its TAP test point carrying the `# SKIP` directive) and AC-101-2 bound by a pointer that matches no test in its file, or whose name matches two tests in its file, at a REVIEW verdict for H touching both, when `rcf audit test-strength --acs AC-101-1,AC-101-2 --record` runs, then the broken binding is never recorded blocked: it stays the whole-run failure AC-19901-10 keeps for a runner that cannot run the bound tests or reports no bound test, and an ambiguous leaf, so the run exits 2 with no result line, `rcf/verdicts/<H12>/test-strength.json` is not written, and stderr holds the line `test-strength: bound test <file>::<name> was not run by runner <argv>` naming that pointer, for the two-match pointer continuing `: matches 2 tests in <file>: \"<name>\", \"<name>\"`; no such line names the skipped test. Only a matched leaf carrying the SKIP directive (`# SKIP` in TAP) makes its criterion blocked.",
+      "testable": true,
+      "verification": "external"
+    }
+  ]
+}

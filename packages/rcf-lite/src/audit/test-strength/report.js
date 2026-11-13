@@ -116,11 +116,12 @@ const SEP = ' > ';
  * title path with " > " between describe titles and the test title, or
  * a describe title matched as a prefix of the title path: run when at
  * least one leaf under it ran, failed when any leaf under it failed. A
- * name matching two leaves is ambiguous. With no leaf of the name run,
- * a file reported failed with no leaf reported is a load failure, and
- * anything else is not run.
+ * name matching two leaves is ambiguous. A name whose matched leaves are
+ * all skipped (a TAP SKIP directive) is skipped. With no leaf of the
+ * name, a file reported failed with no leaf reported is a load failure,
+ * and anything else is not run.
  *
- * @returns {{ status: 'pass'|'fail'|'notRun'|'loadError'|'ambiguous'|'unreadable', prefix?: boolean, names?: string[] }}
+ * @returns {{ status: 'pass'|'fail'|'skipped'|'notRun'|'loadError'|'ambiguous'|'unreadable', prefix?: boolean, names?: string[] }}
  */
 export function judge(report, name) {
   if (!report.ok) return { status: 'unreadable' };
@@ -135,6 +136,7 @@ export function judge(report, name) {
     prefix = true;
   }
   const ran = hit.filter((l) => l.status !== 'skipped');
+  if (hit.length && !ran.length) return { status: 'skipped', prefix };
   if (!ran.length) return { status: report.fileFailed && report.leaves.length === 0 ? 'loadError' : 'notRun' };
   return { status: ran.some((l) => l.status === 'failed') ? 'fail' : 'pass', prefix };
 }

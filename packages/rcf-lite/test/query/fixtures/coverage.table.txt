@@ -982,6 +982,11 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19905-3   yes                    external   verified  verified    TC-311-unparseable-py-js-still-judged, TC-311-with-no-pyt...
                       AC-19905-4   yes                    external   verified  verified    TC-311-a-code-node-src-mod-py-canonical
                       AC-19905-5   yes                    external   verified  verified    TC-311-unparseable-py-code-node-blocked
+                      AC-19906-1   yes                    external   verified  complete    TC-313-ac-19906-1-a-criterion-whose-only-bound
+                      AC-19906-2   yes                    external   verified  complete    TC-313-ac-19906-2-a-criterion-with-a-skipped
+                      AC-19906-3   yes                    external   verified  complete    TC-313-ac-19906-3-a-budget-kill-in-the
+                      AC-19906-4   yes                    external   verified  complete    TC-313-ac-19906-4-the-mutant-timeout-option
+                      AC-19906-5   yes                    external   verified  complete    TC-313-ac-19906-5-a-broken-bound-test-pointer
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
@@ -1216,3 +1221,4 @@ FBS-242  verified  verified
 FBS-243  verified  verified
 FBS-244  verified  verified
 FBS-245  verified  verified
+FBS-246  verified  complete

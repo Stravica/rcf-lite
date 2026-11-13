@@ -12161,6 +12161,61 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "verified"
+        },
+        {
+          "id": "AC-19906-1",
+          "covered": true,
+          "testCases": [
+            "TC-313-ac-19906-1-a-criterion-whose-only-bound"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19906-2",
+          "covered": true,
+          "testCases": [
+            "TC-313-ac-19906-2-a-criterion-with-a-skipped"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19906-3",
+          "covered": true,
+          "testCases": [
+            "TC-313-ac-19906-3-a-budget-kill-in-the"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19906-4",
+          "covered": true,
+          "testCases": [
+            "TC-313-ac-19906-4-the-mutant-timeout-option"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
+        },
+        {
+          "id": "AC-19906-5",
+          "covered": true,
+          "testCases": [
+            "TC-313-ac-19906-5-a-broken-bound-test-pointer"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "complete"
         }
       ]
     },
@@ -13947,6 +14002,11 @@
       "fbsId": "FBS-245",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-246",
+      "expectedEnd": "verified",
+      "now": "complete"
     }
   ],
   "unresolvedTestPointers": []

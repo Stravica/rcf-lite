@@ -1,0 +1,51 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "206e20066eac4785c89345610552a8b0edfbfffc",
+  "fbsIds": [
+    "FBS-246"
+  ],
+  "touchedAcIds": [
+    "AC-19906-1",
+    "AC-19906-2",
+    "AC-19906-3",
+    "AC-19906-4",
+    "AC-19906-5"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 a TAP TODO point is read as skipped (report.js:36-40 marks any directive skipped, judge at :139), so a criterion whose bound tests are all todo is recorded blocked as bound tests that all skipped; no criterion of US-19906 reads on TODO; the owner may name it or narrow the directive"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": "AC-19906-1",
+      "text": "note, carried: P3 an all-skipped criterion is recorded with reason TEST_STRENGTH_UNSUPPORTED (index.js:53, :456), the code an unreadable file gets; the detail names the skipped pointer (index.js:418); the round rulings leave the reason code unpinned"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": "AC-19906-1",
+      "text": "note, carried: P3 by reading, an all-skipped criterion that also carries a no mutable symbol reason is recorded blocked, not fail, since the blocked branch (index.js:454-456) returns before its reasons are read; exit 5 in place of 4; both rows are non-pass and recorded"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19906-2",
+      "text": "note, carried: P3 the describe-prefix retry on a skipped result (runner.js:622-629, commit 206e2006) costs one extra unmutated run per really skipped vitest or playwright bound test, and no case of TS-313 drives a vitest or playwright runner"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 FBS-246 deliverables name the queue and bundle goldens only while the build regenerated eight files over four declared generators, and still list CHANGELOG notes under Unreleased (builder), which the round assigns to FINALISE"
+    }
+  ],
+  "recordedBy": "reviewer, PR 458 merge-gate REVIEW",
+  "recordedAt": "2026-11-13T18:16:50.350Z"
+}

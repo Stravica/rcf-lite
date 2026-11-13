@@ -4805,6 +4805,26 @@ flowchart LR
   REQ-199 --> AC-19905-5
   TC-311-unparseable-py-code-node-blocked["TC-311-unparseable-py-code-node-blocked"]
   AC-19905-5 -.-> TC-311-unparseable-py-code-node-blocked
+  AC-19906-1["AC-19906-1"]
+  REQ-199 --> AC-19906-1
+  TC-313-ac-19906-1-a-criterion-whose-only-bound["TC-313-ac-19906-1-a-criterion-whose-only-bound"]
+  AC-19906-1 -.-> TC-313-ac-19906-1-a-criterion-whose-only-bound
+  AC-19906-2["AC-19906-2"]
+  REQ-199 --> AC-19906-2
+  TC-313-ac-19906-2-a-criterion-with-a-skipped["TC-313-ac-19906-2-a-criterion-with-a-skipped"]
+  AC-19906-2 -.-> TC-313-ac-19906-2-a-criterion-with-a-skipped
+  AC-19906-3["AC-19906-3"]
+  REQ-199 --> AC-19906-3
+  TC-313-ac-19906-3-a-budget-kill-in-the["TC-313-ac-19906-3-a-budget-kill-in-the"]
+  AC-19906-3 -.-> TC-313-ac-19906-3-a-budget-kill-in-the
+  AC-19906-4["AC-19906-4"]
+  REQ-199 --> AC-19906-4
+  TC-313-ac-19906-4-the-mutant-timeout-option["TC-313-ac-19906-4-the-mutant-timeout-option"]
+  AC-19906-4 -.-> TC-313-ac-19906-4-the-mutant-timeout-option
+  AC-19906-5["AC-19906-5"]
+  REQ-199 --> AC-19906-5
+  TC-313-ac-19906-5-a-broken-bound-test-pointer["TC-313-ac-19906-5-a-broken-bound-test-pointer"]
+  AC-19906-5 -.-> TC-313-ac-19906-5-a-broken-bound-test-pointer
   REQ-200["REQ-200"]
   AC-20001-1["AC-20001-1"]
   REQ-200 --> AC-20001-1
@@ -7664,6 +7684,16 @@ flowchart LR
   class TC-311-a-code-node-src-mod-py-canonical tc;
   class AC-19905-5 ac;
   class TC-311-unparseable-py-code-node-blocked tc;
+  class AC-19906-1 ac;
+  class TC-313-ac-19906-1-a-criterion-whose-only-bound tc;
+  class AC-19906-2 ac;
+  class TC-313-ac-19906-2-a-criterion-with-a-skipped tc;
+  class AC-19906-3 ac;
+  class TC-313-ac-19906-3-a-budget-kill-in-the tc;
+  class AC-19906-4 ac;
+  class TC-313-ac-19906-4-the-mutant-timeout-option tc;
+  class AC-19906-5 ac;
+  class TC-313-ac-19906-5-a-broken-bound-test-pointer tc;
   class REQ-200 req;
   class AC-20001-1 ac;
   class TC-285-over-define-build-review-merge-pass-at-h tc;

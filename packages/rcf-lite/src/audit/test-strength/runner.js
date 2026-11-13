@@ -549,16 +549,20 @@ export function dropBytecode(abs) {
  * (project-relative path -> text) and runs `tests` ({ file, name,
  * pointer, runner }) in order until one fails or the mutant's deadline
  * passes. Results are returned in mutant order as { result, killedBy }
- * (and loadError true when the killing file failed to load). With
+ * (and loadError true when the killing file failed to load). A bound
+ * test its runner reports skipped neither kills nor ends the run and is
+ * named in `skipped`; a mutant whose bound tests all skipped is never
+ * killed, and with `unmutated` its result is skipped. With
  * `unmutated` a bound test the runner did not run is the result notRun
- * (a vitest or playwright name is first tried as a leaf, then as a
- * describe prefix, which every later run of it then uses); otherwise it
+ * (a vitest or playwright name not run, or run only as skipped leaves, is
+ * first tried as a leaf, then as a describe prefix, which every later run
+ * of it then uses); otherwise it
  * stops the run with a NotRunError.
  *
  * @param {object} opts
  * @param {(args: string[]) => Promise<{ code: number|null, stderr: string }>} opts.git
  * @param {Array<{ edits: Map<string, string>, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.mutants
- * @returns {Promise<{ results: Array<{ result: string, killedBy: string[], loadError?: true, verdict?: string }>, left: string[] }>}
+ * @returns {Promise<{ results: Array<{ result: string, killedBy: string[], skipped?: string[], loadError?: true, verdict?: string }>, left: string[] }>}
  */
 export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel, prefix, packages = [], unmutated = false, scratches = [], scratchAt = scratchPlace().prefix, committed = null, kept = null }) {
   const results = new Array(mutants.length);
@@ -611,15 +615,20 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
           }
           const deadline = Date.now() + timeoutMs;
           let outcome = { result: 'survived', killedBy: [] };
+          const skipped = [];
           for (const t of m.tests) {
             const ctx = { project: cwd, top: dir, env, reports, live };
             let r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
-            if (unmutated && r.verdict === 'notRun' && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
+            const unmatched = (v) => v.verdict === 'notRun' || v.verdict === 'skipped';
+            if (unmutated && unmatched(r) && !t.prefix && (t.runner.kind === 'vitest' || t.runner.kind === 'playwright')) {
+              // A runner that reports the leaves its name filter left out as skipped is tried as a describe prefix too.
               t.prefix = true;
-              r = await runBound(t, { ...ctx, ms: deadline - Date.now() });
-              if (r.verdict === 'notRun') t.prefix = false;
+              const again = await runBound(t, { ...ctx, ms: deadline - Date.now() });
+              if (unmatched(again)) t.prefix = false;
+              else r = again;
             }
             if (r.timedOut) { outcome = { result: 'timeout', killedBy: [t.pointer] }; break; }
+            if (r.verdict === 'skipped') { skipped.push(t.pointer); continue; }
             if (r.verdict === 'notRun' || r.verdict === 'ambiguous') {
               if (!unmutated) throw new NotRunError(t, r.names);
               outcome = { result: 'notRun', killedBy: [t.pointer], verdict: r.verdict, names: r.names };
@@ -627,6 +636,10 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
             }
             if (r.verdict === 'loadError') { outcome = { result: 'killed', killedBy: [t.pointer], loadError: true }; break; }
             if (r.verdict !== 'pass') { outcome = { result: 'killed', killedBy: [t.pointer], verdict: r.verdict }; break; }
+          }
+          if (skipped.length) {
+            if (unmutated && outcome.result === 'survived' && skipped.length === m.tests.length) outcome = { result: 'skipped', killedBy: [] };
+            outcome.skipped = skipped;
           }
           results[at] = outcome;
         } catch (err) {
@@ -664,19 +677,23 @@ export async function runMutants({ git, mutants, jobs, timeoutMs, head, toplevel
  * red here would kill every mutant, a false PASS. Resolves the first bound
  * test that is not green as `red` ({ acId, test, result, verdict, names }:
  * result notRun when the runner did not run it, else the red verdict;
- * null when every one is green) and the scratch directory that could not
- * be removed as `left`.
+ * null when every one is green), going on past a skipped bound test and
+ * past a criterion whose bound tests all skipped; the skipped bound tests
+ * of each criterion as `skipped` ({ acId, pointers, all }, all true when
+ * every one of its bound tests skipped); and the scratch directory that
+ * could not be removed as `left`.
  *
  * @param {object} opts
  * @param {Array<{ acId: string, tests: Array<{ file: string, name: string, pointer: string, runner: object }> }>} opts.criteria
- * @returns {Promise<{ red: { acId: string, test: object, result: string, verdict?: string, names?: string[] }|null, left: string[] }>}
+ * @returns {Promise<{ red: { acId: string, test: object, result: string, verdict?: string, names?: string[] }|null, skipped: Array<{ acId: string, pointers: string[], all: boolean }>, left: string[] }>}
  */
 export async function runUnmutated({ git, criteria, timeoutMs, head, toplevel, prefix, packages = [], scratches, scratchAt, committed = null, kept = null }) {
   const checks = criteria.map((c) => ({ acId: c.acId, edits: new Map(), tests: c.tests }));
   const { results, left } = await runMutants({ git, mutants: checks, jobs: 1, timeoutMs, head, toplevel, prefix, packages, unmutated: true, scratches, scratchAt, committed, kept });
-  const at = results.findIndex((r) => r.result !== 'survived');
-  if (at < 0) return { red: null, left };
+  const skipped = results.flatMap((r, i) => (r.skipped ? [{ acId: checks[i].acId, pointers: r.skipped, all: r.result === 'skipped' }] : []));
+  const at = results.findIndex((r) => r.result !== 'survived' && r.result !== 'skipped');
+  if (at < 0) return { red: null, skipped, left };
   const r = results[at];
   const test = checks[at].tests.find((t) => t.pointer === r.killedBy[0]);
-  return { red: { acId: checks[at].acId, test, result: r.result, verdict: r.loadError ? 'loadError' : r.verdict, names: r.names }, left };
+  return { red: { acId: checks[at].acId, test, result: r.result, verdict: r.loadError ? 'loadError' : r.verdict, names: r.names }, skipped, left };
 }
