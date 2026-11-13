@@ -6,6 +6,17 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.42.2] - 2026-11-13
+
+0.42.2 fixes two faults in `rcf audit test-strength`. A criterion whose bound tests all skip is recorded blocked instead of ending the run, and a bound test killed at the per-criterion budget is reported as a timeout instead of a red test. The help now says what the budget covers.
+
+### Fixed
+
+- **A criterion whose bound tests all skip is recorded blocked (FBS-246, AC-19906-1, AC-19906-2).** A bound test that skips (a TAP `# SKIP` point, as an external-level test does when no target is set) no longer reads as not run. A criterion all of whose bound tests skip is recorded `blocked` with a reason naming the skipped tests; the run exits 5 when nothing fails and 4 beside a failure, and `--record` writes the record. A criterion with some bound tests skipped is judged on the ones that ran, in the unmutated run and in each mutant run.
+- **A broken bound-test pointer still exits 2 with nothing recorded (AC-19906-5).** A pointer that matches no test in its file, or more than one, keeps the whole-run failure: exit 2, no record, and a line naming the pointer (for two matches, the two names). Only a matched test that skips makes its criterion blocked.
+- **A budget kill in the unmutated run reads as a timeout (AC-19906-3).** When a criterion's bound tests together outlive `--mutant-timeout`, the run exits 2 with one line naming the timeout, the budget, the flag and the test reached, never "fails under runner".
+- **The help states the budget rule and the exit codes (AC-19906-4).** The `--mutant-timeout` text says the budget covers all of a criterion's bound tests together; exit 5 names bound tests that all skipped; exit 2 names a bound-test pointer that matches no test, or more than one.
+
 ## [0.42.1] - 2026-11-12
 
 0.42.1 fixes one readiness fault: a frozen tree with nothing pending reads ready. Right after `rcf define freeze`, with no document changed, added or removed since the freeze, `rcf define readiness` and the viewer's Readiness tab no longer block on D1 `brief:sinceFreeze` and D8; the verdict line names the freeze and says nothing is pending, and the tree line reads `Built <n> of <n>` when every FBS is built. breaking: false; no flag, verb form, exit code or record field changes. minAgentAction: null; the managed agent-instructions block is unchanged since 0.42.0, rcf-lite adds no dependency and the `@stravica-ai/rcf-schemas` 0.10.0 pin is unchanged.

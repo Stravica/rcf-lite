@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.42.1"
+latest: "0.42.2"
 releases:
+  - version: "0.42.2"
+    date: "2026-11-13"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.42.2 fixes two faults in rcf audit test-strength: a criterion whose bound tests all skip (as an external-level test does with no target set) is recorded blocked with a reason naming the skipped tests, exit 5 when nothing fails and 4 beside a failure, instead of ending the whole run with exit 2 and recording nothing; a criterion with some bound tests skipped is judged on the ones that ran."
+      - "A bound-test pointer that matches no test, or more than one, still exits 2 with nothing recorded and a line naming the pointer; a bound test killed at the per-criterion budget in the unmutated run exits 2 with a line naming the timeout, the budget, the --mutant-timeout flag and the test reached, never a red test; the help says the budget covers all of a criterion's bound tests together."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.42.0, rcf-lite adds no dependency and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.42.1"
     date: "2026-11-12"
     breaking: false
