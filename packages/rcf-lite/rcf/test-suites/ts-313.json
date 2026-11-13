@@ -1,0 +1,46 @@
+{
+  "createdAt": "2026-11-13T13:58:06.945Z",
+  "updatedAt": "2026-11-13T13:58:17.967Z",
+  "purpose": "Each criterion of US-19906 driven through the app entry, bin/rcf.js: rcf audit test-strength run in git fixture projects made by rcf init (a small app, its own harness, rcf/test-strength.json, Code Nodes and bound test cases, a REVIEW verdict where --record runs), over a bound test skipped by node:test, a criterion with a skipped and a run bound test, two bound tests that outlive --mutant-timeout together, and the help's --mutant-timeout text.",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19906-1",
+    "AC-19906-2",
+    "AC-19906-3",
+    "AC-19906-4"
+  ],
+  "id": "TS-313",
+  "usId": "US-19906",
+  "title": "A skipped bound test and a budget timeout: rcf audit test-strength through bin/rcf.js over git fixture projects, and its help",
+  "testCases": [
+    {
+      "id": "TC-313-ac-19906-1-a-criterion-whose-only-bound",
+      "acId": "AC-19906-1",
+      "description": "AC-19906-1: a criterion whose only bound test is skipped is recorded blocked naming the skipped test, exit 5 with the BLOCKED line and the record naming both criteria; with a third criterion whose mutant survives, exit 4 and the record names all three",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-1: AC-101-1 whose only bound test is skipped is recorded blocked naming the skipped test while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+    },
+    {
+      "id": "TC-313-ac-19906-2-a-criterion-with-a-skipped",
+      "acId": "AC-19906-2",
+      "description": "AC-19906-2: a criterion with a skipped and a run bound test is judged on the one that ran, exit 0, the skipped test named in its record entry and in no killedBy",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-2: AC-101-1 bound to a skipped test and a passing one is judged on the one that ran: exit 0 with the PASS line, every killed mutant names the test that ran, and the record entry names the skipped test outside its mutant rows"
+    },
+    {
+      "id": "TC-313-ac-19906-3-a-budget-kill-in-the",
+      "acId": "AC-19906-3",
+      "description": "AC-19906-3: a budget kill in the unmutated run exits 2 with one line naming the timeout, the budget, the flag, the test reached and the budget over all of a criterion's bound tests together, never fails under runner; the typical profile inside the budget passes",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-3: a budget kill in the unmutated run, two bound tests of about 2 s each under --mutant-timeout 3, exits 2 with one line naming \"timed out\", the budget, the flag, the test reached, the budget over all of a criterion's bound tests together and \"no mutant was run\", never \"fails under runner\"; under --mutant-timeout 30 the same pair of 0.2 s tests passes"
+    },
+    {
+      "id": "TC-313-ac-19906-4-the-mutant-timeout-option",
+      "acId": "AC-19906-4",
+      "description": "AC-19906-4: the --mutant-timeout option text of both help forms states the budget covers all of a criterion's bound tests together in the unmutated run and each mutant run",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-skipped.test.js::AC-19906-4: rcf audit test-strength --help and rcf help audit test-strength state in the --mutant-timeout option text that the budget covers all of a criterion's bound tests together in the unmutated run and in each mutant run"
+    }
+  ],
+  "status": "draft"
+}
