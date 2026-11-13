@@ -296,7 +296,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // rcf-lite 0.41.0 DEFINE (2026-11-06) added US-20501..US-20504 under REQ-205 (265 -> 269).
   // rcf-lite 0.42.0 DEFINE (2026-11-09) added US-19905 under REQ-199 (269 -> 270).
   // Frozen-nothing-pending DEFINE (2026-11-12) added US-17505 under REQ-175 (270 -> 271).
-  assert.equal(tree.userStories.length, 271);
+  // Strength-skipped DEFINE (2026-11-13) added US-19906 under REQ-199 (271 -> 272).
+  assert.equal(tree.userStories.length, 272);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // Round-7 T-1 added TAC-3801..3804 for the deploy-hetzner-server
   // provisioner, manifest schema, cloud-init template and firewall
@@ -476,7 +477,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // rcf-lite 0.41.0 DEFINE (2026-11-06) added FBS-243 (132 -> 133).
   // rcf-lite 0.42.0 DEFINE (2026-11-09) added FBS-244 (133 -> 134).
   // Frozen-nothing-pending DEFINE (2026-11-12) added FBS-245 (134 -> 135).
-  assert.equal(tree.fbsItems.length, 135);
+  // Strength-skipped DEFINE (2026-11-13) added FBS-246 (135 -> 136).
+  assert.equal(tree.fbsItems.length, 136);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
@@ -620,7 +622,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // rcf-lite 0.41.0 DEFINE (2026-11-06) added TS-307..TS-310 (247 -> 251).
   // rcf-lite 0.42.0 DEFINE (2026-11-09) added TS-311, the e2e suite of US-19905 (251 -> 252).
   // Frozen-nothing-pending DEFINE (2026-11-12) added TS-312, the integration suite of US-17505 (252 -> 253).
-  assert.equal(tree.testSuites.length, 253);
+  // Strength-skipped DEFINE (2026-11-13) added TS-313, the e2e suite of US-19906 (253 -> 254).
+  assert.equal(tree.testSuites.length, 254);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   assert.equal(tree.prd?.prdId, 'PRD-001');
   assert.equal(tree.tad?.tadId, 'TAD-001');
