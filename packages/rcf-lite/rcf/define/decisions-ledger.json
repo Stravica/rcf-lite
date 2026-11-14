@@ -3749,6 +3749,26 @@
       "answer": "a. The round opens on these terms, 2026-11-13, as proposed by the stage-keeper; the owner confirms or reopens it at review.",
       "answeredAt": "2026-11-13T13:58:32.291Z",
       "resolvedAt": "2026-11-13T13:58:32.291Z"
+    },
+    {
+      "id": 172,
+      "question": "ROUND OPEN, 2026-11-14: round I, a new-spec round on FBS-247, DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-19907-1 (full), AC-19907-2 (full), AC-19907-3 (full), AC-19907-4 (full), AC-19907-5 (full), AC-19907-6 (full). DEFINE HEAD: 7d3bcfd5. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-14T20:00:00Z. TIER: T1 (proposed; the maintainer confirms or resets it at review). NEED: a round whose strength record must name every touched criterion cannot take it in useful time when the criteria's Code Nodes are whole classes behind tests that drive a slow world: every criterion that passes the structural layer runs every mutant, and there is no way to record a structurally sound criterion whose bound tests are green as blocked by the stage-keeper's ruling with no mutant run. SCOPE: rcf audit test-strength --structural-only <acIds>, each id also in --acs, judges the named criteria's structural layer and runs their bound tests once unmutated, runs no mutant for them (their generated mutants count neither in the record nor toward --max-mutants) and records each per criterion as blocked with a reason code of its own and a reason naming the flag, while the other criteria are judged by mutation as today; a structural reason (no Code Node, unbound, no symbol-level Code Node, no mutable symbol, or any other the structural layer reports) stays a failure and is checked before the blocked branch returns; a red or timed-out unmutated bound test of a named criterion exits 2 with the existing lines and records nothing; an id outside --acs, or the flag with no id, is a one-line usage error, exit 2; the help names the flag and the exit 5 entry includes it; light Finalise accepts and prints such a record as any recorded blocked. The exit codes AC-20502-5 states hold. OUT OF SCOPE: a per-criterion forecast and --max-minutes; --sample; the reason code of the all-skipped case; record merge per criterion (--record replaces the record); a measured per-criterion budget. FBS-247 is minted notStarted in this pass. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-14T11:09:09.694Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-14, as proposed by the stage-keeper; the owner confirms or reopens it at review.",
+      "answeredAt": "2026-11-14T11:09:14.569Z",
+      "resolvedAt": "2026-11-14T11:09:14.569Z"
     }
   ]
 }
