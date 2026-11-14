@@ -6,6 +6,18 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.42.3] - 2026-11-14
+
+0.42.3 adds one mode to `rcf audit test-strength`. `--structural-only <acIds>` names criteria, each also in `--acs`, to judge on their structural layer and their unmutated bound tests alone: no mutant of them is run, and each is recorded blocked with its own reason code and a detail naming the flag. It is for criteria whose bound tests are too slow to mutate (each boots a whole stand-in world, say), where the choice was a mutation pass of many hours or no record at all. The other criteria are judged by mutation as before, and nothing that failed before can now read as blocked.
+
+### Added
+
+- **`rcf audit test-strength --structural-only <acIds>` (FBS-247, AC-19907-1).** A named criterion is judged on its structural layer, its bound tests run once unmutated, and no mutant of it is run; its generated mutants count neither in the record nor toward `--max-mutants`. It is recorded `blocked` with reason code `TEST_STRENGTH_STRUCTURAL_ONLY` and the detail "--structural-only: judged on the structural layer and the unmutated bound tests; no mutant was run". Exit 5 when a criterion is blocked and none fails, 4 beside a failure; the record is written under `--record` and names every criterion in `--acs`.
+- **The flag never hides a failure (AC-19907-2, AC-19907-3).** A named criterion with a structural or mutant-generation reason (no Code Node, unbound, no symbol-level Code Node, no mutable symbol, a bound test that imports the wrong thing) still fails with that reason and is never blocked. A red or timed-out unmutated bound test of a named criterion still ends the run with exit 2 and nothing recorded.
+- **Usage errors are one line (AC-19907-4).** An id in `--structural-only` that is not in `--acs`, the flag with no id, or the flag without `--acs`: exit 2, one stderr line naming the flag, nothing recorded.
+- **The help names the flag (AC-19907-5).** `rcf audit test-strength --help` and `rcf help audit test-strength` state what the flag judges, that no mutant is run and what is recorded; the exit 5 entry includes it.
+- **Light Finalise accepts the record (AC-19907-6).** `rcf build finalise` prints a criterion blocked by the flag as it does any recorded blocked ("recorded, not refused") and writes complete.
+
 ## [0.42.2] - 2026-11-13
 
 0.42.2 fixes two faults in `rcf audit test-strength`. A criterion whose bound tests all skip is recorded blocked instead of ending the run, and a bound test killed at the per-criterion budget is reported as a timeout instead of a red test. The help now says what the budget covers.
