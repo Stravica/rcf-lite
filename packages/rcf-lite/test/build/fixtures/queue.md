@@ -140,9 +140,9 @@ Generation strategy: dependencyFirst
 | 246 | 15 | FBS-244 | rcf audit test-strength: symbol-level Python Code Nodes judged through the host python3, and the Python def anchor | verified | verified |  |
 | 247 | 0 | FBS-245 | rcf define readiness: a frozen tree with nothing pending reads ready, and the tree line reports a fully built queue | verified | verified |  |
 | 248 | 0 | FBS-246 | rcf audit test-strength: a criterion whose bound tests all skip is recorded blocked; a budget timeout is named as a timeout | verified | verified |  |
-| 249 | 0 | FBS-247 | rcf audit test-strength: --structural-only judges a criterion's structure and unmutated tests, runs no mutant, and records it blocked | notStarted | actionable |  |
+| 249 | 0 | FBS-247 | rcf audit test-strength: --structural-only judges a criterion's structure and unmutated tests, runs no mutant, and records it blocked | inProgress | inProgress |  |
 
-Totals: items 137 | notStarted 59 | inProgress 2 | complete 34 | verified 42 | actionable 43 | blocked 16
+Totals: items 137 | notStarted 58 | inProgress 3 | complete 34 | verified 42 | actionable 42 | blocked 16
 
 Parallel-safe tiers (items in the same tier have no dependency between them and can build in parallel):
 - tier 0: FBS-001, FBS-013, FBS-014, FBS-015, FBS-016, FBS-018, FBS-020, FBS-021, FBS-022, FBS-023, FBS-024, FBS-035, FBS-036, FBS-037, FBS-038, FBS-039, FBS-040, FBS-041, FBS-061, FBS-062, FBS-063, FBS-070, FBS-080, FBS-090, FBS-100, FBS-101, FBS-110, FBS-120, FBS-130, FBS-140, FBS-150, FBS-160, FBS-165, FBS-170, FBS-171, FBS-172, FBS-173, FBS-174, FBS-186, FBS-187, FBS-188, FBS-189, FBS-180, FBS-190, FBS-192, FBS-194, FBS-203, FBS-204, FBS-207, FBS-209, FBS-210, FBS-218, FBS-231, FBS-232, FBS-243, FBS-245, FBS-246, FBS-247
