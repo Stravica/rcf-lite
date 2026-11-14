@@ -987,12 +987,12 @@ REQ-199      yes      AC-19901-1   yes                    external   verified  v
                       AC-19906-3   yes                    external   verified  verified    TC-313-ac-19906-3-a-budget-kill-in-the
                       AC-19906-4   yes                    external   verified  verified    TC-313-ac-19906-4-the-mutant-timeout-option
                       AC-19906-5   yes                    external   verified  verified    TC-313-ac-19906-5-a-broken-bound-test-pointer
-                      AC-19907-1   yes                    external   verified  inProgress  TC-314-ac-19907-1-a-criterion-named-in
-                      AC-19907-2   yes                    external   verified  inProgress  TC-314-ac-19907-2-a-criterion-named-in
-                      AC-19907-3   yes                    external   verified  inProgress  TC-314-ac-19907-3-a-red-or-timed-out-unmutated
-                      AC-19907-4   yes                    external   verified  inProgress  TC-314-ac-19907-4-an-id-in-structural-only
-                      AC-19907-5   yes                    external   verified  inProgress  TC-314-ac-19907-5-the-help-lists-structural
-                      AC-19907-6   yes                    external   verified  inProgress  TC-314-ac-19907-6-light-finalise-accepts-a
+                      AC-19907-1   yes                    external   verified  complete    TC-314-ac-19907-1-a-criterion-named-in
+                      AC-19907-2   yes                    external   verified  complete    TC-314-ac-19907-2-a-criterion-named-in
+                      AC-19907-3   yes                    external   verified  complete    TC-314-ac-19907-3-a-red-or-timed-out-unmutated
+                      AC-19907-4   yes                    external   verified  complete    TC-314-ac-19907-4-an-id-in-structural-only
+                      AC-19907-5   yes                    external   verified  complete    TC-314-ac-19907-5-the-help-lists-structural
+                      AC-19907-6   yes                    external   verified  complete    TC-314-ac-19907-6-light-finalise-accepts-a
 REQ-200      yes      AC-20001-1   yes                    external   verified  verified    TC-285-over-define-build-review-merge-pass-at-h
                       AC-20001-2   yes                    external   verified  verified    TC-285-with-no-review-commit-finalise-exits-4
                       AC-20001-3   yes                    external   verified  verified    TC-285-with-the-test-commit-absent-finalise
@@ -1228,4 +1228,4 @@ FBS-243  verified  verified
 FBS-244  verified  verified
 FBS-245  verified  verified
 FBS-246  verified  verified
-FBS-247  verified  inProgress
+FBS-247  verified  complete
