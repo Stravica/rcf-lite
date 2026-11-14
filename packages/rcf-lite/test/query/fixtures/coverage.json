@@ -12216,6 +12216,72 @@
           "verification": "external",
           "expectedEnd": "verified",
           "now": "verified"
+        },
+        {
+          "id": "AC-19907-1",
+          "covered": true,
+          "testCases": [
+            "TC-314-ac-19907-1-a-criterion-named-in"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19907-2",
+          "covered": true,
+          "testCases": [
+            "TC-314-ac-19907-2-a-criterion-named-in"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19907-3",
+          "covered": true,
+          "testCases": [
+            "TC-314-ac-19907-3-a-red-or-timed-out-unmutated"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19907-4",
+          "covered": true,
+          "testCases": [
+            "TC-314-ac-19907-4-an-id-in-structural-only"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19907-5",
+          "covered": true,
+          "testCases": [
+            "TC-314-ac-19907-5-the-help-lists-structural"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
+        },
+        {
+          "id": "AC-19907-6",
+          "covered": true,
+          "testCases": [
+            "TC-314-ac-19907-6-light-finalise-accepts-a"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "external",
+          "expectedEnd": "verified",
+          "now": "notStarted"
         }
       ]
     },
@@ -14007,6 +14073,11 @@
       "fbsId": "FBS-246",
       "expectedEnd": "verified",
       "now": "verified"
+    },
+    {
+      "fbsId": "FBS-247",
+      "expectedEnd": "verified",
+      "now": "notStarted"
     }
   ],
   "unresolvedTestPointers": []
