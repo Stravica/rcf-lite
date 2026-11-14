@@ -1,0 +1,234 @@
+{
+  "version": 1,
+  "head": "c7af7d0200403e21e552005cd07f601a604e04c0",
+  "scope": "acs",
+  "criteria": [
+    {
+      "acId": "AC-19907-1",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-1: --structural-only AC-101-1 runs its bound test once unmutated and no mutant, records it blocked with a reason naming the flag and a code of its own while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both, its mutants outside --max-mutants; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-1: --structural-only AC-101-1 runs its bound test once unmutated and no mutant, records it blocked with a reason naming the flag and a code of its own while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both, its mutants outside --max-mutants; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-1: --structural-only AC-101-1 runs its bound test once unmutated and no mutant, records it blocked with a reason naming the flag and a code of its own while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both, its mutants outside --max-mutants; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-1: --structural-only AC-101-1 runs its bound test once unmutated and no mutant, records it blocked with a reason naming the flag and a code of its own while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both, its mutants outside --max-mutants; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19907-2",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-2: a criterion named in --structural-only with no Code Node, no bound test, only a file-level Code Node on a source file, a Code Node with nothing to mutate, or a structural finding is recorded as a failure with that reason, never as blocked"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-2: a criterion named in --structural-only with no Code Node, no bound test, only a file-level Code Node on a source file, a Code Node with nothing to mutate, or a structural finding is recorded as a failure with that reason, never as blocked"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19907-3",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-3: a red or timed-out unmutated bound test of a criterion named in --structural-only ends the run with exit 2, nothing recorded and the existing red or timeout line"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-3: a red or timed-out unmutated bound test of a criterion named in --structural-only ends the run with exit 2, nothing recorded and the existing red or timeout line"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19907-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-4: an id in --structural-only that is not in --acs, or the flag with no id, exits 2 with one stderr line naming the id and the flag, and records nothing"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-4: an id in --structural-only that is not in --acs, or the flag with no id, exits 2 with one stderr line naming the id and the flag, and records nothing"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19907-5",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-5: rcf audit test-strength --help and rcf help audit test-strength list --structural-only <acIds>, state that it judges the structural layer and the unmutated bound tests of the named criteria, runs no mutant for them and records each as blocked with the flag as the reason, and name it under exit 5"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-5: rcf audit test-strength --help and rcf help audit test-strength list --structural-only <acIds>, state that it judges the structural layer and the unmutated bound tests of the named criteria, runs no mutant for them and records each as blocked with the flag as the reason, and name it under exit 5"
+          ]
+        },
+        {
+          "symbol": "src/cli/test-strength.js#main",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-19907-6",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "stubToThrow",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-6: light Finalise accepts a record whose criterion --structural-only blocked, writes complete and prints \"test-strength at <H7>: AC-101-1 blocked: <reason>; recorded, not refused\" with the reason naming the flag"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "noOp",
+          "result": "killed",
+          "killedBy": [
+            "test/cli/audit-test-strength-structural-only.test.js::AC-19907-6: light Finalise accepts a record whose criterion --structural-only blocked, writes complete and prints \"test-strength at <H7>: AC-101-1 blocked: <reason>; recorded, not refused\" with the reason naming the flag"
+          ]
+        },
+        {
+          "symbol": "src/audit/test-strength/index.js#auditTestStrength",
+          "operator": "callRemoval",
+          "result": "notApplicable",
+          "killedBy": []
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "pass",
+  "totals": {
+    "criteria": 6,
+    "structuralPassed": 6,
+    "mutants": 21,
+    "killed": 14,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 7,
+    "blocked": 0
+  },
+  "wallMs": 28955,
+  "node": "v24.15.0"
+}
