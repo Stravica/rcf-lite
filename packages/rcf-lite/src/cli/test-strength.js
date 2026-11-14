@@ -6,7 +6,8 @@
 // (src/audit/test-strength/).
 //
 // Exit table: 0 pass, 4 fail or a --record refusal, 5 blocked (a
-// criterion the audit cannot read, none failing), 2 usage or a whole-run
+// criterion the audit cannot read, or one --structural-only names, none
+// failing), 2 usage or a whole-run
 // failure (no rcf/test-strength.json or a malformed one, an unreadable
 // entry point, no scope, an unknown id, a file-level Code Node on a code
 // file, too many mutants, a git ls-tree of HEAD that fails, a bound test
@@ -30,12 +31,13 @@ const OPTION_SPEC = {
   jobs: { type: 'string' },
   'mutant-timeout': { type: 'string' },
   'max-mutants': { type: 'string' },
+  'structural-only': { type: 'string' },
   help: { type: 'boolean' },
 };
 
 export const HELP = `Usage: rcf audit test-strength [--acs <AC id>[,...] | --fbs <id>[,...]] [--record]
                                [--json] [--jobs <n>] [--mutant-timeout <seconds>]
-                               [--max-mutants <n>]
+                               [--max-mutants <n>] [--structural-only <acIds>]
 
 Prove that the touched criteria's bound tests are real, in two layers.
 Scope: --acs, else the touchedAcIds of the newest REVIEW verdict
@@ -241,7 +243,14 @@ stderr line names the reason, "test-strength: column for
 <file>:<line> is node's display column (position check withheld:
 <reason>)": a documented degraded state, never a silent one.
 A blocked criterion is not checked, gets no
-mutant and counts in no total but criteria and blocked. An entry point
+mutant and counts in no total but criteria and blocked. A criterion
+named in --structural-only is checked and its bound tests run once
+unmutated, but it runs no mutant and its generated mutants count
+neither in the record nor toward --max-mutants. With no reason from
+the structural check or from building its mutants, and its bound tests
+green unmutated, it is blocked (reason "TEST_STRENGTH_STRUCTURAL_ONLY",
+a detail naming the flag); a reason makes it fail as without the flag,
+and a red or timed-out unmutated run ends the run as without it. An entry point
 the views cannot read exits 2 "entry point unreadable".
 
 Prints one line (none under --json):
@@ -286,6 +295,11 @@ Options:
                              tests together, in the unmutated run and in
                              each mutant run (default ${DEFAULT_MUTANT_TIMEOUT_S})
   --max-mutants <n>          Refuse a scope with more mutants (default ${DEFAULT_MAX_MUTANTS})
+  --structural-only <acIds>  Of the criteria in --acs (comma-separated),
+                             judges the structural layer and the unmutated
+                             bound tests of the named criteria, runs no
+                             mutant for them and records each as blocked
+                             with the flag as the reason
   --help                     Print this help
 
 --record needs a REVIEW verdict reachable from HEAD whatever the scope
@@ -302,18 +316,22 @@ Exit codes (precedence 2 over 4 over 5 over 0):
   0  every criterion passes
   4  a criterion fails, or --record refused
   5  a criterion is blocked (an unreadable bound test or Code Node
-     file, or bound tests that all skipped) and none fails
+     file, or bound tests that all skipped) and none fails; or a
+     criterion is blocked by --structural-only and none fails
   2  usage or a whole-run failure: no or malformed
      rcf/test-strength.json, an unreadable entry point, no scope, an
      unknown id, a file-level Code Node on a code file, more mutants
      than --max-mutants, a git ls-tree of HEAD that fails, a bound test
      not committed, a red or timed-out unmutated run, a bound-test
      pointer that matches no test, or more than one, a runner that
-     cannot run, a bound test run that wrote in the project, or
-     --record with no REVIEW verdict
+     cannot run, a bound test run that wrote in the project,
+     --record with no REVIEW verdict, or --structural-only with no
+     id, without --acs or naming an id not in --acs
   3  the chain does not load
   130, 143  SIGINT, SIGTERM during the run
 `;
+
+const STRUCTURAL_ONLY_NO_ID = '--structural-only needs one or more AC ids (comma-separated)';
 
 const ids = (v) => (typeof v === 'string' ? v.split(',').map((s) => s.trim()).filter(Boolean) : null);
 
@@ -339,12 +357,22 @@ export async function main(argv, deps = {}) {
   try {
     ({ values: flags } = parseArgs({ args: argv, options: OPTION_SPEC, allowPositionals: false, strict: true }));
   } catch (err) {
+    // AC-19907-4: the flag with no id is one line, with no help after it.
+    if (/--structural-only\b/.test(err.message)) return usage(STRUCTURAL_ONLY_NO_ID);
     stderr.write(`[error] usage ${err.message}\n`);
     stderr.write(HELP);
     return 2;
   }
   if (flags.help) { stdout.write(HELP); return 0; }
   if (flags.acs !== undefined && flags.fbs !== undefined) return usage('--acs and --fbs are alternatives; pass one');
+  const structuralOnly = ids(flags['structural-only']);
+  if (structuralOnly) {
+    if (!structuralOnly.length) return usage(STRUCTURAL_ONLY_NO_ID);
+    if (flags.acs === undefined) return usage('--structural-only needs --acs naming each of its criteria');
+    const acs = new Set(ids(flags.acs));
+    const outside = structuralOnly.filter((id) => !acs.has(id));
+    if (outside.length) return usage(`--structural-only names ${outside.join(', ')}, not in --acs`);
+  }
   const numbers = {};
   for (const [flag, key, integer, fallback] of [
     ['jobs', 'jobs', true, defaultJobs()],
@@ -368,7 +396,7 @@ export async function main(argv, deps = {}) {
     return 3;
   }
   const result = await auditTestStrength({
-    projectRoot, tree, acs: ids(flags.acs), fbs: ids(flags.fbs), record: Boolean(flags.record), ...numbers, deps,
+    projectRoot, tree, acs: ids(flags.acs), fbs: ids(flags.fbs), record: Boolean(flags.record), structuralOnly, ...numbers, deps,
   });
   for (const line of result.err) stderr.write(`${line}\n`);
   if (flags.json && result.report) stdout.write(`${JSON.stringify(result.report, null, 2)}\n`);

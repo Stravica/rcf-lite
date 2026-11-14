@@ -1,0 +1,55 @@
+{
+  "createdAt": "2026-11-14T11:07:50.176Z",
+  "updatedAt": "2026-11-14T11:08:22.499Z",
+  "asA": "maintainer whose round records test strength for every touched criterion",
+  "iWant": "rcf audit test-strength --structural-only <acIds> to judge the structural layer and the unmutated bound tests of the criteria I name, to run no mutant for them, and to record each as blocked with the flag as the reason",
+  "soThat": "a round whose strength record must name every touched criterion can take it in useful time when a criterion's mutants cannot run in that time, and a structural failure or a red bound test is never hidden by the flag",
+  "description": "The 0.42.3 round: a criterion named in --structural-only (and in --acs) is judged on its structural layer and its bound tests run once unmutated; no mutant of it is run, its generated mutants count neither in the record nor toward --max-mutants, and it is recorded per criterion as blocked with a reason code of its own and a reason naming the flag, while the other criteria are judged by mutation as today. A structural reason (no Code Node, unbound, no symbol-level Code Node, no mutable symbol, or any reason the structural layer reports) stays a failure; a red or timed-out unmutated run still exits 2 with the existing lines; an id outside --acs, or the flag with no id, is a usage error; the help names the flag; and light Finalise accepts and prints the record as it does any recorded blocked. The exit codes AC-20502-5 states are unchanged.",
+  "tacIds": [
+    "TAC-4155"
+  ],
+  "usId": "US-19907",
+  "prdId": "PRD-001",
+  "reqId": "REQ-199",
+  "version": "0.1.0",
+  "status": "draft",
+  "title": "Structural-only criteria in the test-strength audit",
+  "acceptanceCriteria": [
+    {
+      "id": "AC-19907-1",
+      "description": "[happy] Given a fixture project where AC-101-1 and AC-101-2 each have a symbol-level Code Node and a passing bound test, at a REVIEW verdict for H touching both, when `rcf audit test-strength --acs AC-101-1,AC-101-2 --structural-only AC-101-1 --record` runs, then AC-101-1's structural layer is judged, its bound test runs once unmutated, no mutant of it is run, and it is recorded per criterion as blocked: its entry in `rcf/verdicts/<H12>/test-strength.json` carries `result` \"blocked\", `blocked` true and `mutants` [], a `reason` code of its own (not TEST_STRENGTH_UNSUPPORTED), and its reason and detail as `rcf build finalise` prints them (`<reason>: <detail>`) name the flag `--structural-only`; AC-101-2 is judged by mutation as today (pass); the run exits 5 and stdout is the BLOCKED line AC-19904-7 rules, naming AC-101-1 with its bound test's file (\"test-strength: BLOCKED 2 criteria at <h7>: structural 1/1, mutants killed <x>/<y> (timeout <t>, notApplicable <n>, blocked 1): AC-101-1 (<file>)\"); the record names both criteria, its `result` reads \"blocked\", its `totals.blocked` 1, and AC-101-1 contributes zero to every mutant count. The mutants AC-101-1's Code Nodes would generate count toward neither the record nor `--max-mutants`: a run whose `--max-mutants` is below AC-101-1's generated mutants alone, and not below the judged criteria's, is not refused. Given also AC-101-3 bound to a test one of whose mutants survives, the same run over AC-101-1,AC-101-2,AC-101-3 exits 4 with the FAIL line naming AC-101-3's finding and ending \", blocked 1: AC-101-1 (<file>)\", and the record names all three, AC-101-1 blocked, AC-101-2 pass and AC-101-3 fail. The blocked row's `structural` field is not pinned.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19907-2",
+      "description": "[must-not] Given criteria each named in `--structural-only` and in `--acs`, at a REVIEW verdict for H touching them, one with no Code Node, one with no bound test, one whose only Code Node is file-level on a JavaScript source file, one whose Code Node names a symbol with nothing to mutate (a class with no methods), and one whose bound test imports a product file that is neither the app entry nor the harness, when `rcf audit test-strength --acs <ids> --structural-only <ids> --record` runs, then each is recorded as a failure with the reason the audit gives it without the flag, never as blocked: the run exits 4, the FAIL line names \"<id> no Code Node\", \"<id> unbound\", \"<id> no symbol-level Code Node\", \"<id> no mutable symbol <path#symbol>\" and \"<id> imports <path> (not the app entry or the harness)\" and carries no \", blocked\" clause, each entry in the record reads `result` \"fail\" and is not blocked, and the record's `result` reads \"fail\" and its `totals.blocked` 0. So for any other reason the structural layer reports: the structural reasons, and those found in generating a criterion's mutants (no symbol-level Code Node, no mutable symbol), are checked before a criterion is recorded blocked by the flag.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19907-3",
+      "description": "[failure] Given AC-101-1 named in `--structural-only` beside AC-101-2, at a REVIEW verdict for H touching both, when `rcf audit test-strength --acs AC-101-1,AC-101-2 --structural-only AC-101-1 --record` runs and AC-101-1's bound test is red unmutated, then the run ends as a red unmutated run does without the flag: exit 2, no result line, `rcf/verdicts/<H12>/test-strength.json` not written, and stderr holds the line \"test-strength: the unmutated run is red for AC-101-1: <file>::<name> fails under runner <argv>; no mutant was run\". When instead AC-101-1's bound test outlives `--mutant-timeout` (one test waiting about 8 seconds under a budget of 3), the run exits 2 the same way, nothing recorded, with one stderr line, as AC-19906-3 names it, holding \"timed out\", the budget \"3 s\", the flag \"--mutant-timeout\", the test reached as `<file>::<name>`, \"all of a criterion's bound tests together\" and \"no mutant was run\"; no stderr line reads \"fails under runner\".",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19907-4",
+      "description": "[failure] When `rcf audit test-strength` runs with `--structural-only` naming an id that is not in `--acs` (`--acs AC-101-2 --structural-only AC-101-1`), or with `--structural-only` and no id (the flag last, or `--structural-only=`), then it is a usage error: exit 2, the CLI's usage exit code; stderr is one line, naming the flag `--structural-only` and, for an id outside `--acs`, that id, with no help text after it; there is no result line, and under `--record` nothing is recorded.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19907-5",
+      "description": "[happy] `rcf audit test-strength --help` and `rcf help audit test-strength` each exit 0, list the option `--structural-only <acIds>` and, read with the help's line wrapping folded to single spaces, state that it \"judges the structural layer and the unmutated bound tests of the named criteria\", \"runs no mutant for them\" and \"records each as blocked with the flag as the reason\"; the entry for exit code 5 names `--structural-only` in a clause or sentence of its own beside AC-19906-4's sentence, which stands verbatim.",
+      "testable": true,
+      "verification": "external"
+    },
+    {
+      "id": "AC-19907-6",
+      "description": "[must-not] Given a round with DEFINE:, BUILD: (H), a REVIEW: MERGE/PASS at H touching AC-101-1 and AC-101-2 and a TEST: PASS at H whose test-strength record at H is the one `rcf audit test-strength --acs AC-101-1,AC-101-2 --structural-only AC-101-1 --record` wrote (AC-101-1 blocked by the flag, AC-101-2 pass), when `rcf build finalise FBS-001 --ci-run <ref>` runs, then light Finalise accepts the record as it does any recorded blocked: it writes `complete` and exits 0 with the complete line, and its stdout carries one test-strength line, for AC-101-1 only, \"test-strength at <H7>: AC-101-1 blocked: <reason>; recorded, not refused\", where <reason> is the record's reason and detail as `<reason>: <detail>`, naming the flag.",
+      "testable": true,
+      "verification": "external"
+    }
+  ]
+}

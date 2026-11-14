@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.42.2"
+latest: "0.42.3"
 releases:
+  - version: "0.42.3"
+    date: "2026-11-14"
+    breaking: false
+    headlines:
+      - "rcf-lite 0.42.3 adds --structural-only <acIds> to rcf audit test-strength: a named criterion, which must also be in --acs, is judged on its structural layer and its unmutated bound tests alone, no mutant of it is run, and it is recorded blocked with its own reason code and a detail naming the flag, exit 5 when nothing fails and 4 beside a failure."
+      - "The flag is for criteria whose bound tests are too slow to mutate; it never hides a failure: a structural or mutant-generation reason still fails the criterion, a red or timed-out unmutated bound test still exits 2 with nothing recorded, and rcf build finalise accepts and prints the record as it does any recorded blocked."
+      - "No rcf init rerun or chain migration is needed: the managed agent-instructions block is unchanged since 0.42.0, rcf-lite adds no dependency and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged."
+    minAgentAction: null
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.42.2"
     date: "2026-11-13"
     breaking: false

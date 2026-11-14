@@ -1,0 +1,62 @@
+{
+  "createdAt": "2026-11-14T11:08:46.679Z",
+  "updatedAt": "2026-11-14T11:08:59.656Z",
+  "purpose": "Each criterion of US-19907 driven through the app entry, bin/rcf.js: rcf audit test-strength run in git fixture projects made by rcf init (a small app, its own harness, rcf/test-strength.json, Code Nodes and bound test cases, a REVIEW verdict where --record runs) with --structural-only naming a criterion whose one bound test counts its runs, criteria with each structural reason, a red and a timed-out bound test, a malformed flag, and the help; and rcf build finalise over a round whose record that run wrote.",
+  "testLevel": "e2e",
+  "acIds": [
+    "AC-19907-1",
+    "AC-19907-2",
+    "AC-19907-3",
+    "AC-19907-4",
+    "AC-19907-5",
+    "AC-19907-6"
+  ],
+  "id": "TS-314",
+  "usId": "US-19907",
+  "title": "Structural-only criteria: rcf audit test-strength and rcf build finalise through bin/rcf.js over git fixture projects, and its help",
+  "testCases": [
+    {
+      "id": "TC-314-ac-19907-1-a-criterion-named-in",
+      "acId": "AC-19907-1",
+      "description": "AC-19907-1: a criterion named in --structural-only runs its bound test once unmutated and no mutant and is recorded blocked with the flag's own reason code beside a judged one, exit 5 with the BLOCKED line, its mutants outside --max-mutants; with a third criterion whose mutant survives, exit 4 and the record names all three",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-structural-only.test.js::AC-19907-1: --structural-only AC-101-1 runs its bound test once unmutated and no mutant, records it blocked with a reason naming the flag and a code of its own while AC-101-2 is judged, exit 5 with the BLOCKED line and the record naming both, its mutants outside --max-mutants; with AC-101-3 whose mutant survives, exit 4 and the record names all three"
+    },
+    {
+      "id": "TC-314-ac-19907-2-a-criterion-named-in",
+      "acId": "AC-19907-2",
+      "description": "AC-19907-2: a criterion named in --structural-only with no Code Node, no bound test, no symbol-level Code Node, nothing to mutate or a structural finding is recorded a failure with that reason, never blocked",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-structural-only.test.js::AC-19907-2: a criterion named in --structural-only with no Code Node, no bound test, only a file-level Code Node on a source file, a Code Node with nothing to mutate, or a structural finding is recorded as a failure with that reason, never as blocked"
+    },
+    {
+      "id": "TC-314-ac-19907-3-a-red-or-timed-out-unmutated",
+      "acId": "AC-19907-3",
+      "description": "AC-19907-3: a red or timed-out unmutated bound test of a criterion named in --structural-only exits 2 with nothing recorded and the existing red or timeout line",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-structural-only.test.js::AC-19907-3: a red or timed-out unmutated bound test of a criterion named in --structural-only ends the run with exit 2, nothing recorded and the existing red or timeout line"
+    },
+    {
+      "id": "TC-314-ac-19907-4-an-id-in-structural-only",
+      "acId": "AC-19907-4",
+      "description": "AC-19907-4: an id in --structural-only outside --acs, or the flag with no id, exits 2 with one stderr line naming the flag and the id, nothing recorded",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-structural-only.test.js::AC-19907-4: an id in --structural-only that is not in --acs, or the flag with no id, exits 2 with one stderr line naming the id and the flag, and records nothing"
+    },
+    {
+      "id": "TC-314-ac-19907-5-the-help-lists-structural",
+      "acId": "AC-19907-5",
+      "description": "AC-19907-5: the help lists --structural-only <acIds>, states what it judges, that it runs no mutant and records blocked with the flag as the reason, and names it under exit 5",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-structural-only.test.js::AC-19907-5: rcf audit test-strength --help and rcf help audit test-strength list --structural-only <acIds>, state that it judges the structural layer and the unmutated bound tests of the named criteria, runs no mutant for them and records each as blocked with the flag as the reason, and name it under exit 5"
+    },
+    {
+      "id": "TC-314-ac-19907-6-light-finalise-accepts-a",
+      "acId": "AC-19907-6",
+      "description": "AC-19907-6: light Finalise accepts a record whose criterion --structural-only blocked, writes complete and prints the blocked line with the reason naming the flag",
+      "status": "pending",
+      "testPointer": "test/cli/audit-test-strength-structural-only.test.js::AC-19907-6: light Finalise accepts a record whose criterion --structural-only blocked, writes complete and prints \"test-strength at <H7>: AC-101-1 blocked: <reason>; recorded, not refused\" with the reason naming the flag"
+    }
+  ],
+  "status": "draft"
+}

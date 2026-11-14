@@ -1,0 +1,52 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "c7af7d0200403e21e552005cd07f601a604e04c0",
+  "fbsIds": [
+    "FBS-247"
+  ],
+  "touchedAcIds": [
+    "AC-19907-1",
+    "AC-19907-2",
+    "AC-19907-3",
+    "AC-19907-4",
+    "AC-19907-5",
+    "AC-19907-6"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "spec",
+      "acId": "AC-19907-4",
+      "text": "note, carried: P3 src/cli/test-strength.js:361 matches /--structural-only\\b/ on any parse error, so an unknown option that starts with the flag name (for example --structural-only-x) prints the needs-one-or-more-AC-ids line instead of the unknown-option line; still exit 2, nothing recorded, no run proceeds; does not block: no buyer harm and every shape of the criterion is met"
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 --structural-only given twice keeps only the last value (src/cli/test-strength.js:34, no multiple), so the ids of the earlier flag are judged by mutation; the stricter path, no criterion hidden; does not block"
+    },
+    {
+      "id": "F-3",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 the new constants STRUCTURAL_ONLY_REASON (src/audit/test-strength/index.js:55) and STRUCTURAL_ONLY_NO_ID (src/cli/test-strength.js:334) and the changed OPTION_SPEC (:26-36) have no Code Node, and HELP (CN-1084) changed and gained no criterion; the round criteria sit on CN-968 and CN-1039, the functions that use them; not one of the three classes"
+    },
+    {
+      "id": "F-4",
+      "locus": "spec",
+      "acId": "AC-19907-1",
+      "text": "note, carried: P3 a named criterion whose bound tests all skip is blocked by the existing skipped path (src/audit/test-strength/index.js:427-433 runs before :435-442) and keeps TEST_STRENGTH_UNSUPPORTED rather than the flag code; the builder default the stage-keeper let stand; does not block"
+    },
+    {
+      "id": "F-5",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 absent by ruling: CHANGELOG, version 0.42.2 and the releases feed unchanged (Finalise); FBS-247 notStarted at this head (the stage-keeper marks it before Finalise); decision 172 tier T1 proposed (the stage-keeper confirms it); no guard for unit-bound criteria, the AC-20502-1 wording and the flag without --acs refused rather than scoped stay on the candidate list"
+    }
+  ],
+  "recordedBy": "reviewer, PR 460 merge-gate REVIEW",
+  "recordedAt": "2026-11-14T15:39:14.443Z"
+}

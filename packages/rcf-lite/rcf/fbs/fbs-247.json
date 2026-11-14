@@ -1,0 +1,28 @@
+{
+  "createdAt": "2026-11-14T11:08:37.628Z",
+  "updatedAt": "2026-11-14T16:28:24.472Z",
+  "summary": "rcf audit test-strength --structural-only <acIds> judges the structural layer and the unmutated bound tests of the named criteria, each of which must be in --acs, runs no mutant for them, and records each per criterion as blocked with a reason code of its own and a reason naming the flag, while the other criteria are judged by mutation as today; the named criteria's generated mutants count neither in the record nor toward --max-mutants. A structural reason (no Code Node, unbound, no symbol-level Code Node, no mutable symbol, or any reason the structural layer reports) stays a failure; a red or timed-out unmutated bound test of a named criterion exits 2 with the existing lines and records nothing; an id outside --acs, or the flag with no id, is a one-line usage error (exit 2); the help names the flag beside the exit 5 sentence; light Finalise accepts and prints such a record as any recorded blocked. The exit codes AC-20502-5 states hold.",
+  "approach": "src/cli/test-strength.js: the --structural-only option in the option spec, its ids checked against --acs (an id outside them, or no id, one [error] usage line naming the flag and the id, exit 2, with no help text after it); the option text, the Blocked section and the exit 5 entry of the help. src/audit/test-strength/index.js: a structuralOnly set beside acs; a named criterion is judged structurally and has its mutants generated as today, so its structural and generation reasons (no Code Node, unbound, no symbol-level Code Node, no mutable symbol) stay a failure; one that passes keeps its mutants out of the --max-mutants total and the record and has its bound tests run in the unmutated pass (proved), so a red or timed-out run ends the run with the existing lines; after the unmutated pass it is made blocked (result blocked, blocked true, mutants [], zero in every mutant count, a reason code of its own and a detail naming --structural-only, the bound test files after its id on the BLOCKED and FAIL lines), and the blocked row is returned with that reason rather than TEST_STRENGTH_UNSUPPORTED. src/finalise/light.js is expected to need no change.",
+  "deliverables": [
+    "src/cli/test-strength.js: the --structural-only option, its usage errors, the option text and the exit 5 entry of the help (builder)",
+    "src/audit/test-strength/index.js: the named criteria judged structurally and run unmutated, their mutants never run nor counted, and recorded blocked with the flag's reason code (builder)",
+    "Code Nodes for every criterion of this spec (builder)",
+    "The goldens the round moves (queue, bundle, coverage and the phase-3-6 baseline over the dogfood fixture, the MCP parity coverage golden and the layout-regression baseline), regenerated through their declared generators at BUILD and again at FINALISE (builder, then the stage-keeper)",
+    "The 0.42.3 CHANGELOG section and the releases feed entry (stage-keeper, at FINALISE)"
+  ],
+  "dependsOnFbsIds": [],
+  "executionStatus": "complete",
+  "acIds": [
+    "AC-19907-1",
+    "AC-19907-2",
+    "AC-19907-3",
+    "AC-19907-4",
+    "AC-19907-5",
+    "AC-19907-6"
+  ],
+  "fbsId": "FBS-247",
+  "prdId": "PRD-001",
+  "bsId": "BS-001",
+  "buildOrder": 249,
+  "title": "rcf audit test-strength: --structural-only judges a criterion's structure and unmutated tests, runs no mutant, and records it blocked"
+}
