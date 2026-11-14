@@ -51,6 +51,8 @@ const FINALISE_CLASSES = new Set(Object.entries(CLASS_OWNERS).filter(([, owners]
 const TEST_CLASSES = new Set(['rcfTest', 'hygieneTest']);
 const s7 = (sha) => String(sha ?? '').slice(0, 7);
 const BLOCKED_REASON = 'TEST_STRENGTH_UNSUPPORTED';
+// AC-19907-1: the reason code of a criterion --structural-only blocked.
+const STRUCTURAL_ONLY_REASON = 'TEST_STRENGTH_STRUCTURAL_ONLY';
 // AC-19904-6: a bound file with no runners entry that likely needs one.
 const HINT_EXT = /\.(?:ts|mts|cts|tsx|jsx|vue)$/;
 const byId = (a, b) => a.localeCompare(b, 'en', { numeric: true });
@@ -164,11 +166,11 @@ function keptLine({ link, package: pkg, entry, exports }, head) {
  * Resolve the scope, run both layers and (with record) write the report.
  *
  * @param {{ projectRoot: string, tree: object, acs?: string[]|null, fbs?: string[]|null, record?: boolean,
- *   jobs?: number, mutantTimeoutS?: number, maxMutants?: number, deps?: object }} opts
+ *   structuralOnly?: string[]|null, jobs?: number, mutantTimeoutS?: number, maxMutants?: number, deps?: object }} opts
  * @returns {Promise<{ code: number, out: string|null, err: string[], report: object|null }>}
  */
 export async function auditTestStrength({
-  projectRoot, tree, acs = null, fbs = null, record = false,
+  projectRoot, tree, acs = null, fbs = null, record = false, structuralOnly = null,
   jobs = defaultJobs(), mutantTimeoutS = DEFAULT_MUTANT_TIMEOUT_S, maxMutants = DEFAULT_MAX_MUTANTS, deps = {},
 }) {
   const t0 = Date.now();
@@ -325,13 +327,23 @@ export async function auditTestStrength({
     }
     if (!c.tests.length) c.mutants = [];
   }
+  // AC-19907-1, AC-19907-2: a criterion named in --structural-only runs no
+  // mutant and its generated mutants count nowhere; one with a structural
+  // or generation reason stays the failure it is, and one with none has
+  // its bound tests run unmutated, then is blocked by the flag.
+  const named = new Set(structuralOnly ?? []);
+  for (const c of criteria) {
+    if (!named.has(c.acId) || c.blocked) continue;
+    c.mutants = [];
+    if (!c.reasons.length) c.structuralOnly = true;
+  }
 
   let total = criteria.reduce((n, c) => n + c.mutants.length, 0);
   if (total > maxMutants) return fail(2, `test-strength: ${total} mutants exceed --max-mutants ${maxMutants}; narrow the scope`);
 
   // The unmutated run (RC-45): the bound tests of each criterion with a
   // mutant to run, once, before any mutant; a red one stops the run.
-  const proved = criteria.filter((c) => c.mutants.some((m) => !m.result));
+  const proved = criteria.filter((c) => c.structuralOnly || c.mutants.some((m) => !m.result));
   // The backstop (AC-19903-5, AC-19903-6; the stage-keeper's design
   // decision after re-Review 4): the forbidden roots, resolved by real path
   // before any bound test runs, read again after them on every exit, in
@@ -419,6 +431,15 @@ export async function auditTestStrength({
         total -= c.mutants.length;
         c.mutants = [];
       }
+      // AC-19907-1: a structural-only criterion green unmutated is blocked by the flag.
+      for (const c of criteria) {
+        if (!c.structuralOnly || c.blocked) continue;
+        c.blocked = {
+          files: [...new Set(c.tests.map((t) => t.file))],
+          reason: STRUCTURAL_ONLY_REASON,
+          detail: '--structural-only: judged on the structural layer and the unmutated bound tests; no mutant was run',
+        };
+      }
       const runnable = criteria.flatMap((c) => c.mutants.filter((m) => !m.result).map((m) => Object.assign(m, { tests: c.tests })));
       try {
         run = await runMutants({ git, mutants: runnable, jobs, timeoutMs: mutantTimeoutS * 1000, ...opts });
@@ -453,7 +474,7 @@ export async function auditTestStrength({
   const out = criteria.map((c) => {
     if (c.blocked) {
       totals.blocked += 1;
-      return { acId: c.acId, structural: c.structural, mutants: [], result: 'blocked', blocked: true, reason: BLOCKED_REASON, detail: c.blocked.detail };
+      return { acId: c.acId, structural: c.structural, mutants: [], result: 'blocked', blocked: true, reason: c.blocked.reason ?? BLOCKED_REASON, detail: c.blocked.detail };
     }
     if (c.structural.result === 'pass') totals.structuralPassed += 1;
     for (const m of c.mutants) {
