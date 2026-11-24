@@ -1,6 +1,6 @@
 {
   "createdAt": "2026-11-24T15:52:17.853Z",
-  "updatedAt": "2026-11-24T20:05:29.169Z",
+  "updatedAt": "2026-11-24T20:06:18.915Z",
   "summary": "Rule 2 of the twelve rules goes neutral in the shipped guidance: in RULE 13 of the managed agent-instructions block, its harness-template mirror and the build-cycle guidance it reads \"2. Criteria for what must be proven. A criterion is written for anything the project needs provably tested. Everything else the product needs is the builder's hygiene tests, and a hygiene test is never bound to a criterion.\", and names no promise and no buyer. rcf guidance managed/agent-instructions-block, rcf init, rcf doctor --fix, rcf guidance build-cycle and rcf://docs/build-cycle carry it. A project that wants the narrower rule keeps it in its own rules outside the managed markers. No other rule's wording moves; the tool gets no profile or opt-in mechanism; no code enforces rule 2.",
   "approach": "guidance/managed/agent-instructions-block.md: rule 2's words under RULE 13, the block keeping its own formatting (bold, line breaks) as the neighbouring rules have it; guidance/build-cycle.md: rule 2's line in its existing one-line form. Then node scripts/gen-managed-artefacts.mjs regenerates guidance/managed/agent-instructions-block.hash and the fragment of guidance/harness-template.md (a BUILD step stated as such; the script is not a declared generator). rcf doctor reports exit 3 on a project's earlier block until rcf doctor --fix, as today; src/setup/managed-block.js, src/cli/doctor.js and src/query/coverage.js are expected to need no change.",
   "deliverables": [
@@ -18,7 +18,7 @@
   "prdId": "PRD-001",
   "bsId": "BS-001",
   "buildOrder": 250,
-  "executionStatus": "inProgress",
+  "executionStatus": "complete",
   "title": "rcf-lite 0.43.0: rule 2 of the twelve rules goes neutral in the managed block, the harness template and the build cycle",
   "dependsOnFbsIds": []
 }
