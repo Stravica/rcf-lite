@@ -9,8 +9,8 @@
   "totals": {
     "items": 138,
     "notStarted": 58,
-    "inProgress": 3,
-    "complete": 35,
+    "inProgress": 2,
+    "complete": 36,
     "verified": 42,
     "actionable": 42,
     "blocked": 16
@@ -1839,9 +1839,9 @@
       "buildOrder": 250,
       "tier": 0,
       "title": "rcf-lite 0.43.0: rule 2 of the twelve rules goes neutral in the managed block, the harness template and the build cycle",
-      "executionStatus": "inProgress",
+      "executionStatus": "complete",
       "dependsOnFbsIds": [],
-      "state": "inProgress",
+      "state": "complete",
       "blockedBy": []
     }
   ],
