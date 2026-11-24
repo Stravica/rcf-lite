@@ -1085,11 +1085,11 @@ REQ-205      yes      AC-20501-1   yes                    testOnly   complete  c
                       AC-20503-1   retired (AC-20503-4)   testOnly   -         retired     -
                       AC-20503-2   yes                    testOnly   complete  complete    TC-309-rcf-init-in-a-fresh-directory-writes-the
                       AC-20503-3   yes                    testOnly   complete  complete    TC-309-on-a-project-whose-claude-md-carries-the
-                      AC-20503-4   yes                    testOnly   complete  notStarted  TC-309-managed-block-rule-2-neutral
+                      AC-20503-4   yes                    testOnly   complete  inProgress  TC-309-managed-block-rule-2-neutral
                       AC-20504-1   retired (AC-20504-4)   testOnly   -         retired     -
                       AC-20504-2   yes                    testOnly   complete  complete    TC-310-the-runbook-rcf-build-bundle-prints-in
                       AC-20504-3   yes                    testOnly   complete  complete    TC-310-rcf-guidance-overview-keeps-the-tool
-                      AC-20504-4   yes                    testOnly   complete  notStarted  TC-310-build-cycle-rule-2-neutral
+                      AC-20504-4   yes                    testOnly   complete  inProgress  TC-310-build-cycle-rule-2-neutral
 
 Spec end state (information, never a gap):
 Spec     end       now
@@ -1231,4 +1231,4 @@ FBS-244  verified  verified
 FBS-245  verified  verified
 FBS-246  verified  verified
 FBS-247  verified  complete
-FBS-248  complete  notStarted
+FBS-248  complete  inProgress

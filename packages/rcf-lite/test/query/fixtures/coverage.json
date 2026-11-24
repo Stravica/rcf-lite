@@ -13366,7 +13366,7 @@
           "unresolvedTestCases": [],
           "verification": "testOnly",
           "expectedEnd": "complete",
-          "now": "notStarted"
+          "now": "inProgress"
         },
         {
           "id": "AC-20504-1",
@@ -13410,7 +13410,7 @@
           "unresolvedTestCases": [],
           "verification": "testOnly",
           "expectedEnd": "complete",
-          "now": "notStarted"
+          "now": "inProgress"
         }
       ]
     }
@@ -14104,7 +14104,7 @@
     {
       "fbsId": "FBS-248",
       "expectedEnd": "complete",
-      "now": "notStarted"
+      "now": "inProgress"
     }
   ],
   "unresolvedTestPointers": []
