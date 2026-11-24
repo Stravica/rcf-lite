@@ -10,8 +10,8 @@
     "items": 138,
     "notStarted": 58,
     "inProgress": 2,
-    "complete": 36,
-    "verified": 42,
+    "complete": 35,
+    "verified": 43,
     "actionable": 42,
     "blocked": 16
   },
@@ -1829,9 +1829,9 @@
       "buildOrder": 249,
       "tier": 0,
       "title": "rcf audit test-strength: --structural-only judges a criterion's structure and unmutated tests, runs no mutant, and records it blocked",
-      "executionStatus": "complete",
+      "executionStatus": "verified",
       "dependsOnFbsIds": [],
-      "state": "complete",
+      "state": "verified",
       "blockedBy": []
     },
     {
