@@ -1,0 +1,30 @@
+{
+  "verdictVersion": 1,
+  "stage": "review",
+  "head": "3a025f6974e8db4777f0fa92bbbda00cd5f090a9",
+  "fbsIds": [
+    "FBS-248"
+  ],
+  "touchedAcIds": [
+    "AC-20503-4",
+    "AC-20504-4"
+  ],
+  "code": "MERGE",
+  "adequacy": "PASS",
+  "findings": [
+    {
+      "id": "F-1",
+      "locus": "build",
+      "acId": "AC-20504-4",
+      "text": "note, carried: P3 Code Nodes: only CN-1087 (guidance/build-cycle.md) claims AC-20504-4; CN-1089 (guidance/build-cycle-playbook.md), CN-1090 (src/build/bundle.js#runbookStages) and CN-1091 (src/build/formatters/markdown.js#pushRunbook) still carry only the retired AC-20504-1, so the runbook clause of AC-20504-4 is judged by test strength through the build-cycle.md fileBlank alone. No buyer harm and no builder edit (the Code Node commit appends the successor where the BUILD spec put it). Clears by adding AC-20504-4 to those three nodes in a later round if the owner wants them claimed."
+    },
+    {
+      "id": "F-2",
+      "locus": "spec",
+      "acId": null,
+      "text": "note, carried: P3 absent by ruling: CHANGELOG.md, the package.json version (0.42.3) and releases/releases.yaml unchanged since 0c404ba and FBS-248 still notStarted; the 0.43.0 version, CHANGELOG section, feed entry and the inProgress then complete marks are the stage-keeper at FINALISE. Tier T3 with no whole-plan pass, as decision 173 records."
+    }
+  ],
+  "recordedBy": "reviewer, PR 461 merge-gate REVIEW",
+  "recordedAt": "2026-11-24T18:15:16.165Z"
+}
