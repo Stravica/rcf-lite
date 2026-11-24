@@ -3,14 +3,16 @@
 // twelve rules of the build cycle (Baz decision 14; Dave's rulings R0 E1,
 // R4 and R5; contract rows C5 and C6).
 //
-// Criteria: AC-20503-1 to AC-20503-3 (the block through rcf guidance, rcf
-// init writing it, rcf doctor upgrading a 0.40.1 block) and AC-20504-1 to
-// AC-20504-3 (rcf guidance build-cycle and rcf://docs/build-cycle, the
-// bundle runbook, rcf guidance overview). Every assertion reads what the
-// bin prints or what the MCP server serves; the doctor test starts from
-// test/fixtures/managed-block-0-40-1/CLAUDE.md, the block the 0.40.1 bin's
-// rcf init wrote, between project text of its own. Imports: Node
-// builtins and test/_harness/ only.
+// Criteria: AC-20503-4, AC-20503-2 and AC-20503-3 (the block through rcf
+// guidance, rcf init writing it, rcf doctor upgrading a 0.40.1 block) and
+// AC-20504-4, AC-20504-2 and AC-20504-3 (rcf guidance build-cycle and
+// rcf://docs/build-cycle, the bundle runbook, rcf guidance overview).
+// AC-20503-4 and AC-20504-4 succeed AC-20503-1 and AC-20504-1 (0.43.0:
+// rule 2 goes neutral, criteria for what must be proven). Every assertion
+// reads what the bin prints or what the MCP server serves; the doctor test
+// starts from test/fixtures/managed-block-0-40-1/CLAUDE.md, the block the
+// 0.40.1 bin's rcf init wrote, between project text of its own. Imports:
+// Node builtins and test/_harness/ only.
 
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
@@ -69,6 +71,7 @@ function twelve(text) {
   return null;
 }
 
+const RULE_2 = 'A criterion is written for anything the project needs provably tested.';
 const RULE_5 = 'The hand that writes production code never writes or edits a criterion-bound test, a binding or criterion text. The audit enforces this by path on every commit, and the merge check runs the audit.';
 const RULE_6 = 'Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests.';
 const DEFINE_EXIT = 'Each new test is red at the DEFINE head with its failing assertion recorded, and the suite fails on exactly the new tests. No throwaway.';
@@ -79,7 +82,7 @@ function assertTwelve(text, where) {
   assert.ok(r, `${where} carries the twelve rules as one list numbered 1 to 12\n${text.slice(0, 3000)}`);
   const at = (k, test, what) => assert.ok(test(r[k - 1]), `${where}: rule ${k} ${what}\n${r[k - 1]}`);
   at(1, (s) => /chain/i.test(s) && s.includes('rcf define validate') && s.includes('rcf audit coverage --strict'), 'is the chain, refereed by rcf define validate and rcf audit coverage --strict');
-  at(2, (s) => /promise/i.test(s) && /hygiene/i.test(s), 'writes criteria only for promises, the rest hygiene tests');
+  at(2, (s) => s.includes(RULE_2) && /a hygiene test is never bound to a criterion/i.test(s) && !/promise/i.test(s) && !/buyer/i.test(s), `states "${RULE_2}" and that a hygiene test is never bound to a criterion, and names no promise and no buyer`);
   at(3, (s) => /proof level/i.test(s) && /\bfull\b/.test(s) && /\bjourney\b/.test(s) && /\bexternal\b/.test(s) && /DEFINE/.test(s) && /bound test/.test(s) && /Code Node/.test(s), 'names the proof levels full, journey and external, chosen at DEFINE, every touched criterion still with a bound test and a Code Node');
   at(4, (s) => /five stages/i.test(s) && /DEFINE, BUILD, REVIEW, TEST,? (and )?FINALISE/.test(s), 'is the five stages in order');
   at(5, (s) => s.includes(RULE_5), `states separation verbatim: "${RULE_5}"`);
@@ -213,7 +216,7 @@ function assertRegions(block, where) {
   assert.deepEqual(assigning.map((s) => s.slice(0, 120)), [], `${where}: no Build loop sentence names two or more of the five hands`);
 }
 
-test('AC-20503-1: rcf guidance managed/agent-instructions-block prints RULE 13 as "Deliver in rounds: the twelve rules" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings', async () => {
+test('AC-20503-4: rcf guidance managed/agent-instructions-block prints RULE 13 as "Deliver in rounds: the twelve rules" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings', async () => {
   const block = await guidance('managed/agent-instructions-block');
   assertRegions(block, 'the managed block');
   assertBlock(block, 'the managed block');
@@ -345,7 +348,7 @@ function jsonStage(contract, stage) {
 const REVIEW_STRENGTH = (s) => /test[- ]strength is recorded for the reviewer'?s adequacy verdict/i.test(s);
 const PROVEN = 'proven red for the right reason';
 
-test('AC-20504-1: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with "No throwaway.", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says "proven red for the right reason"', async (t) => {
+test('AC-20504-4: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with "No throwaway.", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says "proven red for the right reason"', async (t) => {
   const cli = await guidance('build-cycle');
   const dir = await project(t, { name: 'mcp041' });
   const listed = await mcp(dir, [{ method: 'resources/list', params: {} }]);

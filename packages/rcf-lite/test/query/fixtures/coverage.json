@@ -6,7 +6,7 @@
     "covered": 136,
     "coveredUnresolved": 0,
     "uncovered": 0,
-    "retiredAcs": 68
+    "retiredAcs": 70
   },
   "requirements": [
     {
@@ -13326,14 +13326,14 @@
         },
         {
           "id": "AC-20503-1",
-          "covered": true,
-          "testCases": [
-            "TC-309-rcf-guidance-managed-agent-instructions"
-          ],
+          "state": "retired",
+          "supersededBy": "AC-20503-4",
+          "covered": false,
+          "testCases": [],
           "unresolvedTestCases": [],
           "verification": "testOnly",
-          "expectedEnd": "complete",
-          "now": "complete"
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-20503-2",
@@ -13358,15 +13358,26 @@
           "now": "complete"
         },
         {
-          "id": "AC-20504-1",
+          "id": "AC-20503-4",
           "covered": true,
           "testCases": [
-            "TC-310-rcf-guidance-build-cycle-and-rcf-docs"
+            "TC-309-managed-block-rule-2-neutral"
           ],
           "unresolvedTestCases": [],
           "verification": "testOnly",
           "expectedEnd": "complete",
           "now": "complete"
+        },
+        {
+          "id": "AC-20504-1",
+          "state": "retired",
+          "supersededBy": "AC-20504-4",
+          "covered": false,
+          "testCases": [],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": null,
+          "now": "retired"
         },
         {
           "id": "AC-20504-2",
@@ -13384,6 +13395,17 @@
           "covered": true,
           "testCases": [
             "TC-310-rcf-guidance-overview-keeps-the-tool"
+          ],
+          "unresolvedTestCases": [],
+          "verification": "testOnly",
+          "expectedEnd": "complete",
+          "now": "complete"
+        },
+        {
+          "id": "AC-20504-4",
+          "covered": true,
+          "testCases": [
+            "TC-310-build-cycle-rule-2-neutral"
           ],
           "unresolvedTestCases": [],
           "verification": "testOnly",
@@ -14077,6 +14099,11 @@
     {
       "fbsId": "FBS-247",
       "expectedEnd": "verified",
+      "now": "complete"
+    },
+    {
+      "fbsId": "FBS-248",
+      "expectedEnd": "complete",
       "now": "complete"
     }
   ],

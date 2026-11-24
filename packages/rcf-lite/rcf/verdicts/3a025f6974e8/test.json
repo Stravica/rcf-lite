@@ -1,0 +1,21 @@
+{
+  "verdictVersion": 1,
+  "stage": "test",
+  "head": "3a025f6974e8db4777f0fa92bbbda00cd5f090a9",
+  "fbsIds": [
+    "FBS-248"
+  ],
+  "result": "PASS",
+  "suite": {
+    "pass": 4309,
+    "fail": 0,
+    "skip": 4,
+    "todo": 17,
+    "cancelled": 0
+  },
+  "runtime": "rcf-lite 0.42.3 packed at 4cfef41 on Node v24.15.0, Linux",
+  "node": "v24.15.0",
+  "reason": null,
+  "recordedBy": "verifier",
+  "recordedAt": "2026-11-24T19:53:54.173Z"
+}

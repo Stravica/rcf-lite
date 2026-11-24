@@ -1,0 +1,56 @@
+{
+  "version": 1,
+  "head": "3a025f6974e8db4777f0fa92bbbda00cd5f090a9",
+  "scope": "acs",
+  "criteria": [
+    {
+      "acId": "AC-20503-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/managed/agent-instructions-block.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20503-4: rcf guidance managed/agent-instructions-block prints RULE 13 as \"Deliver in rounds: the twelve rules\" with the twelve rules in order, none of the operator-register or five-role text, and RULE 1 to 12 and 14 to 17 under their headings"
+          ]
+        }
+      ],
+      "result": "pass"
+    },
+    {
+      "acId": "AC-20504-4",
+      "structural": {
+        "result": "pass",
+        "findings": []
+      },
+      "mutants": [
+        {
+          "symbol": "guidance/build-cycle.md",
+          "operator": "fileBlank",
+          "result": "killed",
+          "killedBy": [
+            "test/guidance/twelve-rules-0-41-0.test.js::AC-20504-4: rcf guidance build-cycle and rcf://docs/build-cycle state the twelve rules, the DEFINE exit reads rule 6 with \"No throwaway.\", the FINALISE paragraph says Finalise requires the strength record and never refuses on its result, and no guidance document or bundle runbook says \"proven red for the right reason\""
+          ]
+        }
+      ],
+      "result": "pass"
+    }
+  ],
+  "result": "pass",
+  "totals": {
+    "criteria": 2,
+    "structuralPassed": 2,
+    "mutants": 2,
+    "killed": 2,
+    "survived": 0,
+    "timeout": 0,
+    "notApplicable": 0,
+    "blocked": 0
+  },
+  "wallMs": 8177,
+  "node": "v24.15.0"
+}

@@ -40,8 +40,18 @@
 # `npm install rcf-lite`.
 
 feedVersion: 1
-latest: "0.42.3"
+latest: "0.43.0"
 releases:
+  - version: "0.43.0"
+    date: "2026-11-24"
+    breaking: true
+    headlines:
+      - "rcf-lite 0.43.0 makes rule 2 of the twelve rules neutral in the managed agent-instructions block, the harness template and rcf guidance build-cycle: a criterion is written for anything the project needs provably tested, everything else the product needs is the builder's hygiene tests, and a hygiene test is never bound to a criterion."
+      - "The tool no longer says that criteria are only for promises to a buyer; a project that wants that stricter rule keeps it in its own instructions, outside the managed markers."
+      - "Rerun rcf init or rcf doctor --fix to take the new managed block; projects on 0.41 or later see rcf doctor exit 3 until then, and only the text between the markers changes. Your project's rcf/ and the @stravica-ai/rcf-schemas 0.10.0 pin are unchanged."
+    minAgentAction: rerun-init
+    notesUrl: "https://stravica.ai/docs/rcf/changelog/"
+
   - version: "0.42.3"
     date: "2026-11-14"
     breaking: false

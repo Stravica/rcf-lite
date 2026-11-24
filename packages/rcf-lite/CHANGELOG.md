@@ -6,6 +6,20 @@ The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 
 ## [Unreleased]
 
+## [0.43.0] - 2026-11-24
+
+0.43.0 changes the words of one of the twelve rules the tool ships, and is breaking (pre-1.0, breaking is minor) because the managed block changes. Rule 2 of the twelve rules now reads, in the managed block `rcf init` writes, in the harness template and in `rcf guidance build-cycle`: "2. Criteria for what must be proven. A criterion is written for anything the project needs provably tested. Everything else the product needs is the builder's hygiene tests, and a hygiene test is never bound to a criterion." The tool no longer says that criteria are only for promises to a buyer. A project that wants that stricter rule keeps it in its own instructions, outside the managed markers. The managed block's hash changes, so projects on 0.41 or later see `rcf doctor` exit 3 until `rcf doctor --fix` (or `rcf init`) writes the new block. Only the text between the markers changes.
+
+### Changed
+
+- **Rule 2 of the twelve rules is neutral (FBS-248, AC-20503-4, AC-20504-4).** The managed agent-instructions block (RULE 13, "Deliver in rounds: the twelve rules"), its fragment in the harness template and the build-cycle guidance (`rcf guidance build-cycle` and `rcf://docs/build-cycle`) state rule 2 as above. No other rule's words change. The block's shipped hash changes with it.
+
+### For consumers (upgrading)
+
+Upgrading from 0.42.3:
+- Rerun `rcf init` or `rcf doctor --fix`. The managed block in CLAUDE.md and AGENTS.md now states the new rule 2; `rcf doctor` reports exit 3 until you do. Text outside the markers is not touched.
+- A project that keeps criteria only for promises to a buyer states that rule in its own instructions, outside the managed markers. No chain file needs migration, and the @stravica-ai/rcf-schemas 0.10.0 pin is unchanged.
+
 ## [0.42.3] - 2026-11-14
 
 0.42.3 adds one mode to `rcf audit test-strength`. `--structural-only <acIds>` names criteria, each also in `--acs`, to judge on their structural layer and their unmutated bound tests alone: no mutant of them is run, and each is recorded blocked with its own reason code and a detail naming the flag. It is for criteria whose bound tests are too slow to mutate (each boots a whole stand-in world, say), where the choice was a mutation pass of many hours or no record at all. The other criteria are judged by mutation as before, and nothing that failed before can now read as blocked.

@@ -5251,8 +5251,7 @@ flowchart LR
   AC-20502-6 -.-> TC-308-finalise-accepts-only-a-valid-test-strength
   AC-20503-1["AC-20503-1"]
   REQ-205 --> AC-20503-1
-  TC-309-rcf-guidance-managed-agent-instructions["TC-309-rcf-guidance-managed-agent-instructions"]
-  AC-20503-1 -.-> TC-309-rcf-guidance-managed-agent-instructions
+  AC-20503-1 -. supersededBy .-> AC-20503-4
   AC-20503-2["AC-20503-2"]
   REQ-205 --> AC-20503-2
   TC-309-rcf-init-in-a-fresh-directory-writes-the["TC-309-rcf-init-in-a-fresh-directory-writes-the"]
@@ -5261,10 +5260,13 @@ flowchart LR
   REQ-205 --> AC-20503-3
   TC-309-on-a-project-whose-claude-md-carries-the["TC-309-on-a-project-whose-claude-md-carries-the"]
   AC-20503-3 -.-> TC-309-on-a-project-whose-claude-md-carries-the
+  AC-20503-4["AC-20503-4"]
+  REQ-205 --> AC-20503-4
+  TC-309-managed-block-rule-2-neutral["TC-309-managed-block-rule-2-neutral"]
+  AC-20503-4 -.-> TC-309-managed-block-rule-2-neutral
   AC-20504-1["AC-20504-1"]
   REQ-205 --> AC-20504-1
-  TC-310-rcf-guidance-build-cycle-and-rcf-docs["TC-310-rcf-guidance-build-cycle-and-rcf-docs"]
-  AC-20504-1 -.-> TC-310-rcf-guidance-build-cycle-and-rcf-docs
+  AC-20504-1 -. supersededBy .-> AC-20504-4
   AC-20504-2["AC-20504-2"]
   REQ-205 --> AC-20504-2
   TC-310-the-runbook-rcf-build-bundle-prints-in["TC-310-the-runbook-rcf-build-bundle-prints-in"]
@@ -5273,6 +5275,10 @@ flowchart LR
   REQ-205 --> AC-20504-3
   TC-310-rcf-guidance-overview-keeps-the-tool["TC-310-rcf-guidance-overview-keeps-the-tool"]
   AC-20504-3 -.-> TC-310-rcf-guidance-overview-keeps-the-tool
+  AC-20504-4["AC-20504-4"]
+  REQ-205 --> AC-20504-4
+  TC-310-build-cycle-rule-2-neutral["TC-310-build-cycle-rule-2-neutral"]
+  AC-20504-4 -.-> TC-310-build-cycle-rule-2-neutral
   class REQ-001 req;
   class AC-101-1 ac;
   class TC-001-init-clean-tree-roots tc;
@@ -7933,17 +7939,19 @@ flowchart LR
   class AC-20502-6 ac;
   class TC-308-finalise-accepts-only-a-valid-test-strength tc;
   class AC-20503-1 ac;
-  class TC-309-rcf-guidance-managed-agent-instructions tc;
   class AC-20503-2 ac;
   class TC-309-rcf-init-in-a-fresh-directory-writes-the tc;
   class AC-20503-3 ac;
   class TC-309-on-a-project-whose-claude-md-carries-the tc;
+  class AC-20503-4 ac;
+  class TC-309-managed-block-rule-2-neutral tc;
   class AC-20504-1 ac;
-  class TC-310-rcf-guidance-build-cycle-and-rcf-docs tc;
   class AC-20504-2 ac;
   class TC-310-the-runbook-rcf-build-bundle-prints-in tc;
   class AC-20504-3 ac;
   class TC-310-rcf-guidance-overview-keeps-the-tool tc;
+  class AC-20504-4 ac;
+  class TC-310-build-cycle-rule-2-neutral tc;
 classDef prd fill:#fde68a,stroke:#92400e,color:#1f2937;
   classDef req fill:#bbf7d0,stroke:#065f46,color:#1f2937;
   classDef us fill:#bae6fd,stroke:#0c4a6e,color:#1f2937;

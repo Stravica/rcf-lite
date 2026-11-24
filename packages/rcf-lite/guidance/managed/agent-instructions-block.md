@@ -152,11 +152,10 @@ depth for each stage.
    to one bound test, and every test to recorded evidence. The referee
    is the tool: `rcf define validate` and `rcf audit coverage --strict`
    both exit 0 at every stage exit, or the stage has not exited.
-2. **Criteria only for promises.** A criterion is written only for a
-   promise to a buyer: money, access, privacy, integrity, a product
-   claim or a core journey. Everything else the product needs is the
-   builder's hygiene tests, and a hygiene test is never bound to a
-   criterion.
+2. **Criteria for what must be proven.** A criterion is written for
+   anything the project needs provably tested. Everything else the
+   product needs is the builder's hygiene tests, and a hygiene test is
+   never bound to a criterion.
 3. **Proof level.** Each touched criterion's proof level is chosen at
    DEFINE and recorded with the round: full (its test-strength report is
    one the reviewer reads), journey (its bound test is one end-to-end

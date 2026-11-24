@@ -3769,6 +3769,26 @@
       "answer": "a. The round opens on these terms, 2026-11-14, as proposed by the stage-keeper; the owner confirms or reopens it at review.",
       "answeredAt": "2026-11-14T11:09:14.569Z",
       "resolvedAt": "2026-11-14T11:09:14.569Z"
+    },
+    {
+      "id": 173,
+      "question": "ROUND OPEN, 2026-11-24: round J, a guidance round on FBS-248 (rule 2 of the twelve rules goes neutral), DEFINE pass 1. CRITERIA IN SCOPE (proof level): AC-20503-4 (full), AC-20504-4 (full), AC-20503-2 (full), AC-20503-3 (full); AC-20503-1 and AC-20504-1 are retired and succeeded by AC-20503-4 and AC-20504-4 in this pass, never reworded; AC-20503-1 carried no recorded level, so its successors take rule 3's default, full; AC-20503-2 and AC-20503-3 are in scope because their bound tests read rule 2 through the shared check this pass re-points. DEFINE HEAD: 0c404bae. BUDGET: two DEFINE passes; this is pass 1. DUE: 2026-11-26. TIER: T3, as the round that wrote AC-20503-1 recorded it; no whole-plan adversarial pass, by the stage-keeper's ruling: this is guidance text, not a buyer journey, money, access, privacy or integrity behaviour. NEED: since 0.41.0 the managed block tells every project that adopts it that a criterion is written only for a promise to a buyer; the owner ruled that rule 2 in the shipped guidance goes neutral (a criterion is written for anything the project needs provably tested, and a hygiene test is never bound to a criterion), and a project that wants the narrower rule keeps it in its own rules outside the managed markers. SCOPE: rule 2 of RULE 13's twelve rules in the managed agent-instructions block, its harness-template mirror and the build-cycle guidance reads \"2. Criteria for what must be proven. A criterion is written for anything the project needs provably tested. Everything else the product needs is the builder's hygiene tests, and a hygiene test is never bound to a criterion.\" and names no promise and no buyer, as rcf guidance managed/agent-instructions-block, rcf init, rcf doctor --fix, rcf guidance build-cycle and rcf://docs/build-cycle print or serve it; the block hash and the template fragment regenerate; rcf doctor reports exit 3 on an earlier block until rcf doctor --fix, as today. OUT OF SCOPE: a profile or opt-in mechanism; any other rule's wording; any change to rcf doctor or src/setup/managed-block.js; any change to src/query/coverage.js. FBS-248 is minted notStarted in this pass. Does the round open on these terms?",
+      "options": [
+        {
+          "letter": "a",
+          "text": "the round opens on these terms"
+        },
+        {
+          "letter": "b",
+          "text": "the round does not open"
+        }
+      ],
+      "default": "a",
+      "addedAt": "2026-11-24T15:52:33.492Z",
+      "status": "resolved",
+      "answer": "a. The round opens on these terms, 2026-11-24, as proposed by the stage-keeper; the owner confirms or reopens it at review.",
+      "answeredAt": "2026-11-24T15:52:37.185Z",
+      "resolvedAt": "2026-11-24T15:52:37.185Z"
     }
   ]
 }
