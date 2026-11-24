@@ -480,7 +480,8 @@ test('walkTree on the live tree loads every document and returns zero errors', a
   // Frozen-nothing-pending DEFINE (2026-11-12) added FBS-245 (134 -> 135).
   // Strength-skipped DEFINE (2026-11-13) added FBS-246 (135 -> 136).
   // Strength structural-only DEFINE (2026-11-14) added FBS-247 (136 -> 137).
-  assert.equal(tree.fbsItems.length, 137);
+  // Rule-2-neutral DEFINE (2026-11-24) added FBS-248 (137 -> 138).
+  assert.equal(tree.fbsItems.length, 138);
   // Referee-guarantee train (merged 2026-09-17) added the origin/main delta (4 more).
   // w-2026-07-28-005 step 4: the test axis is populated - one TS per US;
   // 0.7.1 added TS-025 to bind US-901. The four e2e-contract USs
