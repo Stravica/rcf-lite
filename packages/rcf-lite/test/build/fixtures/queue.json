@@ -7,12 +7,12 @@
     "generationStrategy": "dependencyFirst"
   },
   "totals": {
-    "items": 137,
-    "notStarted": 58,
+    "items": 138,
+    "notStarted": 59,
     "inProgress": 2,
     "complete": 35,
     "verified": 42,
-    "actionable": 42,
+    "actionable": 43,
     "blocked": 16
   },
   "nextActionable": "FBS-013",
@@ -77,7 +77,8 @@
         "FBS-243",
         "FBS-245",
         "FBS-246",
-        "FBS-247"
+        "FBS-247",
+        "FBS-248"
       ]
     },
     {
@@ -1831,6 +1832,16 @@
       "executionStatus": "complete",
       "dependsOnFbsIds": [],
       "state": "complete",
+      "blockedBy": []
+    },
+    {
+      "fbsId": "FBS-248",
+      "buildOrder": 250,
+      "tier": 0,
+      "title": "rcf-lite 0.43.0: rule 2 of the twelve rules goes neutral in the managed block, the harness template and the build cycle",
+      "executionStatus": "notStarted",
+      "dependsOnFbsIds": [],
+      "state": "actionable",
       "blockedBy": []
     }
   ],
